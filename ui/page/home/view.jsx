@@ -104,12 +104,38 @@ function HomePage(props: Props) {
     );
   }
 
+  const addItem = (title, number) => {
+    const idIndex = title.lastIndexOf('#');
+    if (idIndex === -1) {
+      return <li>{title}</li>;
+    }
+
+    return (
+      <li>
+        <Button
+          button="link"
+          label={title}
+          href={`https://github.com/lbryio/lbry-desktop/issues/${title.substring(idIndex + 1)}`}
+        />
+      </li>
+    );
+  };
+
   React.useEffect(() => {
     doFetchActiveLivestreams();
   }, []);
 
   return (
     <Page fullWidthPage>
+      <div className="notice-message--loud">
+        <h1 className="section__title">PRs in this dev instance</h1>
+        <p className="section__subtitle">
+          <ul>{addItem('Shared Blocklist (minus Appeal) #7149')}</ul>
+        </p>
+      </div>
+
+      <br />
+
       {!SIMPLE_SITE && (authenticated || !IS_WEB) && !subscribedChannels.length && (
         <div className="notice-message">
           <h1 className="section__title">
