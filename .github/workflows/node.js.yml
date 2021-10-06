@@ -39,7 +39,6 @@ jobs:
           yarn global add cross-env
           yarn
           yarn build
-          node ./build/afterSignHook.js
         env:
           # UI
           MATOMO_URL: https://analytics.lbry.com/
