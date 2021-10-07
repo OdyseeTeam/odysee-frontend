@@ -15,6 +15,7 @@ import { SIMPLE_SITE, DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 // @if TARGET='app'
 import { IS_MAC } from 'component/app/view';
 // @endif
+import ExpandableSidebar from 'component/expandableSidebar';
 
 const HOME = {
   title: 'Home',
@@ -364,13 +365,15 @@ function SideNavigation(props: Props) {
               })}
             </ul>
 
-            {sidebarOpen && isPersonalized && subscriptions && subscriptions.length > 0 && (
-              <ul className="navigation__secondary navigation-links">
-                {subscriptions.map((subscription) => (
-                  <SubscriptionListItem key={subscription.uri} subscription={subscription} />
-                ))}
-              </ul>
-            )}
+            <ExpandableSidebar>
+              {sidebarOpen && isPersonalized && subscriptions && subscriptions.length > 0 && (
+                <ul className="navigation__secondary navigation-links">
+                  {subscriptions.map((subscription) => (
+                    <SubscriptionListItem key={subscription.uri} subscription={subscription} />
+                  ))}
+                </ul>
+              )}
+            </ExpandableSidebar>
             {sidebarOpen && isPersonalized && followedTags && followedTags.length > 0 && (
               <ul className="navigation__secondary navigation-links navigation-links--small">
                 {followedTags.map(({ name }, key) => (
