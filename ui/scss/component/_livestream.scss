@@ -92,9 +92,20 @@ $recent-msg-button__height: 2rem;
   }
 }
 
+.livestream-comment__info {
+  overflow: hidden;
+}
+
 .livestream-comment--superchat {
   + .livestream-comment--superchat {
     margin-bottom: var(--spacing-xxs);
+  }
+
+  .livestream-comment__body {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: unset;
+    flex: unset;
   }
 
   .livestream-comment__info {
@@ -116,13 +127,10 @@ $recent-msg-button__height: 2rem;
 
 .livestream-comment__body {
   display: flex;
-  align-items: flex-start;
-}
-
-.livestream-comment__body {
-  display: flex;
-  align-items: flex-start;
+  flex-direction: column;
+  flex: 2;
   margin-left: var(--spacing-s);
+  overflow: hidden;
 
   .channel-thumbnail {
     @include handleChannelGif(2rem);
@@ -354,6 +362,7 @@ $recent-msg-button__height: 2rem;
 .livestream-comment__text {
   padding-right: var(--spacing-xl);
   padding-bottom: var(--spacing-xxs);
+
   .markdown-preview {
     p {
       word-break: break-word;
