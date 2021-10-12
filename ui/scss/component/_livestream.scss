@@ -87,6 +87,18 @@ $recent-msg-button__height: 2rem;
   list-style-type: none;
   position: relative;
 
+  @media (min-width: $breakpoint-small) {
+    &:hover {
+      background-color: var(--color-card-background-highlighted);
+    }
+
+    &:not(:hover) {
+      .menu__button:not(:focus):not([aria-expanded='true']) {
+        opacity: 0;
+      }
+    }
+  }
+
   .channel-name {
     font-size: var(--font-xsmall);
   }
