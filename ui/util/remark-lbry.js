@@ -12,13 +12,19 @@ const mentionRegex = /@[^\s()"]*/gm;
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
 
 function handlePunctuation(value) {
-  const modifierIndex =
-    (value.indexOf(':') >= 0 && value.indexOf(':')) || (value.indexOf('#') >= 0 && value.indexOf('#'));
+  const protocolIndex = value.indexOf('lbry://') === 0 ? protocol.length - 1 : 0;
+  const channelModifierIndex =
+    (value.indexOf(':', protocolIndex) >= 0 && value.indexOf(':', protocolIndex)) ||
+    (value.indexOf('#', protocolIndex) >= 0 && value.indexOf('#', protocolIndex));
+  const claimModifierIndex =
+    (value.indexOf(':', channelModifierIndex + 1) >= 0 && value.indexOf(':', channelModifierIndex + 1)) ||
+    (value.indexOf('#', channelModifierIndex + 1) >= 0 && value.indexOf('#', channelModifierIndex + 1)) ||
+    channelModifierIndex;
 
   let punctuationIndex;
   punctuationMarks.some((p) => {
-    if (modifierIndex) {
-      punctuationIndex = value.indexOf(p, modifierIndex + 1) >= 0 && value.indexOf(p, modifierIndex + 1);
+    if (claimModifierIndex) {
+      punctuationIndex = value.indexOf(p, claimModifierIndex + 1) >= 0 && value.indexOf(p, claimModifierIndex + 1);
     }
     return punctuationIndex;
   });
