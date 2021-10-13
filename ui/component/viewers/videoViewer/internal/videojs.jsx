@@ -16,10 +16,6 @@ import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import isUserTyping from 'util/detect-typing';
-// @if TARGET='web'
-// Disabled for now.
-import './plugins/videojs-aniview/plugin';
-// @endif
 const isDev = process.env.NODE_ENV !== 'production';
 
 export type Player = {
@@ -84,24 +80,12 @@ function hitsTwentyPercent() {
   // from 0 - 999
   var rand = Math.floor(Math.random() * (1000 + 1));
 
-  console.log(rand);
-  console.log('rand');
-
-  // setTimeout(function(){
-  //   console.log('play here');
-  //   player.play()
-  // }, 1000)
-
-  return true
-
-
-  if (rand > 799) {
+  // 499 is 50% chance of running
+  if (rand > 499) {
     return true;
   } else {
     return false;
   }
-
-
 }
 
 const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -567,6 +551,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // this seems like a weird thing to have to check for here
       if (!player) return;
 
+      // live channel
+      // b354389c7adb506d0bd9a4
+
+      // ford ad
+      // 612fb75a42715a07645a614c
+
       // Modified to work with IMA
       const macroUrl =
         `https://vast.aniview.com/api/adserver61/vast/` +
@@ -591,21 +581,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // otherwise if not authed, roll for 20% to see an ad
       const shouldShowAnAd = internalFeatureEnabled || (allowPreRoll && hitsTwentyPercent());
 
-      console.log('BROWSER');
-      console.log(videojs.browser);
-
       const browserIsChrome = videojs.browser.IS_CHROME;
-      console.log(browserIsChrome)
+      const IS_IOS = videojs.browser.IS_IOS;
+      const IS_ANDROID = videojs.browser.IS_ANDROID;
+      const IS_MOBILE = IS_IOS || IS_ANDROID;
 
-      if (shouldShowAnAd && browserIsChrome) {
+      if (shouldShowAnAd && browserIsChrome && !IS_MOBILE) {
         player.ima({adTagUrl: macroUrl});
       }
 
-      player.on('loadstart', function(event){
-        console.log('RUNNING HERE!');
-        player.play();
-      })
-
+      // kick player in the butt, sometimes it doesn't always autoplay when it should
+      player.on('loadstart', function(event) {
+        if (autoplay) {
+          player.play();
+        }
+      });
 
       // Add various event listeners to player
       player.one('play', onInitialPlay);
