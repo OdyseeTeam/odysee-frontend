@@ -76,9 +76,9 @@ type Props = {
 //   muted?: boolean,
 // };
 
-function hitsTwentyPercent() {
+function hitsFiftyPercent() {
   // from 0 - 999
-  var rand = Math.floor(Math.random() * (1000 + 1));
+  const rand = Math.floor(Math.random() * (1000 + 1));
 
   // 499 is 50% chance of running
   if (rand > 499) {
@@ -579,7 +579,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // always have ads on if internal feature is on,
       // otherwise if not authed, roll for 20% to see an ad
-      const shouldShowAnAd = internalFeatureEnabled || (allowPreRoll && hitsTwentyPercent());
+      const shouldShowAnAd = internalFeatureEnabled || (allowPreRoll && hitsFiftyPercent());
 
       // only run on chrome (brave included) and don't run on mobile for time being
       const browserIsChrome = videojs.browser.IS_CHROME;
@@ -642,17 +642,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       onPlayerReady(player, videoNode);
     });
-
-    // pre-roll ads
-    // This must be initialized earlier than everything else
-    // otherwise a race condition occurs if we place this in the onReady call back
-    // allow if isDev because otherwise you'll never see ads when basing to master
-    // @if TARGET='web'
-    // DISABLED FOR NOW
-    // if ((allowPreRoll && SIMPLE_SITE) || isDev) {
-    //   vjs.aniview();
-    // }
-    // @endif
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
     // summary: on firefox the focus would stick to the fullscreen button which caused buggy behavior with spacebar

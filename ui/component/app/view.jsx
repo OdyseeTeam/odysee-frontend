@@ -67,6 +67,8 @@ export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
 const MOUSE_BACK_BTN = 3;
 const MOUSE_FORWARD_BTN = 4;
 
+const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
+
 type Props = {
   language: string,
   languages: Array<string>,
@@ -329,7 +331,7 @@ function App(props: Props) {
   // @if TARGET='web'
   useEffect(() => {
       const script = document.createElement('script');
-      script.src = `https://imasdk.googleapis.com/js/sdkloader/ima3.js`;
+      script.src = imaLibraryPath;
       script.async = true;
       // $FlowFixMe
       document.body.appendChild(script);
