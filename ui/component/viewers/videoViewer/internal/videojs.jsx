@@ -190,7 +190,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claimId,
     userId,
     allowPreRoll,
-    internalFeatureEnabled,
+    internalFeatureEnabled, // for people on the team to test new features internally
     shareTelemetry,
     replay,
     videoTheaterMode,
@@ -561,7 +561,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const macroUrl =
         `https://vast.aniview.com/api/adserver61/vast/` +
         `?AV_PUBLISHERID=60afcbc58cfdb065440d2426` +
-        `&AV_CHANNELID=612fb75a42715a07645a614c` +
+        `&AV_CHANNELID=b354389c7adb506d0bd9a4` +
         `&AV_URL=[URL]` +
         `&cb=[CACHEBUSTING]` +
         `&AV_WIDTH=[WIDTH]` +
@@ -581,12 +581,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // otherwise if not authed, roll for 20% to see an ad
       const shouldShowAnAd = internalFeatureEnabled || (allowPreRoll && hitsTwentyPercent());
 
+      // only run on chrome (brave included) and don't run on mobile for time being
       const browserIsChrome = videojs.browser.IS_CHROME;
       const IS_IOS = videojs.browser.IS_IOS;
       const IS_ANDROID = videojs.browser.IS_ANDROID;
       const IS_MOBILE = IS_IOS || IS_ANDROID;
 
       if (shouldShowAnAd && browserIsChrome && !IS_MOBILE) {
+        // fire up ima integration via module
         player.ima({adTagUrl: macroUrl});
       }
 
