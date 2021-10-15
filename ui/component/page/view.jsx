@@ -72,7 +72,7 @@ function Page(props: Props) {
   try {
     const url = pathname.slice(1).replace(/:/g, '#');
     const { isChannel } = parseURI(url);
-    if (!isChannel) {
+    if (!isChannel || livestream) {
       isOnFilePage = true;
     }
   } catch (e) {}
