@@ -56,8 +56,11 @@ function ClaimPreviewSubtitle(props: Props) {
                   __('Livestream')
                 ) : (
                   <>
-                    <FileViewCountInline uri={uri} isLivestream={isLivestream} />
-                    <DateTime timeAgo uri={uri} />
+                    <span className="claim-preview-metadata-sub-claimdate">
+                      {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
+                      <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                      <DateTime timeAgo uri={uri} />
+                    </span>
                   </>
                 ))}
             </>
