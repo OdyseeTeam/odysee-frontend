@@ -80,8 +80,6 @@ function hitsFiftyPercent() {
   // from 0 - 999
   const rand = Math.floor(Math.random() * (1000 + 1));
 
-  return true
-
   // 499 is 50% chance of running
   if (rand > 499) {
     return true;
@@ -560,24 +558,24 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // 612fb75a42715a07645a614c
 
       // Modified to work with IMA
-      const macroUrl =
-        `https://vast.aniview.com/api/adserver61/vast/` +
-        `?AV_PUBLISHERID=60afcbc58cfdb065440d2426` +
-        `&AV_CHANNELID=60b354389c7adb506d0bd9a4` +
-        `&AV_URL=[URL]` +
-        `&cb=[CACHEBUSTING]` +
-        `&AV_WIDTH=[WIDTH]` +
-        `&AV_HEIGHT=[HEIGHT]` +
-        // `&AV_SCHAIN=[SCHAIN_MACRO]` +
-        // `&AV_CCPA=[CCPA_MACRO]` +
-        // `&AV_GDPR=[GDPR_MACRO]` +
-        // `&AV_CONSENT=[CONSENT_MACRO]` +
-        `&skip=true` +
-        `&skiptimer=5` +
-        `&logo=true` +
-        `&usevslot=true` +
-        `&vastretry=2` +
-        `&hidecontrols=false`;
+      // const macroUrl =
+      //   `https://vast.aniview.com/api/adserver61/vast/` +
+      //   `?AV_PUBLISHERID=60afcbc58cfdb065440d2426` +
+      //   `&AV_CHANNELID=60b354389c7adb506d0bd9a4` +
+      //   `&AV_URL=[URL]` +
+      //   `&cb=[CACHEBUSTING]` +
+      //   `&AV_WIDTH=[WIDTH]` +
+      //   `&AV_HEIGHT=[HEIGHT]` +
+      //   // `&AV_SCHAIN=[SCHAIN_MACRO]` +
+      //   // `&AV_CCPA=[CCPA_MACRO]` +
+      //   // `&AV_GDPR=[GDPR_MACRO]` +
+      //   // `&AV_CONSENT=[CONSENT_MACRO]` +
+      //   `&skip=true` +
+      //   `&skiptimer=5` +
+      //   `&logo=true` +
+      //   `&usevslot=true` +
+      //   `&vastretry=2` +
+      //   `&hidecontrols=false`;
 
       const timestamp = new Date().toISOString();
 
@@ -585,6 +583,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       const height = videoElement.offsetHeight;
       const width = videoElement.offsetWidth;
+
+      // live channel
+      // 60b354389c7adb506d0bd9a4
+
+      // ford ad
+      // 612fb75a42715a07645a614c
 
       const macroUrl1 = 'https://gov.aniview.com/api/adserver/vast3/' +
         '?AV_PUBLISHERID=60afcbc58cfdb065440d2426' +
@@ -597,13 +601,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // '&AV_CCPA=[CCPA_MACRO]' +
         // '&AV_GDPR=[GDPR_MACRO]' +
         // '&AV_CONSENT=[CONSENT_MACRO]' +
-        '&usevslot=true';
-        // `&skip=true` +
-        // `&skiptimer=5` +
-        // `&logo=true` +
-        // `&usevslot=true` +
-        // `&vastretry=2` +
-        // `&hidecontrols=false`;
+        `&skip=true` +
+        `&skiptimer=5` +
+        `&logo=true` +
+        `&usevslot=true` +
+        `&vastretry=2` +
+        `&hidecontrols=false`;
 
       // always have ads on if internal feature is on,
       // otherwise if not authed, roll for 20% to see an ad
@@ -619,8 +622,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // fire up ima integration via module
         player.ima({
           adTagUrl: macroUrl1,
-          // $FlowFixMe
-          // eslint-disable-next-line no-undef
           vpaidMode: 2,
         });
       }
