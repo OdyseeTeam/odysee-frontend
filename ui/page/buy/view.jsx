@@ -135,6 +135,7 @@ export default function BuyPage(props: Props) {
           button="alt"
           onClick={() => setTab(TAB.SWAP)}
           className={classnames('button-toggle', { 'button-toggle--active': tab === TAB.SWAP })}
+          disabled="true"
         />
       </div>
       <div className="section">
