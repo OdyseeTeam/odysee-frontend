@@ -35,6 +35,8 @@ function ClaimPreviewSubtitle(props: Props) {
     ({ streamName: name, isChannel } = parseURI(uri));
   } catch (e) {}
 
+  const isUriChannel = !uri.includes('#');
+
   return (
     <div className="media__subtitle">
       {claim ? (
@@ -56,11 +58,20 @@ function ClaimPreviewSubtitle(props: Props) {
                   __('Livestream')
                 ) : (
                   <>
-                    <span className="claim-preview-metadata-sub-claimdate">
-                      {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
-                      <FileViewCountInline uri={uri} isLivestream={isLivestream} />
-                      <DateTime timeAgo uri={uri} />
-                    </span>
+                    {isUriChannel && (
+                      <span className="claim-preview-metadata-sub-claimdate">
+                        {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
+                        <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                        {claimsInChannel} {claimsInChannel === 1 ? __('upload') : __('uploads')}
+                      </span>
+                    )}
+                    {!isUriChannel && (
+                      <span className="claim-preview-metadata-sub-claimdate">
+                        {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
+                        <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                        <DateTime timeAgo uri={uri} />
+                      </span>
+                    )}
                   </>
                 ))}
             </>
