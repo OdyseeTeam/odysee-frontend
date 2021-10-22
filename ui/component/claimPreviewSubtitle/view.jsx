@@ -22,6 +22,7 @@ type Props = {
 function ClaimPreviewSubtitle(props: Props) {
   const { pending, uri, claim, type, beginPublish, isLivestream, fetchSubCount, subCount } = props;
   const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
+  const isRepost = claim && claim.repost_url;
 
   const claimId = (claim && claim.claim_id) || '0';
   const formattedSubCount = Number(subCount).toLocaleString();
@@ -34,8 +35,6 @@ function ClaimPreviewSubtitle(props: Props) {
   try {
     ({ streamName: name, isChannel } = parseURI(uri));
   } catch (e) {}
-
-  const isUriChannel = !uri.includes('#');
 
   return (
     <div className="media__subtitle">
@@ -53,25 +52,23 @@ function ClaimPreviewSubtitle(props: Props) {
                 </>
               )}
 
+              {isRepost && (
+                <>
+                  <span className="claim-preview-metadata-sub-upload">
+                    {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
+                    &nbsp;&bull; {claimsInChannel} {claimsInChannel === 1 ? __('upload') : __('uploads')}
+                  </span>
+                </>
+              )}
+
               {!isChannel &&
+                !isRepost &&
                 (isLivestream && ENABLE_NO_SOURCE_CLAIMS ? (
                   __('Livestream')
                 ) : (
                   <>
-                    {isUriChannel && (
-                      <span className="claim-preview-metadata-sub-claimdate">
-                        {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
-                        <FileViewCountInline uri={uri} isLivestream={isLivestream} />
-                        {claimsInChannel} {claimsInChannel === 1 ? __('upload') : __('uploads')}
-                      </span>
-                    )}
-                    {!isUriChannel && (
-                      <span className="claim-preview-metadata-sub-claimdate">
-                        {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
-                        <FileViewCountInline uri={uri} isLivestream={isLivestream} />
-                        <DateTime timeAgo uri={uri} />
-                      </span>
-                    )}
+                    <FileViewCountInline uri={uri} isLivestream={isLivestream} />
+                    <DateTime timeAgo uri={uri} />
                   </>
                 ))}
             </>
