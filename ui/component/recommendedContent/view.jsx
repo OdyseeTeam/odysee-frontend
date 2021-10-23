@@ -24,7 +24,7 @@ type Props = {
   claimId: string,
 };
 
-export default React.memo<Props>(function RecommendedContent(props: Props) {
+export default function RecommendedContent(props: Props) {
   const {
     uri,
     doFetchRecommendedContent,
@@ -126,41 +126,4 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
       }
     />
   );
-}, areEqual);
-
-function areEqual(prevProps: Props, nextProps: Props) {
-  const a = prevProps;
-  const b = nextProps;
-
-  if (
-    a.uri !== b.uri ||
-    a.nextRecommendedUri !== b.nextRecommendedUri ||
-    a.isAuthenticated !== b.isAuthenticated ||
-    a.isSearching !== b.isSearching ||
-    (a.recommendedContentUris && !b.recommendedContentUris) ||
-    (!a.recommendedContentUris && b.recommendedContentUris) ||
-    (a.claim && !b.claim) ||
-    (!a.claim && b.claim)
-  ) {
-    return false;
-  }
-
-  if (a.claim && b.claim && a.claim.claim_id !== b.claim.claim_id) {
-    return false;
-  }
-
-  if (a.recommendedContentUris && b.recommendedContentUris) {
-    if (a.recommendedContentUris.length !== b.recommendedContentUris.length) {
-      return false;
-    }
-
-    let i = a.recommendedContentUris.length;
-    while (i--) {
-      if (a.recommendedContentUris[i] !== b.recommendedContentUris[i]) {
-        return false;
-      }
-    }
-  }
-
-  return true;
 }
