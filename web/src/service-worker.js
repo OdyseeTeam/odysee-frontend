@@ -5,7 +5,8 @@ import { firebaseConfig } from '$web/src/firebase-config';
 const app = initializeApp(firebaseConfig);
 getMessaging(app);
 
-const notificationIcon = '/public/pwa/icon-512.png';
+const NOTIFICATION_ICON = '/public/pwa/icon-512.png';
+const NOTIFICATION_BADGE = '/public/pwa/icon-96.png';
 
 // used to fetch the manifest file.
 self.addEventListener('fetch', () => {});
@@ -30,8 +31,8 @@ self.addEventListener('push', (event) => {
       return self.registration.showNotification(data.title, {
         body: data.body,
         data: { url: data.link },
-        badge: notificationIcon,
-        icon: notificationIcon,
+        badge: NOTIFICATION_BADGE,
+        icon: NOTIFICATION_ICON,
       });
     })()
   );
