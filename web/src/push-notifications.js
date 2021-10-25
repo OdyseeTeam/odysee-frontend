@@ -32,7 +32,7 @@ const apiAdd = (token: string) => Lbryio.call('cfm', 'add', { token, ...subscrip
 const apiRemove = (token: string) => Lbryio.call('cfm', 'remove', { token });
 
 const getFcmToken = async (promptUser: boolean = false): Promise<string | void> => {
-  if (!promptUser && window.Notification.permission !== 'granted') return;
+  if (!promptUser && window.Notification?.permission !== 'granted') return;
   if (!navigator.serviceWorker) return;
   const swRegistration = await navigator.serviceWorker.ready;
   return getToken(messaging, { serviceWorkerRegistration: swRegistration, vapidKey });

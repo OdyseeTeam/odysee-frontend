@@ -9,7 +9,7 @@ import { selectUser } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 
 export default () => {
-  const [pushPermission, setPushPermission] = useState(window.Notification.permission);
+  const [pushPermission, setPushPermission] = useState(window.Notification?.permission);
   const [subscribed, setSubscribed] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushSupported, setPushSupported] = useState(false);
@@ -26,7 +26,7 @@ export default () => {
   const subscribe = async () => {
     if (await pushSubscribe(user.id)) {
       setSubscribed(true);
-      setPushPermission(window.Notification.permission);
+      setPushPermission(window.Notification?.permission);
     } else {
       showError();
     }
