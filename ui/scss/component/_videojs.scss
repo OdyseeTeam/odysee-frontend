@@ -6,6 +6,7 @@
   // Control Bar (container)
   .vjs-control-bar {
     background: none;
+    color: black;
 
     &::before {
       position: absolute;
@@ -13,8 +14,7 @@
       content: '';
       height: 5rem;
       width: 100%;
-      background: rgba(20, 20, 20, 0.45);
-      background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 10%, rgba(0, 0, 0, 0) 100%);
+      background: none;
     }
   }
 
@@ -81,8 +81,23 @@
 
   // Menu size
   .vjs-playback-rate .vjs-menu .vjs-menu-content {
+    background: transparent;
     width: 125%;
     font-size: 10px;
+
+    .vjs-selected {
+      background: black;
+      color: white;
+    }
+
+    .vjs-menu-item {
+      background: black;
+      color: white;
+    }
+  }
+
+  ul.vjs-menu-content {
+    border-radius: 15px;
   }
 
   // Volume slider
@@ -93,6 +108,16 @@
 
     .vjs-volume-control.vjs-volume-horizontal {
       transition: 0.2s;
+    }
+
+    .vjs-volume-tooltip {
+      background: black;
+      color: white;
+    }
+
+    .vjs-volume-level {
+      background: black;
+      color: var(--color-primary);
     }
   }
 }
