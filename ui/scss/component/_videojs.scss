@@ -157,6 +157,10 @@
 
 [dir] .video-js .vjs-control {
   font-size: 14px;
+
+  @media (max-width:800px)  {
+    font-size: 12px;
+  }
 }
 
 .vjs-control-bar {
@@ -165,6 +169,15 @@
 
 .vjs-playback-rate {
   font-size: 12px !important;
+
+  @media (max-width:813px)  {
+    margin-top: 3px !important;
+    font-size: 10px !important;
+  }
+}
+
+.vjs-quality-selector > .vjs-menu > .vjs-menu-content {
+  margin-bottom: 3px;
 }
 
 .vjs-hover {
