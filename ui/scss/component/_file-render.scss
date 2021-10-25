@@ -68,12 +68,12 @@
 }
 
 .file-render--video {
-  background-color: black;
+  background-color: var(--color-card-background);
 
   &:after {
     content: '';
     position: absolute;
-    background-color: black;
+    background-color: var(--color-card-background);
     top: 0;
     left: 0;
     right: 0;
