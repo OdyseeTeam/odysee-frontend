@@ -2,21 +2,13 @@
 import 'easymde/dist/easymde.min.css';
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
 import { openEditorMenu, stopContextMenu } from 'util/context-menu';
+import * as ICONS from 'constants/icons';
 import Button from 'component/button';
-import emoji from 'emoji-dictionary';
 import MarkdownPreview from 'component/common/markdown-preview';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import SimpleMDE from 'react-simplemde-editor';
 import type { ElementRef, Node } from 'react';
-
-const QUICK_EMOJIS = [
-  emoji.getUnicode('rocket'),
-  emoji.getUnicode('jeans'),
-  emoji.getUnicode('fire'),
-  emoji.getUnicode('heart'),
-  emoji.getUnicode('open_mouth'),
-];
 
 type Props = {
   name: string,
@@ -47,6 +39,7 @@ type Props = {
   render?: () => React$Node,
   onChange?: (any) => any,
   quickActionHandler?: (any) => any,
+  openEmoteMenu?: () => void,
 };
 
 export class FormField extends React.PureComponent<Props> {
@@ -88,6 +81,7 @@ export class FormField extends React.PureComponent<Props> {
       noEmojis,
       render,
       quickActionHandler,
+      openEmoteMenu,
       ...inputProps
     } = this.props;
 
@@ -246,24 +240,14 @@ export class FormField extends React.PureComponent<Props> {
               />
               <div className="form-field__textarea-info">
                 {!noEmojis && (
-                  <div className="form-field__quick-emojis">
-                    {QUICK_EMOJIS.map((emoji) => (
-                      <Button
-                        key={emoji}
-                        disabled={inputProps.disabled}
-                        type="button"
-                        className="button--emoji"
-                        label={emoji}
-                        onClick={() => {
-                          if (inputProps.onChange) {
-                            inputProps.onChange({
-                              target: { value: inputProps.value ? `${inputProps.value} ${emoji}` : emoji },
-                            });
-                          }
-                        }}
-                      />
-                    ))}
-                  </div>
+                  <Button
+                    type="alt"
+                    className="button--file-action"
+                    title="Emotes"
+                    onClick={openEmoteMenu}
+                    icon={ICONS.EMOJI}
+                    iconSize={20}
+                  />
                 )}
                 {countInfo}
               </div>

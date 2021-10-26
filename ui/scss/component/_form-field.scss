@@ -452,12 +452,6 @@ fieldset-group {
   margin-bottom: var(--spacing-s);
 }
 
-.form-field__quick-emojis {
-  > *:not(:last-child) {
-    margin-right: var(--spacing-s);
-  }
-}
-
 fieldset-section {
   .form-field__internal-option {
     margin-top: var(--spacing-s);
