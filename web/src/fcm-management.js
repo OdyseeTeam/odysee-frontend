@@ -12,7 +12,7 @@ const updateRegistrations = (data) => {
   localStorage.setItem('fcm', JSON.stringify(data));
 };
 
-export const addRegistration = (userId: number, fcmToken: string) => {
+export const addRegistration = (userId: number) => {
   const data = Array.from(new Set(registrations().concat(userId)));
   updateRegistrations(data);
 };
