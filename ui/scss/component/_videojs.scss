@@ -165,6 +165,7 @@
 
 .vjs-control-bar {
   height: 41px;
+  color: #dbd8d8;
 }
 
 .vjs-playback-rate {
@@ -210,11 +211,21 @@
 
 .vjs-time-divider div span {
   font-size: 18px;
-  color: white;
+  color: #dbd8d8;
   position: absolute;
   top: 4px;
 
   @media (max-width:813px)  {
     top: 0px;
   }
+}
+
+.vjs-play-control {
+  font-size: 17px !important;
+  margin-top: -6px !important;
+  margin-right: -14px !important;
+}
+
+.vjs-play-control .vjs-icon-placeholder {
+  margin-right: -5px;
 }
