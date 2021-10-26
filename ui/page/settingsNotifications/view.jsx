@@ -138,7 +138,7 @@ export default function NotificationSettingsPage(props: Props) {
                       <SettingsRow
                         key={email}
                         title={__('Email Notifications')}
-                        subtitle={__(`Receive notifications to the email address: ${email}`)}
+                        subtitle={__(`Receive notifications to the email address: %email%`, { email })}
                       >
                         <FormField
                           type="checkbox"
