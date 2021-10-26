@@ -42,6 +42,10 @@ export default () => {
     return !pushEnabled ? subscribe() : unsubscribe();
   };
 
+  const pushRequest = async () => {
+    return window.Notification?.permission !== 'granted' ? subscribe() : null;
+  };
+
   const showError = () => {
     store.dispatch(
       doToast({
@@ -58,5 +62,6 @@ export default () => {
     pushEnabled,
     pushPermission,
     pushToggle,
+    pushRequest,
   };
 };

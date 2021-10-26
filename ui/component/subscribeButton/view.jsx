@@ -59,7 +59,7 @@ export default function SubscribeButton(props: Props) {
   }
   const claimName = channelName && '@' + channelName;
 
-  const { pushSupported, pushEnabled, pushToggle } = useBrowserNotifications();
+  const { pushSupported, pushEnabled, pushRequest } = useBrowserNotifications();
 
   const subscriptionHandler = isSubscribed ? doChannelUnsubscribe : doChannelSubscribe;
 
@@ -151,7 +151,7 @@ export default function SubscribeButton(props: Props) {
             });
 
             if (!newNotificationsDisabled && pushSupported && !pushEnabled) {
-              pushToggle();
+              pushRequest();
             }
           }}
         />
