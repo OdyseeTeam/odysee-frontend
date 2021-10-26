@@ -6,7 +6,7 @@ const app = initializeApp(firebaseConfig);
 getMessaging(app);
 
 const NOTIFICATION_ICON = '/public/pwa/icon-512.png';
-const NOTIFICATION_BADGE = '/public/pwa/icon-96.png';
+const NOTIFICATION_BADGE = '/public/pwa/icon-96-alpha.png';
 
 // used to fetch the manifest file.
 self.addEventListener('fetch', () => {});
