@@ -90,6 +90,8 @@
 
   // Volume slider
   .vjs-volume-panel {
+    margin-right: -8px;
+
     &.vjs-control {
       transition: 0.2s;
     }
@@ -164,11 +166,12 @@
 }
 
 .vjs-control-bar {
-  height: 41px;
+  height: 41px !important;
   color: #dbd8d8;
 }
 
 .vjs-playback-rate {
+  margin-top: 3px;
   font-size: 12px !important;
 
   @media (max-width:813px)  {
@@ -228,4 +231,23 @@
 
 .vjs-play-control .vjs-icon-placeholder {
   margin-right: -5px;
+}
+
+.vjs-button--autoplay-next {
+  margin-top: 15px;
+}
+
+.vjs-fullscreen-control {
+  margin-top: 2px;
+}
+
+.vjs-slider-horizontal {
+  background-color: #727272 !important;
+}
+
+.vjs-mouse-display {
+  color: white !important;
+  background-color: lightgrey !important;
+  width: 8px !important;
+  margin-left: -5px !important;
 }
