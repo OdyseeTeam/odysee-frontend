@@ -8,13 +8,7 @@ import { Lbryio } from 'lbryinc';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, deleteToken } from 'firebase/messaging';
 import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
-import {
-  addRegistration,
-  removeRegistration,
-  toggleRegistration,
-  hasRegistration,
-  allRegistrations,
-} from '$web/src/fcm-management';
+import { addRegistration, removeRegistration, hasRegistration } from '$web/src/fcm-management';
 import { browserData } from '$web/src/ua';
 
 const app = initializeApp(firebaseConfig);
@@ -27,36 +21,31 @@ const subscriptionMetaData = () => {
   return { type: `web-${isMobile ? 'mobile' : 'desktop'}`, name: `${browserName}-${osName}` };
 };
 
-const apiAdd = (token: string) => Lbryio.call('cfm', 'add', { token, ...subscriptionMetaData() });
-
-const apiRemove = (token: string) => Lbryio.call('cfm', 'remove', { token });
-
-const getFcmToken = async (promptUser: boolean = false): Promise<string | void> => {
-  if (!promptUser && window.Notification?.permission !== 'granted') return;
-  if (!navigator.serviceWorker) return;
-  const swRegistration = await navigator.serviceWorker.ready;
+const getFcmToken = async (): Promise<string | void> => {
+  const swRegistration = await navigator.serviceWorker?.ready;
+  if (!swRegistration) return;
   return getToken(messaging, { serviceWorkerRegistration: swRegistration, vapidKey });
 };
 
-export const pushSubscribe = async (userId: number): Promise<boolean> => {
+export const pushSubscribe = async (userId: number, permanent: boolean = true): Promise<boolean> => {
   try {
-    const fcmToken = await getFcmToken(true);
+    const fcmToken = await getFcmToken();
     if (!fcmToken) return false;
-    await apiAdd(fcmToken);
-    addRegistration(userId, fcmToken);
+    await Lbryio.call('cfm', 'add', { token: fcmToken, ...subscriptionMetaData() });
+    if (permanent) addRegistration(userId);
     return true;
   } catch {
     return false;
   }
 };
 
-export const pushUnsubscribe = async (userId: number): Promise<boolean> => {
+export const pushUnsubscribe = async (userId: number, permanent: boolean = true): Promise<boolean> => {
   try {
     const fcmToken = await getFcmToken();
     if (!fcmToken) return false;
     await deleteToken(messaging);
-    await apiRemove(fcmToken);
-    removeRegistration(userId);
+    await Lbryio.call('cfm', 'remove', { token: fcmToken });
+    if (permanent) removeRegistration(userId);
     return true;
   } catch {
     return false;
@@ -71,35 +60,25 @@ export const pushIsSubscribed = async (userId: number): Promise<boolean> => {
   return browserSubscriptionExists && userRecordExists;
 };
 
-export const pushPause = async (userId: number) => {
-  const fcmToken = toggleRegistration(userId, true);
-  if (!fcmToken) return;
-  await apiRemove(fcmToken);
+export const pushReconnect = async (userId: number): Promise<boolean> => {
+  if (hasRegistration(userId)) return pushSubscribe(userId, false);
+  return false;
 };
 
-export const pushPauseAll = async () => {
-  const promises = [];
-  for (const userId in allRegistrations()) {
-    promises.push(pushPause(Number(userId)));
-  }
-  return Promise.all(promises);
+export const pushDisconnect = async (userId: number): Promise<boolean> => {
+  if (hasRegistration(userId)) return pushUnsubscribe(userId, false);
+  return false;
 };
 
-export const pushUnPause = async (userId: number) => {
-  const fcmToken = toggleRegistration(userId, false);
-  if (!fcmToken) return;
-  const tokenValid = await isTokenValid(fcmToken);
-  if (!tokenValid) {
-    removeRegistration(userId);
-    return;
-  }
-  apiAdd(fcmToken);
-};
-
-const isTokenValid = async (token: string): Promise<boolean> => {
-  try {
-    return (await getFcmToken()) === token;
-  } catch {
-    return false;
-  }
+export const pushValidate = async (userId: number) => {
+  if (!hasRegistration(userId)) return;
+  window.requestIdleCallback(async () => {
+    const serverTokens = await Lbryio.call('cfm', 'list');
+    const fcmToken = await getFcmToken();
+    if (!fcmToken) return;
+    const exists = serverTokens.find((item) => item.value === fcmToken);
+    if (!exists) {
+      await pushSubscribe(userId, false);
+    }
+  });
 };
