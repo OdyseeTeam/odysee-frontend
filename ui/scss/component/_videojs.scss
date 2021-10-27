@@ -208,10 +208,6 @@
   max-height: 19em;
 }
 
-.vjs_video_3_ima-ad-container {
-  display: none;
-}
-
 .vjs-time-divider div span {
   font-size: 18px;
   color: #dbd8d8;
@@ -242,7 +238,7 @@
 }
 
 .vjs-slider-horizontal {
-  background-color: #727272 !important;
+  background-color: #474747 !important;
 }
 
 .vjs-mouse-display {
@@ -250,4 +246,12 @@
   background-color: lightgrey !important;
   width: 8px !important;
   margin-left: -5px !important;
+}
+
+.vjs_video_3_ima-ad-container {
+  display: none;
+}
+
+.ima-ad-container {
+  display: none;
 }
