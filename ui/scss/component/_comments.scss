@@ -42,7 +42,9 @@ $thumbnailWidthSmall: 1rem;
   }
 
   .form-field__two-column {
-    column-count: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
   }
 }
 
