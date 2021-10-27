@@ -1,7 +1,17 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import { doClaimSearch } from 'redux/actions/claims';
-import { LIVESTREAM_LIVE_API } from 'constants/livestream';
+import { LIVESTREAM_LIVE_API, LIVESTREAM_KILL } from 'constants/livestream';
+
+export const doKillStream = (channelId: string) => async () => {
+  fetch(`${LIVESTREAM_KILL}/${channelId}`, {
+    method: 'post',
+  })
+  .then(res => res.json())
+  .then(res => {
+    // console.log(res);
+  });
+};
 
 export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
   dispatch({
