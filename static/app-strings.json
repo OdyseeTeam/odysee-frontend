@@ -2200,6 +2200,11 @@
   "Dismiss": "Dismiss",
   "Heads up: browser notifications are currently blocked in this browser.": "Heads up: browser notifications are currently blocked in this browser.",
   "To enable push notifications please configure your browser to allow notifications on odysee.com.": "To enable push notifications please configure your browser to allow notifications on odysee.com.",
-  "There was an error enabling browser notifications. Please make sure your browser settings allow you to subscribe to notifications.": "There was an error enabling browser notifications. Please make sure your browser settings allow you to subscribe to notifications.",
+  "There was an error enabling browser notifications.": "There was an error enabling browser notifications.",
+  "More info": "More info",
+  "We weren't able to subscribe you to notifications. Here are a few tips:": "We weren't able to subscribe you to notifications. Here are a few tips:",
+  "On Firefox, notifications won't function if cookies are set to clear on browser close. Please disable or add an exception for Odysee, then refresh.": "On Firefox, notifications won't function if cookies are set to clear on browser close. Please disable or add an exception for Odysee, then refresh.",
+  "For Brave, enable google push notifications in settings.": "For Brave, enable google push notifications in settings.",
+  "Check browser settings to see if notifications are disabled or otherwise restricted.": "Check browser settings to see if notifications are disabled or otherwise restricted.",
   "--end--": "--end--"
 }

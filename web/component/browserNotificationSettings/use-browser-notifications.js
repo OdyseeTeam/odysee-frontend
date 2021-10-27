@@ -2,6 +2,7 @@
 import { useEffect, useState, useMemo } from 'react';
 import { pushSubscribe, pushUnsubscribe, pushIsSubscribed } from '$web/src/push-notifications';
 import { isSupported } from 'firebase/messaging';
+import * as PAGES from 'constants/pages';
 
 // @todo: Once we are on Redux 7 we should have proper hooks we can use here for store access.
 import { store } from '$ui/store';
@@ -13,6 +14,7 @@ export default () => {
   const [subscribed, setSubscribed] = useState(false);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushSupported, setPushSupported] = useState(false);
+  const [encounteredError, setEncounteredError] = useState(false);
 
   const [user] = useState(selectUser(store.getState()));
 
@@ -24,11 +26,13 @@ export default () => {
   useMemo(() => setPushEnabled(pushPermission === 'granted' && subscribed), [pushPermission, subscribed]);
 
   const subscribe = async () => {
+    setEncounteredError(false);
     if (await pushSubscribe(user.id)) {
       setSubscribed(true);
       setPushPermission(window.Notification?.permission);
     } else {
-      showError();
+      setEncounteredError(true);
+      showToastError();
     }
   };
 
@@ -46,13 +50,13 @@ export default () => {
     return window.Notification?.permission !== 'granted' ? subscribe() : null;
   };
 
-  const showError = () => {
+  const showToastError = () => {
     store.dispatch(
       doToast({
         isError: true,
-        message: __(
-          'There was an error enabling browser notifications. Please make sure your browser settings allow you to subscribe to notifications.'
-        ),
+        message: __('There was an error enabling browser notifications.'),
+        linkText: __('More info.'),
+        linkTarget: `/${PAGES.SETTINGS_NOTIFICATIONS}`,
       })
     );
   };
@@ -63,5 +67,6 @@ export default () => {
     pushPermission,
     pushToggle,
     pushRequest,
+    encounteredError,
   };
 };
