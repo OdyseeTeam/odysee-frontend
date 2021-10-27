@@ -16,7 +16,7 @@ import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
 import usePersistedState from 'effects/use-persisted-state';
-import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
+import { LIVESTREAM_RTMP_URL, LIVESTREAM_LIVE_API } from 'constants/livestream';
 
 type Props = {
   channels: Array<ChannelClaim>,
@@ -29,6 +29,8 @@ type Props = {
   fetchingLivestreams: boolean,
   channelId: ?string,
   channelName: ?string,
+  channelClaim: ChannelClaim,
+  killStream: (string) => void,
 };
 
 export default function LivestreamSetupPage(props: Props) {
@@ -44,17 +46,27 @@ export default function LivestreamSetupPage(props: Props) {
     fetchingLivestreams,
     channelId,
     channelName,
+    channelClaim,
+    killStream,
   } = props;
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
   const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
+  const [isLive, setIsLive] = React.useState(false);
+  const [hasLivestreamClaim, setHasLivestreamClaim] = React.useState(false);
+  const STREAMING_POLL_INTERVAL_IN_MS = 10000;
 
   const hasChannels = channels && channels.length > 0;
   const hasLivestreamClaims = Boolean(myLivestreamClaims.length || pendingClaims.length);
+  const livestreamChannelId = channelClaim && channelClaim.signing_channel && channelClaim.signing_channel.claim_id;
 
   function createStreamKey() {
     if (!channelId || !channelName || !sigData.signature || !sigData.signing_ts) return null;
     return `${channelId}?d=${toHex(channelName)}&s=${sigData.signature}&t=${sigData.signing_ts}`;
+  }
+
+  function forceKillStream() {
+    killStream(channelId);
   }
 
   const streamKey = createStreamKey();
@@ -131,6 +143,63 @@ export default function LivestreamSetupPage(props: Props) {
     };
   }, [channelId, pendingLength, fetchNoSourceClaims]);
 
+  React.useEffect(() => {
+    let checkClaimsInterval;
+    function checkHasLivestreamClaim() {
+      Lbry.claim_search({
+        channel_ids: [livestreamChannelId],
+        has_no_source: true,
+        claim_type: ['stream'],
+      })
+        .then((res) => {
+          if (res && res.items && res.items.length > 0) {
+            setHasLivestreamClaim(true);
+          }
+        })
+        .catch(() => {});
+    }
+    if (livestreamChannelId && !isLive) {
+      if (!checkClaimsInterval) checkHasLivestreamClaim();
+      checkClaimsInterval = setInterval(checkHasLivestreamClaim, LIVESTREAM_CLAIM_POLL_IN_MS);
+
+      return () => {
+        if (checkClaimsInterval) {
+          clearInterval(checkClaimsInterval);
+        }
+      };
+    }
+  }, [livestreamChannelId, isLive]);
+
+  React.useEffect(() => {
+    let interval;
+    function checkIsLive() {
+      // TODO: duplicate code below
+      // $FlowFixMe livestream API can handle garbage
+      fetch(`${LIVESTREAM_LIVE_API}/${livestreamChannelId}`)
+        .then((res) => res.json())
+        .then((res) => {
+          if (!res || !res.data) {
+            setIsLive(false);
+            return;
+          }
+
+          if (res.data.hasOwnProperty('live')) {
+            setIsLive(res.data.live);
+          }
+        });
+    }
+    if (livestreamChannelId && hasLivestreamClaim) {
+      if (!interval) checkIsLive();
+      interval = setInterval(checkIsLive, STREAMING_POLL_INTERVAL_IN_MS);
+
+      return () => {
+        if (interval) {
+          clearInterval(interval);
+        }
+      };
+    }
+  }, [livestreamChannelId, hasLivestreamClaim]);
+
   return (
     <Page>
       {fetchingChannels && (
@@ -193,6 +262,22 @@ export default function LivestreamSetupPage(props: Props) {
                       label={__('Stream key')}
                       copyable={streamKey}
                       snackMessage={__('Copied stream key.')}
+                    />
+                  </>
+                }
+              />
+            )}
+
+            {!isLive && (
+              <Card
+                className="section"
+                title={__('Stream issues?')}
+                actions={
+                  <>
+                    <Button
+                      button="link"
+                      onClick={() => forceKillStream(channelId)}
+                      label={__('Force Kill Livestream')}
                     />
                   </>
                 }

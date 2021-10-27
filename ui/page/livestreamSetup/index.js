@@ -1,8 +1,8 @@
 import { connect } from 'react-redux';
-import { selectMyChannelClaims, selectFetchingMyChannels } from 'redux/selectors/claims';
+import { selectMyChannelClaims, selectFetchingMyChannels, makeSelectClaimForUri } from 'redux/selectors/claims';
 import { doClearPublish } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { doFetchNoSourceClaims } from 'redux/actions/livestream';
+import { doFetchNoSourceClaims, doKillStream } from 'redux/actions/livestream';
 import {
   makeSelectPendingLivestreamsForChannelId,
   makeSelectLivestreamsForChannelId,
@@ -11,7 +11,7 @@ import {
 import LivestreamSetupPage from './view';
 import { push } from 'connected-react-router';
 
-const select = (state) => {
+const select = (state, props) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
   const { claim_id: channelId, name: channelName } = activeChannelClaim || {};
   return {
@@ -23,6 +23,8 @@ const select = (state) => {
     myLivestreamClaims: makeSelectLivestreamsForChannelId(channelId)(state),
     pendingClaims: makeSelectPendingLivestreamsForChannelId(channelId)(state),
     fetchingLivestreams: makeSelectIsFetchingLivestreams(channelId)(state),
+    channelClaim: makeSelectClaimForUri(props.uri)(state),
+    killStream: doKillStream(channelId),
   };
 };
 const perform = (dispatch) => ({
