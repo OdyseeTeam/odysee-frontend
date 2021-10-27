@@ -1,4 +1,5 @@
 // @flow
+import 'scss/component/_comment-create.scss';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -13,10 +14,10 @@ import ChannelMentionSuggestions from 'component/channelMentionSuggestions';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
+import EmoteSelector from './emote-selector';
 import Empty from 'component/common/empty';
 import I18nMessage from 'component/i18nMessage';
 import Icon from 'component/common/icon';
-import EmoteSelector from './emote-selector';
 import React from 'react';
 import SelectChannel from 'component/selectChannel';
 import type { ElementRef } from 'react';

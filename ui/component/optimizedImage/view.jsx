@@ -102,10 +102,10 @@ function OptimizedImage(props: Props) {
     <img
       ref={ref}
       {...imgProps}
-      style={{ display: waitLoad ? 'none' : 'inline' }}
+      style={{ visibility: waitLoad ? 'hidden' : 'visible' }}
       src={optimizedSrc}
       onLoad={() => {
-        if (waitLoad) ref.current.style.display = 'inline';
+        if (waitLoad) ref.current.style.visibility = 'visible';
         adjustOptimizationIfNeeded(ref.current, objectFit, src);
       }}
     />

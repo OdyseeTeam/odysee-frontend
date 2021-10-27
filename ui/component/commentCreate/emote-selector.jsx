@@ -1,4 +1,5 @@
 // @flow
+import 'scss/component/_emote-selector.scss';
 import { EMOTES_24px as EMOTES } from 'constants/emotes';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -26,13 +27,14 @@ export default function EmoteSelector(props: Props) {
   }
 
   return (
-    <div className="emote__selector">
+    <div className="emoteSelector">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
 
-      <div className="emotes-list">
-        <div className="emotes-list--row">
-          <div className="emotes-list--row-title">{__('Global Emotes')}</div>
-          <div className="emotes-list--row-items">
+      <div className="emoteSelector__list">
+        <div className="emoteSelector__listRow">
+          <div className="emoteSelector__listRowTitle">{__('Global Emotes')}</div>
+
+          <div className="emoteSelector__listRowItems">
             {OLD_QUICK_EMOJIS.map((emoji) => (
               <Button
                 key={emoji}
