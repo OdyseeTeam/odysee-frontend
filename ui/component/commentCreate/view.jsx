@@ -16,6 +16,7 @@ import CreditAmount from 'component/common/credit-amount';
 import Empty from 'component/common/empty';
 import I18nMessage from 'component/i18nMessage';
 import Icon from 'component/common/icon';
+import EmoteSelector from './emote-selector';
 import React from 'react';
 import SelectChannel from 'component/selectChannel';
 import type { ElementRef } from 'react';
@@ -106,6 +107,7 @@ export function CommentCreate(props: Props) {
   const [deletedComment, setDeletedComment] = React.useState(false);
   const [pauseQuickSend, setPauseQuickSend] = React.useState(false);
   const [shouldDisableReviewButton, setShouldDisableReviewButton] = React.useState();
+  const [showEmotes, setShowEmotes] = React.useState(false);
 
   const selectedMentionIndex =
     commentValue.indexOf('@', selectionIndex) === selectionIndex
@@ -203,12 +205,6 @@ export function CommentCreate(props: Props) {
 
   function onTextareaBlur() {
     window.removeEventListener('keydown', altEnterListener);
-  }
-
-  function handleSubmit() {
-    if (activeChannelClaim && commentValue.length) {
-      handleCreateComment();
-    }
   }
 
   function handleSupportComment() {
@@ -368,6 +364,7 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    */
   function handleCreateComment(txid, payment_intent_id, environment) {
+    setShowEmotes(false);
     setIsSubmitting(true);
 
     createComment(commentValue, claimId, parentId, txid, payment_intent_id, environment)
@@ -509,13 +506,20 @@ export function CommentCreate(props: Props) {
 
   return (
     <Form
-      onSubmit={handleSubmit}
       className={classnames('comment__create', {
         'comment__create--reply': isReply,
         'comment__create--nested-reply': isNested,
         'comment__create--bottom': bottom,
       })}
     >
+      {showEmotes && (
+        <EmoteSelector
+          commentValue={commentValue}
+          setCommentValue={setCommentValue}
+          closeSelector={() => setShowEmotes(false)}
+        />
+      )}
+
       {!advancedEditor && (
         <ChannelMentionSuggestions
           uri={uri}
@@ -544,6 +548,7 @@ export function CommentCreate(props: Props) {
           !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
         }
         quickActionHandler={() => !SIMPLE_SITE && setAdvancedEditor(!advancedEditor)}
+        openEmoteMenu={() => setShowEmotes(!showEmotes)}
         onFocus={onTextareaFocus}
         onBlur={onTextareaBlur}
         placeholder={__('Say something about this...')}
@@ -601,6 +606,7 @@ export function CommentCreate(props: Props) {
                     : __('Comment --[button to submit something]--')
                 }
                 requiresAuth={IS_WEB}
+                onClick={() => activeChannelClaim && commentValue.length && handleCreateComment()}
               />
             )}
             {!supportDisabled && !claimIsMine && (
