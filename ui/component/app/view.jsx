@@ -348,7 +348,7 @@ function App(props: Props) {
       // $FlowFixMe
       document.body.removeChild(script);
     };
-  });
+  }, []);
   // @endif
 
   // @if TARGET='app'
