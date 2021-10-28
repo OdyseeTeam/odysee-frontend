@@ -6,8 +6,7 @@ import {
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
-import { doSendTip } from 'redux/actions/wallet';
-import { doToast } from 'redux/actions/notifications';
+import { doSendTip, doSendCashTip } from 'redux/actions/wallet';
 import { makeSelectClientSetting } from 'redux/selectors/settings';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
@@ -28,4 +27,4 @@ const select = (state, props) => ({
   title: makeSelectTitleForUri(props.uri)(state),
 });
 
-export default withRouter(connect(select, { doHideModal, doSendTip, doToast })(WalletSendTip));
+export default withRouter(connect(select, { doHideModal, doSendTip, doSendCashTip })(WalletSendTip));

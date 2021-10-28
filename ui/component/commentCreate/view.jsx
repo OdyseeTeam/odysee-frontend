@@ -3,7 +3,6 @@ import 'scss/component/_comment-create.scss';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { getChannelIdFromClaim } from 'util/claim';
-import { Lbryio } from 'lbryinc';
 import { SIMPLE_SITE } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
@@ -26,80 +25,87 @@ import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 
 import { getStripeEnvironment } from 'util/stripe';
-let stripeEnvironment = getStripeEnvironment();
+const stripeEnvironment = getStripeEnvironment();
 
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 const MENTION_DEBOUNCE_MS = 100;
 
+type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
+
 type Props = {
-  uri: string,
-  claim: StreamClaim,
-  channels: ?Array<ChannelClaim>,
-  isNested: boolean,
-  isFetchingChannels: boolean,
-  parentId: string,
-  isReply: boolean,
   activeChannel: string,
   activeChannelClaim: ?ChannelClaim,
   bottom: boolean,
-  livestream?: boolean,
-  embed?: boolean,
+  channels: ?Array<ChannelClaim>,
+  claim: StreamClaim,
   claimIsMine: boolean,
-  supportDisabled: boolean,
+  embed?: boolean,
+  isFetchingChannels: boolean,
+  isNested: boolean,
+  isReply: boolean,
+  livestream?: boolean,
+  parentId: string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   shouldFetchComment: boolean,
-  doToast: ({ message: string }) => void,
+  supportDisabled: boolean,
+  uri: string,
   createComment: (string, string, string, ?string, ?string, ?string) => Promise<any>,
-  onDoneReplying?: () => void,
-  onCancelReplying?: () => void,
-  toast: (string) => void,
-  sendTip: ({}, (any) => void, (any) => void) => void,
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
-  setQuickReply: (any) => void,
+  doToast: ({ message: string }) => void,
   fetchComment: (commentId: string) => Promise<any>,
+  onCancelReplying?: () => void,
+  onDoneReplying?: () => void,
+  sendCashTip: (TipParams, UserParams, string, ?string, (any) => void) => string,
+  sendTip: ({}, (any) => void, (any) => void) => void,
+  setQuickReply: (any) => void,
+  toast: (string) => void,
 };
 
 export function CommentCreate(props: Props) {
   const {
-    uri,
-    claim,
-    channels,
-    isNested,
-    isFetchingChannels,
-    isReply,
-    parentId,
     activeChannelClaim,
     bottom,
-    livestream,
-    embed,
+    channels,
+    claim,
     claimIsMine,
+    embed,
+    isFetchingChannels,
+    isNested,
+    isReply,
+    livestream,
+    parentId,
     settingsByChannelId,
-    supportDisabled,
     shouldFetchComment,
-    doToast,
+    supportDisabled,
+    uri,
     createComment,
-    onDoneReplying,
-    onCancelReplying,
-    sendTip,
     doFetchCreatorSettings,
-    setQuickReply,
+    doToast,
     fetchComment,
+    onCancelReplying,
+    onDoneReplying,
+    sendCashTip,
+    sendTip,
+    setQuickReply,
   } = props;
+
   const formFieldRef: ElementRef<any> = React.useRef();
   const formFieldInputRef = formFieldRef && formFieldRef.current && formFieldRef.current.input;
   const selectionIndex = formFieldInputRef && formFieldInputRef.current && formFieldInputRef.current.selectionStart;
   const buttonRef: ElementRef<any> = React.useRef();
+
   const {
     push,
     location: { pathname },
   } = useHistory();
 
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [isSubmitting, setSubmitting] = React.useState(false);
   const [commentFailure, setCommentFailure] = React.useState(false);
   const [successTip, setSuccessTip] = React.useState({ txid: undefined, tipAmount: undefined });
   const [isSupportComment, setIsSupportComment] = React.useState();
-  const [isReviewingSupportComment, setIsReviewingSupportComment] = React.useState();
+  const [isReviewingSupportComment, setReviewingSupportComment] = React.useState();
   const [tipAmount, setTipAmount] = React.useState(1);
   const [commentValue, setCommentValue] = React.useState('');
   const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
@@ -107,8 +113,8 @@ export function CommentCreate(props: Props) {
   const [tipError, setTipError] = React.useState();
   const [deletedComment, setDeletedComment] = React.useState(false);
   const [pauseQuickSend, setPauseQuickSend] = React.useState(false);
-  const [shouldDisableReviewButton, setShouldDisableReviewButton] = React.useState();
   const [showEmotes, setShowEmotes] = React.useState(false);
+  const [disableReviewButton, setDisableReviewButton] = React.useState();
 
   const selectedMentionIndex =
     commentValue.indexOf('@', selectionIndex) === selectionIndex
@@ -128,8 +134,7 @@ export function CommentCreate(props: Props) {
       : '';
 
   const claimId = claim && claim.claim_id;
-  const signingChannel = (claim && claim.signing_channel) || claim;
-  const channelUri = signingChannel && signingChannel.permanent_url;
+  const channelUri = claim && (claim.signing_channel ? claim.signing_channel.permanent_url : claim.permanent_url);
   const hasChannels = channels && channels.length;
   const charCount = commentValue ? commentValue.length : 0;
   const disabled = deletedComment || isSubmitting || isFetchingChannels || !commentValue.length || pauseQuickSend;
@@ -142,27 +147,6 @@ export function CommentCreate(props: Props) {
 
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
-
-  const MinAmountNotice = minAmount ? (
-    <div className="help--notice comment--min-amount-notice">
-      <I18nMessage tokens={{ lbc: <CreditAmount noFormat amount={minAmount} /> }}>
-        {minTip ? 'Comment min: %lbc%' : minSuper ? 'HyperChat min: %lbc%' : ''}
-      </I18nMessage>
-      <Icon
-        customTooltipText={
-          minTip
-            ? __('This channel requires a minimum tip for each comment.')
-            : minSuper
-            ? __('This channel requires a minimum amount for HyperChats to be visible.')
-            : ''
-        }
-        className="icon--help"
-        icon={ICONS.HELP}
-        tooltip
-        size={16}
-      />
-    </div>
-  ) : null;
 
   // **************************************************************************
   // Functions
@@ -200,18 +184,8 @@ export function CommentCreate(props: Props) {
     }
   }
 
-  function onTextareaFocus() {
-    window.addEventListener('keydown', altEnterListener);
-  }
-
-  function onTextareaBlur() {
-    window.removeEventListener('keydown', altEnterListener);
-  }
-
   function handleSupportComment() {
-    if (!activeChannelClaim) {
-      return;
-    }
+    if (!activeChannelClaim) return;
 
     if (!channelId) {
       doToast({
@@ -239,7 +213,7 @@ export function CommentCreate(props: Props) {
           message: __('The creator just updated the minimum setting. Please revise or double-check your tip amount.'),
           isError: true,
         });
-        setIsReviewingSupportComment(false);
+        setReviewingSupportComment(false);
         return;
       }
 
@@ -248,33 +222,17 @@ export function CommentCreate(props: Props) {
   }
 
   function doSubmitTip() {
-    if (!activeChannelClaim) {
-      return;
-    }
+    if (!activeChannelClaim) return;
 
-    const params = {
-      amount: tipAmount,
-      claim_id: claimId,
-      channel_id: activeChannelClaim.claim_id,
-    };
-
+    const params = { amount: tipAmount, claim_id: claimId, channel_id: activeChannelClaim.claim_id };
     const activeChannelName = activeChannelClaim && activeChannelClaim.name;
     const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
     // setup variables for tip API
-    let channelClaimId, tipChannelName;
-    // if there is a signing channel it's on a file
-    if (claim.signing_channel) {
-      channelClaimId = claim.signing_channel.claim_id;
-      tipChannelName = claim.signing_channel.name;
+    const channelClaimId = claim.signing_channel ? claim.signing_channel.claim_id : claim.claim_id;
+    const tipChannelName = claim.signing_channel ? claim.signing_channel.name : claim.name;
 
-      // otherwise it's on the channel page
-    } else {
-      channelClaimId = claim.claim_id;
-      tipChannelName = claim.name;
-    }
-
-    setIsSubmitting(true);
+    setSubmitting(true);
 
     if (activeTab === TAB_LBC) {
       // call sendTip and then run the callback from the response
@@ -302,59 +260,24 @@ export function CommentCreate(props: Props) {
         },
         () => {
           // reset the frontend so people can send a new comment
-          setIsSubmitting(false);
+          setSubmitting(false);
         }
       );
     } else {
-      const sourceClaimId = claim.claim_id;
-      const roundedAmount = Math.round(tipAmount * 100) / 100;
+      const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
+      const userParams: UserParams = { activeChannelName, activeChannelId };
 
-      Lbryio.call(
-        'customer',
-        'tip',
-        {
-          // round to deal with floating point precision
-          amount: Math.round(100 * roundedAmount), // convert from dollars to cents
-          creator_channel_name: tipChannelName, // creator_channel_name
-          creator_channel_claim_id: channelClaimId,
-          tipper_channel_name: activeChannelName,
-          tipper_channel_claim_id: activeChannelId,
-          currency: 'USD',
-          anonymous: false,
-          source_claim_id: sourceClaimId,
-          environment: stripeEnvironment,
-        },
-        'post'
-      )
-        .then((customerTipResponse) => {
-          const paymentIntendId = customerTipResponse.payment_intent_id;
+      sendCashTip(tipParams, userParams, claim.claim_id, stripeEnvironment, (customerTipResponse) => {
+        const { paymentIntendId } = customerTipResponse;
 
-          handleCreateComment(null, paymentIntendId, stripeEnvironment);
+        handleCreateComment(null, paymentIntendId, stripeEnvironment);
 
-          setCommentValue('');
-          setIsReviewingSupportComment(false);
-          setIsSupportComment(false);
-          setCommentFailure(false);
-          setIsSubmitting(false);
-
-          doToast({
-            message: __("You sent $%formattedAmount% as a tip to %tipChannelName%, I'm sure they appreciate it!", {
-              formattedAmount: roundedAmount.toFixed(2), // force show decimal places
-              tipChannelName,
-            }),
-          });
-
-          // handleCreateComment(null);
-        })
-        .catch((error) => {
-          doToast({
-            message:
-              error.message !== 'payment intent failed to confirm'
-                ? error.message
-                : 'Sorry, there was an error in processing your payment!',
-            isError: true,
-          });
-        });
+        setCommentValue('');
+        setReviewingSupportComment(false);
+        setIsSupportComment(false);
+        setCommentFailure(false);
+        setSubmitting(false);
+      });
     }
   }
 
@@ -366,16 +289,16 @@ export function CommentCreate(props: Props) {
    */
   function handleCreateComment(txid, payment_intent_id, environment) {
     setShowEmotes(false);
-    setIsSubmitting(true);
+    setSubmitting(true);
 
     createComment(commentValue, claimId, parentId, txid, payment_intent_id, environment)
       .then((res) => {
-        setIsSubmitting(false);
+        setSubmitting(false);
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
           setCommentValue('');
-          setIsReviewingSupportComment(false);
+          setReviewingSupportComment(false);
           setIsSupportComment(false);
           setCommentFailure(false);
 
@@ -385,7 +308,7 @@ export function CommentCreate(props: Props) {
         }
       })
       .catch(() => {
-        setIsSubmitting(false);
+        setSubmitting(false);
         setCommentFailure(true);
 
         if (channelId) {
@@ -456,30 +379,104 @@ export function CommentCreate(props: Props) {
       >
         <FormField type="textarea" name={'comment_signup_prompt'} placeholder={__('Say something about this...')} />
         <div className="section__actions--no-margin">
-          <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth={IS_WEB} />
+          <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth />
         </div>
       </div>
     );
   }
 
-  if (isReviewingSupportComment && activeChannelClaim) {
-    return (
-      <div className="comment__create">
-        <div className="comment__sc-preview">
+  return (
+    <Form
+      className={classnames('commentCreate', {
+        'commentCreate--reply': isReply,
+        'commentCreate--nestedReply': isNested,
+        'commentCreate--bottom': bottom,
+      })}
+    >
+      {/* Input Box/Preview Box */}
+      {isReviewingSupportComment && activeChannelClaim ? (
+        <div className="commentCreate__supportCommentPreview">
           <CreditAmount
-            className="comment__sc-preview-amount"
-            isFiat={activeTab === TAB_FIAT}
             amount={tipAmount}
+            className="commentCreate__supportCommentPreviewAmount"
+            isFiat={activeTab === TAB_FIAT}
             size={activeTab === TAB_LBC ? 18 : 2}
           />
 
           <ChannelThumbnail xsmall uri={activeChannelClaim.canonical_url} />
-          <div>
-            <UriIndicator uri={activeChannelClaim.name} link />
+          <div className="commentCreate__supportCommentBody">
+            <UriIndicator uri={activeChannelClaim.canonical_url} link />
             <div>{commentValue}</div>
           </div>
         </div>
-        <div className="section__actions--no-margin">
+      ) : (
+        <>
+          {showEmotes && (
+            <EmoteSelector
+              commentValue={commentValue}
+              setCommentValue={setCommentValue}
+              closeSelector={() => setShowEmotes(false)}
+            />
+          )}
+
+          {!advancedEditor && (
+            <ChannelMentionSuggestions
+              uri={uri}
+              isLivestream={livestream}
+              inputRef={formFieldInputRef}
+              mentionTerm={channelMention}
+              creatorUri={channelUri}
+              customSelectAction={handleSelectMention}
+            />
+          )}
+
+          <FormField
+            disabled={isFetchingChannels}
+            type={SIMPLE_SITE ? 'textarea' : advancedEditor && !isReply ? 'markdown' : 'textarea'}
+            name={isReply ? 'content_reply' : 'content_description'}
+            ref={formFieldRef}
+            className={isReply ? 'content_reply' : 'content_comment'}
+            label={
+              <span className="commentCreate__labelWrapper">
+                {!livestream && (
+                  <div className="commentCreate__label">{isReply ? __('Replying as ') : __('Comment as ')}</div>
+                )}
+                <SelectChannel tiny />
+              </span>
+            }
+            quickActionLabel={
+              !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
+            }
+            quickActionHandler={() => !SIMPLE_SITE && setAdvancedEditor(!advancedEditor)}
+            openEmoteMenu={() => setShowEmotes(!showEmotes)}
+            onFocus={() => window.addEventListener('keydown', altEnterListener)}
+            onBlur={() => window.removeEventListener('keydown', altEnterListener)}
+            placeholder={__('Say something about this...')}
+            value={commentValue}
+            charCount={charCount}
+            onChange={handleCommentChange}
+            autoFocus={isReply}
+            textAreaMaxLength={livestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
+          />
+
+          {isSupportComment && (
+            <WalletTipAmountSelector
+              activeTab={activeTab}
+              amount={tipAmount}
+              claim={claim}
+              onChange={(amount) => setTipAmount(amount)}
+              setDisableSubmitButton={setDisableReviewButton}
+              setTipError={setTipError}
+              tipError={tipError}
+            />
+          )}
+        </>
+      )}
+
+      {/* Bottom Action Buttons */}
+      <div className="section__actions section__actions--no-margin">
+        {/* Submit Button */}
+        {isReviewingSupportComment ? (
           <Button
             autoFocus
             button="primary"
@@ -493,166 +490,100 @@ export function CommentCreate(props: Props) {
             }
             onClick={handleSupportComment}
           />
+        ) : isSupportComment ? (
           <Button
-            disabled={isSubmitting}
-            button="link"
-            label={__('Cancel')}
-            onClick={() => setIsReviewingSupportComment(false)}
+            disabled={disabled || tipError || disableReviewButton || !minAmountMet}
+            type="button"
+            button="primary"
+            icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
+            label={__('Review')}
+            onClick={() => setReviewingSupportComment(true)}
+            requiresAuth
           />
-          {MinAmountNotice}
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <Form
-      className={classnames('comment__create', {
-        'comment__create--reply': isReply,
-        'comment__create--nested-reply': isNested,
-        'comment__create--bottom': bottom,
-      })}
-    >
-      {showEmotes && (
-        <EmoteSelector
-          commentValue={commentValue}
-          setCommentValue={setCommentValue}
-          closeSelector={() => setShowEmotes(false)}
-        />
-      )}
-
-      {!advancedEditor && (
-        <ChannelMentionSuggestions
-          uri={uri}
-          isLivestream={livestream}
-          inputRef={formFieldInputRef}
-          mentionTerm={channelMention}
-          creatorUri={channelUri}
-          customSelectAction={handleSelectMention}
-        />
-      )}
-      <FormField
-        disabled={isFetchingChannels}
-        type={SIMPLE_SITE ? 'textarea' : advancedEditor && !isReply ? 'markdown' : 'textarea'}
-        name={isReply ? 'content_reply' : 'content_description'}
-        ref={formFieldRef}
-        className={isReply ? 'content_reply' : 'content_comment'}
-        label={
-          <span className="comment-new__label-wrapper">
-            {!livestream && (
-              <div className="comment-new__label">{isReply ? __('Replying as') + ' ' : __('Comment as') + ' '}</div>
-            )}
-            <SelectChannel tiny />
-          </span>
-        }
-        quickActionLabel={
-          !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
-        }
-        quickActionHandler={() => !SIMPLE_SITE && setAdvancedEditor(!advancedEditor)}
-        openEmoteMenu={() => setShowEmotes(!showEmotes)}
-        onFocus={onTextareaFocus}
-        onBlur={onTextareaBlur}
-        placeholder={__('Say something about this...')}
-        value={commentValue}
-        charCount={charCount}
-        onChange={handleCommentChange}
-        autoFocus={isReply}
-        textAreaMaxLength={livestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
-      />
-      {isSupportComment && (
-        <WalletTipAmountSelector
-          setTipError={setTipError}
-          setDisableSubmitButton={setShouldDisableReviewButton}
-          claim={claim}
-          activeTab={activeTab}
-          amount={tipAmount}
-          onChange={(amount) => setTipAmount(amount)}
-        />
-      )}
-      <div className="section__actions section__actions--no-margin">
-        {isSupportComment ? (
-          <>
-            <Button
-              disabled={disabled || tipError || shouldDisableReviewButton || !minAmountMet}
-              type="button"
-              button="primary"
-              icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
-              label={__('Review')}
-              onClick={() => setIsReviewingSupportComment(true)}
-              requiresAuth={IS_WEB}
-            />
-
-            <Button
-              disabled={isSubmitting}
-              button="link"
-              label={__('Cancel')}
-              onClick={() => setIsSupportComment(false)}
-            />
-          </>
         ) : (
+          (!minTip || claimIsMine) && (
+            <Button
+              ref={buttonRef}
+              button="primary"
+              disabled={disabled}
+              type="submit"
+              label={
+                isReply
+                  ? isSubmitting
+                    ? __('Replying...')
+                    : __('Reply')
+                  : isSubmitting
+                  ? __('Commenting...')
+                  : __('Comment --[button to submit something]--')
+              }
+              requiresAuth
+              onClick={() => activeChannelClaim && commentValue.length && handleCreateComment()}
+            />
+          )
+        )}
+        {!supportDisabled && !claimIsMine && (
           <>
-            {(!minTip || claimIsMine) && (
+            <Button
+              disabled={disabled}
+              button="alt"
+              icon={ICONS.LBC}
+              onClick={() => {
+                setIsSupportComment(true);
+                setActiveTab(TAB_LBC);
+              }}
+            />
+            {stripeEnvironment && (
               <Button
-                ref={buttonRef}
-                button="primary"
                 disabled={disabled}
-                type="submit"
-                label={
-                  isReply
-                    ? isSubmitting
-                      ? __('Replying...')
-                      : __('Reply')
-                    : isSubmitting
-                    ? __('Commenting...')
-                    : __('Comment --[button to submit something]--')
-                }
-                requiresAuth={IS_WEB}
-                onClick={() => activeChannelClaim && commentValue.length && handleCreateComment()}
-              />
-            )}
-            {!supportDisabled && !claimIsMine && (
-              <>
-                <Button
-                  disabled={disabled}
-                  button="alt"
-                  className="thatButton"
-                  icon={ICONS.LBC}
-                  onClick={() => {
-                    setIsSupportComment(true);
-                    setActiveTab(TAB_LBC);
-                  }}
-                />
-                {/* @if TARGET='web' */}
-                {stripeEnvironment && (
-                  <Button
-                    disabled={disabled}
-                    button="alt"
-                    className="thisButton"
-                    icon={ICONS.FINANCE}
-                    onClick={() => {
-                      setIsSupportComment(true);
-                      setActiveTab(TAB_FIAT);
-                    }}
-                  />
-                )}
-                {/* @endif */}
-              </>
-            )}
-            {isReply && !minTip && (
-              <Button
-                button="link"
-                label={__('Cancel')}
+                button="alt"
+                icon={ICONS.FINANCE}
                 onClick={() => {
-                  if (onCancelReplying) {
-                    onCancelReplying();
-                  }
+                  setIsSupportComment(true);
+                  setActiveTab(TAB_FIAT);
                 }}
               />
             )}
           </>
         )}
+
+        {/* Cancel Button */}
+        {(isSupportComment || isReviewingSupportComment || (isReply && !minTip)) && (
+          <Button
+            button="link"
+            label={__('Cancel')}
+            onClick={() => {
+              if (isSupportComment || isReviewingSupportComment) {
+                setIsSupportComment(false);
+                if (isReviewingSupportComment) setReviewingSupportComment(false);
+              } else if (isReply && !minTip && onCancelReplying) {
+                onCancelReplying();
+              }
+            }}
+          />
+        )}
+
+        {/* Help Text */}
         {deletedComment && <div className="error__text">{__('This comment has been deleted.')}</div>}
-        {MinAmountNotice}
+        {!!minAmount && (
+          <div className="help--notice commentCreate__minAmountNotice">
+            <I18nMessage tokens={{ lbc: <CreditAmount noFormat amount={minAmount} /> }}>
+              {minTip ? 'Comment min: %lbc%' : minSuper ? 'HyperChat min: %lbc%' : ''}
+            </I18nMessage>
+            <Icon
+              customTooltipText={
+                minTip
+                  ? __('This channel requires a minimum tip for each comment.')
+                  : minSuper
+                  ? __('This channel requires a minimum amount for HyperChats to be visible.')
+                  : ''
+              }
+              className="icon--help"
+              icon={ICONS.HELP}
+              tooltip
+              size={16}
+            />
+          </div>
+        )}
       </div>
     </Form>
   );

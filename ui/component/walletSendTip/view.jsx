@@ -21,6 +21,8 @@ const TAB_BOOST = 'TabBoost';
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 type SupportParams = { amount: number, claim_id: string, channel_id?: string };
+type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
+type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
 type Props = {
   activeChannelClaim: ?ChannelClaim,
@@ -36,8 +38,8 @@ type Props = {
   title: string,
   uri: string,
   doHideModal: () => void,
+  doSendCashTip: (TipParams, boolean, UserParams, string, ?string) => string,
   doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
-  doToast: ({ message: string }) => void,
 };
 
 function WalletSendTip(props: Props) {
@@ -54,8 +56,8 @@ function WalletSendTip(props: Props) {
     title,
     uri,
     doHideModal,
+    doSendCashTip,
     doSendTip,
-    doToast,
   } = props;
 
   /** STATE **/
@@ -157,46 +159,11 @@ function WalletSendTip(props: Props) {
       if (!isOnConfirmationPage) {
         setConfirmationPage(true);
       } else {
-        let sendAnonymously = !activeChannelClaim || incognito;
+        const tipParams: TipParams = { tipAmount, tipChannelName, channelClaimId };
+        const userParams: UserParams = { activeChannelName, activeChannelId };
 
         // hit backend to send tip
-        Lbryio.call(
-          'customer',
-          'tip',
-          {
-            // round to fix issues with floating point numbers
-            amount: Math.round(100 * tipAmount), // convert from dollars to cents
-            creator_channel_name: tipChannelName, // creator_channel_name
-            creator_channel_claim_id: channelClaimId,
-            tipper_channel_name: sendAnonymously ? '' : activeChannelName,
-            tipper_channel_claim_id: sendAnonymously ? '' : activeChannelId,
-            currency: 'USD',
-            anonymous: sendAnonymously,
-            source_claim_id: claimId,
-            environment: stripeEnvironment,
-          },
-          'post'
-        )
-          .then(() => {
-            doToast({
-              message: __("You sent $%amount% as a tip to %tipChannelName%, I'm sure they appreciate it!", {
-                amount: tipAmount,
-                tipChannelName,
-              }),
-            });
-          })
-          .catch((error) => {
-            // show error message from Stripe if one exists (being passed from backend by Beamer's API currently)
-            let displayError;
-            if (error.message) {
-              displayError = error.message;
-            } else {
-              displayError = __('Sorry, there was an error in processing your payment!');
-            }
-
-            doToast({ message: displayError, isError: true });
-          });
-
+        doSendCashTip(tipParams, !activeChannelClaim || incognito, userParams, claimId, stripeEnvironment);
         doHideModal();
       }
       // if it's a boost (?)
