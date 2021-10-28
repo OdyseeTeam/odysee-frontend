@@ -561,8 +561,8 @@ export function CommentCreate(props: Props) {
       />
       {isSupportComment && (
         <WalletTipAmountSelector
-          onTipErrorChange={setTipError}
-          shouldDisableReviewButton={setShouldDisableReviewButton}
+          setTipError={setTipError}
+          setDisableSubmitButton={setShouldDisableReviewButton}
           claim={claim}
           activeTab={activeTab}
           amount={tipAmount}
