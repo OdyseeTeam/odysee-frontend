@@ -25,7 +25,7 @@ const ALL = 'All';
 const PRIVATE = 'Private';
 const PUBLIC = 'Public';
 const COLLECTION_FILTERS = [ALL, PRIVATE, PUBLIC];
-COLLECTION_SHOW_COUNT = 24;
+const COLLECTION_SHOW_COUNT = 24;
 
 export default function CollectionsListMine(props: Props) {
   const {
