@@ -88,3 +88,5 @@ export function sortComments(sortProps: SortProps): Array<Comment> {
     return 0;
   });
 }
+
+export const buildValidSticker = (sticker: string) => `<stkr>${sticker}<stkr>`;

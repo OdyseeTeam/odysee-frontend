@@ -1,5 +1,6 @@
 // @flow
 import 'scss/component/_comment-create.scss';
+import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -15,10 +16,13 @@ import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
 import EmoteSelector from './emote-selector';
 import Empty from 'component/common/empty';
+import FilePrice from 'component/filePrice';
 import I18nMessage from 'component/i18nMessage';
 import Icon from 'component/common/icon';
+import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import SelectChannel from 'component/selectChannel';
+import StickerSelector from './sticker-selector';
 import type { ElementRef } from 'react';
 import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
@@ -51,7 +55,7 @@ type Props = {
   shouldFetchComment: boolean,
   supportDisabled: boolean,
   uri: string,
-  createComment: (string, string, string, ?string, ?string, ?string) => Promise<any>,
+  createComment: (string, string, string, ?string, ?string, ?string, boolean) => Promise<any>,
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
   doToast: ({ message: string }) => void,
   fetchComment: (commentId: string) => Promise<any>,
@@ -106,9 +110,13 @@ export function CommentCreate(props: Props) {
   const [successTip, setSuccessTip] = React.useState({ txid: undefined, tipAmount: undefined });
   const [isSupportComment, setIsSupportComment] = React.useState();
   const [isReviewingSupportComment, setReviewingSupportComment] = React.useState();
+  const [isReviewingStickerComment, setReviewingStickerComment] = React.useState();
+  const [selectedSticker, setSelectedSticker] = React.useState();
   const [tipAmount, setTipAmount] = React.useState(1);
+  const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
   const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
+  const [stickerSelector, setStickerSelector] = React.useState();
   const [activeTab, setActiveTab] = React.useState('');
   const [tipError, setTipError] = React.useState();
   const [deletedComment, setDeletedComment] = React.useState(false);
@@ -151,6 +159,19 @@ export function CommentCreate(props: Props) {
   // **************************************************************************
   // Functions
   // **************************************************************************
+
+  function handleSelectSticker(sticker: any) {
+    // $FlowFixMe
+    setSelectedSticker(sticker);
+    setReviewingStickerComment(true);
+    setTipAmount(sticker.price || 0);
+    setStickerSelector(false);
+
+    if (sticker.price && sticker.price > 0) {
+      setActiveTab(TAB_FIAT);
+      setIsSupportComment(true);
+    }
+  }
 
   function handleCommentChange(event) {
     let commentValue;
@@ -268,9 +289,9 @@ export function CommentCreate(props: Props) {
       const userParams: UserParams = { activeChannelName, activeChannelId };
 
       sendCashTip(tipParams, userParams, claim.claim_id, stripeEnvironment, (customerTipResponse) => {
-        const { paymentIntendId } = customerTipResponse;
+        const { payment_intent_id } = customerTipResponse;
 
-        handleCreateComment(null, paymentIntendId, stripeEnvironment);
+        handleCreateComment(null, payment_intent_id, stripeEnvironment);
 
         setCommentValue('');
         setReviewingSupportComment(false);
@@ -290,8 +311,9 @@ export function CommentCreate(props: Props) {
   function handleCreateComment(txid, payment_intent_id, environment) {
     setShowEmotes(false);
     setSubmitting(true);
+    const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
 
-    createComment(commentValue, claimId, parentId, txid, payment_intent_id, environment)
+    createComment(stickerValue || commentValue, claimId, parentId, txid, payment_intent_id, environment, !!stickerValue)
       .then((res) => {
         setSubmitting(false);
         if (setQuickReply) setQuickReply(res);
@@ -355,6 +377,10 @@ export function CommentCreate(props: Props) {
   // Render
   // **************************************************************************
 
+  const getActionButton = (title: string, icon: string, handleClick: () => void) => (
+    <Button title={title} button="alt" icon={icon} onClick={handleClick} />
+  );
+
   if (channelSettings && !channelSettings.comments_enabled) {
     return <Empty padded text={__('This channel has disabled comments on their page.')} />;
   }
@@ -394,7 +420,22 @@ export function CommentCreate(props: Props) {
       })}
     >
       {/* Input Box/Preview Box */}
-      {isReviewingSupportComment && activeChannelClaim ? (
+      {stickerSelector ? (
+        <StickerSelector onSelect={(sticker) => handleSelectSticker(sticker)} claimIsMine={claimIsMine} />
+      ) : isReviewingStickerComment && activeChannelClaim && selectedSticker ? (
+        <div className="commentCreate__stickerPreview">
+          <div className="commentCreate__stickerPreviewInfo">
+            <ChannelThumbnail xsmall uri={activeChannelClaim.canonical_url} />
+            <UriIndicator uri={activeChannelClaim.canonical_url} link />
+          </div>
+
+          <div className="commentCreate__stickerPreviewImage">
+            <OptimizedImage src={selectedSticker && selectedSticker.url} />
+          </div>
+
+          {selectedSticker.price && <FilePrice customPrice={selectedSticker.price} isFiat />}
+        </div>
+      ) : isReviewingSupportComment && activeChannelClaim ? (
         <div className="commentCreate__supportCommentPreview">
           <CreditAmount
             amount={tipAmount}
@@ -458,19 +499,23 @@ export function CommentCreate(props: Props) {
             autoFocus={isReply}
             textAreaMaxLength={livestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
           />
-
-          {isSupportComment && (
-            <WalletTipAmountSelector
-              activeTab={activeTab}
-              amount={tipAmount}
-              claim={claim}
-              onChange={(amount) => setTipAmount(amount)}
-              setDisableSubmitButton={setDisableReviewButton}
-              setTipError={setTipError}
-              tipError={tipError}
-            />
-          )}
         </>
+      )}
+
+      {(isSupportComment || (isReviewingStickerComment && selectedSticker && selectedSticker.price)) && (
+        <WalletTipAmountSelector
+          activeTab={activeTab}
+          amount={tipAmount}
+          claim={claim}
+          convertedAmount={convertedAmount}
+          customTipAmount={selectedSticker && selectedSticker.price}
+          fiatConversion={selectedSticker && !!selectedSticker.price}
+          onChange={(amount) => setTipAmount(amount)}
+          setConvertedAmount={setConvertedAmount}
+          setDisableSubmitButton={setDisableReviewButton}
+          setTipError={setTipError}
+          tipError={tipError}
+        />
       )}
 
       {/* Bottom Action Buttons */}
@@ -490,6 +535,30 @@ export function CommentCreate(props: Props) {
             }
             onClick={handleSupportComment}
           />
+        ) : isReviewingStickerComment && selectedSticker ? (
+          <Button
+            button="primary"
+            label={__('Send')}
+            disabled={
+              (isSupportComment && (tipError || disableReviewButton)) ||
+              (selectedSticker &&
+                selectedSticker.price &&
+                (activeTab === TAB_FIAT
+                  ? tipAmount < selectedSticker.price
+                  : convertedAmount && convertedAmount < selectedSticker.price))
+            }
+            onClick={() => {
+              if (isSupportComment) {
+                handleSupportComment();
+              } else {
+                handleCreateComment();
+              }
+              setSelectedSticker(null);
+              setReviewingStickerComment(false);
+              setStickerSelector(false);
+              setIsSupportComment(false);
+            }}
+          />
         ) : isSupportComment ? (
           <Button
             disabled={disabled || tipError || disableReviewButton || !minAmountMet}
@@ -505,7 +574,7 @@ export function CommentCreate(props: Props) {
             <Button
               ref={buttonRef}
               button="primary"
-              disabled={disabled}
+              disabled={disabled || stickerSelector}
               type="submit"
               label={
                 isReply
@@ -521,40 +590,62 @@ export function CommentCreate(props: Props) {
             />
           )
         )}
-        {!supportDisabled && !claimIsMine && (
+
+        {/** Stickers/Support Buttons **/}
+        {!supportDisabled && !stickerSelector && (
           <>
-            <Button
-              disabled={disabled}
-              button="alt"
-              icon={ICONS.LBC}
-              onClick={() => {
-                setIsSupportComment(true);
-                setActiveTab(TAB_LBC);
-              }}
-            />
-            {stripeEnvironment && (
+            {isReviewingStickerComment ? (
               <Button
-                disabled={disabled}
                 button="alt"
-                icon={ICONS.FINANCE}
+                label={__('Different Sticker')}
                 onClick={() => {
-                  setIsSupportComment(true);
-                  setActiveTab(TAB_FIAT);
+                  setReviewingStickerComment(false);
+                  setIsSupportComment(false);
+                  setStickerSelector(true);
                 }}
               />
+            ) : (
+              getActionButton(__('Stickers'), ICONS.TAG, () => {
+                setIsSupportComment(false);
+                setStickerSelector(true);
+              })
             )}
+            {!claimIsMine &&
+              getActionButton(__('LBC'), ICONS.LBC, () => {
+                setIsSupportComment(true);
+                setActiveTab(TAB_LBC);
+              })}
+            {!claimIsMine &&
+              stripeEnvironment &&
+              getActionButton(__('Cash'), ICONS.FINANCE, () => {
+                setIsSupportComment(true);
+                setActiveTab(TAB_FIAT);
+              })}
           </>
         )}
 
         {/* Cancel Button */}
-        {(isSupportComment || isReviewingSupportComment || (isReply && !minTip)) && (
+        {(isSupportComment ||
+          isReviewingSupportComment ||
+          stickerSelector ||
+          isReviewingStickerComment ||
+          (isReply && !minTip)) && (
           <Button
+            disabled={isSupportComment && isSubmitting}
             button="link"
             label={__('Cancel')}
             onClick={() => {
               if (isSupportComment || isReviewingSupportComment) {
-                setIsSupportComment(false);
-                if (isReviewingSupportComment) setReviewingSupportComment(false);
+                if (!isReviewingSupportComment) setIsSupportComment(false);
+                setReviewingSupportComment(false);
+                if (selectedSticker && selectedSticker.price) {
+                  setReviewingStickerComment(false);
+                  setStickerSelector(false);
+                  setSelectedSticker(null);
+                }
+              } else if (stickerSelector || isReviewingStickerComment) {
+                setReviewingStickerComment(false);
+                setStickerSelector(false);
               } else if (isReply && !minTip && onCancelReplying) {
                 onCancelReplying();
               }

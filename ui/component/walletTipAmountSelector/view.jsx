@@ -3,6 +3,7 @@ import 'scss/component/_wallet-tip-selector.scss';
 import { FormField } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
+import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
@@ -23,19 +24,42 @@ type Props = {
   amount: number,
   balance: number,
   claim: StreamClaim,
+  convertedAmount?: number,
+  customTipAmount?: number,
+  fiatConversion?: boolean,
   tipError: boolean,
+  tipError: string,
   uri: string,
   onChange: (number) => void,
+  setConvertedAmount?: (number) => void,
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
 };
 
 function WalletTipAmountSelector(props: Props) {
-  const { activeTab, amount, balance, claim, tipError, onChange, setDisableSubmitButton, setTipError } = props;
+  const {
+    activeTab,
+    amount,
+    balance,
+    claim,
+    convertedAmount,
+    customTipAmount,
+    fiatConversion,
+    tipError,
+    onChange,
+    setConvertedAmount,
+    setDisableSubmitButton,
+    setTipError,
+  } = props;
 
+  const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
   const [hasCardSaved, setHasSavedCard] = usePersistedState('comment-support:hasCardSaved', false);
   const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(); // dont persist because it needs to be calc'd per creator
+  const [exchangeRate, setExchangeRate] = React.useState();
+
+  const tipAmountsToDisplay =
+    customTipAmount && fiatConversion && activeTab === TAB_FIAT ? [customTipAmount] : DEFAULT_TIP_AMOUNTS;
 
   // if it's fiat but there's no card saved OR the creator can't receive fiat tips
   const shouldDisableFiatSelectors = activeTab === TAB_FIAT && (!hasCardSaved || !canReceiveFiatTip);
@@ -53,14 +77,35 @@ function WalletTipAmountSelector(props: Props) {
   function shouldDisableAmountSelector(amount: number) {
     // if it's LBC but the balance isn't enough, or fiat conditions met
     // $FlowFixMe
-    return ((amount > balance || balance === 0) && activeTab !== TAB_FIAT) || shouldDisableFiatSelectors;
+    return (
+      ((amount > balance || balance === 0) && activeTab !== TAB_FIAT) ||
+      shouldDisableFiatSelectors ||
+      (customTipAmount && fiatConversion && activeTab !== TAB_FIAT && exchangeRate
+        ? amount * exchangeRate < customTipAmount
+        : customTipAmount && amount < customTipAmount)
+    );
   }
 
   // parse number as float and sets it in the parent component
   function handleCustomPriceChange(amount: number) {
     const tipAmountValue = parseFloat(amount);
     onChange(tipAmountValue);
+    if (fiatConversion && exchangeRate && setConvertedAmount && convertedAmount !== tipAmountValue * exchangeRate) {
+      setConvertedAmount(tipAmountValue * exchangeRate);
+    }
   }
+
+  function convertToTwoDecimals(number: number) {
+    return (Math.round(number * 100) / 100).toFixed(2);
+  }
+
+  React.useEffect(() => {
+    if (!exchangeRate) {
+      Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
+    } else if ((!convertedAmount || convertedAmount !== amount * exchangeRate) && setConvertedAmount) {
+      setConvertedAmount(amount * exchangeRate);
+    }
+  }, [amount, convertedAmount, exchangeRate, setConvertedAmount]);
 
   // check if creator has a payment method saved
   React.useEffect(() => {
@@ -147,16 +192,12 @@ function WalletTipAmountSelector(props: Props) {
     }
   }, [activeTab, amount, balance, setTipError]);
 
-  const getHelpMessage = (helpMessage: any) => (
-    <div className="help">
-      <span className="help--spendable">{helpMessage}</span>
-    </div>
-  );
+  const getHelpMessage = (helpMessage: any) => <div className="help">{helpMessage}</div>;
 
   return (
     <>
       <div className="section">
-        {DEFAULT_TIP_AMOUNTS.map((defaultAmount) => (
+        {tipAmountsToDisplay.map((defaultAmount) => (
           <Button
             key={defaultAmount}
             disabled={shouldDisableAmountSelector(defaultAmount)}
@@ -195,13 +236,26 @@ function WalletTipAmountSelector(props: Props) {
         )}
       </div>
 
+      {customTipAmount &&
+        fiatConversion &&
+        activeTab !== TAB_FIAT &&
+        getHelpMessage(
+          __(
+            `This support is priced in $USD. ${
+              convertedAmount
+                ? __(`The current exchange rate for the submitted amount is: $${convertToTwoDecimals(convertedAmount)}`)
+                : ''
+            }`
+          )
+        )}
+
       {/* custom number input form */}
       {useCustomTip && (
         <div className="walletTipSelector__input">
           <FormField
-            autoFocus
+            autoFocus={!isMobile}
             name="tip-input"
-            disabled={shouldDisableAmountSelector(0)}
+            disabled={!customTipAmount && shouldDisableAmountSelector(0)}
             error={tipError}
             min="0"
             step="any"

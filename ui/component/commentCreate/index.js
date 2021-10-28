@@ -25,7 +25,7 @@ const select = (state, props) => ({
 });
 
 const perform = (dispatch, ownProps) => ({
-  createComment: (comment, claimId, parentId, txid, payment_intent_id, environment) =>
+  createComment: (comment, claimId, parentId, txid, payment_intent_id, environment, sticker) =>
     dispatch(
       doCommentCreate(
         comment,
@@ -35,7 +35,8 @@ const perform = (dispatch, ownProps) => ({
         ownProps.livestream,
         txid,
         payment_intent_id,
-        environment
+        environment,
+        sticker
       )
     ),
   doFetchCreatorSettings: (channelClaimId) => dispatch(doFetchCreatorSettings(channelClaimId)),

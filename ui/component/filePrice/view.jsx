@@ -10,12 +10,13 @@ type Props = {
   claim: ?{},
   claimIsMine: boolean,
   claimWasPurchased: boolean,
-  costInfo: ?{ includesData: boolean, cost: number },
+  costInfo?: ?{ includesData: boolean, cost: number },
   fetching: boolean,
   showFullPrice: boolean,
   type?: string,
   uri: string,
   // below props are just passed to <CreditAmount />
+  customPrice: number,
   hideFree?: boolean, // hide the file price if it's free
   isFiat?: boolean,
   showLBC?: boolean,
@@ -36,13 +37,23 @@ class FilePrice extends React.PureComponent<Props> {
   fetchCost = (props: Props) => {
     const { costInfo, uri, fetching, claim, doFetchCostInfoForUri } = props;
 
-    if (costInfo === undefined && !fetching && claim) doFetchCostInfoForUri(uri);
+    if (uri && costInfo === undefined && !fetching && claim) doFetchCostInfoForUri(uri);
   };
 
   render() {
-    const { costInfo, showFullPrice, showLBC, isFiat, hideFree, claimWasPurchased, type, claimIsMine } = this.props;
+    const {
+      costInfo,
+      showFullPrice,
+      showLBC,
+      isFiat,
+      hideFree,
+      claimWasPurchased,
+      type,
+      claimIsMine,
+      customPrice,
+    } = this.props;
 
-    if (claimIsMine || !costInfo || !costInfo.cost || (!costInfo.cost && hideFree)) return null;
+    if (!customPrice && (claimIsMine || !costInfo || !costInfo.cost || (!costInfo.cost && hideFree))) return null;
 
     const className = classnames(claimWasPurchased ? 'filePrice__key' : 'filePrice', {
       'filePrice--filepage': type === 'filepage',
@@ -55,9 +66,9 @@ class FilePrice extends React.PureComponent<Props> {
       </span>
     ) : (
       <CreditAmount
-        amount={costInfo.cost}
+        amount={costInfo ? costInfo.cost : customPrice}
         className={className}
-        isEstimate={!costInfo.includesData}
+        isEstimate={!!costInfo && !costInfo.includesData}
         isFiat={isFiat}
         showFree
         showFullPrice={showFullPrice}
