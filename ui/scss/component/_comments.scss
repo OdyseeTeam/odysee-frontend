@@ -478,3 +478,14 @@ $thumbnailWidthSmall: 1rem;
     }
   }
 }
+
+.sticker__comment {
+  margin-left: var(--spacing-m);
+  height: 6rem;
+  overflow: hidden;
+
+  img {
+    max-width: 100%;
+    max-height: 100%;
+  }
+}
