@@ -11,7 +11,13 @@ import NotificationBubble from 'component/notificationBubble';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { GetLinksData } from 'util/buildHomepage';
-import { SIMPLE_SITE, DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
+import {
+  SIMPLE_SITE,
+  DOMAIN,
+  ENABLE_UI_NOTIFICATIONS,
+  ENABLE_NO_SOURCE_CLAIMS,
+  CHANNEL_STAKED_LEVEL_LIVESTREAM,
+} from 'config';
 // @if TARGET='app'
 import { IS_MAC } from 'component/app/view';
 // @endif
@@ -46,6 +52,7 @@ type Props = {
   doClearPurchasedUriSuccess: () => void,
   user: ?User,
   homepageData: any,
+  activeChannelStakedLevel: number,
 };
 
 type SideNavLink = {
@@ -73,6 +80,7 @@ function SideNavigation(props: Props) {
     homepageData,
     user,
     followedTags,
+    activeChannelStakedLevel,
   } = props;
 
   const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData).map(({ pinnedUrls, ...theRest }) => theRest);
@@ -98,6 +106,12 @@ function SideNavigation(props: Props) {
   ];
 
   const MOBILE_LINKS: Array<SideNavLink> = [
+    {
+      title: 'Go Live',
+      link: `/$/${PAGES.LIVESTREAM}`,
+      icon: ICONS.VIDEO,
+      hideForUnauth: true,
+    },
     {
       title: 'Notifications',
       link: `/$/${PAGES.NOTIFICATIONS}`,
@@ -235,16 +249,25 @@ function SideNavigation(props: Props) {
     SIDE_LINKS.push(WILD_WEST);
   }
 
+  const livestreamEnabled = Boolean(
+    ENABLE_NO_SOURCE_CLAIMS &&
+      user &&
+      !user.odysee_live_disabled &&
+      (activeChannelStakedLevel >= CHANNEL_STAKED_LEVEL_LIVESTREAM || user.odysee_live_enabled)
+  );
+
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
   const isPersonalized = !IS_WEB || isAuthenticated;
   const isAbsolute = isOnFilePage || isMediumScreen;
   const microNavigation = !sidebarOpen || isMediumScreen;
   const subLinks = email
     ? MOBILE_LINKS.filter((link) => {
-        if (!notificationsEnabled && link.icon === ICONS.NOTIFICATION) {
+        if (
+          (!notificationsEnabled && link.icon === ICONS.NOTIFICATION) ||
+          (!livestreamEnabled && link.icon === ICONS.VIDEO)
+        ) {
           return false;
         }
-
         return true;
       })
     : UNAUTH_LINKS;
