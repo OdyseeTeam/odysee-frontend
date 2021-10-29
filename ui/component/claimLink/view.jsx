@@ -1,5 +1,5 @@
 // @flow
-import { INLINE_PLAYER_WRAPPER_CLASS } from 'component/fileRenderFloating/view';
+import { INLINE_PLAYER_WRAPPER_CLASS } from 'constants/classnames';
 import { SIMPLE_SITE } from 'config';
 import * as React from 'react';
 import Button from 'component/button';
