@@ -107,12 +107,6 @@ function SideNavigation(props: Props) {
 
   const MOBILE_LINKS: Array<SideNavLink> = [
     {
-      title: 'Go Live',
-      link: `/$/${PAGES.LIVESTREAM}`,
-      icon: ICONS.VIDEO,
-      hideForUnauth: true,
-    },
-    {
       title: 'Notifications',
       link: `/$/${PAGES.NOTIFICATIONS}`,
       icon: ICONS.NOTIFICATION,
@@ -262,12 +256,10 @@ function SideNavigation(props: Props) {
   const microNavigation = !sidebarOpen || isMediumScreen;
   const subLinks = email
     ? MOBILE_LINKS.filter((link) => {
-        if (
-          (!notificationsEnabled && link.icon === ICONS.NOTIFICATION) ||
-          (!livestreamEnabled && link.icon === ICONS.VIDEO)
-        ) {
+        if (!notificationsEnabled && link.icon === ICONS.NOTIFICATION) {
           return false;
         }
+
         return true;
       })
     : UNAUTH_LINKS;
@@ -415,6 +407,20 @@ function SideNavigation(props: Props) {
             })}
           >
             <div>
+              <ul className="navigation-links--absolute mobile-only">
+                {email && livestreamEnabled && (
+                  <li key={'Go Live'} className="mobile-only">
+                    <Button
+                      icon={ICONS.VIDEO}
+                      navigate={`/$/${PAGES.LIVESTREAM}`}
+                      label={__('Go Live')}
+                      title={__('Go Live')}
+                      className="navigation-link"
+                      activeClass="navigation-link--active"
+                    />
+                  </li>
+                )}
+              </ul>
               <ul className="navigation-links--absolute">
                 {SIDE_LINKS.map((linkProps) => {
                   //   $FlowFixMe
