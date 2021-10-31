@@ -53,12 +53,6 @@ You can run the web version (lbry.tv), the electron app, or both at the same tim
 2. Change directory into the cloned repository: `cd lbry-desktop`
 3. Install the dependencies: `yarn`
 
-#### Run the electron app
-
-`yarn dev`
-
-- If you want to build and launch the production app you can run `yarn build`. This will give you an executable inside the `/dist` folder. We use [electron-builder](https://github.com/electron-userland/electron-builder) to create distributable packages.
-
 #### Run the web app for development
 
 `yarn dev:web`
@@ -108,17 +102,6 @@ PINNED_LABEL_2=OtherLinkText
 6. Run `NODE_ENV=production yarn compile:web` to build
 7. Set up pm2 to start ./web/index.js
 
-#### Run both at the same time
-
-Run the two commands above in separate terminal windows
-
-```
-yarn dev
-
-// in another terminal window
-yarn dev:web
-```
-
 #### Resetting your Packages
 
 If the app isn't building, or `yarn xxx` commands aren't working you may need to just reset your `node_modules`. To do so you can run: `rm -r node_modules && yarn` or `del /s /q node_modules && yarn` on Windows.
@@ -127,9 +110,9 @@ If you _really_ think something might have gone wrong, you can force your repo t
 
 ## Contributing
 
-We :heart: contributions from everyone and contributions to this project are encouraged, and compensated. We welcome [bug reports](https://github.com/lbryio/lbry-desktop/issues/), [bug fixes](https://github.com/lbryio/lbry-desktop/pulls) and feedback is always appreciated. For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
+We :heart: contributions from everyone and contributions to this project are encouraged, and compensated. We welcome [bug reports](https://github.com/OdyseeTeam/odysee-frontend/issues/), [bug fixes](https://github.com/OdyseeTeam/odysee-frontend/pulls) and feedback is always appreciated. For more details, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/lbryio/lbry-desktop/issues) [![GitHub contributors](https://img.shields.io/github/contributors/lbryio/lbry-desktop.svg)](https://GitHub.com/lbryio/lbry-desktop/graphs/contributors/)
+## [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/OdyseeTeam/odysee-frontend/issues) [![GitHub contributors](https://img.shields.io/github/contributors/lbryio/lbry-desktop.svg)](https://GitHub.com/OdyseeTeam/odysee-frontend/graphs/contributors/)
 
 ## License
 
