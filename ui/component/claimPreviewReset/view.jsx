@@ -3,8 +3,10 @@
 import React from 'react';
 import Lbry from 'lbry';
 import { LIVESTREAM_KILL } from 'constants/livestream';
+import { SITE_HELP_EMAIL } from 'config';
 import { toHex } from 'util/hex';
 import Button from 'component/button';
+import 'scss/component/claim-preview-reset.scss';
 
 // @Todo: move out of component.
 const getStreamData = async (channelId: string, channelName: string) => {
@@ -65,9 +67,19 @@ const ClaimPreviewReset = (props: Props) => {
   };
 
   return (
-    <p>
-      <span>{__('Having trouble turning off the stream?')}</span>{' '}
-      <Button button="link" label={__('Reset stream')} onClick={handleClick} />
+    <p className={'claimPreviewReset'}>
+      <span className={'claimPreviewReset__hint'}>
+        {__(
+          "If you're having trouble starting a stream or if your stream shows that you're live but aren't, try a reset. If the problem persists, please reach out at %SITE_HELP_EMAIL%.",
+          { SITE_HELP_EMAIL }
+        )}
+      </span>
+      <Button
+        button="primary"
+        label={__('Reset stream')}
+        className={'claimPreviewReset__button'}
+        onClick={handleClick}
+      />
     </p>
   );
 };

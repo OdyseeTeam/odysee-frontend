@@ -393,9 +393,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}
-
-                    {claimIsMine && isLivestream && <ClaimPreviewReset />}
-
                     {Boolean(isMyCollection && listId) && (
                       <>
                         <div className="collection-preview__edit-buttons">
@@ -484,6 +481,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             )}
           </div>
         </div>
+
+        {claimIsMine && isLivestream && (
+          <div className={'claim-preview__hints'}>
+            <ClaimPreviewReset />
+          </div>
+        )}
+
         {!hideMenu && <ClaimMenuList uri={uri} collectionId={listId} />}
       </>
     </WrapperElement>
