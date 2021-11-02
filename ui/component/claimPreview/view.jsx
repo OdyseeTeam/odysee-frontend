@@ -24,6 +24,7 @@ import FileDownloadLink from 'component/fileDownloadLink';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import PublishPending from 'component/publishPending';
 import ClaimMenuList from 'component/claimMenuList';
+import ClaimPreviewReset from 'component/claimPreviewReset';
 import ClaimPreviewLoading from './claim-preview-loading';
 import ClaimPreviewHidden from './claim-preview-no-mature';
 import ClaimPreviewNoContent from './claim-preview-no-content';
@@ -392,6 +393,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}
+
+                    {claimIsMine && isLivestream && <ClaimPreviewReset />}
+
                     {Boolean(isMyCollection && listId) && (
                       <>
                         <div className="collection-preview__edit-buttons">
