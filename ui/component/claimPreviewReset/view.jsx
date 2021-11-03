@@ -35,7 +35,7 @@ const getStreamData = async (channelId: string, channelName: string) => {
 const killStream = async (channelId: string, payload: any) => {
   fetch(`${LIVESTREAM_KILL}/${channelId}`, {
     method: 'POST',
-    // mode: 'no-cors', @todo: disable for testing.
+    mode: 'no-cors',
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams(payload),
   })
