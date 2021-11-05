@@ -10,6 +10,7 @@ import Paginate from 'component/common/paginate';
 import Yrbl from 'component/yrbl';
 import classnames from 'classnames';
 import { FormField, Form } from 'component/common/form';
+import { PAGE_PARAM } from 'constants/claim';
 
 type Props = {
   publishedCollections: CollectionGroup,
@@ -18,6 +19,7 @@ type Props = {
   fetchingCollections: boolean,
   page: number,
   pageSize: number,
+  history: { replace: (string) => void },
 };
 
 const ALL = 'All';
@@ -33,6 +35,7 @@ export default function PlaylistsMine(props: Props) {
     fetchingCollections,
     page = 0,
     pageSize,
+    history,
   } = props;
 
   const unpublishedCollectionsList = (Object.keys(unpublishedCollections || {}): any);
@@ -84,6 +87,11 @@ export default function PlaylistsMine(props: Props) {
     window.removeEventListener('keydown', escapeListener);
   }
 
+  function handleFilterType(val) {
+    setFilterType(val);
+    history.replace(`?${PAGE_PARAM}=1`);
+  }
+
   return (
     <>
       <div className="claim-grid__wrapper">
@@ -106,7 +114,7 @@ export default function PlaylistsMine(props: Props) {
                   label={__(value)}
                   key={value}
                   button="alt"
-                  onClick={() => setFilterType(value)}
+                  onClick={() => handleFilterType(value)}
                   className={classnames('button-toggle', {
                     'button-toggle--active': filterType === value,
                   })}
