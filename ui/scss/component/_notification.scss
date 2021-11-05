@@ -94,7 +94,7 @@ $contentMaxWidth: 60rem;
   }
 }
 
-.notification__content-wrapper {
+.notificationContent__wrapper {
   flex: 1;
   display: flex;
   justify-content: space-between;
@@ -121,7 +121,7 @@ $contentMaxWidth: 60rem;
   }
 }
 
-.notification__content-thumbnail {
+.notificationContent__thumbnail {
   @include thumbnail;
   position: relative;
   margin-left: auto;
@@ -139,7 +139,7 @@ $contentMaxWidth: 60rem;
   }
 }
 
-.notification__text-wrapper {
+.notificationText__wrapper {
   max-width: calc(#{$contentMaxWidth} - (#{$thumbnailWidth} * 16 / 9) - var(--spacing-m));
 }
 
@@ -247,7 +247,7 @@ $contentMaxWidth: 60rem;
   }
 }
 
-.notification__mark-seen {
+.notification__markSeen {
   height: 12px;
   width: 12px;
   border-radius: 50%;
