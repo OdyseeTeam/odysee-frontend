@@ -180,12 +180,19 @@ function WalletTipAmountSelector(props: Props) {
           customTipAmount &&
           amount < convertToTwoDecimalsOrMore(customTipAmount / exchangeRate)
         ) {
-          setTipError(
-            __('Amount of $%input_amount% in LBC is lower than price of $%price_amount%', {
-              input_amount: convertToTwoDecimalsOrMore(convertedAmount, 4),
-              price_amount: convertToTwoDecimalsOrMore(customTipAmount),
-            })
-          );
+          regexp = RegExp(/^(\d*([.]\d{0,2})?)$/);
+          const validCustomTipInput = regexp.test(String(amount));
+
+          if (validCustomTipInput) {
+            setTipError(
+              __('Amount of $%input_amount% LBC in USB is lower than price of $%price_amount%', {
+                input_amount: convertToTwoDecimalsOrMore(convertedAmount, 4),
+                price_amount: convertToTwoDecimalsOrMore(customTipAmount),
+              })
+            );
+          } else {
+            setTipError(__('Amount must have no more than 2 decimal places'));
+          }
         } else {
           setTipError(false);
         }
@@ -266,7 +273,7 @@ function WalletTipAmountSelector(props: Props) {
           __('This support is priced in $USD.') +
             (convertedAmount
               ? ' ' +
-                __('The current exchange rate for the submitted LBC amount is: $%exchange_amount%.', {
+                __('The current exchange rate for the submitted LBC amount is ~ $%exchange_amount%.', {
                   exchange_amount: convertToTwoDecimalsOrMore(convertedAmount),
                 })
               : '')
