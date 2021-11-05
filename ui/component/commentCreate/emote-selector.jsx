@@ -50,7 +50,7 @@ export default function EmoteSelector(props: Props) {
 
               return (
                 <Button
-                  key={String(emote)}
+                  key={emoteName}
                   title={emoteName}
                   button="alt"
                   className="button--file-action"

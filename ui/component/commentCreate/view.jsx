@@ -410,6 +410,7 @@ export function CommentCreate(props: Props) {
 
   return (
     <Form
+      onSubmit={() => {}}
       className={classnames('commentCreate', {
         'commentCreate--reply': isReply,
         'commentCreate--nestedReply': isNested,
