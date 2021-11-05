@@ -3,6 +3,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import { NavLink } from 'react-router-dom';
 import { PAGE_VIEW_QUERY, DISCUSSION_PAGE } from 'page/channel/view';
+import { parseSticker } from 'util/comments';
 import { parseURI } from 'util/lbryURI';
 import { RULE } from 'constants/notifications';
 import { useHistory } from 'react-router';
@@ -19,6 +20,7 @@ import FileThumbnail from 'component/fileThumbnail';
 import Icon from 'component/common/icon';
 import LbcMessage from 'component/common/lbc-message';
 import NotificationContentChannelMenu from 'component/notificationContentChannelMenu';
+import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import UriIndicator from 'component/uriIndicator';
 
@@ -43,6 +45,7 @@ export default function Notification(props: Props) {
     notification_rule === RULE.COMMENT_REPLY ||
     notification_rule === RULE.CREATOR_COMMENT;
   const commentText = isCommentNotification && notification_parameters.dynamic.comment;
+  const stickerFromComment = isCommentNotification && commentText && parseSticker(commentText);
   const notificationTarget = getNotificationTarget();
 
   const creatorIcon = (channelUrl) => (
@@ -184,6 +187,10 @@ export default function Notification(props: Props) {
                   className="notification__text"
                 >
                   <LbcMessage>{notification_parameters.device.text}</LbcMessage>
+                </div>
+              ) : stickerFromComment ? (
+                <div className="sticker__comment">
+                  <OptimizedImage src={stickerFromComment.url} waitLoad loading="lazy" />
                 </div>
               ) : (
                 <div title={commentText} className="notification__text">
