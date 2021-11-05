@@ -320,7 +320,7 @@ export function CommentCreate(props: Props) {
         if (setQuickReply) setQuickReply(res);
 
         if (res && res.signature) {
-          setCommentValue('');
+          if (!stickerValue) setCommentValue('');
           setReviewingSupportComment(false);
           setIsSupportComment(false);
           setCommentFailure(false);
