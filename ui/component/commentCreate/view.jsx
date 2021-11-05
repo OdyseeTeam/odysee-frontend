@@ -374,8 +374,8 @@ export function CommentCreate(props: Props) {
   // Render
   // **************************************************************************
 
-  const getActionButton = (title: string, icon: string, handleClick: () => void) => (
-    <Button title={title} button="alt" icon={icon} onClick={handleClick} />
+  const getActionButton = (title: string, label?: string, icon: string, handleClick: () => void) => (
+    <Button title={title} label={label} button="alt" icon={icon} onClick={handleClick} />
   );
 
   if (channelSettings && !channelSettings.comments_enabled) {
@@ -592,33 +592,38 @@ export function CommentCreate(props: Props) {
         {/** Stickers/Support Buttons **/}
         {!supportDisabled && !stickerSelector && (
           <>
-            {isReviewingStickerComment ? (
-              <Button
-                button="alt"
-                label={__('Different Sticker')}
-                onClick={() => {
-                  setReviewingStickerComment(false);
-                  setIsSupportComment(false);
-                  setStickerSelector(true);
-                }}
-              />
-            ) : (
-              getActionButton(__('Stickers'), ICONS.TAG, () => {
+            {getActionButton(
+              __('Stickers'),
+              isReviewingStickerComment ? __('Different Sticker') : undefined,
+              ICONS.TAG,
+              () => {
+                if (isReviewingStickerComment) setReviewingStickerComment(false);
                 setIsSupportComment(false);
                 setStickerSelector(true);
-              })
+              }
             )}
-            {!claimIsMine &&
-              getActionButton(__('LBC'), ICONS.LBC, () => {
-                setIsSupportComment(true);
-                setActiveTab(TAB_LBC);
-              })}
-            {!claimIsMine &&
-              stripeEnvironment &&
-              getActionButton(__('Cash'), ICONS.FINANCE, () => {
-                setIsSupportComment(true);
-                setActiveTab(TAB_FIAT);
-              })}
+
+            {!claimIsMine && (
+              <>
+                {(!isSupportComment || activeTab !== TAB_LBC) &&
+                  getActionButton(__('LBC'), isSupportComment ? __('Switch to LBC') : undefined, ICONS.LBC, () => {
+                    setIsSupportComment(true);
+                    setActiveTab(TAB_LBC);
+                  })}
+
+                {stripeEnvironment &&
+                  (!isSupportComment || activeTab !== TAB_FIAT) &&
+                  getActionButton(
+                    __('Cash'),
+                    isSupportComment ? __('Switch to Cash') : undefined,
+                    ICONS.FINANCE,
+                    () => {
+                      setIsSupportComment(true);
+                      setActiveTab(TAB_FIAT);
+                    }
+                  )}
+              </>
+            )}
           </>
         )}
 
