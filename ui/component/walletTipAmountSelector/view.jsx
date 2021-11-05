@@ -26,6 +26,7 @@ type Props = {
   claim: StreamClaim,
   convertedAmount?: number,
   customTipAmount?: number,
+  exchangeRate?: any,
   fiatConversion?: boolean,
   tipError: boolean,
   tipError: string,
@@ -44,6 +45,7 @@ function WalletTipAmountSelector(props: Props) {
     claim,
     convertedAmount,
     customTipAmount,
+    exchangeRate,
     fiatConversion,
     tipError,
     onChange,
@@ -56,7 +58,6 @@ function WalletTipAmountSelector(props: Props) {
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
   const [hasCardSaved, setHasSavedCard] = usePersistedState('comment-support:hasCardSaved', false);
   const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(); // dont persist because it needs to be calc'd per creator
-  const [exchangeRate, setExchangeRate] = React.useState();
 
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
@@ -103,14 +104,12 @@ function WalletTipAmountSelector(props: Props) {
   }
 
   React.useEffect(() => {
-    if (!exchangeRate) {
-      Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
-    } else if (setConvertedAmount && exchangeRate && (!convertedAmount || convertedAmount !== amount * exchangeRate)) {
+    if (setConvertedAmount && exchangeRate && (!convertedAmount || convertedAmount !== amount * exchangeRate)) {
       setConvertedAmount(amount * exchangeRate);
     }
   }, [amount, convertedAmount, exchangeRate, setConvertedAmount]);
 
-  // check if creator has a payment method saved
+  // check if user has a payment method saved
   React.useEffect(() => {
     if (!stripeEnvironment) return;
 
@@ -132,6 +131,7 @@ function WalletTipAmountSelector(props: Props) {
     });
   }, [setHasSavedCard]);
 
+  // check if creator has a tip account saved
   React.useEffect(() => {
     if (!stripeEnvironment) return;
 

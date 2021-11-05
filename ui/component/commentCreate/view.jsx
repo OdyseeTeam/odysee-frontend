@@ -4,6 +4,7 @@ import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { getChannelIdFromClaim } from 'util/claim';
+import { Lbryio } from 'lbryinc';
 import { SIMPLE_SITE } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
@@ -123,6 +124,7 @@ export function CommentCreate(props: Props) {
   const [pauseQuickSend, setPauseQuickSend] = React.useState(false);
   const [showEmotes, setShowEmotes] = React.useState(false);
   const [disableReviewButton, setDisableReviewButton] = React.useState();
+  const [exchangeRate, setExchangeRate] = React.useState();
 
   const selectedMentionIndex =
     commentValue.indexOf('@', selectionIndex) === selectionIndex
@@ -152,6 +154,7 @@ export function CommentCreate(props: Props) {
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
   const minAmountMet = minAmount === 0 || tipAmount >= minAmount;
+  const stickerPrice = selectedSticker && selectedSticker.price;
 
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
@@ -370,6 +373,11 @@ export function CommentCreate(props: Props) {
     return () => clearTimeout(timer);
   }, [pauseQuickSend]);
 
+  // Stickers: Get LBC-USD exchange rate if hasn't yet and selected a paid sticker
+  React.useEffect(() => {
+    if (stickerPrice && !exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
+  }, [exchangeRate, stickerPrice]);
+
   // **************************************************************************
   // Render
   // **************************************************************************
@@ -431,7 +439,12 @@ export function CommentCreate(props: Props) {
             <OptimizedImage src={selectedSticker && selectedSticker.url} waitLoad loading="lazy" />
           </div>
 
-          {selectedSticker.price && <FilePrice customPrice={selectedSticker.price} isFiat />}
+          {selectedSticker.price && exchangeRate && (
+            <FilePrice
+              customPrices={{ priceFiat: selectedSticker.price, priceLBC: selectedSticker.price / exchangeRate }}
+              isFiat
+            />
+          )}
         </div>
       ) : isReviewingSupportComment && activeChannelClaim ? (
         <div className="commentCreate__supportCommentPreview">
@@ -506,7 +519,8 @@ export function CommentCreate(props: Props) {
           amount={tipAmount}
           claim={claim}
           convertedAmount={convertedAmount}
-          customTipAmount={selectedSticker && selectedSticker.price}
+          customTipAmount={stickerPrice}
+          exchangeRate={exchangeRate}
           fiatConversion={selectedSticker && !!selectedSticker.price}
           onChange={(amount) => setTipAmount(amount)}
           setConvertedAmount={setConvertedAmount}
@@ -634,7 +648,7 @@ export function CommentCreate(props: Props) {
               if (isSupportComment || isReviewingSupportComment) {
                 if (!isReviewingSupportComment) setIsSupportComment(false);
                 setReviewingSupportComment(false);
-                if (selectedSticker && selectedSticker.price) {
+                if (stickerPrice) {
                   setReviewingStickerComment(false);
                   setStickerSelector(false);
                   setSelectedSticker(null);
