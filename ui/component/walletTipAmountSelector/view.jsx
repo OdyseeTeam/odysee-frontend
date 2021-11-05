@@ -58,8 +58,15 @@ function WalletTipAmountSelector(props: Props) {
   const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(); // dont persist because it needs to be calc'd per creator
   const [exchangeRate, setExchangeRate] = React.useState();
 
+  const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
+    Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
+
   const tipAmountsToDisplay =
-    customTipAmount && fiatConversion && activeTab === TAB_FIAT ? [customTipAmount] : DEFAULT_TIP_AMOUNTS;
+    customTipAmount && fiatConversion && activeTab === TAB_FIAT
+      ? [customTipAmount]
+      : customTipAmount && exchangeRate
+      ? [convertToTwoDecimalsOrMore(customTipAmount / exchangeRate)]
+      : DEFAULT_TIP_AMOUNTS;
 
   // if it's fiat but there's no card saved OR the creator can't receive fiat tips
   const shouldDisableFiatSelectors = activeTab === TAB_FIAT && (!hasCardSaved || !canReceiveFiatTip);
@@ -81,7 +88,7 @@ function WalletTipAmountSelector(props: Props) {
       ((amount > balance || balance === 0) && activeTab !== TAB_FIAT) ||
       shouldDisableFiatSelectors ||
       (customTipAmount && fiatConversion && activeTab !== TAB_FIAT && exchangeRate
-        ? amount * exchangeRate < customTipAmount
+        ? convertToTwoDecimalsOrMore(amount * exchangeRate) < customTipAmount
         : customTipAmount && amount < customTipAmount)
     );
   }
@@ -95,14 +102,10 @@ function WalletTipAmountSelector(props: Props) {
     }
   }
 
-  function convertToTwoDecimals(number: number) {
-    return (Math.round(number * 100) / 100).toFixed(2);
-  }
-
   React.useEffect(() => {
     if (!exchangeRate) {
       Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
-    } else if ((!convertedAmount || convertedAmount !== amount * exchangeRate) && setConvertedAmount) {
+    } else if (setConvertedAmount && exchangeRate && (!convertedAmount || convertedAmount !== amount * exchangeRate)) {
       setConvertedAmount(amount * exchangeRate);
     }
   }, [amount, convertedAmount, exchangeRate, setConvertedAmount]);
@@ -171,6 +174,18 @@ function WalletTipAmountSelector(props: Props) {
           setTipError(__('Not enough Credits'));
         } else if (amount < MINIMUM_PUBLISH_BID) {
           setTipError(__('Amount must be higher'));
+        } else if (
+          convertedAmount &&
+          exchangeRate &&
+          customTipAmount &&
+          amount < convertToTwoDecimalsOrMore(customTipAmount / exchangeRate)
+        ) {
+          setTipError(
+            __('Amount of $%input_amount% in LBC is lower than price of $%price_amount%', {
+              input_amount: convertToTwoDecimalsOrMore(convertedAmount, 4),
+              price_amount: convertToTwoDecimalsOrMore(customTipAmount),
+            })
+          );
         } else {
           setTipError(false);
         }
@@ -185,35 +200,43 @@ function WalletTipAmountSelector(props: Props) {
           setTipError(__('Amount must be at least one dollar'));
         } else if (amount > 1000) {
           setTipError(__('Amount cannot be over 1000 dollars'));
+        } else if (customTipAmount && amount < customTipAmount) {
+          setTipError(
+            __('Amount is lower than price of $%price_amount%', {
+              price_amount: convertToTwoDecimalsOrMore(customTipAmount),
+            })
+          );
         } else {
           setTipError(false);
         }
       }
     }
-  }, [activeTab, amount, balance, setTipError]);
+  }, [activeTab, amount, balance, convertedAmount, customTipAmount, exchangeRate, setTipError]);
 
   const getHelpMessage = (helpMessage: any) => <div className="help">{helpMessage}</div>;
 
   return (
     <>
       <div className="section">
-        {tipAmountsToDisplay.map((defaultAmount) => (
-          <Button
-            key={defaultAmount}
-            disabled={shouldDisableAmountSelector(defaultAmount)}
-            button="alt"
-            className={classnames('button-toggle button-toggle--expandformobile', {
-              'button-toggle--active': defaultAmount === amount && !useCustomTip,
-              'button-toggle--disabled': amount > balance,
-            })}
-            label={defaultAmount}
-            icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
-            onClick={() => {
-              handleCustomPriceChange(defaultAmount);
-              setUseCustomTip(false);
-            }}
-          />
-        ))}
+        {tipAmountsToDisplay &&
+          tipAmountsToDisplay.map((defaultAmount) => (
+            <Button
+              key={defaultAmount}
+              disabled={shouldDisableAmountSelector(defaultAmount)}
+              button="alt"
+              className={classnames('button-toggle button-toggle--expandformobile', {
+                'button-toggle--active':
+                  convertToTwoDecimalsOrMore(defaultAmount) === convertToTwoDecimalsOrMore(amount) && !useCustomTip,
+                'button-toggle--disabled': amount > balance,
+              })}
+              label={defaultAmount}
+              icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
+              onClick={() => {
+                handleCustomPriceChange(defaultAmount);
+                setUseCustomTip(false);
+              }}
+            />
+          ))}
 
         <Button
           button="alt"
@@ -240,13 +263,13 @@ function WalletTipAmountSelector(props: Props) {
         fiatConversion &&
         activeTab !== TAB_FIAT &&
         getHelpMessage(
-          __(
-            `This support is priced in $USD. ${
-              convertedAmount
-                ? __(`The current exchange rate for the submitted amount is: $${convertToTwoDecimals(convertedAmount)}`)
-                : ''
-            }`
-          )
+          __('This support is priced in $USD.') +
+            (convertedAmount
+              ? ' ' +
+                __('The current exchange rate for the submitted LBC amount is: $%exchange_amount%.', {
+                  exchange_amount: convertToTwoDecimalsOrMore(convertedAmount),
+                })
+              : '')
         )}
 
       {/* custom number input form */}
@@ -274,7 +297,7 @@ function WalletTipAmountSelector(props: Props) {
           ? getHelpMessage(
               <>
                 <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-                {__(' To Tip Creators')}
+                {' ' + __('To Tip Creators')}
               </>
             )
           : !canReceiveFiatTip

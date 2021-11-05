@@ -537,14 +537,7 @@ export function CommentCreate(props: Props) {
           <Button
             button="primary"
             label={__('Send')}
-            disabled={
-              (isSupportComment && (tipError || disableReviewButton)) ||
-              (selectedSticker &&
-                selectedSticker.price &&
-                (activeTab === TAB_FIAT
-                  ? tipAmount < selectedSticker.price
-                  : convertedAmount && convertedAmount < selectedSticker.price))
-            }
+            disabled={isSupportComment && (tipError || disableReviewButton)}
             onClick={() => {
               if (isSupportComment) {
                 handleSupportComment();
