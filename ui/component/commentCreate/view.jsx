@@ -125,6 +125,7 @@ export function CommentCreate(props: Props) {
   const [showEmotes, setShowEmotes] = React.useState(false);
   const [disableReviewButton, setDisableReviewButton] = React.useState();
   const [exchangeRate, setExchangeRate] = React.useState();
+  const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(undefined);
 
   const selectedMentionIndex =
     commentValue.indexOf('@', selectionIndex) === selectionIndex
@@ -171,7 +172,7 @@ export function CommentCreate(props: Props) {
     setStickerSelector(false);
 
     if (sticker.price && sticker.price > 0) {
-      setActiveTab(TAB_FIAT);
+      setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
       setIsSupportComment(true);
     }
   }
@@ -378,6 +379,34 @@ export function CommentCreate(props: Props) {
     if (stickerPrice && !exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
   }, [exchangeRate, stickerPrice]);
 
+  // Stickers: Check if creator has a tip account saved (on selector so that if a paid sticker is selected,
+  // it defaults to LBC tip instead of USD)
+  React.useEffect(() => {
+    if (!stripeEnvironment || !stickerSelector || canReceiveFiatTip !== undefined) return;
+
+    const channelClaimId = claim.signing_channel ? claim.signing_channel.claim_id : claim.claim_id;
+    const tipChannelName = claim.signing_channel ? claim.signing_channel.name : claim.name;
+
+    Lbryio.call(
+      'account',
+      'check',
+      {
+        channel_claim_id: channelClaimId,
+        channel_name: tipChannelName,
+        environment: stripeEnvironment,
+      },
+      'post'
+    )
+      .then((accountCheckResponse) => {
+        if (accountCheckResponse === true && canReceiveFiatTip !== true) {
+          setCanReceiveFiatTip(true);
+        } else {
+          setCanReceiveFiatTip(false);
+        }
+      })
+      .catch(() => {});
+  }, [canReceiveFiatTip, claim.claim_id, claim.name, claim.signing_channel, stickerSelector]);
+
   // **************************************************************************
   // Render
   // **************************************************************************
@@ -513,7 +542,7 @@ export function CommentCreate(props: Props) {
         </>
       )}
 
-      {(isSupportComment || (isReviewingStickerComment && selectedSticker && selectedSticker.price)) && (
+      {(isSupportComment || (isReviewingStickerComment && stickerPrice)) && (
         <WalletTipAmountSelector
           activeTab={activeTab}
           amount={tipAmount}
