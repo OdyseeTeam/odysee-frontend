@@ -631,7 +631,7 @@ export function CommentCreate(props: Props) {
             {getActionButton(
               __('Stickers'),
               isReviewingStickerComment ? __('Different Sticker') : undefined,
-              ICONS.TAG,
+              ICONS.STICKER,
               () => {
                 if (isReviewingStickerComment) setReviewingStickerComment(false);
                 setIsSupportComment(false);
