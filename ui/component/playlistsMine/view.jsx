@@ -65,8 +65,9 @@ export default function PlaylistsMine(props: Props) {
   }
 
   const shouldPaginate = filteredCollections.length > pageSize;
-  const paginateStart = shouldPaginate ? (page - 1) * pageSize : 0;
-  const paginatedCollections = filteredCollections.slice(paginateStart, paginateStart + pageSize);
+  const paginateStartIndex = shouldPaginate ? (page - 1) * pageSize : 0;
+  const paginateEndIndex = paginateStartIndex + pageSize;
+  const paginatedCollections = filteredCollections.slice(paginateStartIndex, paginateEndIndex);
 
   function escapeListener(e: SyntheticKeyboardEvent<*>) {
     if (e.keyCode === KEYCODES.ESCAPE) {
