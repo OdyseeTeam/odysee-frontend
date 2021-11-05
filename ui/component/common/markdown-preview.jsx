@@ -17,6 +17,7 @@ import ZoomableImage from 'component/zoomableImage';
 import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, SIMPLE_SITE } from 'config';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import OptimizedImage from 'component/optimizedImage';
 
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 
@@ -107,7 +108,7 @@ const SimpleImageLink = (props: ImageLinkProps) => {
   }
 
   if (isEmote(title, src)) {
-    return <img src={src} title={title} className="emote" loading="lazy" />;
+    return <OptimizedImage src={src} title={title} className="emote" waitLoad loading="lazy" />;
   }
 
   return (

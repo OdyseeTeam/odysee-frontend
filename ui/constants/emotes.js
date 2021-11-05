@@ -91,6 +91,6 @@ const getEmotes = (px: string, multiplier: string) => [
 ];
 
 export const EMOTES_24px = getEmotes('24%20px', '');
-export const EMOTES_36px = getEmotes('36px', '@1.5x');
-export const EMOTES_48px = getEmotes('48%20px', '@2x');
-export const EMOTES_72px = getEmotes('72%20px', '@3x');
+export const EMOTES_36px = getEmotes('36px', '%401.5x');
+export const EMOTES_48px = getEmotes('48%20px', '%402x');
+export const EMOTES_72px = getEmotes('72%20px', '%403x');

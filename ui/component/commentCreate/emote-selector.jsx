@@ -1,9 +1,10 @@
 // @flow
 import 'scss/component/_emote-selector.scss';
-import { EMOTES_72px as EMOTES } from 'constants/emotes';
+import { EMOTES_48px as EMOTES } from 'constants/emotes';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import EMOJIS from 'emoji-dictionary';
+import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 
 const OLD_QUICK_EMOJIS = [
@@ -53,7 +54,7 @@ export default function EmoteSelector(props: Props) {
                   className="button--file-action"
                   onClick={() => addEmoteToComment(emoteName)}
                 >
-                  <img src={emote.url} loading="lazy" />
+                  <OptimizedImage src={emote.url} waitLoad />
                 </Button>
               );
             })}
