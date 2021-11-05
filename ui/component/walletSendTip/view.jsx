@@ -68,8 +68,12 @@ function WalletSendTip(props: Props) {
   const [activeTab, setActiveTab] = usePersistedState(TAB_BOOST);
   const [disableSubmitButton, setDisableSubmitButton] = React.useState();
 
-  /** CONSTS **/
+  // fixes a bug where activeTab was set in state as a string 'undefined'
+  if (activeTab !== TAB_BOOST && activeTab !== TAB_LBC && activeTab !== TAB_FIAT) {
+    setActiveTab(TAB_BOOST);
+  }
 
+  /** CONSTS **/
   const claimTypeText = getClaimTypeText();
   const isSupport = claimIsMine || activeTab === TAB_BOOST;
   const titleText = claimIsMine
