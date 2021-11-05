@@ -428,7 +428,7 @@ export function CommentCreate(props: Props) {
           </div>
 
           <div className="commentCreate__stickerPreviewImage">
-            <OptimizedImage src={selectedSticker && selectedSticker.url} waitLoad />
+            <OptimizedImage src={selectedSticker && selectedSticker.url} waitLoad loading="lazy" />
           </div>
 
           {selectedSticker.price && <FilePrice customPrice={selectedSticker.price} isFiat />}

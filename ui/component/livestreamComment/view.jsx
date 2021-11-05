@@ -113,7 +113,7 @@ function LivestreamComment(props: Props) {
 
           {stickerFromMessage ? (
             <div className="sticker__comment">
-              <OptimizedImage src={stickerFromMessage.url} waitLoad />
+              <OptimizedImage src={stickerFromMessage.url} waitLoad loading="lazy" />
             </div>
           ) : (
             <div className="livestream-comment__text">
