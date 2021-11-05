@@ -17,9 +17,12 @@ import ZoomableImage from 'component/zoomableImage';
 import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, SIMPLE_SITE } from 'config';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import OptimizedImage from 'component/optimizedImage';
 
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
+
+function isEmote(title, src) {
+  return title && RE_EMOTE.test(title) && src.includes('static.odycdn.com/emoticons');
+}
 
 type SimpleTextProps = {
   children?: React.Node,
@@ -103,8 +106,8 @@ const SimpleImageLink = (props: ImageLinkProps) => {
     return null;
   }
 
-  if (title && RE_EMOTE.test(title) && src.includes('static.odycdn.com/emoticons')) {
-    return <OptimizedImage title={title} src={src} />;
+  if (isEmote(title, src)) {
+    return <img src={src} title={title} className="emote" loading="lazy" />;
   }
 
   return (
@@ -194,18 +197,19 @@ const MarkdownPreview = (props: MarkdownProps) => {
           ),
       // Workaraund of remarkOptions.Fragment
       div: React.Fragment,
-      img: isStakeEnoughForPreview(stakedLevel)
-        ? ZoomableImage
-        : (imgProps) => (
-            <SimpleImageLink
-              src={imgProps.src}
-              alt={imgProps.alt}
-              title={imgProps.title}
-              helpText={
-                SIMPLE_SITE ? __("This channel isn't staking enough LBRY Credits for inline image previews.") : ''
-              }
-            />
-          ),
+      img: (imgProps) =>
+        isStakeEnoughForPreview(stakedLevel) && !isEmote(imgProps.title, imgProps.src) ? (
+          ZoomableImage
+        ) : (
+          <SimpleImageLink
+            src={imgProps.src}
+            alt={imgProps.alt}
+            title={imgProps.title}
+            helpText={
+              SIMPLE_SITE ? __("This channel isn't staking enough LBRY Credits for inline image previews.") : ''
+            }
+          />
+        ),
     },
   };
 
