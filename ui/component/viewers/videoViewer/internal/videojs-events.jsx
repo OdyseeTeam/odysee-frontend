@@ -16,6 +16,7 @@ const setLabel = (controlBar, childName, label) => {
   }
 };
 
+// $FlowFixMe
 export default ({ tapToUnmuteRef, tapToRetryRef, setReload, videoTheaterMode,
                   playerRef, autoplaySetting, replay}) => {
   // Override the player's control text. We override to:

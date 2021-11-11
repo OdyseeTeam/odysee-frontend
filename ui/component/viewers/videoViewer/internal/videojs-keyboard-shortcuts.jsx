@@ -93,6 +93,7 @@ function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef) {
   }
 }
 
+// $FlowFixMe
 export default ({ playNext, playPrevious, toggleVideoTheaterMode }) => {
   function toggleTheaterMode(playerRef) {
     const player = playerRef.current;
@@ -135,8 +136,8 @@ export default ({ playNext, playPrevious, toggleVideoTheaterMode }) => {
     if (e.keyCode === KEYCODES.LEFT) seekVideo(-SEEK_STEP_5, playerRef, containerRef);
   }
 
-  var curried_function = function(playerRef, containerRef) {
-    return function curried_func(e) {
+  var curried_function = function(playerRef: any, containerRef: any) {
+    return function curried_func(e: any) {
       handleKeyDown(e, playerRef, containerRef);
     };
   };

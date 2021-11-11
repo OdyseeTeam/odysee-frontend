@@ -1,6 +1,19 @@
 // @flow
-export default ({ source, sourceType, videoJsOptions, isAudio }) => {
+const VideoJsFunctions = ({
+   source,
+   sourceType,
+   videoJsOptions,
+   isAudio,
+}: {
+  source: string,
+  sourceType: string,
+  videoJsOptions: Object,
+  isAudio: boolean,
+}) => {
   function detectFileType() {
+    console.log(source, sourceType, videoJsOptions, isAudio);
+
+    // $FlowFixMe
     return new Promise(async (res, rej) => {
       try {
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
@@ -34,7 +47,7 @@ export default ({ source, sourceType, videoJsOptions, isAudio }) => {
 
   // TODO: can remove this function as well
   // Create the video DOM element and wrapper
-  function createVideoPlayerDOM(container) {
+  function createVideoPlayerDOM(container: any) {
     if (!container) return;
 
     // This seems like a poor way to generate the DOM for video.js
@@ -54,3 +67,5 @@ export default ({ source, sourceType, videoJsOptions, isAudio }) => {
     createVideoPlayerDOM,
   };
 };
+
+export default VideoJsFunctions
