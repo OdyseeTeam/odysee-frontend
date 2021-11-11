@@ -49,7 +49,7 @@ function Ads(props: Props) {
     if (SHOW_ADS && !IS_MOBILE && type === 'sidebar') {
       const script = document.createElement('script');
       script.src = ADS_URL;
-      script.async = true;
+      script.defer = true;
       // $FlowFixMe
       document.body.appendChild(script);
       return () => {
@@ -99,13 +99,7 @@ function Ads(props: Props) {
     <div className="ads-wrapper">
       <p>Ads</p>
       <p>{adsSignInDriver}</p>
-      <div
-        id="rc-widget-0a74cf"
-        data-rc-widget
-        data-widget-host="habitat"
-        data-endpoint="//trends.revcontent.com"
-        data-widget-id="117427"
-      />
+      <div id="vidcrunchJS537102317" />
     </div>
   );
 
