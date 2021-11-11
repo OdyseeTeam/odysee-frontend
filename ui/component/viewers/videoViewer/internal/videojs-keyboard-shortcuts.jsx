@@ -93,8 +93,15 @@ function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef) {
   }
 }
 
-// $FlowFixMe
-export default ({ playNext, playPrevious, toggleVideoTheaterMode }) => {
+const VideoJsKeyboardShorcuts = ({
+  playNext,
+  playPrevious,
+  toggleVideoTheaterMode,
+}: {
+  playNext: any, // function
+  playPrevious: any, // function
+  toggleVideoTheaterMode: any, // function
+}) => {
   function toggleTheaterMode(playerRef) {
     const player = playerRef.current;
     if (!player) return;
@@ -146,3 +153,5 @@ export default ({ playNext, playPrevious, toggleVideoTheaterMode }) => {
     curried_function,
   };
 };
+
+export default VideoJsKeyboardShorcuts;

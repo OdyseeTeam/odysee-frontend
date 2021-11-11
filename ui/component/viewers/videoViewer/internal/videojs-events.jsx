@@ -17,8 +17,23 @@ const setLabel = (controlBar, childName, label) => {
 };
 
 // $FlowFixMe
-export default ({ tapToUnmuteRef, tapToRetryRef, setReload, videoTheaterMode,
-                  playerRef, autoplaySetting, replay}) => {
+const VideoJsEvents = ({
+  tapToUnmuteRef,
+  tapToRetryRef,
+  setReload,
+  videoTheaterMode,
+  playerRef,
+  autoplaySetting,
+  replay,
+}: {
+  tapToUnmuteRef: any, // DOM element
+  tapToRetryRef: any, // DOM element
+  setReload: any, // react hook
+  videoTheaterMode: any, // dispatch function
+  playerRef: any, // DOM element
+  autoplaySetting: boolean,
+  replay: boolean,
+}) => {
   // Override the player's control text. We override to:
   // 1. Add keyboard shortcut to the tool-tip.
   // 2. Override videojs' i18n and use our own (don't want to have 2 systems).
@@ -217,3 +232,5 @@ export default ({ tapToUnmuteRef, tapToRetryRef, setReload, videoTheaterMode,
     initializeEvents,
   };
 };
+
+export default VideoJsEvents;

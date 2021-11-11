@@ -11,8 +11,6 @@ const VideoJsFunctions = ({
   isAudio: boolean,
 }) => {
   function detectFileType() {
-    console.log(source, sourceType, videoJsOptions, isAudio);
-
     // $FlowFixMe
     return new Promise(async (res, rej) => {
       try {
@@ -68,4 +66,4 @@ const VideoJsFunctions = ({
   };
 };
 
-export default VideoJsFunctions
+export default VideoJsFunctions;
