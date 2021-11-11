@@ -8,7 +8,8 @@ import Button from 'component/button';
 import classnames from 'classnames';
 // $FlowFixMe
 
-const ADS_URL = '//assets.revcontent.com/master/delivery.js';
+const ADS_URL =
+  'https://cdn.vidcrunch.com/integrations/618bb4d28aac298191eec411/Lbry_Odysee.com_Responsive_Floating_DFP_Rev70_1011.js';
 const IS_MOBILE = typeof window.orientation !== 'undefined';
 
 type Props = {
@@ -32,11 +33,12 @@ function Ads(props: Props) {
       try {
         const d = document;
         const s = 'script';
-        const n = 'playbuzz-stream';
+        const n = 'vidcrunch';
         let fjs = d.getElementsByTagName(s)[0];
         script = d.createElement(s);
         script.className = n;
-        script.src = 'https://stream.playbuzz.com/player/62d1eb10-e362-4873-99ed-c64a4052b43b';
+        script.src =
+          'https://cdn.vidcrunch.com/integrations/618bb4d28aac298191eec411/Lbry_Odysee.com_Responsive_Floating_DFP_Rev70_1011.js';
         // $FlowFixMe
         fjs.parentNode.insertBefore(script, fjs);
       } catch (e) {}
@@ -73,10 +75,9 @@ function Ads(props: Props) {
             navigate={`/$/${PAGES.AUTH}?redirect=${pathname}`}
           />
         ),
-        download_the_app: <Button button="link" label={__('download the app')} href="https://lbry.com/get" />,
       }}
     >
-      Hate these? %log_in_to_domain% or %download_the_app% for an ad free experience.
+      Hate these? %log_in_to_domain% for an ad free experience.
     </I18nMessage>
   );
 
