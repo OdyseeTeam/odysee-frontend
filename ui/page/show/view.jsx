@@ -202,7 +202,7 @@ function ShowPage(props: Props) {
         </Page>
       );
     } else if (isLivestream && ENABLE_NO_SOURCE_CLAIMS) {
-      innerContent = <LivestreamPage uri={uri} />;
+      innerContent = <LivestreamPage uri={uri} claim={claim} />;
     } else {
       innerContent = <FilePage uri={uri} location={location} />;
     }

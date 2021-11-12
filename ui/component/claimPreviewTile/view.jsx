@@ -167,10 +167,9 @@ function ClaimPreviewTile(props: Props) {
   }
 
   let liveProperty = null;
-  if (isLivestreamActive === true) {
+  if (isLivestream === true) {
     liveProperty = (claim) => <>LIVE</>;
   }
-
   return (
     <li
       onClick={handleClick}

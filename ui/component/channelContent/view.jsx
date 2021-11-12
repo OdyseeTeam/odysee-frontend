@@ -13,6 +13,7 @@ import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
 import { lighthouse } from 'redux/actions/search';
+import ScheduledLiveStreams from 'component/scheduledLiveStreams';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -246,11 +247,16 @@ function ChannelContent(props: Props) {
     setSearchResults(null);
   }, [url]);
 
+  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
+  const [loadingLiveStreams, setLoadingLiveStreams] = React.useState(showScheduledLiveStreams);
+
   return (
     <Fragment>
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
         <HiddenNsfwClaims uri={uri} />
       )}
+
+      {showScheduledLiveStreams && <ScheduledLiveStreams uri={uri} ready={() => setLoadingLiveStreams(false)} />}
 
       <LivestreamLink uri={uri} />
 
@@ -275,44 +281,46 @@ function ChannelContent(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-      <Ads type="homepage" />
+      {!fetching && !loadingLiveStreams && (
+        <Ads type="homepage" />
 
       <ClaimListDiscover
-        hasSource
-        defaultFreshness={CS.FRESH_ALL}
-        showHiddenByUser={viewHiddenChannels}
-        forceShowReposts
-        fetchViewCount
-        hideFilters={!showFilters}
-        hideAdvancedFilter={!showFilters}
-        tileLayout={tileLayout}
-        uris={searchResults}
-        streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-        channelIds={[claimId]}
-        claimType={claimType}
-        feeAmount={CS.FEE_AMOUNT_ANY}
-        defaultOrderBy={CS.ORDER_BY_NEW}
-        pageSize={defaultPageSize}
-        infiniteScroll={defaultInfiniteScroll}
-        injectedItem={SHOW_ADS && !isAuthenticated && IS_WEB && <Ads type="video" />}
-        meta={
-          showFilters && (
-            <Form onSubmit={() => {}} className="wunderbar--inline">
-              <Icon icon={ICONS.SEARCH} />
-              <FormField
-                className="wunderbar__input--inline"
-                value={searchQuery}
-                onChange={handleInputChange}
-                type="text"
-                placeholder={__('Search')}
-              />
-            </Form>
-          )
-        }
-        isChannel
-        channelIsMine={channelIsMine}
-        empty={empty}
-      />
+          hasSource
+          defaultFreshness={CS.FRESH_ALL}
+          showHiddenByUser={viewHiddenChannels}
+          forceShowReposts
+          fetchViewCount
+          hideFilters={!showFilters}
+          hideAdvancedFilter={!showFilters}
+          tileLayout={tileLayout}
+          uris={searchResults}
+          streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+          channelIds={[claimId]}
+          claimType={claimType}
+          feeAmount={CS.FEE_AMOUNT_ANY}
+          defaultOrderBy={CS.ORDER_BY_NEW}
+          pageSize={defaultPageSize}
+          infiniteScroll={defaultInfiniteScroll}
+          injectedItem={SHOW_ADS && !isAuthenticated && IS_WEB && <Ads type="video" />}
+          meta={
+            showFilters && (
+              <Form onSubmit={() => {}} className="wunderbar--inline">
+                <Icon icon={ICONS.SEARCH} />
+                <FormField
+                  className="wunderbar__input--inline"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  type="text"
+                  placeholder={__('Search')}
+                />
+              </Form>
+            )
+          }
+          isChannel
+          channelIsMine={channelIsMine}
+          empty={empty}
+        />
+      )}
     </Fragment>
   );
 }

@@ -31,6 +31,7 @@ import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import PublishReleaseDate from 'component/publishReleaseDate';
 
 // @if TARGET='app'
 import fs from 'fs';
@@ -609,8 +610,17 @@ function PublishForm(props: Props) {
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
+          {isLivestreamMode && (
+            <Card
+              className={'card--enable-overflow'}
+              actions={<PublishReleaseDate allowDefault={false} showNowBtn={false} useMaxDate={false} />}
+            />
+          )}
+
           {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+
           <Card actions={<SelectThumbnail livestreamdData={livestreamData} />} />
+
           <TagsSelect
             suggestMature={!SIMPLE_SITE}
             disableAutoFocus
@@ -640,7 +650,8 @@ function PublishForm(props: Props) {
 
           <PublishBid disabled={isStillEditing || formDisabled} />
           {!isLivestreamMode && <PublishPrice disabled={formDisabled} />}
-          <PublishAdditionalOptions disabled={formDisabled} />
+
+          <PublishAdditionalOptions disabled={formDisabled} isLivestreamMode={isLivestreamMode} />
         </div>
       )}
       <section>

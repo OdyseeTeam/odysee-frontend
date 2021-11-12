@@ -85,6 +85,12 @@
   }
 }
 
+.file-render--scheduledLivestream {
+  background-image: url('/public/pwa/tmp.jpg'); //@todo
+  background-size: cover;
+  margin-top: var(--spacing-m);
+}
+
 @keyframes fadeInFromBlack {
   0% {
     opacity: 1;

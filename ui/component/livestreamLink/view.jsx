@@ -1,12 +1,12 @@
 // @flow
-import * as CS from 'constants/claim_search';
+
 import React from 'react';
 import Card from 'component/common/card';
 import ClaimPreview from 'component/claimPreview';
-import Lbry from 'lbry';
 import { useHistory } from 'react-router';
 import { formatLbryUrlForWeb } from 'util/url';
 import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
+import { getActiveLivestream } from '$web/src/livestreaming';
 
 type Props = {
   channelClaim: ChannelClaim,
@@ -25,16 +25,8 @@ export default function LivestreamLink(props: Props) {
 
   React.useEffect(() => {
     // Don't search empty channels
-    if (livestreamChannelId && !isChannelEmpty) {
-      Lbry.claim_search({
-        channel_ids: [livestreamChannelId],
-        page: 1,
-        page_size: 1,
-        no_totals: true,
-        has_no_source: true,
-        claim_type: ['stream'],
-        order_by: CS.ORDER_BY_NEW_VALUE,
-      })
+    if (livestreamChannelId && !isChannelEmpty && isLivestreaming) {
+      getActiveLivestream(livestreamChannelId)
         .then((res) => {
           if (res && res.items && res.items.length > 0) {
             const claim = res.items[0];
@@ -44,12 +36,11 @@ export default function LivestreamLink(props: Props) {
         })
         .catch(() => {});
     }
-  }, [livestreamChannelId, isChannelEmpty]);
+  }, [livestreamChannelId, isChannelEmpty, isLivestreaming]);
 
   React.useEffect(() => {
-    if (!livestreamClaim) return;
     return watchLivestreamStatus(livestreamChannelId, (state) => setIsLivestreaming(state));
-  }, [livestreamChannelId, setIsLivestreaming, livestreamClaim]);
+  }, [livestreamChannelId, setIsLivestreaming]);
 
   if (!livestreamClaim || !isLivestreaming) {
     return null;

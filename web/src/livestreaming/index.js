@@ -3,6 +3,7 @@
 import Lbry from 'lbry';
 import { LIVESTREAM_KILL, LIVESTREAM_LIVE_API } from 'constants/livestream';
 import { toHex } from 'util/hex';
+import moment from 'moment';
 
 type StreamData = {
   d: string,
@@ -52,4 +53,30 @@ export const isLiveStreaming = async (channelId: string): Promise<boolean> => {
   } catch {
     return false;
   }
+};
+
+export const getScheduledLivestreams = async (channelId: string): Promise<any> => {
+  return Lbry.claim_search({
+    channel_ids: [channelId],
+    page: 1,
+    page_size: 10,
+    no_totals: true,
+    has_no_source: true,
+    claim_type: ['stream'],
+    order_by: ['^release_time'],
+    release_time: `>${moment().unix()}`,
+  });
+};
+
+export const getActiveLivestream = async (channelId: string): Promise<any> => {
+  return Lbry.claim_search({
+    channel_ids: [channelId],
+    page: 1,
+    page_size: 1,
+    no_totals: true,
+    has_no_source: true,
+    claim_type: ['stream'],
+    order_by: ['release_time'],
+    release_time: `<${moment().unix()}`,
+  });
 };
