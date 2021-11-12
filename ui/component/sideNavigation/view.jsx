@@ -11,16 +11,17 @@ import NotificationBubble from 'component/notificationBubble';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { GetLinksData } from 'util/buildHomepage';
-import {
-  SIMPLE_SITE,
-  DOMAIN,
-  ENABLE_UI_NOTIFICATIONS,
-  ENABLE_NO_SOURCE_CLAIMS,
-  CHANNEL_STAKED_LEVEL_LIVESTREAM,
-} from 'config';
-// @if TARGET='app'
-import { IS_MAC } from 'component/app/view';
-// @endif
+import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
+
+type SideNavLink = {
+  title: string,
+  link?: string,
+  route?: string,
+  onClick?: () => any,
+  icon: string,
+  extra?: Node,
+  hideForUnauth?: boolean,
+};
 
 const HOME = {
   title: 'Home',
@@ -36,6 +37,39 @@ const RECENT_FROM_FOLLOWING = {
   link: `/$/${PAGES.CHANNELS_FOLLOWING}`,
   icon: ICONS.SUBSCRIBE,
 };
+
+const PLAYLISTS = {
+  title: 'Lists',
+  link: `/$/${PAGES.LISTS}`,
+  icon: ICONS.STACK,
+  hideForUnauth: true,
+};
+
+const UNAUTH_LINKS: Array<SideNavLink> = [
+  {
+    title: 'Log In',
+    link: `/$/${PAGES.AUTH_SIGNIN}`,
+    icon: ICONS.SIGN_IN,
+  },
+  {
+    title: 'Sign Up',
+    link: `/$/${PAGES.AUTH}`,
+    icon: ICONS.SIGN_UP,
+  },
+  {
+    title: 'Settings',
+    link: `/$/${PAGES.SETTINGS}`,
+    icon: ICONS.SETTINGS,
+  },
+  {
+    title: 'Help',
+    link: `/$/${PAGES.HELP}`,
+    icon: ICONS.HELP,
+  },
+];
+
+// ****************************************************************************
+// ****************************************************************************
 
 type Props = {
   subscriptions: Array<Subscription>,
@@ -53,16 +87,6 @@ type Props = {
   user: ?User,
   homepageData: any,
   activeChannelStakedLevel: number,
-};
-
-type SideNavLink = {
-  title: string,
-  link?: string,
-  route?: string,
-  onClick?: () => any,
-  icon: string,
-  extra?: Node,
-  hideForUnauth?: boolean,
 };
 
 function SideNavigation(props: Props) {
@@ -84,26 +108,6 @@ function SideNavigation(props: Props) {
   } = props;
 
   const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData).map(({ pinnedUrls, ...theRest }) => theRest);
-
-  const FULL_LINKS: Array<SideNavLink> = [
-    {
-      title: 'Your Tags',
-      link: `/$/${PAGES.TAGS_FOLLOWING}`,
-      icon: ICONS.TAG,
-      hideForUnauth: true,
-    },
-    {
-      title: 'Discover',
-      link: `/$/${PAGES.DISCOVER}`,
-      icon: ICONS.DISCOVER,
-    },
-    {
-      title: IS_WEB ? 'Purchased' : 'Library',
-      link: `/$/${PAGES.LIBRARY}`,
-      icon: ICONS.PURCHASED,
-      hideForUnauth: true,
-    },
-  ];
 
   const MOBILE_LINKS: Array<SideNavLink> = [
     {
@@ -181,56 +185,17 @@ function SideNavigation(props: Props) {
     },
   ];
 
-  const UNAUTH_LINKS: Array<SideNavLink> = [
-    {
-      title: 'Log In',
-      link: `/$/${PAGES.AUTH_SIGNIN}`,
-      icon: ICONS.SIGN_IN,
-    },
-    {
-      title: 'Sign Up',
-      link: `/$/${PAGES.AUTH}`,
-      icon: ICONS.SIGN_UP,
-    },
-    {
-      title: 'Settings',
-      link: `/$/${PAGES.SETTINGS}`,
-      icon: ICONS.SETTINGS,
-    },
-    {
-      title: 'Help',
-      link: `/$/${PAGES.HELP}`,
-      icon: ICONS.HELP,
-    },
-  ];
-
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const isAuthenticated = Boolean(email);
+
   // SIDE LINKS: FOLLOWING, HOME, [FULL,] [EXTRA]
   let SIDE_LINKS: Array<SideNavLink> = [];
 
   SIDE_LINKS.push(HOME);
   SIDE_LINKS.push(RECENT_FROM_FOLLOWING);
-  if (!SIMPLE_SITE) {
-    FULL_LINKS.push({
-      title: 'Lists',
-      link: `/$/${PAGES.LISTS}`,
-      icon: ICONS.STACK,
-      hideForUnauth: true,
-    });
-  }
-  if (!SIMPLE_SITE) {
-    SIDE_LINKS.push(...FULL_LINKS);
-  } else if (SIMPLE_SITE) {
-    SIDE_LINKS.push({
-      title: 'Lists',
-      link: `/$/${PAGES.LISTS}`,
-      icon: ICONS.STACK,
-      hideForUnauth: true,
-    });
-  }
+  SIDE_LINKS.push(PLAYLISTS);
 
-  if (SIMPLE_SITE && EXTRA_SIDEBAR_LINKS) {
+  if (EXTRA_SIDEBAR_LINKS) {
     // $FlowFixMe
     SIDE_LINKS.push(...EXTRA_SIDEBAR_LINKS);
 
@@ -316,11 +281,9 @@ function SideNavigation(props: Props) {
       <li className="navigation-link">
         <Button label={__('FAQ and Support')} href="https://odysee.com/@OdyseeHelp:b" />
       </li>
-      {SIMPLE_SITE && ( // GUIDELINES_URL?
-        <li className="navigation-link">
-          <Button label={__('Community Guidelines')} href="https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c" />
-        </li>
-      )}
+      <li className="navigation-link">
+        <Button label={__('Community Guidelines')} href="https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c" />
+      </li>
       <li className="navigation-link">
         <Button label={__('Terms')} href="https://odysee.com/$/tos" />
       </li>
@@ -342,9 +305,6 @@ function SideNavigation(props: Props) {
           aria-label={'Sidebar'}
           className={classnames('navigation', {
             'navigation--micro': microNavigation,
-            // @if TARGET='app'
-            'navigation--mac': IS_MAC,
-            // @endif
           })}
         >
           <div>
@@ -393,19 +353,13 @@ function SideNavigation(props: Props) {
             {!isAuthenticated && sidebarOpen && unAuthNudge}
           </div>
 
-          {SIMPLE_SITE && sidebarOpen && helpLinks}
+          {sidebarOpen && helpLinks}
         </nav>
       )}
 
       {(isOnFilePage || isMediumScreen) && sidebarOpen && (
         <>
-          <nav
-            className={classnames('navigation--absolute', {
-              // @if TARGET='app'
-              'navigation--mac': IS_MAC,
-              // @endif
-            })}
-          >
+          <nav className="navigation--absolute">
             <div>
               <ul className="navigation-links--absolute mobile-only">
                 {email && livestreamEnabled && (
@@ -480,17 +434,10 @@ function SideNavigation(props: Props) {
                 </ul>
               )}
               {!isAuthenticated && unAuthNudge}
-              {SIMPLE_SITE && helpLinks}
+              {helpLinks}
             </div>
           </nav>
-          <div
-            className={classnames('navigation__overlay', {
-              // @if TARGET='app'
-              'navigation__overlay--mac': IS_MAC,
-              // @endif
-            })}
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="navigation__overlay" onClick={() => setSidebarOpen(false)} />
         </>
       )}
     </div>
