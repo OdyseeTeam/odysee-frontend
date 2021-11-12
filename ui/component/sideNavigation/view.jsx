@@ -13,6 +13,8 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import { GetLinksData } from 'util/buildHomepage';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
 
+const FOLLOWED_ITEM_INITIAL_LIMIT = 10;
+
 type SideNavLink = {
   title: string,
   link?: string,
@@ -216,6 +218,9 @@ function SideNavigation(props: Props) {
   );
 
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
+  const [expandSubscriptions, setExpandSubscriptions] = React.useState(false);
+  const [expandTags, setExpandTags] = React.useState(false);
+
   const isPersonalized = !IS_WEB || isAuthenticated;
   const isAbsolute = isOnFilePage || isMediumScreen;
   const microNavigation = !sidebarOpen || isMediumScreen;
@@ -228,6 +233,65 @@ function SideNavigation(props: Props) {
         return true;
       })
     : UNAUTH_LINKS;
+
+  const showSubscriptionSection = sidebarOpen && isPersonalized && subscriptions && subscriptions.length > 0;
+  const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
+
+  let displayedSubscriptions = subscriptions;
+  if (showSubscriptionSection && subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && !expandSubscriptions) {
+    displayedSubscriptions = subscriptions.slice(0, FOLLOWED_ITEM_INITIAL_LIMIT);
+  }
+
+  let displayedFollowedTags = followedTags;
+  if (showTagSection && followedTags.length > FOLLOWED_ITEM_INITIAL_LIMIT && !expandTags) {
+    displayedFollowedTags = followedTags.slice(0, FOLLOWED_ITEM_INITIAL_LIMIT);
+  }
+
+  function getSubscriptionSection() {
+    if (showSubscriptionSection) {
+      return (
+        <>
+          <ul className="navigation__secondary navigation-links">
+            {displayedSubscriptions.map((subscription) => (
+              <SubscriptionListItem key={subscription.uri} subscription={subscription} />
+            ))}
+          </ul>
+          {subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
+            <Button
+              label={expandSubscriptions ? __('Show less') : __('Show more')}
+              className="navigation-link"
+              onClick={() => setExpandSubscriptions(!expandSubscriptions)}
+            />
+          )}
+        </>
+      );
+    }
+    return null;
+  }
+
+  function getFollowedTagsSection() {
+    if (showTagSection) {
+      return (
+        <>
+          <ul className="navigation__secondary navigation-links navigation-links--small">
+            {displayedFollowedTags.map(({ name }, key) => (
+              <li key={name} className="navigation-link__wrapper">
+                <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
+              </li>
+            ))}
+          </ul>
+          {followedTags.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
+            <Button
+              label={expandTags ? __('Show less') : __('Show more')}
+              className="navigation-link"
+              onClick={() => setExpandTags(!expandTags)}
+            />
+          )}
+        </>
+      );
+    }
+    return null;
+  }
 
   React.useEffect(() => {
     if (purchaseSuccess) {
@@ -332,24 +396,8 @@ function SideNavigation(props: Props) {
                 );
               })}
             </ul>
-
-            {sidebarOpen && isPersonalized && subscriptions && subscriptions.length > 0 && (
-              <ul className="navigation__secondary navigation-links">
-                {subscriptions.map((subscription) => (
-                  <SubscriptionListItem key={subscription.uri} subscription={subscription} />
-                ))}
-              </ul>
-            )}
-            {sidebarOpen && isPersonalized && followedTags && followedTags.length > 0 && (
-              <ul className="navigation__secondary navigation-links navigation-links--small">
-                {followedTags.map(({ name }, key) => (
-                  <li key={name} className="navigation-link__wrapper">
-                    <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
-                  </li>
-                ))}
-              </ul>
-            )}
-
+            {getSubscriptionSection()}
+            {getFollowedTagsSection()}
             {!isAuthenticated && sidebarOpen && unAuthNudge}
           </div>
 
@@ -417,22 +465,8 @@ function SideNavigation(props: Props) {
                   );
                 })}
               </ul>
-              {sidebarOpen && isPersonalized && subscriptions && subscriptions.length > 0 && (
-                <ul className="navigation__secondary navigation-links">
-                  {subscriptions.map((subscription) => (
-                    <SubscriptionListItem key={subscription.uri} subscription={subscription} />
-                  ))}
-                </ul>
-              )}
-              {sidebarOpen && isPersonalized && followedTags && followedTags.length > 0 && (
-                <ul className="navigation__secondary navigation-links navigation-links--small">
-                  {followedTags.map(({ name }, key) => (
-                    <li key={name} className="navigation-link__wrapper">
-                      <Button navigate={`/$/discover?t=${name}`} label={`#${name}`} className="navigation-link" />
-                    </li>
-                  ))}
-                </ul>
-              )}
+              {getSubscriptionSection()}
+              {getFollowedTagsSection()}
               {!isAuthenticated && unAuthNudge}
               {helpLinks}
             </div>
