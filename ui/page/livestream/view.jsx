@@ -4,7 +4,6 @@ import { lazyImport } from 'util/lazyImport';
 import Page from 'component/page';
 import LivestreamLayout from 'component/livestreamLayout';
 import analytics from 'analytics';
-import Lbry from 'lbry';
 import moment from 'moment';
 import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
 
@@ -21,18 +20,19 @@ type Props = {
 };
 
 export default function LivestreamPage(props: Props) {
-  const { uri, claim, doSetPlayingUri, isAuthenticated, doUserSetReferrer, channelClaimId, chatDisabled } = props;
-  const [isLive, setIsLive] = React.useState('pending');
-  const [isScheduled, setIsScheduled] = React.useState(false);
-  const livestreamChannelId = channelClaimId;
-  const [hasLivestreamClaim, setHasLivestreamClaim] = React.useState(false);
-  const hideComments = chatDisabled || isScheduled;
-
-  const LIVESTREAM_CLAIM_POLL_IN_MS = 60000;
+  const { uri, claim, doSetPlayingUri, isAuthenticated, doUserSetReferrer, channelClaim, chatDisabled } = props;
 
   React.useEffect(() => {
     // TODO: This should not be needed one we unify the livestream player (?)
     analytics.playerLoadedEvent('livestream', false);
+  }, []);
+
+  const [isBroadcasting, setIsBroadcasting] = React.useState('pending');
+  const livestreamChannelId = channelClaim && channelClaim.signing_channel && channelClaim.signing_channel.claim_id;
+
+  React.useEffect(() => {
+    if (!livestreamChannelId) {
+      setIsBroadcasting(false);
   }, []);
 
   // Manage isLive status
@@ -41,15 +41,59 @@ export default function LivestreamPage(props: Props) {
       setIsLive(false);
       return;
     }
-    return watchLivestreamStatus(livestreamChannelId, (state) => setIsLive(state));
-  }, [livestreamChannelId, setIsLive]);
+    return watchLivestreamStatus(livestreamChannelId, (state) => {
+      setIsBroadcasting(state);
+    });
+  }, [livestreamChannelId, setIsBroadcasting]);
+
+  const [release, setRelease] = React.useState(
+    window.releae_time || moment(Number(claim.value.release_time || 0) * 1000)
+  );
+  // const release = moment(Number(claim.value.release_time * 1000));
+
+  // @todo: testing
+  window.moment = moment;
+  window.releaseTime = (r) => {
+    window.releae_time = r;
+    setRelease(r);
+    console.info('::: set release time to: ', release);
+  };
+  // -----------------------------
+
+  const claimReleaseInFuture = () => release.isAfter(moment());
+
+  const claimReleaseInPast = () => release.isBefore(moment());
+
+  const claimReleaseStartingSoon = () => release.isBetween(moment(), moment().add(5, 'minutes'));
+
+  const claimReleaseStartedRecently = () => release.isBetween(moment().subtract(5, 'minutes'), moment());
+
+  const checkShowLivestream = () => isBroadcasting && (claimReleaseInPast() || claimReleaseStartingSoon());
+
+  const checkShowScheduledInfo = () =>
+    (!isBroadcasting && claimReleaseInFuture()) ||
+    (!isBroadcasting && claimReleaseStartedRecently()) ||
+    (isBroadcasting && claimReleaseInFuture() && !claimReleaseStartingSoon());
+
+  const checkCommentsDisabled = () =>
+    chatDisabled ||
+    (isBroadcasting && !claimReleaseStartingSoon() && !claimReleaseInPast()) ||
+    (!isBroadcasting && claimReleaseInFuture());
+
+  const [showLivestream, setShowLivestream] = React.useState(checkShowLivestream());
+  const [showScheduledInfo, setShowScheduledInfo] = React.useState(checkShowScheduledInfo());
+  const [hideComments, setHideComments] = React.useState(checkCommentsDisabled());
+
+  const calculateStreamReleaseState = () => {
+    setShowLivestream(checkShowLivestream());
+    setShowScheduledInfo(checkShowScheduledInfo());
+    setHideComments(checkCommentsDisabled());
+  };
 
   React.useEffect(() => {
-    const checkIsScheduled = () => setIsScheduled(Number(claim.value.release_time) > moment().unix());
-    checkIsScheduled();
-    const interval = setInterval(checkIsScheduled, 1000);
+    const interval = setInterval(calculateStreamReleaseState, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [release, isBroadcasting]);
 
   const stringifiedClaim = JSON.stringify(claim);
   React.useEffect(() => {
@@ -79,7 +123,7 @@ export default function LivestreamPage(props: Props) {
   }, [doSetPlayingUri]);
 
   return (
-    isLive !== 'pending' && (
+    isBroadcasting !== 'pending' && (
       <Page
         className="file-page"
         noFooter
@@ -95,10 +139,12 @@ export default function LivestreamPage(props: Props) {
       >
         <LivestreamLayout
           uri={uri}
-          isLive={isLive}
-          hideComments={Boolean(hideComments)}
-          isScheduled={Boolean(isScheduled)}
-      />
+          hideComments={hideComments}
+          release={release}
+          isBroadcasting={isBroadcasting}
+          showLivestream={showLivestream}
+          showScheduledInfo={showScheduledInfo}
+        />
       </Page>
     )
   );

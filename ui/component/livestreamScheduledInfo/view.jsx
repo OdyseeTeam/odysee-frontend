@@ -7,30 +7,32 @@ import moment from 'moment';
 import 'scss/component/livestream-scheduled-info.scss';
 
 type Props = {
-  releaseTime: number,
+  release: any,
 };
 
 export default function LivestreamScheduledInfo(props: Props) {
-  const { releaseTime } = props;
-  const releaseMoment = moment(releaseTime * 1000);
-  const [startDateFromNow, setStartDateFromNow] = useState(releaseMoment.fromNow());
+  const { release } = props;
+  const [startDateFromNow, setStartDateFromNow] = useState(release.fromNow());
+  const [inPast, setInPast] = useState(false);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
-      setStartDateFromNow(releaseMoment.fromNow());
+      setStartDateFromNow(release.fromNow());
+      setInPast(release.isBefore(moment()));
     }, 1000);
     return () => {
       clearInterval(intervalId);
     };
-  }, []);
+  }, [release]);
 
-  const startDate = releaseMoment.format('MMMM Do, h:mm a');
+  const startDate = release.format('MMMM Do, h:mm a');
 
   return (
     <div className={'livestream-scheduled'}>
       <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
       <p className={'livestream-scheduled__time'}>
-        <span>Live in {startDateFromNow}</span>
+        {!inPast && <span>Live in {startDateFromNow}</span>}
+        {inPast && <span>{__('Starting Soon')}</span>}
         <br />
         <span className={'livestream-scheduled__date'}>{startDate}</span>
       </p>
