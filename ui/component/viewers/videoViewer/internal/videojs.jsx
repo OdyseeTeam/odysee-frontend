@@ -171,7 +171,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const { detectFileType, createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
 
-  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({ tapToUnmuteRef, tapToRetryRef, setReload, videoTheaterMode, playerRef, autoplaySetting, replay });
+  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
+    tapToUnmuteRef,
+    tapToRetryRef,
+    setReload,
+    videoTheaterMode,
+    playerRef,
+    autoplaySetting,
+    replay,
+  });
 
   // Initialize video.js
   function initializeVideoPlayer(el) {
