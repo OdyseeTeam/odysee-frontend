@@ -28,6 +28,8 @@ const SDK_API_PATH = `${LBRY_WEB_API}/api/v1`;
 const PROXY_URL = `${SDK_API_PATH}/proxy`;
 Lbry.setDaemonConnectionString(PROXY_URL);
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 function getThumbnailCdnUrl(url) {
   if (!THUMBNAIL_CARDS_CDN_URL || !url) {
     return url;
@@ -131,9 +133,12 @@ function addPWA() {
   return head;
 }
 
-function addGDPRSupport(){
+// add gdpr widget if production
+function addGDPRSupport() {
   let head = '';
-  head += `<script type="text/javascript" src="https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js"></script>`
+  if (isProduction) {
+    head += `<script type="text/javascript" src="https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js"></script>`;
+  }
   return head;
 }
 
