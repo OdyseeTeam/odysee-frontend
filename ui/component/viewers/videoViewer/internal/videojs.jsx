@@ -1,6 +1,5 @@
 // @flow
 import React, { useEffect, useRef, useState } from 'react';
-// import { SIMPLE_SITE } from 'config';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import classnames from 'classnames';
@@ -19,6 +18,7 @@ import LbryVolumeBarClass from './lbry-volume-bar';
 import keyboardShorcuts from './videojs-keyboard-shortcuts';
 import events from './videojs-events';
 import functions from './videojs-functions';
+import 'scss/component/_videojs.scss'; // Load customizations after importing plugins.
 
 export type Player = {
   on: (string, (any) => void) => void,

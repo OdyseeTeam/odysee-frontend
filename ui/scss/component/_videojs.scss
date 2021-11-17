@@ -1,4 +1,11 @@
+.video-js-parent {
+  height: 100%;
+  width: 100%;
+}
+
 .video-js {
+  height: 100%;
+  width: 100%;
   font-size: 12px;
   overflow: hidden;
 
@@ -15,6 +22,29 @@
       background: rgba(20, 20, 20, 0.45);
       background: linear-gradient(0deg, rgba(0, 0, 0, 0.85) 10%, rgba(0, 0, 0, 0) 100%);
     }
+
+    .vjs-remaining-time {
+      display: none;
+    }
+
+    .vjs-current-time,
+    .vjs-time-divider,
+    .vjs-duration {
+      display: flex;
+    }
+  }
+
+  // Modal dialog
+  .vjs-modal-dialog .vjs-modal-dialog-content {
+    position: relative;
+    padding-top: 5rem;
+    // Make sure no videojs message interferes with overlaying buttons
+    pointer-events: none;
+  }
+
+  // Picture-in-picture
+  .vjs-picture-in-picture-control {
+    display: none;
   }
 
   // Progress Bar
@@ -234,6 +264,7 @@
 }
 
 .vjs-fullscreen-control {
+  order: 2;
   margin-top: 2px;
 }
 
@@ -248,10 +279,323 @@
   margin-left: -5px !important;
 }
 
+// ****************************************************************************
+// ads
+// ****************************************************************************
+
 .vjs_video_3_ima-ad-container {
   display: none;
 }
 
 .ima-ad-container {
   display: none;
+}
+
+// ****************************************************************************
+// autoplay-next
+// ****************************************************************************
+
+.vjs-button--play-next.vjs-button,
+.vjs-button--play-previous.vjs-button,
+.vjs-button--autoplay-next.vjs-button {
+  display: block;
+  background-repeat: no-repeat;
+  background-position: center;
+
+  &:focus:not(:focus-visible) {
+    display: block;
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+}
+
+.vjs-button--play-next.vjs-button {
+  order: 0;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' class='feather feather-skip-forward'%3e%3cpolygon points='5 4 15 12 5 20 5 4'%3e%3c/polygon%3e%3cline x1='19' y1='5' x2='19' y2='19'%3e%3c/line%3e%3c/svg%3e");
+
+  &:focus:not(:focus-visible) {
+    order: 0;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' class='feather feather-skip-forward'%3e%3cpolygon points='5 4 15 12 5 20 5 4'%3e%3c/polygon%3e%3cline x1='19' y1='5' x2='19' y2='19'%3e%3c/line%3e%3c/svg%3e");
+  }
+}
+
+.vjs-button--play-previous.vjs-button {
+  order: 0;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' class='feather feather-skip-back'%3e%3cpolygon points='19 20 9 12 19 4 19 20'%3e%3c/polygon%3e%3cline x1='5' y1='19' x2='5' y2='5'%3e%3c/line%3e%3c/svg%3e");
+
+  &:focus:not(:focus-visible) {
+    order: 0;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='18' height='14' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round' class='feather feather-skip-back'%3e%3cpolygon points='19 20 9 12 19 4 19 20'%3e%3c/polygon%3e%3cline x1='5' y1='19' x2='5' y2='5'%3e%3c/line%3e%3c/svg%3e");
+  }
+}
+
+.vjs-button--autoplay-next.vjs-button {
+  margin: auto;
+  order: 1;
+  width: 24px;
+  height: 14px;
+  border-radius: var(--border-radius);
+  background: var(--color-gray-4);
+  transition: background 0.2s;
+}
+
+.vjs-button--autoplay-next.vjs-button[aria-checked='true'] {
+  background: var(--color-primary);
+}
+
+.vjs-button--autoplay-next.vjs-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 14px;
+  width: 14px;
+  background: var(--color-white);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  border-radius: var(--border-radius);
+  transition: transform 0.2s;
+}
+
+.vjs-button--autoplay-next.vjs-button[aria-checked='true']::after {
+  transform: translateX(12px);
+}
+
+// ****************************************************************************
+// big-play-button
+// ****************************************************************************
+
+// --- TODO: DRY up 'button--icon' ---
+// Wasn't able to "@extend .button--icon" in vjs-big-play-button down below.
+// Use mixin instead?
+.button--icon {
+  width: 5rem;
+  height: 5rem;
+  background-repeat: no-repeat;
+  background-size: 50%;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+  background-color: var(--color-primary);
+
+  &:hover {
+    background-color: var(--color-button-primary-bg-hover);
+  }
+
+  &.button--play {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='white' fill-rule='evenodd' stroke-linejoin='round'%3E %3Cpolygon points='5 21 5 3 21 12'/%3E %3C/g%3E %3C/svg%3E");
+    background-position: calc(50% + 0.1rem) center;
+  }
+
+  &.button--view {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink'%3E %3Cg stroke='white' stroke-width='2' fill='none' fill-rule='evenodd'%3E %3Cpath d='M2, 12 C2, 12 5, 5 12, 5 C19, 5 22, 12 22, 12 C22, 12 19, 19 12, 19 C5, 19 2, 12 2, 12 Z' stroke-linejoin='round'/%3E %3Ccircle cx='12' cy='12' r='3'/%3E %3Cpath d='M12, 5 L12, 3' stroke-linecap='round'/%3E %3Cpath d='M18, 6.5 L19, 5' stroke-linecap='round'/%3E %3Cpath d='M21, 10 L22.5, 9' stroke-linecap='round'/%3E %3Cpath d='M1.5, 10 L3, 9' stroke-linecap='round' transform='translate(2.250000, 9.500000) scale(1, -1) translate(-2.250000, -9.500000)'/%3E %3Cpath d='M5, 6.5 L6, 5' stroke-linecap='round' transform='translate(5.500000, 5.750000) scale(-1, 1) translate(-5.500000, -5.750000)'/%3E %3C/g%3E %3C/svg%3E");
+    background-position: center calc(50% + 0.1rem);
+  }
+}
+// ------------------------------------
+
+.file-render {
+  .video-js {
+    /*display: flex;*/
+    /*align-items: center;*/
+    /*justify-content: center;*/
+  }
+
+  .vjs-big-play-button {
+    @extend .button--icon;
+    @extend .button--play;
+    border: none;
+    /*position: static;*/
+    z-index: 2;
+
+    .vjs-icon-placeholder {
+      display: none;
+    }
+  }
+
+  .vjs-menu-item-text,
+  .vjs-icon-placeholder {
+    text-transform: capitalize;
+  }
+}
+
+.video-js:hover {
+  .vjs-big-play-button {
+    background-color: var(--color-primary);
+  }
+}
+
+// ****************************************************************************
+// cursor
+// ****************************************************************************
+
+.video-js.vjs-user-inactive.vjs-playing {
+  video {
+    cursor: none;
+  }
+}
+
+// ****************************************************************************
+// Overlay
+// ****************************************************************************
+
+.video-js {
+  .vjs-overlay-playrate,
+  .vjs-overlay-seeked {
+    background-color: rgba(0, 0, 0, 0.5);
+    font-size: var(--font-large);
+    width: auto;
+    padding: 10px 30px;
+    margin: 0;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+
+    animation: fadeOutAnimation ease-in 0.6s;
+    animation-iteration-count: 1;
+    animation-fill-mode: forwards;
+  }
+
+  @keyframes fadeOutAnimation {
+    0% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+}
+
+// ****************************************************************************
+// Mobile UI
+// ****************************************************************************
+
+.video-js.vjs-mobile-ui {
+  .vjs-control-bar {
+    background-color: transparent;
+  }
+
+  .vjs-touch-overlay:not(.show-play-toggle) {
+    .vjs-control-bar {
+      // Sync the controlBar's visibility with the overlay's
+      display: none;
+    }
+  }
+
+  .vjs-touch-overlay {
+    &.show-play-toggle,
+    &.skip {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    // Override the original's 'display: block' to avoid the big play button
+    // from being squished to the side:
+    position: absolute;
+  }
+}
+
+video::-internal-media-controls-overlay-cast-button {
+  // Push the cast button above vjs-touch-overlay:
+  z-index: 3;
+
+  // Move it to the upper-right since it will clash with "tap to unmute":
+  left: unset;
+  right: 8px;
+}
+
+.video-js.video-js.vjs-user-inactive {
+  video::-internal-media-controls-overlay-cast-button {
+    // (1) Android-Chrome's original Cast button behavior:
+    // - If video is playing, fade out the button.
+    // - If video is paused and video is tapped, display the button and stay on.
+    // (2) We then injected another behavior:
+    // - Display the button when '.vjs-touch-overlay' is displayed. However,
+    // the 'controlslist' attribute hack that was used to do this results in the
+    // button staying displayed without a fade-out timer.
+    // (3) Ideally, we should sync the '.vjs-touch-overlay' visibility with the
+    // cast button, similar to how to controlBar's visibility is synced above.
+    // But I have no idea how to grab the sibling '.show-play-toggle' into the
+    // css logic.
+    // (4) So, this is the best that I can come up with: Whenever user is idle,
+    // the button goes away. The only downside I know is the scenario of
+    // "overlay is up and video is paused, but button goes away due to idle".
+    // The user just needs to re-tap any empty space on the overlay to get the
+    // Cast button again.
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+}
+
+// ****************************************************************************
+// Layout and control visibility
+// ****************************************************************************
+
+.video-js.vjs-fullscreen,
+.video-js:not(.vjs-fullscreen) {
+  // --- Unhide desired components per layout ---
+  &.vjs-layout-x-small {
+    .vjs-playback-rate {
+      display: flex !important;
+    }
+  }
+
+  &.vjs-layout-small {
+    .vjs-current-time,
+    .vjs-time-divider,
+    .vjs-duration,
+    .vjs-playback-rate {
+      display: flex !important;
+    }
+  }
+
+  // --- Adjust spacing ---
+  .vjs-current-time {
+    padding-right: 0;
+  }
+
+  .vjs-duration {
+    padding-left: 0;
+  }
+
+  .vjs-playback-rate .vjs-playback-rate-value {
+    // Reduce the gigantic font a bit. Default was 1.5em.
+    font-size: 1.25em;
+    line-height: 2.5;
+  }
+
+  .vjs-playback-rate .vjs-menu {
+    // Extend the width to prevent a potential scrollbar from blocking the text.
+    width: 8em;
+    left: -2em;
+  }
+}
+
+.video-js.vjs-fullscreen {
+  .vjs-button--theater-mode {
+    display: none;
+  }
+}
+
+// ****************************************************************************
+// Tap-to-unmute
+// ****************************************************************************
+
+.video-js--tap-to-unmute {
+  visibility: hidden; // Start off as hidden.
+  z-index: 2;
+  position: absolute;
+  top: var(--spacing-xs);
+  left: var(--spacing-xs);
+  padding: var(--spacing-xs) var(--spacing-m); // Make it comfy for touch.
+  color: var(--color-gray-1);
+  background: black;
+  border: 1px solid var(--color-gray-4);
+  opacity: 0.9;
+
+  &:hover {
+    opacity: 1;
+    color: var(--color-white);
+  }
 }
