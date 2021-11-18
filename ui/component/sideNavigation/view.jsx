@@ -354,6 +354,9 @@ function SideNavigation(props: Props) {
       <li className="navigation-link">
         <Button label={__('Privacy Policy')} href="https://odysee.com/$/privacypolicy" />
       </li>
+      <li className="navigation-link">
+        <Button label={__('Cookies')} onClick={() => window.sp.showPrivacyBanner()} />
+      </li>
     </ul>
   );
 
