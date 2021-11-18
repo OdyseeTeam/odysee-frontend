@@ -183,6 +183,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // this seems like a weird thing to have to check for here
       if (!player) return;
 
+      // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
+      if (!player.paused()) {
+        player.bigPlayButton.hide();
+      }
+
       runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
 
       initializeEvents();
@@ -239,6 +244,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Add reference to player to global scope
       window.player = vjsPlayer;
 
+
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
@@ -259,6 +265,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   // Update video player and reload when source URL changes
   useEffect(() => {
+    // Update player source
+    const player = playerRef.current;
+    if (!player) return;
+
+    console.log('VIDEO PLAYER CHANGING');
     // For some reason the video player is responsible for detecting content type this way
     fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
       let finalType = sourceType;
@@ -279,10 +290,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           type: finalType,
         },
       ];
-
-      // Update player source
-      const player = playerRef.current;
-      if (!player) return;
 
       // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
       if (!player.paused()) {
