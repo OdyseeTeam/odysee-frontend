@@ -25,7 +25,10 @@ export default function Footer() {
           <Button label={__('Terms')} href="https://odysee.com/$/tos" />
         </li>
         <li className="footer__link">
-          <Button label={__('Privacy Policy')} onClick={() => window.sp.showPrivacyBanner()} />
+          <Button label={__('Privacy Policy')}  href="https://odysee.com/$/privacypolicy" />
+        </li>
+        <li className="footer__link">
+          <Button label={__('Cookies')} onClick={() => window.sp.showPrivacyBanner()} />
         </li>
       </ul>
     </footer>

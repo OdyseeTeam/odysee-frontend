@@ -54,7 +54,6 @@ function Ads(props: Props) {
         let fjs = document.getElementsByTagName('script')[0];
         script = document.createElement('script');
         script.src = scriptUrlToUse;
-        script.id = tagNameToUse;
         // $FlowFixMe
         fjs.parentNode.insertBefore(script, fjs);
       } catch (e) {}
