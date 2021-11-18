@@ -136,9 +136,11 @@ function addPWA() {
 // add gdpr widget if production
 function addGDPRSupport() {
   let head = '';
+  // TODO: change this before merge
   if (isProduction) {
     head += `<script type="text/javascript" src="https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js"></script>`;
   }
+
   return head;
 }
 
