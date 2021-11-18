@@ -2,6 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { doClaimSearch } from 'redux/actions/claims';
 import { LIVESTREAM_LIVE_API } from 'constants/livestream';
+import moment from 'moment';
 
 export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
   dispatch({
@@ -85,6 +86,7 @@ export const doFetchActiveLivestreams = (
             channel_ids: Object.keys(activeLivestreams),
             claim_type: ['stream'],
             order_by: nextOptions.order_by, // **
+            release_time: `<${moment().unix()}`,
             limit_claims_per_channel: 1, // **
             no_totals: true,
           })
