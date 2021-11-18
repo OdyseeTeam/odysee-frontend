@@ -241,6 +241,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Initialize Video.js
       const vjsPlayer = initializeVideoPlayer(vjsElement);
 
+      if(!autoplay){
+        player.bigPlayButton.hide();
+      }
+
       // Add reference to player to global scope
       window.player = vjsPlayer;
 
@@ -253,13 +257,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
+      console.log("CLEAN UP!!")
+
       window.removeEventListener('keydown', curried_function);
 
-      const player = playerRef.current;
-      if (player) {
-        player.dispose();
-        window.player = undefined;
-      }
+      // const player = playerRef.current;
+      // if (player) {
+      //   player.dispose();
+      //   window.player = undefined;
+      // }
     };
   }, [isAudio, source]);
 

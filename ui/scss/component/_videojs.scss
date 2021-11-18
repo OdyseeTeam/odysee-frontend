@@ -257,5 +257,9 @@
 }
 
 .button--icon.button--play {
-  background-color: var(--big-play-button-color)
+  background-color: var(--big-play-button-color) !important;
+}
+
+.button--icon.button--play:hover {
+  background-color: var(--big-play-button-color) !important;
 }
