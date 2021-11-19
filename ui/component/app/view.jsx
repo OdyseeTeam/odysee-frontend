@@ -285,15 +285,26 @@ function App(props: Props) {
   // add secure privacy script
   useEffect(() => {
     const script = document.createElement('script');
-
     script.src = securePrivacyScriptUrl;
     script.async = true;
 
-    document.head.appendChild(script);
+    const getLocaleEndpoint = 'https://api.odysee.com/locale/get';
+    let gdprRequired;
+
+    (async function() {
+      const response = await fetch(getLocaleEndpoint);
+      const json = await response.json();
+      gdprRequired = json.data.gdpr_required;
+      if (gdprRequired) {
+        document.head.appendChild(script);
+      }
+    })();
 
     return () => {
-      document.head.removeChild(script);
-    }
+      if (gdprRequired) {
+        document.head.removeChild(script);
+      }
+    };
   }, []);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
