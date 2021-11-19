@@ -253,11 +253,11 @@ const analytics: Analytics = {
 
     // if being paused, and not seeking, send existing data and stop interval
     if (!isPlaying && !playerIsSeeking) {
-      sendAndResetWatchmanData();
+      sendAndResetWatchmanData().catch(function(err){});
       stopWatchmanInterval();
       // if being told to pause, and seeking, send and restart interval
     } else if (!isPlaying && playerIsSeeking) {
-      sendAndResetWatchmanData();
+      sendAndResetWatchmanData().catch(function(err){});
       stopWatchmanInterval();
       startWatchmanIntervalIfNotRunning();
       // is being told to play, and seeking, don't do anything,

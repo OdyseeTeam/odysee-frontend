@@ -107,6 +107,9 @@ function VideoViewer(props: Props) {
     videoTheaterMode,
     isMarkdownOrComment,
   } = props;
+
+  console.log('running video jsx');
+
   const permanentUrl = claim && claim.permanent_url;
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;

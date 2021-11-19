@@ -135,6 +135,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playPrevious,
   } = props;
 
+  console.log('calling videojs');
+
   // will later store the videojs player
   const playerRef = useRef();
   const containerRef = useRef();
@@ -216,7 +218,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
-      onPlayerReady(player, videoNode);
+      // what is happening here
+      // onPlayerReady(player, videoNode);
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
@@ -229,12 +232,23 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
+
+    console.log('pre vjs data');
+
     const vjsElement = createVideoPlayerDOM(containerRef.current);
+
+    console.log('vjs element!');
 
     // Detect source file type via pre-fetch (async)
     detectFileType().then(() => {
+
+      console.log("INTIALIZE");
+
+      console.log(new Date());
       // Initialize Video.js
       const vjsPlayer = initializeVideoPlayer(vjsElement);
+
+      console.log('done initializing')
 
       // Add reference to player to global scope
       window.player = vjsPlayer;
@@ -242,11 +256,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
+      console.log('autoplay');
+      console.log(autoplay);
+
+      if(autoplay){
+        console.log('play me!');
+        vjsPlayer.play()
+      }
+
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
     });
 
     // Cleanup
     return () => {
+      console.log('CLEAN UP');
+
       window.removeEventListener('keydown', curried_function);
 
       const player = playerRef.current;
@@ -254,42 +278,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.dispose();
         window.player = undefined;
       }
+      setReload('newbie');
     };
-  }, [isAudio, source]);
-
-  // Update video player and reload when source URL changes
-  useEffect(() => {
-    // For some reason the video player is responsible for detecting content type this way
-    fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-      let finalType = sourceType;
-      let finalSource = source;
-
-      // override type if we receive an .m3u8 (transcoded mp4)
-      // do we need to check if explicitly redirected
-      // or is checking extension only a safer method
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        finalType = 'application/x-mpegURL';
-        finalSource = response.url;
-      }
-
-      // Modify video source in options
-      videoJsOptions.sources = [
-        {
-          src: finalSource,
-          type: finalType,
-        },
-      ];
-
-      // Update player source
-      const player = playerRef.current;
-      if (!player) return;
-
-      // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
-      if (!player.paused()) {
-        player.bigPlayButton.hide();
-      }
-    });
-  }, [source, reload]);
+  }, [isAudio, source, reload]);
 
   return (
     // $FlowFixMe
