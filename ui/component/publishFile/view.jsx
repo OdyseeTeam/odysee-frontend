@@ -94,6 +94,8 @@ function PublishFile(props: Props) {
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
+  const [chunkSize, setChunkSize] = useState(window.chunkSize || 100000000);
+
   const PROCESSING_MB_PER_SECOND = 0.5;
   const MINUTES_THRESHOLD = 30;
   const HOURS_THRESHOLD = MINUTES_THRESHOLD * 60;
@@ -463,6 +465,21 @@ function PublishFile(props: Props) {
       actions={
         <React.Fragment>
           <PublishName uri={uri} />
+          <FormField
+            name="chunk_size"
+            label={'Chunk Size (bytes)'}
+            type="number"
+            className="form-field--price-amount"
+            min={1}
+            value={chunkSize}
+            onWheel={(e) => e.preventDefault()}
+            onChange={(event) => {
+              setChunkSize(parseInt(event.target.value));
+              window.chunkSize = parseInt(event.target.value);
+            }}
+            placeholder={'100000000'}
+            step={1}
+          />
           <FormField
             type="text"
             name="content_title"
