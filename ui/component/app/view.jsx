@@ -47,6 +47,7 @@ export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
 const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
+const securePrivacyScriptUrl = 'https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js';
 
 type Props = {
   language: string,
@@ -279,6 +280,20 @@ function App(props: Props) {
       // $FlowFixMe
       document.body.removeChild(script);
     };
+  }, []);
+
+  // add secure privacy script
+  useEffect(() => {
+    const script = document.createElement('script');
+
+    script.src = securePrivacyScriptUrl;
+    script.async = true;
+
+    document.head.appendChild(script);
+
+    return () => {
+      document.head.removeChild(script);
+    }
   }, []);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.

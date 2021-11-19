@@ -28,8 +28,6 @@ const SDK_API_PATH = `${LBRY_WEB_API}/api/v1`;
 const PROXY_URL = `${SDK_API_PATH}/proxy`;
 Lbry.setDaemonConnectionString(PROXY_URL);
 
-const isProduction = process.env.NODE_ENV === 'production';
-
 function getThumbnailCdnUrl(url) {
   if (!THUMBNAIL_CARDS_CDN_URL || !url) {
     return url;
@@ -133,16 +131,6 @@ function addPWA() {
   return head;
 }
 
-// add gdpr widget if production
-function addGDPRSupport() {
-  let head = '';
-  if (isProduction) {
-    head += `<script type="text/javascript" src="https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js"></script>`;
-  }
-
-  return head;
-}
-
 function addFavicon() {
   let head = '';
   head += `<link rel="icon" type="image/png" href="${FAVICON || './public/favicon.png'}" />`;
@@ -151,7 +139,7 @@ function addFavicon() {
 
 function buildHead() {
   const head =
-    '<!-- VARIABLE_HEAD_BEGIN -->' + addGDPRSupport() + addFavicon() + addPWA() + buildOgMetadata() + '<!-- VARIABLE_HEAD_END -->';
+    '<!-- VARIABLE_HEAD_BEGIN -->' + addFavicon() + addPWA() + buildOgMetadata() + '<!-- VARIABLE_HEAD_END -->';
   return head;
 }
 
