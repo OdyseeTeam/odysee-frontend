@@ -242,7 +242,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const vjsPlayer = initializeVideoPlayer(vjsElement);
 
       if(!autoplay){
-        player.bigPlayButton.hide();
+        vjsPlayer.bigPlayButton.hide();
       }
 
       // Add reference to player to global scope
@@ -256,53 +256,61 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     });
 
     // Cleanup
-    return () => {
-      console.log("CLEAN UP!!")
-
-      window.removeEventListener('keydown', curried_function);
-
-      // const player = playerRef.current;
-      // if (player) {
-      //   player.dispose();
-      //   window.player = undefined;
-      // }
-    };
+    // return () => {
+    //   console.log("CLEAN UP!!")
+    //
+    //   window.removeEventListener('keydown', curried_function);
+    //
+    //   // const player = playerRef.current;
+    //   // if (player) {
+    //   //   player.dispose();
+    //   //   window.player = undefined;
+    //   // }
+    // };
   }, [isAudio, source]);
 
   // Update video player and reload when source URL changes
-  useEffect(() => {
-    // Update player source
-    const player = playerRef.current;
-    if (!player) return;
-
-    console.log('VIDEO PLAYER CHANGING');
-    // For some reason the video player is responsible for detecting content type this way
-    fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-      let finalType = sourceType;
-      let finalSource = source;
-
-      // override type if we receive an .m3u8 (transcoded mp4)
-      // do we need to check if explicitly redirected
-      // or is checking extension only a safer method
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        finalType = 'application/x-mpegURL';
-        finalSource = response.url;
-      }
-
-      // Modify video source in options
-      videoJsOptions.sources = [
-        {
-          src: finalSource,
-          type: finalType,
-        },
-      ];
-
-      // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
-      if (!player.paused()) {
-        player.bigPlayButton.hide();
-      }
-    });
-  }, [source, reload]);
+  // useEffect(() => {
+  //   // Update player source
+  //   const player = playerRef.current;
+  //
+  //   console.log('THE PLAYER THING');
+  //   console.log(player);
+  //
+  //   console.log('test');
+  //
+  //   if (!player) return;
+  //
+  //   console.log('thiasdf')
+  //
+  //   console.log('VIDEO PLAYER CHANGING');
+  //   // For some reason the video player is responsible for detecting content type this way
+  //   fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
+  //     let finalType = sourceType;
+  //     let finalSource = source;
+  //
+  //     // override type if we receive an .m3u8 (transcoded mp4)
+  //     // do we need to check if explicitly redirected
+  //     // or is checking extension only a safer method
+  //     if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+  //       finalType = 'application/x-mpegURL';
+  //       finalSource = response.url;
+  //     }
+  //
+  //     // Modify video source in options
+  //     videoJsOptions.sources = [
+  //       {
+  //         src: finalSource,
+  //         type: finalType,
+  //       },
+  //     ];
+  //
+  //     // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
+  //     if (!player.paused()) {
+  //       player.bigPlayButton.hide();
+  //     }
+  //   });
+  // }, [source, reload]);
 
   return (
     // $FlowFixMe
