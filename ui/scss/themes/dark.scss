@@ -45,7 +45,7 @@
   --color-button-alt-text: #e2e9f0;
   --color-button-border: #5b4475;
   --color-link: var(--color-primary);
-  --color-link-hover: #d75673;
+  --color-link-hover: #e50054;
   --color-link-active: #ec1d4c;
   --color-link-focus-bg: #3d2d4e;
 
@@ -95,8 +95,8 @@
 
   // Other
   --color-tab-text: var(--color-white);
-  --color-tabs-background: var(--color-card-background);
-  --color-tab-divider: var(--color-white);
+  --color-tabs-background: var(--color-header-background);
+  --color-tab-divider: var(--color-primary);
   --color-modal-background: var(--color-card-background);
   --color-notice: #58563b;
   --color-purchased: #ffd580;

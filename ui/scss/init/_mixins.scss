@@ -230,7 +230,7 @@
 
   .ff-canvas,
   .freezeframe-img {
-    border-radius: var(--border-radius);
+    border-radius: 50%;
     height: $size !important;
     width: $size !important;
   }
