@@ -1,4 +1,6 @@
 // @flow
+import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
+
 require('proxy-polyfill');
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
@@ -192,10 +194,18 @@ function checkAndParse(response) {
 }
 
 export function apiCall(method: string, params: ?{}, resolve: Function, reject: Function) {
+  let apiRequestHeaders = Lbry.apiRequestHeaders;
+
+  if (params && params[NO_AUTH]) {
+    apiRequestHeaders = Object.assign({}, Lbry.apiRequestHeaders);
+    delete apiRequestHeaders[X_LBRY_AUTH_TOKEN];
+    delete params[NO_AUTH];
+  }
+
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
-    headers: Lbry.apiRequestHeaders,
+    headers: apiRequestHeaders,
     body: JSON.stringify({
       jsonrpc: '2.0',
       method,
