@@ -498,6 +498,10 @@
   &:hover {
     cursor: pointer;
 
+    .claim-tile__title {
+      color: var(--color-primary);
+    }
+
     .claim__menu-button {
       opacity: 1;
     }

@@ -6,7 +6,7 @@
   --color-fire-outside: #ff9b20;
 
   // Structure
-  --color-background: #140e1b;
+  --color-background: #191919;
   --color-background-overlay: #0c0d0e95;
   --color-border: #30243d;
   --color-card-background: #181021;
@@ -27,8 +27,8 @@
   --color-help-warning-bg: #fbbf2450;
 
   // Header
-  --color-header-button: #38274c;
-  --color-header-background: #231830;
+  --color-header-button: var(--color-background);
+  --color-header-background: #111111;
 
   // Button
   --color-button-primary-text: white;
