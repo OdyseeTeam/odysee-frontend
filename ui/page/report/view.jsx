@@ -72,7 +72,7 @@ class ReportPage extends React.Component {
           />
 
           <Card
-            title={__('Developer?')}
+            title={__('Developer? Or looking for more?')}
             actions={
               <div dir="auto" className="markdown-preview">
                 <p>{__('You can also:')}</p>
@@ -80,7 +80,7 @@ class ReportPage extends React.Component {
                   <li>
                     <Button
                       button="link"
-                      href="https://github.com/lbryio/lbry-desktop/issues"
+                      href="https://github.com/OdyseeTeam/odysee-frontend/issues"
                       label={__('Submit an issue on GitHub')}
                     />
                     .
@@ -93,7 +93,7 @@ class ReportPage extends React.Component {
                         ),
                       }}
                     >
-                      Explore our %technical_resources%
+                      Explore LBRY's %technical_resources%
                     </I18nMessage>
                     .
                   </li>
@@ -103,7 +103,7 @@ class ReportPage extends React.Component {
                         tech_forum: <Button button="link" href="https://forum.lbry.tech" label={__('tech forum')} />,
                       }}
                     >
-                      Join our %tech_forum%
+                      Join LBRY's %tech_forum%
                     </I18nMessage>
                     .
                   </li>
