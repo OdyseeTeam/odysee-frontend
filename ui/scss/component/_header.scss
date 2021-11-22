@@ -104,12 +104,6 @@
     background-color: var(--color-header-button-hover);
   }
 
-  @media (min-width: $breakpoint-small) {
-    &:focus {
-      @include focus;
-    }
-  }
-
   span {
     display: flex;
     justify-content: center;

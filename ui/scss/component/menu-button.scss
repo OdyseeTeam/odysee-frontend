@@ -67,7 +67,8 @@
 
 .menu__title {
   &[aria-expanded='true'] {
-    background-color: var(--color-header-button-active);
+    background-color: var(--color-primary);
+    transform: rotate(0deg);
   }
 }
 

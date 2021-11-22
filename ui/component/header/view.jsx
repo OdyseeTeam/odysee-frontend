@@ -246,7 +246,7 @@ const Header = (props: Props) => {
                         ? __('Close sidebar - hide channels you are following.')
                         : __('Expand sidebar - view channels you are following.')
                     }
-                    className="header__navigation-item menu__title header__navigation-item--icon"
+                    className="header__navigation-item menu__title header__navigation-item--icon button-rotate"
                     icon={ICONS.MENU}
                     aria-expanded={sidebarOpen}
                     onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -460,7 +460,7 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
         <MenuButton
           aria-label={__('Settings')}
           title={__('Settings')}
-          className="header__navigation-item menu__title header__navigation-item--icon  mobile-hidden"
+          className="header__navigation-item menu__title header__navigation-item--icon  mobile-hidden button-rotate"
           // @if TARGET='app'
           onDoubleClick={(e) => {
             e.stopPropagation();
