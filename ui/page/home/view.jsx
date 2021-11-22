@@ -108,6 +108,54 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
+  React.useEffect(() => {
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    (async function() {
+      console.log('something!');
+
+      function isScrolledIntoView(el) {
+        var rect = el.getBoundingClientRect();
+        var elemTop = rect.top;
+        var elemBottom = rect.bottom;
+
+        // Only completely visible elements return true:
+        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+        return isVisible;
+      }
+
+      // Element.prototype.appendBefore = function (element) {
+      //   element.parentNode.insertBefore(this, element);
+      // },false;
+
+      let cards = document.getElementsByClassName('card');
+      if(cards.length == 0){
+        cards = document.getElementsByClassName('card');
+        await sleep(2000);
+      }
+      console.log(cards.length);
+      let lastCard;
+      for (const card of cards) {
+        const isFullyVisible = isScrolledIntoView(card);
+        console.log(isFullyVisible);
+        if (!isFullyVisible) break;
+        lastCard = card
+      }
+
+      var lastCard1 = lastCard.cloneNode(true)
+
+      lastCard.parentNode.insertBefore(lastCard1, lastCard.nextSibling);
+
+
+      lastCard.appendBefore(lastCard1);
+
+
+      console.log(lastCard);
+    })()
+  }, []);
+
   return (
     <Page fullWidthPage>
       {!SIMPLE_SITE && (authenticated || !IS_WEB) && !subscribedChannels.length && (
