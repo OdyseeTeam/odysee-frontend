@@ -1,6 +1,6 @@
 .claim-list {
   .claim-preview__wrapper {
-    border-bottom: 1px solid var(--color-border);
+    //border-bottom: 1px solid var(--color-border);
   }
 }
 
@@ -76,7 +76,7 @@
 
 .claim-preview__wrapper {
   @include font-sans;
-  padding: var(--spacing-m);
+  padding: var(--spacing-s);
   list-style: none;
 
   &:hover {
@@ -96,6 +96,9 @@
 
 .claim-preview__wrapper--small {
   padding: var(--spacing-s);
+  padding-bottom: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
 
   .button--uri-indicator {
     max-width: 12rem;
@@ -119,7 +122,7 @@
     @include handleClaimListGifThumbnail($width);
 
     flex-shrink: 0;
-    margin-right: var(--spacing-m);
+    margin-right: var(--spacing-s);
   }
 
   .media__thumb-placeholder-text {
@@ -359,7 +362,7 @@
   .media__thumb {
     width: var(--file-list-thumbnail-width);
     flex-shrink: 0;
-    margin-right: var(--spacing-m);
+    margin-right: var(--spacing-s);
   }
 }
 

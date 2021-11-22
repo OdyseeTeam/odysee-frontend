@@ -460,7 +460,7 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
         <MenuButton
           aria-label={__('Settings')}
           title={__('Settings')}
-          className="header__navigation-item menu__title header__navigation-item--icon  mobile-hidden button-rotate"
+          className="header__navigation-item menu__title header__navigation-item--icon  mobile-hidden"
           // @if TARGET='app'
           onDoubleClick={(e) => {
             e.stopPropagation();

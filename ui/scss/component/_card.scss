@@ -99,7 +99,7 @@
   @extend .section__flex;
 
   @media (min-width: $breakpoint-small) {
-    padding: var(--spacing-s) var(--spacing-m);
+    padding: var(--spacing-s) 0px;
   }
 }
 
@@ -113,6 +113,7 @@
 
 .card__title-section--small {
   padding: var(--spacing-s);
+  padding-left: 0px;
 }
 
 .card__actions--inline {
@@ -300,6 +301,7 @@
 
 .card__body {
   padding: var(--spacing-m);
+  padding-left: 0px;
 
   &:not(.card__body--no-title) {
     padding-top: 0;
@@ -364,6 +366,8 @@
 .card__body,
 .card__main-actions {
   padding: var(--spacing-m);
+  padding-left: 0;
+  padding-right: 0;
   padding-bottom: 0;
   margin: 0;
   margin-bottom: var(--spacing-m);
