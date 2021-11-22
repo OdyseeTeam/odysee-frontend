@@ -555,7 +555,8 @@
 .claim-tile__title {
   position: relative;
   padding: var(--spacing-s);
-  padding-right: var(--spacing-xl);
+  padding-left: 0px;
+  padding-right: var(--spacing-l);
   padding-bottom: 0;
   margin-bottom: var(--spacing-s);
 
@@ -571,10 +572,11 @@
 
 .claim-tile__info {
   display: flex;
-  margin-top: var(--spacing-s);
-  border-top: 1px solid var(--color-border);
+  margin-top: var(--spacing-xs);
+  //border-top: 1px solid var(--color-border);
   color: var(--color-subtitle);
-  padding: var(--spacing-s);
+  padding: 0px;
+  padding-bottom: var(--spacing-xl);
 
   .channel-thumbnail {
     @include handleChannelGif(2.1rem);
@@ -651,7 +653,7 @@
   right: var(--spacing-xxs);
   background-color: var(--color-black);
   padding: 0.3rem;
-  border-radius: var(--border-radius);
+  //border-radius: var(--border-radius);
   opacity: 0.7;
   z-index: 2;
 
@@ -722,7 +724,7 @@
   & > * {
     color: var(--color-text);
     background-color: var(--color-black);
-    border-radius: var(--border-radius);
+    //border-radius: var(--border-radius);
     padding: var(--spacing-xxs);
     margin-right: 0;
     &:hover {
@@ -793,7 +795,7 @@
   position: relative;
 
   .claim__menu-button {
-    right: 0.2rem;
+    right: 0rem;
   }
 }
 
@@ -801,7 +803,7 @@
   &.claim__menu-button {
     position: absolute;
     top: var(--spacing-xs);
-    right: var(--spacing-xs);
+    //right: var(--spacing-xs);
   }
 
   &.claim__menu-button--inline {
