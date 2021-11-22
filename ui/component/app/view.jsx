@@ -287,23 +287,38 @@ function App(props: Props) {
     const script = document.createElement('script');
     script.src = securePrivacyScriptUrl;
     script.async = true;
+    // might use this for future checking to prevent doubleloading
+    script.id = 'securePrivacy';
 
     const getLocaleEndpoint = 'https://api.odysee.com/locale/get';
-    let gdprRequired;
+    const gdprRequired = localStorage.getItem('gdprRequired');
+    // gdpr is known to be required, add script
+    if (gdprRequired === 'true') {
+      // $FlowFixMe
+      document.head.appendChild(script);
+    }
 
-    (async function() {
-      const response = await fetch(getLocaleEndpoint);
-      const json = await response.json();
-      gdprRequired = json.data.gdpr_required;
-      if (gdprRequired) {
-        document.head.appendChild(script);
-      }
-    })();
+    // haven't done a gdpr check, do it now
+    if (gdprRequired === null) {
+      (async function() {
+        const response = await fetch(getLocaleEndpoint);
+        const json = await response.json();
+        const gdprRequiredBasedOnLocation = json.data.gdpr_required;
+        // note we need gdpr and load script
+        if (gdprRequiredBasedOnLocation) {
+          localStorage.setItem('gdprRequired', 'false');
+          // $FlowFixMe
+          document.head.appendChild(script);
+        // note we don't need gdpr, save to session
+        } else {
+          localStorage.setItem('gdprRequired', 'false');
+        }
+      })();
+    }
 
     return () => {
-      if (gdprRequired) {
-        document.head.removeChild(script);
-      }
+      // $FlowFixMe
+      document.head.removeChild(script);
     };
   }, []);
 
