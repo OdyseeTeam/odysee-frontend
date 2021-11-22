@@ -24,7 +24,8 @@
   top: var(--header-height);
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
-  border-right: 1px solid var(--color-border);
+  //border-right: 1px solid var(--color-border);
+  background-color: var(--color-header-background);
   padding-top: var(--spacing-l);
   padding-bottom: var(--spacing-l);
   overflow-y: auto;
@@ -50,9 +51,10 @@
   z-index: 4;
   width: var(--side-nav-width);
   padding-top: 0;
-  background-color: var(--color-card-background);
-  border-top: 1px solid var(--color-border);
-  box-shadow: var(--card-box-shadow);
+  //background-color: var(--color-card-background);
+  background-color: rgba(17, 17, 17, 0.95);
+  //border-top: 1px solid var(--color-border);
+  //box-shadow: var(--card-box-shadow);
 
   .navigation-link {
     padding-left: var(--spacing-m);
@@ -89,17 +91,20 @@
   width: 100%;
   color: var(--color-navigation-link);
   padding-left: var(--spacing-s);
-  font-size: var(--font-body);
+  //font-size: var(--font-body);
+  font-size: 0.8333rem;
   font-weight: var(--font-weight-bold);
 
   .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 1rem;
+    width: 1rem;
     stroke: var(--color-navigation-icon);
   }
 
   .button__content {
     padding: var(--spacing-s);
+    padding-top: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
     justify-content: flex-start;
     flex-direction: column;
   }
@@ -135,8 +140,8 @@
     margin-bottom: 0;
 
     .icon {
-      height: 1.5rem;
-      width: 1.5rem;
+      height: 1rem;
+      width: 1rem;
     }
 
     .button__content {
@@ -144,7 +149,8 @@
     }
 
     .button__label {
-      margin-top: 0;
+      margin-top: 0px;
+      padding-top: 3px;
     }
 
     &:focus {
@@ -188,8 +194,8 @@
 
 .navigation-links--micro {
   .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 1rem;
+    width: 1rem;
   }
 
   .button__content {
