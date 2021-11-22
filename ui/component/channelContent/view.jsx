@@ -13,7 +13,7 @@ import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
 import { lighthouse } from 'redux/actions/search';
-import ScheduledLiveStreams from 'component/scheduledLiveStreams';
+import ScheduledStreams from 'component/scheduledStreams';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -248,7 +248,6 @@ function ChannelContent(props: Props) {
   }, [url]);
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
-  const [loadingLiveStreams, setLoadingLiveStreams] = React.useState(showScheduledLiveStreams);
 
   return (
     <Fragment>
@@ -256,8 +255,7 @@ function ChannelContent(props: Props) {
         <HiddenNsfwClaims uri={uri} />
       )}
 
-      {showScheduledLiveStreams && <ScheduledLiveStreams uri={uri} ready={() => setLoadingLiveStreams(false)} />}
-
+      {showScheduledLiveStreams && <ScheduledStreams channelIds={[claimId]} tileLayout={tileLayout} />}
       <LivestreamLink uri={uri} />
 
       {!fetching && channelIsBlackListed && (
@@ -281,7 +279,7 @@ function ChannelContent(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-      {!fetching && !loadingLiveStreams && (
+      {!fetching && (
         <Ads type="homepage" />
 
       <ClaimListDiscover

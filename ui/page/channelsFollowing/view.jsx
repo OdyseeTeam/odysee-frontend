@@ -11,28 +11,26 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import { splitBySeparator } from 'util/lbryURI';
 import { getLivestreamUris } from 'util/livestream';
+import ScheduledStreams from 'component/scheduledStreams';
 
 type Props = {
   subscribedChannels: Array<Subscription>,
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: () => void,
 };
 
 function ChannelsFollowingPage(props: Props) {
-  const { subscribedChannels, tileLayout, activeLivestreams, doFetchActiveLivestreams } = props;
+  const { subscribedChannels, tileLayout, activeLivestreams } = props;
 
   const hasSubsribedChannels = subscribedChannels.length > 0;
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
-
-  React.useEffect(() => {
-    doFetchActiveLivestreams();
-  }, []);
 
   return !hasSubsribedChannels ? (
     <ChannelsFollowingDiscoverPage />
   ) : (
     <Page noFooter fullWidthPage={tileLayout}>
+      <ScheduledStreams channelIds={channelIds} tileLayout={tileLayout} />
+
       <ClaimListDiscover
         prefixUris={getLivestreamUris(activeLivestreams, channelIds)}
         hideAdvancedFilter={SIMPLE_SITE}

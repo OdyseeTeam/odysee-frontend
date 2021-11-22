@@ -56,12 +56,12 @@ export const isLiveStreaming = async (channelId: string): Promise<boolean> => {
 };
 
 export const getScheduledLivestreams = async (
-  channelId: string,
+  channelIds: Array<string>,
   page: number = 1,
   pageSize: number = 6
 ): Promise<any> => {
   return Lbry.claim_search({
-    channel_ids: [channelId],
+    channel_ids: channelIds,
     page: page,
     page_size: pageSize,
     no_totals: true,
