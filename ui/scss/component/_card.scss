@@ -190,8 +190,8 @@
 .card__title {
   display: block;
   align-items: center;
-  font-size: var(--font-large);
-  font-weight: var(--font-weight-light);
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-bold);
 
   & > *:not(:last-child) {
     margin-right: var(--spacing-m);
@@ -371,7 +371,7 @@
   padding-right: 0;
   padding-bottom: 0;
   margin: 0;
-  margin-bottom: var(--spacing-m);
+  margin-bottom: 0px;
 }
 
 .card__bottom-gutter {
