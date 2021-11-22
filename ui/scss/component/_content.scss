@@ -93,12 +93,13 @@
 
 .content__info {
   cursor: grab;
-  height: var(--floating-viewer-info-height);
-  padding: var(--spacing-m);
+  //height: var(--floating-viewer-info-height);
+  padding: var(--spacing-s);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   white-space: nowrap;
+  background-color: rgba(25, 25, 25, 0.9);
 }
 
 .content__cover {
