@@ -224,12 +224,13 @@
 
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s);
+    padding-right: 0px;
   }
 }
 
 .card__title-actions--link {
   margin-top: var(--spacing-xs);
-  margin-right: var(--spacing-xs);
+  //margin-right: var(--spacing-xs);
 }
 
 .card__title-actions--small {
