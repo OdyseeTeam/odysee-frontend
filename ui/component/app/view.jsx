@@ -306,11 +306,11 @@ function App(props: Props) {
         const gdprRequiredBasedOnLocation = json.data.gdpr_required;
         // note we need gdpr and load script
         if (gdprRequiredBasedOnLocation) {
-          localStorage.setItem('gdprRequired', 'false');
+          localStorage.setItem('gdprRequired', 'true');
           // $FlowFixMe
           document.head.appendChild(script);
         // note we don't need gdpr, save to session
-        } else {
+        } else if (gdprRequiredBasedOnLocation ===  false) {
           localStorage.setItem('gdprRequired', 'false');
         }
       })();
