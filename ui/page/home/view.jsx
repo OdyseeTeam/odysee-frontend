@@ -108,51 +108,62 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  function isScrolledIntoView(el) {
+    var rect = el.getBoundingClientRect();
+    var elemTop = rect.top;
+    var elemBottom = rect.bottom;
+
+    // Only completely visible elements return true:
+    var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+    return isVisible;
+  }
+
   React.useEffect(() => {
-    function sleep(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
 
     (async function() {
       console.log('something!');
 
-      function isScrolledIntoView(el) {
-        var rect = el.getBoundingClientRect();
-        var elemTop = rect.top;
-        var elemBottom = rect.bottom;
-
-        // Only completely visible elements return true:
-        var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
-        return isVisible;
-      }
-
-      // Element.prototype.appendBefore = function (element) {
-      //   element.parentNode.insertBefore(this, element);
-      // },false;
-
-      let cards = document.getElementsByClassName('card');
+      await sleep(4000);
+      let cards = document.getElementsByClassName('card claim-preview--tile');
       if(cards.length == 0){
-        cards = document.getElementsByClassName('card');
-        await sleep(2000);
+        cards = document.getElementsByClassName('card claim-preview--tile');
+        await sleep(8000);
       }
+
       console.log(cards.length);
+
+      // find the last fully visible card
       let lastCard;
       for (const card of cards) {
         const isFullyVisible = isScrolledIntoView(card);
-        console.log(isFullyVisible);
+        // console.log(isFullyVisible);
         if (!isFullyVisible) break;
         lastCard = card
       }
 
-      var lastCard1 = lastCard.cloneNode(true)
+      var clonedCard = lastCard.cloneNode(true)
 
-      lastCard.parentNode.insertBefore(lastCard1, lastCard.nextSibling);
+      var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
 
+      console.log(value);
 
-      lastCard.appendBefore(lastCard1);
+      console.log('cloned');
+      console.log(clonedCard);
 
+      const divToInsertBefore = lastCard.previousSibling;
+
+      lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
       console.log(lastCard);
+
+
+      // lastCard.appendBefore(lastCard1);
+
+
     })()
   }, []);
 
