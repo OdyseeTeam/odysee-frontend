@@ -1,4 +1,4 @@
-$thumbnailWidth: 1.5rem;
+$thumbnailWidth: 2.5rem;
 $thumbnailWidthSmall: 1rem;
 
 .comments {
@@ -52,13 +52,18 @@ $thumbnailWidthSmall: 1rem;
       @include handleChannelGif($thumbnailWidth);
     }
 
+    /*
     .channel-staked__wrapper {
       padding: 0;
-      left: calc(#{$thumbnailWidthSmall} / 4);
-      bottom: -1rem;
+      //left: calc(#{$thumbnailWidthSmall} / 4);
+      left: 0px;
+      bottom: 0rem;
+      height: 62%;
       padding: -1rem;
       margin-left: 0;
     }
+    */
+
     .channel-staked__indicator {
       @media (max-width: $breakpoint-small) {
         margin-left: 0.1rem;
