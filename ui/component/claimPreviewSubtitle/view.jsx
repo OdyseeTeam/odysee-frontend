@@ -32,8 +32,7 @@ function ClaimPreviewSubtitle(props: Props) {
   let livestreamReleaseDate;
 
   if (claim && isLivestream) {
-    const releaseMoment =
-      typeof claim.value.release_time === 'number' ? moment(claim.value.release_time * 1000) : moment();
+    const releaseMoment = moment(Number(claim.value.release_time) * 1000);
     isScheduledLivestream = releaseMoment.isAfter();
     livestreamReleaseDate = releaseMoment.format('MMM Do, h:mm A');
   }
