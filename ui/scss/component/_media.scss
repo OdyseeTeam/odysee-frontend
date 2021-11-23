@@ -120,6 +120,37 @@
     margin-right: var(--spacing-m);
   }
 
+  .button {
+    &:hover {
+      color: var(--color-primary);
+      background-color: var(--color-background);
+
+      svg {
+        stroke: var(--color-primary);
+      }
+    }
+  }
+
+  .button-like {
+    &:hover {
+      color: var(--color-fire);
+
+      svg {
+        stroke: var(--color-fire);
+      }
+    }
+  }
+
+  .button-dislike {
+    &:hover {
+      color: var(--color-slime);
+
+      svg {
+        stroke: var(--color-slime);
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     padding-top: var(--spacing-s);
 

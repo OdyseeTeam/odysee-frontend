@@ -76,7 +76,9 @@ function FileReactions(props: Props) {
         title={__('I like this')}
         requiresAuth={IS_WEB}
         authSrc="filereaction_like"
-        className={classnames('button--file-action', { 'button--fire': myReaction === REACTION_TYPES.LIKE })}
+        className={classnames('button--file-action button-like', {
+          'button--fire': myReaction === REACTION_TYPES.LIKE,
+        })}
         label={
           <>
             {myReaction === REACTION_TYPES.LIKE && SIMPLE_SITE && (
@@ -101,7 +103,9 @@ function FileReactions(props: Props) {
         requiresAuth={IS_WEB}
         authSrc={'filereaction_dislike'}
         title={__('I dislike this')}
-        className={classnames('button--file-action', { 'button--slime': myReaction === REACTION_TYPES.DISLIKE })}
+        className={classnames('button--file-action button-dislike', {
+          'button--slime': myReaction === REACTION_TYPES.DISLIKE,
+        })}
         label={
           <>
             {myReaction === REACTION_TYPES.DISLIKE && SIMPLE_SITE && (
