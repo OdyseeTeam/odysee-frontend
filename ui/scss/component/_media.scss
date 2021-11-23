@@ -70,6 +70,7 @@
 
   &.media__info-text--constrained {
     max-width: 50rem;
+    font-size: var(--font-small);
   }
 }
 
@@ -77,12 +78,13 @@
   margin-top: var(--spacing-m);
   max-height: 5rem;
   overflow: hidden;
+  font-size: var(--font-small);
 }
 
 .media__info-text--expanded {
   margin-top: var(--spacing-m);
   max-height: auto;
-  font-size: 0.833rem;
+  font-size: var(--font-small);
 }
 
 .media__info-text--contracted,
