@@ -72,10 +72,13 @@
 }
 
 .menu__list {
-  box-shadow: var(--card-box-shadow);
+  //box-shadow: var(--card-box-shadow);
+  transform-origin: top;
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
 
-  border: 1px solid var(--color-border);
+  border-left: 2px solid #191919;
+  border-right: 2px solid #191919;
+  border-bottom: 2px solid #191919;
   border-radius: var(--border-radius);
   padding: var(--spacing-xs) 0;
 
@@ -86,7 +89,7 @@
 
 .menu__list--header {
   @extend .menu__list;
-  margin-top: 19px;
+  margin-top: 10px;
 }
 
 .menu__list--comments {
