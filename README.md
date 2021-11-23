@@ -2,6 +2,7 @@
 # Odysee Frontend - Odysee.com   
 
 This repo contains the UI and front end code that powers Odysee.com.
+This specific fork contains the new layout & design that might replace the current ones on Odysee.com.
 
  <a href="https://github.com/lbryio/lbry-desktop/blob/master/LICENSE" title="MIT licensed">
    <img alt="npm" src="https://img.shields.io/dub/l/vibe-d.svg?style=flat">
