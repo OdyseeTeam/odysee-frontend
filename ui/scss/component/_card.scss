@@ -270,7 +270,7 @@
   display: flex;
   align-items: flex-start;
   //margin-top:var(--spacing-l);
-  border-top: 1px solid var(--color-border);
+  //border-top: 1px solid var(--color-border);
 
   .icon__wrapper {
     margin-right: var(--spacing-l);
@@ -331,6 +331,7 @@
   padding-bottom: 0;
   margin-bottom: var(--spacing-s);
   border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
   height: 100%;
 
   &:only-child {
