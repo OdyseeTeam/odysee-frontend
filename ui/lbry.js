@@ -15,7 +15,10 @@ const Lbry = {
   daemonConnectionString: 'http://localhost:5279',
   alternateConnectionString: '',
   methodsUsingAlternateConnectionString: [],
-  apiRequestHeaders: { 'Content-Type': 'application/json-rpc' },
+  apiRequestHeaders: {
+    'Content-Type': 'application/json-rpc',
+    'Access-Control-Max-Age': 86400,
+  },
 
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: (value: string) => {

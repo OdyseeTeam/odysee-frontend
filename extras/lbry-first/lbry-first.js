@@ -14,7 +14,10 @@ const LbryFirst: LbryFirstTypes = {
   isConnected: false,
   connectPromise: null,
   lbryFirstConnectionString: 'http://localhost:1337/rpc',
-  apiRequestHeaders: { 'Content-Type': 'application/json' },
+  apiRequestHeaders: {
+    'Content-Type': 'application/json',
+    'Access-Control-Max-Age': 86400,
+  },
 
   // Allow overriding lbryFirst connection string (e.g. to `/api/proxy` for lbryweb)
   setLbryFirstConnectionString: (value: string) => {
@@ -25,9 +28,8 @@ const LbryFirst: LbryFirstTypes = {
     LbryFirst.apiRequestHeaders = Object.assign(LbryFirst.apiRequestHeaders, { [key]: value });
   },
 
-  unsetApiHeader: key => {
-    Object.keys(LbryFirst.apiRequestHeaders).includes(key) &&
-      delete LbryFirst.apiRequestHeaders['key'];
+  unsetApiHeader: (key) => {
+    Object.keys(LbryFirst.apiRequestHeaders).includes(key) && delete LbryFirst.apiRequestHeaders['key'];
   },
   // Allow overriding Lbry methods
   overrides: {},
@@ -114,7 +116,7 @@ function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
   }
-  return response.json().then(json => {
+  return response.json().then((json) => {
     let error;
     if (json.error) {
       const errorMessage = typeof json.error === 'object' ? json.error.message : json.error;
@@ -142,7 +144,7 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
 
   return fetch(LbryFirst.lbryFirstConnectionString, options)
     .then(checkAndParse)
-    .then(response => {
+    .then((response) => {
       const error = response.error || (response.result && response.result.error);
 
       if (error) {
@@ -158,7 +160,7 @@ function lbryFirstCallWithResult(name: string, params: ?{} = {}) {
     apiCall(
       name,
       params,
-      result => {
+      (result) => {
         resolve(result);
       },
       reject
