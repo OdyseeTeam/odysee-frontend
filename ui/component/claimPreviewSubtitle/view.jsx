@@ -6,10 +6,11 @@ import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import FileViewCountInline from 'component/fileViewCountInline';
 import { parseURI } from 'util/lbryURI';
+import moment from 'moment';
 
 type Props = {
   uri: string,
-  claim: ?Claim,
+  claim: ?StreamClaim,
   pending?: boolean,
   type: string,
   beginPublish: (?string) => void,
@@ -26,6 +27,16 @@ function ClaimPreviewSubtitle(props: Props) {
 
   const claimId = (claim && claim.claim_id) || '0';
   const formattedSubCount = Number(subCount).toLocaleString();
+
+  let isScheduledLivestream = false;
+  let livestreamReleaseDate;
+
+  if (claim && isLivestream) {
+    const releaseMoment =
+      typeof claim.value.release_time === 'number' ? moment(claim.value.release_time * 1000) : moment();
+    isScheduledLivestream = releaseMoment.isAfter();
+    livestreamReleaseDate = releaseMoment.format('MMM Do, h:mm A');
+  }
 
   React.useEffect(() => {
     if (isChannel) {
@@ -56,7 +67,10 @@ function ClaimPreviewSubtitle(props: Props) {
 
               {!isChannel &&
                 (isLivestream && ENABLE_NO_SOURCE_CLAIMS ? (
-                  __('Livestream')
+                  <>
+                    {__('Livestream')}
+                    {isScheduledLivestream && <span> / {livestreamReleaseDate}</span>}
+                  </>
                 ) : (
                   <>
                     <FileViewCountInline uri={uri} isLivestream={isLivestream} />
