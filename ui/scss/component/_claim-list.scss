@@ -327,11 +327,12 @@
 .claim-preview__primary-actions {
   @extend .section__actions;
   margin-right: 0;
-  margin-top: var(--spacing-s);
+  //margin-top: var(--spacing-s);
 
   &:first-child {
     .button {
-      margin-top: var(--spacing-s);
+      //margin-top: var(--spacing-s);
+      background-color: var(--color-primary);
     }
   }
 }
