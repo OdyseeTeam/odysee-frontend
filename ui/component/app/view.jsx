@@ -346,6 +346,7 @@ function App(props: Props) {
     if (gdprRequired === 'true') {
       // $FlowFixMe
       document.head.appendChild(script);
+      // $FlowFixMe
       document.head.appendChild(cmpScript);
     }
 
@@ -360,6 +361,7 @@ function App(props: Props) {
           localStorage.setItem('gdprRequired', 'true');
           // $FlowFixMe
           document.head.appendChild(script);
+          // $FlowFixMe
           document.head.appendChild(cmpScript);
         // note we don't need gdpr, save to session
         } else if (gdprRequiredBasedOnLocation ===  false) {
@@ -371,6 +373,7 @@ function App(props: Props) {
     return () => {
       // $FlowFixMe
       document.head.removeChild(script);
+      // $FlowFixMe
       document.head.appendChild(cmpScript);
     };
   }, []);
