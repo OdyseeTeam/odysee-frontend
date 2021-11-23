@@ -225,6 +225,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    font-size: var(--font-xsmall);
   }
 
   .markdown-preview & {
