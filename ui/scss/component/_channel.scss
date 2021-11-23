@@ -380,11 +380,33 @@ $actions-z-index: 2;
 .channel-staked__wrapper {
   display: flex;
   position: absolute;
-  padding: 0.2rem;
-  bottom: -0.75rem;
-  left: -0.8rem;
-  background-color: var(--color-card-background);
-  border-radius: 50%;
+  text-align: center;
+  padding: 12px;
+  //margin-bottom: 6px;
+  height: 1%;
+  width: 100%;
+  left: 0px;
+  bottom: -18%;
+}
+.channel-staked__wrapper:before {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  left: 0px;
+  height: 40%;
+  width: 51%;
+  background: rgba(0, 0, 0, 0.7);
+  transform: skew(0deg, 16deg);
+}
+.channel-staked__wrapper:after {
+  content: '';
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  height: 40%;
+  width: 51%;
+  background: rgba(0, 0, 0, 0.7);
+  transform: skew(0deg, -16deg);
 }
 
 .channel-staked__wrapper--large {
@@ -393,9 +415,16 @@ $actions-z-index: 2;
   display: inline-block;
   bottom: auto;
   left: auto;
+  width: auto;
   top: var(--spacing-xs);
   margin-left: var(--spacing-s);
   padding: 0;
+}
+.channel-staked__wrapper--large:before {
+  display: none;
+}
+.channel-staked__wrapper--large:after {
+  display: none;
 }
 
 .channel-staked__wrapper--inline {

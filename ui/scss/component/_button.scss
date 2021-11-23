@@ -574,7 +574,7 @@ svg + .button__label {
   border-left-width: 0;
   border-radius: 0;
   margin: 0;
-  background-color: var(--color-card-background);
+  background-color: var(--color-header-background);
   color: var(--color-text);
 
   @media (max-width: $breakpoint-small) {
