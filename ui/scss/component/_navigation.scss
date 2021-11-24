@@ -90,8 +90,7 @@
   width: 100%;
   color: var(--color-navigation-link);
   padding-left: var(--spacing-s);
-  //font-size: var(--font-body);
-  font-size: 0.8333rem;
+  font-size: var(--font-small);
   font-weight: var(--font-weight-bold);
 
   .icon {
@@ -227,8 +226,8 @@
     margin-bottom: 0;
 
     .icon {
-      height: 1.5rem;
-      width: 1.5rem;
+      height: 1rem;
+      width: 1rem;
     }
 
     .button__content {
@@ -237,7 +236,7 @@
 
     .button__label {
       margin-top: 0;
-      font-size: var(--font-body);
+      font-size: var(--font-small);
       font-weight: var(--font-weight-bold);
     }
 
