@@ -76,7 +76,7 @@
 
   &:hover {
     //background-color: var(--color-button-alt-bg-hover);
-    background-color: var(--color-navigation-hover);
+    background-color: var(--color-button-secondary-bg-hover);
   }
 }
 
@@ -90,7 +90,7 @@
   background-color: var(--color-primary);
 
   &:hover {
-    background-color: var(--color-button-primary-bg-hover);
+    background-color: var(--color-button-secondary-bg-hover);
   }
 
   &.button--play {
@@ -575,7 +575,7 @@ svg + .button__label {
   color: var(--color-text);
 
   &:hover {
-    background-color: var(--color-navigation-hover);
+    background-color: var(--color-button-secondary-bg-hover);
   }
 
   @media (max-width: $breakpoint-small) {
