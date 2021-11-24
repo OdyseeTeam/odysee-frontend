@@ -128,9 +128,13 @@
 .header__navigation-item--balance {
   @extend .button--file-action;
   margin: 0 var(--spacing-s);
+  padding-left: var(--spacing-s);
+  padding-right: var(--spacing-s);
+  background-color: var(--color-background);
   color: var(--color-text);
 
   &:hover {
+    background-color: var(--color-primary);
     color: var(--color-text);
   }
 }

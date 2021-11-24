@@ -10,7 +10,7 @@
 
   // Structure
   --color-border: #ededed;
-  --color-background: #fafafa;
+  --color-background: #ffffff;
   --color-background-overlay: #21252980;
   --color-card-background: #ffffff;
   --color-card-background-highlighted: #fff5f5;
@@ -31,8 +31,8 @@
   --color-tooltip-text: #fafafa;
 
   // Header
-  --color-header-button: var(--color-button-alt-bg);
-  --color-header-background: #ffffff;
+  --color-header-button: var(--color-background);
+  --color-header-background: #f3f3f3;
 
   // Button
   --color-button-alt-bg: var(--color-gray-1);
@@ -59,7 +59,7 @@
   --color-input-color: #111111;
   --color-input-label: var(--color-gray-5);
   --color-input-placeholder: #212529;
-  --color-input-bg: var(--color-gray-1);
+  --color-input-bg: var(--color-background);
   --color-input-border: var(--color-border);
   --color-input-border-active: var(--color-secondary);
   --color-input-toggle: var(--color-secondary);
