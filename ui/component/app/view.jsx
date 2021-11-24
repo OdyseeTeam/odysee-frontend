@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import analytics from 'analytics';
+import { setSearchUserId } from 'redux/actions/search';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { SIMPLE_SITE } from 'config';
 import Router from 'component/router/index';
@@ -214,6 +215,7 @@ function App(props: Props) {
   useEffect(() => {
     if (userId) {
       analytics.setUser(userId);
+      setSearchUserId(userId);
     }
   }, [userId]);
 
@@ -341,7 +343,12 @@ function App(props: Props) {
     cmpScript.async = true;
 
     const getLocaleEndpoint = 'https://api.odysee.com/locale/get';
-    const gdprRequired = localStorage.getItem('gdprRequired');
+    let gdprRequired;
+    try {
+      gdprRequired = localStorage.getItem('gdprRequired');
+    } catch (err) {
+      if (err) return;
+    }
     // gdpr is known to be required, add script
     if (gdprRequired === 'true') {
       // $FlowFixMe
