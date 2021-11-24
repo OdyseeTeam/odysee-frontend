@@ -278,6 +278,7 @@
 
 .button--file-action {
   @extend .button--alt;
+  color: var(--color-text);
   background-color: transparent;
   margin-right: var(--spacing-m);
   padding: 0 var(--spacing-xxs);

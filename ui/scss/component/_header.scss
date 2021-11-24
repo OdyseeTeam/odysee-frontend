@@ -102,6 +102,10 @@
 
   &:hover {
     background-color: var(--color-header-button-hover);
+
+    .icon {
+      stroke: var(--color-button-alt-text);
+    }
   }
 
   span {
@@ -131,11 +135,10 @@
   padding-left: var(--spacing-s);
   padding-right: var(--spacing-s);
   background-color: var(--color-background);
-  color: var(--color-text);
 
   &:hover {
     background-color: var(--color-primary);
-    color: var(--color-text);
+    color: var(--color-button-alt-text);
   }
 }
 
