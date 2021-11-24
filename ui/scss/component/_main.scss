@@ -210,7 +210,11 @@
   @extend .main--file-page;
   margin: 0;
   padding: 0;
-  max-width: none;
+  //max-width: none;
+
+  > * {
+    width: auto;
+  }
 
   .card-stack {
     margin-top: var(--spacing-m);
@@ -235,6 +239,7 @@
 
   .main__right-side {
     width: var(--livestream-comments-width);
+    margin-left: var(--spacing-l);
 
     @media (max-width: $breakpoint-medium) {
       width: 100%;

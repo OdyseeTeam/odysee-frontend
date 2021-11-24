@@ -28,6 +28,7 @@ $recent-msg-button__height: 2rem;
 
 .livestream__discussion {
   width: 100%;
+  margin-left: var(--spacing-l);
 
   @media (min-width: $breakpoint-medium) {
     margin: 0;
