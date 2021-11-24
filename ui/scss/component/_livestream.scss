@@ -28,15 +28,16 @@ $recent-msg-button__height: 2rem;
 
 .livestream__discussion {
   width: 100%;
-  margin-left: var(--spacing-l);
+  background-color: var(--color-header-background);
 
   @media (min-width: $breakpoint-medium) {
     margin: 0;
     width: var(--livestream-comments-width);
-    height: calc(100vh - var(--header-height));
-    position: fixed;
+    height: calc(100vh - var(--header-height) - var(--spacing-l));
+    position: absolute;
     right: 0;
-    top: var(--header-height);
+    //top: var(--header-height);
+    top: 0px;
     bottom: 0;
     border-radius: 0;
     border-top: none;
@@ -71,7 +72,7 @@ $recent-msg-button__height: 2rem;
 .livestream__comments-wrapper {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - var(--header-height) - #{$discussion-header__height});
+  height: calc(100vh - var(--header-height) - #{$discussion-header__height} - var(--spacing-l));
 }
 
 .livestream__comments {
