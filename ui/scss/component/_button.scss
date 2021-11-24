@@ -285,7 +285,7 @@
 
   .icon {
     &:not(.color-override) {
-      stroke: #dddddd;
+      stroke: var(--color-text);
     }
   }
 
@@ -298,7 +298,11 @@
   }
 
   &:hover {
-    background-color: var(--color-button-alt-bg);
+    background-color: var(--color-background);
+
+    .icon {
+      stroke: var(--color-primary);
+    }
   }
 
   &:focus {
