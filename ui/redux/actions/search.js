@@ -30,10 +30,10 @@ let lighthouse = {
   search: (queryString: string) => fetch(`${lighthouse.CONNECTION_STRING}?${queryString}`).then(handleFetchResponse),
 
   searchRecommendations: (queryString: string) => {
-    if (lighthouse.user_id && Math.random() < 0.05) {
+    if (lighthouse.user_id) {
       return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}`).then(handleFetchResponse);
     } else {
-      return lighthouse.search(queryString);
+      return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}`).then(handleFetchResponse);
     }
   },
 };
