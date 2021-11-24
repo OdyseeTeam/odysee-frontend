@@ -613,7 +613,7 @@ function PublishForm(props: Props) {
           {isLivestreamMode && (
             <Card
               className={'card--enable-overflow'}
-              actions={<PublishReleaseDate allowDefault={false} showNowBtn={false} useMaxDate={false} />}
+              actions={<PublishReleaseDate allowDefault={false} useMaxDate={false} />}
             />
           )}
 

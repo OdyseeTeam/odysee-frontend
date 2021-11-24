@@ -137,11 +137,11 @@ export default function LivestreamSetupPage(props: Props) {
   };
 
   const upcomingStreams = filterPending(myLivestreamClaims).filter((claim) => {
-    return claim.value.release_time ? claim.value.release_time * 1000 > Date.now() : false;
+    return Number(claim.value.release_time) * 1000 > Date.now();
   });
 
   const pastStreams = filterPending(myLivestreamClaims).filter((claim) => {
-    return claim.value.release_time ? claim.value.release_time * 1000 <= Date.now() : false;
+    return Number(claim.value.release_time) * 1000 <= Date.now();
   });
 
   return (
