@@ -300,11 +300,6 @@
       stroke: var(--color-primary);
     }
   }
-
-  &:focus {
-    box-shadow: none;
-    background-color: var(--color-button-alt-bg);
-  }
 }
 
 .button--fire {
