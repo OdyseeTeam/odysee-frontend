@@ -1,7 +1,8 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import Ads from 'web/component/ads';
 import React from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
@@ -112,6 +113,8 @@ function HomePage(props: Props) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  // if SHOW_ADS && authenticated
+
   function isScrolledIntoView(el) {
     var rect = el.getBoundingClientRect();
     var elemTop = rect.top;
@@ -147,9 +150,6 @@ function HomePage(props: Props) {
 
       var clonedCard = lastCard.cloneNode(true)
 
-      var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
-
-      console.log(value);
 
       console.log('cloned');
       console.log(clonedCard);
@@ -159,6 +159,13 @@ function HomePage(props: Props) {
       lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
       console.log(lastCard);
+
+      lastCard.remove()
+
+      var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
+      console.log(value);
+
+
 
 
       // lastCard.appendBefore(lastCard1);
@@ -185,6 +192,7 @@ function HomePage(props: Props) {
       )}
       {/* @if TARGET='web' */}
       {SIMPLE_SITE && <Meme />}
+      <Ads type="homepage" />
       {/* @endif */}
       {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
         // add pins here

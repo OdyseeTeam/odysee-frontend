@@ -16,6 +16,9 @@ const ADS_TAG = 'vidcrunchJS537102317';
 const IOS_ADS_URL = 'https://cdn.vidcrunch.com/integrations/618bb4d28aac298191eec411/Lbry_Odysee.com_Mobile_Floating_DFP_Rev70_1611.js';
 const IOS_ADS_TAG = 'vidcrunchJS199212779';
 
+const HOMEPAGE_ADS_URL = 'https://cdn.vidcrunch.com/integrations/618bb4d28aac298191eec411/Lbry_Odysee.com_Responsive_Floating_300x169_DFP_Rev70_1211.js';
+const HOMEPAGE_ADS_TAG = 'vidcrunchJS330442776';
+
 const IS_IOS =
   (/iPad|iPhone|iPod/.test(navigator.platform) ||
     // for iOS 13+ , platform is MacIntel, so use this to test
@@ -33,22 +36,28 @@ type Props = {
 function Ads(props: Props) {
   const {
     location: { pathname },
-    type = 'sidebar',
+    type = 'video',
     small,
   } = props;
 
+  // load ad and tags here
   let scriptUrlToUse;
   let tagNameToUse;
-  if (IS_IOS) {
-    tagNameToUse = IOS_ADS_TAG;
-    scriptUrlToUse = IOS_ADS_URL;
-  } else {
-    tagNameToUse = ADS_TAG;
-    scriptUrlToUse = ADS_URL;
+  if (type === 'video') {
+    if (IS_IOS) {
+      tagNameToUse = IOS_ADS_TAG;
+      scriptUrlToUse = IOS_ADS_URL;
+    } else {
+      tagNameToUse = ADS_TAG;
+      scriptUrlToUse = ADS_URL;
+    }
+  } else if (type === 'homepage') {
+    tagNameToUse = HOMEPAGE_ADS_TAG;
+    scriptUrlToUse = HOMEPAGE_ADS_URL;
   }
 
   useEffect(() => {
-    if (SHOW_ADS && type === 'video') {
+    if (SHOW_ADS) {
       let script;
       try {
         let fjs = document.getElementsByTagName('script')[0];
@@ -60,26 +69,7 @@ function Ads(props: Props) {
     }
   }, [type]);
 
-  useEffect(() => {
-    if (SHOW_ADS && !IS_MOBILE && type === 'sidebar') {
-      const script = document.createElement('script');
-      script.src = ADS_URL;
-      script.defer = true;
-      // $FlowFixMe
-      document.body.appendChild(script);
-      return () => {
-        // $FlowFixMe
-        document.body.removeChild(script);
-        // if user navigates too rapidly, <style> tags can build up
-        // $FlowFixMe
-        if (document.body.getElementsByTagName('style').length) {
-          // $FlowFixMe
-          document.body.getElementsByTagName('style')[0].remove();
-        }
-      };
-    }
-  }, [type]);
-
+  // display to say "sign up to not see these"
   const adsSignInDriver = (
     <I18nMessage
       tokens={{
@@ -96,6 +86,7 @@ function Ads(props: Props) {
     </I18nMessage>
   );
 
+  // ad shown in the related videos area
   const videoAd = (
     <div className="ads__claim-item">
       <div id={tagNameToUse} className="ads__injected-video" style={{display: 'none'}} />
@@ -113,14 +104,6 @@ function Ads(props: Props) {
   const homepageCardAd = (
     <div className="ads__claim-item">
       <div id={tagNameToUse} className="ads__injected-video" style={{display: 'none'}} />
-      <div
-        className={classnames('ads__claim-text', {
-          'ads__claim-text--small': small,
-        })}
-      >
-        <div>Ad</div>
-        <p>{adsSignInDriver}</p>
-      </div>
     </div>
   );
 
@@ -130,7 +113,7 @@ function Ads(props: Props) {
   if (type === 'video') {
     return videoAd;
   }
-  if (type === 'homepageCardAd') {
+  if (type === 'homepage') {
     return homepageCardAd;
   }
 }
