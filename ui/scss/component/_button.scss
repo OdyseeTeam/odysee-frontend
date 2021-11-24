@@ -80,7 +80,8 @@
   color: var(--color-button-alt-text);
 
   &:hover {
-    background-color: var(--color-button-alt-bg-hover);
+    //background-color: var(--color-button-alt-bg-hover);
+    background-color: var(--color-navigation-hover);
   }
 }
 
@@ -582,6 +583,10 @@ svg + .button__label {
   margin: 0;
   background-color: var(--color-header-background);
   color: var(--color-text);
+
+  &:hover {
+    background-color: var(--color-navigation-hover);
+  }
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-m) var(--spacing-s);

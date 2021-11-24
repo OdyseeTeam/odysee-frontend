@@ -37,12 +37,12 @@
   --color-button-secondary-border: #191919;
   --color-button-secondary-bg-hover: #3b1c5b;
   --color-button-secondary-text: #efefef;
-  //--color-button-alt-bg: var(--color-header-button);
+  //--color-button-alt-bg: var(--color-background);
   --color-button-alt-bg: rgba(25, 25, 25, 0.95);
   //--color-button-alt-bg-hover: #2b2037;
-  --color-button-alt-bg-hover: rgba(32, 32, 32, 0.95);
+  --color-button-alt-bg-hover: rgba(32, 32, 32, 1);
   --color-button-toggle-text: var(--color-text);
-  --color-button-toggle-bg: var(--color-primary-alt);
+  --color-button-toggle-bg: var(--color-navigation-active);
   --color-button-toggle-bg-hover: var(--color-primary-alt);
   --color-button-alt-text: #e2e9f0;
   --color-button-border: #191919;
@@ -70,9 +70,9 @@
   // Navigation
   --color-navigation-icon: #76808a;
   --color-navigation-link: #b9c3ce;
-  --color-navigation-active: #2b2037;
+  --color-navigation-active: var(--color-primary-alt);
   --color-navigation-active-text: #ffffff;
-  --color-navigation-hover: #21182a;
+  --color-navigation-hover: #2b2037;
   --color-navigation-hover-text: #c6bcd2;
 
   // Tags
