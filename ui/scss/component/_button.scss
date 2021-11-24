@@ -13,7 +13,7 @@
   border-radius: var(--border-radius);
 
   &:focus {
-    @include focus;
+    //@include focus;
     z-index: 2; // Ensure focus box-shadow is always visible on every button side
   }
 }
@@ -723,19 +723,29 @@ svg + .button__label {
 .button-like {
   &:hover {
     color: var(--color-fire);
-
     svg {
       stroke: var(--color-fire);
     }
   }
 }
 
+.button-like.comment__action--active {
+  .comment__reaction-count {
+    color: var(--color-fire);
+  }
+}
+
 .button-dislike {
   &:hover {
     color: var(--color-slime);
-
     svg {
       stroke: var(--color-slime);
     }
+  }
+}
+
+.button-dislike.comment__action--active {
+  .comment__reaction-count {
+    color: var(--color-slime);
   }
 }

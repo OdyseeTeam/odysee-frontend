@@ -359,16 +359,9 @@ $thumbnailWidthSmall: 1rem;
   }
 }
 
-.comment__action,
-.comment__author {
-  &:focus {
-    @include linkFocus;
-  }
-}
-
 .comment__action--active {
   .icon {
-    fill: var(--color-primary-alt);
+    //fill: var(--color-primary-alt);
     stroke: var(--color-primary);
   }
 }
