@@ -56,6 +56,8 @@ function Ads(props: Props) {
     scriptUrlToUse = HOMEPAGE_ADS_URL;
   }
 
+  console.log(tagNameToUse, scriptUrlToUse)
+
   useEffect(() => {
     if (SHOW_ADS) {
       let script;
@@ -102,8 +104,8 @@ function Ads(props: Props) {
   );
 
   const homepageCardAd = (
-    <div className="ads__claim-item">
-      <div id={tagNameToUse} className="ads__injected-video" style={{display: 'none'}} />
+    <div className="homepageAdContainer">
+      <div id={tagNameToUse} className="homepageAdDiv" style={{display: 'none'}} />
     </div>
   );
 

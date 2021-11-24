@@ -163,6 +163,10 @@ function HomePage(props: Props) {
       lastCard.remove()
 
       var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
+
+      var imageDiv = clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+
+
       console.log(value);
 
 
