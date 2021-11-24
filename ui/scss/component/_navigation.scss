@@ -128,9 +128,8 @@
     }
   }
 
-  &:hover:not(.navigation-link--active),
-  &:focus {
-    //@extend .navigation-link--highlighted;
+  &:hover:not(.navigation-link--active) {
+    @extend .navigation-link--highlighted;
   }
 
   @media (min-width: $breakpoint-medium) {
