@@ -137,6 +137,10 @@
 
   // show watch later button and duration divs when hovered
   &:hover {
+    .claim-preview__title {
+      color: var(--color-primary);
+    }
+
     .claim-preview__hover-actions {
       display: block;
     }
