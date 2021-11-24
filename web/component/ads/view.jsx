@@ -110,11 +110,28 @@ function Ads(props: Props) {
     </div>
   );
 
+  const homepageCardAd = (
+    <div className="ads__claim-item">
+      <div id={tagNameToUse} className="ads__injected-video" style={{display: 'none'}} />
+      <div
+        className={classnames('ads__claim-text', {
+          'ads__claim-text--small': small,
+        })}
+      >
+        <div>Ad</div>
+        <p>{adsSignInDriver}</p>
+      </div>
+    </div>
+  );
+
   if (!SHOW_ADS) {
     return false;
   }
   if (type === 'video') {
     return videoAd;
+  }
+  if (type === 'homepageCardAd') {
+    return homepageCardAd;
   }
 }
 
