@@ -100,6 +100,8 @@ function Page(props: Props) {
   React.useEffect(() => {
     if (isOnFilePage || isMediumScreen) {
       setSidebarOpen(false);
+    } else if (!isMobile) {
+      setSidebarOpen(true);
     }
     // TODO: make sure setState callback for usePersistedState uses useCallback to it doesn't cause effect to re-run
   }, [isOnFilePage, isMediumScreen]);
