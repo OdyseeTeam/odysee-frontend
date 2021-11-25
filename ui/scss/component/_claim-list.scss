@@ -135,12 +135,16 @@
     @include handleChannelGif(6rem);
   }
 
+  .claim-preview-metadata {
+    &:hover {
+      .claim-preview__title {
+        color: var(--color-primary);
+      }
+    }
+  }
+
   // show watch later button and duration divs when hovered
   &:hover {
-    .claim-preview__title {
-      color: var(--color-primary);
-    }
-
     .claim-preview__hover-actions {
       display: block;
     }
