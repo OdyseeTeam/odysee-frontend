@@ -163,13 +163,23 @@ function HomePage(props: Props) {
 
           lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
-          lastCard.remove()
+          lastCard.remove();
+
+          clonedCard.querySelector('.claim__menu-button').remove();
 
           clonedCard.querySelector('.truncated-text').innerHTML = 'Hate these? Login to Odysee for an ad free experience';
 
           clonedCard.querySelector('.claim-tile__info').remove();
 
           clonedCard.querySelector('[role="none"]').removeAttribute('href');
+
+          clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
+
+          clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
+
+          clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
+
+          clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
 
           clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
         }
