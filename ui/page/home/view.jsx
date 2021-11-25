@@ -127,47 +127,107 @@ function HomePage(props: Props) {
 
   React.useEffect(() => {
 
+    // detectAdBlock()
+
+
     (async function() {
-      console.log('something!');
+      let adBlockEnabled = false
+      const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
+      try {
+        await fetch(new Request(googleAdUrl)).catch(_ => adBlockEnabled = true)
+      } catch (e) {
+        adBlockEnabled = true
+      } finally {
+        if(!adBlockEnabled){
 
-      await sleep(4000);
-      let cards = document.getElementsByClassName('card claim-preview--tile');
-      if(cards.length == 0){
-        cards = document.getElementsByClassName('card claim-preview--tile');
-        await sleep(8000);
+          console.log(`AdBlock Enabled: ${adBlockEnabled}`)
+
+          console.log('something!');
+
+          await sleep(4000);
+          let cards = document.getElementsByClassName('card claim-preview--tile');
+          if(cards.length == 0){
+            cards = document.getElementsByClassName('card claim-preview--tile');
+            await sleep(8000);
+          }
+
+          console.log(cards.length);
+
+          // find the last fully visible card
+          let lastCard;
+          for (const card of cards) {
+            const isFullyVisible = isScrolledIntoView(card);
+            // console.log(isFullyVisible);
+            if (!isFullyVisible) break;
+            lastCard = card
+          }
+
+          var clonedCard = lastCard.cloneNode(true)
+
+
+          console.log('cloned');
+          console.log(clonedCard);
+
+          const divToInsertBefore = lastCard.previousSibling;
+
+          lastCard.parentNode.insertBefore(clonedCard, lastCard);
+
+          console.log(lastCard);
+
+          lastCard.remove()
+
+          var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
+
+          var imageDiv = clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+
+          document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
+
+          console.log(value);
+        }
+
+
       }
 
-      console.log(cards.length);
-
-      // find the last fully visible card
-      let lastCard;
-      for (const card of cards) {
-        const isFullyVisible = isScrolledIntoView(card);
-        // console.log(isFullyVisible);
-        if (!isFullyVisible) break;
-        lastCard = card
-      }
-
-      var clonedCard = lastCard.cloneNode(true)
-
-
-      console.log('cloned');
-      console.log(clonedCard);
-
-      const divToInsertBefore = lastCard.previousSibling;
-
-      lastCard.parentNode.insertBefore(clonedCard, lastCard);
-
-      console.log(lastCard);
-
-      lastCard.remove()
-
-      var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
-
-      var imageDiv = clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
-
-
-      console.log(value);
+      // console.log('something!');
+      //
+      // await sleep(4000);
+      // let cards = document.getElementsByClassName('card claim-preview--tile');
+      // if(cards.length == 0){
+      //   cards = document.getElementsByClassName('card claim-preview--tile');
+      //   await sleep(8000);
+      // }
+      //
+      // console.log(cards.length);
+      //
+      // // find the last fully visible card
+      // let lastCard;
+      // for (const card of cards) {
+      //   const isFullyVisible = isScrolledIntoView(card);
+      //   // console.log(isFullyVisible);
+      //   if (!isFullyVisible) break;
+      //   lastCard = card
+      // }
+      //
+      // var clonedCard = lastCard.cloneNode(true)
+      //
+      //
+      // console.log('cloned');
+      // console.log(clonedCard);
+      //
+      // const divToInsertBefore = lastCard.previousSibling;
+      //
+      // lastCard.parentNode.insertBefore(clonedCard, lastCard);
+      //
+      // console.log(lastCard);
+      //
+      // lastCard.remove()
+      //
+      // var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
+      //
+      // var imageDiv = clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+      //
+      //
+      // console.log(value);
 
 
 
