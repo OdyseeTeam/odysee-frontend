@@ -18,7 +18,7 @@ type Props = {
 
 function getChannelIcon(level: number): string {
   const icons = {
-    '1': ICONS.CHANNEL_LEVEL_1,
+    '1': ICONS.CHANNEL_LEVEL_1_B,
     '2': ICONS.CHANNEL_LEVEL_2,
     '3': ICONS.CHANNEL_LEVEL_3,
     '4': ICONS.CHANNEL_LEVEL_4,
