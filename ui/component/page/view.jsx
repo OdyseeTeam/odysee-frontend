@@ -64,7 +64,7 @@ function Page(props: Props) {
   const {
     location: { pathname },
   } = useHistory();
-  const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
+  const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', true);
   const isMediumScreen = useIsMediumScreen();
   const isMobile = useIsMobile();
 
