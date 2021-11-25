@@ -109,10 +109,6 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   // if SHOW_ADS && authenticated
 
   function isScrolledIntoView(el) {
@@ -125,7 +121,16 @@ function HomePage(props: Props) {
     return isVisible;
   }
 
+  function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
   React.useEffect(() => {
+
+    // if(authenticated || !SHOW_ADS){
+    //   return
+    // }
+
     (async function() {
       let adBlockEnabled = false
       const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
@@ -136,7 +141,8 @@ function HomePage(props: Props) {
       } finally {
         if (!adBlockEnabled) {
 
-          await sleep(1000);
+          // TODO: this is not a proper implementation, need to be able to run when cards are available
+          await sleep(1500);
           let cards = document.getElementsByClassName('card claim-preview--tile');
 
           // find the last fully visible card
@@ -152,15 +158,20 @@ function HomePage(props: Props) {
 
           const divToInsertBefore = lastCard.previousSibling;
 
+
           document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
           lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
           lastCard.remove()
 
-          var value = clonedCard.querySelector('.truncated-text').innerHTML = "Here is the custom element!";
+          clonedCard.querySelector('.truncated-text').innerHTML = 'Hate these? Login to Odysee for an ad free experience';
 
-          var imageDiv = clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+          clonedCard.querySelector('.claim-tile__info').remove();
+
+          clonedCard.querySelector('[role="none"]').removeAttribute('href');
+
+          clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
         }
       }
     })()

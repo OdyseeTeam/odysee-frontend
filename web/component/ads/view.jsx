@@ -104,7 +104,7 @@ function Ads(props: Props) {
   );
 
   const homepageCardAd = (
-    <div className="homepageAdContainer" style={{display: 'none'}}>
+    <div className="homepageAdContainer media__thumb" style={{display: 'none'}}>
       <div id={tagNameToUse} className="homepageAdDiv" style={{display: 'none'}} />
     </div>
   );
