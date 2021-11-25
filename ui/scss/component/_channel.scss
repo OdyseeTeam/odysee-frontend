@@ -381,9 +381,6 @@ $actions-z-index: 2;
   display: flex;
   position: absolute;
   text-align: center;
-  //padding: 12px;
-  //margin-bottom: 6px;
-  //height: 12%;
   width: 116%;
   left: -8%;
   bottom: -14%;
@@ -393,27 +390,6 @@ $actions-z-index: 2;
     height: 100%;
   }
 }
-/*
-.channel-staked__wrapper:before {
-  content: '';
-  position: absolute;
-  bottom: 0px;
-  left: 0px;
-  height: 40%;
-  width: 51%;
-  background: rgba(0, 0, 0, 0.7);
-  transform: skew(0deg, 16deg);
-}
-.channel-staked__wrapper:after {
-  content: '';
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  height: 40%;
-  width: 51%;
-  background: rgba(0, 0, 0, 0.7);
-  transform: skew(0deg, -16deg);
-}*/
 
 .channel-staked__wrapper--large {
   position: relative;
@@ -426,13 +402,6 @@ $actions-z-index: 2;
   margin-left: var(--spacing-s);
   padding: 0;
 }
-/*
-.channel-staked__wrapper--large:before {
-  display: none;
-}
-.channel-staked__wrapper--large:after {
-  display: none;
-}*/
 
 .channel-staked__wrapper--inline {
   position: relative;
@@ -451,7 +420,7 @@ $actions-z-index: 2;
 }
 
 .channel-staked__indicator--controlling {
-  fill: #00eaff;
+  fill: #ff853c;
 }
 
 .channel-staked__amount {
