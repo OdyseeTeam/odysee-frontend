@@ -33,6 +33,10 @@ $actions-z-index: 2;
     // I, Sean Yesmunt, take full responsibility for this monster
     min-height: calc(var(--cover-photo-height) + 2 * var(--spacing-xl) + var(--spacing-m));
   }
+
+  .menu__button {
+    opacity: 1;
+  }
 }
 
 .channel-cover__custom--waiting {
