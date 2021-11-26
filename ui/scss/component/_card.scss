@@ -143,7 +143,7 @@
 
 .card-stack {
   .card:not(:last-of-type) {
-    margin-bottom: var(--spacing-l);
+    margin-bottom: var(--spacing-xxl);
   }
 }
 
@@ -190,7 +190,7 @@
 .card__title {
   display: block;
   align-items: center;
-  font-size: var(--font-body);
+  font-size: var(--font-large);
   font-weight: var(--font-weight-bold);
 
   & > *:not(:last-child) {
