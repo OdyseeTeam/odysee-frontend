@@ -53,7 +53,7 @@
   z-index: 4;
   width: var(--side-nav-width);
   padding-top: 0;
-  background-color: rgba(17, 17, 17, 0.95);
+  background-color: var(--color-navigation-bg-absolute);
 
   .navigation-link {
     padding-left: var(--spacing-m);

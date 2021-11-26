@@ -10,7 +10,7 @@
   --color-background: #191919;
   --color-background-overlay: #0c0d0e95;
   --color-border: #444444;
-  --color-card-background: #181021;
+  --color-card-background: var(--color-header-background);
   --color-card-background-highlighted: #241c30;
 
   // Text
@@ -33,7 +33,7 @@
 
   // Button
   --color-button-primary-text: white;
-  --color-button-primary-hover-text: var(--color-primary-alt);
+  --color-button-primary-hover-text: var(--color-secondary);
   --color-button-secondary-bg: #2c1543;
   --color-button-secondary-border: #191919;
   --color-button-secondary-text: #efefef;
@@ -45,12 +45,12 @@
   --color-button-alt-bg-hover: rgba(32, 32, 32, 1);
   --color-button-toggle-text: var(--color-text);
   --color-button-toggle-bg: var(--color-primary);
-  --color-button-toggle-bg-hover: var(--color-primary-alt);
+  --color-button-toggle-bg-hover: var(--color-secondary);
   --color-button-alt-text: #e2e9f0;
   --color-button-border: #191919;
   --color-link: var(--color-primary);
-  --color-link-hover: #e50054;
-  --color-link-active: #ec1d4c;
+  --color-link-hover: var(--color-primary);
+  --color-link-active: var(--color-primary);
   --color-link-focus-bg: #3d2d4e;
 
   // Input
@@ -72,19 +72,17 @@
   // Navigation
   --color-navigation-icon: #76808a;
   --color-navigation-link: #b9c3ce;
-  //--color-navigation-active: var(--color-primary-alt);
-  --color-navigation-active: #e50054;
+  --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: #ffffff;
-  //--color-navigation-hover: #3b1c5b;
-  --color-navigation-hover: var(--color-primary-alt);
+  --color-navigation-hover: var(--color-secondary);
   --color-navigation-hover-text: #000000;
+  --color-navigation-bg-absolute: rgba(17, 17, 17, 0.95);
 
   // Tags
   --color-tag: #000000;
   --color-tag-bg: var(--color-secondary);
   --color-tag-hover: var(--color-white);
   --color-tag-bg-hover: var(--color-primary);
-  --color-tag-mature-bg: var(--color-primary-alt-2);
 
   // Menu
   --color-menu-background: var(--color-header-background);

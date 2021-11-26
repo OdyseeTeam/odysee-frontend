@@ -65,6 +65,8 @@
   .card {
     margin: 0;
     border: none;
+    padding: var(--spacing-l);
+    border: 2px solid black;
   }
 }
 

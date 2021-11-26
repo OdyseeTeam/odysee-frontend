@@ -47,6 +47,8 @@
   }
 
   &.markdown-preview--description {
+    padding-top: var(--spacing-s);
+    margin-bottom: var(--spacing-l);
     h1 {
       font-size: 1.2em;
     }
