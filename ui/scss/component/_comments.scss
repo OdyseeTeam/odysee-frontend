@@ -152,6 +152,12 @@ $thumbnailWidthSmall: 1rem;
   @media (min-width: $breakpoint-small) {
     margin-left: var(--spacing-s);
   }
+
+  &:hover {
+    .menu__button {
+      opacity: 1;
+    }
+  }
 }
 
 .comment__dead {
