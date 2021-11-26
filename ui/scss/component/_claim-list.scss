@@ -846,6 +846,10 @@
   margin-left: 0;
   margin-top: auto;
 
+  .icon--Heart {
+    color: var(--color-black);
+  }
+
   & > *:not(:last-child) {
     margin-right: var(--spacing-xxs);
   }
