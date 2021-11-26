@@ -65,18 +65,10 @@
   .icon {
     stroke: var(--color-button-secondary-text);
   }
-
+  /*
   &:hover {
     background-color: var(--color-primary);
-
-    .button__label {
-      //color: var(--color-button-secondary-text-hover);
-    }
-
-    .icon {
-      //stroke: var(--color-button-secondary-text-hover);
-    }
-  }
+  }*/
 }
 
 .button--alt {
