@@ -63,10 +63,6 @@
   &:focus,
   &:hover {
     opacity: 1;
-    background-color: var(--color-menu-background--active);
-    .icon {
-      stroke: var(--color-menu-icon-active);
-    }
   }
 }
 

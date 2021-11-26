@@ -281,8 +281,13 @@ $thumbnailWidthSmall: 1rem;
   font-size: var(--font-xsmall);
 
   .menu__link {
-    color: var(--color-text);
     padding: 0;
+  }
+
+  &:hover {
+    .comment__menu-help {
+      color: var(--color-menu-icon-active);
+    }
   }
 }
 
