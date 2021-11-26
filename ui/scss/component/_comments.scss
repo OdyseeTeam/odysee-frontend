@@ -127,7 +127,6 @@ $thumbnailWidthSmall: 1rem;
   background-color: var(--color-comment-threadline);
 
   &:hover {
-    box-shadow: 0 0 0 1px var(--color-comment-threadline-hover);
     background-color: var(--color-comment-threadline-hover);
     border-color: var(--color-comment-threadline-hover);
   }

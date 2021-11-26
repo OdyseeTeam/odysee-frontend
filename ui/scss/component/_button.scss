@@ -82,13 +82,14 @@
   background-color: var(--color-header-background);
   color: var(--color-button-alt-text);
 
+  /*
   &:hover {
     background-color: var(--color-button-secondary-bg-hover);
 
     .icon {
       stroke: var(--color-button-secondary-text-hover);
     }
-  }
+  }*/
 }
 
 .button--icon {

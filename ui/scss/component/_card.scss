@@ -289,6 +289,19 @@
     margin: 0;
     margin-bottom: var(--spacing-s);
   }
+
+  .button--alt {
+    background-color: var(--color-header-background);
+    color: var(--color-button-alt-text);
+
+    &:hover {
+      background-color: var(--color-button-secondary-bg-hover);
+
+      .icon {
+        stroke: var(--color-button-secondary-text-hover);
+      }
+    }
+  }
 }
 
 .card__header--nowrap {
