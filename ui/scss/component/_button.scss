@@ -54,7 +54,8 @@
 }
 
 .button--secondary {
-  background-color: var(--color-header-background);
+  //background-color: var(--color-header-background);
+  background-color: var(--color-primary);
   border: 1px solid var(--color-button-secondary-border);
 
   .button__label {
@@ -66,14 +67,14 @@
   }
 
   &:hover {
-    background-color: var(--color-button-secondary-bg-hover);
+    background-color: var(--color-primary);
 
     .button__label {
-      color: var(--color-button-secondary-text-hover);
+      //color: var(--color-button-secondary-text-hover);
     }
 
     .icon {
-      stroke: var(--color-button-secondary-text-hover);
+      //stroke: var(--color-button-secondary-text-hover);
     }
   }
 }
