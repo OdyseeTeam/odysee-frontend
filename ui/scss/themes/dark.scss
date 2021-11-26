@@ -70,10 +70,12 @@
   // Navigation
   --color-navigation-icon: #76808a;
   --color-navigation-link: #b9c3ce;
-  --color-navigation-active: var(--color-primary-alt);
+  //--color-navigation-active: var(--color-primary-alt);
+  --color-navigation-active: #e50054;
   --color-navigation-active-text: #ffffff;
-  --color-navigation-hover: #3b1c5b;
-  --color-navigation-hover-text: #c6bcd2;
+  //--color-navigation-hover: #3b1c5b;
+  --color-navigation-hover: #ff853c;
+  --color-navigation-hover-text: #000000;
 
   // Tags
   --color-tag: #ff85b1;
