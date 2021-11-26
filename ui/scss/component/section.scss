@@ -47,6 +47,18 @@
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
+
+  .button--secondary {
+    background-color: var(--color-secondary);
+
+    .button__label {
+      color: var(--color-menu-icon-active);
+    }
+
+    .icon {
+      stroke: var(--color-menu-icon-active);
+    }
+  }
 }
 
 .section__header-action-stack {
