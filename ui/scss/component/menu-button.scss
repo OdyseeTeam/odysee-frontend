@@ -40,8 +40,13 @@
 }
 
 [data-reach-menu-item][data-selected] {
+  color: var(--color-menu-icon-active);
   background-color: var(--color-menu-background--active);
   box-shadow: none;
+
+  .icon {
+    stroke: var(--color-menu-icon-active);
+  }
 }
 
 .menu__button {
@@ -58,7 +63,7 @@
   &:focus,
   &:hover {
     opacity: 1;
-    background-color: var(--color-button-alt-bg);
+    background-color: var(--color-menu-background--active);
     .icon {
       stroke: var(--color-menu-icon-active);
     }
@@ -110,6 +115,14 @@
 
   .badge {
     margin-left: var(--spacing-s);
+  }
+
+  &:hover {
+    color: var(--color-menu-icon-active);
+    .icon {
+      stroke: var(--color-menu-icon-active);
+      margin-right: var(--spacing-s);
+    }
   }
 }
 
