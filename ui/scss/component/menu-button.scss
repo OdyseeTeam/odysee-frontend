@@ -41,11 +41,15 @@
 
 [data-reach-menu-item][data-selected] {
   color: var(--color-menu-icon-active);
-  background-color: var(--color-menu-background--active);
+  background-color: var(--color-menu-background-active);
   box-shadow: none;
 
   .icon {
     stroke: var(--color-menu-icon-active);
+  }
+
+  .comment__menu-help {
+    color: var(--color-menu-icon-active);
   }
 }
 

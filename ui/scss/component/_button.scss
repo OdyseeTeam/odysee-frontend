@@ -654,7 +654,7 @@ svg + .button__label {
 
 .button-toggle--active {
   color: var(--color-button-toggle-text);
-  background-color: var(--color-button-toggle-bg);
+  background-color: var(--color-button-toggle-bg) !important;
 
   svg {
     opacity: 1;
@@ -664,6 +664,10 @@ svg + .button__label {
     cursor: default;
     text-decoration: none;
     background-color: var(--color-button-toggle-bg);
+
+    .icon {
+      stroke: #ffffff !important;
+    }
   }
 }
 

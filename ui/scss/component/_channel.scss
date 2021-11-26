@@ -287,7 +287,11 @@ $actions-z-index: 2;
       background: transparent;
       .channel__list-item,
       .channel-staked__wrapper {
-        background-color: var(--color-card-background-highlighted);
+        background-color: var(--color-menu-background-active);
+
+        .claim-preview__title {
+          color: var(--color-menu-icon-active);
+        }
       }
     }
 
@@ -317,7 +321,7 @@ $actions-z-index: 2;
 .channel__list-item {
   display: flex;
   align-items: center;
-  background-color: var(--color-card-background);
+  background-color: var(--color-header-background);
   padding: var(--spacing-s);
   border-bottom: 1px solid var(--color-border);
   overflow: hidden;
@@ -340,7 +344,11 @@ $actions-z-index: 2;
   }
 
   &:hover {
-    background-color: var(--color-card-background-highlighted);
+    background-color: var(--color-primary);
+
+    .channel__list-text {
+      color: var(--color-menu-icon-active);
+    }
   }
 }
 
@@ -355,7 +363,7 @@ $actions-z-index: 2;
 
 .channel__list-text {
   font-weight: var(--font-weight-bold);
-  color: var(--color-text);
+  color: var(--color-menu-icon);
 }
 
 .channel__selector {

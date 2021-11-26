@@ -43,7 +43,7 @@
   //--color-button-alt-bg-hover: #2b2037;
   --color-button-alt-bg-hover: rgba(32, 32, 32, 1);
   --color-button-toggle-text: var(--color-text);
-  --color-button-toggle-bg: var(--color-navigation-active);
+  --color-button-toggle-bg: var(--color-primary);
   --color-button-toggle-bg-hover: var(--color-primary-alt);
   --color-button-alt-text: #e2e9f0;
   --color-button-border: #191919;
@@ -87,7 +87,7 @@
 
   // Menu
   --color-menu-background: var(--color-header-background);
-  --color-menu-background--active: var(--color-navigation-hover);
+  --color-menu-background-active: var(--color-navigation-hover);
   --color-menu-icon: #ffffff;
   --color-menu-icon-active: #000000;
 
