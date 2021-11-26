@@ -79,12 +79,15 @@
 }
 
 .button--alt {
-  background-color: var(--color-button-alt-bg);
+  background-color: var(--color-header-background);
   color: var(--color-button-alt-text);
 
   &:hover {
-    //background-color: var(--color-button-alt-bg-hover);
-    background-color: var(--color-background);
+    background-color: var(--color-button-secondary-bg-hover);
+
+    .icon {
+      stroke: var(--color-button-secondary-text-hover);
+    }
   }
 }
 
