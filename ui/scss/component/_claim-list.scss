@@ -281,6 +281,10 @@
   text-overflow: ellipsis;
   max-width: 100%;
   color: var(--color-text);
+
+  &:hover {
+    color: var(--color-primary);
+  }
 }
 
 .claim-preview__channel-sub-count {
