@@ -79,6 +79,10 @@
   padding-right: 0px;
   list-style: none;
 
+  .claim__menu-button {
+    right: 0px;
+  }
+
   &:hover {
     .claim__menu-button {
       opacity: 1;
