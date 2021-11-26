@@ -24,11 +24,15 @@
 .claim-list__header-label {
   position: absolute;
   transform: translateY(-130%);
-  font-size: var(--font-xsmall);
+  font-size: var(--font-body);
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--spacing-m);
   color: var(--color-text-subtitle);
   overflow: visible;
 
   .icon {
+    width: var(--font-small);
+    height: var(--font-small);
     margin-right: var(--spacing-xs);
     stroke: var(--color-text-subtitle);
   }
@@ -407,9 +411,7 @@
 .claim-grid__wrapper {
   display: flex;
   flex-direction: column;
-  &:not(:first-of-type) {
-    margin-top: var(--spacing-l);
-  }
+  margin-top: var(--spacing-l);
 
   @media (max-width: $breakpoint-small) {
     &:not(:first-of-type) {

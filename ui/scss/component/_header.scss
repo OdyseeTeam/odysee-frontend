@@ -28,6 +28,10 @@
     }
   }
 
+  .wunderbar__input {
+    background-color: var(--color-background);
+  }
+
   & > * {
     user-select: none;
   }
