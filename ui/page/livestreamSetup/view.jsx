@@ -144,6 +144,28 @@ export default function LivestreamSetupPage(props: Props) {
     return Number(claim.value.release_time) * 1000 <= Date.now();
   });
 
+  type HeaderProps = {
+    title: string,
+    hideBtn?: boolean,
+  };
+
+  const ListHeader = (props: HeaderProps) => {
+    const { title, hideBtn = false } = props;
+    return (
+      <div className={'w-full flex items-center justify-between'}>
+        <span>{title}</span>
+        {!hideBtn && (
+          <Button
+            button="primary"
+            iconRight={ICONS.ADD}
+            onClick={() => doNewLivestream(`/$/${PAGES.UPLOAD}?type=${PUBLISH_MODES.LIVESTREAM.toLowerCase()}`)}
+            label={__('Create or Schedule a New Stream')}
+          />
+        )}
+      </div>
+    );
+  };
+
   return (
     <Page>
       {fetchingChannels && (
@@ -167,13 +189,6 @@ export default function LivestreamSetupPage(props: Props) {
         <>
           <div className="section__actions--between">
             <ChannelSelector hideAnon />
-            <div className={'channel__selector'}>
-              <Button
-                button="primary"
-                onClick={() => doNewLivestream(`/$/${PAGES.UPLOAD}?type=${PUBLISH_MODES.LIVESTREAM.toLowerCase()}`)}
-                label={__('Create a Livestream')}
-              />
-            </div>
           </div>
         </>
       )}
@@ -188,19 +203,10 @@ export default function LivestreamSetupPage(props: Props) {
           <>
             <Card
               titleActions={
-                <Button
-                  button="close"
-                  icon={showHelp ? ICONS.REMOVE : ICONS.ADD}
-                  onClick={() => setShowHelp(!showHelp)}
-                />
+                <Button button="close" icon={showHelp ? ICONS.UP : ICONS.DOWN} onClick={() => setShowHelp(!showHelp)} />
               }
               title={__('Go Live on Odysee')}
-              subtitle={
-                <>
-                  {__(`You're invited to try out our new livestreaming service while in beta!`)}{' '}
-                  <Button button="link" onClick={() => setShowHelp(!showHelp)} label={__('How does this work?')} />
-                </>
-              }
+              subtitle={<>{__(`You're invited to try out our new livestreaming service while in beta!`)} </>}
               actions={showHelp && helpText}
             />
             {streamKey && totalLivestreamClaims.length > 0 && (
@@ -244,14 +250,16 @@ export default function LivestreamSetupPage(props: Props) {
                     {Boolean(upcomingStreams.length) && (
                       <div className="section">
                         <ClaimList
-                          header={__('Your upcoming livestream uploads')}
+                          header={<ListHeader title={__('Your Scheduled Livestreams')} />}
                           uris={upcomingStreams.map((claim) => claim.permanent_url)}
                         />
                       </div>
                     )}
                     <div className="section">
                       <ClaimList
-                        header={__('Your livestream uploads')}
+                        header={
+                          <ListHeader title={__('Your Past Livestreams')} hideBtn={Boolean(upcomingStreams.length)} />
+                        }
                         empty={
                           <I18nMessage
                             tokens={{
