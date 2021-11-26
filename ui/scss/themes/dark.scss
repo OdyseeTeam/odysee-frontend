@@ -1,7 +1,7 @@
 [theme='dark'] {
   // Color overrides
   --color-primary: #e50054;
-  --color-primary-alt: #2c1543;
+  --color-primary-alt: #ff853c;
   --color-fire: #ff6635;
   --color-fire-outside: #ff9b20;
 
@@ -75,14 +75,14 @@
   --color-navigation-active: #e50054;
   --color-navigation-active-text: #ffffff;
   //--color-navigation-hover: #3b1c5b;
-  --color-navigation-hover: #ff853c;
+  --color-navigation-hover: var(--color-primary-alt);
   --color-navigation-hover-text: #000000;
 
   // Tags
-  --color-tag: #ff85b1;
-  --color-tag-bg: var(--color-navigation-hover);
+  --color-tag: #000000;
+  --color-tag-bg: var(--color-secondary);
   --color-tag-hover: var(--color-white);
-  --color-tag-bg-hover: var(--color-primary-alt-2);
+  --color-tag-bg-hover: var(--color-primary);
   --color-tag-mature-bg: var(--color-primary-alt-2);
 
   // Menu

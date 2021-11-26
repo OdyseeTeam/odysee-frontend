@@ -10,7 +10,7 @@
 .button--secondary,
 .button--alt,
 .button--link {
-  border-radius: var(--border-radius);
+  //border-radius: var(--border-radius);
 
   &:focus {
     //@include focus;
@@ -239,6 +239,10 @@
   .markdown-preview & {
     height: initial;
     vertical-align: initial;
+  }
+
+  &:hover {
+    color: var(--color-secondary);
   }
 }
 
