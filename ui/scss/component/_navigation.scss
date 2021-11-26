@@ -79,6 +79,16 @@
 
 .navigation__tertiary {
   margin-top: var(--spacing-m);
+
+  .navigation-link {
+    font-size: var(--font-xxsmall) !important;
+    height: 1.4rem !important;
+
+    &:hover {
+      background-color: var(--color-transparent) !important;
+      color: var(--color-text) !important;
+    }
+  }
 }
 
 .navigation-link {

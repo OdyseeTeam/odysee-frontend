@@ -35,8 +35,9 @@
   --color-button-primary-hover-text: var(--color-primary-alt);
   --color-button-secondary-bg: #2c1543;
   --color-button-secondary-border: #191919;
-  --color-button-secondary-bg-hover: #3b1c5b;
   --color-button-secondary-text: #efefef;
+  --color-button-secondary-bg-hover: var(--color-navigation-hover);
+  --color-button-secondary-text-hover: #000000;
   //--color-button-alt-bg: var(--color-background);
   --color-button-alt-bg: rgba(25, 25, 25, 0.95);
   //--color-button-alt-bg-hover: #2b2037;

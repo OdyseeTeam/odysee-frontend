@@ -54,7 +54,7 @@
 }
 
 .button--secondary {
-  background-color: var(--color-button-secondary-bg);
+  background-color: var(--color-header-background);
   border: 1px solid var(--color-button-secondary-border);
 
   .button__label {
@@ -67,6 +67,14 @@
 
   &:hover {
     background-color: var(--color-button-secondary-bg-hover);
+
+    .button__label {
+      color: var(--color-button-secondary-text-hover);
+    }
+
+    .icon {
+      stroke: var(--color-button-secondary-text-hover);
+    }
   }
 }
 
@@ -76,7 +84,7 @@
 
   &:hover {
     //background-color: var(--color-button-alt-bg-hover);
-    background-color: var(--color-button-secondary-bg-hover);
+    background-color: var(--color-background);
   }
 }
 
@@ -574,7 +582,8 @@ svg + .button__label {
   background-color: var(--color-header-background);
   color: var(--color-text);
 
-  &:hover {
+  &:hover:not(.button-toggle--active) {
+    color: var(--color-button-secondary-text-hover);
     background-color: var(--color-button-secondary-bg-hover);
   }
 
