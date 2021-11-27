@@ -136,6 +136,10 @@
   white-space: normal;
   text-overflow: ellipsis;
   overflow-x: hidden;
+
+  :hover > & {
+    color: black;
+  }
 }
 
 .menu__link--notification {
