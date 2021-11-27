@@ -199,7 +199,7 @@ function SideNavigation(props: Props) {
 
   if (EXTRA_SIDEBAR_LINKS) {
     // $FlowFixMe
-    SIDE_LINKS.push(...EXTRA_SIDEBAR_LINKS);
+    // SIDE_LINKS.push(...EXTRA_SIDEBAR_LINKS);
 
     const WILD_WEST = {
       title: 'Wild West',
