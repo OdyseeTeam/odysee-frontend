@@ -702,6 +702,11 @@
     .claim-preview__file-property-overlay {
       opacity: 1;
     }
+    .button--file-action {
+      .icon {
+        stroke: var(--color-text);
+      }
+    }
   }
 }
 

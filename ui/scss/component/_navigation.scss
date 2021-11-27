@@ -84,6 +84,10 @@
     font-size: var(--font-xxsmall) !important;
     height: 1.4rem !important;
 
+    .button__label {
+      color: var(--color-navigation-link);
+    }
+
     &:hover {
       background-color: var(--color-transparent) !important;
       color: var(--color-text) !important;
@@ -162,10 +166,6 @@
     .button__label {
       margin-top: 0px;
       padding-top: 3px;
-    }
-
-    &:focus {
-      box-shadow: none;
     }
   }
 }
@@ -253,10 +253,6 @@
       font-size: var(--font-small);
       font-weight: var(--font-weight-bold);
     }
-
-    &:focus {
-      box-shadow: none;
-    }
   }
 }
 
@@ -272,7 +268,7 @@
   }
 
   .button__label {
-    color: var(--color-text-help);
+    //color: var(--color-text-help);
   }
 
   .button__content {
