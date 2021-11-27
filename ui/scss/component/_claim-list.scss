@@ -74,7 +74,7 @@
 
 .claim-preview__wrapper {
   @include font-sans;
-  padding: var(--spacing-s);
+  padding: var(--spacing-m);
   padding-left: 0px;
   padding-right: 0px;
   list-style: none;
@@ -332,6 +332,7 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  margin-top: var(--spacing-xs);
   width: 100%;
 
   @media (min-width: $breakpoint-small) {
