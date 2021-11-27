@@ -1,6 +1,7 @@
 :root {
   // Color overrides
   --color-primary: #d4004e;
+  --color-primary-text-hover: #ffffff;
   --color-primary-alt: #fef1f6;
   --color-primary-alt-2: #fb7e82;
   --color-primary-alt-3: #fbcbdd;
@@ -20,11 +21,10 @@
   --color-text-selection: var(--color-primary);
   --color-text-error: var(--color-danger);
   --color-text-empty: #999999;
-  --color-text-help: #dddddd;
-  --color-text-subtitle: #767676;
+  --color-text-help: #000000;
+  --color-text-subtitle: #212529;
   --color-text-warning: #212529;
   --color-help-warning-bg: #fef3c7;
-  --color-text-warning--background: var(--lbry-yellow-1);
   --color-blockquote: var(--color-gray-3);
   --color-blockquote-bg: var(--color-gray-1);
   --color-tooltip-bg: #222;
@@ -33,6 +33,7 @@
   // Header
   --color-header-button: var(--color-background);
   --color-header-background: #f0f0f0;
+  --color-header-background-transparent: rgba(240, 240, 240, 0.95);
 
   // Button
   --color-button-alt-bg: var(--color-secondary);
@@ -47,7 +48,7 @@
   --color-button-secondary-text: var(--color-primary);
   --color-button-secondary-text-hover: black;
   --color-button-secondary-bg-hover: var(--color-secondary);
-  --color-button-toggle-text: var(--color-primary);
+  --color-button-toggle-text: var(--color-primary-text-hover);
   --color-button-toggle-bg: var(--color-primary);
   --color-button-toggle-bg-hover: var(--color-secondary);
   --color-button-border: var(--color-gray-3);

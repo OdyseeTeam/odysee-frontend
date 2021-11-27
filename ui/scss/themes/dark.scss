@@ -1,6 +1,7 @@
 [theme='dark'] {
   // Color overrides
   --color-primary: #e50054;
+  --color-primary-text-hover: #ffffff;
   --color-primary-alt: #ff853c;
   --color-secondary: #ff853c;
   --color-fire: #ff6635;
@@ -19,7 +20,6 @@
   --color-text-empty: var(--color-text-subtitle);
   --color-text-help: #dddddd;
   --color-text-warning: #212529;
-  --color-text-warning--background: var(--lbry-yellow-1);
   --color-text-error: var(--color-danger);
   --color-error: var(--color-danger-alt);
   --color-blockquote: var(--color-gray-5);
@@ -30,6 +30,7 @@
   // Header
   --color-header-button: var(--color-background);
   --color-header-background: #111111;
+  --color-header-background-transparent: rgba(17, 17, 17, 0.95);
 
   // Button
   --color-button-primary-text: white;
@@ -43,7 +44,7 @@
   --color-button-alt-bg: rgba(25, 25, 25, 0.95);
   //--color-button-alt-bg-hover: #2b2037;
   --color-button-alt-bg-hover: rgba(32, 32, 32, 1);
-  --color-button-toggle-text: var(--color-text);
+  --color-button-toggle-text: var(--color-primary-text-hover);
   --color-button-toggle-bg: var(--color-primary);
   --color-button-toggle-bg-hover: var(--color-secondary);
   --color-button-alt-text: #e2e9f0;

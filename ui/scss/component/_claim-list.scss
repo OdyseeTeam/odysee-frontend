@@ -149,7 +149,7 @@
     }
     .button--file-action {
       .icon {
-        stroke: var(--color-text);
+        stroke: #f3f4f6;
       }
     }
   }
@@ -336,6 +336,7 @@
   width: 100%;
 
   .button--alt {
+    color: white;
     background-color: var(--color-primary);
   }
 
@@ -714,7 +715,7 @@
     }
     .button--file-action {
       .icon {
-        stroke: var(--color-text);
+        stroke: #f3f4f6;
       }
     }
   }
@@ -760,7 +761,7 @@
     padding: var(--spacing-xxs);
     margin-right: 0;
     &:hover {
-      background-color: var(--color-button-alt-bg);
+      background-color: var(--color-black);
     }
   }
 
@@ -773,7 +774,7 @@
 
     // label (with 'Add' text) hidden by default
     .button__label {
-      color: var(--color-text);
+      color: #f3f4f6;
       font-size: var(--font-small);
       display: none;
     }
@@ -861,7 +862,7 @@
   display: flex;
   position: relative;
   align-items: center;
-  color: var(--color-text-help);
+  color: #dddddd;
   white-space: nowrap;
   font-size: var(--font-xsmall);
   line-height: 1.2;

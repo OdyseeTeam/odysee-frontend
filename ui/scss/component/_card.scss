@@ -8,6 +8,10 @@
   ~ .card {
     margin-bottom: var(--spacing-m);
   }
+
+  .date_time {
+    font-size: var(--font-xsmall);
+  }
 }
 
 .card--enable-overflow {
