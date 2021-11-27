@@ -335,6 +335,10 @@
   margin-top: var(--spacing-xs);
   width: 100%;
 
+  .button--alt {
+    background-color: var(--color-primary);
+  }
+
   @media (min-width: $breakpoint-small) {
     flex-direction: row;
   }

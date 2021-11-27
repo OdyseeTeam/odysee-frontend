@@ -187,7 +187,7 @@
 
 .button--link {
   color: var(--color-link);
-  transition: color 0.2s;
+  //transition: color 0.2s;
   word-break: break-word;
   font-weight: var(--font-weight-bold);
 
@@ -207,7 +207,7 @@
   color: var(--color-text-subtitle);
   max-width: 100%;
   text-align: left;
-  transition: color 0.2s;
+  //transition: color 0.2s;
 
   .channel-name {
     text-overflow: ellipsis;
