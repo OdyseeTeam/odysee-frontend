@@ -109,6 +109,14 @@
   }
 }
 
+.claim-preview__wrapper--channel {
+  &:hover {
+    background: var(--color-header-background);
+    box-shadow: -3px 0 0 5px var(--color-comment-highlighted);
+    border-radius: 2px;
+  }
+}
+
 .claim-preview {
   flex: 1;
   display: flex;

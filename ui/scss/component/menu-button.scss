@@ -82,9 +82,6 @@
   transform-origin: top;
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
 
-  border-left: 2px solid var(--color-background);
-  border-right: 2px solid var(--color-background);
-  border-bottom: 2px solid var(--color-background);
   border-radius: var(--border-radius);
   padding: var(--spacing-xs) 0;
 
