@@ -68,6 +68,7 @@ ol {
 .ul--no-style {
   list-style: none;
   margin-bottom: 0;
+  overflow: visible !important;
 
   li {
     margin: 0;

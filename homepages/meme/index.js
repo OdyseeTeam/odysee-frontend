@@ -1,4 +1,4 @@
 module.exports = {
-  text: `This is LBRY`,
+  text: `welcome to odysee: we have dislikes`,
   url: 'https://odysee.com/@Odysee:8?view=discussion',
 };

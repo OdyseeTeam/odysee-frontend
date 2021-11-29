@@ -513,6 +513,7 @@
   margin-left: var(--spacing-m);
   justify-content: flex-start;
   list-style: none;
+  overflow: visible;
 
   .media__thumb {
     border-bottom-right-radius: 0;

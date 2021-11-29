@@ -29,7 +29,7 @@
     // Circle play head
     .vjs-play-progress::before {
       transform: scale(0);
-      transition: transform 0.3s;
+      transition: transform 0.2s;
     }
 
     &:hover {
@@ -122,13 +122,13 @@
 .vjs-has-started {
   .vjs-control-bar {
     opacity: 1;
-    transition: 0.1s;
+    transition: 0.2s;
   }
 
   &.vjs-user-inactive.vjs-playing {
     .vjs-control-bar {
       opacity: 0;
-      transition: 0.3s;
+      transition: 0.2s;
     }
   }
 
@@ -171,7 +171,8 @@
 }
 
 .vjs-playback-rate {
-  margin-top: 3px;
+  bottom: -3px;
+  left: 12px;
   font-size: 12px !important;
 
   @media (max-width: 813px) {

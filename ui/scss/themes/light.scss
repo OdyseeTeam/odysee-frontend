@@ -96,7 +96,7 @@
   // Comments
   --color-comment-menu: #e0e0e0;
   --color-comment-menu-hovering: #6a6a6a;
-  --color-comment-highlighted: #fff2d9;
+  --color-comment-highlighted: var(--color-header-background);
   --color-comment-threadline: var(--color-gray-1);
   --color-comment-threadline-hover: var(--color-gray-4);
 
