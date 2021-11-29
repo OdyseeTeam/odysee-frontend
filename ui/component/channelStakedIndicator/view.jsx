@@ -18,7 +18,7 @@ type Props = {
 
 function getChannelIcon(level: number): string {
   const icons = {
-    '1': ICONS.CHANNEL_LEVEL_1_B,
+    '1': ICONS.CHANNEL_LEVEL_1,
     '2': ICONS.CHANNEL_LEVEL_2,
     '3': ICONS.CHANNEL_LEVEL_3,
     '4': ICONS.CHANNEL_LEVEL_4,
@@ -26,6 +26,18 @@ function getChannelIcon(level: number): string {
   };
 
   return icons[level] || ICONS.CHANNEL_LEVEL_1;
+}
+
+function getChannelIconB(level: number): string {
+  const icons = {
+    '1': ICONS.CHANNEL_LEVEL_1_B,
+    '2': ICONS.CHANNEL_LEVEL_2_B,
+    '3': ICONS.CHANNEL_LEVEL_3_B,
+    '4': ICONS.CHANNEL_LEVEL_4_B,
+    '5': ICONS.CHANNEL_LEVEL_5_B,
+  };
+
+  return icons[level] || ICONS.CHANNEL_LEVEL_1_B;
 }
 
 function ChannelStakedIndicator(props: Props) {
@@ -37,6 +49,7 @@ function ChannelStakedIndicator(props: Props) {
 
   const isControlling = channelClaim && channelClaim.meta.is_controlling;
   const icon = getChannelIcon(level);
+  const icon_b = getChannelIconB(level);
 
   return (
     SIMPLE_SITE && (
@@ -44,7 +57,7 @@ function ChannelStakedIndicator(props: Props) {
         label={
           <div className="channel-staked__tooltip">
             <div className="channel-staked__tooltip-icons">
-              <LevelIcon icon={icon} isControlling={isControlling} size={isControlling ? 14 : 10} />
+              <LevelIcon icon={icon_b} isControlling={isControlling} size={isControlling ? 14 : 10} />
             </div>
 
             <div className="channel-staked__tooltip-text">
