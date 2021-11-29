@@ -214,6 +214,12 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}) {
   head += `<meta name="twitter:url" content="${URL}/${claim.name}:${claim.claim_id}"/>`;
   head += `<meta property="fb:app_id" content="1673146449633983" />`;
   head += `<link rel="canonical" content="${SITE_CANONICAL_URL || URL}/${claim.name}:${claim.claim_id}"/>`;
+  head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
+    `${URL}/${claim.canonical_url}`
+  )}&format=json" title="${title}" />`;
+  head += `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
+    `${URL}/${claim.canonical_url}`
+  )}&format=xml" title="${title}" />`;
 
   if (mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) {
     const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);
