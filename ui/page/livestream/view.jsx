@@ -80,9 +80,9 @@ export default function LivestreamPage(props: Props) {
   };
   // -----------------------------
 
-  const claimReleaseInFuture = () => release.isAfter(moment());
+  const claimReleaseInFuture = () => release.isAfter();
 
-  const claimReleaseInPast = () => release.isBefore(moment());
+  const claimReleaseInPast = () => release.isBefore();
 
   const claimReleaseStartingSoon = () => release.isBetween(moment(), moment().add(5, 'minutes'));
 
@@ -95,10 +95,7 @@ export default function LivestreamPage(props: Props) {
     (!isBroadcasting && claimReleaseStartedRecently()) ||
     (isBroadcasting && claimReleaseInFuture() && !claimReleaseStartingSoon());
 
-  const checkCommentsDisabled = () =>
-    chatDisabled ||
-    (isBroadcasting && !claimReleaseStartingSoon() && !claimReleaseInPast()) ||
-    (!isBroadcasting && claimReleaseInFuture());
+  const checkCommentsDisabled = () => chatDisabled || (claimReleaseInFuture() && !claimReleaseStartingSoon());
 
   const [showLivestream, setShowLivestream] = React.useState(checkShowLivestream());
   const [showScheduledInfo, setShowScheduledInfo] = React.useState(checkShowScheduledInfo());
@@ -111,8 +108,8 @@ export default function LivestreamPage(props: Props) {
   };
 
   React.useEffect(() => {
-    const interval = setInterval(calculateStreamReleaseState, 1000);
-    return () => clearInterval(interval);
+    const intervalId = setInterval(calculateStreamReleaseState, 1000);
+    return () => clearInterval(intervalId);
   }, [release, isBroadcasting]);
 
   const stringifiedClaim = JSON.stringify(claim);
