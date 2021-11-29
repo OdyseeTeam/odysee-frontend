@@ -612,12 +612,24 @@ export const icons = {
       <path d="M21 13v2a4 4 0 0 1-4 4H3" />
     </g>
   ),
-  [ICONS.MORE_VERTICAL]: buildIcon(
-    <g>
-      <circle cx="12" cy="5" r="1" />
-      <circle cx="12" cy="12" r="1" />
-      <circle cx="12" cy="19" r="1" />
-    </g>
+  [ICONS.MORE_VERTICAL]: (props: CustomProps) => (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="20"
+      height="20"
+      fill="none"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <g transform="translate(10)">
+        <circle cx="12" cy="5" r="1" />
+        <circle cx="12" cy="12" r="1" />
+        <circle cx="12" cy="19" r="1" />
+      </g>
+    </svg>
   ),
   [ICONS.MORE]: buildIcon(
     <g transform="rotate(90 12 12)">
