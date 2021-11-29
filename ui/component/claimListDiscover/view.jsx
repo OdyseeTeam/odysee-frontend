@@ -514,7 +514,7 @@ function ClaimListDiscover(props: Props) {
 
   function resolveOrderByOption(orderBy: string | Array<string>, sortBy: string | Array<string>) {
     const order_by =
-      orderBy === CS.ORDER_BY_TRENDING
+      orderBy === CS.ORDER_BY_NEWORDER_BY_TRENDING
         ? CS.ORDER_BY_TRENDING_VALUE
         : orderBy === CS.ORDER_BY_NEW
         ? CS.ORDER_BY_NEW_VALUE
