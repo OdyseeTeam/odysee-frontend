@@ -17,9 +17,7 @@ type Props = {
   updatePublishForm: ({}) => void,
 };
 const PublishStreamReleaseDate = (props: Props) => {
-  const { releaseTime, releaseTimeEdited, updatePublishForm } = props;
-
-  console.log(releaseTime, releaseTimeEdited, updatePublishForm);
+  const { releaseTime, updatePublishForm } = props;
 
   const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : new Date());
 
@@ -36,7 +34,6 @@ const PublishStreamReleaseDate = (props: Props) => {
   }, [publishRightNow]);
 
   const onDateTimePickerChanged = (value) => {
-    console.log('Got date from picker: ', value instanceof Date, value);
     updatePublishForm({ releaseTimeEdited: dateToLinuxTimestamp(value) });
     setDate(value);
   };

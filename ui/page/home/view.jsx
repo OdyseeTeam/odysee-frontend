@@ -13,6 +13,8 @@ import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
+import ScheduledStreams from 'component/scheduledStreams';
+import { splitBySeparator } from 'util/lbryURI';
 
 // @if TARGET='web'
 import Pixel from 'web/component/pixel';
@@ -43,6 +45,8 @@ function HomePage(props: Props) {
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
+
+  const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
@@ -258,6 +262,9 @@ function HomePage(props: Props) {
       {SIMPLE_SITE && <Meme />}
       <Ads type="homepage" />
       {/* @endif */}
+
+      {authenticated && channelIds.length > 0 && <ScheduledStreams channelIds={channelIds} tileLayout />}
+
       {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
         // add pins here
         return getRowElements(title, route, link, icon, help, options, index, pinUrls);

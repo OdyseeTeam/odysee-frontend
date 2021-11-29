@@ -15,7 +15,6 @@ type Props = {
 
 const ScheduledStreams = (props: Props) => {
   const { channelIds, tileLayout } = props;
-
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
@@ -32,7 +31,7 @@ const ScheduledStreams = (props: Props) => {
   }, [showAllUpcoming, isMediumScreen, isLargeScreen]);
 
   return (
-    <div style={{ display: showUpcomingLivestreams ? 'block' : 'none', marginBottom: '60px' }}>
+    <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
       <ClaimListDiscover
         useSkeletonScreen={false}
         channelIds={channelIds}
