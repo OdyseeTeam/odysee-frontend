@@ -109,8 +109,7 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
-  // if SHOW_ADS && authenticated
-
+  // returns true if passed elemnt is fully visible on screen
   function isScrolledIntoView(el) {
     var rect = el.getBoundingClientRect();
     var elemTop = rect.top;
@@ -121,50 +120,54 @@ function HomePage(props: Props) {
     return isVisible;
   }
 
+  // delay function that can be awaited
   function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  //
   React.useEffect(() => {
-
-    // if(authenticated || !SHOW_ADS){
-    //   return
-    // }
+    if (authenticated || !SHOW_ADS) {
+      // return
+    }
 
     (async function() {
-      let adBlockEnabled = false
-      const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js'
+      // test if adblock is enabled
+      let adBlockEnabled = false;
+      const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
       try {
-        await fetch(new Request(googleAdUrl)).catch(_ => adBlockEnabled = true)
+        await fetch(new Request(googleAdUrl)).catch(_ => adBlockEnabled = true);
       } catch (e) {
-        adBlockEnabled = true
+        adBlockEnabled = true;
       } finally {
         if (!adBlockEnabled) {
-
           // TODO: this is not a proper implementation, need to be able to run when cards are available
           await sleep(1500);
+
+          // select the cards on page
           let cards = document.getElementsByClassName('card claim-preview--tile');
 
           // find the last fully visible card
           let lastCard;
           for (const card of cards) {
             const isFullyVisible = isScrolledIntoView(card);
-            // console.log(isFullyVisible);
             if (!isFullyVisible) break;
-            lastCard = card
+            lastCard = card;
           }
 
-          var clonedCard = lastCard.cloneNode(true)
+          // clone the last card
+          var clonedCard = lastCard.cloneNode(true);
 
-          const divToInsertBefore = lastCard.previousSibling;
-
-
+          // show the homepage ad which is not displayed at first
           document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
+          // insert cloned card
           lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
+          // delete last card so that it doesn't mess up formatting
           lastCard.remove();
 
+          // change the appearance of the cloned card
           clonedCard.querySelector('.claim__menu-button').remove();
 
           clonedCard.querySelector('.truncated-text').innerHTML = 'Hate these? Login to Odysee for an ad free experience';
@@ -184,7 +187,7 @@ function HomePage(props: Props) {
           clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
         }
       }
-    })()
+    })();
   }, []);
 
   return (
