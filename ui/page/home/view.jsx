@@ -111,12 +111,12 @@ function HomePage(props: Props) {
 
   // returns true if passed elemnt is fully visible on screen
   function isScrolledIntoView(el) {
-    var rect = el.getBoundingClientRect();
-    var elemTop = rect.top;
-    var elemBottom = rect.bottom;
+    const rect = el.getBoundingClientRect();
+    const elemTop = rect.top;
+    const elemBottom = rect.bottom;
 
     // Only completely visible elements return true:
-    var isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
+    const isVisible = (elemTop >= 0) && (elemBottom <= window.innerHeight);
     return isVisible;
   }
 
@@ -156,34 +156,46 @@ function HomePage(props: Props) {
           }
 
           // clone the last card
-          var clonedCard = lastCard.cloneNode(true);
+          // $FlowFixMe
+          const clonedCard = lastCard.cloneNode(true);
 
           // show the homepage ad which is not displayed at first
           document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
           // insert cloned card
+          // $FlowFixMe
           lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
           // delete last card so that it doesn't mess up formatting
+          // $FlowFixMe
           lastCard.remove();
 
           // change the appearance of the cloned card
+          // $FlowFixMe
           clonedCard.querySelector('.claim__menu-button').remove();
 
+          // $FlowFixMe
           clonedCard.querySelector('.truncated-text').innerHTML = 'Hate these? Login to Odysee for an ad free experience';
 
+          // $FlowFixMe
           clonedCard.querySelector('.claim-tile__info').remove();
 
+          // $FlowFixMe
           clonedCard.querySelector('[role="none"]').removeAttribute('href');
 
+          // $FlowFixMe
           clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
 
+          // $FlowFixMe
           clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
 
+          // $FlowFixMe
           clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
 
+          // $FlowFixMe
           clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
 
+          // $FlowFixMe
           clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
         }
       }
