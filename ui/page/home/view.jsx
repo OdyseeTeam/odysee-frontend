@@ -128,7 +128,7 @@ function HomePage(props: Props) {
   //
   React.useEffect(() => {
     if (authenticated || !SHOW_ADS) {
-      // return
+      return
     }
 
     (async function() {
@@ -158,9 +158,6 @@ function HomePage(props: Props) {
           // clone the last card
           // $FlowFixMe
           const clonedCard = lastCard.cloneNode(true);
-
-          // show the homepage ad which is not displayed at first
-          document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
           // insert cloned card
           // $FlowFixMe
@@ -197,6 +194,9 @@ function HomePage(props: Props) {
 
           // $FlowFixMe
           clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+
+          // show the homepage ad which is not displayed at first
+          document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
         }
       }
     })();
