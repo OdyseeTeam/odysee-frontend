@@ -7,11 +7,11 @@
     overflow: hidden;
 
     &:first-of-type {
-      padding-left: var(--spacing-m);
+      //padding-left: var(--spacing-m);
     }
 
     &:last-of-type {
-      padding-right: var(--spacing-m);
+      //padding-right: var(--spacing-m);
     }
   }
 
@@ -34,7 +34,7 @@
 
   th,
   td {
-    padding: 0.5rem 1rem;
+    padding: 0.5rem 0;
   }
 
   th {

@@ -109,10 +109,10 @@
 }
 
 .card__title-section--body-list {
-  padding-left: var(--spacing-s);
+  //padding-left: var(--spacing-s);
 
   @media (min-width: $breakpoint-small) {
-    padding: var(--spacing-m);
+    //padding: var(--spacing-m);
   }
 }
 
@@ -361,9 +361,13 @@
 
 .card__body-actions {
   padding: var(--spacing-s);
+  padding-left: 0px;
+  padding-right: 0px;
 
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-m);
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 
