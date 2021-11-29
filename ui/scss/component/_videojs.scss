@@ -171,8 +171,8 @@
 }
 
 .vjs-playback-rate {
-  bottom: -3px;
-  left: 12px;
+  top: 3px !important;
+  left: 12px !important;
   font-size: 12px !important;
 
   @media (max-width: 813px) {
@@ -187,6 +187,11 @@
 
 .vjs-hover {
   opacity: 1;
+}
+
+.vjs-menu-button {
+  top: 2px;
+  left: 10px;
 }
 
 [dir] .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
