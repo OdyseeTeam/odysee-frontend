@@ -289,7 +289,7 @@
   flex-wrap: wrap;
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s);
+    //padding: var(--spacing-s);
     padding-bottom: 0;
     margin: 0;
     margin-bottom: var(--spacing-s);
@@ -336,6 +336,8 @@
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-l);
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 

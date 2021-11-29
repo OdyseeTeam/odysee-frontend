@@ -285,6 +285,10 @@
   margin-right: var(--spacing-m);
   padding: 0 var(--spacing-xxs);
 
+  @media (max-width: $breakpoint-small) {
+    padding: 0 0;
+  }
+
   .icon {
     &:not(.color-override) {
       stroke: var(--color-text);
