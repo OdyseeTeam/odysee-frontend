@@ -83,7 +83,7 @@ const PublishStreamReleaseDate = (props: Props) => {
         )}
       </div>
 
-      <p className={'todo mt-m'}>{helpText}</p>
+      <p className={'form-field__hint mt-m'}>{helpText}</p>
     </div>
   );
 };

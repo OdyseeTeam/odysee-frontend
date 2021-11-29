@@ -2,19 +2,6 @@
   display: flex;
 }
 
-// Medium and up
-//@media (min-width: $breakpoint-small) {
-//  .flex {
-//    border:2px solid red;
-//  }
-//}
-// Mobile
-//@media (max-width: $breakpoint-small) {
-//  .flex {
-//    border:2px solid blue;
-//  }
-//}
-
 .flex-col {
   flex-direction: column;
 }
@@ -61,11 +48,6 @@
 
 .mb-0 {
   margin-bottom: 0;
-}
-
-.todo {
-  font-size: var(--font-xsmall);
-  color: var(--color-input-label);
 }
 
 @media (min-width: $breakpoint-small) {
