@@ -17,28 +17,48 @@ type Props = {
   doUserSetReferrer: (string) => void,
   channelClaimId: ?string,
   chatDisabled: boolean,
+  doCommentSocketConnect: (string, string) => void,
+  doCommentSocketDisconnect: (string) => void,
 };
 
 export default function LivestreamPage(props: Props) {
-  const { uri, claim, doSetPlayingUri, isAuthenticated, doUserSetReferrer, channelClaim, chatDisabled } = props;
+  const {
+    uri,
+    claim,
+    doSetPlayingUri,
+    isAuthenticated,
+    doUserSetReferrer,
+    channelClaim,
+    chatDisabled,
+    doCommentSocketConnect,
+    doCommentSocketDisconnect,
+  } = props;
 
   React.useEffect(() => {
     // TODO: This should not be needed one we unify the livestream player (?)
     analytics.playerLoadedEvent('livestream', false);
   }, []);
 
+  const claimId = claim && claim.claim_id;
+  React.useEffect(() => {
+    if (claimId) {
+      doCommentSocketConnect(uri, claimId);
+    }
+
+    return () => {
+      if (claimId) {
+        doCommentSocketDisconnect(claimId);
+      }
+    };
+  }, [claimId, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
+
   const [isBroadcasting, setIsBroadcasting] = React.useState('pending');
   const livestreamChannelId = channelClaim && channelClaim.signing_channel && channelClaim.signing_channel.claim_id;
-
-  React.useEffect(() => {
-    if (!livestreamChannelId) {
-      setIsBroadcasting(false);
-  }, []);
 
   // Manage isLive status
   React.useEffect(() => {
     if (!livestreamChannelId) {
-      setIsLive(false);
+      setIsBroadcasting(false);
       return;
     }
     return watchLivestreamStatus(livestreamChannelId, (state) => {
