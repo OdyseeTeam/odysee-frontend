@@ -110,6 +110,13 @@
 }
 
 .claim-preview__wrapper--channel {
+  .claim-preview__text {
+    margin-right: 10px;
+  }
+  .claim__menu-button {
+    margin-right: 10px;
+  }
+
   &:hover {
     background: var(--color-header-background);
     box-shadow: -3px 0 0 5px var(--color-comment-highlighted);
