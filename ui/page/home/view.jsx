@@ -165,7 +165,7 @@ function HomePage(props: Props) {
 
           // delete last card so that it doesn't mess up formatting
           // $FlowFixMe
-          lastCard.remove();
+          // lastCard.remove();
 
           // change the appearance of the cloned card
           // $FlowFixMe
@@ -197,6 +197,19 @@ function HomePage(props: Props) {
 
           // show the homepage ad which is not displayed at first
           document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
+
+          const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
+          const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
+
+          var styles = `#av-container, #AVcontent, #aniBox {
+              height: ${imageHeight} !important;
+              width: ${imageWidth} !important;
+          }`;
+
+          var styleSheet = document.createElement('style');
+          styleSheet.type = 'text/css';
+          styleSheet.innerText = styles;
+          document.head.appendChild(styleSheet);
         }
       }
     })();
