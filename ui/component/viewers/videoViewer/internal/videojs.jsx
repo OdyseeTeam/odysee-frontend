@@ -15,6 +15,7 @@ import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-keyboard-shortcuts';
 import LbryVolumeBarClass from './lbry-volume-bar';
+import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
@@ -177,6 +178,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     const vjs = videojs(el, videoJsOptions, () => {
       const player = playerRef.current;
+      const adapter = new playerjs.VideoJSAdapter(player);
 
       // this seems like a weird thing to have to check for here
       if (!player) return;
@@ -215,6 +217,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
       onPlayerReady(player, videoNode);
+      adapter.ready();
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
