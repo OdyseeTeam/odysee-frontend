@@ -6,9 +6,6 @@ import { withRouter } from 'react-router';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import classnames from 'classnames';
-// $FlowFixMe
-
-const IS_MOBILE = typeof window.orientation !== 'undefined';
 
 const ADS_URL = 'https://cdn.vidcrunch.com/integrations/618bb4d28aac298191eec411/Lbry_Odysee.com_Responsive_Floating_DFP_Rev70_1011.js';
 const ADS_TAG = 'vidcrunchJS537102317';
@@ -56,8 +53,7 @@ function Ads(props: Props) {
     scriptUrlToUse = HOMEPAGE_ADS_URL;
   }
 
-  console.log(tagNameToUse, scriptUrlToUse)
-
+  // add script to DOM
   useEffect(() => {
     if (SHOW_ADS) {
       let script;
@@ -69,6 +65,8 @@ function Ads(props: Props) {
         fjs.parentNode.insertBefore(script, fjs);
       } catch (e) {}
     }
+
+    // TODO: remove the script when it exists?
   }, [type]);
 
   // display to say "sign up to not see these"
@@ -103,6 +101,7 @@ function Ads(props: Props) {
     </div>
   );
 
+  // homepage ad in a card
   const homepageCardAd = (
     <div className="homepageAdContainer media__thumb" style={{display: 'none'}}>
       <div id={tagNameToUse} className="homepageAdDiv" style={{display: 'none'}} />
