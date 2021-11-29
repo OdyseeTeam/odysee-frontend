@@ -519,7 +519,7 @@ export function CommentCreate(props: Props) {
             label={
               <span className="commentCreate__labelWrapper">
                 {!livestream && (
-                  <div className="commentCreate__label">{isReply ? __('Replying as ') : __('Comment as ')}</div>
+                  <div className="commentCreate__label">{(isReply ? __('Replying as') : __('Comment as')) + ' '}</div>
                 )}
                 <SelectChannel tiny />
               </span>
@@ -641,10 +641,15 @@ export function CommentCreate(props: Props) {
             {!claimIsMine && (
               <>
                 {(!isSupportComment || activeTab !== TAB_LBC) &&
-                  getActionButton(__('LBC'), isSupportComment ? __('Switch to LBC') : undefined, ICONS.LBC, () => {
-                    setIsSupportComment(true);
-                    setActiveTab(TAB_LBC);
-                  })}
+                  getActionButton(
+                    __('Credits'),
+                    isSupportComment ? __('Switch to Credits') : undefined,
+                    ICONS.LBC,
+                    () => {
+                      setIsSupportComment(true);
+                      setActiveTab(TAB_LBC);
+                    }
+                  )}
 
                 {stripeEnvironment &&
                   (!isSupportComment || activeTab !== TAB_FIAT) &&
