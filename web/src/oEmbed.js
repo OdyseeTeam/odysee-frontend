@@ -15,6 +15,11 @@ const SDK_API_PATH = `${LBRY_WEB_API}/api/v1`;
 const proxyURL = `${SDK_API_PATH}/proxy`;
 Lbry.setDaemonConnectionString(proxyURL);
 
+function getParameterByName(name, url) {
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(url);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
 // ****************************************************************************
 // Fetch claim info
 // ****************************************************************************
@@ -97,24 +102,13 @@ function generateOEmbedData(claim) {
 }
 
 async function getOEmbed(ctx) {
-  const path = ctx.request.url;
-  const urlQuery = '?url=';
-  const formatQuery = '&format=';
+  const requestUrl = ctx.request.url;
+  const urlQuery = getParameterByName('url', requestUrl);
+  const formatQuery = getParameterByName('format', requestUrl);
 
-  const requestUrl = decodeURIComponent(
-    path.substring(
-      path.indexOf(urlQuery) + urlQuery.length,
-      path.indexOf('&') > path.indexOf(urlQuery) ? path.indexOf('&') : path.length
-    )
-  );
-  const requestFormat = path.substring(
-    path.indexOf(formatQuery) + formatQuery.length,
-    path.indexOf('&') > path.indexOf(formatQuery) ? path.indexOf('&') : path.length
-  );
+  const isXml = formatQuery === 'xml';
 
-  const isXml = requestFormat === 'xml';
-
-  const { claim, error } = await getClaim(requestUrl);
+  const { claim, error } = await getClaim(urlQuery);
   if (error) return error;
 
   const oEmbedData = generateOEmbedData(claim);
