@@ -25,6 +25,14 @@ function generateEmbedUrl(claimName, claimId, includeStartTime, startTime, refer
     .replace(/\)/g, '%29')}/${claimId}?${urlParams.toString()}`;
 }
 
+function generateEmbedIframeData(src) {
+  const width = '560';
+  const height = '315';
+  const html = `<iframe id="lbry-iframe" width="${width}" height="${height}" src="${src}" allowfullscreen></iframe>`;
+
+  return { html, width, height };
+}
+
 function generateDownloadUrl(claimName, claimId) {
   return `${URL}/$/download/${claimName}/${claimId}`;
 }
@@ -50,10 +58,11 @@ function getThumbnailCdnUrl(url) {
 
 // module.exports needed since the web server imports this function
 module.exports = {
-  generateStreamUrl,
-  generateEmbedUrl,
-  generateDownloadUrl,
-  generateDirectUrl,
-  getThumbnailCdnUrl,
   CONTINENT_COOKIE,
+  generateDirectUrl,
+  generateDownloadUrl,
+  generateEmbedIframeData,
+  generateEmbedUrl,
+  generateStreamUrl,
+  getThumbnailCdnUrl,
 };

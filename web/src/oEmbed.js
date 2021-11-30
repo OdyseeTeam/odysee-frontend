@@ -1,6 +1,6 @@
-const { PROXY_URL, SITE_NAME, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH, URL } = require('../../config.js');
+const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require('../../config.js');
 
-const { generateEmbedUrl, getThumbnailCdnUrl } = require('../../ui/util/web');
+const { generateEmbedUrl, getThumbnailCdnUrl, generateEmbedIframeData } = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
@@ -53,8 +53,8 @@ function generateOEmbedData(claim) {
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
   const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);
-  const videoWidth = value.video && value.video.width;
-  const videoHeight = value.video && value.video.height;
+
+  const { html, width, height } = generateEmbedIframeData(videoUrl);
 
   return {
     type: 'video',
@@ -67,9 +67,9 @@ function generateOEmbedData(claim) {
     thumbnail_url: thumbnailUrl,
     thumbnail_width: THUMBNAIL_WIDTH,
     thumbnail_height: THUMBNAIL_HEIGHT,
-    html: `<iframe id="lbry-iframe" width="560" height="315" src="${videoUrl}" allowfullscreen></iframe>`,
-    width: videoWidth,
-    height: videoHeight,
+    html: html,
+    width: width,
+    height: height,
   };
 }
 
