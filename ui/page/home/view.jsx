@@ -42,9 +42,6 @@ function HomePage(props: Props) {
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
 
-  const [adLoaded, setAdIsLoaded] = useState(false);
-  const adLoaded1 = useRef(false);
-
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
     true,
@@ -125,22 +122,11 @@ function HomePage(props: Props) {
     return isVisible;
   }
 
-  // delay function that can be awaited
-  function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
   //
   React.useEffect(() => {
-    console.log(adLoaded);
-    console.log(rowData);
-
     if (authenticated || !SHOW_ADS) {
-      return
+      return;
     }
-
-    if(adLoaded1.current) return
-    // if(adLoaded) return
 
     (async function() {
       // test if adblock is enabled
@@ -152,81 +138,85 @@ function HomePage(props: Props) {
         adBlockEnabled = true;
       } finally {
         if (!adBlockEnabled) {
-          // TODO: this is not a proper implementation, need to be able to run when cards are available
+
           // select the cards on page
           let cards = document.getElementsByClassName('card claim-preview--tile');
 
-          // find the last fully visible card
-          let lastCard;
-          for (const card of cards) {
-            const isFullyVisible = isScrolledIntoView(card);
-            if (!isFullyVisible) break;
-            lastCard = card;
-          }
+          function checkFlag() {
+            if(cards.length === 0) {
+              console.log('no cards')
+              window.setTimeout(checkFlag, 100); /* this checks the flag every 100 milliseconds*/
+            } else {
+              // find the last fully visible card
+              let lastCard;
+              for (const card of cards) {
+                const isFullyVisible = isScrolledIntoView(card);
+                if (!isFullyVisible) break;
+                lastCard = card;
+              }
 
-          // clone the last card
-          // $FlowFixMe
-          const clonedCard = lastCard.cloneNode(true);
+              // clone the last card
+              // $FlowFixMe
+              const clonedCard = lastCard.cloneNode(true);
 
-          // insert cloned card
-          // $FlowFixMe
-          lastCard.parentNode.insertBefore(clonedCard, lastCard);
+              // insert cloned card
+              // $FlowFixMe
+              lastCard.parentNode.insertBefore(clonedCard, lastCard);
 
-          // delete last card so that it doesn't mess up formatting
-          // $FlowFixMe
-          // lastCard.remove();
+              // delete last card so that it doesn't mess up formatting
+              // $FlowFixMe
+              // lastCard.remove();
 
-          // change the appearance of the cloned card
-          // $FlowFixMe
-          clonedCard.querySelector('.claim__menu-button').remove();
+              // change the appearance of the cloned card
+              // $FlowFixMe
+              clonedCard.querySelector('.claim__menu-button').remove();
 
-          // $FlowFixMe
-          clonedCard.querySelector('.truncated-text').innerHTML = 'Hate these? Login to Odysee for an ad free experience';
+              // $FlowFixMe
+              clonedCard.querySelector('.truncated-text').innerHTML = 'Hate these? Login to Odysee for an ad free experience';
 
-          // $FlowFixMe
-          clonedCard.querySelector('.claim-tile__info').remove();
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__info').remove();
 
-          // $FlowFixMe
-          clonedCard.querySelector('[role="none"]').removeAttribute('href');
+              // $FlowFixMe
+              clonedCard.querySelector('[role="none"]').removeAttribute('href');
 
-          // $FlowFixMe
-          clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
 
-          // $FlowFixMe
-          clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
 
-          // $FlowFixMe
-          clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
 
-          // $FlowFixMe
-          clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
 
-          // $FlowFixMe
-          clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+              // $FlowFixMe
+              clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
 
-          adLoaded1.current = true;
+              // show the homepage ad which is not displayed at first
+              document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
-          // setAdIsLoaded(true);
+              const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
+              const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
 
-          // show the homepage ad which is not displayed at first
-          document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
-
-          const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
-          const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
-
-          var styles = `#av-container, #AVcontent, #aniBox {
+              var styles = `#av-container, #AVcontent, #aniBox {
               height: ${imageHeight} !important;
               width: ${imageWidth} !important;
-          }`;
+            }`;
 
-          var styleSheet = document.createElement('style');
-          styleSheet.type = 'text/css';
-          styleSheet.innerText = styles;
-          document.head.appendChild(styleSheet);
+              var styleSheet = document.createElement('style');
+              styleSheet.type = 'text/css';
+              styleSheet.innerText = styles;
+              document.head.appendChild(styleSheet);
+            }
+          }
+          checkFlag();
         }
       }
     })();
-  }, [rowData]);
+  }, []);
 
   return (
     <Page fullWidthPage>
