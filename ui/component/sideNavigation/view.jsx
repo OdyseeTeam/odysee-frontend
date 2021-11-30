@@ -423,16 +423,6 @@ function SideNavigation(props: Props) {
               {getLink(PLAYLISTS)}
             </ul>
 
-            <ul className={classnames('navigation-links', { 'navigation-links--micro': !sidebarOpen })}>
-              {EXTRA_SIDEBAR_LINKS && (
-                <>
-                  {/* $FlowFixMe -- GetLinksData should fix it's data type */}
-                  {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
-                  {getLink(WILD_WEST)}
-                </>
-              )}
-            </ul>
-
             {getSubscriptionSection()}
             {getFollowedTagsSection()}
             {!isAuthenticated && sidebarOpen && unAuthNudge}
