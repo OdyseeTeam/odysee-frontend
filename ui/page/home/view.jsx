@@ -197,17 +197,20 @@ function HomePage(props: Props) {
               // show the homepage ad which is not displayed at first
               document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
+              // $FlowFixMe
               const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
+              // $FlowFixMe
               const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
 
               var styles = `#av-container, #AVcontent, #aniBox {
-              height: ${imageHeight} !important;
-              width: ${imageWidth} !important;
-            }`;
+                height: ${imageHeight} !important;
+                width: ${imageWidth} !important;
+              }`;
 
               var styleSheet = document.createElement('style');
               styleSheet.type = 'text/css';
               styleSheet.innerText = styles;
+              // $FlowFixMe
               document.head.appendChild(styleSheet);
 
               clonedCard.style.display = 'none';

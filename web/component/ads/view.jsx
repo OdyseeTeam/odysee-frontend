@@ -63,6 +63,11 @@ function Ads(props: Props) {
         script.src = scriptUrlToUse;
         // $FlowFixMe
         fjs.parentNode.insertBefore(script, fjs);
+
+        return () => {
+          // $FlowFixMe
+          document.head.removeChild(script);
+        };
       } catch (e) {}
     }
 
