@@ -1,18 +1,9 @@
-const {
-  URL,
-  SITE_NAME,
-  LBRY_WEB_API,
-  THUMBNAIL_CARDS_CDN_URL,
-  THUMBNAIL_HEIGHT,
-  THUMBNAIL_WIDTH,
-} = require('../../config.js');
+const { PROXY_URL, SITE_NAME, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH, URL } = require('../../config.js');
 
-const { generateEmbedUrl } = require('../../ui/util/web');
+const { generateEmbedUrl, getThumbnailCdnUrl } = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
 
-const SDK_API_PATH = `${LBRY_WEB_API}/api/v1`;
-const proxyURL = `${SDK_API_PATH}/proxy`;
-Lbry.setDaemonConnectionString(proxyURL);
+Lbry.setDaemonConnectionString(PROXY_URL);
 
 function getParameterByName(name, url) {
   var match = RegExp('[?&]' + name + '=([^&]*)').exec(url);
@@ -22,21 +13,6 @@ function getParameterByName(name, url) {
 // ****************************************************************************
 // Fetch claim info
 // ****************************************************************************
-
-function getThumbnailCdnUrl(url) {
-  if (
-    !THUMBNAIL_CARDS_CDN_URL ||
-    !url ||
-    (url && (url.includes('https://twitter-card') || url.includes('https://cards.odysee.com')))
-  ) {
-    return url;
-  }
-
-  if (url) {
-    const encodedURL = Buffer.from(url).toString('base64');
-    return `${THUMBNAIL_CARDS_CDN_URL}${encodedURL}.jpg`;
-  }
-}
 
 async function getClaim(requestUrl) {
   const uri = requestUrl.replace(URL, 'lbry:/');

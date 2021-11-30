@@ -1,19 +1,18 @@
 const {
   FAVICON,
-  LBRY_WEB_API,
   OG_HOMEPAGE_TITLE,
   OG_IMAGE_URL,
   OG_TITLE_SUFFIX,
+  PROXY_URL,
   SITE_CANONICAL_URL,
   SITE_DESCRIPTION,
   SITE_NAME,
   SITE_TITLE,
-  THUMBNAIL_CARDS_CDN_URL,
   URL,
 } = require('../../config.js');
 
 const { CATEGORY_METADATA } = require('./category-metadata');
-const { generateEmbedUrl, generateStreamUrl, generateDirectUrl } = require('../../ui/util/web');
+const { generateEmbedUrl, generateStreamUrl, generateDirectUrl, getThumbnailCdnUrl } = require('../../ui/util/web');
 const { getJsBundleId } = require('../bundle-id.js');
 const { lbryProxy: Lbry } = require('../lbry');
 const { parseURI, normalizeClaimUrl } = require('./lbryURI');
@@ -24,27 +23,10 @@ const path = require('path');
 const removeMd = require('remove-markdown');
 
 const jsBundleId = getJsBundleId();
-const SDK_API_PATH = `${LBRY_WEB_API}/api/v1`;
-const PROXY_URL = `${SDK_API_PATH}/proxy`;
 Lbry.setDaemonConnectionString(PROXY_URL);
 
 const BEGIN_STR = '<!-- VARIABLE_HEAD_BEGIN -->';
 const FINAL_STR = '<!-- VARIABLE_HEAD_END -->';
-
-function getThumbnailCdnUrl(url) {
-  if (
-    !THUMBNAIL_CARDS_CDN_URL ||
-    !url ||
-    (url && (url.includes('https://twitter-card') || url.includes('https://cards.odysee.com')))
-  ) {
-    return url;
-  }
-
-  if (url) {
-    const encodedURL = Buffer.from(url).toString('base64');
-    return `${THUMBNAIL_CARDS_CDN_URL}${encodedURL}.jpg`;
-  }
-}
 
 function insertToHead(fullHtml, htmlToInsert) {
   const beginIndex = fullHtml.indexOf(BEGIN_STR);
