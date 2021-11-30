@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Ads from 'web/component/ads';
-import React, { useState, useRef }  from 'react';
+import React  from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -210,22 +210,24 @@ function HomePage(props: Props) {
               styleSheet.innerText = styles;
               document.head.appendChild(styleSheet);
 
+              clonedCard.style.display = 'none';
+
               let timeoutCount = 0;
               // eslint-disable-next-line no-inner-declarations
               function checkForAniview() {
                 const aniBoxDiv = document.getElementsByClassName('homepageAdContainer')[0].querySelector('#aniBox');
 
-                if(!aniBoxDiv) {
+                if (!aniBoxDiv) {
                   timeoutCount += 100;
                   if (timeoutCount < 500) {
                     window.setTimeout(checkForAniview, 100);
                   } else {
-                    clonedCard.style.display = 'none';
+
                   }
                 } else {
+                  clonedCard.style.display = 'block';
                   console.log('loaded');
                   console.log(timeoutCount);
-                  /* do something*/
                 }
               }
               checkForAniview();
