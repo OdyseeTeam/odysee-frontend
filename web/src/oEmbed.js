@@ -73,7 +73,7 @@ function generateOEmbedData(claim) {
 
   const claimTitle = value.title;
   const authorName = authorClaim ? authorClaim.value.title || authorClaim.name : 'Anonymous';
-  const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '');
+  const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
   const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);

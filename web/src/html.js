@@ -187,6 +187,7 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}) {
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
+  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '')}`;
 
   let head = '';
 
@@ -209,16 +210,15 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}) {
   head += `<meta property="og:type" content="website"/>`;
   head += `<meta property="og:title" content="${title}"/>`;
   head += `<meta name="twitter:title" content="${title}"/>`;
-  // below should be canonical_url, but not provided by chainquery yet
-  head += `<meta property="og:url" content="${URL}/${claim.name}:${claim.claim_id}"/>`;
-  head += `<meta name="twitter:url" content="${URL}/${claim.name}:${claim.claim_id}"/>`;
+  head += `<meta property="og:url" content="${claimPath}"/>`;
+  head += `<meta name="twitter:url" content="${claimPath}"/>`;
   head += `<meta property="fb:app_id" content="1673146449633983" />`;
-  head += `<link rel="canonical" content="${SITE_CANONICAL_URL || URL}/${claim.name}:${claim.claim_id}"/>`;
+  head += `<link rel="canonical" content="${claimPath}"/>`;
   head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
-    `${URL}/${claim.canonical_url}`
+    claimPath
   )}&format=json" title="${title}" />`;
   head += `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
-    `${URL}/${claim.canonical_url}`
+    claimPath
   )}&format=xml" title="${title}" />`;
 
   if (mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) {
