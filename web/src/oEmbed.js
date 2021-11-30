@@ -9,7 +9,6 @@ const {
 
 const { generateEmbedUrl } = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
-const { normalizeURI } = require('./lbryURI');
 
 const SDK_API_PATH = `${LBRY_WEB_API}/api/v1`;
 const proxyURL = `${SDK_API_PATH}/proxy`;
@@ -40,15 +39,12 @@ function getThumbnailCdnUrl(url) {
 }
 
 async function getClaim(requestUrl) {
-  const path = requestUrl.replace(URL, '').substring(1);
+  const uri = requestUrl.replace(URL, 'lbry:/');
 
-  let uri;
   let claim;
   let error;
 
   try {
-    uri = normalizeURI(path);
-
     const response = await Lbry.resolve({ urls: [uri] });
     if (response && response[uri] && !response[uri].error) {
       claim = response[uri];
@@ -101,23 +97,61 @@ function generateOEmbedData(claim) {
   };
 }
 
+function generateXmlData(oEmbedData) {
+  const {
+    type,
+    version,
+    title,
+    author_name,
+    author_url,
+    provider_name,
+    provider_url,
+    thumbnail_url,
+    thumbnail_width,
+    thumbnail_height,
+    html,
+    width,
+    height,
+  } = oEmbedData;
+
+  return (
+    '<?xml version="1.0" encoding="utf-8"?>' +
+    '<oembed>' +
+    `<type>${type}</type>` +
+    `<version>${version}</version>` +
+    `<title>${title}</title>` +
+    `<author_name>${author_name}</author_name>` +
+    `<author_url>${author_url}</author_url>` +
+    `<provider_name>${provider_name}</provider_name>` +
+    `<provider_url>${provider_url}</provider_url>` +
+    `<thumbnail_url>${thumbnail_url}</thumbnail_url>` +
+    `<thumbnail_width>${thumbnail_width}</thumbnail_width>` +
+    `<thumbnail_height>${thumbnail_height}</thumbnail_height>` +
+    `<html>${html}</html>` +
+    `<width>${width}</width>` +
+    `<height>${height}</height>` +
+    '<oembed>'
+  );
+}
+
 async function getOEmbed(ctx) {
   const requestUrl = ctx.request.url;
   const urlQuery = getParameterByName('url', requestUrl);
-  const formatQuery = getParameterByName('format', requestUrl);
-
-  const isXml = formatQuery === 'xml';
 
   const { claim, error } = await getClaim(urlQuery);
   if (error) return error;
 
   const oEmbedData = generateOEmbedData(claim);
 
-  if (isXml) {
-    ctx.set('Content-Type', 'text/xml+oembed');
-    return oEmbedData.xml();
+  const formatQuery = getParameterByName('format', requestUrl);
+  if (formatQuery === 'xml') {
+    ctx.set('Content-Type', 'application/xml');
+    const xmlData = generateXmlData(oEmbedData);
+
+    return xmlData;
   }
-  ctx.set('Content-Type', 'application/json+oembed');
+
+  ctx.set('Content-Type', 'application/json');
   return oEmbedData;
 }
 
