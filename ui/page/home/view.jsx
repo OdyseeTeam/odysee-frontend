@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Ads from 'web/component/ads';
-import React from 'react';
+import React, { useState }  from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -42,6 +42,8 @@ function HomePage(props: Props) {
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
 
+  const [adLoaded, setAdIsLoaded] = useState(false);
+
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
     true,
@@ -75,6 +77,7 @@ function HomePage(props: Props) {
 
     return (
       <div key={title} className="claim-grid__wrapper">
+        {/* category header */}
         {index !== 0 && title && typeof title === 'string' && (
           <h1 className="claim-grid__header">
             <Button navigate={route || link} button="link">
@@ -92,6 +95,7 @@ function HomePage(props: Props) {
           </WaitUntilOnPage>
         )}
 
+        {/* view more button */}
         {(route || link) && (
           <Button
             className="claim-grid__title--secondary"
@@ -127,9 +131,14 @@ function HomePage(props: Props) {
 
   //
   React.useEffect(() => {
+    console.log(adLoaded);
+    console.log(rowData);
+
     if (authenticated || !SHOW_ADS) {
       return
     }
+
+    if(adLoaded) return
 
     (async function() {
       // test if adblock is enabled
@@ -142,8 +151,6 @@ function HomePage(props: Props) {
       } finally {
         if (!adBlockEnabled) {
           // TODO: this is not a proper implementation, need to be able to run when cards are available
-          await sleep(1500);
-
           // select the cards on page
           let cards = document.getElementsByClassName('card claim-preview--tile');
 
@@ -195,6 +202,8 @@ function HomePage(props: Props) {
           // $FlowFixMe
           clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
 
+          setAdIsLoaded(true);
+
           // show the homepage ad which is not displayed at first
           document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
 
@@ -213,7 +222,7 @@ function HomePage(props: Props) {
         }
       }
     })();
-  }, []);
+  }, [rowData]);
 
   return (
     <Page fullWidthPage>
