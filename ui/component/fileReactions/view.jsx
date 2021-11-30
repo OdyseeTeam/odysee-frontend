@@ -73,7 +73,7 @@ function FileReactions(props: Props) {
         />
       )}
 
-      <div className={'ratio-bar-wrapper'}>
+      <div className={'ratio-wrapper'}>
         <Button
           title={__('I like this')}
           requiresAuth={IS_WEB}
