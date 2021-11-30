@@ -111,7 +111,7 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
-  // returns true if passed elemnt is fully visible on screen
+  // returns true if passed element is fully visible on screen
   function isScrolledIntoView(el) {
     const rect = el.getBoundingClientRect();
     const elemTop = rect.top;
@@ -229,8 +229,6 @@ function HomePage(props: Props) {
                   }
                 } else {
                   clonedCard.style.display = 'block';
-                  console.log('loaded');
-                  console.log(timeoutCount);
                 }
               }
               checkForAniview();
