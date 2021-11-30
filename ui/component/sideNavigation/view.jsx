@@ -445,16 +445,7 @@ function SideNavigation(props: Props) {
                 {getLink(HOME)}
                 {getLink(RECENT_FROM_FOLLOWING)}
                 {getLink(PLAYLISTS)}
-              </ul>
-
-              <ul className="navigation-links--absolute">
-                {EXTRA_SIDEBAR_LINKS && (
-                  <>
-                    {/* $FlowFixMe -- GetLinksData should fix it's data type */}
-                    {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
-                    {getLink(WILD_WEST)}
-                  </>
-                )}
+                {getLink(WILD_WEST)}
               </ul>
 
               <ul className="navigation-links--absolute mobile-only">
