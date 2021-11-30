@@ -151,24 +151,29 @@
     }
   }
 
-  .ratio-bar {
-    position: absolute;
-    display: flex;
-    left: 0px;
-    bottom: -1px;
-    width: 114px;
-    height: 1px;
-    background-color: white;
-    z-index: 2;
+  .ratio-bar-wrapper {
+    position: relative;
+    width: 100%;
 
-    .ratio-bar-like {
+    .ratio-bar {
+      position: absolute;
+      display: flex;
+      left: 0px;
+      bottom: -1px;
+      width: calc(100% - 14px);
       height: 1px;
-      background-color: var(--color-fire);
-    }
+      background-color: white;
+      z-index: 2;
 
-    .ratio-bar-dislike {
-      height: 1px;
-      background-color: var(--color-slime);
+      .ratio-bar-like {
+        height: 1px;
+        background-color: var(--color-fire);
+      }
+
+      .ratio-bar-dislike {
+        height: 1px;
+        background-color: var(--color-slime);
+      }
     }
   }
 
