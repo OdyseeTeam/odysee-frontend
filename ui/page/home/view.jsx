@@ -138,14 +138,13 @@ function HomePage(props: Props) {
         adBlockEnabled = true;
       } finally {
         if (!adBlockEnabled) {
-
           // select the cards on page
           let cards = document.getElementsByClassName('card claim-preview--tile');
 
+          // eslint-disable-next-line no-inner-declarations
           function checkFlag() {
-            if(cards.length === 0) {
-              console.log('no cards')
-              window.setTimeout(checkFlag, 100); /* this checks the flag every 100 milliseconds*/
+            if (cards.length === 0) {
+              window.setTimeout(checkFlag, 100);
             } else {
               // find the last fully visible card
               let lastCard;
@@ -210,6 +209,26 @@ function HomePage(props: Props) {
               styleSheet.type = 'text/css';
               styleSheet.innerText = styles;
               document.head.appendChild(styleSheet);
+
+              let timeoutCount = 0;
+              // eslint-disable-next-line no-inner-declarations
+              function checkForAniview() {
+                const aniBoxDiv = document.getElementsByClassName('homepageAdContainer')[0].querySelector('#aniBox');
+
+                if(!aniBoxDiv) {
+                  timeoutCount += 100;
+                  if (timeoutCount < 500) {
+                    window.setTimeout(checkForAniview, 100);
+                  } else {
+                    clonedCard.style.display = 'none';
+                  }
+                } else {
+                  console.log('loaded');
+                  console.log(timeoutCount);
+                  /* do something*/
+                }
+              }
+              checkForAniview();
             }
           }
           checkFlag();
