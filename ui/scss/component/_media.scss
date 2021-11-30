@@ -151,6 +151,22 @@
     }
   }
 
+  .ratio-bar {
+    position: absolute;
+    display: flex;
+    left: 0px;
+    bottom: -1px;
+    width: 121px;
+    height: 1px;
+    background-color: var(--color-slime);
+    z-index: 2;
+
+    .ratio-bar-ratio {
+      height: 1px;
+      background-color: var(--color-fire);
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     //padding-top: var(--spacing-s);
 

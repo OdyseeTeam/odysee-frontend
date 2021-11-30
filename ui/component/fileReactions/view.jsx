@@ -4,6 +4,7 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+import RatioBar from 'component/ratioBar';
 import { formatNumberWithCommas } from 'util/number';
 import NudgeFloating from 'component/nudgeFloating';
 import { SIMPLE_SITE } from 'config';
@@ -72,6 +73,7 @@ function FileReactions(props: Props) {
         />
       )}
 
+      <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />
       <Button
         title={__('I like this')}
         requiresAuth={IS_WEB}
