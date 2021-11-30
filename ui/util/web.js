@@ -56,6 +56,11 @@ function getThumbnailCdnUrl(url) {
   }
 }
 
+function getParameterByName(name, url) {
+  var match = RegExp('[?&]' + name + '=([^&]*)').exec(url);
+  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
 // module.exports needed since the web server imports this function
 module.exports = {
   CONTINENT_COOKIE,
@@ -64,5 +69,6 @@ module.exports = {
   generateEmbedIframeData,
   generateEmbedUrl,
   generateStreamUrl,
+  getParameterByName,
   getThumbnailCdnUrl,
 };

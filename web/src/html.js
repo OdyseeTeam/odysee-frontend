@@ -12,7 +12,13 @@ const {
 } = require('../../config.js');
 
 const { CATEGORY_METADATA } = require('./category-metadata');
-const { generateEmbedUrl, generateStreamUrl, generateDirectUrl, getThumbnailCdnUrl } = require('../../ui/util/web');
+const {
+  generateDirectUrl,
+  generateEmbedUrl,
+  generateStreamUrl,
+  getParameterByName,
+  getThumbnailCdnUrl,
+} = require('../../ui/util/web');
 const { getJsBundleId } = require('../bundle-id.js');
 const { lbryProxy: Lbry } = require('../lbry');
 const { parseURI, normalizeClaimUrl } = require('./lbryURI');
@@ -130,7 +136,7 @@ function buildBasicOgMetadata() {
 // Metadata used for urls that need claim information
 // Also has option to override defaults
 //
-function buildClaimOgMetadata(uri, claim, overrideOptions = {}) {
+function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
   const { claimName } = parseURI(uri);
   const { meta, value, signing_channel } = claim;
@@ -198,10 +204,10 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}) {
   head += `<link rel="canonical" content="${claimPath}"/>`;
   head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
     claimPath
-  )}&format=json" title="${title}" />`;
+  )}&format=json${referrerQuery ? `&r=${referrerQuery}` : ''}" title="${title}" />`;
   head += `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
     claimPath
-  )}&format=xml" title="${title}" />`;
+  )}&format=xml${referrerQuery ? `&r=${referrerQuery}` : ''}" title="${title}" />`;
 
   if (mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) {
     const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);
@@ -363,9 +369,10 @@ async function getHtml(ctx) {
   if (!requestPath.includes('$')) {
     const claimUri = normalizeClaimUrl(requestPath.slice(1));
     const claim = await resolveClaimOrRedirect(ctx, claimUri);
+    const referrerQuery = getParameterByName('r', ctx.request.url);
 
     if (claim) {
-      const ogMetadata = buildClaimOgMetadata(claimUri, claim);
+      const ogMetadata = buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
       const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }

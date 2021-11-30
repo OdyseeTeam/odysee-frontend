@@ -1,14 +1,14 @@
 const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require('../../config.js');
 
-const { generateEmbedUrl, getThumbnailCdnUrl, generateEmbedIframeData } = require('../../ui/util/web');
+const {
+  generateEmbedIframeData,
+  generateEmbedUrl,
+  getParameterByName,
+  getThumbnailCdnUrl,
+} = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
-
-function getParameterByName(name, url) {
-  var match = RegExp('[?&]' + name + '=([^&]*)').exec(url);
-  return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
-}
 
 // ****************************************************************************
 // Fetch claim info
@@ -44,7 +44,7 @@ async function getClaim(requestUrl) {
 // Generate
 // ****************************************************************************
 
-function generateOEmbedData(claim) {
+function generateOEmbedData(claim, referrerQuery) {
   const { value, signing_channel: authorClaim } = claim;
 
   const claimTitle = value.title;
@@ -52,7 +52,7 @@ function generateOEmbedData(claim) {
   const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
-  const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);
+  const videoUrl = generateEmbedUrl(claim.name, claim.claim_id) + (referrerQuery ? `r=${referrerQuery}` : '');
 
   const { html, width, height } = generateEmbedIframeData(videoUrl);
 
@@ -117,7 +117,8 @@ async function getOEmbed(ctx) {
   const { claim, error } = await getClaim(urlQuery);
   if (error) return error;
 
-  const oEmbedData = generateOEmbedData(claim);
+  const referrerQuery = getParameterByName('r', requestUrl);
+  const oEmbedData = generateOEmbedData(claim, referrerQuery);
 
   const formatQuery = getParameterByName('format', requestUrl);
   if (formatQuery === 'xml') {
