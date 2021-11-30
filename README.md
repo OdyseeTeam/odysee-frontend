@@ -1,5 +1,5 @@
 
-# Odysee Frontend - Odysee.com   
+# Odysee Frontend - Odysee.com    
 
 This repo contains the UI and front end code that powers Odysee.com.<br/>
 This specific fork contains new themes that might replace the current ones on Odysee.com.
