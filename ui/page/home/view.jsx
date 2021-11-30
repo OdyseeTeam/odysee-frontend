@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Ads from 'web/component/ads';
-import React, { useState }  from 'react';
+import React, { useState, useRef }  from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -43,6 +43,7 @@ function HomePage(props: Props) {
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
 
   const [adLoaded, setAdIsLoaded] = useState(false);
+  const adLoaded1 = useRef(false);
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
@@ -138,7 +139,8 @@ function HomePage(props: Props) {
       return
     }
 
-    if(adLoaded) return
+    if(adLoaded1.current) return
+    // if(adLoaded) return
 
     (async function() {
       // test if adblock is enabled
@@ -202,7 +204,9 @@ function HomePage(props: Props) {
           // $FlowFixMe
           clonedCard.querySelector('.media__thumb').replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
 
-          setAdIsLoaded(true);
+          adLoaded1.current = true;
+
+          // setAdIsLoaded(true);
 
           // show the homepage ad which is not displayed at first
           document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
