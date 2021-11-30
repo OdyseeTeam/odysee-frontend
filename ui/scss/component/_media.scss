@@ -158,12 +158,17 @@
     bottom: -1px;
     width: 114px;
     height: 1px;
-    background-color: var(--color-slime);
+    background-color: white;
     z-index: 2;
 
-    .ratio-bar-ratio {
+    .ratio-bar-like {
       height: 1px;
       background-color: var(--color-fire);
+    }
+
+    .ratio-bar-dislike {
+      height: 1px;
+      background-color: var(--color-slime);
     }
   }
 
