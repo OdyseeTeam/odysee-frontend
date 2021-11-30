@@ -28,7 +28,7 @@ function generateEmbedUrl(claimName, claimId, includeStartTime, startTime, refer
 function generateEmbedIframeData(src) {
   const width = '560';
   const height = '315';
-  const html = `<iframe id="lbry-iframe" width="${width}" height="${height}" src="${src}" allowfullscreen></iframe>`;
+  const html = `<iframe id="odysee-iframe" width="${width}" height="${height}" src="${src}" allowfullscreen></iframe>`;
 
   return { html, width, height };
 }
