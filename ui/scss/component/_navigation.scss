@@ -55,7 +55,7 @@
   @extend .navigation;
   z-index: 4;
   width: var(--side-nav-width);
-  background-color: var(--color-card-background);
+  background-color: var(--color-header-background-transparent);
   box-shadow: var(--card-box-shadow);
 
   .navigation-link {
