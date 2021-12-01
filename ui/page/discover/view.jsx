@@ -91,6 +91,18 @@ function DiscoverPage(props: Props) {
   const useDualList = liveSection === SECTION.LESS && livestreamUris && livestreamUris.length > initialLiveTileLimit;
 
   function getMeta() {
+    if (liveSection === SECTION.MORE) {
+      return (
+        <Button
+          label={__('Show less livestreams')}
+          button="link"
+          iconRight={ICONS.UP}
+          className="claim-grid__title--secondary"
+          onClick={() => setLiveSection(SECTION.LESS)}
+        />
+      );
+    }
+
     return !dynamicRouteProps ? (
       <a
         className="help"
@@ -197,7 +209,7 @@ function DiscoverPage(props: Props) {
             <Button
               label={__('Show more livestreams')}
               button="link"
-              iconRight={ICONS.ARROW_RIGHT}
+              iconRight={ICONS.DOWN}
               className="claim-grid__title--secondary"
               onClick={() => {
                 doFetchActiveLivestreams();
