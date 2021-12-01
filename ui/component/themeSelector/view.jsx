@@ -36,6 +36,8 @@ export default function ThemeSelector(props: Props) {
     setDarkTime,
   } = props;
 
+  console.log(themes);
+
   const startHours = ['18', '19', '20', '21'];
   const endHours = ['5', '6', '7', '8'];
 
@@ -76,7 +78,7 @@ export default function ThemeSelector(props: Props) {
         >
           {themes.map((theme) => (
             <option key={theme} value={theme}>
-              {theme === 'light' ? __('Light') : __('Dark')}
+              {theme === 'light' ? __('Light') : theme === 'dark' ? __('Dark') : __('Purple')}
             </option>
           ))}
         </FormField>
