@@ -15,7 +15,7 @@ Lbry.setDaemonConnectionString(PROXY_URL);
 // ****************************************************************************
 
 async function getClaim(requestUrl) {
-  const uri = requestUrl.replace(URL, 'lbry:/');
+  const uri = requestUrl.replace(`${URL}/`, 'lbry://');
 
   let claim;
   let error;
