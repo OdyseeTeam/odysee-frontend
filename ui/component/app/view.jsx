@@ -390,10 +390,15 @@ function App(props: Props) {
     }
 
     return () => {
-      // $FlowFixMe
-      document.head.removeChild(script);
-      // $FlowFixMe
-      document.head.appendChild(cmpScript);
+      try {
+        // $FlowFixMe
+        document.head.removeChild(script);
+        // $FlowFixMe
+        document.head.removeChild(cmpScript);
+      } catch (err){
+        console.log(err);
+      }
+
     };
   }, []);
 
