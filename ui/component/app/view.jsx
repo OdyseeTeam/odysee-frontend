@@ -395,10 +395,9 @@ function App(props: Props) {
         document.head.removeChild(script);
         // $FlowFixMe
         document.head.removeChild(cmpScript);
-      } catch (err){
+      } catch (err) {
         console.log(err);
       }
-
     };
   }, []);
 
