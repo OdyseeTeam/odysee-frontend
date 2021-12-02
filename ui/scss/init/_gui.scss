@@ -284,8 +284,8 @@ textarea {
   @extend .help;
   padding: var(--spacing-s);
   border-radius: var(--border-radius);
-  background-color: var(--color-help-warning-bg);
-  color: var(--color-help-warning-text);
+  background-color: #fef1f6;
+  color: #555555;
   margin-bottom: var(--spacing-s);
   border: 1px solid var(--color-border);
 }
@@ -406,7 +406,7 @@ textarea {
   position: relative;
   border-radius: var(--border-radius);
   padding: var(--spacing-l);
-  background-color: var(--color-primary-alt);
+  background-color: var(--color-secondary);
 
   ~ .card {
     margin-top: var(--spacing-m);

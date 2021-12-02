@@ -203,26 +203,6 @@ function SideNavigation(props: Props) {
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const isAuthenticated = Boolean(email);
 
-  // SIDE LINKS: FOLLOWING, HOME, [FULL,] [EXTRA]
-  let SIDE_LINKS: Array<SideNavLink> = [];
-
-  SIDE_LINKS.push(HOME);
-  SIDE_LINKS.push(RECENT_FROM_FOLLOWING);
-  SIDE_LINKS.push(PLAYLISTS);
-
-  if (EXTRA_SIDEBAR_LINKS) {
-    // $FlowFixMe
-    // SIDE_LINKS.push(...EXTRA_SIDEBAR_LINKS);
-
-    const WILD_WEST = {
-      title: 'Wild West',
-      link: `/$/${PAGES.WILD_WEST}`,
-      icon: ICONS.WILD_WEST,
-    };
-
-    SIDE_LINKS.push(WILD_WEST);
-  }
-
   const livestreamEnabled = Boolean(
     ENABLE_NO_SOURCE_CLAIMS &&
       user &&
@@ -423,6 +403,16 @@ function SideNavigation(props: Props) {
               {getLink(PLAYLISTS)}
             </ul>
 
+            <ul className={classnames('navigation-links', { 'navigation-links--micro': !sidebarOpen })}>
+              {EXTRA_SIDEBAR_LINKS && (
+                <>
+                  {/* $FlowFixMe -- GetLinksData should fix it's data type */}
+                  {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
+                  {getLink(WILD_WEST)}
+                </>
+              )}
+            </ul>
+
             {getSubscriptionSection()}
             {getFollowedTagsSection()}
             {!isAuthenticated && sidebarOpen && unAuthNudge}
@@ -445,7 +435,16 @@ function SideNavigation(props: Props) {
                 {getLink(HOME)}
                 {getLink(RECENT_FROM_FOLLOWING)}
                 {getLink(PLAYLISTS)}
-                {getLink(WILD_WEST)}
+              </ul>
+
+              <ul className="navigation-links--absolute">
+                {EXTRA_SIDEBAR_LINKS && (
+                  <>
+                    {/* $FlowFixMe -- GetLinksData should fix it's data type */}
+                    {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
+                    {getLink(WILD_WEST)}
+                  </>
+                )}
               </ul>
 
               <ul className="navigation-links--absolute mobile-only">

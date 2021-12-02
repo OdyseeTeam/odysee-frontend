@@ -480,7 +480,7 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           </MenuLink>
           <MenuItem className="menu__link" onSelect={handleThemeToggle}>
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
-            {currentTheme === 'light' ? __('Dark') : __('Light')}
+            {currentTheme === 'light' ? __('Dark') : currentTheme === 'purple' ? __('Dark') : __('Light')}
           </MenuItem>
         </MenuList>
       </Menu>

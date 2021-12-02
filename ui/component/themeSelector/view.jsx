@@ -36,8 +36,6 @@ export default function ThemeSelector(props: Props) {
     setDarkTime,
   } = props;
 
-  console.log(themes);
-
   const startHours = ['18', '19', '20', '21'];
   const endHours = ['5', '6', '7', '8'];
 

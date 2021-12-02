@@ -242,7 +242,7 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__author--creator {
   padding: 0 3px;
-  background-color: var(--color-primary-alt);
+  background-color: var(--color-secondary);
   border-radius: var(--border-radius);
 
   &.button--uri-indicator {
@@ -371,7 +371,6 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__action--active {
   .icon {
-    //fill: var(--color-primary-alt);
     stroke: var(--color-primary);
   }
 }

@@ -2,7 +2,7 @@
   // Color overrides
   --color-primary: #d4004e;
   --color-primary-text-hover: #ffffff;
-  --color-primary-alt: #fef1f6;
+  //  --color-primary-alt: #fef1f6;
   --color-primary-alt-2: #fb7e82;
   --color-primary-alt-3: #fbcbdd;
   --color-secondary: #ff853c;
@@ -17,14 +17,13 @@
   --color-card-background-highlighted: #fff5f5;
 
   // Text
-  --color-text-selection-bg: var(--color-primary-alt);
+  --color-text-selection-bg: var(--color-secondary);
   --color-text-selection: var(--color-primary);
   --color-text-error: var(--color-danger);
   --color-text-empty: #999999;
   --color-text-help: #000000;
   --color-text-subtitle: #212529;
   --color-text-warning: #212529;
-  --color-help-warning-bg: #fef3c7;
   --color-blockquote: var(--color-gray-3);
   --color-blockquote-bg: var(--color-gray-1);
   --color-tooltip-bg: #222;
@@ -41,9 +40,8 @@
   --color-button-alt-text: black;
   --color-button-primary-bg: var(--color-primary);
   --color-button-primary-bg-hover: var(--color-primary-alt-2);
-  --color-button-primary-text: var(--color-primary-alt);
-  --color-button-primary-hover-text: var(--color-white);
-  --color-button-secondary-bg: var(--color-primary-alt);
+  --color-button-primary-text: var(--color-secondary);
+  --color-button-secondary-bg: var(--color-secondary);
   --color-button-secondary-border: var(--color-primary-alt-3);
   --color-button-secondary-text: var(--color-primary);
   --color-button-secondary-text-hover: black;
@@ -58,7 +56,7 @@
   --color-link-focus-bg: #f1f1f1;
 
   // Input
-  --color-input-bg-selected: var(--color-primary-alt);
+  --color-input-bg-selected: var(--color-secondary);
   --color-input-color: #111111;
   --color-input-label: var(--color-gray-5);
   --color-input-placeholder: #212529;
@@ -79,7 +77,6 @@
   --color-navigation-active-text: #ffffff;
   --color-navigation-hover: var(--color-secondary);
   --color-navigation-hover-text: #000000;
-  --color-navigation-bg-absolute: rgba(244, 244, 244, 0.95);
 
   // Tags
   --color-tag: #000000;
