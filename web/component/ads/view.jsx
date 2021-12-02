@@ -69,6 +69,13 @@ function Ads(props: Props) {
         return () => {
           // $FlowFixMe
           document.head.removeChild(script);
+          delete window.aniplayerPos;
+          delete window.storageAni;
+          if (type === 'homepage') {
+            delete window.__VIDCRUNCH_CONFIG_618bb4d28aac298191eec411__
+            delete window.__player_618bb4d28aac298191eec411__
+          }
+
         };
       } catch (e) {}
     }
