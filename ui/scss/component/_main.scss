@@ -469,7 +469,7 @@
 .main-wrapper--scrollbar {
   // The W3C future standard; currently supported by Firefox only.
   // It'll hopefully auto fallback to this when 'webkit-scrollbar' below is deprecated in the future.
-  scrollbar-width: auto;
+  scrollbar-width: 8px;
   scrollbar-color: var(--color-scrollbar-thumb-bg) var(--color-scrollbar-track-bg);
 }
 

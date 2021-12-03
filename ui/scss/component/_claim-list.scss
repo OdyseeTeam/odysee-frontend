@@ -474,12 +474,30 @@
     margin-right: var(--spacing-m);
 
     .icon {
-      stroke: var(--color-primary);
+      stroke: var(--color-text);
     }
 
     @media (min-width: $breakpoint-small) {
       height: 1.5rem;
       width: 1.5rem;
+    }
+  }
+
+  /*
+  &:hover{
+    .icon {
+      stroke: var(--color-primary);
+    }
+  }*/
+
+  .button__content {
+    &:hover {
+      .claim-grid__title {
+        color: var(--color-primary);
+      }
+      .icon {
+        stroke: var(--color-primary);
+      }
     }
   }
 }
@@ -493,6 +511,7 @@
   font-size: var(--font-large);
   margin-right: var(--spacing-m);
   display: flex;
+  color: var(--color-text);
 }
 
 .claim-grid__title-span {
