@@ -9,6 +9,8 @@ $contentMaxWidth: 60rem;
 .notification_list {
   .notification__wrapper {
     //border-top: 1px solid var(--color-border);
+    margin-bottom: 6px;
+    background-color: var(--color-header-background);
 
     &:first-of-type {
       border-top: none;
@@ -88,7 +90,7 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__wrapper--unread {
-  background-color: var(--color-header-background);
+  //background-color: var(--color-header-background);
   box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
   justify-content: space-between;
 
