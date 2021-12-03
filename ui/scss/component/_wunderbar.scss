@@ -3,6 +3,12 @@
   max-width: 30rem;
   margin-left: var(--spacing-s);
   margin-right: var(--spacing-s);
+
+  &:hover {
+    .wunderbar__input {
+      border: 1px solid var(--color-primary);
+    }
+  }
 }
 
 .wunderbar__wrapper--mobile {
@@ -83,12 +89,11 @@
   border: none;
   padding-right: var(--spacing-s);
   padding-left: 2.5rem;
-  transition: all 0.2s;
+  //transition: all 0.2s;
   -webkit-app-region: no-drag;
   border: 1px solid var(--color-header-background);
 
   &:focus {
-    border-radius: var(--border-radius);
     border: 1px solid var(--color-primary);
   }
 }

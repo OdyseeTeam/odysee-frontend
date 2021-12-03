@@ -10,7 +10,7 @@
 
   // Structure
   //  --color-background: #191919;
-  --color-background: #242424;
+  --color-background: #212121;
   --color-background-overlay: #0c0d0e95;
   --color-border: #444444;
   --color-card-background: var(--color-header-background);
@@ -111,7 +111,7 @@
   --color-thumbnail-background: var(--color-gray-5);
   --color-tooltip-bg: #2f3337;
   --color-focus: #e91e6329;
-  --color-placeholder-background: #222222;
+  --color-placeholder-background: var(--color-header-background);
   --color-spinner-light: white;
   --color-spinner-dark: #212529;
   --color-login-graphic-background: var(--color-background);
