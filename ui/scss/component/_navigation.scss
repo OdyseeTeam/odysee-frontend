@@ -207,6 +207,8 @@
 }
 
 .navigation-links--micro {
+  border-bottom: 1px solid var(--color-border);
+
   .icon {
     height: 1rem;
     width: 1rem;
@@ -220,7 +222,7 @@
   }
 
   .button__label {
-    font-size: var(--font-xxsmall);
+    font-size: var(--font-xxxsmall);
     font-weight: var(--font-weight-base);
     margin-left: 0;
     margin-top: var(--spacing-xxxs);
