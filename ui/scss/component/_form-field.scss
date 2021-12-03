@@ -6,7 +6,7 @@ select,
 .date-picker-input {
   height: var(--height-input);
   border-radius: var(--border-radius);
-  border: 1px solid;
+  //border: 1px solid;
   color: var(--color-input);
   border-color: var(--color-input-border);
   background-color: var(--color-input-bg);
@@ -367,7 +367,7 @@ fieldset-group {
         overflow: hidden;
         padding: 0.5rem;
         height: var(--height-input);
-        border: 1px solid;
+        //border: 1px solid;
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
         border-color: var(--color-input-border);
