@@ -8,7 +8,7 @@ $contentMaxWidth: 60rem;
 
 .notification_list {
   .notification__wrapper {
-    border-top: 1px solid var(--color-border);
+    //border-top: 1px solid var(--color-border);
 
     &:first-of-type {
       border-top: none;
@@ -16,7 +16,7 @@ $contentMaxWidth: 60rem;
 
     @media (min-width: $breakpoint-small) {
       &:hover {
-        background-color: var(--color-card-background-highlighted);
+        //background-color: var(--color-card-background-highlighted);
       }
     }
   }
@@ -88,12 +88,9 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__wrapper--unread {
-  background-color: var(--color-card-background-highlighted);
+  background-color: var(--color-header-background);
+  box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
   justify-content: space-between;
-
-  &:hover {
-    background-color: var(--color-button-secondary-bg);
-  }
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
