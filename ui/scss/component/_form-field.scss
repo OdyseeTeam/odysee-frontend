@@ -159,7 +159,7 @@ input-submit {
     display: inline-block;
     margin: 0;
     font-size: var(--font-base);
-    padding-left: var(--height-checkbox);
+    padding-left: calc(var(--height-checkbox) + 10px);
     min-height: var(--height-checkbox);
 
     &::before {
