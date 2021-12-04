@@ -21,6 +21,12 @@ $contentMaxWidth: 60rem;
         //background-color: var(--color-card-background-highlighted);
       }
     }
+
+    &:hover {
+      .notification__text {
+        color: var(--color-primary);
+      }
+    }
   }
 
   .commentCreate,
