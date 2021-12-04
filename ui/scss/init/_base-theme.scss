@@ -133,10 +133,10 @@
   --color-comment-threadline-hover: var(--color-gray-4);
 
   // Icons
-  --color-follow-bg: #ffd4da;
+  --color-follow-bg: var(--color-header-background);
   --color-follow-icon: #e2495e;
-  --color-view-bg: var(--color-secondary-alt);
-  --color-view-icon: var(--color-secondary);
+  --color-view-bg: var(--color-header-background);
+  --color-view-icon: #0f9f11;
 
   // Snack
   --color-snack-bg: var(--color-primary);

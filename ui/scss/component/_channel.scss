@@ -78,6 +78,7 @@ $actions-z-index: 2;
   height: 5rem;
   width: 5rem;
   background-size: cover;
+  //margin-left: var(--spacing-s);
   margin-right: var(--spacing-m);
 }
 
@@ -281,13 +282,13 @@ $actions-z-index: 2;
 }
 
 .menu__list.channel__list {
-  margin-top: var(--spacing-xs);
+  //margin-top: var(--spacing-xs);
   margin-left: 0;
   padding: 0;
   border-radius: var(--border-radius);
   background: transparent;
   max-height: 15rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   [role='menuitem'] {
     margin: 0;
@@ -306,9 +307,9 @@ $actions-z-index: 2;
 
     &:first-child {
       .channel__list-item {
-        border-top: 1px solid var(--color-border);
-        border-top-left-radius: var(--border-radius);
-        border-top-right-radius: var(--border-radius);
+        //border-top: 1px solid var(--color-border);
+        //border-top-left-radius: var(--border-radius);
+        //border-top-right-radius: var(--border-radius);
       }
     }
 
@@ -321,8 +322,8 @@ $actions-z-index: 2;
 
     .channel__list-item {
       padding-right: calc(var(--spacing-xl) + var(--spacing-s) * 2);
-      border-left: 1px solid var(--color-border);
-      border-right: 1px solid var(--color-border);
+      //border-left: 1px solid var(--color-border);
+      //border-right: 1px solid var(--color-border);
     }
   }
 }
@@ -332,7 +333,7 @@ $actions-z-index: 2;
   align-items: center;
   background-color: var(--color-header-background);
   padding: var(--spacing-s);
-  border-bottom: 1px solid var(--color-border);
+  //border-bottom: 1px solid var(--color-border);
   overflow: hidden;
 
   .channel-thumbnail {
@@ -362,7 +363,7 @@ $actions-z-index: 2;
 }
 
 .channel__list-item--selected {
-  border: 1px solid var(--color-border);
+  //border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
 
   .icon--ChevronDown {

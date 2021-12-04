@@ -8,8 +8,8 @@ $contentMaxWidth: 60rem;
 
 .notification_list {
   .notification__wrapper {
-    //border-top: 1px solid var(--color-border);
-    margin-bottom: 6px;
+    border-radius: var(--border-radius);
+    margin-bottom: var(--spacing-xxs);
     background-color: var(--color-header-background);
 
     &:first-of-type {
@@ -23,6 +23,7 @@ $contentMaxWidth: 60rem;
     }
 
     &:hover {
+      cursor: pointer;
       .notification__text {
         color: var(--color-primary);
       }

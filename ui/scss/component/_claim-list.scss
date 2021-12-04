@@ -75,12 +75,15 @@
 .claim-preview__wrapper {
   @include font-sans;
   padding: var(--spacing-m);
-  padding-left: 0px;
-  padding-right: 0px;
+  //padding-left: 0px;
+  //padding-right: 0px;
+  border-radius: var(--border-radius);
   list-style: none;
+  background: var(--color-header-background);
 
   .claim__menu-button {
-    right: 0px;
+    right: var(--spacing-m);
+    bottom: 80px;
   }
 
   &:hover {
@@ -110,17 +113,18 @@
 }
 
 .claim-preview__wrapper--channel {
+  border-radius: 2px;
+  background: var(--color-header-background);
+  border-bottom: var(--spacing-xxs) solid var(--color-background);
+
   .claim-preview__text {
-    margin-right: 10px;
+    //margin-right: 10px;
   }
   .claim__menu-button {
-    margin-right: 10px;
+    //margin-right: 10px;
   }
 
   &:hover {
-    background: var(--color-header-background);
-    box-shadow: -3px 0 0 5px var(--color-comment-highlighted);
-    border-radius: 2px;
   }
 }
 

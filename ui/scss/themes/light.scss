@@ -124,10 +124,10 @@
   --color-modal-background: var(--color-card-background);
 
   // Icons
-  --color-follow-bg: #ffd4da;
+  --color-follow-bg: var(--color-header-background);
   --color-follow-icon: #e2495e;
-  --color-view-bg: var(--color-secondary-alt);
-  --color-view-icon: var(--color-secondary);
+  --color-view-bg: var(--color-header-background);
+  --color-view-icon: #33c435;
 
   // Editor
   --color-editor-cursor: var(--color-text);
