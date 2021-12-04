@@ -46,6 +46,10 @@
   &:last-of-type {
     margin-bottom: 0;
   }
+
+  .claim-preview__wrapper {
+    background: var(--color-header-background);
+  }
 }
 
 .card-collection-selector {
