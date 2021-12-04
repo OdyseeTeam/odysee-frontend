@@ -647,7 +647,7 @@ svg + .button__label {
 }
 
 .button-toggle--active {
-  color: var(--color-button-toggle-text);
+  color: var(--color-button-toggle-text) !important;
   background-color: var(--color-button-toggle-bg) !important;
 
   svg {
