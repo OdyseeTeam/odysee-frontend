@@ -327,6 +327,9 @@ $actions-z-index: 2;
 
       .icon__wrapper {
         background-color: var(--color-primary);
+        .icon {
+          stroke: white;
+        }
       }
 
       &:hover {
