@@ -324,6 +324,18 @@ $actions-z-index: 2;
       padding-right: calc(var(--spacing-xl) + var(--spacing-s) * 2);
       //border-left: 1px solid var(--color-border);
       //border-right: 1px solid var(--color-border);
+
+      .icon__wrapper {
+        background-color: var(--color-primary);
+      }
+
+      &:hover {
+        .icon__wrapper {
+          .icon {
+            stroke: white;
+          }
+        }
+      }
     }
   }
 }
