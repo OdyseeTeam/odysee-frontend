@@ -384,6 +384,12 @@ $actions-z-index: 2;
   .icon--ChevronDown {
     margin-left: var(--spacing-l);
   }
+
+  &:hover {
+    .claim-preview__title {
+      color: white;
+    }
+  }
 }
 
 .channel__list-text {
