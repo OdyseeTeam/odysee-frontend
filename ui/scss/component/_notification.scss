@@ -98,7 +98,7 @@ $contentMaxWidth: 60rem;
 
 .notification__wrapper--unread {
   //background-color: var(--color-header-background);
-  box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
+  box-shadow: 6px 0px 0px 0px var(--color-primary) inset;
   justify-content: space-between;
 
   @media (max-width: $breakpoint-small) {
