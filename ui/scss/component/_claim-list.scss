@@ -75,14 +75,13 @@
 .claim-preview__wrapper {
   @include font-sans;
   padding: var(--spacing-m);
-  //padding-left: 0px;
-  //padding-right: 0px;
+  padding-left: 0px;
+  padding-right: 0px;
   border-radius: var(--border-radius);
   list-style: none;
-  //background: var(--color-header-background);
 
   .claim__menu-button {
-    right: var(--spacing-m);
+    right: 0px;
     bottom: 80px;
   }
 
@@ -116,15 +115,12 @@
   border-radius: 2px;
   background: var(--color-header-background);
   border-bottom: var(--spacing-xxs) solid var(--color-background);
+  padding-left: var(--spacing-m);
+  padding-right: var(--spacing-m);
 
-  .claim-preview__text {
-    //margin-right: 10px;
-  }
   .claim__menu-button {
-    //margin-right: 10px;
-  }
-
-  &:hover {
+    right: var(--spacing-m);
+    bottom: 80px;
   }
 }
 
