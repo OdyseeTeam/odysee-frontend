@@ -49,16 +49,23 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   }
 
   const checkDescriptionForBlacklistWords = AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION === 'true';
-  const termsToCheck = AD_KEYWORD_BLOCKLIST.split(',');
-  // eslint-disable-next-line no-unused-vars
+
   let triggerBlacklist = false;
-  if (title) {
-    for (const term of termsToCheck) {
-      if (title.includes(term)) {
-        triggerBlacklist = true;
-      }
-      if (description && checkDescriptionForBlacklistWords && description.includes(term)) {
-        triggerBlacklist = true;
+  if (AD_KEYWORD_BLOCKLIST) {
+    const termsToCheck = AD_KEYWORD_BLOCKLIST.split(',');
+    // eslint-disable-next-line no-unused-vars
+
+    if (title) {
+      for (const term of termsToCheck) {
+        if (uri && uri.name && uri.name.includes(term)) {
+          triggerBlacklist = true;
+        }
+        if (title.includes(term)) {
+          triggerBlacklist = true;
+        }
+        if (description && checkDescriptionForBlacklistWords && description.includes(term)) {
+          triggerBlacklist = true;
+        }
       }
     }
   }
