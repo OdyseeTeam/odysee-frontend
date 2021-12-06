@@ -5,7 +5,7 @@ import { handleActions } from 'util/redux-utils';
 const defaultState: LivestreamState = {
   fetchingById: {},
   viewersById: {},
-  fetchingActiveLivestreams: false,
+  fetchingActiveLivestreams: 'pending',
   activeLivestreams: null,
   activeLivestreamsLastFetchedDate: 0,
   activeLivestreamsLastFetchedOptions: {},

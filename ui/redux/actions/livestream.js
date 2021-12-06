@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import { doClaimSearch } from 'redux/actions/claims';
-import { LIVESTREAM_LIVE_API } from 'constants/livestream';
+import { LIVESTREAM_LIVE_API, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
 import moment from 'moment';
 
 export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
@@ -57,6 +57,7 @@ export const doFetchActiveLivestreams = (
 
     dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED });
 
+    // Find all channels that are currently broadcasting a live stream.
     fetch(LIVESTREAM_LIVE_API)
       .then((res) => res.json())
       .then((res) => {
@@ -74,11 +75,26 @@ export const doFetchActiveLivestreams = (
           return acc;
         }, {});
 
-        dispatch(
-          // ** Creators can have multiple livestream claims (each with unique
-          // chat), and all of them will play the same stream when creator goes
-          // live. The UI usually just wants to report the latest claim, so we
-          // query that store it in `latestClaimUri`.
+        // Find the first upcoming claim (if one exists) for each channel that has been determined to be actively broadcasting a stream.
+        // If the claim is scheduled to "start soon" we'll show it instead of the most recent livestream claim.
+        // @Note: We'll manually filter out any that aren't "starting soon" and ideally in the future the API will allow querying by a date range.
+        const searchUpcomingClaims = dispatch(
+          doClaimSearch({
+            page: 1,
+            page_size: nextOptions.page_size,
+            has_no_source: true,
+            channel_ids: Object.keys(activeLivestreams),
+            claim_type: ['stream'],
+            order_by: ['^release_time'],
+            release_time: `>${moment().unix()}`,
+            limit_claims_per_channel: 1,
+            no_totals: true,
+          })
+        );
+
+        // Find the most recent claims for the channels that have been determined to be actively broadcasting a stream.
+        // These newest claims are considered the "live" ones.
+        const searchMostRecentClaims = dispatch(
           doClaimSearch({
             page: 1,
             page_size: nextOptions.page_size,
@@ -90,17 +106,32 @@ export const doFetchActiveLivestreams = (
             limit_claims_per_channel: 1, // **
             no_totals: true,
           })
-        )
-          .then((resolveInfo) => {
-            Object.values(resolveInfo).forEach((x) => {
+        );
+
+        Promise.all([searchUpcomingClaims, searchMostRecentClaims])
+          .then(([upcomingClaims, mostRecentClaims]) => {
+            const startsSoonMoment = moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes');
+            const startingSoonClaims = Object.values(upcomingClaims).filter((claim) => {
               // $FlowFixMe
-              const channelId = x.stream.signing_channel.claim_id;
+              return moment(claim.stream.value.release_time * 1000).isBefore(startsSoonMoment);
+            });
+
+            Object.values(mostRecentClaims).forEach((mostRecentClaim) => {
+              // $FlowFixMe
+              const channelId = mostRecentClaim.stream.signing_channel.claim_id;
+              const upcomingClaim = startingSoonClaims.find((claim) => {
+                // $FlowFixMe
+                return claim.stream.signing_channel.claim_id === channelId;
+              });
+
+              const claim = upcomingClaim || mostRecentClaim;
+
               activeLivestreams[channelId] = {
                 ...activeLivestreams[channelId],
                 // $FlowFixMe
-                latestClaimId: x.stream.claim_id,
+                latestClaimId: claim.stream.claim_id,
                 // $FlowFixMe
-                latestClaimUri: x.stream.canonical_url,
+                latestClaimUri: claim.stream.canonical_url,
               };
             });
 

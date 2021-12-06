@@ -5,7 +5,6 @@ import PublishStreamReleaseDate from './view';
 
 const select = (state) => ({
   releaseTime: makeSelectPublishFormValue('releaseTime')(state),
-  releaseTimeEdited: makeSelectPublishFormValue('releaseTimeEdited')(state),
 });
 
 const perform = (dispatch) => ({

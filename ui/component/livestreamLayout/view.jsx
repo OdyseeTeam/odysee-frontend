@@ -40,7 +40,7 @@ export default function LivestreamLayout(props: Props) {
           })}
         >
           <div className="file-viewer">
-            {showLivestream && (
+            {(showLivestream || !showScheduledInfo) && (
               <iframe
                 src={`${LIVESTREAM_EMBED_URL}/${channelClaimId}?skin=odysee&autoplay=1`}
                 scrolling="no"

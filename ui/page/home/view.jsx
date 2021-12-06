@@ -29,6 +29,7 @@ type Props = {
   homepageData: any,
   activeLivestreams: any,
   doFetchActiveLivestreams: () => void,
+  fetchingActiveLivestreams: boolean,
 };
 
 function HomePage(props: Props) {
@@ -40,6 +41,7 @@ function HomePage(props: Props) {
     homepageData,
     activeLivestreams,
     doFetchActiveLivestreams,
+    fetchingActiveLivestreams,
   } = props;
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
@@ -258,17 +260,27 @@ function HomePage(props: Props) {
           </p>
         </div>
       )}
+
       {/* @if TARGET='web' */}
       {SIMPLE_SITE && <Meme />}
       <Ads type="homepage" />
       {/* @endif */}
 
-      {authenticated && channelIds.length > 0 && <ScheduledStreams channelIds={channelIds} tileLayout />}
-
-      {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
-        // add pins here
-        return getRowElements(title, route, link, icon, help, options, index, pinUrls);
-      })}
+      {!fetchingActiveLivestreams && (
+        <>
+          {authenticated && channelIds.length > 0 && (
+            <ScheduledStreams
+              channelIds={channelIds}
+              tileLayout
+              liveUris={getLivestreamUris(activeLivestreams, channelIds)}
+            />
+          )}
+          {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
+            // add pins here
+            return getRowElements(title, route, link, icon, help, options, index, pinUrls);
+          })}
+        </>
+      )}
       {/* @if TARGET='web' */}
       <Pixel type={'retargeting'} />
       {/* @endif */}

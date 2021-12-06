@@ -6,7 +6,6 @@ import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import FileViewCountInline from 'component/fileViewCountInline';
 import { parseURI } from 'util/lbryURI';
-import moment from 'moment';
 
 type Props = {
   uri: string,
@@ -15,27 +14,29 @@ type Props = {
   type: string,
   beginPublish: (?string) => void,
   isLivestream: boolean,
+  isLivestreamActive: boolean,
   fetchSubCount: (string) => void,
   subCount: number,
 };
 
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
-  const { pending, uri, claim, type, beginPublish, isLivestream, fetchSubCount, subCount } = props;
+  const {
+    pending,
+    uri,
+    claim,
+    type,
+    beginPublish,
+    isLivestream,
+    isLivestreamActive = false,
+    fetchSubCount,
+    subCount,
+  } = props;
   const isChannel = claim && claim.value_type === 'channel';
   const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
   const claimId = (claim && claim.claim_id) || '0';
   const formattedSubCount = Number(subCount).toLocaleString();
-
-  let isScheduledLivestream = false;
-  let livestreamReleaseDate;
-
-  if (claim && isLivestream) {
-    const releaseMoment = moment(Number(claim.value.release_time) * 1000);
-    isScheduledLivestream = releaseMoment.isAfter();
-    livestreamReleaseDate = releaseMoment.format('MMM Do, h:mm A');
-  }
 
   React.useEffect(() => {
     if (isChannel) {
@@ -67,8 +68,12 @@ function ClaimPreviewSubtitle(props: Props) {
               {!isChannel &&
                 (isLivestream && ENABLE_NO_SOURCE_CLAIMS ? (
                   <>
-                    {__('Livestream')}
-                    {isScheduledLivestream && <span> / {livestreamReleaseDate}</span>}
+                    {isLivestreamActive && __('Streaming Now')}
+                    {!isLivestreamActive && (
+                      <>
+                        {__('Livestream')} <DateTime timeAgo uri={uri} />
+                      </>
+                    )}
                   </>
                 ) : (
                   <>

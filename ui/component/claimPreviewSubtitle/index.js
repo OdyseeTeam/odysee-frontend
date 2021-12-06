@@ -5,15 +5,17 @@ import { doClearPublish, doPrepareEdit } from 'redux/actions/publish';
 import { push } from 'connected-react-router';
 import ClaimPreviewSubtitle from './view';
 import { doFetchSubCount, selectSubCountForUri } from 'lbryinc';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
   const isChannel = claim && claim.value_type === 'channel';
-
+  const isLivestream = isStreamPlaceholderClaim(claim);
   return {
     claim,
     pending: makeSelectClaimIsPending(props.uri)(state),
-    isLivestream: isStreamPlaceholderClaim(claim),
+    isLivestream,
+    isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
     subCount: isChannel ? selectSubCountForUri(state, props.uri) : 0,
   };
 };

@@ -45,6 +45,7 @@ type Props = {
   showNoSourceClaims?: boolean,
   onClick?: (e: any, claim?: ?Claim, index?: number) => void,
   maxClaimRender?: number,
+  excludeUris?: Array<string>,
 };
 
 export default function ClaimList(props: Props) {
@@ -76,6 +77,7 @@ export default function ClaimList(props: Props) {
     showNoSourceClaims,
     onClick,
     maxClaimRender,
+    excludeUris = [],
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -86,9 +88,11 @@ export default function ClaimList(props: Props) {
   const urisLength = (uris && uris.length) || 0;
 
   let tileUris = (prefixUris || []).concat(uris);
+  tileUris = tileUris.filter((uri) => !excludeUris.includes(uri));
   if (maxClaimRender) tileUris = tileUris.slice(0, maxClaimRender);
 
   let sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
+  sortedUris = sortedUris.filter((uri) => !excludeUris.includes(uri));
   if (maxClaimRender) sortedUris = sortedUris.slice(0, maxClaimRender);
 
   const noResultMsg = searchInLanguage

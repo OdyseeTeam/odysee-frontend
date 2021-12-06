@@ -24,7 +24,7 @@ declare type LivestreamReplayData = Array<LivestreamReplayItem>;
 declare type LivestreamState = {
   fetchingById: {},
   viewersById: {},
-  fetchingActiveLivestreams: boolean,
+  fetchingActiveLivestreams: boolean | string,
   activeLivestreams: ?LivestreamInfo,
   activeLivestreamsLastFetchedDate: number,
   activeLivestreamsLastFetchedOptions: {},

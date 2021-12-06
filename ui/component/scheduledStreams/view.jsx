@@ -7,21 +7,23 @@ import * as ICONS from 'constants/icons';
 import { useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
+import { LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 
 type Props = {
   channelIds: Array<string>,
   tileLayout: boolean,
+  liveUris: Array<string>,
 };
 
 const ScheduledStreams = (props: Props) => {
-  const { channelIds, tileLayout } = props;
+  const { channelIds, tileLayout, liveUris = [] } = props;
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
   const [totalUpcomingLivestreams, setTotalUpcomingLivestreams] = React.useState(0);
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
-  const showUpcomingLivestreams = React.useMemo(() => totalUpcomingLivestreams > 0, [totalUpcomingLivestreams]);
+  const showUpcomingLivestreams = totalUpcomingLivestreams > 0;
 
   const upcomingMax = React.useMemo(() => {
     if (showAllUpcoming) return 50;
@@ -40,7 +42,7 @@ const ScheduledStreams = (props: Props) => {
         hasNoSource
         orderBy={CS.ORDER_BY_NEW_ASC}
         tileLayout={tileLayout}
-        releaseTime={`>${moment().startOf('minute').unix()}`}
+        releaseTime={`>${moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes').startOf('minute').unix()}`}
         hideAdvancedFilter
         hideFilters
         infiniteScroll={false}
@@ -48,6 +50,7 @@ const ScheduledStreams = (props: Props) => {
         hideLayoutButton
         header={__('Upcoming Livestreams')}
         maxClaimRender={upcomingMax}
+        excludeUris={liveUris}
         loadedCallback={(total) => {
           setTotalUpcomingLivestreams(total);
         }}

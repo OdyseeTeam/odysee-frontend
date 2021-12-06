@@ -2,6 +2,7 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
 import DateTimePicker from 'react-datetime-picker';
+import moment from 'moment';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -13,32 +14,33 @@ function dateToLinuxTimestamp(date: Date) {
 
 type Props = {
   releaseTime: ?number,
-  releaseTimeEdited: ?number,
   updatePublishForm: ({}) => void,
 };
 const PublishStreamReleaseDate = (props: Props) => {
   const { releaseTime, updatePublishForm } = props;
 
-  const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : new Date());
-
-  const [publishRightNow, setPublishRightNow] = React.useState(!releaseTime);
+  const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : 'DEFAULT');
   const [publishLater, setPublishLater] = React.useState(Boolean(releaseTime));
 
   const handleToggle = () => {
-    setPublishLater(!publishLater);
-    setPublishRightNow(!publishRightNow);
+    const shouldPublishLater = !publishLater;
+    setPublishLater(shouldPublishLater);
+    onDateTimePickerChanged(
+      shouldPublishLater ? moment().add('1', 'hour').add('30', 'minutes').startOf('hour').toDate() : 'DEFAULT'
+    );
   };
-
-  React.useEffect(() => {
-    if (publishRightNow) setDate(new Date());
-  }, [publishRightNow]);
 
   const onDateTimePickerChanged = (value) => {
-    updatePublishForm({ releaseTimeEdited: dateToLinuxTimestamp(value) });
-    setDate(value);
+    if (value === 'DEFAULT') {
+      setDate(undefined);
+      updatePublishForm({ releaseTimeEdited: undefined });
+    } else {
+      setDate(value);
+      updatePublishForm({ releaseTimeEdited: dateToLinuxTimestamp(value) });
+    }
   };
 
-  const helpText = publishRightNow
+  const helpText = !publishLater
     ? __("Requires some wait time. You'll go live soon.")
     : __('Your followers will be notified of the scheduled date and time of your stream.');
 
@@ -52,7 +54,7 @@ const PublishStreamReleaseDate = (props: Props) => {
           name="rightNow"
           disabled={false}
           onChange={handleToggle}
-          checked={publishRightNow}
+          checked={!publishLater}
           label={__('Right away')}
         />
 
@@ -66,7 +68,6 @@ const PublishStreamReleaseDate = (props: Props) => {
             label={__('At a Later Date')}
           />
         </div>
-
         {publishLater && (
           <div className="form-field-date-picker mb-0 controls md:ml-m">
             <DateTimePicker
@@ -77,7 +78,7 @@ const PublishStreamReleaseDate = (props: Props) => {
               format="y-MM-dd h:mm a"
               disableClock
               clearIcon={null}
-              minDate={new Date()}
+              minDate={moment().add('30', 'minutes').toDate()}
             />
           </div>
         )}

@@ -13,13 +13,15 @@ type Props = {
 export default function LivestreamScheduledInfo(props: Props) {
   const { release } = props;
   const [startDateFromNow, setStartDateFromNow] = useState(release.fromNow());
-  const [inPast, setInPast] = useState(false);
+  const [inPast, setInPast] = useState('pending');
 
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    const calcTime = () => {
       setStartDateFromNow(release.fromNow());
       setInPast(release.isBefore(moment()));
-    }, 1000);
+    };
+    calcTime();
+    const intervalId = setInterval(calcTime, 1000);
     return () => {
       clearInterval(intervalId);
     };
@@ -28,14 +30,20 @@ export default function LivestreamScheduledInfo(props: Props) {
   const startDate = release.format('MMMM Do, h:mm a');
 
   return (
-    <div className={'livestream-scheduled'}>
-      <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
-      <p className={'livestream-scheduled__time'}>
-        {!inPast && <span>Live in {startDateFromNow}</span>}
-        {inPast && <span>{__('Starting Soon')}</span>}
-        <br />
-        <span className={'livestream-scheduled__date'}>{startDate}</span>
-      </p>
-    </div>
+    inPast !== 'pending' && (
+      <div className={'livestream-scheduled'}>
+        <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
+        <p className={'livestream-scheduled__time'}>
+          {!inPast && (
+            <span>
+              <span>Live {startDateFromNow}</span>
+              <br />
+              <span className={'livestream-scheduled__date'}>{startDate}</span>
+            </span>
+          )}
+          {inPast && <span>{__('Starting Soon')}</span>}
+        </p>
+      </div>
+    )
   );
 }

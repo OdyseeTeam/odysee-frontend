@@ -99,6 +99,7 @@ type Props = {
   loadedCallback?: (number) => void,
   maxClaimRender?: number,
   useSkeletonScreen?: boolean,
+  excludeUris?: Array<string>,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -167,6 +168,7 @@ function ClaimListDiscover(props: Props) {
     loadedCallback,
     maxClaimRender,
     useSkeletonScreen = true,
+    excludeUris = [],
   } = props;
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
@@ -478,7 +480,9 @@ function ClaimListDiscover(props: Props) {
   const renderUris = uris || claimSearchResult;
   injectPinUrls(renderUris, orderParam, pins);
 
-  if (typeof loadedCallback === 'function') loadedCallback(renderUris?.length || 0);
+  React.useEffect(() => {
+    if (typeof loadedCallback === 'function') loadedCallback(renderUris?.length || 0);
+  }, [loadedCallback, renderUris]);
 
   // **************************************************************************
   // Helpers
@@ -632,6 +636,7 @@ function ClaimListDiscover(props: Props) {
             showNoSourceClaims={showNoSourceClaims}
             empty={empty}
             maxClaimRender={maxClaimRender}
+            excludeUris={excludeUris}
           />
           {loading && useSkeletonScreen && (
             <div className="claim-grid">
@@ -666,6 +671,7 @@ function ClaimListDiscover(props: Props) {
             showNoSourceClaims={hasNoSource || showNoSourceClaims}
             empty={empty}
             maxClaimRender={maxClaimRender}
+            excludeUris={excludeUris}
           />
           {loading &&
             useSkeletonScreen &&

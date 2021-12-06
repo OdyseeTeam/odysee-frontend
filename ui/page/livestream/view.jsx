@@ -6,6 +6,7 @@ import LivestreamLayout from 'component/livestreamLayout';
 import analytics from 'analytics';
 import moment from 'moment';
 import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
+import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 
 const LivestreamComments = lazyImport(() => import('component/livestreamComments' /* webpackChunkName: "comments" */));
 
@@ -52,10 +53,14 @@ export default function LivestreamPage(props: Props) {
     };
   }, [claimId, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
 
+  const [isBroadcastingInitialized, setIsBroadcastingInitialized] = React.useState(false);
   const [isBroadcasting, setIsBroadcasting] = React.useState('pending');
   const livestreamChannelId = channelClaim && channelClaim.signing_channel && channelClaim.signing_channel.claim_id;
 
-  // Manage isLive status
+  React.useEffect(() => {
+    if (isBroadcasting !== 'pending') setIsBroadcastingInitialized(true);
+  }, [isBroadcasting]);
+
   React.useEffect(() => {
     if (!livestreamChannelId) {
       setIsBroadcasting(false);
@@ -80,37 +85,41 @@ export default function LivestreamPage(props: Props) {
   };
   // -----------------------------
 
-  const claimReleaseInFuture = () => release.isAfter();
-
-  const claimReleaseInPast = () => release.isBefore();
-
-  const claimReleaseStartingSoon = () => release.isBetween(moment(), moment().add(5, 'minutes'));
-
-  const claimReleaseStartedRecently = () => release.isBetween(moment().subtract(5, 'minutes'), moment());
-
-  const checkShowLivestream = () => isBroadcasting && (claimReleaseInPast() || claimReleaseStartingSoon());
-
-  const checkShowScheduledInfo = () =>
-    (!isBroadcasting && claimReleaseInFuture()) ||
-    (!isBroadcasting && claimReleaseStartedRecently()) ||
-    (isBroadcasting && claimReleaseInFuture() && !claimReleaseStartingSoon());
-
-  const checkCommentsDisabled = () => chatDisabled || (claimReleaseInFuture() && !claimReleaseStartingSoon());
-
-  const [showLivestream, setShowLivestream] = React.useState(checkShowLivestream());
-  const [showScheduledInfo, setShowScheduledInfo] = React.useState(checkShowScheduledInfo());
-  const [hideComments, setHideComments] = React.useState(checkCommentsDisabled());
-
-  const calculateStreamReleaseState = () => {
-    setShowLivestream(checkShowLivestream());
-    setShowScheduledInfo(checkShowScheduledInfo());
-    setHideComments(checkCommentsDisabled());
-  };
+  const [showLivestream, setShowLivestream] = React.useState(false);
+  const [showScheduledInfo, setShowScheduledInfo] = React.useState(false);
+  const [hideComments, setHideComments] = React.useState(false);
 
   React.useEffect(() => {
+    if (!isBroadcastingInitialized) return;
+
+    const claimReleaseInFuture = () => release.isAfter();
+
+    const claimReleaseInPast = () => release.isBefore();
+
+    const claimReleaseStartingSoon = () =>
+      release.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'));
+
+    const claimReleaseStartedRecently = () =>
+      release.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment());
+
+    const checkShowLivestream = () => isBroadcasting === true && (claimReleaseInPast() || claimReleaseStartingSoon());
+
+    const checkShowScheduledInfo = () =>
+      (!isBroadcasting && (claimReleaseInFuture() || claimReleaseStartedRecently())) ||
+      (isBroadcasting === true && claimReleaseInFuture() && !claimReleaseStartingSoon());
+
+    const checkCommentsDisabled = () => chatDisabled || (claimReleaseInFuture() && !claimReleaseStartingSoon());
+
+    const calculateStreamReleaseState = () => {
+      setShowLivestream(checkShowLivestream());
+      setShowScheduledInfo(checkShowScheduledInfo());
+      setHideComments(checkCommentsDisabled());
+    };
+
+    calculateStreamReleaseState();
     const intervalId = setInterval(calculateStreamReleaseState, 1000);
     return () => clearInterval(intervalId);
-  }, [release, isBroadcasting]);
+  }, [isBroadcastingInitialized, chatDisabled, isBroadcasting, release]);
 
   const stringifiedClaim = JSON.stringify(claim);
   React.useEffect(() => {
@@ -127,7 +136,7 @@ export default function LivestreamPage(props: Props) {
       if (!isAuthenticated) {
         const uri = jsonClaim.signing_channel && jsonClaim.signing_channel.permanent_url;
         if (uri) {
-          doUserSetReferrer(uri.replace('lbry://', ''));
+          doUserSetReferrer(uri.replace('lbry://', '')); //
         }
       }
     }
