@@ -57,7 +57,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
 
     if (title) {
       for (const term of termsToCheck) {
-        if (uri && uri.name && uri.name.includes(term)) {
+        if (claim && claim.name && claim.name.includes(term)) {
           triggerBlacklist = true;
         }
         if (title.includes(term)) {
