@@ -6,9 +6,8 @@ import { selectUser, selectAccessToken, selectUserVerifiedEmail } from 'redux/se
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { doFetchChannelListMine, doFetchCollectionListMine, doResolveUris } from 'redux/actions/claims';
 import { selectMyChannelUrls } from 'redux/selectors/claims';
-import * as SETTINGS from 'constants/settings';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
-import { selectClientSetting, selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
+import { selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
 import {
   selectIsUpgradeAvailable,
   selectAutoUpdateDownloaded,
@@ -28,7 +27,6 @@ const select = (state) => ({
   accessToken: selectAccessToken(state),
   theme: selectThemePath(state),
   language: selectLanguage(state),
-  syncEnabled: selectClientSetting(state, SETTINGS.ENABLE_SYNC),
   languages: selectLoadedLanguages(state),
   autoUpdateDownloaded: selectAutoUpdateDownloaded(state),
   isUpgradeAvailable: selectIsUpgradeAvailable(state),
