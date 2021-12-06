@@ -30,6 +30,7 @@ type Props = {
   claim: Claim,
   isMature: boolean,
   authenticated: boolean,
+  triggerBlacklist: boolean
 };
 
 function removeIfExists(querySelector) {
@@ -43,7 +44,12 @@ function Ads(props: Props) {
     type = 'video',
     small,
     authenticated,
+    triggerBlacklist,
   } = props;
+
+  if(triggerBlacklist){
+    return false;
+  }
 
   // load ad and tags here
   let scriptUrlToUse;

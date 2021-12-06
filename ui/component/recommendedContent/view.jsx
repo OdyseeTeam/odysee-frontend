@@ -1,5 +1,5 @@
 // @flow
-import { SHOW_ADS } from 'config';
+import { SHOW_ADS, AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION } from 'config';
 import React from 'react';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
@@ -13,6 +13,8 @@ import RecSys from 'recsys';
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
 
+console.log(AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION);
+
 type Props = {
   uri: string,
   recommendedContentUris: Array<string>,
@@ -22,6 +24,7 @@ type Props = {
   isAuthenticated: boolean,
   claim: ?StreamClaim,
   claimId: string,
+  metadata: any,
 };
 
 export default React.memo<Props>(function RecommendedContent(props: Props) {
@@ -34,7 +37,31 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     isAuthenticated,
     claim,
     claimId,
+    metadata,
   } = props;
+
+  let { description, title } = metadata;
+
+  if(description){
+    description = description.toLowerCase();
+  }
+
+  if(title){
+    title = title.toLowerCase();
+  }
+
+
+  const checkDescriptionForBlacklistWords = AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION === 'true';
+  const termsToCheck = AD_KEYWORD_BLOCKLIST.split(',');
+  let triggerBlacklist = false;
+  if(description && title){
+    for (const term of termsToCheck) {
+      if (description.includes(term) || title.includes(term)) {
+        triggerBlacklist = true;
+      };
+    };
+  }
+
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
   const channelName = signingChannel ? signingChannel.name : null;
@@ -99,7 +126,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               loading={isSearching}
               uris={recommendedContentUris}
               hideMenu={isMobile}
-              injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} />}
+              injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} triggerBlacklist />}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
