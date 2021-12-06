@@ -76,8 +76,8 @@ type Props = {
   syncLoop: (?boolean) => void,
   currentModal: any,
   syncFatalError: boolean,
-  activeChannelClaim: ?ChannelClaim,
-  myChannelUrls: ?Array<string>,
+  activeChannelId: ?string,
+  myChannelClaimIds: ?Array<string>,
   subscriptions: Array<Subscription>,
   setActiveChannelIfNotSet: () => void,
   setIncognito: (boolean) => void,
@@ -111,8 +111,8 @@ function App(props: Props) {
     syncLoop,
     currentModal,
     syncFatalError,
-    myChannelUrls,
-    activeChannelClaim,
+    myChannelClaimIds,
+    activeChannelId,
     setActiveChannelIfNotSet,
     setIncognito,
     fetchModBlockedList,
@@ -149,10 +149,10 @@ function App(props: Props) {
   const shouldHideNag = pathname.startsWith(`/$/${PAGES.EMBED}`) || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
   const userId = user && user.id;
   const useCustomScrollbar = !IS_MAC;
-  const hasMyChannels = myChannelUrls && myChannelUrls.length > 0;
-  const hasNoChannels = myChannelUrls && myChannelUrls.length === 0;
+  const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
+  const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const hasActiveChannelClaim = activeChannelClaim !== undefined;
+  const hasActiveChannelClaim = activeChannelId !== undefined;
   const isPersonalized = !IS_WEB || hasVerifiedEmail;
   const renderFiledrop = !IS_WEB || isAuthenticated;
   const isOnline = navigator.onLine;

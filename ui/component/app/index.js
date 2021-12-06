@@ -5,14 +5,14 @@ import { doFetchAccessToken, doUserSetReferrer } from 'redux/actions/user';
 import { selectUser, selectAccessToken, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { doFetchChannelListMine, doFetchCollectionListMine, doResolveUris } from 'redux/actions/claims';
-import { selectMyChannelUrls } from 'redux/selectors/claims';
+import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
 import { selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
 import {
   selectIsUpgradeAvailable,
   selectAutoUpdateDownloaded,
   selectModal,
-  selectActiveChannelClaim,
+  selectActiveChannelId,
   selectIsReloadRequired,
 } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
@@ -38,8 +38,8 @@ const select = (state) => ({
   isAuthenticated: selectUserVerifiedEmail(state),
   currentModal: selectModal(state),
   syncFatalError: selectSyncFatalError(state),
-  activeChannelClaim: selectActiveChannelClaim(state),
-  myChannelUrls: selectMyChannelUrls(state),
+  activeChannelId: selectActiveChannelId(state),
+  myChannelClaimIds: selectMyChannelClaimIds(state),
   subscriptions: selectSubscriptions(state),
 });
 
