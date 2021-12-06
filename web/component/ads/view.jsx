@@ -47,10 +47,6 @@ function Ads(props: Props) {
     triggerBlacklist,
   } = props;
 
-  if(triggerBlacklist){
-    return false;
-  }
-
   // load ad and tags here
   let scriptUrlToUse;
   let tagNameToUse;
@@ -137,7 +133,7 @@ function Ads(props: Props) {
     </div>
   );
 
-  if (!SHOW_ADS) {
+  if (!SHOW_ADS || triggerBlacklist) {
     return false;
   }
   if (type === 'video') {

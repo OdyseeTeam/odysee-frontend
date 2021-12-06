@@ -13,8 +13,6 @@ import RecSys from 'recsys';
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
 
-console.log(AD_KEYWORD_BLOCKLIST, AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION);
-
 type Props = {
   uri: string,
   recommendedContentUris: Array<string>,
@@ -42,24 +40,27 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
 
   let { description, title } = metadata;
 
-  if(description){
+  if (description) {
     description = description.toLowerCase();
   }
 
-  if(title){
+  if (title) {
     title = title.toLowerCase();
   }
 
-
   const checkDescriptionForBlacklistWords = AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION === 'true';
   const termsToCheck = AD_KEYWORD_BLOCKLIST.split(',');
+  // eslint-disable-next-line no-unused-vars
   let triggerBlacklist = false;
-  if(description && title){
+  if (title) {
     for (const term of termsToCheck) {
-      if (description.includes(term) || title.includes(term)) {
+      if (title.includes(term)) {
         triggerBlacklist = true;
-      };
-    };
+      }
+      if (description && checkDescriptionForBlacklistWords && description.includes(term)) {
+        triggerBlacklist = true;
+      }
+    }
   }
 
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
@@ -126,7 +127,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               loading={isSearching}
               uris={recommendedContentUris}
               hideMenu={isMobile}
-              injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} triggerBlacklist />}
+              injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
