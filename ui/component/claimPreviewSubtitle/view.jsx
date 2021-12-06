@@ -14,24 +14,13 @@ type Props = {
   type: string,
   beginPublish: (?string) => void,
   isLivestream: boolean,
-  isLivestreamActive: boolean,
   fetchSubCount: (string) => void,
   subCount: number,
 };
 
 // previews used in channel overview and homepage (and other places?)
 function ClaimPreviewSubtitle(props: Props) {
-  const {
-    pending,
-    uri,
-    claim,
-    type,
-    beginPublish,
-    isLivestream,
-    isLivestreamActive = false,
-    fetchSubCount,
-    subCount,
-  } = props;
+  const { pending, uri, claim, type, beginPublish, isLivestream, fetchSubCount, subCount } = props;
   const isChannel = claim && claim.value_type === 'channel';
   const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
@@ -68,12 +57,7 @@ function ClaimPreviewSubtitle(props: Props) {
               {!isChannel &&
                 (isLivestream && ENABLE_NO_SOURCE_CLAIMS ? (
                   <>
-                    {isLivestreamActive && __('Streaming Now')}
-                    {!isLivestreamActive && (
-                      <>
-                        {__('Livestream')} <DateTime timeAgo uri={uri} />
-                      </>
-                    )}
+                    {__('Livestream')} <DateTime timeAgo uri={uri} />
                   </>
                 ) : (
                   <>

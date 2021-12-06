@@ -238,8 +238,7 @@ function ClaimPreviewTile(props: Props) {
                 <UriIndicator uri={uri} link />
                 <div className="claim-tile__about--counts">
                   <FileViewCountInline uri={uri} isLivestream={isLivestream} />
-                  {!isLivestreamActive && <DateTime timeAgo uri={uri} />}
-                  {isLivestreamActive && __('Streaming Now')}
+                  <DateTime timeAgo uri={uri} />
                 </div>
               </div>
             </React.Fragment>

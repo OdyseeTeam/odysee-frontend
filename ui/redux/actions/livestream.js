@@ -86,7 +86,7 @@ export const doFetchActiveLivestreams = (
             channel_ids: Object.keys(activeLivestreams),
             claim_type: ['stream'],
             order_by: ['^release_time'],
-            release_time: `>${moment().unix()}`,
+            release_time: `>${moment().subtract(5, 'minutes').unix()}`,
             limit_claims_per_channel: 1,
             no_totals: true,
           })
@@ -110,10 +110,11 @@ export const doFetchActiveLivestreams = (
 
         Promise.all([searchUpcomingClaims, searchMostRecentClaims])
           .then(([upcomingClaims, mostRecentClaims]) => {
-            const startsSoonMoment = moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes');
+            const startsSoonMoment = moment().startOf('minute').add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes');
+
             const startingSoonClaims = Object.values(upcomingClaims).filter((claim) => {
               // $FlowFixMe
-              return moment(claim.stream.value.release_time * 1000).isBefore(startsSoonMoment);
+              return moment(claim.stream.value.release_time * 1000).isSameOrBefore(startsSoonMoment);
             });
 
             Object.values(mostRecentClaims).forEach((mostRecentClaim) => {

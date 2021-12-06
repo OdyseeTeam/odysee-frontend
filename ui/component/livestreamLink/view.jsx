@@ -27,12 +27,8 @@ export default function LivestreamLink(props: Props) {
     // Don't search empty channels
     if (livestreamChannelId && !isChannelEmpty && isLivestreaming) {
       getActiveLivestream(livestreamChannelId)
-        .then((res) => {
-          if (res && res.items && res.items.length > 0) {
-            const claim = res.items[0];
-            // $FlowFixMe Too many Claim GenericClaim etc types.
-            setLivestreamClaim(claim);
-          }
+        .then((claim) => {
+          setLivestreamClaim(claim);
         })
         .catch(() => {});
     }
