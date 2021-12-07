@@ -11,7 +11,7 @@
 
   // Structure
   --color-border: #e8e8e8;
-  --color-background: #ffffff;
+  --color-background: #f5f5f5;
   --color-background-overlay: #21252980;
   --color-card-background: #ffffff;
   --color-card-background-highlighted: #fff5f5;
@@ -31,7 +31,7 @@
 
   // Header
   --color-header-button: var(--color-background);
-  --color-header-background: #f0f0f0;
+  --color-header-background: rgba(255, 255, 255, 0.9);
   --color-header-background-transparent: rgba(240, 240, 240, 0.95);
 
   // Button
@@ -152,4 +152,7 @@
   // Scrollbar
   --color-scrollbar-thumb-bg: rgba(0, 0, 0, 0.2);
   --color-scrollbar-track-bg: transparent;
+
+  --background-shade: linear-gradient(-180deg, rgba(245, 245, 245, 0.2) 2%, #ffffff),
+    radial-gradient(circle at 50% 117%, rgba(245, 245, 245, 0.2) 0, #ffffff 100%);
 }

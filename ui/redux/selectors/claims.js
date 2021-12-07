@@ -388,8 +388,13 @@ export const selectThumbnailForUri = createCachedSelector(selectClaimForUri, (cl
 
 export const makeSelectCoverForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
-    const cover = claim && claim.value && claim.value.cover;
-    return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    if (claim.value.cover) {
+      const cover = claim && claim.value && claim.value.cover;
+      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    } else {
+      const cover = claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.cover;
+      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    }
   });
 
 export const selectIsFetchingClaimListMine = (state: State) => selectState(state).isFetchingClaimListMine;

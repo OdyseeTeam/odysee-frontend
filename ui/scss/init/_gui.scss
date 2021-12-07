@@ -516,3 +516,28 @@ textarea {
     white-space: initial;
   }
 }
+
+.background-image {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+
+  background-color: var(--color-background);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  filter: blur(23px);
+  -webkit-filter: blur(23px);
+}
+
+.theme-dark {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  //background-image: linear-gradient(-180deg,rgba(73,74,79,0) 2%,#27282e),radial-gradient(circle at 50% 137%, rgba(73,74,79,0) 0, #27282e 100%);
+  background-image: var(--background-shade);
+}
