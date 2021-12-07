@@ -32,6 +32,10 @@ const ScheduledStreams = (props: Props) => {
     return 4;
   }, [showAllUpcoming, isMediumScreen, isLargeScreen]);
 
+  const loadedCallback = (total) => {
+    setTotalUpcomingLivestreams(total);
+  };
+
   return (
     <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
       <ClaimListDiscover
@@ -51,9 +55,7 @@ const ScheduledStreams = (props: Props) => {
         header={__('Upcoming Livestreams')}
         maxClaimRender={upcomingMax}
         excludeUris={liveUris}
-        loadedCallback={(total) => {
-          setTotalUpcomingLivestreams(total);
-        }}
+        loadedCallback={loadedCallback}
       />
       {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && (
         <div className="livestream-list--view-more">

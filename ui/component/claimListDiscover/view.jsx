@@ -480,10 +480,6 @@ function ClaimListDiscover(props: Props) {
   const renderUris = uris || claimSearchResult;
   injectPinUrls(renderUris, orderParam, pins);
 
-  React.useEffect(() => {
-    if (typeof loadedCallback === 'function') loadedCallback(renderUris?.length || 0);
-  }, [loadedCallback, renderUris]);
-
   // **************************************************************************
   // Helpers
   // **************************************************************************
@@ -637,6 +633,7 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             excludeUris={excludeUris}
+            loadedCallback={loadedCallback}
           />
           {loading && useSkeletonScreen && (
             <div className="claim-grid">
@@ -672,6 +669,7 @@ function ClaimListDiscover(props: Props) {
             empty={empty}
             maxClaimRender={maxClaimRender}
             excludeUris={excludeUris}
+            loadedCallback={loadedCallback}
           />
           {loading &&
             useSkeletonScreen &&
