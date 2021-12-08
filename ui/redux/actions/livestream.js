@@ -48,7 +48,7 @@ const transformLivestreamData = (data: any): LivestreamInfo => {
   }, {});
 };
 
-const fetchLiveStreamData = async () => {
+const fetchLiveChannels = async () => {
   const response = await fetch(LIVESTREAM_LIVE_API);
   const json = await response.json();
   if (!('data' in json)) throw new Error();
@@ -57,11 +57,13 @@ const fetchLiveStreamData = async () => {
 
 const filterUpcomingLiveStreamClaims = (upcomingClaims) => {
   const startsSoonMoment = moment().startOf('minute').add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes');
-  // $FlowFixMe
-  return Object.values(upcomingClaims).filter((claim) =>
-    // $FlowFixMe
-    moment.unix(claim.stream.value.release_time).isSameOrBefore(startsSoonMoment)
-  );
+  const startingSoonClaims = {};
+  Object.keys(upcomingClaims).forEach((key) => {
+    if (moment.unix(upcomingClaims[key].stream.value.release_time).isSameOrBefore(startsSoonMoment)) {
+      startingSoonClaims[key] = upcomingClaims[key];
+    }
+  });
+  return startingSoonClaims;
 };
 
 const fetchUpcomingLivestreamClaims = (channelIds: Array<string>, nextOptions: any) => {
@@ -92,36 +94,16 @@ const fetchMostRecentLivestreamClaims = (channelIds: Array<string>, nextOptions:
   });
 };
 
-const distanceFromStreamStart = (claimA, claimB, channelStartedStreaming) => {
-  // $FlowFixMe
+const distanceFromStreamStart = (claimA: any, claimB: any, channelStartedStreaming) => {
   const distanceA = Math.abs(moment.unix(claimA.stream.value.release_time).diff(channelStartedStreaming, 'minutes'));
-  // $FlowFixMe
   const distanceB = Math.abs(moment.unix(claimB.stream.value.release_time).diff(channelStartedStreaming, 'minutes'));
   return [distanceA, distanceB];
 };
 
-const useUpcomingClaim = (channelId: string, claim: any, startingSoonClaims: any, activeLivestreams: any) => {
-  // Determine if this channel has a scheduled / upcoming livestream claim that's starting soon.
-  const upcomingClaim = startingSoonClaims.find((claim) => claim.stream.signing_channel.claim_id === channelId);
-  if (!upcomingClaim) return;
-
-  // If it does have one, it can be considered the live claim, but only if the channel started streaming at a time closer to it's release time than the recent one.
-  const [upcomingDistance, mostRecentDistance] = distanceFromStreamStart(
-    upcomingClaim,
-    claim,
-    activeLivestreams[channelId].startedStreaming
-  );
-  const useUpcoming = upcomingDistance <= mostRecentDistance;
-
-  if (!useUpcoming) return;
-  return upcomingClaim;
-};
-
-const determineActiveLiveClaim = (claims, activeLivestreams) => {
+const determineLiveClaim = (claims: any, activeLivestreams: any) => {
   const activeClaims = {};
 
-  Object.values(claims).forEach((claim) => {
-    // $FlowFixMe
+  Object.values(claims).forEach((claim: any) => {
     const channelID = claim.stream.signing_channel.claim_id;
     if (activeClaims[channelID]) {
       const [distanceA, distanceB] = distanceFromStreamStart(
@@ -162,33 +144,29 @@ export const doFetchActiveLivestreams = (
     dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED });
 
     try {
-      const activeLivestreams = await fetchLiveStreamData();
+      const liveChannels = await fetchLiveChannels();
+      const liveChannelIds = Object.keys(liveChannels);
 
       // Find the two most recent claims for the channels that are actively broadcasting a stream.
-      const mostRecentClaims = await dispatch(
-        fetchMostRecentLivestreamClaims(Object.keys(activeLivestreams), nextOptions)
-      );
-
-      // Using the stream start time, determine which of the most recent two claims should be considered live.
-      const activeLiveClaims = determineActiveLiveClaim(mostRecentClaims, activeLivestreams);
+      const mostRecentClaims = await dispatch(fetchMostRecentLivestreamClaims(liveChannelIds, nextOptions));
 
       // Find the first upcoming claim (if one exists) for each channel that's actively broadcasting a stream.
-      const upcomingClaims = await dispatch(fetchUpcomingLivestreamClaims(Object.keys(activeLivestreams), nextOptions));
+      const upcomingClaims = await dispatch(fetchUpcomingLivestreamClaims(liveChannelIds, nextOptions));
 
-      // Filter out any upcoming claims that aren't scheduled to start within the configured buffer time.
+      // Filter out any of those claims that aren't scheduled to start within the configured "soon" buffer time (ex. next 5 min).
       const startingSoonClaims = filterUpcomingLiveStreamClaims(upcomingClaims);
 
-      Object.values(activeLiveClaims).forEach((mostRecentClaim) => {
-        // $FlowFixMe
-        const channelId = mostRecentClaim.stream.signing_channel.claim_id;
-        const claim =
-          useUpcomingClaim(channelId, mostRecentClaim, startingSoonClaims, activeLivestreams) || mostRecentClaim;
+      // Reduce the claim list to one "live" claim per channel, based on how close each claim's
+      // release time is to the time the channels stream started.
+      const allClaims = Object.assign({}, mostRecentClaims, startingSoonClaims);
+      const activeLiveClaims = determineLiveClaim(allClaims, liveChannels);
 
-        activeLivestreams[channelId] = {
-          ...activeLivestreams[channelId],
-          // $FlowFixMe
+      Object.values(activeLiveClaims).forEach((claim: any) => {
+        const channelId = claim.stream.signing_channel.claim_id;
+
+        liveChannels[channelId] = {
+          ...liveChannels[channelId],
           latestClaimId: claim.stream.claim_id,
-          // $FlowFixMe
           latestClaimUri: claim.stream.canonical_url,
         };
       });
@@ -196,7 +174,7 @@ export const doFetchActiveLivestreams = (
       dispatch({
         type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED,
         data: {
-          activeLivestreams,
+          activeLivestreams: liveChannels,
           activeLivestreamsLastFetchedDate: now,
           activeLivestreamsLastFetchedOptions: nextOptions,
         },
