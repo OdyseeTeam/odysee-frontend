@@ -47,6 +47,7 @@ function ChannelsFollowingPage(props: Props) {
             channelIds={channelIds}
             tileLayout={tileLayout}
             liveUris={getLivestreamUris(activeLivestreams, channelIds)}
+            limitClaimsPerChannel={2}
           />
 
           <ClaimListDiscover

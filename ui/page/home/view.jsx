@@ -273,6 +273,7 @@ function HomePage(props: Props) {
               channelIds={channelIds}
               tileLayout
               liveUris={getLivestreamUris(activeLivestreams, channelIds)}
+              limitClaimsPerChannel={2}
             />
           )}
           {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {

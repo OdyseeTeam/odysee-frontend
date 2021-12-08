@@ -14,10 +14,11 @@ type Props = {
   channelIds: Array<string>,
   tileLayout: boolean,
   liveUris: Array<string>,
+  limitClaimsPerChannel?: number,
 };
 
 const ScheduledStreams = (props: Props) => {
-  const { channelIds, tileLayout, liveUris = [] } = props;
+  const { channelIds, tileLayout, liveUris = [], limitClaimsPerChannel } = props;
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
@@ -43,6 +44,7 @@ const ScheduledStreams = (props: Props) => {
         <ClaimListDiscover
           useSkeletonScreen={false}
           channelIds={channelIds}
+          limitClaimsPerChannel={limitClaimsPerChannel}
           pageSize={50}
           streamType={'all'}
           hasNoSource
