@@ -11,8 +11,8 @@ type Props = {
 const Wallpaper = (props: Props) => {
   const { cover, avatar } = props;
 
-  if (cover && avatar) {
-    toDataUrl(avatar, function(image) {
+  if (avatar) {
+    toDataUrl(avatar, function (image) {
       if (image) {
         getAverageRGB(image);
       }
@@ -26,9 +26,9 @@ const Wallpaper = (props: Props) => {
 
   function toDataUrl(url, callback) {
     var xhr = new XMLHttpRequest();
-    xhr.onload = function() {
+    xhr.onload = function () {
       var reader = new FileReader();
-      reader.onloadend = function() {
+      reader.onloadend = function () {
         var image = new Image();
         image.src = reader.result.toString();
         image.onload = () => callback(image);
