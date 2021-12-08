@@ -1,11 +1,14 @@
 import { connect } from 'react-redux';
-import { makeSelectCoverForUri } from 'redux/selectors/claims';
+import { makeSelectCoverForUri, makeSelectAvatarForUri } from 'redux/selectors/claims';
 import Wallpaper from './view';
 
 const select = (state, props) => {
-  return {
-    cover: makeSelectCoverForUri(props.uri)(state),
-  };
+  if (props.uri && props.uri.indexOf('@') !== -1) {
+    return {
+      cover: makeSelectCoverForUri(props.uri)(state),
+      avatar: makeSelectAvatarForUri(props.uri)(state),
+    };
+  }
 };
 
 export default connect(select)(Wallpaper);

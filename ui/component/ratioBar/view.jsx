@@ -11,10 +11,12 @@ const RatioBar = (props: Props) => {
 
   const like = (1 / (likeCount + dislikeCount)) * likeCount;
   return (
-    <div className={'ratio-bar'}>
-      <div className={'ratio-bar-like'} style={{ flex: like }} />
-      <div className={'ratio-bar-dislike'} style={{ flex: 1 - like }} />
-    </div>
+    like && (
+      <div className={'ratio-bar'}>
+        <div className={'ratio-bar-like'} style={{ flex: like }} />
+        <div className={'ratio-bar-dislike'} style={{ flex: 1 - like }} />
+      </div>
+    )
   );
 };
 

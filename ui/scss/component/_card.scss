@@ -300,8 +300,8 @@
   }
 
   .button--alt {
-    background-color: var(--color-header-background);
-    color: var(--color-button-alt-text);
+    background-color: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
 
     &:hover {
       background-color: var(--color-button-secondary-bg-hover);

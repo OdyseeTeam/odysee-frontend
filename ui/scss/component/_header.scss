@@ -29,7 +29,7 @@
   }
 
   .wunderbar__input {
-    background-color: var(--color-background);
+    background-color: var(--color-header-button);
   }
 
   & > * {
@@ -134,7 +134,7 @@
   margin: 0 var(--spacing-s);
   padding-left: var(--spacing-s);
   padding-right: var(--spacing-s);
-  background-color: var(--color-background);
+  background-color: var(--color-header-button);
 
   &:hover {
     background-color: var(--color-primary);

@@ -6,7 +6,6 @@ import { lazyImport } from 'util/lazyImport';
 import { Redirect, useHistory } from 'react-router-dom';
 import Spinner from 'component/spinner';
 import ChannelPage from 'page/channel';
-import Wallpaper from 'component/wallpaper';
 import Page from 'component/page';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -180,12 +179,7 @@ function ShowPage(props: Props) {
       </Page>
     );
   } else if (claim.name.length && claim.name[0] === '@') {
-    innerContent = (
-      <>
-        <Wallpaper uri={uri} />
-        <ChannelPage uri={uri} location={location} />
-      </>
-    );
+    innerContent = <ChannelPage uri={uri} location={location} />;
   } else if (claim) {
     let isClaimBlackListed = false;
 
@@ -216,12 +210,7 @@ function ShowPage(props: Props) {
     } else if (isLivestream && ENABLE_NO_SOURCE_CLAIMS) {
       innerContent = <LivestreamPage uri={uri} />;
     } else {
-      innerContent = (
-        <>
-          <Wallpaper uri={uri} />
-          <FilePage uri={uri} location={location} />
-        </>
-      );
+      innerContent = <FilePage uri={uri} location={location} />;
     }
   }
   return <React.Suspense fallback={null}>{innerContent}</React.Suspense>;

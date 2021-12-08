@@ -188,6 +188,7 @@ $recent-msg-button__height: 2rem;
   margin-bottom: var(--spacing-xl);
   box-shadow: 0 0 0 rgba(246, 72, 83, 0.4);
   animation: livePulse 2s infinite;
+  padding: var(--spacing-m);
 
   &:hover {
     cursor: pointer;

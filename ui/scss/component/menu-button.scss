@@ -127,7 +127,7 @@
 .menu__link-help {
   @extend .menu__link;
   display: block;
-  color: var(--color-text-help);
+  color: var(--color-text);
   font-size: var(--font-small);
   padding-top: 0;
   white-space: normal;
@@ -136,6 +136,7 @@
 
   :hover > & {
     color: black;
+    color: var(--color-text-help);
   }
 }
 

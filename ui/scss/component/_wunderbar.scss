@@ -91,7 +91,7 @@
   padding-left: 2.5rem;
   //transition: all 0.2s;
   -webkit-app-region: no-drag;
-  border: 1px solid var(--color-header-background);
+  border: 1px solid rgba(0, 0, 0, 0);
 
   &:focus {
     border: 1px solid var(--color-primary);
