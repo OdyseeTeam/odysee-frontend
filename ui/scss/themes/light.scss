@@ -14,7 +14,8 @@
 
   // Structure
   --color-border: #e8e8e8;
-  --color-background: #f1f1f1;
+  --color-background-base: 241, 241, 241;
+  --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #21252980;
   --color-card-background: #ffffff;
   --color-card-background-highlighted: #fff5f5;
@@ -79,8 +80,8 @@
   --color-navigation-link: #333333;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-primary-contrast);
-  --color-navigation-hover: var(--color-primary);
-  --color-navigation-hover-text: var(--color-primary-contrast);
+  --color-navigation-hover: rgba(var(--color-background-base), 0.6);
+  --color-navigation-hover-text: var(--color-primary);
 
   // Tags
   --color-tag: #000000;

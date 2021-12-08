@@ -13,7 +13,8 @@
   // Structure
   //  --color-background: #191919;
   //  --color-background: #202020;
-  --color-background: rgba(32, 32, 32, 1);
+  --color-background-base: 32, 32, 32;
+  --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #0c0d0e95;
   --color-border: #444444;
   --color-card-background: var(--color-header-background);
@@ -80,8 +81,8 @@
   --color-navigation-link: #b9c3ce;
   --color-navigation-active: var(--color-primary);
   --color-navigation-active-text: var(--color-button-toggle-text);
-  --color-navigation-hover: var(--color-primary);
-  --color-navigation-hover-text: var(--color-button-toggle-text);
+  --color-navigation-hover: rgba(var(--color-background-base), 0.6);
+  --color-navigation-hover-text: var(--color-primary);
 
   // Tags
   --color-tag: #000000;
