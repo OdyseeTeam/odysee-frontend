@@ -87,24 +87,57 @@ const fetchMostRecentLivestreamClaims = (channelIds: Array<string>, nextOptions:
     claim_type: ['stream'],
     order_by: nextOptions.order_by, // **
     release_time: `<${moment().unix()}`,
-    limit_claims_per_channel: 1, // **
+    limit_claims_per_channel: 2, // **
     no_totals: true,
   });
 };
 
+const distanceFromStreamStart = (claimA, claimB, channelStartedStreaming) => {
+  // $FlowFixMe
+  const distanceA = Math.abs(moment.unix(claimA.stream.value.release_time).diff(channelStartedStreaming, 'minutes'));
+  // $FlowFixMe
+  const distanceB = Math.abs(moment.unix(claimB.stream.value.release_time).diff(channelStartedStreaming, 'minutes'));
+  return [distanceA, distanceB];
+};
+
 const useUpcomingClaim = (channelId: string, claim: any, startingSoonClaims: any, activeLivestreams: any) => {
-  // Determine if this channel has a scheduled / upcoming livestream claim.
+  // Determine if this channel has a scheduled / upcoming livestream claim that's starting soon.
   const upcomingClaim = startingSoonClaims.find((claim) => claim.stream.signing_channel.claim_id === channelId);
   if (!upcomingClaim) return;
 
-  // Determine if this scheduled livestream should be considered "live" based on when the channel started streaming.
-  const channelStartedStreaming = activeLivestreams[upcomingClaim.stream.signing_channel.claim_id].startedStreaming;
-  const mostRecentDistance = Math.abs(moment.unix(claim.stream.value.release_time).diff(channelStartedStreaming));
-  const upcomingDistance = Math.abs(moment.unix(upcomingClaim.stream.value.release_time).diff(channelStartedStreaming));
+  // If it does have one, it can be considered the live claim, but only if the channel started streaming at a time closer to it's release time than the recent one.
+  const [upcomingDistance, mostRecentDistance] = distanceFromStreamStart(
+    upcomingClaim,
+    claim,
+    activeLivestreams[channelId].startedStreaming
+  );
   const useUpcoming = upcomingDistance <= mostRecentDistance;
 
   if (!useUpcoming) return;
   return upcomingClaim;
+};
+
+const determineActiveLiveClaim = (claims, activeLivestreams) => {
+  const activeClaims = {};
+
+  Object.values(claims).forEach((claim) => {
+    // $FlowFixMe
+    const channelID = claim.stream.signing_channel.claim_id;
+    if (activeClaims[channelID]) {
+      const [distanceA, distanceB] = distanceFromStreamStart(
+        claim,
+        activeClaims[channelID],
+        activeLivestreams[channelID].startedStreaming
+      );
+
+      if (distanceA < distanceB) {
+        activeClaims[channelID] = claim;
+      }
+    } else {
+      activeClaims[channelID] = claim;
+    }
+  });
+  return activeClaims;
 };
 
 export const doFetchActiveLivestreams = (
@@ -131,11 +164,13 @@ export const doFetchActiveLivestreams = (
     try {
       const activeLivestreams = await fetchLiveStreamData();
 
-      // Find the most recent claims for the channels that are actively broadcasting a stream.
-      // These newest claims are considered the "live" ones.
+      // Find the two most recent claims for the channels that are actively broadcasting a stream.
       const mostRecentClaims = await dispatch(
         fetchMostRecentLivestreamClaims(Object.keys(activeLivestreams), nextOptions)
       );
+
+      // Using the stream start time, determine which of the most recent two claims should be considered live.
+      const activeLiveClaims = determineActiveLiveClaim(mostRecentClaims, activeLivestreams);
 
       // Find the first upcoming claim (if one exists) for each channel that's actively broadcasting a stream.
       const upcomingClaims = await dispatch(fetchUpcomingLivestreamClaims(Object.keys(activeLivestreams), nextOptions));
@@ -143,7 +178,7 @@ export const doFetchActiveLivestreams = (
       // Filter out any upcoming claims that aren't scheduled to start within the configured buffer time.
       const startingSoonClaims = filterUpcomingLiveStreamClaims(upcomingClaims);
 
-      Object.values(mostRecentClaims).forEach((mostRecentClaim) => {
+      Object.values(activeLiveClaims).forEach((mostRecentClaim) => {
         // $FlowFixMe
         const channelId = mostRecentClaim.stream.signing_channel.claim_id;
         const claim =
