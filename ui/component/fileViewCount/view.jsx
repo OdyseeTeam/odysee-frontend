@@ -26,11 +26,12 @@ function FileViewCount(props: Props) {
     }
   }, [livestream, doAnalyticsView, uri]);
 
+  // @Note: it's important this only runs once on initial render.
   React.useEffect(() => {
     if (claimId) {
       fetchViewCount(claimId);
     }
-  }, [fetchViewCount, uri, claimId]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const formattedViewCount = Number(viewCount).toLocaleString();
 

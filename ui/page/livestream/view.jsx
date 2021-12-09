@@ -114,15 +114,18 @@ export default function LivestreamPage(props: Props) {
 
   const [viewWasTracked, setviewWasTracked] = React.useState(false);
   React.useEffect(() => {
-    if (uri && stringifiedClaim && !viewWasTracked) {
+    if (uri && stringifiedClaim) {
       const jsonClaim = JSON.parse(stringifiedClaim);
 
       if (jsonClaim) {
         const { txid, nout, claim_id: claimId } = jsonClaim;
         const outpoint = `${txid}:${nout}`;
 
-        analytics.apiLogView(uri, outpoint, claimId);
-        setviewWasTracked(true);
+        // @Note: it's important this only runs once.
+        if (!viewWasTracked) {
+          analytics.apiLogView(uri, outpoint, claimId);
+          setviewWasTracked(true);
+        }
       }
 
       if (!isAuthenticated) {
@@ -132,7 +135,7 @@ export default function LivestreamPage(props: Props) {
         }
       }
     }
-  }, [uri, stringifiedClaim, isAuthenticated]);
+  }, [uri, stringifiedClaim, isAuthenticated]); // eslint-disable-line react-hooks/exhaustive-deps
 
   React.useEffect(() => {
     // Set playing uri to null so the popout player doesnt start playing the dummy claim if a user navigates back
