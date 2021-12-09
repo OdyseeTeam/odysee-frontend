@@ -14,7 +14,20 @@ const Wallpaper = (props: Props) => {
   if (avatar) {
     toDataUrl(avatar, function (image) {
       if (image) {
-        getAverageRGB(image);
+        getAverageRGB(image, function (rgb) {
+          // let hsl = rgb2hsl(rgb.r, rgb.g, rgb.b);
+          let brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
+          document.documentElement !== null &&
+            document.documentElement.style.setProperty(
+              '--color-primary',
+              'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'
+            );
+          document.documentElement !== null &&
+            document.documentElement.style.setProperty(
+              '--color-primary-contrast',
+              brightness > 155 ? 'black' : 'white'
+            );
+        });
       }
     });
   } else {
@@ -40,7 +53,7 @@ const Wallpaper = (props: Props) => {
     xhr.send();
   }
 
-  function getAverageRGB(img) {
+  function getAverageRGB(img, callback) {
     var blockSize = 5,
       defaultRGB = { r: 0, g: 0, b: 0 },
       canvas = document.createElement('canvas'),
@@ -82,15 +95,7 @@ const Wallpaper = (props: Props) => {
     rgb.g = ~~(rgb.g / count);
     rgb.b = ~~(rgb.b / count);
 
-    const brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
-    const text = brightness > 155 ? 'black' : 'white';
-
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty(
-        '--color-primary',
-        'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'
-      );
-    document.documentElement !== null && document.documentElement.style.setProperty('--color-primary-contrast', text);
+    callback(rgb);
   }
 
   function shadeCheck(data, i) {
@@ -108,6 +113,22 @@ const Wallpaper = (props: Props) => {
     else return true;
   }
 
+  /*
+  function rgb2hsl(r, g, b) {
+    let v = Math.max(r, g, b),
+      c = v - Math.min(r, g, b),
+      f = 1 - Math.abs(v + v - c - 1);
+    let h = c && (v === r ? (g - b) / c : v === g ? 2 + (b - r) / c : 4 + (r - g) / c);
+    return { h: 60 * (h < 0 ? h + 6 : h), s: f ? c / f : 0, l: (v + v - c) / 2 };
+  }
+
+  function hsl2rgb(h, s, l) {
+    let a = s * Math.min(l, 1 - l);
+    let f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return { r: Math.round(f(0)), g: Math.round(f(8)), b: Math.round(f(4)) };
+  }
+  */
+
   if (cover) {
     return (
       cover && (
@@ -118,7 +139,12 @@ const Wallpaper = (props: Props) => {
       )
     );
   } else {
-    return null;
+    return (
+      <>
+        <div className={'background-image'} style={{ backgroundImage: 'url("public/img/bg.jpg")' }} />
+        <div className={'theme-dark'} />
+      </>
+    );
   }
 };
 
