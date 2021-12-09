@@ -660,7 +660,7 @@ svg + .button__label {
     background-color: var(--color-button-toggle-bg);
 
     .icon {
-      stroke: #ffffff !important;
+      stroke: var(--color-primary-contrast) !important;
     }
   }
 }
