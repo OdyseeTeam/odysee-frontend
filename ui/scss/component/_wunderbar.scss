@@ -190,9 +190,9 @@
 }
 
 .wunderbar__more-results {
-  margin-top: var(--spacing-xs);
+  //margin-top: var(--spacing-xs);
   margin-left: var(--spacing-s);
-  margin-bottom: var(--spacing-l);
+  //margin-bottom: var(--spacing-l);
 
   .button {
     padding: var(--spacing-s);
@@ -205,7 +205,7 @@
   }
 
   @media (min-width: $breakpoint-small) {
-    margin-bottom: var(--spacing-xs);
+    //margin-bottom: var(--spacing-xs);
   }
 }
 
@@ -286,9 +286,13 @@
     margin-bottom: 0;
 
     @media (min-width: $breakpoint-small) {
-      margin-top: var(--spacing-xxs);
+      //margin-top: var(--spacing-xxs);
       margin-bottom: 0;
     }
+  }
+
+  [data-reach-combobox-option]:last-of-type {
+    margin-bottom: 0px;
   }
 }
 
