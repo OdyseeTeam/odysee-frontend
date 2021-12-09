@@ -320,3 +320,7 @@
     background-color: var(--color-menu-background--active);
   }
 }
+
+[data-reach-combobox-option]:last-of-type {
+  margin-bottom: var(--spacing-xs);
+}
