@@ -116,6 +116,7 @@
   border-top: none;
   padding-top: var(--spacing-xs);
   background-color: var(--color-background);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
 }
 
 .wunderbar__suggestions--mobile {
