@@ -340,14 +340,14 @@ $actions-z-index: 2;
       .icon__wrapper {
         background-color: var(--color-primary);
         .icon {
-          stroke: white;
+          stroke: var(--color-primary-contrast);
         }
       }
 
       &:hover {
         .icon__wrapper {
           .icon {
-            stroke: white;
+            stroke: var(--color-primary-contrast);
           }
         }
       }

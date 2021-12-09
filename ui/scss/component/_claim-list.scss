@@ -272,6 +272,14 @@
     align-self: flex-end;
     margin-bottom: auto;
     width: auto;
+
+    .button--alt {
+      color: var(--color-primary-contrast);
+
+      .icon {
+        stroke: var(--color-primary-contrast);
+      }
+    }
   }
 
   .claim-preview__text {
