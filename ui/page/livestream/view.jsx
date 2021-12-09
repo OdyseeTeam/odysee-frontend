@@ -111,8 +111,10 @@ export default function LivestreamPage(props: Props) {
   }, [isBroadcastingInitialized, chatDisabled, isBroadcasting, release]);
 
   const stringifiedClaim = JSON.stringify(claim);
+
+  const [viewWasTracked, setviewWasTracked] = React.useState(false);
   React.useEffect(() => {
-    if (uri && stringifiedClaim) {
+    if (uri && stringifiedClaim && !viewWasTracked) {
       const jsonClaim = JSON.parse(stringifiedClaim);
 
       if (jsonClaim) {
@@ -120,6 +122,7 @@ export default function LivestreamPage(props: Props) {
         const outpoint = `${txid}:${nout}`;
 
         analytics.apiLogView(uri, outpoint, claimId);
+        setviewWasTracked(true);
       }
 
       if (!isAuthenticated) {
