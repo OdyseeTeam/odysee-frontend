@@ -251,6 +251,18 @@ $actions-z-index: 2;
       }
     }
   }
+
+  .button,
+  .menu__button {
+    &:hover {
+      color: var(--color-primary);
+      background-color: rgba(var(--color-header-background-base), 0.95);
+
+      .icon {
+        stroke: var(--color-primary);
+      }
+    }
+  }
 }
 
 .channel__edit-thumb {
