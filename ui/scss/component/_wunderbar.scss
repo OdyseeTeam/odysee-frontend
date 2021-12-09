@@ -261,10 +261,13 @@
     align-items: center;
     height: 1.2rem;
     margin-left: var(--spacing-xxs);
+    color: var(--color-primary-contrast);
+  }
 
-    &:hover {
-      background-color: var(--color-tag-bg);
-      color: var(--color-tag);
+  &:hover {
+    .tag {
+      background-color: var(--color-background);
+      color: var(--color-text);
     }
   }
 }
