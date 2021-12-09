@@ -147,6 +147,8 @@ export const doFetchActiveLivestreams = (
       const liveChannels = await fetchLiveChannels();
       const liveChannelIds = Object.keys(liveChannels);
 
+      // @Note: This can likely be simplified down to one query, but first we'll need to address the query limit / pagination issue.
+
       // Find the two most recent claims for the channels that are actively broadcasting a stream.
       const mostRecentClaims = await dispatch(fetchMostRecentLivestreamClaims(liveChannelIds, nextOptions));
 

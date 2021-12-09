@@ -29,7 +29,7 @@ export default function LivestreamPage(props: Props) {
     doSetPlayingUri,
     isAuthenticated,
     doUserSetReferrer,
-    channelClaim,
+    channelClaimId,
     chatDisabled,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
@@ -55,7 +55,7 @@ export default function LivestreamPage(props: Props) {
 
   const [isBroadcastingInitialized, setIsBroadcastingInitialized] = React.useState(false);
   const [isBroadcasting, setIsBroadcasting] = React.useState('pending');
-  const livestreamChannelId = channelClaim && channelClaim.signing_channel && channelClaim.signing_channel.claim_id;
+  const livestreamChannelId = channelClaimId;
 
   React.useEffect(() => {
     if (isBroadcasting !== 'pending') setIsBroadcastingInitialized(true);
@@ -71,19 +71,8 @@ export default function LivestreamPage(props: Props) {
     });
   }, [livestreamChannelId, setIsBroadcasting]);
 
-  const [release, setRelease] = React.useState(
-    window.releae_time || moment(Number(claim.value.release_time || 0) * 1000)
-  );
-  // const release = moment(Number(claim.value.release_time * 1000));
-
-  // @todo: testing
-  window.moment = moment;
-  window.releaseTime = (r) => {
-    window.releae_time = r;
-    setRelease(r);
-    console.info('::: set release time to: ', release);
-  };
-  // -----------------------------
+  // $FlowFixMe
+  const release = moment.unix(claim.value.release_time);
 
   const [showLivestream, setShowLivestream] = React.useState(false);
   const [showScheduledInfo, setShowScheduledInfo] = React.useState(false);
