@@ -141,7 +141,7 @@ const Wallpaper = (props: Props) => {
   } else {
     return (
       <>
-        <div className={'background-image'} style={{ backgroundImage: 'url("public/img/bg.jpg")' }} />
+        <div className={'background-image'} style={{ backgroundImage: 'url("/public/img/bg.jpg")' }} />
         <div className={'theme-dark'} />
       </>
     );
