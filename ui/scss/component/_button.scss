@@ -55,15 +55,26 @@
 
 .button--secondary {
   //background-color: var(--color-header-background);
-  background-color: var(--color-primary);
-  border: 1px solid var(--color-button-secondary-border);
+  background-color: rgba(var(--color-header-background-base), 0.7) !important;
+  //border: 1px solid var(--color-text);
 
   .button__label {
-    color: var(--color-button-primary-text);
+    color: var(--color-text);
   }
 
   .icon {
-    stroke: var(--color-button-primary-text);
+    stroke: var(--color-text);
+  }
+
+  &:hover {
+    background-color: rgba(var(--color-header-background-base), 0.9) !important;
+    .button__label {
+      color: var(--color-primary) !important;
+    }
+
+    .icon {
+      stroke: var(--color-primary) !important;
+    }
   }
 }
 
