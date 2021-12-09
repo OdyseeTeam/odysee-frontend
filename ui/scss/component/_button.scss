@@ -33,18 +33,18 @@
 }
 
 .button--primary {
-  background-color: var(--color-button-primary-bg);
+  background-color: var(--color-primary);
 
   .button__label {
-    color: var(--color-button-primary-text);
+    color: var(--color-primary-contrast);
   }
 
   .icon {
-    stroke: var(--color-button-primary-text);
+    color: var(--color-primary-contrast);
   }
 
   .credit-amount {
-    color: var(--color-button-primary-text);
+    color: var(--color-primary-contrast);
 
     .icon {
       margin-left: 3px;
