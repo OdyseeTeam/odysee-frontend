@@ -57,9 +57,10 @@
   width: var(--side-nav-width);
   background-color: var(--color-header-background-transparent);
   box-shadow: var(--card-box-shadow);
+  padding-top: 0px;
 
   .navigation-link {
-    padding-left: var(--spacing-m);
+    padding-left: var(--spacing-s);
   }
 }
 

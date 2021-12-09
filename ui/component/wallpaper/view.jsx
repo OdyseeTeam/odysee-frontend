@@ -70,14 +70,7 @@ const Wallpaper = (props: Props) => {
 
     length = data.data.length;
     while ((i += blockSize * 4) < length) {
-      if (
-        data.data[i] < 240 &&
-        data.data[i + 1] < 240 &&
-        data.data[i + 2] < 240 &&
-        data.data[i] > 15 &&
-        data.data[i + 1] > 15 &&
-        data.data[i + 2] > 15
-      ) {
+      if (shadeCheck(data.data, i)) {
         ++count;
         rgb.r += data.data[i];
         rgb.g += data.data[i + 1];
@@ -98,6 +91,20 @@ const Wallpaper = (props: Props) => {
         'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'
       );
     document.documentElement !== null && document.documentElement.style.setProperty('--color-primary-contrast', text);
+  }
+
+  function shadeCheck(data, i) {
+    let white = 0;
+    if (data[i] > 240) white = white + 1;
+    if (data[i + 1] > 240) white = white + 1;
+    if (data[i + 2] > 240) white = white + 1;
+    let black = 0;
+    if (data[i] < 15) black = black + 1;
+    if (data[i + 1] < 15) black = black + 1;
+    if (data[i + 2] < 15) black = black + 1;
+
+    if (white > 1 || black > 1) return false;
+    else return true;
   }
 
   if (cover) {
