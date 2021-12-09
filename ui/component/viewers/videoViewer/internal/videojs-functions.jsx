@@ -1,46 +1,27 @@
 // @flow
 const VideoJsFunctions = ({
-   source,
-   sourceType,
-   videoJsOptions,
    isAudio,
 }: {
-  source: string,
-  sourceType: string,
-  videoJsOptions: Object,
   isAudio: boolean,
 }) => {
-  function detectFileType() {
-    // $FlowFixMe
-    return new Promise(async (res, rej) => {
-      try {
-        const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+  // TODO: this function will be moved to parent component
+  // TODO: and proper source will be sent when instantiating component
+  async function checkIfUsingHls(source, sourceType) {
+    let usingHls = false;
 
-        // Temp variables to hold results
-        let finalType = sourceType;
-        let finalSource = source;
+    const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
-        // override type if we receive an .m3u8 (transcoded mp4)
-        // do we need to check if explicitly redirected
-        // or is checking extension only a safer method
-        if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-          finalType = 'application/x-mpegURL';
-          finalSource = response.url;
-        }
+    if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+      source = 'application/x-mpegURL';
+      sourceType = response.url;
+      usingHls = true;
+    }
 
-        // Modify video source in options
-        videoJsOptions.sources = [
-          {
-            src: finalSource,
-            type: finalType,
-          },
-        ];
-
-        return res(videoJsOptions);
-      } catch (error) {
-        return rej(error);
-      }
-    });
+    return {
+      source,
+      sourceType,
+      usingHls,
+    };
   }
 
   // TODO: can remove this function as well
@@ -61,7 +42,7 @@ const VideoJsFunctions = ({
   }
 
   return {
-    detectFileType,
+    checkIfUsingHls,
     createVideoPlayerDOM,
   };
 };

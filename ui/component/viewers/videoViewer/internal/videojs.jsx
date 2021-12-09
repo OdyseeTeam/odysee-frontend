@@ -143,7 +143,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const tapToRetryRef = useRef();
 
   // initiate keyboard shortcuts
-  const { curried_function } = keyboardShorcuts({ toggleVideoTheaterMode, playNext, playPrevious });
+  const { initializeKeyboardShortcuts } = keyboardShorcuts({ toggleVideoTheaterMode, playNext, playPrevious });
 
   const [reload, setReload] = useState('initial');
 
@@ -159,7 +159,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     controlBar: { subsCapsButton: false },
   };
 
-  const { detectFileType, createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
+  const { checkIfUsingHls, createVideoPlayerDOM } = functions({ videoJsOptions, isAudio });
 
   const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
     tapToUnmuteRef,
@@ -177,13 +177,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     const vjs = videojs(el, videoJsOptions, () => {
       const player = playerRef.current;
+
+      // instantiate playerjs functionality
       const adapter = new playerjs.VideoJSAdapter(player);
 
       // this seems like a weird thing to have to check for here
       if (!player) return;
 
+      // run ads (preroll) via google ima functionality
       runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
 
+      // initialize player events (onPlay etc)
       initializeEvents();
 
       // Replace volume bar with custom LBRY volume bar
@@ -192,8 +196,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Add reloadSourceOnError plugin
       player.reloadSourceOnError({ errorInterval: 10 });
 
-      // initialize mobile UI
-      player.mobileUi(); // Inits mobile version. No-op if Desktop.
+      // initialize mobile UI plugin (not running on iOS currently)
+      player.mobileUi(); // no-op if desktop
 
       // Add quality selector to player
       player.hlsQualitySelector({
@@ -215,7 +219,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
+      // callback from parent component, will document better shortly
       onPlayerReady(player, videoNode);
+
+      // initialize playerjs functionality
       adapter.ready();
     });
 
@@ -229,11 +236,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
-    const vjsElement = createVideoPlayerDOM(containerRef.current);
+    (async function() {
+      const vjsElement = createVideoPlayerDOM(containerRef.current);
 
-    // Detect source file type via pre-fetch (async)
-    detectFileType().then(() => {
-      // Initialize Video.js
+      // fetches sourceType via HEAD call and then updates globally defined videoJsOptions
+      const { usingHls, hlsSource, hlsSourceType } = await checkIfUsingHls(source, sourceType);
+
+      // update source/sourceType if using HLS
+      if (usingHls) {
+        videoJsOptions.src = hlsSource;
+        videoJsOptions.sourceType = hlsSourceType;
+      }
+
+      // take the passed DOM element, create the videojs player and attach it
       const vjsPlayer = initializeVideoPlayer(vjsElement);
 
       // Add reference to player to global scope
@@ -242,24 +257,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
-      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+      // instantiates keyboard shortcuts
+      window.addEventListener('keydown', initializeKeyboardShortcuts(playerRef, containerRef));
 
       // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
       if (!window.player.paused()) {
         (window.player.bigPlayButton && window.player.bigPlayButton.hide());
       }
-    });
 
-    // Cleanup
-    return () => {
-      window.removeEventListener('keydown', curried_function);
+      // Cleanup
+      return () => {
+        // removes keyboard shortcut listeners
+        window.removeEventListener('keydown', initializeKeyboardShortcuts);
 
-      const player = playerRef.current;
-      if (player) {
-        player.dispose();
-        window.player = undefined;
-      }
-    };
+        // dispose videojs player and remove it from global scope
+        const player = playerRef.current;
+        if (player) {
+          player.dispose();
+          window.player = undefined;
+        }
+      };
+    })();
   }, [isAudio, source, reload]);
 
   return (

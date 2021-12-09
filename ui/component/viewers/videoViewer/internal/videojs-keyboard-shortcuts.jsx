@@ -150,7 +150,7 @@ const VideoJsKeyboardShorcuts = ({
   };
 
   return {
-    curried_function,
+    initializeKeyboardShortcuts: curried_function,
   };
 };
 

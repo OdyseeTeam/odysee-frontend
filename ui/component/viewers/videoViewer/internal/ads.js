@@ -88,11 +88,14 @@ function runAds(internalFeatureEnabled, allowPreRoll, player, embedded) {
   const shouldShowAnAd = internalFeatureEnabled || (!embedded && allowPreRoll && hitsAtFiftyPercentChance);
 
   if (shouldShowAnAd && browserIsChrome && !IS_MOBILE) {
-    // fire up ima integration via module
-    player.ima({
-      adTagUrl: vpaidMacroUrl,
-      vpaidMode: 2, // 2 maps to insecure
-    });
+    // if google-ima was initialized properly
+    if (window.google) {
+      // fire up ima integration via module
+      player.ima({
+        adTagUrl: vpaidMacroUrl,
+        vpaidMode: 2, // 2 maps to insecure
+      });
+    }
   }
 }
 
