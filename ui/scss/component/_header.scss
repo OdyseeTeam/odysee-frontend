@@ -108,7 +108,7 @@
     background-color: var(--color-header-button-hover);
 
     .icon {
-      stroke: var(--color-primary-text-hover);
+      stroke: var(--color-primary-contrast);
     }
   }
 
@@ -138,7 +138,7 @@
 
   &:hover {
     background-color: var(--color-primary);
-    color: white;
+    color: var(--color-primary-contrast);
   }
 }
 
