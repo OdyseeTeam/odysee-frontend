@@ -224,17 +224,17 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__bubble {
-  height: 1.5rem;
-  width: 1.5rem;
+  height: 1.4rem;
+  width: 1.4rem;
   border-radius: 50%;
   background-color: var(--color-notification);
   position: absolute;
-  top: -0.5rem;
-  right: -0.5rem;
+  top: -0.4rem;
+  right: -0.4rem;
   color: white;
   font-size: var(--font-small);
   font-weight: bold;
-  line-height: 1;
+  line-height: 1.4rem;
   display: flex;
   align-items: center;
   justify-content: center;

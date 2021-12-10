@@ -89,9 +89,9 @@
   --color-navigation-hover-text: var(--color-primary);
 
   // Tags
-  --color-tag: #000000;
+  --color-tag: var(--color-secondary-contrast);
   --color-tag-bg: var(--color-secondary);
-  --color-tag-hover: var(--color-white);
+  --color-tag-hover: var(--color-primary-contrast);
   --color-tag-bg-hover: var(--color-primary);
 
   // Menu

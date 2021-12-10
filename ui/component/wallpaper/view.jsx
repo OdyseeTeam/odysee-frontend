@@ -26,10 +26,18 @@ const Wallpaper = (props: Props) => {
             );
 
           let rgbs = colorMixer(rgb, brightness > 155 ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.5);
+          let brightnesss = Math.round(
+            (parseInt(rgbs.r) * 299 + parseInt(rgbs.g) * 587 + parseInt(rgbs.b) * 114) / 1000
+          );
           document.documentElement !== null &&
             document.documentElement.style.setProperty(
               '--color-secondary',
               'rgba(' + rgbs.r + ',' + rgbs.g + ',' + rgbs.b + ',1)'
+            );
+          document.documentElement !== null &&
+            document.documentElement.style.setProperty(
+              '--color-secondary-contrast',
+              brightnesss > 155 ? 'black' : 'white'
             );
         });
       }
