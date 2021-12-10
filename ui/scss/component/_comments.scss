@@ -242,11 +242,11 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__author--creator {
   padding: 0 3px;
-  background-color: var(--color-secondary);
+  background-color: var(--color-primary);
   border-radius: var(--border-radius);
 
   &.button--uri-indicator {
-    color: var(--color-link);
+    color: var(--color-primary-contrast);
   }
 }
 

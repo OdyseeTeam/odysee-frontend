@@ -215,7 +215,7 @@
 
 .button--uri-indicator {
   @extend .button--link;
-  color: var(--color-text-subtitle);
+  color: var(--color-primary-contrast);
   max-width: 100%;
   text-align: left;
   //transition: color 0.2s;
@@ -236,7 +236,7 @@
     color: var(--color-primary);
 
     .channel-name {
-      color: var(--color-secondary);
+      color: var(--color-primary-contrast);
     }
   }
 }
