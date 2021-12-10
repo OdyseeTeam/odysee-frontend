@@ -27,14 +27,36 @@ const Wallpaper = (props: Props) => {
               '--color-primary-contrast',
               brightness > 155 ? 'black' : 'white'
             );
+
+          let rgbs = colorMixer(rgb, brightness > 155 ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.5);
+          document.documentElement !== null &&
+            document.documentElement.style.setProperty(
+              '--color-secondary',
+              'rgba(' + rgbs.r + ',' + rgbs.g + ',' + rgbs.b + ',1)'
+            );
         });
       }
     });
   } else {
+    /*
+    let tmp = colorMixer({ r: 299, g: 0, b: 84}, { r: 255, g: 255, b: 255 }, 0.7);
+        console.log('tmp: ', tmp);
+        */
     document.documentElement !== null &&
       document.documentElement.style.setProperty('--color-primary', 'var(--color-primary-original)');
     document.documentElement !== null &&
       document.documentElement.style.setProperty('--color-primary-contrast', 'var(--color-primary-contrast-original)');
+    /*
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-secondary', 'rgba(' + tmp.r + ',' + tmp.g + ',' + tmp.b + ',1)');
+      */
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-secondary', 'var(--color-secondary-original)');
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty(
+        '--color-secondary-contrast',
+        'var(--color-secondary-contrast-original)'
+      );
   }
 
   function toDataUrl(url, callback) {
@@ -111,6 +133,19 @@ const Wallpaper = (props: Props) => {
 
     if (white > 2 || black > 2) return false;
     else return true;
+  }
+
+  function colorChannelMixer(a, b, mix) {
+    var channelA = a * mix;
+    var channelB = b * (1 - mix);
+    return parseInt(channelA + channelB);
+  }
+
+  function colorMixer(rgbA, rgbB, mix) {
+    var r = colorChannelMixer(rgbA.r, rgbB.r, mix);
+    var g = colorChannelMixer(rgbA.g, rgbB.g, mix);
+    var b = colorChannelMixer(rgbA.b, rgbB.b, mix);
+    return { r: r, g: g, b: b };
   }
 
   /*
