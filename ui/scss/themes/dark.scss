@@ -1,12 +1,13 @@
 [theme='dark'] {
   // Color overrides
-  --color-primary-original: #e50054;
-  --color-primary-contrast-original: #ffffff;
-  --color-primary: #e50054;
+  --color-primary-static: 229, 0, 84;
+  --color-primary-dynamic: 229, 0, 84;
+  --color-primary: rgba(var(--color-primary-dynamic), 1);
+  --color-primary-contrast-static: #ffffff;
   --color-primary-contrast: #ffffff;
   //  --color-primary: #ef1970;
-  --color-secondary-original: #e50088;
-  --color-secondary-contrast-original: #ffffff;
+  --color-secondary-static: #e50088;
+  --color-secondary-contrast-static: #ffffff;
   --color-secondary: #e50088;
   --color-secondary-contrast: #ffffff;
   //  --color-secondary: #ffd600;
@@ -54,8 +55,8 @@
   --color-button-alt-bg: rgba(25, 25, 25, 0.95);
   --color-button-alt-bg-hover: rgba(32, 32, 32, 1);
   --color-button-toggle-text: var(--color-primary-contrast);
-  --color-button-toggle-bg: var(--color-primary);
-  --color-button-toggle-bg-hover: var(--color-secondary);
+  --color-button-toggle-bg: rgba(var(--color-primary-dynamic), 0.3);
+  --color-button-toggle-bg-hover: rgba(var(--color-primary-dynamic), 1);
   --color-button-alt-text: #e2e9f0;
   --color-button-border: #191919;
   --color-link: var(--color-primary);

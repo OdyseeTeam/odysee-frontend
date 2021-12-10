@@ -18,10 +18,7 @@ const Wallpaper = (props: Props) => {
           // let hsl = rgb2hsl(rgb.r, rgb.g, rgb.b);
           let brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
           document.documentElement !== null &&
-            document.documentElement.style.setProperty(
-              '--color-primary',
-              'rgba(' + rgb.r + ',' + rgb.g + ',' + rgb.b + ',1)'
-            );
+            document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);
           document.documentElement !== null &&
             document.documentElement.style.setProperty(
               '--color-primary-contrast',
@@ -43,19 +40,19 @@ const Wallpaper = (props: Props) => {
         console.log('tmp: ', tmp);
         */
     document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-primary', 'var(--color-primary-original)');
+      document.documentElement.style.setProperty('--color-primary-dynamic', 'var(--color-primary-static)');
     document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-primary-contrast', 'var(--color-primary-contrast-original)');
+      document.documentElement.style.setProperty('--color-primary-contrast', 'var(--color-primary-contrast-static)');
     /*
     document.documentElement !== null &&
       document.documentElement.style.setProperty('--color-secondary', 'rgba(' + tmp.r + ',' + tmp.g + ',' + tmp.b + ',1)');
       */
     document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-secondary', 'var(--color-secondary-original)');
+      document.documentElement.style.setProperty('--color-secondary', 'var(--color-secondary-static)');
     document.documentElement !== null &&
       document.documentElement.style.setProperty(
         '--color-secondary-contrast',
-        'var(--color-secondary-contrast-original)'
+        'var(--color-secondary-contrast-static)'
       );
   }
 
