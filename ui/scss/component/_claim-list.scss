@@ -142,6 +142,7 @@
 
     flex-shrink: 0;
     margin-right: var(--spacing-s);
+    box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 0.3) inset;
   }
 
   .media__thumb-placeholder-text {
@@ -156,6 +157,10 @@
 
   // show watch later button and duration divs when hovered
   &:hover {
+    .media__thumb {
+      box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+    }
+
     .claim-preview__title {
       color: var(--color-primary);
     }
@@ -565,6 +570,10 @@
   &:hover {
     cursor: pointer;
 
+    .media__thumb {
+      box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+    }
+
     .claim-tile__title {
       color: var(--color-primary);
     }
@@ -869,6 +878,14 @@
 
 .claim-tile__header {
   position: relative;
+
+  .icon {
+    margin-top: 1px;
+
+    &:hover {
+      stroke: var(--color-primary);
+    }
+  }
 
   .claim__menu-button {
     right: 0rem;

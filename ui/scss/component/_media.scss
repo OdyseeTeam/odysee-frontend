@@ -4,12 +4,13 @@
 .media__thumb {
   @include thumbnail;
   position: relative;
-  border-radius: 2px;
+  border-radius: var(--border-radius-thumbnail);
   object-fit: cover;
   background-color: var(--color-placeholder-background);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 0.3) inset;
 }
 
 //  M E D I A
