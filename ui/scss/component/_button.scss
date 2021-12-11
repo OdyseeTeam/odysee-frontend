@@ -61,14 +61,14 @@
 }
 
 .button--secondary {
-  background-color: var(--color-secondary) !important;
+  background-color: var(--color-primary) !important;
 
   .button__label {
-    color: var(--color-secondary-contrast) !important;
+    color: var(--color-primary-contrast) !important;
   }
 
   .icon {
-    stroke: var(--color-secondary-contrast) !important;
+    stroke: var(--color-primary-contrast) !important;
   }
 }
 
