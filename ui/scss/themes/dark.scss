@@ -5,10 +5,10 @@
   --color-primary: rgba(var(--color-primary-dynamic), 1);
   --color-primary-contrast-static: #ffffff;
   --color-primary-contrast: #ffffff;
-  //  --color-primary: #ef1970;
-  --color-secondary-static: #e50054;
+  --color-secondary-static: 229, 0, 84;
+  --color-secondary-dynamic: 229, 0, 84;
+  --color-secondary: rgba(var(--color-secondary-dynamic), 1);
   --color-secondary-contrast-static: #ffffff;
-  --color-secondary: #e50054;
   --color-secondary-contrast: #ffffff;
   //  --color-secondary: #ffd600;
   --color-fire: #ff6635;
@@ -103,9 +103,9 @@
   // Comments
   --color-comment-menu: #6a6a6a;
   --color-comment-menu-hovering: #e0e0e0;
-  --color-comment-highlighted: var(--color-header-background);
+  --color-comment-highlighted: rgba(var(--color-primary-dynamic), 0.1);
   --color-comment-threadline: var(--color-primary);
-  --color-comment-threadline-hover: var(--color-gray-4);
+  --color-comment-threadline-hover: var(--color-primary);
 
   // Other
   --color-tab-text: var(--color-white);

@@ -31,8 +31,8 @@ const Wallpaper = (props: Props) => {
           );
           document.documentElement !== null &&
             document.documentElement.style.setProperty(
-              '--color-secondary',
-              'rgba(' + rgbs.r + ',' + rgbs.g + ',' + rgbs.b + ',1)'
+              '--color-secondary-dynamic',
+              rgbs.r + ',' + rgbs.g + ',' + rgbs.b
             );
           document.documentElement !== null &&
             document.documentElement.style.setProperty(

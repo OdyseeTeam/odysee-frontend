@@ -179,6 +179,22 @@ $thumbnailWidthSmall: 1rem;
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+
+  .channel-name {
+    color: rgba(var(--color-secondary-dynamic), 1);
+
+    &:hover {
+      color: rgba(var(--color-primary), 1);
+    }
+  }
+
+  .comment__time {
+    color: var(--color-secondary);
+
+    &:hover {
+      color: rgba(var(--color-secondary-dynamic), 0.8);
+    }
+  }
 }
 
 .comment__pin {
