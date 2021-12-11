@@ -141,8 +141,8 @@
   --color-editor-hr-preview: #a0a0a0;
 
   // Ads
-  --color-ads-background: #475057;
-  --color-ads-text: #111;
+  --color-ads-background: rgba(var(--color-secondary-dynamic), 0.1);
+  --color-ads-text: var(--color-secondary-contrast);
   --color-ads-link: var(--color-secondary);
 
   // Scrollbar
