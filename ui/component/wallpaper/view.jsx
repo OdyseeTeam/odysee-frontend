@@ -101,13 +101,60 @@ const Wallpaper = (props: Props) => {
     }
 
     length = data.data.length;
+    let primary = {
+      red: 0,
+      purple: 0,
+      blue: 0,
+      turquoise: 0,
+      green: 0,
+      yellow: 0,
+    };
+
     while ((i += blockSize * 4) < length) {
       if (shadeCheck(data.data, i)) {
         ++count;
         rgb.r += data.data[i];
         rgb.g += data.data[i + 1];
         rgb.b += data.data[i + 2];
+
+        let threshold = 80;
+        let threshold_b = 180;
+        if (data.data[i] > threshold_b) {
+          // has red?
+          if ((100 / data.data[i]) * data.data[i + 1] < threshold) {
+            // red without green
+            if ((100 / data.data[i]) * data.data[i + 2] < threshold) primary.red++;
+            // red without green & blue
+            else primary.purple++; // red without green with blue
+          } else primary.yellow++; // red with green
+        }
+        if (data.data[i + 1] > threshold_b) {
+          // has green?
+          if ((100 / data.data[i + 1]) * data.data[i] < threshold) {
+            // green without red
+            if ((100 / data.data[i + 1]) * data.data[i + 2] < threshold) primary.green++;
+            // green without red & blue
+            else primary.turquoise++; // green without red with blue
+          } else primary.yellow++; // green with red
+        }
+        if (data.data[i + 2] > threshold_b) {
+          // has blue?
+          if ((100 / data.data[i + 2]) * data.data[i] < threshold) {
+            // blue without red
+            if ((100 / data.data[i + 2]) * data.data[i + 1] < threshold) primary.blue++;
+            // blue without red & green
+            else primary.turquoise++; // blue without red with green
+          } else primary.purple++; // blue with red
+        }
       }
+    }
+    primary.turquoise = primary.turquoise / 2;
+    primary.purple = primary.purple / 2;
+    let max = 0;
+    let second = 0;
+    for (let i in primary) {
+      if (primary[i] > max) max = primary[i];
+      if (primary[i] > second && primary[i] < max) second = primary[i];
     }
 
     rgb.r = ~~(rgb.r / count);
