@@ -43,20 +43,12 @@ const Wallpaper = (props: Props) => {
       }
     });
   } else {
-    /*
-    let tmp = colorMixer({ r: 299, g: 0, b: 84}, { r: 255, g: 255, b: 255 }, 0.7);
-        console.log('tmp: ', tmp);
-        */
     document.documentElement !== null &&
       document.documentElement.style.setProperty('--color-primary-dynamic', 'var(--color-primary-static)');
     document.documentElement !== null &&
       document.documentElement.style.setProperty('--color-primary-contrast', 'var(--color-primary-contrast-static)');
-    /*
     document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-secondary', 'rgba(' + tmp.r + ',' + tmp.g + ',' + tmp.b + ',1)');
-      */
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-secondary', 'var(--color-secondary-static)');
+      document.documentElement.style.setProperty('--color-secondary-dynamic', 'var(--color-secondary-static)');
     document.documentElement !== null &&
       document.documentElement.style.setProperty(
         '--color-secondary-contrast',

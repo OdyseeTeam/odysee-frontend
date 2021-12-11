@@ -6,10 +6,10 @@
   --color-primary-contrast-static: #ffffff;
   --color-primary-contrast: #ffffff;
   --color-primary-text-hover: #ffffff;
-  //  --color-primary-alt: #fef1f6;
-  --color-secondary-static: #e50088;
+  --color-secondary-static: 229, 102, 148;
+  --color-secondary-dynamic: 229, 102, 148;
+  --color-secondary: rgba(var(--color-secondary-dynamic), 1);
   --color-secondary-contrast-static: #ffffff;
-  --color-secondary: #e50088;
   --color-secondary-contrast: #ffffff;
 
   --color-primary-alt-2: #f77937;
