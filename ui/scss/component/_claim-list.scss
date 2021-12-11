@@ -458,13 +458,13 @@
 .claim-grid__wrapper {
   display: flex;
   flex-direction: column;
-  margin-top: var(--spacing-l);
+  margin-top: var(--spacing-s);
   padding-bottom: var(--spacing-s);
   border-bottom: 2px solid var(--color-border);
 
   @media (max-width: $breakpoint-small) {
     &:not(:first-of-type) {
-      margin-top: var(--spacing-m);
+      margin-top: var(--spacing-s);
     }
   }
 }
