@@ -1,7 +1,7 @@
 // @flow
 import { DOMAIN, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as PAGES from 'constants/pages';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { Redirect, useHistory } from 'react-router-dom';
 import Spinner from 'component/spinner';
@@ -119,11 +119,13 @@ function ShowPage(props: Props) {
 
   // Regular claims will call the file/view event when a user actually watches the claim
   // This can be removed when we get rid of the livestream iframe
+  const [viewTracked, setViewTracked] = useState(false);
   useEffect(() => {
-    if (showLiveStream) {
+    if (showLiveStream && !viewTracked) {
       doAnalyticsView(uri);
+      setViewTracked(true);
     }
-  }, []);
+  }, [showLiveStream, viewTracked]);
 
   // Don't navigate directly to repost urls
   // Always redirect to the actual content
