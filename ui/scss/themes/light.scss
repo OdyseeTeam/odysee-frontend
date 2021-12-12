@@ -19,7 +19,7 @@
 
   // Structure
   --color-border: #ffffff;
-  --color-background-base: 241, 241, 241;
+  --color-background-base: 221, 221, 221;
   --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #21252980;
   --color-card-background: #ffffff;
@@ -56,7 +56,7 @@
   --color-button-secondary-text: black;
   --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 0.4);
   --color-button-secondary-text-hover: var(--color-primary);
-  --color-button-toggle-text: white;
+  --color-button-toggle-text: var(--color-primary-contrast);
   --color-button-toggle-bg: var(--color-primary);
   --color-button-toggle-bg-hover: var(--color-secondary);
   --color-button-border: var(--color-gray-3);
@@ -163,6 +163,6 @@
   --color-scrollbar-thumb-bg: rgba(0, 0, 0, 0.2);
   --color-scrollbar-track-bg: transparent;
 
-  --background-shade: linear-gradient(-180deg, rgba(245, 245, 245, 0.1) 2%, #ffffff),
-    radial-gradient(circle at 50% 117%, rgba(245, 245, 245, 0.1) 0, #ffffff 100%);
+  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.5) 2%, #ffffff),
+    radial-gradient(circle at 50% 117%, rgba(var(--color-background-base), 0.5) 0, #ffffff 100%);
 }
