@@ -98,6 +98,10 @@ function Page(props: Props) {
     return null;
   }
 
+  function scrollHandler(e) {
+    console.log(e);
+  }
+
   React.useEffect(() => {
     if (isOnFilePage || isMediumScreen) {
       setSidebarOpen(false);
@@ -111,6 +115,7 @@ function Page(props: Props) {
       <Fragment>
         {!noHeader && (
           <Header
+            onScroll={scrollHandler}
             authHeader={authPage}
             backout={backout}
             sidebarOpen={sidebarOpen}
