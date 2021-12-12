@@ -2,6 +2,7 @@
   @extend .card;
   position: absolute;
   top: var(--spacing-s);
+  border-radius: var(--border-radius);
 }
 
 .content__viewer--disable-click {

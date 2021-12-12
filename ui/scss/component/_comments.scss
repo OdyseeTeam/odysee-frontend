@@ -305,9 +305,13 @@ $thumbnailWidthSmall: 1rem;
     padding: 0;
   }
 
+  .comment__menu-help {
+    color: var(--color-text);
+  }
+
   &:hover {
     .comment__menu-help {
-      color: var(--color-menu-icon-active);
+      color: var(--color-primary-contrast);
     }
   }
 }
@@ -440,6 +444,7 @@ $thumbnailWidthSmall: 1rem;
   max-width: 10rem;
   white-space: pre-line;
   margin-right: var(--spacing-s);
+  color: var(--color-text);
 }
 
 .comment--blocked {
