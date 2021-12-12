@@ -112,22 +112,9 @@ export default function LivestreamPage(props: Props) {
 
   const stringifiedClaim = JSON.stringify(claim);
 
-  const [viewWasTracked, setviewWasTracked] = React.useState(false);
   React.useEffect(() => {
     if (uri && stringifiedClaim) {
       const jsonClaim = JSON.parse(stringifiedClaim);
-
-      if (jsonClaim) {
-        const { txid, nout, claim_id: claimId } = jsonClaim;
-        const outpoint = `${txid}:${nout}`;
-
-        // @Note: it's important this only runs once.
-        if (!viewWasTracked) {
-          analytics.apiLogView(uri, outpoint, claimId);
-          setviewWasTracked(true);
-        }
-      }
-
       if (!isAuthenticated) {
         const uri = jsonClaim.signing_channel && jsonClaim.signing_channel.permanent_url;
         if (uri) {

@@ -39,6 +39,7 @@ type Props = {
   collectionUrls: Array<string>,
   isResolvingCollection: boolean,
   fetchCollectionItems: (string) => void,
+  doAnalyticsView: (string) => void,
 };
 
 function ShowPage(props: Props) {
@@ -59,6 +60,7 @@ function ShowPage(props: Props) {
     collection,
     collectionUrls,
     isResolvingCollection,
+    doAnalyticsView,
   } = props;
 
   const { search } = location;
@@ -72,6 +74,8 @@ function ShowPage(props: Props) {
   const { push } = useHistory();
   const isCollection = claim && claim.value_type === 'collection';
   const resolvedCollection = collection && collection.id; // not null
+
+  const showLiveStream = isLivestream && ENABLE_NO_SOURCE_CLAIMS;
 
   // changed this from 'isCollection' to resolve strangers' collections.
   React.useEffect(() => {
@@ -112,6 +116,14 @@ function ShowPage(props: Props) {
       );
     }
   }, [resolveUri, isResolvingUri, canonicalUrl, uri, claimExists, haventFetchedYet, isMine, claimIsPending, search]);
+
+  // Regular claims will call the file/view event when a user actually watches the claim
+  // This can be removed when we get rid of the livestream iframe
+  useEffect(() => {
+    if (showLiveStream) {
+      doAnalyticsView(uri);
+    }
+  }, []);
 
   // Don't navigate directly to repost urls
   // Always redirect to the actual content
@@ -201,7 +213,7 @@ function ShowPage(props: Props) {
           />
         </Page>
       );
-    } else if (isLivestream && ENABLE_NO_SOURCE_CLAIMS) {
+    } else if (showLiveStream) {
       innerContent = <LivestreamPage uri={uri} claim={claim} />;
     } else {
       innerContent = <FilePage uri={uri} location={location} />;
