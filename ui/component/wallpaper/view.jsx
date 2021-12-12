@@ -135,7 +135,7 @@ const Wallpaper = (props: Props) => {
 */
 
   function shadeCheck(data, i) {
-    let threshold = 55;
+    let threshold = 75;
     let white = 0;
     if (data[i] > 255 - threshold) white = white + 1;
     if (data[i + 1] > 255 - threshold) white = white + 1;
