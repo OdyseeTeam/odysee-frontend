@@ -78,19 +78,23 @@ const Wallpaper = (props: Props) => {
       canvas = document.createElement('canvas'),
       context = canvas.getContext && canvas.getContext('2d'),
       data,
-      width,
-      height,
+      //      width,
+      //      height,
       i = -4,
       length,
       rgb = { r: 0, g: 0, b: 0 },
-      count = 0;
+      rgb_gray = { r: 0, g: 0, b: 0 },
+      blackwhite = { r: 0, g: 0, b: 0 },
+      count = 0,
+      count_gray = 0,
+      count_off = 0;
 
     if (!context) {
       return defaultRGB;
     }
 
-    height = canvas.height = img.naturalHeight || img.offsetHeight || img.height;
-    width = canvas.width = img.naturalWidth || img.offsetWidth || img.width;
+    let height = (canvas.height = img.naturalHeight || img.offsetHeight || img.height);
+    let width = (canvas.width = img.naturalWidth || img.offsetWidth || img.width);
 
     context.drawImage(img, 0, 0);
 
@@ -103,17 +107,37 @@ const Wallpaper = (props: Props) => {
     length = data.data.length;
 
     while ((i += blockSize * 4) < length) {
-      if (shadeCheck(data.data, i)) {
+      if (shadeCheck(data.data, i, 75)) {
         ++count;
         rgb.r += data.data[i];
         rgb.g += data.data[i + 1];
         rgb.b += data.data[i + 2];
+      } else if (shadeCheck(data.data, i, 15)) {
+        ++count_gray;
+        rgb_gray.r += data.data[i];
+        rgb_gray.g += data.data[i + 1];
+        rgb_gray.b += data.data[i + 2];
+      } else {
+        ++count_off;
+        blackwhite.r += data.data[i];
+        blackwhite.g += data.data[i + 1];
+        blackwhite.b += data.data[i + 2];
       }
     }
 
-    rgb.r = ~~(rgb.r / count);
-    rgb.g = ~~(rgb.g / count);
-    rgb.b = ~~(rgb.b / count);
+    if (count > count_gray && count > count_off) {
+      rgb.r = ~~(rgb.r / count);
+      rgb.g = ~~(rgb.g / count);
+      rgb.b = ~~(rgb.b / count);
+    } else if (count_gray > count_off) {
+      rgb.r = ~~(rgb_gray.r / count_gray);
+      rgb.g = ~~(rgb_gray.g / count_gray);
+      rgb.b = ~~(rgb_gray.b / count_gray);
+    } else {
+      rgb.r = ~~(blackwhite.r / count_off);
+      rgb.g = ~~(blackwhite.g / count_off);
+      rgb.b = ~~(blackwhite.b / count_off);
+    }
 
     callback(rgb);
   }
@@ -134,8 +158,7 @@ const Wallpaper = (props: Props) => {
   }
 */
 
-  function shadeCheck(data, i) {
-    let threshold = 75;
+  function shadeCheck(data, i, threshold) {
     let white = 0;
     if (data[i] > 255 - threshold) white = white + 1;
     if (data[i + 1] > 255 - threshold) white = white + 1;
