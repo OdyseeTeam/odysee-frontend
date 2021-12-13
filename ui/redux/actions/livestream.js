@@ -165,6 +165,8 @@ export const doFetchActiveLivestream = (channelID: string) => {
       });
     } catch (err) {
       dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED });
+    } finally {
+      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FINISHED });
     }
   };
 };

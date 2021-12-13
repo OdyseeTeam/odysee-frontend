@@ -22,6 +22,7 @@ type Props = {
   doCommentSocketDisconnect: (string) => void,
   currentlyLiveClaim?: any,
   doFetchActiveLivestream: (string) => void,
+  checkedActiveLiveStream: boolean,
 };
 
 export default function LivestreamPage(props: Props) {
@@ -37,6 +38,7 @@ export default function LivestreamPage(props: Props) {
     doCommentSocketDisconnect,
     currentlyLiveClaim,
     doFetchActiveLivestream,
+    checkedActiveLiveStream,
   } = props;
 
   React.useEffect(() => {
@@ -159,7 +161,8 @@ export default function LivestreamPage(props: Props) {
   }, [doSetPlayingUri]);
 
   return (
-    isChannelBroadcasting !== 'pending' && (
+    isChannelBroadcasting !== 'pending' &&
+    checkedActiveLiveStream && (
       <Page
         className="file-page"
         noFooter

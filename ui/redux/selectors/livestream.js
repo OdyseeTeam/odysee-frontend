@@ -68,4 +68,4 @@ export const selectFetchingActiveLivestreams = (state: State) => selectState(sta
 
 export const selectFetchingActiveLivestream = (state: State) => selectState(state).fetchingActiveLivestream;
 
-export const selectFetchedActiveLivestream = (state: State) => selectState(state).fetchedActiveLiveStream;
+export const selectCheckedActiveLiveStream = (state: State) => selectState(state).checkedActiveLiveStream;

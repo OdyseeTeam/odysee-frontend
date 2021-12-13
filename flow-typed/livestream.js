@@ -34,7 +34,7 @@ declare type LivestreamState = {
   activeLivestreamsLastFetchedDate: number,
   activeLivestreamsLastFetchedOptions: {},
   fetchingActiveLivestream: boolean,
-  fetchedActiveLiveStream: boolean,
+  checkedActiveLiveStream: boolean,
   currentlyLiveClaim: CurrentlyLiveClaim | null,
 }
 
