@@ -8,6 +8,8 @@
   font-size: var(--font-body);
   -webkit-user-select: none;
   -webkit-app-region: drag;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 
   .skip-button {
     opacity: 0;
