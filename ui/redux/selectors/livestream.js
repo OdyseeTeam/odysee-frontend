@@ -48,6 +48,8 @@ export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
 
 export const selectActiveLivestreams = (state: State) => selectState(state).activeLivestreams;
 
+export const selectCurrentlyLiveClaim = (state: State) => selectState(state).currentlyLiveClaim;
+
 export const selectIsActiveLivestreamForUri = createCachedSelector(
   (state, uri) => uri,
   selectActiveLivestreams,
@@ -57,7 +59,13 @@ export const selectIsActiveLivestreamForUri = createCachedSelector(
     }
 
     const activeLivestreamValues = Object.values(activeLivestreams);
-    // $FlowFixMe - unable to resolve latestClaimUri
-    return activeLivestreamValues.some((v) => v.latestClaimUri === uri);
+    // $FlowFixMe - unable to resolve claimUri
+    return activeLivestreamValues.some((v) => v.claimUri === uri);
   }
 )((state, uri) => String(uri));
+
+export const selectFetchingActiveLivestreams = (state: State) => selectState(state).fetchingActiveLivestreams;
+
+export const selectFetchingActiveLivestream = (state: State) => selectState(state).fetchingActiveLivestream;
+
+export const selectFetchedActiveLivestream = (state: State) => selectState(state).fetchedActiveLiveStream;

@@ -14,7 +14,7 @@ import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
 import { lighthouse } from 'redux/actions/search';
 import ScheduledStreams from 'component/scheduledStreams';
-import { getLivestreamUris } from 'util/livestream';
+import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -38,9 +38,8 @@ type Props = {
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: () => void,
-  fetchingActiveLivestreams: boolean,
+  currentlyLiveClaim?: any,
+  doFetchActiveLivestream: (string) => void,
 };
 
 function ChannelContent(props: Props) {
@@ -60,9 +59,8 @@ function ChannelContent(props: Props) {
     doResolveUris,
     claimType,
     empty,
-    activeLivestreams,
-    doFetchActiveLivestreams,
-    fetchingActiveLivestreams,
+    currentlyLiveClaim,
+    doFetchActiveLivestream,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
   const claimsInChannel = 9999;
@@ -73,6 +71,7 @@ function ChannelContent(props: Props) {
   } = useHistory();
   const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
+  const isChannelEmpty = !claim || !claim.meta;
   const showFilters =
     !claimType ||
     (Array.isArray(claimType)
@@ -218,10 +217,6 @@ function ChannelContent(props: Props) {
   // }, []);
 
   React.useEffect(() => {
-    doFetchActiveLivestreams();
-  }, []);
-
-  React.useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery === '' || !claimId) {
         // In order to display original search results, search results must be set to null. A query of '' should display original results.
@@ -251,95 +246,114 @@ function ChannelContent(props: Props) {
       }
     }, DEBOUNCE_WAIT_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [claimId, searchQuery, showMature]);
+  }, [claimId, searchQuery, showMature, doResolveUris]);
 
   React.useEffect(() => {
     setSearchQuery('');
     setSearchResults(null);
   }, [url]);
 
+  // Track streaming status for channel.
+  const [isLivestreaming, setIsLivestreaming] = React.useState(false);
+
+  React.useEffect(() => watchLivestreamStatus(claimId, (state) => setIsLivestreaming(state)), [
+    claimId,
+    setIsLivestreaming,
+  ]);
+
+  // Find out which claim is considered live.
+  React.useEffect(() => {
+    if (isLivestreaming) {
+      doFetchActiveLivestream(claimId);
+      const intervalId = setInterval(() => {
+        doFetchActiveLivestream(claimId);
+      }, 30000);
+      return () => clearInterval(intervalId);
+    }
+  }, [claimId, isLivestreaming, doFetchActiveLivestream]);
+
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
   return (
-    !fetchingActiveLivestreams && (
-      <Fragment>
-        {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
-          <HiddenNsfwClaims uri={uri} />
-        )}
+    <Fragment>
+      {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
+        <HiddenNsfwClaims uri={uri} />
+      )}
 
-        <LivestreamLink uri={uri} />
+      {!fetching && isLivestreaming && currentlyLiveClaim && !isChannelEmpty && (
+        <LivestreamLink claimUri={currentlyLiveClaim.claimUri} />
+      )}
 
-        {showScheduledLiveStreams && (
-          <ScheduledStreams
-            channelIds={[claimId]}
-            tileLayout={tileLayout}
-            liveUris={getLivestreamUris(activeLivestreams, [claimId])}
-          />
-        )}
+      {!fetching && showScheduledLiveStreams && (
+        <ScheduledStreams
+          channelIds={[claimId]}
+          tileLayout={tileLayout}
+          liveUris={isLivestreaming && currentlyLiveClaim ? [currentlyLiveClaim.claimUri] : []}
+        />
+      )}
 
-        {!fetching && channelIsBlackListed && (
-          <section className="card card--section">
-            <p>
-              {__(
-                'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
-              )}
-            </p>
-            <div className="section__actions">
-              <Button button="link" href="https://odysee.com/@OdyseeHelp:b/copyright:f" label={__('Read More')} />
-            </div>
-          </section>
-        )}
-
-        {!fetching && channelIsBlocked && (
-          <div className="card--section">
-            <h2 className="help">{__('You have blocked this channel content.')}</h2>
+      {!fetching && channelIsBlackListed && (
+        <section className="card card--section">
+          <p>
+            {__(
+              'In response to a complaint we received under the US Digital Millennium Copyright Act, we have blocked access to this channel from our applications. Content may also be blocked due to DMCA Red Flag rules which are obvious copyright violations we come across, are discussed in public channels, or reported to us.'
+            )}
+          </p>
+          <div className="section__actions">
+            <Button button="link" href="https://odysee.com/@OdyseeHelp:b/copyright:f" label={__('Read More')} />
           </div>
-        )}
+        </section>
+      )}
 
-        {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
+      {!fetching && channelIsBlocked && (
+        <div className="card--section">
+          <h2 className="help">{__('You have blocked this channel content.')}</h2>
+        </div>
+      )}
 
-        <Ads type="homepage" />
+      {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-        {!fetching && (
-          <ClaimListDiscover
-            hasSource
-            defaultFreshness={CS.FRESH_ALL}
-            showHiddenByUser={viewHiddenChannels}
-            forceShowReposts
-            fetchViewCount
-            hideFilters={!showFilters}
-            hideAdvancedFilter={!showFilters}
-            tileLayout={tileLayout}
-            uris={searchResults}
-            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            channelIds={[claimId]}
-            claimType={claimType}
-            feeAmount={CS.FEE_AMOUNT_ANY}
-            defaultOrderBy={CS.ORDER_BY_NEW}
-            pageSize={defaultPageSize}
-            infiniteScroll={defaultInfiniteScroll}
-            injectedItem={SHOW_ADS && !isAuthenticated && IS_WEB && <Ads type="video" />}
-            meta={
-              showFilters && (
-                <Form onSubmit={() => {}} className="wunderbar--inline">
-                  <Icon icon={ICONS.SEARCH} />
-                  <FormField
-                    className="wunderbar__input--inline"
-                    value={searchQuery}
-                    onChange={handleInputChange}
-                    type="text"
-                    placeholder={__('Search')}
-                  />
-                </Form>
-              )
-            }
-            isChannel
-            channelIsMine={channelIsMine}
-            empty={empty}
-          />
-        )}
-      </Fragment>
-    )
+      <Ads type="homepage" />
+
+      {!fetching && (
+        <ClaimListDiscover
+          hasSource
+          defaultFreshness={CS.FRESH_ALL}
+          showHiddenByUser={viewHiddenChannels}
+          forceShowReposts
+          fetchViewCount
+          hideFilters={!showFilters}
+          hideAdvancedFilter={!showFilters}
+          tileLayout={tileLayout}
+          uris={searchResults}
+          streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+          channelIds={[claimId]}
+          claimType={claimType}
+          feeAmount={CS.FEE_AMOUNT_ANY}
+          defaultOrderBy={CS.ORDER_BY_NEW}
+          pageSize={defaultPageSize}
+          infiniteScroll={defaultInfiniteScroll}
+          injectedItem={SHOW_ADS && !isAuthenticated && IS_WEB && <Ads type="video" />}
+          meta={
+            showFilters && (
+              <Form onSubmit={() => {}} className="wunderbar--inline">
+                <Icon icon={ICONS.SEARCH} />
+                <FormField
+                  className="wunderbar__input--inline"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  type="text"
+                  placeholder={__('Search')}
+                />
+              </Form>
+            )
+          }
+          isChannel
+          channelIsMine={channelIsMine}
+          empty={empty}
+        />
+      )}
+    </Fragment>
   );
 }
 

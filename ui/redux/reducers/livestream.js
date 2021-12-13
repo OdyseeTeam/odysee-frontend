@@ -9,6 +9,9 @@ const defaultState: LivestreamState = {
   activeLivestreams: null,
   activeLivestreamsLastFetchedDate: 0,
   activeLivestreamsLastFetchedOptions: {},
+  fetchingActiveLivestream: false,
+  fetchedActiveLiveStream: false,
+  currentlyLiveClaim: null,
 };
 
 export default handleActions(
@@ -54,6 +57,21 @@ export default handleActions(
         activeLivestreams,
         activeLivestreamsLastFetchedDate,
         activeLivestreamsLastFetchedOptions,
+      };
+    },
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_STARTED]: (state: LivestreamState) => {
+      return { ...state, fetchingActiveLivestream: true };
+    },
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED]: (state: LivestreamState) => {
+      return { ...state, fetchingActiveLivestream: false };
+    },
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_COMPLETED]: (state: LivestreamState, action: any) => {
+      const currentlyLiveClaim = action.data;
+      return {
+        ...state,
+        fetchingActiveLivestream: false,
+        fetchedActiveLiveStream: true,
+        currentlyLiveClaim,
       };
     },
   },

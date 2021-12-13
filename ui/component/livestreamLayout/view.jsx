@@ -14,13 +14,13 @@ type Props = {
   claim: ?StreamClaim,
   hideComments: boolean,
   release: any,
-  isBroadcasting: boolean,
   showLivestream: boolean,
   showScheduledInfo: boolean,
+  isCurrentClaimLive: boolean,
 };
 
 export default function LivestreamLayout(props: Props) {
-  const { claim, uri, hideComments, release, isBroadcasting, showLivestream, showScheduledInfo } = props;
+  const { claim, uri, hideComments, release, showLivestream, showScheduledInfo, isCurrentClaimLive } = props;
 
   const isMobile = useIsMobile();
 
@@ -40,7 +40,7 @@ export default function LivestreamLayout(props: Props) {
           })}
         >
           <div className="file-viewer">
-            {(showLivestream || !showScheduledInfo) && (
+            {showLivestream && (
               <iframe
                 src={`${LIVESTREAM_EMBED_URL}/${channelClaimId}?skin=odysee&autoplay=1`}
                 scrolling="no"
@@ -59,7 +59,7 @@ export default function LivestreamLayout(props: Props) {
           </div>
         )}
 
-        {!showScheduledInfo && !isBroadcasting && (
+        {!showScheduledInfo && !isCurrentClaimLive && (
           <div className="help--notice">
             {channelName
               ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {

@@ -20,6 +20,9 @@ type Props = {
   chatDisabled: boolean,
   doCommentSocketConnect: (string, string) => void,
   doCommentSocketDisconnect: (string) => void,
+  currentlyLiveClaim?: any,
+  doFetchActiveLivestream: (string) => void,
+  fetchedActiveLiveStream: boolean,
 };
 
 export default function LivestreamPage(props: Props) {
@@ -33,6 +36,9 @@ export default function LivestreamPage(props: Props) {
     chatDisabled,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
+    currentlyLiveClaim,
+    doFetchActiveLivestream,
+    fetchedActiveLiveStream,
   } = props;
 
   React.useEffect(() => {
@@ -54,22 +60,38 @@ export default function LivestreamPage(props: Props) {
   }, [claimId, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
 
   const [isBroadcastingInitialized, setIsBroadcastingInitialized] = React.useState(false);
-  const [isBroadcasting, setIsBroadcasting] = React.useState('pending');
-  const livestreamChannelId = channelClaimId;
+  const [isChannelBroadcasting, setIsChannelBroadcasting] = React.useState('pending');
+  const [isCurrentClaimLive, setIsCurrentClaimLive] = React.useState(false);
+  const livestreamChannelId = channelClaimId || '';
 
   React.useEffect(() => {
-    if (isBroadcasting !== 'pending') setIsBroadcastingInitialized(true);
-  }, [isBroadcasting]);
+    if (isChannelBroadcasting !== 'pending') setIsBroadcastingInitialized(true);
+  }, [isChannelBroadcasting]);
 
   React.useEffect(() => {
     if (!livestreamChannelId) {
-      setIsBroadcasting(false);
+      setIsChannelBroadcasting(false);
       return;
     }
     return watchLivestreamStatus(livestreamChannelId, (state) => {
-      setIsBroadcasting(state);
+      setIsChannelBroadcasting(state);
     });
-  }, [livestreamChannelId, setIsBroadcasting]);
+  }, [livestreamChannelId, setIsChannelBroadcasting]);
+
+  // Find out which claim is considered live.
+  React.useEffect(() => {
+    if (isChannelBroadcasting) {
+      doFetchActiveLivestream(livestreamChannelId);
+      const intervalId = setInterval(() => {
+        doFetchActiveLivestream(livestreamChannelId);
+      }, 30000);
+      return () => clearInterval(intervalId);
+    }
+  }, [livestreamChannelId, isChannelBroadcasting, doFetchActiveLivestream]);
+
+  React.useEffect(() => {
+    if (currentlyLiveClaim) setIsCurrentClaimLive(currentlyLiveClaim.claimId === claimId);
+  }, [currentlyLiveClaim, claimId]);
 
   // $FlowFixMe
   const release = moment.unix(claim.value.release_time);
@@ -91,11 +113,14 @@ export default function LivestreamPage(props: Props) {
     const claimReleaseStartedRecently = () =>
       release.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment());
 
-    const checkShowLivestream = () => isBroadcasting === true && (claimReleaseInPast() || claimReleaseStartingSoon());
+    const checkShowLivestream = () =>
+      isChannelBroadcasting === true && isCurrentClaimLive && (claimReleaseInPast() || claimReleaseStartingSoon());
 
     const checkShowScheduledInfo = () =>
-      (!isBroadcasting && (claimReleaseInFuture() || claimReleaseStartedRecently())) ||
-      (isBroadcasting === true && claimReleaseInFuture() && !claimReleaseStartingSoon());
+      (isChannelBroadcasting === false && (claimReleaseInFuture() || claimReleaseStartedRecently())) ||
+      (isChannelBroadcasting === true &&
+        ((!isCurrentClaimLive && (claimReleaseInFuture() || claimReleaseStartedRecently())) ||
+          (isCurrentClaimLive && claimReleaseInFuture() && !claimReleaseStartingSoon())));
 
     const checkCommentsDisabled = () => chatDisabled || (claimReleaseInFuture() && !claimReleaseStartingSoon());
 
@@ -107,8 +132,13 @@ export default function LivestreamPage(props: Props) {
 
     calculateStreamReleaseState();
     const intervalId = setInterval(calculateStreamReleaseState, 1000);
+
+    if (isCurrentClaimLive && claimReleaseInPast() && isChannelBroadcasting === true) {
+      clearInterval(intervalId);
+    }
+
     return () => clearInterval(intervalId);
-  }, [isBroadcastingInitialized, chatDisabled, isBroadcasting, release]);
+  }, [isBroadcastingInitialized, chatDisabled, isChannelBroadcasting, release, isCurrentClaimLive]);
 
   const stringifiedClaim = JSON.stringify(claim);
 
@@ -131,7 +161,8 @@ export default function LivestreamPage(props: Props) {
   }, [doSetPlayingUri]);
 
   return (
-    isBroadcasting !== 'pending' && (
+    isChannelBroadcasting !== 'pending' &&
+    fetchedActiveLiveStream && (
       <Page
         className="file-page"
         noFooter
@@ -149,7 +180,7 @@ export default function LivestreamPage(props: Props) {
           uri={uri}
           hideComments={hideComments}
           release={release}
-          isBroadcasting={isBroadcasting}
+          isCurrentClaimLive={isCurrentClaimLive}
           showLivestream={showLivestream}
           showScheduledInfo={showScheduledInfo}
         />

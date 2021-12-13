@@ -1,9 +1,8 @@
 // @flow
 
 import Lbry from 'lbry';
-import { LIVESTREAM_KILL, LIVESTREAM_LIVE_API, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
+import { LIVESTREAM_KILL, LIVESTREAM_LIVE_API } from 'constants/livestream';
 import { toHex } from 'util/hex';
-import moment from 'moment';
 
 type StreamData = {
   d: string,
@@ -53,61 +52,4 @@ export const isLiveStreaming = async (channelId: string): Promise<boolean> => {
   } catch {
     return false;
   }
-};
-
-export const getScheduledLivestreams = async (
-  channelIds: Array<string>,
-  page: number = 1,
-  pageSize: number = 6
-): Promise<any> => {
-  return Lbry.claim_search({
-    channel_ids: channelIds,
-    page: page,
-    page_size: pageSize,
-    no_totals: true,
-    has_no_source: true,
-    claim_type: ['stream'],
-    order_by: ['^release_time'],
-    release_time: `>${moment().unix()}`,
-  });
-};
-
-export const getActiveLivestream = async (channelId: string): Promise<any> => {
-  const scheduled = Lbry.claim_search({
-    channel_ids: [channelId],
-    page: 1,
-    page_size: 1,
-    no_totals: true,
-    has_no_source: true,
-    claim_type: ['stream'],
-    order_by: ['^release_time'],
-    release_time: `>${moment().subtract(5, 'minutes').unix()}`,
-  });
-
-  const recent = Lbry.claim_search({
-    channel_ids: [channelId],
-    page: 1,
-    page_size: 1,
-    no_totals: true,
-    has_no_source: true,
-    claim_type: ['stream'],
-    order_by: ['release_time'],
-    release_time: `<${moment().unix()}`,
-  });
-
-  return Promise.all([scheduled, recent]).then(([scheduledResp, recentResp]) => {
-    const scheduledClaim = scheduledResp?.items[0] || null;
-    const recentClaim = recentResp?.items[0] || null;
-
-    if (scheduledClaim) {
-      const startsSoonMoment = moment().startOf('minute').add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes');
-      // $FlowFixMe
-      if (moment(scheduledClaim.value.release_time * 1000).isSameOrBefore(startsSoonMoment)) {
-        return scheduledClaim;
-      } else {
-        return recentClaim;
-      }
-    }
-    return recentClaim;
-  });
 };
