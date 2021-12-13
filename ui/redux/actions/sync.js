@@ -16,8 +16,6 @@ import { doHandleSyncComplete } from 'redux/actions/app';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 
-let syncTimer = null;
-const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
 const NO_WALLET_ERROR = 'no wallet found for this user';
 const BAD_PASSWORD_ERROR_NAME = 'InvalidPasswordError';
 
@@ -115,32 +113,15 @@ export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string) => 
   });
 };
 
-export function doSyncLoop(noInterval?: boolean) {
+export function doSyncLoop() {
   return (dispatch: Dispatch, getState: GetState) => {
-    if (!noInterval && syncTimer) clearInterval(syncTimer);
     const state = getState();
     const hasVerifiedEmail = selectUserVerifiedEmail(state);
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const syncLocked = selectSyncIsLocked(state);
+
     if (hasVerifiedEmail && syncEnabled && !syncLocked) {
       dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData))));
-      if (!noInterval) {
-        syncTimer = setInterval(() => {
-          const state = getState();
-          const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
-          if (syncEnabled) {
-            dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData))));
-          }
-        }, SYNC_INTERVAL);
-      }
-    }
-  };
-}
-
-export function doSyncUnsubscribe() {
-  return () => {
-    if (syncTimer) {
-      clearInterval(syncTimer);
     }
   };
 }

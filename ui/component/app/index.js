@@ -50,7 +50,7 @@ const perform = (dispatch) => ({
   setLanguage: (language) => dispatch(doSetLanguage(language)),
   signIn: () => dispatch(doSignIn()),
   requestDownloadUpgrade: () => dispatch(doDownloadUpgradeRequested()),
-  syncLoop: (noInterval) => dispatch(doSyncLoop(noInterval)),
+  syncLoop: () => dispatch(doSyncLoop()),
   setReferrer: (referrer, doClaim) => dispatch(doUserSetReferrer(referrer, doClaim)),
   setActiveChannelIfNotSet: () => dispatch(doSetActiveChannel()),
   setIncognito: () => dispatch(doSetIncognito()),

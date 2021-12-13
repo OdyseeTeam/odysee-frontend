@@ -9,7 +9,7 @@ import analytics from 'analytics';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { launcher } from 'util/autoLaunch';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
+import { doSyncLoop, doSetSyncLock } from 'redux/actions/sync';
 import { doAlertWaitingForSync, doGetAndPopulatePreferences } from 'redux/actions/app';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
@@ -245,15 +245,17 @@ export function doEnterSettingsPage() {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
+
     if (IS_WEB && !hasVerifiedEmail) {
       return;
     }
-    dispatch(doSyncUnsubscribe());
+
     if (syncEnabled && hasVerifiedEmail) {
-      await dispatch(doSyncLoop(true));
+      await dispatch(doSyncLoop());
     } else {
       await dispatch(doGetAndPopulatePreferences());
     }
+
     dispatch(doSetSyncLock(true));
   };
 }
