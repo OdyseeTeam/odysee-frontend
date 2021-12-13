@@ -18,12 +18,12 @@ const select = (state, props) => ({
   checkedActiveLiveStream: selectCheckedActiveLiveStream(state),
 });
 
-const perform = (dispatch) => ({
+const perform = {
   doSetPlayingUri,
   doUserSetReferrer,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
-  doFetchActiveLivestream: (channelID) => dispatch(doFetchActiveLivestream(channelID)),
-});
+  doFetchActiveLivestream,
+};
 
 export default connect(select, perform)(LivestreamPage);
