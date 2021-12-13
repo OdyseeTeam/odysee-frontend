@@ -446,11 +446,7 @@ function App(props: Props) {
     if (hasSignedIn && hasVerifiedEmail) {
       // In case we are syncing.
       syncLoop();
-      window.addEventListener('focus', syncLoop);
     }
-    return () => {
-      window.removeEventListener('focus', syncLoop);
-    };
   }, [hasSignedIn, hasVerifiedEmail, syncLoop]);
 
   useEffect(() => {
