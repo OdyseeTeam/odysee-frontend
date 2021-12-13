@@ -774,9 +774,37 @@
 }
 
 .claim-preview__repost-author {
+  /*
   transform: translateY(calc(var(--spacing-xs) * -1));
   font-size: var(--font-xsmall);
   color: var(--color-text-subtitle);
+  */
+
+  width: 150px;
+  height: 150px;
+  overflow: hidden;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+
+  .claim-preview__repost-ribbon {
+    position: absolute;
+    display: block;
+    width: 225px;
+    padding-top: 4px;
+    padding-right: 40px;
+    background-color: var(--color-primary);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    color: var(--color-primary-contrast);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+    text-align: center;
+    z-index: 1;
+    font-size: var(--font-xxsmall);
+
+    right: -25px;
+    top: 10px;
+    transform: rotate(-45deg);
+  }
 }
 
 .claim-preview__repost-icon {
@@ -785,8 +813,8 @@
 }
 
 .claim-tile__repost-author {
-  margin: var(--spacing-s);
-  margin-bottom: 0;
+  //  margin: var(--spacing-s);
+  //  margin-bottom: 0;
 }
 
 // div that displays watch later button
