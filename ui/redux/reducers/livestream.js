@@ -60,7 +60,7 @@ export default handleActions(
       };
     },
     [ACTIONS.FETCH_ACTIVE_LIVESTREAM_STARTED]: (state: LivestreamState) => {
-      return { ...state, fetchingActiveLivestream: true, checkedActiveLiveStream: false };
+      return { ...state, fetchingActiveLivestream: true };
     },
     [ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED]: (state: LivestreamState) => {
       return { ...state, fetchingActiveLivestream: false };
