@@ -22,6 +22,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 import runAds from './ads';
 import videojs from 'video.js';
+import { SHOW_ADS } from '../../../../../config';
+const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
 
 require('@silvermine/videojs-chromecast')(videojs);
 
@@ -143,6 +145,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playPrevious,
     toggleVideoTheaterMode,
   } = props;
+
+  // Load IMA3 SDK for aniview
+  useEffect(() => {
+    const savedAuthenticationStatus = window.localStorage.getItem('isAuthenticated');
+
+    console.log(savedAuthenticationStatus);
+
+    if (savedAuthenticationStatus && savedAuthenticationStatus === 'false') {
+      if (SHOW_ADS) {
+        const script = document.createElement('script');
+        script.src = imaLibraryPath;
+        script.async = true;
+        // $FlowFixMe
+        document.head.appendChild(script);
+        return () => {
+          // $FlowFixMe
+          document.head.removeChild(script);
+        };
+      }
+    }
+  }, []);
 
   // will later store the videojs player
   const playerRef = useRef();

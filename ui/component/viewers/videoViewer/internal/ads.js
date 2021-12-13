@@ -66,7 +66,7 @@ function runAds(internalFeatureEnabled, allowPreRoll, player, embedded) {
   const vpaidMacroUrl =
     'https://gov.aniview.com/api/adserver/vast3/' +
     '?AV_PUBLISHERID=60afcbc58cfdb065440d2426' +
-    `&AV_CHANNELID=${adTags.live}` +
+    `&AV_CHANNELID=${adTags.ford}` +
     `&AV_URL=${encodeURIComponent(window.location.href)}` +
     `&cb=${encodeURIComponent(timestamp)}` +
     `&AV_WIDTH=${width}` +
@@ -83,11 +83,11 @@ function runAds(internalFeatureEnabled, allowPreRoll, player, embedded) {
     `&hidecontrols=false`;
 
   // always have ads on if internal feature is on,
-// otherwise if not authed, roll for 20% to see an ad
-// allowPreRoll currently means unauthenticated (don't show to logged in users)
+  // otherwise if not authed, roll for 20% to see an ad
+  // allowPreRoll currently means unauthenticated (don't show to logged in users)
   const shouldShowAnAd = internalFeatureEnabled || (!embedded && allowPreRoll && hitsAtFiftyPercentChance);
 
-  if (shouldShowAnAd && browserIsChrome && !IS_MOBILE) {
+  if (shouldShowAnAd && browserIsChrome && !IS_MOBILE && window.google) {
     // fire up ima integration via module
     player.ima({
       adTagUrl: vpaidMacroUrl,

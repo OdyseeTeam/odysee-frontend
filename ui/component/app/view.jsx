@@ -48,7 +48,6 @@ const SyncFatalError = lazyImport(() => import('component/syncFatalError' /* web
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
-const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
 const securePrivacyScriptUrl = 'https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js';
 
 type Props = {
@@ -344,20 +343,18 @@ function App(props: Props) {
     }
   }, [previousRewardApproved, isRewardApproved]);
 
-  // Load IMA3 SDK for aniview
   useEffect(() => {
-    if (!isAuthenticated && SHOW_ADS) {
-      const script = document.createElement('script');
-      script.src = imaLibraryPath;
-      script.async = true;
-      // $FlowFixMe
-      document.body.appendChild(script);
-      return () => {
-        // $FlowFixMe
-        document.body.removeChild(script);
-      };
+    console.log("RUNNING HERE!");
+
+    if (isAuthenticated !== undefined && window.localStorage) {
+      console.log('UPDATING HERE!!');
+      if (isAuthenticated === true) {
+        window.localStorage.setItem('isAuthenticated', 'true');
+      } else if (isAuthenticated === false) {
+        window.localStorage.setItem('isAuthenticated', 'false');
+      }
     }
-  }, []);
+  }, [isAuthenticated]);
 
   // add secure privacy script
   useEffect(() => {
