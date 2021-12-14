@@ -594,7 +594,8 @@
   margin-left: var(--spacing-m);
   justify-content: flex-start;
   list-style: none;
-  overflow: visible;
+  //overflow: visible;
+  overflow: hidden;
 
   // Hover Zoom Effect
   .media__thumb {
@@ -846,11 +847,6 @@
 .claim-preview__repost-icon {
   margin-right: var(--spacing-xxs);
   margin-bottom: -1px; // Offset it slightly because it doesn't look aligned next to all lowercase text + the @ from a channel
-}
-
-.claim-tile__repost-author {
-  //  margin: var(--spacing-s);
-  //  margin-bottom: 0;
 }
 
 // div that displays watch later button

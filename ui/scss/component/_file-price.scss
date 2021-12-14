@@ -11,7 +11,7 @@
     position: relative;
     margin-left: var(--spacing-m);
     white-space: nowrap;
-    color: var(--color-purchased-text);
+    color: var(--color-primary-contrast);
   }
 
   &::before {
@@ -21,9 +21,9 @@
     width: 250%;
     height: 160%;
     transform: skew(15deg);
-    border-radius: var(--border-radius);
-    background-color: var(--color-purchased-alt);
-    border: 2px solid var(--color-purchased);
+    //border-radius: var(--border-radius);
+    background-color: rgba(var(--color-primary-dynamic), 1);
+    //border: 2px solid var(--color-primary);
   }
 }
 
