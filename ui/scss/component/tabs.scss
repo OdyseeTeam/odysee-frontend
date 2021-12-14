@@ -27,6 +27,12 @@
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
   }
+
+  .tab {
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
 }
 
 .tabs__list--collection-edit-page {
