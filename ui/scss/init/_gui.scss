@@ -2,8 +2,8 @@
 // component specific styling should go in the component scss file
 
 *::selection {
-  background-color: var(--color-text-selection-bg);
-  color: var(--color-text-selection);
+  background-color: var(--color-primary);
+  color: var(--color-primary-contrast);
 }
 
 *:focus {
