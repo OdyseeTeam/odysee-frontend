@@ -28,7 +28,10 @@ type Props = {
   uri: string,
   claim: StreamClaim,
   location: UrlLocation,
-  blackListedOutpointMap: { [string]: number },
+  blackListedOutpoints: Array<{
+    txid: string,
+    nout: number,
+  }>,
   title: string,
   claimIsMine: boolean,
   claimIsPending: boolean,
@@ -47,7 +50,7 @@ function ShowPage(props: Props) {
     resolveUri,
     uri,
     claim,
-    blackListedOutpointMap,
+    blackListedOutpoints,
     location,
     claimIsMine,
     isSubscribed,
@@ -178,11 +181,14 @@ function ShowPage(props: Props) {
   } else if (claim.name.length && claim.name[0] === '@') {
     innerContent = <ChannelPage uri={uri} location={location} />;
   } else if (claim) {
-    const isClaimBlackListed =
-      blackListedOutpointMap &&
-      Boolean(
-        (signingChannel && blackListedOutpointMap[`${signingChannel.txid}:${signingChannel.nout}`]) ||
-          blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
+    let isClaimBlackListed = false;
+
+    isClaimBlackListed =
+      blackListedOutpoints &&
+      blackListedOutpoints.some(
+        (outpoint) =>
+          (signingChannel && outpoint.txid === signingChannel.txid && outpoint.nout === signingChannel.nout) ||
+          (outpoint.txid === claim.txid && outpoint.nout === claim.nout)
       );
 
     if (isClaimBlackListed && !claimIsMine) {
@@ -207,7 +213,6 @@ function ShowPage(props: Props) {
       innerContent = <FilePage uri={uri} location={location} />;
     }
   }
-
   return <React.Suspense fallback={null}>{innerContent}</React.Suspense>;
 }
 

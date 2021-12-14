@@ -4,10 +4,12 @@
   top: 0;
   width: 100%;
   background-color: var(--color-header-background);
-  box-shadow: var(--card-box-shadow);
+  //box-shadow: var(--card-box-shadow);
   font-size: var(--font-body);
   -webkit-user-select: none;
   -webkit-app-region: drag;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 
   .skip-button {
     opacity: 0;
@@ -26,6 +28,10 @@
       width: inherit;
       height: inherit;
     }
+  }
+
+  .wunderbar__input {
+    background-color: var(--color-header-button);
   }
 
   & > * {
@@ -102,11 +108,9 @@
 
   &:hover {
     background-color: var(--color-header-button-hover);
-  }
 
-  @media (min-width: $breakpoint-small) {
-    &:focus {
-      @include focus;
+    .icon {
+      stroke: var(--color-primary-contrast);
     }
   }
 
@@ -125,19 +129,18 @@
     width: var(--height-button);
     margin-right: 0;
   }
-
-  &:hover {
-    opacity: 0.7;
-  }
 }
 
 .header__navigation-item--balance {
   @extend .button--file-action;
   margin: 0 var(--spacing-s);
-  color: var(--color-text);
+  padding-left: var(--spacing-s);
+  padding-right: var(--spacing-s);
+  background-color: var(--color-header-button);
 
   &:hover {
-    color: var(--color-text);
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
   }
 }
 
@@ -195,7 +198,7 @@
 
   &:hover {
     cursor: pointer;
-    background-color: var(--color-menu-background--active);
+    background-color: var(--color-menu-background-active);
   }
 }
 

@@ -1,12 +1,17 @@
 .card {
-  background-color: var(--color-card-background);
+  //background-color: var(--color-card-background);
   position: relative;
-  border-radius: var(--card-radius);
+  //border-radius: var(--border-radius);
   overflow: hidden;
-  border: 1px solid var(--color-border);
+  //overflow: visible;
+  //border: 1px solid var(--color-border);
 
   ~ .card {
     margin-bottom: var(--spacing-m);
+  }
+
+  .date_time {
+    font-size: var(--font-xxsmall);
   }
 }
 
@@ -22,7 +27,7 @@
 
 .card--section {
   position: relative;
-  padding: var(--spacing-m);
+  //padding: var(--spacing-m);
 }
 
 .card--reward-total {
@@ -34,12 +39,16 @@
 }
 
 .card--inline {
-  border: 1px solid var(--color-border);
+  //border: 1px solid var(--color-border);
   border-radius: var(--card-radius);
   margin-bottom: var(--spacing-m);
 
   &:last-of-type {
     margin-bottom: 0;
+  }
+
+  .claim-preview__wrapper {
+    background: var(--color-header-background);
   }
 }
 
@@ -99,20 +108,21 @@
   @extend .section__flex;
 
   @media (min-width: $breakpoint-small) {
-    padding: var(--spacing-s) var(--spacing-m);
+    padding: var(--spacing-s) 0px;
   }
 }
 
 .card__title-section--body-list {
-  padding-left: var(--spacing-s);
+  //padding-left: var(--spacing-s);
 
   @media (min-width: $breakpoint-small) {
-    padding: var(--spacing-m);
+    //padding: var(--spacing-m);
   }
 }
 
 .card__title-section--small {
   padding: var(--spacing-s);
+  padding-left: 0px;
 }
 
 .card__actions--inline {
@@ -142,7 +152,7 @@
 
 .card-stack {
   .card:not(:last-of-type) {
-    margin-bottom: var(--spacing-l);
+    margin-bottom: var(--spacing-xxl);
   }
 }
 
@@ -172,7 +182,7 @@
 .card__message {
   border-left: 0.5rem solid;
   padding: var(--spacing-m) var(--spacing-m) var(--spacing-m) var(--spacing-l);
-  background-color: var(--color-primary-alt);
+  background-color: var(--color-secondary);
   border-color: var(--color-primary);
 }
 
@@ -190,7 +200,7 @@
   display: block;
   align-items: center;
   font-size: var(--font-large);
-  font-weight: var(--font-weight-light);
+  font-weight: var(--font-weight-bold);
 
   & > *:not(:last-child) {
     margin-right: var(--spacing-m);
@@ -223,12 +233,13 @@
 
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s);
+    padding-right: 0px;
   }
 }
 
 .card__title-actions--link {
   margin-top: var(--spacing-xs);
-  margin-right: var(--spacing-xs);
+  //margin-right: var(--spacing-xs);
 }
 
 .card__title-actions--small {
@@ -267,6 +278,8 @@
   position: relative;
   display: flex;
   align-items: flex-start;
+  //margin-top:var(--spacing-l);
+  //border-top: 1px solid var(--color-border);
 
   .icon__wrapper {
     margin-right: var(--spacing-l);
@@ -280,10 +293,23 @@
   flex-wrap: wrap;
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s);
+    //padding: var(--spacing-s);
     padding-bottom: 0;
     margin: 0;
     margin-bottom: var(--spacing-s);
+  }
+
+  .button--alt {
+    background-color: var(--color-button-secondary-bg);
+    color: var(--color-button-secondary-text);
+
+    &:hover {
+      background-color: var(--color-button-secondary-bg-hover);
+
+      .icon {
+        stroke: var(--color-button-secondary-text-hover);
+      }
+    }
   }
 }
 
@@ -294,12 +320,13 @@
 
 .card__subtitle {
   color: var(--color-text-subtitle);
-  margin: var(--spacing-s) 0;
+  margin-bottom: var(--spacing-s) 0;
   font-size: var(--font-body);
 }
 
 .card__body {
   padding: var(--spacing-m);
+  padding-left: 0px;
 
   &:not(.card__body--no-title) {
     padding-top: 0;
@@ -313,6 +340,8 @@
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-l);
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 
@@ -326,6 +355,7 @@
   padding-bottom: 0;
   margin-bottom: var(--spacing-s);
   border-top: 1px solid var(--color-border);
+  //border-bottom: 1px solid var(--color-border);
   height: 100%;
 
   &:only-child {
@@ -335,9 +365,13 @@
 
 .card__body-actions {
   padding: var(--spacing-s);
+  padding-left: 0px;
+  padding-right: 0px;
 
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-m);
+    padding-left: 0px;
+    padding-right: 0px;
   }
 }
 
@@ -364,9 +398,11 @@
 .card__body,
 .card__main-actions {
   padding: var(--spacing-m);
+  padding-left: 0;
+  padding-right: 0;
   padding-bottom: 0;
   margin: 0;
-  margin-bottom: var(--spacing-m);
+  margin-bottom: 0px;
 }
 
 .card__bottom-gutter {
@@ -389,6 +425,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  border-bottom: 1px solid var(--color-border);
 }
 
 .card__bottom-actions--comments {

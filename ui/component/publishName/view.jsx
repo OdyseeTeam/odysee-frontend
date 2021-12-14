@@ -16,7 +16,6 @@ type Props = {
   updatePublishForm: ({}) => void,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
-  currentUploads: { [key: string]: FileUploadItem },
 };
 
 function PublishName(props: Props) {
@@ -29,7 +28,6 @@ function PublishName(props: Props) {
     updatePublishForm,
     activeChannelClaim,
     incognito,
-    currentUploads,
   } = props;
   const [nameError, setNameError] = useState(undefined);
   const [blurred, setBlurred] = React.useState(false);
@@ -86,7 +84,6 @@ function PublishName(props: Props) {
           uri={uri}
           isStillEditing={isStillEditing}
           myClaimForUri={myClaimForUri}
-          currentUploads={currentUploads}
           onEditMyClaim={editExistingClaim}
         />
       </div>

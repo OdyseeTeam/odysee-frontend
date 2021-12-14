@@ -1,19 +1,22 @@
 import { connect } from 'react-redux';
-import { makeSelectTagInClaimOrChannelForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { makeSelectTagInClaimOrChannelForUri, makeSelectClaimForUri } from 'redux/selectors/claims';
+import { doResolveUri } from 'redux/actions/claims';
 import { doSetPlayingUri } from 'redux/actions/content';
 import { doUserSetReferrer } from 'redux/actions/user';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectHasUnclaimedRefereeReward } from 'redux/selectors/rewards';
 import { DISABLE_COMMENTS_TAG } from 'constants/tags';
-import { getChannelIdFromClaim } from 'util/claim';
 import LivestreamPage from './view';
 
 const select = (state, props) => ({
+  hasUnclaimedRefereeReward: selectHasUnclaimedRefereeReward(state),
   isAuthenticated: selectUserVerifiedEmail(state),
-  channelClaimId: getChannelIdFromClaim(selectClaimForUri(state, props.uri)),
+  channelClaim: makeSelectClaimForUri(props.uri)(state),
   chatDisabled: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_COMMENTS_TAG)(state),
 });
 
 export default connect(select, {
   doSetPlayingUri,
+  doResolveUri,
   doUserSetReferrer,
 })(LivestreamPage);

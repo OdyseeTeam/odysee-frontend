@@ -6,7 +6,7 @@ select,
 .date-picker-input {
   height: var(--height-input);
   border-radius: var(--border-radius);
-  border: 1px solid;
+  //border: 1px solid;
   color: var(--color-input);
   border-color: var(--color-input-border);
   background-color: var(--color-input-bg);
@@ -159,7 +159,7 @@ input-submit {
     display: inline-block;
     margin: 0;
     font-size: var(--font-base);
-    padding-left: calc(var(--height-checkbox) + var(--spacing-s));
+    padding-left: calc(var(--height-checkbox) + 10px);
     min-height: var(--height-checkbox);
 
     &::before {
@@ -367,12 +367,12 @@ fieldset-group {
         overflow: hidden;
         padding: 0.5rem;
         height: var(--height-input);
-        border: 1px solid;
+        //border: 1px solid;
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
         border-color: var(--color-input-border);
         border-right-color: var(--color-input-prefix-border);
-        color: var(--color-text);
+        color: white;
         background-color: var(--color-input-prefix-bg);
       }
     }

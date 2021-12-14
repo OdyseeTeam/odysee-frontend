@@ -28,32 +28,11 @@ body {
   font-weight: 400;
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-
-  // The W3C future standard; currently supported by Firefox only.
-  // It'll hopefully auto fallback to this when 'webkit-scrollbar' below is deprecated in the future.
-  scrollbar-width: auto;
-  scrollbar-color: var(--color-scrollbar-thumb-bg) var(--color-scrollbar-track-bg);
-}
-
-body *::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
-}
-
-body *::-webkit-scrollbar-track {
-  background: var(--color-scrollbar-track-bg);
-}
-
-body *::-webkit-scrollbar-thumb {
-  // Don't set 'border-radius' because Firefox's 'scrollbar-xx'
-  // standard currently doesn't support it. Stick with square
-  // scrollbar for all browsers.
-  background-color: var(--color-scrollbar-thumb-bg);
 }
 
 hr {
   height: 1px;
-  background-color: var(--color-gray-2);
+  //background-color: var(--color-gray-2);
 }
 
 h1,
@@ -89,9 +68,11 @@ ol {
 .ul--no-style {
   list-style: none;
   margin-bottom: 0;
+  overflow: visible !important;
 
   li {
     margin: 0;
+    margin-bottom: var(--spacing-xxs);
   }
 }
 
@@ -304,15 +285,15 @@ textarea {
   @extend .help;
   padding: var(--spacing-s);
   border-radius: var(--border-radius);
-  background-color: var(--color-help-warning-bg);
-  color: var(--color-help-warning-text);
+  background-color: #fef1f6;
+  color: var(--color-primary-contrast);
   margin-bottom: var(--spacing-s);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-primary);
 }
 
 .help--notice {
   @extend .help--warning;
-  background-color: var(--color-card-background-highlighted);
+  background-color: rgba(var(--color-primary-dynamic), 0.03);
 }
 
 .help--inline {
@@ -426,7 +407,7 @@ textarea {
   position: relative;
   border-radius: var(--border-radius);
   padding: var(--spacing-l);
-  background-color: var(--color-primary-alt);
+  background-color: var(--color-header-background);
 
   ~ .card {
     margin-top: var(--spacing-m);
@@ -535,4 +516,29 @@ textarea {
   > .button {
     white-space: initial;
   }
+}
+
+.background-image {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+
+  background-color: var(--color-background);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center center;
+  filter: blur(23px);
+  -webkit-filter: blur(23px);
+}
+
+.theme-dark {
+  position: fixed;
+  left: 0px;
+  right: 0px;
+  top: 0px;
+  bottom: 0px;
+  //background-image: linear-gradient(-180deg,rgba(73,74,79,0) 2%,#27282e),radial-gradient(circle at 50% 137%, rgba(73,74,79,0) 0, #27282e 100%);
+  background-image: var(--background-shade);
 }

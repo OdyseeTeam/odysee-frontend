@@ -4,6 +4,7 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+import RatioBar from 'component/ratioBar';
 import { formatNumberWithCommas } from 'util/number';
 import NudgeFloating from 'component/nudgeFloating';
 import { SIMPLE_SITE } from 'config';
@@ -72,52 +73,59 @@ function FileReactions(props: Props) {
         />
       )}
 
-      <Button
-        title={__('I like this')}
-        requiresAuth={IS_WEB}
-        authSrc="filereaction_like"
-        className={classnames('button--file-action', { 'button--fire': myReaction === REACTION_TYPES.LIKE })}
-        label={
-          <>
-            {myReaction === REACTION_TYPES.LIKE && SIMPLE_SITE && (
-              <>
-                <div className="button__fire-glow" />
-                <div className="button__fire-particle1" />
-                <div className="button__fire-particle2" />
-                <div className="button__fire-particle3" />
-                <div className="button__fire-particle4" />
-                <div className="button__fire-particle5" />
-                <div className="button__fire-particle6" />
-              </>
-            )}
-            {formatNumberWithCommas(likeCount, 0)}
-          </>
-        }
-        iconSize={18}
-        icon={likeIcon}
-        onClick={() => doReactionLike(uri)}
-      />
-      <Button
-        requiresAuth={IS_WEB}
-        authSrc={'filereaction_dislike'}
-        title={__('I dislike this')}
-        className={classnames('button--file-action', { 'button--slime': myReaction === REACTION_TYPES.DISLIKE })}
-        label={
-          <>
-            {myReaction === REACTION_TYPES.DISLIKE && SIMPLE_SITE && (
-              <>
-                <div className="button__slime-stain" />
-                <div className="button__slime-drop1" />
-                <div className="button__slime-drop2" />
-              </>
-            )}
-            {formatNumberWithCommas(dislikeCount, 0)}
-          </>
-        }
-        iconSize={18}
-        icon={dislikeIcon}
-        onClick={() => doReactionDislike(uri)}
-      />
+      <div className={'ratio-wrapper'}>
+        <Button
+          title={__('I like this')}
+          requiresAuth={IS_WEB}
+          authSrc="filereaction_like"
+          className={classnames('button--file-action button-like', {
+            'button--fire': myReaction === REACTION_TYPES.LIKE,
+          })}
+          label={
+            <>
+              {myReaction === REACTION_TYPES.LIKE && SIMPLE_SITE && (
+                <>
+                  <div className="button__fire-glow" />
+                  <div className="button__fire-particle1" />
+                  <div className="button__fire-particle2" />
+                  <div className="button__fire-particle3" />
+                  <div className="button__fire-particle4" />
+                  <div className="button__fire-particle5" />
+                  <div className="button__fire-particle6" />
+                </>
+              )}
+              {formatNumberWithCommas(likeCount, 0)}
+            </>
+          }
+          iconSize={18}
+          icon={likeIcon}
+          onClick={() => doReactionLike(uri)}
+        />
+        <Button
+          requiresAuth={IS_WEB}
+          authSrc={'filereaction_dislike'}
+          title={__('I dislike this')}
+          className={classnames('button--file-action button-dislike', {
+            'button--slime': myReaction === REACTION_TYPES.DISLIKE,
+          })}
+          label={
+            <>
+              {myReaction === REACTION_TYPES.DISLIKE && SIMPLE_SITE && (
+                <>
+                  <div className="button__slime-stain" />
+                  <div className="button__slime-drop1" />
+                  <div className="button__slime-drop2" />
+                </>
+              )}
+              {formatNumberWithCommas(dislikeCount, 0)}
+            </>
+          }
+          iconSize={18}
+          icon={dislikeIcon}
+          onClick={() => doReactionDislike(uri)}
+        />
+        <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />
+      </div>
     </>
   );
 }

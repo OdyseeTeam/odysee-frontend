@@ -10,7 +10,6 @@ import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
 
@@ -130,9 +129,7 @@ function SideNavigation(props: Props) {
     activeChannelStakedLevel,
   } = props;
 
-  const isLargeScreen = useIsLargeScreen();
-
-  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData, isLargeScreen).map(({ pinnedUrls, ...theRest }) => theRest);
+  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData).map(({ pinnedUrls, ...theRest }) => theRest);
 
   const MOBILE_LINKS: Array<SideNavLink> = [
     {

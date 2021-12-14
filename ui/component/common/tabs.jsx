@@ -33,7 +33,7 @@ import { useRect } from '@reach/rect';
 
 type TabsProps = {
   index?: number,
-  onChange?: number => void,
+  onChange?: (number) => void,
   children: Array<React$Node>,
 };
 
@@ -50,6 +50,16 @@ function Tabs(props: TabsProps) {
 
   const tabLabels = props.children[0];
   const tabContent = props.children[1];
+
+  /*
+  window.addEventListener('scroll', function(e) {
+    if (tabsRef.current && e.target.scrollingElement.scrollTop > (tabsRef.current.offsetTop + tabsRef.current.offsetParent.offsetTop)) {
+      console.log(tabsRef);
+      console.log(tabsRef.current.offsetParent.offsetTop);
+      console.log(tabsRef.current.children[0].offsetHeight);
+    }
+  });
+*/
 
   return (
     <AnimatedContext.Provider value={setSelectedRect}>

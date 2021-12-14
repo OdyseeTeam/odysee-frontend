@@ -1,8 +1,3 @@
-$control-bar-height: 2.5rem;
-$control-bar-font-size: 0.8rem;
-$control-bar-popup-font-size: 0.8rem;
-$control-bar-icon-size: 0.8rem;
-
 .video-js {
   font-size: 12px;
   overflow: hidden;
@@ -10,8 +5,6 @@ $control-bar-icon-size: 0.8rem;
   // Control Bar (container)
   .vjs-control-bar {
     background: none;
-    color: #dbd8d8;
-    height: $control-bar-height;
 
     &::before {
       position: absolute;
@@ -36,7 +29,7 @@ $control-bar-icon-size: 0.8rem;
     // Circle play head
     .vjs-play-progress::before {
       transform: scale(0);
-      transition: transform 0.3s;
+      transition: transform 0.2s;
     }
 
     &:hover {
@@ -54,7 +47,8 @@ $control-bar-icon-size: 0.8rem;
   // Load progress color
   .vjs-load-progress,
   .vjs-load-progress div {
-    background-color: rgba(160, 160, 160, 0.5);
+    //background-color: rgba(160, 160, 160, 0.5);
+    background-color: var(--color-secondary);
   }
 
   // Progress Bar Background
@@ -85,10 +79,19 @@ $control-bar-icon-size: 0.8rem;
     position: absolute !important;
   }*/
 
+  // Menu size
+  .vjs-playback-rate .vjs-menu .vjs-menu-content {
+    width: 125%;
+    font-size: 12px;
+
+    @media (max-width: 652px) {
+      font-size: 10px;
+    }
+  }
+
   // Volume slider
   .vjs-volume-panel {
-    margin-left: var(--spacing-xxs);
-    margin-right: calc(var(--spacing-xxs) * -1);
+    margin-right: -8px;
 
     &.vjs-control {
       transition: 0.2s;
@@ -120,13 +123,13 @@ $control-bar-icon-size: 0.8rem;
 .vjs-has-started {
   .vjs-control-bar {
     opacity: 1;
-    transition: 0.1s;
+    transition: 0.2s;
   }
 
   &.vjs-user-inactive.vjs-playing {
     .vjs-control-bar {
       opacity: 0;
-      transition: 0.3s;
+      transition: 0.2s;
     }
   }
 
@@ -155,18 +158,90 @@ $control-bar-icon-size: 0.8rem;
   background-image: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 72px);
 }
 
+[dir] .video-js .vjs-control {
+  font-size: 14px;
+
+  @media (max-width: 813px) {
+    font-size: 12px;
+  }
+}
+
+.vjs-control-bar {
+  height: 41px !important;
+  color: #dbd8d8;
+}
+
+.vjs-playback-rate {
+  top: 3px !important;
+  left: 12px !important;
+  font-size: 12px !important;
+
+  @media (max-width: 813px) {
+    margin-top: 3px !important;
+    font-size: 10px !important;
+  }
+}
+
+.vjs-quality-selector > .vjs-menu > .vjs-menu-content {
+  margin-bottom: 3px;
+}
+
 .vjs-hover {
   opacity: 1;
 }
 
+.vjs-menu-button {
+  top: 2px;
+  left: 10px;
+}
+
 [dir] .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   background-color: rgba(43, 51, 63);
-  max-height: 20em;
-  margin-bottom: calc(var(--spacing-xxs) * -1); // Prevents accidental dismissal when the gap is hovered.
+}
 
-  li {
-    font-size: $control-bar-popup-font-size;
+.vjs-quality-selector > .vjs-menu > .vjs-menu-content {
+  font-size: 12px;
+
+  @media (max-width: 652px) {
+    font-size: 10px;
   }
+}
+
+.vjs-quality-selector > .vjs-menu {
+  height: 100%;
+}
+
+.vjs-layout-medium .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
+  max-height: 19em;
+}
+
+.vjs-time-divider div span {
+  font-size: 18px;
+  color: #dbd8d8;
+  position: absolute;
+  top: 4px;
+
+  @media (max-width: 813px) {
+    top: 0px;
+  }
+}
+
+.vjs-play-control {
+  font-size: 17px !important;
+  margin-top: -6px !important;
+  margin-right: -14px !important;
+}
+
+.vjs-play-control .vjs-icon-placeholder {
+  margin-right: -5px;
+}
+
+.vjs-button--autoplay-next {
+  margin-top: 15px;
+}
+
+.vjs-fullscreen-control {
+  margin-top: 2px;
 }
 
 .vjs-slider-horizontal {
@@ -186,42 +261,4 @@ $control-bar-icon-size: 0.8rem;
 
 .ima-ad-container {
   display: none;
-}
-
-.video-js-parent .vjs-tech-chromecast {
-  .vjs-tech-chromecast-poster {
-    &::after {
-      $chromecast-poster-width: 50px;
-      width: $chromecast-poster-width;
-      left: calc(50% - #{$chromecast-poster-width * 0.5});
-    }
-  }
-
-  .vjs-tech-chromecast-poster-img {
-    $chromecast-poster-max-height: 50px;
-    max-height: $chromecast-poster-max-height;
-    &.vjs-tech-chromecast-poster-img-empty {
-      width: 80px;
-      height: 90px;
-    }
-  }
-
-  .vjs-tech-chromecast-title-container {
-    margin-bottom: var(--spacing-main-padding);
-  }
-
-  .vjs-tech-chromecast-title {
-    font-size: var(--font-title);
-    @media (max-width: $breakpoint-small) {
-      font-size: var(--font-small);
-    }
-  }
-
-  .vjs-tech-chromecast-subtitle {
-    color: var(--color-text-subtitle);
-    font-size: var(--font-body);
-    @media (max-width: $breakpoint-small) {
-      font-size: var(--font-xsmall);
-    }
-  }
 }

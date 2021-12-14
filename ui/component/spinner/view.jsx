@@ -6,6 +6,7 @@ import { DARK_THEME, LIGHT_THEME } from 'constants/themes';
 type Props = {
   dark?: boolean, // always a dark spinner
   light?: boolean, // always a light spinner
+  purple?: boolean, // always a dark spinner
   theme: string,
   type: ?string,
   delayed: boolean,
@@ -21,6 +22,7 @@ class Spinner extends PureComponent<Props, State> {
     // We may want a dark/light spinner regardless of the current theme
     dark: false,
     light: false,
+    purple: false,
     delayed: false,
   };
 
@@ -55,7 +57,7 @@ class Spinner extends PureComponent<Props, State> {
   delayedTimeout: ?TimeoutID;
 
   render() {
-    const { dark, light, theme, type, text } = this.props;
+    const { dark, light, purple, theme, type, text } = this.props;
     const { show } = this.state;
 
     if (!show) {
@@ -67,8 +69,8 @@ class Spinner extends PureComponent<Props, State> {
         {text}
         <div
           className={classnames('spinner', {
-            'spinner--dark': !light && (dark || theme === LIGHT_THEME),
-            'spinner--light': !dark && (light || theme === DARK_THEME),
+            'spinner--dark': !light && !purple && (dark || theme === LIGHT_THEME),
+            'spinner--light': !dark && !purple && (light || theme === DARK_THEME),
             'spinner--small': type === 'small',
           })}
         >

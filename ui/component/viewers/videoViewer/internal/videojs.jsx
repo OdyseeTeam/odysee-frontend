@@ -1,78 +1,72 @@
 // @flow
+import React, { useEffect, useRef, useState } from 'react';
+// import { SIMPLE_SITE } from 'config';
+import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+import classnames from 'classnames';
+import videojs from 'video.js';
 import 'videojs-contrib-ads'; // must be loaded in this order
 import 'videojs-ima'; // loads directly after contrib-ads
 import 'video.js/dist/alt/video-js-cdn.min.css';
-import './plugins/videojs-mobile-ui/plugin';
-import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
-
-import * as ICONS from 'constants/icons';
-import * as OVERLAY from './overlays';
-import Button from 'component/button';
-import classnames from 'classnames';
-import events from './videojs-events';
 import eventTracking from 'videojs-event-tracking';
-import functions from './videojs-functions';
+import * as OVERLAY from './overlays';
+import './plugins/videojs-mobile-ui/plugin';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
-import keyboardShorcuts from './videojs-keyboard-shortcuts';
-import LbryVolumeBarClass from './lbry-volume-bar';
-import Chromecast from './chromecast';
-import playerjs from 'player.js';
-import qualityLevels from 'videojs-contrib-quality-levels';
-import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
+import qualityLevels from 'videojs-contrib-quality-levels';
 import runAds from './ads';
-import videojs from 'video.js';
-
-require('@silvermine/videojs-chromecast')(videojs);
+import LbryVolumeBarClass from './lbry-volume-bar';
+import keyboardShorcuts from './videojs-keyboard-shortcuts';
+import events from './videojs-events';
+import functions from './videojs-functions';
 
 export type Player = {
-  controlBar: { addChild: (string, any) => void },
-  loadingSpinner: any,
-  autoplay: (any) => boolean,
-  chromecast: (any) => void,
-  currentTime: (?number) => number,
-  dispose: () => void,
-  ended: () => boolean,
-  error: () => any,
-  exitFullscreen: () => boolean,
-  getChild: (string) => any,
-  isFullscreen: () => boolean,
-  mobileUi: (any) => void,
-  muted: (?boolean) => boolean,
   on: (string, (any) => void) => void,
   one: (string, (any) => void) => void,
-  overlay: (any) => void,
+  isFullscreen: () => boolean,
+  exitFullscreen: () => boolean,
+  requestFullscreen: () => boolean,
   play: () => Promise<any>,
+  volume: (?number) => number,
+  muted: (?boolean) => boolean,
+  dispose: () => void,
+  currentTime: (?number) => number,
+  ended: () => boolean,
+  error: () => any,
+  loadingSpinner: any,
+  getChild: (string) => any,
   playbackRate: (?number) => number,
   readyState: () => number,
-  requestFullscreen: () => boolean,
   userActive: (?boolean) => boolean,
-  volume: (?number) => number,
+  overlay: (any) => void,
+  mobileUi: (any) => void,
+  controlBar: {
+    addChild: (string, any) => void,
+  },
+  autoplay: (any) => boolean,
 };
 
 type Props = {
-  adUrl: ?string,
-  allowPreRoll: ?boolean,
-  autoplay: boolean,
-  autoplaySetting: boolean,
-  claimId: ?string,
-  title: ?string,
-  channelName: ?string,
-  embedded: boolean,
-  internalFeatureEnabled: ?boolean,
-  isAudio: boolean,
-  poster: ?string,
-  replay: boolean,
-  shareTelemetry: boolean,
   source: string,
   sourceType: string,
-  startMuted: boolean,
-  userId: ?number,
-  videoTheaterMode: boolean,
+  poster: ?string,
   onPlayerReady: (Player, any) => void,
+  isAudio: boolean,
+  startMuted: boolean,
+  autoplay: boolean,
+  autoplaySetting: boolean,
+  embedded: boolean,
+  toggleVideoTheaterMode: () => void,
+  adUrl: ?string,
+  claimId: ?string,
+  userId: ?number,
+  allowPreRoll: ?boolean,
+  internalFeatureEnabled: ?boolean,
+  shareTelemetry: boolean,
+  replay: boolean,
+  videoTheaterMode: boolean,
   playNext: () => void,
   playPrevious: () => void,
-  toggleVideoTheaterMode: () => void,
 };
 
 const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -120,28 +114,26 @@ properties for this component should be kept to ONLY those that if changed shoul
  */
 export default React.memo<Props>(function VideoJs(props: Props) {
   const {
-    // adUrl, // TODO: this ad functionality isn't used, can be pulled out
-    allowPreRoll,
     autoplay,
     autoplaySetting,
-    claimId,
-    title,
-    channelName,
     embedded,
-    internalFeatureEnabled, // for people on the team to test new features internally
-    isAudio,
-    poster,
-    replay,
-    shareTelemetry,
+    startMuted,
     source,
     sourceType,
-    startMuted,
-    userId,
-    videoTheaterMode,
+    poster,
+    isAudio,
     onPlayerReady,
+    toggleVideoTheaterMode,
+    // adUrl, // TODO: this ad functionality isn't used, can be pulled out
+    claimId,
+    userId,
+    allowPreRoll,
+    internalFeatureEnabled, // for people on the team to test new features internally
+    shareTelemetry,
+    replay,
+    videoTheaterMode,
     playNext,
     playPrevious,
-    toggleVideoTheaterMode,
   } = props;
 
   // will later store the videojs player
@@ -160,30 +152,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     ...VIDEO_JS_OPTIONS,
     autoplay: autoplay,
     muted: startMuted,
-    sources: [{ src: source, type: sourceType }],
+    sources: [
+      {
+        src: source,
+        type: sourceType,
+      },
+    ],
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
-    plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
+    plugins: {
+      eventTracking: true,
+      overlay: OVERLAY.OVERLAY_DATA,
+    },
     // fixes problem of errant CC button showing up on iOS
     // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
-    controlBar: { subsCapsButton: false },
-    techOrder: ['chromecast', 'html5'],
-    chromecast: {
-      requestTitleFn: (src) => title || '',
-      requestSubtitleFn: (src) => channelName || '',
+    controlBar: {
+      subsCapsButton: false,
     },
   };
 
   const { detectFileType, createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
 
-  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
-    tapToUnmuteRef,
-    tapToRetryRef,
-    setReload,
-    videoTheaterMode,
-    playerRef,
-    autoplaySetting,
-    replay,
-  });
+  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({ tapToUnmuteRef, tapToRetryRef, setReload, videoTheaterMode, playerRef, autoplaySetting, replay });
 
   // Initialize video.js
   function initializeVideoPlayer(el) {
@@ -191,7 +180,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     const vjs = videojs(el, videoJsOptions, () => {
       const player = playerRef.current;
-      const adapter = new playerjs.VideoJSAdapter(player);
 
       // this seems like a weird thing to have to check for here
       if (!player) return;
@@ -206,10 +194,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Add reloadSourceOnError plugin
       player.reloadSourceOnError({ errorInterval: 10 });
 
-      // Initialize mobile UI.
-      player.mobileUi();
-
-      Chromecast.initialize(player);
+      // initialize mobile UI
+      player.mobileUi(); // Inits mobile version. No-op if Desktop.
 
       // Add quality selector to player
       player.hlsQualitySelector({
@@ -232,7 +218,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
       onPlayerReady(player, videoNode);
-      adapter.ready();
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
@@ -267,10 +252,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       const player = playerRef.current;
       if (player) {
-        try {
-          window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
-        } catch {}
-
         player.dispose();
         window.player = undefined;
       }
@@ -312,6 +293,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   }, [source, reload]);
 
   return (
+    // $FlowFixMe
     <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>
       <Button
         label={__('Tap to unmute')}

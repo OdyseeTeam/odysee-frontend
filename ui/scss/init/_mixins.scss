@@ -155,12 +155,12 @@
 }
 
 @mixin focus {
-  box-shadow: 0 0 0 3px var(--color-focus);
+  //box-shadow: 0 0 0 3px var(--color-focus);
 }
 
 @mixin linkFocus {
   background-color: var(--color-link-focus-bg);
-  box-shadow: 0 0 0 5px var(--color-link-focus-bg);
+  //box-shadow: 0 0 0 5px var(--color-link-focus-bg);
 }
 
 @mixin underline($text-color: var(--lbry-black), $whitespace-color: var(--lbry-white)) {
@@ -230,7 +230,7 @@
 
   .ff-canvas,
   .freezeframe-img {
-    border-radius: var(--border-radius);
+    border-radius: 50%;
     height: $size !important;
     width: $size !important;
   }

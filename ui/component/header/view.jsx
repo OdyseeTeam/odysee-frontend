@@ -1,7 +1,6 @@
 // @flow
 import { ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM, ENABLE_UI_NOTIFICATIONS } from 'config';
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import * as PAGES from 'constants/pages';
 import React from 'react';
@@ -56,7 +55,7 @@ type Props = {
   syncError: ?string,
   emailToVerify?: string,
   signOut: () => void,
-  doOpenModal: (string, ?{}) => void,
+  openSignOutModal: () => void,
   clearEmailEntry: () => void,
   clearPasswordEntry: () => void,
   hasNavigated: boolean,
@@ -83,7 +82,7 @@ const Header = (props: Props) => {
     authHeader,
     signOut,
     syncError,
-    doOpenModal,
+    openSignOutModal,
     clearEmailEntry,
     clearPasswordEntry,
     emailToVerify,
@@ -247,7 +246,7 @@ const Header = (props: Props) => {
                         ? __('Close sidebar - hide channels you are following.')
                         : __('Expand sidebar - view channels you are following.')
                     }
-                    className="header__navigation-item menu__title header__navigation-item--icon"
+                    className="header__navigation-item menu__title header__navigation-item--icon button-rotate"
                     icon={ICONS.MENU}
                     aria-expanded={sidebarOpen}
                     onClick={() => setSidebarOpen(!sidebarOpen)}
@@ -271,27 +270,6 @@ const Header = (props: Props) => {
               >
                 <Logo />
               </Button>
-
-              {/* @if process.env.DEV_CHANGELOG */}
-              {history.location.pathname === '/' && (
-                <Button
-                  title={'Changelog'}
-                  className="badge--alert"
-                  label={'Changelog'}
-                  icon={ICONS.FEEDBACK}
-                  onClick={() => {
-                    doOpenModal(MODALS.CONFIRM, {
-                      title: __('Changelog'),
-                      subtitle: __('Warning: this is a test instance.'),
-                      body: <p style={{ whiteSpace: 'pre-wrap' }}>{process.env.DEV_CHANGELOG}</p>,
-                      onConfirm: (closeModal) => closeModal(),
-                      hideCancel: true,
-                    });
-                  }}
-                />
-              )}
-              {/* @endif */}
-
               {!authHeader && (
                 <div className="header__center">
                   {/* @if TARGET='app' */}
@@ -369,7 +347,7 @@ const Header = (props: Props) => {
                       </MenuLink>
 
                       {authenticated ? (
-                        <MenuItem onSelect={IS_WEB ? signOut : () => doOpenModal(MODALS.SIGN_OUT)}>
+                        <MenuItem onSelect={IS_WEB ? signOut : openSignOutModal}>
                           <div className="menu__link">
                             <Icon aria-hidden icon={ICONS.SIGN_OUT} />
                             {__('Sign Out')}
@@ -502,7 +480,7 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           </MenuLink>
           <MenuItem className="menu__link" onSelect={handleThemeToggle}>
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
-            {currentTheme === 'light' ? __('Dark') : __('Light')}
+            {currentTheme === 'light' ? __('Dark') : currentTheme === 'purple' ? __('Dark') : __('Light')}
           </MenuItem>
         </MenuList>
       </Menu>

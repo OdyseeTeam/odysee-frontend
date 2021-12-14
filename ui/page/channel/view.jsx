@@ -19,7 +19,6 @@ import ChannelEdit from 'component/channelEdit';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import ClaimSupportButton from 'component/claimSupportButton';
-import ChannelStakedIndicator from 'component/channelStakedIndicator';
 import ClaimMenuList from 'component/claimMenuList';
 import OptimizedImage from 'component/optimizedImage';
 import Yrbl from 'component/yrbl';
@@ -50,7 +49,10 @@ type Props = {
   channelIsMine: boolean,
   isSubscribed: boolean,
   channelIsBlocked: boolean,
-  blackListedOutpointMap: { [string]: number },
+  blackListedOutpoints: Array<{
+    txid: string,
+    nout: number,
+  }>,
   fetchSubCount: (string) => void,
   subCount: number,
   pending: boolean,
@@ -69,7 +71,7 @@ function ChannelPage(props: Props) {
     // page, ?page= may come back some day?
     channelIsMine,
     isSubscribed,
-    blackListedOutpointMap,
+    blackListedOutpoints,
     fetchSubCount,
     subCount,
     pending,
@@ -134,8 +136,10 @@ function ChannelPage(props: Props) {
 
   let channelIsBlackListed = false;
 
-  if (claim && blackListedOutpointMap) {
-    channelIsBlackListed = blackListedOutpointMap[`${claim.txid}:${claim.nout}`];
+  if (claim && blackListedOutpoints) {
+    channelIsBlackListed = blackListedOutpoints.some(
+      (outpoint) => outpoint.txid === claim.txid && outpoint.nout === claim.nout
+    );
   }
 
   // If a user changes tabs, update the url so it stays on the same page if they refresh.
@@ -223,12 +227,11 @@ function ChannelPage(props: Props) {
         {cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} />}
         {cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} objectFit="cover" />}
         <div className="channel__primary-info">
-          <ChannelThumbnail className="channel__thumbnail--channel-page" uri={uri} allowGifs hideStakedIndicator />
+          <ChannelThumbnail className="channel__thumbnail--channel-page" uri={uri} allowGifs />
           <h1 className="channel__title">
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
-            <ChannelStakedIndicator uri={uri} large />
           </h1>
           <div className="channel__meta">
             <span>

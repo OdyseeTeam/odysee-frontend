@@ -9,6 +9,7 @@ import { doClaimSearch } from 'redux/actions/claims';
 import * as SETTINGS from 'constants/settings';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectMutedChannels } from 'redux/selectors/blocked';
+import { doToggleTagFollowDesktop } from 'redux/actions/tags';
 import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import ClaimListDiscover from './view';
@@ -30,6 +31,7 @@ const select = (state, props) => ({
 
 const perform = {
   doClaimSearch,
+  doToggleTagFollowDesktop,
   doFetchViewCount,
 };
 

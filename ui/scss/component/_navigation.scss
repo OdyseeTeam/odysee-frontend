@@ -1,6 +1,7 @@
 .navigation__wrapper {
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
+  //transition: width 0.2s;
 }
 
 .navigation__wrapper--micro {
@@ -24,11 +25,12 @@
   top: var(--header-height);
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
-  border-right: 1px solid var(--color-border);
-  padding-top: var(--spacing-m);
-  padding-bottom: var(--spacing-l);
+  //border-right: 1px solid var(--color-border);
+  padding-top: var(--spacing-s);
+  padding-bottom: var(--spacing-s);
   display: flex;
   flex-direction: column;
+  background: var(--color-header-background);
 
   @media (min-width: $breakpoint-small) {
     overflow-y: hidden;
@@ -41,7 +43,7 @@
 
   ul {
     padding-bottom: var(--spacing-s);
-    border-bottom: 1px solid var(--color-border);
+    //border-bottom: 1px solid var(--color-border);
   }
 }
 
@@ -53,11 +55,12 @@
   @extend .navigation;
   z-index: 4;
   width: var(--side-nav-width);
-  background-color: var(--color-card-background);
+  background-color: var(--color-header-background-transparent);
   box-shadow: var(--card-box-shadow);
+  padding-top: 0px;
 
   .navigation-link {
-    padding-left: var(--spacing-m);
+    padding-left: var(--spacing-s);
   }
 }
 
@@ -80,6 +83,20 @@
 
 .navigation__tertiary {
   margin-top: var(--spacing-m);
+
+  .navigation-link {
+    font-size: var(--font-xxsmall) !important;
+    height: 1.4rem !important;
+
+    .button__label {
+      color: var(--color-navigation-link);
+    }
+
+    &:hover {
+      background-color: var(--color-transparent) !important;
+      color: var(--color-text) !important;
+    }
+  }
 }
 
 .navigation-link {
@@ -91,17 +108,27 @@
   width: 100%;
   color: var(--color-navigation-link);
   padding-left: var(--spacing-s);
-  font-size: var(--font-body);
+  font-size: var(--font-small);
   font-weight: var(--font-weight-bold);
 
+  will-change: background-color;
+  will-change: color;
+
   .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 1rem;
+    width: 1rem;
     stroke: var(--color-navigation-icon);
+    will-change: stroke;
+  }
+
+  .icon--Heart {
+    color: var(--color-transparent);
   }
 
   .button__content {
     padding: var(--spacing-s);
+    padding-top: var(--spacing-xs);
+    padding-bottom: var(--spacing-xs);
     justify-content: flex-start;
     flex-direction: column;
   }
@@ -127,8 +154,7 @@
     }
   }
 
-  &:hover:not(.navigation-link--active),
-  &:focus {
+  &:hover:not(.navigation-link--active) {
     @extend .navigation-link--highlighted;
   }
 
@@ -137,8 +163,8 @@
     margin-bottom: 0;
 
     .icon {
-      height: 1.5rem;
-      width: 1.5rem;
+      height: 1rem;
+      width: 1rem;
     }
 
     .button__content {
@@ -146,11 +172,8 @@
     }
 
     .button__label {
-      margin-top: 0;
-    }
-
-    &:focus {
-      box-shadow: none;
+      margin-top: 0px;
+      padding-top: 3px;
     }
   }
 }
@@ -189,9 +212,15 @@
 }
 
 .navigation-links--micro {
+  border-bottom: 1px solid var(--color-border);
+
+  li {
+    margin-bottom: 0px;
+  }
+
   .icon {
-    height: 1.5rem;
-    width: 1.5rem;
+    height: 1.2rem;
+    width: 1.2rem;
   }
 
   .button__content {
@@ -202,9 +231,10 @@
   }
 
   .button__label {
-    font-size: var(--font-xsmall);
+    font-size: var(--font-xxxsmall);
+    font-weight: var(--font-weight-base);
     margin-left: 0;
-    margin-top: var(--spacing-xs);
+    margin-top: var(--spacing-xxxs);
   }
 
   .navigation-link {
@@ -223,8 +253,8 @@
     margin-bottom: 0;
 
     .icon {
-      height: 1.5rem;
-      width: 1.5rem;
+      height: 1rem;
+      width: 1rem;
     }
 
     .button__content {
@@ -233,12 +263,8 @@
 
     .button__label {
       margin-top: 0;
-      font-size: var(--font-body);
+      font-size: var(--font-small);
       font-weight: var(--font-weight-bold);
-    }
-
-    &:focus {
-      box-shadow: none;
     }
   }
 }
@@ -255,7 +281,7 @@
   }
 
   .button__label {
-    color: var(--color-text-help);
+    //color: var(--color-text-help);
   }
 
   .button__content {
@@ -284,6 +310,7 @@
   padding: var(--spacing-xs);
   display: flex;
   flex-direction: column;
+  font-size: var(--font-small);
 
   .button {
     margin-top: var(--spacing-s);

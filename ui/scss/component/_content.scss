@@ -2,6 +2,7 @@
   @extend .card;
   position: absolute;
   top: var(--spacing-s);
+  border-radius: var(--border-radius);
 }
 
 .content__viewer--disable-click {
@@ -26,6 +27,9 @@
   overflow: hidden;
   left: calc(var(--spacing-l) + var(--spacing-s));
   z-index: 9999;
+
+  border: 4px solid black;
+  border-radius: var(--border-radius);
 
   &:hover {
     .content__floating-close {
@@ -93,12 +97,13 @@
 
 .content__info {
   cursor: grab;
-  height: var(--floating-viewer-info-height);
-  padding: var(--spacing-m);
+  //height: var(--floating-viewer-info-height);
+  padding: var(--spacing-s);
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   white-space: nowrap;
+  background-color: var(--color-header-background-transparent);
 }
 
 .content__cover {
@@ -106,8 +111,8 @@
   position: relative;
   display: flex;
   align-items: center;
-  border-radius: var(--card-radius);
-  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  //border: 1px solid var(--color-border);
   justify-content: center;
   background-position: 50% 50%;
   background-repeat: no-repeat;

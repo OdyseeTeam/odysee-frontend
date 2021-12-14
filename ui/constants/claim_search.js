@@ -33,7 +33,7 @@ export const ORDER_BY_TOP = 'top';
 export const ORDER_BY_TOP_VALUE = ['effective_amount'];
 export const ORDER_BY_NEW = 'new';
 export const ORDER_BY_NEW_VALUE = ['release_time'];
-export const ORDER_BY_TYPES = [ORDER_BY_TRENDING, ORDER_BY_NEW, ORDER_BY_TOP];
+export const ORDER_BY_TYPES = [ORDER_BY_NEW, ORDER_BY_TRENDING, ORDER_BY_TOP];
 
 export const DURATION_SHORT = 'short';
 export const DURATION_LONG = 'long';

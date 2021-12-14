@@ -41,8 +41,8 @@ const defaultState = {
     // UI
     [SETTINGS.LANGUAGE]: null,
     [SETTINGS.SEARCH_IN_LANGUAGE]: false,
-    [SETTINGS.THEME]: __('light'),
-    [SETTINGS.THEMES]: [__('light'), __('dark')],
+    [SETTINGS.THEME]: __('dark'),
+    [SETTINGS.THEMES]: [__('dark'), __('light'), __('purple')],
     [SETTINGS.HOMEPAGE]: null,
     [SETTINGS.HIDE_SPLASH_ANIMATION]: false,
     [SETTINGS.HIDE_BALANCE]: false,

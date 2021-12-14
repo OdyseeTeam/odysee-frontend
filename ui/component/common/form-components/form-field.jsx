@@ -8,42 +8,38 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import React from 'react';
 import ReactDOMServer from 'react-dom/server';
 import SimpleMDE from 'react-simplemde-editor';
-import TextareaWithSuggestions from 'component/textareaWithSuggestions';
 import type { ElementRef, Node } from 'react';
 
 type Props = {
-  affixClass?: string, // class applied to prefix/postfix label
-  autoFocus?: boolean,
-  blockWrap: boolean,
-  charCount?: number,
-  children?: React$Node,
-  defaultValue?: string | number,
-  disabled?: boolean,
+  name: string,
+  label?: string | Node,
+  prefix?: string,
+  postfix?: string,
   error?: string | boolean,
   helper?: string | React$Node,
-  hideSuggestions?: boolean,
-  inputButton?: React$Node,
-  isLivestream?: boolean,
-  label?: string | Node,
-  labelOnLeft: boolean,
-  max?: number,
-  min?: number,
-  name: string,
-  noEmojis?: boolean,
-  placeholder?: string | number,
-  postfix?: string,
-  prefix?: string,
-  quickActionLabel?: string,
-  range?: number,
-  readOnly?: boolean,
-  stretch?: boolean,
-  textAreaMaxLength?: number,
   type?: string,
+  defaultValue?: string | number,
+  placeholder?: string | number,
+  children?: React$Node,
+  stretch?: boolean,
+  affixClass?: string, // class applied to prefix/postfix label
+  autoFocus?: boolean,
+  labelOnLeft: boolean,
+  inputButton?: React$Node,
+  blockWrap: boolean,
+  charCount?: number,
+  textAreaMaxLength?: number,
+  range?: number,
+  min?: number,
+  max?: number,
+  quickActionLabel?: string,
+  disabled?: boolean,
   value?: string | number,
-  onChange?: (any) => any,
-  openEmoteMenu?: () => void,
-  quickActionHandler?: (any) => any,
+  noEmojis?: boolean,
   render?: () => React$Node,
+  onChange?: (any) => any,
+  quickActionHandler?: (any) => any,
+  openEmoteMenu?: () => void,
 };
 
 export class FormField extends React.PureComponent<Props> {
@@ -65,29 +61,27 @@ export class FormField extends React.PureComponent<Props> {
 
   render() {
     const {
-      affixClass,
-      autoFocus,
-      blockWrap,
-      charCount,
-      children,
+      label,
+      prefix,
+      postfix,
       error,
       helper,
-      hideSuggestions,
-      inputButton,
-      isLivestream,
-      label,
-      labelOnLeft,
       name,
-      noEmojis,
-      postfix,
-      prefix,
-      quickActionLabel,
-      stretch,
-      textAreaMaxLength,
       type,
-      openEmoteMenu,
-      quickActionHandler,
+      children,
+      stretch,
+      affixClass,
+      autoFocus,
+      inputButton,
+      labelOnLeft,
+      blockWrap,
+      charCount,
+      textAreaMaxLength,
+      quickActionLabel,
+      noEmojis,
       render,
+      quickActionHandler,
+      openEmoteMenu,
       ...inputProps
     } = this.props;
 
@@ -237,26 +231,13 @@ export class FormField extends React.PureComponent<Props> {
                   {quickAction}
                 </div>
               )}
-
-              {hideSuggestions ? (
-                <textarea
-                  type={type}
-                  id={name}
-                  maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
-                  ref={this.input}
-                  {...inputProps}
-                />
-              ) : (
-                <TextareaWithSuggestions
-                  type={type}
-                  id={name}
-                  maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
-                  inputRef={this.input}
-                  isLivestream={isLivestream}
-                  {...inputProps}
-                />
-              )}
-
+              <textarea
+                type={type}
+                id={name}
+                maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
+                ref={this.input}
+                {...inputProps}
+              />
               <div className="form-field__textarea-info">
                 {!noEmojis && openEmoteMenu && (
                   <Button

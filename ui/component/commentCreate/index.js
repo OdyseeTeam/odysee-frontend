@@ -35,7 +35,7 @@ const perform = (dispatch, ownProps) => ({
         claimId,
         parentId,
         ownProps.uri,
-        ownProps.isLivestream,
+        ownProps.livestream,
         txid,
         payment_intent_id,
         environment,

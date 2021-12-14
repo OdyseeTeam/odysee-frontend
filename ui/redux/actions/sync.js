@@ -12,7 +12,7 @@ import {
 } from 'redux/selectors/sync';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { getSavedPassword, getAuthToken } from 'util/saved-passwords';
-import { doHandleSyncComplete } from 'redux/actions/app';
+import { doAnalyticsTagSync, doHandleSyncComplete } from 'redux/actions/app';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 
@@ -130,6 +130,7 @@ export function doSyncLoop(noInterval?: boolean) {
           const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
           if (syncEnabled) {
             dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData))));
+            dispatch(doAnalyticsTagSync());
           }
         }, SYNC_INTERVAL);
       }

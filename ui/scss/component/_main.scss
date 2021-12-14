@@ -42,15 +42,6 @@
   padding-top: 0;
 }
 
-.main-wrapper__inner--auth {
-  min-height: unset;
-  padding: 0;
-
-  .main--auth-page {
-    margin-top: 0;
-  }
-}
-
 .main {
   position: relative;
   width: calc(100% - var(--side-nav-width) - var(--spacing-l));
@@ -132,8 +123,8 @@
 
   .file-page__recommended {
     height: 0%;
-    width: 35rem;
-    margin-left: var(--spacing-m);
+    width: 38rem;
+    margin-left: var(--spacing-l);
 
     @media (max-width: $breakpoint-medium) {
       width: 100%;
@@ -198,7 +189,7 @@
   }
 
   .file-page__recommended {
-    width: 25rem;
+    width: 28rem;
 
     @media (max-width: $breakpoint-medium) {
       width: 100%;
@@ -217,12 +208,17 @@
 
 .main--livestream {
   @extend .main--file-page;
-  margin: 0;
+  //margin: 0;
   padding: 0;
-  max-width: none;
+
+  //max-width: none;
+
+  > * {
+    width: auto;
+  }
 
   .card-stack {
-    margin-top: var(--spacing-m);
+    //margin-top: var(--spacing-m);
     margin-bottom: var(--spacing-m);
 
     @media (min-width: $breakpoint-large + 300px) {
@@ -244,6 +240,7 @@
 
   .main__right-side {
     width: var(--livestream-comments-width);
+    margin-left: var(--spacing-l);
 
     @media (max-width: $breakpoint-medium) {
       width: 100%;
@@ -434,28 +431,27 @@
 .main__sign-up--graphic {
   max-width: 47rem;
 
-  .card__first-pane {
-    width: 50%;
-    @media (max-width: $breakpoint-small) {
-      width: 100%;
-    }
-  }
-
   .card__second-pane {
     width: 50%;
-    @media (max-width: $breakpoint-small) {
-      width: 100%;
-    }
-
     border: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--color-login-graphic-background);
+    //background: var(--color-login-graphic-background);
+
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+    }
+
+    .signup-image {
+      @media (max-width: $breakpoint-small) {
+        width: 50%;
+      }
+    }
   }
 
   .card__title {
-    font-size: var(--font-title);
+    font-size: 0.93rem;
     font-weight: var(--font-weight-bold);
   }
 
@@ -468,4 +464,27 @@
   margin-left: auto;
   margin-right: auto;
   max-width: 32rem;
+}
+
+.main-wrapper--scrollbar {
+  // The W3C future standard; currently supported by Firefox only.
+  // It'll hopefully auto fallback to this when 'webkit-scrollbar' below is deprecated in the future.
+  scrollbar-width: 8px;
+  scrollbar-color: var(--color-scrollbar-thumb-bg) var(--color-scrollbar-track-bg);
+}
+
+.main-wrapper--scrollbar *::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.main-wrapper--scrollbar *::-webkit-scrollbar-track {
+  background: var(--color-scrollbar-track-bg);
+}
+
+.main-wrapper--scrollbar *::-webkit-scrollbar-thumb {
+  // Don't set 'border-radius' because Firefox's 'scrollbar-xx'
+  // standard currently doesn't support it. Stick with square
+  // scrollbar for all browsers.
+  background-color: var(--color-scrollbar-thumb-bg);
 }

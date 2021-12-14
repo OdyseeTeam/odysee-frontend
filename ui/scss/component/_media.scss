@@ -4,12 +4,16 @@
 .media__thumb {
   @include thumbnail;
   position: relative;
-  border-radius: var(--border-radius);
+  border-radius: var(--border-radius-thumbnail);
   object-fit: cover;
   background-color: var(--color-placeholder-background);
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;
+  box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 0.3) inset;
+
+  will-change: box-shadow;
+  will-change: background-size;
 }
 
 //  M E D I A
@@ -70,6 +74,7 @@
 
   &.media__info-text--constrained {
     max-width: 50rem;
+    font-size: var(--font-small);
   }
 }
 
@@ -77,11 +82,13 @@
   margin-top: var(--spacing-m);
   max-height: 5rem;
   overflow: hidden;
+  font-size: var(--font-small);
 }
 
 .media__info-text--expanded {
   margin-top: var(--spacing-m);
   max-height: auto;
+  font-size: var(--font-small);
 }
 
 .media__info-text--contracted,
@@ -90,7 +97,7 @@
 }
 
 .media__info-text--fade {
-  -webkit-mask-image: -webkit-gradient(linear, left 55%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+  -webkit-mask-image: -webkit-gradient(linear, left 30%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
   overflow-wrap: anywhere;
 }
 
@@ -117,8 +124,65 @@
     margin-right: var(--spacing-m);
   }
 
+  .button {
+    &:hover {
+      color: var(--color-primary);
+      //background-color: var(--color-background);
+
+      svg {
+        stroke: var(--color-primary);
+      }
+    }
+  }
+
+  .button-like {
+    &:hover {
+      color: var(--color-fire);
+
+      svg {
+        stroke: var(--color-fire);
+      }
+    }
+  }
+
+  .button-dislike {
+    &:hover {
+      color: var(--color-slime);
+
+      svg {
+        stroke: var(--color-slime);
+      }
+    }
+  }
+
+  .ratio-wrapper {
+    position: relative;
+    width: 100%;
+
+    .ratio-bar {
+      position: absolute;
+      display: flex;
+      left: 0px;
+      bottom: -1px;
+      width: calc(100% - 14px);
+      height: 1px;
+      background-color: white;
+      z-index: 2;
+
+      .ratio-bar-like {
+        height: 1px;
+        background-color: var(--color-fire);
+      }
+
+      .ratio-bar-dislike {
+        height: 1px;
+        background-color: var(--color-slime);
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
-    padding-top: var(--spacing-s);
+    //padding-top: var(--spacing-s);
 
     > * {
       margin-right: var(--spacing-s);
@@ -133,6 +197,7 @@
   display: flex;
   flex-direction: column;
   margin-bottom: var(--spacing-s);
+  color: var(--color-text);
 
   &:not(:last-child) {
     margin-bottom: var(--spacing-s);

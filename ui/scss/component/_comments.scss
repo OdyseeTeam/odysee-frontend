@@ -1,4 +1,4 @@
-$thumbnailWidth: 1.5rem;
+$thumbnailWidth: 2.5rem;
 $thumbnailWidthSmall: 1rem;
 
 .comments {
@@ -22,7 +22,7 @@ $thumbnailWidthSmall: 1rem;
 }
 
 .comment__sort {
-  margin: var(--spacing-s) 0;
+  //margin: var(--spacing-s) 0;
   margin-right: var(--spacing-s);
   display: block;
 
@@ -52,13 +52,18 @@ $thumbnailWidthSmall: 1rem;
       @include handleChannelGif($thumbnailWidth);
     }
 
+    /*
     .channel-staked__wrapper {
       padding: 0;
-      left: calc(#{$thumbnailWidthSmall} / 4);
-      bottom: -1rem;
+      //left: calc(#{$thumbnailWidthSmall} / 4);
+      left: 0px;
+      bottom: 0rem;
+      height: 62%;
       padding: -1rem;
       margin-left: 0;
     }
+    */
+
     .channel-staked__indicator {
       @media (max-width: $breakpoint-small) {
         margin-left: 0.1rem;
@@ -122,7 +127,6 @@ $thumbnailWidthSmall: 1rem;
   background-color: var(--color-comment-threadline);
 
   &:hover {
-    box-shadow: 0 0 0 1px var(--color-comment-threadline-hover);
     background-color: var(--color-comment-threadline-hover);
     border-color: var(--color-comment-threadline-hover);
   }
@@ -135,7 +139,7 @@ $thumbnailWidthSmall: 1rem;
 .comment--highlighted {
   background: var(--color-comment-highlighted);
   box-shadow: 0 0 0 5px var(--color-comment-highlighted);
-  border-radius: 4px;
+  border-radius: 2px;
 }
 
 .comment__body-container {
@@ -147,6 +151,12 @@ $thumbnailWidthSmall: 1rem;
 
   @media (min-width: $breakpoint-small) {
     margin-left: var(--spacing-s);
+  }
+
+  &:hover {
+    .menu__button {
+      opacity: 1;
+    }
   }
 }
 
@@ -169,6 +179,22 @@ $thumbnailWidthSmall: 1rem;
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+
+  .channel-name {
+    color: rgba(var(--color-primary-dynamic), 1);
+
+    &:hover {
+      color: rgba(var(--color-secondary-dynamic), 1);
+    }
+  }
+
+  .comment__time {
+    color: var(--color-secondary);
+
+    &:hover {
+      color: rgba(var(--color-secondary-dynamic), 0.8);
+    }
+  }
 }
 
 .comment__pin {
@@ -204,7 +230,8 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__message {
   word-break: break-word;
-  max-width: 35rem;
+  //max-width: 35rem;
+  padding-right: var(--spacing-xl);
   color: var(--color-text);
 
   ul li {
@@ -231,11 +258,11 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__author--creator {
   padding: 0 3px;
-  background-color: var(--color-primary-alt);
+  background-color: var(--color-primary);
   border-radius: var(--border-radius);
 
   &.button--uri-indicator {
-    color: var(--color-link);
+    color: var(--color-primary-contrast);
   }
 }
 
@@ -275,8 +302,17 @@ $thumbnailWidthSmall: 1rem;
   font-size: var(--font-xsmall);
 
   .menu__link {
-    color: var(--color-text);
     padding: 0;
+  }
+
+  .comment__menu-help {
+    color: var(--color-text);
+  }
+
+  &:hover {
+    .comment__menu-help {
+      color: var(--color-primary-contrast);
+    }
   }
 }
 
@@ -353,16 +389,8 @@ $thumbnailWidthSmall: 1rem;
   }
 }
 
-.comment__action,
-.comment__author {
-  &:focus {
-    @include linkFocus;
-  }
-}
-
 .comment__action--active {
   .icon {
-    fill: var(--color-primary-alt);
     stroke: var(--color-primary);
   }
 }
@@ -416,6 +444,7 @@ $thumbnailWidthSmall: 1rem;
   max-width: 10rem;
   white-space: pre-line;
   margin-right: var(--spacing-s);
+  color: var(--color-text);
 }
 
 .comment--blocked {
@@ -481,7 +510,7 @@ $thumbnailWidthSmall: 1rem;
 
 .sticker__comment {
   margin-left: var(--spacing-m);
-  height: 7rem;
+  height: 6rem;
   overflow: hidden;
 
   img {

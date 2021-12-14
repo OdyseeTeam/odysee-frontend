@@ -33,7 +33,7 @@
 
 .section--help {
   border-radius: var(--border-radius);
-  background-color: var(--color-primary-alt);
+  background-color: var(--color-secondary);
 }
 
 .section__header {
@@ -41,11 +41,24 @@
 }
 
 .section__header--actions {
-  margin-bottom: var(--spacing-m);
+  margin-top: var(--spacing-m);
+  margin-bottom: var(--spacing-l);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   flex-wrap: wrap;
+
+  .button--secondary {
+    background-color: var(--color-secondary);
+
+    .button__label {
+      color: var(--color-menu-icon-active);
+    }
+
+    .icon {
+      stroke: var(--color-menu-icon-active);
+    }
+  }
 }
 
 .section__header-action-stack {

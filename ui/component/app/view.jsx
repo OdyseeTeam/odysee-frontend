@@ -2,12 +2,11 @@
 import * as PAGES from 'constants/pages';
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
-import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import classnames from 'classnames';
 import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { buildURI, parseURI } from 'util/lbryURI';
-import { SIMPLE_SITE, SHOW_ADS } from 'config';
+import { SIMPLE_SITE } from 'config';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
@@ -63,22 +62,24 @@ type Props = {
   fetchCollectionListMine: () => void,
   signIn: () => void,
   requestDownloadUpgrade: () => void,
+  onSignedIn: () => void,
   setLanguage: (string) => void,
   isUpgradeAvailable: boolean,
   isReloadRequired: boolean,
   autoUpdateDownloaded: boolean,
   uploadCount: number,
   balance: ?number,
-  syncIsLocked: boolean,
   syncError: ?string,
+  syncEnabled: boolean,
   rewards: Array<Reward>,
   setReferrer: (string, boolean) => void,
   isAuthenticated: boolean,
+  socketConnect: () => void,
   syncLoop: (?boolean) => void,
   currentModal: any,
   syncFatalError: boolean,
-  activeChannelId: ?string,
-  myChannelClaimIds: ?Array<string>,
+  activeChannelClaim: ?ChannelClaim,
+  myChannelUrls: ?Array<string>,
   subscriptions: Array<Subscription>,
   setActiveChannelIfNotSet: () => void,
   setIncognito: (boolean) => void,
@@ -102,7 +103,6 @@ function App(props: Props) {
     uploadCount,
     history,
     syncError,
-    syncIsLocked,
     language,
     languages,
     setLanguage,
@@ -112,8 +112,8 @@ function App(props: Props) {
     syncLoop,
     currentModal,
     syncFatalError,
-    myChannelClaimIds,
-    activeChannelId,
+    myChannelUrls,
+    activeChannelClaim,
     setActiveChannelIfNotSet,
     setIncognito,
     fetchModBlockedList,
@@ -149,10 +149,11 @@ function App(props: Props) {
   const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
   const shouldHideNag = pathname.startsWith(`/$/${PAGES.EMBED}`) || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
   const userId = user && user.id;
-  const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
-  const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
+  const useCustomScrollbar = !IS_MAC;
+  const hasMyChannels = myChannelUrls && myChannelUrls.length > 0;
+  const hasNoChannels = myChannelUrls && myChannelUrls.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const hasActiveChannelClaim = activeChannelId !== undefined;
+  const hasActiveChannelClaim = activeChannelClaim !== undefined;
   const isPersonalized = !IS_WEB || hasVerifiedEmail;
   const renderFiledrop = !IS_WEB || isAuthenticated;
   const isOnline = navigator.onLine;
@@ -219,41 +220,13 @@ function App(props: Props) {
   }, [userId]);
 
   useEffect(() => {
-    if (syncIsLocked) {
-      const handleBeforeUnload = (event) => {
-        event.preventDefault();
-        event.returnValue = __('There are unsaved settings. Exit the Settings Page to finalize them.');
-      };
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }
-  }, [syncIsLocked]);
-
-  useEffect(() => {
     if (!uploadCount) return;
-
-    const handleUnload = (event) => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
-      event.returnValue = __('There are pending uploads.'); // without setting this to something it doesn't work
+      event.returnValue = 'magic'; // without setting this to something it doesn't work
     };
-
-    window.addEventListener('unload', handleUnload);
     window.addEventListener('beforeunload', handleBeforeUnload);
-
-    return () => {
-      window.removeEventListener('unload', handleUnload);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
-    };
-  }, [uploadCount]);
-
-  useEffect(() => {
-    if (!uploadCount) return;
-
-    const onStorageUpdate = (e) => tusHandleTabUpdates(e.key);
-    window.addEventListener('storage', onStorageUpdate);
-
-    return () => window.removeEventListener('storage', onStorageUpdate);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [uploadCount]);
 
   // allows user to pause miniplayer using the spacebar without the page scrolling down
@@ -346,17 +319,15 @@ function App(props: Props) {
 
   // Load IMA3 SDK for aniview
   useEffect(() => {
-    if (!isAuthenticated && SHOW_ADS) {
-      const script = document.createElement('script');
-      script.src = imaLibraryPath;
-      script.async = true;
+    const script = document.createElement('script');
+    script.src = imaLibraryPath;
+    script.async = true;
+    // $FlowFixMe
+    document.body.appendChild(script);
+    return () => {
       // $FlowFixMe
-      document.body.appendChild(script);
-      return () => {
-        // $FlowFixMe
-        document.body.removeChild(script);
-      };
-    }
+      document.body.removeChild(script);
+    };
   }, []);
 
   // add secure privacy script
@@ -419,14 +390,10 @@ function App(props: Props) {
     }
 
     return () => {
-      try {
-        // $FlowFixMe
-        document.head.removeChild(script);
-        // $FlowFixMe
-        document.head.removeChild(cmpScript);
-      } catch (err) {
-        console.log(err);
-      }
+      // $FlowFixMe
+      document.head.removeChild(script);
+      // $FlowFixMe
+      document.head.appendChild(cmpScript);
     };
   }, []);
 
@@ -497,6 +464,7 @@ function App(props: Props) {
         // @if TARGET='app'
         [`${MAIN_WRAPPER_CLASS}--mac`]: IS_MAC,
         // @endif
+        [`${MAIN_WRAPPER_CLASS}--scrollbar`]: useCustomScrollbar,
       })}
       ref={appRef}
       onContextMenu={IS_WEB ? undefined : (e) => openContextMenu(e)}

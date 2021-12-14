@@ -1,18 +1,19 @@
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
-import { selectGetSyncErrorMessage, selectSyncFatalError, selectSyncIsLocked } from 'redux/selectors/sync';
+import { selectGetSyncErrorMessage, selectSyncFatalError } from 'redux/selectors/sync';
 import { doFetchAccessToken, doUserSetReferrer } from 'redux/actions/user';
 import { selectUser, selectAccessToken, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { doFetchChannelListMine, doFetchCollectionListMine, doResolveUris } from 'redux/actions/claims';
-import { selectMyChannelClaimIds } from 'redux/selectors/claims';
+import { selectMyChannelUrls } from 'redux/selectors/claims';
+import * as SETTINGS from 'constants/settings';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
-import { selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
+import { selectClientSetting, selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
 import {
   selectIsUpgradeAvailable,
   selectAutoUpdateDownloaded,
   selectModal,
-  selectActiveChannelId,
+  selectActiveChannelClaim,
   selectIsReloadRequired,
 } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
@@ -27,19 +28,19 @@ const select = (state) => ({
   accessToken: selectAccessToken(state),
   theme: selectThemePath(state),
   language: selectLanguage(state),
+  syncEnabled: selectClientSetting(state, SETTINGS.ENABLE_SYNC),
   languages: selectLoadedLanguages(state),
   autoUpdateDownloaded: selectAutoUpdateDownloaded(state),
   isUpgradeAvailable: selectIsUpgradeAvailable(state),
   isReloadRequired: selectIsReloadRequired(state),
   syncError: selectGetSyncErrorMessage(state),
-  syncIsLocked: selectSyncIsLocked(state),
   uploadCount: selectUploadCount(state),
   rewards: selectUnclaimedRewards(state),
   isAuthenticated: selectUserVerifiedEmail(state),
   currentModal: selectModal(state),
   syncFatalError: selectSyncFatalError(state),
-  activeChannelId: selectActiveChannelId(state),
-  myChannelClaimIds: selectMyChannelClaimIds(state),
+  activeChannelClaim: selectActiveChannelClaim(state),
+  myChannelUrls: selectMyChannelUrls(state),
   subscriptions: selectSubscriptions(state),
 });
 

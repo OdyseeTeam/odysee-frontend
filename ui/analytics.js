@@ -2,7 +2,7 @@
 import { Lbryio } from 'lbryinc';
 import * as Sentry from '@sentry/browser';
 import * as RENDER_MODES from 'constants/file_render_modes';
-import { SDK_API_PATH } from 'config';
+import { SDK_API_PATH } from './index';
 
 // --- GA ---
 // - Events: 500 max (cannot be deleted).
@@ -60,6 +60,7 @@ type Analytics = {
   toggleInternal: (boolean, ?boolean) => void,
   apiLogView: (string, string, string, ?number, ?() => void) => Promise<any>,
   apiLogPublish: (ChannelClaim | StreamClaim) => void,
+  apiSyncTags: ({}) => void,
   tagFollowEvent: (string, boolean, ?string) => void,
   playerLoadedEvent: (string, ?boolean) => void,
   playerVideoStartedEvent: (?boolean) => void,
@@ -360,6 +361,12 @@ const analytics: Analytics = {
       }
 
       Lbryio.call('event', 'publish', params);
+    }
+  },
+
+  apiSyncTags: (params) => {
+    if (internalAnalyticsEnabled && isProduction) {
+      Lbryio.call('content_tags', 'sync', params);
     }
   },
   adsFetchedEvent: () => {

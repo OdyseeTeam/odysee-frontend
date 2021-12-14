@@ -40,42 +40,51 @@
 }
 
 [data-reach-menu-item][data-selected] {
-  background-color: var(--color-menu-background--active);
+  color: var(--color-menu-icon-active);
+  background-color: var(--color-menu-background-active);
   box-shadow: none;
+
+  .icon {
+    stroke: var(--color-menu-icon-active);
+  }
+
+  .comment__menu-help {
+    color: var(--color-primary-contrast);
+  }
 }
 
 .menu__button {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-radius: 100%;
-  padding: 0.3rem;
+  //border-radius: 100%;
+  //padding: 0.3rem;
+  opacity: 0;
 
   .icon {
-    stroke: var(--color-menu-icon);
+    stroke: var(--color-text);
   }
 
-  &:focus,
   &:hover {
     opacity: 1;
-    background-color: var(--color-button-alt-bg);
+
     .icon {
-      stroke: var(--color-menu-icon-active);
+      stroke: var(--color-primary);
     }
   }
 }
 
 .menu__title {
   &[aria-expanded='true'] {
-    background-color: var(--color-header-button-active);
+    transform: rotate(0deg);
   }
 }
 
 .menu__list {
-  box-shadow: var(--card-box-shadow);
-  animation: menu-animate-in var(--animation-duration) var(--animation-style);
+  //box-shadow: var(--card-box-shadow);
   transform-origin: top;
-  border: 1px solid var(--color-border);
+  animation: menu-animate-in var(--animation-duration) var(--animation-style);
+
   border-radius: var(--border-radius);
   padding: var(--spacing-xs) 0;
 
@@ -86,7 +95,7 @@
 
 .menu__list--header {
   @extend .menu__list;
-  margin-top: 19px;
+  margin-top: 10px;
 }
 
 .menu__list--comments {
@@ -108,17 +117,30 @@
   .badge {
     margin-left: var(--spacing-s);
   }
+
+  &:hover {
+    color: var(--color-menu-icon-active);
+    .icon {
+      stroke: var(--color-menu-icon-active);
+      margin-right: var(--spacing-s);
+    }
+  }
 }
 
 .menu__link-help {
   @extend .menu__link;
   display: block;
-  color: var(--color-text-help);
+  color: var(--color-text);
   font-size: var(--font-small);
   padding-top: 0;
   white-space: normal;
   text-overflow: ellipsis;
   overflow-x: hidden;
+
+  :hover > & {
+    color: black;
+    color: var(--color-text-help);
+  }
 }
 
 .menu__link--notification {

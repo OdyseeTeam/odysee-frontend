@@ -297,7 +297,13 @@ function CommentList(props: Props) {
               {sortButton(__('New'), ICONS.NEW, SORT_BY.NEWEST)}
             </span>
           )}
-          <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={() => setPage(0)} />
+          <Button
+            button="alt"
+            className="button--primary"
+            icon={ICONS.REFRESH}
+            title={__('Refresh')}
+            onClick={() => setPage(0)}
+          />
         </>
       }
       actions={

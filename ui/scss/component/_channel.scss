@@ -33,6 +33,11 @@ $actions-z-index: 2;
     // I, Sean Yesmunt, take full responsibility for this monster
     min-height: calc(var(--cover-photo-height) + 2 * var(--spacing-xl) + var(--spacing-m));
   }
+
+  .menu__button {
+    opacity: 1;
+    justify-content: center;
+  }
 }
 
 .channel-cover__custom--waiting {
@@ -69,6 +74,7 @@ $actions-z-index: 2;
   height: 5rem;
   width: 5rem;
   background-size: cover;
+  //margin-left: var(--spacing-s);
   margin-right: var(--spacing-m);
 }
 
@@ -126,7 +132,7 @@ $actions-z-index: 2;
 
 .channel-thumbnail,
 .channel-thumbnail__custom {
-  border-radius: var(--card-radius);
+  border-radius: 50%;
 }
 
 .channel-thumbnail__default--0 {
@@ -241,6 +247,18 @@ $actions-z-index: 2;
       }
     }
   }
+
+  .button,
+  .menu__button {
+    &:hover {
+      color: var(--color-primary);
+      background-color: rgba(var(--color-header-background-base), 0.95);
+
+      .icon {
+        stroke: var(--color-primary);
+      }
+    }
+  }
 }
 
 .channel__edit-thumb {
@@ -272,13 +290,13 @@ $actions-z-index: 2;
 }
 
 .menu__list.channel__list {
-  margin-top: var(--spacing-xs);
+  //margin-top: var(--spacing-xs);
   margin-left: 0;
   padding: 0;
   border-radius: var(--border-radius);
   background: transparent;
   max-height: 15rem;
-  overflow-y: scroll;
+  overflow-y: auto;
 
   [role='menuitem'] {
     margin: 0;
@@ -287,15 +305,19 @@ $actions-z-index: 2;
       background: transparent;
       .channel__list-item,
       .channel-staked__wrapper {
-        background-color: var(--color-card-background-highlighted);
+        //background-color: var(--color-menu-background-active);
+
+        .claim-preview__title {
+          color: var(--color-menu-icon-active);
+        }
       }
     }
 
     &:first-child {
       .channel__list-item {
-        border-top: 1px solid var(--color-border);
-        border-top-left-radius: var(--border-radius);
-        border-top-right-radius: var(--border-radius);
+        //border-top: 1px solid var(--color-border);
+        //border-top-left-radius: var(--border-radius);
+        //border-top-right-radius: var(--border-radius);
       }
     }
 
@@ -308,8 +330,23 @@ $actions-z-index: 2;
 
     .channel__list-item {
       padding-right: calc(var(--spacing-xl) + var(--spacing-s) * 2);
-      border-left: 1px solid var(--color-border);
-      border-right: 1px solid var(--color-border);
+      //border-left: 1px solid var(--color-border);
+      //border-right: 1px solid var(--color-border);
+
+      .icon__wrapper {
+        background-color: var(--color-primary);
+        .icon {
+          stroke: var(--color-primary-contrast);
+        }
+      }
+
+      &:hover {
+        .icon__wrapper {
+          .icon {
+            stroke: var(--color-primary-contrast);
+          }
+        }
+      }
     }
   }
 }
@@ -317,9 +354,9 @@ $actions-z-index: 2;
 .channel__list-item {
   display: flex;
   align-items: center;
-  background-color: var(--color-card-background);
+  background-color: var(--color-header-background);
   padding: var(--spacing-s);
-  border-bottom: 1px solid var(--color-border);
+  //border-bottom: 1px solid var(--color-border);
   overflow: hidden;
 
   .channel-thumbnail {
@@ -340,22 +377,32 @@ $actions-z-index: 2;
   }
 
   &:hover {
-    background-color: var(--color-card-background-highlighted);
+    background-color: var(--color-primary);
+
+    .channel__list-text {
+      color: var(--color-menu-icon-active);
+    }
   }
 }
 
 .channel__list-item--selected {
-  border: 1px solid var(--color-border);
+  //border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
 
   .icon--ChevronDown {
     margin-left: var(--spacing-l);
   }
+
+  &:hover {
+    .claim-preview__title {
+      color: white;
+    }
+  }
 }
 
 .channel__list-text {
   font-weight: var(--font-weight-bold);
-  color: var(--color-text);
+  color: var(--color-menu-icon);
 }
 
 .channel__selector {
@@ -380,11 +427,16 @@ $actions-z-index: 2;
 .channel-staked__wrapper {
   display: flex;
   position: absolute;
-  padding: 0.2rem;
-  bottom: -0.75rem;
-  left: -0.8rem;
-  background-color: var(--color-card-background);
-  border-radius: 50%;
+  text-align: center;
+  width: 116%;
+  left: -8%;
+  bottom: -14%;
+
+  svg {
+    overflow: visible;
+    width: 100%;
+    height: 100%;
+  }
 }
 
 .channel-staked__wrapper--large {
@@ -393,6 +445,7 @@ $actions-z-index: 2;
   display: inline-block;
   bottom: auto;
   left: auto;
+  width: auto;
   top: var(--spacing-xs);
   margin-left: var(--spacing-s);
   padding: 0;
@@ -409,13 +462,13 @@ $actions-z-index: 2;
 }
 
 .channel-staked__indicator {
-  margin-left: 1px;
+  //margin-left: 1px;
   z-index: 3;
   fill: var(--color-gray-3);
 }
 
 .channel-staked__indicator--controlling {
-  fill: #00eaff;
+  fill: #ff853c;
 }
 
 .channel-staked__amount {
