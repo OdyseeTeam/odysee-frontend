@@ -14,7 +14,6 @@ import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
 import { lighthouse } from 'redux/actions/search';
 import ScheduledStreams from 'component/scheduledStreams';
-import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -38,8 +37,8 @@ type Props = {
   doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  currentlyLiveClaim?: any,
   doFetchActiveLivestream: (string) => void,
+  currentChannelStatus: LivestreamChannelStatus,
 };
 
 function ChannelContent(props: Props) {
@@ -59,8 +58,8 @@ function ChannelContent(props: Props) {
     doResolveUris,
     claimType,
     empty,
-    currentlyLiveClaim,
     doFetchActiveLivestream,
+    currentChannelStatus,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
   const claimsInChannel = 9999;
@@ -253,24 +252,23 @@ function ChannelContent(props: Props) {
     setSearchResults(null);
   }, [url]);
 
-  // Track streaming status for channel.
-  const [isLivestreaming, setIsLivestreaming] = React.useState(false);
+  const [isInitialized, setIsInitialized] = React.useState(false);
+  const [isChannelBroadcasting, setIsChannelBroadcasting] = React.useState(false);
 
-  React.useEffect(() => watchLivestreamStatus(claimId, (state) => setIsLivestreaming(state)), [
-    claimId,
-    setIsLivestreaming,
-  ]);
-
-  // Find out which claim is considered live.
+  // Find out current channels status + active live claim.
   React.useEffect(() => {
-    if (isLivestreaming) {
-      doFetchActiveLivestream(claimId);
-      const intervalId = setInterval(() => {
-        doFetchActiveLivestream(claimId);
-      }, 30000);
-      return () => clearInterval(intervalId);
+    doFetchActiveLivestream(claimId);
+    const intervalId = setInterval(() => doFetchActiveLivestream(claimId), 30000);
+    return () => clearInterval(intervalId);
+  }, [claimId, doFetchActiveLivestream]);
+
+  React.useEffect(() => {
+    const initialized = currentChannelStatus.channelId === claimId;
+    setIsInitialized(initialized);
+    if (initialized) {
+      setIsChannelBroadcasting(currentChannelStatus.isBroadcasting);
     }
-  }, [claimId, isLivestreaming, doFetchActiveLivestream]);
+  }, [currentChannelStatus, claimId]);
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
@@ -280,15 +278,17 @@ function ChannelContent(props: Props) {
         <HiddenNsfwClaims uri={uri} />
       )}
 
-      {!fetching && isLivestreaming && currentlyLiveClaim && !isChannelEmpty && (
-        <LivestreamLink claimUri={currentlyLiveClaim.claimUri} />
+      {!fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
+        <LivestreamLink claimUri={currentChannelStatus.liveClaim.claimUri} />
       )}
 
       {!fetching && showScheduledLiveStreams && (
         <ScheduledStreams
           channelIds={[claimId]}
           tileLayout={tileLayout}
-          liveUris={isLivestreaming && currentlyLiveClaim ? [currentlyLiveClaim.claimUri] : []}
+          liveUris={
+            isChannelBroadcasting && currentChannelStatus.liveClaim ? [currentChannelStatus.liveClaim.claimUri] : []
+          }
         />
       )}
 

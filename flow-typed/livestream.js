@@ -21,9 +21,15 @@ declare type LivestreamReplayItem = {
 }
 declare type LivestreamReplayData = Array<LivestreamReplayItem>;
 
-declare type CurrentlyLiveClaim = {
-  claimId: string,
-  claimUri: string,
+declare type CurrentLiveClaim = {
+  claimId: string | null,
+  claimUri: string | null,
+}
+
+declare type LivestreamChannelStatus = {
+  channelId: null | string,
+  isBroadcasting: boolean,
+  liveClaim: CurrentLiveClaim,
 }
 
 declare type LivestreamState = {
@@ -33,9 +39,8 @@ declare type LivestreamState = {
   activeLivestreams: ?LivestreamInfo,
   activeLivestreamsLastFetchedDate: number,
   activeLivestreamsLastFetchedOptions: {},
-  fetchingActiveLivestream: boolean,
-  checkedActiveLiveStream: boolean,
-  currentlyLiveClaim: CurrentlyLiveClaim | null,
+
+  currentChannelStatus: LivestreamChannelStatus,
 }
 
 declare type LivestreamInfo = {

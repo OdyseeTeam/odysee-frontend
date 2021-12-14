@@ -48,8 +48,6 @@ export const makeSelectPendingLivestreamsForChannelId = (channelId: string) =>
 
 export const selectActiveLivestreams = (state: State) => selectState(state).activeLivestreams;
 
-export const selectCurrentlyLiveClaim = (state: State) => selectState(state).currentlyLiveClaim;
-
 export const selectIsActiveLivestreamForUri = createCachedSelector(
   (state, uri) => uri,
   selectActiveLivestreams,
@@ -66,6 +64,4 @@ export const selectIsActiveLivestreamForUri = createCachedSelector(
 
 export const selectFetchingActiveLivestreams = (state: State) => selectState(state).fetchingActiveLivestreams;
 
-export const selectFetchingActiveLivestream = (state: State) => selectState(state).fetchingActiveLivestream;
-
-export const selectCheckedActiveLiveStream = (state: State) => selectState(state).checkedActiveLiveStream;
+export const selectCurrentChannelStatus = (state: State) => selectState(state).currentChannelStatus;

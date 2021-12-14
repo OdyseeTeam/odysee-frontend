@@ -1,6 +1,16 @@
 // @flow
+
 import * as ACTIONS from 'constants/action_types';
 import { handleActions } from 'util/redux-utils';
+
+const currentChannelStatus: LivestreamChannelStatus = {
+  channelId: null,
+  isBroadcasting: false,
+  liveClaim: {
+    claimId: null,
+    claimUri: null,
+  },
+};
 
 const defaultState: LivestreamState = {
   fetchingById: {},
@@ -9,9 +19,10 @@ const defaultState: LivestreamState = {
   activeLivestreams: null,
   activeLivestreamsLastFetchedDate: 0,
   activeLivestreamsLastFetchedOptions: {},
-  fetchingActiveLivestream: false,
-  checkedActiveLiveStream: false,
-  currentlyLiveClaim: null,
+
+  currentChannelStatus: {
+    ...currentChannelStatus,
+  },
 };
 
 export default handleActions(
@@ -59,22 +70,24 @@ export default handleActions(
         activeLivestreamsLastFetchedOptions,
       };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_STARTED]: (state: LivestreamState) => {
-      return { ...state, fetchingActiveLivestream: true };
+
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_COMPLETED]: (state: LivestreamState, action: any) => {
+      const currentChannelStatus = Object.assign({}, state.currentChannelStatus, {
+        isBroadcasting: true,
+        liveClaim: action.data.liveClaim,
+      });
+      return { ...state, currentChannelStatus };
     },
     [ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED]: (state: LivestreamState) => {
-      return { ...state, fetchingActiveLivestream: false };
+      const currentChannelStatus = Object.assign({}, state.currentChannelStatus, {
+        isBroadcasting: false,
+        liveClaim: { claimId: null, claimUri: null },
+      });
+      return { ...state, currentChannelStatus };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_COMPLETED]: (state: LivestreamState, action: any) => {
-      const currentlyLiveClaim = action.data;
-      return {
-        ...state,
-        fetchingActiveLivestream: false,
-        currentlyLiveClaim,
-      };
-    },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_FINISHED]: (state: LivestreamState) => {
-      return { ...state, checkedActiveLiveStream: true };
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAM_FINISHED]: (state: LivestreamState, action: any) => {
+      const currentChannelStatus = Object.assign({}, state.currentChannelStatus, { channelId: action.data.channelId });
+      return { ...state, currentChannelStatus };
     },
   },
   defaultState

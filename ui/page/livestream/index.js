@@ -6,7 +6,7 @@ import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getChannelIdFromClaim } from 'util/claim';
-import { selectCurrentlyLiveClaim, selectCheckedActiveLiveStream } from 'redux/selectors/livestream';
+import { selectCurrentChannelStatus } from 'redux/selectors/livestream';
 import { doFetchActiveLivestream } from 'redux/actions/livestream';
 import LivestreamPage from './view';
 
@@ -14,8 +14,7 @@ const select = (state, props) => ({
   isAuthenticated: selectUserVerifiedEmail(state),
   channelClaimId: getChannelIdFromClaim(selectClaimForUri(state, props.uri)),
   chatDisabled: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_COMMENTS_TAG)(state),
-  currentlyLiveClaim: selectCurrentlyLiveClaim(state),
-  checkedActiveLiveStream: selectCheckedActiveLiveStream(state),
+  currentChannelStatus: selectCurrentChannelStatus(state),
 });
 
 const perform = {

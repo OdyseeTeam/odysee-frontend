@@ -14,7 +14,7 @@ import { withRouter } from 'react-router';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { doFetchActiveLivestream } from 'redux/actions/livestream';
-import { selectCurrentlyLiveClaim } from 'redux/selectors/livestream';
+import { selectCurrentChannelStatus } from 'redux/selectors/livestream';
 
 import ChannelContent from './view';
 
@@ -34,7 +34,7 @@ const select = (state, props) => {
     isAuthenticated: selectUserVerifiedEmail(state),
     showMature: selectShowMatureContent(state),
     tileLayout: selectClientSetting(state, SETTINGS.TILE_LAYOUT),
-    currentlyLiveClaim: selectCurrentlyLiveClaim(state),
+    currentChannelStatus: selectCurrentChannelStatus(state),
   };
 };
 

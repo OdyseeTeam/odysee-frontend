@@ -149,24 +149,20 @@ const findActiveStreams = async (channelIDs: Array<string>, orderBy: Array<strin
   return determineLiveClaim(allClaims, liveChannels);
 };
 
-export const doFetchActiveLivestream = (channelID: string) => {
+export const doFetchActiveLivestream = (channelId: string) => {
   return async (dispatch: Dispatch) => {
-    dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_STARTED });
-
     try {
-      const liveChannel = await fetchLiveChannel(channelID);
-      const currentlyLiveClaim = await findActiveStreams([channelID], ['release_time'], liveChannel, dispatch);
+      const liveChannel = await fetchLiveChannel(channelId);
+      const currentlyLiveClaims = await findActiveStreams([channelId], ['release_time'], liveChannel, dispatch);
+      const liveClaim = currentlyLiveClaims[channelId];
       dispatch({
         type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_COMPLETED,
-        data: {
-          claimId: currentlyLiveClaim[channelID].stream.claim_id,
-          claimUri: currentlyLiveClaim[channelID].stream.canonical_url,
-        },
+        data: { liveClaim: { claimId: liveClaim.stream.claim_id, claimUri: liveClaim.stream.canonical_url } },
       });
     } catch (err) {
       dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED });
     } finally {
-      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FINISHED });
+      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FINISHED, data: { channelId } });
     }
   };
 };
