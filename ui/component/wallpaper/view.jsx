@@ -218,7 +218,13 @@ const Wallpaper = (props: Props) => {
   } else {
     return (
       <>
-        <div className={'background-image'} style={{ backgroundImage: 'url("/public/img/bg.jpg")' }} />
+        <div
+          className={'background-image'}
+          style={{
+            backgroundImage:
+              'url("https://thumbnails.odysee.com/optimize/plain/https://cdn.lbryplayer.xyz/speech/2e9a7dc6c99f0fb9.jpg")',
+          }}
+        />
         <div className={'theme-dark'} />
       </>
     );
