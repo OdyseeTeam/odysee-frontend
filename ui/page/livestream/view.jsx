@@ -6,6 +6,7 @@ import LivestreamLayout from 'component/livestreamLayout';
 import analytics from 'analytics';
 import moment from 'moment';
 import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
+import { formatLbryUrlForWeb } from 'util/url';
 
 const LivestreamComments = lazyImport(() => import('component/livestreamComments' /* webpackChunkName: "comments" */));
 
@@ -79,6 +80,16 @@ export default function LivestreamPage(props: Props) {
       setIsCurrentClaimLive(currentChannelStatus.liveClaim.claimId === claimId);
     }
   }, [currentChannelStatus, livestreamChannelId, claimId]);
+
+  const [activeStreamUrl, setActiveStreamUrl] = React.useState(false);
+
+  React.useEffect(() => {
+    setActiveStreamUrl(
+      !isCurrentClaimLive && isChannelBroadcasting
+        ? formatLbryUrlForWeb(currentChannelStatus.liveClaim.claimUri)
+        : false
+    );
+  }, [isCurrentClaimLive, isChannelBroadcasting]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // $FlowFixMe
   const release = moment.unix(claim.value.release_time);
@@ -170,6 +181,7 @@ export default function LivestreamPage(props: Props) {
           isCurrentClaimLive={isCurrentClaimLive}
           showLivestream={showLivestream}
           showScheduledInfo={showScheduledInfo}
+          activeStreamUrl={activeStreamUrl}
         />
       )}
     </Page>

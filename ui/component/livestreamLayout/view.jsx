@@ -6,6 +6,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
+import Button from 'component/button';
 
 const LivestreamComments = lazyImport(() => import('component/livestreamComments' /* webpackChunkName: "comments" */));
 
@@ -17,10 +18,20 @@ type Props = {
   showLivestream: boolean,
   showScheduledInfo: boolean,
   isCurrentClaimLive: boolean,
+  activeStreamUrl: boolean | string,
 };
 
 export default function LivestreamLayout(props: Props) {
-  const { claim, uri, hideComments, release, showLivestream, showScheduledInfo, isCurrentClaimLive } = props;
+  const {
+    claim,
+    uri,
+    hideComments,
+    release,
+    showLivestream,
+    showScheduledInfo,
+    isCurrentClaimLive,
+    activeStreamUrl,
+  } = props;
 
   const isMobile = useIsMobile();
 
@@ -59,13 +70,25 @@ export default function LivestreamLayout(props: Props) {
           </div>
         )}
 
-        {!showScheduledInfo && !isCurrentClaimLive && (
+        {!activeStreamUrl && !showScheduledInfo && !isCurrentClaimLive && (
           <div className="help--notice">
             {channelName
               ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {
                   channelName,
                 })
               : __("This channel isn't live right now, but the chat is! Check back later to watch the stream.")}
+          </div>
+        )}
+        {activeStreamUrl && (
+          <div className="help--notice">
+            <p className={'flex justify-center items-center'}>
+              {channelName
+                ? __('Heads up! %channelName% is streaming on another page.', {
+                    channelName,
+                  })
+                : __('Heads up! This channel is streaming on another page.')}
+              <Button button="primary" label={__('Watch Now')} href={activeStreamUrl} className={'ml-m'} />
+            </p>
           </div>
         )}
 
