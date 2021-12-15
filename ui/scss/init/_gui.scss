@@ -294,6 +294,7 @@ textarea {
 .help--notice {
   @extend .help--warning;
   background-color: rgba(var(--color-primary-dynamic), 0.03);
+  color: var(--color-text);
 }
 
 .help--inline {
