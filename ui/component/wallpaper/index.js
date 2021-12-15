@@ -8,7 +8,7 @@ const select = (state, props) => {
       cover: makeSelectCoverForUri(props.uri)(state),
       avatar: makeSelectAvatarForUri(props.uri)(state),
     };
-  }
+  } else return {};
 };
 
 export default connect(select)(Wallpaper);
