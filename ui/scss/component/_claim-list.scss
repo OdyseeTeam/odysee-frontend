@@ -829,7 +829,7 @@
     display: block;
     width: 225px;
     padding-top: 4px;
-    padding-right: 10px;
+    padding-right: 8px;
     background-color: var(--color-primary);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     color: var(--color-primary-contrast);
@@ -842,6 +842,9 @@
     top: 10px;
     transform: rotate(-45deg);
 
+    .button--uri-indicator {
+      top: -3px;
+    }
     .channel-name {
       font-size: var(--font-xxsmall);
     }
