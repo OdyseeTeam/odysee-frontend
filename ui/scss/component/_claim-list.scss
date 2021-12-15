@@ -817,8 +817,8 @@
   color: var(--color-text-subtitle);
   */
 
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   overflow: hidden;
   position: absolute;
   top: 0px;
@@ -829,7 +829,7 @@
     display: block;
     width: 225px;
     padding-top: 4px;
-    padding-right: 40px;
+    padding-right: 10px;
     background-color: var(--color-primary);
     box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
     color: var(--color-primary-contrast);
@@ -841,6 +841,10 @@
     right: -25px;
     top: 10px;
     transform: rotate(-45deg);
+
+    .channel-name {
+      font-size: var(--font-xxsmall);
+    }
   }
 }
 
