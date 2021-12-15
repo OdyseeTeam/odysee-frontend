@@ -1,7 +1,7 @@
 .notificationsBlocked {
   display: flex;
   align-items: center;
-  background-color: var(--color-placeholder-background);
+  background-color: rgba(var(--color-primary-dynamic), 0.06);
   padding: var(--spacing-m);
 }
 
