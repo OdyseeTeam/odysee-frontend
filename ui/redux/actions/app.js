@@ -10,10 +10,12 @@ import { doToast, doError, doNotificationList } from 'redux/actions/notification
 import { Lbryio } from 'lbryinc';
 import { selectAllowAnalytics } from 'redux/selectors/app';
 import { selectClaimForUri, selectClaimIsMineForUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { version as appVersion } from 'package.json';
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
+import * as SETTINGS from 'constants/settings';
 import analytics from 'analytics';
 import pushNotifications from '$web/src/push-notifications';
 
@@ -281,7 +283,12 @@ export function doToggle3PAnalytics(allowParam, doNotDispatch) {
 }
 
 export function doGetAndPopulatePreferences() {
-  return (dispatch) => {
+  return (dispatch, getState) => {
+    const state = getState();
+    const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
+
+    if (!syncEnabled) return;
+
     let preferenceKey;
     preferenceKey = 'shared';
 
