@@ -11,16 +11,30 @@
   /*
   position: -webkit-sticky;
   position: sticky;
-  top: 60px;
-  z-index:4;
+  top: -1px;  
+  z-index:-1;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
-  */
 
+  margin-top:-68px;
+  padding-top: 100px; 
+  padding-bottom: 32px; 
+*/
   & > *:not(.tab) {
     // If there is anything after the tabs, render it on the opposite side of the page
     margin-left: auto;
   }
+}
+
+.tabs__list.isSticky {
+  z-index: 4;
+  //background-color:#ff0000;
+}
+
+.channel__thumbnail--channel-page.isSticky {
+  position: fixed;
+  background-color: #b95e5e;
+  margin-top: 100px;
 }
 
 .tabs__list--channel-page {
