@@ -1,6 +1,5 @@
 // @flow
 import * as React from 'react';
-import { shell, remote } from 'electron';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
 import AdmZip from 'adm-zip';
@@ -57,9 +56,6 @@ class WalletBackup extends React.PureComponent<Props, State> {
     // Prefer placing backup in user's Downloads folder, then their home folder, and finally
     // right next to the lbryum folder itself.
     let outputDir = path.dirname(lbryumWalletDir);
-    if (remote && remote.app) {
-      outputDir = remote.app.getPath('downloads') || remote.app.getPath('home') || outputDir;
-    }
 
     const outputPath = path.join(outputDir, outputFilename);
 
@@ -82,8 +78,6 @@ class WalletBackup extends React.PureComponent<Props, State> {
     }
 
     this.showSuccessMessage(__('Saved zip archive to %outputPath%', { outputPath }));
-
-    shell.showItemInFolder(outputPath);
   }
 
   render() {
@@ -144,7 +138,6 @@ class WalletBackup extends React.PureComponent<Props, State> {
                 label={__('Create Backup')}
                 onClick={() => this.backupWalletDir(lbryumWalletDir)}
               />
-              <Button button="link" label={__('Open Folder')} onClick={() => shell.openPath(lbryumWalletDir)} />
             </div>
           </React.Fragment>
         }

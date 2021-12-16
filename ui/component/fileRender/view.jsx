@@ -1,5 +1,4 @@
 // @flow
-import { remote } from 'electron';
 import React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
@@ -55,13 +54,8 @@ class FileRender extends React.PureComponent<Props> {
   escapeListener(e: SyntheticKeyboardEvent<*>) {
     if (e.keyCode === KEYCODES.ESCAPE) {
       e.preventDefault();
-      this.exitFullscreen();
       return false;
     }
-  }
-
-  exitFullscreen() {
-    remote.getCurrentWindow().setFullScreen(false);
   }
 
   renderViewer() {

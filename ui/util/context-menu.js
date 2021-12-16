@@ -1,17 +1,12 @@
-import { clipboard, remote } from 'electron';
 const isDev = process.env.NODE_ENV !== 'production';
 
 function injectDevelopmentTemplate(event, templates) {
   if (!isDev) return templates;
-  const { screenX, screenY } = event;
   const separator = { type: 'separator' };
   const developmentTemplateAddition = [
     {
       label: 'Inspect element',
       accelerator: 'CmdOrCtrl+Shift+I',
-      click: () => {
-        remote.getCurrentWindow().inspectElement(screenX, screenY);
-      },
     },
   ];
   if (templates.length > 0) {
@@ -40,15 +35,6 @@ export function openContextMenu(event, templates = [], canEdit = false, selectio
     templates.push({ label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' });
   }
 
-  // If context menu is opened on Input and text is present on clipboard
-  if (clipboard.readText().length > 0 && isTextField) {
-    templates.push({
-      label: 'Paste',
-      accelerator: 'CmdOrCtrl+V',
-      role: 'paste',
-    });
-  }
-
   // If context menu is opened on Input
   if (isTextField && value) {
     templates.push({
@@ -59,7 +45,6 @@ export function openContextMenu(event, templates = [], canEdit = false, selectio
   }
 
   injectDevelopmentTemplate(event, templates);
-  remote.Menu.buildFromTemplate(templates).popup({});
 }
 
 // This function is used for the markdown description on the publish page
