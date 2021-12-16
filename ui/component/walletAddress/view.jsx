@@ -43,7 +43,7 @@ class WalletAddress extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { receiveAddress, getNewAddress, gettingNewAddress } = this.props;
+    const { receiveAddress } = this.props;
     const { showQR } = this.state;
 
     return (
@@ -60,19 +60,19 @@ class WalletAddress extends React.PureComponent<Props, State> {
             />
 
             <div className="card__actions">
-              {!IS_WEB && (
+              {/* (
                 <Button
                   button="secondary"
                   label={__('Get New Address')}
                   onClick={getNewAddress}
                   disabled={gettingNewAddress}
                 />
-              )}
+              ) */}
               <Button button="link" label={showQR ? __('Hide QR code') : __('Show QR code')} onClick={this.toggleQR} />
             </div>
             <p className="help">
-              {!IS_WEB &&
-                __('You can generate a new address at any time, and any previous addresses will continue to work.')}
+              {/*
+                __('You can generate a new address at any time, and any previous addresses will continue to work.') */}
             </p>
 
             {showQR && <QRCode value={receiveAddress} paddingTop />}

@@ -8,17 +8,11 @@ import { doFetchChannelListMine, doFetchCollectionListMine, doResolveUris } from
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
 import { selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
-import {
-  selectIsUpgradeAvailable,
-  selectAutoUpdateDownloaded,
-  selectModal,
-  selectActiveChannelId,
-  selectIsReloadRequired,
-} from 'redux/selectors/app';
+import { selectModal, selectActiveChannelId, selectIsReloadRequired } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doSetLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doDownloadUpgradeRequested, doSignIn, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
+import { doSignIn, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import App from './view';
 
@@ -28,8 +22,6 @@ const select = (state) => ({
   theme: selectThemePath(state),
   language: selectLanguage(state),
   languages: selectLoadedLanguages(state),
-  autoUpdateDownloaded: selectAutoUpdateDownloaded(state),
-  isUpgradeAvailable: selectIsUpgradeAvailable(state),
   isReloadRequired: selectIsReloadRequired(state),
   syncError: selectGetSyncErrorMessage(state),
   syncIsLocked: selectSyncIsLocked(state),
@@ -49,7 +41,6 @@ const perform = (dispatch) => ({
   fetchCollectionListMine: () => dispatch(doFetchCollectionListMine()),
   setLanguage: (language) => dispatch(doSetLanguage(language)),
   signIn: () => dispatch(doSignIn()),
-  requestDownloadUpgrade: () => dispatch(doDownloadUpgradeRequested()),
   syncLoop: (noInterval) => dispatch(doSyncLoop(noInterval)),
   setReferrer: (referrer, doClaim) => dispatch(doUserSetReferrer(referrer, doClaim)),
   setActiveChannelIfNotSet: () => dispatch(doSetActiveChannel()),

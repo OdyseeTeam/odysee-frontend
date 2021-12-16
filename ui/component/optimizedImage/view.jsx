@@ -23,11 +23,9 @@ function OptimizedImage(props: Props) {
     if (url && !url.startsWith('/public/')) {
       optimizedUrl = url.trim().replace(/^http:\/\//i, 'https://');
 
-      // @if TARGET='web'
       if (!optimizedUrl.endsWith('.gif')) {
         optimizedUrl = getThumbnailCdnUrl({ thumbnail: optimizedUrl, width, height, quality: 85 });
       }
-      // @endif
     }
     return optimizedUrl;
   }

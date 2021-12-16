@@ -10,13 +10,13 @@ type Props = {
   isBackward: boolean,
   history: {
     entries: Array<{ key: string, title: string, pathname: string }>,
-    go: number => void,
+    go: (number) => void,
     goBack: () => void,
     goForward: () => void,
     index: number,
     length: number,
     location: { pathname: string },
-    push: string => void,
+    push: (string) => void,
   },
 };
 
@@ -67,19 +67,13 @@ const NavigationButton = (props: Props) => {
   );
   const slicedEntries = sliceEntries(currentIndex, entries, historyLength, isBackward, MAX_HISTORY_SIZE);
   return (
-    <div
-      // @if TARGET='app'
-      onDoubleClick={e => {
-        e.stopPropagation();
-      }}
-      // @endif
-    >
+    <div>
       <Button
         className={`header__navigation-item header__navigation-item--${isBackward ? 'back' : 'forward'}`}
         description={isBackward ? __('Navigate back') : __('Navigate forward')}
         onBlur={() => setShowHistory(false)}
         onClick={() => (isBackward ? history.goBack() : history.goForward())}
-        onContextMenu={e => {
+        onContextMenu={(e) => {
           setShowHistory(!showHistory);
           // the following three lines prevent the regular context menu (right click menu) from appearing
           e.preventDefault();

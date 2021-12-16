@@ -3,23 +3,13 @@ import { SITE_NAME, SIMPLE_SITE, SITE_HELP_EMAIL } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as React from 'react';
-// @if TARGET='app'
-import { shell } from 'electron';
-import WalletBackup from 'component/walletBackup';
-// @endif
 import Lbry from 'lbry';
-import Native from 'native';
 import Button from 'component/button';
 import Page from 'component/page';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 
-type DeamonSettings = {
-  data_dir: string | any,
-};
-
 type Props = {
-  deamonSettings: DeamonSettings,
   accessToken: string,
   fetchAccessToken: () => void,
   doAuth: () => void,
@@ -54,20 +44,9 @@ class HelpPage extends React.PureComponent<Props, State> {
     };
 
     (this: any).showAccessToken = this.showAccessToken.bind(this);
-    (this: any).openLogFile = this.openLogFile.bind(this);
   }
 
   componentDidMount() {
-    // @if TARGET='app'
-    Native.getAppVersionInfo().then(({ localVersion, upgradeAvailable }) => {
-      this.setState({
-        uiVersion: localVersion,
-        upgradeAvailable,
-      });
-    });
-    if (!this.props.accessToken) this.props.fetchAccessToken();
-    // @endif
-
     Lbry.version().then((info) => {
       this.setState({
         versionInfo: info,
@@ -86,24 +65,13 @@ class HelpPage extends React.PureComponent<Props, State> {
     });
   }
 
-  openLogFile(userHomeDirectory: string) {
-    const logFileName = 'lbrynet.log';
-    const os = this.state.versionInfo.os_system;
-    if (os === 'Darwin' || os === 'Linux') {
-      shell.openPath(`${userHomeDirectory}/${logFileName}`);
-    } else {
-      shell.openPath(`${userHomeDirectory}\\${logFileName}`);
-    }
-  }
-
   render() {
     let ver;
     let osName;
     let platform;
     let newVerLink;
 
-    const { accessToken, doAuth, user, deamonSettings } = this.props;
-    const { data_dir: dataDirectory } = deamonSettings;
+    const { accessToken, doAuth, user } = this.props;
 
     if (this.state.versionInfo) {
       ver = this.state.versionInfo;
@@ -199,40 +167,6 @@ class HelpPage extends React.PureComponent<Props, State> {
           }
         />
 
-        {/* @if TARGET='app' */}
-        <Card
-          title={__('View your log')}
-          subtitle={
-            <I18nMessage
-              tokens={{
-                support_link: (
-                  <Button button="link" label={__('support')} href="https://odysee.com/@OdyseeHelp:b?view=about" />
-                ),
-              }}
-            >
-              Did something go wrong? Have a look in your log file, or send it to %support_link%.
-            </I18nMessage>
-          }
-          actions={
-            <div className="section__actions">
-              <Button
-                button="secondary"
-                label={__('Open Log')}
-                icon={ICONS.OPEN_LOG}
-                onClick={() => this.openLogFile(dataDirectory)}
-              />
-              <Button
-                button="secondary"
-                label={__('Open Log Folder')}
-                icon={ICONS.OPEN_LOG_FOLDER}
-                onClick={() => shell.openPath(dataDirectory)}
-              />
-            </div>
-          }
-        />
-
-        <WalletBackup />
-        {/* @endif */}
         {!SIMPLE_SITE && (
           <>
             <Card

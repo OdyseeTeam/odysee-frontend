@@ -74,7 +74,7 @@ function FileReactions(props: Props) {
 
       <Button
         title={__('I like this')}
-        requiresAuth={IS_WEB}
+        requiresAuth
         authSrc="filereaction_like"
         className={classnames('button--file-action', { 'button--fire': myReaction === REACTION_TYPES.LIKE })}
         label={
@@ -98,7 +98,7 @@ function FileReactions(props: Props) {
         onClick={() => doReactionLike(uri)}
       />
       <Button
-        requiresAuth={IS_WEB}
+        requiresAuth
         authSrc={'filereaction_dislike'}
         title={__('I dislike this')}
         className={classnames('button--file-action', { 'button--slime': myReaction === REACTION_TYPES.DISLIKE })}

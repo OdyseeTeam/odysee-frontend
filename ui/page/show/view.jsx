@@ -81,7 +81,6 @@ function ShowPage(props: Props) {
   }, [isCollection, resolvedCollection, collectionId, fetchCollectionItems]);
 
   useEffect(() => {
-    // @if TARGET='web'
     if (canonicalUrl) {
       const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':');
       // Only redirect if we are in lbry.tv land
@@ -98,7 +97,6 @@ function ShowPage(props: Props) {
         history.replaceState(history.state, '', replaceUrl);
       }
     }
-    // @endif
 
     if (
       (resolveUri && !isResolvingUri && uri && haventFetchedYet) ||

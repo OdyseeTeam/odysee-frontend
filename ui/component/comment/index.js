@@ -28,7 +28,7 @@ const select = (state, props) => {
     claim: makeSelectClaimForUri(props.uri)(state),
     thumbnail: props.authorUri && selectThumbnailForUri(state, props.authorUri),
     channelIsBlocked: props.authorUri && makeSelectChannelIsMuted(props.authorUri)(state),
-    commentingEnabled: IS_WEB ? Boolean(selectUserVerifiedEmail(state)) : true,
+    commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
     othersReacts: selectOthersReactsForComment(state, reactionKey),
     activeChannelClaim,
     hasChannels: selectHasChannels(state),

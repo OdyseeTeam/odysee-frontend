@@ -43,8 +43,8 @@ class RewardsPage extends PureComponent<Props> {
   }
 
   renderPageHeader() {
-    const { user, daemonSettings, fetchUser } = this.props;
-    const rewardsEnabled = IS_WEB || (daemonSettings && daemonSettings.share_usage_data);
+    const { user, fetchUser } = this.props;
+    const rewardsEnabled = true;
 
     if (user && !user.is_reward_approved && rewardsEnabled) {
       if (!user.primary_email || !user.has_verified_email || !user.is_identity_verified) {
@@ -124,21 +124,9 @@ class RewardsPage extends PureComponent<Props> {
   }
 
   renderUnclaimedRewards() {
-    const { fetching, rewards, user, daemonSettings, claimed } = this.props;
+    const { fetching, rewards, user, claimed } = this.props;
 
-    if (!IS_WEB && daemonSettings && !daemonSettings.share_usage_data) {
-      return (
-        <section className="card card--section">
-          <h2 className="card__title card__title--deprecated">{__('Rewards Disabled')}</h2>
-          <p className="error__text">
-            <I18nMessage tokens={{ settings: <Button button="link" navigate="/$/settings" label="Settings" /> }}>
-              Rewards are currently disabled for your account. Turn on diagnostic data sharing, in %settings%, to
-              re-enable them.
-            </I18nMessage>
-          </p>
-        </section>
-      );
-    } else if (fetching) {
+    if (fetching) {
       return <BusyIndicator message={__('Fetching rewards')} />;
     } else if (user === null) {
       return (

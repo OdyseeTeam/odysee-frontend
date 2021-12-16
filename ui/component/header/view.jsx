@@ -12,17 +12,12 @@ import Button from 'component/button';
 import WunderBar from 'component/wunderbar';
 import Icon from 'component/common/icon';
 import { Menu, MenuList, MenuButton, MenuItem, MenuLink } from '@reach/menu-button';
-import NavigationButton from 'component/navigationButton';
 import { useIsMobile } from 'effects/use-screensize';
 import NotificationBubble from 'component/notificationBubble';
 import NotificationHeaderButton from 'component/notificationHeaderButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Logo from 'component/logo';
-// @if TARGET='app'
-import { remote } from 'electron';
-import { IS_MAC } from 'component/app/view';
-// @endif
 
 type Props = {
   user: ?User,
@@ -158,6 +153,7 @@ const Header = (props: Props) => {
       window.addEventListener('popstate', onBackout);
       return () => window.removeEventListener('popstate', onBackout);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasBackout]);
 
   function handleThemeToggle() {
@@ -197,11 +193,6 @@ const Header = (props: Props) => {
       className={classnames(balanceButtonProps.className, 'header__navigation-item--balance')}
       label={hideBalance || Number(roundedBalance) === 0 ? __('Your Wallet') : roundedBalance}
       icon={ICONS.LBC}
-      // @if TARGET='app'
-      onDoubleClick={(e) => {
-        e.stopPropagation();
-      }}
-      // @endif
     />
   );
 
@@ -209,15 +200,7 @@ const Header = (props: Props) => {
     <header
       className={classnames('header', {
         'header--minimal': authHeader,
-        // @if TARGET='app'
-        'header--mac': IS_MAC,
-        // @endif
       })}
-      // @if TARGET='app'
-      onDoubleClick={(e) => {
-        remote.getCurrentWindow().maximize();
-      }}
-      // @endif
     >
       <div className="header__contents">
         {!authHeader && backout ? (
@@ -229,11 +212,7 @@ const Header = (props: Props) => {
               icon={ICONS.ARROW_LEFT}
             />
             {backTitle && <h1 className="header__auth-title">{isMobile ? simpleBackTitle || backTitle : backTitle}</h1>}
-            {authenticated || !IS_WEB ? (
-              <BalanceButton className="header__navigation-item menu__title" />
-            ) : (
-              loginButtons
-            )}
+            {authenticated ? <BalanceButton className="header__navigation-item menu__title" /> : loginButtons}
           </div>
         ) : (
           <>
@@ -262,11 +241,6 @@ const Header = (props: Props) => {
                 onClick={() => {
                   if (history.location.pathname === '/') window.location.reload();
                 }}
-                // @if TARGET='app'
-                onDoubleClick={(e) => {
-                  e.stopPropagation();
-                }}
-                // @endif
                 {...homeButtonNavigationProps}
               >
                 <Logo />
@@ -294,15 +268,6 @@ const Header = (props: Props) => {
 
               {!authHeader && (
                 <div className="header__center">
-                  {/* @if TARGET='app' */}
-                  {!authHeader && (
-                    <div className="header__buttons">
-                      <NavigationButton isBackward history={history} />
-                      <NavigationButton isBackward={false} history={history} />
-                    </div>
-                  )}
-                  {/* @endif */}
-
                   {!authHeader && <WunderBar />}
 
                   <HeaderMenuButtons
@@ -318,14 +283,12 @@ const Header = (props: Props) => {
             </div>
 
             {!authHeader && !backout ? (
-              <div className={classnames('header__menu', { 'header__menu--with-balance': !IS_WEB || authenticated })}>
-                {(!IS_WEB || authenticated) && (
-                  <BalanceButton className="header__navigation-item menu__title mobile-hidden" />
-                )}
+              <div className={classnames('header__menu', { 'header__menu--with-balance': authenticated })}>
+                {authenticated && <BalanceButton className="header__navigation-item menu__title mobile-hidden" />}
 
-                {IS_WEB && !authenticated && loginButtons}
+                {!authenticated && loginButtons}
 
-                {(authenticated || !IS_WEB) && (
+                {authenticated && (
                   <Menu>
                     <MenuButton
                       aria-label={__('Your account')}
@@ -334,11 +297,6 @@ const Header = (props: Props) => {
                         'menu__title header__navigation-item--icon': !activeChannelUrl,
                         'header__navigation-item--profile-pic': activeChannelUrl,
                       })}
-                      // @if TARGET='app'
-                      onDoubleClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                      // @endif
                     >
                       {activeChannelUrl ? (
                         <ChannelThumbnail uri={activeChannelUrl} small noLazyLoad />
@@ -369,24 +327,13 @@ const Header = (props: Props) => {
                       </MenuLink>
 
                       {authenticated ? (
-                        <MenuItem onSelect={IS_WEB ? signOut : () => doOpenModal(MODALS.SIGN_OUT)}>
+                        <MenuItem onSelect={signOut}>
                           <div className="menu__link">
                             <Icon aria-hidden icon={ICONS.SIGN_OUT} />
                             {__('Sign Out')}
                           </div>
                           <span className="menu__link-help">{email}</span>
                         </MenuItem>
-                      ) : !IS_WEB ? (
-                        <>
-                          <MenuLink className="menu__link" as={Link} to={`/$/${PAGES.AUTH}`}>
-                            <Icon aria-hidden icon={ICONS.SIGN_UP} />
-                            {__('Sign Up')}
-                          </MenuLink>
-                          <MenuLink className="menu__link" as={Link} to={`/$/${PAGES.AUTH_SIGNIN}`}>
-                            <Icon aria-hidden icon={ICONS.SIGN_IN} />
-                            {__('Sign In')}
-                          </MenuLink>
-                        </>
                       ) : null}
                     </MenuList>
                   </Menu>
@@ -406,11 +353,6 @@ const Header = (props: Props) => {
                     // className="button--header-close"
                     icon={ICONS.REMOVE}
                     {...closeButtonNavigationProps}
-                    // @if TARGET='app'
-                    onDoubleClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                    // @endif
                   />
                 </div>
               )
@@ -436,17 +378,12 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
 
   return (
     <div className="header__buttons">
-      {(authenticated || !IS_WEB) && (
+      {authenticated && (
         <Menu>
           <MenuButton
             aria-label={__('Publish a file, or create a channel')}
             title={__('Publish a file, or create a channel')}
             className="header__navigation-item menu__title header__navigation-item--icon mobile-hidden"
-            // @if TARGET='app'
-            onDoubleClick={(e) => {
-              e.stopPropagation();
-            }}
-            // @endif
           >
             <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
           </MenuButton>
@@ -460,12 +397,10 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
               <Icon aria-hidden icon={ICONS.CHANNEL} />
               {__('New Channel')}
             </MenuLink>
-            {/* @if TARGET='web' */}
             <MenuLink className="menu__link" as={Link} to={`/$/${PAGES.YOUTUBE_SYNC}`}>
               <Icon aria-hidden icon={ICONS.YOUTUBE} />
               {__('Sync YouTube Channel')}
             </MenuLink>
-            {/* @endif */}
             {livestreamEnabled && (
               <MenuLink className="menu__link" as={Link} to={`/$/${PAGES.LIVESTREAM}`}>
                 <Icon aria-hidden icon={ICONS.VIDEO} />
@@ -483,11 +418,6 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           aria-label={__('Settings')}
           title={__('Settings')}
           className="header__navigation-item menu__title header__navigation-item--icon  mobile-hidden"
-          // @if TARGET='app'
-          onDoubleClick={(e) => {
-            e.stopPropagation();
-          }}
-          // @endif
         >
           <Icon size={18} icon={ICONS.SETTINGS} aria-hidden />
         </MenuButton>

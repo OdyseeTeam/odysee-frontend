@@ -1,7 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import * as SETTINGS from 'constants/settings';
 import * as React from 'react';
 
 import Page from 'component/page';
@@ -22,7 +21,7 @@ type Props = {
 };
 
 export default function NotificationSettingsPage(props: Props) {
-  const { osNotificationsEnabled, setClientSetting, isAuthenticated } = props;
+  const { isAuthenticated } = props;
   const [error, setError] = React.useState();
   const [tagMap, setTagMap] = React.useState({});
   const [tags, setTags] = React.useState();
@@ -93,7 +92,7 @@ export default function NotificationSettingsPage(props: Props) {
       });
   }
 
-  if (IS_WEB && !isAuthenticated && !verificationToken) {
+  if (!isAuthenticated && !verificationToken) {
     return <Redirect to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
   }
 
@@ -152,23 +151,7 @@ export default function NotificationSettingsPage(props: Props) {
                   </>
                 )}
 
-                {/* @if TARGET='web' */}
                 <BrowserNotificationSettings />
-                {/* @endif */}
-
-                {/* @if TARGET='app' */}
-                <SettingsRow
-                  title={__('Desktop Notifications')}
-                  subtitle={__('Get notified when an upload or channel is confirmed.')}
-                >
-                  <FormField
-                    type="checkbox"
-                    name="desktopNotification"
-                    onChange={() => setClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled)}
-                    checked={osNotificationsEnabled}
-                  />
-                </SettingsRow>
-                {/* @endif */}
               </>
             }
           />
