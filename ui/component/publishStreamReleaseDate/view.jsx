@@ -41,8 +41,12 @@ const PublishStreamReleaseDate = (props: Props) => {
   };
 
   const helpText = !publishLater
-    ? __("Requires some wait time. You'll go live soon.")
-    : __('Your followers will be notified of the scheduled date and time of your stream.');
+    ? __(
+        'Confirmation process takes a few minutes, but then you can go live anytime. The stream is not shown anywhere until you are broadcasting.'
+      )
+    : __(
+        'Your scheduled streams will appear on your channel page and for your followers. Chat will not be active until 5 minutes before the start time.'
+      );
 
   return (
     <div className="">
@@ -55,7 +59,7 @@ const PublishStreamReleaseDate = (props: Props) => {
           disabled={false}
           onChange={handleToggle}
           checked={!publishLater}
-          label={__('Right away')}
+          label={__('Anytime')}
         />
 
         <div className={'md:ml-m mt-s md:mt-0'}>
@@ -65,7 +69,7 @@ const PublishStreamReleaseDate = (props: Props) => {
             disabled={false}
             onChange={handleToggle}
             checked={publishLater}
-            label={__('At a Later Date')}
+            label={__('Scheduled Time')}
           />
         </div>
         {publishLater && (
