@@ -1,6 +1,5 @@
 .tabs {
   position: relative;
-  height: 4rem;
 }
 
 .tabs__list {
@@ -8,6 +7,15 @@
   align-items: center;
   background-color: var(--color-tabs-background);
   padding: var(--spacing-m) var(--spacing-main-padding);
+
+  /*
+  position: -webkit-sticky;
+  position: sticky;
+  top: 60px;
+  z-index:4;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  */
 
   & > *:not(.tab) {
     // If there is anything after the tabs, render it on the opposite side of the page
