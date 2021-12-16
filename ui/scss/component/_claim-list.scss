@@ -395,7 +395,7 @@
   display: flex;
   flex-wrap: wrap;
   list-style: none;
-  align-items: flex-start;
+  align-items: stretch;
 }
 
 .claim-grid__wrapper {
@@ -489,6 +489,8 @@
   margin-left: var(--spacing-m);
   justify-content: flex-start;
   list-style: none;
+  display: flex;
+  flex-direction: column;
 
   .media__thumb {
     border-bottom-right-radius: 0;
@@ -791,6 +793,7 @@
 
 .claim-tile__header {
   position: relative;
+  height: 100%;
 
   .claim__menu-button {
     right: 0.2rem;
