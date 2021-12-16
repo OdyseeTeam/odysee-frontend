@@ -59,6 +59,12 @@
   .vjs-button--theater-mode {
     display: none;
   }
+
+  .button__label {
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
 }
 
 .content__actions {
