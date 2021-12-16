@@ -1,5 +1,6 @@
 .tabs {
   position: relative;
+  height: 4rem;
 }
 
 .tabs__list {
@@ -33,6 +34,13 @@
       color: var(--color-primary);
     }
   }
+}
+
+.tabs__list--channel-page--absolute {
+  position: fixed;
+  top: var(--header-height);
+  z-index: 10;
+  width: var(--page-max-width);
 }
 
 .tabs__list--collection-edit-page {
