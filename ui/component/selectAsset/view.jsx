@@ -103,9 +103,7 @@ function SelectAsset(props: Props) {
             onFileChosen={(file) => {
               if (file.name) {
                 setFileSelected(file);
-                // what why? why not target=WEB this?
-                // file.path is undefined in web but available in electron
-                setPathSelected(file.name || file.path);
+                setPathSelected(file.name);
               }
             }}
             accept={accept}

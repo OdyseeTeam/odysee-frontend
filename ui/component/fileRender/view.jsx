@@ -1,10 +1,8 @@
 // @flow
-import { remote } from 'electron';
 import React from 'react';
 import { lazyImport } from 'util/lazyImport';
 import classnames from 'classnames';
 import * as RENDER_MODES from 'constants/file_render_modes';
-import * as KEYCODES from 'constants/keycodes';
 import VideoViewer from 'component/viewers/videoViewer';
 import { withRouter } from 'react-router-dom';
 import analytics from 'analytics';
@@ -38,32 +36,9 @@ type Props = {
 };
 
 class FileRender extends React.PureComponent<Props> {
-  constructor(props: Props) {
-    super(props);
-
-    (this: any).escapeListener = this.escapeListener.bind(this);
-  }
-
   componentDidMount() {
     const { renderMode, embedded } = this.props;
-    window.addEventListener('keydown', this.escapeListener, true);
     analytics.playerLoadedEvent(renderMode, embedded);
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener('keydown', this.escapeListener, true);
-  }
-
-  escapeListener(e: SyntheticKeyboardEvent<*>) {
-    if (e.keyCode === KEYCODES.ESCAPE) {
-      e.preventDefault();
-      this.exitFullscreen();
-      return false;
-    }
-  }
-
-  exitFullscreen() {
-    remote.getCurrentWindow().setFullScreen(false);
   }
 
   renderViewer() {
