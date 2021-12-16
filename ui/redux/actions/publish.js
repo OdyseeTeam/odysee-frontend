@@ -214,10 +214,6 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const { permanent_url: url } = pendingClaim;
     const actions = [];
 
-    // @if TARGET='app'
-    actions.push(push(`/$/${PAGES.UPLOADS}`));
-    // @endif
-
     actions.push({
       type: ACTIONS.PUBLISH_SUCCESS,
       data: {
@@ -237,12 +233,6 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
         claims: [pendingClaim],
       },
     });
-    // @if TARGET='app'
-    actions.push({
-      type: ACTIONS.ADD_FILES_REFLECTING,
-      data: pendingClaim,
-    });
-    // @endif
 
     dispatch(batchActions(...actions));
     dispatch(
@@ -254,14 +244,9 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
       })
     );
     dispatch(doCheckPendingClaims());
-    // @if TARGET='app'
-    dispatch(doCheckReflectingFiles());
-    // @endif
-    // @if TARGET='web'
     if (redirectToLivestream) {
       dispatch(push(`/$/${PAGES.LIVESTREAM}`));
     }
-    // @endif
   };
 
   const publishFail = (error) => {
@@ -281,11 +266,9 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
   // Redirect on web immediately because we have a file upload progress componenet
   // on the publishes page. This doesn't exist on desktop so wait until we get a response
   // from the SDK
-  // @if TARGET='web'
   if (!redirectToLivestream) {
     dispatch(push(`/$/${PAGES.UPLOADS}`));
   }
-  // @endif
 
   dispatch(doPublish(publishSuccess, publishFail));
 };

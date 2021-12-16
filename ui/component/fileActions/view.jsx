@@ -5,7 +5,6 @@ import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
-import FileDownloadLink from 'component/fileDownloadLink';
 import { buildURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -87,7 +86,6 @@ function FileActions(props: Props) {
   const urlParams = new URLSearchParams(search);
   const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
-  // @if TARGET='web'
   const [downloadClicked, setDownloadClicked] = React.useState(false);
 
   function handleWebDownload() {
@@ -102,7 +100,6 @@ function FileActions(props: Props) {
       setDownloadClicked(false);
     }
   }, [downloadClicked, streamingUrl, fileName]);
-  // @endif
 
   function handleRepostClick() {
     if (!hasChannels) {
@@ -128,7 +125,7 @@ function FileActions(props: Props) {
             claim.meta.reposted > 1 ? __(`%repost_total% Reposts`, { repost_total: claim.meta.reposted }) : __('Repost')
           }
           description={__('Repost')}
-          requiresAuth={IS_WEB}
+          requiresAuth
           onClick={handleRepostClick}
         />
       )}
@@ -144,9 +141,6 @@ function FileActions(props: Props) {
 
   const rhsSection = (
     <>
-      {/* @if TARGET='app' */}
-      <FileDownloadLink uri={uri} />
-      {/* @endif */}
       {claimIsMine && (
         <Button
           className="button--file-action"
@@ -179,7 +173,6 @@ function FileActions(props: Props) {
             <Icon size={20} icon={ICONS.MORE} />
           </MenuButton>
           <MenuList className="menu__list">
-            {/* @if TARGET='web' */}
             {!isLivestreamClaim && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
@@ -188,7 +181,6 @@ function FileActions(props: Props) {
                 </div>
               </MenuItem>
             )}
-            {/* @endif */}
             {!claimIsMine && (
               <MenuItem
                 className="comment__menu-option"

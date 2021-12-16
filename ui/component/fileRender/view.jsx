@@ -7,17 +7,13 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import * as KEYCODES from 'constants/keycodes';
 import VideoViewer from 'component/viewers/videoViewer';
 import { withRouter } from 'react-router-dom';
-import fs from 'fs';
 import analytics from 'analytics';
 
 import DocumentViewer from 'component/viewers/documentViewer';
 
-// @if TARGET='app'
-// should match
-import DocxViewer from 'component/viewers/docxViewer';
+/* import DocxViewer from 'component/viewers/docxViewer';
 import ComicBookViewer from 'component/viewers/comicBookViewer';
-import ThreeViewer from 'component/viewers/threeViewer';
-// @endif
+import ThreeViewer from 'component/viewers/threeViewer'; */
 
 const AppViewer = lazyImport(() => import('component/viewers/appViewer' /* webpackChunkName: "appViewer" */));
 const HtmlViewer = lazyImport(() => import('component/viewers/htmlViewer' /* webpackChunkName: "htmlViewer" */));
@@ -93,9 +89,6 @@ class FileRender extends React.PureComponent<Props> {
         return (
           <DocumentViewer
             source={{
-              // @if TARGET='app'
-              file: (options) => fs.createReadStream(downloadPath, options),
-              // @endif
               stream: source,
               fileExtension,
               contentType,
@@ -104,15 +97,15 @@ class FileRender extends React.PureComponent<Props> {
             theme={currentTheme}
           />
         );
-      case RENDER_MODES.DOCX:
-        return <DocxViewer source={downloadPath} />;
+      /* case RENDER_MODES.DOCX:
+        return <DocxViewer source={downloadPath} />; */
       case RENDER_MODES.PDF:
         return (
           <React.Suspense fallback={null}>
             <PdfViewer source={downloadPath || source} />
           </React.Suspense>
         );
-      case RENDER_MODES.CAD:
+      /* case RENDER_MODES.CAD:
         return (
           <ThreeViewer
             source={{
@@ -126,14 +119,11 @@ class FileRender extends React.PureComponent<Props> {
         return (
           <ComicBookViewer
             source={{
-              // @if TARGET='app'
-              file: (options) => fs.createReadStream(downloadPath, options),
-              // @endif
               stream: source,
             }}
             theme={currentTheme}
           />
-        );
+        ); */
       case RENDER_MODES.APPLICATION:
         return (
           <React.Suspense fallback={null}>

@@ -90,7 +90,7 @@ function CollectionForm(props: Props) {
     onDone,
   } = props;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
-  let prefix = IS_WEB ? `${DOMAIN}/` : 'lbry://';
+  let prefix = `${DOMAIN}/`;
   if (activeChannelName && !incognito) {
     prefix += `${activeChannelName}/`;
   }
@@ -243,6 +243,7 @@ function CollectionForm(props: Props) {
     const collectionClaimIds = JSON.parse(collectionClaimIdsString);
     setParams({ ...params, claims: collectionClaimIds });
     clearCollectionErrors();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionClaimIdsString, setParams]);
 
   React.useEffect(() => {
@@ -278,6 +279,7 @@ function CollectionForm(props: Props) {
         setParam({ channel_id: undefined });
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannelId, incognito, initialized]);
 
   // setup initial params after we're sure if it's published or not
@@ -285,9 +287,9 @@ function CollectionForm(props: Props) {
     if (!uri || (uri && hasClaim)) {
       updateParams(getCollectionParams());
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri, hasClaim]);
 
-  console.log('params', params);
   return (
     <>
       <div className={classnames('main--contained', { 'card--disabled': disabled })}>

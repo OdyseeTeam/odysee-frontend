@@ -1,100 +1,15 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
-// @if TARGET='app'
-import { ipcRenderer } from 'electron';
-// @endif
 import { doOpenModal } from 'redux/actions/app';
 import { makeSelectClaimForUri, selectClaimIsMineForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
-import {
-  makeSelectFileInfoForUri,
-  selectFileInfosByOutpoint,
-  makeSelectUriIsStreamable,
-  selectDownloadingByOutpoint,
-} from 'redux/selectors/file_info';
+import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { makeSelectUrlsForCollectionId } from 'redux/selectors/collections';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
-import Lbry from 'lbry';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri, Lbryio } from 'lbryinc';
-import { selectClientSetting, selectosNotificationsEnabled, selectDaemonSettings } from 'redux/selectors/settings';
-
-const DOWNLOAD_POLL_INTERVAL = 1000;
-
-export function doUpdateLoadStatus(uri: string, outpoint: string) {
-  // Updates the loading status for a uri as it's downloading
-  // Calls file_list and checks the written_bytes value to see if the number has increased
-  // Not needed on web as users aren't actually downloading the file
-  // @if TARGET='app'
-  return (dispatch: Dispatch, getState: GetState) => {
-    const setNextStatusUpdate = () =>
-      setTimeout(() => {
-        // We need to check if outpoint still exists first because user are able to delete file (outpoint) while downloading.
-        // If a file is already deleted, no point to still try update load status
-        const byOutpoint = selectFileInfosByOutpoint(getState());
-        if (byOutpoint[outpoint]) {
-          dispatch(doUpdateLoadStatus(uri, outpoint));
-        }
-      }, DOWNLOAD_POLL_INTERVAL);
-
-    Lbry.file_list({
-      outpoint,
-      full_status: true,
-      page: 1,
-      page_size: 1,
-    }).then((result) => {
-      const { items: fileInfos } = result;
-      const fileInfo = fileInfos[0];
-      if (!fileInfo || fileInfo.written_bytes === 0) {
-        // download hasn't started yet
-        setNextStatusUpdate();
-      } else if (fileInfo.completed) {
-        // TODO this isn't going to get called if they reload the client before
-        // the download finished
-        dispatch({
-          type: ACTIONS.DOWNLOADING_COMPLETED,
-          data: {
-            uri,
-            outpoint,
-            fileInfo,
-          },
-        });
-
-        // If notifications are disabled(false) just return
-        if (!selectosNotificationsEnabled(getState()) || !fileInfo.written_bytes) return;
-
-        const notif = new window.Notification(__('LBRY Download Complete'), {
-          body: fileInfo.metadata.title,
-          silent: false,
-        });
-
-        // @if TARGET='app'
-        notif.onclick = () => {
-          ipcRenderer.send('focusWindow', 'main');
-        };
-        // @ENDIF
-      } else {
-        // ready to play
-        const { total_bytes: totalBytes, written_bytes: writtenBytes } = fileInfo;
-        const progress = (writtenBytes / totalBytes) * 100;
-
-        dispatch({
-          type: ACTIONS.DOWNLOADING_PROGRESSED,
-          data: {
-            uri,
-            outpoint,
-            fileInfo,
-            progress,
-          },
-        });
-
-        setNextStatusUpdate();
-      }
-    });
-  };
-  // @endif
-}
+import { selectClientSetting } from 'redux/selectors/settings';
 
 export function doSetPrimaryUri(uri: ?string) {
   return (dispatch: Dispatch) => {
@@ -129,9 +44,9 @@ export function doSetPlayingUri({
 export function doPurchaseUriWrapper(uri: string, cost: number, saveFile: boolean, cb: ?(GetResponse) => void) {
   return (dispatch: Dispatch, getState: () => any) => {
     function onSuccess(fileInfo) {
-      if (saveFile) {
+      /* if (saveFile) {
         dispatch(doUpdateLoadStatus(uri, fileInfo.outpoint));
-      }
+      } */
 
       if (cb) {
         cb(fileInfo);
@@ -153,20 +68,11 @@ export function doPlayUri(
     const state = getState();
     const isMine = selectClaimIsMineForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
-    const uriIsStreamable = makeSelectUriIsStreamable(uri)(state);
-    const downloadingByOutpoint = selectDownloadingByOutpoint(state);
     const claimWasPurchased = makeSelectClaimWasPurchased(uri)(state);
-    const alreadyDownloaded = fileInfo && (fileInfo.completed || (fileInfo.blobs_remaining === 0 && uriIsStreamable));
-    const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
 
-    if (!IS_WEB && (alreadyDownloading || alreadyDownloaded)) {
-      return;
-    }
-
-    const daemonSettings = selectDaemonSettings(state);
     const costInfo = selectCostInfoForUri(state, uri);
     const cost = (costInfo && Number(costInfo.cost)) || 0;
-    const saveFile = !IS_WEB && (!uriIsStreamable ? true : daemonSettings.save_files || saveFileOverride || cost > 0);
+    const saveFile = false;
     const instantPurchaseEnabled = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED);
     const instantPurchaseMax = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX);
 

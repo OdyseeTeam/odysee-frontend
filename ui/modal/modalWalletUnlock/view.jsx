@@ -6,7 +6,6 @@ import Button from 'component/button';
 import { getSavedPassword, setSavedPassword } from 'util/saved-passwords';
 
 type Props = {
-  quit: () => void,
   closeModal: () => void,
   unlockWallet: (?string) => void,
   walletUnlockSucceded: boolean,
@@ -27,7 +26,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
   componentDidMount() {
     const { unlockWallet, shouldTryWithBlankPassword } = this.props;
 
-    getSavedPassword().then(p => {
+    getSavedPassword().then((p) => {
       if (p !== null) {
         this.setState({ password: p, rememberPassword: true });
         unlockWallet(p);
@@ -54,7 +53,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { quit, unlockWallet, walletUnlockSucceded } = this.props;
+    const { unlockWallet, walletUnlockSucceded, closeModal } = this.props;
 
     const { password, rememberPassword } = this.state;
     return (
@@ -67,7 +66,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
         confirmButtonLabel={__('Unlock')}
         abortButtonLabel={__('Exit')}
         onConfirmed={() => unlockWallet(password)}
-        onAborted={quit}
+        onAborted={closeModal}
       >
         <p>
           {__('Your wallet has been encrypted with a local password. Please enter your wallet password to proceed.')}{' '}
@@ -80,7 +79,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
             label={__('Wallet Password')}
             type="password"
             name="wallet-password"
-            onChange={event => this.onChangePassword(event)}
+            onChange={(event) => this.onChangePassword(event)}
             value={password || ''}
           />
           <fieldset-section>
@@ -88,7 +87,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
               label={__('Remember Password')}
               type="checkbox"
               name="wallet-remember-password"
-              onChange={event => this.onChangeRememberPassword(event)}
+              onChange={(event) => this.onChangeRememberPassword(event)}
               checked={rememberPassword}
             />
           </fieldset-section>

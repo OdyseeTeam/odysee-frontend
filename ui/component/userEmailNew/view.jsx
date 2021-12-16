@@ -1,6 +1,6 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import { DOMAIN, SIMPLE_SITE } from 'config';
+import { SIMPLE_SITE } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
@@ -19,10 +19,8 @@ type Props = {
   emailExists: boolean,
   isPending: boolean,
   syncEnabled: boolean,
-  setSync: (boolean) => void,
   balance: number,
   daemonSettings: { share_usage_data: boolean },
-  setShareDiagnosticData: (boolean) => void,
   doSignUp: (string, ?string) => Promise<any>,
   clearEmailEntry: () => void,
   interestedInYoutubSync: boolean,
@@ -34,9 +32,7 @@ function UserEmailNew(props: Props) {
     errorMessage,
     isPending,
     doSignUp,
-    setSync,
     daemonSettings,
-    setShareDiagnosticData,
     clearEmailEntry,
     emailExists,
     interestedInYoutubSync,
@@ -49,19 +45,10 @@ function UserEmailNew(props: Props) {
   const defaultEmail = emailFromUrl ? decodeURIComponent(emailFromUrl) : '';
   const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState('');
-  const [localShareUsageData, setLocalShareUsageData] = React.useState(false);
-  const [formSyncEnabled, setFormSyncEnabled] = useState(true);
+  const [localShareUsageData] = React.useState(false);
   const valid = email.match(EMAIL_REGEX);
 
-  function handleUsageDataChange() {
-    setLocalShareUsageData(!localShareUsageData);
-  }
-
   function handleSubmit() {
-    // @if TARGET='app'
-    setSync(formSyncEnabled);
-    setShareDiagnosticData(true);
-    // @endif
     doSignUp(email, password === '' ? undefined : password).then(() => {
       analytics.emailProvidedEvent();
     });
@@ -90,6 +77,7 @@ function UserEmailNew(props: Props) {
     if (emailExists) {
       handleChangeToSignIn();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [emailExists]);
 
   return (
@@ -100,11 +88,8 @@ function UserEmailNew(props: Props) {
     >
       <Card
         title={__('Join')}
-        // @if TARGET='app'
-        subtitle={__('An account allows you to earn rewards and backup your data.')}
-        // @endif
         actions={
-          <div className={classnames({ 'card--disabled': DOMAIN === 'lbry.tv' && IS_WEB })}>
+          <>
             <Form onSubmit={handleSubmit} className="section">
               <FormField
                 autoFocus
@@ -123,7 +108,6 @@ function UserEmailNew(props: Props) {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              {/* @if TARGET='web' */}
               <FormField
                 type="checkbox"
                 name="youtube_sync_checkbox"
@@ -131,46 +115,13 @@ function UserEmailNew(props: Props) {
                 checked={interestedInYoutubSync}
                 onChange={() => doToggleInterestedInYoutubeSync()}
               />
-              {/* @endif */}
 
-              {/* @if TARGET='app' */}
-              <FormField
-                type="checkbox"
-                name="sync_checkbox"
-                label={
-                  <React.Fragment>
-                    {__('Backup your account and wallet data.')}{' '}
-                    <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                  </React.Fragment>
-                }
-                checked={formSyncEnabled}
-                onChange={() => setFormSyncEnabled(!formSyncEnabled)}
-              />
-              {/* @endif */}
-
-              {!shareUsageData && !IS_WEB && (
-                <FormField
-                  type="checkbox"
-                  name="share_data_checkbox"
-                  checked={localShareUsageData}
-                  onChange={handleUsageDataChange}
-                  label={
-                    <React.Fragment>
-                      {__('Share usage data with LBRY inc.')}{' '}
-                      <Button button="link" href="https://odysee.com/$/privacypolicy" label={__('Learn More')} />
-                      {!localShareUsageData && <span className="error__text"> ({__('Required')})</span>}
-                    </React.Fragment>
-                  }
-                />
-              )}
               <div className="section__actions">
                 <Button
                   button="primary"
                   type="submit"
                   label={__('Sign Up')}
-                  disabled={
-                    !email || !password || !valid || (!IS_WEB && !localShareUsageData && !shareUsageData) || isPending
-                  }
+                  disabled={!email || !password || !valid || (!localShareUsageData && !shareUsageData) || isPending}
                 />
                 <Button button="link" onClick={handleChangeToSignIn} label={__('Log In')} />
               </div>
@@ -184,7 +135,7 @@ function UserEmailNew(props: Props) {
                 </I18nMessage>
               </p>
             </Form>
-          </div>
+          </>
         }
         nag={<>{errorMessage && <Nag type="error" relative message={<ErrorText>{errorMessage}</ErrorText>} />}</>}
         secondPane={SIMPLE_SITE && <LoginGraphic />}

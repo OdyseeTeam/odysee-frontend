@@ -73,7 +73,6 @@ export default function FileRenderInitiator(props: Props) {
       setTimeout(() => {
         let newThumbnail = claimThumbnail;
 
-        // @if TARGET='web'
         if (
           containerRef.current &&
           containerRef.current.parentElement &&
@@ -82,7 +81,6 @@ export default function FileRenderInitiator(props: Props) {
           const w = containerRef.current.parentElement.offsetWidth;
           newThumbnail = getThumbnailCdnUrl({ thumbnail: newThumbnail, width: w, height: w });
         }
-        // @endif
 
         if (newThumbnail !== thumbnail) {
           setThumbnail(newThumbnail);
@@ -148,9 +146,9 @@ export default function FileRenderInitiator(props: Props) {
     }
   }
 
-  const showAppNag = IS_WEB && RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
+  const showAppNag = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
   const disabled = showAppNag || (!fileInfo && insufficientCredits && !claimWasPurchased);
-  const shouldRedirect = IS_WEB && !authenticated && !isFree;
+  const shouldRedirect = !authenticated && !isFree;
 
   return (
     <div

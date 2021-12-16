@@ -11,9 +11,6 @@ const ModalAffirmPurchase = lazyImport(() =>
 const ModalAutoGenerateThumbnail = lazyImport(() =>
   import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)
 );
-const ModalAutoUpdateDownloaded = lazyImport(() =>
-  import('modal/modalAutoUpdateDownloaded' /* webpackChunkName: "modalAutoUpdateDownloaded" */)
-);
 const ModalBlockChannel = lazyImport(() =>
   import('modal/modalBlockChannel' /* webpackChunkName: "modalBlockChannel" */)
 );
@@ -34,7 +31,6 @@ const ModalConfirmTransaction = lazyImport(() =>
 const ModalDeleteCollection = lazyImport(() =>
   import('modal/modalRemoveCollection' /* webpackChunkName: "modalRemoveCollection" */)
 );
-const ModalDownloading = lazyImport(() => import('modal/modalDownloading' /* webpackChunkName: "modalDownloading" */));
 const ModalError = lazyImport(() => import('modal/modalError' /* webpackChunkName: "modalError" */));
 const ModalFileSelection = lazyImport(() =>
   import('modal/modalFileSelection' /* webpackChunkName: "modalFileSelection" */)
@@ -82,7 +78,6 @@ const ModalSyncEnable = lazyImport(() => import('modal/modalSyncEnable' /* webpa
 const ModalTransactionFailed = lazyImport(() =>
   import('modal/modalTransactionFailed' /* webpackChunkName: "modalTransactionFailed" */)
 );
-const ModalUpgrade = lazyImport(() => import('modal/modalUpgrade' /* webpackChunkName: "modalUpgrade" */));
 const ModalViewImage = lazyImport(() => import('modal/modalViewImage' /* webpackChunkName: "modalViewImage" */));
 const ModalWalletDecrypt = lazyImport(() =>
   import('modal/modalWalletDecrypt' /* webpackChunkName: "modalWalletDecrypt" */)
@@ -101,14 +96,8 @@ function getModal(id) {
   switch (id) {
     case MODALS.CONFIRM:
       return ModalConfirm;
-    case MODALS.UPGRADE:
-      return ModalUpgrade;
-    case MODALS.DOWNLOADING:
-      return ModalDownloading;
     case MODALS.AUTO_GENERATE_THUMBNAIL:
       return ModalAutoGenerateThumbnail;
-    case MODALS.AUTO_UPDATE_DOWNLOADED:
-      return ModalAutoUpdateDownloaded;
     case MODALS.ERROR:
       return ModalError;
     case MODALS.FILE_TIMEOUT:

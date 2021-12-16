@@ -91,7 +91,7 @@ function FileListDownloaded(props: Props) {
           />
         </Form>
       </div>
-      {IS_WEB && viewMode === VIEW_DOWNLOADS ? (
+      {viewMode === VIEW_DOWNLOADS ? (
         <div className="main--empty">
           <Yrbl
             title={__('Try out the app!')}

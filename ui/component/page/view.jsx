@@ -1,15 +1,12 @@
 // @flow
 import type { Node } from 'react';
-import React, { Fragment } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 import { MAIN_CLASS } from 'constants/classnames';
 import { lazyImport } from 'util/lazyImport';
 import SideNavigation from 'component/sideNavigation';
 import SettingsSideNavigation from 'component/settingsSideNavigation';
 import Header from 'component/header';
-/* @if TARGET='app' */
-import StatusBar from 'component/common/status-bar';
-/* @endif */
 import usePersistedState from 'effects/use-persisted-state';
 import { useHistory } from 'react-router';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
@@ -100,10 +97,10 @@ function Page(props: Props) {
       setSidebarOpen(false);
     }
     // TODO: make sure setState callback for usePersistedState uses useCallback to it doesn't cause effect to re-run
-  }, [isOnFilePage, isMediumScreen]);
+  }, [isOnFilePage, isMediumScreen, setSidebarOpen]);
 
   return (
-    <Fragment>
+    <>
       {!noHeader && (
         <Header
           authHeader={authPage}
@@ -145,19 +142,14 @@ function Page(props: Props) {
 
             {!isMobile && rightSide && <div className="main__right-side">{rightSide}</div>}
           </main>
-          {/* @if TARGET='web' */}
           {!noFooter && (
             <React.Suspense fallback={null}>
               <Footer />
             </React.Suspense>
           )}
-          {/* @endif */}
         </div>
-        {/* @if TARGET='app' */}
-        <StatusBar />
-        {/* @endif */}
       </div>
-    </Fragment>
+    </>
   );
 }
 

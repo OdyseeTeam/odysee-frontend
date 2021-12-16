@@ -29,7 +29,6 @@ const INVALID_URL_ERROR = "Invalid LBRY URL entered. Only A-Z, a-z, 0-9, and '-'
 const TAG_SEARCH_PREFIX = 'tag:';
 
 const K_KEY_CODE = 75;
-const L_KEY_CODE = 76;
 const ESC_KEY_CODE = 27;
 
 const WUNDERBAR_INPUT_DEBOUNCE_MS = 1000;
@@ -224,6 +223,7 @@ export default function WunderBarSuggestions(props: Props) {
 
     return () => {
       if (inputRef.current) {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         inputRef.current.removeEventListener('keydown', overrideHomeEndHandling);
       }
     };
@@ -231,7 +231,7 @@ export default function WunderBarSuggestions(props: Props) {
 
   React.useEffect(() => {
     function handleKeyDown(event) {
-      const { ctrlKey, metaKey, keyCode } = event;
+      const { ctrlKey, keyCode } = event;
 
       if (!inputRef.current) {
         return;
@@ -253,37 +253,12 @@ export default function WunderBarSuggestions(props: Props) {
           inputRef.current.focus();
         }
       }
-
-      // @if TARGET='app'
-      const shouldFocus =
-        process.platform === 'darwin' ? keyCode === L_KEY_CODE && metaKey : keyCode === L_KEY_CODE && ctrlKey;
-      if (shouldFocus) {
-        inputRef.current.focus();
-      }
-      // @endif
     }
 
     window.addEventListener('keydown', handleKeyDown);
 
-    // @if TARGET='app'
-    function handleDoubleClick(event) {
-      if (!inputRef.current) {
-        return;
-      }
-
-      event.stopPropagation();
-    }
-
-    inputRef.current.addEventListener('dblclick', handleDoubleClick);
-    // @endif
-
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
-      // @if TARGET='app'
-      if (inputRef.current) {
-        inputRef.current.removeEventListener('dblclick', handleDoubleClick);
-      }
-      // @endif
     };
   }, [inputRef]);
 
