@@ -14,7 +14,6 @@ import usePersistedState from 'effects/use-persisted-state';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
-import { clipboard } from 'electron';
 import I18nMessage from 'component/i18nMessage';
 import { Redirect, useHistory } from 'react-router';
 
@@ -421,7 +420,6 @@ function WalletSwap(props: Props) {
               label={__('Copy transaction ID')}
               title={sendTxId}
               onClick={() => {
-                clipboard.writeText(sendTxId);
                 doToast({
                   message: __('Transaction ID copied.'),
                 });
