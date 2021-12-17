@@ -160,6 +160,8 @@ function HomePage(props: Props) {
                   if (!isFullyVisible) break;
                   lastCard = card;
                 }
+
+                // if no last card was found, just exit the function to not cause errors
                 if (!lastCard) return;
               }
 
