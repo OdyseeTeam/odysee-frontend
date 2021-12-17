@@ -1,7 +1,8 @@
 // @flow
-import { AUTO_FOLLOW_CHANNELS, CUSTOM_HOMEPAGE, SIMPLE_SITE, SITE_NAME } from 'config';
+import { CUSTOM_HOMEPAGE, SIMPLE_SITE, SITE_NAME } from 'config';
 import { parseURI } from 'util/lbryURI';
 import * as CS from 'constants/claim_search';
+import COMMUNITY_CHANNELS from 'constants/community_channels';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import ClaimListDiscover from 'component/claimListDiscover';
@@ -10,6 +11,7 @@ import React from 'react';
 
 type Props = {
   homepageData: any,
+  language: string,
   prefsReady: boolean,
   subscribedChannels: Array<Subscription>,
   channelSubscribe: (string, string) => void,
@@ -17,11 +19,16 @@ type Props = {
 };
 
 function UserChannelFollowIntro(props: Props) {
-  const { homepageData, prefsReady, subscribedChannels, channelSubscribe, onContinue } = props;
+  const { homepageData, language, prefsReady, subscribedChannels, channelSubscribe, onContinue } = props;
 
   const { PRIMARY_CONTENT, LATEST } = homepageData;
 
-  const channelsToSubscribe = AUTO_FOLLOW_CHANNELS.trim()
+  const communityChannels = COMMUNITY_CHANNELS[language] || COMMUNITY_CHANNELS['en'];
+  const autoFollowChannels =
+    COMMUNITY_CHANNELS['en'] + (communityChannels !== COMMUNITY_CHANNELS['en'] ? ' ' + communityChannels : '');
+
+  const channelsToSubscribe = autoFollowChannels
+    .trim()
     .split(' ')
     .filter((x) => x !== '');
 
