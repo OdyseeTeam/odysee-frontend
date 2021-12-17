@@ -1,7 +1,7 @@
 // @flow
 import { DOMAIN, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as PAGES from 'constants/pages';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { Redirect, useHistory } from 'react-router-dom';
 import Spinner from 'component/spinner';
@@ -28,10 +28,7 @@ type Props = {
   uri: string,
   claim: StreamClaim,
   location: UrlLocation,
-  blackListedOutpoints: Array<{
-    txid: string,
-    nout: number,
-  }>,
+  blackListedOutpointMap: { [string]: number },
   title: string,
   claimIsMine: boolean,
   claimIsPending: boolean,
@@ -42,6 +39,7 @@ type Props = {
   collectionUrls: Array<string>,
   isResolvingCollection: boolean,
   fetchCollectionItems: (string) => void,
+  doAnalyticsView: (string) => void,
 };
 
 function ShowPage(props: Props) {
@@ -50,7 +48,7 @@ function ShowPage(props: Props) {
     resolveUri,
     uri,
     claim,
-    blackListedOutpoints,
+    blackListedOutpointMap,
     location,
     claimIsMine,
     isSubscribed,
@@ -62,6 +60,7 @@ function ShowPage(props: Props) {
     collection,
     collectionUrls,
     isResolvingCollection,
+    doAnalyticsView,
   } = props;
 
   const { search } = location;
@@ -75,6 +74,8 @@ function ShowPage(props: Props) {
   const { push } = useHistory();
   const isCollection = claim && claim.value_type === 'collection';
   const resolvedCollection = collection && collection.id; // not null
+
+  const showLiveStream = isLivestream && ENABLE_NO_SOURCE_CLAIMS;
 
   // changed this from 'isCollection' to resolve strangers' collections.
   React.useEffect(() => {
@@ -115,6 +116,16 @@ function ShowPage(props: Props) {
       );
     }
   }, [resolveUri, isResolvingUri, canonicalUrl, uri, claimExists, haventFetchedYet, isMine, claimIsPending, search]);
+
+  // Regular claims will call the file/view event when a user actually watches the claim
+  // This can be removed when we get rid of the livestream iframe
+  const [viewTracked, setViewTracked] = useState(false);
+  useEffect(() => {
+    if (showLiveStream && !viewTracked) {
+      doAnalyticsView(uri);
+      setViewTracked(true);
+    }
+  }, [showLiveStream, viewTracked]);
 
   // Don't navigate directly to repost urls
   // Always redirect to the actual content
@@ -181,14 +192,11 @@ function ShowPage(props: Props) {
   } else if (claim.name.length && claim.name[0] === '@') {
     innerContent = <ChannelPage uri={uri} location={location} />;
   } else if (claim) {
-    let isClaimBlackListed = false;
-
-    isClaimBlackListed =
-      blackListedOutpoints &&
-      blackListedOutpoints.some(
-        (outpoint) =>
-          (signingChannel && outpoint.txid === signingChannel.txid && outpoint.nout === signingChannel.nout) ||
-          (outpoint.txid === claim.txid && outpoint.nout === claim.nout)
+    const isClaimBlackListed =
+      blackListedOutpointMap &&
+      Boolean(
+        (signingChannel && blackListedOutpointMap[`${signingChannel.txid}:${signingChannel.nout}`]) ||
+          blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
       );
 
     if (isClaimBlackListed && !claimIsMine) {
@@ -207,12 +215,13 @@ function ShowPage(props: Props) {
           />
         </Page>
       );
-    } else if (isLivestream && ENABLE_NO_SOURCE_CLAIMS) {
-      innerContent = <LivestreamPage uri={uri} />;
+    } else if (showLiveStream) {
+      innerContent = <LivestreamPage uri={uri} claim={claim} />;
     } else {
       innerContent = <FilePage uri={uri} location={location} />;
     }
   }
+
   return <React.Suspense fallback={null}>{innerContent}</React.Suspense>;
 }
 

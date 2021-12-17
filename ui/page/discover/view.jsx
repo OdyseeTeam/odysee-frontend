@@ -3,12 +3,13 @@ import { SHOW_ADS, DOMAIN, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
-import React, { useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
+import usePersistedState from 'effects/use-persisted-state';
 import analytics from 'analytics';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
@@ -20,7 +21,15 @@ import { getLivestreamUris } from 'util/livestream';
 
 const DEFAULT_LIVESTREAM_TILE_LIMIT = 8;
 
+const SECTION = {
+  HIDDEN: 0,
+  LESS: 1,
+  MORE: 2,
+};
+
 type Props = {
+  dynamicRouteProps: RowDataItem,
+  // --- redux ---
   location: { search: string },
   followedTags: Array<Tag>,
   repostedUri: string,
@@ -28,10 +37,9 @@ type Props = {
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
   isAuthenticated: boolean,
-  dynamicRouteProps: RowDataItem,
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy?: Array<string>, pageSize?: number, forceFetch?: boolean) => void,
+  doFetchActiveLivestreams: (orderBy?: Array<string>) => void,
 };
 
 function DiscoverPage(props: Props) {
@@ -48,6 +56,9 @@ function DiscoverPage(props: Props) {
     doFetchActiveLivestreams,
     dynamicRouteProps,
   } = props;
+
+  const [liveSectionStore, setLiveSectionStore] = usePersistedState('discover:liveSection', SECTION.LESS);
+
   const buttonRef = useRef();
   const isHovering = useHover(buttonRef);
   const isMobile = useIsMobile();
@@ -73,27 +84,34 @@ function DiscoverPage(props: Props) {
     label = __('Unfollow');
   }
 
-  const initialLivestreamTileLimit = getPageSize(DEFAULT_LIVESTREAM_TILE_LIMIT);
+  const initialLiveTileLimit = getPageSize(DEFAULT_LIVESTREAM_TILE_LIMIT);
 
-  const showLivestreams = window.location.pathname === `/$/${PAGES.WILD_WEST}`;
-  const [showViewMoreLivestreams, setShowViewMoreLivestreams] = React.useState(showLivestreams);
-  const livestreamUris = showLivestreams && getLivestreamUris(activeLivestreams, channelIds);
-  const useDualList = showViewMoreLivestreams && livestreamUris && livestreamUris.length > initialLivestreamTileLimit;
+  const includeLivestreams = !tagsQuery;
+  const [liveSection, setLiveSection] = useState(includeLivestreams ? liveSectionStore : SECTION.HIDDEN);
+  const livestreamUris = includeLivestreams && getLivestreamUris(activeLivestreams, channelIds);
+  const liveTilesOverLimit = livestreamUris && livestreamUris.length > initialLiveTileLimit;
+  const useDualList = liveSection === SECTION.LESS && liveTilesOverLimit;
 
-  function getElemMeta() {
+  function getMeta() {
+    if (liveSection === SECTION.MORE && liveTilesOverLimit) {
+      return (
+        <Button
+          label={__('Show less livestreams')}
+          button="link"
+          iconRight={ICONS.UP}
+          className="claim-grid__title--secondary"
+          onClick={() => setLiveSection(SECTION.LESS)}
+        />
+      );
+    }
+
     return !dynamicRouteProps ? (
       <a
         className="help"
         href="https://odysee.com/@OdyseeHelp:b/trending:50"
         title={__('Learn more about Credits on %DOMAIN%', { DOMAIN })}
       >
-        <I18nMessage
-          tokens={{
-            lbc: <LbcSymbol />,
-          }}
-        >
-          Results boosted by %lbc%
-        </I18nMessage>
+        <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Results boosted by %lbc%</I18nMessage>
       </a>
     ) : (
       tag && !isMobile && (
@@ -112,6 +130,15 @@ function DiscoverPage(props: Props) {
 
   function getPageSize(originalSize) {
     return isLargeScreen ? originalSize * (3 / 2) : originalSize;
+  }
+
+  function getPins(routeProps) {
+    if (routeProps && routeProps.pinnedUrls) {
+      return {
+        urls: routeProps.pinnedUrls,
+        onlyPinForOrder: CS.ORDER_BY_TRENDING,
+      };
+    }
   }
 
   React.useEffect(() => {
@@ -150,17 +177,154 @@ function DiscoverPage(props: Props) {
     headerLabel = (
       <span>
         <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || discoverIcon} size={10} />
-        {(dynamicRouteProps && dynamicRouteProps.title) || discoverLabel}
+        {(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || discoverLabel}
       </span>
     );
   }
 
+  // returns true if passed element is fully visible on screen
+  function isScrolledIntoView(el) {
+    const rect = el.getBoundingClientRect();
+    const elemTop = rect.top;
+    const elemBottom = rect.bottom;
+
+    // Only completely visible elements return true:
+    const isVisible = elemTop >= 0 && elemBottom <= window.innerHeight;
+    return isVisible;
+  }
+
   React.useEffect(() => {
-    if (showViewMoreLivestreams) {
+    if (isAuthenticated || !SHOW_ADS || window.location.pathname === `/$/${PAGES.WILD_WEST}`) {
+      return;
+    }
+
+    (async function () {
+      // test if adblock is enabled
+      let adBlockEnabled = false;
+      const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
+      try {
+        await fetch(new Request(googleAdUrl)).catch((_) => {
+          adBlockEnabled = true;
+        });
+      } catch (e) {
+        adBlockEnabled = true;
+      } finally {
+        if (!adBlockEnabled) {
+          // select the cards on page
+          let cards = document.getElementsByClassName('card claim-preview--tile');
+
+          // eslint-disable-next-line no-inner-declarations
+          function checkFlag() {
+            if (cards.length === 0) {
+              window.setTimeout(checkFlag, 100);
+            } else {
+              // find the last fully visible card
+              let lastCard;
+
+              // width of browser window
+              const windowWidth = window.innerWidth;
+
+              // on small screens, grab the second item
+              if (windowWidth <= 900) {
+                lastCard = cards[1];
+              } else {
+                // otherwise, get the last fully visible card
+                for (const card of cards) {
+                  const isFullyVisible = isScrolledIntoView(card);
+                  if (!isFullyVisible) break;
+                  lastCard = card;
+                }
+              }
+
+              // clone the last card
+              // $FlowFixMe
+              const clonedCard = lastCard.cloneNode(true);
+
+              // insert cloned card
+              // $FlowFixMe
+              lastCard.parentNode.insertBefore(clonedCard, lastCard);
+
+              // delete last card so that it doesn't mess up formatting
+              // $FlowFixMe
+              // lastCard.remove();
+
+              // change the appearance of the cloned card
+              // $FlowFixMe
+              clonedCard.querySelector('.claim__menu-button').remove();
+
+              // $FlowFixMe
+              clonedCard.querySelector('.truncated-text').innerHTML = __(
+                'Hate these? Login to Odysee for an ad free experience'
+              );
+
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__info').remove();
+
+              // $FlowFixMe
+              clonedCard.querySelector('[role="none"]').removeAttribute('href');
+
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
+
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
+
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
+
+              // $FlowFixMe
+              clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
+
+              // $FlowFixMe
+              clonedCard
+                .querySelector('.media__thumb')
+                .replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
+
+              // show the homepage ad which is not displayed at first
+              document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
+
+              // $FlowFixMe
+              const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
+              // $FlowFixMe
+              const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
+
+              const styles = `#av-container, #AVcontent, #aniBox {
+                height: ${imageHeight} !important;
+                width: ${imageWidth} !important;
+              }`;
+
+              const styleSheet = document.createElement('style');
+              styleSheet.type = 'text/css';
+              styleSheet.id = 'customAniviewStyling';
+              styleSheet.innerText = styles;
+              // $FlowFixMe
+              document.head.appendChild(styleSheet);
+
+              window.dispatchEvent(new CustomEvent('scroll'));
+            }
+          }
+          checkFlag();
+        }
+      }
+    })();
+  }, [isAuthenticated]);
+
+  // Sync liveSection --> liveSectionStore
+  React.useEffect(() => {
+    if (liveSection !== SECTION.HIDDEN && liveSection !== liveSectionStore) {
+      setLiveSectionStore(liveSection);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [liveSection]);
+
+  // Fetch active livestreams on mount
+  React.useEffect(() => {
+    if (liveSection === SECTION.LESS) {
       doFetchActiveLivestreams(CS.ORDER_BY_TRENDING_VALUE);
     } else {
       doFetchActiveLivestreams();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps, (on mount only)
   }, []);
 
   return (
@@ -168,7 +332,7 @@ function DiscoverPage(props: Props) {
       {useDualList && (
         <>
           <ClaimListDiscover
-            uris={livestreamUris && livestreamUris.slice(0, initialLivestreamTileLimit)}
+            uris={livestreamUris && livestreamUris.slice(0, initialLiveTileLimit)}
             headerLabel={headerLabel}
             header={repostedUri ? <span /> : undefined}
             tileLayout={repostedUri ? false : tileLayout}
@@ -177,25 +341,28 @@ function DiscoverPage(props: Props) {
             infiniteScroll={false}
             loading={false}
             showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
-            meta={getElemMeta()}
+            meta={getMeta()}
           />
           <div className="livestream-list--view-more">
             <Button
               label={__('Show more livestreams')}
               button="link"
-              iconRight={ICONS.ARROW_RIGHT}
+              iconRight={ICONS.DOWN}
               className="claim-grid__title--secondary"
               onClick={() => {
                 doFetchActiveLivestreams();
-                setShowViewMoreLivestreams(false);
+                setLiveSection(SECTION.MORE);
               }}
             />
           </div>
         </>
       )}
 
+      <Ads type="homepage" />
+
       <ClaimListDiscover
         prefixUris={useDualList ? undefined : livestreamUris}
+        pins={useDualList ? undefined : getPins(dynamicRouteProps)}
         hideAdvancedFilter={SIMPLE_SITE}
         hideFilters={SIMPLE_SITE ? !dynamicRouteProps : undefined}
         header={useDualList ? <span /> : repostedUri ? <span /> : undefined}
@@ -227,7 +394,7 @@ function DiscoverPage(props: Props) {
               undefined
             : 3
         }
-        meta={!useDualList && getElemMeta()}
+        meta={!useDualList && getMeta()}
         hasSource
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
       />

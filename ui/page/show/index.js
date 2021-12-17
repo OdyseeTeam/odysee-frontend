@@ -23,8 +23,9 @@ import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { normalizeURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { push } from 'connected-react-router';
-import { makeSelectChannelInSubscriptions } from 'redux/selectors/subscriptions';
-import { selectBlackListedOutpoints } from 'lbryinc';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
+import { selectBlacklistedOutpointMap } from 'lbryinc';
+import { doAnalyticsView } from 'redux/actions/app';
 import ShowPage from './view';
 
 const select = (state, props) => {
@@ -73,9 +74,9 @@ const select = (state, props) => {
     uri,
     claim,
     isResolvingUri: selectIsUriResolving(state, uri),
-    blackListedOutpoints: selectBlackListedOutpoints(state),
+    blackListedOutpointMap: selectBlacklistedOutpointMap(state),
     totalPages: makeSelectTotalPagesForChannel(uri, PAGE_SIZE)(state),
-    isSubscribed: makeSelectChannelInSubscriptions(uri)(state),
+    isSubscribed: selectIsSubscribedForUri(state, uri),
     title: selectTitleForUri(state, uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claimIsPending: makeSelectClaimIsPending(uri)(state),
@@ -96,6 +97,7 @@ const perform = (dispatch) => ({
     dispatch(push(`/$/${PAGES.UPLOAD}`));
   },
   fetchCollectionItems: (claimId) => dispatch(doFetchItemsInCollection({ collectionId: claimId })),
+  doAnalyticsView: (uri) => dispatch(doAnalyticsView(uri)),
 });
 
 export default withRouter(connect(select, perform)(ShowPage));
