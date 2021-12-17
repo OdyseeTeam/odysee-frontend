@@ -681,8 +681,6 @@ export function doClaimSearch(
             items: allClaims,
             page: options.page,
             page_size: options.page_size,
-            total_items: allClaims.length,
-            total_pages: options.page,
           });
         }
 
