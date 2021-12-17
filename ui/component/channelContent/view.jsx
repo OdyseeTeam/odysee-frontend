@@ -314,6 +314,14 @@ function ChannelContent(props: Props) {
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
       <Ads type="homepage" />
+      {/*{1 === 1 && (*/}
+      {/*  <ins className="adsbygoogle"*/}
+      {/*    style={{display: 'block'}}*/}
+      {/*    data-ad-client="ca-pub-8719027065089464"*/}
+      {/*    data-ad-slot="4525374302"*/}
+      {/*    data-ad-format="auto"*/}
+      {/*    data-full-width-responsive="true" />*/}
+      {/*)}*/}
 
       {!fetching && (
         <ClaimListDiscover

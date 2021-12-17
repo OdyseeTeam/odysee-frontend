@@ -359,6 +359,40 @@ function App(props: Props) {
   //   }
   // }, []);
 
+  useEffect(() => {
+      if (!isAuthenticated) {
+        const script = document.createElement('script');
+        script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8719027065089464';
+        script.setAttribute('crossorigin', 'anonymous');
+        // $FlowFixMe
+        // document.body.appendChild(script);
+
+        document.body.insertBefore(script, document.body.firstChild);
+
+
+        return () => {
+          // $FlowFixMe
+          document.body.removeChild(script);
+        };
+      }
+  }, []);
+
+  // useEffect(() => {
+  //   console.log("RUNNING HERE!");
+  //   if (!isAuthenticated) {
+  //     const secondScript = document.createElement('script');
+  //     // OneTrust asks to add this
+  //     secondScript.innerHTML = '(adsbygoogle = window.adsbygoogle || []).push({});';
+  //
+  //     // $FlowFixMe
+  //     document.body.appendChild(secondScript);
+  //     return () => {
+  //       // $FlowFixMe
+  //       document.body.removeChild(secondScript);
+  //     };
+  //   }
+  // }, []);
+
   // add OneTrust script
   useEffect(() => {
     // don't add script for embedded content

@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Ads from 'web/component/ads';
-import React from 'react';
+import React, { Fragment } from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -130,6 +130,42 @@ function HomePage(props: Props) {
     const isVisible = elemTop >= 0 && elemBottom <= window.innerHeight;
     return isVisible;
   }
+
+  setTimeout(function(){
+    (adsbygoogle = window.adsbygoogle || []).push({});
+  }, 2000)
+
+  // window.onload = function(){
+  //   (adsbygoogle = window.adsbygoogle || []).push({});
+  // }
+
+  // React.useEffect(() => {
+  //   const secondScript = document.createElement('script');
+  //
+  //
+  //   window.onload = function(){
+  //     // OneTrust asks to add this
+  //     secondScript.innerHTML = '(adsbygoogle = window.adsbygoogle || []).push({});';
+  //
+  //     // $FlowFixMe
+  //     document.body.appendChild(secondScript);
+  //   }
+  //   console.log("RUNNING HERE!");
+  //   // if (!isAuthenticated) {
+  //   //   const secondScript = document.createElement('script');
+  //   //   // OneTrust asks to add this
+  //   //   secondScript.innerHTML = '(adsbygoogle = window.adsbygoogle || []).push({});';
+  //   //
+  //   //   // $FlowFixMe
+  //   //   document.body.appendChild(secondScript);
+  //   //
+  //   // }
+  //
+  //   return () => {
+  //     // $FlowFixMe
+  //     document.body.removeChild(secondScript);
+  //   };
+  // }, []);
 
   React.useEffect(() => {
     if (authenticated || !SHOW_ADS) {
@@ -265,6 +301,16 @@ function HomePage(props: Props) {
       {SIMPLE_SITE && <Meme />}
       <Ads type="homepage" />
       {/* @endif */}
+
+      {1 === 1 && (
+        <ins className="adsbygoogle"
+          style={{display: 'block'}}
+          data-ad-client="ca-pub-8719027065089464"
+          data-ad-slot="4525374302"
+          data-ad-format="auto"
+          data-full-width-responsive="true" />
+      )}
+
 
       {!fetchingActiveLivestreams && (
         <>
