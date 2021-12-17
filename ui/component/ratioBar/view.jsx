@@ -10,7 +10,7 @@ const RatioBar = (props: Props) => {
   const { likeCount, dislikeCount } = props;
 
   const like = (1 / (likeCount + dislikeCount)) * likeCount;
-  if (like) {
+  if (like || dislikeCount) {
     return (
       <div className={'ratio-bar'}>
         <div className={'ratio-bar-like'} style={{ flex: like }} />
