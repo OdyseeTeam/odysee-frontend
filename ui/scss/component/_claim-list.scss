@@ -912,9 +912,6 @@
 }
 
 .claim-preview__live {
-  background: rgba(var(--color-primary-dynamic), 0.1);
-  border-radius: var(--border-radius);
-
   .claim-preview__file-property-overlay {
     opacity: 1; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);

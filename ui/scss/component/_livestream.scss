@@ -222,6 +222,9 @@ $recent-msg-button__height: 2rem;
   animation: livePulse 2s infinite;
   padding: var(--spacing-m);
 
+  background: rgba(var(--color-primary-dynamic), 0.1);
+  border-radius: var(--border-radius);
+
   &:hover {
     cursor: pointer;
   }
