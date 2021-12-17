@@ -94,7 +94,7 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
   };
 }
 
-export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string) => (
+export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string, newData?: WalletUpdate) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -108,12 +108,19 @@ export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string) => 
     const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
 
     if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
-      return dispatch(doGetSync(passwordArgument, cb));
+      return dispatch(doGetSync(passwordArgument, cb, newData));
     }
   });
 };
 
-export function doSyncLoop() {
+/**
+ * doSyncLoop
+ *
+ * @param newData The new wallet data to merge. If undefined, will perform the
+ *   full fetch sequence.
+ * @returns {(function(Dispatch, GetState): void)|*}
+ */
+export function doSyncLoop(newData?: WalletUpdate) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const hasVerifiedEmail = selectUserVerifiedEmail(state);
@@ -121,12 +128,24 @@ export function doSyncLoop() {
     const syncLocked = selectSyncIsLocked(state);
 
     if (hasVerifiedEmail && syncEnabled && !syncLocked) {
-      dispatch(doGetSyncDesktop((error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData))));
+      const cb = (error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData));
+      dispatch(doGetSyncDesktop(cb, undefined, newData));
     }
   };
 }
 
-export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) => void) {
+export function handleWalletUpdateNotification(newData: WalletUpdate) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const syncHash = selectSyncHash(state);
+
+    if (syncHash !== newData.hash) {
+      dispatch(doSyncLoop(newData));
+    }
+  };
+}
+
+export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) => void, newData?: WalletUpdate) {
   const password = passedPassword === null || passedPassword === undefined ? '' : passedPassword;
 
   function handleCallback(error, hasNewData) {
@@ -165,27 +184,42 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
         if (status.is_locked) {
           return Lbry.wallet_unlock({ password });
         }
-
         // Wallet is already unlocked
         return true;
       })
       .then((isUnlocked) => {
         if (isUnlocked) {
-          return Lbry.sync_hash();
+          return newData ? null : Lbry.sync_hash();
         }
         data.unlockFailed = true;
         throw new Error();
       })
-      .then((hash?: string) => Lbryio.call('sync', 'get', { hash }, 'post'))
-      .then((response: any) => {
-        const syncHash = response.hash;
-        data.syncHash = syncHash;
-        data.syncData = response.data;
-        data.changed = response.changed || syncHash !== localHash;
-        data.hasSyncedWallet = true;
+      .then((hash: ?string) => {
+        if (!newData) {
+          return Lbryio.call('sync', 'get', { hash }, 'post');
+        }
+      })
+      .then((response?: any) => {
+        console.assert(newData || response, 'newData or resp must be available here.');
 
-        if (response.changed) {
+        if (response) {
+          const syncHash = response.hash;
+          data.syncHash = syncHash;
+          data.syncData = response.data;
+          data.changed = response.changed || syncHash !== localHash;
+          data.hasSyncedWallet = true;
+
           return Lbry.sync_apply({ password, data: response.data, blocking: true });
+        }
+
+        if (newData) {
+          data.syncHash = newData.hash;
+          data.syncData = newData.data;
+          data.changed = newData.changed;
+          // data.version = newData.version;
+          data.hasSyncedWallet = true;
+
+          return Lbry.sync_apply({ password, data: newData.data, blocking: true });
         }
       })
       .then((response) => {

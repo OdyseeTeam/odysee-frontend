@@ -14,3 +14,10 @@ declare type SyncState = {
   hashChanged: boolean,
   fatalError: boolean,
 };
+
+declare type WalletUpdate = {
+  changed: boolean,
+  data: string,
+  hash: string,
+  version: number,
+};

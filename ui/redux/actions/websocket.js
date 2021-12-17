@@ -1,6 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
+import { handleWalletUpdateNotification } from 'redux/actions/sync';
 import { SOCKETY_SERVER_API } from 'config';
 
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
@@ -81,6 +82,9 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
         if (enableNotifications) {
           dispatch(doNotificationList());
         }
+        break;
+      case 'internal-apis-wallet-set':
+        dispatch(handleWalletUpdateNotification(data.data));
         break;
       case 'swap-status':
         dispatch({
