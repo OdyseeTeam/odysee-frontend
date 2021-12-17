@@ -206,6 +206,20 @@ function ChannelPage(props: Props) {
     );
   }
 
+  /* Lock Tablist to top on scroll
+  const [isFixed, setFixed] = React.useState(false);
+  const scrollMarker = React.createRef();
+  window.addEventListener('scroll', onScroll);
+
+  function onScroll(e) {
+    if (scrollMarker.current) {
+      console.log('x');
+      if (e.target.scrollingElement.scrollTop >= scrollMarker.current.parentElement.parentElement.offsetTop + 20) setFixed(true);
+      else setFixed(false);
+    }
+  }
+  */
+
   return (
     <Page noFooter>
       <header className="channel-cover">

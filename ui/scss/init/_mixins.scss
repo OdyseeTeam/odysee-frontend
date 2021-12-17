@@ -192,6 +192,15 @@
   border-width: 0;
 }
 
+/*
+.pulse {
+  background-color:#FF0000 !important;
+  @mixin placeholder{    
+    animation: pulse 2s infinite ease-in-out !important;
+  }
+}
+*/
+
 @mixin mediaThumbHoverZoom {
   .media__thumb,
   img {

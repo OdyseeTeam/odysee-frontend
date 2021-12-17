@@ -1,7 +1,7 @@
 .navigation__wrapper {
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
-  //transition: width 0.2s;
+  transition: width 0.2s;
 }
 
 .navigation__wrapper--micro {
@@ -22,6 +22,7 @@
   position: fixed;
   left: 0;
   overflow-y: auto;
+  overflow-x: hidden;
   top: var(--header-height);
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
@@ -31,6 +32,14 @@
   display: flex;
   flex-direction: column;
   background: var(--color-header-background);
+  box-shadow: var(--card-box-shadow);
+
+  animation-timing-function: var(--resizing-animation-function);
+  transition: transform var(--resizing-animation-timing);
+  z-index: 4;
+  background-color: var(--color-card-background);
+  transform: translateX(0);
+  transform-origin: left;
 
   @media (min-width: $breakpoint-small) {
     overflow-y: hidden;
@@ -45,6 +54,14 @@
     padding-bottom: var(--spacing-s);
     //border-bottom: 1px solid var(--color-border);
   }
+}
+
+.navigation--push-back {
+  transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
+}
+
+.navigation--push {
+  transform: translateX(0);
 }
 
 .navigation--mac {
@@ -64,9 +81,14 @@
   }
 }
 
+.navigation-file-page-and-mobile {
+  transform: translateX(calc(-1 * var(--side-nav-width)));
+}
+
 .navigation--micro {
   @extend .navigation;
-  width: var(--side-nav-width--micro);
+
+  transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
 
   @media (max-width: $breakpoint-small) {
     display: none;
@@ -126,6 +148,7 @@
   }
 
   .button__content {
+    margin-left: auto;
     padding: var(--spacing-s);
     padding-top: var(--spacing-xs);
     padding-bottom: var(--spacing-xs);
@@ -209,6 +232,10 @@
   flex-direction: column;
   align-items: flex-start;
   list-style: none;
+}
+
+.navigation-inner-container {
+  width: var(--side-nav-width);
 }
 
 .navigation-links--micro {
@@ -297,10 +324,20 @@
   z-index: 3;
   left: 0;
   top: var(--header-height);
+  visibility: hidden;
+  opacity: 0;
+  animation-timing-function: var(--resizing-animation-function);
+  transition: visibility var(--resizing-animation-timing), opacity var(--resizing-animation-timing);
 
   &.navigation__overlay--mac {
     top: calc(var(--header-height) + var(--mac-titlebar-height));
   }
+}
+
+.navigation__overlay--active {
+  opacity: 1;
+  visibility: visible;
+  animation: fadeIn var(--resizing-animation-timing) var(--resizing-animation-function);
 }
 
 .navigation__auth-nudge {

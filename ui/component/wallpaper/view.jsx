@@ -15,7 +15,6 @@ const Wallpaper = (props: Props) => {
     toDataUrl(avatar, function (image) {
       if (image) {
         getAverageRGB(image, function (rgb) {
-          // let hsl = rgb2hsl(rgb);
           let brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
           document.documentElement !== null &&
             document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);
@@ -28,7 +27,7 @@ const Wallpaper = (props: Props) => {
           let threshold = 155;
           if (document.documentElement !== null) {
             threshold =
-              getComputedStyle(document.documentElement).getPropertyValue('--color-text') === '#000000' ? 70 : 155;
+              getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 70 : 155;
           }
           let rgbs = colorMixer(rgb, brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.6);
           let brightnesss = Math.round(
@@ -117,7 +116,7 @@ const Wallpaper = (props: Props) => {
         rgb.r += data.data[i];
         rgb.g += data.data[i + 1];
         rgb.b += data.data[i + 2];
-      } else if (shadeCheck(data.data, i, 15)) {
+      } else if (shadeCheck(data.data, i, 25)) {
         ++count_gray;
         rgb_gray.r += data.data[i];
         rgb_gray.g += data.data[i + 1];
@@ -139,9 +138,13 @@ const Wallpaper = (props: Props) => {
       rgb.g = ~~(rgb_gray.g / count_gray);
       rgb.b = ~~(rgb_gray.b / count_gray);
     } else {
-      rgb.r = ~~(blackwhite.r / count_off);
-      rgb.g = ~~(blackwhite.g / count_off);
-      rgb.b = ~~(blackwhite.b / count_off);
+      let shade = 255;
+      if (document.documentElement !== null) {
+        shade = getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 0 : 255;
+      }
+      rgb.r = shade;
+      rgb.g = shade;
+      rgb.b = shade;
     }
 
     callback(rgb);

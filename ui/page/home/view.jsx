@@ -55,7 +55,7 @@ function HomePage(props: Props) {
 
   function getRowElements(title, route, link, icon, help, options, index, pinUrls) {
     const tilePlaceholder = (
-      <ul className="claim-grid">
+      <ul className={'claim-grid'}>
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
           <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
         ))}

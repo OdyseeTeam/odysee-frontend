@@ -14,7 +14,7 @@ html {
   @include font-sans;
   height: 100%;
   min-height: 100%;
-  overflow-x: hidden;
+  //overflow-x: hidden;
 
   color: var(--color-text);
   background-color: var(--color-background);

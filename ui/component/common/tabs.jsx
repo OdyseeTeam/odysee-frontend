@@ -87,6 +87,22 @@ type TabListProps = {
 };
 function TabList(props: TabListProps) {
   const { className, ...rest } = props;
+  /*
+  const stickyElm = document.querySelector('.tabs__list');
+  const channelThumb = document.querySelector('.channel__thumbnail--channel-page');
+
+  const listObserver = new IntersectionObserver(
+    ([e]) => {
+      e.target.classList.toggle('isSticky', e.intersectionRatio < 1);
+      channelThumb.classList.toggle('isSticky', e.intersectionRatio < 1);
+    },
+    {threshold: [1]}
+  );
+
+  if (stickyElm) {
+    listObserver.observe(stickyElm);
+  };
+  */
   return <ReachTabList className={classnames('tabs__list', className)} {...rest} />;
 }
 

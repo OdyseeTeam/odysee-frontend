@@ -261,6 +261,10 @@ $thumbnailWidthSmall: 1rem;
   background-color: var(--color-primary);
   border-radius: var(--border-radius);
 
+  .channel-name {
+    color: var(--color-primary-contrast);
+  }
+
   &.button--uri-indicator {
     color: var(--color-primary-contrast);
   }

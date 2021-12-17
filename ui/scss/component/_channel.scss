@@ -157,7 +157,8 @@ $actions-z-index: 2;
 
 .channel__primary-info {
   // Ensure the profile pic/title sit ontop of the default cover background
-  z-index: $metadata-z-index;
+  //z-index: $metadata-z-index;
+  z-index: 5;
   // Jump over the thumbnail photo because it is absolutely positioned
   // Then add normal page spacing, _then_ add the actual padding
   padding-left: calc(var(--channel-thumbnail-width) + var(--spacing-xl));
