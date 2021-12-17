@@ -922,6 +922,10 @@
     font-weight: var(--font-weight-bold);
     margin-top: 2px; // Even out bottom spacing due to all caps "LIVE".
   }
+
+  .claim-preview__primary-actions {
+    margin-right: var(--spacing-xs);
+  }
 }
 
 .claim-link {
