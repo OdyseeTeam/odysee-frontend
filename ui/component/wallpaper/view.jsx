@@ -17,7 +17,7 @@ const Wallpaper = (props: Props) => {
         let threshold = 155;
         getAverageRGB(image, function (rgb) {
           let brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
-          if (colorCompare(rgb) > 15) {
+          if (colorCompare(rgb) < 15) {
             rgb = colorMixer(rgb, brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.7);
           }
           document.documentElement !== null &&
@@ -183,7 +183,7 @@ const Wallpaper = (props: Props) => {
   function colorCompare(rgb) {
     let bg = 0;
     if (document.documentElement !== null) {
-      bg = getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 32 : 221;
+      bg = getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 221 : 32;
     }
     let r = Math.abs(rgb.r - bg);
     let g = Math.abs(rgb.g - bg);
@@ -195,22 +195,6 @@ const Wallpaper = (props: Props) => {
 
     return ((r + g + b) / 3) * 100;
   }
-
-  /*
-  function rgb2hsl(r, g, b) {
-    let v = Math.max(r, g, b),
-      c = v - Math.min(r, g, b),
-      f = 1 - Math.abs(v + v - c - 1);
-    let h = c && (v === r ? (g - b) / c : v === g ? 2 + (b - r) / c : 4 + (r - g) / c);
-    return { h: 60 * (h < 0 ? h + 6 : h), s: f ? c / f : 0, l: (v + v - c) / 2 };
-  }
-
-  function hsl2rgb(h, s, l) {
-    let a = s * Math.min(l, 1 - l);
-    let f = (n, k = (n + h / 30) % 12) => l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return { r: Math.round(f(0)), g: Math.round(f(8)), b: Math.round(f(4)) };
-  }
-  */
 
   if (cover) {
     return (
