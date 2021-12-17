@@ -18,7 +18,7 @@ const Wallpaper = (props: Props) => {
         getAverageRGB(image, function (rgb) {
           let brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
           if (colorCompare(rgb) > 15) {
-            rgb = colorMixer(rgb, brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.6);
+            rgb = colorMixer(rgb, brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.7);
           }
           document.documentElement !== null &&
             document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);
