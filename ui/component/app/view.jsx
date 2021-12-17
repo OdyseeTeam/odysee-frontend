@@ -71,7 +71,6 @@ type Props = {
   autoUpdateDownloaded: boolean,
   uploadCount: number,
   balance: ?number,
-  syncIsLocked: boolean,
   syncError: ?string,
   rewards: Array<Reward>,
   setReferrer: (string, boolean) => void,
@@ -104,7 +103,6 @@ function App(props: Props) {
     uploadCount,
     history,
     syncError,
-    syncIsLocked,
     language,
     languages,
     setLanguage,
@@ -220,17 +218,6 @@ function App(props: Props) {
       setSearchUserId(userId);
     }
   }, [userId]);
-
-  useEffect(() => {
-    if (syncIsLocked) {
-      const handleBeforeUnload = (event) => {
-        event.preventDefault();
-        event.returnValue = __('There are unsaved settings. Exit the Settings Page to finalize them.');
-      };
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-    }
-  }, [syncIsLocked]);
 
   useEffect(() => {
     if (!uploadCount) return;

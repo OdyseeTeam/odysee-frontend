@@ -4,12 +4,7 @@ import * as SETTINGS from 'constants/settings';
 import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { doWalletEncrypt, doWalletDecrypt } from 'redux/actions/wallet';
-import {
-  selectSyncHash,
-  selectGetSyncIsPending,
-  selectSetSyncIsPending,
-  selectSyncIsLocked,
-} from 'redux/selectors/sync';
+import { selectSyncHash, selectGetSyncIsPending, selectSetSyncIsPending } from 'redux/selectors/sync';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { getSavedPassword, getAuthToken } from 'util/saved-passwords';
 import { doHandleSyncComplete } from 'redux/actions/app';
@@ -102,12 +97,11 @@ export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string, new
   const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
   const getSyncPending = selectGetSyncIsPending(state);
   const setSyncPending = selectSetSyncIsPending(state);
-  const syncLocked = selectSyncIsLocked(state);
 
   return getSavedPassword().then((savedPassword) => {
     const passwordArgument = password || password === '' ? password : savedPassword === null ? '' : savedPassword;
 
-    if (syncEnabled && !getSyncPending && !setSyncPending && !syncLocked) {
+    if (syncEnabled && !getSyncPending && !setSyncPending) {
       return dispatch(doGetSync(passwordArgument, cb, newData));
     }
   });
@@ -125,9 +119,8 @@ export function doSyncLoop(newData?: WalletUpdate) {
     const state = getState();
     const hasVerifiedEmail = selectUserVerifiedEmail(state);
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
-    const syncLocked = selectSyncIsLocked(state);
 
-    if (hasVerifiedEmail && syncEnabled && !syncLocked) {
+    if (hasVerifiedEmail && syncEnabled) {
       const cb = (error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData));
       dispatch(doGetSyncDesktop(cb, undefined, newData));
     }
@@ -384,13 +377,6 @@ export function doSyncEncryptAndDecrypt(oldPassword: string, newPassword: string
         }
       })
       .catch(console.error); // eslint-disable-line
-  };
-}
-
-export function doSetSyncLock(lock: boolean) {
-  return {
-    type: ACTIONS.SET_SYNC_LOCK,
-    data: lock,
   };
 }
 

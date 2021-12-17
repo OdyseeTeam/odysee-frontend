@@ -11,6 +11,5 @@ export const selectHashChanged = (state) => selectState(state).hashChanged;
 export const selectSyncApplyIsPending = (state) => selectState(state).syncApplyIsPending;
 export const selectSyncApplyErrorMessage = (state) => selectState(state).syncApplyErrorMessage;
 export const selectSyncApplyPasswordError = (state) => selectState(state).syncApplyPasswordError;
-export const selectSyncIsLocked = (state) => selectState(state).syncLocked;
 export const selectPrefsReady = (state) => selectState(state).prefsReady;
 export const selectSyncFatalError = (state) => selectState(state).fatalError;

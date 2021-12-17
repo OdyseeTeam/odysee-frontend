@@ -15,7 +15,6 @@ const defaultState: SyncState = {
   getSyncIsPending: false,
   setSyncIsPending: false,
   prefsReady: false,
-  syncLocked: false,
   hashChanged: false,
   fatalError: false,
 };
@@ -39,11 +38,6 @@ reducers[ACTIONS.GET_SYNC_STARTED] = (state: SyncState) =>
   Object.assign({}, state, {
     getSyncIsPending: true,
     getSyncErrorMessage: null,
-  });
-
-reducers[ACTIONS.SET_SYNC_LOCK] = (state: SyncState, action: any) =>
-  Object.assign({}, state, {
-    syncLocked: action.data,
   });
 
 reducers[ACTIONS.GET_SYNC_COMPLETED] = (state: SyncState, action: any) =>

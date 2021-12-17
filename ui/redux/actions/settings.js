@@ -9,7 +9,7 @@ import analytics from 'analytics';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { launcher } from 'util/autoLaunch';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { doSyncLoop, doSetSyncLock } from 'redux/actions/sync';
+import { doSyncLoop } from 'redux/actions/sync';
 import { doAlertWaitingForSync, doGetAndPopulatePreferences } from 'redux/actions/app';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
@@ -255,8 +255,6 @@ export function doEnterSettingsPage() {
     } else {
       await dispatch(doGetAndPopulatePreferences());
     }
-
-    dispatch(doSetSyncLock(true));
   };
 }
 
@@ -267,7 +265,6 @@ export function doExitSettingsPage() {
     if (IS_WEB && !hasVerifiedEmail) {
       return;
     }
-    dispatch(doSetSyncLock(false));
     dispatch(doPushSettingsToPrefs());
     // syncLoop is restarted in store.js sharedStateCB if necessary
   };
