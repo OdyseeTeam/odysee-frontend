@@ -49,7 +49,7 @@ body {
 .sidebar--pusher {
   animation-timing-function: var(--resizing-animation-function);
   transition: transform var(--resizing-animation-timing);
-  transform-origin: left;
+  transform-origin: top center;
   position: absolute;
 
   @media (max-width: $breakpoint-small) {
@@ -69,8 +69,7 @@ body {
 
 .sidebar--pusher--open {
   @media (min-width: $breakpoint-medium) {
-    transform: translateX(var(--side-nav-width));
-    width: calc(100% - var(--side-nav-width));
+    transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.99);
   }
 }
 
