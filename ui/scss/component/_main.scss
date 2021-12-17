@@ -69,7 +69,7 @@ body {
 
 .sidebar--pusher--open {
   @media (min-width: $breakpoint-medium) {
-    transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.93);
+    transform: scaleX(0.9) translateX(calc(5.4 * var(--spacing-l))) scaleY(0.92);
   }
 }
 
