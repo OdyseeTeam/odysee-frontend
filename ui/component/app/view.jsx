@@ -2,6 +2,7 @@
 import * as PAGES from 'constants/pages';
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
+import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import classnames from 'classnames';
 import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
@@ -47,8 +48,8 @@ const SyncFatalError = lazyImport(() => import('component/syncFatalError' /* web
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
 
-const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
-const securePrivacyScriptUrl = 'https://app.secureprivacy.ai/script/6194129b66262906dd4a5f43.js';
+// const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
+const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
 
 type Props = {
   language: string,
@@ -62,24 +63,22 @@ type Props = {
   fetchCollectionListMine: () => void,
   signIn: () => void,
   requestDownloadUpgrade: () => void,
-  onSignedIn: () => void,
   setLanguage: (string) => void,
   isUpgradeAvailable: boolean,
   isReloadRequired: boolean,
   autoUpdateDownloaded: boolean,
   uploadCount: number,
   balance: ?number,
+  syncIsLocked: boolean,
   syncError: ?string,
-  syncEnabled: boolean,
   rewards: Array<Reward>,
   setReferrer: (string, boolean) => void,
   isAuthenticated: boolean,
-  socketConnect: () => void,
   syncLoop: (?boolean) => void,
   currentModal: any,
   syncFatalError: boolean,
-  activeChannelClaim: ?ChannelClaim,
-  myChannelUrls: ?Array<string>,
+  activeChannelId: ?string,
+  myChannelClaimIds: ?Array<string>,
   subscriptions: Array<Subscription>,
   setActiveChannelIfNotSet: () => void,
   setIncognito: (boolean) => void,
@@ -103,6 +102,7 @@ function App(props: Props) {
     uploadCount,
     history,
     syncError,
+    syncIsLocked,
     language,
     languages,
     setLanguage,
@@ -112,8 +112,8 @@ function App(props: Props) {
     syncLoop,
     currentModal,
     syncFatalError,
-    myChannelUrls,
-    activeChannelClaim,
+    myChannelClaimIds,
+    activeChannelId,
     setActiveChannelIfNotSet,
     setIncognito,
     fetchModBlockedList,
@@ -149,11 +149,10 @@ function App(props: Props) {
   const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
   const shouldHideNag = pathname.startsWith(`/$/${PAGES.EMBED}`) || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
   const userId = user && user.id;
-  const useCustomScrollbar = !IS_MAC;
-  const hasMyChannels = myChannelUrls && myChannelUrls.length > 0;
-  const hasNoChannels = myChannelUrls && myChannelUrls.length === 0;
+  const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
+  const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const hasActiveChannelClaim = activeChannelClaim !== undefined;
+  const hasActiveChannelClaim = activeChannelId !== undefined;
   const isPersonalized = !IS_WEB || hasVerifiedEmail;
   const renderFiledrop = !IS_WEB || isAuthenticated;
   const isOnline = navigator.onLine;
@@ -220,13 +219,41 @@ function App(props: Props) {
   }, [userId]);
 
   useEffect(() => {
+    if (syncIsLocked) {
+      const handleBeforeUnload = (event) => {
+        event.preventDefault();
+        event.returnValue = __('There are unsaved settings. Exit the Settings Page to finalize them.');
+      };
+      window.addEventListener('beforeunload', handleBeforeUnload);
+      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+    }
+  }, [syncIsLocked]);
+
+  useEffect(() => {
     if (!uploadCount) return;
+
+    const handleUnload = (event) => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
-      event.returnValue = 'magic'; // without setting this to something it doesn't work
+      event.returnValue = __('There are pending uploads.'); // without setting this to something it doesn't work
     };
+
+    window.addEventListener('unload', handleUnload);
     window.addEventListener('beforeunload', handleBeforeUnload);
-    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('unload', handleUnload);
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [uploadCount]);
+
+  useEffect(() => {
+    if (!uploadCount) return;
+
+    const onStorageUpdate = (e) => tusHandleTabUpdates(e.key);
+    window.addEventListener('storage', onStorageUpdate);
+
+    return () => window.removeEventListener('storage', onStorageUpdate);
   }, [uploadCount]);
 
   // allows user to pause miniplayer using the spacebar without the page scrolling down
@@ -318,20 +345,23 @@ function App(props: Props) {
   }, [previousRewardApproved, isRewardApproved]);
 
   // Load IMA3 SDK for aniview
-  useEffect(() => {
-    const script = document.createElement('script');
-    script.src = imaLibraryPath;
-    script.async = true;
-    // $FlowFixMe
-    document.body.appendChild(script);
-    return () => {
-      // $FlowFixMe
-      document.body.removeChild(script);
-    };
-  }, []);
+  // useEffect(() => {
+  //   if (!isAuthenticated && SHOW_ADS) {
+  //     const script = document.createElement('script');
+  //     script.src = imaLibraryPath;
+  //     script.async = true;
+  //     // $FlowFixMe
+  //     document.body.appendChild(script);
+  //     return () => {
+  //       // $FlowFixMe
+  //       document.body.removeChild(script);
+  //     };
+  //   }
+  // }, []);
 
-  // add secure privacy script
+  // add OneTrust script
   useEffect(() => {
+    // don't add script for embedded content
     function inIframe() {
       try {
         return window.self !== window.top;
@@ -344,15 +374,21 @@ function App(props: Props) {
       return;
     }
 
-    const script = document.createElement('script');
-    script.src = securePrivacyScriptUrl;
-    script.async = true;
-    // might use this for future checking to prevent doubleloading
-    script.id = 'securePrivacy';
+    // $FlowFixMe
+    const useProductionOneTrust = process.env.NODE_ENV === 'production' && location.hostname === 'odysee.com';
 
-    const cmpScript = document.createElement('script');
-    cmpScript.src = 'https://app.secureprivacy.ai/secureprivacy-plugin/web-plugin/cmp/cmp-v2.js';
-    cmpScript.async = true;
+    const script = document.createElement('script');
+    script.src = oneTrustScriptSrc;
+    script.setAttribute('charset', 'UTF-8');
+    if (useProductionOneTrust) {
+      script.setAttribute('data-domain-script', '8a792d84-50a5-4b69-b080-6954ad4d4606');
+    } else {
+      script.setAttribute('data-domain-script', '8a792d84-50a5-4b69-b080-6954ad4d4606-test');
+    }
+
+    const secondScript = document.createElement('script');
+    // OneTrust asks to add this
+    secondScript.innerHTML = 'function OptanonWrapper() { }';
 
     const getLocaleEndpoint = 'https://api.odysee.com/locale/get';
     let gdprRequired;
@@ -366,7 +402,7 @@ function App(props: Props) {
       // $FlowFixMe
       document.head.appendChild(script);
       // $FlowFixMe
-      document.head.appendChild(cmpScript);
+      document.head.appendChild(secondScript);
     }
 
     // haven't done a gdpr check, do it now
@@ -381,7 +417,7 @@ function App(props: Props) {
           // $FlowFixMe
           document.head.appendChild(script);
           // $FlowFixMe
-          document.head.appendChild(cmpScript);
+          document.head.appendChild(secondScript);
           // note we don't need gdpr, save to session
         } else if (gdprRequiredBasedOnLocation === false) {
           localStorage.setItem('gdprRequired', 'false');
@@ -390,10 +426,14 @@ function App(props: Props) {
     }
 
     return () => {
-      // $FlowFixMe
-      document.head.removeChild(script);
-      // $FlowFixMe
-      document.head.appendChild(cmpScript);
+      try {
+        // $FlowFixMe
+        document.head.removeChild(script);
+        // $FlowFixMe
+        document.head.removeChild(secondScript);
+      } catch (err) {
+        console.log(err);
+      }
     };
   }, []);
 
@@ -464,7 +504,6 @@ function App(props: Props) {
         // @if TARGET='app'
         [`${MAIN_WRAPPER_CLASS}--mac`]: IS_MAC,
         // @endif
-        [`${MAIN_WRAPPER_CLASS}--scrollbar`]: useCustomScrollbar,
       })}
       ref={appRef}
       onContextMenu={IS_WEB ? undefined : (e) => openContextMenu(e)}

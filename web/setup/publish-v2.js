@@ -38,13 +38,12 @@ export function makeResumableUploadRequest(
       reject(new Error('Publish: v2 does not support remote_url'));
     }
 
-    const payloadParams = Object.assign({}, params);
-    delete payloadParams.uploadUrl; // cleanup
+    const { uploadUrl, guid, ...sdkParams } = params;
 
     const jsonPayload = JSON.stringify({
       jsonrpc: '2.0',
       method: RESUMABLE_ENDPOINT_METHOD,
-      params: payloadParams,
+      params: sdkParams,
       id: new Date().getTime(),
     });
 
@@ -63,6 +62,7 @@ export function makeResumableUploadRequest(
       chunkSize: UPLOAD_CHUNK_SIZE_BYTE,
       retryDelays: [0, 5000, 10000, 15000],
       parallelUploads: 1,
+      storeFingerprintForResuming: false,
       removeFingerprintOnSuccess: true,
       headers: { [X_LBRY_AUTH_TOKEN]: token },
       metadata: {
@@ -70,7 +70,7 @@ export function makeResumableUploadRequest(
         filetype: file instanceof File ? file.type : undefined,
       },
       onShouldRetry: (err, retryAttempt, options) => {
-        window.store.dispatch(doUpdateUploadProgress({ params, status: 'retry' }));
+        window.store.dispatch(doUpdateUploadProgress({ guid, status: 'retry' }));
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
         return !inStatusCategory(status, 400);
       },
@@ -79,17 +79,17 @@ export function makeResumableUploadRequest(
         const errMsg = typeof err === 'string' ? err : err.message;
 
         if (status === STATUS_CONFLICT || status === STATUS_LOCKED || errMsg === 'file currently locked') {
-          window.store.dispatch(doUpdateUploadProgress({ params, status: 'conflict' }));
+          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'conflict' }));
           // prettier-ignore
           reject(new Error(`${status}: concurrent upload detected. Uploading the same file from multiple tabs or windows is not allowed.`));
         } else {
-          window.store.dispatch(doUpdateUploadProgress({ params, status: 'error' }));
+          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
           reject(new Error(err));
         }
       },
       onProgress: (bytesUploaded, bytesTotal) => {
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
-        window.store.dispatch(doUpdateUploadProgress({ params, progress: percentage }));
+        window.store.dispatch(doUpdateUploadProgress({ guid, progress: percentage }));
       },
       onSuccess: () => {
         let retries = 1;
@@ -102,7 +102,7 @@ export function makeResumableUploadRequest(
           xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
           xhr.responseType = 'json';
           xhr.onload = () => {
-            window.store.dispatch(doUpdateUploadRemove(params));
+            window.store.dispatch(doUpdateUploadRemove(guid));
             resolve(xhr);
           };
           xhr.onerror = () => {
@@ -111,12 +111,12 @@ export function makeResumableUploadRequest(
               analytics.error('notify: first attempt failed (status=0). Retrying after 10s...');
               setTimeout(() => makeNotifyRequest(), 10000); // Auto-retry after 10s delay.
             } else {
-              window.store.dispatch(doUpdateUploadProgress({ params, status: 'error' }));
+              window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
               reject(new Error(`There was a problem in the processing. Please retry. (${xhr.status})`));
             }
           };
           xhr.onabort = () => {
-            window.store.dispatch(doUpdateUploadRemove(params));
+            window.store.dispatch(doUpdateUploadRemove(guid));
           };
 
           xhr.send(jsonPayload);
@@ -129,11 +129,6 @@ export function makeResumableUploadRequest(
     uploader
       .findPreviousUploads()
       .then((previousUploads) => {
-        const index = previousUploads.findIndex((prev) => prev.uploadUrl === params.uploadUrl);
-        if (index !== -1) {
-          uploader.resumeFromPreviousUpload(previousUploads[index]);
-        }
-
         if (!isPreview) {
           window.store.dispatch(doUpdateUploadAdd(file, params, uploader));
         }
