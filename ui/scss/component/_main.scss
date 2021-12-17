@@ -1,3 +1,7 @@
+body {
+  overflow-x: hidden;
+}
+
 .main-wrapper {
   position: relative;
   margin-left: auto;
@@ -12,7 +16,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  min-height: calc(100vh - var(--header-height));
+  min-height: 100vh;
   margin-left: auto;
   margin-right: auto;
   margin-top: var(--header-height);
@@ -42,19 +46,53 @@
   padding-top: 0;
 }
 
+.sidebar--pusher {
+  animation-timing-function: var(--resizing-animation-function);
+  transition: transform var(--resizing-animation-timing);
+  transform-origin: left;
+  position: absolute;
+
+  @media (max-width: $breakpoint-small) {
+    transform: translateX(0);
+    width: calc(100% - var(--spacing-m));
+  }
+
+  @media (min-width: $breakpoint-small) {
+    transform: translateX(var(--side-nav-width--micro));
+    width: calc(100% - ((var(--side-nav-width--micro))));
+  }
+}
+
+.sidebar--pusher--filepage {
+  width: 100%;
+}
+
+.sidebar--pusher--open {
+  @media (min-width: $breakpoint-medium) {
+    transform: translateX(var(--side-nav-width));
+    width: calc(100% - var(--side-nav-width));
+  }
+}
+
+.main-wrapper__inner--auth {
+  min-height: unset;
+  padding: 0;
+
+  .main--auth-page {
+    min-height: unset;
+  }
+}
+
 .main {
   position: relative;
-  width: calc(100% - var(--side-nav-width) - var(--spacing-l));
+  width: calc(100% - 2 * var(--spacing-l));
   max-width: var(--page-max-width);
   z-index: 0;
   margin-right: auto;
   margin-left: auto;
+  min-height: calc(100vh - var(--header-height));
 
-  @media (max-width: $breakpoint-medium) and (min-width: $breakpoint-small) {
-    margin: 0 var(--spacing-l);
-  }
-
-  @media (max-width: $breakpoint-medium) {
+  @media (max-width: $breakpoint-small) {
     width: 100%;
   }
 }
@@ -255,12 +293,7 @@
 
 .main--full-width {
   @extend .main;
-
-  @media (min-width: $breakpoint-large) {
-    max-width: none;
-    width: 100%;
-    margin: 0 var(--spacing-l);
-  }
+  max-width: none;
 }
 
 .main--auth-page {
