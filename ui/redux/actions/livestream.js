@@ -77,7 +77,7 @@ const fetchUpcomingLivestreamClaims = (channelIds: Array<string>) => {
   return doClaimSearch(
     {
       page: 1,
-      page_size: 10,
+      page_size: 50,
       has_no_source: true,
       channel_ids: channelIds,
       claim_type: ['stream'],
@@ -96,7 +96,7 @@ const fetchMostRecentLivestreamClaims = (channelIds: Array<string>, orderBy: Arr
   return doClaimSearch(
     {
       page: 1,
-      page_size: 10,
+      page_size: 50,
       has_no_source: true,
       channel_ids: channelIds,
       claim_type: ['stream'],
