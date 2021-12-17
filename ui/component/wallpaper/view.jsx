@@ -14,8 +14,12 @@ const Wallpaper = (props: Props) => {
   if (avatar) {
     toDataUrl(avatar, function (image) {
       if (image) {
+        let threshold = 155;
         getAverageRGB(image, function (rgb) {
           let brightness = Math.round((parseInt(rgb.r) * 299 + parseInt(rgb.g) * 587 + parseInt(rgb.b) * 114) / 1000);
+          if (colorCompare(rgb) > 15) {
+            rgb = colorMixer(rgb, brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.6);
+          }
           document.documentElement !== null &&
             document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);
           document.documentElement !== null &&
@@ -24,7 +28,6 @@ const Wallpaper = (props: Props) => {
               brightness > 155 ? 'black' : 'white'
             );
 
-          let threshold = 155;
           if (document.documentElement !== null) {
             threshold =
               getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 70 : 155;
@@ -150,22 +153,6 @@ const Wallpaper = (props: Props) => {
     callback(rgb);
   }
 
-  /*
-  function shadeCheck(data, i) {
-    let threshold = 50;
-    let gray = 0;
-    if (
-      Math.abs(data[i], data[i + 1]) < threshold &&
-      Math.abs(data[i], data[i + 2]) < threshold &&
-      Math.abs(data[i + 1], data[i + 2]) < threshold
-    ) {
-      gray = 1;
-    }
-
-    return gray;
-  }
-*/
-
   function shadeCheck(data, i, threshold) {
     let white = 0;
     if (data[i] > 255 - threshold) white = white + 1;
@@ -191,6 +178,22 @@ const Wallpaper = (props: Props) => {
     var g = colorChannelMixer(rgbA.g, rgbB.g, mix);
     var b = colorChannelMixer(rgbA.b, rgbB.b, mix);
     return { r: r, g: g, b: b };
+  }
+
+  function colorCompare(rgb) {
+    let bg = 0;
+    if (document.documentElement !== null) {
+      bg = getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 32 : 221;
+    }
+    let r = Math.abs(rgb.r - bg);
+    let g = Math.abs(rgb.g - bg);
+    let b = Math.abs(rgb.b - bg);
+
+    r = r / 255;
+    g = g / 255;
+    b = b / 255;
+
+    return ((r + g + b) / 3) * 100;
   }
 
   /*
