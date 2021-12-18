@@ -339,8 +339,8 @@ export default function FileRenderFloating(props: Props) {
                 width: fileViewerRect.width,
                 height: fileViewerRect.height,
                 left: fileViewerRect.x,
-                // 60px is header height in scss/init/vars.scss
-                top: fileViewerRect.windowOffset + fileViewerRect.top - 60 - (IS_DESKTOP_MAC ? 24 : 0),
+                // 80px is header height in scss/init/vars.scss
+                top: fileViewerRect.windowOffset + fileViewerRect.top - 80 - (IS_DESKTOP_MAC ? 24 : 0),
               }
             : {}
         }

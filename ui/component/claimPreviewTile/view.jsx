@@ -200,11 +200,6 @@ function ClaimPreviewTile(props: Props) {
         'claim-preview__live': isLivestreamActive,
       })}
     >
-      {isRepost && (
-        <div className="claim-tile__repost-author">
-          <ClaimRepostAuthor uri={uri} />
-        </div>
-      )}
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs>
           {!isChannel && (
@@ -272,6 +267,11 @@ function ClaimPreviewTile(props: Props) {
             </React.Fragment>
           )}
         </div>
+        {isRepost && (
+          <div className="claim-tile__repost-author">
+            <ClaimRepostAuthor uri={uri} />
+          </div>
+        )}
       </div>
     </li>
   );

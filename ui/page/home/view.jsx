@@ -2,6 +2,7 @@
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import Ads from 'web/component/ads';
 import React from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
@@ -9,6 +10,7 @@ import ClaimTilesDiscover from 'component/claimTilesDiscover';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
+import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
@@ -44,11 +46,13 @@ function HomePage(props: Props) {
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
+  const isLargeScreen = useIsLargeScreen();
 
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
+    isLargeScreen,
     true,
     authenticated,
     showPersonalizedChannels,
@@ -61,7 +65,7 @@ function HomePage(props: Props) {
 
   function getRowElements(title, route, link, icon, help, options, index, pinUrls) {
     const tilePlaceholder = (
-      <ul className={'claim-grid'}>
+      <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
           <ClaimPreviewTile showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS} key={i} placeholder />
         ))}
@@ -80,6 +84,7 @@ function HomePage(props: Props) {
 
     return (
       <div key={title} className="claim-grid__wrapper">
+        {/* category header */}
         {index !== 0 && title && typeof title === 'string' && (
           <h1 className="claim-grid__header">
             <Button navigate={route || link} button="link">
@@ -97,6 +102,7 @@ function HomePage(props: Props) {
           </WaitUntilOnPage>
         )}
 
+        {/* view more button */}
         {(route || link) && (
           <Button
             className="claim-grid__title--secondary"
@@ -257,6 +263,7 @@ function HomePage(props: Props) {
 
       {/* @if TARGET='web' */}
       {SIMPLE_SITE && <Meme />}
+      <Ads type="homepage" />
       {/* @endif */}
 
       {!fetchingActiveLivestreams && (

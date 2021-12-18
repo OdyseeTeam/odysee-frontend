@@ -8,7 +8,7 @@ import { icons } from './icon-custom';
 // These are copied from `scss/vars`, can they both come from the same source?
 const RED_COLOR = '#e2495e';
 const GREEN_COLOR = '#44b098';
-const BLUE_COLOR = '#ff9339';
+const BLUE_COLOR = '#49b2e2';
 
 type Props = {
   icon: string,

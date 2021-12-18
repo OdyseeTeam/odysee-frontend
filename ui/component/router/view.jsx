@@ -4,6 +4,7 @@ import { Route, Redirect, Switch, withRouter } from 'react-router-dom';
 
 import * as PAGES from 'constants/pages';
 import { PAGE_TITLE } from 'constants/pageTitles';
+import { useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { parseURI, isURIValid } from 'util/lbryURI';
@@ -172,10 +173,21 @@ function AppRouter(props: Props) {
   const urlParams = new URLSearchParams(search);
   const resetScroll = urlParams.get('reset_scroll');
   const hasLinkedCommentInUrl = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
+  const isLargeScreen = useIsLargeScreen();
 
-  const dynamicRoutes = GetLinksData(homepageData).filter(
-    (potentialRoute: any) => potentialRoute && potentialRoute.route
-  );
+  const homeCategoryPages = React.useMemo(() => {
+    const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
+      (potentialRoute: any) => potentialRoute && potentialRoute.route
+    );
+
+    return dynamicRoutes.map((dynamicRouteProps: RowDataItem) => (
+      <Route
+        key={dynamicRouteProps.route}
+        path={dynamicRouteProps.route}
+        component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
+      />
+    ));
+  }, [homepageData, isLargeScreen]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -265,14 +277,7 @@ function AppRouter(props: Props) {
         <Route path={`/`} exact component={HomePage} />
         <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />
         {SIMPLE_SITE && <Route path={`/$/${PAGES.WILD_WEST}`} exact component={DiscoverPage} />}
-        {/* $FlowFixMe */}
-        {dynamicRoutes.map((dynamicRouteProps: RowDataItem) => (
-          <Route
-            key={dynamicRouteProps.route}
-            path={dynamicRouteProps.route}
-            component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
-          />
-        ))}
+        {homeCategoryPages}
 
         <Route path={`/$/${PAGES.AUTH_SIGNIN}`} exact component={SignInPage} />
         <Route path={`/$/${PAGES.AUTH_PASSWORD_RESET}`} exact component={PasswordResetPage} />

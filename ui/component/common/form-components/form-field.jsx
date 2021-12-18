@@ -2,6 +2,7 @@
 import 'easymde/dist/easymde.min.css';
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
 import { openEditorMenu, stopContextMenu } from 'util/context-menu';
+import { lazyImport } from 'util/lazyImport';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import MarkdownPreview from 'component/common/markdown-preview';
@@ -10,36 +11,42 @@ import ReactDOMServer from 'react-dom/server';
 import SimpleMDE from 'react-simplemde-editor';
 import type { ElementRef, Node } from 'react';
 
+// prettier-ignore
+const TextareaWithSuggestions = lazyImport(() => import('component/textareaWithSuggestions' /* webpackChunkName: "suggestions" */));
+
 type Props = {
-  name: string,
-  label?: string | Node,
-  prefix?: string,
-  postfix?: string,
-  error?: string | boolean,
-  helper?: string | React$Node,
-  type?: string,
-  defaultValue?: string | number,
-  placeholder?: string | number,
-  children?: React$Node,
-  stretch?: boolean,
   affixClass?: string, // class applied to prefix/postfix label
   autoFocus?: boolean,
-  labelOnLeft: boolean,
-  inputButton?: React$Node,
   blockWrap: boolean,
   charCount?: number,
-  textAreaMaxLength?: number,
-  range?: number,
-  min?: number,
-  max?: number,
-  quickActionLabel?: string,
+  children?: React$Node,
+  defaultValue?: string | number,
   disabled?: boolean,
-  value?: string | number,
+  error?: string | boolean,
+  helper?: string | React$Node,
+  hideSuggestions?: boolean,
+  inputButton?: React$Node,
+  isLivestream?: boolean,
+  label?: string | Node,
+  labelOnLeft: boolean,
+  max?: number,
+  min?: number,
+  name: string,
   noEmojis?: boolean,
-  render?: () => React$Node,
+  placeholder?: string | number,
+  postfix?: string,
+  prefix?: string,
+  quickActionLabel?: string,
+  range?: number,
+  readOnly?: boolean,
+  stretch?: boolean,
+  textAreaMaxLength?: number,
+  type?: string,
+  value?: string | number,
   onChange?: (any) => any,
-  quickActionHandler?: (any) => any,
   openEmoteMenu?: () => void,
+  quickActionHandler?: (any) => any,
+  render?: () => React$Node,
 };
 
 export class FormField extends React.PureComponent<Props> {
@@ -61,27 +68,29 @@ export class FormField extends React.PureComponent<Props> {
 
   render() {
     const {
-      label,
-      prefix,
-      postfix,
-      error,
-      helper,
-      name,
-      type,
-      children,
-      stretch,
       affixClass,
       autoFocus,
-      inputButton,
-      labelOnLeft,
       blockWrap,
       charCount,
-      textAreaMaxLength,
-      quickActionLabel,
+      children,
+      error,
+      helper,
+      hideSuggestions,
+      inputButton,
+      isLivestream,
+      label,
+      labelOnLeft,
+      name,
       noEmojis,
-      render,
-      quickActionHandler,
+      postfix,
+      prefix,
+      quickActionLabel,
+      stretch,
+      textAreaMaxLength,
+      type,
       openEmoteMenu,
+      quickActionHandler,
+      render,
       ...inputProps
     } = this.props;
 
@@ -231,13 +240,28 @@ export class FormField extends React.PureComponent<Props> {
                   {quickAction}
                 </div>
               )}
-              <textarea
-                type={type}
-                id={name}
-                maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
-                ref={this.input}
-                {...inputProps}
-              />
+
+              {hideSuggestions ? (
+                <textarea
+                  type={type}
+                  id={name}
+                  maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
+                  ref={this.input}
+                  {...inputProps}
+                />
+              ) : (
+                <React.Suspense fallback={null}>
+                  <TextareaWithSuggestions
+                    type={type}
+                    id={name}
+                    maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
+                    inputRef={this.input}
+                    isLivestream={isLivestream}
+                    {...inputProps}
+                  />
+                </React.Suspense>
+              )}
+
               <div className="form-field__textarea-info">
                 {!noEmojis && openEmoteMenu && (
                   <Button

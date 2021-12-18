@@ -19,6 +19,7 @@ import ChannelEdit from 'component/channelEdit';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import ClaimSupportButton from 'component/claimSupportButton';
+import ChannelStakedIndicator from 'component/channelStakedIndicator';
 import ClaimMenuList from 'component/claimMenuList';
 import OptimizedImage from 'component/optimizedImage';
 import Yrbl from 'component/yrbl';
@@ -49,10 +50,7 @@ type Props = {
   channelIsMine: boolean,
   isSubscribed: boolean,
   channelIsBlocked: boolean,
-  blackListedOutpoints: Array<{
-    txid: string,
-    nout: number,
-  }>,
+  blackListedOutpointMap: { [string]: number },
   fetchSubCount: (string) => void,
   subCount: number,
   pending: boolean,
@@ -71,7 +69,7 @@ function ChannelPage(props: Props) {
     // page, ?page= may come back some day?
     channelIsMine,
     isSubscribed,
-    blackListedOutpoints,
+    blackListedOutpointMap,
     fetchSubCount,
     subCount,
     pending,
@@ -136,10 +134,8 @@ function ChannelPage(props: Props) {
 
   let channelIsBlackListed = false;
 
-  if (claim && blackListedOutpoints) {
-    channelIsBlackListed = blackListedOutpoints.some(
-      (outpoint) => outpoint.txid === claim.txid && outpoint.nout === claim.nout
-    );
+  if (claim && blackListedOutpointMap) {
+    channelIsBlackListed = blackListedOutpointMap[`${claim.txid}:${claim.nout}`];
   }
 
   // If a user changes tabs, update the url so it stays on the same page if they refresh.
@@ -206,20 +202,6 @@ function ChannelPage(props: Props) {
     );
   }
 
-  /* Lock Tablist to top on scroll
-  const [isFixed, setFixed] = React.useState(false);
-  const scrollMarker = React.createRef();
-  window.addEventListener('scroll', onScroll);
-
-  function onScroll(e) {
-    if (scrollMarker.current) {
-      console.log('x');
-      if (e.target.scrollingElement.scrollTop >= scrollMarker.current.parentElement.parentElement.offsetTop + 20) setFixed(true);
-      else setFixed(false);
-    }
-  }
-  */
-
   return (
     <Page noFooter>
       <header className="channel-cover">
@@ -241,11 +223,12 @@ function ChannelPage(props: Props) {
         {cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} />}
         {cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} objectFit="cover" />}
         <div className="channel__primary-info">
-          <ChannelThumbnail className="channel__thumbnail--channel-page" uri={uri} allowGifs />
+          <ChannelThumbnail className="channel__thumbnail--channel-page" uri={uri} allowGifs hideStakedIndicator />
           <h1 className="channel__title">
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
+            <ChannelStakedIndicator uri={uri} large />
           </h1>
           <div className="channel__meta">
             <span>
@@ -299,7 +282,7 @@ function ChannelPage(props: Props) {
             <Tab disabled={editing}>{__('Content')}</Tab>
             <Tab disabled={editing}>{__('Playlists')}</Tab>
             <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
-            <Tab disabled={editing}>{__('Fellowship')}</Tab>
+            <Tab disabled={editing}>{__('Community')}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

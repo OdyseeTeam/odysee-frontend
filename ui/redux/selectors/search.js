@@ -32,6 +32,8 @@ export const selectSearchResultByQuery: (state: State) => { [string]: Array<stri
   selectState(state).resultsByQuery;
 export const selectHasReachedMaxResultsLength: (state: State) => { [boolean]: Array<boolean> } = (state) =>
   selectState(state).hasReachedMaxResultsLength;
+export const selectMentionSearchResults: (state: State) => Array<string> = (state) => selectState(state).results;
+export const selectMentionQuery: (state: State) => string = (state) => selectState(state).mentionQuery;
 
 export const makeSelectSearchUrisForQuery = (query: string): ((state: State) => Array<string>) =>
   createSelector(selectSearchResultByQuery, (byQuery) => {

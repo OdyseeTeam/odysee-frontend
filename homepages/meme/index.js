@@ -1,4 +1,4 @@
 module.exports = {
-  text: `Rumble is threatening to sue us lol`,
+  text: `This is LBRY`,
   url: 'https://odysee.com/@Odysee:8?view=discussion',
 };

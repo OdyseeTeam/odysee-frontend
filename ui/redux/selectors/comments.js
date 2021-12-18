@@ -3,14 +3,17 @@ import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectShowMatureContent } from 'redux/selectors/settings';
+import { selectMentionSearchResults, selectMentionQuery } from 'redux/selectors/search';
 import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
 import {
   selectClaimsById,
   selectMyClaimIdsRaw,
   selectMyChannelClaimIds,
   selectClaimIdForUri,
+  selectClaimIdsByUri,
 } from 'redux/selectors/claims';
-import { isClaimNsfw } from 'util/claim';
+import { isClaimNsfw, getChannelFromClaim } from 'util/claim';
+import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 
 type State = { claims: any, comments: CommentsState };
 
@@ -262,7 +265,7 @@ export const selectRepliesForParentId = createCachedSelector(
  * @param filterInputs Values returned by filterCommentsDepOnList.
  */
 const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs: any) => {
-  const filterProps = filterInputs.reduce(function (acc, cur, i) {
+  const filterProps = filterInputs.reduce((acc, cur, i) => {
     acc[filterCommentsPropKeys[i]] = cur;
     return acc;
   }, {});
@@ -388,3 +391,74 @@ export const selectSuperChatTotalAmountForUri = (state: State, uri: string) => {
   const superChatData = selectSuperChatDataForUri(state, uri);
   return superChatData ? superChatData.totalAmount : 0;
 };
+
+export const selectChannelMentionData = createCachedSelector(
+  (state, uri) => uri,
+  selectClaimIdsByUri,
+  selectClaimsById,
+  selectTopLevelCommentsForUri,
+  selectSubscriptionUris,
+  selectMentionSearchResults,
+  selectMentionQuery,
+  (uri, claimIdsByUri, claimsById, topLevelComments, subscriptionUris, searchUris, query) => {
+    let canonicalCreatorUri;
+    const commentorUris = [];
+    const canonicalCommentors = [];
+    const canonicalSubscriptions = [];
+    const canonicalSearch = [];
+
+    if (uri) {
+      const claimId = claimIdsByUri[uri];
+      const claim = claimsById[claimId];
+      const channelFromClaim = claim && getChannelFromClaim(claim);
+      canonicalCreatorUri = channelFromClaim && channelFromClaim.canonical_url;
+
+      topLevelComments.forEach(({ channel_url: uri }) => {
+        // Check: if there are duplicate commentors
+        if (!commentorUris.includes(uri)) {
+          // Update: commentorUris
+          commentorUris.push(uri);
+
+          // Update: canonicalCommentors
+          const claimId = claimIdsByUri[uri];
+          const claim = claimsById[claimId];
+          if (claim && claim.canonical_url) {
+            canonicalCommentors.push(claim.canonical_url);
+          }
+        }
+      });
+    }
+
+    subscriptionUris.forEach((uri) => {
+      // Update: canonicalSubscriptions
+      const claimId = claimIdsByUri[uri];
+      const claim = claimsById[claimId];
+      if (claim && claim.canonical_url) {
+        canonicalSubscriptions.push(claim.canonical_url);
+      }
+    });
+
+    let hasNewResolvedResults = false;
+    if (searchUris && searchUris.length > 0) {
+      searchUris.forEach((uri) => {
+        // Update: canonicalSubscriptions
+        const claimId = claimIdsByUri[uri];
+        const claim = claimsById[claimId];
+        if (claim && claim.canonical_url) {
+          canonicalSearch.push(claim.canonical_url);
+        }
+      });
+      hasNewResolvedResults = canonicalSearch.length > 0;
+    }
+
+    return {
+      canonicalCommentors,
+      canonicalCreatorUri,
+      canonicalSearch,
+      canonicalSubscriptions,
+      commentorUris,
+      hasNewResolvedResults,
+      query,
+    };
+  }
+)((state, uri, maxCount) => `${String(uri)}:${maxCount}`);

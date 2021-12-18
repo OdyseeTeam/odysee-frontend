@@ -10,7 +10,7 @@ import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
 
@@ -130,7 +130,9 @@ function SideNavigation(props: Props) {
     activeChannelStakedLevel,
   } = props;
 
-  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData).map(({ pinnedUrls, ...theRest }) => theRest);
+  const isLargeScreen = useIsLargeScreen();
+
+  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData, isLargeScreen).map(({ pinnedUrls, ...theRest }) => theRest);
 
   const MOBILE_LINKS: Array<SideNavLink> = [
     {
@@ -361,8 +363,8 @@ function SideNavigation(props: Props) {
   }, [sidebarOpen, setSidebarOpen, isAbsolute]);
 
   useEffect(() => {
-    if (!window.sp) {
-      const gdprDiv = document.getElementById('gdprPrivacyFooter');
+    if (!window.Optanon) {
+      const gdprDiv = document.getElementById('gdprSidebarLink');
       if (gdprDiv) {
         gdprDiv.style.display = 'none';
       }
@@ -400,8 +402,8 @@ function SideNavigation(props: Props) {
       <li className="navigation-link">
         <Button label={__('Privacy Policy')} href="https://odysee.com/$/privacypolicy" />
       </li>
-      <li className="navigation-link" id="gdprPrivacyFooter">
-        <Button label={__('Cookies')} onClick={() => window.sp && window.sp.showPrivacyBanner()} />
+      <li className="navigation-link" id="gdprSidebarLink">
+        <Button label={__('Cookie Settings')} onClick={() => window.Optanon && window.Optanon.ToggleInfoDisplay()} />
       </li>
     </ul>
   );

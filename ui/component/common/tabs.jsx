@@ -51,16 +51,6 @@ function Tabs(props: TabsProps) {
   const tabLabels = props.children[0];
   const tabContent = props.children[1];
 
-  /*
-  window.addEventListener('scroll', function(e) {
-    if (tabsRef.current && e.target.scrollingElement.scrollTop > (tabsRef.current.offsetTop + tabsRef.current.offsetParent.offsetTop)) {
-      console.log(tabsRef);
-      console.log(tabsRef.current.offsetParent.offsetTop);
-      console.log(tabsRef.current.children[0].offsetHeight);
-    }
-  });
-*/
-
   return (
     <AnimatedContext.Provider value={setSelectedRect}>
       <ReachTabs className="tabs" {...props} ref={tabsRef}>
@@ -87,22 +77,6 @@ type TabListProps = {
 };
 function TabList(props: TabListProps) {
   const { className, ...rest } = props;
-  /*
-  const stickyElm = document.querySelector('.tabs__list');
-  const channelThumb = document.querySelector('.channel__thumbnail--channel-page');
-
-  const listObserver = new IntersectionObserver(
-    ([e]) => {
-      e.target.classList.toggle('isSticky', e.intersectionRatio < 1);
-      channelThumb.classList.toggle('isSticky', e.intersectionRatio < 1);
-    },
-    {threshold: [1]}
-  );
-
-  if (stickyElm) {
-    listObserver.observe(stickyElm);
-  };
-  */
   return <ReachTabList className={classnames('tabs__list', className)} {...rest} />;
 }
 

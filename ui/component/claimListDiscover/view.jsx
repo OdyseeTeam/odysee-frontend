@@ -21,6 +21,7 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 type Props = {
   uris: Array<string>,
   prefixUris?: Array<string>,
+  pins?: { urls: Array<string>, onlyPinForOrder?: string },
   name?: string,
   type: string,
   pageSize?: number,
@@ -92,7 +93,6 @@ type Props = {
 
   // --- perform ---
   doClaimSearch: ({}) => void,
-  doToggleTagFollowDesktop: (string) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
 
   hideLayoutButton?: boolean,
@@ -145,6 +145,7 @@ function ClaimListDiscover(props: Props) {
     feeAmount,
     uris,
     prefixUris,
+    pins,
     tileLayout,
     hideFilters = false,
     claimIds,
@@ -477,6 +478,7 @@ function ClaimListDiscover(props: Props) {
   );
 
   const renderUris = uris || claimSearchResult;
+  injectPinUrls(renderUris, orderParam, pins);
 
   // **************************************************************************
   // Helpers
@@ -545,6 +547,25 @@ function ClaimListDiscover(props: Props) {
     }
 
     return order_by;
+  }
+
+  function injectPinUrls(uris, order, pins) {
+    if (!pins || !pins.urls || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+      return;
+    }
+
+    const pinUrls = pins.urls;
+    if (pinUrls && uris && uris.length > 2) {
+      pinUrls.forEach((pin) => {
+        if (uris.includes(pin)) {
+          uris.splice(uris.indexOf(pin), 1);
+        } else {
+          uris.pop();
+        }
+      });
+
+      uris.splice(2, 0, ...pinUrls);
+    }
   }
 
   // **************************************************************************

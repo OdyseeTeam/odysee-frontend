@@ -2,11 +2,12 @@
 import type { Node } from 'react';
 import React, { Fragment } from 'react';
 import classnames from 'classnames';
+import { MAIN_CLASS } from 'constants/classnames';
 import { lazyImport } from 'util/lazyImport';
+import Wallpaper from 'component/wallpaper';
 import SideNavigation from 'component/sideNavigation';
 import SettingsSideNavigation from 'component/settingsSideNavigation';
 import Header from 'component/header';
-import Wallpaper from 'component/wallpaper';
 /* @if TARGET='app' */
 import StatusBar from 'component/common/status-bar';
 /* @endif */
@@ -17,12 +18,9 @@ import { parseURI } from 'util/lbryURI';
 
 const Footer = lazyImport(() => import('web/component/footer' /* webpackChunkName: "footer" */));
 
-export const MAIN_CLASS = 'main';
 type Props = {
   children: Node | Array<Node>,
   className: ?string,
-  autoUpdateDownloaded: boolean,
-  isUpgradeAvailable: boolean,
   authPage: boolean,
   filePage: boolean,
   settingsPage?: boolean,
@@ -65,13 +63,14 @@ function Page(props: Props) {
   const {
     location: { pathname },
   } = useHistory();
-  const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', true);
+  const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
   const isMediumScreen = useIsMediumScreen();
   const isMobile = useIsMobile();
 
-  let isOnFilePage = false;
   const url = pathname.slice(1).replace(/:/g, '#');
+  let isOnFilePage = false;
   try {
+    const url = pathname.slice(1).replace(/:/g, '#');
     const { isChannel } = parseURI(url);
     if (!isChannel) {
       isOnFilePage = true;
