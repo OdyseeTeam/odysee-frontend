@@ -22,6 +22,26 @@ $contentMaxWidth: 60rem;
       }
     }
 
+    .commentCreate {
+      border-top: 1px solid var(--color-border);
+      padding-top: var(--spacing-s);
+
+      .commentCreate__label {
+        color: var(--color-text);
+      }
+      textarea,
+      select,
+      .button {
+        background-color: var(--color-background);
+      }
+      .button {
+        border-radius: var(--border-radius);
+      }
+      .comment__char-count-mde {
+        padding-right: 0px;
+      }
+    }
+
     &:hover {
       cursor: pointer;
       .notification__text {
