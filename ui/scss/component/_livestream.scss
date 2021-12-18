@@ -210,8 +210,19 @@ $recent-msg-button__height: 2rem;
 
   .commentCreate {
     select,
-    textarea {
+    textarea,
+    input {
       background-color: var(--color-header-button);
+    }
+    .help {
+      color: var(--color-text);
+    }
+    .button {
+      background-color: var(--color-header-button);
+      color: var(--color-text);
+    }
+    .button--link {
+      border-radius: var(--border-radius);
     }
   }
 }
