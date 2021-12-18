@@ -276,8 +276,14 @@
 .navigation-links--absolute {
   @extend .navigation-links;
 
+  li {
+    margin-bottom: 0px;
+  }
+
   .navigation-link {
     margin-bottom: 0;
+    padding-top: 2px;
+    padding-bottom: 2px;
 
     .icon {
       height: 1rem;
