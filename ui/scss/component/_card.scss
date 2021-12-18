@@ -48,7 +48,10 @@
   }
 
   .claim-preview__wrapper {
-    background: var(--color-header-background);
+    background: rgba(var(--color-header-background-base), 0.6);
+    &:hover {
+      background: rgba(var(--color-header-background-base), 0.9);
+    }
   }
 }
 

@@ -100,8 +100,9 @@
 }
 
 .claim-preview__wrapper--small {
-  padding: var(--spacing-s);
-  padding-bottom: 0px;
+  //padding: var(--spacing-s);
+  padding-top: var(--spacing-s);
+  padding-bottom: 0px !important;
   padding-left: 0px;
   padding-right: 0px;
 
@@ -124,7 +125,7 @@
 .claim-preview__wrapper--channel {
   position: relative;
   border-radius: var(--border-radius);
-  background: var(--color-header-background);
+  background: rgba(var(--color-header-background-base), 0.6);
   //padding-left: var(--spacing-m);
   //padding-right: var(--spacing-m);
   padding: var(--spacing-m) !important;
@@ -155,6 +156,10 @@
       margin-right: 4px;
       margin-bottom: -2px;
     }
+  }
+
+  &:hover {
+    background: rgba(var(--color-header-background-base), 0.9);
   }
 }
 

@@ -10,7 +10,7 @@ $contentMaxWidth: 60rem;
   .notification__wrapper {
     border-radius: var(--border-radius);
     margin-bottom: var(--spacing-xxs);
-    background-color: var(--color-header-background);
+    background-color: rgba(var(--color-header-background-base), 0.6);
 
     &:first-of-type {
       border-top: none;
@@ -44,6 +44,7 @@ $contentMaxWidth: 60rem;
 
     &:hover {
       cursor: pointer;
+      background-color: rgba(var(--color-header-background-base), 0.9);
       .notification__text {
         color: var(--color-primary);
       }
@@ -122,11 +123,15 @@ $contentMaxWidth: 60rem;
 
 .notification__wrapper--unread {
   //background-color: var(--color-header-background);
-  box-shadow: 6px -1px 0px 0px var(--color-primary) inset;
+  box-shadow: 6px -1px 0px 0px rgba(var(--color-primary-dynamic), 0.7) inset;
   justify-content: space-between;
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
+  }
+
+  &:hover {
+    box-shadow: 6px -1px 0px 0px rgba(var(--color-primary-dynamic), 1) inset;
   }
 }
 
