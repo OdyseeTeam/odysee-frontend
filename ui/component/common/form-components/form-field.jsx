@@ -238,6 +238,17 @@ export class FormField extends React.PureComponent<Props> {
                 <div className="form-field__two-column">
                   <label htmlFor={name}>{label}</label>
                   {quickAction}
+                  {countInfo}
+                  {!noEmojis && openEmoteMenu && (
+                    <Button
+                      type="alt"
+                      className="button--file-action"
+                      title="Emotes"
+                      onClick={openEmoteMenu}
+                      icon={ICONS.EMOJI}
+                      iconSize={20}
+                    />
+                  )}
                 </div>
               )}
 
@@ -261,20 +272,6 @@ export class FormField extends React.PureComponent<Props> {
                   />
                 </React.Suspense>
               )}
-
-              <div className="form-field__textarea-info">
-                {!noEmojis && openEmoteMenu && (
-                  <Button
-                    type="alt"
-                    className="button--file-action"
-                    title="Emotes"
-                    onClick={openEmoteMenu}
-                    icon={ICONS.EMOJI}
-                    iconSize={20}
-                  />
-                )}
-                {countInfo}
-              </div>
             </fieldset-section>
           );
         default:

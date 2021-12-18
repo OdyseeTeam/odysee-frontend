@@ -508,7 +508,7 @@ export function CommentCreate(props: Props) {
       )}
 
       {/* Bottom Action Buttons */}
-      <div className="section__actions section__actions--no-margin">
+      <div className="section__actions section__actions">
         {/* Submit Button */}
         {isReviewingSupportComment ? (
           <Button

@@ -457,12 +457,18 @@ fieldset-group {
 }
 
 .form-field__textarea-info {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
+  //display: flex;
+  //flex-wrap: wrap;
+  //align-items: right;
   justify-content: space-between;
   margin-top: var(--spacing-xxs);
   margin-bottom: var(--spacing-s);
+  text-align: right;
+
+  span {
+    display: inline-block;
+    padding-right: 0px;
+  }
 }
 
 fieldset-section {

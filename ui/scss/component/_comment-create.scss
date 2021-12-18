@@ -20,6 +20,29 @@ $thumbnailWidthSmall: 1rem;
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
+
+    .comment__char-count-mde {
+      margin-left: auto;
+      width: 60px;
+      text-align: center;
+      background-color: #ff0000;
+      margin-bottom: 8px;
+      margin-right: var(--spacing-s);
+      padding-left: 4px;
+      padding-right: 4px;
+      padding-top: 3px;
+      padding-bottom: 2px;
+      background-color: rgba(var(--color-background-base), 1);
+      border-radius: var(--border-radius);
+    }
+
+    .button--file-action {
+      padding: 0px;
+      padding-left: 2px;
+      padding-right: 2px;
+      height: 24px;
+      margin-bottom: 8px;
+    }
   }
 }
 
