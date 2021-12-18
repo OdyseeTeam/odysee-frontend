@@ -1,3 +1,23 @@
+.claim-list {
+  // List view
+  .claim-preview__wrapper:not(.claim-preview__wrapper--channel):not(.claim-preview__wrapper--small) {
+    padding: var(--spacing-m);
+    background-color: rgba(var(--color-header-background-base), 0.6);
+
+    .claim__menu-button {
+      margin-right: var(--spacing-m);
+    }
+
+    .media__thumb {
+      width: calc(var(--file-list-thumbnail-width) * 1.2);
+    }
+
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 0.9);
+    }
+  }
+}
+
 .claim-list__header {
   display: flex;
   flex-wrap: wrap;
