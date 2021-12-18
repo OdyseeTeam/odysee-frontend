@@ -280,7 +280,7 @@ function ChannelPage(props: Props) {
             <Tab disabled={editing}>{__('Content')}</Tab>
             <Tab disabled={editing}>{__('Playlists')}</Tab>
             <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
-            <Tab disabled={editing}>{__('Community')}</Tab>
+            <Tab disabled={editing}>{__('Fellowship')}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>

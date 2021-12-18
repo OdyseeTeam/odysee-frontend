@@ -95,6 +95,10 @@ $contentMaxWidth: 60rem;
     @include handleChannelGif(3rem);
   }
 
+  .date_time {
+    font-size: var(--font-small);
+  }
+
   @media (max-width: $breakpoint-small) {
     .channel-thumbnail {
       @include handleChannelGif(2rem);
