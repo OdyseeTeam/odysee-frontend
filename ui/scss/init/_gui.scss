@@ -96,6 +96,16 @@ ol {
     margin: 0;
     margin-bottom: var(--spacing-xxs);
   }
+
+  .claim-preview__wrapper {
+    padding: 0px;
+    padding-top: var(--spacing-m);
+    padding-bottom: var(--spacing-m);
+
+    .claim__menu-button {
+      right: -8px;
+    }
+  }
 }
 
 dl {

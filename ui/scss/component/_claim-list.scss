@@ -125,11 +125,12 @@
   position: relative;
   border-radius: var(--border-radius);
   background: var(--color-header-background);
-  padding-left: var(--spacing-m);
-  padding-right: var(--spacing-m);
+  //padding-left: var(--spacing-m);
+  //padding-right: var(--spacing-m);
+  padding: var(--spacing-m) !important;
 
   .claim__menu-button {
-    right: calc(var(--spacing-m) - 8px);
+    right: calc(var(--spacing-m) - 8px) !important;
     margin-top: var(--spacing-xxs);
 
     .icon {
