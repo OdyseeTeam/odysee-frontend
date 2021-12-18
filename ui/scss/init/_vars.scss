@@ -18,6 +18,7 @@ $breakpoint-large: 1600px;
   --height-badge: 24px;
 
   // Spacing
+  --spacing-xxxs: calc(2rem / 6);
   --spacing-xxs: calc(2rem / 5);
   --spacing-xs: calc(2rem / 4);
   --spacing-s: calc(2rem / 3);
@@ -101,7 +102,7 @@ $breakpoint-large: 1600px;
 
   --tag-height: 1.5rem;
 
-  --livestream-comments-width: 28rem;
+  --livestream-comments-width: 29rem;
 
   // Animations
   --resizing-animation-function: ease-in;

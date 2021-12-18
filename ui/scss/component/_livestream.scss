@@ -225,6 +225,34 @@ $recent-msg-button__height: 2rem;
       border-radius: var(--border-radius);
     }
   }
+
+  .stickerSelector {
+    .stickerSelector__listBody-rowItems {
+      display: flex;
+      flex-wrap: wrap;
+      overflow-y: scroll;
+      overflow-x: hidden;
+
+      button {
+        background-color: unset !important;
+        padding: var(--spacing-xxxs);
+        margin-right: var(--spacing-xxxs);
+        margin-bottom: var(--spacing-xxxs);
+
+        .button__content {
+          align-items: center;
+          flex-direction: unset !important;
+        }
+        img {
+          margin: auto !important;
+        }
+
+        &:hover {
+          background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+        }
+      }
+    }
+  }
 }
 
 .livestream__channel-link {
