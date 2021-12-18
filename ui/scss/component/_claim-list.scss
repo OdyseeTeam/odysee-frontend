@@ -103,6 +103,7 @@
   //padding: var(--spacing-s);
   padding-top: var(--spacing-s);
   padding-bottom: 0px !important;
+  margin-bottom: 0px !important;
   padding-left: 0px;
   padding-right: 0px;
 
@@ -112,7 +113,7 @@
 
   .claim__menu-button {
     right: -8px !important;
-    margin-top: 0;
+    margin-top: 6px;
 
     &:hover {
       .icon {
