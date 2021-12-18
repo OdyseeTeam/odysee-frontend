@@ -51,7 +51,7 @@
     flex-wrap: wrap;
     overflow-y: scroll;
     overflow-x: hidden;
-    max-height: 25vh;
+    max-height: 28vh;
     padding: var(--spacing-s);
 
     .button--file-action {
@@ -70,6 +70,12 @@
           position: absolute;
           display: inline;
           bottom: 0;
+          left: var(--spacing-xxs);
+          right: var(--spacing-xxs);
+          border: 1px solid var(--color-text);
+          padding-top: 1px;
+          padding-bottom: 0px;
+          font-size: var(--font-xsmall);
         }
       }
 
