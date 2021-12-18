@@ -253,6 +253,10 @@ $recent-msg-button__height: 2rem;
       }
     }
   }
+
+  .section {
+    margin-top: var(--spacing-s);
+  }
 }
 
 .livestream__channel-link {
