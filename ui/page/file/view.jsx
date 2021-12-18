@@ -122,7 +122,6 @@ function FilePage(props: Props) {
           <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
             <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
           </div>
-          {/* playables will be rendered and injected by <FileRenderFloating> */}
         </React.Fragment>
       );
     }
