@@ -110,7 +110,7 @@ export default function CommentReactions(props: Props) {
         requiresAuth={IS_WEB}
         title={__('Upvote')}
         icon={likeIcon}
-        className={classnames('comment__action', {
+        className={classnames('comment__action button-like', {
           'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.LIKE),
         })}
         onClick={handleCommentLike}
@@ -120,7 +120,7 @@ export default function CommentReactions(props: Props) {
         requiresAuth={IS_WEB}
         title={__('Downvote')}
         icon={dislikeIcon}
-        className={classnames('comment__action', {
+        className={classnames('comment__action button-dislike', {
           'comment__action--active': myReacts && myReacts.includes(REACTION_TYPES.DISLIKE),
         })}
         onClick={handleCommentDislike}

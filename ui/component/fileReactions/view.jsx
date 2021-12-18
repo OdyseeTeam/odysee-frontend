@@ -4,6 +4,7 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+import RatioBar from 'component/ratioBar';
 import { formatNumberWithCommas } from 'util/number';
 import NudgeFloating from 'component/nudgeFloating';
 import { SIMPLE_SITE } from 'config';
@@ -76,7 +77,9 @@ function FileReactions(props: Props) {
         title={__('I like this')}
         requiresAuth={IS_WEB}
         authSrc="filereaction_like"
-        className={classnames('button--file-action', { 'button--fire': myReaction === REACTION_TYPES.LIKE })}
+        className={classnames('button--file-action button-like', {
+          'button--fire': myReaction === REACTION_TYPES.LIKE,
+        })}
         label={
           <>
             {myReaction === REACTION_TYPES.LIKE && SIMPLE_SITE && (
@@ -101,7 +104,9 @@ function FileReactions(props: Props) {
         requiresAuth={IS_WEB}
         authSrc={'filereaction_dislike'}
         title={__('I dislike this')}
-        className={classnames('button--file-action', { 'button--slime': myReaction === REACTION_TYPES.DISLIKE })}
+        className={classnames('button--file-action button-dislike', {
+          'button--slime': myReaction === REACTION_TYPES.DISLIKE,
+        })}
         label={
           <>
             {myReaction === REACTION_TYPES.DISLIKE && SIMPLE_SITE && (
@@ -118,6 +123,7 @@ function FileReactions(props: Props) {
         icon={dislikeIcon}
         onClick={() => doReactionDislike(uri)}
       />
+      <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />
     </>
   );
 }
