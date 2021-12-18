@@ -270,9 +270,10 @@ function ChannelForm(props: Props) {
   }
 
   // TODO clear and bail after submit
+  // <div className={classnames('main--contained', { 'card--disabled': disabled })}></div>
   return (
     <>
-      <div className={classnames('main--contained', { 'card--disabled': disabled })}>
+      <div className={classnames({ 'card--disabled': disabled })}>
         <header className="channel-cover">
           <div className="channel__quick-actions">
             <Button
