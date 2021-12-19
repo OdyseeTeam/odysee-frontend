@@ -438,6 +438,7 @@ $recent-msg-button__height: 2rem;
 
 // This is just a two small circles that overlap to make it look like
 // the banner and the left border are connected
+/*
 .livestream-superchat__banner-corner {
   height: calc(var(--border-radius) * 2);
   width: calc(var(--border-radius) * 2);
@@ -460,6 +461,7 @@ $recent-msg-button__height: 2rem;
     transform: translateX(25%) translateY(50%);
   }
 }
+*/
 
 .livestream-comment__text {
   padding-right: var(--spacing-xl);
@@ -487,6 +489,12 @@ $recent-msg-button__height: 2rem;
   margin-top: var(--spacing-s);
   max-width: 5rem;
   overflow-wrap: break-word;
+}
+
+.livestream-superchat__amount {
+  .credit-amount {
+    color: var(--color-text);
+  }
 }
 
 .livestream-superchat__amount-large {
