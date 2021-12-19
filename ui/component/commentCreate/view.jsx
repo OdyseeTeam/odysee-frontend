@@ -589,17 +589,18 @@ export function CommentCreate(props: Props) {
 
             {!claimIsMine && (
               <>
-                {!isSupportComment &&
-                  activeTab !== TAB_LBC &&
-                  getActionButton(
-                    __('Credits'),
-                    isSupportComment ? __('Switch to Credits') : undefined,
-                    ICONS.LBC,
-                    () => {
-                      setIsSupportComment(true);
-                      setActiveTab(TAB_LBC);
-                    }
-                  )}
+                {!isSupportComment ||
+                  (activeTab !== TAB_LBC &&
+                    getActionButton(
+                      __('Credits'),
+                      // isSupportComment ? __('Switch to Credits') : undefined,
+                      undefined,
+                      ICONS.LBC,
+                      () => {
+                        setIsSupportComment(true);
+                        setActiveTab(TAB_LBC);
+                      }
+                    ))}
 
                 {stripeEnvironment &&
                   (!isSupportComment || activeTab !== TAB_FIAT) &&
