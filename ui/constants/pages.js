@@ -78,6 +78,7 @@ exports.SEND = 'send';
 exports.SWAP = 'swap';
 exports.CHANNEL_NEW = 'channel/new';
 exports.NOTIFICATIONS = 'notifications';
+exports.CALENDAR = 'calendar';
 exports.YOUTUBE_SYNC = 'youtube';
 exports.LIVESTREAM = 'livestream';
 exports.LIVESTREAM_CURRENT = 'live';
