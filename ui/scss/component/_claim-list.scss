@@ -879,12 +879,24 @@
       .button--uri-indicator {
         top: -3px;
       }
-      .channel-name {
-        color: var(--color-primary-contrast);
-        font-size: var(--font-xxsmall);
 
-        &:hover {
-          color: var(--color-secondary);
+      .button {
+        width: 80px;
+        text-align: center;
+        .button__content {
+          width: 100%;
+          .channel-name {
+            width: 100%;
+            color: var(--color-primary-contrast);
+            font-size: var(--font-xxsmall);
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
+
+            &:hover {
+              color: var(--color-secondary);
+            }
+          }
         }
       }
     }
