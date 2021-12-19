@@ -303,9 +303,9 @@
   }
 
   .media__thumb {
-    background-size: 100%;
+    background-size: cover;
     background-position: center;
-    transition: background-size 0.2s ease-in-out;
+    transition: transform 0.2s ease-in-out;
   }
 
   &:hover {
@@ -314,7 +314,7 @@
     }
 
     .media__thumb {
-      background-size: 108%;
+      transform: scale(1.1);
     }
   }
 
@@ -638,8 +638,8 @@
 
   // Hover Zoom Effect
   .media__thumb {
-    background-size: 100%;
-    transition: background-size 0.2s ease-in-out;
+    background-size: cover;
+    transition: transform 0.2s ease-in-out;
   }
 
   &:hover {
@@ -647,7 +647,7 @@
 
     .media__thumb {
       box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
-      background-size: 108%;
+      transform: scale(1.1);
     }
 
     .claim-tile__title {
