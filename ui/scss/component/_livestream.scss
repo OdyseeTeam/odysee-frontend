@@ -117,6 +117,10 @@ $recent-msg-button__height: 2rem;
   @media (min-width: $breakpoint-small) {
     &:hover {
       background-color: rgba(var(--color-primary-dynamic), 0.1);
+
+      .menu__button {
+        opacity: 1;
+      }
     }
 
     &:not(:hover) {
