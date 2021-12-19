@@ -606,7 +606,8 @@ export function CommentCreate(props: Props) {
                   (!isSupportComment || activeTab !== TAB_FIAT) &&
                   getActionButton(
                     __('Cash'),
-                    isSupportComment ? __('Switch to Cash') : undefined,
+                    // isSupportComment ? __('Switch to Cash') : undefined,
+                    undefined,
                     ICONS.FINANCE,
                     () => {
                       setIsSupportComment(true);
