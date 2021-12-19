@@ -918,14 +918,16 @@ export const icons = {
       <path d="M13.73 21a2 2 0 0 1-3.46 0" />
     </g>
   ),
-  [ICONS.CALENDAR]: buildIcon(
+  [ICONS.CALENDAR]: (props: CustomProps) => (
     <svg
+      {...props}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 75 75"
-      width="24"
-      height="24"
-      fill="white"
-      strokeWidth="2"
+      width="20"
+      height="20"
+      fill="currentColor"
+      stroke="currentColor"
+      strokeWidth="6"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
