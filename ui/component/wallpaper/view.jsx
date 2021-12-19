@@ -201,7 +201,7 @@ const Wallpaper = (props: Props) => {
       cover && (
         <>
           <div className={'background-image'} style={{ backgroundImage: 'url("' + cover + '")' }} />
-          <div className={'theme-dark'} />
+          <div className={'theme'} />
         </>
       )
     );
@@ -215,7 +215,7 @@ const Wallpaper = (props: Props) => {
               'url("https://thumbnails.odysee.com/optimize/plain/https://cdn.lbryplayer.xyz/speech/2e9a7dc6c99f0fb9.jpg")',
           }}
         />
-        <div className={'theme-dark'} />
+        <div className={'theme'} />
       </>
     );
   }
