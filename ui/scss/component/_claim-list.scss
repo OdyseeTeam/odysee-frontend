@@ -305,7 +305,9 @@
   }
 
   .media__thumb {
+    background-color: #000000;
     background-size: 100%;
+    background-position: center;
     transition: background-size 0.2s ease-in-out;
   }
 
@@ -639,6 +641,7 @@
 
   // Hover Zoom Effect
   .media__thumb {
+    background-color: #000000;
     background-size: 100%;
     transition: background-size 0.2s ease-in-out;
   }
@@ -880,7 +883,12 @@
       top: -3px;
     }
     .channel-name {
+      color: var(--color-primary-contrast);
       font-size: var(--font-xxsmall);
+
+      &:hover {
+        color: var(--color-secondary);
+      }
     }
   }
 }
