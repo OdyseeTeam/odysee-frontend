@@ -22,10 +22,10 @@ export default function CalendarHeaderButton(props: Props) {
         onClick={handleMenuClick}
         aria-label={__('Calendar')}
         title={__('Calendar')}
-        className="header__navigation-item menu__title header__navigation-item--icon mobile-hidden"
+        className="header__navigation-item menu__title header__navigation-item--icon mobile-hidden test"
       >
         <Icon size={18} icon={ICONS.CALENDAR} aria-hidden />
-        <div className="abcde">0</div>
+        <div className="schedule-counter">0</div>
       </Button>
     </>
   );
