@@ -141,7 +141,7 @@ function Page(props: Props) {
                 'main--file-page': filePage,
                 'main--settings-page': settingsPage,
                 'main--markdown': isMarkdown,
-                'main--theater-mode': isOnFilePage && videoTheaterMode && !livestream,
+                'main--theater-mode': !isOnFilePage && videoTheaterMode && !livestream,
                 'main--livestream': livestream && !chatDisabled,
               })}
             >
