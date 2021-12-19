@@ -306,7 +306,7 @@
   @extend .navigation-links;
   margin-right: 0;
   padding-right: 0;
-  margin-top: var(--spacing-xl);
+  margin-top: var(--spacing-m);
   margin-bottom: 0;
 
   .navigation-link {
@@ -349,7 +349,7 @@
 .navigation__auth-nudge {
   @extend .card;
   margin: var(--spacing-s);
-  margin-top: var(--spacing-l);
+  margin-top: var(--spacing-m);
   padding: var(--spacing-xs);
   display: flex;
   flex-direction: column;
