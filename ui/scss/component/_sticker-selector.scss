@@ -94,9 +94,9 @@
 
     button {
       background-color: unset !important;
-      padding: var(--spacing-xxxs);
-      margin-right: var(--spacing-xxxs);
-      margin-bottom: var(--spacing-xxxs);
+      padding: var(--spacing-xxxs) !important;
+      margin-right: var(--spacing-xxxs) !important;
+      margin-bottom: var(--spacing-xxxs) !important;
 
       .button__content {
         align-items: center;

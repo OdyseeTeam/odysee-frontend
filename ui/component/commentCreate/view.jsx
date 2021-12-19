@@ -589,7 +589,8 @@ export function CommentCreate(props: Props) {
 
             {!claimIsMine && (
               <>
-                {(!isSupportComment || activeTab !== TAB_LBC) &&
+                {!isSupportComment &&
+                  activeTab !== TAB_LBC &&
                   getActionButton(
                     __('Credits'),
                     isSupportComment ? __('Switch to Credits') : undefined,

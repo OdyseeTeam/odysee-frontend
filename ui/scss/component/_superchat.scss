@@ -14,6 +14,7 @@
   @extend .super-chat;
   //background: linear-gradient(to right, var(--color-superchat__light), var(--color-superchat-3__light));
   background-color: rgba(var(--color-primary-dynamic), 0.7);
+  margin-bottom: 4px;
 
   .credit-amount {
     color: var(--color-primary-contrast);
