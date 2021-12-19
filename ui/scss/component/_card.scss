@@ -113,6 +113,10 @@
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s) 0px;
   }
+
+  .card__title {
+    margin-bottom: var(--spacing-m);
+  }
 }
 
 .card__title-section--body-list {
@@ -363,6 +367,14 @@
 
   &:only-child {
     border-top: none;
+  }
+
+  .form-field__help {
+    color: var(--color-text);
+  }
+
+  .help {
+    color: var(--color-text);
   }
 }
 

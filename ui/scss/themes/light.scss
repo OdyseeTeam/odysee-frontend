@@ -32,7 +32,7 @@
   --color-text-error: var(--color-danger);
   --color-text-empty: #999999;
   --color-text-help: var(--color-primary-contrast);
-  --color-text-subtitle: #212529;
+  --color-text-subtitle: var(--color-text);
   --color-text-warning: #212529;
   --color-blockquote: var(--color-gray-3);
   --color-blockquote-bg: var(--color-gray-1);
@@ -69,7 +69,7 @@
   // Input
   --color-input-bg-selected: var(--color-secondary);
   --color-input-color: #111111;
-  --color-input-label: var(--color-gray-5);
+  --color-input-label: var(--color-text);
   --color-input-placeholder: #212529;
   --color-input-bg: var(--color-header-background);
   --color-input-bg-selected: var(--color-primary);

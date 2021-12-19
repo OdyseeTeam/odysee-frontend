@@ -26,7 +26,7 @@
 
   // Text
   --color-text: #ffffff;
-  --color-text-subtitle: var(--color-gray-4);
+  --color-text-subtitle: var(--color-text);
   --color-text-empty: var(--color-text-subtitle);
   --color-text-help: var(--color-primary-contrast);
   --color-text-warning: #212529;
@@ -66,7 +66,7 @@
 
   // Input
   --color-input: #f4f4f5;
-  --color-input-label: #a7a7a7;
+  --color-input-label: var(--color-text);
   --color-input-placeholder: #f4f4f5;
   --color-input-bg: var(--color-header-background);
   --color-input-bg-selected: var(--color-primary);
