@@ -147,8 +147,6 @@
   position: relative;
   border-radius: var(--border-radius);
   background: rgba(var(--color-header-background-base), 0.6);
-  //padding-left: var(--spacing-m);
-  //padding-right: var(--spacing-m);
   padding: var(--spacing-m) !important;
 
   .claim__menu-button {
@@ -853,41 +851,43 @@
   }
 }
 
-.claim-preview__repost-author {
-  width: 120px;
-  height: 120px;
-  overflow: hidden;
-  position: absolute;
-  top: 0px;
-  left: 0px;
-
-  .claim-preview__repost-ribbon {
+.claim-preview--tile {
+  .claim-preview__repost-author {
+    width: 120px;
+    height: 120px;
+    overflow: hidden;
     position: absolute;
-    display: block;
-    width: 225px;
-    padding-top: 4px;
-    padding-right: 8px;
-    background-color: var(--color-primary);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
-    color: var(--color-primary-contrast);
-    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
-    text-align: center;
-    z-index: 1;
-    font-size: var(--font-xxsmall);
+    top: 0px;
+    left: 0px;
 
-    right: -25px;
-    top: 10px;
-    transform: rotate(-45deg);
-
-    .button--uri-indicator {
-      top: -3px;
-    }
-    .channel-name {
+    .claim-preview__repost-ribbon {
+      position: absolute;
+      display: block;
+      width: 225px;
+      padding-top: 4px;
+      padding-right: 8px;
+      background-color: var(--color-primary);
+      box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
       color: var(--color-primary-contrast);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      z-index: 1;
       font-size: var(--font-xxsmall);
 
-      &:hover {
-        color: var(--color-secondary);
+      right: -25px;
+      top: 10px;
+      transform: rotate(-45deg);
+
+      .button--uri-indicator {
+        top: -3px;
+      }
+      .channel-name {
+        color: var(--color-primary-contrast);
+        font-size: var(--font-xxsmall);
+
+        &:hover {
+          color: var(--color-secondary);
+        }
       }
     }
   }
