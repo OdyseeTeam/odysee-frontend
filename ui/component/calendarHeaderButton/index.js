@@ -2,8 +2,9 @@ import { connect } from 'react-redux';
 import {
   selectNotifications,
   selectIsFetchingNotifications,
-  selectUnseenNotificationCount,
+  // selectUnseenNotificationCount,
 } from 'redux/selectors/notifications';
+import { selectScheduledLivestreamCount } from 'redux/selectors/calendar';
 import { doSeeAllNotifications } from 'redux/actions/notifications';
 import { selectUser } from 'redux/selectors/user';
 import CalendarHeaderButton from './view';
@@ -11,7 +12,7 @@ import CalendarHeaderButton from './view';
 const select = (state) => ({
   notifications: selectNotifications(state),
   fetching: selectIsFetchingNotifications(state),
-  unseenCount: selectUnseenNotificationCount(state),
+  scheduledLivestreamCount: selectScheduledLivestreamCount(state),
   user: selectUser(state),
 });
 

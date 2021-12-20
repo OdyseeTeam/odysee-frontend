@@ -18,11 +18,17 @@ export default function CalendarPage(props: Props) {
     authenticated,
     subscribedChannels,
     activeLivestreams,
-    // doFetchActiveLivestreams,
+    doFetchActiveLivestreams,
     fetchingActiveLivestreams,
   } = props;
 
+  console.log('fetchingActiveLivestreams: ', fetchingActiveLivestreams);
+
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+
+  React.useEffect(() => {
+    doFetchActiveLivestreams();
+  }, []);
 
   return (
     <Page className="notification-page">

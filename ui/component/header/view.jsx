@@ -477,9 +477,9 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
         </Menu>
       )}
 
-      {notificationsEnabled && <NotificationHeaderButton />}
-
       <CalendarHeaderButton />
+
+      {notificationsEnabled && <NotificationHeaderButton />}
 
       <Menu>
         <MenuButton
