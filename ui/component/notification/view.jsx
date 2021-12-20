@@ -78,6 +78,7 @@ export default function Notification(props: Props) {
       channelUrl = notification_parameters.dynamic.channel_url;
       icon = creatorIcon(channelUrl);
       break;
+    case RULE.WEEKLY_WATCH_REMINDER:
     case RULE.DAILY_WATCH_AVAILABLE:
     case RULE.DAILY_WATCH_REMIND:
     case RULE.MISSED_OUT:
@@ -136,6 +137,7 @@ export default function Notification(props: Props) {
 
   function getNotificationTarget() {
     switch (notification_rule) {
+      case RULE.WEEKLY_WATCH_REMINDER:
       case RULE.DAILY_WATCH_AVAILABLE:
       case RULE.DAILY_WATCH_REMIND:
         return `/$/${PAGES.CHANNELS_FOLLOWING}`;
