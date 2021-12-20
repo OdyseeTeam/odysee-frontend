@@ -374,6 +374,12 @@
   }
 }
 
+.claim-preview--channel {
+  .claim-preview__actions {
+    margin-top: 0px;
+  }
+}
+
 .claim-preview__text {
   width: 100%;
   display: flex;
