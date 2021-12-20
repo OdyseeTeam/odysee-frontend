@@ -185,7 +185,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!player) return;
 
       // run ads (preroll) via google ima functionality
-      runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
+      // runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
 
       // initialize player events (onPlay etc)
       initializeEvents();
