@@ -91,6 +91,7 @@ export default function ClaimList(props: Props) {
 
   let tileUris = (prefixUris || []).concat(uris || []);
   tileUris = tileUris.filter((uri) => !excludeUris.includes(uri));
+  if (prefixUris && prefixUris.length) tileUris.splice(prefixUris.length * -1, prefixUris.length);
 
   const totalLength = tileUris.length;
 
