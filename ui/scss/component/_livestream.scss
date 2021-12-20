@@ -73,6 +73,27 @@ $recent-msg-button__height: 2rem;
       }
     }
   }
+
+  .comment__author {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+    border-radius: var(--border-radius);
+    padding-left: var(--spacing-xxxs);
+    padding-right: var(--spacing-xxxs);
+    margin-top: var(--spacing-xxs);
+    max-width: unset;
+    &:hover {
+      background-color: var(--color-secondary);
+      color: var(--color-secondary-contrast);
+    }
+  }
+
+  .channel-name {
+    color: var(--color-secondary);
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
 }
 
 .livestream-discussion__header {
