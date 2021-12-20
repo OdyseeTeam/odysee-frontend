@@ -62,7 +62,7 @@
   }
 
   .button__label {
-    width: 84%;
+    width: calc(var(--floating-viewer-width) - (var(--spacing-s) * 2));
     &:hover {
       color: var(--color-primary);
     }
