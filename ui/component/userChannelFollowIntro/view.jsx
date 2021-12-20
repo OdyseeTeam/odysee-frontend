@@ -23,9 +23,7 @@ function UserChannelFollowIntro(props: Props) {
 
   const { PRIMARY_CONTENT, LATEST } = homepageData;
 
-  const communityChannels = COMMUNITY_CHANNELS[language] || COMMUNITY_CHANNELS['en'];
-  const autoFollowChannels =
-    COMMUNITY_CHANNELS['en'] + (communityChannels !== COMMUNITY_CHANNELS['en'] ? ' ' + communityChannels : '');
+  const autoFollowChannels = COMMUNITY_CHANNELS[language] || COMMUNITY_CHANNELS['en'];
 
   const channelsToSubscribe = autoFollowChannels
     .trim()
