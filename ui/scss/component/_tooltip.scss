@@ -5,4 +5,6 @@
   border: none;
   padding: var(--spacing-s);
   overflow: hidden;
+  white-space: normal;
+  max-width: calc(var(--livestream-comments-width) - (var(--spacing-xs) * 2));
 }
