@@ -39,7 +39,6 @@ const SwapPage = lazyImport(() => import('page/swap' /* webpackChunkName: "swap"
 const WalletPage = lazyImport(() => import('page/wallet' /* webpackChunkName: "wallet" */));
 
 const NotificationsPage = lazyImport(() => import('page/notifications' /* webpackChunkName: "notifications" */));
-const CalendarPage = lazyImport(() => import('page/calendar' /* webpackChunkName: "calendar" */));
 const CollectionPage = lazyImport(() => import('page/collection' /* webpackChunkName: "collection" */));
 const ChannelNew = lazyImport(() => import('page/channelNew' /* webpackChunkName: "channelNew" */));
 const ChannelsFollowingDiscoverPage = lazyImport(() =>
@@ -348,7 +347,6 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.SEND}`} component={SendPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SWAP}`} component={SwapPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.NOTIFICATIONS}`} component={NotificationsPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.CALENDAR}`} component={CalendarPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.AUTH_WALLET_PASSWORD}`} component={SignInWalletPasswordPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_OWN_COMMENTS}`} component={OwnComments} />
 

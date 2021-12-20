@@ -16,7 +16,6 @@ import NavigationButton from 'component/navigationButton';
 import { useIsMobile } from 'effects/use-screensize';
 import NotificationBubble from 'component/notificationBubble';
 import NotificationHeaderButton from 'component/notificationHeaderButton';
-import CalendarHeaderButton from 'component/calendarHeaderButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import SkipNavigationButton from 'component/skipNavigationButton';
 import Logo from 'component/logo';
@@ -476,8 +475,6 @@ function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           </MenuList>
         </Menu>
       )}
-
-      <CalendarHeaderButton />
 
       {notificationsEnabled && <NotificationHeaderButton />}
 
