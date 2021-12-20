@@ -14,7 +14,7 @@ import React, { Fragment, useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import {
-  doDaemonReady,
+  doLbryReady,
   doAutoUpdate,
   doOpenModal,
   doHideModal,
@@ -246,7 +246,7 @@ function AppWrapper() {
 
   useEffect(() => {
     if (readyToLaunch && persistDone) {
-      app.store.dispatch(doDaemonReady());
+      app.store.dispatch(doLbryReady());
 
       const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {

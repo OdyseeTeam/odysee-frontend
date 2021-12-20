@@ -372,7 +372,7 @@ export function doAlertWaitingForSync() {
   };
 }
 
-export function doDaemonReady() {
+export function doLbryReady() {
   return (dispatch, getState) => {
     const state = getState();
 
