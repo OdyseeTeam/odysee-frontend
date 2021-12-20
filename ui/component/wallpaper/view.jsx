@@ -85,8 +85,6 @@ const Wallpaper = (props: Props) => {
       canvas = document.createElement('canvas'),
       context = canvas.getContext && canvas.getContext('2d'),
       data,
-      //      width,
-      //      height,
       i = -4,
       length,
       rgb = { r: 0, g: 0, b: 0 },
