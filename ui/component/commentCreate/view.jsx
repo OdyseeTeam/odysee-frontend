@@ -398,7 +398,7 @@ export function CommentCreate(props: Props) {
         }}
       >
         <FormField type="textarea" name={'comment_signup_prompt'} placeholder={__('Say something about this...')} />
-        <div className="section__actions">
+        <div className="section__actions--no-margin">
           <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth />
         </div>
       </div>
@@ -589,18 +589,17 @@ export function CommentCreate(props: Props) {
 
             {!claimIsMine && (
               <>
-                {!isSupportComment ||
-                  (activeTab !== TAB_LBC &&
-                    getActionButton(
-                      __('Credits'),
-                      // isSupportComment ? __('Switch to Credits') : undefined,
-                      undefined,
-                      ICONS.LBC,
-                      () => {
-                        setIsSupportComment(true);
-                        setActiveTab(TAB_LBC);
-                      }
-                    ))}
+                {(!isSupportComment || activeTab !== TAB_LBC) &&
+                  getActionButton(
+                    __('Credits'),
+                    // isSupportComment ? __('Switch to Credits') : undefined,
+                    undefined,
+                    ICONS.LBC,
+                    () => {
+                      setIsSupportComment(true);
+                      setActiveTab(TAB_LBC);
+                    }
+                  )}
 
                 {stripeEnvironment &&
                   (!isSupportComment || activeTab !== TAB_FIAT) &&
