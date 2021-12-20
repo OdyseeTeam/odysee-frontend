@@ -100,6 +100,16 @@ $contentMaxWidth: 60rem;
     font-size: var(--font-small);
   }
 
+  .icon__wrapper {
+    background-color: rgba(var(--color-primary-dynamic), 0.1);
+  }
+
+  &:hover {
+    .icon__wrapper {
+      background-color: rgba(var(--color-primary-dynamic), 0.2);
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     .channel-thumbnail {
       @include handleChannelGif(2rem);
