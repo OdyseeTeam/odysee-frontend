@@ -260,6 +260,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // instantiates keyboard shortcuts
       window.addEventListener('keydown', initializeKeyboardShortcuts(playerRef, containerRef));
 
+      window.player.bigPlayButton.hide();
+
       // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
       if (!window.player.paused()) {
         (window.player.bigPlayButton && window.player.bigPlayButton.hide());

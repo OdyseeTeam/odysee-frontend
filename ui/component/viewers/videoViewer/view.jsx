@@ -433,7 +433,7 @@ function VideoViewer(props: Props) {
       {isEndedEmbed && <FileViewerEmbeddedEnded uri={uri} />}
       {embedded && !isEndedEmbed && <FileViewerEmbeddedTitle uri={uri} />}
       {/* disable this loading behavior because it breaks when player.play() promise hangs */}
-      {isLoading && <LoadingScreen status={__('Loading')} />}
+      {/*{isLoading && <LoadingScreen status={__('Loading')} />}*/}
 
       {!isFetchingAd && adUrl && (
         <>
