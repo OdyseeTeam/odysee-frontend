@@ -75,16 +75,12 @@ $recent-msg-button__height: 2rem;
   }
 
   .comment__author {
-    background-color: rgba(var(--color-primary-dynamic), 0.2);
-    color: var(--color-primary-contrast);
-    border-radius: 4px;
-    padding-left: var(--spacing-xxxs);
-    padding-right: var(--spacing-xxxs);
+    //background-color: rgba(var(--color-primary-dynamic), 0.2);
+    color: rgba(var(--color-text-base), 0.5);
     margin-top: var(--spacing-xxs);
     max-width: unset;
     &:hover {
-      background-color: var(--color-primary) !important;
-      color: var(--color-primary-contrast) !important;
+      color: var(--color-primary) !important;
     }
   }
 
@@ -144,7 +140,7 @@ $recent-msg-button__height: 2rem;
       }
 
       .comment__author {
-        background-color: rgba(var(--color-primary-dynamic), 0.6);
+        color: var(--color-primary);
       }
     }
 
