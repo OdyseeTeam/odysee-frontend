@@ -207,10 +207,11 @@ $thumbnailWidthSmall: 1rem;
 }
 
 .comment__badge {
-  padding-right: var(--spacing-xxs);
+  //padding-right: var(--spacing-xxxs);
 
   .icon {
     margin-bottom: -3px;
+    height: 1rem;
   }
 }
 
