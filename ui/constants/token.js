@@ -1,3 +1,4 @@
+export const AUTHORIZATION = 'Authorization';
 export const X_LBRY_AUTH_TOKEN = 'X-Lbry-Auth-Token';
 
 // Additional parameter for apiCall() to skip sending the auth token.

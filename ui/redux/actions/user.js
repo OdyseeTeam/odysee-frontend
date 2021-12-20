@@ -163,49 +163,61 @@ export function doCheckUserOdyseeMemberships(user) {
 }
 
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
+/**
+ * Does Lbryio.authenticate, i.e. call Authenticate() then update redux with
+ * auth_token. Authenticate does getAuthToken then getCurrentUser, and if !user,
+ * call userNew and return the user telling redux the auth token is probably
+ * dumb. We will keycloak = useKeycloak(), keycloak.token whenever we want that.
+ *
+ * @param appVersion
+ * @param shareUsageData
+ * @param callbackForUsersWhoAreSharingData
+ * @param callInstall
+ * @returns {Function}
+ */
 export function doAuthenticate(
   appVersion,
   shareUsageData = true,
   callbackForUsersWhoAreSharingData,
   callInstall = true
 ) {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({
       type: ACTIONS.AUTHENTICATION_STARTED,
     });
-    checkAuthBusy()
-      .then(() => {
-        return Lbryio.authenticate(DOMAIN, getDefaultLanguage());
-      })
-      .then((user) => {
-        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
-        Lbryio.getAuthToken().then((token) => {
-          dispatch({
-            type: ACTIONS.AUTHENTICATION_SUCCESS,
-            data: { user, accessToken: token },
-          });
 
-          dispatch(doCheckUserOdyseeMemberships(user));
+    try {
+      await checkAuthBusy();
+      const user = await Lbryio.fetchUser(DOMAIN, getDefaultLanguage());
 
-          if (shareUsageData) {
-            dispatch(doRewardList());
+      LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
 
-            if (callInstall && !user?.device_types?.includes('web')) {
-              doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
-            }
-          }
-
-          dispatch(doFetchGeoBlockedList());
-        });
-      })
-      .catch((error) => {
-        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
-
+      Lbryio.getTokens().then((tokens) => {
         dispatch({
-          type: ACTIONS.AUTHENTICATION_FAILURE,
-          data: { error },
+          type: ACTIONS.AUTHENTICATION_SUCCESS,
+          data: { user, authToken: tokens.auth_token, accessToken: tokens.access_token },
         });
+
+        dispatch(doCheckUserOdyseeMemberships(user));
+
+        if (shareUsageData) {
+          dispatch(doRewardList());
+
+          if (callInstall && !user?.device_types?.includes('web')) {
+            doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
+          }
+        }
+
+        dispatch(doFetchGeoBlockedList());
       });
+    } catch (error) {
+      LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
+
+      dispatch({
+        type: ACTIONS.AUTHENTICATION_FAILURE,
+        data: { error },
+      });
+    }
   };
 }
 
@@ -216,7 +228,7 @@ export function doUserFetch() {
         type: ACTIONS.USER_FETCH_STARTED,
       });
 
-      Lbryio.getCurrentUser()
+      Lbryio.fetchCurrentUser()
         .then((user) => {
           dispatch(doCheckUserOdyseeMemberships(user));
           dispatch({
@@ -238,7 +250,7 @@ export function doUserFetch() {
 export function doUserCheckEmailVerified() {
   // This will happen in the background so we don't need loading booleans
   return (dispatch) => {
-    Lbryio.getCurrentUser().then((user) => {
+    Lbryio.fetchCurrentUser().then((user) => {
       dispatch(doCheckUserOdyseeMemberships(user));
 
       if (user.has_verified_email) {
