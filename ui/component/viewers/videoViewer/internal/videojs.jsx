@@ -256,19 +256,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   useEffect(() => {
     const vjsElement = createVideoPlayerDOM(containerRef.current);
 
+    // Initialize Video.js
+    const vjsPlayer = initializeVideoPlayer(vjsElement);
+
+    // Add reference to player to global scope
+    window.player = vjsPlayer;
+
+    // Set reference in component state
+    playerRef.current = vjsPlayer;
+
+    window.addEventListener('keydown', curried_function(playerRef, containerRef));
+
+    window.player.userActive(true);
+
+    if(autoplay){
+      document.querySelector('video').click()
+      window.player.userActive(true);
+    }
+
     // Detect source file type via pre-fetch (async)
-    detectFileType().then(() => {
-      // Initialize Video.js
-      const vjsPlayer = initializeVideoPlayer(vjsElement);
-
-      // Add reference to player to global scope
-      window.player = vjsPlayer;
-
-      // Set reference in component state
-      playerRef.current = vjsPlayer;
-
-      window.addEventListener('keydown', curried_function(playerRef, containerRef));
-    });
+    // detectFileType().then(() => {
+    //
+    // });
 
     // Cleanup
     return () => {
