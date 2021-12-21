@@ -10,6 +10,7 @@ declare type SyncState = {
   getSyncIsPending: boolean,
   setSyncIsPending: boolean,
   prefsReady: boolean,
+  sharedStateSyncId: number,
   hashChanged: boolean,
   fatalError: boolean,
 };

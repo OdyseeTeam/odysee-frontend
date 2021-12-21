@@ -185,8 +185,8 @@ const sharedStateFilters = {
   unpublishedCollections: { source: 'collections', property: 'unpublished' },
 };
 
-const sharedStateCb = ({ dispatch, getState }) => {
-  dispatch(doSyncLoop());
+const sharedStateCb = ({ dispatch, getState, syncId }) => {
+  dispatch(doSyncLoop(undefined, syncId));
 };
 
 const populateAuthTokenHeader = () => {

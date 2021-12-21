@@ -14,6 +14,19 @@ import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 const NO_WALLET_ERROR = 'no wallet found for this user';
 const BAD_PASSWORD_ERROR_NAME = 'InvalidPasswordError';
 
+/**
+ * Checks if there is a newer sync session, indicating that fetched data from
+ * the current one can be dropped.
+ *
+ * @param getState
+ * @param syncId [Optional] The id of the current sync session. If not given, assume not invalidated.
+ * @returns {boolean}
+ */
+export function syncInvalidated(getState: GetState, syncId?: number) {
+  const state = getState();
+  return syncId && state.sync.sharedStateSyncId !== syncId;
+}
+
 export function doSetDefaultAccount(success: () => void, failure: (string) => void) {
   return (dispatch: Dispatch) => {
     dispatch({
@@ -112,16 +125,17 @@ export const doGetSyncDesktop = (cb?: (any, any) => void, password?: string, new
  *
  * @param newData The new wallet data to merge. If undefined, will perform the
  *   full fetch sequence.
+ * @param syncId
  * @returns {(function(Dispatch, GetState): void)|*}
  */
-export function doSyncLoop(newData?: WalletUpdate) {
+export function doSyncLoop(newData?: WalletUpdate, syncId?: number) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const hasVerifiedEmail = selectUserVerifiedEmail(state);
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
 
     if (hasVerifiedEmail && syncEnabled) {
-      const cb = (error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData));
+      const cb = (error, hasNewData) => dispatch(doHandleSyncComplete(error, hasNewData, syncId));
       dispatch(doGetSyncDesktop(cb, undefined, newData));
     }
   };
