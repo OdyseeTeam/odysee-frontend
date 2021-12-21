@@ -35,7 +35,7 @@
   --color-text-help: var(--color-primary-contrast);
   --color-text-subtitle: var(--color-blockquote);
   --color-text-warning: #212529;
-  --color-blockquote: #555555;
+  --color-blockquote: rgba(var(--color-text-base), 0.6);
   --color-blockquote-bg: var(--color-gray-1);
   --color-tooltip-bg: #222;
   --color-tooltip-text: #fafafa;

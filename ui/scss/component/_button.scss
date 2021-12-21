@@ -225,7 +225,7 @@
     white-space: nowrap;
     overflow: hidden;
     font-size: var(--font-xsmall);
-    color: var(--color-text);
+    color: rgba(var(--color-text-base), 0.6);
   }
 
   .markdown-preview & {
