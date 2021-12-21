@@ -225,3 +225,10 @@ $control-bar-icon-size: 0.8rem;
     }
   }
 }
+
+.vjs-loading-spinner {
+  height: 75px;
+  width: 75px;
+  margin: -37px 0 0 -37px;
+  border-radius: 100px;
+}

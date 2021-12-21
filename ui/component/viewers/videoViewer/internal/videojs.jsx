@@ -209,6 +209,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Initialize mobile UI.
       player.mobileUi();
 
+      window.player.bigPlayButton.hide();
+
       Chromecast.initialize(player);
 
       // Add quality selector to player
@@ -259,6 +261,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       playerRef.current = vjsPlayer;
 
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
+
+      window.player.bigPlayButton.hide();
     });
 
     // Cleanup
@@ -275,41 +279,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player = undefined;
       }
     };
-  }, [isAudio, source]);
-
-  // Update video player and reload when source URL changes
-  useEffect(() => {
-    // For some reason the video player is responsible for detecting content type this way
-    fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-      let finalType = sourceType;
-      let finalSource = source;
-
-      // override type if we receive an .m3u8 (transcoded mp4)
-      // do we need to check if explicitly redirected
-      // or is checking extension only a safer method
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        finalType = 'application/x-mpegURL';
-        finalSource = response.url;
-      }
-
-      // Modify video source in options
-      videoJsOptions.sources = [
-        {
-          src: finalSource,
-          type: finalType,
-        },
-      ];
-
-      // Update player source
-      const player = playerRef.current;
-      if (!player) return;
-
-      // PR #5570: Temp workaround to avoid double Play button until the next re-architecture.
-      if (!player.paused()) {
-        player.bigPlayButton.hide();
-      }
-    });
-  }, [source, reload]);
+  }, [isAudio, source, reload]);
 
   return (
     <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>

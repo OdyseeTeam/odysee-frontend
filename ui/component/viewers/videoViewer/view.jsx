@@ -14,7 +14,6 @@ import AutoplayCountdown from 'component/autoplayCountdown';
 import usePrevious from 'effects/use-previous';
 import FileViewerEmbeddedEnded from 'web/component/fileViewerEmbeddedEnded';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
-import LoadingScreen from 'component/common/loading-screen';
 import { addTheaterModeButton } from './internal/theater-mode';
 import { addAutoplayNextButton } from './internal/autoplay-next';
 import { addPlayNextButton } from './internal/play-next';
@@ -133,7 +132,6 @@ function VideoViewer(props: Props) {
   const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
   /* isLoading was designed to show loading screen on first play press, rather than completely black screen, but
   breaks because some browsers (e.g. Firefox) block autoplay but leave the player.play Promise pending */
-  const [isLoading, setIsLoading] = useState(false);
   const [replay, setReplay] = useState(false);
   const [videoNode, setVideoNode] = useState();
 
@@ -150,7 +148,6 @@ function VideoViewer(props: Props) {
     if (uri && previousUri && uri !== previousUri) {
       setShowAutoplayCountdown(false);
       setIsEndedEmbed(false);
-      setIsLoading(false);
     }
   }, [uri, previousUri]);
 
@@ -292,7 +289,6 @@ function VideoViewer(props: Props) {
   // MORE ON PLAY STUFF
   function onPlay(player) {
     setEnded(false);
-    setIsLoading(false);
     setIsPlaying(true);
     setShowAutoplayCountdown(false);
     setIsEndedEmbed(false);
@@ -366,12 +362,9 @@ function VideoViewer(props: Props) {
             // another version had player.play()
           }
         }
-        setIsLoading(false);
         setIsPlaying(false);
       });
     }
-
-    setIsLoading(shouldPlay); // if we are here outside of an embed, we're playing
 
     // PR: #5535
     // Move the restoration to a later `loadedmetadata` phase to counter the
@@ -433,8 +426,6 @@ function VideoViewer(props: Props) {
       )}
       {isEndedEmbed && <FileViewerEmbeddedEnded uri={uri} />}
       {embedded && !isEndedEmbed && <FileViewerEmbeddedTitle uri={uri} />}
-      {/* disable this loading behavior because it breaks when player.play() promise hangs */}
-      {isLoading && <LoadingScreen status={__('Loading')} />}
 
       {!isFetchingAd && adUrl && (
         <>
