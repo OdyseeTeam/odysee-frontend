@@ -263,8 +263,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       playerRef.current = vjsPlayer;
 
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
-
-      window.player.bigPlayButton.hide();
     });
 
     // Cleanup
