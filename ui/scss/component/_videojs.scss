@@ -3,6 +3,13 @@ $control-bar-font-size: 0.8rem;
 $control-bar-popup-font-size: 0.8rem;
 $control-bar-icon-size: 0.7rem;
 
+.vjs-loading-spinner {
+  height: 75px;
+  width: 75px;
+  margin: -37px 0 0 -37px;
+  border-radius: 100px;
+}
+
 .video-js {
   font-size: 12px;
   overflow: hidden;

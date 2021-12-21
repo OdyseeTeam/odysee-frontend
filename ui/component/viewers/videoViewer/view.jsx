@@ -136,6 +136,9 @@ function VideoViewer(props: Props) {
   const [replay, setReplay] = useState(false);
   const [videoNode, setVideoNode] = useState();
 
+  console.log(claim);
+  console.log(thumbnail);
+
   const updateVolumeState = React.useCallback(
     debounce((volume, muted) => {
       changeVolume(volume);

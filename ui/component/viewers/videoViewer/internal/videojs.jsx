@@ -147,12 +147,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const [reload, setReload] = useState('initial');
 
+
   const videoJsOptions = {
     ...VIDEO_JS_OPTIONS,
     autoplay: autoplay,
     muted: startMuted,
     sources: [{ src: source, type: sourceType }],
-    poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
+    poster: 'https://spee.ch/3/ed2b688a7fa1d7e0.jpg?quality=85&height=806&width=806', // thumb looks bad in app, and if autoplay, flashing poster is annoying
+    // poster,
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     // fixes problem of errant CC button showing up on iOS
     // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
@@ -216,8 +218,36 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      player.posterImage.show();
+
+      document.querySelector('.vjs-poster').style.display = 'block';
+      document.querySelector('.vjs-poster').style.visibility = 'visible';
+
+      document.querySelector('.vjs-loading-spinner').style.visibility = 'visible';
+      document.querySelector('.vjs-loading-spinner').style.display = 'block';
+
+      document.querySelector('video.vjs-tech').style.visibility = 'hidden';
+
+      document.querySelector('video.vjs-tech').parentElement.classList.add('vjs-seeking');
+
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
+
+      player.on('play', function(){
+        document.querySelector('video.vjs-tech').parentElement.classList.add('vjs-seeking');
+      })
+
+      player.on('canplaythrough', function(){
+        document.querySelector('video.vjs-tech').parentElement.classList.remove('vjs-seeking');
+        console.log('playing!');
+        document.querySelector('video.vjs-tech').style.visibility = 'visible';
+        document.querySelector('.vjs-poster').style.display = 'none';
+        document.querySelector('.vjs-poster').style.visibility = 'visible';
+        document.querySelector('.vjs-loading-spinner').style.visibility = 'hidden';
+        document.querySelector('.vjs-loading-spinner').style.display = 'block';
+
+
+      })
 
       // callback from parent component, will document better shortly
       onPlayerReady(player, videoNode);
