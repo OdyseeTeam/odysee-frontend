@@ -209,7 +209,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Initialize mobile UI.
       player.mobileUi();
 
-      window.player.bigPlayButton.hide();
+      if (!embedded) {
+        window.player.bigPlayButton.hide();
+      }
 
       Chromecast.initialize(player);
 
