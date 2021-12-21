@@ -187,20 +187,20 @@ function VideoViewer(props: Props) {
     }
 
     // figure out what server the video is served from and then run start analytic event
-    fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-      // server string such as 'eu-p6'
-      let playerPoweredBy = response.headers.get('x-powered-by') || '';
-      // populates data for watchman, sends prom and matomo event
-      analytics.videoStartEvent(
-        claimId,
-        timeToStartVideo,
-        playerPoweredBy,
-        userId,
-        claim.canonical_url,
-        this,
-        bitrateAsBitsPerSecond
-      );
-    });
+    // fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
+    //   // server string such as 'eu-p6'
+    //   let playerPoweredBy = response.headers.get('x-powered-by') || '';
+    //   // populates data for watchman, sends prom and matomo event
+    //   analytics.videoStartEvent(
+    //     claimId,
+    //     timeToStartVideo,
+    //     playerPoweredBy,
+    //     userId,
+    //     claim.canonical_url,
+    //     this,
+    //     bitrateAsBitsPerSecond
+    //   );
+    // });
 
     // hit backend to mark a view
     doAnalyticsView(uri, timeToStartVideo).then(() => {
