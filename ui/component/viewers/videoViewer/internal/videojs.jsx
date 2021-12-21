@@ -83,18 +83,6 @@ const IS_IOS =
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
   !window.MSStream;
 
-const VIDEO_JS_OPTIONS = {
-  preload: 'auto',
-  playbackRates: videoPlaybackRates,
-  responsive: true,
-  controls: true,
-  html5: {
-    vhs: {
-      overrideNative: !videojs.browser.IS_ANY_SAFARI,
-    },
-  },
-};
-
 if (!Object.keys(videojs.getPlugins()).includes('eventTracking')) {
   videojs.registerPlugin('eventTracking', eventTracking);
 }
@@ -144,6 +132,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     toggleVideoTheaterMode,
   } = props;
 
+  const VIDEO_JS_OPTIONS = {
+    preload: 'auto',
+    playbackRates: videoPlaybackRates,
+    responsive: true,
+    controls: true,
+    html5: {
+      vhs: {
+        overrideNative: !videojs.browser.IS_ANY_SAFARI,
+      },
+    },
+  };
+
   // will later store the videojs player
   const playerRef = useRef();
   const containerRef = useRef();
@@ -171,7 +171,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       requestTitleFn: (src) => title || '',
       requestSubtitleFn: (src) => channelName || '',
     },
+    bigPlayButton: embedded, // only show big play button if embedded
   };
+
+  console.log(videoJsOptions);
 
   const { detectFileType, createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
 
@@ -210,7 +213,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.mobileUi();
 
       if (!embedded) {
-        window.player.bigPlayButton.hide();
+        window.player.bigPlayButton && window.player.bigPlayButton.hide();
+      } else {
+        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
 
       Chromecast.initialize(player);
