@@ -65,6 +65,33 @@ body {
 
 .sidebar--pusher--filepage {
   width: 100%;
+
+  .mb-m {
+    // Temporary fix for upcoming livestreams on channel page
+    margin-bottom: 0px;
+    background: rgba(var(--color-primary-dynamic), 0.1);
+    border-radius: var(--border-radius);
+    animation: livePulse 2s infinite;
+    padding: var(--spacing-m);
+
+    .section__header--actions {
+      margin-top: 0px !important;
+      padding-top: 0px !important;
+    }
+
+    .claim-preview--tile {
+      margin-bottom: 0px;
+    }
+
+    .claim-tile__title {
+      margin-bottom: 0px;
+      min-height: unset;
+    }
+
+    .claim-tile__info {
+      padding-bottom: var(--spacing-s);
+    }
+  }
 }
 
 .sidebar--pusher--open {

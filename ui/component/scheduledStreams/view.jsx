@@ -40,7 +40,7 @@ const ScheduledStreams = (props: Props) => {
 
   return (
     <ClaimListDiscoverContext.Provider value={{ listingType: 'UPCOMING' }}>
-      <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+      <div className={'mb-m'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
         <ClaimListDiscover
           useSkeletonScreen={false}
           channelIds={channelIds}
