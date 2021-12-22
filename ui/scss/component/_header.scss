@@ -132,7 +132,7 @@
     stroke: var(--color-text);
   }
 
-  &[aria-expanded='true'] {
+  &[aria-expanded='true']:not(.header__navigationItem--profilePic) {
     background-color: var(--color-header-button-active);
   }
 
