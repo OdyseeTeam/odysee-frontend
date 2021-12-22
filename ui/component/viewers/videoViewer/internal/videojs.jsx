@@ -160,7 +160,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     ...VIDEO_JS_OPTIONS,
     autoplay: autoplay,
     muted: startMuted,
-    sources: [{ src: source, type: sourceType }],
+    // sources: [{ src: source, type: sourceType }],
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     // fixes problem of errant CC button showing up on iOS
@@ -273,6 +273,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       document.querySelector('video').click()
       window.player.userActive(true);
     }
+
+    (async function(){
+      const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+      console.log(response);
+
+      console.log(source);
+      console.log(sourceType);
+
+      window.player.src({
+        type: sourceType,
+        src: source,
+      });
+    })();
+
+    document.querySelector('video.vjs-tech').parentElement.classList.add('vjs-seeking')
 
     // Detect source file type via pre-fetch (async)
     // detectFileType().then(() => {
