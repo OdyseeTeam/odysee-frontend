@@ -44,9 +44,7 @@ type Props = {
   uri: string,
   autoplayNext: boolean,
   autoplayIfEmbedded: boolean,
-  doAnalyticsView: (string, number) => Promise<any>,
   doAnalyticsBuffer: (string, any) => void,
-  claimRewards: () => void,
   savePosition: (string, number) => void,
   clearPosition: (string) => void,
   toggleVideoTheaterMode: () => void,
@@ -86,9 +84,7 @@ function VideoViewer(props: Props) {
     volume,
     autoplayNext,
     autoplayIfEmbedded,
-    doAnalyticsView,
     doAnalyticsBuffer,
-    claimRewards,
     savePosition,
     clearPosition,
     toggleVideoTheaterMode,
@@ -164,47 +160,6 @@ function VideoViewer(props: Props) {
     fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
       data.playerPoweredBy = response.headers.get('x-powered-by');
       doAnalyticsBuffer(uri, data);
-    });
-  }
-
-  /**
-   * Analytics functionality that is run on first video start
-   * @param e - event from videojs (from the plugin?)
-   * @param data - only has secondsToLoad property
-   */
-  function doTrackingFirstPlay(e: Event, data: any) {
-    // how long until the video starts
-    let timeToStartVideo = data.secondsToLoad;
-
-    analytics.playerVideoStartedEvent(embedded);
-
-    // convert bytes to bits, and then divide by seconds
-    // const contentInBits = Number(claim.value.source.size) * 8;
-    // const durationInSeconds = claim.value.video && claim.value.video.duration;
-    // let bitrateAsBitsPerSecond;
-    // if (durationInSeconds) {
-    //   bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
-    // }
-
-    // figure out what server the video is served from and then run start analytic event
-    // fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-    //   // server string such as 'eu-p6'
-    //   let playerPoweredBy = response.headers.get('x-powered-by') || '';
-    //   // populates data for watchman, sends prom and matomo event
-    //   analytics.videoStartEvent(
-    //     claimId,
-    //     timeToStartVideo,
-    //     playerPoweredBy,
-    //     userId,
-    //     claim.canonical_url,
-    //     this,
-    //     bitrateAsBitsPerSecond
-    //   );
-    // });
-
-    // hit backend to mark a view
-    doAnalyticsView(uri, timeToStartVideo).then(() => {
-      claimRewards();
     });
   }
 
@@ -375,8 +330,6 @@ function VideoViewer(props: Props) {
     // used for tracking buffering for watchman
     player.on('tracking:buffered', doTrackingBuffered);
 
-    // first play tracking, used for initializing the watchman api
-    player.on('tracking:firstplay', doTrackingFirstPlay);
     player.on('ended', () => setEnded(true));
     player.on('play', onPlay);
     player.on('pause', (event) => onPause(event, player));
@@ -480,6 +433,7 @@ function VideoViewer(props: Props) {
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
+        claim={claim}
       />
     </div>
   );

@@ -4,7 +4,6 @@ const VideoJsFunctions = ({
 }: {
   isAudio: boolean,
 }) => {
-
   // TODO: can remove this function as well
   // Create the video DOM element and wrapper
   function createVideoPlayerDOM(container: any) {

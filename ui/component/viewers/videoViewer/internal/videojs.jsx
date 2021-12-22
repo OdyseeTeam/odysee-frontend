@@ -4,7 +4,6 @@ import 'videojs-ima'; // loads directly after contrib-ads
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
-
 import * as ICONS from 'constants/icons';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
@@ -55,6 +54,7 @@ type Props = {
   allowPreRoll: ?boolean,
   autoplay: boolean,
   autoplaySetting: boolean,
+  claim: any,
   claimId: ?string,
   title: ?string,
   channelName: ?string,
@@ -130,6 +130,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playNext,
     playPrevious,
     toggleVideoTheaterMode,
+    claim,
   } = props;
 
   // will later store the videojs player
@@ -154,6 +155,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playerRef,
     autoplaySetting,
     replay,
+    claim,
+    userId,
+    claimId,
+    embedded,
   });
 
   const videoJsOptions = {

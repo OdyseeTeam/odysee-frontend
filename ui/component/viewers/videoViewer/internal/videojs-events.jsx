@@ -1,5 +1,6 @@
 // @flow
 import { useEffect } from 'react';
+import analytics from 'analytics';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -25,6 +26,10 @@ const VideoJsEvents = ({
   playerRef,
   autoplaySetting,
   replay,
+  claimId,
+  userId,
+  claim,
+  embedded,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -33,6 +38,10 @@ const VideoJsEvents = ({
   playerRef: any, // DOM element
   autoplaySetting: boolean,
   replay: boolean,
+  claimId: ?string,
+  userId: ?number,
+  claim: any,
+  embedded: boolean,
 }) => {
   // Override the player's control text. We override to:
   // 1. Add keyboard shortcut to the tool-tip.
@@ -212,6 +221,47 @@ const VideoJsEvents = ({
     }
   }, [replay]);
 
+  /**
+   * Analytics functionality that is run on first video start
+   * @param e - event from videojs (from the plugin?)
+   * @param data - only has secondsToLoad property
+   */
+  function doTrackingFirstPlay(e: Event, data: any) {
+    // how long until the video starts
+    let timeToStartVideo = data.secondsToLoad;
+
+    // analytics.playerVideoStartedEvent(embedded);
+    //
+    // // convert bytes to bits, and then divide by seconds
+    // const contentInBits = Number(claim.value.source.size) * 8;
+    // const durationInSeconds = claim.value.video && claim.value.video.duration;
+    // let bitrateAsBitsPerSecond;
+    // if (durationInSeconds) {
+    //   bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
+    // }
+    //
+    // // figure out what server the video is served from and then run start analytic event
+    // // server string such as 'eu-p6'
+    // // TODO: pass this here
+    // const playerPoweredBy = 'eu-p6';
+    // // populates data for watchman, sends prom and matomo event
+    // analytics.videoStartEvent(
+    //   claimId,
+    //   timeToStartVideo,
+    //   playerPoweredBy,
+    //   userId,
+    //   claim.canonical_url,
+    //   this, // pass the player
+    //   bitrateAsBitsPerSecond
+    // );
+
+    // hit backend to mark a view
+    // TODO: have to pass here
+    // doAnalyticsView(uri, timeToStartVideo).then(() => {
+    //   claimRewards();
+    // });
+  }
+
   function initializeEvents() {
     const player = playerRef.current;
     // Add various event listeners to player
@@ -223,6 +273,8 @@ const VideoJsEvents = ({
     player.on('volumechange', resolveCtrlText);
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
+    // first play tracking, used for initializing the watchman api
+    player.on('tracking:firstplay', doTrackingFirstPlay);
     // player.on('ended', onEnded);
   }
 
