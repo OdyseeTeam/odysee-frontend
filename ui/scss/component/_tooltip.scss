@@ -1,7 +1,7 @@
 [data-reach-tooltip] {
   border-radius: var(--border-radius);
   background-color: var(--color-header-background);
-  color: var(--color-tooltip-text);
+  color: var(--color-text);
   border: none;
   padding: var(--spacing-s);
   overflow: hidden;
@@ -12,7 +12,7 @@
 .MuiTooltip-tooltip {
   border-radius: var(--border-radius) !important;
   background-color: var(--color-header-background) !important;
-  color: var(--color-tooltip-text) !important;
+  color: var(--color-text) !important;
   font-size: var(--font-small) !important;
 }
 
