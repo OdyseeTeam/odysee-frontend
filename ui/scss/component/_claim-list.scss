@@ -955,6 +955,25 @@
 
 .claim-preview__active {
   //background-color: var(--color-card-background-highlighted);
+
+  .claim-preview__title {
+    color: var(--color-primary);
+  }
+
+  .media__thumb {
+    box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+  }
+}
+
+.claim-preview__active:before {
+  position: absolute;
+  top: 8px;
+  left: 62px;
+  content: '►';
+  z-index: 1;
+  font-size: 5rem;
+  color: #fff;
+  text-shadow: 0 0 3px var(--color-primary), 0 0 5px var(--color-primary);
 }
 
 .claim-preview__live {
