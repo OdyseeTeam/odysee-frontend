@@ -1,7 +1,8 @@
 import * as ACTIONS from 'constants/action_types';
+import { CATCH_UP_SYNC_MIN_MS } from 'constants/sync';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
-import { handleWalletUpdateNotification } from 'redux/actions/sync';
+import { doSyncLoop, handleWalletUpdateNotification } from 'redux/actions/sync';
 import { SOCKETY_SERVER_API } from 'config';
 
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
@@ -11,11 +12,13 @@ let sockets = {};
 let closingSockets = {};
 let retryCount = 0;
 
+let lastWsCatchUpSyncMs;
+
 const getCommentSocketUrl = (claimId) => {
   return `${COMMENT_WS_URL}${claimId}&category=${claimId}`;
 };
 
-export const doSocketConnect = (url, cb) => {
+export const doSocketConnect = (url, onMessageCb, onOpenCb) => {
   function connectToSocket() {
     if (sockets[url] !== undefined && sockets[url] !== null) {
       sockets[url].close();
@@ -25,14 +28,18 @@ export const doSocketConnect = (url, cb) => {
     const timeToWait = retryCount ** 2 * 1000;
     setTimeout(() => {
       sockets[url] = new WebSocket(url);
+
       sockets[url].onopen = (e) => {
         retryCount = 0;
         console.log('\nConnected to WS \n\n'); // eslint-disable-line
+        if (onOpenCb) {
+          onOpenCb(e);
+        }
       };
 
       sockets[url].onmessage = (e) => {
         const data = JSON.parse(e.data);
-        cb(data);
+        onMessageCb(data);
       };
 
       sockets[url].onerror = (e) => {
@@ -40,8 +47,8 @@ export const doSocketConnect = (url, cb) => {
         // onerror and onclose will both fire, so nothing is needed here
       };
 
-      sockets[url].onclose = () => {
-        console.log('\n Disconnected from WS\n\n'); // eslint-disable-line
+      sockets[url].onclose = (e) => {
+        console.log(`\n Disconnected from WS (${e.code})\n\n`); // eslint-disable-line
         if (!closingSockets[url]) {
           retryCount += 1;
           connectToSocket();
@@ -74,9 +81,7 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
     return;
   }
 
-  const url = `${NOTIFICATION_WS_URL}${authToken}`;
-
-  doSocketConnect(url, (data) => {
+  const onMessageCb = (data) => {
     switch (data.type) {
       case 'pending_notification':
         if (enableNotifications) {
@@ -93,7 +98,16 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
         });
         break;
     }
-  });
+  };
+
+  const onOpenCb = (event) => {
+    if (lastWsCatchUpSyncMs && event.timeStamp - lastWsCatchUpSyncMs > CATCH_UP_SYNC_MIN_MS) {
+      dispatch(doSyncLoop());
+    }
+    lastWsCatchUpSyncMs = event.timeStamp;
+  };
+
+  doSocketConnect(`${NOTIFICATION_WS_URL}${authToken}`, onMessageCb, onOpenCb);
 };
 
 export const doCommentSocketConnect = (uri, claimId) => (dispatch) => {

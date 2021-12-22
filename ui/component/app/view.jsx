@@ -32,6 +32,7 @@ import {
   STATUS_DOWN,
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
+import { CATCH_UP_SYNC_MIN_MS } from 'constants/sync';
 import { useIsMobile } from 'effects/use-screensize';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
@@ -462,6 +463,12 @@ function App(props: Props) {
   }, [sidebarOpen, isPersonalized, resolvedSubscriptions, subscriptions, resolveUris, setResolvedSubscriptions]);
 
   useDegradedPerformance(setLbryTvApiStatus, user);
+
+  useEffect(() => {
+    if (connectionStatus.offlineDurationMs && connectionStatus.offlineDurationMs > CATCH_UP_SYNC_MIN_MS) {
+      syncLoop();
+    }
+  }, [connectionStatus.offlineDurationMs]);
 
   // Require an internal-api user on lbry.tv
   // This also prevents the site from loading in the un-authed state while we wait for internal-apis to return for the first time
