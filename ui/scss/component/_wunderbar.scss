@@ -1,3 +1,5 @@
+@import './header';
+
 .wunderbar__wrapper {
   flex: 1;
   max-width: 30rem;
@@ -13,7 +15,7 @@
 .wunderbar__wrapper--mobile {
   margin: 0;
   border-bottom: 1px solid var(--color-border);
-  height: var(--header-height);
+  height: var(--header-height-mobile);
   display: flex;
   align-items: center;
   width: 100%;
@@ -105,12 +107,13 @@
 }
 
 .wunderbar__suggestions {
+  @extend .card;
+
   z-index: 3;
   position: absolute;
   left: 0;
   right: 0;
   top: calc(var(--header-height) - (var(--height-input)) + 22px);
-  @extend .card;
   border-top: none;
   padding-top: var(--spacing-xs);
   background-color: var(--color-background);
@@ -118,7 +121,7 @@
 }
 
 .wunderbar__suggestions--mobile {
-  top: calc(var(--header-height) - var(--spacing-xs));
+  top: calc(var(--header-height-mobile) - var(--spacing-xs));
   margin-top: var(--spacing-m);
   padding: 0;
   overflow: visible;
@@ -232,7 +235,7 @@
 
 .wunderbar__mobile-search {
   @extend .button--alt;
-  @extend .header__navigation-item--icon;
+  @extend .header__navigationItem--icon;
   padding: var(--spacing-xs);
   margin-right: var(--spacing-m);
 
