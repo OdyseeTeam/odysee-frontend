@@ -66,6 +66,10 @@
       color: var(--color-primary);
     }
   }
+
+  .video-js--tap-to-unmute {
+    width: calc(var(--floating-viewer-width) - (var(--spacing-xs) * 2));
+  }
 }
 
 .content__actions {
