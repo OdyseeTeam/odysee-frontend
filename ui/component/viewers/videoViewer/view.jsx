@@ -179,12 +179,12 @@ function VideoViewer(props: Props) {
     analytics.playerVideoStartedEvent(embedded);
 
     // convert bytes to bits, and then divide by seconds
-    const contentInBits = Number(claim.value.source.size) * 8;
-    const durationInSeconds = claim.value.video && claim.value.video.duration;
-    let bitrateAsBitsPerSecond;
-    if (durationInSeconds) {
-      bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
-    }
+    // const contentInBits = Number(claim.value.source.size) * 8;
+    // const durationInSeconds = claim.value.video && claim.value.video.duration;
+    // let bitrateAsBitsPerSecond;
+    // if (durationInSeconds) {
+    //   bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
+    // }
 
     // figure out what server the video is served from and then run start analytic event
     // fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {

@@ -160,7 +160,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     ...VIDEO_JS_OPTIONS,
     autoplay: autoplay,
     muted: startMuted,
-    // sources: [{ src: source, type: sourceType }],
+    sources: [{ src: source, type: sourceType }],
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     // fixes problem of errant CC button showing up on iOS
@@ -176,7 +176,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   console.log(videoJsOptions);
 
-  const { detectFileType, createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
+  const { createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
 
   const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
     tapToUnmuteRef,
@@ -215,7 +215,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+        const bigPlayButton = document.querySelector('.vjs-big-play-button');
+        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
       }
 
       Chromecast.initialize(player);
@@ -269,30 +270,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     window.player.userActive(true);
 
-    if(autoplay){
-      document.querySelector('video').click()
+    if (autoplay) {
+      const videoPlayerDiv = document.querySelector('video');
+      if (videoPlayerDiv) {
+        videoPlayerDiv.click();
+      }
       window.player.userActive(true);
     }
 
-    (async function(){
+    // change to m3u8 if applicable
+    (async function() {
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
-      console.log(response);
 
-      console.log(source);
-      console.log(sourceType);
+      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+        window.player.src({
+          type: 'application/x-mpegURL',
+          src: response.url,
+        });
 
-      window.player.src({
-        type: sourceType,
-        src: source,
-      });
+        window.player.load();
+      }
     })();
-
-    document.querySelector('video.vjs-tech').parentElement.classList.add('vjs-seeking')
-
-    // Detect source file type via pre-fetch (async)
-    // detectFileType().then(() => {
-    //
-    // });
 
     // Cleanup
     return () => {
