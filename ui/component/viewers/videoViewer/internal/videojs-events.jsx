@@ -1,6 +1,6 @@
 // @flow
 import { useEffect } from 'react';
-import analytics from 'analytics';
+// import analytics from 'analytics';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -228,7 +228,7 @@ const VideoJsEvents = ({
    */
   function doTrackingFirstPlay(e: Event, data: any) {
     // how long until the video starts
-    let timeToStartVideo = data.secondsToLoad;
+    // let timeToStartVideo = data.secondsToLoad;
 
     // analytics.playerVideoStartedEvent(embedded);
     //
