@@ -34,7 +34,7 @@
     font-size: var(--font-small);
   }
 
-  .channel-staked__amount {
-    color: var(--color-text) !important;
+  .credit-amount {
+    color: rgba(var(--color-text-base), 0.8) !important;
   }
 }
