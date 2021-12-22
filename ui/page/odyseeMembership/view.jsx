@@ -1,21 +1,21 @@
-// @flow
+// restore flow
+/* eslint-disable no-undef */
+/* eslint-disable react/prop-types */
 import React from 'react';
-import { useHistory } from 'react-router';
-import WalletBalance from 'component/walletBalance';
-import TxoList from 'component/txoList';
 import Page from 'component/page';
+import Card from 'component/common/card';
+import { Lbryio } from 'lbryinc';
+import Plastic from 'react-plastic';
+import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
-import Spinner from 'component/spinner';
-import YrblWalletEmpty from 'component/yrblWalletEmpty';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
+import { STRIPE_PUBLIC_KEY } from 'config';
+import { getStripeEnvironment } from 'util/stripe';
+let stripeEnvironment = getStripeEnvironment();
 
-const TAB_QUERY = 'tab';
-
-const TABS = {
-  LBRY_CREDITS_TAB: 'credits',
-  ACCOUNT_HISTORY: 'fiat-account-history',
-  PAYMENT_HISTORY: 'fiat-payment-history',
-};
+const APIS_DOWN_ERROR_RESPONSE = __('There was an error from the server, please try again later');
+const CARD_SETUP_ERROR_RESPONSE = __('There was an error getting your card setup, please try again later');
 
 type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
@@ -24,20 +24,66 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  const {
-    location: { search },
-    push,
-  } = useHistory();
 
+  const [cardSaved, setCardSaved] = React.useState();
 
-  const { totalBalance } = props;
-  const showIntro = totalBalance === 0;
-  const loading = totalBalance === undefined;
+  React.useEffect(function(){
+
+    Lbryio.call('customer', 'status', {
+      environment: stripeEnvironment,
+    }, 'post').then(function(response){
+      setCardSaved(response && response.PaymentMethods && response.PaymentMethods[0]);
+    });
+
+  }, []);
+
+  React.useEffect(function(){
+    console.log('running here!');
+    const membershipDiv = document.querySelector('.membership');
+
+    const membershipDiv1 = document.querySelector('.membership1');
+
+    const cancelDiv = document.querySelector('.cancelDiv');
+
+    if (membershipDiv) membershipDiv.onclick = function() {
+      console.log('hello!');
+    };
+
+    if (membershipDiv1) membershipDiv1.onclick = function() {
+      console.log('hello!');
+    };
+
+    if (cancelDiv) cancelDiv.onclick = function() {
+      console.log('hello!');
+    };
+  }, [cardSaved]);
 
   return (
     <>
       <Page>
-        <h2>Hello!</h2>
+        <h1>Odysee Memberships</h1>
+        {cardSaved && (
+          <div>
+            <br />
+            <h2 className={'membership1'}>Click here to sign up for 99 cents a month membership for one year</h2>
+            <br />
+            <h2 className={'membership2'}>Click here to sign up for $2.99 a month membership on monthly recurring</h2>
+            <br />
+            <h2 className={'cancel'}>Click here to cancel your membership</h2>
+          </div>
+        )}
+        {cardSaved === false && (
+          <div>
+            <br />
+            <h2 className={'getPaymentCard'}>You still need to register a card, please do so here</h2>
+          </div>
+        )}
+        {cardSaved === undefined && (
+          <div>
+            <br />
+            <h2>Loading...</h2>
+          </div>
+        )}
       </Page>
     </>
   );
