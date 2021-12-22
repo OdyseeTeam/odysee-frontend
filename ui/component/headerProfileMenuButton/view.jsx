@@ -37,7 +37,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             })}
           >
             {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} hideStakedIndicator={1} small noLazyLoad />
+              <ChannelThumbnail uri={activeChannelUrl} hideTooltip={1} small noLazyLoad />
             ) : (
               <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
             )}

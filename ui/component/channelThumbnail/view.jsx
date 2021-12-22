@@ -23,6 +23,7 @@ type Props = {
   showDelayedMessage?: boolean,
   noLazyLoad?: boolean,
   hideStakedIndicator?: boolean,
+  hideTooltip?: boolean,
   xsmall?: boolean,
   noOptimization?: boolean,
   setThumbUploadError: (boolean) => void,
@@ -45,6 +46,7 @@ function ChannelThumbnail(props: Props) {
     showDelayedMessage = false,
     noLazyLoad,
     hideStakedIndicator = false,
+    hideTooltip = false,
     setThumbUploadError,
     ThumbUploadError,
   } = props;
@@ -110,7 +112,7 @@ function ChannelThumbnail(props: Props) {
           }}
         />
       )}
-      {!hideStakedIndicator && <ChannelStakedIndicator uri={uri} claim={claim} />}
+      {!hideStakedIndicator && <ChannelStakedIndicator uri={uri} claim={claim} hideTooltip={hideTooltip} />}
     </div>
   );
 }
