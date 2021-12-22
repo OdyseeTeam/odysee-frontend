@@ -6,16 +6,11 @@ select,
 .date-picker-input {
   height: var(--height-input);
   border-radius: var(--border-radius);
-  //border: 1px solid;
   color: var(--color-input);
   border-color: var(--color-input-border);
   background-color: var(--color-input-bg);
   padding-right: var(--spacing-s);
   padding-left: var(--spacing-s);
-
-  &:focus {
-    @include focus;
-  }
 
   &::placeholder {
     color: var(--color-input-placeholder);
@@ -190,11 +185,6 @@ input-submit {
   input[type='radio']:checked + label::after {
     content: '';
   }
-
-  input[type='checkbox']:focus + label::before,
-  input[type='radio']:focus + label::before {
-    @include focus;
-  }
 }
 
 .checkbox {
@@ -367,7 +357,6 @@ fieldset-group {
         overflow: hidden;
         padding: 0.5rem;
         height: var(--height-input);
-        //border: 1px solid;
         border-top-left-radius: var(--border-radius);
         border-bottom-left-radius: var(--border-radius);
         border-color: var(--color-input-border);

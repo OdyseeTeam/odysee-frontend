@@ -64,11 +64,11 @@ const Wallpaper = (props: Props) => {
   }
 
   function toDataUrl(url, callback) {
-    var xhr = new XMLHttpRequest();
+    const xhr = new XMLHttpRequest();
     xhr.onload = function () {
-      var reader = new FileReader();
+      const reader = new FileReader();
       reader.onloadend = function () {
-        var image = new Image();
+        const image = new Image();
         image.src = reader.result.toString();
         image.onload = () => callback(image);
       };
@@ -80,26 +80,26 @@ const Wallpaper = (props: Props) => {
   }
 
   function getAverageRGB(img, callback) {
-    var blockSize = 5,
-      defaultRGB = { r: 0, g: 0, b: 0 },
-      canvas = document.createElement('canvas'),
-      context = canvas.getContext && canvas.getContext('2d'),
-      data,
-      i = -4,
-      length,
-      rgb = { r: 0, g: 0, b: 0 },
-      rgb_gray = { r: 0, g: 0, b: 0 },
-      blackwhite = { r: 0, g: 0, b: 0 },
-      count = 0,
-      count_gray = 0,
-      count_off = 0;
+    const blockSize = 5;
+    const defaultRGB = { r: 0, g: 0, b: 0 };
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext && canvas.getContext('2d');
+    const rgb = { r: 0, g: 0, b: 0 };
+    const rgb_gray = { r: 0, g: 0, b: 0 };
+    const blackwhite = { r: 0, g: 0, b: 0 };
+    let count = 0;
+    let count_gray = 0;
+    let count_off = 0;
+    let i = -4;
+    let data;
+    let length;
 
     if (!context) {
       return defaultRGB;
     }
 
-    let height = (canvas.height = img.naturalHeight || img.offsetHeight || img.height);
-    let width = (canvas.width = img.naturalWidth || img.offsetWidth || img.width);
+    const height = (canvas.height = img.naturalHeight || img.offsetHeight || img.height);
+    const width = (canvas.width = img.naturalWidth || img.offsetWidth || img.width);
 
     context.drawImage(img, 0, 0);
 
@@ -166,15 +166,15 @@ const Wallpaper = (props: Props) => {
   }
 
   function colorChannelMixer(a, b, mix) {
-    var channelA = a * mix;
-    var channelB = b * (1 - mix);
+    let channelA = a * mix;
+    let channelB = b * (1 - mix);
     return parseInt(channelA + channelB);
   }
 
   function colorMixer(rgbA, rgbB, mix) {
-    var r = colorChannelMixer(rgbA.r, rgbB.r, mix);
-    var g = colorChannelMixer(rgbA.g, rgbB.g, mix);
-    var b = colorChannelMixer(rgbA.b, rgbB.b, mix);
+    let r = colorChannelMixer(rgbA.r, rgbB.r, mix);
+    let g = colorChannelMixer(rgbA.g, rgbB.g, mix);
+    let b = colorChannelMixer(rgbA.b, rgbB.b, mix);
     return { r: r, g: g, b: b };
   }
 

@@ -1,10 +1,6 @@
 .card {
-  //background-color: var(--color-card-background);
   position: relative;
-  //border-radius: var(--border-radius);
   overflow: hidden;
-  //overflow: visible;
-  //border: 1px solid var(--color-border);
 
   ~ .card {
     margin-bottom: var(--spacing-m);
@@ -27,7 +23,6 @@
 
 .card--section {
   position: relative;
-  //padding: var(--spacing-m);
 }
 
 .card--reward-total {
@@ -39,7 +34,6 @@
 }
 
 .card--inline {
-  //border: 1px solid var(--color-border);
   border-radius: var(--card-radius);
   margin-bottom: var(--spacing-m);
 
@@ -112,18 +106,6 @@
 
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s) 0px;
-  }
-
-  .card__title {
-    //margin-bottom: var(--spacing-xs);
-  }
-}
-
-.card__title-section--body-list {
-  //padding-left: var(--spacing-s);
-
-  @media (min-width: $breakpoint-small) {
-    //padding: var(--spacing-m);
   }
 }
 
@@ -246,7 +228,6 @@
 
 .card__title-actions--link {
   margin-top: var(--spacing-xs);
-  //margin-right: var(--spacing-xs);
 }
 
 .card__title-actions--small {
@@ -285,8 +266,6 @@
   position: relative;
   display: flex;
   align-items: flex-start;
-  //margin-top:var(--spacing-l);
-  //border-top: 1px solid var(--color-border);
 
   .icon__wrapper {
     margin-right: var(--spacing-l);
@@ -300,7 +279,6 @@
   flex-wrap: wrap;
 
   @media (max-width: $breakpoint-small) {
-    //padding: var(--spacing-s);
     padding-bottom: 0;
     margin: 0;
     margin-bottom: var(--spacing-s);
@@ -363,7 +341,6 @@
   padding-bottom: 0;
   margin-bottom: var(--spacing-s);
   border-top: 1px solid var(--color-border);
-  //border-bottom: 1px solid var(--color-border);
   height: 100%;
 
   &:only-child {

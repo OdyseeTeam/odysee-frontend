@@ -10,10 +10,7 @@
 .button--secondary,
 .button--alt,
 .button--link {
-  //border-radius: var(--border-radius);
-
   &:focus {
-    //@include focus;
     z-index: 2; // Ensure focus box-shadow is always visible on every button side
   }
 }
@@ -198,12 +195,10 @@
 
 .button--link {
   color: var(--color-link);
-  //transition: color 0.2s;
   word-break: break-word;
   font-weight: var(--font-weight-bold);
 
   &:hover {
-    //text-decoration: underline;
     color: var(--color-link-hover);
   }
 }
@@ -218,7 +213,6 @@
   color: var(--color-text);
   max-width: 100%;
   text-align: left;
-  //transition: color 0.2s;
 
   .channel-name {
     text-overflow: ellipsis;
@@ -261,10 +255,6 @@
   &:hover {
     color: var(--color-button-primary-text);
     background-color: var(--color-button-primary-bg);
-  }
-
-  &:focus {
-    @include focus;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -310,8 +300,6 @@
   }
 
   &:hover {
-    //background-color: var(--color-background);
-
     .icon {
       stroke: var(--color-primary);
     }

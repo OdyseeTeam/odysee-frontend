@@ -167,15 +167,6 @@
     }
   }
 
-  .button--primary,
-  .button ~ .button--link {
-    @media (min-width: $breakpoint-small) {
-      &:focus {
-        @include focus;
-      }
-    }
-  }
-
   .button--primary ~ .button--link,
   .button--secondary ~ .button--link {
     padding: var(--spacing-s) var(--spacing-m);

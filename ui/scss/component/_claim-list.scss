@@ -120,7 +120,6 @@
 }
 
 .claim-preview__wrapper--small {
-  //padding: var(--spacing-s);
   padding-top: var(--spacing-s);
   padding-bottom: 0px !important;
   margin-bottom: 0px !important;
@@ -453,11 +452,9 @@
 .claim-preview__primary-actions {
   @extend .section__actions;
   margin-right: 0;
-  //margin-top: var(--spacing-s);
 
   &:first-child {
     .button {
-      //margin-top: var(--spacing-s);
       background-color: var(--color-primary);
     }
   }
@@ -570,13 +567,6 @@
     }
   }
 
-  /*
-  &:hover{
-    .icon {
-      stroke: var(--color-primary);
-    }
-  }*/
-
   .button__content {
     &:hover {
       .claim-grid__title {
@@ -639,7 +629,6 @@
   margin-left: var(--spacing-m);
   justify-content: flex-start;
   list-style: none;
-  //overflow: visible;
   overflow: hidden;
 
   // Hover Zoom Effect
@@ -737,7 +726,6 @@
 .claim-tile__info {
   display: flex;
   margin-top: var(--spacing-xs);
-  //border-top: 1px solid var(--color-border);
   color: var(--color-subtitle);
   padding: 0px;
   padding-bottom: var(--spacing-l);
@@ -817,7 +805,6 @@
   right: var(--spacing-xxs);
   background-color: var(--color-black);
   padding: 0.3rem;
-  //border-radius: var(--border-radius);
   opacity: 0.7;
   z-index: 2;
 
@@ -936,7 +923,6 @@
   & > * {
     color: var(--color-text);
     background-color: var(--color-black);
-    //border-radius: var(--border-radius);
     padding: var(--spacing-xxs);
     margin-right: 0;
     &:hover {
