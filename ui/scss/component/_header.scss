@@ -133,6 +133,7 @@
   }
 
   &[aria-expanded='true']:not(.header__navigationItem--profilePic) {
+    transform: rotate(0deg);
     background-color: var(--color-header-button-active);
   }
 
