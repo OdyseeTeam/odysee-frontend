@@ -69,7 +69,7 @@ const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
 );
 const OdyseeMembershipPage = lazyImport(() =>
-  import('page/odyseeMembership' /* webpackChunkName: "odyseeMembershipPage" */)
+  import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
 );
 const OwnComments = lazyImport(() => import('page/ownComments' /* webpackChunkName: "ownComments" */));
 const PasswordResetPage = lazyImport(() => import('page/passwordReset' /* webpackChunkName: "passwordReset" */));

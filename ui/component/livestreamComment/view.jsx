@@ -16,6 +16,7 @@ import Empty from 'component/common/empty';
 import Icon from 'component/common/icon';
 import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
+import useGetUserMemberships from 'effects/use-get-user-memberships';
 import React from 'react';
 
 type Props = {
@@ -26,9 +27,15 @@ type Props = {
   claim: StreamClaim,
   myChannelIds: ?Array<string>,
   stakedLevel: number,
+<<<<<<< HEAD
   isMobile?: boolean,
   handleDismissPin?: () => void,
   restoreScrollPos?: () => void,
+=======
+  claimsByUri: { [string]: any },
+  doFetchUserMemberships: (claimIdCsv: string) => void,
+  selectOdyseeMembershipByClaimId: (uri: string) => string,
+>>>>>>> facf6d8c4 (Add badge to live chat)
 };
 
 export default function LivestreamComment(props: Props) {
@@ -39,9 +46,15 @@ export default function LivestreamComment(props: Props) {
     claim,
     myChannelIds,
     stakedLevel,
+<<<<<<< HEAD
     isMobile,
     handleDismissPin,
     restoreScrollPos,
+=======
+    claimsByUri,
+    doFetchUserMemberships,
+    selectOdyseeMembershipByClaimId,
+>>>>>>> facf6d8c4 (Add badge to live chat)
   } = props;
 
   const {
@@ -58,6 +71,16 @@ export default function LivestreamComment(props: Props) {
   } = comment;
 
   const [hasUserMention, setUserMention] = React.useState(false);
+
+  const shouldFetchUserMemberships = true;
+  useGetUserMemberships(shouldFetchUserMemberships, [authorUri], claimsByUri, doFetchUserMemberships);
+
+  let badgeToShow;
+  if (selectOdyseeMembershipByClaimId === 'Premium') {
+    badgeToShow = 'silver';
+  } else if (selectOdyseeMembershipByClaimId === 'Premium+') {
+    badgeToShow = 'gold';
+  }
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
   const { claimName } = parseURI(authorUri || '');
@@ -99,10 +122,6 @@ export default function LivestreamComment(props: Props) {
         {supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
 
         <div className="livestreamComment__info">
-          {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} size={16} />}
-          {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
-          {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
-
           <Button
             className={classnames('button--uri-indicator comment__author', { 'comment__author--creator': isStreamer })}
             target="_blank"
@@ -117,6 +136,12 @@ export default function LivestreamComment(props: Props) {
               {__('Pinned')}
             </span>
           )}
+
+          {isGlobalMod && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
+          {isModerator && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} size={16} />}
+          {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
+          {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+          {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
 
           {/* Use key to force timestamp update */}
           <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />

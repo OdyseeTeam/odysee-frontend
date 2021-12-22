@@ -3,11 +3,16 @@ import type { Node } from 'react';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+<<<<<<< HEAD
 
 type ChannelInfo = {
   uri: string,
   name: string,
 };
+=======
+import * as ICONS from 'constants/icons';
+import CommentBadge from 'component/common/comment-badge';
+>>>>>>> ed8986134 (add user badge)
 
 type Props = {
   isResolvingUri: boolean,
@@ -25,6 +30,7 @@ type Props = {
   external?: boolean,
   className?: string,
   focusable: boolean,
+  selectOdyseeMembershipByClaimId: string,
 };
 
 class UriIndicator extends React.PureComponent<Props> {
@@ -85,6 +91,14 @@ class UriIndicator extends React.PureComponent<Props> {
       external = false,
       hideAnonymous = false,
       className,
+<<<<<<< HEAD
+=======
+      selectOdyseeMembershipByClaimId,
+<<<<<<< HEAD
+>>>>>>> fa9b2ebcb (fixing lint errors)
+=======
+      comment,
+>>>>>>> eed44eb23 (fix badge display on comments)
     } = this.props;
 
     if (!channelInfo && !claim) {
@@ -113,9 +127,35 @@ class UriIndicator extends React.PureComponent<Props> {
       const { channelName, channelLink } = data;
 
       const inner = (
+<<<<<<< HEAD
+<<<<<<< HEAD
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
+<<<<<<< HEAD
           {channelName}
+=======
+          {name}
+          {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
+          {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
+>>>>>>> fa9b2ebcb (fixing lint errors)
         </span>
+=======
+        <>
+          <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
+            {name}
+          </span>
+          {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
+          {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
+        </>
+>>>>>>> facf6d8c4 (Add badge to live chat)
+=======
+        <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
+          {name}
+          {!comment && (<>
+            {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+            {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
+          </>)}
+        </span>
+>>>>>>> ed8986134 (add user badge)
       );
 
       if (!channelLink) {

@@ -9,8 +9,13 @@ import {
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { doToast } from 'redux/actions/notifications';
+<<<<<<< HEAD
 import { doClearPlayingUri } from 'redux/actions/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
+=======
+import { doSetPlayingUri } from 'redux/actions/content';
+import { selectUserVerifiedEmail, selectOdyseeMembershipByClaimId } from 'redux/selectors/user';
+>>>>>>> eed44eb23 (fix badge display on comments)
 import {
   selectLinkedCommentAncestors,
   selectOthersReactsForComment,
@@ -40,7 +45,12 @@ const select = (state, props) => {
     playingUri: selectPlayingUri(state),
     stakedLevel: selectStakedLevelForChannelUri(state, author_uri),
     linkedCommentAncestors: selectLinkedCommentAncestors(state),
+<<<<<<< HEAD
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
+=======
+    totalReplyPages: makeSelectTotalReplyPagesForParentId(props.commentId)(state),
+    selectOdyseeMembershipByClaimId: selectOdyseeMembershipByClaimId(state, props.authorUri),
+>>>>>>> eed44eb23 (fix badge display on comments)
   };
 };
 

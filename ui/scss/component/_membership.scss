@@ -1,0 +1,31 @@
+.membership_title {
+  margin-top: var(--spacing-l);
+  font-size: var(--font-large);
+  font-weight: var(--font-weight-bold);
+}
+
+.membership_title:first-of-type {
+  margin-top: 0;
+}
+
+.membership_subtitle {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  margin-bottom: var(--spacing-s);
+}
+
+.membership_info {
+  font-size: var(--font-small);
+}
+
+.membership_button {
+  display: block;
+  margin-bottom: 18px;
+  margin-top: 10px;
+}
+
+.cancel-membership-button {
+  display: block;
+  margin-bottom: 18px;
+  margin-top: 13px;
+}

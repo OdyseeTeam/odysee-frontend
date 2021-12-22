@@ -70,6 +70,17 @@ $actions-z-index: 2;
   width: 5rem;
   background-size: cover;
   margin-right: var(--spacing-m);
+
+  .comment__badge {
+    @extend .channel-staked__wrapper;
+    left: unset !important;
+    background-color: unset !important;
+    right: -0.8rem !important;
+
+    svg {
+      stroke: unset;
+    }
+  }
 }
 
 .channel-thumbnail--resolving {
@@ -415,4 +426,17 @@ $actions-z-index: 2;
   .credit-amount {
     color: var(--color-gray-3);
   }
+}
+
+.icon__wrapper--PremiumPlusBadge {
+  margin-left: 3px;
+  height: 22px !important;
+  width: 22px !important;
+  padding: 0 !important;
+  display: inline-block !important;
+  margin-bottom: -9px !important;
+}
+
+.icon__wrapper--PremiumPlusBadge > svg {
+  margin-top: -2px;
 }

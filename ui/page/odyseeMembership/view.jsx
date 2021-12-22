@@ -1,444 +1,669 @@
-// restore flow
-/* eslint-disable no-undef */
-/* eslint-disable react/prop-types */
+// @flow
 import React from 'react';
+import moment from 'moment';
 import Page from 'component/page';
-import Card from 'component/common/card';
 import { Lbryio } from 'lbryinc';
-import Plastic from 'react-plastic';
-import Button from 'component/button';
-import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
-import * as PAGES from 'constants/pages';
-import { STRIPE_PUBLIC_KEY } from 'config';
 import { getStripeEnvironment } from 'util/stripe';
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import MembershipSplash from 'component/membershipSplash';
+import Button from 'component/button';
+<<<<<<< HEAD
+=======
+import ChannelSelector from 'component/channelSelector';
+import useGetUserMemberships from 'effects/use-get-user-memberships';
+>>>>>>> e69bf85d8 (fetch on channel selector)
 let stripeEnvironment = getStripeEnvironment();
 
-const APIS_DOWN_ERROR_RESPONSE = __('There was an error from the server, please try again later');
-const CARD_SETUP_ERROR_RESPONSE = __('There was an error getting your card setup, please try again later');
+// const isDev = process.env.NODE_ENV !== 'production';
+const isDev = true;
 
-// eslint-disable-next-line flowtype/no-types-missing-file-annotation
+// odysee channel information since the memberships are only for Odysee
+const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
+const odyseeChannelName = '@odysee';
+
 type Props = {
-  disabled: boolean,
-  label: ?string,
-  email: ?string,
-  scriptFailedToLoad: boolean,
-  doOpenModal: (string, {}) => void,
+  history: { action: string, push: (string) => void, replace: (string) => void },
+  location: { search: string, pathname: string },
+  totalBalance: ?number,
   openModal: (string, {}) => void,
-  setAsConfirmingCard: () => void,
+  activeChannelClaim: ?ChannelClaim,
+  channels: ?Array<ChannelClaim>,
+  claimsByUri: { [string]: any },
+  doFetchUserMemberships: (claimIdCsv: string) => void,
 };
 
-// type State = {
-//   open: boolean,
-//   currentFlowStage: string,
-//   customerTransactions: Array<any>,
-//   pageTitle: string,
-//   userCardDetails: any, // fill this out
-//   scriptFailedToLoad: boolean,
-// };
+const OdyseeMembershipPage = (props: Props) => {
+  const {
+    openModal,
+    activeChannelClaim,
+    channels,
+    claimsByUri,
+    doFetchUserMemberships,
+  } = props;
 
-class SettingsStripeCard extends React.Component<Props, State> {
-  constructor(props) {
-    // :Props
-    super(props);
-    this.state = {
-      open: false,
-      scriptFailedToLoad: false,
-      currentFlowStage: 'loading', // loading, confirmingCard, cardConfirmed
-      customerTransactions: [],
-      pageTitle: 'Add Card',
-      userCardDetails: {},
-      paymentMethodId: '',
-    };
+  const userChannelName = activeChannelClaim && activeChannelClaim.name;
+  const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;
+
+  console.log(userChannelName, userChannelClaimId);
+
+  console.log('odysee membership');
+  console.log(odyseeMembership);
+
+  console.log('active channel claim');
+  console.log(activeChannelClaim);
+
+  const [cardSaved, setCardSaved] = React.useState();
+  const [membershipOptions, setMembershipOptions] = React.useState();
+  const [userMemberships, setUserMemberships] = React.useState();
+  const [canceledMemberships, setCanceledMemberships] = React.useState();
+  const [activeMemberships, setActiveMemberships] = React.useState();
+  const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
+  const [hasShownModal, setHasShownModal] = React.useState(false);
+  const [shouldFetchUserMemberships, setFetchUserMemberships] = React.useState(true);
+
+  const hasMembership = activeMemberships && activeMemberships.length > 0;
+
+  const channelUrls = channels && channels.map((channel) => channel.permanent_url);
+  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, (value) => {
+    doFetchUserMemberships(value);
+    setFetchUserMemberships(false);
+  });
+
+  async function populateMembershipData() {
+    try {
+      // show the memberships the user is subscribed to
+      const response = await Lbryio.call(
+        'membership',
+        'mine',
+        {
+          environment: stripeEnvironment,
+        },
+        'post'
+      );
+
+      console.log('mine, my subscriptions');
+      console.log(response);
+
+      let activeMemberships = [];
+      let canceledMemberships = [];
+      let purchasedMemberships = [];
+
+      for (const membership of response) {
+        const isActive = membership.Membership.auto_renew;
+        if (isActive) {
+          activeMemberships.push(membership);
+        } else {
+          canceledMemberships.push(membership);
+        }
+        purchasedMemberships.push(membership.Membership.membership_id);
+      }
+
+      // hide the other membership options if there's already a purchased membership
+      if (activeMemberships.length > 0) {
+        setMembershipOptions(false);
+      }
+
+      setActiveMemberships(activeMemberships);
+      setCanceledMemberships(canceledMemberships);
+      setPurchasedMemberships(purchasedMemberships);
+
+      setUserMemberships(response);
+    } catch (err) {
+      console.log(err);
+    }
+    setFetchUserMemberships(false);
   }
 
-  componentDidMount() {
-    let that = this;
+  React.useEffect(() => {
+    if (!shouldFetchUserMemberships) setFetchUserMemberships(true);
+  }, [shouldFetchUserMemberships]);
 
-    let doToast = this.props.doToast;
-
-    const script = document.createElement('script');
-    script.src = 'https://js.stripe.com/v3/';
-    script.async = true;
-
-    // $FlowFixMe
-    document.body.appendChild(script);
-
-    // public key of the stripe account
-    let publicKey = STRIPE_PUBLIC_KEY;
-
-    // client secret of the SetupIntent (don't share with anyone but customer)
-    let clientSecret = '';
-
-    // setting a timeout to let the client secret populate
-    // TODO: fix this, should be a cleaner way
-    setTimeout(function () {
-      // check if customer has card setup already
-      if (stripeEnvironment) {
-        Lbryio.call(
+  React.useEffect(function () {
+    (async function () {
+      try {
+        // check if there is a payment method
+        const response = await Lbryio.call(
           'customer',
           'status',
           {
             environment: stripeEnvironment,
           },
           'post'
-        )
-          .then((customerStatusResponse) => {
-            // user has a card saved if their defaultPaymentMethod has an id
-            const defaultPaymentMethod = customerStatusResponse.Customer.invoice_settings.default_payment_method;
-            let userHasAlreadySetupPayment = Boolean(defaultPaymentMethod && defaultPaymentMethod.id);
+        );
+        // hardcoded to first card
+        const hasAPaymentCard = Boolean(response && response.PaymentMethods && response.PaymentMethods[0]);
 
-            // show different frontend if user already has card
-            if (userHasAlreadySetupPayment) {
-              let card = customerStatusResponse.PaymentMethods[0].card;
-
-              let customer = customerStatusResponse.Customer;
-
-              let topOfDisplay = customer.email.split('@')[0];
-              let bottomOfDisplay = '@' + customer.email.split('@')[1];
-
-              let cardDetails = {
-                brand: card.brand,
-                expiryYear: card.exp_year,
-                expiryMonth: card.exp_month,
-                lastFour: card.last4,
-                topOfDisplay: topOfDisplay,
-                bottomOfDisplay: bottomOfDisplay,
-              };
-
-              that.setState({
-                currentFlowStage: 'cardConfirmed',
-                pageTitle: 'Tip History',
-                userCardDetails: cardDetails,
-                paymentMethodId: customerStatusResponse.PaymentMethods[0].id,
-              });
-
-              // otherwise, prompt them to save a card
-            } else {
-              that.setState({
-                currentFlowStage: 'confirmingCard',
-              });
-
-              // get a payment method secret for frontend
-              Lbryio.call(
-                'customer',
-                'setup',
-                {
-                  environment: stripeEnvironment,
-                },
-                'post'
-              ).then((customerSetupResponse) => {
-                clientSecret = customerSetupResponse.client_secret;
-
-                // instantiate stripe elements
-                setupStripe();
-              });
-            }
-
-            // get customer transactions
-            Lbryio.call(
-              'customer',
-              'list',
-              {
-                environment: stripeEnvironment,
-              },
-              'post'
-            ).then((customerTransactionsResponse) => {
-              that.setState({
-                customerTransactions: customerTransactionsResponse,
-              });
-            });
-            // if the status call fails, either an actual error or need to run setup first
-          })
-          .catch(function (error) {
-            // errorString passed from the API (with a 403 error)
-            const errorString = 'user as customer is not setup yet';
-
-            // if it's beamer's error indicating the account is not linked yet
-            if (error.message && error.message.indexOf(errorString) > -1) {
-              // send them to save a card
-              that.setState({
-                currentFlowStage: 'confirmingCard',
-              });
-
-              // get a payment method secret for frontend
-              Lbryio.call(
-                'customer',
-                'setup',
-                {
-                  environment: stripeEnvironment,
-                },
-                'post'
-              ).then((customerSetupResponse) => {
-                clientSecret = customerSetupResponse.client_secret;
-
-                // instantiate stripe elements
-                setupStripe();
-              });
-              // 500 error from the backend being down
-            } else if (error === 'internal_apis_down') {
-              doToast({ message: APIS_DOWN_ERROR_RESPONSE, isError: true });
-            } else {
-              // probably an error from stripe
-              doToast({ message: CARD_SETUP_ERROR_RESPONSE, isError: true });
-            }
-          });
+        setCardSaved(hasAPaymentCard);
+      } catch (err) {
+        console.log(err);
       }
-    }, 250);
 
-    function setupStripe() {
-      // TODO: have to fix this, using so that the script is available
-      setTimeout(function () {
-        var stripeElements = function (publicKey, setupIntent) {
-          var stripe = Stripe(publicKey);
-          var elements = stripe.elements();
+      try {
+        // check the available membership for odysee.com
+        const response = await Lbryio.call(
+          'membership',
+          'list',
+          {
+            environment: stripeEnvironment,
+            channel_id: odyseeChannelId,
+            channel_name: odyseeChannelName,
+          },
+          'post'
+        );
 
-          // Element styles
-          var style = {
-            base: {
-              fontSize: '16px',
-              color: '#32325d',
-              fontFamily: '-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
-              fontSmoothing: 'antialiased',
-              '::placeholder': {
-                color: 'rgba(0,0,0,0.4)',
-              },
-            },
-          };
+        console.log('list, see all the available odysee memberships');
+        console.log(response);
+        // hide other options if there's already a membership
+        if (activeMemberships && activeMemberships.length > 0) {
+          setMembershipOptions(false);
+        } else {
+          console.log('setting memberships');
+          setMembershipOptions(response);
+        }
+      } catch (err) {
+        console.log(err);
+      }
 
-          var card = elements.create('card', { style: style });
+      populateMembershipData();
+    })();
+  }, []);
 
-          card.mount('#card-element');
+  const stillWaitingFromBackend =
+    purchasedMemberships === undefined ||
+    cardSaved === undefined ||
+    membershipOptions === undefined ||
+    userMemberships === undefined;
 
-          // Element focus ring
-          card.on('focus', function () {
-            var el = document.getElementById('card-element');
-            el.classList.add('focused');
-          });
+  const formatDate = function (date) {
+    return moment(new Date(date)).format('MMMM DD YYYY');
+  };
 
-          card.on('blur', function () {
-            var el = document.getElementById('card-element');
-            el.classList.remove('focused');
-          });
+  const deleteData = async function () {
+    const response = await Lbryio.call('membership', 'clear', {}, 'post');
 
-          card.on('ready', function () {
-            card.focus();
-          });
+    console.log(response);
+    console.log('delete data');
+    // $FlowFixMe
+    location.reload();
+  };
 
-          var email = that.props.email;
+  function buildPurchaseString(price, interval, plan) {
+    let featureString = '';
+    if (plan === 'Premium') {
+      featureString =
+        'Your badges will be shown on up to three channels and you will have early access to new features. ';
+    } else if (plan === 'Premium+') {
+      featureString = 'Your feature of no ads applies site-wide and badges are shown for up to three channels. ';
+    }
 
-          function submitForm(event) {
-            event.preventDefault();
+    let purchaseString =
+      `You are purchasing a ${interval}ly membership, that is active immediately ` +
+      `and will resubscribe ${interval}ly at a price of USD $${price / 100}. ` +
+      featureString +
+      'You can cancel the membership at any time and you can also close this window and choose a different subscription option.';
 
-            // if client secret wasn't loaded properly
-            if (!clientSecret) {
-              var displayErrorText = 'There was an error in generating your payment method. Please contact a developer';
-              var displayError = document.getElementById('card-errors');
-              displayError.textContent = displayErrorText;
+    return purchaseString;
+  }
 
-              return;
-            }
+  const purchaseMembership = function (e, membershipOption, price) {
+    e.preventDefault();
+    e.stopPropagation();
 
-            changeLoadingState(true);
+    const planName = membershipOption.Membership.name;
 
-            stripe
-              .confirmCardSetup(clientSecret, {
-                payment_method: {
-                  card: card,
-                  billing_details: { email: email },
-                },
-              })
-              .then(function (result) {
-                if (result.error) {
-                  changeLoadingState(false);
-                  var displayError = document.getElementById('card-errors');
-                  displayError.textContent = result.error.message;
-                } else {
-                  // The PaymentMethod was successfully set up
-                  // hide and show the proper divs
-                  orderComplete(stripe, clientSecret);
-                }
-              });
-          }
+    const membershipId = e.currentTarget.getAttribute('membership-id');
+<<<<<<< HEAD
+    let subscriptionPeriod = e.currentTarget.getAttribute('membership-subscription-period');
 
-          // Handle payment submission when user clicks the pay button.
-          var button = document.getElementById('submit');
-          button.addEventListener('click', function (event) {
-            submitForm(event);
-          });
+    if (subscriptionPeriod === 'both') {
+      subscriptionPeriod = false;
+    } else if (subscriptionPeriod === 'yearly') {
+      subscriptionPeriod = true;
+    } else {
+      console.log('There was a bug');
+      return;
+    }
 
-          // currently doesn't work because the iframe javascript context is different
-          // would be nice though if it's even technically possible
-          // window.addEventListener('keyup', function(event) {
-          //   if (event.keyCode === 13) {
-          //     submitForm(event);
-          //   }
-          // }, false);
-        };
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId,
+      subscriptionPeriod,
+      userChannelName,
+      userChannelClaimId,
+=======
+    const priceId = e.currentTarget.getAttribute('price-id');
+    const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, planName);
 
-        // TODO: possible bug here where clientSecret isn't done
-        stripeElements(publicKey, clientSecret);
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId,
+      odyseeChannelId: userChannelClaimId, // TODO: this needs to be renamed
+      odyseeChannelName: userChannelName,
+      priceId,
+      purchaseString,
+      plan: planName,
+      populateMembershipData,
+      setMembershipOptions,
+    });
+  };
 
-        // Show a spinner on payment submission
-        var changeLoadingState = function (isLoading) {
-          if (isLoading) {
-            // $FlowFixMe
-            document.querySelector('button').disabled = true;
-            // $FlowFixMe
-            document.querySelector('#stripe-spinner').classList.remove('hidden');
-            // $FlowFixMe
-            document.querySelector('#button-text').classList.add('hidden');
-          } else {
-            // $FlowFixMe
-            document.querySelector('button').disabled = false;
-            // $FlowFixMe
-            document.querySelector('#stripe-spinner').classList.add('hidden');
-            // $FlowFixMe
-            document.querySelector('#button-text').classList.remove('hidden');
-          }
-        };
+  const cancelMembership = async function (e, membership) {
+    const membershipId = e.currentTarget.getAttribute('membership-id');
 
-        // shows a success / error message when the payment is complete
-        var orderComplete = function (stripe, clientSecret) {
-          stripe.retrieveSetupIntent(clientSecret).then(function (result) {
-            Lbryio.call(
-              'customer',
-              'status',
-              {
-                environment: stripeEnvironment,
-              },
-              'post'
-            ).then((customerStatusResponse) => {
-              let card = customerStatusResponse.PaymentMethods[0].card;
+    console.log(membership);
 
-              let customer = customerStatusResponse.Customer;
+    const cancellationString =
+      'You are cancelling your Odysee Membership. You will still have access to all the paid ' +
+      'features until the point of the expiration of your current membership, at which point you will not be charged ' +
+      'again and your membership will no longer be active.';
 
-              let topOfDisplay = customer.email.split('@')[0];
-              let bottomOfDisplay = '@' + customer.email.split('@')[1];
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId,
+      hasMembership,
+<<<<<<< HEAD
+>>>>>>> 85f395416 (adding purchase string)
+=======
+      purchaseString: cancellationString,
+<<<<<<< HEAD
+>>>>>>> 785b2a994 (add cancellation string)
+=======
+      populateMembershipData,
+>>>>>>> a7a865e7f (no need to refresh anymore)
+    });
+  };
 
-              let cardDetails = {
-                brand: card.brand,
-                expiryYear: card.exp_year,
-                expiryMonth: card.exp_month,
-                lastFour: card.last4,
-                topOfDisplay,
-                bottomOfDisplay,
-              };
+<<<<<<< HEAD
+  return (
+    <>
+      <Page>
+<<<<<<< HEAD
+        {/* list available memberships offered by odysee */}
+        <h1 style={{fontSize: '23px'}}>Odysee Memberships</h1>
+        {!stillWaitingFromBackend && membershipOptions && (
+          <div>
+            <h1 style={{marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
+            { membershipOptions.map((membershipOption) => (
+              <>
+                <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
+                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membershipOption.name}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Perks: {membershipOption.description}</h4>
+                  { membershipOption.type === 'yearly' && (
+                    <>
+                      <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
+                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
+                    </>
+                  )}
+                  { membershipOption.type === 'both' && (
+                    <>
+                      <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly And Monthly</h4>
+                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
+                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd) / 100 } USD Per Month For A Monthly Renewing Subscription</h4>
+                    </>
+                  )}
+                  { membershipOption.type === 'both' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
+                    <>
+                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type} style={{display: 'block', marginBottom: '10px', marginTop: '10px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
+                      {'\n'}
+                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type} label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
+                    </>
+                  )}
+                  { membershipOption.type === 'yearly' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
+                    <>
+                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type}  label={__('Purchase a one year membership')} icon={ICONS.FINANCE} style={{marginTop: '4px', marginBottom: '5px'}} />
+                    </>
+                  )}
+                </div>
+              </>
+            ))}
+          </div>
+        )}
+        { !stillWaitingFromBackend && cardSaved === true && (<>
+          <h1 style={{fontSize: '23px', marginTop: '36px', marginBottom: '13px'}}>Your Memberships</h1>
 
-              that.setState({
-                currentFlowStage: 'cardConfirmed',
-                pageTitle: 'Tip History',
-                userCardDetails: cardDetails,
-                paymentMethodId: customerStatusResponse.PaymentMethods[0].id,
-              });
-            });
+          {/* list of active memberships from user */}
+          <div style={{marginBottom: '34px'}}>
+          <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
+        { !stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (<>
+          <h4>You currently have no active memberships</h4>
+          </>)}
+        { !stillWaitingFromBackend && activeMemberships && activeMemberships.map((membership) => (
+          <>
+          <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
+          <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
+          <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
+          <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {formatDate(membership.Subscription.current_period_end * 1000)}</h4>
+        { !stillWaitingFromBackend && membership.type === 'yearly' && (
+          <>
+          <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
+          <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membership.cost_usd / 100} Per Month)</h4>
+          </>
+          )}
+          </div>
+          <Button button="secondary" membership-id={membership.Membership.membership_id} onClick={cancelMembership} style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
+          </>
+          ))}
+          </div>
+          <>
+            {/* list canceled memberships of user */}
+            <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
+            {canceledMemberships && canceledMemberships.length === 0 && (<>
+              <h4>You currently have no canceled memberships</h4>
+            </>)}
+            { canceledMemberships && canceledMemberships.map((membership) => (
+              <>
+                <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
+                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Canceled At: {formatDate(membership.Subscription.canceled_at * 1000)}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {formatDate(membership.Membership.expires)}</h4>
+                </div>
+              </>
+            ))}
+          </>
+        </>)}
+        {!stillWaitingFromBackend && cardSaved === false && (
+          <div>
+            <br />
+            <h2 className={'getPaymentCard'}>Please save a card as a payment method so you can join a membership</h2>
 
-            changeLoadingState(false);
-          });
-        };
-      }, 0);
+            <Button
+              button="secondary"
+              label={__('Add A Card')}
+              icon={ICONS.SETTINGS}
+              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+              style={{marginTop: '10px'}}
+            />
+          </div>
+        )}
+        {stillWaitingFromBackend && (
+          <div>
+            <br />
+            <h2 style={{fontSize: '20px'}}>Loading...</h2>
+          </div>
+        )}
+        {isDev && (
+          <>
+            <h1 style={{marginTop: '30px', fontSize: '20px'}}>Clear Membership Data (Only Available On Dev)</h1>
+            <div>
+              <Button
+                button="secondary"
+                label={__('Clear Membership Data')}
+                icon={ICONS.SETTINGS}
+                style={{marginTop: '10px'}}
+                onClick={deleteData}
+              />
+            </div>
+          </>
+=======
+        {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
+        {!changeFrontend ? (
+=======
+  function convertPriceToString(price) {
+    const interval = price.recurring.interval;
+
+    if (interval === 'year') {
+      return 'Yearly';
+    } else if (interval === 'month') {
+      return 'Monthly';
     }
   }
 
-  render() {
-    let that = this;
+  function capitalizeWord(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
 
-    function setAsConfirmingCard() {
-      that.setState({
-        currentFlowStage: 'confirmingCard',
-      });
+  function buildCurrencyDisplay(priceObject) {
+    let currencySymbol;
+    if (priceObject.currency === 'eur') {
+      currencySymbol = '€';
+    } else if (priceObject.currency === 'usd') {
+      currencySymbol = '$';
     }
 
-    const { scriptFailedToLoad, openModal } = this.props;
+    const currency = priceObject.currency.toUpperCase();
 
-    const { currentFlowStage, pageTitle, userCardDetails, paymentMethodId } = this.state;
+    return currency + ' ' + currencySymbol;
+  }
 
-    return (
-      <Page
-        noFooter
-        noSideNavigation
-        settingsPage
-        className="card-stack"
-        backout={{ title: __(pageTitle), backLabel: __('Back') }}
-      >
-        {/* if Stripe javascript didn't load */}
-        <div>
-          {scriptFailedToLoad && (
-            <div className="error__text">{__('There was an error connecting to Stripe. Please try again later.')}</div>
-          )}
-        </div>
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
 
-        {/* initial markup to show while getting information */}
-        {currentFlowStage === 'loading' && (
-          <div className="headerCard toConfirmCard">
-            <Card title={__('Connect your card with Odysee')} subtitle={__('Getting your card connection status...')} />
-          </div>
-        )}
+  const { interval, plan, pageLocation } = params;
 
-        {/* customer has not added a card yet */}
-        {currentFlowStage === 'confirmingCard' && (
-          <div className="sr-root">
-            <div className="sr-main">
-              <div className="sr-payment-form card cardInput">
-                <div className="sr-form-row">
-                  <label className="payment-details">Card Details</label>
-                  <div className="sr-input sr-element sr-card-element" id="card-element" />
-                </div>
-                <div className="sr-field-error" id="card-errors" role="alert" />
-                <button className="linkButton" id="submit">
-                  <div className="stripe__spinner hidden" id="stripe-spinner" />
-                  <span id="button-text">{__('Add Card')}</span>
-                </button>
+  // console.log(params);
+  const planValue = params.plan;
+  // const pageLocation = params.pageLocation;
+
+  // add a bit of a delay otherwise it's a bit jarring
+  let timeoutValue = 300;
+  if (pageLocation === 'confirmPage') {
+    timeoutValue = 300;
+  }
+
+  if (!stillWaitingFromBackend && planValue) {
+    setTimeout(function () {
+      // clear query params
+      window.history.replaceState(null, null, window.location.pathname);
+
+      setHasShownModal(true);
+
+      // open confirm purchase
+      // $FlowFixMe
+      document.querySelector('[plan="' + plan + '"][interval="' + interval + '"]').click();
+    }, timeoutValue);
+  }
+
+  return (
+    <>
+      <Page>
+<<<<<<< HEAD
+        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && (!planValue && !hasShownModal) ? (
+        // {!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (
+        // {!changeFrontend ? (
+>>>>>>> 8824c1f36 (fix logic)
+=======
+        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && !planValue && !hasShownModal ? (
+          // {!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (
+          // {!changeFrontend ? (
+>>>>>>> a7a865e7f (no need to refresh anymore)
+          <MembershipSplash pageLocation={'confirmPage'} />
+        ) : (
+          <div className={'card-stack'}>
+            {/* list available memberships offered by odysee */}
+            <h1 style={{ fontSize: '23px' }}>Odysee Memberships</h1>
+            {!stillWaitingFromBackend && cardSaved !== false && (
+              <div style={{ marginTop: '10px' }}>
+                <ChannelSelector
+                  uri={activeChannelClaim && activeChannelClaim.permanent_url}
+                  key={shouldFetchUserMemberships}
+                />
               </div>
-            </div>
-          </div>
-        )}
+            )}
+            
+            {/* received list of memberships from backend */}
+            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 2 && cardSaved !== false && (
+              <>
+<<<<<<< HEAD
+                
+=======
+>>>>>>> a7a865e7f (no need to refresh anymore)
+                <div className="card__title-section">
+                  <h2 className="card__title">Available Memberships</h2>
+                </div>
+                <Card>
+<<<<<<< HEAD
+                  
+=======
+>>>>>>> a7a865e7f (no need to refresh anymore)
+                  {membershipOptions.map((membershipOption) => (
+                    <>
+                      {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
+                        <>
+                          <h4 className="membership_title">{membershipOption.Membership.name}</h4>
+                          <h4 className="membership_subtitle">{membershipOption.Membership.description}</h4>
+                          {membershipOption.Prices.map((price) => (
+                            <>
+                              {/* dont show a monthly Premium membership option */}
+                              {!(
+                                price.recurring.interval === 'month' && membershipOption.Membership.name === 'Premium'
+                              ) && (
+                                <>
+                                  {price.currency !== 'eur' && (
+                                    <>
+                                      <h4 className="membership_info">
+                                        <b>Interval:</b> {convertPriceToString(price)}
+                                      </h4>
+                                      <h4 className="membership_info">
+                                        <b>Price:</b> {buildCurrencyDisplay(price)}
+                                        {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                      </h4>
+                                      <Button
+                                        button="secondary"
+                                        onClick={(e) => purchaseMembership(e, membershipOption, price)}
+                                        membership-id={membershipOption.Membership.id}
+                                        membership-subscription-period={membershipOption.Membership.type}
+                                        price-id={price.id}
+                                        className="membership_button"
+                                        label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                        icon={ICONS.FINANCE}
+                                        interval={price.recurring.interval}
+                                        plan={membershipOption.Membership.name}
+                                      />
+                                    </>
+                                  )}
+                                </>
+                              )}
+                            </>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  ))}
+                </Card>
+              </>
+            )}
+            {!stillWaitingFromBackend && cardSaved === true && (
+              <>
+                <div className="card__title-section">
+                  <h2 className="card__title">Your Active Memberships</h2>
+                </div>
 
-        {/* if the user has already confirmed their card */}
-        {currentFlowStage === 'cardConfirmed' && (
-          <div className="successCard">
-            <Card
-              title={__('Card Details')}
-              body={
+                <Card>
+                  {/* list of active memberships from user */}
+                  <div>
+                    {/* <h1 style={{ fontSize: '19px' }}>Active Memberships</h1> */}
+                    {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
+                      <>
+                        <h4>You currently have no active memberships</h4>
+                      </>
+                    )}
+                    {!stillWaitingFromBackend &&
+                      activeMemberships &&
+                      activeMemberships.map((membership) => (
+                        <>
+                          <h4 className="membership_title">{membership.MembershipDetails.name}</h4>
+                          {/* TODO: the description from the backend isn't great here, should be clearer */}
+                          <h4 className="membership_subtitle">{membership.MembershipDetails.description}</h4>
+                          <h4 className="membership_info">
+                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Auto-Renews On:</b> {formatDate(membership.Subscription.current_period_end * 1000)}
+                          </h4>
+                          {!stillWaitingFromBackend && membership.type === 'yearly' && (
+                            <>
+                              <h4 className="membership_info">
+                                <b>Subscription Period Options:</b> Yearly
+                              </h4>
+                              <h4 className="membership_info">
+                                ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
+                                {membership.cost_usd / 100} Per Month)
+                              </h4>
+                            </>
+                          )}
+                          <Button
+                            button="secondary"
+                            membership-id={membership.Membership.membership_id}
+                            onClick={(e) => cancelMembership(e, membership)}
+                            className="cancel-membership-button"
+                            label={__('Cancel membership')}
+                            icon={ICONS.FINANCE}
+                          />
+                        </>
+                      ))}
+                  </div>
+                </Card>
                 <>
-                  <Plastic
-                    type={userCardDetails.brand}
-                    name={userCardDetails.topOfDisplay + ' ' + userCardDetails.bottomOfDisplay}
-                    expiry={userCardDetails.expiryMonth + '/' + userCardDetails.expiryYear}
-                    number={'____________' + userCardDetails.lastFour}
-                  />
-                  <br />
-                  <Button
-                    button="primary"
-                    label={__('Remove Card')}
-                    icon={ICONS.DELETE}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      openModal(MODALS.CONFIRM_REMOVE_CARD, {
-                        paymentMethodId: paymentMethodId,
-                        setAsConfirmingCard: setAsConfirmingCard,
-                      });
-                    }}
-                  />
+                  {/* list canceled memberships of user */}
+                  <div className="card__title-section">
+                    <h2 className="card__title">Canceled Memberships</h2>
+                  </div>
+                  <Card>
+                    {canceledMemberships && canceledMemberships.length === 0 && (
+                      <>
+                        <h4>You currently have no canceled memberships</h4>
+                      </>
+                    )}
+                    {canceledMemberships &&
+                      canceledMemberships.map((membership) => (
+                        <>
+                          <h4 className="membership_title">{membership.MembershipDetails.name}</h4>
+                          <h4 className="membership_info">
+                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Canceled On:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}
+                          </h4>
+                        </>
+                      ))}
+                  </Card>
+                </>
+              </>
+            )}
+            {!stillWaitingFromBackend && cardSaved === false && (
+              <div>
+                <br />
+                <h2 className={'getPaymentCard'}>
+                  Please save a card as a payment method so you can join a membership
+                </h2>
+
+                <Button
+                  button="secondary"
+                  label={__('Add A Card')}
+                  icon={ICONS.SETTINGS}
+                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+                  className="membership_button"
+                />
+              </div>
+            )}
+            {stillWaitingFromBackend && (
+              <div>
+                <h2 style={{ fontSize: '20px', marginTop: '10px' }}>Loading...</h2>
+              </div>
+            )}
+            {isDev && (
+              <>
+                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+                <div>
                   <Button
                     button="secondary"
-                    label={__('View Transactions')}
+                    label={__('Clear Membership Data')}
                     icon={ICONS.SETTINGS}
-                    navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
-                    style={{marginLeft: '10px'}}
+                    className="membership_button"
+                    onClick={deleteData}
                   />
-                </>
-              }
-            />
-            <br />
+                </div>
+              </>
+            )}
           </div>
+>>>>>>> c7519cf6f (Add classes for membership page)
         )}
       </Page>
-    );
-  }
-}
+    </>
+  );
+};
 
-export default SettingsStripeCard;
-/* eslint-enable no-undef */
-/* eslint-enable react/prop-types */
+export default OdyseeMembershipPage;

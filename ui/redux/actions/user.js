@@ -3,6 +3,7 @@ import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { isURIValid, normalizeURI } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
+import { getStripeEnvironment } from 'util/stripe';
 
 import * as ACTIONS from 'constants/action_types';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
@@ -16,6 +17,7 @@ const AUTH_IN_PROGRESS = 'authInProgress';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
+const stripeEnvironment = getStripeEnvironment();
 
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
@@ -101,6 +103,44 @@ function checkAuthBusy() {
   });
 }
 
+async function doCheckUserOdyseeMemberships(
+  dispatch,
+  user,
+) {
+  console.log('here1');
+  console.log(user);
+  const response = await Lbryio.call('membership', 'mine', {
+    environment: stripeEnvironment,
+  }, 'post');
+
+  console.log(response);
+
+  let savedMemberships = [];
+  let highestMembershipRanking;
+
+  for (const membership of response) {
+    if (membership.MembershipDetails.channel_name === '@odysee') {
+      savedMemberships.push(membership.MembershipDetails.name);
+    }
+  }
+
+  if (savedMemberships.length > 0) {
+    const premiumPlusExists = savedMemberships.includes('Premium+');
+    if (premiumPlusExists) {
+      highestMembershipRanking = 'Premium+';
+    } else {
+      highestMembershipRanking = 'Premium';
+    }
+  }
+
+  console.log(`Highest ranking membership: ${highestMembershipRanking}`);
+
+  dispatch({
+    type: ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA,
+    data: { user, odyseeMembershipName: highestMembershipRanking },
+  });
+}
+
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
 export function doAuthenticate(
   appVersion,
@@ -123,6 +163,11 @@ export function doAuthenticate(
             type: ACTIONS.AUTHENTICATION_SUCCESS,
             data: { user, accessToken: token },
           });
+
+          // if user is an Odysee member, get the membership details
+          if (user.odysee_member) {
+            doCheckUserOdyseeMemberships(dispatch, user);
+          }
 
           if (shareUsageData) {
             dispatch(doRewardList());
@@ -782,5 +827,32 @@ export function doCheckYoutubeTransfer() {
           data: String(error),
         });
       });
+  };
+}
+
+export function doFetchUserMemberships(claimIdCsv: string) {
+  return (dispatch) => {
+    (async function() {
+      const response = await Lbryio.call('membership', 'check', {
+        channel_id: '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8',
+        claim_ids: claimIdCsv,
+      });
+
+      let updatedResponse = {};
+
+      for (const user in response) {
+        if (response[user] && response[user].length) {
+          for (const membership of response[user]) {
+            if (membership.channel_name) {
+              updatedResponse[user] = membership.name;
+            }
+          }
+        } else {
+          updatedResponse[user] = null;
+        }
+      }
+
+      dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response: updatedResponse } });
+    })();
   };
 }

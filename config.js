@@ -70,7 +70,7 @@ const config = {
   PINNED_URI_2: process.env.PINNED_URI_2,
   PINNED_LABEL_2: process.env.PINNED_LABEL_2,
   KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS ? process.env.KNOWN_APP_DOMAINS.split(',') : [],
-  STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
+  STRIPE_PUBLIC_KEY: 'pk_test_NoL1JWL7i1ipfhVId5KfDZgo' || process.env.STRIPE_PUBLIC_KEY,
   ENABLE_UI_NOTIFICATIONS: process.env.ENABLE_UI_NOTIFICATIONS === 'true',
   ENABLE_MATURE: process.env.ENABLE_MATURE === 'true',
   CUSTOM_HOMEPAGE: process.env.CUSTOM_HOMEPAGE === 'true',
