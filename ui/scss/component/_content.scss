@@ -3,7 +3,6 @@
   position: absolute;
   top: var(--spacing-s);
   border-radius: var(--border-radius);
-  margin-top: 20px;
 }
 
 .content__viewer--disable-click {
@@ -125,6 +124,7 @@
   background-size: 100%;
   max-height: var(--inline-player-max-height);
   margin: auto;
+  top: -4px;
 
   &:not(.card__media--nsfw) {
     background-color: #000; // solid black to blend nicely when the video starts (if it doesn't take the full width)
