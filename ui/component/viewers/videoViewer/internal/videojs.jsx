@@ -132,18 +132,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     toggleVideoTheaterMode,
   } = props;
 
-  const VIDEO_JS_OPTIONS = {
-    preload: 'auto',
-    playbackRates: videoPlaybackRates,
-    responsive: true,
-    controls: true,
-    html5: {
-      vhs: {
-        overrideNative: !videojs.browser.IS_ANY_SAFARI,
-      },
-    },
-  };
-
   // will later store the videojs player
   const playerRef = useRef();
   const containerRef = useRef();
@@ -156,8 +144,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const [reload, setReload] = useState('initial');
 
+  const { createVideoPlayerDOM } = functions({ isAudio });
+
+  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
+    tapToUnmuteRef,
+    tapToRetryRef,
+    setReload,
+    videoTheaterMode,
+    playerRef,
+    autoplaySetting,
+    replay,
+  });
+
   const videoJsOptions = {
-    ...VIDEO_JS_OPTIONS,
+    preload: 'auto',
+    playbackRates: videoPlaybackRates,
+    responsive: true,
+    controls: true,
+    html5: {
+      vhs: {
+        overrideNative: !videojs.browser.IS_ANY_SAFARI,
+      },
+    },
     autoplay: autoplay,
     muted: startMuted,
     sources: [{ src: source, type: sourceType }],
@@ -173,20 +181,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     bigPlayButton: embedded, // only show big play button if embedded
   };
-
-  console.log(videoJsOptions);
-
-  const { createVideoPlayerDOM } = functions({ source, sourceType, videoJsOptions, isAudio });
-
-  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
-    tapToUnmuteRef,
-    tapToRetryRef,
-    setReload,
-    videoTheaterMode,
-    playerRef,
-    autoplaySetting,
-    replay,
-  });
 
   // Initialize video.js
   function initializeVideoPlayer(el) {
