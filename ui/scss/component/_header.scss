@@ -134,7 +134,9 @@
 
   &[aria-expanded='true']:not(.header__navigationItem--profilePic) {
     transform: rotate(0deg);
-    background-color: var(--color-header-button-active);
+    &:not(.button-rotate) {
+      background-color: var(--color-header-button-active);
+    }
   }
 
   @media (max-width: $breakpoint-small) {
