@@ -1,6 +1,5 @@
 .card {
   position: relative;
-  overflow: hidden;
 
   ~ .card {
     margin-bottom: var(--spacing-m);

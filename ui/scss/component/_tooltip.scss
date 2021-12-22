@@ -17,7 +17,8 @@
 }
 
 .MuiTooltip-arrow {
-  color: var(--color-header-background) !important;
+  color: var(--color-text) !important;
+  background-color: var(--color-header-background) !important;
   font-size: var(--font-xxsmall) !important;
 }
 
@@ -28,7 +29,12 @@
   padding: var(--spacing-xs);
 
   .channel-staked__tooltip-text {
+    color: var(--color-text) !important;
     margin-left: var(--spacing-xs);
     font-size: var(--font-small);
+  }
+
+  .channel-staked__amount {
+    color: var(--color-text) !important;
   }
 }
