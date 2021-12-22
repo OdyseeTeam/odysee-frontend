@@ -10,13 +10,10 @@
   --color-secondary: rgba(var(--color-secondary-dynamic), 1);
   --color-secondary-contrast-static: #ffffff;
   --color-secondary-contrast: #ffffff;
-  //  --color-secondary: #ffd600;
   --color-fire: #ff6635;
   --color-fire-outside: #ff9b20;
 
   // Structure
-  //  --color-background: #191919;
-  //  --color-background: #202020;
   --color-background-base: 32, 32, 32;
   --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #0c0d0e95;
@@ -38,7 +35,6 @@
 
   // Header
   --color-header-button: rgba(32, 32, 32, 0.7);
-  //--color-header-background: #111111;
   --color-header-background-base: 17, 17, 17;
   --color-header-background: rgba(var(--color-header-background-base), 0.9);
   --color-header-background-transparent: rgba(7, 3, 3, 0.95);

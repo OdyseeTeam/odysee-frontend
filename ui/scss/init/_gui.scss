@@ -14,7 +14,6 @@ html {
   @include font-sans;
   height: 100%;
   min-height: 100%;
-  //overflow-x: hidden;
 
   color: var(--color-text);
   background-color: var(--color-background);
@@ -54,7 +53,6 @@ body *::-webkit-scrollbar-thumb {
 
 hr {
   height: 1px;
-  //background-color: var(--color-gray-2);
 }
 
 h1,
