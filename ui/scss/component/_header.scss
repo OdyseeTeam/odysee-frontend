@@ -177,6 +177,10 @@
     margin-right: 0;
   }
 
+  .channel-staked__tooltip {
+    display: none;
+  }
+
   @media (max-width: $breakpoint-small) {
     margin: 0;
 
