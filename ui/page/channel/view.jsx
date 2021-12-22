@@ -28,6 +28,7 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
+import CommentBadge from 'component/common/comment-badge';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -60,6 +61,7 @@ type Props = {
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
   lang: string,
+  selectOdyseeMembershipByClaimId: string,
 };
 
 function ChannelPage(props: Props) {
@@ -80,6 +82,7 @@ function ChannelPage(props: Props) {
     mutedChannels,
     unpublishedCollections,
     lang,
+    selectOdyseeMembershipByClaimId,
   } = props;
   const {
     push,
@@ -206,6 +209,13 @@ function ChannelPage(props: Props) {
     );
   }
 
+  let badgeToShow;
+  if (selectOdyseeMembershipByClaimId === 'Premium') {
+    badgeToShow = 'silver';
+  } else if (selectOdyseeMembershipByClaimId === 'Premium+') {
+    badgeToShow = 'gold';
+  }
+
   return (
     <Page className="channelPage-wrapper" noFooter>
       <header className="channel-cover">
@@ -232,6 +242,23 @@ function ChannelPage(props: Props) {
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
+            <ChannelStakedIndicator uri={uri} large />
+            {badgeToShow === 'silver' && (
+              <Button target="_blank" navigate="/$/membership">
+                <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={50} placement="bottom" />
+              </Button>
+            )}
+            {badgeToShow === 'gold' && (
+              <Button target="_blank" navigate="/$/membership">
+                <CommentBadge
+                  label={__('Premium +')}
+                  icon={ICONS.PREMIUM_PLUS}
+                  size={50}
+                  placement="bottom"
+                  onClick={() => push(`/$/membership`)}
+                />
+              </Button>
+            )}
           </h1>
           <div className="channel__meta">
             <Tooltip title={formattedSubCount} followCursor placement="top">

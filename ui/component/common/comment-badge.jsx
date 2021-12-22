@@ -1,33 +1,23 @@
 // @flow
 import 'scss/component/_comment-badge.scss';
 
-import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import React from 'react';
 import Tooltip from 'component/common/tooltip';
-
-const LABEL_TYPES = {
-  ADMIN: 'Admin',
-  MOD: 'Moderator',
-};
 
 type Props = {
   icon: string,
   label: string,
   size?: number,
+  placement?: string,
 };
 
 export default function CommentBadge(props: Props) {
-  const { icon, label, size = 20 } = props;
+  const { icon, label, size = 20, placement = 'top' } = props;
 
   return (
-    <Tooltip title={label} placement="top">
-      <span
-        className={classnames('comment__badge', {
-          'comment__badge--globalMod': label === LABEL_TYPES.ADMIN,
-          'comment__badge--mod': label === LABEL_TYPES.MOD,
-        })}
-      >
+    <Tooltip title={label} placement={placement}>
+      <span className="comment__badge">
         <Icon icon={icon} size={size} />
       </span>
     </Tooltip>

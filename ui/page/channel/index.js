@@ -10,7 +10,7 @@ import {
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
 import { selectBlacklistedOutpointMap, doFetchSubCount, selectSubCountForUri } from 'lbryinc';
-import { selectYoutubeChannels } from 'redux/selectors/user';
+import { selectYoutubeChannels, selectOdyseeMembershipByClaimId } from 'redux/selectors/user';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
@@ -37,6 +37,7 @@ const select = (state, props) => {
     mutedChannels: selectMutedChannels(state),
     unpublishedCollections: selectMyUnpublishedCollections(state),
     lang: selectLanguage(state),
+    selectOdyseeMembershipByClaimId: selectOdyseeMembershipByClaimId(state, props.uri),
   };
 };
 

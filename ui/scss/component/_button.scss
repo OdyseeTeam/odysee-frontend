@@ -290,6 +290,12 @@ a.button--alt {
     overflow: hidden;
     font-size: var(--font-xsmall);
     color: rgba(var(--color-text-base), 0.6);
+    display: flex;
+    align-items: flex-end;
+
+    .icon {
+      margin-left: var(--spacing-xxs);
+    }
   }
 
   .markdown-preview & {

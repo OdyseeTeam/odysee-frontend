@@ -17,6 +17,8 @@ import I18nMessage from 'component/i18nMessage';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import { useIsLargeScreen } from 'effects/use-screensize';
+// import { doFetchUserMemberships } from 'redux/actions/user';
+import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
   uris: Array<string>,
@@ -94,6 +96,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
+  doFetchUserMemberships: (claimIdCsv: string) => void,
 
   hideLayoutButton?: boolean,
   loadedCallback?: (number) => void,
@@ -172,6 +175,7 @@ function ClaimListDiscover(props: Props) {
     useSkeletonScreen = true,
     excludeUris = [],
     swipeLayout = false,
+    doFetchUserMemberships,
   } = props;
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
@@ -607,8 +611,13 @@ function ClaimListDiscover(props: Props) {
 
   // **************************************************************************
   // **************************************************************************
-
   useFetchViewCount(fetchViewCount, renderUris, claimsByUri, doFetchViewCount);
+
+  const shouldFetchUserMemberships = true;
+  const arrayOfContentUris = renderUris;
+  const convertClaimUrlsToIds = claimsByUri;
+
+  useGetUserMemberships(shouldFetchUserMemberships, arrayOfContentUris, convertClaimUrlsToIds, doFetchUserMemberships);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

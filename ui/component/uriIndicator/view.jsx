@@ -3,23 +3,32 @@ import type { Node } from 'react';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+import CommentBadge from 'component/common/comment-badge';
 
-type ChannelInfo = { uri: string, name: string };
+type ChannelInfo = {
+  uri: string,
+  name: string,
+};
+
 
 type Props = {
+  isResolvingUri: boolean,
+  link: ?boolean,
+  claim: ?Claim,
+  hideAnonymous: boolean,
+  // Lint thinks we aren't using these, even though we are.
+  // Possibly because the resolve function is an arrow function that is passed in props?
+  resolveUri: (string) => void,
   uri: string,
   channelInfo: ?ChannelInfo, // Direct channel info to use, bypassing the need to resolve 'uri'.
-  link: ?boolean,
+  // to allow for other elements to be nested within the UriIndicator
+  children: ?Node,
+  inline: boolean,
   external?: boolean,
-  focusable?: boolean, // Defaults to 'true' if not provided.
-  hideAnonymous?: boolean,
-  inline?: boolean,
   className?: string,
-  children: ?Node, // to allow for other elements to be nested within the UriIndicator (commit: 1e82586f).
-  // --- redux ---
-  claim: ?Claim,
-  isResolvingUri: boolean,
-  resolveUri: (string) => void,
+  focusable: boolean,
+  selectOdyseeMembershipByClaimId: string,
 };
 
 class UriIndicator extends React.PureComponent<Props> {
@@ -80,6 +89,8 @@ class UriIndicator extends React.PureComponent<Props> {
       external = false,
       hideAnonymous = false,
       className,
+      selectOdyseeMembershipByClaimId,
+      comment,
     } = this.props;
 
     if (!channelInfo && !claim) {
@@ -110,7 +121,12 @@ class UriIndicator extends React.PureComponent<Props> {
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
           {channelName}
+          {name}
+          {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
+          {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
         </span>
+
+
       );
 
       if (!channelLink) {

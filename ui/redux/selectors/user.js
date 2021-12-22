@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { selectClaimForUri } from 'redux/selectors/claims';
 
 export const selectState = (state) => state.user || {};
 
@@ -104,6 +105,8 @@ export const selectYouTubeImportError = (state) => selectState(state).youtubeCha
 export const selectSetReferrerPending = (state) => selectState(state).referrerSetIsPending;
 export const selectSetReferrerError = (state) => selectState(state).referrerSetError;
 
+export const selectOdyseeMembershipName = (state) => selectState(state).odyseeMembershipName;
+
 export const selectYouTubeImportVideosComplete = createSelector(selectState, (state) => {
   const total = state.youtubeChannelImportTotal;
   const complete = state.youtubeChannelImportComplete || 0;
@@ -112,5 +115,21 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
     return [complete, total];
   }
 });
+
+export const selectOdyseeMembershipByClaimId = function (state, uri) {
+  const claim = selectClaimForUri(state, uri);
+
+  let uploaderChannelClaimId;
+  if (claim && claim.signing_channel) {
+    uploaderChannelClaimId = claim && claim.signing_channel.claim_id;
+  } else if (claim && !claim.signing_channel) {
+    uploaderChannelClaimId = claim.claim_id;
+  }
+
+  // looks for the uploader id
+  const matchingMembershipOfUser =
+    state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
+  return matchingMembershipOfUser;
+};
 
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));

@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import * as ICONS from 'constants/icons';
 import { parseURI } from 'util/lbryURI';
 import classnames from 'classnames';
 import Gerbil from './gerbil.png';
@@ -7,6 +8,8 @@ import FreezeframeWrapper from 'component/fileThumbnail/FreezeframeWrapper';
 import ChannelStakedIndicator from 'component/channelStakedIndicator';
 import OptimizedImage from 'component/optimizedImage';
 import { AVATAR_DEFAULT } from 'config';
+import useGetUserMemberships from 'effects/use-get-user-memberships';
+import CommentBadge from 'component/common/comment-badge';
 
 type Props = {
   thumbnail: ?string,
@@ -26,6 +29,10 @@ type Props = {
   noOptimization?: boolean,
   setThumbUploadError: (boolean) => void,
   ThumbUploadError: boolean,
+  claimsByUri: { [string]: any },
+  selectOdyseeMembershipByClaimId: string,
+  doFetchUserMemberships: (claimIdCsv: string) => void,
+  showMemberBadge?: boolean,
 };
 
 function ChannelThumbnail(props: Props) {
@@ -46,6 +53,10 @@ function ChannelThumbnail(props: Props) {
     hideTooltip,
     setThumbUploadError,
     ThumbUploadError,
+    claimsByUri,
+    selectOdyseeMembershipByClaimId,
+    doFetchUserMemberships,
+    showMemberBadge,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -55,6 +66,18 @@ function ChannelThumbnail(props: Props) {
   const channelThumbnail = thumbnailPreview || thumbnail || defaultAvatar;
   const isGif = channelThumbnail && channelThumbnail.endsWith('gif');
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
+
+  let badgeToShow;
+  if (showMemberBadge) {
+    if (selectOdyseeMembershipByClaimId === 'Premium') {
+      badgeToShow = 'silver';
+    } else if (selectOdyseeMembershipByClaimId === 'Premium+') {
+      badgeToShow = 'gold';
+    }
+  }
+
+  const shouldFetchUserMemberships = true;
+  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);
@@ -77,6 +100,8 @@ function ChannelThumbnail(props: Props) {
     return (
       <FreezeframeWrapper src={channelThumbnail} className={classnames('channel-thumbnail', className)}>
         {!hideStakedIndicator && <ChannelStakedIndicator uri={uri} claim={claim} hideTooltip={hideTooltip} />}
+        {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+        {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
       </FreezeframeWrapper>
     );
   }
@@ -104,6 +129,8 @@ function ChannelThumbnail(props: Props) {
         }}
       />
       {!hideStakedIndicator && <ChannelStakedIndicator uri={uri} claim={claim} hideTooltip={hideTooltip} />}
+      {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+      {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
     </div>
   );
 }

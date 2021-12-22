@@ -1,23 +1,26 @@
 import { connect } from 'react-redux';
-import { doSetClientSetting } from 'redux/actions/settings';
-import { selectosNotificationsEnabled } from 'redux/selectors/settings';
-import { selectUserVerifiedEmail, selectUserEmail } from 'redux/selectors/user';
 import { doOpenModal } from 'redux/actions/app';
-import { doToast } from 'redux/actions/notifications';
+import OdyseeMembership from './view';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
+import { doFetchUserMemberships } from 'redux/actions/user';
+import { selectOdyseeMembershipByClaimId } from 'redux/selectors/user';
 
-import SettingsStripeCard from './view';
+const select = (state) => {
+  const activeChannelClaim = selectActiveChannelClaim(state);
+  const uri = activeChannelClaim && activeChannelClaim.permanent_url;
 
-const select = (state) => ({
-  osNotificationsEnabled: selectosNotificationsEnabled(state),
-  isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-  email: selectUserEmail(state),
-});
+  return {
+    activeChannelClaim,
+    channels: selectMyChannelClaims(state),
+    claimsByUri: selectClaimsByUri(state),
+    selectOdyseeMembershipByClaimId: selectOdyseeMembershipByClaimId(state, uri),
+  };
+};
 
-const perform = (dispatch) => ({
-  setClientSetting: (key, value) => dispatch(doSetClientSetting(key, value)),
-  doOpenModal,
-  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  doToast: (options) => dispatch(doToast(options)),
-});
+const perform = {
+  openModal: doOpenModal,
+  doFetchUserMemberships,
+};
 
-export default connect(select, perform)(SettingsStripeCard);
+export default connect(select, perform)(OdyseeMembership);
