@@ -1,7 +1,6 @@
 .wunderbar__wrapper {
   flex: 1;
   max-width: 30rem;
-  //margin-left: var(--spacing-s);
   margin-right: var(--spacing-s);
 
   &:hover {
@@ -89,7 +88,6 @@
   border: none;
   padding-right: var(--spacing-s);
   padding-left: 2.5rem;
-  //transition: all 0.2s;
   -webkit-app-region: no-drag;
   border: 1px solid rgba(0, 0, 0, 0);
 
@@ -191,9 +189,7 @@
 }
 
 .wunderbar__more-results {
-  //margin-top: var(--spacing-xs);
   margin-left: var(--spacing-s);
-  //margin-bottom: var(--spacing-l);
 
   .button {
     padding: var(--spacing-s);
@@ -203,10 +199,6 @@
     .button {
       color: var(--color-primary-contrast);
     }
-  }
-
-  @media (min-width: $breakpoint-small) {
-    //margin-bottom: var(--spacing-xs);
   }
 }
 
@@ -287,7 +279,6 @@
     margin-bottom: 0;
 
     @media (min-width: $breakpoint-small) {
-      //margin-top: var(--spacing-xxs);
       margin-bottom: 0;
     }
   }

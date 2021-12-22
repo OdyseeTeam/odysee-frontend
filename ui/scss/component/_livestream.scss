@@ -36,7 +36,6 @@ $recent-msg-button__height: 2rem;
     height: calc(100vh - var(--header-height) - var(--spacing-l));
     position: absolute;
     right: 0;
-    //top: var(--header-height);
     top: 0px;
     bottom: 0;
     border-radius: var(--border-radius);
@@ -75,7 +74,6 @@ $recent-msg-button__height: 2rem;
   }
 
   .comment__author {
-    //background-color: rgba(var(--color-primary-dynamic), 0.2);
     color: rgba(var(--color-text-base), 0.5);
     margin-top: var(--spacing-xxs);
     max-width: unset;

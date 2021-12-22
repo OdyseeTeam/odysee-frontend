@@ -23,10 +23,6 @@
   max-width: unset;
   min-width: unset;
 
-  .channel-staked__wrapper {
-    //background-color: var(--color-background);
-  }
-
   .channel-thumbnail {
     @include handleChannelGif(2.5rem);
   }

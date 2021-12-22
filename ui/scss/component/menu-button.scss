@@ -57,8 +57,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  //border-radius: 100%;
-  //padding: 0.3rem;
   opacity: 0;
 
   .icon {
@@ -81,7 +79,6 @@
 }
 
 .menu__list {
-  //box-shadow: var(--card-box-shadow);
   transform-origin: top;
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
 

@@ -16,12 +16,6 @@ $contentMaxWidth: 60rem;
       border-top: none;
     }
 
-    @media (min-width: $breakpoint-small) {
-      &:hover {
-        //background-color: var(--color-card-background-highlighted);
-      }
-    }
-
     .commentCreate {
       border-top: 1px solid var(--color-border);
       padding-top: var(--spacing-s);
@@ -132,7 +126,6 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__wrapper--unread {
-  //background-color: var(--color-header-background);
   box-shadow: 6px -1px 0px 0px rgba(var(--color-primary-dynamic), 0.7) inset;
   justify-content: space-between;
 

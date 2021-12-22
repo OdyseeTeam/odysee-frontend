@@ -254,17 +254,13 @@ body {
 
 .main--livestream {
   @extend .main--file-page;
-  //margin: 0;
   padding: 0;
-
-  //max-width: none;
 
   > * {
     width: auto;
   }
 
   .card-stack {
-    //margin-top: var(--spacing-m);
     margin-bottom: var(--spacing-m);
 
     @media (min-width: $breakpoint-large + 300px) {
@@ -481,7 +477,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    //background: var(--color-login-graphic-background);
 
     @media (max-width: $breakpoint-small) {
       width: 100%;

@@ -5,14 +5,6 @@
   th,
   td {
     overflow: hidden;
-
-    &:first-of-type {
-      //padding-left: var(--spacing-m);
-    }
-
-    &:last-of-type {
-      //padding-right: var(--spacing-m);
-    }
   }
 
   thead {
@@ -58,10 +50,6 @@ td {
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
   }
-}
-
-.table--fixed {
-  //table-layout: fixed;
 }
 
 .table--condensed {

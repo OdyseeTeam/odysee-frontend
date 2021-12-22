@@ -127,7 +127,6 @@
   .button {
     &:hover {
       color: var(--color-primary);
-      //background-color: var(--color-background);
 
       svg {
         stroke: var(--color-primary);
@@ -188,8 +187,6 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    //padding-top: var(--spacing-s);
-
     > * {
       margin-right: var(--spacing-s);
       margin-bottom: var(--spacing-s);
