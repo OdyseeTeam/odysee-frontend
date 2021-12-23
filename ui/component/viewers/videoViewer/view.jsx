@@ -3,7 +3,6 @@ import { ENABLE_PREROLL_ADS } from 'config';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
-import { stopContextMenu } from 'util/context-menu';
 import type { Player } from './internal/videojs';
 import VideoJs from './internal/videojs';
 import analytics from 'analytics';
@@ -422,7 +421,6 @@ function VideoViewer(props: Props) {
         'file-viewer--is-playing': isPlaying,
         'file-viewer--ended-embed': isEndedEmbed,
       })}
-      onContextMenu={stopContextMenu}
     >
       {showAutoplayCountdown && (
         <AutoplayCountdown

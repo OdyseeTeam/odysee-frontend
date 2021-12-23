@@ -1,7 +1,6 @@
 // @flow
 
 import * as React from 'react';
-import { openSnippetMenu, stopContextMenu } from 'util/context-menu';
 
 // Addons
 import 'codemirror/addon/selection/mark-selection';
@@ -47,7 +46,7 @@ class CodeViewer extends React.PureComponent<Props> {
     import(
       /* webpackChunkName: "codemirror" */
       'codemirror/lib/codemirror'
-    ).then(CodeMirror => {
+    ).then((CodeMirror) => {
       me.codeMirror = CodeMirror.fromTextArea(me.textarea, {
         // Auto detect syntax with file contentType
         mode: contentType,
@@ -62,8 +61,6 @@ class CodeViewer extends React.PureComponent<Props> {
         lineNumbers: true,
         lineWrapping: true,
       });
-      // Add events
-      me.codeMirror.on('contextmenu', openSnippetMenu);
     });
   }
 
@@ -73,8 +70,8 @@ class CodeViewer extends React.PureComponent<Props> {
   render() {
     const { value } = this.props;
     return (
-      <div className="file-render__content" onContextMenu={stopContextMenu}>
-        <textarea ref={textarea => (this.textarea = textarea)} disabled value={value} />
+      <div className="file-render__content">
+        <textarea ref={(textarea) => (this.textarea = textarea)} disabled value={value} />
       </div>
     );
   }

@@ -1,6 +1,5 @@
 // @flow
 import * as React from 'react';
-import { stopContextMenu } from 'util/context-menu';
 import IframeReact from 'component/IframeReact';
 
 type Props = {
@@ -12,7 +11,7 @@ class PdfViewer extends React.PureComponent<Props> {
     const { source } = this.props;
     const src = source;
     return (
-      <div className="file-viewer file-viewer--document" onContextMenu={stopContextMenu}>
+      <div className="file-viewer file-viewer--document">
         <div className="file-viewer file-viewer--iframe">
           <IframeReact title={__('File preview')} src={src} />
         </div>
