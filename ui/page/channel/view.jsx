@@ -202,7 +202,7 @@ function ChannelPage(props: Props) {
   }
 
   return (
-    <Page noFooter>
+    <Page className="channelPage-wrapper" noFooter>
       <header className="channel-cover">
         <div className="channel__quick-actions">
           {isMyYouTubeChannel && (

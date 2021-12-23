@@ -38,7 +38,7 @@ const ScheduledStreams = (props: Props) => {
   };
 
   return (
-    <div className={'mb-m'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+    <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
       <ClaimListDiscover
         useSkeletonScreen={false}
         channelIds={channelIds}
