@@ -31,6 +31,12 @@
     color: var(--color-text) !important;
     margin-left: var(--spacing-xs);
     font-size: var(--font-small);
+
+    .channel-staked__amount {
+      .icon {
+        margin-bottom: 2px;
+      }
+    }
   }
 
   .credit-amount {
