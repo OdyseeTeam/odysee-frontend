@@ -57,7 +57,12 @@ const fetchLiveChannels = async () => {
 
 const fetchLiveChannel = async (channelId: string) => {
   const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
-  const json = await response.json();
+  let json;
+  try {
+    json = await response.json();
+  } catch {
+    throw new Error('Error handling live API response');
+  }
   if (!(json.data && json.data.live)) throw new Error();
   return transformLivestreamData([json.data]);
 };
@@ -176,6 +181,7 @@ export const doFetchActiveLivestream = (channelId: string) => {
         },
       });
     } catch (err) {
+      if (err.message === 'Error handling live API response') return;
       dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED, data: { channelId } });
     }
   };
