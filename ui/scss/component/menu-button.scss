@@ -79,8 +79,9 @@
 }
 
 .menu__list {
-  transform-origin: top;
-  animation: menu-animate-in var(--animation-duration) var(--animation-style);
+  // transform-origin: top;
+  // animation: menu-animate-in var(--animation-duration) var(--animation-style);
+  font-size: var(--font-small);
 
   border-radius: var(--border-radius);
   padding: var(--spacing-xs) 0;
