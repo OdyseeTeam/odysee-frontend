@@ -66,7 +66,6 @@ export default function WunderBarSuggestions(props: Props) {
   const inputRef: ElementRef<any> = React.useRef();
   const viewResultsRef: ElementRef<any> = React.useRef();
   const exploreTagRef: ElementRef<any> = React.useRef();
-  // let clickFocus = React.useRef(false);
 
   const isRefFocused = (ref) => ref && ref.current && ref.current === document.activeElement;
   const isFocused = isRefFocused(inputRef) || isRefFocused(viewResultsRef) || isRefFocused(exploreTagRef);
