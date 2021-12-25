@@ -248,6 +248,9 @@ $thumbnailWidthSmall: 1rem;
   background-color: var(--color-primary);
   border-radius: var(--border-radius);
 
+  .button__content {
+    color: var(--color-primary-contrast);
+  }
   .channel-name {
     color: var(--color-primary-contrast);
   }
