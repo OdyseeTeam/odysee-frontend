@@ -19,6 +19,8 @@
   background-color: var(--color-menu-background);
   border: 1px solid var(--border-color);
   border-top: none;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 [data-reach-menu-item] {
@@ -79,8 +81,6 @@
 }
 
 .menu__list {
-  // transform-origin: top;
-  // animation: menu-animate-in var(--animation-duration) var(--animation-style);
   font-size: var(--font-small);
 
   border-radius: var(--border-radius);
