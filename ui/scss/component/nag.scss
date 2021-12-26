@@ -43,7 +43,7 @@ $nag-error-z-index: 999;
 }
 
 .nag--error {
-  background-color: var(--color-error);
+  background-color: #000;
   color: var(--color-text-error);
   z-index: $nag-error-z-index;
 }
