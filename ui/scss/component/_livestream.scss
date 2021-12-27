@@ -39,6 +39,15 @@ $recent-msg-button__height: 2rem;
     padding-left: var(--spacing-xs);
   }
 
+  .livestream__comments-wrapper {
+    .button__label {
+      color: var(--color-secondary);
+    }
+    .button__content {
+      color: var(--color-primary);
+    }
+  }
+
   @media (min-width: $breakpoint-medium) {
     margin: 0;
     width: var(--livestream-comments-width);
