@@ -3,6 +3,14 @@ $metadata-z-index: 1;
 $actions-z-index: 2;
 
 .channelPage-wrapper {
+  .button-group {
+    .button__content {
+      .icon {
+        stroke: var(--color-text);
+      }
+    }
+  }
+
   .mb-xl {
     // Temporary fix for upcoming livestreams on channel page
     margin-bottom: 0px;
@@ -488,13 +496,5 @@ $actions-z-index: 2;
 
   .credit-amount {
     color: var(--color-gray-3);
-  }
-}
-
-.button-group {
-  .button__content {
-    .icon {
-      stroke: var(--color-text);
-    }
   }
 }
