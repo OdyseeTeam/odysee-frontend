@@ -258,9 +258,12 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0.7rem 0.7rem;
+    padding: 0.7rem 0.2rem;
     top: var(--spacing-s);
-    right: var(--spacing-s);
+    right: var(--spacing-xxs);
+    &:hover {
+      background-color: unset;
+    }
   }
 }
 
