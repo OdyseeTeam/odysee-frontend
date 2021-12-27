@@ -257,8 +257,10 @@ body {
   @extend .main--file-page;
   padding: 0;
 
-  > * {
-    width: auto;
+  @media (min-width: $breakpoint-small) {
+    > * {
+      width: auto;
+    }
   }
 
   .card-stack {
