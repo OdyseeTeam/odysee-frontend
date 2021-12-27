@@ -241,6 +241,11 @@ $actions-z-index: 2;
   flex-wrap: wrap;
   font-size: var(--font-base);
 
+  .button,
+  .menu__button {
+    border: 1px solid rgba(var(--color-primary-dynamic), 0.2);
+  }
+
   > .button,
   > .button-group .button {
     padding: 0 var(--spacing-s);
@@ -251,6 +256,10 @@ $actions-z-index: 2;
     &:not(:last-child) {
       margin-right: var(--spacing-m);
     }
+  }
+
+  .button-group .button:first-child:not(:only-child) {
+    border-right: 0;
   }
 
   .button-group .button {
