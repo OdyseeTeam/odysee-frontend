@@ -29,6 +29,10 @@
 
   .footer__link {
     margin-left: 0;
+    margin-bottom: 0;
+    .button__label {
+      color: var(--color-text);
+    }
   }
 
   @media (min-width: $breakpoint-small) {
