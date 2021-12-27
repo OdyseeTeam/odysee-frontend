@@ -221,7 +221,6 @@ export const icons = {
         // fill={color}
         fill="black"
         stroke={color}
-        // stroke="black"
         strokeWidth="0"
         strokeLinecap="round"
         strokeLinejoin="round"

@@ -202,9 +202,8 @@ const Header = (props: Props) => {
                     icon={ICONS.MENU}
                     aria-expanded={sidebarOpen}
                     onClick={() => setSidebarOpen(!sidebarOpen)}
-                  >
-                    {isAbsoluteSideNavHidden && isMobile && <NotificationBubble />}
-                  </Button>
+                  />
+                  {isAbsoluteSideNavHidden && isMobile && <NotificationBubble />}
                 </span>
               )}
 

@@ -481,3 +481,11 @@ $actions-z-index: 2;
     color: var(--color-gray-3);
   }
 }
+
+.button-group {
+  .button__content {
+    .icon {
+      stroke: var(--color-text);
+    }
+  }
+}
