@@ -82,6 +82,14 @@
   }
 }
 
+.wunderbar__wrapper--mobile {
+  border-bottom: unset !important;
+  .wunderbar__input {
+    border-radius: var(--border-radius) !important;
+    background-color: var(--color-header-button) !important;
+  }
+}
+
 .header__menu {
   display: flex;
   align-items: center;

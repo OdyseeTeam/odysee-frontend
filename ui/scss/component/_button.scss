@@ -258,7 +258,9 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: 0.8rem 0.8rem;
+    padding: 0.7rem 0.7rem;
+    top: var(--spacing-s);
+    right: var(--spacing-s);
   }
 }
 
