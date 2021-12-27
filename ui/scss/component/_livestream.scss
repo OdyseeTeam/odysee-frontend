@@ -29,6 +29,15 @@ $recent-msg-button__height: 2rem;
 .livestream__discussion {
   width: 100%;
   background-color: var(--color-header-background);
+  border-radius: var(--border-radius);
+
+  .livestream-discussion__title {
+    margin-left: var(--spacing-s);
+  }
+
+  .livestream-superchats__wrapper {
+    padding-left: var(--spacing-xs);
+  }
 
   @media (min-width: $breakpoint-medium) {
     margin: 0;
@@ -38,10 +47,13 @@ $recent-msg-button__height: 2rem;
     right: 0;
     top: 0px;
     bottom: 0;
-    border-radius: var(--border-radius);
     border-top: none;
     border-bottom: none;
     border-right: none;
+
+    .livestream-discussion__title {
+      margin-left: 0;
+    }
 
     .card__main-actions {
       padding: 0;
