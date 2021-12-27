@@ -123,8 +123,31 @@
 .wunderbar__suggestions--mobile {
   top: calc(var(--header-height-mobile) - var(--spacing-xs));
   margin-top: var(--spacing-m);
-  padding: 0;
+  padding: var(--spacing-m) !important;
   overflow: visible;
+
+  .wunderbar__bottom-links {
+    .wunderbar__more-results {
+      margin-left: 0;
+      .button {
+        padding-left: 0;
+      }
+      .wunderbar__tag-search {
+        padding-right: 0;
+      }
+    }
+  }
+
+  .wunderbar__label {
+    margin-left: 0;
+  }
+
+  li {
+    margin-left: 0;
+    .wunderbar__suggestion {
+      margin-left: 0;
+    }
+  }
 }
 
 .wunderbar__top-claim {
