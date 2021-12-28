@@ -219,7 +219,7 @@ export default function LivestreamComments(props: Props) {
               })}
               label={
                 <>
-                  <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /
+                  <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
                   <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
                 </>
               }

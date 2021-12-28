@@ -32,6 +32,21 @@ $recent-msg-button__height: 2rem;
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m);
 
+  .credit-amount {
+    font-weight: unset;
+  }
+
+  .button-toggle--active {
+    .credit-amount {
+      color: var(--color-primary-contrast);
+    }
+  }
+  .button__label {
+    svg {
+      margin-bottom: unset;
+    }
+  }
+
   @media (min-width: $breakpoint-medium) {
     margin: 0;
     width: var(--livestream-comments-width);
