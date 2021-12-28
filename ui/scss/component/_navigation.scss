@@ -303,6 +303,14 @@
       font-weight: var(--font-weight-bold);
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .navigation-link {
+      .button__label {
+        margin-bottom: -1px;
+      }
+    }
+  }
 }
 
 .navigation-links--small {
