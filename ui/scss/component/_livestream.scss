@@ -32,23 +32,6 @@ $recent-msg-button__height: 2rem;
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m);
 
-  .livestream-discussion__title {
-    margin-left: var(--spacing-s);
-  }
-
-  .livestream-superchats__wrapper {
-    padding-left: var(--spacing-xs);
-  }
-
-  .livestream__comments-wrapper {
-    .button__label {
-      color: var(--color-secondary);
-    }
-    .button__content {
-      color: var(--color-primary);
-    }
-  }
-
   @media (min-width: $breakpoint-medium) {
     margin: 0;
     width: var(--livestream-comments-width);
@@ -93,6 +76,39 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+  }
+
+  // Mobile
+  @media (max-width: $breakpoint-small) {
+    .button-toggle:last-of-type {
+      margin-right: var(--spacing-xs);
+    }
+
+    .livestream-discussion__title {
+      margin-left: var(--spacing-xs);
+    }
+
+    .livestream-superchats__wrapper {
+      padding-left: var(--spacing-xs);
+    }
+
+    .livestream__comments-wrapper {
+      .button__label {
+        color: var(--color-secondary);
+      }
+      .button__content {
+        color: var(--color-primary);
+      }
+    }
+    @media all and (orientation: landscape) {
+      // height:unset;
+      height: calc(100vw - var(--header-height) - var(--spacing-l));
+
+      .livestream__comments-wrapper {
+        height: calc(100vw - var(--header-height) - 3rem - var(--spacing-l));
+      }
+    }
+    // min-height: calc(100vh - var(--header-height) - var(--spacing-l));
   }
 
   .comment__author {
