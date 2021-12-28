@@ -250,8 +250,8 @@
   }
 
   .icon {
-    height: 2rem;
-    width: 2rem;
+    height: 1.8rem;
+    width: 1.8rem;
   }
 
   .button__content {
@@ -264,6 +264,7 @@
     font-size: var(--font-xxxsmall);
     font-weight: var(--font-weight-base);
     margin-left: 0;
+    margin-top: 4px;
   }
 
   .navigation-link {
