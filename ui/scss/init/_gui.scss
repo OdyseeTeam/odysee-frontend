@@ -488,6 +488,9 @@ textarea {
 
   .notification__bubble--inline {
     top: var(--spacing-xs);
+    .notification__count {
+      margin-bottom: -2px;
+    }
   }
 
   @media (max-width: $breakpoint-small) {

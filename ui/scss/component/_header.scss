@@ -82,13 +82,24 @@
 
     .header__navigationItem--logo {
       border-radius: 50%;
+      svg {
+        width: calc(var(--header-height-mobile) - var(--spacing-m));
+        height: calc(var(--header-height-mobile) - var(--spacing-m));
+      }
     }
 
     .button {
+      width: calc(var(--header-height-mobile) - var(--spacing-m));
+      height: calc(var(--header-height-mobile) - var(--spacing-m));
       background-color: rgba(var(--color-primary-dynamic), 0.4);
       .icon {
         stroke: var(--color-primary-contrast);
       }
+    }
+
+    .channel-thumbnail {
+      width: calc(var(--header-height-mobile) - var(--spacing-m)) !important;
+      height: calc(var(--header-height-mobile) - var(--spacing-m)) !important;
     }
   }
 }
