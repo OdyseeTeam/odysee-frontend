@@ -216,6 +216,31 @@
   flex-direction: column;
 }
 
+.card--enable-overflow {
+  .card__header--between {
+    @media (max-width: $breakpoint-medium) {
+      margin-bottom: 0;
+    }
+  }
+
+  .card__title-actions-container {
+    @media (max-width: $breakpoint-medium) {
+      width: 100%;
+      .card__title-actions {
+        width: 100%;
+      }
+      .comment__sort {
+        .button {
+          float: left;
+        }
+      }
+      .button {
+        float: right;
+      }
+    }
+  }
+}
+
 .card__title-actions {
   align-self: flex-start;
 
