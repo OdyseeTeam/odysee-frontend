@@ -114,7 +114,14 @@ $recent-msg-button__height: 2rem;
       .button__content {
         color: var(--color-primary);
       }
+
+      .section__actions {
+        .button__label {
+          color: var(--color-primary-contrast);
+        }
+      }
     }
+
     @media all and (orientation: landscape) {
       // height:unset;
       height: calc(100vw - var(--header-height) - var(--spacing-l));
