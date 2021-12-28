@@ -270,6 +270,10 @@ $contentMaxWidth: 60rem;
   display: flex;
   align-items: center;
   justify-content: center;
+
+  .notification__count {
+    margin-bottom: -2px;
+  }
 }
 
 .notification__bubble--small {
