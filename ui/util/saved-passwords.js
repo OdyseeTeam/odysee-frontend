@@ -1,10 +1,11 @@
-const { DOMAIN } = require('../../config.js');
+const { DOMAIN } = require('config.js');
 const AUTH_TOKEN = 'auth_token';
 const SAVED_PASSWORD = 'saved_password';
 const domain =
   typeof window === 'object' && window.location.hostname.includes('localhost') ? window.location.hostname : DOMAIN;
 const isProduction = process.env.NODE_ENV === 'production';
 const maxExpiration = 2147483647;
+const { default: keycloak } = require('util/keycloak');
 let sessionPassword;
 
 function setCookie(name, value, expirationDaysOnWeb) {
@@ -101,6 +102,10 @@ function getAuthToken() {
   return getCookie(AUTH_TOKEN);
 }
 
+function getTokens() {
+  return { auth_token: getAuthToken(), access_token: keycloak.token };
+}
+
 function setAuthToken(value) {
   return setCookie(AUTH_TOKEN, value, 365);
 }
@@ -121,10 +126,10 @@ function doSignOutCleanup() {
 }
 
 function doAuthTokenRefresh() {
-  const authToken = getAuthToken();
+  const { auth_token: authToken } = getAuthToken();
   if (authToken) {
     deleteAuthToken();
-    setAuthToken(authToken);
+    setCookie(AUTH_TOKEN, authToken, 365);
   }
 }
 
@@ -138,6 +143,7 @@ module.exports = {
   deleteSavedPassword,
   getAuthToken,
   setAuthToken,
+  getTokens,
   deleteAuthToken,
   doSignOutCleanup,
   doAuthTokenRefresh,

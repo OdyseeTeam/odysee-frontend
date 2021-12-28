@@ -378,7 +378,11 @@ export function doLbryReady() {
 
     // TODO: call doFetchDaemonSettings, then get usage data, and call doAuthenticate once they are loaded into the store
     const shareUsageData = IS_WEB || LocalStorage.getItem(LS.SHARE_INTERNAL) === 'true';
-
+    // TODO KEYCLOAK
+    /**
+     * doAuthenticate -> Lbryio.authenticate, then update redux with auth token.
+     *  authenticate: Use auth token to get or create user.getCurrentUser. return user
+     */
     dispatch(
       doAuthenticate(
         appVersion,

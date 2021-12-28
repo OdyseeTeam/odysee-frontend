@@ -1,6 +1,7 @@
 // @flow
 import * as PAGES from 'constants/pages';
 import React, { useEffect, useRef, useState } from 'react';
+import { useKeycloak } from '@react-keycloak/web';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
@@ -137,6 +138,7 @@ function App(props: Props) {
   const isRewardApproved = user && user.is_reward_approved;
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const previousRewardApproved = usePrevious(isRewardApproved);
+  const { authenticated } = useKeycloak();
 
   const [localeLangs, setLocaleLangs] = React.useState();
   const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
@@ -245,6 +247,13 @@ function App(props: Props) {
     }
   }
 
+  useEffect(() => {
+    if (authenticated) {
+      console.log('IS KC AUTHED');
+    }
+  }, [authenticated]);
+
+  // TODO KC HOWTO SETUSER
   useEffect(() => {
     if (userId) {
       analytics.setUser(userId);
@@ -478,6 +487,7 @@ function App(props: Props) {
     };
   }, [hasSignedIn, hasVerifiedEmail, syncLoop]);
 
+  // TODO KEYCLOAK ISAUTHENTICATED
   useEffect(() => {
     if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
       history.push(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);

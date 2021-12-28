@@ -5,7 +5,7 @@ const { getMinVersion } = require('./minVersion');
 const { getOEmbed } = require('./oEmbed');
 const { getRss } = require('./rss');
 const { getTempFile } = require('./tempfile');
-
+const { createReadStream } = require('fs');
 const fetch = require('node-fetch');
 const Router = require('@koa/router');
 
@@ -41,6 +41,11 @@ router.get(`/$/minVersion/v1/get`, async (ctx) => getMinVersion(ctx));
 
 router.get(`/$/api/content/v1/get`, async (ctx) => getHomepage(ctx, 1));
 router.get(`/$/api/content/v2/get`, async (ctx) => getHomepage(ctx, 2));
+
+router.get(`/$/sso/silent-check-sso.html`, async (ctx) => {
+  ctx.type = 'html';
+  ctx.body = createReadStream('./silent-check-sso.html');
+});
 
 router.get(`/$/download/:claimName/:claimId`, async (ctx) => {
   const streamUrl = await getStreamUrl(ctx);

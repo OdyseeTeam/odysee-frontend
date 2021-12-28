@@ -4,6 +4,7 @@ import 'scss/component/_header.scss';
 import { formatCredits } from 'util/format-credits';
 import { useIsMobile } from 'effects/use-screensize';
 import { withRouter } from 'react-router';
+import { useKeycloak } from '@react-keycloak/web';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
@@ -85,6 +86,7 @@ const Header = (props: Props) => {
   } = history;
 
   const isMobile = useIsMobile();
+  const { initialized: keycloakReady } = useKeycloak();
 
   // on the verify page don't let anyone escape other than by closing the tab to keep session data consistent
   const isVerifyPage = pathname.includes(PAGES.AUTH_VERIFY);
@@ -173,18 +175,17 @@ const Header = (props: Props) => {
         </>
       ) : !isMobile ? (
         <div className="header__authButtons">
-          <Button
-            navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`}
-            button="link"
-            label={__('Log In')}
-            disabled={user === null}
-          />
-          <Button
-            navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}
-            button="primary"
-            label={__('Sign Up')}
-            disabled={user === null}
-          />
+          {keycloakReady && (
+            <Button
+              navigate={`/$/${PAGES.OAUTH}${authRedirectParam}`}
+              button="primary"
+              label={__('Log In')}
+              disabled={user === null}
+            />
+          )}
+          {!keycloakReady && (
+            <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
+          )}
         </div>
       ) : (
         <HeaderProfileMenuButton />

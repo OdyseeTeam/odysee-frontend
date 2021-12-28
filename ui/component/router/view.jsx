@@ -1,6 +1,7 @@
 // @flow
 import React, { useEffect } from 'react';
 import { Route, Redirect, Switch, withRouter } from 'react-router-dom';
+import { useKeycloak } from '@react-keycloak/web';
 
 import * as PAGES from 'constants/pages';
 import { PAGE_TITLE } from 'constants/pageTitles';
@@ -72,6 +73,7 @@ const LivestreamCurrentPage = lazyImport(() =>
 const OdyseeMembershipPage = lazyImport(() =>
   import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
 );
+const OAuthPage = lazyImport(() => import('page/oauth' /* webpackChunkName: "oauth" */));
 const OwnComments = lazyImport(() => import('page/ownComments' /* webpackChunkName: "ownComments" */));
 const PasswordResetPage = lazyImport(() => import('page/passwordReset' /* webpackChunkName: "passwordReset" */));
 const PasswordSetPage = lazyImport(() => import('page/passwordSet' /* webpackChunkName: "passwordSet" */));
@@ -148,14 +150,20 @@ function PrivateRoute(props: PrivateRouteProps) {
   const { component: Component, isAuthenticated, ...rest } = props;
   const urlSearchParams = new URLSearchParams(props.location.search);
   const redirectUrl = urlSearchParams.get('redirect');
+  const { keycloak } = useKeycloak();
   return (
     <Route
       {...rest}
       render={(props) =>
-        isAuthenticated || !IS_WEB ? (
+        (keycloak && keycloak.authenticated) || !IS_WEB ? (
           <Component {...props} />
         ) : (
-          <Redirect to={`/$/${PAGES.AUTH}?redirect=${redirectUrl || props.location.pathname}`} />
+          <Redirect
+            to={{
+              pathname: `/$/${PAGES.OAUTH}?redirect=${redirectUrl || props.location.pathname}`,
+              state: { from: props.location },
+            }}
+          />
         )
       }
     />
@@ -326,6 +334,7 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.AUTH_PASSWORD_SET}`} exact component={PasswordSetPage} />
         <Route path={`/$/${PAGES.AUTH}`} exact component={SignUpPage} />
         <Route path={`/$/${PAGES.AUTH}/*`} exact component={SignUpPage} />
+        <Route path={`/$/${PAGES.OAUTH}`} exact component={OAuthPage} />
 
         <Route path={`/$/${PAGES.HELP}`} exact component={HelpPage} />
 

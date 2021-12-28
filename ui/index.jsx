@@ -2,6 +2,7 @@ import 'babel-polyfill';
 import * as Sentry from '@sentry/browser';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
+// import LoadingBarOneOff from 'component/loadingBarOneOff';
 import SnackBar from 'component/snackBar';
 // @if TARGET='app'
 import SplashScreen from 'component/splash';
@@ -36,7 +37,9 @@ import { formatLbryUrlForWeb, formatInAppUrl } from 'util/url';
 import { PersistGate } from 'redux-persist/integration/react';
 import analytics from 'analytics';
 import { doToast } from 'redux/actions/notifications';
-import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
+import { ReactKeycloakProvider } from '@react-keycloak/web';
+import keycloak, { initOptions } from 'util/keycloak';
+import { getAuthToken, setAuthToken, getTokens } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
 
@@ -103,24 +106,27 @@ if (process.env.SEARCH_API_URL) {
   setSearchApi(process.env.SEARCH_API_URL);
 }
 
-doAuthTokenRefresh();
+// TODO KEYCLOAK
+// doAuthTokenRefresh();
 
-// We need to override Lbryio for getting/setting the authToken
-// We interact with ipcRenderer to get the auth key from a users keyring
-// We keep a local variable for authToken because `ipcRenderer.send` does not
-// contain a response, so there is no way to know when it's been set
-let authToken;
 Lbryio.setOverride('setAuthToken', (authToken) => {
   setAuthToken(authToken);
   return authToken;
 });
 
 Lbryio.setOverride(
+  'getTokens',
+  () =>
+    new Promise((resolve) => {
+      resolve(getTokens());
+    })
+);
+
+Lbryio.setOverride(
   'getAuthToken',
   () =>
     new Promise((resolve) => {
-      const authTokenToReturn = authToken || getAuthToken();
-      resolve(authTokenToReturn);
+      resolve(getAuthToken());
     })
 );
 
@@ -213,6 +219,19 @@ function AppWrapper() {
   // Splash screen and sdk setup not needed on web
   const [readyToLaunch, setReadyToLaunch] = useState(IS_WEB);
   const [persistDone, setPersistDone] = useState(false);
+  const [keycloakReady, setKeycloakReady] = useState(false);
+
+  const onKeycloakEvent = (event, error) => {
+    // console.log('onKeycloakEvent:', event, error, keycloak);
+    if (event === 'onReady') {
+      setKeycloakReady(true);
+    }
+  };
+
+  const onKeycloakTokens = (tokens) => {
+    // TODO: Add flow -- token: { idToken: string, refreshToken: string, token: string }
+    // console.log('onKeycloakTokens:', tokens);
+  };
 
   useEffect(() => {
     // @if TARGET='app'
@@ -245,7 +264,7 @@ function AppWrapper() {
   }, [persistDone]);
 
   useEffect(() => {
-    if (readyToLaunch && persistDone) {
+    if (readyToLaunch && persistDone && keycloakReady) {
       app.store.dispatch(doLbryReady());
 
       const timer = setTimeout(() => {
@@ -270,32 +289,40 @@ function AppWrapper() {
         clearTimeout(nonCriticalTimer);
       };
     }
-  }, [readyToLaunch, persistDone]);
+  }, [readyToLaunch, persistDone, keycloakReady]);
 
   return (
-    <Provider store={store}>
-      <PersistGate
-        persistor={persistor}
-        onBeforeLift={() => setPersistDone(true)}
-        loading={<div className="main--launching" />}
-      >
-        <Fragment>
-          {readyToLaunch ? (
-            <ConnectedRouter history={history}>
-              <ErrorBoundary>
-                <App />
+    <ReactKeycloakProvider
+      authClient={keycloak}
+      initOptions={initOptions}
+      onEvent={onKeycloakEvent}
+      onTokens={onKeycloakTokens}
+      // LoadingComponent={<LoadingBarOneOff />}
+    >
+      <Provider store={store}>
+        <PersistGate
+          persistor={persistor}
+          onBeforeLift={() => setPersistDone(true)}
+          loading={<div className="main--launching" />}
+        >
+          <Fragment>
+            {readyToLaunch ? (
+              <ConnectedRouter history={history}>
+                <ErrorBoundary>
+                  <App />
+                  <SnackBar />
+                </ErrorBoundary>
+              </ConnectedRouter>
+            ) : (
+              <Fragment>
+                <SplashScreen onReadyToLaunch={() => setReadyToLaunch(true)} />
                 <SnackBar />
-              </ErrorBoundary>
-            </ConnectedRouter>
-          ) : (
-            <Fragment>
-              <SplashScreen onReadyToLaunch={() => setReadyToLaunch(true)} />
-              <SnackBar />
-            </Fragment>
-          )}
-        </Fragment>
-      </PersistGate>
-    </Provider>
+              </Fragment>
+            )}
+          </Fragment>
+        </PersistGate>
+      </Provider>
+    </ReactKeycloakProvider>
   );
 }
 

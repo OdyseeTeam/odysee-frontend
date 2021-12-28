@@ -67,12 +67,9 @@ Lbryio.call = (resource, action, params = {}, method = 'get') => {
     // -------------------
     // Send both tokens to userMe; delete auth token after success.
     if (action === 'me') {
-      // TODO: when we support transition from auth to access, bring this in:
-      // @if false
       if (tokens && tokens.access_token) {
         headers.Authorization = `Bearer ${tokens.access_token}`;
       }
-      // @endif
       if (tokens && tokens.auth_token) {
         fullParams.auth_token = tokens.auth_token;
       }
@@ -94,14 +91,13 @@ Lbryio.call = (resource, action, params = {}, method = 'get') => {
 
     let options = {
       method: 'GET',
+      headers,
     };
 
     if (method === 'post') {
       options = {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers,
         body: qs,
       };
       url = `${Lbryio.CONNECTION_STRING}${resource}/${action}`;
@@ -177,7 +173,8 @@ Lbryio.fetchUser = async (domain, language) => {
     }
     if (tokens.access_token) {
       if (tokens.auth_token) {
-        await Lbryio.deleteAuthToken();
+        // TODO KEYCLOAK - do we need to delete this?
+        // await Lbryio.deleteAuthToken();
       }
     }
     return user;
