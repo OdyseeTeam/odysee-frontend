@@ -143,6 +143,7 @@ function Page(props: Props) {
                 'main--markdown': isMarkdown,
                 'main--theater-mode': isOnFilePage && videoTheaterMode && !livestream,
                 'main--livestream': livestream && !chatDisabled,
+                'main--upcoming': livestream && chatDisabled,
               })}
             >
               {children}

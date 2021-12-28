@@ -212,6 +212,14 @@ body {
   }
 }
 
+.main--upcoming {
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xs);
+    flex-direction: column;
+    padding-top: 0;
+  }
+}
+
 .main--theater-mode {
   padding-left: 0;
   padding-right: 0;
