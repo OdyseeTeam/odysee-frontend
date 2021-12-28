@@ -84,14 +84,12 @@
       border-radius: 50%;
     }
 
-    /*
     .button {
-      background-color: var(--color-primary);
+      background-color: rgba(var(--color-primary-dynamic), 0.4);
       .icon {
         stroke: var(--color-primary-contrast);
       }
     }
-    */
   }
 }
 
