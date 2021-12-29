@@ -17,6 +17,7 @@ export const PAGE_TITLE = {
   [PAGES.LAB]: 'Lab',
   [PAGES.MOVIES]: 'Movies',
   [PAGES.MUSIC]: 'Music',
+  [PAGES.JAMS]: 'Jams',
   [PAGES.NEWS]: 'News & Politics',
   [PAGES.POP_CULTURE]: 'Pop Culture',
   // [PAGES.RABBIT_HOLE]: 'The Rabbit Hole';

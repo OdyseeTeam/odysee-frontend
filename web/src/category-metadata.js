@@ -53,6 +53,11 @@ module.exports.CATEGORY_METADATA = {
     description: 'All the songs, reviews, covers, and how-tos you love on Odysee',
     image: 'https://cdn.lbryplayer.xyz/speech/category-music:8.jpg',
   },
+  [PAGES.JAMS]: {
+    title: 'Jams',
+    description: 'All the songs, reviews, covers, and how-tos you love on Odysee',
+    image: 'https://cdn.lbryplayer.xyz/speech/category-music:8.jpg',
+  },
   [PAGES.TECH]: {
     title: 'Tech',
     description: 'Hardware, software, startups, photography on Odysee',

@@ -10,6 +10,7 @@ exports.DISCOVER = 'discover';
 exports.BIG_HITS = 'bighits';
 exports.MOVIES = 'movies';
 exports.MUSIC = 'music';
+exports.JAMS = 'jams';
 exports.COMMUNITY = 'community';
 exports.EDUCATION = 'education';
 exports.ENLIGHTENMENT = 'enlightenment';
