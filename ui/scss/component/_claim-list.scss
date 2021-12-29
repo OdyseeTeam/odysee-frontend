@@ -642,6 +642,10 @@
   justify-content: flex-start;
   list-style: none;
 
+  .media__thumb {
+    overflow: hidden;
+  }
+
   // Hover Zoom Effect
   .media__thumb {
     background-size: 100%;
