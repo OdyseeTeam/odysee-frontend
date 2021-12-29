@@ -589,7 +589,7 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-*:focus:not(:active) {
+*:focus-visible {
   // outline: 3px solid red;
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
 }
