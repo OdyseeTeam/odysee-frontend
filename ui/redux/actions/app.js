@@ -47,8 +47,9 @@ import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvali
 import { doAuthenticate } from 'redux/actions/user';
 import { lbrySettings as config, version as appVersion } from 'package.json';
 import analytics from 'analytics';
-import { doSignOutCleanup } from 'util/saved-passwords';
+import { doSignOutCleanup, getTokens } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
+import keycloak from 'util/keycloak';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 
@@ -581,17 +582,26 @@ export function doSignOut() {
         await pushNotifications.disconnect(user.id);
       }
     } finally {
-      Lbryio.call('user', 'signout')
-        .then(doSignOutCleanup)
-        .then(() => {
-          // @if TARGET='web'
-          return window.persistor.purge();
-          // @endif
-        })
-        .catch((err) => {
-          analytics.error(`\`doSignOut\`: ${err.message || err}`);
-        })
-        .finally(() => location.reload());
+      const tokens = getTokens();
+
+      if (tokens.access_token) {
+        // `keycloak.logout()` redirects, so we'll have to do the cleanup first.
+        await doSignOutCleanup(); // <-- TODO KEYCLOAK: maybe not necessary anymore?
+        window.persistor.purge(); // <-- TODO KEYCLOAK: verify this method works. Persistor purged correctly?
+        await keycloak.logout('/');
+      } else {
+        Lbryio.call('user', 'signout')
+          .then(doSignOutCleanup)
+          .then(() => {
+            // @if TARGET='web'
+            return window.persistor.purge();
+            // @endif
+          })
+          .catch((err) => {
+            analytics.error(`\`doSignOut\`: ${err.message || err}`);
+          })
+          .finally(() => location.reload());
+      }
     }
   };
 }
