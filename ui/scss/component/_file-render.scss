@@ -1,13 +1,25 @@
 .file-page {
-  .claim-preview {
-    &:hover {
+  .card-stack {
+    .claim-preview {
+      &:hover {
+        .claim-preview__title {
+          color: var(--color-text);
+        }
+      }
       .claim-preview__title {
-        color: var(--color-text);
+        &:hover {
+          color: var(--color-primary);
+        }
       }
     }
-    .claim-preview__title {
+  }
+
+  .file-page__recommended {
+    .claim-preview__wrapper {
       &:hover {
-        color: var(--color-primary);
+        .claim-preview__title {
+          color: var(--color-primary);
+        }
       }
     }
   }
