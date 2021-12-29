@@ -1,4 +1,17 @@
 .file-page {
+  .claim-preview {
+    &:hover {
+      .claim-preview__title {
+        color: var(--color-text);
+      }
+    }
+    .claim-preview__title {
+      &:hover {
+        color: var(--color-primary);
+      }
+    }
+  }
+
   .file-page__video-container + .card,
   .file-render + .card,
   .content__cover + .card,
