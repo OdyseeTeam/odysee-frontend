@@ -21,6 +21,10 @@
   border-top: none;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
+
+  &:focus-visible {
+    background-color: var(--color-menu-background) !important;
+  }
 }
 
 [data-reach-menu-item] {
