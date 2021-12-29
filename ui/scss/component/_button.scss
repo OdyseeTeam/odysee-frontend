@@ -106,7 +106,12 @@
 
 .vjs-fullscreen-control {
   order: 2;
-  margin-right: var(--spacing-xs) !important;
+}
+
+.content__viewer--theater-mode {
+  .vjs-fullscreen-control {
+    margin-right: var(--spacing-xs) !important;
+  }
 }
 
 .vjs-button--theater-mode.vjs-button {
