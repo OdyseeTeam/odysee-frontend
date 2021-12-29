@@ -46,7 +46,7 @@ function ChannelThumbnail(props: Props) {
     showDelayedMessage = false,
     noLazyLoad,
     hideStakedIndicator = false,
-    hideTooltip = false,
+    hideTooltip,
     setThumbUploadError,
     ThumbUploadError,
   } = props;
