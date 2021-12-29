@@ -75,6 +75,18 @@
       border-left: 1px solid var(--color-border);
     }
 
+    .button-toggle,
+    .channel__list-item,
+    input {
+      background-color: var(--color-background);
+    }
+    .channel__list-item {
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
+      }
+    }
+
     label {
       color: var(--color-text);
       font-size: var(--font-medium);
