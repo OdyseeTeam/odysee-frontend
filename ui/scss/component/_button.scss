@@ -671,6 +671,12 @@ svg + .button__label {
       stroke: var(--color-button-toggle-text) !important;
     }
   }
+
+  &:focus-visible {
+    .icon {
+      stroke: var(--color-button-toggle-text) !important;
+    }
+  }
 }
 
 .button-toggle--custom {
