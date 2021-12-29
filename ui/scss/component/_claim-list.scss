@@ -148,8 +148,14 @@
   background: rgba(var(--color-header-background-base), 0.6);
   padding: var(--spacing-m) !important;
 
+  .channel-name {
+    &:hover {
+      color: var(--color-secondary);
+    }
+  }
+
   .claim__menu-button {
-    right: calc(var(--spacing-m) - 8px) !important;
+    right: 0;
     margin-top: var(--spacing-xxs);
 
     .icon {
