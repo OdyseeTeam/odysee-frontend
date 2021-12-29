@@ -31,7 +31,7 @@
   display: block;
   z-index: 2;
 
-  &:focus {
+  &:focus-visible {
     box-shadow: none;
   }
 }
@@ -51,7 +51,7 @@
   box-shadow: none;
 
   .icon {
-    stroke: var(--color-menu-icon-active);
+    stroke: var(--color-primary-contrast) !important;
   }
 
   .comment__menu-help {
@@ -122,9 +122,9 @@
   }
 
   &:hover {
-    color: var(--color-menu-icon-active);
+    color: var(--color-primary-contrast);
     .icon {
-      stroke: var(--color-menu-icon-active);
+      stroke: var(--color-primary-contrast);
       margin-right: var(--spacing-s);
     }
   }

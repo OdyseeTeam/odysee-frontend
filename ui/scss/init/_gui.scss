@@ -590,6 +590,10 @@ a {
 }
 
 *:focus-visible {
-  // outline: 3px solid red;
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+  color: var(--color-text) !important;
+
+  .icon {
+    stroke: var(--color-text) !important;
+  }
 }
