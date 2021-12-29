@@ -2,6 +2,9 @@
   width: 100%;
   margin-bottom: var(--spacing-l);
 
+  .card {
+    color: var(--color-text);
+  }
   .placeholder {
     background-color: var(--color-placeholder-background);
   }
