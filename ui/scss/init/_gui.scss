@@ -592,6 +592,8 @@ a {
 *:focus-visible {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
+  outline: 2px solid;
+  outline-color: var(--color-primary);
 
   .icon {
     stroke: var(--color-text) !important;
