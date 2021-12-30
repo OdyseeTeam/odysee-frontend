@@ -118,6 +118,12 @@
   padding-top: var(--spacing-xs);
   background-color: var(--color-background);
   border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+  [data-highlighted] {
+    .button {
+      color: var(--color-primary-contrast) !important;
+    }
+  }
 }
 
 .wunderbar__suggestions--mobile {
