@@ -55,6 +55,19 @@
       stroke: var(--color-primary-contrast) !important;
     }
   }
+
+  &:focus-visible {
+    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+
+    .button__label {
+      color: var(--color-text) !important;
+    }
+
+    .icon {
+      stroke: var(--color-text) !important;
+    }
+  }
 }
 
 .button--secondary {
@@ -66,6 +79,19 @@
 
   .icon {
     stroke: var(--color-primary-contrast) !important;
+  }
+
+  &:focus-visible {
+    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+
+    .button__label {
+      color: var(--color-text) !important;
+    }
+
+    .icon {
+      stroke: var(--color-text) !important;
+    }
   }
 }
 
@@ -679,6 +705,9 @@ svg + .button__label {
   }
 
   &:focus-visible {
+    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset !important;
+
     .icon {
       stroke: var(--color-button-toggle-text) !important;
     }

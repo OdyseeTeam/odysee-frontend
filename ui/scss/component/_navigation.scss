@@ -112,10 +112,15 @@
 
   .navigation-link {
     font-size: var(--font-xxsmall) !important;
-    height: 1.4rem !important;
+    // height: 1.4rem !important;
 
-    .button__label {
-      color: var(--color-navigation-link);
+    .button__content {
+      padding-top: 0;
+      padding-bottom: 0;
+
+      .button__label {
+        color: var(--color-navigation-link);
+      }
     }
 
     &:hover {
