@@ -19,6 +19,7 @@ export default () => {
   const [user] = useState(selectUser(store.getState()));
 
   useEffect(() => {
+    if (!user) return;
     setPushSupported(pushNotifications.supported);
     if (pushNotifications.supported) {
       pushNotifications.subscribed(user.id).then((isSubscribed: boolean) => {
@@ -31,24 +32,23 @@ export default () => {
   useMemo(() => setPushEnabled(pushPermission === 'granted' && subscribed), [pushPermission, subscribed]);
 
   const subscribe = async () => {
+    if (!user) return;
     setEncounteredError(false);
     try {
-      if (await pushNotifications.subscribe(user.id)) {
+      const subscribed = await pushNotifications.subscribe(user.id);
+      if (subscribed) {
         setSubscribed(true);
         setPushPermission(window.Notification?.permission);
-        analytics.reportEvent('browser_notification', { [GA_DIMENSIONS.ACTION]: 'subscribed' });
-        return true;
-      } else {
-        setEncounteredError(true);
-        analytics.reportEvent('browser_notification', { [GA_DIMENSIONS.ACTION]: 'subscribe_failed' });
       }
     } catch {
       setEncounteredError(true);
       analytics.reportEvent('browser_notification', { [GA_DIMENSIONS.ACTION]: 'subscribe_failed' });
     }
+    analytics.reportEvent('browser_notification', { [GA_DIMENSIONS.ACTION]: 'subscribed' });
   };
 
   const unsubscribe = async () => {
+    if (!user) return;
     if (await pushNotifications.unsubscribe(user.id)) {
       setSubscribed(false);
       analytics.reportEvent('browser_notification', { [GA_DIMENSIONS.ACTION]: 'unsubscribed' });
