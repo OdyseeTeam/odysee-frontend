@@ -123,6 +123,12 @@
     .button {
       color: var(--color-primary-contrast) !important;
     }
+    .wunderbar__suggestion-label {
+      .wunderbar__suggestion-title,
+      .wunderbar__suggestion-name {
+        color: var(--color-primary-contrast) !important;
+      }
+    }
   }
 }
 
