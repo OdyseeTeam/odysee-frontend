@@ -94,6 +94,7 @@
 
 .file-render--video {
   background-color: black;
+  border-radius: var(--border-radius);
 
   &:after {
     content: '';
