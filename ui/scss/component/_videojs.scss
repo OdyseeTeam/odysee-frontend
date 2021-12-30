@@ -188,6 +188,13 @@ $control-bar-icon-size: 0.8rem;
   display: none;
 }
 
+.vjs-chromecast-button {
+  .vjs-icon-placeholder {
+    width: 21px;
+    height: 21px;
+  }
+}
+
 .video-js-parent .vjs-tech-chromecast {
   .vjs-tech-chromecast-poster {
     &::after {
