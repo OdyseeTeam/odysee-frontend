@@ -98,7 +98,7 @@ reach-portal {
 .menu__list {
   font-size: var(--font-small);
 
-  border-radius: var(--border-radius);
+  border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
   padding: var(--spacing-xs) 0;
 
   [data-reach-menu-item] {
