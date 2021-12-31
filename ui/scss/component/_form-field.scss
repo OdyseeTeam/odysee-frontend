@@ -90,6 +90,16 @@ form,
   }
 }
 
+fieldset-section {
+  background-color: unset !important;
+  select:focus-visible {
+    background-color: var(--color-header-background) !important;
+  }
+
+  option {
+    background-color: var(--color-header-background);
+  }
+}
 fieldset-section,
 .checkbox,
 .radio {
