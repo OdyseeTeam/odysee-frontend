@@ -589,7 +589,7 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-*:focus-visible:not(.wunderbar__input):not(select) {
+*:focus-visible:not(.wunderbar__input):not(select):not(input) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
   outline: 2px solid var(--color-primary);
@@ -599,6 +599,7 @@ a {
   }
 }
 
-select:focus-visible {
-  outline: 2px solid var(--color-primary);
+select:focus-visible,
+input:focus-visible {
+  box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
 }
