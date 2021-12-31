@@ -589,11 +589,10 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-*:focus-visible {
+*:focus-visible:not(.wunderbar__input) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
-  outline: 2px solid;
-  outline-color: var(--color-primary);
+  outline: 2px solid var(--color-primary);
 
   .icon {
     stroke: var(--color-text) !important;

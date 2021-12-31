@@ -7,7 +7,7 @@
 
   &:hover {
     .wunderbar__input {
-      border: 1px solid var(--color-primary);
+      outline: 2px solid var(--color-primary);
     }
   }
 }
@@ -94,7 +94,7 @@
   border: 1px solid rgba(0, 0, 0, 0);
 
   &:focus {
-    border: 1px solid var(--color-primary);
+    outline: 2px solid var(--color-primary) !important;
   }
 }
 
