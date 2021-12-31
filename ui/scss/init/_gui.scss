@@ -600,6 +600,6 @@ a {
 }
 
 select:focus-visible,
-input:focus-visible {
+input:focus-visible:not(.wunderbar__input) {
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
 }
