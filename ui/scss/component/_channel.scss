@@ -345,11 +345,12 @@ $actions-z-index: 2;
     margin: 0;
 
     &[data-selected] {
-      background: transparent;
+      // background: transparent;
       .channel__list-item,
       .channel-staked__wrapper {
+        background-color: var(--color-primary);
         .claim-preview__title {
-          color: var(--color-menu-icon-active);
+          color: var(--color-primary-contrast);
         }
       }
     }
