@@ -8,6 +8,7 @@ import { useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
+// import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 
 type Props = {
   channelIds: Array<string>,

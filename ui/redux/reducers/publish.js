@@ -33,6 +33,7 @@ type PublishState = {
   language: string,
   releaseTime: ?number,
   releaseTimeEdited: ?number,
+  releaseAnytime: boolean,
   channel: string,
   channelId: ?string,
   name: string,
@@ -45,6 +46,8 @@ type PublishState = {
   optimize: boolean,
   useLBRYUploader: boolean,
   currentUploads: { [key: string]: FileUploadItem },
+  isMarkdownPost: boolean,
+  isLivestreamPublish: boolean,
 };
 
 const defaultState: PublishState = {
@@ -69,6 +72,7 @@ const defaultState: PublishState = {
   language: '',
   releaseTime: undefined,
   releaseTimeEdited: undefined,
+  releaseAnytime: false,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
@@ -86,6 +90,8 @@ const defaultState: PublishState = {
   optimize: false,
   useLBRYUploader: false,
   currentUploads: {},
+  isMarkdownPost: false,
+  isLivestreamPublish: false,
 };
 
 export const publishReducer = handleActions(
