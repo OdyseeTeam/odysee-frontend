@@ -589,7 +589,7 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-*:focus-visible:not(.wunderbar__input):not(select):not(input):not(textarea) {
+*:focus-visible:not(.wunderbar__input):not(.menu__list--header):not(select):not(input):not(textarea) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
   outline: 2px solid var(--color-primary);

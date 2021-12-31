@@ -32,8 +32,7 @@ reach-portal {
   display: block;
   white-space: nowrap;
   outline: none;
-  background-color: var(--color-header-background);
-  // border: 1px solid var(--border-color);
+  background-color: var(--color-header-background) !important;
   border-top: none;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
