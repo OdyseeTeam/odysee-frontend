@@ -4,6 +4,16 @@
   --reach-menu-button: 1;
 }
 
+reach-portal {
+  [data-reach-menu] {
+    [data-reach-menu-items] {
+      &:focus-visible {
+        background-color: var(--color-header-background) !important;
+      }
+    }
+  }
+}
+
 [data-reach-menu] {
   display: block;
   position: absolute;
@@ -16,14 +26,15 @@
   display: block;
   white-space: nowrap;
   outline: none;
-  background-color: var(--color-menu-background);
-  border: 1px solid var(--border-color);
+  background-color: var(--color-header-background);
+  // border: 1px solid var(--border-color);
   border-top: none;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 
   &:focus-visible {
-    background-color: var(--color-menu-background) !important;
+    background-color: var(--color-header-background) !important;
+    outline: unset !important;
   }
 }
 
