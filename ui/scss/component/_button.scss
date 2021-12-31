@@ -294,8 +294,8 @@
   }
 
   &:hover {
-    color: var(--color-button-primary-text);
-    background-color: var(--color-button-primary-bg);
+    color: var(--color-primary-contrast);
+    background-color: var(--color-primary);
   }
 
   @media (max-width: $breakpoint-small) {
