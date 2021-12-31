@@ -11,6 +11,10 @@
   z-index: 10000; // hack to get it over react modal
   display: flex;
   flex-direction: column;
+
+  .button__label {
+    color: var(--color-primary-contrast);
+  }
 }
 
 .snack-bar--upgrade {
