@@ -21,7 +21,7 @@
 [aria-expanded='true'].claim__menu-button {
   opacity: 1;
   background-color: var(--color-header-background);
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
+  border-radius: var(--border-radius);
 
   .icon {
     stroke: var(--color-primary);
