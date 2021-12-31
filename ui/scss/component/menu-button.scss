@@ -10,6 +10,12 @@ reach-portal {
       &:focus-visible {
         background-color: var(--color-header-background) !important;
       }
+
+      [data-reach-menu-item][data-selected] {
+        .icon {
+          stroke: var(--color-primary-contrast) !important;
+        }
+      }
     }
   }
 }
