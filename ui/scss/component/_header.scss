@@ -222,9 +222,6 @@
 .header__navigationItem--profilePic {
   margin-right: var(--spacing-s);
   border-radius: 50%;
-  &:focus {
-    outline: 4px solid rgba(var(--color-primary-dynamic), 0.2);
-  }
 
   .channel-thumbnail {
     height: var(--height-button);
