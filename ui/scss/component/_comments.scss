@@ -169,7 +169,7 @@ $thumbnailWidthSmall: 1rem;
   height: 100%;
 
   .channel-name {
-    color: rgba(var(--color-primary-dynamic), 1);
+    color: var(--color-link);
 
     &:hover {
       color: rgba(var(--color-secondary-dynamic), 1);
