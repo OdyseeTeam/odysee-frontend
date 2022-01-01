@@ -126,10 +126,10 @@
 
   .button {
     &:hover {
-      color: var(--color-primary);
+      color: var(--color-link);
 
       svg {
-        stroke: var(--color-primary);
+        stroke: var(--color-link);
       }
     }
   }
