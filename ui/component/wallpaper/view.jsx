@@ -34,6 +34,9 @@ const Wallpaper = (props: Props) => {
                   '--color-link',
                   'rgba(' + link.r + ',' + link.g + ',' + link.b + ', 1)'
                 );
+            } else {
+              document.documentElement !== null &&
+                document.documentElement.style.setProperty('--color-link', 'var(--color-primary)');
             }
           }
           document.documentElement !== null &&
@@ -77,6 +80,8 @@ const Wallpaper = (props: Props) => {
         '--color-secondary-contrast',
         'var(--color-secondary-contrast-static)'
       );
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-link', 'var(--color-primary)');
   }
 
   function toDataUrl(url, callback) {
