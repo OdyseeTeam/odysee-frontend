@@ -352,6 +352,13 @@
   }
 }
 
+[aria-expanded='true'].button--file-action {
+  background-color: var(--color-header-background);
+  .icon {
+    stroke: var(--color-primary);
+  }
+}
+
 .button--fire {
   color: var(--color-fire);
   position: relative;
