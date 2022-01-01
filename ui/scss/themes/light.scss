@@ -167,6 +167,6 @@
   --color-scrollbar-thumb-bg: rgba(0, 0, 0, 0.2);
   --color-scrollbar-track-bg: transparent;
 
-  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.35) 2%, #fdfdfd),
-    radial-gradient(circle at 50% 117%, rgba(var(--color-background-base), 0.35) 0, #fdfdfd 100%);
+  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.4) 2%, #fdfdfd),
+    radial-gradient(circle at 50% 117%, rgba(var(--color-background-base), 0.4) 0, #fdfdfd 100%);
 }
