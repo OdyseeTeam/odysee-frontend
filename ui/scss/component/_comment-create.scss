@@ -43,6 +43,18 @@ $thumbnailWidthSmall: 1rem;
       margin-bottom: 8px;
     }
   }
+
+  .button--file-action {
+    .button__content {
+      .icon {
+        width: 23px;
+        height: 23px;
+        padding: 2px;
+        background: var(--color-header-background);
+        border-radius: var(--border-radius);
+      }
+    }
+  }
 }
 
 .commentCreate--reply {

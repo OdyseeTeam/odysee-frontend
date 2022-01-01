@@ -304,8 +304,13 @@ $recent-msg-button__height: 2rem;
     .help {
       color: var(--color-text);
     }
-    .button {
-      background-color: var(--color-header-button);
+    .comment__char-count-mde {
+      background-color: var(--color-header-button) !important;
+    }
+    .button--file-action {
+      .icon {
+        background-color: var(--color-header-button) !important;
+      }
       color: var(--color-text);
     }
     .button--link {
