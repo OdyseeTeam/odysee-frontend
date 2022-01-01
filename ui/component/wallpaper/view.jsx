@@ -20,6 +20,22 @@ const Wallpaper = (props: Props) => {
           if (colorCompare(rgb) < 15) {
             rgb = colorMixer(rgb, brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 }, 0.7);
           }
+
+          // Tune link color in light theme
+          if (document.documentElement !== null) {
+            if (getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000') {
+              let link = colorMixer(
+                rgb,
+                brightness > threshold ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 },
+                0.8
+              );
+              document.documentElement !== null &&
+                document.documentElement.style.setProperty(
+                  '--color-link',
+                  'rgba(' + link.r + ',' + link.g + ',' + link.b + ', 1)'
+                );
+            }
+          }
           document.documentElement !== null &&
             document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);
           document.documentElement !== null &&

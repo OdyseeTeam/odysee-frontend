@@ -235,7 +235,7 @@
     }
 
     .claim-preview__title {
-      color: var(--color-primary);
+      color: var(--color-link);
     }
     .claim-preview__hover-actions {
       display: block;
@@ -325,7 +325,7 @@
 
   &:hover {
     .claim-preview__title {
-      color: var(--color-primary);
+      color: var(--color-link);
     }
 
     .media__thumb {
@@ -670,7 +670,7 @@
     }
 
     .claim-tile__title {
-      color: var(--color-primary);
+      color: var(--color-link);
     }
 
     .claim__menu-button {
@@ -997,7 +997,7 @@
   //background-color: var(--color-card-background-highlighted);
 
   .claim-preview__title {
-    color: var(--color-primary);
+    color: var(--color-link);
   }
 
   .media__thumb {

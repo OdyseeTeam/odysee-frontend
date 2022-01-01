@@ -8,7 +8,7 @@
       }
       .claim-preview__title {
         &:hover {
-          color: var(--color-primary);
+          color: var(--color-link);
         }
       }
     }
@@ -18,7 +18,7 @@
     .claim-preview__wrapper {
       &:hover {
         .claim-preview__title {
-          color: var(--color-primary);
+          color: var(--color-link);
         }
       }
     }
