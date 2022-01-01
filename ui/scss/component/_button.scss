@@ -786,6 +786,15 @@ svg + .button__label {
       stroke: var(--color-fire);
     }
   }
+  &:focus-visible {
+    box-shadow: 0px 0px 0px 2px var(--color-fire) inset !important;
+    .button__content {
+      color: var(--color-fire) !important;
+      svg {
+        stroke: var(--color-fire) !important;
+      }
+    }
+  }
 }
 
 .button-like.comment__action--active {
@@ -799,6 +808,15 @@ svg + .button__label {
     color: var(--color-slime);
     svg {
       stroke: var(--color-slime);
+    }
+  }
+  &:focus-visible {
+    box-shadow: 0px 0px 0px 2px var(--color-slime) inset !important;
+    .button__content {
+      color: var(--color-slime) !important;
+      svg {
+        stroke: var(--color-slime) !important;
+      }
     }
   }
 }
