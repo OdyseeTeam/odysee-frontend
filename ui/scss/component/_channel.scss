@@ -295,11 +295,11 @@ $actions-z-index: 2;
   .button,
   .menu__button {
     &:hover {
-      color: var(--color-primary);
+      color: var(--color-link);
       background-color: rgba(var(--color-header-background-base), 0.95);
 
       .icon {
-        stroke: var(--color-primary);
+        stroke: var(--color-link);
       }
     }
   }

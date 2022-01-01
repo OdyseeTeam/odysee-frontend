@@ -631,7 +631,7 @@ svg + .button__label {
   color: var(--color-text);
 
   &:hover:not(.button-toggle--active) {
-    color: var(--color-button-secondary-text-hover);
+    color: var(--color-link);
     background-color: var(--color-button-secondary-bg-hover);
   }
 
