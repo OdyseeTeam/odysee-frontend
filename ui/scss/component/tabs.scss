@@ -55,6 +55,7 @@
   padding-right: var(--spacing-m);
   margin-bottom: var(--spacing-l);
   height: 4rem;
+  border-radius: var(--border-radius);
 
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
