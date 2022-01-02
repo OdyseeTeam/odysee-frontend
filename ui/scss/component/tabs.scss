@@ -12,6 +12,12 @@
     // If there is anything after the tabs, render it on the opposite side of the page
     margin-left: auto;
   }
+
+  .tab {
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
 }
 
 .tabs__list.isSticky {
@@ -35,12 +41,6 @@
 
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
-  }
-
-  .tab {
-    &:hover {
-      color: var(--color-primary);
-    }
   }
 }
 
