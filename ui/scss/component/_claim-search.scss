@@ -93,6 +93,11 @@
   display: flex;
   flex-wrap: nowrap;
   margin-right: var(--spacing-s);
+
+  .button:nth-child(2) {
+    margin-left: 1px;
+    margin-right: 1px;
+  }
 }
 
 .claim-search__menu-group--between {
