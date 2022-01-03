@@ -226,22 +226,26 @@ $control-bar-icon-size: 0.8rem;
   }
 }
 
+// larger than default spinner
+.vjs-loading-spinner {
+  margin: -49px 0 0 -37px;
+  border-radius: 100px;
+}
+
+// smallest screens get large spinner
+@media (min-width:680px) {
+  .vjs-loading-spinner {
+    height: 75px;
+    width: 75px;
+  }
+}
+
 // large screens get large spinner
 @media (min-width:1025px) {
   .vjs-loading-spinner {
     height: 90px;
     width: 90px;
-    margin: -49px 0 0 -37px;
-    border-radius: 100px;
   }
-}
-
-// larger than default spinner
-.vjs-loading-spinner {
-  height: 75px;
-  width: 75px;
-  margin: -49px 0 0 -37px;
-  border-radius: 100px;
 }
 
 // TODO: make sure there's no bad side effects of this
