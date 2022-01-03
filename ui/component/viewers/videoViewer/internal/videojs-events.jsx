@@ -102,6 +102,10 @@ const VideoJsEvents = ({
 
   function onInitialPlay() {
     const player = playerRef.current;
+
+    const bigPlayButton = document.querySelector('.vjs-big-play-button');
+    if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none', 'important');
+
     if (player && (player.muted() || player.volume() === 0)) {
       // The css starts as "hidden". We make it visible here without
       // re-rendering the whole thing.
