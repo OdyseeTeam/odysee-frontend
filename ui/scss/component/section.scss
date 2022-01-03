@@ -209,6 +209,10 @@
         width: 100%;
         .wunderbar__input--inline {
           width: 100%;
+          &:focus-visible {
+            outline: unset !important;
+            box-shadow: 0 0 0 2px var(--color-primary) inset;
+          }
         }
       }
     }
