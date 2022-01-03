@@ -54,7 +54,6 @@ type Props = {
   allowPreRoll: ?boolean,
   autoplay: boolean,
   autoplaySetting: boolean,
-  claim: any,
   claimId: ?string,
   title: ?string,
   channelName: ?string,
@@ -73,6 +72,11 @@ type Props = {
   playNext: () => void,
   playPrevious: () => void,
   toggleVideoTheaterMode: () => void,
+  claimRewards: () => void,
+  doAnalyticsView: (string, number) => void,
+  uri: string,
+  claimValues: any,
+  clearPosition: (string) => void,
 };
 
 const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -134,6 +138,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     doAnalyticsView,
     claimRewards,
     uri,
+    clearPosition,
   } = props;
 
   // will later store the videojs player
@@ -168,6 +173,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claimRewards,
     uri,
     playerServerRef,
+    clearPosition,
   });
 
   const videoJsOptions = {
@@ -288,7 +294,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     window.addEventListener('keydown', curried_function(playerRef, containerRef));
 
-    document.querySelector('.vjs-control-bar').style.setProperty('opacity', 1, 'important');
+    // $FlowFixMe
+    document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
     // change to m3u8 if applicable
     (async function() {

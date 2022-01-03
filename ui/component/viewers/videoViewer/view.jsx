@@ -62,6 +62,8 @@ type Props = {
   previousListUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
+  doAnalyticsView: (string, number) => void,
+  claimRewards: () => void,
 };
 
 /*
@@ -439,6 +441,7 @@ function VideoViewer(props: Props) {
         doAnalyticsView={doAnalyticsView}
         claimRewards={claimRewards}
         uri={uri}
+        clearPosition={clearPosition}
       />
     </div>
   );
