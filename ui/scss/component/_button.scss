@@ -745,12 +745,14 @@ svg + .button__label {
   .button:first-child:not(:only-child) {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
-    border-right: 1px solid var(--color-button-border);
+    margin-right: 1px;
+    // border-right: 1px solid var(--color-button-border);
   }
 
   .button:nth-child(2) {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
+    margin-left: 1px;
   }
 
   .button--file-action {

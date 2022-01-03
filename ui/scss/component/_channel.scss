@@ -258,7 +258,7 @@ $actions-z-index: 2;
 
   .button,
   .menu__button {
-    border: 1px solid rgba(var(--color-primary-dynamic), 0.2);
+    border: 1px solid rgba(var(--color-primary-dynamic), 0.1);
   }
 
   > .button,
@@ -271,10 +271,6 @@ $actions-z-index: 2;
     &:not(:last-child) {
       margin-right: var(--spacing-m);
     }
-  }
-
-  .button-group .button:first-child:not(:only-child) {
-    border-right: 0;
   }
 
   .button-group .button {
