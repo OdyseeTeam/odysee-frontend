@@ -191,6 +191,11 @@
       margin-right: var(--spacing-s);
       margin-bottom: var(--spacing-s);
     }
+
+    .ratio-wrapper ~ .button--file-action {
+      flex: auto;
+      // min-width:3rem;
+    }
   }
 }
 
