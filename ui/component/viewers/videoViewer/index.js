@@ -11,6 +11,7 @@ import {
   doChangeMute,
   doAnalyticsBuffer,
   doAnaltyicsPurchaseEvent,
+  doAnalyticsView,
 } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
 import { savePosition, clearPosition, doPlayUri, doSetPlayingUri } from 'redux/actions/content';
@@ -18,6 +19,7 @@ import { makeSelectContentPositionForUri, makeSelectIsPlayerFloating, selectPlay
 import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
+import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
@@ -91,6 +93,8 @@ const perform = (dispatch) => ({
       ),
       dispatch(doSetPlayingUri({ uri, collectionId }))
     ),
+  doAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
+  claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
 });
 
 export default withRouter(connect(select, perform)(VideoViewer));

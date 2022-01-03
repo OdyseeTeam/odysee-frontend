@@ -85,6 +85,8 @@ function VideoViewer(props: Props) {
     autoplayNext,
     autoplayIfEmbedded,
     doAnalyticsBuffer,
+    doAnalyticsView,
+    claimRewards,
     savePosition,
     clearPosition,
     toggleVideoTheaterMode,
@@ -434,6 +436,9 @@ function VideoViewer(props: Props) {
         playPrevious={doPlayPrevious}
         embedded={embedded}
         claim={claim}
+        doAnalyticsView={doAnalyticsView}
+        claimRewards={claimRewards}
+        uri={uri}
       />
     </div>
   );

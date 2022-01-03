@@ -1,6 +1,6 @@
 // @flow
 import { useEffect } from 'react';
-// import analytics from 'analytics';
+import analytics from 'analytics';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -30,6 +30,9 @@ const VideoJsEvents = ({
   userId,
   claim,
   embedded,
+  uri,
+  doAnalyticsView,
+  claimRewards,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -232,38 +235,38 @@ const VideoJsEvents = ({
    */
   function doTrackingFirstPlay(e: Event, data: any) {
     // how long until the video starts
-    // let timeToStartVideo = data.secondsToLoad;
+    let timeToStartVideo = data.secondsToLoad;
 
-    // analytics.playerVideoStartedEvent(embedded);
-    //
-    // // convert bytes to bits, and then divide by seconds
-    // const contentInBits = Number(claim.value.source.size) * 8;
-    // const durationInSeconds = claim.value.video && claim.value.video.duration;
-    // let bitrateAsBitsPerSecond;
-    // if (durationInSeconds) {
-    //   bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
-    // }
-    //
-    // // figure out what server the video is served from and then run start analytic event
-    // // server string such as 'eu-p6'
-    // // TODO: pass this here
-    // const playerPoweredBy = 'eu-p6';
-    // // populates data for watchman, sends prom and matomo event
-    // analytics.videoStartEvent(
-    //   claimId,
-    //   timeToStartVideo,
-    //   playerPoweredBy,
-    //   userId,
-    //   claim.canonical_url,
-    //   this, // pass the player
-    //   bitrateAsBitsPerSecond
-    // );
+    analytics.playerVideoStartedEvent(embedded);
+
+    // convert bytes to bits, and then divide by seconds
+    const contentInBits = Number(claim.value.source.size) * 8;
+    const durationInSeconds = claim.value.video && claim.value.video.duration;
+    let bitrateAsBitsPerSecond;
+    if (durationInSeconds) {
+      bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
+    }
+
+    // figure out what server the video is served from and then run start analytic event
+    // server string such as 'eu-p6'
+    // TODO: pass this here
+    const playerPoweredBy = 'eu-p6';
+    // populates data for watchman, sends prom and matomo event
+    analytics.videoStartEvent(
+      claimId,
+      timeToStartVideo,
+      playerPoweredBy,
+      userId,
+      claim.canonical_url,
+      this, // pass the player
+      bitrateAsBitsPerSecond
+    );
 
     // hit backend to mark a view
     // TODO: have to pass here
-    // doAnalyticsView(uri, timeToStartVideo).then(() => {
-    //   claimRewards();
-    // });
+    doAnalyticsView(uri, timeToStartVideo).then(() => {
+      claimRewards();
+    });
   }
 
   function initializeEvents() {

@@ -131,6 +131,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playPrevious,
     toggleVideoTheaterMode,
     claim,
+    doAnalyticsView,
+    claimRewards,
+    uri,
   } = props;
 
   // will later store the videojs player
@@ -159,6 +162,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     userId,
     claimId,
     embedded,
+    doAnalyticsView,
+    claimRewards,
+    uri,
   });
 
   const videoJsOptions = {
