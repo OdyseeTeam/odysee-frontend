@@ -199,6 +199,20 @@
 .section__actions--no-margin {
   @extend .section__actions;
   margin-top: 0;
+
+  @media (max-width: $breakpoint-small) {
+    width: 100%;
+    .wunderbar--inline {
+      width: 100%;
+      flex: unset;
+      fieldset-section {
+        width: 100%;
+        .wunderbar__input--inline {
+          width: 100%;
+        }
+      }
+    }
+  }
 }
 
 .section__checkbox {
