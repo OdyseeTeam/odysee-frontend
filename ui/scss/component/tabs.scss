@@ -41,6 +41,9 @@
 
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
+    .tab {
+      flex: auto;
+    }
   }
 }
 
