@@ -126,14 +126,14 @@
     .header__navigationItem--logo {
       border-radius: 50%;
       svg {
-        width: calc(var(--header-height-mobile) - var(--spacing-m));
-        height: calc(var(--header-height-mobile) - var(--spacing-m));
+        width: calc(var(--header-height-mobile) - var(--spacing-m) - 0.4rem);
+        height: calc(var(--header-height-mobile) - var(--spacing-m) - 0.4rem);
       }
     }
 
     .button {
-      width: calc(var(--header-height-mobile) - var(--spacing-m));
-      height: calc(var(--header-height-mobile) - var(--spacing-m));
+      width: calc(var(--header-height-mobile) - var(--spacing-m) - 0.4rem);
+      height: calc(var(--header-height-mobile) - var(--spacing-m) - 0.4rem);
       background-color: rgba(var(--color-primary-static), 0.4);
       .icon {
         stroke: var(--color-odysee-contrast);
@@ -141,8 +141,8 @@
     }
 
     .channel-thumbnail {
-      width: calc(var(--header-height-mobile) - var(--spacing-m)) !important;
-      height: calc(var(--header-height-mobile) - var(--spacing-m)) !important;
+      width: calc(var(--header-height-mobile) - var(--spacing-m) - 0.4rem) !important;
+      height: calc(var(--header-height-mobile) - var(--spacing-m) - 0.4rem) !important;
     }
   }
 }
