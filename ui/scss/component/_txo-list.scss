@@ -1,6 +1,11 @@
 .txo__radios {
   display: flex;
   flex-direction: row;
+
+  .button:nth-child(2) {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
 }
 
 .txo__export {
@@ -25,6 +30,8 @@
   color: rgb(171, 171, 171);
 }
 
-.txo__radios_container, .txo__radios, .txo__radios_fieldset {
+.txo__radios_container,
+.txo__radios,
+.txo__radios_fieldset {
   display: inline !important;
 }
