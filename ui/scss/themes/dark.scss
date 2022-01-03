@@ -5,6 +5,8 @@
   --color-primary: rgba(var(--color-primary-dynamic), 1);
   --color-primary-contrast-static: #ffffff;
   --color-primary-contrast: #ffffff;
+  --color-odysee: rgba(var(--color-primary-static), 1);
+  --color-odysee-contrast: var(--color-primary-contrast-static);
   --color-secondary-static: 239, 102, 152;
   --color-secondary-dynamic: 239, 102, 152;
   --color-secondary: rgba(var(--color-secondary-dynamic), 1);

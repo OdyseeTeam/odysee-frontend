@@ -63,7 +63,8 @@
   --color-header-background: #ffffff;
   --color-header-button: var(--color-button-alt-bg);
   --color-header-button-active: var(--color-primary);
-  --color-header-button-hover: var(--color-primary);
+  //--color-header-button-hover: var(--color-primary);
+  --color-header-button-hover: rgba(var(--color-primary-static), 1);
 
   // Button
   --color-button-primary-bg: var(--color-primary);

@@ -62,8 +62,8 @@ reach-portal {
 }
 
 [data-reach-menu-item][data-selected] {
-  color: var(--color-menu-icon-active);
-  background-color: var(--color-menu-background-active);
+  color: var(--color-primary-contrast);
+  background-color: var(--color-primary);
   box-shadow: none;
 
   .icon {
@@ -113,6 +113,20 @@ reach-portal {
 
 .menu__list--header {
   @extend .menu__list;
+
+  [data-reach-menu-item][data-selected] {
+    color: var(--color-odysee-contrast) !important;
+    background-color: var(--color-odysee) !important;
+    box-shadow: none;
+
+    .icon {
+      stroke: var(--color-odysee-contrast) !important;
+    }
+
+    .comment__menu-help {
+      color: var(--color-odysee-contrast) !important;
+    }
+  }
 
   margin-top: 10px;
 }

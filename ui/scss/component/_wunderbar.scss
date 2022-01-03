@@ -7,7 +7,7 @@
 
   &:hover {
     .wunderbar__input {
-      outline: 2px solid var(--color-primary);
+      outline: 2px solid var(--color-odysee);
     }
   }
 }
@@ -292,7 +292,8 @@
     align-items: center;
     height: 1.2rem;
     margin-left: var(--spacing-xxs);
-    color: var(--color-primary-contrast);
+    color: var(--color-odysee-contrast);
+    background-color: var(--color-odysee);
   }
 
   &:hover {
@@ -331,11 +332,11 @@
   border-radius: var(--border-radius);
 
   &:hover {
-    color: var(--color-primary-contrast);
-    background-color: var(--color-primary);
+    color: var(--color-odysee-contrast);
+    background-color: var(--color-odysee);
 
     .wunderbar__suggestion-name {
-      color: var(--color-primary-contrast);
+      color: var(--color-odysee-contrast);
     }
   }
 
@@ -346,12 +347,12 @@
 }
 
 [data-reach-combobox-option][data-highlighted] {
-  background-color: var(--color-menu-background-active);
+  background-color: var(--color-odysee);
 }
 
 [data-reach-combobox-option][aria-selected='true'] {
   &:hover {
-    background-color: var(--color-menu-background--active);
+    background-color: var(--color-odysee);
   }
 }
 
