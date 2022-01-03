@@ -28,7 +28,7 @@ const VideoJsEvents = ({
   replay,
   claimId,
   userId,
-  claim,
+  claimValues,
   embedded,
   uri,
   doAnalyticsView,
@@ -258,7 +258,7 @@ const VideoJsEvents = ({
       timeToStartVideo,
       playerPoweredBy,
       userId,
-      claim.canonical_url,
+      uri,
       this, // pass the player
       bitrateAsBitsPerSecond
     );

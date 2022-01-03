@@ -435,7 +435,7 @@ function VideoViewer(props: Props) {
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
-        claim={claim}
+        claimValues={claim.value}
         doAnalyticsView={doAnalyticsView}
         claimRewards={claimRewards}
         uri={uri}
