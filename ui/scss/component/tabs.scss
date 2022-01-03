@@ -15,7 +15,7 @@
 
   .tab {
     &:hover {
-      color: var(--color-primary);
+      color: var(--color-link);
     }
   }
 }
@@ -101,5 +101,5 @@
 .tab:hover::after,
 .tab__divider {
   height: var(--tab-indicator-size);
-  background-color: var(--color-tab-divider);
+  background-color: var(--color-link);
 }
