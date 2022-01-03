@@ -130,6 +130,18 @@
       }
     }
   }
+
+  .wunderbar__more-results {
+    .button--link {
+      color: var(--color-odysee);
+    }
+
+    &:hover {
+      .button--link {
+        color: var(--color-odysee-contrast);
+      }
+    }
+  }
 }
 
 .wunderbar__suggestions--mobile {

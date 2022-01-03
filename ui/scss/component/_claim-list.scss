@@ -428,6 +428,15 @@
   display: flex;
   flex-direction: column;
   flex: 1;
+
+  @media (max-width: $breakpoint-small) {
+    .media__subtitle {
+      .date_time::before {
+        content: '\A';
+        white-space: pre;
+      }
+    }
+  }
 }
 
 .claim-preview-metadata-sub-upload {

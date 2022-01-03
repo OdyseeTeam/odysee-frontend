@@ -8,12 +8,12 @@ reach-portal {
   [data-reach-menu] {
     [data-reach-menu-items] {
       &:focus-visible {
-        background-color: var(--color-header-background) !important;
+        background-color: var(--color-header-background);
       }
 
       [data-reach-menu-item][data-selected] {
         .icon {
-          stroke: var(--color-primary-contrast) !important;
+          stroke: var(--color-primary-contrast);
         }
       }
     }

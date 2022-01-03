@@ -134,9 +134,9 @@
     .button {
       width: calc(var(--header-height-mobile) - var(--spacing-m));
       height: calc(var(--header-height-mobile) - var(--spacing-m));
-      background-color: rgba(var(--color-primary-dynamic), 0.4);
+      background-color: rgba(var(--color-primary-static), 0.4);
       .icon {
-        stroke: var(--color-primary-contrast);
+        stroke: var(--color-odysee-contrast);
       }
     }
 
@@ -209,7 +209,7 @@
       background-color: var(--color-header-button-hover);
 
       .icon {
-        stroke: var(--color-primary-contrast);
+        stroke: var(--color-odysee-contrast);
       }
     }
   }

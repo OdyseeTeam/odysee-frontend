@@ -293,6 +293,12 @@ $actions-z-index: 2;
         margin-right: 0;
       }
     }
+
+    .claim__menu-button--inline {
+      .icon {
+        padding: 10px;
+      }
+    }
   }
 
   .button,
