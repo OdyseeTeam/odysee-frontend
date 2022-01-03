@@ -152,6 +152,10 @@
   .wunderbar__input {
     border-radius: var(--border-radius) !important;
     background-color: var(--color-header-button) !important;
+    &:focus-visible,
+    &:focus {
+      outline: 2px solid var(--color-odysee) !important;
+    }
   }
 }
 
