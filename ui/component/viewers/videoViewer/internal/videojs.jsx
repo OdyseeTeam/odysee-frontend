@@ -237,6 +237,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      // center play button
+      const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
+      const videoDiv = player.children_[0];
+      const controlBar = document.getElementsByClassName('vjs-control-bar')[0];
+      const leftWidth = (videoDiv.offsetWidth - playBT.offsetWidth) / 2 + 'px';
+      const availableHeight = videoDiv.offsetHeight - controlBar.offsetHeight;
+      const topHeight = (availableHeight - playBT.offsetHeight) / 2 + 3 + 'px';
+
+      playBT.style.top = topHeight;
+      playBT.style.left = leftWidth;
+      playBT.style.margin = '0';
+
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
