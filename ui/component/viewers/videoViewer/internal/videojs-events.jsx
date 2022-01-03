@@ -108,7 +108,7 @@ const VideoJsEvents = ({
     const player = playerRef.current;
 
     const bigPlayButton = document.querySelector('.vjs-big-play-button');
-    if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none', 'important');
+    if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none');
 
     if (player && (player.muted() || player.volume() === 0)) {
       // The css starts as "hidden". We make it visible here without
@@ -280,8 +280,12 @@ const VideoJsEvents = ({
     player.on('volumechange', resolveCtrlText);
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
-    // first play tracking, used for initializing the watchman api
+    // custom tracking plugin, event used for watchman data, and marking view/getting rewards
     player.on('tracking:firstplay', doTrackingFirstPlay);
+    // hide forcing control bar show
+    player.on('canplaythrough', function() {
+      document.querySelector('.vjs-control-bar').style.removeProperty('opacity');
+    });
     // player.on('ended', onEnded);
   }
 

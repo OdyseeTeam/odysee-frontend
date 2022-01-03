@@ -288,15 +288,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     window.addEventListener('keydown', curried_function(playerRef, containerRef));
 
-    window.player.userActive(true);
-
-    if (autoplay) {
-      const videoPlayerDiv = document.querySelector('video');
-      if (videoPlayerDiv) {
-        videoPlayerDiv.click();
-      }
-      window.player.userActive(true);
-    }
+    document.querySelector('.vjs-control-bar').style.setProperty('opacity', 1, 'important');
 
     // change to m3u8 if applicable
     (async function() {
