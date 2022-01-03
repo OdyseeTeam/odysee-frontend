@@ -269,6 +269,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       onPlayerReady(player, videoNode);
       adapter.ready();
+
+      // sometimes video doesnt start properly, this addresses the edge case
+      if (autoplay) {
+        if (videoDiv) {
+          videoDiv.click();
+        }
+        window.player.userActive(true);
+      }
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)

@@ -289,8 +289,10 @@ const VideoJsEvents = ({
     player.on('tracking:firstplay', doTrackingFirstPlay);
     // hide forcing control bar show
     player.on('canplaythrough', function() {
-      // $FlowFixMe
-      document.querySelector('.vjs-control-bar').style.removeProperty('opacity');
+      setTimeout(function() {
+        // $FlowFixMe
+        document.querySelector('.vjs-control-bar').style.removeProperty('opacity');
+      }, 1000 * 3); // wait 3 seconds to hit control bar
     });
     // player.on('ended', onEnded);
   }

@@ -240,14 +240,6 @@ $control-bar-icon-size: 0.8rem;
   }
 }
 
-// large screens get large spinner
-@media (min-width:1025px) {
-  .vjs-loading-spinner {
-    height: 90px;
-    width: 90px;
-  }
-}
-
 // TODO: make sure there's no bad side effects of this
 button.vjs-big-play-button {
   display: none !important;
