@@ -98,7 +98,7 @@
   flex-wrap: nowrap;
   margin-right: var(--spacing-s);
 
-  .button:nth-child(2) {
+  .button:nth-child(2):not(:last-child) {
     margin-left: 2px;
     margin-right: 2px;
   }
