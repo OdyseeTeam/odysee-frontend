@@ -81,6 +81,10 @@
   @media (min-width: $breakpoint-small) {
     justify-content: flex-start;
   }
+
+  .claim-search__menu-group:last-of-type {
+    margin-right: unset;
+  }
 }
 
 .claim-search__top > div {
