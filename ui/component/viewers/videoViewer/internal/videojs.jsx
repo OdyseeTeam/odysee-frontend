@@ -143,6 +143,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const tapToUnmuteRef = useRef();
   const tapToRetryRef = useRef();
 
+  const playerServerRef = useRef();
+
   // initiate keyboard shortcuts
   const { curried_function } = keyboardShorcuts({ toggleVideoTheaterMode, playNext, playPrevious });
 
@@ -165,6 +167,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     doAnalyticsView,
     claimRewards,
     uri,
+    playerServerRef,
   });
 
   const videoJsOptions = {
@@ -298,6 +301,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     // change to m3u8 if applicable
     (async function() {
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+
+      playerServerRef.current = response.headers.get('x-powered-by');
 
       if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
         window.player.src({

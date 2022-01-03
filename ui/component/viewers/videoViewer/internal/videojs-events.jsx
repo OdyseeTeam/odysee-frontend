@@ -33,6 +33,7 @@ const VideoJsEvents = ({
   uri,
   doAnalyticsView,
   claimRewards,
+  playerServerRef,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -249,8 +250,8 @@ const VideoJsEvents = ({
 
     // figure out what server the video is served from and then run start analytic event
     // server string such as 'eu-p6'
-    // TODO: pass this here
-    const playerPoweredBy = 'eu-p6';
+    const playerPoweredBy = playerServerRef.current;
+
     // populates data for watchman, sends prom and matomo event
     analytics.videoStartEvent(
       claimId,
@@ -263,7 +264,6 @@ const VideoJsEvents = ({
     );
 
     // hit backend to mark a view
-    // TODO: have to pass here
     doAnalyticsView(uri, timeToStartVideo).then(() => {
       claimRewards();
     });
