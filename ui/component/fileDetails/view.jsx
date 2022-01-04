@@ -1,5 +1,4 @@
 // @flow
-import { SIMPLE_SITE } from 'config';
 import React, { PureComponent } from 'react';
 import { formatBytes } from 'util/format-bytes';
 
@@ -13,15 +12,15 @@ type Props = {
 
 class FileDetails extends PureComponent<Props> {
   render() {
-    const { claim, contentType, fileInfo, metadata } = this.props;
+    const { claim, fileInfo, metadata } = this.props;
 
     if (!claim || !metadata) {
       return <span className="empty">{__('Empty claim or metadata info.')}</span>;
     }
 
-    const { languages, license } = metadata;
+    // const { languages, license } = metadata;
 
-    const mediaType = contentType || 'unknown';
+    // const mediaType = contentType || 'unknown';
     const fileSize =
       metadata.source && metadata.source.size
         ? formatBytes(metadata.source.size)
@@ -38,7 +37,7 @@ class FileDetails extends PureComponent<Props> {
           <span>{claim.claim_id}</span>
         </div>
 
-        {!SIMPLE_SITE && (
+        {/* (
           <>
             {languages && (
               <div className="media__details">
@@ -59,7 +58,7 @@ class FileDetails extends PureComponent<Props> {
               <span>{license}</span>
             </div>
           </>
-        )}
+            ) */}
 
         {fileSize && (
           <div className="media__details">

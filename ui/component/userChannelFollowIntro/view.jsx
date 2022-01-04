@@ -1,5 +1,5 @@
 // @flow
-import { CUSTOM_HOMEPAGE, SIMPLE_SITE, SITE_NAME } from 'config';
+import { CUSTOM_HOMEPAGE, SITE_NAME } from 'config';
 import { parseURI } from 'util/lbryURI';
 import * as CS from 'constants/claim_search';
 import COMMUNITY_CHANNELS from 'constants/community_channels';
@@ -73,8 +73,8 @@ function UserChannelFollowIntro(props: Props) {
       actions={
         <div className="section__body">
           <ClaimListDiscover
-            hideFilters={SIMPLE_SITE}
-            hideAdvancedFilter={SIMPLE_SITE}
+            hideFilters
+            hideAdvancedFilter
             meta={
               <Button
                 button={subscribedChannels.length < 1 ? 'alt' : 'primary'}
@@ -82,12 +82,12 @@ function UserChannelFollowIntro(props: Props) {
                 label={subscribedChannels.length < 1 ? __('Skip') : __('Continue')}
               />
             }
-            defaultOrderBy={SIMPLE_SITE ? CS.ORDER_BY_TOP : CS.ORDER_BY_TRENDING}
+            defaultOrderBy={CS.ORDER_BY_TOP}
             defaultFreshness={CS.FRESH_ALL}
             claimType="channel"
             claimIds={(CUSTOM_HOMEPAGE && channelIds) || undefined}
             defaultTags={followingCount > 3 ? CS.TAGS_FOLLOWED : undefined}
-            maxPages={SIMPLE_SITE ? 3 : undefined}
+            maxPages={3}
           />
 
           {followingCountIgnoringAutoFollows > 0 && (

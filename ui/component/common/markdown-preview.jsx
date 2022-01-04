@@ -1,5 +1,5 @@
 // @flow
-import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, SIMPLE_SITE } from 'config';
+import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS } from 'config';
 import { formattedEmote, inlineEmote } from 'util/remark-emote';
 import { formattedLinks, inlineLinks } from 'util/remark-lbry';
 import { formattedTimestamp, inlineTimestamp } from 'util/remark-timestamp';
@@ -202,7 +202,7 @@ const MarkdownPreview = (props: MarkdownProps) => {
             src={imgProps.src}
             alt={imgProps.alt}
             title={imgProps.title}
-            helpText={SIMPLE_SITE ? __("This channel isn't staking enough Credits for inline image previews.") : ''}
+            helpText={__("This channel isn't staking enough Credits for inline image previews.")}
           />
         ),
     },

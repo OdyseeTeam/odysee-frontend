@@ -9,7 +9,6 @@ import * as CS from 'constants/claim_search';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
-import { SIMPLE_SITE } from 'config';
 
 type Props = {
   name: string,
@@ -28,7 +27,7 @@ function TopPage(props: Props) {
         name={channelActive ? `@${queryName}` : queryName}
         defaultFreshness={CS.FRESH_ALL}
         defaultOrderBy={CS.ORDER_BY_TOP}
-        streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+        streamType={CS.CONTENT_ALL}
         meta={
           <div className="search__top-links">
             <I18nMessage

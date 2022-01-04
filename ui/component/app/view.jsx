@@ -5,8 +5,7 @@ import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
-import { buildURI, parseURI } from 'util/lbryURI';
-import { SIMPLE_SITE } from 'config';
+// import { buildURI, parseURI } from 'util/lbryURI';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
@@ -34,8 +33,8 @@ import { useIsMobile } from 'effects/use-screensize';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
-const OpenInAppLink = lazyImport(() => import('web/component/openInAppLink' /* webpackChunkName: "openInAppLink" */));
-const NagDataCollection = lazyImport(() => import('web/component/nag-data-collection' /* webpackChunkName: "nagDC" */));
+// const OpenInAppLink = lazyImport(() => import('web/component/openInAppLink' /* webpackChunkName: "openInAppLink" */));
+// const NagDataCollection = lazyImport(() => import('web/component/nag-data-collection' /* webpackChunkName: "nagDC" */));
 const NagDegradedPerformance = lazyImport(() =>
   import('web/component/nag-degraded-performance' /* webpackChunkName: "NagDegradedPerformance" */)
 );
@@ -126,10 +125,10 @@ function App(props: Props) {
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const previousRewardApproved = usePrevious(isRewardApproved);
 
-  const [showAnalyticsNag, setShowAnalyticsNag] = usePersistedState('analytics-nag', true);
+  // const [showAnalyticsNag, setShowAnalyticsNag] = usePersistedState('analytics-nag', true);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
 
-  const { pathname, hash, search } = props.location;
+  const { pathname, search } = props.location;
   const [resolvedSubscriptions, setResolvedSubscriptions] = useState(false);
   const [retryingSync, setRetryingSync] = useState(false);
   const [sidebarOpen] = usePersistedState('sidebar', true);
@@ -150,7 +149,7 @@ function App(props: Props) {
   const renderFiledrop = !isMobile && isAuthenticated;
   const connectionStatus = useConnectionStatus();
 
-  let uri;
+  /* let uri;
   try {
     const newpath = buildURI(parseURI(pathname.slice(1).replace(/:/g, '#')));
     uri = newpath + hash;
@@ -158,7 +157,7 @@ function App(props: Props) {
 
   function handleAnalyticsDismiss() {
     setShowAnalyticsNag(false);
-  }
+  } */
 
   function getStatusNag() {
     // Handle "offline" first. Everything else is meaningless if it's offline.
@@ -512,14 +511,14 @@ function App(props: Props) {
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
 
             <YoutubeWelcome />
-            {!SIMPLE_SITE && !shouldHideNag && <OpenInAppLink uri={uri} />}
+            {/* !shouldHideNag && <OpenInAppLink uri={uri} /> */}
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
             )}
-            {!SIMPLE_SITE && lbryTvApiStatus === STATUS_OK && showAnalyticsNag && !shouldHideNag && (
+            {/* lbryTvApiStatus === STATUS_OK && showAnalyticsNag && !shouldHideNag && (
               <NagDataCollection onClose={handleAnalyticsDismiss} />
-            )}
+            ) */}
             {getStatusNag()}
           </React.Suspense>
         </React.Fragment>

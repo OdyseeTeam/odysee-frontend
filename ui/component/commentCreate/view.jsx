@@ -7,7 +7,6 @@ import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'con
 import { FormField, Form } from 'component/common/form';
 import { getChannelIdFromClaim } from 'util/claim';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
@@ -113,7 +112,7 @@ export function CommentCreate(props: Props) {
   const [tipAmount, setTipAmount] = React.useState(1);
   const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
-  const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
+  const [advancedEditor] = usePersistedState('comment-editor-mode', false);
   const [stickerSelector, setStickerSelector] = React.useState();
   const [activeTab, setActiveTab] = React.useState();
   const [tipError, setTipError] = React.useState();
@@ -475,16 +474,12 @@ export function CommentCreate(props: Props) {
               </div>
             }
             name={isReply ? 'create__reply' : 'create__comment'}
-            onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
+            onChange={(e) => setCommentValue(!advancedEditor || isReply ? e.target.value : e)}
             openEmoteMenu={() => setShowEmotes(!showEmotes)}
             placeholder={__('Say something about this...')}
-            quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
-            quickActionLabel={
-              !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
-            }
             ref={formFieldRef}
             textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
-            type={!SIMPLE_SITE && advancedEditor && !isReply ? 'markdown' : 'textarea'}
+            type="textarea"
             value={commentValue}
           />
         </>

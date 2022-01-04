@@ -1,7 +1,6 @@
 // @flow
-import { SITE_NAME, SIMPLE_SITE, SITE_HELP_EMAIL } from 'config';
+import { SITE_NAME, SITE_HELP_EMAIL } from 'config';
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import * as React from 'react';
 import Lbry from 'lbry';
 import Button from 'component/button';
@@ -66,68 +65,19 @@ class HelpPage extends React.PureComponent<Props, State> {
   }
 
   render() {
-    let ver;
-    let osName;
-    let platform;
-    let newVerLink;
-
-    const { accessToken, doAuth, user } = this.props;
-
-    if (this.state.versionInfo) {
-      ver = this.state.versionInfo;
-      if (ver.os_system === 'Darwin') {
-        osName = parseInt(ver.os_release.match(/^\d+/), 10) < 16 ? 'Mac OS X' : 'Mac OS';
-
-        platform = `${osName} ${ver.os_release}`;
-        newVerLink = 'https://lbry.com/get/lbry.dmg';
-      } else if (process.env.APPIMAGE !== undefined) {
-        platform = `Linux (AppImage)`;
-        newVerLink = 'https://lbry.com/get/lbry.AppImage';
-      } else if (ver.os_system === 'Linux') {
-        platform = `Linux (${ver.platform})`;
-        newVerLink = 'https://lbry.com/get/lbry.deb';
-      } else {
-        platform = `Windows (${ver.platform})`;
-        newVerLink = 'https://lbry.com/get/lbry.msi';
-      }
-    } else {
-      ver = null;
-    }
-
     return (
       <Page className="card-stack">
         <Card
-          title={SIMPLE_SITE ? __('Visit the %SITE_NAME% Help Hub', { SITE_NAME }) : __('Read the FAQ')}
-          subtitle={
-            SIMPLE_SITE
-              ? __('Our support posts answer many common questions.')
-              : __('Our FAQ answers many common questions.')
-          }
+          title={__('Visit the %SITE_NAME% Help Hub', { SITE_NAME })}
+          subtitle={__('Our support posts answer many common questions.')}
           actions={
             <div className="section__actions">
-              {SIMPLE_SITE ? (
-                <Button
-                  href="https://odysee.com/@OdyseeHelp:b"
-                  label={__('View %SITE_NAME% Help Hub', { SITE_NAME })}
-                  icon={ICONS.HELP}
-                  button="secondary"
-                />
-              ) : (
-                <>
-                  <Button
-                    href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c"
-                    label={__('Read Odysee Basics FAQ')}
-                    icon={ICONS.HELP}
-                    button="secondary"
-                  />
-                  <Button
-                    href="https://odysee.com/@OdyseeHelp:b"
-                    label={__('View all Odysee FAQs')}
-                    icon={ICONS.HELP}
-                    button="secondary"
-                  />
-                </>
-              )}
+              <Button
+                href="https://odysee.com/@OdyseeHelp:b"
+                label={__('View %SITE_NAME% Help Hub', { SITE_NAME })}
+                icon={ICONS.HELP}
+                button="secondary"
+              />
             </div>
           }
         />
@@ -166,94 +116,6 @@ class HelpPage extends React.PureComponent<Props, State> {
             </div>
           }
         />
-
-        {!SIMPLE_SITE && (
-          <>
-            <Card
-              title={__('About --[About section in Help Page]--')}
-              subtitle={
-                this.state.upgradeAvailable !== null && this.state.upgradeAvailable ? (
-                  <span>
-                    {__('A newer version of LBRY is available.')}{' '}
-                    <Button button="link" href={newVerLink} label={__('Download now!')} />
-                  </span>
-                ) : null
-              }
-              isBodyList
-              body={
-                <div className="table__wrapper">
-                  <table className="table table--stretch">
-                    <tbody>
-                      <tr>
-                        <td>{__('App')}</td>
-                        <td>
-                          {this.state.uiVersion ? this.state.uiVersion + ' - ' : ''}
-                          <Button
-                            button="link"
-                            label={__('Changelog')}
-                            href="https://github.com/lbryio/lbry-desktop/blob/master/CHANGELOG.md"
-                          />
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>{__('Daemon (lbrynet)')}</td>
-                        <td>{ver ? ver.lbrynet_version : __('Loading...')}</td>
-                      </tr>
-                      <tr>
-                        <td>{__('Connected Email')}</td>
-                        <td>
-                          {user && user.primary_email ? (
-                            <React.Fragment>
-                              {user.primary_email}{' '}
-                              <Button
-                                button="link"
-                                navigate={`/$/${PAGES.SETTINGS_NOTIFICATIONS}`}
-                                label={__('Update mailing preferences')}
-                              />
-                            </React.Fragment>
-                          ) : (
-                            <React.Fragment>
-                              <span className="empty">{__('none')} </span>
-                              <Button button="link" onClick={() => doAuth()} label={__('set email')} />
-                            </React.Fragment>
-                          )}
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>{__('Reward Eligible')}</td>
-                        <td>{user && user.is_reward_approved ? __('Yes') : __('No')}</td>
-                      </tr>
-                      <tr>
-                        <td>{__('Platform')}</td>
-                        <td>{platform}</td>
-                      </tr>
-                      <tr>
-                        <td>{__('Installation ID')}</td>
-                        <td>{this.state.lbryId}</td>
-                      </tr>
-                      <tr>
-                        <td>{__('Access Token')}</td>
-                        <td>
-                          {this.state.accessTokenHidden && (
-                            <Button button="link" label={__('View')} onClick={this.showAccessToken} />
-                          )}
-                          {!this.state.accessTokenHidden && accessToken && (
-                            <div>
-                              <p>{accessToken}</p>
-                              <div className="help--warning">
-                                {__('This is equivalent to a password. Do not post or share this.')}
-                              </div>
-                            </div>
-                          )}
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              }
-            />
-          </>
-        )}
       </Page>
     );
   }

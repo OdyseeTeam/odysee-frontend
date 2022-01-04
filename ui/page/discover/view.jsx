@@ -1,5 +1,5 @@
 // @flow
-import { SHOW_ADS, DOMAIN, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { SHOW_ADS, DOMAIN, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
@@ -70,8 +70,8 @@ function DiscoverPage(props: Props) {
   const tags = tagsQuery ? tagsQuery.split(',') : null;
   const repostedClaimIsResolved = repostedUri && repostedClaim;
 
-  const discoverIcon = SIMPLE_SITE ? ICONS.WILD_WEST : ICONS.DISCOVER;
-  const discoverLabel = SIMPLE_SITE ? __('Wild West') : __('All Content');
+  const discoverIcon = ICONS.WILD_WEST;
+  const discoverLabel = __('Wild West');
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
   const tag = (tags && tags[0]) || null;
@@ -364,34 +364,30 @@ function DiscoverPage(props: Props) {
       <ClaimListDiscover
         prefixUris={useDualList ? undefined : livestreamUris}
         pins={useDualList ? undefined : getPins(dynamicRouteProps)}
-        hideAdvancedFilter={SIMPLE_SITE}
-        hideFilters={SIMPLE_SITE ? !dynamicRouteProps : undefined}
+        hideAdvancedFilter
+        hideFilters={!dynamicRouteProps}
         header={useDualList ? <span /> : repostedUri ? <span /> : undefined}
         tileLayout={repostedUri ? false : tileLayout}
-        defaultOrderBy={SIMPLE_SITE ? (dynamicRouteProps ? undefined : CS.ORDER_BY_TRENDING) : undefined}
+        defaultOrderBy={dynamicRouteProps ? undefined : CS.ORDER_BY_TRENDING}
         claimType={claimType ? [claimType] : undefined}
         headerLabel={!useDualList && headerLabel}
         tags={tags}
         hiddenNsfwMessage={<HiddenNsfw type="page" />}
         repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-        injectedItem={SHOW_ADS ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
+        injectedItem={false}
         // Assume wild west page if no dynamicRouteProps
         // Not a very good solution, but just doing it for now
         // until we are sure this page will stay around
         // TODO: find a better way to determine discover / wild west vs other modes release times
         // for now including && !tags so that
         releaseTime={
-          SIMPLE_SITE
-            ? !dynamicRouteProps && !tags && `>${Math.floor(moment().subtract(1, 'day').startOf('week').unix())}`
-            : undefined
+          !dynamicRouteProps && !tags && `>${Math.floor(moment().subtract(1, 'day').startOf('week').unix())}`
         }
-        feeAmount={SIMPLE_SITE ? !dynamicRouteProps && CS.FEE_AMOUNT_ANY : undefined}
+        feeAmount={!dynamicRouteProps && CS.FEE_AMOUNT_ANY}
         channelIds={channelIds}
         limitClaimsPerChannel={
-          SIMPLE_SITE
-            ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) ||
-              undefined
-            : 3
+          (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) ||
+          undefined
         }
         meta={!useDualList && getMeta()}
         hasSource

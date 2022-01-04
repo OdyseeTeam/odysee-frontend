@@ -1,7 +1,5 @@
 // @flow
-import { SIMPLE_SITE } from 'config';
 import React from 'react';
-import HelpLink from 'component/common/help-link';
 
 type Props = {
   livestream?: boolean,
@@ -36,7 +34,6 @@ function FileViewCount(props: Props) {
       {!livestream &&
         activeViewers === undefined &&
         (viewCount !== 1 ? __('%view_count% views', { view_count: formattedViewCount }) : __('1 view'))}
-      {!SIMPLE_SITE && <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />}
     </span>
   );
 }

@@ -18,7 +18,6 @@ import { createNormalizedSearchKey, getRecommendationSearchOptions } from 'util/
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
 import { selectAllCostInfoByUri } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
 
 type State = { claims: any, search: SearchState };
 
@@ -82,11 +81,10 @@ export const selectRecommendedContentForUri = createCachedSelector(
       isBackgroundSearch?: boolean,
     } = { size: 20, nsfw: matureEnabled, isBackgroundSearch: true };
 
-    if (SIMPLE_SITE) {
-      options[SEARCH_OPTIONS.CLAIM_TYPE] = SEARCH_OPTIONS.INCLUDE_FILES;
-      options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
-      options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
-    }
+    options[SEARCH_OPTIONS.CLAIM_TYPE] = SEARCH_OPTIONS.INCLUDE_FILES;
+    options[SEARCH_OPTIONS.MEDIA_VIDEO] = true;
+    options[SEARCH_OPTIONS.PRICE_FILTER_FREE] = true;
+
     if (matureEnabled || (!matureEnabled && !isMature)) {
       options[SEARCH_OPTIONS.RELATED_TO] = claim.claim_id;
     }

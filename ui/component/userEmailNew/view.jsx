@@ -1,6 +1,5 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import { SIMPLE_SITE } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
@@ -11,7 +10,6 @@ import { useHistory } from 'react-router-dom';
 import Card from 'component/common/card';
 import ErrorText from 'component/common/error-text';
 import Nag from 'component/common/nag';
-import classnames from 'classnames';
 import LoginGraphic from 'component/loginGraphic';
 
 type Props = {
@@ -81,11 +79,7 @@ function UserEmailNew(props: Props) {
   }, [emailExists]);
 
   return (
-    <div
-      className={classnames('main__sign-up', {
-        'main__sign-up--graphic': SIMPLE_SITE,
-      })}
-    >
+    <div className="main__sign-up main__sign-up--graphic">
       <Card
         title={__('Join')}
         actions={
@@ -138,7 +132,7 @@ function UserEmailNew(props: Props) {
           </>
         }
         nag={<>{errorMessage && <Nag type="error" relative message={<ErrorText>{errorMessage}</ErrorText>} />}</>}
-        secondPane={SIMPLE_SITE && <LoginGraphic />}
+        secondPane={<LoginGraphic />}
       />
     </div>
   );

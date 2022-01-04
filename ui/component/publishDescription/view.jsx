@@ -1,5 +1,4 @@
 // @flow
-import { SIMPLE_SITE } from 'config';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import React from 'react';
 import { FormField } from 'component/common/form';
@@ -23,7 +22,7 @@ function PublishDescription(props: Props) {
     <Card
       actions={
         <FormField
-          type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}
+          type="textarea"
           name="content_description"
           label={__('Description')}
           placeholder={__(
@@ -31,10 +30,7 @@ function PublishDescription(props: Props) {
           )}
           value={description}
           disabled={disabled}
-          onChange={value =>
-            updatePublishForm({ description: !SIMPLE_SITE && advancedEditor ? value : value.target.value })
-          }
-          quickActionLabel={!SIMPLE_SITE && (advancedEditor ? __('Simple Editor') : __('Advanced Editor'))}
+          onChange={(value) => updatePublishForm({ description: value.target.value })}
           quickActionHandler={toggleMarkdown}
           textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
         />

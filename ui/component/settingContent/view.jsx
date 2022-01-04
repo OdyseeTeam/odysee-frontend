@@ -4,8 +4,6 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import * as SETTINGS from 'constants/settings';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
-import * as MODALS from 'constants/modal_types';
 import { SETTINGS_GRP } from 'constants/settings';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -42,14 +40,12 @@ export default function SettingContent(props: Props) {
     autoplayMedia,
     autoplayNext,
     hideReposts,
-    showNsfw,
     myChannelUrls,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
     setClientSetting,
     clearPlayingUri,
-    openModal,
   } = props;
 
   return (
@@ -106,32 +102,6 @@ export default function SettingContent(props: Props) {
                 }}
               />
             </SettingsRow>
-
-            {!SIMPLE_SITE && (
-              <>
-                {/*
-              <SettingsRow title={__('Show anonymous content')} subtitle={__('Anonymous content is published without a channel.')} >
-                <FormField
-                  type="checkbox"
-                  name="show_anonymous"
-                  onChange={() => setClientSetting(SETTINGS.SHOW_ANONYMOUS, !showAnonymous)}
-                  checked={showAnonymous}
-                />
-              </SettingsRow>
-              */}
-
-                <SettingsRow title={__('Show mature content')} subtitle={__(HELP.SHOW_MATURE)}>
-                  <FormField
-                    type="checkbox"
-                    name="show_nsfw"
-                    checked={showNsfw}
-                    onChange={() =>
-                      showNsfw ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw) : openModal(MODALS.CONFIRM_AGE)
-                    }
-                  />
-                </SettingsRow>
-              </>
-            )}
 
             {isAuthenticated && (
               <>

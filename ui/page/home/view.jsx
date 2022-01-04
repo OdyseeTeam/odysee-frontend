@@ -1,7 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
-import { SHOW_ADS, SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { SHOW_ADS, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import Ads from 'web/component/ads';
 import React from 'react';
 import Page from 'component/page';
@@ -244,22 +243,7 @@ function HomePage(props: Props) {
 
   return (
     <Page fullWidthPage>
-      {!SIMPLE_SITE && authenticated && !subscribedChannels.length && (
-        <div className="notice-message">
-          <h1 className="section__title">
-            {__("%SITE_NAME% is more fun if you're following channels", { SITE_NAME })}
-          </h1>
-          <p className="section__actions">
-            <Button
-              button="primary"
-              navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
-              label={__('Find new channels to follow')}
-            />
-          </p>
-        </div>
-      )}
-
-      {SIMPLE_SITE && <Meme />}
+      <Meme />
       <Ads type="homepage" />
 
       {!fetchingActiveLivestreams && (
