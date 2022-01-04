@@ -53,7 +53,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
   }
 
   render() {
-    const { unlockWallet, walletUnlockSucceded, closeModal } = this.props;
+    const { unlockWallet, walletUnlockSucceded } = this.props;
 
     const { password, rememberPassword } = this.state;
     return (
@@ -66,7 +66,7 @@ class ModalWalletUnlock extends React.PureComponent<Props, State> {
         confirmButtonLabel={__('Unlock')}
         abortButtonLabel={__('Exit')}
         onConfirmed={() => unlockWallet(password)}
-        onAborted={closeModal}
+        onAborted={() => {}}
       >
         <p>
           {__('Your wallet has been encrypted with a local password. Please enter your wallet password to proceed.')}{' '}
