@@ -231,6 +231,7 @@
   .card__title-actions-container {
     @media (max-width: $breakpoint-small) {
       flex-grow: 1;
+      min-height: 47px;
 
       .card__title-actions {
         width: 100%;
