@@ -49,7 +49,7 @@ function ClaimRepostAuthor(props: Props) {
     <div className="claim-preview__repost-author">
       <div className="claim-preview__repost-ribbon">
         <Icon icon={ICONS.REPOST} size={10} className="claim-preview__repost-icon" />
-        repost
+        {__('Repost')}
         <br />
         <I18nMessage tokens={{ repost_channel_link: <UriIndicator link uri={repostChannelUrl} /> }}>
           %repost_channel_link%
