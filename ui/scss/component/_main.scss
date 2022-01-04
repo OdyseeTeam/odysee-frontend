@@ -136,9 +136,11 @@ body {
       font-size: var(--font-small);
     }
 
-    .media__subtitle--centered::before {
-      content: '•';
-      margin-right: var(--spacing-m);
+    @media (max-width: $breakpoint-small) {
+      .media__subtitle--centered::before {
+        content: '•';
+        margin-right: var(--spacing-m);
+      }
     }
   }
 
