@@ -141,6 +141,10 @@
 .card-stack {
   .card:not(:last-of-type) {
     margin-bottom: var(--spacing-xxl);
+
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: var(--spacing-l);
+    }
   }
 }
 
