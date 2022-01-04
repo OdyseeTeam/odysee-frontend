@@ -295,10 +295,10 @@ $actions-z-index: 2;
     }
 
     .claim__menu-button--inline {
+      z-index: 10;
       .icon {
         padding: 1rem;
         margin: -1rem;
-        z-index: 10;
       }
     }
   }
