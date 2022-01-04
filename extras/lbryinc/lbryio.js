@@ -170,11 +170,8 @@ Lbryio.fetchUser = async (domain, language) => {
       user = await Lbryio.fetchNewUser(domain, language);
     } else {
       user = await Lbryio.fetchCurrentUser();
-    }
-    if (tokens.access_token) {
-      if (tokens.auth_token) {
-        // TODO KEYCLOAK - do we need to delete this?
-        // await Lbryio.deleteAuthToken();
+      if (tokens.access_token && tokens.auth_token) {
+        await Lbryio.deleteAuthToken();
       }
     }
     return user;

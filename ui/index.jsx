@@ -39,7 +39,7 @@ import analytics from 'analytics';
 import { doToast } from 'redux/actions/notifications';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import keycloak, { initOptions } from 'util/keycloak';
-import { getAuthToken, setAuthToken, getTokens } from 'util/saved-passwords';
+import { getAuthToken, setAuthToken, getTokens, deleteAuthToken } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
 
@@ -113,6 +113,14 @@ Lbryio.setOverride('setAuthToken', (authToken) => {
   setAuthToken(authToken);
   return authToken;
 });
+
+Lbryio.setOverride(
+  'deleteAuthToken',
+  () =>
+    new Promise((resolve) => {
+      resolve(deleteAuthToken());
+    })
+);
 
 Lbryio.setOverride(
   'getTokens',
