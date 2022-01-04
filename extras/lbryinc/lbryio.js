@@ -131,7 +131,7 @@ Lbryio.deleteAuthToken = () =>
     });
   });
 
-Lbryio.fetchCurrentUser = () => Lbryio.call('user', 'me').catch((e) => ({ error: { message: e.message } }));
+Lbryio.fetchCurrentUser = () => Lbryio.call('user', 'me');
 
 Lbryio.fetchNewUser = async (domain, language) => {
   try {
