@@ -337,6 +337,15 @@
 .card__header--nowrap {
   @extend .card__header--between;
   flex-wrap: nowrap;
+
+  @media (max-width: $breakpoint-small) {
+    .card__title-section {
+      .card__title {
+        margin-top: calc(var(--spacing-s) - 2px);
+        margin-bottom: calc(var(--spacing-s) * -1);
+      }
+    }
+  }
 }
 
 .card__subtitle {

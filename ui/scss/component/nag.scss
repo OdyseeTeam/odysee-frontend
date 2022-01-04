@@ -30,6 +30,7 @@ $nag-error-z-index: 999;
   top: 0;
   bottom: auto;
   z-index: 1 !important; /* booooooo */
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .nag--relative {
