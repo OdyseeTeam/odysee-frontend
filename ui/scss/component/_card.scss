@@ -7,9 +7,6 @@
 
   .date_time {
     font-size: var(--font-xxsmall);
-    @media (max-width: $breakpoint-small) {
-      font-size: var(--font-small);
-    }
   }
 }
 
@@ -387,6 +384,12 @@
     padding: var(--spacing-l);
     padding-left: 0px;
     padding-right: 0px;
+
+    .file__viewdate {
+      .date_time {
+        font-size: var(--font-small);
+      }
+    }
   }
 }
 
