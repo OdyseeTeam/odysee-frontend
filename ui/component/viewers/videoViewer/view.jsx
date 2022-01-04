@@ -310,15 +310,17 @@ function VideoViewer(props: Props) {
     // https://blog.videojs.com/autoplay-best-practices-with-video-js/#Programmatic-Autoplay-and-Success-Failure-Detection
     if (shouldPlay) {
       const playPromise = player.play();
+
       const timeoutPromise = new Promise((resolve, reject) =>
         setTimeout(() => reject(PLAY_TIMEOUT_ERROR), PLAY_TIMEOUT_LIMIT)
       );
 
+      // if user hasn't interacted with document, mute video and play it
       Promise.race([playPromise, timeoutPromise]).catch((error) => {
         if (typeof error === 'object' && error.name && error.name === 'NotAllowedError') {
           if (player.autoplay() && !player.muted()) {
-            // player.muted(true);
-            // another version had player.play()
+            player.muted(true);
+            player.play();
           }
         }
         setIsPlaying(false);
