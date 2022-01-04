@@ -79,19 +79,6 @@ export const selectDownloadingFileInfos = createSelector(
   }
 );
 
-export const selectTotalDownloadProgress = createSelector(selectDownloadingFileInfos, (fileInfos) => {
-  const progress = [];
-
-  fileInfos.forEach((fileInfo) => {
-    progress.push((fileInfo.written_bytes / fileInfo.total_bytes) * 100);
-  });
-
-  const totalProgress = progress.reduce((a, b) => a + b, 0);
-
-  if (fileInfos.length > 0) return totalProgress / fileInfos.length / 100.0;
-  return -1;
-});
-
 export const selectFileInfoErrors = createSelector(selectState, (state) => state.errors || {});
 
 export const selectFileListPublishedSort = (state) => selectState(state).fileListPublishedSort;

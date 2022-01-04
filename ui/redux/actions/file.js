@@ -1,9 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
-// @if TARGET='app'
-import { shell } from 'electron';
-// @endif
 import Lbry from 'lbry';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { doAbandonClaim } from 'redux/actions/claims';
@@ -23,20 +20,6 @@ import {
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, file: FileState, content: any };
-export function doOpenFileInFolder(path: string) {
-  return () => {
-    shell.showItemInFolder(path);
-  };
-}
-
-export function doOpenFileInShell(path: string) {
-  return (dispatch: Dispatch) => {
-    const success = shell.openPath(path);
-    if (!success) {
-      dispatch(doOpenFileInFolder(path));
-    }
-  };
-}
 
 export function doDeleteFile(outpoint: string, deleteFromComputer?: boolean, abandonClaim?: boolean, cb: any) {
   return (dispatch: Dispatch) => {
@@ -44,20 +27,6 @@ export function doDeleteFile(outpoint: string, deleteFromComputer?: boolean, aba
       const [txid, nout] = outpoint.split(':');
       dispatch(doAbandonClaim(txid, Number(nout), cb));
     }
-
-    // @if TARGET='app'
-    Lbry.file_delete({
-      outpoint,
-      delete_from_download_dir: deleteFromComputer,
-    });
-
-    dispatch({
-      type: ACTIONS.FILE_DELETE,
-      data: {
-        outpoint,
-      },
-    });
-    // @endif
   };
 }
 

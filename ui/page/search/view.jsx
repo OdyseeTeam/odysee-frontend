@@ -102,9 +102,7 @@ export default function SearchPage(props: Props) {
                   onSearchOptionsChanged={resetPage}
                 />
               }
-              injectedItem={
-                SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false
-              }
+              injectedItem={SHOW_ADS ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
             />
 
             <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>

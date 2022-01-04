@@ -1,5 +1,4 @@
 export function webDownloadClaim(streamingUrl, fileName) {
-  // @if TARGET='web'
   let element = document.createElement('a');
   element.setAttribute('href', `${streamingUrl}?download=true`);
   element.setAttribute('download', fileName);
@@ -9,5 +8,4 @@ export function webDownloadClaim(streamingUrl, fileName) {
   element.click();
   // $FlowFixMe
   document.body.removeChild(element);
-  // @endif
 }

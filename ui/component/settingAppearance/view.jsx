@@ -65,7 +65,7 @@ export default function SettingAppearance(props: Props) {
               />
             </SettingsRow>
 
-            {(isAuthenticated || !IS_WEB) && (
+            {isAuthenticated && (
               <SettingsRow title={__('Hide wallet balance in header')}>
                 <FormField
                   type="checkbox"

@@ -37,12 +37,8 @@ export const selectUpgradeFilename = createSelector(selectPlatform, selectRemote
   }
 });
 
-export const selectDownloadProgress = (state) => selectState(state).downloadProgress;
-export const selectDownloadComplete = (state) => selectState(state).upgradeDownloadCompleted;
-export const selectIsUpgradeSkipped = (state) => selectState(state).isUpgradeSkipped;
 export const selectUpgradeDownloadPath = (state) => selectState(state).downloadPath;
 export const selectUpgradeDownloadItem = (state) => selectState(state).downloadItem;
-export const selectAutoUpdateDownloaded = (state) => selectState(state).autoUpdateDownloaded;
 export const selectAutoUpdateDeclined = (state) => selectState(state).autoUpdateDeclined;
 export const selectDaemonVersionMatched = (state) => selectState(state).daemonVersionMatched;
 export const selectVolume = (state) => selectState(state).volume;

@@ -7,7 +7,6 @@ import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import { doToast } from 'redux/actions/notifications';
 import analytics from 'analytics';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
-import { launcher } from 'util/autoLaunch';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
 import { doAlertWaitingForSync, doGetAndPopulatePreferences } from 'redux/actions/app';
@@ -245,7 +244,7 @@ export function doEnterSettingsPage() {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
-    if (IS_WEB && !hasVerifiedEmail) {
+    if (!hasVerifiedEmail) {
       return;
     }
     dispatch(doSyncUnsubscribe());
@@ -262,7 +261,7 @@ export function doExitSettingsPage() {
   return (dispatch, getState) => {
     const state = getState();
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
-    if (IS_WEB && !hasVerifiedEmail) {
+    if (!hasVerifiedEmail) {
       return;
     }
     dispatch(doSetSyncLock(false));
@@ -324,7 +323,7 @@ export function doSetLanguage(language) {
     const { settings } = getState();
     const { daemonSettings } = settings;
     const { share_usage_data: shareSetting } = daemonSettings;
-    const isSharingData = shareSetting || IS_WEB;
+    const isSharingData = shareSetting;
     let languageSetting;
     if (language === getDefaultLanguage()) {
       languageSetting = null;
@@ -369,56 +368,6 @@ export function doSetLanguage(language) {
             })
           );
         });
-    }
-  };
-}
-
-export function doSetAutoLaunch(value) {
-  return (dispatch, getState) => {
-    const state = getState();
-    const autoLaunch = selectClientSetting(state, SETTINGS.AUTO_LAUNCH);
-
-    if (IS_MAC || process.env.NODE_ENV !== 'production') {
-      return;
-    }
-
-    if (value === undefined) {
-      launcher.isEnabled().then((isEnabled) => {
-        if (isEnabled) {
-          if (!autoLaunch) {
-            launcher.disable().then(() => {
-              dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, false));
-            });
-          }
-        } else {
-          if (autoLaunch || autoLaunch === null || autoLaunch === undefined) {
-            launcher.enable().then(() => {
-              dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, true));
-            });
-          }
-        }
-      });
-    } else if (value === true) {
-      launcher.isEnabled().then(function (isEnabled) {
-        if (!isEnabled) {
-          launcher.enable().then(() => {
-            dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, true));
-          });
-        } else {
-          dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, true));
-        }
-      });
-    } else {
-      // value = false
-      launcher.isEnabled().then(function (isEnabled) {
-        if (isEnabled) {
-          launcher.disable().then(() => {
-            dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, false));
-          });
-        } else {
-          dispatch(doSetClientSetting(SETTINGS.AUTO_LAUNCH, false));
-        }
-      });
     }
   };
 }

@@ -104,21 +104,19 @@ const ModalPublishPreview = (props: Props) => {
     //   $FlowFixMe
     (previewResponse.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source);
   // leave the confirm modal up if we're not going straight to upload/reflecting
-  // @if TARGET='web'
+
   React.useEffect(() => {
     if (publishing && !livestream) {
       closeModal();
     } else if (publishSuccess) {
       closeModal();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [publishSuccess, publishing, livestream]);
-  // @endif
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
-    // @if TARGET='app'
-    closeModal();
-    // @endif
   }
 
   function getFilePathName(filePath: string | WebFile) {

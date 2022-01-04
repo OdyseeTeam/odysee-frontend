@@ -327,7 +327,7 @@ function ChannelContent(props: Props) {
           defaultOrderBy={CS.ORDER_BY_NEW}
           pageSize={defaultPageSize}
           infiniteScroll={defaultInfiniteScroll}
-          injectedItem={SHOW_ADS && !isAuthenticated && IS_WEB && <Ads type="video" />}
+          injectedItem={SHOW_ADS && !isAuthenticated && <Ads type="video" />}
           meta={
             showFilters && (
               <Form onSubmit={() => {}} className="wunderbar--inline">

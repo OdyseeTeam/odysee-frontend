@@ -16,10 +16,8 @@ import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
 
-// @if TARGET='web'
 import Pixel from 'web/component/pixel';
 import Meme from 'web/component/meme';
-// @endif
 
 type Props = {
   authenticated: boolean,
@@ -43,8 +41,8 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams,
     fetchingActiveLivestreams,
   } = props;
-  const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
-  const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
+  const showPersonalizedChannels = authenticated && subscribedChannels && subscribedChannels.length > 0;
+  const showPersonalizedTags = authenticated && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
 
@@ -246,7 +244,7 @@ function HomePage(props: Props) {
 
   return (
     <Page fullWidthPage>
-      {!SIMPLE_SITE && (authenticated || !IS_WEB) && !subscribedChannels.length && (
+      {!SIMPLE_SITE && authenticated && !subscribedChannels.length && (
         <div className="notice-message">
           <h1 className="section__title">
             {__("%SITE_NAME% is more fun if you're following channels", { SITE_NAME })}
@@ -261,10 +259,8 @@ function HomePage(props: Props) {
         </div>
       )}
 
-      {/* @if TARGET='web' */}
       {SIMPLE_SITE && <Meme />}
       <Ads type="homepage" />
-      {/* @endif */}
 
       {!fetchingActiveLivestreams && (
         <>
@@ -282,9 +278,7 @@ function HomePage(props: Props) {
           })}
         </>
       )}
-      {/* @if TARGET='web' */}
       <Pixel type={'retargeting'} />
-      {/* @endif */}
     </Page>
   );
 }

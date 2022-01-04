@@ -178,7 +178,6 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
     }
   }
 
-  // @if TARGET='web'
   const xAuth =
     Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN)
       ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
@@ -187,7 +186,6 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
     window.location.reload();
     return;
   }
-  // @endif
 
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();

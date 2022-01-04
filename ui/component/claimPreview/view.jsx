@@ -21,7 +21,7 @@ import useGetThumbnail from 'effects/use-get-thumbnail';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
-import FileDownloadLink from 'component/fileDownloadLink';
+// import FileDownloadLink from 'component/fileDownloadLink';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import PublishPending from 'component/publishPending';
 import ClaimMenuList from 'component/claimMenuList';
@@ -157,7 +157,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
-  const canonicalUrl = claim && claim.canonical_url;
+  // const canonicalUrl = claim && claim.canonical_url;
   const lastCollectionIndex = collectionUris ? collectionUris.length - 1 : 0;
   const channelSubscribers = React.useMemo(() => {
     if (channelSubCount === undefined) {
@@ -355,13 +355,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     <div className="claim-preview__hover-actions">
                       {isPlayable && <FileWatchLaterLink focusable={false} uri={uri} />}
                     </div>
-                    {/* @if TARGET='app' */}
+                    {/* }
                     <div className="claim-preview__hover-actions">
                       {claim && !isCollection && (
                         <FileDownloadLink focusable={false} uri={canonicalUrl} hideOpenButton hideDownloadStatus />
                       )}
                     </div>
-                    {/* @endif */}
+                    { */}
                     {(!isLivestream || isLivestreamActive) && (
                       <div className="claim-preview__file-property-overlay">
                         <PreviewOverlayProperties uri={uri} small={type === 'small'} properties={liveProperty} />

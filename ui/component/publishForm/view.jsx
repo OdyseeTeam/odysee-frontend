@@ -33,11 +33,6 @@ import { toHex } from 'util/hex';
 import { LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import PublishStreamReleaseDate from 'component/publishStreamReleaseDate';
 
-// @if TARGET='app'
-import fs from 'fs';
-import tempy from 'tempy';
-// @endif
-
 type Props = {
   disabled: boolean,
   tags: Array<Tag>,
@@ -342,6 +337,7 @@ function PublishForm(props: Props) {
     if (publishing || publishSuccess) {
       clearPublish();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearPublish]);
 
   useEffect(() => {
@@ -458,9 +454,9 @@ function PublishForm(props: Props) {
     const newParams = new URLSearchParams();
     newParams.set(TYPE_PARAM, mode.toLowerCase());
     replace({ search: newParams.toString() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, _uploadType]);
 
-  // @if TARGET='web'
   function createWebFile() {
     if (fileText) {
       const fileName = name || title;
@@ -469,31 +465,6 @@ function PublishForm(props: Props) {
       }
     }
   }
-  // @endif
-
-  // @if TARGET='app'
-  // Save file changes locally ( desktop )
-  function saveFileChanges() {
-    let output;
-    if (!output || output === '') {
-      // Generate a temporary file:
-      output = tempy.file({ name: 'post.md' });
-    } else if (typeof filePath === 'string') {
-      // Use current file
-      output = filePath;
-    }
-    // Create a temporary file and save file changes
-    if (output && output !== '') {
-      // Save file changes
-      return new Promise((resolve, reject) => {
-        fs.writeFile(output, fileText, (error, data) => {
-          // Handle error, cant save changes or create file
-          error ? reject(error) : resolve(output);
-        });
-      });
-    }
-  }
-  // @endif
 
   async function handlePublish() {
     let outputFile = filePath;
@@ -506,13 +477,7 @@ function PublishForm(props: Props) {
       // If user modified content on the text editor or editing name has changed:
       // Save changes and update file path
       if (fileEdited || nameEdited) {
-        // @if TARGET='app'
-        outputFile = await saveFileChanges();
-        // @endif
-
-        // @if TARGET='web'
         outputFile = createWebFile();
-        // @endif
 
         // New content stored locally and is not empty
         if (outputFile) {

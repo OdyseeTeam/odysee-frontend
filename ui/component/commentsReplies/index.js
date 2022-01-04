@@ -16,7 +16,7 @@ const select = (state, props) => {
     fetchedReplies,
     resolvedReplies,
     claimIsMine: selectClaimIsMineForUri(state, props.uri),
-    userCanComment: IS_WEB ? Boolean(selectUserVerifiedEmail(state)) : true,
+    userCanComment: Boolean(selectUserVerifiedEmail(state)),
     myChannelIds: selectMyChannelClaimIds(state),
     isFetchingByParentId: selectIsFetchingCommentsByParentId(state),
   };

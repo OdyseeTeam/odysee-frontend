@@ -1,11 +1,9 @@
 const { DOMAIN } = require('../../config.js');
 const AUTH_TOKEN = 'auth_token';
 const SAVED_PASSWORD = 'saved_password';
-const DEPRECATED_SAVED_PASSWORD = 'saved-password';
 const domain =
   typeof window === 'object' && window.location.hostname.includes('localhost') ? window.location.hostname : DOMAIN;
 const isProduction = process.env.NODE_ENV === 'production';
-const maxExpiration = 2147483647;
 let sessionPassword;
 
 function setCookie(name, value, expirationDaysOnWeb) {
@@ -14,7 +12,7 @@ function setCookie(name, value, expirationDaysOnWeb) {
     let date = new Date();
     date.setTime(date.getTime() + expirationDaysOnWeb * 24 * 60 * 60 * 1000);
     // If on PC, set to not expire (max)
-    expires = `expires=${IS_WEB ? date.toUTCString() : maxExpiration};`;
+    expires = `expires=${date.toUTCString()};`;
   }
 
   let cookie = `${name}=${value || ''}; ${expires} path=/;`;
@@ -129,14 +127,6 @@ function doAuthTokenRefresh() {
   }
 }
 
-function doDeprecatedPasswordMigrationMarch2020() {
-  const savedPassword = getCookie(DEPRECATED_SAVED_PASSWORD);
-  if (savedPassword) {
-    deleteCookie(DEPRECATED_SAVED_PASSWORD);
-    setSavedPassword(savedPassword, true);
-  }
-}
-
 module.exports = {
   setCookie,
   getCookie,
@@ -150,5 +140,4 @@ module.exports = {
   deleteAuthToken,
   doSignOutCleanup,
   doAuthTokenRefresh,
-  doDeprecatedPasswordMigrationMarch2020,
 };

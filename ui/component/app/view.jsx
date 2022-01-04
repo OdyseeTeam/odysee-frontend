@@ -3,7 +3,6 @@ import * as PAGES from 'constants/pages';
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
-import classnames from 'classnames';
 import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
 import { buildURI, parseURI } from 'util/lbryURI';
@@ -11,7 +10,6 @@ import { SIMPLE_SITE } from 'config';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
 import ReactModal from 'react-modal';
-import { openContextMenu } from 'util/context-menu';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import FileRenderFloating from 'component/fileRenderFloating';
@@ -66,9 +64,7 @@ type Props = {
   signIn: () => void,
   requestDownloadUpgrade: () => void,
   setLanguage: (string) => void,
-  isUpgradeAvailable: boolean,
   isReloadRequired: boolean,
-  autoUpdateDownloaded: boolean,
   uploadCount: number,
   balance: ?number,
   syncIsLocked: boolean,
@@ -97,10 +93,7 @@ function App(props: Props) {
     fetchChannelListMine,
     fetchCollectionListMine,
     signIn,
-    autoUpdateDownloaded,
-    isUpgradeAvailable,
     isReloadRequired,
-    requestDownloadUpgrade,
     uploadCount,
     history,
     syncError,
@@ -137,13 +130,10 @@ function App(props: Props) {
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
 
   const { pathname, hash, search } = props.location;
-  const [upgradeNagClosed, setUpgradeNagClosed] = useState(false);
   const [resolvedSubscriptions, setResolvedSubscriptions] = useState(false);
   const [retryingSync, setRetryingSync] = useState(false);
   const [sidebarOpen] = usePersistedState('sidebar', true);
   const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
-  const showUpgradeButton =
-    (autoUpdateDownloaded || (process.platform === 'linux' && isUpgradeAvailable)) && !upgradeNagClosed;
   // referral claiming
   const referredRewardAvailable = rewards && rewards.some((reward) => reward.reward_type === REWARDS.TYPE_REFEREE);
   const urlParams = new URLSearchParams(search);
@@ -156,7 +146,7 @@ function App(props: Props) {
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
   const hasActiveChannelClaim = activeChannelId !== undefined;
-  const isPersonalized = !IS_WEB || hasVerifiedEmail;
+  const isPersonalized = hasVerifiedEmail;
   const renderFiledrop = !isMobile && isAuthenticated;
   const connectionStatus = useConnectionStatus();
 
@@ -286,11 +276,6 @@ function App(props: Props) {
     }
 
     fetchAccessToken();
-
-    // @if TARGET='app'
-    fetchChannelListMine(); // This is fetched after a user is signed in on web
-    fetchCollectionListMine();
-    // @endif
   }, [appRef, fetchAccessToken, fetchChannelListMine, fetchCollectionListMine]);
 
   useEffect(() => {
@@ -309,7 +294,15 @@ function App(props: Props) {
       fetchModBlockedList();
       fetchModAmIList();
     }
-  }, [hasMyChannels, hasNoChannels, hasActiveChannelClaim, setActiveChannelIfNotSet, setIncognito]);
+  }, [
+    hasMyChannels,
+    hasNoChannels,
+    hasActiveChannelClaim,
+    setActiveChannelIfNotSet,
+    setIncognito,
+    fetchModBlockedList,
+    fetchModAmIList,
+  ]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -502,16 +495,8 @@ function App(props: Props) {
   }
 
   return (
-    <div
-      className={classnames(MAIN_WRAPPER_CLASS, {
-        // @if TARGET='app'
-        [`${MAIN_WRAPPER_CLASS}--mac`]: IS_MAC,
-        // @endif
-      })}
-      ref={appRef}
-      onContextMenu={IS_WEB ? undefined : (e) => openContextMenu(e)}
-    >
-      {IS_WEB && lbryTvApiStatus === STATUS_DOWN ? (
+    <div className={MAIN_WRAPPER_CLASS} ref={appRef}>
+      {lbryTvApiStatus === STATUS_DOWN ? (
         <Yrbl
           className="main--empty"
           title={__('odysee.com is currently down')}
@@ -525,17 +510,6 @@ function App(props: Props) {
           <FileRenderFloating />
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
-
-            {/* @if TARGET='app' */}
-            {showUpgradeButton && (
-              <Nag
-                message={__('An upgrade is available.')}
-                actionText={__('Install Now')}
-                onClick={requestDownloadUpgrade}
-                onClose={() => setUpgradeNagClosed(true)}
-              />
-            )}
-            {/* @endif */}
 
             <YoutubeWelcome />
             {!SIMPLE_SITE && !shouldHideNag && <OpenInAppLink uri={uri} />}

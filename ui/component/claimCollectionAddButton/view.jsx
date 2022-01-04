@@ -29,7 +29,7 @@ export default function CollectionAddButton(props: Props) {
       icon={fileAction ? (!isSaved ? ICONS.ADD : ICONS.STACK) : ICONS.LIBRARY}
       iconSize={fileAction ? 22 : undefined}
       label={uri ? (!isSaved ? __('Save') : __('Saved')) : __('New List')}
-      requiresAuth={IS_WEB}
+      requiresAuth
       title={__('Add this claim to a list')}
       onClick={(e) => {
         e.preventDefault();

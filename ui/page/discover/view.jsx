@@ -121,7 +121,7 @@ function DiscoverPage(props: Props) {
           icon={ICONS.SUBSCRIBE}
           iconColor="red"
           onClick={handleFollowClick}
-          requiresAuth={IS_WEB}
+          requiresAuth
           label={label}
         />
       )
@@ -198,6 +198,7 @@ function DiscoverPage(props: Props) {
       return;
     }
 
+    // eslint-disable-next-line space-before-function-paren
     (async function () {
       // test if adblock is enabled
       let adBlockEnabled = false;
@@ -373,9 +374,7 @@ function DiscoverPage(props: Props) {
         tags={tags}
         hiddenNsfwMessage={<HiddenNsfw type="page" />}
         repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-        injectedItem={
-          SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false
-        }
+        injectedItem={SHOW_ADS ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
         // Assume wild west page if no dynamicRouteProps
         // Not a very good solution, but just doing it for now
         // until we are sure this page will stay around
