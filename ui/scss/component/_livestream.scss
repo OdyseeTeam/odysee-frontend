@@ -70,6 +70,11 @@ $recent-msg-button__height: 2rem;
     .recommended-content__toggles {
       margin-right: var(--spacing-xs);
 
+      .button-toggle:nth-child(2) {
+        margin-left: 2px;
+        margin-right: 2px;
+      }
+
       .button-toggle--active {
         &:hover {
           p,

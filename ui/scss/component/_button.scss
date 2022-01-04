@@ -649,6 +649,11 @@ svg + .button__label {
     border-top-right-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
   }
+
+  &:nth-child(2):not(:last-child) {
+    margin-left: 2px;
+    margin-right: 2px;
+  }
 }
 
 .button-collection-order {
