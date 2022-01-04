@@ -699,6 +699,12 @@
     transition: background-size 0.2s ease-in-out;
   }
 
+  .claim-tile__title {
+    .claim__menu-button {
+      right: calc(var(--spacing-xs) * -1);
+    }
+  }
+
   &:hover {
     cursor: pointer;
 
