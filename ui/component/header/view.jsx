@@ -175,16 +175,15 @@ const Header = (props: Props) => {
         </>
       ) : !isMobile ? (
         <div className="header__authButtons">
-          {keycloakReady && (
+          {!keycloakReady || user === undefined ? (
+            <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
+          ) : (
             <Button
               navigate={`/$/${PAGES.OAUTH}${authRedirectParam}`}
               button="primary"
               label={__('Log In')}
               disabled={user === null}
             />
-          )}
-          {!keycloakReady && (
-            <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
           )}
         </div>
       ) : (
