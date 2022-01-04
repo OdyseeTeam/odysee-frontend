@@ -125,6 +125,38 @@
       opacity: 1;
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .claim-preview {
+      .claim-preview-metadata {
+        .claim-preview__title {
+          margin-right: var(--spacing-s);
+        }
+        .media__subtitle {
+          .button {
+            display: inline;
+          }
+          .button__content {
+            height: auto;
+          }
+          .view_count {
+            font-size: var(--font-xxsmall);
+          }
+        }
+      }
+      .claim-preview__actions {
+        margin-top: 0;
+        .claim-preview__primary-actions {
+          .claim-preview__channel-staked {
+            margin-bottom: 0;
+          }
+        }
+      }
+    }
+    .claim__menu-button {
+      opacity: 1;
+    }
+  }
 }
 
 .claim-preview__wrapper--notice {
@@ -406,39 +438,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-
-  @media (max-width: $breakpoint-small) {
-    .claim-preview-metadata {
-      .claim-preview__title {
-        margin-right: 0;
-      }
-      .media__subtitle {
-        .button {
-          display: inline;
-        }
-        .button__content {
-          height: auto;
-        }
-        .view_count {
-          font-size: var(--font-xxsmall);
-        }
-
-        /*
-        .date_time::before {
-          content: '\A';
-          white-space: pre;
-        }*/
-      }
-    }
-    .claim-preview__actions {
-      margin-top: 0;
-      .claim-preview__primary-actions {
-        .claim-preview__channel-staked {
-          margin-bottom: 0;
-        }
-      }
-    }
-  }
 }
 
 .claim-preview__title {
