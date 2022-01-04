@@ -126,7 +126,7 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__wrapper--unread {
-  box-shadow: 6px -1px 0px 0px rgba(var(--color-primary-dynamic), 0.7) inset;
+  box-shadow: 2px 0px 0px 0px rgba(var(--color-primary-dynamic), 0.7) inset;
   justify-content: space-between;
 
   @media (max-width: $breakpoint-small) {
@@ -134,7 +134,7 @@ $contentMaxWidth: 60rem;
   }
 
   &:hover {
-    box-shadow: 6px -1px 0px 0px rgba(var(--color-primary-dynamic), 1) inset;
+    box-shadow: 2px 0px 0px 0px rgba(var(--color-primary-dynamic), 1) inset;
   }
 }
 

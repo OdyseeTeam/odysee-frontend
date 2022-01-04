@@ -120,6 +120,59 @@
     margin-top: var(--spacing-xxs);
   }
 
+  .claim__tags {
+    .tag {
+      color: var(--color-text);
+      background-color: var(--color-header-button);
+
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
+      }
+    }
+  }
+
+  .claim-preview__repost-ribbon {
+    position: absolute;
+    display: block;
+    width: 225px;
+    padding-top: 4px;
+    padding-right: 8px;
+    background-color: rgba(var(--color-primary-dynamic), 0.9);
+    color: var(--color-primary-contrast);
+    text-align: center;
+    z-index: 1;
+    font-size: var(--font-xxsmall);
+
+    left: -25px;
+    top: 10px;
+    transform: rotate(-45deg);
+
+    .button--uri-indicator {
+      top: -3px;
+    }
+
+    .button {
+      width: 80px;
+      text-align: center;
+      .button__content {
+        width: 100%;
+        .channel-name {
+          width: 100%;
+          color: var(--color-primary-contrast);
+          font-size: var(--font-xxsmall);
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
+
+          &:hover {
+            color: var(--color-secondary);
+          }
+        }
+      }
+    }
+  }
+
   &:hover {
     .claim__menu-button {
       opacity: 1;
