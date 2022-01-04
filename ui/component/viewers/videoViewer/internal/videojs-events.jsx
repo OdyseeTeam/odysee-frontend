@@ -48,7 +48,7 @@ const VideoJsEvents = ({
   embedded: boolean,
   clearPosition: (string) => void,
   uri: string,
-  doAnalyticsView: (string, number) => void,
+  doAnalyticsView: (string, number) => any,
   claimRewards: () => void,
   playerServerRef: any
 }) => {
