@@ -779,6 +779,10 @@
     &:not(:first-child) {
       margin-top: var(--spacing-s);
     }
+
+    .claim__menu-button {
+      opacity: 1;
+    }
   }
 }
 
