@@ -68,6 +68,10 @@
     h6 {
       font-size: 0.7em;
     }
+
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: 0;
+    }
   }
 
   dl,

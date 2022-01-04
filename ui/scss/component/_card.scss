@@ -230,9 +230,15 @@
 
   .card__title-actions-container {
     @media (max-width: $breakpoint-small) {
-      width: 100%;
+      flex-grow: 1;
+
       .card__title-actions {
         width: 100%;
+        flex-grow: 1;
+        margin-right: auto;
+        .button--alt {
+          flex-grow: 1;
+        }
       }
       .comment__sort {
         .button {
