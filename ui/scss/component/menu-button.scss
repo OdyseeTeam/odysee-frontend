@@ -12,6 +12,9 @@ reach-portal {
       }
 
       [data-reach-menu-item][data-selected] {
+        .menu__link {
+          color: var(--color-primary-contrast) !important;
+        }
         .icon {
           stroke: var(--color-primary-contrast);
         }
@@ -62,7 +65,7 @@ reach-portal {
 }
 
 [data-reach-menu-item][data-selected] {
-  color: var(--color-primary-contrast);
+  color: var(--color-primary-contrast) !important;
   background-color: var(--color-primary);
   box-shadow: none;
 

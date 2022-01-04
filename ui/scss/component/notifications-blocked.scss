@@ -3,6 +3,8 @@
   align-items: center;
   background-color: rgba(var(--color-primary-dynamic), 0.06);
   padding: var(--spacing-m);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-primary);
 }
 
 .notificationsBlocked__icon {
