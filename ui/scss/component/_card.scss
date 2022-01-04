@@ -345,6 +345,17 @@
         margin-bottom: calc(var(--spacing-s) * -1);
       }
     }
+    .card__title-actions-container {
+      .card__title-actions {
+        .filePrice {
+          padding: 0;
+          .credit-amount {
+            margin-top: var(--spacing-xs);
+            padding: var(--spacing-xxxs);
+          }
+        }
+      }
+    }
   }
 }
 
