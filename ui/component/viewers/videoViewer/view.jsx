@@ -318,8 +318,9 @@ function VideoViewer(props: Props) {
       // if user hasn't interacted with document, mute video and play it
       Promise.race([playPromise, timeoutPromise]).catch((error) => {
         console.log(error);
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
-
+        if (player.paused()) {
+          document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+        }
         // center play button
         const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
         const videoDiv = player.children_[0];
