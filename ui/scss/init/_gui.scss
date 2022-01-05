@@ -604,6 +604,47 @@ textarea {
   }
 }
 
+.uploadPage-wraper {
+  .card__main-actions {
+    padding-top: var(--spacing-l);
+  }
+
+  label {
+    font-size: var(--font-medium);
+  }
+
+  .button--close {
+    &:hover {
+      color: var(--color-primary);
+      background-color: unset;
+    }
+  }
+
+  .icon__wrapper--Tag {
+    margin-right: var(--spacing-s) !important;
+    width: 1rem !important;
+    height: 1rem !important;
+  }
+
+  .card:not(:first-of-type) {
+    .card__main-actions:not(:first-of-type) {
+      border-top: unset;
+    }
+    .card__subtitle {
+      margin-top: 0 !important;
+    }
+  }
+
+  .card:nth-last-child(2) {
+    .card__main-actions {
+      padding-top: var(--spacing-xxxs);
+      fieldset-section:not(:first-child) {
+        margin-top: var(--spacing-s);
+      }
+    }
+  }
+}
+
 // Remove tap focus on mobile devices
 input,
 textarea,
