@@ -25,7 +25,7 @@ $contentMaxWidth: 60rem;
       }
       textarea,
       select,
-      .button {
+      .button:not(.button--file-action) {
         background-color: var(--color-background);
       }
       .button {
@@ -33,6 +33,15 @@ $contentMaxWidth: 60rem;
       }
       .comment__char-count-mde {
         padding-right: 0px;
+        background-color: var(--color-header-button);
+      }
+
+      .button--file-action {
+        .button__content {
+          .icon {
+            background: var(--color-header-button);
+          }
+        }
       }
     }
 

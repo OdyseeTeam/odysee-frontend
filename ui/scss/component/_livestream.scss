@@ -321,6 +321,13 @@ $recent-msg-button__height: 2rem;
     .button--link {
       border-radius: var(--border-radius);
     }
+
+    .section__actions {
+      .button--alt,
+      .button--link {
+        background-color: var(--color-header-button);
+      }
+    }
   }
 
   .section {
