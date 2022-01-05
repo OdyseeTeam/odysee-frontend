@@ -77,6 +77,7 @@ type Props = {
   uri: string,
   claimValues: any,
   clearPosition: (string) => void,
+  centerPlayButton: () => void,
 };
 
 const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -139,6 +140,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claimRewards,
     uri,
     clearPosition,
+    centerPlayButton,
   } = props;
 
   // will later store the videojs player
@@ -253,16 +255,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.children_[0].setAttribute('playsinline', '');
 
       // center play button
-      const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
-      const videoDiv = player.children_[0];
-      const controlBar = document.getElementsByClassName('vjs-control-bar')[0];
-      const leftWidth = (videoDiv.offsetWidth - playBT.offsetWidth) / 2 + 'px';
-      const availableHeight = videoDiv.offsetHeight - controlBar.offsetHeight;
-      const topHeight = (availableHeight - playBT.offsetHeight) / 2 + 3 + 'px';
-
-      playBT.style.top = topHeight;
-      playBT.style.left = leftWidth;
-      playBT.style.margin = '0';
+      centerPlayButton();
 
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
@@ -272,6 +265,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // sometimes video doesnt start properly, this addresses the edge case
       if (autoplay) {
+        const videoDiv = window.player.children_[0];
         if (videoDiv) {
           videoDiv.click();
         }

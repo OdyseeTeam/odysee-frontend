@@ -289,6 +289,20 @@ function VideoViewer(props: Props) {
     setEnded(true);
   };
 
+  function centerPlayButton() {
+    // center play button
+    const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
+    const videoDiv = window.player.children_[0];
+    const controlBar = document.getElementsByClassName('vjs-control-bar')[0];
+    const leftWidth = (videoDiv.offsetWidth - playBT.offsetWidth) / 2 + 'px';
+    const availableHeight = videoDiv.offsetHeight - controlBar.offsetHeight;
+    const topHeight = (availableHeight - playBT.offsetHeight) / 2 + 3 + 'px';
+
+    playBT.style.top = topHeight;
+    playBT.style.left = leftWidth;
+    playBT.style.margin = '0';
+  }
+
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
     if (!embedded) {
       setVideoNode(videoNode);
@@ -321,22 +335,10 @@ function VideoViewer(props: Props) {
         if (player.paused()) {
           document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
         }
-        // center play button
-        const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
-        const videoDiv = player.children_[0];
-        const controlBar = document.getElementsByClassName('vjs-control-bar')[0];
-        const leftWidth = (videoDiv.offsetWidth - playBT.offsetWidth) / 2 + 'px';
-        const availableHeight = videoDiv.offsetHeight - controlBar.offsetHeight;
-        const topHeight = (availableHeight - playBT.offsetHeight) / 2 + 3 + 'px';
 
-        playBT.style.top = topHeight;
-        playBT.style.left = leftWidth;
-        playBT.style.margin = '0';
+        centerPlayButton();
 
         if (typeof error === 'object' && error.name && error.name === 'NotAllowedError') {
-          console.log(error)
-
-
           if (player.autoplay() && !player.muted()) {
             // player.muted(true);
             // player.play();
@@ -463,6 +465,7 @@ function VideoViewer(props: Props) {
         claimRewards={claimRewards}
         uri={uri}
         clearPosition={clearPosition}
+        centerPlayButton={centerPlayButton}
       />
     </div>
   );
