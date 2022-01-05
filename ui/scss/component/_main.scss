@@ -381,12 +381,14 @@ body {
     }
 
     &:hover:not(.opacity-30) {
+      /*
       border-radius: var(--border-radius);
       margin-left: calc(var(--spacing-xs) * -1);
       padding-left: var(--spacing-xs);
       margin-right: calc(var(--spacing-xs) * -1);
       padding-right: var(--spacing-xs);
       background-color: rgba(var(--color-header-background-base), 0.1);
+      */
 
       .settings__row--title {
         color: rgba(var(--color-text-base), 1);

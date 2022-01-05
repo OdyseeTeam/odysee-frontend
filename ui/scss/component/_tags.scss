@@ -8,6 +8,15 @@
     margin-left: 0;
     margin-bottom: var(--spacing-s);
     margin-right: var(--spacing-s);
+    //color:var(--color-primary-contrast);
+    //background-color:var(--color-primary);
+    color: var(--color-text);
+    background-color: var(--color-header-background);
+
+    &:hover {
+      color: var(--color-primary-contrast);
+      background-color: var(--color-primary);
+    }
   }
 }
 
