@@ -17,7 +17,9 @@ $thumbnailWidthSmall: 1rem;
 
   .section__actions {
     .button--link {
+      background-color: var(--color-header-background);
       color: var(--color-text);
+      border-radius: var(--border-radius);
     }
   }
 
