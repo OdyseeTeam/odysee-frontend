@@ -332,17 +332,22 @@ function VideoViewer(props: Props) {
       // if user hasn't interacted with document, mute video and play it
       Promise.race([playPromise, timeoutPromise]).catch((error) => {
         console.log(error);
-        if (player.paused()) {
-          document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
-        }
 
-        centerPlayButton();
+        const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+        const isATimeoutError = error === PLAY_TIMEOUT_ERROR;
 
-        if (typeof error === 'object' && error.name && error.name === 'NotAllowedError') {
-          if (player.autoplay() && !player.muted()) {
+        if (noPermissionError || isATimeoutError) {
+          if (player.paused()) {
+            document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+          }
+
+          centerPlayButton();
+
+          // to turn muted autoplay on
+          // if (player.autoplay() && !player.muted()) {
             // player.muted(true);
             // player.play();
-          }
+          // }
         }
         setIsPlaying(false);
       });

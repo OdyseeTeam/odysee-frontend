@@ -306,12 +306,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       playerServerRef.current = response.headers.get('x-powered-by');
 
       if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        window.player.src({
+
+        // const currentPlayerTime = vjsPlayer.currentTime();
+
+        vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: response.url,
         });
 
-        window.player.load();
+        vjsPlayer.load();
+
+        // if the video had already been running for some time before the reload, go back to prior spot
+        // vjsPlayer.currentTime(currentPlayerTime);
       }
     })();
 
