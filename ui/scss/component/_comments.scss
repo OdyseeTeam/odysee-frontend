@@ -22,18 +22,12 @@ $thumbnailWidthSmall: 1rem;
 }
 
 .comment__sort {
-  //margin: var(--spacing-s) 0;
   margin-right: var(--spacing-s);
   display: inline-block;
 
   @media (min-width: $breakpoint-small) {
     margin-top: 0;
     display: inline;
-  }
-
-  .button:nth-child(2) {
-    margin-left: 2px;
-    margin-right: 2px;
   }
 }
 
