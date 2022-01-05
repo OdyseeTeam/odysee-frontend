@@ -1,10 +1,10 @@
 import * as ACTIONS from 'constants/action_types';
-import { getAuthToken } from 'util/saved-passwords';
+import { getTokens } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { SOCKETY_SERVER_API } from 'config';
 
-const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
+const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal`;
 const COMMENT_WS_URL = `${SOCKETY_SERVER_API}/commentron?id=`;
 const COMMENT_WS_SUBCATEGORIES = {
   COMMENTER: 'commenter',
@@ -76,13 +76,15 @@ export const doSocketDisconnect = (url) => (dispatch) => {
 };
 
 export const doNotificationSocketConnect = (enableNotifications) => (dispatch) => {
-  const authToken = getAuthToken();
-  if (!authToken) {
-    console.error('Unable to connect to web socket because auth token is missing'); // eslint-disable-line
+  const tokens = getTokens();
+  if (!tokens.access_token && !tokens.auth_token) {
+    // Ensure we have either auth or access token.
+    console.error('doNotificationSocketConnect: token required'); // eslint-disable-line
     return;
   }
 
-  const url = `${NOTIFICATION_WS_URL}${authToken}`;
+  const param = tokens.auth_token ? `?id=${tokens.auth_token}` : `?access_token=${tokens.access_token}`;
+  const url = `${NOTIFICATION_WS_URL}${param}`;
 
   doSocketConnect(
     url,
