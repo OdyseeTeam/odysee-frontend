@@ -1164,7 +1164,6 @@ export const icons = {
       width={props.size || '16'}
       height={props.size || '18'}
       fill="none"
-      strokeWidth="1.5"
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -1688,150 +1687,29 @@ export const icons = {
         fill="none"
         strokeLinecap="round"
         strokeLinejoin="round"
-        strokeWidth="1.5"
       />
-      <path
-        d="M12,19.875a.375.375,0,0,1,.375.375"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M11.625,20.25A.375.375,0,0,1,12,19.875"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M12,20.625a.375.375,0,0,1-.375-.375"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M12.375,20.25a.375.375,0,0,1-.375.375"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M17.813,17.313a.375.375,0,0,1,.529-.024"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M17.836,17.843a.376.376,0,0,1-.023-.53"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M18.366,17.819a.375.375,0,0,1-.53.024"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M18.342,17.289a.375.375,0,0,1,.024.53"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M19.843,11.294a.376.376,0,0,1,.34-.407"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M20.25,11.634a.375.375,0,0,1-.407-.34"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M20.59,11.227a.374.374,0,0,1-.34.407"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M20.183,10.887a.375.375,0,0,1,.407.34"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M6.187,17.313a.375.375,0,0,0-.529-.024"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M6.164,17.843a.376.376,0,0,0,.023-.53"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M5.634,17.819a.375.375,0,0,0,.53.024"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M5.658,17.289a.375.375,0,0,0-.024.53"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M4.157,11.294a.376.376,0,0,0-.34-.407"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M3.75,11.634a.375.375,0,0,0,.407-.34"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M3.41,11.227a.374.374,0,0,0,.34.407"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path
-        d="M3.817,10.887a.375.375,0,0,0-.407.34"
-        fill="none"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="1.5"
-      />
-      <path d="M20.25 4.5L18 4.5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
-      <path d="M6 4.5L3.75 4.5" fill="none" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" />
+      <path d="M12,19.875a.375.375,0,0,1,.375.375" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M11.625,20.25A.375.375,0,0,1,12,19.875" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12,20.625a.375.375,0,0,1-.375-.375" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M12.375,20.25a.375.375,0,0,1-.375.375" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M17.813,17.313a.375.375,0,0,1,.529-.024" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M17.836,17.843a.376.376,0,0,1-.023-.53" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18.366,17.819a.375.375,0,0,1-.53.024" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M18.342,17.289a.375.375,0,0,1,.024.53" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M19.843,11.294a.376.376,0,0,1,.34-.407" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20.25,11.634a.375.375,0,0,1-.407-.34" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20.59,11.227a.374.374,0,0,1-.34.407" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20.183,10.887a.375.375,0,0,1,.407.34" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6.187,17.313a.375.375,0,0,0-.529-.024" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6.164,17.843a.376.376,0,0,0,.023-.53" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.634,17.819a.375.375,0,0,0,.53.024" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M5.658,17.289a.375.375,0,0,0-.024.53" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M4.157,11.294a.376.376,0,0,0-.34-.407" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3.75,11.634a.375.375,0,0,0,.407-.34" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3.41,11.227a.374.374,0,0,0,.34.407" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3.817,10.887a.375.375,0,0,0-.407.34" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M20.25 4.5L18 4.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 4.5L3.75 4.5" fill="none" strokeLinecap="round" strokeLinejoin="round" />
     </g>
   ),
   [ICONS.PEACE]: (props: CustomProps) => (
