@@ -50,7 +50,7 @@ function getThumbnailCdnUrl(url) {
     return url;
   }
 
-  if (url) {
+  if (url && !url.startsWith('data:image')) {
     const encodedURL = Buffer.from(url).toString('base64');
     return `${THUMBNAIL_CARDS_CDN_URL}${encodedURL}.jpg`;
   }
@@ -59,6 +59,17 @@ function getThumbnailCdnUrl(url) {
 function getParameterByName(name, url) {
   var match = RegExp('[?&]' + name + '=([^&]*)').exec(url);
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+}
+
+function escapeHtmlProperty(property) {
+  return property
+    ? String(property)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+    : '';
 }
 
 // module.exports needed since the web server imports this function
@@ -71,4 +82,5 @@ module.exports = {
   generateStreamUrl,
   getParameterByName,
   getThumbnailCdnUrl,
+  escapeHtmlProperty,
 };

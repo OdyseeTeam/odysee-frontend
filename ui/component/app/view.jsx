@@ -20,6 +20,7 @@ import usePrevious from 'effects/use-previous';
 import Nag from 'component/common/nag';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
+import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
@@ -31,6 +32,7 @@ import {
   STATUS_DOWN,
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
+import { useIsMobile } from 'effects/use-screensize';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
@@ -122,6 +124,7 @@ function App(props: Props) {
     fetchModAmIList,
   } = props;
 
+  const isMobile = useIsMobile();
   const appRef = useRef();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
@@ -154,8 +157,8 @@ function App(props: Props) {
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
   const hasActiveChannelClaim = activeChannelId !== undefined;
   const isPersonalized = !IS_WEB || hasVerifiedEmail;
-  const renderFiledrop = !IS_WEB || isAuthenticated;
-  const isOnline = navigator.onLine;
+  const renderFiledrop = !isMobile && isAuthenticated;
+  const connectionStatus = useConnectionStatus();
 
   let uri;
   try {
@@ -169,7 +172,7 @@ function App(props: Props) {
 
   function getStatusNag() {
     // Handle "offline" first. Everything else is meaningless if it's offline.
-    if (!isOnline) {
+    if (!connectionStatus.online) {
       return <Nag type="helpful" message={__('You are offline. Check your internet connection.')} />;
     }
 
@@ -489,7 +492,7 @@ function App(props: Props) {
     );
   }
 
-  if (isOnline && lbryTvApiStatus === STATUS_DOWN) {
+  if (connectionStatus.online && lbryTvApiStatus === STATUS_DOWN) {
     // TODO: Rename `SyncFatalError` since it has nothing to do with syncing.
     return (
       <React.Suspense fallback={null}>

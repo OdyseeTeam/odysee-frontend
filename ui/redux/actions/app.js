@@ -9,7 +9,6 @@ import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
-import { DOMAIN } from 'config';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doFetchCollectionListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimIsMineForUri, selectMyChannelClaims } from 'redux/selectors/claims';
@@ -42,7 +41,7 @@ import {
 } from 'redux/selectors/app';
 import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { doSyncLoop, doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState } from 'redux/actions/sync';
+import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
 import { doAuthenticate } from 'redux/actions/user';
 import { lbrySettings as config, version as appVersion } from 'package.json';
 import analytics, { SHARE_INTERNAL } from 'analytics';
@@ -353,8 +352,6 @@ export function doDaemonReady() {
     dispatch(
       doAuthenticate(
         appVersion,
-        undefined,
-        undefined,
         shareUsageData,
         (status) => {
           const trendingAlgorithm =
@@ -367,8 +364,7 @@ export function doDaemonReady() {
             analytics.trendingAlgorithmEvent(trendingAlgorithm);
           }
         },
-        undefined,
-        DOMAIN
+        undefined
       )
     );
     dispatch({ type: ACTIONS.DAEMON_READY });
@@ -526,12 +522,11 @@ export function doSignIn() {
     const state = getState();
     const user = selectUser(state);
 
-    if (pushNotifications.supported) {
+    if (pushNotifications.supported && user) {
       pushNotifications.reconnect(user.id);
       pushNotifications.validate(user.id);
     }
 
-    dispatch(doGetAndPopulatePreferences());
     dispatch(doNotificationSocketConnect(true));
     dispatch(doNotificationList(null, false));
     dispatch(doCheckPendingClaims());
@@ -546,7 +541,7 @@ export function doSignOut() {
     const state = getState();
     const user = selectUser(state);
     try {
-      if (pushNotifications.supported) {
+      if (pushNotifications.supported && user) {
         await pushNotifications.disconnect(user.id);
       }
     } finally {
@@ -596,7 +591,7 @@ export function doToggle3PAnalytics(allowParam, doNotDispatch) {
   };
 }
 
-export function doGetAndPopulatePreferences() {
+export function doGetAndPopulatePreferences(syncId /* ?: number */) {
   const { SDK_SYNC_KEYS } = SHARED_PREFERENCES;
 
   return (dispatch, getState) => {
@@ -615,7 +610,10 @@ export function doGetAndPopulatePreferences() {
       const successState = getState();
       const daemonSettings = selectDaemonSettings(successState);
       if (savedPreferences !== null) {
-        dispatch(doPopulateSharedUserState(savedPreferences));
+        if (!syncInvalidated(getState, syncId)) {
+          dispatch(doPopulateSharedUserState(savedPreferences));
+        }
+
         // @if TARGET='app'
 
         const { settings } = savedPreferences.value;
@@ -660,22 +658,20 @@ export function doGetAndPopulatePreferences() {
   };
 }
 
-export function doHandleSyncComplete(error, hasNewData) {
-  return (dispatch) => {
+export function doHandleSyncComplete(error, hasNewData, syncId) {
+  return (dispatch, getState) => {
     if (!error) {
       if (hasNewData) {
-        dispatch(doGetAndPopulatePreferences());
-        // we just got sync data, better update our channels
-        dispatch(doFetchChannelListMine());
+        if (syncInvalidated(getState, syncId)) {
+          return;
+        }
+
+        dispatch(doGetAndPopulatePreferences(syncId));
       }
     } else {
       console.error('Error in doHandleSyncComplete', error);
     }
   };
-}
-
-export function doSyncWithPreferences() {
-  return (dispatch) => dispatch(doSyncLoop());
 }
 
 export function doToggleInterestedInYoutubeSync() {

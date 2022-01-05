@@ -48,11 +48,8 @@ export function doFetchInviteStatus(shouldCallRewardList = true) {
   };
 }
 
-export function doInstallNew(appVersion, os = null, firebaseToken = null, callbackForUsersWhoAreSharingData, domain) {
+export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, domain) {
   const payload = { app_version: appVersion, domain };
-  if (firebaseToken) {
-    payload.firebase_token = firebaseToken;
-  }
 
   Lbry.status().then((status) => {
     payload.app_id =
@@ -62,7 +59,7 @@ export function doInstallNew(appVersion, os = null, firebaseToken = null, callba
     payload.node_id = status.lbry_id;
     Lbry.version().then((version) => {
       payload.daemon_version = version.lbrynet_version;
-      payload.operating_system = os || version.os_system;
+      payload.operating_system = version.os_system;
       payload.platform = version.platform;
       Lbryio.call('install', 'new', payload);
 
@@ -71,30 +68,6 @@ export function doInstallNew(appVersion, os = null, firebaseToken = null, callba
       }
     });
   });
-}
-
-export function doInstallNewWithParams(
-  appVersion,
-  installationId,
-  nodeId,
-  lbrynetVersion,
-  os,
-  platform,
-  firebaseToken = null
-) {
-  return () => {
-    const payload = { app_version: appVersion };
-    if (firebaseToken) {
-      payload.firebase_token = firebaseToken;
-    }
-
-    payload.app_id = installationId;
-    payload.node_id = nodeId;
-    payload.daemon_version = lbrynetVersion;
-    payload.operating_system = os;
-    payload.platform = platform;
-    Lbryio.call('install', 'new', payload);
-  };
 }
 
 function checkAuthBusy() {
@@ -131,12 +104,9 @@ function checkAuthBusy() {
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
 export function doAuthenticate(
   appVersion,
-  os = null,
-  firebaseToken = null,
   shareUsageData = true,
   callbackForUsersWhoAreSharingData,
-  callInstall = true,
-  domain = null
+  callInstall = true
 ) {
   return (dispatch) => {
     dispatch({
@@ -157,8 +127,8 @@ export function doAuthenticate(
           if (shareUsageData) {
             dispatch(doRewardList());
             dispatch(doFetchInviteStatus(false));
-            if (callInstall) {
-              doInstallNew(appVersion, os, firebaseToken, callbackForUsersWhoAreSharingData, domain);
+            if (callInstall && !user?.device_types?.includes('web')) {
+              doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
             }
           }
         });

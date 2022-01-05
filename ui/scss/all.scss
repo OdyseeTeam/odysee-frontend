@@ -1,6 +1,7 @@
 @charset "utf-8";
 
 @import 'init/reset';
+@import 'init/breakpoints';
 @import 'init/vars';
 @import 'init/mixins';
 @import 'init/gui';
@@ -29,7 +30,6 @@
 @import 'component/file-render';
 @import 'component/footer';
 @import 'component/form-field';
-@import 'component/header';
 @import 'component/icon';
 @import 'component/main';
 @import 'component/markdown-editor';

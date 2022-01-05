@@ -1,17 +1,10 @@
-// Both of these should probably die and become variables as well
-$spacing-vertical: 2rem;
-$spacing-width: 36px;
-
-$breakpoint-xxsmall: 450px;
-$breakpoint-xsmall: 600px;
-$breakpoint-small: 900px;
-$breakpoint-medium: 1150px;
-$breakpoint-large: 1600px;
+@import 'breakpoints';
 
 :root {
   --border-radius: 10px;
   --height-input: 2.5rem;
   --height-button: 2.5rem;
+  --height-button-mobile: 2rem;
   --height-checkbox: 24px;
   --height-radio: 24px;
   --height-badge: 24px;
@@ -24,6 +17,8 @@ $breakpoint-large: 1600px;
   --spacing-l: 2rem;
   --spacing-xl: 3rem;
   --spacing-xxl: 4rem;
+  --spacing-vertical: 2rem;
+  --spacing-width: 36px;
 
   // Aspect ratio
   --aspect-ratio-bluray: 41.6666666667%; // 12:5
@@ -72,7 +67,8 @@ $breakpoint-large: 1600px;
   // Header
   // This is tied to the floating player so it knows where to attach to
   // ui/component/fileRenderFloating/view.jsx
-  --header-height: 80px;
+  --header-height: 64px;
+  --header-height-mobile: 56px;
 
   // Inline Player
   --inline-player-max-height: calc(100vh - var(--header-height) - var(--spacing-l) * 4);
@@ -100,6 +96,7 @@ $breakpoint-large: 1600px;
   --tag-height: 1.5rem;
 
   --livestream-comments-width: 30rem;
+  --live-timestamp-opacity: 0;
 
   // Animations
   --resizing-animation-function: ease-in;

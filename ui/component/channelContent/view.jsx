@@ -38,7 +38,8 @@ type Props = {
   claimType: string,
   empty?: string,
   doFetchActiveLivestream: (string) => void,
-  currentChannelStatus: LivestreamChannelStatus,
+  activeLivestreamForChannel: any,
+  activeLivestreamInitialized: boolean,
 };
 
 function ChannelContent(props: Props) {
@@ -59,7 +60,8 @@ function ChannelContent(props: Props) {
     claimType,
     empty,
     doFetchActiveLivestream,
-    currentChannelStatus,
+    activeLivestreamForChannel,
+    activeLivestreamInitialized,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
   const claimsInChannel = 9999;
@@ -81,139 +83,6 @@ function ChannelContent(props: Props) {
     const { value } = e.target;
     setSearchQuery(value);
   }
-
-  // returns true if passed element is fully visible on screen
-  // function isScrolledIntoView(el) {
-  //   const rect = el.getBoundingClientRect();
-  //   const elemTop = rect.top;
-  //   const elemBottom = rect.bottom;
-  //
-  //   // Only completely visible elements return true:
-  //   const isVisible = elemTop >= 0 && elemBottom <= window.innerHeight;
-  //   return isVisible;
-  // }
-  //
-  // React.useEffect(() => {
-  //   if (isAuthenticated || !SHOW_ADS) {
-  //     return;
-  //   }
-  //
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const viewType = urlParams.get('view');
-  //
-  //   // only insert ad if it's a content view
-  //   if (viewType !== 'content') return;
-  //
-  //   (async function () {
-  //     // test if adblock is enabled
-  //     let adBlockEnabled = false;
-  //     const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-  //     try {
-  //       await fetch(new Request(googleAdUrl)).catch((_) => {
-  //         adBlockEnabled = true;
-  //       });
-  //     } catch (e) {
-  //       adBlockEnabled = true;
-  //     } finally {
-  //       if (!adBlockEnabled) {
-  //         // select the cards on page
-  //         let cards = document.getElementsByClassName('card claim-preview--tile');
-  //
-  //         // eslint-disable-next-line no-inner-declarations
-  //         function checkFlag() {
-  //           if (cards.length === 0) {
-  //             window.setTimeout(checkFlag, 100);
-  //           } else {
-  //             // find the last fully visible card
-  //             let lastCard;
-  //
-  //             // width of browser window
-  //             const windowWidth = window.innerWidth;
-  //
-  //             // on small screens, grab the second item
-  //             if (windowWidth <= 900) {
-  //               lastCard = cards[1];
-  //             } else {
-  //               // otherwise, get the last fully visible card
-  //               for (const card of cards) {
-  //                 const isFullyVisible = isScrolledIntoView(card);
-  //                 if (!isFullyVisible) break;
-  //                 lastCard = card;
-  //               }
-  //             }
-  //
-  //             // clone the last card
-  //             // $FlowFixMe
-  //             const clonedCard = lastCard.cloneNode(true);
-  //
-  //             // insert cloned card
-  //             // $FlowFixMe
-  //             lastCard.parentNode.insertBefore(clonedCard, lastCard);
-  //
-  //             // delete last card so that it doesn't mess up formatting
-  //             // $FlowFixMe
-  //             // lastCard.remove();
-  //
-  //             // change the appearance of the cloned card
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim__menu-button').remove();
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.truncated-text').innerHTML = __(
-  //               'Hate these? Login to Odysee for an ad free experience'
-  //             );
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__info').remove();
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('[role="none"]').removeAttribute('href');
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
-  //
-  //             // $FlowFixMe
-  //             clonedCard
-  //               .querySelector('.media__thumb')
-  //               .replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
-  //
-  //             // show the homepage ad which is not displayed at first
-  //             document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
-  //
-  //             // $FlowFixMe
-  //             const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
-  //             // $FlowFixMe
-  //             const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
-  //
-  //             const styles = `#av-container, #AVcontent, #aniBox {
-  //               height: ${imageHeight} !important;
-  //               width: ${imageWidth} !important;
-  //             }`;
-  //
-  //             const styleSheet = document.createElement('style');
-  //             styleSheet.type = 'text/css';
-  //             styleSheet.id = 'customAniviewStyling';
-  //             styleSheet.innerText = styles;
-  //             // $FlowFixMe
-  //             document.head.appendChild(styleSheet);
-  //
-  //             window.dispatchEvent(new CustomEvent('scroll'));
-  //           }
-  //         }
-  //         checkFlag();
-  //       }
-  //     }
-  //   })();
-  // }, []);
 
   React.useEffect(() => {
     const timer = setTimeout(() => {
@@ -252,8 +121,8 @@ function ChannelContent(props: Props) {
     setSearchResults(null);
   }, [url]);
 
-  const [isInitialized, setIsInitialized] = React.useState(false);
-  const [isChannelBroadcasting, setIsChannelBroadcasting] = React.useState(false);
+  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
+  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
 
   // Find out current channels status + active live claim.
   React.useEffect(() => {
@@ -261,14 +130,6 @@ function ChannelContent(props: Props) {
     const intervalId = setInterval(() => doFetchActiveLivestream(claimId), 30000);
     return () => clearInterval(intervalId);
   }, [claimId, doFetchActiveLivestream]);
-
-  React.useEffect(() => {
-    const initialized = currentChannelStatus.channelId === claimId;
-    setIsInitialized(initialized);
-    if (initialized) {
-      setIsChannelBroadcasting(currentChannelStatus.isBroadcasting);
-    }
-  }, [currentChannelStatus, claimId]);
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
@@ -279,7 +140,7 @@ function ChannelContent(props: Props) {
       )}
 
       {!fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
-        <LivestreamLink claimUri={currentChannelStatus.liveClaim.claimUri} />
+        <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
       )}
 
       {!fetching && showScheduledLiveStreams && (
@@ -287,7 +148,7 @@ function ChannelContent(props: Props) {
           channelIds={[claimId]}
           tileLayout={tileLayout}
           liveUris={
-            isChannelBroadcasting && currentChannelStatus.liveClaim ? [currentChannelStatus.liveClaim.claimUri] : []
+            isChannelBroadcasting && activeLivestreamForChannel.claimUri ? [activeLivestreamForChannel.claimUri] : []
           }
         />
       )}
@@ -313,7 +174,7 @@ function ChannelContent(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-      <Ads type="homepage" />
+      {/* <Ads type="homepage" /> */}
 
       {!fetching && (
         <ClaimListDiscover

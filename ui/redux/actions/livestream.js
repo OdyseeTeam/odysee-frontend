@@ -57,7 +57,12 @@ const fetchLiveChannels = async () => {
 
 const fetchLiveChannel = async (channelId: string) => {
   const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
-  const json = await response.json();
+  let json;
+  try {
+    json = await response.json();
+  } catch {
+    throw new Error('Error handling live API response');
+  }
   if (!(json.data && json.data.live)) throw new Error();
   return transformLivestreamData([json.data]);
 };
@@ -74,31 +79,41 @@ const filterUpcomingLiveStreamClaims = (upcomingClaims) => {
 };
 
 const fetchUpcomingLivestreamClaims = (channelIds: Array<string>) => {
-  return doClaimSearch({
-    page: 1,
-    page_size: 50,
-    has_no_source: true,
-    channel_ids: channelIds,
-    claim_type: ['stream'],
-    order_by: ['^release_time'],
-    release_time: `>${moment().subtract(5, 'minutes').unix()}`,
-    limit_claims_per_channel: 1,
-    no_totals: true,
-  });
+  return doClaimSearch(
+    {
+      page: 1,
+      page_size: 50,
+      has_no_source: true,
+      channel_ids: channelIds,
+      claim_type: ['stream'],
+      order_by: ['^release_time'],
+      release_time: `>${moment().subtract(5, 'minutes').unix()}`,
+      limit_claims_per_channel: 1,
+      no_totals: true,
+    },
+    {
+      useAutoPagination: true,
+    }
+  );
 };
 
 const fetchMostRecentLivestreamClaims = (channelIds: Array<string>, orderBy: Array<string> = ['release_time']) => {
-  return doClaimSearch({
-    page: 1,
-    page_size: 50,
-    has_no_source: true,
-    channel_ids: channelIds,
-    claim_type: ['stream'],
-    order_by: orderBy,
-    release_time: `<${moment().unix()}`,
-    limit_claims_per_channel: 2,
-    no_totals: true,
-  });
+  return doClaimSearch(
+    {
+      page: 1,
+      page_size: 50,
+      has_no_source: true,
+      channel_ids: channelIds,
+      claim_type: ['stream'],
+      order_by: orderBy,
+      release_time: `<${moment().unix()}`,
+      limit_claims_per_channel: 2,
+      no_totals: true,
+    },
+    {
+      useAutoPagination: true,
+    }
+  );
 };
 
 const distanceFromStreamStart = (claimA: any, claimB: any, channelStartedStreaming) => {
@@ -155,14 +170,19 @@ export const doFetchActiveLivestream = (channelId: string) => {
       const liveChannel = await fetchLiveChannel(channelId);
       const currentlyLiveClaims = await findActiveStreams([channelId], ['release_time'], liveChannel, dispatch);
       const liveClaim = currentlyLiveClaims[channelId];
+
+      liveChannel[channelId].claimId = liveClaim.stream.claim_id;
+      liveChannel[channelId].claimUri = liveClaim.stream.canonical_url;
+
       dispatch({
         type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_COMPLETED,
-        data: { liveClaim: { claimId: liveClaim.stream.claim_id, claimUri: liveClaim.stream.canonical_url } },
+        data: {
+          ...liveChannel,
+        },
       });
     } catch (err) {
-      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED });
-    } finally {
-      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FINISHED, data: { channelId } });
+      if (err.message === 'Error handling live API response') return;
+      dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAM_FAILED, data: { channelId } });
     }
   };
 };

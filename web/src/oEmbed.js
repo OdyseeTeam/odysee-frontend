@@ -5,6 +5,7 @@ const {
   generateEmbedUrl,
   getParameterByName,
   getThumbnailCdnUrl,
+  escapeHtmlProperty,
 } = require('../../ui/util/web');
 const { lbryProxy: Lbry } = require('../lbry');
 
@@ -52,7 +53,9 @@ function generateOEmbedData(claim, referrerQuery) {
   const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
-  const videoUrl = generateEmbedUrl(claim.name, claim.claim_id) + (referrerQuery ? `r=${referrerQuery}` : '');
+  const videoUrl =
+    generateEmbedUrl(claim.name, claim.claim_id) +
+    (referrerQuery ? `r=${encodeURIComponent(escapeHtmlProperty(referrerQuery))}` : '');
 
   const { html, width, height } = generateEmbedIframeData(videoUrl);
 
@@ -117,7 +120,7 @@ async function getOEmbed(ctx) {
   const { claim, error } = await getClaim(urlQuery);
   if (error) return error;
 
-  const referrerQuery = getParameterByName('r', requestUrl);
+  const referrerQuery = getParameterByName('referrer', requestUrl);
   const oEmbedData = generateOEmbedData(claim, referrerQuery);
 
   const formatQuery = getParameterByName('format', requestUrl);

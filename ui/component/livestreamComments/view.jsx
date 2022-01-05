@@ -1,4 +1,5 @@
 // @flow
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import React from 'react';
 import classnames from 'classnames';
 import Spinner from 'component/spinner';
@@ -10,8 +11,12 @@ import CreditAmount from 'component/common/credit-amount';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Tooltip from 'component/common/tooltip';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import OptimizedImage from 'component/optimizedImage';
 import { parseSticker } from 'util/comments';
+
+// 30 sec timestamp refresh timer
+const UPDATE_TIMESTAMP_MS = 30 * 1000;
 
 type Props = {
   uri: string,
@@ -23,12 +28,21 @@ type Props = {
   fetchingComments: boolean,
   doSuperChatList: (string) => void,
   superChats: Array<Comment>,
-  myChannelIds: ?Array<string>,
   doResolveUris: (Array<string>, boolean) => void,
 };
 
-const VIEW_MODE_CHAT = 'view_chat';
-const VIEW_MODE_SUPER_CHAT = 'view_superchat';
+const IS_TIMESTAMP_VISIBLE = () =>
+  // $FlowFixMe
+  document.documentElement.style.getPropertyValue('--live-timestamp-opacity') === '0.5';
+
+const TOGGLE_TIMESTAMP_OPACITY = () =>
+  // $FlowFixMe
+  document.documentElement.style.setProperty('--live-timestamp-opacity', IS_TIMESTAMP_VISIBLE() ? '0' : '0.5');
+
+const VIEW_MODES = {
+  CHAT: 'chat',
+  SUPERCHAT: 'sc',
+};
 const COMMENT_SCROLL_TIMEOUT = 25;
 const LARGE_SUPER_CHAT_LIST_THRESHOLD = 20;
 
@@ -42,28 +56,40 @@ export default function LivestreamComments(props: Props) {
     doCommentList,
     fetchingComments,
     doSuperChatList,
-    myChannelIds,
-    superChats: superChatsByTipAmount,
+    superChats: superChatsByAmount,
     doResolveUris,
   } = props;
 
   let superChatsFiatAmount, superChatsLBCAmount, superChatsTotalAmount, hasSuperChats;
 
   const commentsRef = React.createRef();
-  const [viewMode, setViewMode] = React.useState(VIEW_MODE_CHAT);
+
+  const [viewMode, setViewMode] = React.useState(VIEW_MODES.CHAT);
   const [scrollPos, setScrollPos] = React.useState(0);
   const [showPinned, setShowPinned] = React.useState(true);
   const [resolvingSuperChat, setResolvingSuperChat] = React.useState(false);
+  const [forceUpdate, setForceUpdate] = React.useState(0);
+
   const claimId = claim && claim.claim_id;
   const commentsLength = commentsByChronologicalOrder && commentsByChronologicalOrder.length;
 
-  const commentsToDisplay = viewMode === VIEW_MODE_CHAT ? commentsByChronologicalOrder : superChatsByTipAmount;
-  const stickerSuperChats =
-    superChatsByTipAmount && superChatsByTipAmount.filter(({ comment }) => Boolean(parseSticker(comment)));
+  const commentsToDisplay = viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByAmount;
+  const stickerSuperChats = superChatsByAmount && superChatsByAmount.filter(({ comment }) => !!parseSticker(comment));
 
   const discussionElement = document.querySelector('.livestream__comments');
 
   const pinnedComment = pinnedComments.length > 0 ? pinnedComments[0] : null;
+  const now = new Date();
+
+  const shouldRefreshTimestamp =
+    commentsByChronologicalOrder &&
+    commentsByChronologicalOrder.some((comment) => {
+      const { timestamp } = comment;
+      const timePosted = timestamp * 1000;
+
+      // 1000 * 60 seconds * 60 minutes === less than an hour old
+      return now - timePosted < 1000 * 60 * 60;
+    });
 
   const restoreScrollPos = React.useCallback(() => {
     if (discussionElement) {
@@ -72,24 +98,36 @@ export default function LivestreamComments(props: Props) {
   }, [discussionElement]);
 
   const superChatTopTen = React.useMemo(() => {
-    return superChatsByTipAmount ? superChatsByTipAmount.slice(0, 10) : superChatsByTipAmount;
-  }, [superChatsByTipAmount]);
+    return superChatsByAmount ? superChatsByAmount.slice(0, 10) : superChatsByAmount;
+  }, [superChatsByAmount]);
 
   const showMoreSuperChatsButton =
-    superChatTopTen && superChatsByTipAmount && superChatTopTen.length < superChatsByTipAmount.length;
+    superChatTopTen && superChatsByAmount && superChatTopTen.length < superChatsByAmount.length;
 
   function resolveSuperChat() {
-    if (superChatsByTipAmount && superChatsByTipAmount.length > 0) {
+    if (superChatsByAmount && superChatsByAmount.length > 0) {
       doResolveUris(
-        superChatsByTipAmount.map((comment) => comment.channel_url || '0'),
+        superChatsByAmount.map((comment) => comment.channel_url || '0'),
         true
       );
 
-      if (superChatsByTipAmount.length > LARGE_SUPER_CHAT_LIST_THRESHOLD) {
+      if (superChatsByAmount.length > LARGE_SUPER_CHAT_LIST_THRESHOLD) {
         setResolvingSuperChat(true);
       }
     }
   }
+
+  // Refresh timestamp on timer
+  React.useEffect(() => {
+    if (shouldRefreshTimestamp) {
+      const timer = setTimeout(() => {
+        setForceUpdate(Date.now());
+      }, UPDATE_TIMESTAMP_MS);
+
+      return () => clearTimeout(timer);
+    }
+    // forceUpdate will re-activate the timer or else it will only refresh once
+  }, [shouldRefreshTimestamp, forceUpdate]);
 
   React.useEffect(() => {
     if (claimId) {
@@ -101,7 +139,7 @@ export default function LivestreamComments(props: Props) {
   // Register scroll handler (TODO: Should throttle/debounce)
   React.useEffect(() => {
     function handleScroll() {
-      if (discussionElement) {
+      if (discussionElement && viewMode === VIEW_MODES.CHAT) {
         const scrollTop = discussionElement.scrollTop;
         if (scrollTop !== scrollPos) {
           setScrollPos(scrollTop);
@@ -109,11 +147,11 @@ export default function LivestreamComments(props: Props) {
       }
     }
 
-    if (discussionElement) {
+    if (discussionElement && viewMode === VIEW_MODES.CHAT) {
       discussionElement.addEventListener('scroll', handleScroll);
       return () => discussionElement.removeEventListener('scroll', handleScroll);
     }
-  }, [discussionElement, scrollPos]);
+  }, [discussionElement, scrollPos, viewMode]);
 
   // Retain scrollPos=0 when receiving new messages.
   React.useEffect(() => {
@@ -151,10 +189,10 @@ export default function LivestreamComments(props: Props) {
   }, [resolvingSuperChat]);
 
   // sum total amounts for fiat tips and lbc tips
-  if (superChatsByTipAmount) {
+  if (superChatsByAmount) {
     let fiatAmount = 0;
     let LBCAmount = 0;
-    for (const superChat of superChatsByTipAmount) {
+    for (const superChat of superChatsByAmount) {
       if (superChat.is_fiat) {
         fiatAmount = fiatAmount + superChat.support_amount;
       } else {
@@ -170,18 +208,13 @@ export default function LivestreamComments(props: Props) {
 
   let superChatsReversed;
   // array of superchats organized by fiat or not first, then support amount
-  if (superChatsByTipAmount) {
-    const clonedSuperchats = JSON.parse(JSON.stringify(superChatsByTipAmount));
+  if (superChatsByAmount) {
+    const clonedSuperchats = JSON.parse(JSON.stringify(superChatsByAmount));
 
     // for top to bottom display, oldest superchat on top most recent on bottom
     superChatsReversed = clonedSuperchats.sort((a, b) => {
       return b.timestamp - a.timestamp;
     });
-  }
-
-  // todo: implement comment_list --mine in SDK so redux can grab with selectCommentIsMine
-  function isMyComment(channelId: string) {
-    return myChannelIds ? myChannelIds.includes(channelId) : false;
   }
 
   if (!claim) {
@@ -196,17 +229,33 @@ export default function LivestreamComments(props: Props) {
   return (
     <div className="card livestream__discussion">
       <div className="card__header--between livestream-discussion__header">
-        <div className="livestream-discussion__title">{__('Live discussion')}</div>
+        <div className="livestream-discussion__title">
+          {__('Live Chat')}
+
+          <Menu>
+            <MenuButton className="menu__button">
+              <Icon size={18} icon={ICONS.SETTINGS} />
+            </MenuButton>
+
+            <MenuList className="menu__list">
+              <MenuItem className="comment__menu-option" onSelect={TOGGLE_TIMESTAMP_OPACITY}>
+                <span className="menu__link">
+                  <Icon aria-hidden icon={ICONS.TIME} />
+                  {__('Toggle Timestamps')}
+                </span>
+              </MenuItem>
+            </MenuList>
+          </Menu>
+        </div>
+
         {hasSuperChats && (
           <div className="recommended-content__toggles">
             {/* the superchats in chronological order button */}
             <Button
-              className={classnames('button-toggle', {
-                'button-toggle--active': viewMode === VIEW_MODE_CHAT,
-              })}
+              className={classnames('button-toggle', { 'button-toggle--active': viewMode === VIEW_MODES.CHAT })}
               label={__('Chat')}
               onClick={() => {
-                setViewMode(VIEW_MODE_CHAT);
+                setViewMode(VIEW_MODES.CHAT);
                 const livestreamCommentsDiv = document.getElementsByClassName('livestream__comments')[0];
                 livestreamCommentsDiv.scrollTop = livestreamCommentsDiv.scrollHeight;
               }}
@@ -214,9 +263,7 @@ export default function LivestreamComments(props: Props) {
 
             {/* the button to show superchats listed by most to least support amount */}
             <Button
-              className={classnames('button-toggle', {
-                'button-toggle--active': viewMode === VIEW_MODE_SUPER_CHAT,
-              })}
+              className={classnames('button-toggle', { 'button-toggle--active': viewMode === VIEW_MODES.SUPERCHAT })}
               label={
                 <>
                   <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /
@@ -225,7 +272,7 @@ export default function LivestreamComments(props: Props) {
               }
               onClick={() => {
                 resolveSuperChat();
-                setViewMode(VIEW_MODE_SUPER_CHAT);
+                setViewMode(VIEW_MODES.SUPERCHAT);
               }}
             />
           </div>
@@ -238,21 +285,19 @@ export default function LivestreamComments(props: Props) {
           </div>
         )}
         <div ref={commentsRef} className="livestream__comments-wrapper">
-          {viewMode === VIEW_MODE_CHAT && superChatsByTipAmount && hasSuperChats && (
+          {viewMode === VIEW_MODES.CHAT && superChatsByAmount && hasSuperChats && (
             <div className="livestream-superchats__wrapper">
               <div className="livestream-superchats__inner">
                 {superChatTopTen.map((superChat: Comment) => {
+                  const { comment, comment_id, channel_url, support_amount, is_fiat } = superChat;
                   const isSticker = stickerSuperChats && stickerSuperChats.includes(superChat);
-
-                  const SuperChatWrapper = !isSticker
-                    ? ({ children }) => <Tooltip label={superChat.comment}>{children}</Tooltip>
-                    : ({ children }) => <>{children}</>;
+                  const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
 
                   return (
-                    <SuperChatWrapper key={superChat.comment_id}>
+                    <Tooltip title={isSticker ? stickerImg : comment} key={comment_id}>
                       <div className="livestream-superchat">
                         <div className="livestream-superchat__thumbnail">
-                          <ChannelThumbnail uri={superChat.channel_url} xsmall />
+                          <ChannelThumbnail uri={channel_url} xsmall />
                         </div>
 
                         <div
@@ -262,55 +307,49 @@ export default function LivestreamComments(props: Props) {
                           })}
                         >
                           <div className="livestream-superchat__info--user">
-                            <UriIndicator uri={superChat.channel_url} link />
+                            <UriIndicator uri={channel_url} link />
                             <CreditAmount
+                              hideTitle
                               size={10}
                               className="livestream-superchat__amount-large"
-                              amount={superChat.support_amount}
-                              isFiat={superChat.is_fiat}
+                              amount={support_amount}
+                              isFiat={is_fiat}
                             />
                           </div>
-                          {stickerSuperChats.includes(superChat) && getStickerUrl(superChat.comment) && (
-                            <div className="livestream-superchat__info--image">
-                              <OptimizedImage src={getStickerUrl(superChat.comment)} waitLoad loading="lazy" />
-                            </div>
-                          )}
+
+                          {isSticker && <div className="livestream-superchat__info--image">{stickerImg}</div>}
                         </div>
                       </div>
-                    </SuperChatWrapper>
+                    </Tooltip>
                   );
                 })}
+
                 {showMoreSuperChatsButton && (
                   <Button
                     title={__('Show More...')}
+                    label={__('Show More')}
                     button="inverse"
                     className="close-button"
                     onClick={() => {
                       resolveSuperChat();
-                      setViewMode(VIEW_MODE_SUPER_CHAT);
+                      setViewMode(VIEW_MODES.SUPERCHAT);
                     }}
-                    icon={ICONS.MORE}
+                    iconRight={ICONS.MORE}
                   />
                 )}
               </div>
             </div>
           )}
 
-          {pinnedComment && showPinned && viewMode === VIEW_MODE_CHAT && (
+          {pinnedComment && showPinned && viewMode === VIEW_MODES.CHAT && (
             <div className="livestream-pinned__wrapper">
               <LivestreamComment
+                comment={pinnedComment}
                 key={pinnedComment.comment_id}
                 uri={uri}
-                authorUri={pinnedComment.channel_url}
-                commentId={pinnedComment.comment_id}
-                message={pinnedComment.comment}
-                supportAmount={pinnedComment.support_amount}
-                isModerator={pinnedComment.is_moderator}
-                isGlobalMod={pinnedComment.is_global_mod}
-                isFiat={pinnedComment.is_fiat}
-                isPinned={pinnedComment.is_pinned}
-                commentIsMine={pinnedComment.channel_id && isMyComment(pinnedComment.channel_id)}
+                forceUpdate={forceUpdate}
               />
+
               <Button
                 title={__('Dismiss pinned comment')}
                 button="inverse"
@@ -324,51 +363,29 @@ export default function LivestreamComments(props: Props) {
           {/* top to bottom comment display */}
           {!fetchingComments && commentsByChronologicalOrder.length > 0 ? (
             <div className="livestream__comments">
-              {viewMode === VIEW_MODE_CHAT &&
+              {viewMode === VIEW_MODES.CHAT &&
                 commentsToDisplay.map((comment) => (
-                  <LivestreamComment
-                    key={comment.comment_id}
-                    uri={uri}
-                    authorUri={comment.channel_url}
-                    commentId={comment.comment_id}
-                    message={comment.comment}
-                    supportAmount={comment.support_amount}
-                    isModerator={comment.is_moderator}
-                    isGlobalMod={comment.is_global_mod}
-                    isFiat={comment.is_fiat}
-                    commentIsMine={comment.channel_id && isMyComment(comment.channel_id)}
-                  />
+                  <LivestreamComment comment={comment} key={comment.comment_id} uri={uri} forceUpdate={forceUpdate} />
                 ))}
 
-              {viewMode === VIEW_MODE_SUPER_CHAT && resolvingSuperChat && (
+              {viewMode === VIEW_MODES.SUPERCHAT && resolvingSuperChat && (
                 <div className="main--empty">
                   <Spinner />
                 </div>
               )}
 
-              {viewMode === VIEW_MODE_SUPER_CHAT &&
+              {viewMode === VIEW_MODES.SUPERCHAT &&
                 !resolvingSuperChat &&
                 superChatsReversed &&
                 superChatsReversed.map((comment) => (
-                  <LivestreamComment
-                    key={comment.comment_id}
-                    uri={uri}
-                    authorUri={comment.channel_url}
-                    commentId={comment.comment_id}
-                    message={comment.comment}
-                    supportAmount={comment.support_amount}
-                    isModerator={comment.is_moderator}
-                    isGlobalMod={comment.is_global_mod}
-                    isFiat={comment.is_fiat}
-                    commentIsMine={comment.channel_id && isMyComment(comment.channel_id)}
-                  />
+                  <LivestreamComment comment={comment} key={comment.comment_id} uri={uri} forceUpdate={forceUpdate} />
                 ))}
             </div>
           ) : (
             <div className="main--empty" style={{ flex: 1 }} />
           )}
 
-          {scrollPos < 0 && viewMode === VIEW_MODE_CHAT && (
+          {scrollPos < 0 && viewMode === VIEW_MODES.CHAT && (
             <Button
               button="secondary"
               className="livestream__comments__scroll-to-recent"
