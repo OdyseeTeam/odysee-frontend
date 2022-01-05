@@ -418,6 +418,17 @@ $actions-z-index: 2;
     border-radius: var(--border-radius);
   }
 
+  .ff-container {
+    canvas {
+      border-radius: 50%;
+    }
+    .freezeframe-img {
+      width: 2rem !important;
+      height: 2rem !important;
+      border-radius: 50%;
+    }
+  }
+
   &:hover {
     background-color: var(--color-primary);
 
@@ -451,6 +462,17 @@ $actions-z-index: 2;
 
   @media (min-width: $breakpoint-small) {
     margin-bottom: var(--spacing-l);
+  }
+
+  .ff-container {
+    canvas {
+      border-radius: 50%;
+    }
+    .freezeframe-img {
+      width: 2rem !important;
+      height: 2rem !important;
+      border-radius: 50%;
+    }
   }
 }
 

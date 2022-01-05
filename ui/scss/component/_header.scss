@@ -59,6 +59,17 @@
   textarea:focus-visible {
     box-shadow: 0px 0px 0px 2px var(--color-odysee) inset;
   }
+
+  .ff-container {
+    canvas {
+      border-radius: 50%;
+    }
+    .freezeframe-img {
+      width: var(--height-button) !important;
+      height: var(--height-button) !important;
+      border-radius: 50%;
+    }
+  }
 }
 
 .header--minimal {
