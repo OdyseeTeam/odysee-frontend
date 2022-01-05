@@ -12,11 +12,13 @@ import classnames from 'classnames';
 import CommentMenuList from 'component/commentMenuList';
 import Button from 'component/button';
 import CreditAmount from 'component/common/credit-amount';
+import DateTime from 'component/dateTime';
 import OptimizedImage from 'component/optimizedImage';
 import { parseSticker } from 'util/comments';
 
 type Props = {
   comment: Comment,
+  forceUpdate?: any,
   uri: string,
   // --- redux:
   claim: StreamClaim,
@@ -25,8 +27,8 @@ type Props = {
 };
 
 function LivestreamComment(props: Props) {
-  const { comment, claim, uri, stakedLevel, myChannelIds } = props;
-  const { channel_url: authorUri, comment: message, support_amount: supportAmount } = comment;
+  const { comment, forceUpdate, uri, claim, stakedLevel, myChannelIds } = props;
+  const { channel_url: authorUri, comment: message, support_amount: supportAmount, timestamp } = comment;
 
   const [hasUserMention, setUserMention] = React.useState(false);
   const commentIsMine = comment.channel_id && isMyComment(comment.channel_id);
@@ -34,6 +36,7 @@ function LivestreamComment(props: Props) {
   const commentByOwnerOfContent = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
   const { claimName } = parseURI(authorUri || '');
   const stickerFromMessage = parseSticker(message);
+  const timePosted = timestamp * 1000;
 
   // todo: implement comment_list --mine in SDK so redux can grab with selectCommentIsMine
   function isMyComment(channelId: string) {
@@ -62,11 +65,7 @@ function LivestreamComment(props: Props) {
 
       <div className="livestream-comment__body">
         {supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
-        <div
-          className={classnames('livestream-comment__info', {
-            'livestream-comment__info--sticker': Boolean(stickerFromMessage),
-          })}
-        >
+        <div className="livestream-comment__info">
           {comment.is_global_mod && (
             <Tooltip title={__('Admin')}>
               <span className="comment__badge comment__badge--global-mod">
@@ -107,6 +106,9 @@ function LivestreamComment(props: Props) {
               {__('Pinned')}
             </span>
           )}
+
+          {/* Use key to force timestamp update */}
+          <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />
 
           {comment.removed ? (
             <div className="livestream-comment__text">

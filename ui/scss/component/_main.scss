@@ -175,6 +175,10 @@ body {
     width: 38rem;
     margin-left: var(--spacing-l);
 
+    .card__header--between {
+      align-items: center;
+    }
+
     @media (max-width: $breakpoint-medium) {
       width: 100%;
       margin-left: 0;

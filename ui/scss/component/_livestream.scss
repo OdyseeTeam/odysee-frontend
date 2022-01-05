@@ -160,17 +160,44 @@ $recent-msg-button__height: 2rem;
   margin-bottom: 0;
   align-items: center;
 
+  .recommended-content__toggles {
+    button {
+      height: unset;
+      padding: 5px;
+    }
+
+    .button__label {
+      max-height: 18px;
+    }
+  }
+
   @media (min-width: $breakpoint-small) {
     height: $discussion-header__height;
     padding: 0 var(--spacing-s);
     padding-right: 0;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xxs);
   }
 }
 
 .livestream-discussion__title {
   @extend .card__title-section;
   @extend .card__title-section--small;
+  display: flex;
+  align-items: center;
   padding: 0;
+
+  .menu__button {
+    margin-left: var(--spacing-xxs);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .menu__button {
+      margin-left: 5px;
+    }
+  }
 }
 
 .livestream__comments-wrapper {
@@ -192,6 +219,17 @@ $recent-msg-button__height: 2rem;
 .livestream-comment {
   list-style-type: none;
   position: relative;
+
+  .date_time {
+    color: var(--color-text-subtitle);
+    opacity: var(--live-timestamp-opacity);
+  }
+
+  &:hover {
+    .date_time {
+      opacity: 0.5;
+    }
+  }
 
   @media (min-width: $breakpoint-small) {
     &:hover {

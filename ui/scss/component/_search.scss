@@ -132,6 +132,7 @@
 
 .recommended-content__toggles {
   margin-top: var(--spacing-xs);
+  display: flex;
 
   button {
     padding: 0 var(--spacing-xs);
@@ -141,6 +142,9 @@
 
   .button-toggle:nth-child(2) {
     margin-left: 2px;
+    @media (min-width: $breakpoint-small) {
+      margin-right: var(--spacing-xs);
+    }
   }
 }
 
