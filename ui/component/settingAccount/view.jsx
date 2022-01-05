@@ -3,11 +3,12 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SETTINGS_GRP } from 'constants/settings';
 import React from 'react';
+import { useKeycloak } from '@react-keycloak/web';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import SettingsRow from 'component/settingsRow';
 import SyncToggle from 'component/syncToggle';
-import { getPasswordFromCookie } from 'util/saved-passwords';
+import { getAuthToken, getPasswordFromCookie } from 'util/saved-passwords';
 import { getStripeEnvironment } from 'util/stripe';
 
 type Props = {
@@ -17,11 +18,35 @@ type Props = {
   user: User,
   hasChannels: boolean,
   doWalletStatus: () => void,
+  doSignOut: () => void,
+  doClearEmailEntry: () => void,
+  doClearPasswordEntry: () => void,
 };
 
 export default function SettingAccount(props: Props) {
-  const { isAuthenticated, walletEncrypted, user, hasChannels, doWalletStatus } = props;
+  const {
+    isAuthenticated,
+    walletEncrypted,
+    user,
+    hasChannels,
+    doWalletStatus,
+    doSignOut,
+    doClearEmailEntry,
+    doClearPasswordEntry,
+  } = props;
   const [storedPassword, setStoredPassword] = React.useState(false);
+  const { keycloak, initialized: keycloakReady } = useKeycloak();
+  const authToken = getAuthToken();
+
+  function redirectToSsoAccountPage() {
+    if (getAuthToken()) {
+      // Pre-sso account. Just log out and redirect to sso page.
+      doClearPasswordEntry();
+      doClearEmailEntry();
+      doSignOut();
+    }
+    keycloak.accountManagement();
+  }
 
   // Determine if password is stored.
   React.useEffect(() => {
@@ -47,12 +72,13 @@ export default function SettingAccount(props: Props) {
         body={
           <>
             {isAuthenticated && (
-              <SettingsRow title={__('Password')}>
+              <SettingsRow title={__('Manage your Odysee account')} subtitle={__('Change password, enable 2FA, etc.')}>
                 <Button
                   button="inverse"
                   label={__('Manage')}
                   icon={ICONS.ARROW_RIGHT}
-                  navigate={`/$/${PAGES.SETTINGS_UPDATE_PWD}`}
+                  onClick={redirectToSsoAccountPage}
+                  disabled={!(authToken || keycloakReady)}
                 />
               </SettingsRow>
             )}

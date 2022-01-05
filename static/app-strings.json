@@ -375,6 +375,8 @@
   "Encrypt wallet": "Encrypt wallet",
   "Encrypting your wallet will require a password to access your local wallet data when LBRY starts. Please enter a new password for your wallet.": "Encrypting your wallet will require a password to access your local wallet data when LBRY starts. Please enter a new password for your wallet.",
   "Password": "Password",
+  "Manage your Odysee account": "Manage your Odysee account",
+  "Change password, enable 2FA, etc.": "Change password, enable 2FA, etc.",
   "Shh...": "Shh...",
   "Confirm Password": "Confirm Password",
   "Your eyes only": "Your eyes only",
