@@ -47,6 +47,7 @@ type Props = {
   maxClaimRender?: number,
   excludeUris?: Array<string>,
   loadedCallback?: (number) => void,
+  horizontalScroll: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -80,6 +81,7 @@ export default function ClaimList(props: Props) {
     maxClaimRender,
     excludeUris = [],
     loadedCallback,
+    horizontalScroll = false,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -148,7 +150,7 @@ export default function ClaimList(props: Props) {
   }, [loading, onScrollBottom, urisLength, pageSize, page]);
 
   return tileLayout && !header ? (
-    <section className="claim-grid">
+    <section className={classnames('claim-grid', { 'claim-grid--horizontal-mode': horizontalScroll })}>
       {urisLength > 0 &&
         tileUris.map((uri) => (
           <ClaimPreviewTile
@@ -158,6 +160,7 @@ export default function ClaimList(props: Props) {
             properties={renderProperties}
             collectionId={collectionId}
             showNoSourceClaims={showNoSourceClaims}
+            horizontalScroll={horizontalScroll}
           />
         ))}
       {!timedOut && urisLength === 0 && !loading && <div className="empty main--empty">{empty || noResultMsg}</div>}

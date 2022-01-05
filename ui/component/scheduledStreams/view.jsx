@@ -30,13 +30,14 @@ const ScheduledStreams = (props: Props) => {
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
   const showUpcomingLivestreams = totalUpcomingLivestreams > 0;
+  const useHorizontalMode = totalUpcomingLivestreams > 1 && isMediumScreen;
 
   const upcomingMax = React.useMemo(() => {
-    if (showAllUpcoming) return 50;
+    if (showAllUpcoming || useHorizontalMode) return 50;
     if (isLargeScreen) return 6;
     if (isMediumScreen) return 3;
     return 4;
-  }, [showAllUpcoming, isMediumScreen, isLargeScreen]);
+  }, [showAllUpcoming, isMediumScreen, isLargeScreen, useHorizontalMode]);
 
   const loadedCallback = (total) => {
     setTotalUpcomingLivestreams(total);
@@ -57,8 +58,9 @@ const ScheduledStreams = (props: Props) => {
   };
 
   return (
-    <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+    <div className={'mb-m mt-m md:mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
       <ClaimListDiscover
+        horizontalScroll={useHorizontalMode}
         useSkeletonScreen={false}
         channelIds={channelIds}
         limitClaimsPerChannel={limitClaimsPerChannel}
@@ -78,7 +80,7 @@ const ScheduledStreams = (props: Props) => {
         excludeUris={liveUris}
         loadedCallback={loadedCallback}
       />
-      {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && (
+      {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && !useHorizontalMode && (
         <div className="livestream-list--view-more">
           <Button
             label={__('Show more upcoming livestreams')}

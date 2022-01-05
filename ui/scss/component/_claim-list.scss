@@ -398,6 +398,12 @@
   align-items: flex-start;
 }
 
+.claim-grid--horizontal-mode {
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+}
+
 .claim-grid__wrapper {
   display: flex;
   flex-direction: column;
@@ -549,6 +555,19 @@
     &:not(:first-child) {
       margin-top: var(--spacing-s);
     }
+  }
+}
+
+$tileHeight: 305px;
+
+.claim-preview--horizontal-tile {
+  width: 80vw;
+  min-height: $tileHeight;
+  margin-right: var(--spacing-s);
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  &:not(:first-child) {
+    margin-top: 0;
   }
 }
 
