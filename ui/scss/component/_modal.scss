@@ -67,6 +67,7 @@
     border: none;
     padding: var(--spacing-l);
     border: 2px solid black;
+    border-radius: var(--border-radius);
 
     .form-field--copyable {
       background: rgba(var(--color-primary-dynamic), 0.1);
