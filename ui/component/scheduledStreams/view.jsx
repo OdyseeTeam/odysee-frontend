@@ -17,7 +17,7 @@ type Props = {
   liveUris: Array<string>,
   limitClaimsPerChannel?: number,
   // --- perform ---
-  setClientSetting: (string, boolean | string | number) => void,
+  setClientSetting: (string, boolean | string | number, boolean) => void,
   doShowSnackBar: (string) => void,
 };
 
@@ -43,8 +43,8 @@ const ScheduledStreams = (props: Props) => {
   };
 
   const hideScheduledStreams = () => {
-    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, true);
-    doShowSnackBar(__('Scheduled streams hidden, you can re-enable in settings.'));
+    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, true, true);
+    doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
   };
 
   const Header = () => {
