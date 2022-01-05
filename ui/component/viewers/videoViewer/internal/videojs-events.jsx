@@ -291,8 +291,12 @@ const VideoJsEvents = ({
     player.on('canplaythrough', function() {
       setTimeout(function() {
         // $FlowFixMe
-        document.querySelector('.vjs-control-bar').style.removeProperty('opacity');
+        const vjsControlBar = document.querySelector('.vjs-control-bar');
+        if (vjsControlBar) vjsControlBar.style.removeProperty('opacity');
       }, 1000 * 3); // wait 3 seconds to hit control bar
+    });
+    player.on('play', function() {
+      document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
     });
     // player.on('ended', onEnded);
   }
