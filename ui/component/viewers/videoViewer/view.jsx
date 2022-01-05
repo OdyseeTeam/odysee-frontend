@@ -317,21 +317,25 @@ function VideoViewer(props: Props) {
 
       // if user hasn't interacted with document, mute video and play it
       Promise.race([playPromise, timeoutPromise]).catch((error) => {
+        console.log(error);
+        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+
+        // center play button
+        const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
+        const videoDiv = player.children_[0];
+        const controlBar = document.getElementsByClassName('vjs-control-bar')[0];
+        const leftWidth = (videoDiv.offsetWidth - playBT.offsetWidth) / 2 + 'px';
+        const availableHeight = videoDiv.offsetHeight - controlBar.offsetHeight;
+        const topHeight = (availableHeight - playBT.offsetHeight) / 2 + 3 + 'px';
+
+        playBT.style.top = topHeight;
+        playBT.style.left = leftWidth;
+        playBT.style.margin = '0';
+
         if (typeof error === 'object' && error.name && error.name === 'NotAllowedError') {
           console.log(error)
-          document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
 
-          // center play button
-          const playBT = document.getElementsByClassName('vjs-big-play-button')[0];
-          const videoDiv = player.children_[0];
-          const controlBar = document.getElementsByClassName('vjs-control-bar')[0];
-          const leftWidth = (videoDiv.offsetWidth - playBT.offsetWidth) / 2 + 'px';
-          const availableHeight = videoDiv.offsetHeight - controlBar.offsetHeight;
-          const topHeight = (availableHeight - playBT.offsetHeight) / 2 + 3 + 'px';
 
-          playBT.style.top = topHeight;
-          playBT.style.left = leftWidth;
-          playBT.style.margin = '0';
           if (player.autoplay() && !player.muted()) {
             // player.muted(true);
             // player.play();
