@@ -74,7 +74,7 @@
 
 .header--minimal {
   box-shadow: none;
-  background-color: var(--color-background);
+  background-color: var(--color-header-background);
   border-bottom: none;
 
   .header__navigation {
@@ -127,6 +127,15 @@
 
     .wunderbar__input:focus-visible {
       outline: 2px solid var(--color-header-button-hover) !important;
+    }
+  }
+
+  .button--alt {
+    background-color: var(--color-header-button);
+    color: var(--color-text);
+    &:hover {
+      background-color: var(--color-odysee);
+      color: var(--color-odysee-contrast);
     }
   }
 

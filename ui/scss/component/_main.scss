@@ -534,6 +534,9 @@ body {
 .main__sign-up--graphic {
   max-width: 47rem;
 
+  .card__first-pane {
+    width: 50%;
+  }
   .card__second-pane {
     width: 50%;
     border: none;
