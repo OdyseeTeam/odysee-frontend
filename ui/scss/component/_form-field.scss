@@ -739,3 +739,7 @@ fieldset-section {
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
   box-shadow: 3px 3px rgba(0, 0, 0, 0.1);
 }
+
+#yt_sync_channel {
+  width: unset;
+}
