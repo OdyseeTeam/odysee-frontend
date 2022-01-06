@@ -338,9 +338,9 @@ function VideoViewer(props: Props) {
         const isATimeoutError = error === PLAY_TIMEOUT_ERROR;
 
         if (noPermissionError) {
-          if (player.paused()) {
-            document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
-          }
+          // if (player.paused()) {
+          //   document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+          // }
 
           centerPlayButton();
 

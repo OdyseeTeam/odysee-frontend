@@ -257,6 +257,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
+      } else {
+        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
 
       // center play button
