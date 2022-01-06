@@ -398,12 +398,6 @@
   align-items: flex-start;
 }
 
-.claim-grid--horizontal-mode {
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-}
-
 .claim-grid__wrapper {
   display: flex;
   flex-direction: column;
@@ -558,14 +552,7 @@
   }
 }
 
-$tileHeight: 305px;
-
 .claim-preview--horizontal-tile {
-  width: 80vw;
-  min-height: $tileHeight;
-  margin-right: var(--spacing-s);
-  flex-shrink: 0;
-  scroll-snap-align: start;
   &:not(:first-child) {
     margin-top: 0;
   }
@@ -581,7 +568,7 @@ $tileHeight: 305px;
   font-weight: 600;
   color: var(--color-text);
   font-size: var(--font-small);
-  min-height: 2rem;
+  min-height: 3.2rem;
 
   @media (min-width: $breakpoint-small) {
     min-height: 2.5rem;

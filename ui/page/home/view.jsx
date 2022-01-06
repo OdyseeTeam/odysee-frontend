@@ -160,6 +160,16 @@ function HomePage(props: Props) {
               limitClaimsPerChannel={2}
             />
           )}
+
+          {authenticated && (
+            <label className="claim-list__header-label">
+              <span>
+                <Icon icon={ICONS.SUBSCRIBE} size={10} />
+                {__('Following')}
+              </span>
+            </label>
+          )}
+
           {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
             // add pins here
             return getRowElements(title, route, link, icon, help, options, index, pinUrls);
