@@ -26,13 +26,16 @@
 
 .modal {
   @extend .card;
-  background-color: var(--color-modal-background);
   line-height: 1.55;
   min-width: 500px;
   max-width: var(--modal-width);
   overflow: auto;
   padding: var(--spacing-l);
   word-break: break-word;
+
+  .card {
+    background-color: var(--color-modal-background);
+  }
 
   &:focus {
     box-shadow: none;
