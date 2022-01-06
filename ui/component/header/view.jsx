@@ -18,6 +18,8 @@ import SkipNavigationButton from 'component/skipNavigationButton';
 import Tooltip from 'component/common/tooltip';
 import UserOAuthButton from 'component/userOAuthButton';
 import WunderBar from 'component/wunderbar';
+import { getTokens } from 'util/saved-passwords';
+import { useKeycloak } from '@react-keycloak/web';
 
 type Props = {
   authenticated: boolean,
@@ -84,6 +86,7 @@ const Header = (props: Props) => {
   } = history;
 
   const isMobile = useIsMobile();
+  const { keycloak } = useKeycloak();
 
   // on the verify page don't let anyone escape other than by closing the tab to keep session data consistent
   const isVerifyPage = pathname.includes(PAGES.AUTH_VERIFY);
@@ -178,6 +181,10 @@ const Header = (props: Props) => {
     </div>
   );
 
+  const tokens = getTokens();
+  const authToken = tokens.auth_token ? tokens.auth_token.slice(0, 10) : tokens.auth_token;
+  const accessToken = tokens.access_token ? tokens.access_token.slice(0, 10) : tokens.access_token;
+
   return (
     <header className={classnames('header', { 'header--minimal': authHeader })}>
       {!authHeader && canBackout ? (
@@ -221,6 +228,19 @@ const Header = (props: Props) => {
                 {...homeButtonNavigationProps}
               >
                 <Logo />
+              </Button>
+
+              <Button
+                className="header__navigationItem--logo"
+                onClick={() => {
+                  console.log(keycloak);
+                }}
+              >
+                <pre style={{ textAlign: 'left', fontSize: '14px' }}>
+                  {`auth:   ${authToken ? 'yes' : authToken}`}
+                  <br />
+                  {`access: ${accessToken ? 'yes' : accessToken}`}
+                </pre>
               </Button>
 
               {/* @if process.env.DEV_CHANGELOG */}
