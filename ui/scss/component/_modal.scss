@@ -35,6 +35,13 @@
 
   .card {
     background-color: var(--color-modal-background);
+    input {
+      background: var(--color-header-button) !important;
+      &:focus {
+        border: 1px solid var(--color-primary);
+        box-shadow: unset;
+      }
+    }
   }
 
   &:focus {
