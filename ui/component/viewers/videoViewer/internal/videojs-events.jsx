@@ -296,7 +296,7 @@ const VideoJsEvents = ({
       }, 1000 * 3); // wait 3 seconds to hit control bar
     });
     player.on('playing', function() {
-      console.log("PLAYING!");
+      // $FlowFixMe
       document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
     });
     // player.on('ended', onEnded);

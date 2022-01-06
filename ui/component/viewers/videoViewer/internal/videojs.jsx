@@ -21,7 +21,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
-const canAutoplay = require('./plugins/canAutoplay');
+import canAutoplay from 'can-autoplay';
 
 require('@silvermine/videojs-chromecast')(videojs);
 
@@ -259,6 +259,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.addClass('vjs-waiting');
         // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
+        // $FlowFixMe
         document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
 
@@ -312,25 +313,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
-    // change to m3u8 if applicable
+      // change to m3u8 if applicable
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
       playerServerRef.current = response.headers.get('x-powered-by');
 
       if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
         // use m3u8 source
+        // $FlowFixMe
         vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: response.url,
         });
       } else {
         // use original mp4 source
+        // $FlowFixMe
         vjsPlayer.src({
           type: sourceType,
           src: source,
         });
       }
       // load video once source setup
+      // $FlowFixMe
       vjsPlayer.load();
     })();
 
