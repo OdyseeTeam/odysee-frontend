@@ -21,7 +21,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
-import canAutoplay from 'can-autoplay';
+// import canAutoplay from 'can-autoplay';
+const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
 
@@ -255,10 +256,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.children_[0].setAttribute('playsinline', '');
 
       if (canAutoplayVideo === true) {
+        console.log('can autoplay!');
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
         // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
+        console.log('cant autoplay!');
         // $FlowFixMe
         document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
@@ -294,8 +297,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   useEffect(() => {
     (async function() {
       // test if perms to play video are available
-      let canAutoplayVideo = await canAutoplay.video();
+      let canAutoplayVideo = await canAutoplay.video({ timeout: 2000 });
+
+      console.log(canAutoplayVideo)
+      console.log(canAutoplayVideo.result);
+
       canAutoplayVideo = canAutoplayVideo.result === true;
+
+      console.log(canAutoplayVideo)
 
       const vjsElement = createVideoPlayerDOM(containerRef.current);
 
