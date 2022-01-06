@@ -257,6 +257,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
+        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
         document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
@@ -292,7 +293,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   useEffect(() => {
     (async function() {
       // test if perms to play video are available
-      const canAutoplayVideo = await canAutoplay.video();
+      let canAutoplayVideo = await canAutoplay.video();
+      canAutoplayVideo = canAutoplayVideo.result === true;
 
       const vjsElement = createVideoPlayerDOM(containerRef.current);
 
