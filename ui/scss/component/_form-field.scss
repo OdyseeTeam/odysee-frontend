@@ -431,6 +431,7 @@ fieldset-group {
 
 .form-field__help {
   @extend .help;
+  color: var(--color-text);
 }
 
 .form-field__help + .checkbox,
