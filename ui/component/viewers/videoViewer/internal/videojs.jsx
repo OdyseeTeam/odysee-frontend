@@ -190,7 +190,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     autoplay: autoplay,
     muted: startMuted,
-    sources: [{ src: source, type: sourceType }],
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     // fixes problem of errant CC button showing up on iOS
@@ -254,6 +253,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      // show waiting spinner as video is loading
+      player.addClass('vjs-waiting');
+
       // center play button
       centerPlayButton();
 
@@ -306,19 +308,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       playerServerRef.current = response.headers.get('x-powered-by');
 
       if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-
-        // const currentPlayerTime = vjsPlayer.currentTime();
-
+        // use m3u8 source
         vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: response.url,
         });
 
-        vjsPlayer.load();
-
-        // if the video had already been running for some time before the reload, go back to prior spot
-        // vjsPlayer.currentTime(currentPlayerTime);
+      } else {
+        // use original mp4 source
+        vjsPlayer.src({
+          type: sourceType,
+          src: source,
+        });
       }
+      // load video once source setup
+      vjsPlayer.load();
     })();
 
     // Cleanup
