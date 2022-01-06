@@ -285,6 +285,7 @@ body {
       max-width: calc(var(--page-max-width--filepage) / 1.25);
       margin-left: auto;
       margin-right: auto;
+      width: calc(100% - var(--livestream-comments-width));
     }
 
     @media (min-width: $breakpoint-medium) and (max-width: $breakpoint-large + 300px) {
