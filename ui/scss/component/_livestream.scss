@@ -61,6 +61,10 @@ $recent-msg-button__height: 2rem;
 
     .livestream-discussion__title {
       margin-left: 0;
+
+      .menu__button {
+        opacity: 1;
+      }
     }
 
     .card__main-actions {
