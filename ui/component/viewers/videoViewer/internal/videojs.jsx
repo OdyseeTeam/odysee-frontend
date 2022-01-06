@@ -442,6 +442,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           observer.observe(adsClaimParentDiv);
         }
       }
+
+      if (!canAutoplayVideo && IS_IOS) {
+        document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle')
+      }
     })();
 
     // Cleanup
