@@ -16,13 +16,22 @@ type Props = {
   tileLayout: boolean,
   liveUris: Array<string>,
   limitClaimsPerChannel?: number,
+  onLoad: (number) => void,
   // --- perform ---
   setClientSetting: (string, boolean | string | number, boolean) => void,
   doShowSnackBar: (string) => void,
 };
 
 const ScheduledStreams = (props: Props) => {
-  const { channelIds, tileLayout, liveUris = [], limitClaimsPerChannel, setClientSetting, doShowSnackBar } = props;
+  const {
+    channelIds,
+    tileLayout,
+    liveUris = [],
+    limitClaimsPerChannel,
+    setClientSetting,
+    doShowSnackBar,
+    onLoad,
+  } = props;
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
@@ -41,6 +50,7 @@ const ScheduledStreams = (props: Props) => {
 
   const loadedCallback = (total) => {
     setTotalUpcomingLivestreams(total);
+    if (typeof onLoad === 'function') onLoad(total);
   };
 
   const hideScheduledStreams = () => {
