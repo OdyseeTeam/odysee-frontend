@@ -21,6 +21,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
+const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
 
@@ -204,10 +205,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   };
 
   // Initialize video.js
-  function initializeVideoPlayer(el) {
+  function initializeVideoPlayer(el, canAutoplayVideo) {
     if (!el) return;
 
-    const vjs = videojs(el, videoJsOptions, () => {
+    const vjs = videojs(el, videoJsOptions, async () => {
       const player = playerRef.current;
       const adapter = new playerjs.VideoJSAdapter(player);
 
@@ -253,8 +254,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
-      // show waiting spinner as video is loading
-      player.addClass('vjs-waiting');
+      if (canAutoplayVideo === true) {
+        // show waiting spinner as video is loading
+        player.addClass('vjs-waiting');
+      }
 
       // center play button
       centerPlayButton();
@@ -285,24 +288,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
-    const vjsElement = createVideoPlayerDOM(containerRef.current);
+    (async function() {
+      // test if perms to play video are available
+      const canAutoplayVideo = await canAutoplay.video();
 
-    // Initialize Video.js
-    const vjsPlayer = initializeVideoPlayer(vjsElement);
+      const vjsElement = createVideoPlayerDOM(containerRef.current);
 
-    // Add reference to player to global scope
-    window.player = vjsPlayer;
+      // Initialize Video.js
+      const vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
 
-    // Set reference in component state
-    playerRef.current = vjsPlayer;
+      // Add reference to player to global scope
+      window.player = vjsPlayer;
 
-    window.addEventListener('keydown', curried_function(playerRef, containerRef));
+      // Set reference in component state
+      playerRef.current = vjsPlayer;
 
-    // $FlowFixMe
-    document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+
+      // $FlowFixMe
+      document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
     // change to m3u8 if applicable
-    (async function() {
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
       playerServerRef.current = response.headers.get('x-powered-by');
@@ -313,7 +319,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           type: 'application/x-mpegURL',
           src: response.url,
         });
-
       } else {
         // use original mp4 source
         vjsPlayer.src({

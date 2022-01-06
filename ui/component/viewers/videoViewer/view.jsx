@@ -332,11 +332,12 @@ function VideoViewer(props: Props) {
       // if user hasn't interacted with document, mute video and play it
       Promise.race([playPromise, timeoutPromise]).catch((error) => {
         console.log(error);
+        console.log(playPromise);
 
         const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
         const isATimeoutError = error === PLAY_TIMEOUT_ERROR;
 
-        if (noPermissionError || isATimeoutError) {
+        if (noPermissionError) {
           if (player.paused()) {
             document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
           }
