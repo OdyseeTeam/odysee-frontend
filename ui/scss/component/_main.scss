@@ -537,6 +537,9 @@ body {
 
   .card__first-pane {
     width: 50%;
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+    }
   }
   .card__second-pane {
     width: 50%;
