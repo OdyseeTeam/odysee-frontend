@@ -151,7 +151,8 @@
       }
     }
 
-    .button {
+    .button,
+    .header__navigationItem--icon {
       width: calc(var(--header-height-mobile) - var(--spacing-m));
       height: calc(var(--header-height-mobile) - var(--spacing-m));
       background-color: rgba(var(--color-primary-static), 0.4);
@@ -347,7 +348,8 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    margin-right: var(--spacing-m);
+    // margin-right: var(--spacing-m);
+    margin: 0;
 
     .button__label {
       display: none;

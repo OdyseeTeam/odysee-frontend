@@ -793,6 +793,7 @@ svg + .button__label {
 .button-rotate {
   transform: rotate(90deg);
   transition: transform 0.2s;
+  margin-right: var(--spacing-s) !important;
 }
 
 .button-like {

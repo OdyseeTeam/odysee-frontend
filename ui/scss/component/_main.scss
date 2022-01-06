@@ -530,6 +530,14 @@ body {
   max-width: 27rem;
   margin-left: auto;
   margin-right: auto;
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-m);
+
+    .card__title {
+      font-size: var(--font-large) !important;
+    }
+  }
 }
 
 .main__sign-up--graphic {
