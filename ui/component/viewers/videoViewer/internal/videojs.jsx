@@ -337,6 +337,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
+
+      if (!canAutoplayVideo && IS_IOS) {
+        document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle')
+      }
     })();
 
     // Cleanup
