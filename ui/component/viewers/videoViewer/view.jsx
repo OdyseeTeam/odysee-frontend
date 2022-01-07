@@ -30,6 +30,12 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
 
+const IS_IOS =
+  (/iPad|iPhone|iPod/.test(navigator.platform) ||
+    // for iOS 13+ , platform is MacIntel, so use this to test
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
+  !window.MSStream;
+
 type Props = {
   position: number,
   changeVolume: (number) => void,
@@ -321,39 +327,36 @@ function VideoViewer(props: Props) {
     }
 
     // currently not being used, but leaving for time being
-    // const shouldPlay = !embedded || autoplayIfEmbedded;
-    // // https://blog.videojs.com/autoplay-best-practices-with-video-js/#Programmatic-Autoplay-and-Success-Failure-Detection
-    // if (shouldPlay) {
-    //   const playPromise = player.play();
-    //
-    //   const timeoutPromise = new Promise((resolve, reject) =>
-    //     setTimeout(() => reject(PLAY_TIMEOUT_ERROR), PLAY_TIMEOUT_LIMIT)
-    //   );
-    //
-    //   // if user hasn't interacted with document, mute video and play it
-    //   Promise.race([playPromise, timeoutPromise]).catch((error) => {
-    //     console.log(error);
-    //     console.log(playPromise);
-    //
-    //     const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
-    //     const isATimeoutError = error === PLAY_TIMEOUT_ERROR;
-    //
-    //     if (noPermissionError) {
-    //       // if (player.paused()) {
-    //       //   document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
-    //       // }
-    //
-    //       centerPlayButton();
-    //
-    //       // to turn muted autoplay on
-    //       // if (player.autoplay() && !player.muted()) {
-    //         // player.muted(true);
-    //         // player.play();
-    //       // }
-    //     }
-    //     setIsPlaying(false);
-    //   });
-    // }
+    const shouldPlay = !embedded || autoplayIfEmbedded;
+    // https://blog.videojs.com/autoplay-best-practices-with-video-js/#Programmatic-Autoplay-and-Success-Failure-Detection
+    if (shouldPlay) {
+      const playPromise = player.play();
+
+      // if user hasn't interacted with document, mute video and play it
+      Promise.race([playPromise]).catch((error) => {
+        console.log(error);
+        console.log(playPromise);
+
+        const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+
+        if (noPermissionError && IS_IOS) {
+          if (player.paused()) {
+            player.removeClass('vjs-waiting');
+            document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
+            // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+          }
+
+          centerPlayButton();
+
+          // to turn muted autoplay on
+          // if (player.autoplay() && !player.muted()) {
+            // player.muted(true);
+            // player.play();
+          // }
+        }
+        setIsPlaying(false);
+      });
+    }
 
     // PR: #5535
     // Move the restoration to a later `loadedmetadata` phase to counter the

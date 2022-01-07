@@ -254,6 +254,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      // $FlowFixMe
+      document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      document.querySelector('.vjs-control-bar').style.setProperty('display', 'flex');
+
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
@@ -311,9 +315,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
 
-      // $FlowFixMe
-      document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
-
       // change to m3u8 if applicable
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
@@ -337,10 +338,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
-
-      if (!canAutoplayVideo && IS_IOS) {
-        document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle')
-      }
     })();
 
     // Cleanup
