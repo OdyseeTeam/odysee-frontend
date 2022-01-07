@@ -127,6 +127,15 @@ $recent-msg-button__height: 2rem;
         .button__label {
           color: var(--color-primary-contrast);
         }
+        .button--alt,
+        .button--link {
+          .button__content {
+            color: var(--color-text);
+            .button__label {
+              color: var(--color-text);
+            }
+          }
+        }
       }
     }
 
@@ -208,6 +217,7 @@ $recent-msg-button__height: 2rem;
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--header-height) - #{$discussion-header__height} - var(--spacing-l));
+  overflow: scroll;
 }
 
 .livestream__comments {
@@ -218,6 +228,7 @@ $recent-msg-button__height: 2rem;
   overflow-x: visible;
   padding-top: var(--spacing-s);
   width: 100%;
+  height: 500px;
 }
 
 .livestream-comment {
