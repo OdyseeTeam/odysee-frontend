@@ -337,6 +337,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
+
+      // fix invisible vidcrunch overlay
+      if (IS_IOS) {
+        const adsClaimDiv = document.querySelector('.ads__claim-item');
+
+        // hide ad div
+        if (adsClaimDiv) {
+          adsClaimDiv.style.display = 'none';
+
+          const adsClaimParentDiv = adsClaimDiv.parentNode;
+
+          // when ad div parent becomes visible, show the ad div
+          const observer = new IntersectionObserver(function(entries) {
+            if (entries[0].isIntersecting === true) {
+              adsClaimDiv.style.display = 'block';
+            }
+          }, { threshold: [0] });
+
+          // $FlowFixMe
+          observer.observe(adsClaimParentDiv);
+        }
+      }
     })();
 
     // Cleanup
