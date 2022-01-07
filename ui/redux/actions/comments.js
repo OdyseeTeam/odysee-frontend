@@ -22,6 +22,7 @@ import { makeSelectNotificationForCommentId } from 'redux/selectors/notification
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { toHex } from 'util/hex';
 import { getChannelFromClaim } from 'util/claim';
+import { getAuthToken } from 'util/saved-passwords';
 import Comments from 'comments';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { doAlertWaitingForSync } from 'redux/actions/app';
@@ -176,7 +177,7 @@ export function doCommentListOwn(
       return;
     }
 
-    const channelSignature = await channelSignName(channelClaim.claim_id, channelClaim.name);
+    const channelSignature = await channelSignData(channelClaim.claim_id, channelClaim.name);
     if (!channelSignature) {
       console.error('Failed to sign channel name.'); // eslint-disable-line
       return;
@@ -198,8 +199,7 @@ export function doCommentListOwn(
       author_claim_id: channelId,
       requestor_channel_name: channelClaim.name,
       requestor_channel_id: channelClaim.claim_id,
-      signature: channelSignature.signature,
-      signing_ts: channelSignature.signing_ts,
+      ...channelSignature,
     })
       .then((result: CommentListResponse) => {
         const { items: comments, total_items, total_filtered_items, total_pages } = result;
@@ -412,6 +412,7 @@ export function doCommentReactList(commentIds: Array<string>) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const activeChannelClaim = selectActiveChannelClaim(state);
+    const authToken = getAuthToken();
 
     dispatch({
       type: ACTIONS.COMMENT_REACTION_LIST_STARTED,
@@ -422,15 +423,18 @@ export function doCommentReactList(commentIds: Array<string>) {
     };
 
     if (activeChannelClaim) {
-      const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name);
-      if (!signatureData) {
-        return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
-      }
-
       params.channel_name = activeChannelClaim.name;
       params.channel_id = activeChannelClaim.claim_id;
-      params.signature = signatureData.signature;
-      params.signing_ts = signatureData.signing_ts;
+
+      if (authToken) {
+        const signatureData = await channelSignData(activeChannelClaim.claim_id, activeChannelClaim.name);
+        if (!signatureData) {
+          return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
+        }
+
+        params.signature = signatureData.signature;
+        params.signing_ts = signatureData.signing_ts;
+      }
     }
 
     return Comments.reaction_list(params)
@@ -559,7 +563,7 @@ export function doCommentReact(commentId: string, type: string) {
     let checkIfAlreadyReacted = false;
     let rejectReaction = false;
 
-    const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name);
+    const signatureData = await channelSignData(activeChannelClaim.claim_id, activeChannelClaim.name);
     if (!signatureData) {
       return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
@@ -568,8 +572,7 @@ export function doCommentReact(commentId: string, type: string) {
       comment_ids: commentId,
       channel_name: activeChannelClaim.name,
       channel_id: activeChannelClaim.claim_id,
-      signature: signatureData.signature,
-      signing_ts: signatureData.signing_ts,
+      ...signatureData,
       type: type,
     };
 
@@ -675,6 +678,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
     const activeChannelClaim = selectActiveChannelClaim(state);
     const myCommentedChannelIds = selectMyCommentedChannelIdsForId(state, claim_id);
     const mentionedChannels: Array<MentionedChannel> = [];
+    const authToken = getAuthToken();
 
     if (!activeChannelClaim) {
       console.error('Unable to create comment. No activeChannel is set.'); // eslint-disable-line
@@ -745,13 +749,22 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
 
     dispatch({ type: ACTIONS.COMMENT_CREATE_STARTED });
 
+    let signatureData;
+    if (authToken && activeChannelClaim) {
+      try {
+        signatureData = await Lbry.channel_sign({
+          channel_id: activeChannelClaim.claim_id,
+          hexdata: toHex(comment),
+        });
+      } catch (e) {}
+    }
+
     const notification = parent_id && makeSelectNotificationForCommentId(parent_id)(state);
     if (notification && !notification.is_seen) {
       dispatch(doSeeNotifications([notification.id]));
     }
 
-    const signatureData = await channelSignData(activeChannelClaim.claim_id, comment);
-    if (!signatureData) {
+    if (authToken && !signatureData) {
       return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
 
@@ -761,8 +774,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       channel_id: activeChannelClaim.claim_id,
       channel_name: activeChannelClaim.name,
       parent_id: parent_id,
-      signature: signatureData.signature,
-      signing_ts: signatureData.signing_ts,
+      ...(signatureData || {}),
       sticker: sticker,
       mentioned_channels: mentionedChannels,
       ...(txid ? { support_tx_id: txid } : {}),
@@ -813,8 +825,7 @@ export function doCommentPin(commentId: string, claimId: string, remove: boolean
       channel_id: activeChannel.claim_id,
       channel_name: activeChannel.name,
       remove: remove,
-      signature: signedCommentId.signature,
-      signing_ts: signedCommentId.signing_ts,
+      ...signedCommentId,
     };
 
     return Comments.comment_pin(params)
@@ -872,7 +883,7 @@ export function doCommentAbandon(
       comment_id: commentId,
       creator_channel_id: creatorClaim ? creatorClaim.claim_id : undefined,
       creator_channel_name: creatorClaim ? creatorClaim.name : undefined,
-      ...(commentIdSignature || {}),
+      ...commentIdSignature,
       mod_channel_id: deleterClaim && deleterIsModOrAdmin ? deleterClaim.claim_id : undefined,
       mod_channel_name: deleterClaim && deleterIsModOrAdmin ? deleterClaim.name : undefined,
     })
@@ -942,8 +953,7 @@ export function doCommentUpdate(comment_id: string, comment: string) {
       return Comments.comment_edit({
         comment_id: comment_id,
         comment: comment,
-        signature: signedComment.signature,
-        signing_ts: signedComment.signing_ts,
+        ...signedComment,
       })
         .then((result: CommentEditResponse) => {
           if (result != null) {
@@ -982,31 +992,50 @@ export function doCommentUpdate(comment_id: string, comment: string) {
   }
 }
 
-async function channelSignName(channelClaimId: string, channelName: string) {
+async function channelSignName(channelClaimId: string, channelName: string, authToken: ?string) {
   let signedObject;
 
-  try {
-    signedObject = await Lbry.channel_sign({
-      channel_id: channelClaimId,
-      hexdata: toHex(channelName),
-    });
+  if (authToken) {
+    try {
+      signedObject = await Lbry.channel_sign({
+        channel_id: channelClaimId,
+        hexdata: toHex(channelName),
+      });
 
+      signedObject['claim_id'] = channelClaimId;
+      signedObject['name'] = channelName;
+    } catch {}
+  } else {
+    signedObject = {};
     signedObject['claim_id'] = channelClaimId;
     signedObject['name'] = channelName;
-  } catch (e) {}
+  }
 
   return signedObject;
 }
 
+/**
+ * channelSignData
+ *
+ * @param channelClaimId
+ * @param data
+ * @returns 'undefined' if failed to channel_sign;
+ *          '{}' if channel_sign is not needed (use oauth);
+ *          '{ signature, signature_ts }' if channel_sign was successful;
+ */
 async function channelSignData(channelClaimId: string, data: string) {
   let signedObject;
 
-  try {
-    signedObject = await Lbry.channel_sign({
-      channel_id: channelClaimId,
-      hexdata: toHex(data),
-    });
-  } catch (e) {}
+  if (getAuthToken()) {
+    try {
+      signedObject = await Lbry.channel_sign({
+        channel_id: channelClaimId,
+        hexdata: toHex(data),
+      });
+    } catch (e) {}
+  } else {
+    signedObject = {};
+  }
 
   return signedObject;
 }
@@ -1107,8 +1136,9 @@ function doCommentModToggleBlock(
         };
 
     const commentAction = unblock ? Comments.moderation_unblock : Comments.moderation_block;
+    const authToken = getAuthToken();
 
-    return Promise.all(blockerChannelClaims.map((x) => channelSignName(x.claim_id, x.name)))
+    return Promise.all(blockerChannelClaims.map((x) => channelSignName(x.claim_id, x.name, authToken)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -1121,10 +1151,10 @@ function doCommentModToggleBlock(
                 mod_channel_id: signatureData.claim_id,
                 // $FlowFixMe
                 mod_channel_name: signatureData.name,
-                // $FlowFixMe
-                signature: signatureData.signature,
-                // $FlowFixMe
-                signing_ts: signatureData.signing_ts,
+                // $FlowFixMe - null signature already filtered out
+                ...(signatureData.signature ? { signature: signatureData.signature } : {}),
+                // $FlowFixMe - null signature already filtered out
+                ...(signatureData.signing_ts ? { signing_ts: signatureData.signing_ts } : {}),
                 creator_channel_id: creatorUri ? creatorId : undefined,
                 creator_channel_name: creatorUri ? creatorName : undefined,
                 offending_comment_id: offendingCommentId && !unblock ? offendingCommentId : undefined,
@@ -1354,8 +1384,9 @@ export function doFetchModBlockedList() {
     });
 
     let channelSignatures = [];
+    const authToken = getAuthToken();
 
-    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name)))
+    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, authToken)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -1634,8 +1665,9 @@ export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
     dispatch({ type: ACTIONS.COMMENT_MODERATION_AM_I_LIST_STARTED });
 
     let channelSignatures = [];
+    const authToken = getAuthToken();
 
-    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name)))
+    return Promise.all(myChannels.map((channel) => channelSignName(channel.claim_id, channel.name, authToken)))
       .then((response) => {
         channelSignatures = response;
         // $FlowFixMe
@@ -1694,7 +1726,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
     if (myChannels) {
       const index = myChannels.findIndex((myChannel) => myChannel.claim_id === channelId);
       if (index > -1) {
-        signedName = await channelSignName(channelId, myChannels[index].name);
+        signedName = await channelSignName(channelId, myChannels[index].name, 'blah'); // TODO KEYCLOAK
       }
     }
 
@@ -1746,7 +1778,7 @@ export const doFetchCreatorSettings = (channelId: string) => {
  */
 export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: PerChannelSettings) => {
   return async (dispatch: Dispatch, getState: GetState) => {
-    const channelSignature = await channelSignName(channelClaim.claim_id, channelClaim.name);
+    const channelSignature = await channelSignData(channelClaim.claim_id, channelClaim.name);
     if (!channelSignature) {
       devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
       return;
@@ -1755,8 +1787,7 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
     return Comments.setting_update({
       channel_name: channelClaim.name,
       channel_id: channelClaim.claim_id,
-      signature: channelSignature.signature,
-      signing_ts: channelSignature.signing_ts,
+      ...channelSignature,
       ...settings,
     }).catch((err) => {
       dispatch(doToast({ message: err.message, isError: true }));
