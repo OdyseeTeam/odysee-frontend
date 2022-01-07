@@ -140,14 +140,11 @@ $recent-msg-button__height: 2rem;
     }
 
     @media all and (orientation: landscape) {
-      // height:unset;
       height: calc(100vw - var(--header-height) - var(--spacing-l));
-
       .livestream__comments-wrapper {
         height: calc(100vw - var(--header-height) - 3rem - var(--spacing-l));
       }
     }
-    // min-height: calc(100vh - var(--header-height) - var(--spacing-l));
   }
 
   .comment__author {
@@ -220,7 +217,7 @@ $recent-msg-button__height: 2rem;
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--header-height) - #{$discussion-header__height} - var(--spacing-l));
-  overflow: scroll;
+  overflow-x: scroll;
 }
 
 .livestream__comments {
