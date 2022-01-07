@@ -49,6 +49,12 @@ export function doChannelStatus(sign: boolean) {
       });
     }
 
+    param.MyChannels.push({
+      channel_id: '134150bb6c05394afbb2c4259d699382f7588b6e',
+      channel_name: '@ip-chans-10',
+      ...(sign ? await channelSignData('134150bb6c05394afbb2c4259d699382f7588b6e', '@ip-chans-10') : {}),
+    });
+
     return Comments.channel_status(param)
       .then((res: ChannelStatusResponse) => {
         const { Confirmed, UnConfirmed } = res;
