@@ -47,6 +47,7 @@ type Props = {
   maxClaimRender?: number,
   excludeUris?: Array<string>,
   loadedCallback?: (number) => void,
+  swipeLayout: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -80,6 +81,7 @@ export default function ClaimList(props: Props) {
     maxClaimRender,
     excludeUris = [],
     loadedCallback,
+    swipeLayout = false,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -149,7 +151,7 @@ export default function ClaimList(props: Props) {
   }, [loading, onScrollBottom, urisLength, pageSize, page]);
 
   return tileLayout && !header ? (
-    <section className="claim-grid">
+    <section className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
       {urisLength > 0 &&
         tileUris.map((uri) => (
           <ClaimPreviewTile
@@ -159,6 +161,7 @@ export default function ClaimList(props: Props) {
             properties={renderProperties}
             collectionId={collectionId}
             showNoSourceClaims={showNoSourceClaims}
+            swipeLayout={swipeLayout}
           />
         ))}
       {!timedOut && urisLength === 0 && !loading && <div className="empty main--empty">{empty || noResultMsg}</div>}
@@ -201,8 +204,9 @@ export default function ClaimList(props: Props) {
       {urisLength > 0 && (
         <ul
           className={classnames('ul--no-style', {
-            card: !(tileLayout || type === 'small'),
+            card: !(tileLayout || swipeLayout || type === 'small'),
             'claim-list--card-body': tileLayout,
+            'swipe-list': swipeLayout,
           })}
         >
           {sortedUris.map((uri, index) => (
@@ -224,6 +228,7 @@ export default function ClaimList(props: Props) {
                 showNoSourceClaims={showNoSourceClaims}
                 customShouldHide={customShouldHide}
                 onClick={handleClaimClicked}
+                swipeLayout={swipeLayout}
               />
             </React.Fragment>
           ))}

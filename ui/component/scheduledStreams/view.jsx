@@ -9,16 +9,29 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
 // import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import * as SETTINGS from 'constants/settings';
 
 type Props = {
   channelIds: Array<string>,
   tileLayout: boolean,
   liveUris: Array<string>,
   limitClaimsPerChannel?: number,
+  onLoad: (number) => void,
+  // --- perform ---
+  setClientSetting: (string, boolean | string | number, boolean) => void,
+  doShowSnackBar: (string) => void,
 };
 
 const ScheduledStreams = (props: Props) => {
-  const { channelIds, tileLayout, liveUris = [], limitClaimsPerChannel } = props;
+  const {
+    channelIds,
+    tileLayout,
+    liveUris = [],
+    limitClaimsPerChannel,
+    setClientSetting,
+    doShowSnackBar,
+    onLoad,
+  } = props;
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
@@ -26,21 +39,38 @@ const ScheduledStreams = (props: Props) => {
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
   const showUpcomingLivestreams = totalUpcomingLivestreams > 0;
+  const useSwipeLayout = totalUpcomingLivestreams > 1 && isMediumScreen;
 
   const upcomingMax = React.useMemo(() => {
-    if (showAllUpcoming) return 50;
+    if (showAllUpcoming || useSwipeLayout) return 50;
     if (isLargeScreen) return 6;
     if (isMediumScreen) return 3;
     return 4;
-  }, [showAllUpcoming, isMediumScreen, isLargeScreen]);
+  }, [showAllUpcoming, isMediumScreen, isLargeScreen, useSwipeLayout]);
 
   const loadedCallback = (total) => {
     setTotalUpcomingLivestreams(total);
+    if (typeof onLoad === 'function') onLoad(total);
+  };
+
+  const hideScheduledStreams = () => {
+    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, true, true);
+    doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
+  };
+
+  const Header = () => {
+    return (
+      <div>
+        {__('Upcoming Livestreams')}
+        <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'ml-s text-s'} />
+      </div>
+    );
   };
 
   return (
-    <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+    <div className={'mb-m mt-m md:mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
       <ClaimListDiscover
+        swipeLayout={useSwipeLayout}
         useSkeletonScreen={false}
         channelIds={channelIds}
         limitClaimsPerChannel={limitClaimsPerChannel}
@@ -55,12 +85,13 @@ const ScheduledStreams = (props: Props) => {
         infiniteScroll={false}
         showNoSourceClaims
         hideLayoutButton
-        header={__('🔴 Upcoming Livestreams')}
+        // header={__('🔴 Upcoming Livestreams')}
+        header={<Header />}
         maxClaimRender={upcomingMax}
         excludeUris={liveUris}
         loadedCallback={loadedCallback}
       />
-      {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && (
+      {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && !useSwipeLayout && (
         <div className="livestream-list--view-more">
           <Button
             label={__('Show more upcoming livestreams')}

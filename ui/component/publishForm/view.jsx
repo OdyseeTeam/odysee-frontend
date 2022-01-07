@@ -32,6 +32,7 @@ import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import PublishStreamReleaseDate from 'component/publishStreamReleaseDate';
+import { SOURCE_NONE } from 'constants/publish_sources';
 
 // @if TARGET='app'
 import fs from 'fs';
@@ -139,6 +140,7 @@ function PublishForm(props: Props) {
     hasClaimedInitialRewards,
   } = props;
 
+  const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
   const urlParams = new URLSearchParams(location.search);
   const TYPE_PARAM = 'type';
@@ -152,7 +154,7 @@ function PublishForm(props: Props) {
   // $FlowFixMe
   const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
     // $FlowFixMe
-    if (editingURI) {
+    if (inEditMode) {
       if (isPostClaim) {
         return mode === PUBLISH_MODES.POST;
       } else if (isLivestreamClaim) {
@@ -173,7 +175,8 @@ function PublishForm(props: Props) {
     [PUBLISH_MODES.LIVESTREAM]: 'Livestream --[noun, livestream tab button]--',
   };
 
-  const [mode, setMode] = React.useState(_uploadType || PUBLISH_MODES.FILE);
+  const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
+  const [mode, setMode] = React.useState(_uploadType || defaultPublishMode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
   let customSubtitle;
@@ -422,9 +425,8 @@ function PublishForm(props: Props) {
 
   // set mode based on urlParams 'type'
   useEffect(() => {
-    // Default to standard file publish if none specified
     if (!_uploadType) {
-      setMode(PUBLISH_MODES.FILE);
+      setMode(defaultPublishMode);
       return;
     }
 
@@ -448,9 +450,8 @@ function PublishForm(props: Props) {
       return;
     }
 
-    // Default to standard file publish
-    setMode(PUBLISH_MODES.FILE);
-  }, [_uploadType, enableLivestream]);
+    setMode(defaultPublishMode);
+  }, [_uploadType, enableLivestream, defaultPublishMode]);
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -560,6 +561,15 @@ function PublishForm(props: Props) {
     }
   }, [mode, updatePublishForm]);
 
+  // FIle Source Selector State.
+  const [fileSource, setFileSource] = useState();
+  const changeFileSource = (state) => setFileSource(state);
+
+  const [showSchedulingOptions, setShowSchedulingOptions] = useState(false);
+  useEffect(() => {
+    setShowSchedulingOptions(isLivestreamMode && fileSource === SOURCE_NONE);
+  }, [isLivestreamMode, fileSource]);
+
   if (publishing) {
     return (
       <div className="main--empty">
@@ -568,12 +578,16 @@ function PublishForm(props: Props) {
       </div>
     );
   }
+
   // Editing claim uri
   return (
     <div className="card-stack uploadPage-wraper">
       <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} />
 
       <PublishFile
+        inEditMode={inEditMode}
+        fileSource={fileSource}
+        changeFileSource={changeFileSource}
         uri={permanentUrl}
         mode={mode}
         fileMimeType={fileMimeType}
@@ -610,7 +624,7 @@ function PublishForm(props: Props) {
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
-          {isLivestreamMode && <Card className={'card--enable-overflow'} body={<PublishStreamReleaseDate />} />}
+          {showSchedulingOptions && <Card className={'card--enable-overflow'} body={<PublishStreamReleaseDate />} />}
 
           {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
@@ -647,7 +661,7 @@ function PublishForm(props: Props) {
           <PublishBid disabled={isStillEditing || formDisabled} />
           {!isLivestreamMode && <PublishPrice disabled={formDisabled} />}
 
-          <PublishAdditionalOptions disabled={formDisabled} isLivestreamMode={isLivestreamMode} />
+          <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>
       )}
       <section>

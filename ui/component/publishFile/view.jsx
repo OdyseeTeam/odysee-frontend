@@ -19,6 +19,7 @@ import Empty from 'component/common/empty';
 import moment from 'moment';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
+import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
 
 type Props = {
   uri: ?string,
@@ -51,6 +52,9 @@ type Props = {
   channelSignature: { signature?: string, signing_ts?: string },
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
+  fileSource: string,
+  changeFileSource: (string) => void,
+  inEditMode: boolean,
 };
 
 function PublishFile(props: Props) {
@@ -84,11 +88,10 @@ function PublishFile(props: Props) {
     channelSignature,
     isCheckingLivestreams,
     setWaitForFile,
+    fileSource,
+    changeFileSource,
+    inEditMode,
   } = props;
-
-  const SOURCE_NONE = 'none';
-  const SOURCE_SELECT = 'select';
-  const SOURCE_UPLOAD = 'upload';
 
   const RECOMMENDED_BITRATE = 6000000;
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
@@ -114,16 +117,13 @@ function PublishFile(props: Props) {
   const fileSelectorModes = [
     { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
     { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
-    { label: __('None'), actionName: SOURCE_NONE },
+    { label: isLivestreamClaim ? __('Edit / Update') : __('None'), actionName: SOURCE_NONE },
   ];
 
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
-  const showSourceSelector = isLivestreamClaim || (hasLivestreamData && mode === PUBLISH_MODES.FILE);
 
-  const [fileSelectSource, setFileSelectSource] = useState(
-    IS_WEB && showSourceSelector && name ? SOURCE_SELECT : SOURCE_UPLOAD
-  );
+  const [showSourceSelector, setShowSourceSelector] = useState(false);
   // const [showFileUpdate, setShowFileUpdate] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(null);
   const PAGE_SIZE = 4;
@@ -142,15 +142,29 @@ function PublishFile(props: Props) {
     }
   }, [currentFileType, mode, isStillEditing, updatePublishForm]);
 
-  // set default file source to select if necessary
+  // Initialize default file source state for each mode.
   useEffect(() => {
-    if (hasLivestreamData && isLivestreamClaim) {
-      setWaitForFile(true);
-      setFileSelectSource(SOURCE_SELECT);
-    } else if (isLivestreamClaim) {
-      setFileSelectSource(SOURCE_NONE);
+    setShowSourceSelector(false);
+    switch (mode) {
+      case PUBLISH_MODES.LIVESTREAM:
+        if (inEditMode) {
+          changeFileSource(SOURCE_SELECT);
+          setShowSourceSelector(true);
+        } else {
+          changeFileSource(SOURCE_NONE);
+        }
+        break;
+      case PUBLISH_MODES.POST:
+        changeFileSource(SOURCE_NONE);
+        break;
+      case PUBLISH_MODES.FILE:
+        if (hasLivestreamData) setShowSourceSelector(true);
+        changeFileSource(SOURCE_UPLOAD);
+        break;
+      default:
+        changeFileSource(SOURCE_UPLOAD);
     }
-  }, [hasLivestreamData, isLivestreamClaim, setFileSelectSource]);
+  }, [mode, hasLivestreamData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const normalizeUrlForProtocol = (url) => {
     if (url.startsWith('https://')) {
@@ -328,7 +342,7 @@ function PublishFile(props: Props) {
         updatePublishForm({ remoteFileUrl: livestreamData[selectedFileIndex].data.fileLocation });
       }
     }
-    setFileSelectSource(source);
+    changeFileSource(source);
     setWaitForFile(source !== SOURCE_NONE);
   }
 
@@ -437,7 +451,7 @@ function PublishFile(props: Props) {
     updatePublishForm(publishFormParams);
   }
 
-  const showFileUpload = mode === PUBLISH_MODES.FILE;
+  const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
   const isPublishPost = mode === PUBLISH_MODES.POST;
 
   return (
@@ -493,13 +507,13 @@ function PublishFile(props: Props) {
                             handleFileSource(fmode.actionName);
                           }}
                           className={classnames('button-toggle', {
-                            'button-toggle--active': fileSelectSource === fmode.actionName,
+                            'button-toggle--active': fileSource === fmode.actionName,
                           })}
                         />
                       ))}
                     </div>
                   </div>
-                  {fileSelectSource === SOURCE_SELECT && (
+                  {fileSource === SOURCE_SELECT && (
                     <Button
                       button="secondary"
                       label={__('Check for Replays')}
@@ -514,7 +528,7 @@ function PublishFile(props: Props) {
               </fieldset-section>
             )}
 
-            {fileSelectSource === SOURCE_UPLOAD && showFileUpload && (
+            {fileSource === SOURCE_UPLOAD && showFileUpload && (
               <>
                 <FileSelector
                   label={__('File')}
@@ -528,7 +542,7 @@ function PublishFile(props: Props) {
                 {getUploadMessage()}
               </>
             )}
-            {fileSelectSource === SOURCE_SELECT && showFileUpload && hasLivestreamData && !isCheckingLivestreams && (
+            {fileSource === SOURCE_SELECT && showFileUpload && hasLivestreamData && !isCheckingLivestreams && (
               <>
                 <fieldset-section>
                   <label>{__('Select Replay')}</label>
@@ -602,12 +616,12 @@ function PublishFile(props: Props) {
                 </fieldset-group>
               </>
             )}
-            {fileSelectSource === SOURCE_SELECT && showFileUpload && !hasLivestreamData && !isCheckingLivestreams && (
+            {fileSource === SOURCE_SELECT && showFileUpload && !hasLivestreamData && !isCheckingLivestreams && (
               <div className="main--empty empty">
                 <Empty text={__('No replays found.')} />
               </div>
             )}
-            {fileSelectSource === SOURCE_SELECT && showFileUpload && isCheckingLivestreams && (
+            {fileSource === SOURCE_SELECT && showFileUpload && isCheckingLivestreams && (
               <div className="main--empty empty">
                 <Spinner small />
               </div>

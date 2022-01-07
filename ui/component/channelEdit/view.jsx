@@ -323,7 +323,6 @@ function ChannelForm(props: Props) {
               uri={uri}
               thumbnailPreview={thumbnailPreview}
               allowGifs
-              showDelayedMessage={isUpload.thumbnail}
               setThumbUploadError={setThumbError}
               thumbUploadError={thumbError}
             />

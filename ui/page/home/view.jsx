@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import { SITE_NAME, SIMPLE_SITE, ENABLE_NO_SOURCE_CLAIMS, SHOW_ADS } from 'config';
 import Ads, { injectAd } from 'web/component/ads';
-import React from 'react';
+import React, { useState } from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -30,6 +30,7 @@ type Props = {
   activeLivestreams: any,
   doFetchActiveLivestreams: () => void,
   fetchingActiveLivestreams: boolean,
+  hideScheduledLivestreams: boolean,
 };
 
 function HomePage(props: Props) {
@@ -42,6 +43,7 @@ function HomePage(props: Props) {
     activeLivestreams,
     doFetchActiveLivestreams,
     fetchingActiveLivestreams,
+    hideScheduledLivestreams,
   } = props;
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
@@ -62,6 +64,24 @@ function HomePage(props: Props) {
     showIndividualTags,
     showNsfw
   );
+
+  type SectionHeaderProps = {
+    title: string,
+    navigate?: string,
+    icon?: string,
+    help?: string,
+  };
+  const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
+    return (
+      <h1 className="claim-grid__header">
+        <Button navigate={navigate} button="link">
+          <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />
+          <span className="claim-grid__title">{title}</span>
+          {help}
+        </Button>
+      </h1>
+    );
+  };
 
   function getRowElements(title, route, link, icon, help, options, index, pinUrls) {
     const tilePlaceholder = (
@@ -86,13 +106,7 @@ function HomePage(props: Props) {
       <div key={title} className="claim-grid__wrapper">
         {/* category header */}
         {index !== 0 && title && typeof title === 'string' && (
-          <h1 className="claim-grid__header">
-            <Button navigate={route || link} button="link">
-              {icon && <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />}
-              <span className="claim-grid__title">{__(title)}</span>
-              {help}
-            </Button>
-          </h1>
+          <SectionHeader title={__(title)} navigate={route || link} icon={icon} help={help} />
         )}
 
         {index === 0 && <>{claimTiles}</>}
@@ -126,6 +140,9 @@ function HomePage(props: Props) {
     injectAd(shouldShowAds);
   }, []);
 
+  const [hasScheduledStreams, setHasScheduledStreams] = useState(false);
+  const scheduledStreamsLoaded = (total) => setHasScheduledStreams(total > 0);
+
   return (
     <Page className="homePage-wrapper" fullWidthPage>
       {!SIMPLE_SITE && (authenticated || !IS_WEB) && !subscribedChannels.length && (
@@ -150,14 +167,20 @@ function HomePage(props: Props) {
 
       {!fetchingActiveLivestreams && (
         <>
-          {authenticated && channelIds.length > 0 && (
+          {authenticated && channelIds.length > 0 && !hideScheduledLivestreams && (
             <ScheduledStreams
               channelIds={channelIds}
               tileLayout
               liveUris={getLivestreamUris(activeLivestreams, channelIds)}
               limitClaimsPerChannel={2}
+              onLoad={scheduledStreamsLoaded}
             />
           )}
+
+          {authenticated && hasScheduledStreams && !hideScheduledLivestreams && (
+            <SectionHeader title={__('Following')} navigate={`/$/${PAGES.CHANNELS_FOLLOWING}`} icon={ICONS.SUBSCRIBE} />
+          )}
+
           {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
             // add pins here
             return getRowElements(title, route, link, icon, help, options, index, pinUrls);
