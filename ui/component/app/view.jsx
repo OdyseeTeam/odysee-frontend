@@ -85,6 +85,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
   setIncognito: (boolean) => void,
+  doChannelStatus: (boolean) => Promise<Array<string>>,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
   homepageFetched: boolean,
@@ -121,6 +122,7 @@ function App(props: Props) {
     myChannelClaimIds,
     activeChannelClaim,
     setIncognito,
+    doChannelStatus,
     fetchModBlockedList,
     fetchModAmIList,
     homepageFetched,
@@ -349,6 +351,11 @@ function App(props: Props) {
     if (hasMyChannels) {
       fetchModBlockedList();
       fetchModAmIList();
+      doChannelStatus(false).then((needToSign: Array<string>) => {
+        if (needToSign.length !== 0) {
+          doChannelStatus(true);
+        }
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hasMyChannels, hasNoChannels, setIncognito]);

@@ -31,6 +31,47 @@ const PROMISE_FULFILLED = 'fulfilled';
 
 const MENTION_REGEX = /(?:^| |\n)@[^\s=&#$@%?:;/"<>%{}|^~[]*(?::[\w]+)?/gm;
 
+export function doChannelStatus(sign: boolean) {
+  return async (dispatch: Dispatch, getState: GetState) => {
+    if (getAuthToken()) {
+      return [];
+    }
+
+    const state = getState();
+    const myChannelClaims = selectMyChannelClaims(state);
+    const param: ChannelStatusParams = { MyChannels: [] };
+
+    for (const claim of myChannelClaims) {
+      param.MyChannels.push({
+        channel_id: claim.claim_id,
+        channel_name: claim.name,
+        ...(sign ? await channelSignData(claim.claim_id, claim.name) : {}),
+      });
+    }
+
+    return Comments.channel_status(param)
+      .then((res: ChannelStatusResponse) => {
+        const { Confirmed, UnConfirmed } = res;
+        const needToSign = [];
+
+        param.MyChannels.forEach((p: Authorization) => {
+          if (
+            !Confirmed ||
+            !Confirmed.find((x) => x.channel_id === p.channel_id) ||
+            (UnConfirmed && UnConfirmed.find((x) => x.channel_id === p.channel_id))
+          ) {
+            needToSign.push(p);
+          }
+        });
+
+        return needToSign;
+      })
+      .catch((err) => {
+        console.error('err:', err);
+      });
+  };
+}
+
 export function doCommentList(
   uri: string,
   parentId: ?string,
