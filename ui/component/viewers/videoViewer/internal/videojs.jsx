@@ -287,6 +287,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      // $FlowFixMe
+      document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      document.querySelector('.vjs-control-bar').style.setProperty('display', 'flex');
+
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
