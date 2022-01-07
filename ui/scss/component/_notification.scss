@@ -283,6 +283,10 @@ $contentMaxWidth: 60rem;
   .notification__count {
     margin-bottom: -2px;
   }
+
+  @media (max-width: $breakpoint-small) {
+    right: 0rem;
+  }
 }
 
 .notification__bubble--small {
