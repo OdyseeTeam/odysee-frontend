@@ -192,6 +192,9 @@ $recent-msg-button__height: 2rem;
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxs);
+    .button-toggle {
+      background-color: rgba(var(--color-primary-dynamic), 0.08);
+    }
   }
 }
 
