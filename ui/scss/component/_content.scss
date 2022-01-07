@@ -33,7 +33,11 @@
   z-index: 9999;
 
   border: 4px solid black;
-  border-radius: var(--border-radius);
+  // border-radius: var(--border-radius);
+
+  .file-render--video {
+    border-radius: unset;
+  }
 
   &:hover {
     .content__floating-close {
