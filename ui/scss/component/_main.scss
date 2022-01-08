@@ -184,6 +184,14 @@ body {
       margin-left: 0;
       margin-top: var(--spacing-l);
     }
+
+    @media (max-width: $breakpoint-small) {
+      .card__title-section {
+        .card__title {
+          height: 1em;
+        }
+      }
+    }
   }
 
   .file-page__recommended-collection {
