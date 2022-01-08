@@ -106,9 +106,6 @@
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s) 0px;
   }
-  @media (max-width: $breakpoint-small) {
-    width: 60%;
-  }
 }
 
 .card__title-section--small {
