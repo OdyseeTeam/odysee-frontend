@@ -101,6 +101,13 @@
   .button:nth-child(2):not(:last-child) {
     margin-left: 2px;
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-right: 0;
+    .button-toggle {
+      padding: 0 var(--spacing-s) 0 var(--spacing-xs);
+    }
+  }
 }
 
 .claim-search__menu-group--between {
