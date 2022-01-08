@@ -228,9 +228,6 @@ $recent-msg-button__height: 2rem;
   overflow-x: visible;
   padding-top: var(--spacing-s);
   width: 100%;
-  @media (max-width: $breakpoint-small) {
-    height: 500px;
-  }
 }
 
 .livestream-comment {
