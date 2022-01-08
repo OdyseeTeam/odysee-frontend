@@ -225,6 +225,9 @@
   .card__header--between {
     @media (max-width: $breakpoint-small) {
       margin-bottom: 0;
+      .card__title-section {
+        width: 60%;
+      }
     }
   }
 
