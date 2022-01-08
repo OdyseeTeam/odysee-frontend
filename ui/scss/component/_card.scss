@@ -106,6 +106,9 @@
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-s) 0px;
   }
+  @media (max-width: $breakpoint-small) {
+    width: 60%;
+  }
 }
 
 .card__title-section--small {
@@ -241,7 +244,7 @@
           flex-grow: 1;
         }
         .button-toggle {
-          padding: var(--spacing-xs);
+          padding: 0 var(--spacing-xs) 0 var(--spacing-xxxs);
         }
       }
       .comment__sort {
