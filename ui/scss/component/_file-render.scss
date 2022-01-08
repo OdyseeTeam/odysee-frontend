@@ -551,6 +551,10 @@
   }
 }
 
+.vjs-layout-medium {
+  border-radius: var(--border-radius);
+}
+
 .video-js.vjs-fullscreen {
   .vjs-button--theater-mode {
     display: none;
