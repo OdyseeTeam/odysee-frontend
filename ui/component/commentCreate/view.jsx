@@ -398,7 +398,7 @@ export function CommentCreate(props: Props) {
         }}
       >
         <FormField type="textarea" name={'comment_signup_prompt'} placeholder={__('Say something about this...')} />
-        <div className="section__actions--no-margin">
+        <div className="section__actions">
           <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth />
         </div>
       </div>
