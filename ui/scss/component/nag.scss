@@ -51,6 +51,7 @@ $nag-error-z-index: 999;
   z-index: $nag-error-z-index;
   border-radius: var(--border-radius);
   margin-top: var(--spacing-s);
+  margin-bottom: var(--spacing-s);
 }
 
 .nag__message {
