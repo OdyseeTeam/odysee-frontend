@@ -29,6 +29,9 @@ $thumbnailWidthSmall: 1rem;
     margin-top: 0;
     display: inline;
   }
+  @media (max-width: $breakpoint-small) {
+    margin-right: 0;
+  }
 }
 
 .comment {
