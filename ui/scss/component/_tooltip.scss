@@ -1,6 +1,7 @@
 [data-reach-tooltip] {
   border-radius: var(--border-radius);
-  background-color: var(--color-header-background);
+  //background-color: var(--color-header-background);
+  // background-color: #999999;
   color: var(--color-text);
   border: none;
   padding: var(--spacing-s);
@@ -11,13 +12,16 @@
 
 .MuiTooltip-tooltip {
   border-radius: var(--border-radius) !important;
-  background-color: var(--color-header-background) !important;
-  color: var(--color-text) !important;
+  //background-color: var(--color-header-background) !important;
+  background-color: #333 !important;
+  //color: var(--color-text) !important;
+  color: #fff !important;
   font-size: var(--font-small) !important;
 }
 
 .MuiTooltip-arrow {
-  color: var(--color-header-background) !important;
+  //color: var(--color-header-background) !important;
+  color: #333 !important;
   font-size: var(--font-xxsmall) !important;
 }
 
