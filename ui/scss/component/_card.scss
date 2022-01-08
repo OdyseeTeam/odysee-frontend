@@ -347,7 +347,7 @@
   @media (max-width: $breakpoint-small) {
     .card__title-section {
       .card__title {
-        margin-top: calc(var(--spacing-s) - 2px);
+        // margin-top: calc(var(--spacing-s) - 2px);
         margin-bottom: calc(var(--spacing-s) * -1);
       }
     }
