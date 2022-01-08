@@ -239,7 +239,6 @@
         margin-right: auto;
         .button--alt {
           flex-grow: 1;
-          // min-width:30px;
         }
         .button-toggle {
           padding: var(--spacing-xs);
@@ -315,7 +314,7 @@
 .card__header--between {
   @extend .card__header;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   flex-wrap: wrap;
 
   @media (max-width: $breakpoint-small) {
