@@ -228,7 +228,6 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__message {
   word-break: break-word;
-  //max-width: 35rem;
   padding-right: var(--spacing-xl);
   color: var(--color-text);
 
@@ -244,6 +243,10 @@ $thumbnailWidthSmall: 1rem;
     & + p {
       margin-top: var(--spacing-xxs);
     }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding-right: var(--spacing-l);
   }
 }
 
@@ -290,6 +293,12 @@ $thumbnailWidthSmall: 1rem;
 .comment__menu {
   align-self: flex-end;
   line-height: 1;
+
+  @media (max-width: $breakpoint-small) {
+    .menu__button {
+      opacity: 1;
+    }
+  }
 }
 
 .comment__char-count {
