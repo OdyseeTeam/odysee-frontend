@@ -239,6 +239,10 @@
         margin-right: auto;
         .button--alt {
           flex-grow: 1;
+          // min-width:30px;
+        }
+        .button-toggle {
+          padding: var(--spacing-xs);
         }
       }
       .comment__sort {
