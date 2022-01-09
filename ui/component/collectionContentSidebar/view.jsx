@@ -1,4 +1,8 @@
 // @flow
+
+// $FlowFixMe
+import { DragDropContext, Droppable } from 'react-beautiful-dnd';
+
 import React from 'react';
 import classnames from 'classnames';
 import ClaimList from 'component/claimList';
@@ -21,6 +25,7 @@ type Props = {
   doToggleLoopList: (string, boolean) => void,
   doToggleShuffleList: (string, string, boolean) => void,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
+  doCollectionEdit: (string, CollectionEditParams) => void,
 };
 
 export default function CollectionContent(props: Props) {
@@ -34,9 +39,21 @@ export default function CollectionContent(props: Props) {
     shuffle,
     doToggleLoopList,
     doToggleShuffleList,
+    doCollectionEdit,
   } = props;
 
   const [showEdit, setShowEdit] = React.useState(false);
+
+  function handleOnDragEnd(result) {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    const { index: from } = source;
+    const { index: to } = destination;
+
+    doCollectionEdit(id, { order: { from, to } });
+  }
 
   return (
     <Card
@@ -93,15 +110,22 @@ export default function CollectionContent(props: Props) {
         </>
       }
       body={
-        <ClaimList
-          isCardBody
-          type="small"
-          activeUri={url}
-          uris={collectionUrls}
-          collectionId={id}
-          empty={__('List is Empty')}
-          showEdit={showEdit}
-        />
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          <Droppable droppableId="list__ordering">
+            {(DroppableProvided) => (
+              <ClaimList
+                isCardBody
+                type="small"
+                activeUri={url}
+                uris={collectionUrls}
+                collectionId={id}
+                empty={__('List is Empty')}
+                showEdit={showEdit}
+                droppableProvided={DroppableProvided}
+              />
+            )}
+          </Droppable>
+        </DragDropContext>
       }
     />
   );

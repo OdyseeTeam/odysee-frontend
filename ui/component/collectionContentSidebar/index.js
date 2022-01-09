@@ -9,6 +9,7 @@ import {
 } from 'redux/selectors/collections';
 import { selectPlayingUri, selectListLoop, selectListShuffle } from 'redux/selectors/content';
 import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
+import { doCollectionEdit } from 'redux/actions/collections';
 
 const select = (state, props) => {
   const playingUri = selectPlayingUri(state);
@@ -34,4 +35,5 @@ const select = (state, props) => {
 export default connect(select, {
   doToggleLoopList,
   doToggleShuffleList,
+  doCollectionEdit,
 })(CollectionContent);

@@ -1,4 +1,8 @@
 // @flow
+
+// $FlowFixMe
+import { Draggable } from 'react-beautiful-dnd';
+
 import { MAIN_CLASS } from 'constants/classnames';
 import type { Node } from 'react';
 import React, { useEffect } from 'react';
@@ -49,6 +53,7 @@ type Props = {
   loadedCallback?: (number) => void,
   swipeLayout: boolean,
   showEdit?: boolean,
+  droppableProvided?: any,
 };
 
 export default function ClaimList(props: Props) {
@@ -84,6 +89,7 @@ export default function ClaimList(props: Props) {
     loadedCallback,
     swipeLayout = false,
     showEdit,
+    droppableProvided,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -151,6 +157,29 @@ export default function ClaimList(props: Props) {
     }
   }, [loading, onScrollBottom, urisLength, pageSize, page]);
 
+  const getClaimPreview = (uri: string, index: number, draggableProvided?: any) => (
+    <ClaimPreview
+      uri={uri}
+      indexInContainer={index}
+      type={type}
+      active={activeUri && uri === activeUri}
+      hideMenu={hideMenu}
+      includeSupportAction={includeSupportAction}
+      showUnresolvedClaim={showUnresolvedClaims}
+      properties={renderProperties || (type !== 'small' ? undefined : false)}
+      renderActions={renderActions}
+      showUserBlocked={showHiddenByUser}
+      showHiddenByUser={showHiddenByUser}
+      collectionId={collectionId}
+      showNoSourceClaims={showNoSourceClaims}
+      customShouldHide={customShouldHide}
+      onClick={handleClaimClicked}
+      swipeLayout={swipeLayout}
+      showEdit={showEdit}
+      dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
+    />
+  );
+
   return tileLayout && !header ? (
     <section className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
       {urisLength > 0 &&
@@ -209,31 +238,26 @@ export default function ClaimList(props: Props) {
             'claim-list--card-body': tileLayout,
             'swipe-list': swipeLayout,
           })}
+          {...(droppableProvided && droppableProvided.droppableProps)}
+          ref={droppableProvided && droppableProvided.innerRef}
         >
-          {sortedUris.map((uri, index) => (
-            <React.Fragment key={uri}>
-              {injectedItem && index === 4 && <li>{injectedItem}</li>}
-              <ClaimPreview
-                uri={uri}
-                indexInContainer={index}
-                type={type}
-                active={activeUri && uri === activeUri}
-                hideMenu={hideMenu}
-                includeSupportAction={includeSupportAction}
-                showUnresolvedClaim={showUnresolvedClaims}
-                properties={renderProperties || (type !== 'small' ? undefined : false)}
-                renderActions={renderActions}
-                showUserBlocked={showHiddenByUser}
-                showHiddenByUser={showHiddenByUser}
-                collectionId={collectionId}
-                showNoSourceClaims={showNoSourceClaims}
-                customShouldHide={customShouldHide}
-                onClick={handleClaimClicked}
-                swipeLayout={swipeLayout}
-                showEdit={showEdit}
-              />
-            </React.Fragment>
-          ))}
+          {injectedItem && sortedUris.some((uri, index) => index === 4) && <li>{injectedItem}</li>}
+
+          {sortedUris.map((uri, index) =>
+            droppableProvided ? (
+              <Draggable key={uri} draggableId={uri} index={index}>
+                {(draggableProvided) => (
+                  <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps}>
+                    {getClaimPreview(uri, index, draggableProvided)}
+                  </li>
+                )}
+              </Draggable>
+            ) : (
+              getClaimPreview(uri, index)
+            )
+          )}
+
+          {droppableProvided && droppableProvided.placeholder}
         </ul>
       )}
 

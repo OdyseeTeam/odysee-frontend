@@ -6,12 +6,13 @@ import React from 'react';
 type Props = {
   collectionIndex?: number,
   collectionUris: Array<Collection>,
+  dragHandleProps?: any,
   uri: string,
   editCollection: (CollectionEditParams) => void,
 };
 
 export default function CollectionButtons(props: Props) {
-  const { collectionIndex: foundIndex, collectionUris, uri, editCollection } = props;
+  const { collectionIndex: foundIndex, collectionUris, dragHandleProps, uri, editCollection } = props;
 
   const [confirmDelete, setConfirmDelete] = React.useState(false);
 
@@ -34,12 +35,21 @@ export default function CollectionButtons(props: Props) {
 
   return (
     <div className="collection-preview__edit-buttons">
+      <div className="collection-preview__edit-group" {...dragHandleProps}>
+        <Button
+          className="button-collection-manage top-left bottom-left"
+          icon={ICONS.DRAG}
+          title={__('Drag')}
+          iconSize={20}
+        />
+      </div>
+
       <div className="collection-preview__edit-group">
-        {orderButton('top-left', __('Move Top'), ICONS.UP_TOP, collectionIndex === 0, () =>
+        {orderButton('', __('Move Top'), ICONS.UP_TOP, collectionIndex === 0, () =>
           editCollection({ order: { from: collectionIndex, to: 0 } })
         )}
 
-        {orderButton('bottom-left', __('Move Bottom'), ICONS.DOWN_BOTTOM, collectionIndex === lastCollectionIndex, () =>
+        {orderButton('', __('Move Bottom'), ICONS.DOWN_BOTTOM, collectionIndex === lastCollectionIndex, () =>
           editCollection({ order: { from: collectionIndex, to: lastCollectionIndex } })
         )}
       </div>

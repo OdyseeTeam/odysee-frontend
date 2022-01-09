@@ -87,6 +87,7 @@ type Props = {
   swipeLayout: boolean,
   lang: string,
   showEdit?: boolean,
+  dragHandleProps?: any,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -147,6 +148,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     swipeLayout = false,
     lang,
     showEdit,
+    dragHandleProps,
   } = props;
 
   const isCollection = claim && claim.value_type === 'collection';
@@ -348,7 +350,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'swipe-list__item': swipeLayout,
           })}
         >
-          {isMyCollection && showEdit && <CollectionEditButtons uri={uri} collectionId={listId} />}
+          {isMyCollection && showEdit && (
+            <CollectionEditButtons uri={uri} collectionId={listId} dragHandleProps={dragHandleProps} />
+          )}
 
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link>
