@@ -129,7 +129,6 @@
 
   .navigation-link {
     font-size: var(--font-xxsmall) !important;
-    // height: 1.4rem !important;
 
     .button__content {
       padding-top: 0;
@@ -166,6 +165,7 @@
     height: 1rem;
     width: 1rem;
     stroke: var(--color-navigation-icon);
+    stroke-width: 1.5px;
     will-change: stroke;
   }
 
