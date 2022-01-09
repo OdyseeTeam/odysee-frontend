@@ -195,6 +195,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     claim && claim.repost_channel_url && claim.value_type === 'channel'
       ? claim.permanent_url || claim.canonical_url
       : undefined;
+  const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
 
   // Get channel title ( use name as fallback )
   let channelTitle = null;
@@ -362,7 +363,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
                   <FileThumbnail thumbnail={thumbnailUrl}>
                     <div className="claim-preview__hover-actions">
-                      {isPlayable && <FileWatchLaterLink focusable={false} uri={uri} />}
+                      {isPlayable && <FileWatchLaterLink focusable={false} uri={repostedContentUri} />}
                     </div>
                     {/* @if TARGET='app' */}
                     <div className="claim-preview__hover-actions">
@@ -449,7 +450,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 // $FlowFixMe
-                                if (editCollection) editCollection(listId, { claims: [claim], remove: true });
+                                if (editCollection) editCollection(listId, { uris: [uri], remove: true });
                               }}
                             />
                           </div>
