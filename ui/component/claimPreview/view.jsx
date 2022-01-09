@@ -32,8 +32,7 @@ import ClaimPreviewLoading from './claim-preview-loading';
 import ClaimPreviewHidden from './claim-preview-no-mature';
 import ClaimPreviewNoContent from './claim-preview-no-content';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import Button from 'component/button';
-import * as ICONS from 'constants/icons';
+import CollectionEditButtons from 'component/collectionEditButtons';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -79,10 +78,7 @@ type Props = {
   isLivestream?: boolean,
   isLivestreamActive: boolean,
   collectionId?: string,
-  editCollection: (string, CollectionEditParams) => void,
   isCollectionMine: boolean,
-  collectionUris: Array<Collection>,
-  collectionIndex?: number,
   disableNavigation?: boolean,
   mediaDuration?: string,
   date?: any,
@@ -143,10 +139,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     isLivestream,
     isLivestreamActive,
     collectionId,
-    collectionIndex,
-    editCollection,
     isCollectionMine,
-    collectionUris,
     disableNavigation,
     indexInContainer,
     channelSubCount,
@@ -164,7 +157,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const canonicalUrl = claim && claim.canonical_url;
-  const lastCollectionIndex = collectionUris ? collectionUris.length - 1 : 0;
   const channelSubscribers = React.useMemo(() => {
     if (channelSubCount === undefined) {
       return <span />;
@@ -350,9 +342,12 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'claim-preview--channel': isChannelUri,
             'claim-preview--visited': !isChannelUri && !claimIsMine && hasVisitedUri,
             'claim-preview--pending': pending,
+            'claim-preview--collection-mine': isMyCollection,
             'swipe-list__item': swipeLayout,
           })}
         >
+          {isMyCollection && <CollectionEditButtons uri={uri} collectionId={listId} />}
+
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link>
               <ChannelThumbnail uri={uri} small={type === 'inline'} />
@@ -405,58 +400,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}
-                    {Boolean(isMyCollection && listId) && (
-                      <>
-                        <div className="collection-preview__edit-buttons">
-                          <div className="collection-preview__edit-group">
-                            <Button
-                              button="alt"
-                              className={'button-collection-order'}
-                              disabled={collectionIndex === 0}
-                              icon={ICONS.UP}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (editCollection) {
-                                  // $FlowFixMe
-                                  editCollection(listId, {
-                                    order: { from: collectionIndex, to: Number(collectionIndex) - 1 },
-                                  });
-                                }
-                              }}
-                            />
-                            <Button
-                              button="alt"
-                              className={'button-collection-order'}
-                              icon={ICONS.DOWN}
-                              disabled={collectionIndex === lastCollectionIndex}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (editCollection) {
-                                  // $FlowFixMe
-                                  editCollection(listId, {
-                                    order: { from: collectionIndex, to: Number(collectionIndex + 1) },
-                                  });
-                                }
-                              }}
-                            />
-                          </div>
-                          <div className="collection-preview__edit-group">
-                            <Button
-                              button="alt"
-                              icon={ICONS.DELETE}
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                // $FlowFixMe
-                                if (editCollection) editCollection(listId, { uris: [uri], remove: true });
-                              }}
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (
                       actions
                     ) : (
