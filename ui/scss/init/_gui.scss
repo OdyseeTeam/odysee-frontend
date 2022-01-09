@@ -649,6 +649,23 @@ textarea {
   }
 }
 
+.transactionsPage-wrapper {
+  .card__header--between {
+    .card__title-section {
+      width: 100%;
+      div {
+        width: 100%;
+        .card__title {
+          width: 100%;
+          .txo__table_header {
+            width: auto !important;
+          }
+        }
+      }
+    }
+  }
+}
+
 // Remove tap focus on mobile devices
 input,
 textarea,
