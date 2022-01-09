@@ -234,6 +234,10 @@
   .icon {
     stroke: var(--color-navigation-active-text);
   }
+
+  &:hover {
+    cursor: default;
+  }
 }
 
 .navigation-link--pulse {
