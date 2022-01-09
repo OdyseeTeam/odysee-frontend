@@ -88,6 +88,7 @@ type Props = {
   lang: string,
   showEdit?: boolean,
   dragHandleProps?: any,
+  unavailableUris?: Array<string>,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -149,6 +150,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     lang,
     showEdit,
     dragHandleProps,
+    unavailableUris,
   } = props;
 
   const isCollection = claim && claim.value_type === 'collection';
@@ -159,6 +161,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     claim === undefined || (claim !== null && claim.value_type === 'channel' && isEmpty(claim.meta) && !pending);
   const abandoned = !isResolvingUri && !claim;
   const isMyCollection = listId && (isCollectionMine || listId.includes('-'));
+  if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
+
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
   const canonicalUrl = claim && claim.canonical_url;
   const channelSubscribers = React.useMemo(() => {

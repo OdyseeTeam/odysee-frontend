@@ -68,6 +68,8 @@ export default function CollectionPage(props: Props) {
   const [didTryResolve, setDidTryResolve] = React.useState(false);
   const [showInfo, setShowInfo] = React.useState(false);
   const [showEdit, setShowEdit] = React.useState(false);
+  const [unavailableUris, setUnavailable] = React.useState([]);
+
   const { name, totalItems } = collection || {};
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_LISTS.includes(collectionId);
 
@@ -110,6 +112,18 @@ export default function CollectionPage(props: Props) {
     />
   );
 
+  const removeUnavailable = (
+    <Button
+      button="close"
+      icon={ICONS.DELETE}
+      label={__('Remove all unavailable claims')}
+      onClick={() => {
+        editCollection(collectionId, { uris: unavailableUris, remove: true });
+        setUnavailable([]);
+      }}
+    />
+  );
+
   let titleActions;
   if (collectionHasEdits) {
     titleActions = unpublished;
@@ -140,7 +154,7 @@ export default function CollectionPage(props: Props) {
           {claim ? claim.value.title || claim.name : collection && collection.name}
         </span>
       }
-      titleActions={titleActions}
+      titleActions={unavailableUris.length > 0 ? removeUnavailable : titleActions}
       subtitle={subTitle}
       body={
         <CollectionActions
@@ -216,6 +230,7 @@ export default function CollectionPage(props: Props) {
                   collectionId={collectionId}
                   showEdit={showEdit}
                   droppableProvided={DroppableProvided}
+                  unavailableUris={unavailableUris}
                 />
               )}
             </Droppable>

@@ -54,6 +54,7 @@ type Props = {
   swipeLayout: boolean,
   showEdit?: boolean,
   droppableProvided?: any,
+  unavailableUris?: Array<string>,
 };
 
 export default function ClaimList(props: Props) {
@@ -90,6 +91,7 @@ export default function ClaimList(props: Props) {
     swipeLayout = false,
     showEdit,
     droppableProvided,
+    unavailableUris,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -177,6 +179,7 @@ export default function ClaimList(props: Props) {
       swipeLayout={swipeLayout}
       showEdit={showEdit}
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
+      unavailableUris={unavailableUris}
     />
   );
 
