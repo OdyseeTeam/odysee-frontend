@@ -1,10 +1,11 @@
 import { connect } from 'react-redux';
 import CollectionContent from './view';
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectClaimForUri } from 'redux/selectors/claims';
 import {
   makeSelectUrlsForCollectionId,
   makeSelectNameForCollectionId,
   makeSelectCollectionForId,
+  makeSelectCollectionIsMine,
 } from 'redux/selectors/collections';
 import { selectPlayingUri, selectListLoop, selectListShuffle } from 'redux/selectors/content';
 import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
@@ -24,7 +25,7 @@ const select = (state, props) => {
     collection: makeSelectCollectionForId(props.id)(state),
     collectionUrls: makeSelectUrlsForCollectionId(props.id)(state),
     collectionName: makeSelectNameForCollectionId(props.id)(state),
-    isMine: selectClaimIsMine(state, claim),
+    isMyCollection: makeSelectCollectionIsMine(props.id)(state),
     loop,
     shuffle,
   };
