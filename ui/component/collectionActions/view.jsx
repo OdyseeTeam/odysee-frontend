@@ -22,6 +22,8 @@ type Props = {
   collectionId: string,
   showInfo: boolean,
   setShowInfo: (boolean) => void,
+  showEdit: boolean,
+  setShowEdit: (boolean) => void,
   collectionHasEdits: boolean,
   isBuiltin: boolean,
   doToggleShuffleList: (string, boolean) => void,
@@ -44,6 +46,8 @@ function CollectionActions(props: Props) {
     doToggleShuffleList,
     playNextUri,
     firstItem,
+    showEdit,
+    setShowEdit,
   } = props;
   const [doShuffle, setDoShuffle] = React.useState(false);
   const { push } = useHistory();
@@ -173,7 +177,16 @@ function CollectionActions(props: Props) {
           {lhsSection}
           {rhsSection}
         </div>
-        {uri && <>{infoButton}</>}
+        {uri && <div className="section">{infoButton}</div>}
+
+        {isMyCollection && (
+          <Button
+            title={__('Edit')}
+            className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+            icon={ICONS.EDIT}
+            onClick={() => setShowEdit(!showEdit)}
+          />
+        )}
       </div>
     );
   }

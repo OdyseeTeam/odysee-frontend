@@ -86,6 +86,7 @@ type Props = {
   channelSubCount?: number,
   swipeLayout: boolean,
   lang: string,
+  showEdit?: boolean,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -145,6 +146,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     channelSubCount,
     swipeLayout = false,
     lang,
+    showEdit,
   } = props;
 
   const isCollection = claim && claim.value_type === 'collection';
@@ -342,11 +344,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'claim-preview--channel': isChannelUri,
             'claim-preview--visited': !isChannelUri && !claimIsMine && hasVisitedUri,
             'claim-preview--pending': pending,
-            'claim-preview--collection-mine': isMyCollection,
+            'claim-preview--collection-mine': isMyCollection && showEdit,
             'swipe-list__item': swipeLayout,
           })}
         >
-          {isMyCollection && <CollectionEditButtons uri={uri} collectionId={listId} />}
+          {isMyCollection && showEdit && <CollectionEditButtons uri={uri} collectionId={listId} />}
 
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link>

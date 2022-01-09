@@ -287,7 +287,6 @@ function CollectionForm(props: Props) {
     }
   }, [uri, hasClaim]);
 
-  console.log('params', params);
   return (
     <>
       <div className={classnames('main--contained', { 'card--disabled': disabled })}>
@@ -358,7 +357,12 @@ function CollectionForm(props: Props) {
               </div>
             </TabPanel>
             <TabPanel>
-              <ClaimList uris={collectionUrls} collectionId={collectionId} empty={__('This list has no items.')} />
+              <ClaimList
+                uris={collectionUrls}
+                collectionId={collectionId}
+                empty={__('This list has no items.')}
+                showEdit
+              />
             </TabPanel>
             <TabPanel>
               <Card

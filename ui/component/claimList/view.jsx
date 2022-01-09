@@ -48,6 +48,7 @@ type Props = {
   excludeUris?: Array<string>,
   loadedCallback?: (number) => void,
   swipeLayout: boolean,
+  showEdit?: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -82,6 +83,7 @@ export default function ClaimList(props: Props) {
     excludeUris = [],
     loadedCallback,
     swipeLayout = false,
+    showEdit,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -228,6 +230,7 @@ export default function ClaimList(props: Props) {
                 customShouldHide={customShouldHide}
                 onClick={handleClaimClicked}
                 swipeLayout={swipeLayout}
+                showEdit={showEdit}
               />
             </React.Fragment>
           ))}
