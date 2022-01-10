@@ -264,12 +264,6 @@ export default function LivestreamComments(props: Props) {
         )}
       </div>
 
-      {fetchingComments && !commentsByChronologicalOrder && (
-        <div className="main--empty">
-          <Spinner />
-        </div>
-      )}
-
       <div ref={commentsRef} className="livestreamComments__wrapper">
         {viewMode === VIEW_MODES.CHAT && superChatsByAmount && (
           <div className="livestreamSuperchats__wrapper">
