@@ -1,4 +1,6 @@
 // @flow
+import 'scss/component/_livestream-comments.scss';
+
 import { getStickerUrl } from 'util/comments';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
@@ -225,8 +227,8 @@ export default function LivestreamComments(props: Props) {
 
   return (
     <div className="card livestream__discussion">
-      <div className="card__header--between livestream-discussion__header">
-        <div className="livestream-discussion__title">
+      <div className="card__header--between livestreamDiscussion__header">
+        <div className="card__title-section--small livestreamDiscussion__title">
           {__('Live Chat')}
 
           <Menu>
@@ -268,10 +270,10 @@ export default function LivestreamComments(props: Props) {
         </div>
       )}
 
-      <div ref={commentsRef} className="livestream__comments-wrapper">
+      <div ref={commentsRef} className="livestreamComments__wrapper">
         {viewMode === VIEW_MODES.CHAT && superChatsByAmount && (
-          <div className="livestream-superchats__wrapper">
-            <div className="livestream-superchats__inner">
+          <div className="livestreamSuperchats__wrapper">
+            <div className="livestreamSuperchats__inner">
               <TopSuperChats superChats={superChatTopTen} />
 
               {showMoreSuperChatsButton && (
@@ -289,7 +291,7 @@ export default function LivestreamComments(props: Props) {
         )}
 
         {pinnedComment && showPinned && viewMode === VIEW_MODES.CHAT && (
-          <div className="livestream-pinned__wrapper">
+          <div className="livestreamPinned__wrapper">
             <LivestreamComment
               comment={pinnedComment}
               key={pinnedComment.comment_id}
@@ -334,14 +336,14 @@ export default function LivestreamComments(props: Props) {
         {scrollPos < 0 && viewMode === VIEW_MODES.CHAT && (
           <Button
             button="secondary"
-            className="livestream__comments__scroll-to-recent"
+            className="livestreamComments__scrollToRecent"
             label={__('Recent Comments')}
             onClick={restoreScrollPos}
             iconRight={ICONS.DOWN}
           />
         )}
 
-        <div className="livestream__comment-create">
+        <div className="livestream__commentCreate">
           <CommentCreate isLivestream bottom embed={embed} uri={uri} onDoneReplying={restoreScrollPos} />
         </div>
       </div>
@@ -361,29 +363,28 @@ function TopSuperChats(props: any) {
 
     return (
       <Tooltip key={comment_id} title={isSticker ? stickerImg : comment}>
-        <div className="livestream-superchat">
-          <div className="livestream-superchat__thumbnail">
-            <ChannelThumbnail uri={channel_url} xsmall />
-          </div>
+        <div className="livestream__superchat">
+          <ChannelThumbnail uri={channel_url} xsmall />
 
           <div
-            className={classnames('livestream-superchat__info', {
-              'livestream-superchat__info--sticker': isSticker,
-              'livestream-superchat__info--not-sticker': hasStickerSuperChats && !isSticker,
+            className={classnames('livestreamSuperchat__info', {
+              'livestreamSuperchat__info--sticker': isSticker,
+              'livestreamSuperchat__info--notSticker': hasStickerSuperChats && !isSticker,
             })}
           >
-            <div className="livestream-superchat__info--user">
+            <div className="livestreamSuperchat__info--user">
               <UriIndicator uri={channel_url} link />
+
               <CreditAmount
                 hideTitle
                 size={10}
-                className="livestream-superchat__amount-large"
+                className="livestreamSuperchat__amount--large"
                 amount={support_amount}
                 isFiat={is_fiat}
               />
             </div>
 
-            {isSticker && <div className="livestream-superchat__info--image">{stickerImg}</div>}
+            {isSticker && <div className="livestreamSuperchat__info--image">{stickerImg}</div>}
           </div>
         </div>
       </Tooltip>
