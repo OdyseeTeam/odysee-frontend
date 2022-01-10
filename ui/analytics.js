@@ -146,6 +146,11 @@ async function sendAndResetWatchmanData() {
     return 'Video player not initialized';
   }
 
+  // don't send data if there was no buffering
+  if (!amountOfBufferEvents && !amountOfBufferTimeInMS) {
+    return;
+  }
+
   let timeSinceLastIntervalSend = new Date() - lastSentTime;
   lastSentTime = new Date();
 
@@ -231,6 +236,7 @@ const analytics: Analytics = {
 
   // receive buffer events from tracking plugin and save buffer amounts and times for backend call
   videoBufferEvent: async (claim, data) => {
+    console.log('received buffer event');
     amountOfBufferEvents = amountOfBufferEvents + 1;
     amountOfBufferTimeInMS = amountOfBufferTimeInMS + data.bufferDuration;
   },
@@ -259,7 +265,7 @@ const analytics: Analytics = {
       sendAndResetWatchmanData();
       stopWatchmanInterval();
       startWatchmanIntervalIfNotRunning();
-      // is being told to play, and seeking, don't do anything,
+      // if being told to play, and seeking, don't do anything,
       // assume it's been started already from pause
     } else if (isPlaying && playerIsSeeking) {
       // start but not a seek, assuming a start from paused content
