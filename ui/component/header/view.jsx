@@ -46,6 +46,7 @@ type Props = {
   sidebarOpen: boolean,
   syncError: ?string,
   totalBalance?: number,
+  user: ?User,
   prefsReady: boolean,
   doClearClaimSearch: () => void,
   clearEmailEntry: () => void,
@@ -70,6 +71,7 @@ const Header = (props: Props) => {
     sidebarOpen,
     syncError,
     totalBalance,
+    user,
     prefsReady,
     doClearClaimSearch,
     clearEmailEntry,
@@ -109,6 +111,8 @@ const Header = (props: Props) => {
   const sidebarLabel = sidebarOpen
     ? __('Close sidebar - hide channels you are following.')
     : __('Expand sidebar - view channels you are following.');
+
+  const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
 
   const onBackout = React.useCallback(
     (e: any) => {
@@ -174,6 +178,12 @@ const Header = (props: Props) => {
       ) : !isMobile ? (
         <div className="header__authButtons">
           <UserOAuthButton authRedirect={authRedirect} />
+          <Button
+            navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}
+            button="primary"
+            label={__('Sign Up')}
+            disabled={user === null}
+          />
         </div>
       ) : (
         <HeaderProfileMenuButton />

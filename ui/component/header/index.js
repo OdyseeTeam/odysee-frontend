@@ -6,7 +6,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectGetSyncErrorMessage, selectPrefsReady } from 'redux/selectors/sync';
 import { selectHasNavigated } from 'redux/selectors/app';
 import { selectTotalBalance, selectBalance } from 'redux/selectors/wallet';
-import { selectUserVerifiedEmail, selectEmailToVerify } from 'redux/selectors/user';
+import { selectUserVerifiedEmail, selectEmailToVerify, selectUser } from 'redux/selectors/user';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import Header from './view';
@@ -19,6 +19,7 @@ const select = (state) => ({
   hideBalance: selectClientSetting(state, SETTINGS.HIDE_BALANCE),
   totalBalance: selectTotalBalance(state),
   syncError: selectGetSyncErrorMessage(state),
+  user: selectUser(state),
   prefsReady: selectPrefsReady(state),
 });
 

@@ -22,8 +22,8 @@ export default function UserOAuthButton(props: Props) {
         <Skeleton variant="text" animation="wave" className="header__navigationItem--balanceLoading" />
       ) : (
         <Button
-          navigate={`/$/${PAGES.OAUTH}${authRedirectParam}`}
-          button="primary"
+          navigate={`/$/${PAGES.OAUTH_LOGIN}${authRedirectParam}`}
+          button="link"
           label={__('Log In')}
           disabled={user === null}
         />
