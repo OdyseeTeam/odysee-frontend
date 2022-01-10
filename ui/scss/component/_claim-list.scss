@@ -877,6 +877,9 @@
   @media (min-width: $breakpoint-small) {
     min-height: 3.2rem;
   }
+  @media (max-width: $breakpoint-small) {
+    min-height: unset;
+  }
 }
 
 .claim-tile__info {
@@ -889,6 +892,10 @@
   .channel-thumbnail {
     @include handleChannelGif(2.1rem);
     margin-right: var(--spacing-s);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding-bottom: var(--spacing-m);
   }
 }
 
