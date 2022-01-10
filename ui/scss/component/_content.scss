@@ -123,6 +123,8 @@
   align-items: flex-start;
   white-space: nowrap;
   background-color: var(--color-header-background-transparent);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 }
 
 .content__cover {
