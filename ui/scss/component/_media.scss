@@ -202,6 +202,13 @@
     .ratio-wrapper ~ .button--file-action {
       flex: auto;
     }
+    .button--file-action {
+      margin-right: 0;
+      margin-bottom: var(--spacing-xxs);
+      .button__label {
+        margin-left: var(--spacing-xxxs);
+      }
+    }
   }
 }
 
