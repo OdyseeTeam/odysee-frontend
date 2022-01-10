@@ -4,6 +4,11 @@ import * as Sentry from '@sentry/browser';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import { SDK_API_PATH } from 'config';
 
+const debugLogsOn = true;
+function debugLog(text: string) {
+  if (debugLogsOn) console.log(text);
+}
+
 // --- GA ---
 // - Events: 500 max (cannot be deleted).
 // - Dimensions: 25 max (cannot be deleted, but can be "archived"). Usually
@@ -147,9 +152,9 @@ async function sendAndResetWatchmanData() {
   }
 
   // don't send data if there was no buffering
-  if (!amountOfBufferEvents && !amountOfBufferTimeInMS) {
-    return;
-  }
+  // if (!amountOfBufferEvents && !amountOfBufferTimeInMS) {
+  //   return;
+  // }
 
   let timeSinceLastIntervalSend = new Date() - lastSentTime;
   lastSentTime = new Date();
@@ -187,6 +192,8 @@ async function sendAndResetWatchmanData() {
     // ...(userDownloadBandwidthInBitsPerSecond && {bandwidth: userDownloadBandwidthInBitsPerSecond}), // add bandwidth if populated
   };
 
+  debugLog('sending data');
+
   // post to watchman
   await sendWatchmanData(objectToSend);
 
@@ -198,18 +205,26 @@ async function sendAndResetWatchmanData() {
 let watchmanInterval;
 // clear watchman interval and mark it as null (when video paused)
 function stopWatchmanInterval() {
-  clearInterval(watchmanInterval);
-  watchmanInterval = null;
+  if (watchmanInterval) {
+    debugLog('ending interval');
+    debugLog((new Error()).stack);
+    clearInterval(watchmanInterval);
+    watchmanInterval = null;
+  }
+
 }
 
 // creates the setInterval that will run send to watchman on recurring basis
 function startWatchmanIntervalIfNotRunning() {
+  debugLog((new Error()).stack);
   if (!watchmanInterval) {
     // instantiate the first time to calculate duration from
     lastSentTime = new Date();
 
     // only set an interval if analytics are enabled and is prod
-    if (isProduction && IS_WEB) {
+    // or if debugLogs are on, it's presumed to be a dev environment
+    if ((isProduction && IS_WEB) || debugLogsOn) {
+      debugLog('starting interval');
       watchmanInterval = setInterval(sendAndResetWatchmanData, 1000 * SEND_DATA_TO_WATCHMAN_INTERVAL);
     }
   }
@@ -236,7 +251,8 @@ const analytics: Analytics = {
 
   // receive buffer events from tracking plugin and save buffer amounts and times for backend call
   videoBufferEvent: async (claim, data) => {
-    console.log('received buffer event');
+    debugLog('received buffer event');
+    debugLog(data);
     amountOfBufferEvents = amountOfBufferEvents + 1;
     amountOfBufferTimeInMS = amountOfBufferTimeInMS + data.bufferDuration;
   },
@@ -468,6 +484,8 @@ const analytics: Analytics = {
   reportEvent: (event: string, params?: { [string]: string | number }) => {
     sendGaEvent(event, params);
   },
+
+  debugLog,
 };
 
 function sendGaEvent(event: string, params?: { [string]: string | number }) {

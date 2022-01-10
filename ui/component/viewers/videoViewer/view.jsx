@@ -161,7 +161,9 @@ function VideoViewer(props: Props) {
 
   // TODO: analytics functionality
   function doTrackingBuffered(e: Event, data: any) {
+    analytics.debugLog('buffer event!');
     fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
+      analytics.debugLog('got back from fetch');
       data.playerPoweredBy = response.headers.get('x-powered-by');
       doAnalyticsBuffer(uri, data);
     });
