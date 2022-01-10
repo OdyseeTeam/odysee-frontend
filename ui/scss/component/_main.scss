@@ -310,6 +310,12 @@ body {
     }
   }
 
+  .card__body {
+    .date_time {
+      font-size: var(--font-small);
+    }
+  }
+
   .main__right-side {
     position: sticky !important;
     top: 76px !important;
