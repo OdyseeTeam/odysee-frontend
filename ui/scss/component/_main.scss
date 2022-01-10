@@ -128,12 +128,15 @@ body {
       max-width: 100%;
     }
 
+    .date_time {
+      font-size: var(--font-small);
+    }
+
     @media (min-width: $breakpoint-medium) {
       flex-direction: row;
     }
-
-    .date_time {
-      font-size: var(--font-small);
+    @media (max-width: $breakpoint-small) {
+      margin-top: var(--spacing-xs);
     }
   }
 
