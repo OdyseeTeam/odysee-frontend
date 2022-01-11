@@ -43,6 +43,10 @@
       margin-right: var(--spacing-s);
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    padding-left: 0;
+  }
 }
 
 .footer__link {
