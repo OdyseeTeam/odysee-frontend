@@ -652,6 +652,24 @@ textarea {
   .help {
     color: var(--color-text);
   }
+
+  .form-field__two-column {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .comment__char-count-mde {
+    // margin-left: auto;
+    min-width: 40px;
+    text-align: center;
+    margin-bottom: var(--spacing-xxxs);
+    // margin-right: var(--spacing-s);
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 5px;
+    border-radius: var(--border-radius);
+    height: var(--height-input-slim);
+  }
 }
 
 .transactionsPage-wrapper {
