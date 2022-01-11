@@ -555,6 +555,9 @@
 .vjs-layout-small {
   border-radius: var(--border-radius);
 }
+.vjs-layout-x-large {
+  border-radius: 0 !important;
+}
 
 .video-js.vjs-fullscreen {
   .vjs-button--theater-mode {

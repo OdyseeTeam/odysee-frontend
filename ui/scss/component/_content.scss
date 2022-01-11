@@ -51,6 +51,9 @@
   top: 0;
   border-radius: 0;
   border: none;
+  .file-render--video {
+    border-radius: 0;
+  }
 }
 
 .content__wrapper {
