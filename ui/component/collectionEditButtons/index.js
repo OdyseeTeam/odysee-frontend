@@ -7,7 +7,7 @@ const select = (state, props) => {
   const { uri, collectionId } = props;
 
   return {
-    collectionIndex: makeSelectIndexForUrlInCollection(uri, collectionId)(state),
+    collectionIndex: makeSelectIndexForUrlInCollection(uri, collectionId, true)(state),
     collectionUris: makeSelectUrlsForCollectionId(collectionId)(state),
   };
 };
