@@ -39,7 +39,7 @@ export default function CollectionButtons(props: Props) {
     >
       <div className="collection-preview__edit-group" {...dragHandleProps}>
         <Button
-          className="button-collection-manage top-left bottom-left"
+          className="button-collection-manage button-collection-drag top-left bottom-left"
           icon={ICONS.DRAG}
           title={__('Drag')}
           iconSize={20}

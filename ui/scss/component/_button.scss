@@ -652,6 +652,10 @@ svg + .button__label {
   &.button-collection-delete-cancel {
     background-color: red;
   }
+
+  &.button-collection-drag {
+    cursor: grab;
+  }
 }
 
 .button-toggle--expandformobile {
