@@ -613,7 +613,7 @@
 .claim-upload__progress--outer {
   width: 100%;
   border-radius: var(--border-radius);
-  background-color: #fff;
+  background-color: var(--color-header-background);
 }
 
 .claim-upload__progress--inner {
