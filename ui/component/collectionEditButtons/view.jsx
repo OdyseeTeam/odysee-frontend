@@ -25,16 +25,18 @@ export default function CollectionButtons(props: Props) {
       icon={icon}
       title={title}
       disabled={disabled}
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        if (handleClick) handleClick();
-      }}
+      onClick={() => handleClick && handleClick()}
     />
   );
 
   return (
-    <div className="collection-preview__edit-buttons">
+    <div
+      className="collection-preview__edit-buttons"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      }}
+    >
       <div className="collection-preview__edit-group" {...dragHandleProps}>
         <Button
           className="button-collection-manage top-left bottom-left"
