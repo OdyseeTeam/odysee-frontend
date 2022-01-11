@@ -42,7 +42,7 @@ export default function CollectionButtons(props: Props) {
           className="button-collection-manage button-collection-drag top-left bottom-left"
           icon={ICONS.DRAG}
           title={__('Drag')}
-          iconSize={20}
+          iconSize={18}
         />
       </div>
 

@@ -199,6 +199,15 @@
         max-width: 50rem;
       }
     }
+
+    .collection-preview__edit-group {
+      width: 1.5rem;
+    }
+
+    .claim-preview--collection-mine {
+      padding-left: 6.5rem;
+      position: relative;
+    }
   }
 
   @media (max-width: $breakpoint-medium) {
