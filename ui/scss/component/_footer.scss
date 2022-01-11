@@ -11,6 +11,7 @@
   @media (max-width: $breakpoint-small) {
     max-width: 100%;
     padding: var(--spacing-m);
+    padding-left: 0;
     align-items: flex-start;
   }
 }
@@ -42,10 +43,6 @@
       margin-left: var(--spacing-s);
       margin-right: var(--spacing-s);
     }
-  }
-
-  @media (max-width: $breakpoint-small) {
-    padding-left: 0;
   }
 }
 
