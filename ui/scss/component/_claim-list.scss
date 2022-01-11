@@ -612,17 +612,20 @@
 
 .claim-upload__progress--outer {
   width: 100%;
+  border-radius: var(--border-radius);
+  background-color: #fff;
 }
 
 .claim-upload__progress--inner {
-  background: var(--color-secondary);
+  border-radius: var(--border-radius);
+  background: var(--color-primary);
   padding: var(--spacing-xxs);
   height: 2.4rem;
 }
 
 .claim-upload__progress--inner-text {
   position: absolute;
-  color: #000000;
+  color: var(--color-primary-contrast);
   width: 80%;
   white-space: nowrap;
   overflow: hidden;

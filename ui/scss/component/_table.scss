@@ -264,4 +264,13 @@ td {
       border-radius: var(--border-radius);
     }
   }
+
+  .tag {
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+    &:hover {
+      background-color: var(--color-secondary);
+      color: var(--color-secondary-contrast);
+    }
+  }
 }
