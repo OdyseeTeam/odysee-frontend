@@ -655,6 +655,11 @@ svg + .button__label {
 
   &.button-collection-drag {
     cursor: grab;
+    display: flex;
+    align-content: center;
+    justify-content: center;
+    align-items: center;
+    padding-bottom: var(--spacing-xs);
   }
 }
 

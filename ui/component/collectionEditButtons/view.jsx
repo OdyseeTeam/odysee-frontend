@@ -1,6 +1,7 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
+import Icon from 'component/common/icon';
 import React from 'react';
 
 type Props = {
@@ -38,12 +39,9 @@ export default function CollectionButtons(props: Props) {
       }}
     >
       <div className="collection-preview__edit-group" {...dragHandleProps}>
-        <Button
-          className="button-collection-manage button-collection-drag top-left bottom-left"
-          icon={ICONS.DRAG}
-          title={__('Drag')}
-          iconSize={18}
-        />
+        <div className="button-collection-manage button-collection-drag top-left bottom-left">
+          <Icon icon={ICONS.DRAG} title={__('Drag')} size={20} />
+        </div>
       </div>
 
       <div className="collection-preview__edit-group">
