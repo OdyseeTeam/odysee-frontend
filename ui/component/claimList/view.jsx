@@ -249,11 +249,26 @@ export default function ClaimList(props: Props) {
           {sortedUris.map((uri, index) =>
             droppableProvided ? (
               <Draggable key={uri} draggableId={uri} index={index}>
-                {(draggableProvided) => (
-                  <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps}>
-                    {getClaimPreview(uri, index, draggableProvided)}
-                  </li>
-                )}
+                {(draggableProvided, draggableSnapshot) => {
+                  // Restrict dragging to vertical axis
+                  // https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919
+                  let transform = draggableProvided.draggableProps.style.transform;
+
+                  if (draggableSnapshot.isDragging && transform) {
+                    transform = transform.replace(/\(.+,/, '(0,');
+                  }
+
+                  const style = {
+                    ...draggableProvided.draggableProps.style,
+                    transform,
+                  };
+
+                  return (
+                    <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} style={style}>
+                      {getClaimPreview(uri, index, draggableProvided)}
+                    </li>
+                  );
+                }}
               </Draggable>
             ) : (
               getClaimPreview(uri, index)
