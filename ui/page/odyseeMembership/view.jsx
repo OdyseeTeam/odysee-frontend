@@ -1,21 +1,12 @@
-// restore flow
-/* eslint-disable no-undef */
-/* eslint-disable react/prop-types */
+// @flow
 import React from 'react';
 import Page from 'component/page';
-import Card from 'component/common/card';
 import { Lbryio } from 'lbryinc';
-import Plastic from 'react-plastic';
-import Button from 'component/button';
-import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
-import * as PAGES from 'constants/pages';
-import { STRIPE_PUBLIC_KEY } from 'config';
 import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
 
-const APIS_DOWN_ERROR_RESPONSE = __('There was an error from the server, please try again later');
-const CARD_SETUP_ERROR_RESPONSE = __('There was an error getting your card setup, please try again later');
+const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
+const odyseeChannelName = '@odysee';
 
 type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
@@ -25,20 +16,42 @@ type Props = {
 
 const OdyseeMembershipPage = (props: Props) => {
 
+  console.log(props);
+
   const [cardSaved, setCardSaved] = React.useState();
+  const [membershipOptions, setMembershipOptions] = React.useState();
 
   React.useEffect(function(){
-
+    // check if there is a payment method
     Lbryio.call('customer', 'status', {
       environment: stripeEnvironment,
     }, 'post').then(function(response){
+      console.log('status');
+      console.log(response);
+      // hardcoded to first card
       setCardSaved(response && response.PaymentMethods && response.PaymentMethods[0]);
     });
 
+    // check the available payment methods
+    Lbryio.call('membership', 'list', {
+      environment: stripeEnvironment,
+      channel_id: odyseeChannelId,
+      channel_name: odyseeChannelName,
+    }, 'post').then(function(response){
+      console.log('membership');
+      console.log(response);
+      setMembershipOptions(response);
+    });
+
+    Lbryio.call('membership', 'mine', {
+      environment: stripeEnvironment,
+    }, 'post').then(function(response){
+      console.log('mine');
+      console.log(response);
+    });
   }, []);
 
   React.useEffect(function(){
-    console.log('running here!');
     const membershipDiv = document.querySelector('.membership');
 
     const membershipDiv1 = document.querySelector('.membership1');
@@ -62,8 +75,15 @@ const OdyseeMembershipPage = (props: Props) => {
     <>
       <Page>
         <h1>Odysee Memberships</h1>
-        {cardSaved && (
+        {cardSaved && membershipOptions && (
           <div>
+            { membershipOptions.map((membershipOption) => (
+              <>
+                <div style={{ 'margin-top': '5px';}}>
+                  {membershipOption.type}
+                </div>
+              </>
+            ))}
             <br />
             <h2 className={'membership1'}>Click here to sign up for 99 cents a month membership for one year</h2>
             <br />
@@ -78,7 +98,7 @@ const OdyseeMembershipPage = (props: Props) => {
             <h2 className={'getPaymentCard'}>You still need to register a card, please do so here</h2>
           </div>
         )}
-        {cardSaved === undefined && (
+        {(cardSaved === undefined || setMembershipOptions === undefined) && (
           <div>
             <br />
             <h2>Loading...</h2>
