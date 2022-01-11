@@ -265,6 +265,9 @@ export default function ClaimList(props: Props) {
 
                   return (
                     <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} style={style}>
+                      {/* https://github.com/atlassian/react-beautiful-dnd/issues/1756 */}
+                      <div style={{ display: 'none' }} {...draggableProvided.dragHandleProps} />
+
                       {getClaimPreview(uri, index, draggableProvided)}
                     </li>
                   );
