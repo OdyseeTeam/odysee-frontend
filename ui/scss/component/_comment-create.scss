@@ -23,6 +23,7 @@ $thumbnailWidthSmall: 1rem;
     }
 
     @media (max-width: $breakpoint-small) {
+      margin-top: var(--spacing-s);
       .button--alt {
         flex: auto;
         .button__content {
