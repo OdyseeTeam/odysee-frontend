@@ -491,7 +491,7 @@ fieldset-section {
     }
 
     select {
-      max-height: 1.5rem !important;
+      max-height: var(--height-input-slim) !important;
       padding: 0 var(--spacing-xs);
       padding-right: var(--spacing-l);
     }
