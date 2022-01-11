@@ -101,8 +101,8 @@ export class FormField extends React.PureComponent<Props> {
     // to pass the current value to it's callback, nor query the current
     // text length from the callback. So, we'll use our own widget.
     const hasCharCount = charCount !== undefined && charCount >= 0;
-    const countInfo = hasCharCount && textAreaMaxLength !== undefined && (
-      <span className="comment__char-count-mde">{`${charCount || '0'}/${textAreaMaxLength}`}</span>
+    const countInfo = charCount && hasCharCount && textAreaMaxLength !== undefined && (
+      <span className="comment__char-count-mde">{textAreaMaxLength - charCount}</span>
     );
 
     const Wrapper = blockWrap

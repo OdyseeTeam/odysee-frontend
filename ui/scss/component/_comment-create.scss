@@ -35,14 +35,13 @@ $thumbnailWidthSmall: 1rem;
 
     .comment__char-count-mde {
       margin-left: auto;
-      min-width: 60px;
+      min-width: 40px;
       text-align: center;
       margin-bottom: 8px;
       margin-right: var(--spacing-s);
       padding-left: 4px;
       padding-right: 4px;
       padding-top: 5px;
-      //padding-bottom: 2px;
       border-radius: var(--border-radius);
       height: var(--height-input-slim);
     }
