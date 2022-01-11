@@ -177,16 +177,19 @@ function CollectionActions(props: Props) {
           {lhsSection}
           {rhsSection}
         </div>
-        {uri && <div className="section">{infoButton}</div>}
 
-        {isMyCollection && (
-          <Button
-            title={__('Edit')}
-            className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-            icon={ICONS.EDIT}
-            onClick={() => setShowEdit(!showEdit)}
-          />
-        )}
+        <div className="section">
+          {uri && infoButton}
+
+          {isMyCollection && (
+            <Button
+              title={__('Edit')}
+              className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+              icon={ICONS.EDIT}
+              onClick={() => setShowEdit(!showEdit)}
+            />
+          )}
+        </div>
       </div>
     );
   }
