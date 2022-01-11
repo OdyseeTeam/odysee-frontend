@@ -21,6 +21,15 @@ $thumbnailWidthSmall: 1rem;
       color: var(--color-text);
       border-radius: var(--border-radius);
     }
+
+    @media (max-width: $breakpoint-small) {
+      .button--alt {
+        flex: auto;
+        .button__content {
+          justify-content: center;
+        }
+      }
+    }
   }
 
   fieldset-section,
@@ -48,9 +57,9 @@ $thumbnailWidthSmall: 1rem;
 
     .button--file-action {
       padding: 0px;
-      padding-left: 2px;
-      padding-right: 2px;
-      height: 24px;
+      // padding-left: 2px;
+      // padding-right: 2px;
+      height: var(--height-input-slim);
       margin-bottom: 8px;
     }
   }
