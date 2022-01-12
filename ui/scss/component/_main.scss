@@ -212,6 +212,22 @@ body {
       @media (max-width: $breakpoint-medium) {
         max-width: 50rem;
       }
+
+      @media (max-width: $breakpoint-small) {
+        display: inline-block;
+        max-width: unset;
+        .button--file-action {
+          height: unset;
+          margin-right: var(--spacing-xxxs);
+          .button__content {
+            padding: var(--spacing-xxs);
+            margin: 0;
+          }
+        }
+        .button--file-action:last-of-type {
+          margin-right: 0;
+        }
+      }
     }
   }
 
