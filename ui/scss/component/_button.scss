@@ -795,7 +795,7 @@ svg + .button__label {
 
 .button-like {
   &:hover {
-    color: var(--color-fire);
+    color: var(--color-fire) !important;
     svg {
       stroke: var(--color-fire);
     }
@@ -813,13 +813,15 @@ svg + .button__label {
 
 .button-like.comment__action--active {
   .comment__reaction-count {
-    color: var(--color-fire);
+    color: var(--color-fire) !important;
   }
 }
 
 .button-dislike {
   &:hover {
-    color: var(--color-slime);
+    .button__label {
+      color: var(--color-slime) !important;
+    }
     svg {
       stroke: var(--color-slime);
     }
@@ -827,7 +829,9 @@ svg + .button__label {
   &:focus-visible {
     box-shadow: 0px 0px 0px 2px var(--color-slime) inset !important;
     .button__content {
-      color: var(--color-slime) !important;
+      .button__label {
+        color: var(--color-slime) !important;
+      }
       svg {
         stroke: var(--color-slime) !important;
       }

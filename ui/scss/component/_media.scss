@@ -143,8 +143,9 @@
 
   .button-like {
     &:hover {
-      color: var(--color-fire);
-
+      .button__label {
+        color: var(--color-fire) !important;
+      }
       svg {
         stroke: var(--color-fire);
       }
@@ -153,8 +154,9 @@
 
   .button-dislike {
     &:hover {
-      color: var(--color-slime);
-
+      .button__label {
+        color: var(--color-slime) !important;
+      }
       svg {
         stroke: var(--color-slime);
       }
