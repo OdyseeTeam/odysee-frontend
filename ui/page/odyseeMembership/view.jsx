@@ -4,6 +4,7 @@ import Page from 'component/page';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
+import moment from 'moment';
 
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 const odyseeChannelName = '@odysee';
@@ -19,7 +20,10 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
-  const [userMembership, setUserMemberships] = React.useState();
+  const [userMemberships, setUserMemberships] = React.useState();
+  const [canceledMemberships, setCanceledMemberships] = React.useState();
+  const [activeMemberships, setActiveMemberships] = React.useState();
+  // const [userMemberships, setUserMemberships] = React.useState();
 
   React.useEffect(function() {
     (async function() {
@@ -59,6 +63,24 @@ const OdyseeMembershipPage = (props: Props) => {
 
         console.log('mine, my subscriptions');
         console.log(response);
+
+        let activeMemberships = [];
+        let canceledMemberships = [];
+
+        for(const membership of response){
+          console.log(membership.Membership);
+          const isActive = membership.Membership.auto_renew;
+          if(isActive){
+            activeMemberships.push(membership);
+          } else {
+            canceledMemberships.push(membership);
+          }
+          console.log(isActive);
+        }
+
+        setActiveMemberships(activeMemberships);
+        setCanceledMemberships(canceledMemberships);
+
         setUserMemberships(response);
       } catch (err) {
         console.log(err);
@@ -79,6 +101,8 @@ const OdyseeMembershipPage = (props: Props) => {
       // }
     })();
   }, []);
+
+
 
   React.useEffect(function(){
     const membershipDiv = document.querySelector('.membership');
@@ -103,6 +127,7 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
+        {/* list available memberships offered by odysee */}
         <h1 style={{fontSize: '19px'}}>Odysee Memberships</h1>
         {cardSaved && membershipOptions && (
           <div>
@@ -111,7 +136,7 @@ const OdyseeMembershipPage = (props: Props) => {
               <>
                 <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
                   <h4 style={{marginBottom: '3px'}}>Name: {membershipOption.name}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Description: {membershipOption.description}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Perks: {membershipOption.description}</h4>
                   { membershipOption.type === 'yearly' && (
                     <>
                       <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
@@ -128,12 +153,47 @@ const OdyseeMembershipPage = (props: Props) => {
                 </div>
               </>
             ))}
-            <br />
-            <h2 className={'membership1'}>Click here to sign up for 99 cents a month membership for one year</h2>
-            <br />
-            <h2 className={'membership2'}>Click here to sign up for $2.99 a month membership on monthly recurring</h2>
-            <br />
-            <h2 className={'cancel'}>Click here to cancel your membership</h2>
+
+            <h1 style={{fontSize: '23px', marginTop: '20px'}}>Your Memberships</h1>
+
+            {/* list of active memberships from user */}
+            <div style={{marginBottom: '20px'}}>
+              <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
+              {activeMemberships && activeMemberships.length === 0 && (<>
+                <h4>You currently have no active memberships</h4>
+              </>)}
+              { activeMemberships && activeMemberships.map((membership) => (
+                <>
+                  <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
+                    <h4 style={{marginBottom: '3px'}}>Name: {membership.MembershipDetails.name}</h4>
+                    <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
+                    <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {membership.Subscription.current_period_end}</h4>
+                    { membership.type === 'yearly' && (
+                      <>
+                        <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
+                        <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
+                      </>
+                    )}
+                  </div>
+                </>
+              ))}
+            </div>
+
+            {/* list canceled memberships of user */}
+            <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
+            {canceledMemberships && canceledMemberships.length === 0 && (<>
+              <h4>You currently have no active memberships</h4>
+            </>)}
+            { canceledMemberships && canceledMemberships.map((membership) => (
+              <>
+                <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
+                  <h4 style={{marginBottom: '3px'}}>Membership Type: {membership.MembershipDetails.name}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Canceled At: {membership.Subscription.canceled_at}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {membership.Membership.expires}</h4>
+                </div>
+              </>
+            ))}
           </div>
         )}
         {cardSaved === false && (
