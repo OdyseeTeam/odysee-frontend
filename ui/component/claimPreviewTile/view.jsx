@@ -152,17 +152,24 @@ function ClaimPreviewTile(props: Props) {
 
   if (placeholder || (!claim && isResolvingUri)) {
     return (
-      <li className={classnames('claim-preview--tile', {})}>
-        <div className="placeholder media__thumb">
+      <li className={classnames('placeholder claim-preview--tile', {})}>
+        <div className="media__thumb">
           <img src={PlaceholderTx} alt="Placeholder" />
         </div>
         <div className="placeholder__wrapper">
-          <div className="placeholder claim-tile__title" />
+          <div className="claim-tile__title" />
+          <div className="claim-tile__title_b" />
           <div
-            className={classnames('claim-tile__info placeholder', {
+            className={classnames('claim-tile__info', {
               contains_view_count: shouldShowViewCount,
             })}
-          />
+          >
+            <div className="channel-thumbnail" />
+            <div className="claim-tile__about">
+              <div className="button__content" />
+              <div className="claim-tile__about--counts" />
+            </div>
+          </div>
         </div>
       </li>
     );
