@@ -86,10 +86,16 @@
 }
 
 .collection-preview__edit-buttons {
-  display: flex;
-  flex-direction: row;
-  margin-top: var(--spacing-xs);
-  margin-bottom: var(--spacing-xs);
+  position: absolute;
+  left: 0;
+  top: calc(-1 * var(--spacing-m));
+  bottom: calc(-1 * var(--spacing-m));
+  padding-left: 0;
+  padding-top: var(--spacing-m);
+  padding-bottom: var(--spacing-m);
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  align-items: center;
 }
 
 .collection-preview__edit-group {
