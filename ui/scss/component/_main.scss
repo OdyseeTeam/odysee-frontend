@@ -180,10 +180,10 @@
         display: flex;
         flex-direction: column;
         align-items: flex-end;
-        padding: var(--spacing-xxs) var(--spacing-s);
+        padding: var(--spacing-s);
 
         button {
-          margin-top: var(--spacing-xs);
+          margin-top: var(--spacing-xxs);
         }
       }
     }
