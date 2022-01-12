@@ -305,6 +305,11 @@ function AppRouter(props: Props) {
     return <Redirect to={decodedUrl} />;
   }
 
+  // TODO KEYCLOAK - remove before merge
+  [`/$/${PAGES.SETTINGS_UPDATE_PWD}`, `/$/${PAGES.AUTH_PASSWORD_SET}`, `/$/${PAGES.AUTH_PASSWORD_RESET}`].forEach((x) =>
+    console.assert(!pathname.startsWith(x), `Unhandled pre-oauth page: ${x}`)
+  );
+
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
