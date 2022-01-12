@@ -151,15 +151,28 @@ function CollectionActions(props: Props) {
     </>
   );
 
-  const infoButton = (
-    <Button
-      title={__('Info')}
-      className={classnames('button-toggle', {
-        'button-toggle--active': showInfo,
-      })}
-      icon={ICONS.MORE}
-      onClick={() => setShowInfo(!showInfo)}
-    />
+  const infoButtons = (
+    <div className="section">
+      {uri && (
+        <Button
+          title={__('Info')}
+          className={classnames('button-toggle', {
+            'button-toggle--active': showInfo,
+          })}
+          icon={ICONS.MORE}
+          onClick={() => setShowInfo(!showInfo)}
+        />
+      )}
+
+      {isMyCollection && (
+        <Button
+          title={__('Edit')}
+          className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+          icon={ICONS.EDIT}
+          onClick={() => setShowEdit(!showEdit)}
+        />
+      )}
+    </div>
   );
 
   if (isMobile) {
@@ -167,7 +180,7 @@ function CollectionActions(props: Props) {
       <div className="media__actions">
         {lhsSection}
         {rhsSection}
-        {uri && <span>{infoButton}</span>}
+        {infoButtons}
       </div>
     );
   } else {
@@ -178,18 +191,7 @@ function CollectionActions(props: Props) {
           {rhsSection}
         </div>
 
-        <div className="section">
-          {uri && infoButton}
-
-          {isMyCollection && (
-            <Button
-              title={__('Edit')}
-              className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-              icon={ICONS.EDIT}
-              onClick={() => setShowEdit(!showEdit)}
-            />
-          )}
-        </div>
+        {infoButtons}
       </div>
     );
   }

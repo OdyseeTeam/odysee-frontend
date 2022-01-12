@@ -628,10 +628,6 @@ svg + .button__label {
     font-size: var(--font-small);
   }
 
-  @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s) var(--spacing-s);
-  }
-
   &.top-right {
     border-top-right-radius: var(--border-radius);
   }
