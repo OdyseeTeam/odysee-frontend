@@ -620,12 +620,17 @@ svg + .button__label {
   background-color: var(--color-button-alt-bg);
   color: var(--color-button-alt-text);
   text-align: center;
+
   &:hover {
     background-color: var(--color-button-alt-bg-hover);
   }
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
+
+    &:focus {
+      background-color: var(--color-button-alt-bg);
+    }
   }
 
   &.top-right {
