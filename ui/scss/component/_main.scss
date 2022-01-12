@@ -215,7 +215,11 @@ body {
 
       @media (max-width: $breakpoint-small) {
         display: inline-block;
-        max-width: unset;
+        max-width: 11rem;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+
         .button--file-action {
           height: unset;
           margin-right: var(--spacing-xxxs);
