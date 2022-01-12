@@ -4,7 +4,13 @@ import Page from 'component/page';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
+import * as ICONS from 'constants/icons';
 import moment from 'moment';
+import Button from 'component/button';
+
+
+console.log(ICONS);
+console.log(moment);
 
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 const odyseeChannelName = '@odysee';
@@ -149,9 +155,13 @@ const OdyseeMembershipPage = (props: Props) => {
                       <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
                       <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd) / 100 } USD Per Month For A Monthly Renewing Subscription)</h4>
                     </>
-                  )}
+                    )}
+                  <Button button="secondary" style={{display: 'block', marginBottom: '8px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
+                  {'\n'}
+                  <Button button="secondary" label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
                 </div>
               </>
+
             ))}
 
             <h1 style={{fontSize: '23px', marginTop: '20px'}}>Your Memberships</h1>
@@ -177,6 +187,7 @@ const OdyseeMembershipPage = (props: Props) => {
                   </div>
                 </>
               ))}
+              <Button button="secondary" style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
             </div>
 
             {/* list canceled memberships of user */}
