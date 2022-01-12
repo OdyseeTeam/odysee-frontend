@@ -241,9 +241,21 @@ function AppWrapper() {
       case 'onAuthSuccess':
       case 'onAuthError':
       case 'onAuthRefreshSuccess':
-      case 'onTokenExpired':
         // TODO SSO: should do something
         break;
+
+      case 'onTokenExpired':
+        keycloak
+          .updateToken(60)
+          .then((refreshed) => {
+            console.warn(refreshed ? 'Token was successfully refreshed' : 'Token is still valid');
+          })
+          .catch(function () {
+            console.warn('Failed to refresh the token, or the session has expired');
+            doSignOut();
+          });
+        break;
+
       case 'onAuthRefreshError':
       case 'onAuthLogout':
         doSignOut();
