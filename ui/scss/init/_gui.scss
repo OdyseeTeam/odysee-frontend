@@ -689,6 +689,14 @@ textarea {
   }
 }
 
+.topPage-wrapper {
+  .claim-preview__wrapper--channel {
+    .claim__menu-button {
+      right: var(--spacing-xxs) !important;
+    }
+  }
+}
+
 // Remove tap focus on mobile devices
 input,
 textarea,
