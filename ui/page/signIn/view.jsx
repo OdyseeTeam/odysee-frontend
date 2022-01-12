@@ -1,12 +1,12 @@
 // @flow
 import React from 'react';
-import UserSignIn from 'component/userSignIn';
 import Page from 'component/page';
+import UserOAuth from 'component/userOAuth';
 
 export default function SignInPage() {
   return (
     <Page authPage noFooter>
-      <UserSignIn />
+      <UserOAuth />
     </Page>
   );
 }

@@ -1,3 +1,7 @@
+/**
+ * Pre-oauth method of signing in.
+ */
+
 // @flow
 import React from 'react';
 import { withRouter } from 'react-router';

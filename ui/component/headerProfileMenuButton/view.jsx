@@ -141,7 +141,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         ) : (
           <ClickAwayListener onClickAway={handleClickAway}>
             <MuiMenu {...menuProps}>
-              <HeaderMenuLink useMui page={PAGES.OAUTH_LOGIN} icon={ICONS.SIGN_IN} name={__('Log In')} />
+              <HeaderMenuLink useMui page={PAGES.AUTH_SIGNIN} icon={ICONS.SIGN_IN} name={__('Log In')} />
               <HeaderMenuLink useMui page={PAGES.AUTH} icon={ICONS.SIGN_UP} name={__('Sign Up')} />
               <HeaderMenuLink useMui page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
               <HeaderMenuLink useMui page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
