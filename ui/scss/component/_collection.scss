@@ -97,9 +97,11 @@
     margin-right: var(--spacing-s);
   }
   margin-right: var(--spacing-s);
-  button {
-    @media (max-width: $breakpoint-small) {
-      padding: var(--spacing-s) var(--spacing-s);
+
+  @media (max-width: $breakpoint-small) {
+    margin-right: 0;
+    button {
+      padding: var(--spacing-xs) var(--spacing-xs);
     }
   }
 }
