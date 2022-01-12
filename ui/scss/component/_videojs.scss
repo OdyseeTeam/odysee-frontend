@@ -36,7 +36,7 @@ $control-bar-icon-size: 0.8rem;
     // Circle play head
     .vjs-play-progress::before {
       transform: scale(0);
-      transition: transform 0.3s;
+      transition: transform 0.1s;
     }
 
     &:hover {
@@ -91,11 +91,11 @@ $control-bar-icon-size: 0.8rem;
     margin-right: calc(var(--spacing-xxs) * -1);
 
     &.vjs-control {
-      transition: 0.2s;
+      // transition: 0.2s;
     }
 
     .vjs-volume-control.vjs-volume-horizontal {
-      transition: 0.2s;
+      transition: 0.1s;
     }
   }
 }
@@ -126,7 +126,7 @@ $control-bar-icon-size: 0.8rem;
   &.vjs-user-inactive.vjs-playing {
     .vjs-control-bar {
       opacity: 0;
-      transition: 0.3s;
+      transition: 0.1s;
     }
   }
 
@@ -138,6 +138,18 @@ $control-bar-icon-size: 0.8rem;
 
 // Button glow
 .video-js {
+  .vjs-time-divider {
+    padding-left: 0.5em;
+    padding-right: 0.5em;
+    min-width: unset;
+    font-weight: bold;
+    div {
+      span {
+        color: #fff;
+      }
+    }
+  }
+
   .vjs-control,
   .vjs-time-divider {
     user-select: none;
