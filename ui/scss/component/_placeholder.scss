@@ -33,7 +33,7 @@
     min-height: var(--font-small);
     background-color: var(--color-text);
     border-radius: var(--border-radius);
-    opacity: 0.3;
+    opacity: 0.2;
   }
 
   .media__subtitle {
@@ -42,7 +42,7 @@
     height: 1em;
     background-color: var(--color-text);
     border-radius: var(--border-radius);
-    opacity: 0.2;
+    opacity: 0.1;
   }
 
   .claim-tile__title {
@@ -54,7 +54,7 @@
     margin-top: var(--spacing-s);
     min-height: var(--font-small);
     background-color: var(--color-text);
-    opacity: 0.3;
+    opacity: 0.2;
   }
   .claim-tile__title_b {
     border-radius: var(--border-radius);
@@ -63,7 +63,7 @@
     margin-top: var(--spacing-s);
     min-height: var(--font-small);
     background-color: var(--color-text);
-    opacity: 0.3;
+    opacity: 0.2;
     margin-bottom: calc(var(--spacing-s) + 4px);
   }
 
@@ -79,7 +79,7 @@
         height: var(--font-xsmall);
         width: 40%;
         background-color: var(--color-text);
-        opacity: 0.2;
+        opacity: 0.1;
         border-radius: var(--border-radius);
         margin-top: 4px;
       }
@@ -87,7 +87,7 @@
         height: var(--font-xxsmall);
         width: 35%;
         background-color: var(--color-text);
-        opacity: 0.2;
+        opacity: 0.1;
         border-radius: var(--border-radius);
         margin-top: 4px;
       }
