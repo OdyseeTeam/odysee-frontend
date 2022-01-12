@@ -209,6 +209,20 @@
         margin-left: var(--spacing-xxxs);
       }
     }
+
+    &.stretch {
+      .button {
+        flex: auto;
+        background-color: var(--color-header-background);
+        margin-right: var(--spacing-xxs);
+        .button__content {
+          justify-content: center;
+        }
+      }
+      .button:last-of-type {
+        margin-right: 0;
+      }
+    }
   }
 }
 
