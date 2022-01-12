@@ -70,6 +70,15 @@ $thumbnailWidthSmall: 1rem;
 .comment__content {
   display: flex;
   flex-direction: row;
+
+  &:hover {
+    .ff-canvas {
+      opacity: 0 !important;
+    }
+    .ff-image {
+      opacity: 1 !important;
+    }
+  }
 }
 
 .comment__replies-container {

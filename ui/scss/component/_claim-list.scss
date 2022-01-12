@@ -332,7 +332,6 @@
     .media__thumb {
       box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
     }
-
     .claim-preview__title {
       color: var(--color-link);
     }
@@ -346,6 +345,12 @@
       .icon {
         stroke: #f3f4f6;
       }
+    }
+    .ff-canvas {
+      opacity: 0 !important;
+    }
+    .ff-image {
+      opacity: 1 !important;
     }
   }
 

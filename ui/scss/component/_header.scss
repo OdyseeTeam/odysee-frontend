@@ -139,6 +139,14 @@
     }
   }
 
+  .button__content {
+    &:hover {
+      .button__label {
+        color: var(--color-odysee-contrast);
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
     height: var(--header-height-mobile);
@@ -284,6 +292,15 @@
 
   .channel-staked__tooltip {
     display: none;
+  }
+
+  &:hover {
+    .ff-canvas {
+      opacity: 0 !important;
+    }
+    .ff-image {
+      opacity: 1 !important;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
