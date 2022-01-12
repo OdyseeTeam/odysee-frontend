@@ -11,7 +11,7 @@
   @media (max-width: $breakpoint-small) {
     max-width: 100%;
     padding: var(--spacing-m);
-    padding-left: 0;
+    padding-left: var(--spacing-s);
     align-items: flex-start;
   }
 }
