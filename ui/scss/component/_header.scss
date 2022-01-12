@@ -297,6 +297,7 @@
   &:hover {
     .ff-canvas {
       opacity: 0 !important;
+      transition: opacity 1s !important;
     }
     .ff-image {
       opacity: 1 !important;
