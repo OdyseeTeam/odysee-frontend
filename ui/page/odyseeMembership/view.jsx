@@ -107,15 +107,16 @@ const OdyseeMembershipPage = (props: Props) => {
       console.log('cancel, cancel membership response');
       console.log(response);
 
+      // $FlowFixMe
       location.reload();
     } catch (err) {
       console.log(err);
     }
   };
 
-  const formatDate = function(date){
+  const formatDate = function(date) {
     return moment(new Date(date)).format('MMMM DD YYYY');
-  }
+  };
 
   const purchaseMembership = async function(e) {
     const membershipId = e.currentTarget.getAttribute('membership-id');
@@ -143,6 +144,7 @@ const OdyseeMembershipPage = (props: Props) => {
       console.log('purchase, purchase membership response');
       console.log(response);
 
+      // $FlowFixMe
       location.reload();
     } catch (err) {
       console.log(err);
