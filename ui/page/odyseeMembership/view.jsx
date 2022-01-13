@@ -186,33 +186,6 @@ const OdyseeMembershipPage = (props: Props) => {
                 </div>
               </>
             ))}
-
-            <h1 style={{fontSize: '23px', marginTop: '36px', marginBottom: '13px'}}>Your Memberships</h1>
-
-            {/* list of active memberships from user */}
-            <div style={{marginBottom: '34px'}}>
-              <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
-              {activeMemberships && activeMemberships.length === 0 && (<>
-                <h4>You currently have no active memberships</h4>
-              </>)}
-              { activeMemberships && activeMemberships.map((membership) => (
-                <>
-                  <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
-                    <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
-                    <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
-                    <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {membership.Subscription.current_period_end}</h4>
-                    { membership.type === 'yearly' && (
-                      <>
-                        <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
-                        <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membership.cost_usd / 100} Per Month)</h4>
-                      </>
-                    )}
-                  </div>
-                  <Button button="secondary" membership-id={membership.Membership.membership_id} onClick={cancelMembership} style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
-                </>
-              ))}
-            </div>
-
             {/* list canceled memberships of user */}
             <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
             {canceledMemberships && canceledMemberships.length === 0 && (<>
@@ -230,6 +203,33 @@ const OdyseeMembershipPage = (props: Props) => {
             ))}
           </div>
         )}
+        { cardSaved === true && (<>
+          <h1 style={{fontSize: '23px', marginTop: '36px', marginBottom: '13px'}}>Your Memberships</h1>
+
+          {/* list of active memberships from user */}
+          <div style={{marginBottom: '34px'}}>
+          <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
+        {activeMemberships && activeMemberships.length === 0 && (<>
+          <h4>You currently have no active memberships</h4>
+          </>)}
+        { activeMemberships && activeMemberships.map((membership) => (
+          <>
+          <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
+          <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
+          <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
+          <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {membership.Subscription.current_period_end}</h4>
+        { membership.type === 'yearly' && (
+          <>
+          <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
+          <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membership.cost_usd / 100} Per Month)</h4>
+          </>
+          )}
+          </div>
+          <Button button="secondary" membership-id={membership.Membership.membership_id} onClick={cancelMembership} style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
+          </>
+          ))}
+          </div>
+        </>)}
         {cardSaved === false && (
           <div>
             <br />
