@@ -307,6 +307,16 @@ $recent-msg-button__height: 2rem;
     background-color: var(--color-superchat);
     content: '';
   }
+
+  &:hover {
+    .ff-canvas {
+      opacity: 0 !important;
+      transition: opacity 1s !important;
+    }
+    .ff-image {
+      opacity: 1 !important;
+    }
+  }
 }
 
 .livestream-comment__body {
@@ -547,6 +557,16 @@ $recent-msg-button__height: 2rem;
 
   .channel-name {
     max-width: 5rem;
+  }
+
+  &:hover {
+    .ff-canvas {
+      opacity: 0 !important;
+      transition: opacity 1s !important;
+    }
+    .ff-image {
+      opacity: 1 !important;
+    }
   }
 }
 
