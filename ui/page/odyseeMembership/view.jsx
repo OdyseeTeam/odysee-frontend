@@ -101,6 +101,8 @@ const OdyseeMembershipPage = (props: Props) => {
 
       console.log('cancel, cancel membership response');
       console.log(response);
+
+      location.reload();
     } catch (err) {
       console.log(err);
     }
@@ -115,6 +117,7 @@ const OdyseeMembershipPage = (props: Props) => {
     } else if (subscriptionPeriod === 'yearly') {
       subscriptionPeriod = true;
     } else {
+      console.log('There was a bug');
       return;
     }
 
@@ -130,6 +133,8 @@ const OdyseeMembershipPage = (props: Props) => {
 
       console.log('purchase, purchase membership response');
       console.log(response);
+
+      location.reload();
     } catch (err) {
       console.log(err);
     }
