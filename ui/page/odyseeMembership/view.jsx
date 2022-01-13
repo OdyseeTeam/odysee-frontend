@@ -3,14 +3,10 @@ import React from 'react';
 import Page from 'component/page';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
-let stripeEnvironment = getStripeEnvironment();
 import * as ICONS from 'constants/icons';
 import moment from 'moment';
 import Button from 'component/button';
-
-
-console.log(ICONS);
-console.log(moment);
+let stripeEnvironment = getStripeEnvironment();
 
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 const odyseeChannelName = '@odysee';
@@ -22,14 +18,12 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  // console.log(props);
-
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [userMemberships, setUserMemberships] = React.useState();
   const [canceledMemberships, setCanceledMemberships] = React.useState();
   const [activeMemberships, setActiveMemberships] = React.useState();
-  // const [userMemberships, setUserMemberships] = React.useState();
+  const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
 
   React.useEffect(function() {
     (async function() {
@@ -72,63 +66,45 @@ const OdyseeMembershipPage = (props: Props) => {
 
         let activeMemberships = [];
         let canceledMemberships = [];
+        let purchasedMemberships = [];
 
-        for(const membership of response){
-          console.log(membership.Membership);
+        for (const membership of response) {
           const isActive = membership.Membership.auto_renew;
-          if(isActive){
+          if (isActive) {
             activeMemberships.push(membership);
           } else {
             canceledMemberships.push(membership);
           }
-          console.log(isActive);
+          purchasedMemberships.push(membership.Membership.membership_id);
         }
 
         setActiveMemberships(activeMemberships);
         setCanceledMemberships(canceledMemberships);
+        setPurchasedMemberships(purchasedMemberships);
 
         setUserMemberships(response);
       } catch (err) {
         console.log(err);
       }
-
-      // try {
-      //   // show the memberships the user is subscribed to
-      //   const response = await Lbryio.call('membership', 'cancel', {
-      //     environment: stripeEnvironment,
-      //     membership_id: 2,
-      //   }, 'post');
-      //
-      //   console.log('cancel, cancel membership response');
-      //   console.log(response);
-      //
-      // } catch (err) {
-      //   console.log(err);
-      // }
     })();
   }, []);
 
+  const cancelMembership = async function(e) {
+    const membershipId = e.target.getAttribute('membership-id');
 
+    try {
+      // show the memberships the user is subscribed to
+      const response = await Lbryio.call('membership', 'cancel', {
+        environment: stripeEnvironment,
+        membership_id: membershipId,
+      }, 'post');
 
-  React.useEffect(function(){
-    const membershipDiv = document.querySelector('.membership');
-
-    const membershipDiv1 = document.querySelector('.membership1');
-
-    const cancelDiv = document.querySelector('.cancelDiv');
-
-    if (membershipDiv) membershipDiv.onclick = function() {
-      console.log('hello!');
-    };
-
-    if (membershipDiv1) membershipDiv1.onclick = function() {
-      console.log('hello!');
-    };
-
-    if (cancelDiv) cancelDiv.onclick = function() {
-      console.log('hello!');
-    };
-  }, [cardSaved]);
+      console.log('cancel, cancel membership response');
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -155,13 +131,21 @@ const OdyseeMembershipPage = (props: Props) => {
                       <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
                       <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd) / 100 } USD Per Month For A Monthly Renewing Subscription)</h4>
                     </>
-                    )}
-                  <Button button="secondary" style={{display: 'block', marginBottom: '8px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
-                  {'\n'}
-                  <Button button="secondary" label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
+                  )}
+                  { membershipOption.type === 'both' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
+                    <>
+                      <Button button="secondary" style={{display: 'block', marginBottom: '8px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
+                      {'\n'}
+                      <Button button="secondary" label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
+                    </>
+                  )}
+                  { membershipOption.type === 'yearly' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
+                    <>
+                      <Button button="secondary" label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
+                    </>
+                  )}
                 </div>
               </>
-
             ))}
 
             <h1 style={{fontSize: '23px', marginTop: '20px'}}>Your Memberships</h1>
@@ -181,13 +165,13 @@ const OdyseeMembershipPage = (props: Props) => {
                     { membership.type === 'yearly' && (
                       <>
                         <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
-                        <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
+                        <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membership.cost_usd / 100} Per Month)</h4>
                       </>
                     )}
                   </div>
+                  <Button button="secondary" membership-id={membership.Membership.membership_id} onClick={cancelMembership} style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
                 </>
               ))}
-              <Button button="secondary" style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
             </div>
 
             {/* list canceled memberships of user */}
