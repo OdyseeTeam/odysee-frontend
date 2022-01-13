@@ -193,6 +193,14 @@ body {
     @extend .file-page__recommended;
     flex-direction: column;
     overflow-wrap: break-word;
+    width: 28rem;
+    @media (max-width: $breakpoint-small) {
+      width: unset;
+    }
+
+    .card__title-section--body-list {
+      width: 100%;
+    }
 
     .card__header--between {
       align-items: flex-start !important;
