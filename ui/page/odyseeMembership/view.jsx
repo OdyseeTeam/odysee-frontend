@@ -38,7 +38,7 @@ const OdyseeMembershipPage = (props: Props) => {
         // hardcoded to first card
         const hasAPaymentCard = Boolean(response && response.PaymentMethods && response.PaymentMethods[0]);
         console.log('card');
-        console.log(hasAPaymentCard)
+        console.log(hasAPaymentCard);
 
         setCardSaved(hasAPaymentCard);
       } catch (err) {
@@ -112,6 +112,10 @@ const OdyseeMembershipPage = (props: Props) => {
       console.log(err);
     }
   };
+
+  const formatDate = function(date){
+    return moment(new Date(date)).format('MMMM DD YYYY');
+  }
 
   const purchaseMembership = async function(e) {
     const membershipId = e.currentTarget.getAttribute('membership-id');
@@ -201,8 +205,8 @@ const OdyseeMembershipPage = (props: Props) => {
           <>
           <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
           <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
-          <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
-          <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {membership.Subscription.current_period_end}</h4>
+          <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
+          <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {formatDate(membership.Subscription.current_period_end * 1000)}</h4>
         { membership.type === 'yearly' && (
           <>
           <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
@@ -224,9 +228,9 @@ const OdyseeMembershipPage = (props: Props) => {
               <>
                 <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
                   <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Canceled At: {membership.Subscription.canceled_at}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {membership.Membership.expires}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Canceled At: {formatDate(membership.Subscription.canceled_at * 1000)}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {formatDate(membership.Membership.expires)}</h4>
                 </div>
               </>
             ))}
