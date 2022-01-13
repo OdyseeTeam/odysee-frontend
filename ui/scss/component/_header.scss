@@ -133,6 +133,7 @@
   .button--alt {
     background-color: var(--color-header-button);
     color: var(--color-text);
+
     &:hover {
       background-color: var(--color-odysee);
       color: var(--color-odysee-contrast);
@@ -150,6 +151,18 @@
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
     height: var(--header-height-mobile);
+
+    .button--alt {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+
+      .button__content {
+        width: unset;
+        height: 22px;
+      }
+    }
 
     .header__navigationItem--logo {
       border-radius: 50%;
