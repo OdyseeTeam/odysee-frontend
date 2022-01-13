@@ -110,14 +110,14 @@ const OdyseeMembershipPage = (props: Props) => {
     <>
       <Page>
         {/* list available memberships offered by odysee */}
-        <h1 style={{fontSize: '19px'}}>Odysee Memberships</h1>
+        <h1 style={{fontSize: '23px'}}>Odysee Memberships</h1>
         {cardSaved && membershipOptions && (
           <div>
-            <h1 style={{marginTop: '17px', fontSize: '16px' }}>Available Memberships:</h1>
+            <h1 style={{marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
             { membershipOptions.map((membershipOption) => (
               <>
                 <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
-                  <h4 style={{marginBottom: '3px'}}>Name: {membershipOption.name}</h4>
+                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membershipOption.name}</h4>
                   <h4 style={{marginBottom: '3px'}}>Perks: {membershipOption.description}</h4>
                   { membershipOption.type === 'yearly' && (
                     <>
@@ -148,18 +148,18 @@ const OdyseeMembershipPage = (props: Props) => {
               </>
             ))}
 
-            <h1 style={{fontSize: '23px', marginTop: '20px'}}>Your Memberships</h1>
+            <h1 style={{fontSize: '23px', marginTop: '36px', marginBottom: '13px'}}>Your Memberships</h1>
 
             {/* list of active memberships from user */}
-            <div style={{marginBottom: '20px'}}>
+            <div style={{marginBottom: '34px'}}>
               <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
               {activeMemberships && activeMemberships.length === 0 && (<>
                 <h4>You currently have no active memberships</h4>
               </>)}
               { activeMemberships && activeMemberships.map((membership) => (
                 <>
-                  <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
-                    <h4 style={{marginBottom: '3px'}}>Name: {membership.MembershipDetails.name}</h4>
+                  <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
+                    <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
                     <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
                     <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {membership.Subscription.current_period_end}</h4>
                     { membership.type === 'yearly' && (
@@ -181,8 +181,8 @@ const OdyseeMembershipPage = (props: Props) => {
             </>)}
             { canceledMemberships && canceledMemberships.map((membership) => (
               <>
-                <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
-                  <h4 style={{marginBottom: '3px'}}>Membership Type: {membership.MembershipDetails.name}</h4>
+                <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
+                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
                   <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
                   <h4 style={{marginBottom: '3px'}}>Canceled At: {membership.Subscription.canceled_at}</h4>
                   <h4 style={{marginBottom: '3px'}}>Still Valid Until: {membership.Membership.expires}</h4>
