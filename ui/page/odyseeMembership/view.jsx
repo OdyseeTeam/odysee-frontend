@@ -5,6 +5,7 @@ import Page from 'component/page';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 let stripeEnvironment = getStripeEnvironment();
 
@@ -35,7 +36,11 @@ const OdyseeMembershipPage = (props: Props) => {
         console.log('status (if there is a payment methods');
         console.log(response);
         // hardcoded to first card
-        setCardSaved(response && response.PaymentMethods && response.PaymentMethods[0]);
+        const hasAPaymentCard = Boolean(response && response.PaymentMethods && response.PaymentMethods[0]);
+        console.log('card');
+        console.log(hasAPaymentCard)
+
+        setCardSaved(hasAPaymentCard);
       } catch (err) {
         console.log(err);
       }
@@ -145,7 +150,7 @@ const OdyseeMembershipPage = (props: Props) => {
       <Page>
         {/* list available memberships offered by odysee */}
         <h1 style={{fontSize: '23px'}}>Odysee Memberships</h1>
-        {cardSaved && membershipOptions && (
+        {membershipOptions && (
           <div>
             <h1 style={{marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
             { membershipOptions.map((membershipOption) => (
@@ -228,7 +233,15 @@ const OdyseeMembershipPage = (props: Props) => {
         {cardSaved === false && (
           <div>
             <br />
-            <h2 className={'getPaymentCard'}>You still need to register a card, please do so here</h2>
+            <h2 className={'getPaymentCard'}>Please save a card as a payment method so you can join a membership</h2>
+
+            <Button
+              button="secondary"
+              label={__('Add A Card')}
+              icon={ICONS.SETTINGS}
+              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+              style={{marginTop: '10px'}}
+            />
           </div>
         )}
         {(cardSaved === undefined || setMembershipOptions === undefined) && (
