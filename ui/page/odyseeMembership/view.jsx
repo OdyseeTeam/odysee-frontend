@@ -186,21 +186,6 @@ const OdyseeMembershipPage = (props: Props) => {
                 </div>
               </>
             ))}
-            {/* list canceled memberships of user */}
-            <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
-            {canceledMemberships && canceledMemberships.length === 0 && (<>
-              <h4>You currently have no active memberships</h4>
-            </>)}
-            { canceledMemberships && canceledMemberships.map((membership) => (
-              <>
-                <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
-                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Canceled At: {membership.Subscription.canceled_at}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {membership.Membership.expires}</h4>
-                </div>
-              </>
-            ))}
           </div>
         )}
         { cardSaved === true && (<>
@@ -229,6 +214,23 @@ const OdyseeMembershipPage = (props: Props) => {
           </>
           ))}
           </div>
+          <>
+            {/* list canceled memberships of user */}
+            <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
+            {canceledMemberships && canceledMemberships.length === 0 && (<>
+              <h4>You currently have no active memberships</h4>
+            </>)}
+            { canceledMemberships && canceledMemberships.map((membership) => (
+              <>
+                <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
+                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Registered On: {membership.Membership.created_at}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Canceled At: {membership.Subscription.canceled_at}</h4>
+                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {membership.Membership.expires}</h4>
+                </div>
+              </>
+            ))}
+          </>
         </>)}
         {cardSaved === false && (
           <div>
