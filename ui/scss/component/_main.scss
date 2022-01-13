@@ -187,14 +187,6 @@ body {
       margin-left: 0;
       margin-top: var(--spacing-l);
     }
-
-    @media (max-width: $breakpoint-small) {
-      .card__title-section {
-        .card__title {
-          height: 1em;
-        }
-      }
-    }
   }
 
   .file-page__recommended-collection {
@@ -217,24 +209,63 @@ body {
       }
     }
 
-    .file-page__recommended-collection__row {
-      display: block;
-
-      @media (min-width: $breakpoint-medium) {
-        max-width: 15rem;
-      }
-
-      @media (max-width: $breakpoint-medium) {
-        max-width: 50rem;
+    .card__title-actions-container {
+      position: absolute;
+      top: 0;
+      right: 0;
+      height: unset;
+      display: unset;
+      flex-direction: unset;
+      .card__title-actions {
+        padding: 0;
+        .button {
+          height: 2rem;
+          padding: 0.5rem;
+        }
       }
 
       @media (max-width: $breakpoint-small) {
-        display: inline-block;
-        max-width: 11rem;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
+        top: calc(var(--spacing-s) * -1);
+      }
+    }
 
+    .file-page__recommended-collection__row {
+      display: block;
+      max-width: unset;
+      width: 100%;
+      align-items: center;
+      color: var(--color-text);
+      &:hover {
+        color: var(--color-primary);
+      }
+
+      &:nth-child(2) {
+        display: flex;
+        margin-top: calc(var(--spacing-m) * -1 - 10px);
+        .button {
+          flex: auto;
+          .button__content {
+            flex-direction: column;
+            justify-content: center;
+            .color-override {
+              stroke: var(--color-primary);
+            }
+          }
+        }
+      }
+
+      @media (min-width: $breakpoint-medium) {
+        // max-width: 15rem;
+      }
+
+      @media (max-width: $breakpoint-medium) {
+        // max-width: 50rem;
+      }
+
+      @media (max-width: $breakpoint-small) {
+        // display: inline-block;
+        max-width: unset;
+        width: 100%;
         .button--file-action {
           height: unset;
           margin-right: var(--spacing-xxxs);
@@ -245,6 +276,17 @@ body {
         }
         .button--file-action:last-of-type {
           margin-right: 0;
+        }
+      }
+    }
+
+    a {
+      .file-page__recommended-collection__row {
+        @media (max-width: $breakpoint-small) {
+          width: calc(100% - var(--spacing-xl));
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          overflow: hidden;
         }
       }
     }
@@ -271,6 +313,20 @@ body {
     flex-direction: column;
     padding-top: 0;
     margin-top: var(--spacing-s);
+  }
+}
+
+.card__title-section--body-list {
+  display: unset !important;
+  width: 100%;
+  div {
+    flex: auto;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .card__title {
+      width: 100%;
+    }
   }
 }
 

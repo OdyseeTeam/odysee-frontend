@@ -224,6 +224,10 @@
       .button:last-of-type {
         margin-right: 0;
       }
+      .section {
+        margin-right: unset;
+        margin-left: var(--spacing-xxs);
+      }
     }
   }
 }

@@ -96,13 +96,26 @@
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   align-items: center;
+
+  @media (max-width: $breakpoint-small) {
+    margin-right: var(--spacing-s);
+  }
 }
 
 .collection-preview__edit-group {
   &:not(:last-of-type) {
-    margin-right: var(--spacing-s);
+    // margin-right: var(--spacing-s);
   }
-  margin-right: var(--spacing-s);
+  // margin-right: var(--spacing-s);
+
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  width: 2rem;
+  align-items: center;
+  justify-content: center;
+  align-items: stretch;
+  flex-grow: 4;
 
   @media (max-width: $breakpoint-small) {
     margin-right: 0;

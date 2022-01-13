@@ -61,17 +61,19 @@ export default function CollectionContent(props: Props) {
       className="file-page__recommended-collection"
       title={
         <>
-          <span className="file-page__recommended-collection__row">
-            <Icon
-              icon={
-                (id === COLLECTIONS_CONSTS.WATCH_LATER_ID && ICONS.TIME) ||
-                (id === COLLECTIONS_CONSTS.FAVORITES_ID && ICONS.STAR) ||
-                ICONS.STACK
-              }
-              className="icon--margin-right"
-            />
-            {collectionName}
-          </span>
+          <a href={`/$/${PAGES.LIST}/${id}`}>
+            <span className="file-page__recommended-collection__row">
+              <Icon
+                icon={
+                  (id === COLLECTIONS_CONSTS.WATCH_LATER_ID && ICONS.TIME) ||
+                  (id === COLLECTIONS_CONSTS.FAVORITES_ID && ICONS.STAR) ||
+                  ICONS.STACK
+                }
+                className="icon--margin-right"
+              />
+              {collectionName}
+            </span>
+          </a>
           <span className="file-page__recommended-collection__row">
             <Button
               button="alt"
@@ -93,21 +95,14 @@ export default function CollectionContent(props: Props) {
         </>
       }
       titleActions={
-        <>
-          <div className="card__title-actions--link">
-            {/* TODO: BUTTON TO SAVE COLLECTION - Probably save/copy modal */}
-            <Button label={__('View List')} button="link" navigate={`/$/${PAGES.LIST}/${id}`} />
-          </div>
-
-          {isMyCollection && (
-            <Button
-              title={__('Edit')}
-              className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-              icon={ICONS.EDIT}
-              onClick={() => setShowEdit(!showEdit)}
-            />
-          )}
-        </>
+        isMyCollection && (
+          <Button
+            title={__('Edit')}
+            className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+            icon={ICONS.EDIT}
+            onClick={() => setShowEdit(!showEdit)}
+          />
+        )
       }
       body={
         <DragDropContext onDragEnd={handleOnDragEnd}>

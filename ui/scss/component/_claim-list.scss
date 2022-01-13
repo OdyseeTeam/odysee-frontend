@@ -449,7 +449,44 @@
   position: relative;
 
   @media (max-width: $breakpoint-small) {
-    padding-left: 6.5rem;
+    //padding-left: 6.5rem;
+    padding-left: unset !important;
+    .collection-preview__edit-buttons {
+      position: relative;
+      .collection-preview__edit-group {
+        width: unset !important;
+      }
+    }
+    .claim-preview__text {
+      display: inline-block;
+      position: absolute;
+      right: 0;
+      background: rgba(var(--color-header-background-base), 0.8);
+      padding: var(--spacing-xxxs);
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      width: var(--file-list-thumbnail-width);
+
+      .claim-preview__title {
+        .truncated-text {
+          display: block;
+          white-space: nowrap;
+          overflow: hidden !important;
+          text-overflow: ellipsis;
+          width: calc(var(--file-list-thumbnail-width) - (var(--spacing-xxxs) * 2));
+        }
+      }
+      .channel-name {
+        font-size: var(--font-xxsmall);
+      }
+      .date_time {
+        font-size: var(--font-xxxsmall);
+      }
+    }
+    .media__thumb {
+      margin-right: 0;
+      position: absolute;
+      right: 0;
+    }
   }
 }
 
