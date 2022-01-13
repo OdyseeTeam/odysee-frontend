@@ -106,6 +106,35 @@ const OdyseeMembershipPage = (props: Props) => {
     }
   };
 
+  const purchaseMembership = async function(e) {
+    const membershipId = e.target.getAttribute('membership-id');
+    let subscriptionPeriod = e.target.getAttribute('membership-subscription-period');
+    if(subscriptionPeriod === 'both'){
+      subscriptionPeriod = false
+    } else if (subscriptionPeriod === 'yearly'){
+      subscriptionPeriod = true;
+    } else {
+      return
+    }
+    console.log(subscriptionPeriod);
+    console.log(membershipId);
+    return
+
+    try {
+      // show the memberships the user is subscribed to
+      const response = await Lbryio.call('membership', 'buy', {
+        environment: stripeEnvironment,
+        membership_id: membershipId,
+        yearly: subscriptionPeriod,
+      }, 'post');
+
+      console.log('purchase, purchase membership response');
+      console.log(response);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <>
       <Page>
@@ -134,14 +163,14 @@ const OdyseeMembershipPage = (props: Props) => {
                   )}
                   { membershipOption.type === 'both' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
                     <>
-                      <Button button="secondary" style={{display: 'block', marginBottom: '8px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
+                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type} style={{display: 'block', marginBottom: '10px', marginTop: '10px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
                       {'\n'}
-                      <Button button="secondary" label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
+                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type} label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
                     </>
                   )}
                   { membershipOption.type === 'yearly' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
                     <>
-                      <Button button="secondary" label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
+                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type}  label={__('Purchase a one year membership')} icon={ICONS.FINANCE} style={{marginTop: '4px', marginBottom: '5px'}} />
                     </>
                   )}
                 </div>
