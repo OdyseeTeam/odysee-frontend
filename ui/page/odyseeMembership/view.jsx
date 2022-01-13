@@ -1,10 +1,10 @@
 // @flow
 import React from 'react';
+import moment from 'moment';
 import Page from 'component/page';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 import * as ICONS from 'constants/icons';
-import moment from 'moment';
 import Button from 'component/button';
 let stripeEnvironment = getStripeEnvironment();
 
@@ -107,18 +107,16 @@ const OdyseeMembershipPage = (props: Props) => {
   };
 
   const purchaseMembership = async function(e) {
-    const membershipId = e.target.getAttribute('membership-id');
-    let subscriptionPeriod = e.target.getAttribute('membership-subscription-period');
-    if(subscriptionPeriod === 'both'){
-      subscriptionPeriod = false
-    } else if (subscriptionPeriod === 'yearly'){
+    const membershipId = e.currentTarget.getAttribute('membership-id');
+    let subscriptionPeriod = e.currentTarget.getAttribute('membership-subscription-period');
+
+    if (subscriptionPeriod === 'both') {
+      subscriptionPeriod = false;
+    } else if (subscriptionPeriod === 'yearly') {
       subscriptionPeriod = true;
     } else {
-      return
+      return;
     }
-    console.log(subscriptionPeriod);
-    console.log(membershipId);
-    return
 
     try {
       // show the memberships the user is subscribed to
@@ -126,6 +124,8 @@ const OdyseeMembershipPage = (props: Props) => {
         environment: stripeEnvironment,
         membership_id: membershipId,
         yearly: subscriptionPeriod,
+        channel_id: odyseeChannelId,
+        channel_name: odyseeChannelName,
       }, 'post');
 
       console.log('purchase, purchase membership response');
