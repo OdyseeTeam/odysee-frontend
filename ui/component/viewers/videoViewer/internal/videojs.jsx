@@ -95,6 +95,9 @@ const IS_IOS =
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
   !window.MSStream;
 
+const IS_ANDROID = videojs.browser.IS_ANDROID;
+const IS_MOBILE = IS_IOS || IS_ANDROID;
+
 if (!Object.keys(videojs.getPlugins()).includes('eventTracking')) {
   videojs.registerPlugin('eventTracking', eventTracking);
 }
@@ -298,9 +301,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.addClass('vjs-waiting');
         // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
-        // show big play button if can't autoplay
-        // $FlowFixMe
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+        if (!IS_MOBILE) {
+          // show big play button if can't autoplay
+          // $FlowFixMe
+          document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+        }
       }
 
       // I think this is a callback function
