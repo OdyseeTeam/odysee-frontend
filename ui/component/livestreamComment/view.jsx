@@ -1,4 +1,6 @@
 // @flow
+import 'scss/component/_livestream-comment.scss';
+
 import { Menu, MenuButton } from '@reach/menu-button';
 import { parseSticker } from 'util/comments';
 import { parseURI } from 'util/lbryURI';
@@ -59,23 +61,23 @@ export default function LivestreamComment(props: Props) {
 
   return (
     <li
-      className={classnames('livestream-comment', {
-        'livestream-comment--superchat': supportAmount > 0,
-        'livestream-comment--sticker': isSticker,
-        'livestream-comment--mentioned': hasUserMention,
+      className={classnames('livestream__comment', {
+        'livestream__comment--superchat': supportAmount > 0,
+        'livestream__comment--sticker': isSticker,
+        'livestream__comment--mentioned': hasUserMention,
       })}
     >
       {supportAmount > 0 && (
-        <div className="super-chat livestream-superchat__banner">
-          <div className="livestream-superchat__banner-corner" />
-          <CreditAmount isFiat={isFiat} amount={supportAmount} superChat className="livestream-superchat__amount" />
+        <div className="livestreamComment__superchatBanner">
+          <div className="livestreamComment__superchatBanner--corner" />
+          <CreditAmount isFiat={isFiat} amount={supportAmount} superChat />
         </div>
       )}
 
-      <div className="livestream-comment__body">
+      <div className="livestreamComment__body">
         {supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
 
-        <div className="livestream-comment__info">
+        <div className="livestreamComment__info">
           {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} size={16} />}
           {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
           {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
@@ -103,7 +105,7 @@ export default function LivestreamComment(props: Props) {
               <OptimizedImage src={stickerUrl} waitLoad loading="lazy" />
             </div>
           ) : (
-            <div className="livestream-comment__text">
+            <div className="livestreamComment__text">
               {removed ? (
                 <Empty text={__('[Removed]')} />
               ) : (
@@ -120,7 +122,7 @@ export default function LivestreamComment(props: Props) {
         </div>
       </div>
 
-      <div className="livestream-comment__menu">
+      <div className="livestreamComment__menu">
         <Menu>
           <MenuButton className="menu__button">
             <Icon size={18} icon={ICONS.MORE_VERTICAL} />
