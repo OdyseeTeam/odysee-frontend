@@ -18,8 +18,8 @@ type Props = {
   isAuthenticated: boolean,
   uri: string,
   doSetPlayingUri: ({ uri: ?string }) => void,
-  doCommentSocketConnect: (string, string) => void,
-  doCommentSocketDisconnect: (string) => void,
+  doCommentSocketConnect: (string, string, string) => void,
+  doCommentSocketDisconnect: (string, string) => void,
   doFetchChannelLiveStatus: (string) => void,
   doUserSetReferrer: (string) => void,
 };
@@ -62,10 +62,19 @@ export default function LivestreamPage(props: Props) {
 
   // Establish web socket connection for viewer count.
   React.useEffect(() => {
-    if (claimId) doCommentSocketConnect(uri, claimId);
+    const channelUri =
+      claim && claim.signing_channel
+        ? claim.signing_channel.canonical_url.replace('lbry://', '').replace('#', ':')
+        : '';
+
+    if (claimId) {
+      doCommentSocketConnect(uri, channelUri, claimId);
+    }
 
     return () => {
-      if (claimId) doCommentSocketDisconnect(claimId);
+      if (claimId) {
+        doCommentSocketDisconnect(claimId, channelUri);
+      }
     };
   }, [claimId, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
 

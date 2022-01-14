@@ -10,8 +10,8 @@ let sockets = {};
 let closingSockets = {};
 let retryCount = 0;
 
-const getCommentSocketUrl = (claimId) => {
-  return `${COMMENT_WS_URL}${claimId}&category=${claimId}`;
+const getCommentSocketUrl = (claimId, channelName) => {
+  return `${COMMENT_WS_URL}${claimId}&category=${channelName}&sub_category=viewer`;
 };
 
 export const doSocketConnect = (url, cb, type) => {
@@ -96,8 +96,8 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
   );
 };
 
-export const doCommentSocketConnect = (uri, claimId) => (dispatch) => {
-  const url = getCommentSocketUrl(claimId);
+export const doCommentSocketConnect = (uri, channelName, claimId) => (dispatch) => {
+  const url = getCommentSocketUrl(claimId, channelName);
 
   doSocketConnect(
     url,
@@ -139,8 +139,8 @@ export const doCommentSocketConnect = (uri, claimId) => (dispatch) => {
   );
 };
 
-export const doCommentSocketDisconnect = (claimId) => (dispatch) => {
-  const url = getCommentSocketUrl(claimId);
+export const doCommentSocketDisconnect = (claimId, channelName) => (dispatch) => {
+  const url = getCommentSocketUrl(claimId, channelName);
 
   dispatch(doSocketDisconnect(url));
 };
