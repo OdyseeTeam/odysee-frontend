@@ -10,6 +10,7 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
   selectPendingClaimsById,
+  selectClaimIsMine,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -273,7 +274,8 @@ export function doAbandonClaim(claim: Claim, cb: (string) => void) {
     const mySupports: { [string]: Support } = selectSupportsByOutpoint(state);
 
     // A user could be trying to abandon a support or one of their claims
-    const claimToAbandon = myClaims.find((claim) => claim.txid === txid && claim.nout === nout);
+    const claimIsMine = selectClaimIsMine(state, claim);
+    const claimToAbandon = claimIsMine ? claim : myClaims.find((claim) => claim.txid === txid && claim.nout === nout);
     const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
