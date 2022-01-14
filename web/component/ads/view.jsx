@@ -75,8 +75,13 @@ function Ads(props: Props) {
       scriptUrlToUse = ADS_URL;
     }
   } else if (type === 'homepage') {
-    tagNameToUse = HOMEPAGE_ADS_TAG;
-    scriptUrlToUse = HOMEPAGE_ADS_URL;
+    if (isInEu) {
+      tagNameToUse = EU_AD_TAG;
+      scriptUrlToUse = EU_AD_URL;
+    } else {
+      tagNameToUse = HOMEPAGE_ADS_TAG;
+      scriptUrlToUse = HOMEPAGE_ADS_URL;
+    }
   }
 
   // add script to DOM
