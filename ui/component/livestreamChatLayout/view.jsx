@@ -84,6 +84,7 @@ export default function LivestreamChatLayout(props: Props) {
   const [resolvingSuperChats, setResolvingSuperChats] = React.useState(false);
   const [mention, setMention] = React.useState();
   const [openedPopoutWindow, setPopoutWindow] = React.useState(false);
+  const [chatHidden, setChatHidden] = React.useState(false);
 
   const quickMention =
     mention && formatLbryUrlForWeb(mention).substring(1, formatLbryUrlForWeb(mention).indexOf(':') + 3);
@@ -220,7 +221,7 @@ export default function LivestreamChatLayout(props: Props) {
     />
   );
 
-  if (openedPopoutWindow) {
+  if (openedPopoutWindow || chatHidden) {
     return (
       <div className="card livestream__chat">
         <div className="card__header--between livestreamDiscussion__header">
@@ -233,7 +234,13 @@ export default function LivestreamChatLayout(props: Props) {
               title={__('Chat Hidden')}
               actions={
                 <div className="section__actions">
-                  <Button button="secondary" label={__('Close Popout')} onClick={() => openedPopoutWindow.close()} />
+                  {openedPopoutWindow && (
+                    <Button button="secondary" label={__('Close Popout')} onClick={() => openedPopoutWindow.close()} />
+                  )}
+
+                  {chatHidden && (
+                    <Button button="secondary" label={__('Show Chat')} onClick={() => setChatHidden(false)} />
+                  )}
                 </div>
               }
             />
@@ -267,12 +274,21 @@ export default function LivestreamChatLayout(props: Props) {
               </MenuItem>
 
               {!isPopoutWindow && !isMobile && (
-                <MenuItem className="comment__menu-option" onSelect={handlePopout}>
-                  <span className="menu__link">
-                    <Icon aria-hidden icon={ICONS.EXTERNAL} />
-                    {__('Popout Chat')}
-                  </span>
-                </MenuItem>
+                <>
+                  <MenuItem className="comment__menu-option" onSelect={handlePopout}>
+                    <span className="menu__link">
+                      <Icon aria-hidden icon={ICONS.EXTERNAL} />
+                      {__('Popout Chat')}
+                    </span>
+                  </MenuItem>
+
+                  <MenuItem className="comment__menu-option" onSelect={() => setChatHidden(true)}>
+                    <span className="menu__link">
+                      <Icon aria-hidden icon={ICONS.EYE} />
+                      {__('Hide Chat')}
+                    </span>
+                  </MenuItem>
+                </>
               )}
             </MenuList>
           </Menu>
