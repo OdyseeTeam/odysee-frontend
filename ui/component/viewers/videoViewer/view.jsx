@@ -334,9 +334,6 @@ function VideoViewer(props: Props) {
 
       // if playing the video errors out for some reason
       Promise.race([playPromise]).catch((error) => {
-        console.log(error);
-        console.log(playPromise);
-
         const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
         if (noPermissionError && IS_IOS) {
