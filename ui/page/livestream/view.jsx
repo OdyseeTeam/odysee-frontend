@@ -1,4 +1,5 @@
 // @flow
+import { formatLbryChannelName } from 'util/url';
 import { lazyImport } from 'util/lazyImport';
 import { LIVESTREAM_STARTS_SOON_BUFFER, LIVESTREAM_STARTED_RECENTLY_BUFFER } from 'constants/livestream';
 import analytics from 'analytics';
@@ -62,21 +63,21 @@ export default function LivestreamPage(props: Props) {
 
   // Establish web socket connection for viewer count.
   React.useEffect(() => {
-    const channelUri =
-      claim && claim.signing_channel
-        ? claim.signing_channel.canonical_url.replace('lbry://', '').replace('#', ':')
-        : '';
+    if (!claim) return;
 
-    if (claimId) {
-      doCommentSocketConnect(uri, channelUri, claimId);
+    const { claim_id: claimId, signing_channel: channelClaim } = claim;
+    const channelName = channelClaim && formatLbryChannelName(channelClaim.canonical_url);
+
+    if (claimId && channelName) {
+      doCommentSocketConnect(uri, channelName, claimId);
     }
 
     return () => {
-      if (claimId) {
-        doCommentSocketDisconnect(claimId, channelUri);
+      if (claimId && channelName) {
+        doCommentSocketDisconnect(claimId, channelName);
       }
     };
-  }, [claimId, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
+  }, [claim, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
 
   // Find out current channels status + active live claim.
   React.useEffect(() => {

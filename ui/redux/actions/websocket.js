@@ -5,6 +5,10 @@ import { SOCKETY_SERVER_API } from 'config';
 
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
 const COMMENT_WS_URL = `${SOCKETY_SERVER_API}/commentron?id=`;
+const COMMENT_WS_SUBCATEGORIES = {
+  COMMENTER: 'commenter',
+  VIEWER: 'viewer',
+};
 
 let sockets = {};
 let closingSockets = {};
@@ -12,6 +16,10 @@ let retryCount = 0;
 
 const getCommentSocketUrl = (claimId, channelName) => {
   return `${COMMENT_WS_URL}${claimId}&category=${channelName}&sub_category=viewer`;
+};
+
+const getCommentSocketUrlForCommenter = (claimId, channelName) => {
+  return `${COMMENT_WS_URL}${claimId}&category=${channelName}&sub_category=commenter`;
 };
 
 export const doSocketConnect = (url, cb, type) => {
@@ -96,8 +104,11 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
   );
 };
 
-export const doCommentSocketConnect = (uri, channelName, claimId) => (dispatch) => {
-  const url = getCommentSocketUrl(claimId, channelName);
+export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch) => {
+  const url =
+    subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
+      ? getCommentSocketUrlForCommenter(claimId, channelName)
+      : getCommentSocketUrl(claimId, channelName);
 
   doSocketConnect(
     url,
@@ -141,6 +152,16 @@ export const doCommentSocketConnect = (uri, channelName, claimId) => (dispatch) 
 
 export const doCommentSocketDisconnect = (claimId, channelName) => (dispatch) => {
   const url = getCommentSocketUrl(claimId, channelName);
+
+  dispatch(doSocketDisconnect(url));
+};
+
+export const doCommentSocketConnectAsCommenter = (uri, channelName, claimId) => (dispatch) => {
+  dispatch(doCommentSocketConnect(uri, channelName, claimId, COMMENT_WS_SUBCATEGORIES.COMMENTER));
+};
+
+export const doCommentSocketDisconnectAsCommenter = (claimId, channelName) => (dispatch) => {
+  const url = getCommentSocketUrlForCommenter(claimId, channelName);
 
   dispatch(doSocketDisconnect(url));
 };

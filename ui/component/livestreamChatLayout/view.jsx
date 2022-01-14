@@ -42,8 +42,6 @@ type Props = {
   superChats: Array<Comment>,
   uri: string,
   doCommentList: (string, string, number, number) => void,
-  doCommentSocketConnect: (string, string) => void,
-  doCommentSocketDisconnect: (string) => void,
   doResolveUris: (Array<string>, boolean) => void,
   doSuperChatList: (string) => void,
 };
@@ -58,8 +56,6 @@ export default function LivestreamChatLayout(props: Props) {
     superChats: superChatsByAmount,
     uri,
     doCommentList,
-    doCommentSocketConnect,
-    doCommentSocketDisconnect,
     doResolveUris,
     doSuperChatList,
   } = props;
@@ -83,7 +79,7 @@ export default function LivestreamChatLayout(props: Props) {
   const [showPinned, setShowPinned] = React.useState(true);
   const [resolvingSuperChats, setResolvingSuperChats] = React.useState(false);
   const [mention, setMention] = React.useState();
-  const [openedPopoutWindow, setPopoutWindow] = React.useState(false);
+  const [openedPopoutWindow, setPopoutWindow] = React.useState(undefined);
   const [chatHidden, setChatHidden] = React.useState(false);
 
   const quickMention =
@@ -124,20 +120,10 @@ export default function LivestreamChatLayout(props: Props) {
     const newWindow = window.open('/$/popout' + pathname, 'Popout Chat', 'height=700,width=400');
 
     // Add function to newWindow when closed (either manually or from button component)
-    // show the chat again and re-connect to websocket
-    newWindow.onbeforeunload = () => {
-      setPopoutWindow(undefined);
-
-      if (claimId) doCommentSocketConnect(uri, claimId);
-      doCommentList(uri, '', 1, 75);
-      doSuperChatList(uri);
-    };
+    newWindow.onbeforeunload = () => setPopoutWindow(undefined);
 
     if (window.focus) newWindow.focus();
     setPopoutWindow(newWindow);
-
-    // Disconnect since it will re-connect on the new window
-    if (claimId) doCommentSocketDisconnect(claimId);
   }
 
   React.useEffect(() => {

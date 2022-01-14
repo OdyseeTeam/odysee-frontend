@@ -1,6 +1,6 @@
 import { buildURI } from 'util/lbryURI';
 import { connect } from 'react-redux';
-import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
+import { doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter } from 'redux/actions/websocket';
 import { doResolveUri } from 'redux/actions/claims';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import PopoutChatPage from './view';
@@ -19,8 +19,8 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doCommentSocketConnect,
-  doCommentSocketDisconnect,
+  doCommentSocketConnectAsCommenter,
+  doCommentSocketDisconnectAsCommenter,
   doResolveUri,
 };
 
