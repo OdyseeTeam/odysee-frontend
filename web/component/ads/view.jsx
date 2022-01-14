@@ -58,7 +58,10 @@ function Ads(props: Props) {
 
   const shouldShowAds = SHOW_ADS && !authenticated;
 
+  // this is populated from app based on location
   let isInEu = localStorage.getItem('gdprRequired');
+  // cant store booleans so we store it as a string
+  isInEu = isInEu === 'true';
 
   // load ad and tags here
   let scriptUrlToUse;
