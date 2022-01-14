@@ -64,12 +64,12 @@ function Ads(props: Props) {
   let scriptUrlToUse;
   let tagNameToUse;
   if (type === 'video') {
-    if (IS_IOS) {
-      tagNameToUse = IOS_ADS_TAG;
-      scriptUrlToUse = IOS_ADS_URL;
-    } else if (isInEu) {
+    if (isInEu) {
       tagNameToUse = EU_AD_TAG;
       scriptUrlToUse = EU_AD_URL;
+    } else if (IS_IOS) {
+      tagNameToUse = IOS_ADS_TAG;
+      scriptUrlToUse = IOS_ADS_URL;
     } else {
       tagNameToUse = ADS_TAG;
       scriptUrlToUse = ADS_URL;
