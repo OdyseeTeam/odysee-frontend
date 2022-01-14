@@ -1,8 +1,8 @@
 // @flow
 import 'scss/component/_livestream-comment.scss';
 
+import { getStickerUrl } from 'util/comments';
 import { Menu, MenuButton } from '@reach/menu-button';
-import { parseSticker } from 'util/comments';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -48,9 +48,8 @@ export default function LivestreamComment(props: Props) {
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
   const { claimName } = parseURI(authorUri || '');
-  const stickerFromMessage = parseSticker(message);
-  const isSticker = Boolean(stickerFromMessage);
-  const stickerUrl = stickerFromMessage && stickerFromMessage.url;
+  const stickerUrlFromMessage = getStickerUrl(message);
+  const isSticker = Boolean(stickerUrlFromMessage);
   const timePosted = timestamp * 1000;
   const commentIsMine = comment.channel_id && isMyComment(comment.channel_id);
 
@@ -102,7 +101,7 @@ export default function LivestreamComment(props: Props) {
 
           {isSticker ? (
             <div className="sticker__comment">
-              <OptimizedImage src={stickerUrl} waitLoad loading="lazy" />
+              <OptimizedImage src={stickerUrlFromMessage} waitLoad loading="lazy" />
             </div>
           ) : (
             <div className="livestreamComment__text">

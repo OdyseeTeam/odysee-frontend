@@ -10,17 +10,20 @@ import {
   selectSuperChatTotalAmountForUri,
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
-
 import LivestreamComments from './view';
 
-const select = (state, props) => ({
-  claim: selectClaimForUri(state, props.uri),
-  comments: selectTopLevelCommentsForUri(state, props.uri, MAX_LIVESTREAM_COMMENTS),
-  pinnedComments: selectPinnedCommentsForUri(state, props.uri),
-  fetchingComments: selectIsFetchingComments(state),
-  superChats: selectSuperChatsForUri(state, props.uri),
-  superChatsTotalAmount: selectSuperChatTotalAmountForUri(state, props.uri),
-});
+const select = (state, props) => {
+  const { uri } = props;
+
+  return {
+    claim: selectClaimForUri(state, uri),
+    comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
+    pinnedComments: selectPinnedCommentsForUri(state, uri),
+    fetchingComments: selectIsFetchingComments(state),
+    superChats: selectSuperChatsForUri(state, uri),
+    superChatsTotalAmount: selectSuperChatTotalAmountForUri(state, uri),
+  };
+};
 
 export default connect(select, {
   doCommentList,
