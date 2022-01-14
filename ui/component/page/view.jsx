@@ -80,7 +80,7 @@ function Page(props: Props) {
     if (isOnFilePage || isMediumScreen) setSidebarOpen(false);
 
     // TODO: make sure setState callback for usePersistedState uses useCallback to it doesn't cause effect to re-run
-  }, [isOnFilePage, isMediumScreen, setSidebarOpen]);
+  }, [isOnFilePage, isMediumScreen]);
 
   return (
     <>
