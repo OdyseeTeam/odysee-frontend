@@ -348,9 +348,9 @@ function ClaimListDiscover(props: Props) {
     options.reposted_claim_id = repostedClaimId;
   }
   // IF release time, set it, else set fallback release times using the hack below.
-  if (releaseTime) {
+  if (releaseTime && claimTypeParam !== CS.CLAIM_CHANNEL) {
     options.release_time = releaseTime;
-  } else if (claimType !== CS.CLAIM_CHANNEL) {
+  } else if (claimTypeParam !== CS.CLAIM_CHANNEL) {
     if (orderParam === CS.ORDER_BY_TOP && freshnessParam !== CS.FRESH_ALL) {
       options.release_time = `>${Math.floor(moment().subtract(1, freshnessParam).startOf('hour').unix())}`;
     } else if (orderParam === CS.ORDER_BY_NEW || orderParam === CS.ORDER_BY_TRENDING) {
