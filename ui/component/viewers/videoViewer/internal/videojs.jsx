@@ -287,15 +287,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      // immediately show control bar while video is loading
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('display', 'flex');
 
+      // show waiting spinner as video is loading if can autoplay
       if (canAutoplayVideo === true) {
-        // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
         // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
+        // show big play button if can't autoplay
         // $FlowFixMe
         document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
