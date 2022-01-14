@@ -263,7 +263,8 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
   };
 }
 
-export function doAbandonClaim(txid: string, nout: number, cb: (string) => void) {
+export function doAbandonClaim(claim: Claim, cb: (string) => void) {
+  const { txid, nout } = claim;
   const outpoint = `${txid}:${nout}`;
 
   return (dispatch: Dispatch, getState: GetState) => {
