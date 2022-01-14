@@ -7,7 +7,7 @@ import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
 
-const LivestreamComments = lazyImport(() => import('component/livestreamComments' /* webpackChunkName: "comments" */));
+const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -146,7 +146,7 @@ export default function LivestreamPage(props: Props) {
         !hideComments &&
         isInitialized && (
           <React.Suspense fallback={null}>
-            <LivestreamComments uri={uri} />
+            <LivestreamChatLayout uri={uri} />
           </React.Suspense>
         )
       }

@@ -8,7 +8,7 @@ import LivestreamLink from 'component/livestreamLink';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import React from 'react';
 
-const LivestreamComments = lazyImport(() => import('component/livestreamComments' /* webpackChunkName: "comments" */));
+const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
 
 type Props = {
   activeStreamUri: boolean | string,
@@ -87,7 +87,7 @@ export default function LivestreamLayout(props: Props) {
 
         {isMobile && !hideComments && (
           <React.Suspense fallback={null}>
-            <LivestreamComments uri={uri} />
+            <LivestreamChatLayout uri={uri} />
           </React.Suspense>
         )}
 

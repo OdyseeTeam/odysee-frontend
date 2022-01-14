@@ -4,7 +4,7 @@
 $discussion-header__height: 3rem;
 $recent-msg-button__height: 2rem;
 
-.livestream__discussion {
+.livestream__chat {
   width: 100%;
 
   @media (min-width: $breakpoint-medium) {
@@ -159,6 +159,10 @@ $recent-msg-button__height: 2rem;
 
 .livestreamSuperchats__inner {
   display: flex;
+
+  .close-button {
+    color: var(--color-text-subtitle);
+  }
 }
 
 .livestream__superchat {
