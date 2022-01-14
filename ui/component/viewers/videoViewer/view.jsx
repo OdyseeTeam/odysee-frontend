@@ -332,7 +332,7 @@ function VideoViewer(props: Props) {
     if (shouldPlay) {
       const playPromise = player.play();
 
-      // if user hasn't interacted with document, mute video and play it
+      // if playing the video errors out for some reason
       Promise.race([playPromise]).catch((error) => {
         console.log(error);
         console.log(playPromise);
@@ -340,8 +340,12 @@ function VideoViewer(props: Props) {
         const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
         if (noPermissionError && IS_IOS) {
+          // if player is paused, show the overlay with play button
+          // $FlowFixMe
           if (player.paused()) {
+            // $FlowFixMe
             player.removeClass('vjs-waiting');
+            // $FlowFixMe
             document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
             // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
           }

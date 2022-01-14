@@ -293,7 +293,7 @@ const VideoJsEvents = ({
         // $FlowFixMe
         const vjsControlBar = document.querySelector('.vjs-control-bar');
         if (vjsControlBar) vjsControlBar.style.removeProperty('opacity');
-      }, 1000 * 2.5); // wait 2.5 seconds to hit control bar
+      }, 1000 * 2.5); // wait 2.5 seconds to hide control bar
     });
     player.on('playing', function() {
       // $FlowFixMe
