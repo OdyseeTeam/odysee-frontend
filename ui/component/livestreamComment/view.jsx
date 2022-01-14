@@ -4,7 +4,7 @@ import React from 'react';
 import { parseURI } from 'util/lbryURI';
 import Empty from 'component/common/empty';
 import MarkdownPreview from 'component/common/markdown-preview';
-import Tooltip from 'component/common/tooltip';
+import CommentBadge from 'component/common/comment-badge';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Menu, MenuButton } from '@reach/menu-button';
 import Icon from 'component/common/icon';
@@ -66,29 +66,9 @@ function LivestreamComment(props: Props) {
       <div className="livestream-comment__body">
         {supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
         <div className="livestream-comment__info">
-          {comment.is_global_mod && (
-            <Tooltip title={__('Admin')}>
-              <span className="comment__badge comment__badge--global-mod">
-                <Icon icon={ICONS.BADGE_MOD} size={16} />
-              </span>
-            </Tooltip>
-          )}
-
-          {comment.is_moderator && (
-            <Tooltip title={__('Moderator')}>
-              <span className="comment__badge comment__badge--mod">
-                <Icon icon={ICONS.BADGE_MOD} size={16} />
-              </span>
-            </Tooltip>
-          )}
-
-          {commentByOwnerOfContent && (
-            <Tooltip title={__('Streamer')}>
-              <span className="comment__badge">
-                <Icon icon={ICONS.BADGE_STREAMER} size={16} />
-              </span>
-            </Tooltip>
-          )}
+          {comment.is_global_mod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} size={16} />}
+          {comment.is_moderator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
+          {commentByOwnerOfContent && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
 
           <Button
             className={classnames('button--uri-indicator comment__author', {
