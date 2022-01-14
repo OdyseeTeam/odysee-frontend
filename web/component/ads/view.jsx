@@ -68,8 +68,8 @@ function Ads(props: Props) {
       tagNameToUse = IOS_ADS_TAG;
       scriptUrlToUse = IOS_ADS_URL;
     } else if (isInEu) {
-      tagNameToUse = EU_AD_URL;
-      scriptUrlToUse = EU_AD_TAG;
+      tagNameToUse = EU_AD_TAG;
+      scriptUrlToUse = EU_AD_URL;
     } else {
       tagNameToUse = ADS_TAG;
       scriptUrlToUse = ADS_URL;
