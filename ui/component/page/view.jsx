@@ -35,6 +35,7 @@ type Props = {
   rightSide?: Node,
   settingsPage?: boolean,
   videoTheaterMode: boolean,
+  isPopoutWindow?: boolean,
 };
 
 function Page(props: Props) {
@@ -54,6 +55,7 @@ function Page(props: Props) {
     rightSide,
     settingsPage,
     videoTheaterMode,
+    isPopoutWindow,
   } = props;
 
   const {
@@ -97,6 +99,7 @@ function Page(props: Props) {
           'main-wrapper__inner--filepage': isOnFilePage,
           'main-wrapper__inner--theater-mode': isOnFilePage && videoTheaterMode,
           'main-wrapper__inner--auth': authPage,
+          'main--popout-chat': isPopoutWindow,
         })}
       >
         {!authPage &&
@@ -130,6 +133,7 @@ function Page(props: Props) {
               'main--markdown': isMarkdown,
               'main--theater-mode': isOnFilePage && videoTheaterMode && !livestream,
               'main--livestream': livestream && !chatDisabled,
+              'main--popout-chat': isPopoutWindow,
             })}
           >
             {children}

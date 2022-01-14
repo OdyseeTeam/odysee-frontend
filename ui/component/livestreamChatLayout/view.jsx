@@ -3,6 +3,8 @@ import 'scss/component/_livestream-chat.scss';
 
 import { formatLbryUrlForWeb } from 'util/url';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { useHistory } from 'react-router-dom';
+import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -14,6 +16,7 @@ import LivestreamComments from 'component/livestreamComments';
 import LivestreamSuperchats from './livestream-superchats';
 import React from 'react';
 import Spinner from 'component/spinner';
+import Yrbl from 'component/yrbl';
 
 const IS_TIMESTAMP_VISIBLE = () =>
   // $FlowFixMe
@@ -34,10 +37,13 @@ type Props = {
   claim: ?StreamClaim,
   comments: Array<Comment>,
   embed?: boolean,
+  isPopoutWindow?: boolean,
   pinnedComments: Array<Comment>,
   superChats: Array<Comment>,
   uri: string,
   doCommentList: (string, string, number, number) => void,
+  doCommentSocketConnect: (string, string) => void,
+  doCommentSocketDisconnect: (string) => void,
   doResolveUris: (Array<string>, boolean) => void,
   doSuperChatList: (string) => void,
 };
@@ -47,13 +53,22 @@ export default function LivestreamChatLayout(props: Props) {
     claim,
     comments: commentsByChronologicalOrder,
     embed,
+    isPopoutWindow,
     pinnedComments,
     superChats: superChatsByAmount,
     uri,
     doCommentList,
+    doCommentSocketConnect,
+    doCommentSocketDisconnect,
     doResolveUris,
     doSuperChatList,
   } = props;
+
+  const {
+    location: { pathname },
+  } = useHistory();
+
+  const isMobile = useIsMobile();
 
   const discussionElement = document.querySelector('.livestream__comments');
 
@@ -68,6 +83,7 @@ export default function LivestreamChatLayout(props: Props) {
   const [showPinned, setShowPinned] = React.useState(true);
   const [resolvingSuperChats, setResolvingSuperChats] = React.useState(false);
   const [mention, setMention] = React.useState();
+  const [openedPopoutWindow, setPopoutWindow] = React.useState(false);
 
   const quickMention =
     mention && formatLbryUrlForWeb(mention).substring(1, formatLbryUrlForWeb(mention).indexOf(':') + 3);
@@ -101,6 +117,26 @@ export default function LivestreamChatLayout(props: Props) {
       }
     }
     setViewMode(VIEW_MODES.SUPERCHAT);
+  }
+
+  function handlePopout() {
+    const newWindow = window.open('/$/popout' + pathname, 'Popout Chat', 'height=700,width=400');
+
+    // Add function to newWindow when closed (either manually or from button component)
+    // show the chat again and re-connect to websocket
+    newWindow.onbeforeunload = () => {
+      setPopoutWindow(undefined);
+
+      if (claimId) doCommentSocketConnect(uri, claimId);
+      doCommentList(uri, '', 1, 75);
+      doSuperChatList(uri);
+    };
+
+    if (window.focus) newWindow.focus();
+    setPopoutWindow(newWindow);
+
+    // Disconnect since it will re-connect on the new window
+    if (claimId) doCommentSocketDisconnect(claimId);
   }
 
   React.useEffect(() => {
@@ -184,8 +220,35 @@ export default function LivestreamChatLayout(props: Props) {
     />
   );
 
+  if (openedPopoutWindow) {
+    return (
+      <div className="card livestream__chat">
+        <div className="card__header--between livestreamDiscussion__header">
+          <div className="card__title-section--small livestreamDiscussion__title">{__('Live Chat')}</div>
+        </div>
+
+        <div className="livestreamComments__wrapper">
+          <div className="main--empty">
+            <Yrbl
+              title={__('Chat Hidden')}
+              actions={
+                <div className="section__actions">
+                  <Button button="secondary" label={__('Close Popout')} onClick={() => openedPopoutWindow.close()} />
+                </div>
+              }
+            />
+          </div>
+
+          <div className="livestream__commentCreate">
+            <CommentCreate isLivestream bottom uri={uri} disableInput />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="card livestream__chat">
+    <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
       <div className="card__header--between livestreamDiscussion__header">
         <div className="card__title-section--small livestreamDiscussion__title">
           {__('Live Chat')}
@@ -202,6 +265,15 @@ export default function LivestreamChatLayout(props: Props) {
                   {__('Toggle Timestamps')}
                 </span>
               </MenuItem>
+
+              {!isPopoutWindow && !isMobile && (
+                <MenuItem className="comment__menu-option" onSelect={handlePopout}>
+                  <span className="menu__link">
+                    <Icon aria-hidden icon={ICONS.EXTERNAL} />
+                    {__('Popout Chat')}
+                  </span>
+                </MenuItem>
+              )}
             </MenuList>
           </Menu>
         </div>

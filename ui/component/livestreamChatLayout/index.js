@@ -3,6 +3,7 @@ import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { doCommentList, doSuperChatList } from 'redux/actions/comments';
+import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import {
   selectTopLevelCommentsForUri,
   selectSuperChatsForUri,
@@ -27,4 +28,6 @@ export default connect(select, {
   doCommentList,
   doSuperChatList,
   doResolveUris,
+  doCommentSocketConnect,
+  doCommentSocketDisconnect,
 })(LivestreamChatLayout);

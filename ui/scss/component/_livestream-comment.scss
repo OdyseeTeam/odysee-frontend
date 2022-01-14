@@ -12,16 +12,14 @@
   }
 
   &:hover {
+    background-color: var(--color-card-background-highlighted);
+
     .date_time {
       opacity: 0.5;
     }
   }
 
   @media (min-width: $breakpoint-small) {
-    &:hover {
-      background-color: var(--color-card-background-highlighted);
-    }
-
     &:not(:hover) {
       .menu__button:not(:focus):not([aria-expanded='true']) {
         opacity: 0;

@@ -26,6 +26,26 @@ $recent-msg-button__height: 2rem;
   }
 }
 
+.livestream__chat--popout {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  top: 0 !important;
+
+  .livestreamComments__wrapper {
+    height: 95vh !important;
+  }
+
+  .livestreamSuperchats__wrapper {
+    width: 100%;
+  }
+
+  .livestreamPinned__wrapper {
+    width: 100%;
+  }
+}
+
 .livestreamDiscussion__header {
   border-bottom: 1px solid var(--color-border);
   padding-bottom: var(--spacing-s);
@@ -74,6 +94,17 @@ $recent-msg-button__height: 2rem;
   display: flex;
   flex-direction: column;
   height: calc(100vh - var(--header-height) - #{$discussion-header__height});
+
+  .main--empty {
+    .yrbl__wrap {
+      flex-direction: column !important;
+      align-items: center;
+
+      img {
+        margin: 0;
+      }
+    }
+  }
 }
 
 .livestream__comments {
