@@ -1,15 +1,15 @@
-export function isLocalStorageAvailable() {
+module.exports.isLocalStorageAvailable = function isLocalStorageAvailable() {
   try {
-    return Boolean(window.localStorage);
+    return Boolean(globalThis.localStorage);
   } catch (e) {
     return false;
   }
-}
+};
 
-export function isSessionStorageAvailable() {
+module.exports.isSessionStorageAvailable = function isSessionStorageAvailable() {
   try {
-    return Boolean(window.sessionStorage);
+    return Boolean(globalThis.sessionStorage);
   } catch (e) {
     return false;
   }
-}
+};

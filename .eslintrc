@@ -12,7 +12,8 @@
     "__": true,
     "app": true,
     "IS_WEB": true,
-    "WEBPACK_PORT": true
+    "WEBPACK_PORT": true,
+    "globalThis": false // required for eslint < v7
   },
   "settings": {
 	"react": {
