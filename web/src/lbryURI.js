@@ -61,12 +61,13 @@ function parseURI(url, requireProto = false) {
   const [
     streamNameOrChannelName,
     primaryModSeparator,
-    primaryModValue,
+    rawPrimaryModValue,
     pathSep, // eslint-disable-line no-unused-vars
     possibleStreamName,
     secondaryModSeparator,
     secondaryModValue,
   ] = rest;
+  const primaryModValue = rawPrimaryModValue && rawPrimaryModValue.replace(/[^\x00-\x7F]/g, '');
   const searchParams = new URLSearchParams(qs || '');
   const startTime = searchParams.get('t');
 
