@@ -13,11 +13,16 @@ module.exports.CATEGORY_METADATA = {
     description: 'Podcasts, life, learning, and everything else on Odysee',
     image: '',
   }),
+  // [PAGES.CREATIVE_ARTS]: () => ({
+  //   title: 'Creative Arts',
+  //   description: '',   <----- FILL IN PLEASE
+  //   image: '',         <----- FILL IN PLEASE
+  // }),
   //   [PAGES.ENLIGHTENMENT]: () => ({
   //     title: '',
   //     description: '',
   //     image: '',
-  //   },
+  //   }),
   [PAGES.FINANCE]: () => ({
     title: 'Finance 2.0',
     description: 'Crypto, Money, Economics, Markets on Odysee ',
