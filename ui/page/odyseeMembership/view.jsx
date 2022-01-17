@@ -95,7 +95,7 @@ const OdyseeMembershipPage = (props: Props) => {
   }, []);
 
   const cancelMembership = async function(e) {
-    const membershipId = e.target.getAttribute('membership-id');
+    const membershipId = e.currentTarget.getAttribute('membership-id');
 
     try {
       // show the memberships the user is subscribed to
@@ -224,7 +224,7 @@ const OdyseeMembershipPage = (props: Props) => {
             {/* list canceled memberships of user */}
             <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
             {canceledMemberships && canceledMemberships.length === 0 && (<>
-              <h4>You currently have no active memberships</h4>
+              <h4>You currently have no canceled memberships</h4>
             </>)}
             { canceledMemberships && canceledMemberships.map((membership) => (
               <>
