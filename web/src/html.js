@@ -64,14 +64,15 @@ function getCategoryMetaRenderFn(path) {
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path } = overrideOptions;
+  const { title, description, image, path, urlQueryString } = overrideOptions;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
+  const url = (path ? `${URL}${path}` : URL) + (urlQueryString ? `?${urlQueryString}` : '');
 
   const head =
     `<title>${SITE_TITLE}</title>\n` +
     `<meta name="description" content="${cleanDescription}" />\n` +
-    `<meta property="og:url" content="${path ? `${URL}${path}` : URL}" />\n` +
+    `<meta property="og:url" content="${url}" />\n` +
     `<meta property="og:title" content="${cleanTitle || OG_HOMEPAGE_TITLE || SITE_TITLE}" />\n` +
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
     `<meta property="og:description" content="${cleanDescription}" />\n` +
@@ -350,9 +351,7 @@ async function getHtml(ctx) {
   if (categoryMetaFn) {
     const categoryMeta = categoryMetaFn(ctx.request.query);
     const categoryPageMetadata = buildOgMetadata({
-      title: categoryMeta.title,
-      description: categoryMeta.description,
-      image: categoryMeta.image,
+      ...categoryMeta,
       path: requestPath,
     });
     return insertToHead(html, categoryPageMetadata);

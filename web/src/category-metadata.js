@@ -58,10 +58,17 @@ module.exports.CATEGORY_METADATA = {
     description: 'All the songs, reviews, covers, and how-tos you love on Odysee',
     image: 'https://cdn.lbryplayer.xyz/speech/category-music:8.jpg',
   }),
-  [PAGES.SEARCH]: ({ q = '' }) => ({
-    title: `"${q}" Search Results`,
-    description: `Find the best "${q}" content on Odysee`,
-  }),
+  [PAGES.SEARCH]: ({ q = '' }) => {
+    if (!q) {
+      return {};
+    }
+
+    return {
+      title: `"${q}" Search Results`,
+      description: `Find the best "${q}" content on Odysee`,
+      urlQueryString: `q=${q}`,
+    };
+  },
   [PAGES.TECH]: () => ({
     title: 'Tech',
     description: 'Hardware, software, startups, photography on Odysee',
