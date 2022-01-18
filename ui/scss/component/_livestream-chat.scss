@@ -181,6 +181,7 @@ $recent-msg-button__height: 2rem;
 
   .menu__button {
     margin-left: var(--spacing-xxs);
+    opacity: 1;
   }
 
   @media (max-width: $breakpoint-small) {
