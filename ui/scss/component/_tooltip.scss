@@ -11,13 +11,13 @@
   background-color: rgba(var(--color-header-background-base), 0.7) !important;
   color: var(--color-text) !important;
   font-size: var(--font-small) !important;
-  border: 2px solid #000;
+  border: 2px solid var(--color-text);
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
 .MuiTooltip-arrow {
-  color: #000 !important;
+  color: var(--color-text) !important;
   font-size: var(--font-xxsmall) !important;
 }
 
