@@ -216,10 +216,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   videojs.Html5Hlsjs.addHook('beforeinitialize', (videojsPlayer, hlsjsInstance) => {
     if (P2PEngine.isSupported()) {
       var engine = new P2PEngine(hlsjsInstance, {
-        p2pConfig: {
-          // announce: "https://hk.swarmcloud.net/v1",    // for version < 1.18.0
-          announceLocation: 'hk',                         // for version >= 1.18.0
-        },
+        announceLocation: 'hk',
         getStats: function (totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded) {
           console.log(`totalP2PDownloaded: ${totalP2PDownloaded}`)
           console.log(`totalP2PUploaded: ${totalP2PUploaded}`)
