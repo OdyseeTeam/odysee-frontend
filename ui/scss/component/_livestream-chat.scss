@@ -132,6 +132,7 @@ $recent-msg-button__height: 2rem;
   width: 100vw !important;
   height: 100vh !important;
   top: 0 !important;
+  overflow: hidden;
 
   .livestreamComments__wrapper {
     height: 95vh !important;
