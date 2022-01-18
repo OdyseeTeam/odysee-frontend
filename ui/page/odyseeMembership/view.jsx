@@ -9,6 +9,8 @@ import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 let stripeEnvironment = getStripeEnvironment();
 
+const isDev = process.env.NODE_ENV !== 'production';
+
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 const odyseeChannelName = '@odysee';
 
@@ -116,6 +118,16 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const formatDate = function(date) {
     return moment(new Date(date)).format('MMMM DD YYYY');
+  };
+
+  const deleteData = async function() {
+    const response = await Lbryio.call('membership', 'clear', {}, 'post');
+
+    console.log('list, see all the available odysee memberships');
+    console.log(response);
+    console.log('delete data');
+    // $FlowFixMe
+    location.reload();
   };
 
   const purchaseMembership = async function(e) {
@@ -257,6 +269,20 @@ const OdyseeMembershipPage = (props: Props) => {
             <br />
             <h2>Loading...</h2>
           </div>
+        )}
+        {isDev && (
+          <>
+            <h1 style={{marginTop: '30px', fontSize: '20px'}}>Clear Membership Data (Only Available On Dev)</h1>
+            <div>
+              <Button
+                button="secondary"
+                label={__('Clear Membership Data')}
+                icon={ICONS.SETTINGS}
+                style={{marginTop: '10px'}}
+                onClick={deleteData}
+              />
+            </div>
+          </>
         )}
       </Page>
     </>
