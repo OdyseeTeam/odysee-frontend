@@ -42,7 +42,7 @@
   --color-blockquote: rgba(var(--color-text-base), 0.6);
   --color-blockquote-bg: var(--color-gray-1);
   --color-tooltip-bg: #222;
-  --color-tooltip-text: #fafafa;
+  --color-tooltip-text: var(--color-text);
 
   // Header
   --color-header-button: rgba(220, 220, 220, 0.75);
