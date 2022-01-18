@@ -12,10 +12,32 @@
   }
 
   &:hover {
-    background-color: var(--color-card-background-highlighted);
+    //background-color: var(--color-card-background-highlighted);
+    background-color: rgba(var(--color-primary-dynamic), 0.06);
 
     .date_time {
       opacity: 0.5;
+    }
+  }
+
+  .comment__author {
+    color: rgba(var(--color-text-base), 0.5);
+    margin-top: var(--spacing-xxs);
+    max-width: unset;
+
+    .button__content {
+      max-width: unset;
+    }
+
+    &:hover {
+      color: var(--color-primary) !important;
+    }
+  }
+
+  .channel-name {
+    color: var(--color-secondary);
+    &:hover {
+      color: var(--color-primary);
     }
   }
 
@@ -41,7 +63,9 @@
 }
 
 .livestream__comment--superchat {
-  background-color: var(--color-card-background-highlighted);
+  background-color: rgba(var(--color-primary-dynamic), 0.1);
+  //background-color: var(--color-card-background-highlighted);
+  box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
 
   + .livestream__comment--superchat {
     margin-bottom: var(--spacing-xxs);
@@ -58,16 +82,12 @@
     margin-top: calc(var(--spacing-xxs) / 2);
   }
 
-  &::before {
-    position: absolute;
-    left: 0;
-    height: 100%;
-    max-height: 4rem;
-    border-top-right-radius: 2px;
-    border-bottom-right-radius: 2px;
-    width: 5px;
-    background-color: var(--color-superchat);
-    content: '';
+  .button__content {
+    color: var(--color-primary);
+  }
+
+  .date_time {
+    opacity: 1;
   }
 }
 
@@ -79,7 +99,7 @@
 
   .channel-thumbnail {
     @include handleChannelGif(2rem);
-    margin-top: var(--spacing-xxs);
+    margin-top: var(--spacing-s);
     flex-shrink: 0;
   }
 }
@@ -93,11 +113,21 @@
 .livestreamComment__superchatBanner {
   @extend .superChat;
 
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  padding: 0.25rem var(--spacing-s);
+  border-radius: 0;
   display: inline-block;
   position: relative;
+  width: 90%;
+  background-image: linear-gradient(to right, var(--color-primary), rgba(var(--color-primary-dynamic), 0));
+
+  .superChat {
+  }
+
+  .credit-amount {
+    color: var(--color-primary-contrast);
+    svg {
+      margin-bottom: -2px;
+    }
+  }
 }
 
 // This is just a two small circles that overlap to make it look like

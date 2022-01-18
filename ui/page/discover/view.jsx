@@ -218,7 +218,6 @@ function DiscoverPage(props: Props) {
             headerLabel={headerLabel}
             header={repostedUri ? <span /> : undefined}
             tileLayout={repostedUri ? false : tileLayout}
-            hideAdvancedFilter
             hideFilters
             infiniteScroll={false}
             loading={false}
@@ -245,8 +244,7 @@ function DiscoverPage(props: Props) {
       <ClaimListDiscover
         prefixUris={useDualList ? undefined : livestreamUris}
         pins={useDualList ? undefined : getPins(dynamicRouteProps)}
-        hideAdvancedFilter={SIMPLE_SITE}
-        hideFilters={SIMPLE_SITE ? !dynamicRouteProps : undefined}
+        hideFilters={SIMPLE_SITE ? !(dynamicRouteProps || tags) : undefined}
         header={useDualList ? <span /> : repostedUri ? <span /> : undefined}
         tileLayout={repostedUri ? false : tileLayout}
         defaultOrderBy={SIMPLE_SITE ? (dynamicRouteProps ? undefined : CS.ORDER_BY_TRENDING) : undefined}
@@ -272,8 +270,7 @@ function DiscoverPage(props: Props) {
         channelIds={channelIds}
         limitClaimsPerChannel={
           SIMPLE_SITE
-            ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) ||
-              undefined
+            ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
             : 3
         }
         meta={!useDualList && getMeta()}

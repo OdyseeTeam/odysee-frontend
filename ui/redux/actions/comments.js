@@ -5,8 +5,9 @@ import * as PAGES from 'constants/pages';
 import { SORT_BY, BLOCK_LEVEL } from 'constants/comment';
 import Lbry from 'lbry';
 import { parseURI, buildURI, isURIEqual } from 'util/lbryURI';
-import { selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
-import { doClaimSearch } from 'redux/actions/claims';
+import { devToast, doFailedSignatureToast, resolveCommentronError } from 'util/commentron-error';
+import { selectClaimForUri, selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { doResolveUri, doClaimSearch } from 'redux/actions/claims';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
 import {
   selectMyReactsForComment,
@@ -22,96 +23,10 @@ import Comments from 'comments';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { doAlertWaitingForSync } from 'redux/actions/app';
 
-const isDev = process.env.NODE_ENV !== 'production';
 const FETCH_API_FAILED_TO_FETCH = 'Failed to fetch';
 const PROMISE_FULFILLED = 'fulfilled';
 
-declare type CommentronErrorMap = {
-  [string]: {
-    commentron: string | RegExp,
-    replacement: string,
-    linkText?: string,
-    linkTarget?: string,
-  },
-};
-
-// prettier-ignore
-const ERR_MAP: CommentronErrorMap = {
-  SIMILAR_NAME: {
-    commentron: /^your user name (.*) is too close to the creator's user name (.*) and may cause confusion. Please use another identity.$/,
-    replacement: 'Your user name "%1%" is too close to the creator\'s user name "%2%" and may cause confusion. Please use another identity.',
-  },
-  SLOW_MODE_IS_ON: {
-    commentron: /^Slow mode is on. Please wait at most (.*) seconds before commenting again.$/,
-    replacement: 'Slow mode is on. Please wait up to %1% seconds before commenting again.',
-  },
-  HAS_MUTED_WORDS: {
-    commentron: /^the comment contents are blocked by (.*)$/,
-    replacement: 'The comment contains contents that are blocked by %1%.',
-  },
-  BLOCKED_BY_CREATOR: {
-    commentron: 'channel is blocked by publisher',
-    replacement: 'Unable to comment. This channel has blocked you.',
-  },
-  BLOCKED_BY_ADMIN: {
-    commentron: 'channel is not allowed to post comments',
-    replacement: 'Unable to comment. Your channel has been blocked by an admin.',
-  },
-  CREATOR_DISABLED: {
-    commentron: 'comments are disabled by the creator',
-    replacement: 'Unable to comment. The content owner has disabled comments.',
-  },
-  STOP_SPAMMING: {
-    commentron: 'duplicate comment!',
-    replacement: 'Please do not spam.',
-  },
-};
-
-function devToast(dispatch, msg) {
-  if (isDev) {
-    console.error(msg); // eslint-disable-line
-    dispatch(doToast({ isError: true, message: `DEV: ${msg}` }));
-  }
-}
-
-function resolveCommentronError(commentronMsg: string) {
-  for (const key in ERR_MAP) {
-    // noinspection JSUnfilteredForInLoop
-    const data = ERR_MAP[key];
-    if (typeof data.commentron === 'string') {
-      if (data.commentron === commentronMsg) {
-        return {
-          message: __(data.replacement),
-          linkText: data.linkText ? __(data.linkText) : undefined,
-          linkTarget: data.linkTarget,
-          isError: true,
-        };
-      }
-    } else {
-      const match = commentronMsg.match(data.commentron);
-      if (match) {
-        const subs = {};
-        for (let i = 1; i < match.length; ++i) {
-          subs[`${i}`] = match[i];
-        }
-
-        return {
-          message: __(data.replacement, subs),
-          linkText: data.linkText ? __(data.linkText) : undefined,
-          linkTarget: data.linkTarget,
-          isError: true,
-        };
-      }
-    }
-  }
-
-  return {
-    // Fallback to commentron original message. It will be in English
-    // only and most likely not capitalized correctly.
-    message: commentronMsg,
-    isError: true,
-  };
-}
+const MENTION_REGEX = /(?:^| |\n)@[^\s=&#$@%?:;/"<>%{}|^~[]*(?::[\w]+)?/gm;
 
 export function doCommentList(
   uri: string,
@@ -573,10 +488,33 @@ export function doCommentCreate(
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const activeChannelClaim = selectActiveChannelClaim(state);
+    let mentionedChannels: Array<MentionedChannel> = [];
 
     if (!activeChannelClaim) {
       console.error('Unable to create comment. No activeChannel is set.'); // eslint-disable-line
       return;
+    }
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll
+    // $FlowFixMe
+    const mentionMatches = [...comment.matchAll(MENTION_REGEX)];
+
+    if (mentionMatches.length > 0) {
+      mentionMatches.forEach((match) => {
+        const matchTerm = match[0];
+        const mention = matchTerm.substring(matchTerm.indexOf('@'));
+        const mentionUri = `lbry://${mention}`;
+
+        const claim = selectClaimForUri(state, mentionUri);
+
+        if (claim) {
+          mentionedChannels.push({ channel_name: claim.name, channel_id: claim.claim_id });
+        } else if (claim === undefined) {
+          dispatch(doResolveUri(mentionUri))
+            .then((response) => mentionedChannels.push({ channel_name: response.name, channel_id: response.claim_id }))
+            .catch((e) => {});
+        }
+      });
     }
 
     dispatch({ type: ACTIONS.COMMENT_CREATE_STARTED });
@@ -607,6 +545,7 @@ export function doCommentCreate(
       signature: signatureData.signature,
       signing_ts: signatureData.signing_ts,
       sticker: sticker,
+      mentioned_channels: mentionedChannels,
       ...(txid ? { support_tx_id: txid } : {}),
       ...(payment_intent_id ? { payment_intent_id } : {}),
       ...(environment ? { environment } : {}),
@@ -1372,28 +1311,18 @@ export function doCommentModAddDelegate(
   showToast: boolean = false
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    let signature: ?{
-      signature: string,
-      signing_ts: string,
-    };
-    try {
-      signature = await Lbry.channel_sign({
-        channel_id: creatorChannelClaim.claim_id,
-        hexdata: toHex(creatorChannelClaim.name),
-      });
-    } catch (e) {}
-
+    const signature = await channelSignData(creatorChannelClaim.claim_id, creatorChannelClaim.name);
     if (!signature) {
+      doFailedSignatureToast(dispatch, creatorChannelClaim.name);
       return;
     }
 
     return Comments.moderation_add_delegate({
       mod_channel_id: modChannelId,
       mod_channel_name: modChannelName,
-      creator_channel_id: creatorChannelClaim.claim_id,
-      creator_channel_name: creatorChannelClaim.name,
-      signature: signature.signature,
-      signing_ts: signature.signing_ts,
+      channel_id: creatorChannelClaim.claim_id,
+      channel_name: creatorChannelClaim.name,
+      ...signature,
     })
       .then(() => {
         if (showToast) {
@@ -1410,12 +1339,7 @@ export function doCommentModAddDelegate(
         }
       })
       .catch((err) => {
-        dispatch(
-          doToast({
-            message: err.message,
-            isError: true,
-          })
-        );
+        dispatch(doToast({ message: err.message, isError: true }));
       });
   };
 }
@@ -1426,68 +1350,39 @@ export function doCommentModRemoveDelegate(
   creatorChannelClaim: ChannelClaim
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    let signature: ?{
-      signature: string,
-      signing_ts: string,
-    };
-    try {
-      signature = await Lbry.channel_sign({
-        channel_id: creatorChannelClaim.claim_id,
-        hexdata: toHex(creatorChannelClaim.name),
-      });
-    } catch (e) {}
-
+    const signature = await channelSignData(creatorChannelClaim.claim_id, creatorChannelClaim.name);
     if (!signature) {
+      doFailedSignatureToast(dispatch, creatorChannelClaim.name);
       return;
     }
 
     return Comments.moderation_remove_delegate({
       mod_channel_id: modChannelId,
       mod_channel_name: modChannelName,
-      creator_channel_id: creatorChannelClaim.claim_id,
-      creator_channel_name: creatorChannelClaim.name,
-      signature: signature.signature,
-      signing_ts: signature.signing_ts,
+      channel_id: creatorChannelClaim.claim_id,
+      channel_name: creatorChannelClaim.name,
+      ...signature,
     }).catch((err) => {
-      dispatch(
-        doToast({
-          message: err.message,
-          isError: true,
-        })
-      );
+      dispatch(doToast({ message: err.message, isError: true }));
     });
   };
 }
 
 export function doCommentModListDelegates(channelClaim: ChannelClaim) {
   return async (dispatch: Dispatch, getState: GetState) => {
-    dispatch({
-      type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_STARTED,
-    });
+    dispatch({ type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_STARTED });
 
-    let signature: ?{
-      signature: string,
-      signing_ts: string,
-    };
-    try {
-      signature = await Lbry.channel_sign({
-        channel_id: channelClaim.claim_id,
-        hexdata: toHex(channelClaim.name),
-      });
-    } catch (e) {}
-
+    const signature = await channelSignData(channelClaim.claim_id, channelClaim.name);
     if (!signature) {
-      dispatch({
-        type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED,
-      });
+      doFailedSignatureToast(dispatch, channelClaim.name);
+      dispatch({ type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED });
       return;
     }
 
     return Comments.moderation_list_delegates({
-      creator_channel_id: channelClaim.claim_id,
-      creator_channel_name: channelClaim.name,
-      signature: signature.signature,
-      signing_ts: signature.signing_ts,
+      channel_id: channelClaim.claim_id,
+      channel_name: channelClaim.name,
+      ...signature,
     })
       .then((response) => {
         dispatch({
@@ -1499,9 +1394,8 @@ export function doCommentModListDelegates(channelClaim: ChannelClaim) {
         });
       })
       .catch((err) => {
-        dispatch({
-          type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED,
-        });
+        dispatch(doToast({ message: err.message, isError: true }));
+        dispatch({ type: ACTIONS.COMMENT_FETCH_MODERATION_DELEGATES_FAILED });
       });
   };
 }
