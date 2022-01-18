@@ -1,10 +1,10 @@
 // @flow
-const { isLocalStorageAvailable } = require('./util/storage');
+import { isLocalStorageAvailable } from 'util/storage';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const localStorageAvailable = isLocalStorageAvailable();
 
-globalThis.i18n_messages = globalThis.i18n_messages || {};
+window.i18n_messages = window.i18n_messages || {};
 let reportTimer;
 
 /**
@@ -15,22 +15,22 @@ let reportTimer;
  */
 function saveMessageWeb(message) {
   // @if process.env.NODE_ENV!='production'
-  if (!globalThis.app_strings) {
+  if (!window.app_strings) {
     return;
   }
 
-  if (!globalThis.new_strings) {
-    console.log('Copy new i18n to clipboard:%c copy(globalThis.new_strings)', 'color:yellow'); // eslint-disable-line
+  if (!window.new_strings) {
+    console.log('Copy new i18n to clipboard:%c copy(window.new_strings)', 'color:yellow'); // eslint-disable-line
   }
 
-  globalThis.new_strings = globalThis.new_strings || {};
+  window.new_strings = window.new_strings || {};
 
-  if (!globalThis.app_strings[message] && !globalThis.new_strings[message]) {
-    globalThis.new_strings[message] = removeContextMetadata(message);
+  if (!window.app_strings[message] && !window.new_strings[message]) {
+    window.new_strings[message] = removeContextMetadata(message);
 
     // @if REPORT_NEW_STRINGS='true'
     if (reportTimer) clearTimeout(reportTimer);
-    reportTimer = setTimeout(() => console.log(globalThis.new_strings), 2000); // eslint-disable-line no-console
+    reportTimer = setTimeout(() => console.log(window.new_strings), 2000); // eslint-disable-line no-console
     // @endif
   }
   // @endif
@@ -61,24 +61,20 @@ function removeContextMetadata(message) {
   return message;
 }
 
-function __(message /*: string */, tokens /*: { [string]: string } */) {
+export function __(message: string, tokens: { [string]: string }) {
   if (!message) {
     return '';
   }
 
-  const navLang = globalThis.navigator?.language || '';
-
   const language = localStorageAvailable
-    ? globalThis.localStorage.getItem('language') || 'en'
-    : navLang.slice(0, 2) || 'en';
+    ? window.localStorage.getItem('language') || 'en'
+    : window.navigator.language.slice(0, 2) || 'en';
 
   if (!isProduction) {
     saveMessageWeb(message);
   }
 
-  let translatedMessage = globalThis.i18n_messages[language]
-    ? globalThis.i18n_messages[language][message] || message
-    : message;
+  let translatedMessage = window.i18n_messages[language] ? window.i18n_messages[language][message] || message : message;
   translatedMessage = removeContextMetadata(translatedMessage);
 
   if (!tokens) {
@@ -89,7 +85,3 @@ function __(message /*: string */, tokens /*: { [string]: string } */) {
     return tokens.hasOwnProperty($2) ? tokens[$2] : $2;
   });
 }
-
-module.exports = {
-  __,
-};
