@@ -166,6 +166,16 @@ $recent-msg-button__height: 2rem;
     .button__label {
       max-height: 18px;
     }
+
+    .button-toggle:not(.button-toggle--active) {
+      background-color: var(--color-header-button);
+      &:hover {
+        span,
+        p {
+          color: var(--color-primary);
+        }
+      }
+    }
   }
 
   @media (min-width: $breakpoint-small) {
@@ -331,18 +341,17 @@ $recent-msg-button__height: 2rem;
   }
 
   &:hover {
+    .menu__button {
+      opacity: 1;
+    }
     .date_time {
-      opacity: 0.5;
+      opacity: 0.9;
     }
   }
 
   @media (min-width: $breakpoint-small) {
     &:hover {
       background-color: rgba(var(--color-primary-dynamic), 0.1);
-
-      .menu__button {
-        opacity: 1;
-      }
 
       .comment__author {
         color: var(--color-primary);
