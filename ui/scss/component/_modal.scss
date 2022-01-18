@@ -36,7 +36,7 @@
   overflow: auto;
   padding: var(--spacing-l);
   word-break: break-word;
-  background-color: var(--color-modal-background);
+  background-color: var(--color-modal-background) !important;
   border-radius: var(--border-radius);
   border: 2px solid #000;
   -webkit-backdrop-filter: blur(4px);
@@ -54,7 +54,7 @@
 
   &:focus,
   &:focus-visible {
-    box-shadow: none;
+    box-shadow: none !important;
     background-color: var(--color-modal-background) !important;
   }
 
