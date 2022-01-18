@@ -20,7 +20,7 @@ import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
-import videojs from 'video.js';
+// import videojs from 'video.js';
 const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -184,15 +184,24 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playbackRates: videoPlaybackRates,
     responsive: true,
     controls: true,
+    // html5: {
+    //   vhs: {
+    //     overrideNative: !videojs.browser.IS_ANY_SAFARI,
+    //   },
+    // },
     html5: {
-      vhs: {
-        overrideNative: !videojs.browser.IS_ANY_SAFARI,
-      },
+      hlsjsConfig: {
+        // Put your hls.js config here
+        debug: true,
+        maxBufferSize: 0,
+        maxBufferLength: 10,
+        liveSyncDurationCount: 10,
+      }
     },
     autoplay: autoplay,
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
-    plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
+    // plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     // fixes problem of errant CC button showing up on iOS
     // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
     controlBar: { subsCapsButton: false },
@@ -203,6 +212,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     bigPlayButton: embedded, // only show big play button if embedded
   };
+
+  videojs.Html5Hlsjs.addHook('beforeinitialize', (videojsPlayer, hlsjsInstance) => {
+    if (P2PEngine.isSupported()) {
+      var engine = new P2PEngine(hlsjsInstance, {
+        getStats: function (totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded) {
+          console.log(`totalP2PDownloaded: ${totalP2PDownloaded}`)
+          console.log(`totalP2PUploaded: ${totalP2PUploaded}`)
+          console.log(`totalHTTPDownloaded: ${totalHTTPDownloaded}`)
+          // console.log(totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded)
+          // var total = totalHTTPDownloaded + totalP2PDownloaded;
+          // document.querySelector('#info').innerText = `p2p ratio: ${Math.round(totalP2PDownloaded/total*100)}%, saved traffic: ${totalP2PDownloaded}KB, uploaded: ${totalP2PUploaded}KB`;
+        },
+      });
+    }
+  });
 
   // Initialize video.js
   function initializeVideoPlayer(el, canAutoplayVideo) {
