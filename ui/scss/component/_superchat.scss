@@ -1,4 +1,4 @@
-.super-chat {
+.superChat {
   border-radius: var(--border-radius);
   background-color: linear-gradient(to right, var(--color-superchat), var(--color-superchat-3));
   padding: 0.2rem var(--spacing-xs);
@@ -11,7 +11,7 @@
 }
 
 .super-chat--light {
-  @extend .super-chat;
+  @extend .superChat;
   background-color: rgba(var(--color-primary-dynamic), 0.7);
   margin-bottom: 4px;
 

@@ -215,27 +215,6 @@ $thumbnailWidthSmall: 1rem;
   }
 }
 
-.comment__badge {
-  .icon {
-    margin-bottom: -3px;
-    height: 1rem;
-  }
-}
-
-.comment__badge--global-mod {
-  .st0 {
-    // @see: ICONS.BADGE_MOD
-    fill: #fe7500;
-  }
-}
-
-.comment__badge--mod {
-  .st0 {
-    // @see: ICONS.BADGE_MOD
-    fill: #ff3850;
-  }
-}
-
 .comment__message {
   word-break: break-word;
   padding-right: var(--spacing-xl);
