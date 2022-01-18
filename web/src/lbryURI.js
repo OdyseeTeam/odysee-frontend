@@ -1,5 +1,8 @@
 // Disabled flow in this copy. This copy is for uncompiled web server ES5 require()s.
 
+// Placeholder until i18n can be adapted for node usage
+const __ = (msg) => msg;
+
 const isProduction = process.env.NODE_ENV === 'production';
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
