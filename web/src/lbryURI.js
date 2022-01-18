@@ -100,7 +100,7 @@ function parseURI(url, requireProto = false) {
 
     if (channelName.length < channelNameMinLength) {
       throw new Error(
-        __(`Channel names must be at least %channelNameMinLength% characters.`, {
+        __(`Channel names must be at least ${channelNameMinLength} characters.`, {
           channelNameMinLength,
         })
       );
@@ -149,7 +149,7 @@ function parseURIModifier(modSeperator, modValue) {
 
   if (modSeperator) {
     if (!modValue) {
-      throw new Error(__(`No modifier provided after separator %modSeperator%.`, { modSeperator }));
+      throw new Error(__(`No modifier provided after separator ${modSeperator}.`, { modSeperator }));
     }
 
     if (modSeperator === MOD_CLAIM_ID_SEPARATOR || MOD_CLAIM_ID_SEPARATOR_OLD) {
@@ -162,7 +162,7 @@ function parseURIModifier(modSeperator, modValue) {
   }
 
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
-    throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
+    throw new Error(__(`Invalid claim ID ${claimId}.`, { claimId }));
   }
 
   if (claimSequence && !claimSequence.match(/^-?[1-9][0-9]*$/)) {
