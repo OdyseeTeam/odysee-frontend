@@ -646,6 +646,17 @@ textarea {
       fieldset-section:not(:first-child) {
         margin-top: var(--spacing-s);
       }
+      .fieldset-group--smushed {
+        fieldset-section {
+          margin-top: 0;
+          label {
+            margin-left: 0;
+          }
+          .input--currency-select {
+            margin-left: 2px !important;
+          }
+        }
+      }
     }
   }
 
