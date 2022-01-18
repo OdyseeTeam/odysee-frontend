@@ -182,6 +182,12 @@ body {
       align-items: center;
     }
 
+    .recommended-content__toggles {
+      .button-toggle {
+        margin-right: 0;
+      }
+    }
+
     @media (max-width: $breakpoint-medium) {
       width: 100%;
       margin-left: 0;
