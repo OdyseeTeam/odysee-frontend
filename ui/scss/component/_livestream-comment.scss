@@ -106,8 +106,17 @@
 
 .livestreamComment__menu {
   position: absolute;
-  right: var(--spacing-xs);
-  top: var(--spacing-xs);
+  right: 2px;
+  top: 2px;
+
+  [aria-expanded='true'].menu__button {
+    opacity: 1;
+    background-color: var(--color-header-background);
+    border-radius: var(--border-radius);
+    .icon {
+      stroke: var(--color-primary);
+    }
+  }
 }
 
 .livestreamComment__superchatBanner {
@@ -118,8 +127,11 @@
   position: relative;
   width: 90%;
   background-image: linear-gradient(to right, var(--color-primary), rgba(var(--color-primary-dynamic), 0));
+  padding: 4px 2px 2px 4px;
 
   .superChat {
+    background-color: var(--color-header-background);
+    padding-top: 5px !important;
   }
 
   .credit-amount {
