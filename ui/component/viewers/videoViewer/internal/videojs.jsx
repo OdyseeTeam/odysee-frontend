@@ -213,19 +213,20 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     bigPlayButton: embedded, // only show big play button if embedded
   };
 
+  const getStatsCallback = function(totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded){
+    console.log(`totalP2PDownloaded: ${totalP2PDownloaded}`);
+    console.log(`totalP2PUploaded: ${totalP2PUploaded}`);
+    console.log(`totalHTTPDownloaded: ${totalHTTPDownloaded}`);
+  };
+
+  const p2pConfig = {
+    announceLocation: 'hk',
+    getStats: getStatsCallback,
+  };
+
   videojs.Html5Hlsjs.addHook('beforeinitialize', (videojsPlayer, hlsjsInstance) => {
     if (P2PEngine.isSupported()) {
-      var engine = new P2PEngine(hlsjsInstance, {
-        announceLocation: 'hk',
-        getStats: function (totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded) {
-          console.log(`totalP2PDownloaded: ${totalP2PDownloaded}`)
-          console.log(`totalP2PUploaded: ${totalP2PUploaded}`)
-          console.log(`totalHTTPDownloaded: ${totalHTTPDownloaded}`)
-          // console.log(totalP2PDownloaded, totalP2PUploaded, totalHTTPDownloaded)
-          // var total = totalHTTPDownloaded + totalP2PDownloaded;
-          // document.querySelector('#info').innerText = `p2p ratio: ${Math.round(totalP2PDownloaded/total*100)}%, saved traffic: ${totalP2PDownloaded}KB, uploaded: ${totalP2PUploaded}KB`;
-        },
-      });
+      var engine = new P2PEngine(hlsjsInstance, p2pConfig);
     }
   });
 
