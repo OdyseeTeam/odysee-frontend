@@ -13,7 +13,7 @@
 
   &:hover {
     //background-color: var(--color-card-background-highlighted);
-    background-color: rgba(var(--color-primary-dynamic), 0.01);
+    background-color: rgba(var(--color-primary-dynamic), 0.06);
 
     .date_time {
       opacity: 0.5;
@@ -63,7 +63,7 @@
 }
 
 .livestream__comment--superchat {
-  background-color: rgba(var(--color-primary-dynamic), 0.03);
+  background-color: rgba(var(--color-primary-dynamic), 0.05);
   //background-color: var(--color-card-background-highlighted);
   box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
 
