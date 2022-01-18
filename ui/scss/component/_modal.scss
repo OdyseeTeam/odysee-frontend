@@ -36,9 +36,13 @@
   overflow: auto;
   padding: var(--spacing-l);
   word-break: break-word;
+  background-color: var(--color-modal-background);
+  border-radius: var(--border-radius);
+  border: 2px solid #000;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 
   .card {
-    background-color: var(--color-modal-background);
     input {
       background: var(--color-header-button) !important;
       &:focus {
@@ -48,8 +52,10 @@
     }
   }
 
-  &:focus {
+  &:focus,
+  &:focus-visible {
     box-shadow: none;
+    background-color: var(--color-modal-background) !important;
   }
 
   @media (max-width: $breakpoint-small) {
