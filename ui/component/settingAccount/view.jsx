@@ -37,6 +37,8 @@ export default function SettingAccount(props: Props) {
   const [storedPassword, setStoredPassword] = React.useState(false);
   const { keycloak, initialized: keycloakReady } = useKeycloak();
   const authToken = getAuthToken();
+  const isLegacyAuthenticated = isAuthenticated && Boolean(authToken);
+  const isSsoAuthenticated = isAuthenticated && !authToken;
 
   function redirectToSsoAccountPage() {
     if (getAuthToken()) {
@@ -71,7 +73,18 @@ export default function SettingAccount(props: Props) {
         isBodyList
         body={
           <>
-            {isAuthenticated && (
+            {isLegacyAuthenticated && (
+              <SettingsRow title={__('Password')}>
+                <Button
+                  button="inverse"
+                  label={__('Manage')}
+                  icon={ICONS.ARROW_RIGHT}
+                  navigate={`/$/${PAGES.SETTINGS_UPDATE_PWD}`}
+                />
+              </SettingsRow>
+            )}
+
+            {isSsoAuthenticated && (
               <SettingsRow title={__('Manage your Odysee account')} subtitle={__('Change password, enable 2FA, etc.')}>
                 <Button
                   button="inverse"
