@@ -119,7 +119,7 @@ $recent-msg-button__height: 2rem;
 
     @media all and (orientation: landscape) {
       height: calc(100vw - var(--header-height) - var(--spacing-l));
-      .livestream__comments-wrapper {
+      .livestreamComments__wrapper {
         height: calc(100vw - var(--header-height) - 3rem - var(--spacing-l));
       }
     }
