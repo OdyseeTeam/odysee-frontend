@@ -347,7 +347,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.src({
         type: 'application/x-mpegURL',
-        src: 'https://cdn.odysee.live/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
+        src: 'https://stream.odysee.com/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
       });
 
       // if (1 == 1 || response && response.redirected && response.url && response.url.endsWith('m3u8')) {
