@@ -176,11 +176,16 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+
+    .button-toggle:last-of-type {
+      margin-right: 0;
+    }
   }
 
   @media (min-width: $breakpoint-small) {
     height: $discussion-header__height;
     padding: 0 var(--spacing-s);
+    padding-top: 0;
     padding-right: 0;
   }
 
