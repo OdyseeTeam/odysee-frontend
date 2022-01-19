@@ -16,6 +16,18 @@ $contentMaxWidth: 60rem;
       border-top: none;
     }
 
+    .notification__menu {
+      margin-right: var(--spacing-s);
+      [aria-expanded='true'].menu__button {
+        opacity: 1;
+        background-color: var(--color-header-background);
+        border-radius: var(--border-radius);
+        .icon {
+          stroke: var(--color-primary);
+        }
+      }
+    }
+
     .commentCreate {
       border-top: 1px solid var(--color-border);
       padding-top: var(--spacing-s);
@@ -48,8 +60,20 @@ $contentMaxWidth: 60rem;
     &:hover {
       cursor: pointer;
       background-color: rgba(var(--color-header-background-base), 0.9);
+      .menu__button {
+        opacity: 1;
+      }
       .notification__text {
         color: var(--color-primary);
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      .notification__menu {
+        margin-right: calc(var(--spacing-xs) * -1);
+        .menu__button {
+          opacity: 1;
+        }
       }
     }
   }
