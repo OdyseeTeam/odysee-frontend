@@ -307,14 +307,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
-    (async function() {
+    (async function () {
       videojs.Vhs.xhr.beforeRequest = (options) => {
         console.log('before!');
         console.log(options);
         if (!options.headers) {
           options.headers = {};
         }
-        options.headers['x-playback-session-id'] = '5423'
+        options.headers['X-Pull'] = 'bitwaveCDN';
 
         return options;
       };
@@ -347,7 +347,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.src({
         type: 'application/x-mpegURL',
-        src: 'https://stream.odysee.com/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
+        src: 'https://cdn.odysee.live/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
       });
 
       // if (1 == 1 || response && response.redirected && response.url && response.url.endsWith('m3u8')) {
@@ -382,7 +382,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const adsClaimParentDiv = adsClaimDiv.parentNode;
 
           // watch parent div for when it is on viewport
-          const observer = new IntersectionObserver(function(entries) {
+          const observer = new IntersectionObserver(function (entries) {
             // when ad div parent becomes visible by 1px, show the ad video
             if (entries[0].isIntersecting === true) {
               adsClaimDiv.style.display = 'block';
