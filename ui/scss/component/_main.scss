@@ -534,6 +534,13 @@ body {
       }
     }
   }
+
+  .tags--remove {
+    .button {
+      background-color: var(--color-header-background);
+      color: var(--color-text);
+    }
+  }
 }
 
 .main--markdown {
