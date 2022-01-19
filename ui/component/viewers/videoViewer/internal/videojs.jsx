@@ -196,6 +196,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         maxBufferSize: 0,
         maxBufferLength: 10,
         liveSyncDurationCount: 10,
+        xhrSetup: xhr => {
+          xhr.setRequestHeader('X-Pull', 'bitwaveCDN');
+        }
       }
     },
     autoplay: autoplay,
@@ -249,7 +252,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       LbryVolumeBarClass.replaceExisting(player);
 
       // Add reloadSourceOnError plugin
-      player.reloadSourceOnError({ errorInterval: 10 });
+      // player.reloadSourceOnError({ errorInterval: 10 });
 
       // Initialize mobile UI.
       player.mobileUi();
@@ -345,21 +348,26 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       playerServerRef.current = response.headers.get('x-powered-by');
 
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        // use m3u8 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: 'application/x-mpegURL',
-          src: response.url,
-        });
-      } else {
-        // use original mp4 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: sourceType,
-          src: source,
-        });
-      }
+      vjsPlayer.src({
+        type: 'application/x-mpegURL',
+        src: 'https://stream.odysee.com/transcode/1683d813e54173d0f1d066bd9d3e320415284d88_480/index.m3u8',
+      });
+
+      // if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+      //   // use m3u8 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: 'application/x-mpegURL',
+      //     src: response.url,
+      //   });
+      // } else {
+      //   // use original mp4 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: sourceType,
+      //     src: source,
+      //   });
+      // }
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
