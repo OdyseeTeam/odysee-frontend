@@ -308,13 +308,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function() {
+      // add header for CDN auth
       videojs.Vhs.xhr.beforeRequest = (options) => {
-        console.log('before!');
-        console.log(options);
         if (!options.headers) {
           options.headers = {};
         }
-        options.headers['x-playback-session-id'] = '5423'
+        options.headers['X-Pull'] = 'bitwaveCDN';
 
         return options;
       };
@@ -347,7 +346,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.src({
         type: 'application/x-mpegURL',
-        src: 'https://stream.odysee.com/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
+        src: 'https://stream.odysee.com/transcode/1683d813e54173d0f1d066bd9d3e320415284d88_480/index.m3u8',
       });
 
       // if (1 == 1 || response && response.redirected && response.url && response.url.endsWith('m3u8')) {
