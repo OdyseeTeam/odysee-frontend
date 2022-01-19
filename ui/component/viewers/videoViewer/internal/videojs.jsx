@@ -289,10 +289,36 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     return vjs;
   }
 
+  useEffect(() => {
+    // Global change for all requests
+    // @ts-ignore
+    // videojs.Vhs.xhr.beforeRequest = (options) => {
+    //   console.log('before!');
+    //   console.log(options);
+    //   if (!options.headers) {
+    //     options.headers = {};
+    //   }
+    //   options.headers['x-playback-session-id'] = '5423'
+    //
+    //   return options;
+    // };
+  });
+
   /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function() {
+      videojs.Vhs.xhr.beforeRequest = (options) => {
+        console.log('before!');
+        console.log(options);
+        if (!options.headers) {
+          options.headers = {};
+        }
+        options.headers['x-playback-session-id'] = '5423'
+
+        return options;
+      };
+
       // test if perms to play video are available
       let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
 
@@ -319,21 +345,26 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       playerServerRef.current = response.headers.get('x-powered-by');
 
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        // use m3u8 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: 'application/x-mpegURL',
-          src: response.url,
-        });
-      } else {
-        // use original mp4 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: sourceType,
-          src: source,
-        });
-      }
+      vjsPlayer.src({
+        type: 'application/x-mpegURL',
+        src: 'https://stream.odysee.com/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
+      });
+
+      // if (1 == 1 || response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+      //   // use m3u8 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: 'application/x-mpegURL',
+      //     src: 'https://cdn.odysee.live/hls/0f8078f7710ce929ac176e3df0e08cf0b6ab2125/index.m3u8',
+      //   });
+      // } else {
+      //   // use original mp4 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: sourceType,
+      //     src: source,
+      //   });
+      // }
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
