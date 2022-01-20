@@ -371,8 +371,6 @@ body {
   }
 
   .file-page__recommended {
-    width: 28rem;
-
     @media (max-width: $breakpoint-medium) {
       width: 100%;
     }
