@@ -1,12 +1,16 @@
 import { connect } from 'react-redux';
-import { selectTotalBalance } from 'redux/selectors/wallet';
 import { doOpenModal } from 'redux/actions/app';
 import OdyseeMembership from './view';
 
 const select = (state) => ({
-  totalBalance: selectTotalBalance(state),
+  // osNotificationsEnabled: selectosNotificationsEnabled(state),
+  // isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
+  // email: selectUserEmail(state),
 });
 
-export default connect(select, {
+const perform = (dispatch) => ({
   doOpenModal,
-})(OdyseeMembership);
+  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+});
+
+export default connect(select, perform)(OdyseeMembership);
