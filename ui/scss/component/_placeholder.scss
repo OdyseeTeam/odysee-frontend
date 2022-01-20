@@ -7,8 +7,6 @@
 }
 
 .placeholder {
-  // display: flex;
-
   &.claim-preview--tile {
     background-color: unset;
   }
@@ -95,7 +93,7 @@
   }
 
   &:hover {
-    &.media__thumb {
+    .media__thumb {
       box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0) inset;
     }
   }
