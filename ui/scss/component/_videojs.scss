@@ -138,13 +138,6 @@ $control-bar-icon-size: 0.8rem;
 
 // Button glow
 .video-js {
-  .vjs-time-divider {
-    padding-left: 0.5em;
-    padding-right: 0.5em;
-    min-width: unset;
-    z-index: 0;
-  }
-
   .vjs-control,
   .vjs-time-divider {
     user-select: none;
