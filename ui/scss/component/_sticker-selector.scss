@@ -2,9 +2,11 @@
 
 .stickerSelector {
   animation: menu-animate-in var(--animation-duration) var(--animation-style);
-  border: 1px solid var(--color-border);
+  // border: 1px solid var(--color-border);
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m);
+  background-color: rgba(var(--color-primary-dynamic), 0.1);
+  border: 1px solid rgba(var(--color-primary-dynamic), 0.2);
 
   .stickerSelector__header {
     border-bottom: 1px solid var(--color-border);
@@ -12,6 +14,13 @@
     margin-bottom: 0;
     align-items: center;
     padding: var(--spacing-xxs);
+    background-image: linear-gradient(
+      to right,
+      rgba(var(--color-primary-dynamic), 0.5),
+      rgba(var(--color-primary-dynamic), 0.3)
+    );
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    color: var(--color-primary-contrast);
 
     .stickerSelector__headerTitle {
       padding: 0;
@@ -21,6 +30,7 @@
   .navigation__wrapper {
     height: unset;
     border-left: 1px solid var(--color-border);
+    background-color: rgba(var(--color-primary-dynamic), 0.2);
 
     .navigation-links {
       li {
@@ -35,6 +45,22 @@
             .button__label {
               font-size: var(--font-small);
               margin: 0 var(--spacing-s);
+              color: var(--color-text);
+            }
+            .icon {
+              stroke: var(--color-text);
+            }
+          }
+
+          &:hover {
+            .button__content {
+              background-color: rgba(var(--color-primary-dynamic), 0.1);
+              .button__label {
+                color: var(--color-primary);
+              }
+              .icon {
+                stroke: var(--color-primary);
+              }
             }
           }
         }
