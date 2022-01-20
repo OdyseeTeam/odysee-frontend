@@ -1,7 +1,6 @@
 // @flow
 import React, { useEffect } from 'react';
 import { Route, Redirect, Switch, withRouter } from 'react-router-dom';
-import { useKeycloak } from '@react-keycloak/web';
 
 import * as PAGES from 'constants/pages';
 import { PAGE_TITLE } from 'constants/pageTitles';
@@ -149,12 +148,12 @@ function PrivateRoute(props: PrivateRouteProps) {
   const { component: Component, isAuthenticated, ...rest } = props;
   const urlSearchParams = new URLSearchParams(props.location.search);
   const redirectUrl = urlSearchParams.get('redirect');
-  const { keycloak } = useKeycloak();
+
   return (
     <Route
       {...rest}
       render={(props) =>
-        (keycloak && keycloak.authenticated) || !IS_WEB ? (
+        isAuthenticated || !IS_WEB ? (
           <Component {...props} />
         ) : (
           <Redirect to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${redirectUrl || props.location.pathname}`} />
