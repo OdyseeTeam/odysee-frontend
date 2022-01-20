@@ -1,0 +1,51 @@
+.color-picker {
+  .swatch {
+    padding: 5px;
+    background: var(--color-header-background);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+    display: inline-block;
+    cursor: pointer;
+    width: var(--height-input);
+    height: var(--height-input);
+  }
+
+  .color {
+    width: 100%;
+    height: 100%;
+    border-radius: calc(var(--border-radius) - 2px);
+  }
+
+  .popover {
+    position: absolute;
+    z-index: 2;
+  }
+
+  .cover {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    left: 0px;
+  }
+
+  .sketch-picker {
+    background-color: var(--color-header-background) !important;
+    margin-bottom: var(--spacing-l);
+
+    .flexbox-fix {
+      input {
+        box-shadow: unset !important;
+        background-color: var(--color-header-button) !important;
+        text-align: center;
+      }
+      label {
+        color: var(--color-text) !important;
+      }
+    }
+
+    .flexbox-fix:last-of-type {
+      display: none !important;
+    }
+  }
+}

@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import TagsSearch from 'component/tagsSearch';
+import ColorPicker from 'component/colorPicker';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -24,6 +25,8 @@ import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
+
+const NEKODEV = false; // Temporary flag to hide unfinished progress
 
 const LANG_NONE = 'none';
 
@@ -499,6 +502,12 @@ function ChannelForm(props: Props) {
                         </option>
                       ))}
                     </FormField>
+                    {NEKODEV && (
+                      <fieldset-section class>
+                        <label htmlFor="channel_color">Channel Color</label>
+                        <ColorPicker />
+                      </fieldset-section>
+                    )}
                   </>
                 }
               />
