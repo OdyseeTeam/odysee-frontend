@@ -142,6 +142,11 @@
     &:hover {
       background-color: var(--color-transparent) !important;
       color: var(--color-text) !important;
+      .button__content {
+        .button__label {
+          color: var(--color-text);
+        }
+      }
     }
   }
 }
