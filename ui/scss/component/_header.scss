@@ -33,6 +33,16 @@
     }
   }
 
+  .header__menu--right {
+    .header__navigationItem--balance {
+      &:hover {
+        .button__label {
+          color: var(--color-odysee-contrast) !important;
+        }
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     .card__actions--between {
       .header__menu--left,

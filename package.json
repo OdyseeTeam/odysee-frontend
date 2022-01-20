@@ -68,6 +68,7 @@
     "proxy-polyfill": "0.1.6",
     "re-reselect": "^4.0.0",
     "react-beautiful-dnd": "^13.1.0",
+    "react-color": "^2.19.3",
     "react-datetime-picker": "^3.4.3",
     "react-plastic": "^1.1.1",
     "react-top-loading-bar": "^2.0.1",
