@@ -415,6 +415,7 @@ $control-bar-height: 2.5rem;
 $control-bar-font-size: 0.8rem;
 $control-bar-popup-font-size: 0.8rem;
 $control-bar-icon-size: 0.8rem;
+
 .video-js-parent {
   height: 100%;
   width: 100%;
@@ -621,6 +622,11 @@ $control-bar-icon-size: 0.8rem;
     }
   }
 
+  // Note: the '!important' above and below this line was added a quick hack
+  // to negate a change in vjs without having to increase specificity here.
+  // It won't be needed in an upcoming version of vjs, as they have updated
+  // their side https://github.com/videojs/video.js/pull/7098#issuecomment-908438543
+
   &.vjs-layout-small {
     .vjs-current-time,
     .vjs-time-divider,
@@ -630,34 +636,10 @@ $control-bar-icon-size: 0.8rem;
     }
   }
 
-  // --- Adjust spacing ---
-  .vjs-current-time {
-    padding-right: 0;
+  // --- Hide unwanted ---
+  .vjs-remaining-time {
+    display: none;
   }
-
-  .vjs-duration {
-    padding-left: 0;
-  }
-
-  .vjs-playback-rate .vjs-playback-rate-value {
-    // Reduce the gigantic font a bit. Default was 1.5em.
-    font-size: 1.25em;
-    line-height: 2.5;
-  }
-
-  .vjs-playback-rate .vjs-menu {
-    // Extend the width to prevent a potential scrollbar from blocking the text.
-    width: 8em;
-    left: -2em;
-  }
-}
-
-.vjs-layout-medium,
-.vjs-layout-small {
-  border-radius: var(--border-radius);
-}
-.vjs-layout-x-large {
-  border-radius: 0 !important;
 }
 
 .video-js.vjs-fullscreen {
