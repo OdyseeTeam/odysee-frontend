@@ -60,18 +60,14 @@ $thumbnailWidthSmall: 1rem;
       padding: 0px;
       height: var(--height-input-slim);
       margin-bottom: 8px;
-    }
-  }
-
-  .button--file-action {
-    height: var(--height-input-slim) !important;
-    .button__content {
-      .icon {
-        width: var(--height-input-slim);
-        height: var(--height-input-slim);
-        padding: 4px;
-        background: var(--color-header-background);
-        border-radius: var(--border-radius);
+      .button__content {
+        .icon {
+          width: var(--height-input-slim);
+          height: var(--height-input-slim);
+          padding: 4px;
+          background: var(--color-header-background);
+          border-radius: var(--border-radius);
+        }
       }
     }
   }
