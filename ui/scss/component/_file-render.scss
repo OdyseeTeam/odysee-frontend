@@ -109,6 +109,17 @@
     opacity: 0;
     pointer-events: none;
   }
+
+  @media (max-width: $breakpoint-small) {
+    .autoplay-countdown {
+      .file-viewer__overlay-secondary {
+        margin-bottom: 0 !important;
+      }
+      .autoplay-countdown__counter {
+        margin-top: var(--spacing-xxs) !important;
+      }
+    }
+  }
 }
 
 .file-render--scheduledLivestream {
@@ -251,10 +262,6 @@
     white-space: nowrap;
     text-overflow: ellipsis;
     max-width: 100%;
-    // margin-bottom: 0 !important;
-  }
-  .autoplay-countdown__counter {
-    margin-top: var(--spacing-xxs) !important;
   }
 }
 
