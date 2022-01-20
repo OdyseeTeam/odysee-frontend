@@ -116,6 +116,9 @@ const OdyseeMembershipPage = (props: Props) => {
     }
   };
 
+  const stillWaitingFromBackend = purchasedMemberships === undefined || cardSaved === undefined ||
+    membershipOptions === undefined || userMemberships === undefined;
+
   const formatDate = function(date) {
     return moment(new Date(date)).format('MMMM DD YYYY');
   };
@@ -168,7 +171,7 @@ const OdyseeMembershipPage = (props: Props) => {
       <Page>
         {/* list available memberships offered by odysee */}
         <h1 style={{fontSize: '23px'}}>Odysee Memberships</h1>
-        {membershipOptions && (
+        {!stillWaitingFromBackend && membershipOptions && (
           <div>
             <h1 style={{marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
             { membershipOptions.map((membershipOption) => (
@@ -206,22 +209,22 @@ const OdyseeMembershipPage = (props: Props) => {
             ))}
           </div>
         )}
-        { cardSaved === true && (<>
+        { !stillWaitingFromBackend && cardSaved === true && (<>
           <h1 style={{fontSize: '23px', marginTop: '36px', marginBottom: '13px'}}>Your Memberships</h1>
 
           {/* list of active memberships from user */}
           <div style={{marginBottom: '34px'}}>
           <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
-        {activeMemberships && activeMemberships.length === 0 && (<>
+        { !stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (<>
           <h4>You currently have no active memberships</h4>
           </>)}
-        { activeMemberships && activeMemberships.map((membership) => (
+        { !stillWaitingFromBackend && activeMemberships && activeMemberships.map((membership) => (
           <>
           <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
           <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
           <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
           <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {formatDate(membership.Subscription.current_period_end * 1000)}</h4>
-        { membership.type === 'yearly' && (
+        { !stillWaitingFromBackend && membership.type === 'yearly' && (
           <>
           <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
           <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membership.cost_usd / 100} Per Month)</h4>
@@ -250,7 +253,7 @@ const OdyseeMembershipPage = (props: Props) => {
             ))}
           </>
         </>)}
-        {cardSaved === false && (
+        {!stillWaitingFromBackend && cardSaved === false && (
           <div>
             <br />
             <h2 className={'getPaymentCard'}>Please save a card as a payment method so you can join a membership</h2>
@@ -264,10 +267,10 @@ const OdyseeMembershipPage = (props: Props) => {
             />
           </div>
         )}
-        {(cardSaved === undefined || setMembershipOptions === undefined) && (
+        {stillWaitingFromBackend && (
           <div>
             <br />
-            <h2>Loading...</h2>
+            <h2 style={{fontSize: '20px'}}>Loading...</h2>
           </div>
         )}
         {isDev && (
