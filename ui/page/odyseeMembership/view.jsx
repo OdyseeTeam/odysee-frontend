@@ -153,28 +153,12 @@ const OdyseeMembershipPage = (props: Props) => {
     }
 
     openModal(MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP, {
-      paymentMethodId: '1234',
-      setAsConfirmingCard: '1234',
+      membershipId,
+      subscriptionPeriod,
+      odyseeChannelId,
+      odyseeChannelName,
     });
 
-    // try {
-    //   // show the memberships the user is subscribed to
-    //   const response = await Lbryio.call('membership', 'buy', {
-    //     environment: stripeEnvironment,
-    //     membership_id: membershipId,
-    //     yearly: subscriptionPeriod,
-    //     channel_id: odyseeChannelId,
-    //     channel_name: odyseeChannelName,
-    //   }, 'post');
-    //
-    //   console.log('purchase, purchase membership response');
-    //   console.log(response);
-    //
-    //   // $FlowFixMe
-    //   location.reload();
-    // } catch (err) {
-    //   console.log(err);
-    // }
   };
 
   return (
@@ -200,7 +184,7 @@ const OdyseeMembershipPage = (props: Props) => {
                     <>
                       <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly And Monthly</h4>
                       <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
-                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd) / 100 } USD Per Month For A Monthly Renewing Subscription)</h4>
+                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd) / 100 } USD Per Month For A Monthly Renewing Subscription</h4>
                     </>
                   )}
                   { membershipOption.type === 'both' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
