@@ -580,10 +580,12 @@
   background: black;
   border: 1px solid var(--color-gray-4);
   opacity: 0.9;
+  border-radius: var(--border-radius);
 
   &:hover {
     opacity: 1;
-    color: var(--color-white);
+    color: var(--color-primary);
+    border: 1px solid var(--color-primary);
   }
 }
 
