@@ -615,6 +615,15 @@ body {
 .main--report-content {
   @extend .main--auth-page;
   max-width: 40rem;
+
+  .form-field__two-column {
+    display: flex;
+    .comment__char-count-mde {
+      margin-left: auto;
+      padding-bottom: 2px;
+      padding-right: 0;
+    }
+  }
 }
 
 .main--empty {

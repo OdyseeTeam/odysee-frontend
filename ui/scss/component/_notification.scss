@@ -18,6 +18,10 @@ $contentMaxWidth: 60rem;
 
     .notification__menu {
       margin-right: var(--spacing-s);
+      .icon {
+        stroke: var(--color-text);
+      }
+
       [aria-expanded='true'].menu__button {
         opacity: 1;
         background-color: var(--color-header-background);
@@ -45,7 +49,6 @@ $contentMaxWidth: 60rem;
       }
       .comment__char-count-mde {
         padding-right: 0px;
-        background-color: var(--color-header-button);
       }
 
       .button--file-action {

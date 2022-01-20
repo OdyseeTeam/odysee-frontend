@@ -266,9 +266,6 @@ $recent-msg-button__height: 2rem;
     .help {
       color: var(--color-text);
     }
-    .comment__char-count-mde {
-      background-color: var(--color-header-button) !important;
-    }
     .button--file-action {
       .icon {
         background-color: var(--color-header-button) !important;
@@ -458,6 +455,13 @@ $recent-msg-button__height: 2rem;
   .livestreamSuperchat__info--image {
     width: 100%;
     height: 100%;
+  }
+}
+
+.livestreamSuperchat__info--user {
+  .empty {
+    color: var(--color-black);
+    opacity: 0.9;
   }
 }
 
