@@ -142,12 +142,7 @@ $control-bar-icon-size: 0.8rem;
     padding-left: 0.5em;
     padding-right: 0.5em;
     min-width: unset;
-    font-weight: bold;
-    div {
-      span {
-        color: #fff;
-      }
-    }
+    z-index: 0;
   }
 
   .vjs-control,
