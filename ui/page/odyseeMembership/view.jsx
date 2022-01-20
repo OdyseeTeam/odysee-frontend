@@ -6,6 +6,7 @@ import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 let stripeEnvironment = getStripeEnvironment();
 
@@ -21,6 +22,8 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
+  const { openModal } = props;
+
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [userMemberships, setUserMemberships] = React.useState();
@@ -134,6 +137,9 @@ const OdyseeMembershipPage = (props: Props) => {
   };
 
   const purchaseMembership = async function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
     const membershipId = e.currentTarget.getAttribute('membership-id');
     let subscriptionPeriod = e.currentTarget.getAttribute('membership-subscription-period');
 
@@ -146,24 +152,29 @@ const OdyseeMembershipPage = (props: Props) => {
       return;
     }
 
-    try {
-      // show the memberships the user is subscribed to
-      const response = await Lbryio.call('membership', 'buy', {
-        environment: stripeEnvironment,
-        membership_id: membershipId,
-        yearly: subscriptionPeriod,
-        channel_id: odyseeChannelId,
-        channel_name: odyseeChannelName,
-      }, 'post');
+    openModal(MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP, {
+      paymentMethodId: '1234',
+      setAsConfirmingCard: '1234',
+    });
 
-      console.log('purchase, purchase membership response');
-      console.log(response);
-
-      // $FlowFixMe
-      location.reload();
-    } catch (err) {
-      console.log(err);
-    }
+    // try {
+    //   // show the memberships the user is subscribed to
+    //   const response = await Lbryio.call('membership', 'buy', {
+    //     environment: stripeEnvironment,
+    //     membership_id: membershipId,
+    //     yearly: subscriptionPeriod,
+    //     channel_id: odyseeChannelId,
+    //     channel_name: odyseeChannelName,
+    //   }, 'post');
+    //
+    //   console.log('purchase, purchase membership response');
+    //   console.log(response);
+    //
+    //   // $FlowFixMe
+    //   location.reload();
+    // } catch (err) {
+    //   console.log(err);
+    // }
   };
 
   return (
