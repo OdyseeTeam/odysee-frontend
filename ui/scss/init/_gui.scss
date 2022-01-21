@@ -790,6 +790,9 @@ textarea {
         }
       }
     }
+    .button-dislike {
+      margin-right: 0;
+    }
   }
 
   @media (max-width: $breakpoint-small) {

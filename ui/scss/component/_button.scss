@@ -840,16 +840,20 @@ svg + .button__label {
 
 .button-like {
   &:hover {
-    color: var(--color-fire) !important;
-    svg {
-      stroke: var(--color-fire);
+    .button__label {
+      color: var(--color-fire) !important;
+    }
+    .icon {
+      stroke: var(--color-fire) !important;
     }
   }
   &:focus-visible {
     box-shadow: 0px 0px 0px 2px var(--color-fire) inset !important;
     .button__content {
-      color: var(--color-fire) !important;
-      svg {
+      .button__label {
+        color: var(--color-fire) !important;
+      }
+      .icon {
         stroke: var(--color-fire) !important;
       }
     }
@@ -867,8 +871,8 @@ svg + .button__label {
     .button__label {
       color: var(--color-slime) !important;
     }
-    svg {
-      stroke: var(--color-slime);
+    .icon {
+      stroke: var(--color-slime) !important;
     }
   }
   &:focus-visible {
@@ -877,7 +881,7 @@ svg + .button__label {
       .button__label {
         color: var(--color-slime) !important;
       }
-      svg {
+      .icon {
         stroke: var(--color-slime) !important;
       }
     }
