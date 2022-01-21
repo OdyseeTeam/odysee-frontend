@@ -172,11 +172,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     const formattedSubCount = toCompactNotation(channelSubCount, lang, 10000);
     const formattedSubCountLocale = Number(channelSubCount).toLocaleString();
     return (
-      <Tooltip title={formattedSubCountLocale} followCursor placement="top">
-        <span className="claim-preview__channel-sub-count">
-          {channelSubCount === 1 ? __('1 Follower') : __('%formattedSubCount% Followers', { formattedSubCount })}
-        </span>
-      </Tooltip>
+      <div className="media__subtitle">
+        <Tooltip title={formattedSubCountLocale} followCursor placement="top">
+          <span className="claim-preview__channel-sub-count">
+            {channelSubCount === 1 ? __('1 Follower') : __('%formattedSubCount% Followers', { formattedSubCount })}
+          </span>
+        </Tooltip>
+      </div>
     );
   }, [channelSubCount]);
   const isValid = uri && isURIValid(uri, false);
