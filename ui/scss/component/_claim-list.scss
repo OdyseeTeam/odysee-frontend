@@ -940,6 +940,10 @@
     margin-right: var(--spacing-s);
   }
 
+  .claim-preview__overlay-properties {
+    color: rgba(var(--color-text-base) 0.7);
+  }
+
   @media (max-width: $breakpoint-small) {
     padding-bottom: var(--spacing-m);
   }
@@ -1267,7 +1271,6 @@
   position: relative;
   align-items: center;
   color: #dddddd;
-  //color: rgba(var(--color-text-base) 0.7);
   white-space: nowrap;
   font-size: var(--font-xsmall);
   line-height: 1.2;
