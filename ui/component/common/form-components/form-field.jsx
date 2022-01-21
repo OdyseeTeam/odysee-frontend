@@ -102,7 +102,9 @@ export class FormField extends React.PureComponent<Props> {
     // text length from the callback. So, we'll use our own widget.
     const hasCharCount = charCount !== undefined && charCount >= 0;
     const countInfo = hasCharCount && textAreaMaxLength !== undefined && (
-      <span className="comment__char-count-mde">{textAreaMaxLength - charCount}</span>
+      <span className="comment__char-count-mde" style={{ marginLeft: 'auto', paddingRight: 0 }}>
+        {textAreaMaxLength - charCount}
+      </span>
     );
 
     const Wrapper = blockWrap
@@ -207,8 +209,9 @@ export class FormField extends React.PureComponent<Props> {
             <div className="form-field--SimpleMDE" onContextMenu={stopContextMenu}>
               <fieldset-section>
                 <div className="form-field__two-column">
-                  <div>
+                  <div style={{ display: 'flex' }}>
                     <label htmlFor={name}>{label}</label>
+                    {countInfo}
                   </div>
                   {quickAction}
                 </div>
@@ -227,7 +230,6 @@ export class FormField extends React.PureComponent<Props> {
                     },
                   }}
                 />
-                {countInfo}
               </fieldset-section>
             </div>
           );
