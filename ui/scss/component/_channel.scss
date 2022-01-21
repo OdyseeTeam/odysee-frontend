@@ -46,6 +46,7 @@ $actions-z-index: 2;
   }
 
   label {
+    margin-top: var(--spacing-s);
     font-size: var(--font-medium);
     font-weight: var(--font-weight-bold);
   }
@@ -53,8 +54,10 @@ $actions-z-index: 2;
   .media__info-text,
   .media__info-text--constrained {
     font-size: var(--font-base) !important;
+    opacity: 0.8;
     .date_time {
       font-size: var(--font-base);
+      opacity: 0.8;
     }
   }
 }
