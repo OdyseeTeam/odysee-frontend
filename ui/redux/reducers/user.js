@@ -26,7 +26,6 @@ const defaultState: UserState = {
   referralLink: undefined,
   referralCode: undefined,
   user: undefined,
-  accessToken: undefined,
   youtubeChannelImportPending: false,
   youtubeChannelImportErrorMessage: '',
   referrerSetIsPending: false,
@@ -52,9 +51,6 @@ reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) => {
   if (action.data) {
     if (action.data.user) {
       newUserState.user = action.data.user;
-    }
-    if (action.data.accessToken) {
-      newUserState.accessToken = action.data.accessToken;
     }
   }
 
