@@ -708,6 +708,48 @@ textarea {
 }
 
 .playlistPage-wrapper {
+  .card-stack:first-of-type {
+    .card {
+      margin-bottom: var(--spacing-l);
+    }
+  }
+
+  .card__main-actions {
+    border-top: unset;
+  }
+
+  .card__header--between {
+    width: 100%;
+    flex-wrap: wrap;
+    .card__title-section {
+      width: 100%;
+      flex-wrap: wrap;
+      div:first-child {
+        width: 100%;
+        //flex-wrap: wrap;
+        .card__subtitle {
+          background-color: var(--color-header-background);
+          padding: var(--spacing-m);
+          border-radius: var(--border-radius);
+          //background:#ff0000;
+
+          .claim-preview__wrapper {
+            display: flex;
+            align-items: flex-start;
+
+            .claim-preview-metadata {
+              flex-wrap: unset;
+              .claim-preview-info {
+                width: 100%;
+                //flex-wrap:default;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
   @media (min-width: $breakpoint-small) {
     .claim-preview--collection-mine {
       height: unset;
