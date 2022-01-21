@@ -708,45 +708,43 @@ textarea {
 }
 
 .playlistPage-wrapper {
-  .claim-preview--collection-mine {
-    height: unset;
-    padding-left: 9rem;
-    position: relative;
-
-    @media (max-width: $breakpoint-small) {
-      padding-left: 6.5rem;
-    }
-
-    .media__thumb {
+  @media (min-width: $breakpoint-small) {
+    .claim-preview--collection-mine {
+      height: unset;
+      padding-left: 9rem;
       position: relative;
-      right: unset;
 
-      .claim-preview__hover-actions {
-        display: visible;
-      }
-    }
+      .media__thumb {
+        position: relative;
+        right: unset;
 
-    .claim-preview__text {
-      position: unset;
-      right: unset;
-      width: 100%;
-      background-color: unset;
-      padding: 0;
-      border-radius: unset;
-
-      .claim-preview-info {
-        .claim-preview__title {
-          font-size: var(--font-small);
+        .claim-preview__hover-actions {
+          display: visible;
         }
       }
-      .media__subtitle {
-        .button__content {
-          .channel-name {
-            font-size: var(--font-xsmall);
+
+      .claim-preview__text {
+        position: unset;
+        right: unset;
+        width: 100%;
+        background-color: unset;
+        padding: 0;
+        border-radius: unset;
+
+        .claim-preview-info {
+          .claim-preview__title {
+            font-size: var(--font-small);
           }
         }
-        .date_time {
-          font-size: var(--font-xxsmall);
+        .media__subtitle {
+          .button__content {
+            .channel-name {
+              font-size: var(--font-xsmall);
+            }
+          }
+          .date_time {
+            font-size: var(--font-xxsmall);
+          }
         }
       }
     }
