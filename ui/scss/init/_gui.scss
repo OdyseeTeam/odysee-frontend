@@ -718,6 +718,13 @@ textarea {
     border-top: unset;
   }
 
+  .claim-grid__wrapper:last-of-type {
+    .section__header--actions {
+      margin-top: 0;
+      padding-top: 0;
+    }
+  }
+
   .card__header--between {
     width: 100%;
     flex-wrap: wrap;
