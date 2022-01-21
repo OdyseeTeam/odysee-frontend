@@ -1266,7 +1266,7 @@
   display: flex;
   position: relative;
   align-items: center;
-  color: #dddddd;
+  color: rgba(var(--color-text-base) 0.7);
   white-space: nowrap;
   font-size: var(--font-xsmall);
   line-height: 1.2;
