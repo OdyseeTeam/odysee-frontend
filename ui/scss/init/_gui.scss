@@ -723,6 +723,25 @@ textarea {
       margin-top: 0;
       padding-top: 0;
     }
+
+    .section__header--actions {
+      @media (max-width: $breakpoint-small) {
+        .claim-search__menu-group {
+          .button-toggle {
+            flex: auto;
+            .button__content {
+              display: flex;
+              justify-content: center !important;
+              align-items: center;
+            }
+          }
+        }
+        .wunderbar--inline {
+          width: 100%;
+          flex: unset;
+        }
+      }
+    }
   }
 
   .card__header--between {
