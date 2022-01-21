@@ -96,6 +96,8 @@ export const selectYouTubeImportError = (state) => selectState(state).youtubeCha
 export const selectSetReferrerPending = (state) => selectState(state).referrerSetIsPending;
 export const selectSetReferrerError = (state) => selectState(state).referrerSetError;
 
+export const selectOdyseeMembershipName = (state) => selectState(state).odyseeMembershipName;
+
 export const selectYouTubeImportVideosComplete = createSelector(selectState, (state) => {
   const total = state.youtubeChannelImportTotal;
   const complete = state.youtubeChannelImportComplete || 0;
