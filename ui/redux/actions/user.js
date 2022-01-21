@@ -3,6 +3,7 @@ import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { isURIValid, normalizeURI } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
+import { getStripeEnvironment } from 'util/stripe';
 
 import * as ACTIONS from 'constants/action_types';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
@@ -16,6 +17,7 @@ const AUTH_IN_PROGRESS = 'authInProgress';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
+const stripeEnvironment = getStripeEnvironment();
 
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
@@ -101,6 +103,42 @@ function checkAuthBusy() {
   });
 }
 
+async function doCheckUserOdyseeMemberships(
+  dispatch,
+  user,
+) {
+  console.log('here1');
+  console.log(user);
+  const response = await Lbryio.call('membership', 'mine', {
+    environment: stripeEnvironment,
+  }, 'post');
+
+  let savedMemberships = [];
+  let highestMembershipRanking;
+
+  for (const membership of response) {
+    if (membership.Membership.channel_name === '@odysee') {
+      savedMemberships.push(membership.MembershipDetails.name);
+    }
+  }
+
+  if (savedMemberships.length > 0) {
+    const premiumPlusExists = savedMemberships.includes('Premium+');
+    if (premiumPlusExists) {
+      highestMembershipRanking = 'Premium+';
+    } else {
+      highestMembershipRanking = 'Premium';
+    }
+  }
+
+  console.log(`Highest ranking membership: ${highestMembershipRanking}`);
+
+  dispatch({
+    type: ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA,
+    data: { user, odyseeMembershipValue: highestMembershipRanking },
+  });
+}
+
 // TODO: Call doInstallNew separately so we don't have to pass appVersion and os_system params?
 export function doAuthenticate(
   appVersion,
@@ -123,6 +161,14 @@ export function doAuthenticate(
             type: ACTIONS.AUTHENTICATION_SUCCESS,
             data: { user, accessToken: token },
           });
+
+          console.log('is an odysee member');
+          console.log(user.odysee_member);
+          if (user.odysee_member) {
+            console.log('making the call here');
+            doCheckUserOdyseeMemberships(dispatch, user);
+            // TODO: make the call here
+          }
 
           if (shareUsageData) {
             dispatch(doRewardList());

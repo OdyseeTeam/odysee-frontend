@@ -158,7 +158,6 @@ const OdyseeMembershipPage = (props: Props) => {
       odyseeChannelId,
       odyseeChannelName,
     });
-
   };
 
   return (

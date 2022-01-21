@@ -19,7 +19,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
 
-  async function purchaseMembership(){
+  async function purchaseMembership() {
     try {
       setWaitingForBackend(true);
 
