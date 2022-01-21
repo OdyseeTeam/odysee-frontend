@@ -4,6 +4,11 @@ import React from 'react';
 import reactCSS from 'reactcss';
 import { SketchPicker } from 'react-color';
 
+if (document.documentElement !== null) {
+  let primary = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
+  console.log('Primary: ', primary);
+}
+
 class ColorPicker extends React.Component {
   state = {
     displayColorPicker: false,

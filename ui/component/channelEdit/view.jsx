@@ -503,10 +503,21 @@ function ChannelForm(props: Props) {
                       ))}
                     </FormField>
                     {NEKODEV && (
-                      <fieldset-section class>
-                        <label htmlFor="channel_color">Channel Color</label>
-                        <ColorPicker />
-                      </fieldset-section>
+                      <>
+                        <FormField
+                          name="manual_color"
+                          type="checkbox"
+                          label={__('Manual color override')}
+                          onChange={(event) => handleLanguageChange(1, event.target.value)}
+                          value={1}
+                          disabled={!languageParam[0]}
+                          helper={__('Pick the color for your channel manually')}
+                        />
+                        <fieldset-section class>
+                          <label htmlFor="channel_color">Channel Color</label>
+                          <ColorPicker />
+                        </fieldset-section>
+                      </>
                     )}
                   </>
                 }

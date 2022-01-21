@@ -36,6 +36,27 @@ $actions-z-index: 2;
       padding-bottom: var(--spacing-s);
     }
   }
+
+  .media__info-text {
+    .claim__tags {
+      .tag {
+        margin-top: var(--spacing-xxxs);
+      }
+    }
+  }
+
+  label {
+    font-size: var(--font-medium);
+    font-weight: var(--font-weight-bold);
+  }
+
+  .media__info-text,
+  .media__info-text--constrained {
+    font-size: var(--font-base) !important;
+    .date_time {
+      font-size: var(--font-base);
+    }
+  }
 }
 .channel-cover {
   position: relative;
