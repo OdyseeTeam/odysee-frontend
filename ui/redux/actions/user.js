@@ -135,7 +135,7 @@ async function doCheckUserOdyseeMemberships(
 
   dispatch({
     type: ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA,
-    data: { user, odyseeMembershipValue: highestMembershipRanking },
+    data: { user, odyseeMembershipName: highestMembershipRanking },
   });
 }
 
