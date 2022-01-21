@@ -300,12 +300,20 @@
 
 .wunderbar__tag-search {
   .tag {
-    display: flex;
-    align-items: center;
+    //display: flex;
+    //align-items: center;
     height: 1.2rem;
     margin-left: var(--spacing-xxs);
     color: var(--color-odysee-contrast);
     background-color: var(--color-odysee);
+
+    //padding-right:60px;
+    padding-top: 1px;
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    max-width: 11rem;
   }
 
   &:hover {
