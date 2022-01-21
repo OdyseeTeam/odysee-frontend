@@ -4,9 +4,9 @@ import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
 // import LoadingBarOneOff from 'component/loadingBarOneOff';
 import SnackBar from 'component/snackBar';
+import * as ACTIONS from 'constants/action_types';
 // @if TARGET='app'
 import SplashScreen from 'component/splash';
-import * as ACTIONS from 'constants/action_types';
 // @endif
 import { ipcRenderer, remote, shell } from 'electron';
 import moment from 'moment';
@@ -106,9 +106,6 @@ if (LBRY_API_URL) {
 if (process.env.SEARCH_API_URL) {
   setSearchApi(process.env.SEARCH_API_URL);
 }
-
-// TODO KEYCLOAK
-// doAuthTokenRefresh();
 
 Lbryio.setOverride('setAuthToken', (authToken) => {
   setAuthToken(authToken);
@@ -237,34 +234,32 @@ function AppWrapper() {
       case 'onReady':
         setKeycloakReady(true);
         break;
+
       case 'onInitError':
       case 'onAuthSuccess':
+        // TODO SSO: anything to do?
+        break;
+
       case 'onAuthError':
+      case 'onAuthRefreshError':
+        app.store.dispatch({ type: ACTIONS.AUTHENTICATION_FAILURE });
+        break;
+
       case 'onAuthRefreshSuccess':
-        // TODO SSO: should do something
+        app.store.dispatch({ type: ACTIONS.OAUTH_REFRESH_SUCCESS });
         break;
 
       case 'onTokenExpired':
-        keycloak
-          .updateToken(60)
-          .then((refreshed) => {
-            console.warn(refreshed ? 'Token was successfully refreshed' : 'Token is still valid');
-          })
-          .catch(function () {
-            console.warn('Failed to refresh the token, or the session has expired');
-            doSignOut();
-          });
+        // Nothing to do here; it should auto-refresh
         break;
 
-      case 'onAuthRefreshError':
       case 'onAuthLogout':
-        doSignOut();
+        app.store.dispatch(doSignOut());
         break;
     }
   };
 
   const onKeycloakTokens = (tokens) => {
-    // TODO: Add flow -- token: { idToken: string, refreshToken: string, token: string }
     console.warn('onKeycloakTokens:', tokens);
   };
 

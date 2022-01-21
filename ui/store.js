@@ -193,7 +193,11 @@ const sharedStateCb = ({ dispatch, getState, syncId }) => {
 
 const populateAuthTokenHeader = () => {
   return (next) => (action) => {
-    if (action.type === ACTIONS.USER_FETCH_SUCCESS || action.type === ACTIONS.AUTHENTICATION_SUCCESS) {
+    if (
+      action.type === ACTIONS.USER_FETCH_SUCCESS ||
+      action.type === ACTIONS.AUTHENTICATION_SUCCESS ||
+      action.type === ACTIONS.OAUTH_REFRESH_SUCCESS
+    ) {
       const tokens = getTokens();
       console.assert(tokens.access_token || tokens.auth_token, 'populateAuthTokenHeader: no tokens');
 
