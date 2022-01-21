@@ -1,11 +1,14 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import OdyseeMembership from './view';
+import {
+  selectOdyseeMembershipName,
+} from 'redux/selectors/user';
 
 const select = (state) => ({
   // osNotificationsEnabled: selectosNotificationsEnabled(state),
   // isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-  // email: selectUserEmail(state),
+  odyseeMembership: selectOdyseeMembershipName(state),
 });
 
 const perform = (dispatch) => ({

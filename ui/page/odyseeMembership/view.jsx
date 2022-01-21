@@ -22,7 +22,9 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  const { openModal } = props;
+  const { openModal, odyseeMembership } = props;
+  console.log('odysee membership');
+  console.log(odyseeMembership);
 
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
