@@ -791,6 +791,24 @@ textarea {
       }
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .media__actions.stretch {
+      .button:nth-of-type(2) {
+        margin-right: 0;
+      }
+      .ratio-wrapper {
+        .button {
+          background-color: unset;
+          margin-bottom: 0;
+        }
+      }
+
+      a {
+        margin-left: var(--spacing-xxs);
+      }
+    }
+  }
 }
 
 // Remove tap focus on mobile devices
