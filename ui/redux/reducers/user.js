@@ -374,6 +374,14 @@ reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) =>
     passwordSetError: action.data.error,
   });
 
+reducers[ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
+  const user = Object.assign({}, state.user);
+  user.highest_odysee_membership = action.data.odyseeMembershipValue;
+  return Object.assign({}, state, {
+    user,
+  });
+};
+
 export default function userReducer(state = defaultState, action) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
