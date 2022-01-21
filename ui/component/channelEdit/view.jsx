@@ -10,6 +10,7 @@ import ColorPicker from 'component/colorPicker';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
 import ChannelThumbnail from 'component/channelThumbnail';
+import SettingsRow from 'component/settingsRow';
 import { isNameValid, parseURI } from 'util/lbryURI';
 import ClaimAbandonButton from 'component/claimAbandonButton';
 import { useHistory } from 'react-router-dom';
@@ -124,6 +125,9 @@ function ChannelForm(props: Props) {
     );
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel, nameError, bidError, isNewChannel, params.name]);
 
+  const channelColor = 'ff0000';
+  var overrideColor = channelColor === 'gggggg';
+
   function getChannelParams() {
     // fill this in with sdk data
     const channelParams: {
@@ -212,6 +216,11 @@ function ChannelForm(props: Props) {
     setParams({ ...params, coverUrl });
     setIsUpload({ ...isUpload, cover: uploadSelected });
     setCoverError(false);
+  }
+
+  function setOverrideColorFlag(e) {
+    console.log('COL: ', e);
+    overrideColor = e;
   }
 
   function handleSubmit() {
@@ -503,21 +512,15 @@ function ChannelForm(props: Props) {
                       ))}
                     </FormField>
                     {NEKODEV && (
-                      <>
+                      <SettingsRow title={__('Channel Color')}>
+                        <ColorPicker />
                         <FormField
-                          name="manual_color"
+                          name="manual-channel-color"
                           type="checkbox"
-                          label={__('Manual color override')}
-                          onChange={(event) => handleLanguageChange(1, event.target.value)}
-                          value={1}
-                          disabled={!languageParam[0]}
-                          helper={__('Pick the color for your channel manually')}
+                          checked={overrideColor}
+                          onChange={() => setOverrideColorFlag(!overrideColor)}
                         />
-                        <fieldset-section class>
-                          <label htmlFor="channel_color">Channel Color</label>
-                          <ColorPicker />
-                        </fieldset-section>
-                      </>
+                      </SettingsRow>
                     )}
                   </>
                 }
