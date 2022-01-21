@@ -57,26 +57,33 @@ Lbryio.call = (resource, action, params = {}, method = 'get') => {
   }
 
   return Lbryio.getTokens().then((tokens) => {
-    const fullParams = { ...params };
+    // Start off with 'auth_token' set by default, then allowing it to be
+    // overwritten by 'params' (usually to `auth_token=''`). This covers the
+    // legacy session support, and also maintaining the ability to skip auth
+    // by passing `params.auth_token = ''`.
+    const fullParams = {
+      ...(tokens.auth_token ? { auth_token: tokens.auth_token } : {}),
+      ...params,
+    };
+
     const headers = {
       'Content-Type': 'application/x-www-form-urlencoded',
     };
 
-    // -------------------
-    // TODO refactor this
-    // -------------------
-    // Send both tokens to userMe; delete auth token after success.
     if (action === 'me') {
+      // Pass both auth_token and Bearer to merge.
       if (tokens && tokens.access_token) {
         headers.Authorization = `Bearer ${tokens.access_token}`;
       }
-      if (tokens && tokens.auth_token) {
-        fullParams.auth_token = tokens.auth_token;
-      }
     } else if (tokens && tokens.access_token) {
-      headers.Authorization = `Bearer ${tokens.access_token}`;
-    } else {
-      fullParams.auth_token = tokens.auth_token;
+      // To reduce code churn, we just translate that intention to oauth here
+      // instead of trying to renaming `params.auth_token` everywhere.
+      const skipAuth = fullParams.auth_token === '';
+      if (!skipAuth) {
+        headers.Authorization = `Bearer ${tokens.access_token}`;
+      }
+
+      delete fullParams.auth_token;
     }
 
     Object.keys(fullParams).forEach((key) => {
