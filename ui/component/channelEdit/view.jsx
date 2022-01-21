@@ -340,7 +340,7 @@ function ChannelForm(props: Props) {
           <div className="channel-cover__gradient" />
         </header>
 
-        <Tabs>
+        <Tabs className="channelPage-wrapper">
           <TabList className="tabs__list--channel-page">
             <Tab>{__('General')}</Tab>
             <Tab>{__('Credit Details')}</Tab>
