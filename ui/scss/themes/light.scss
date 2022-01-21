@@ -51,8 +51,8 @@
   --color-header-background-transparent: rgba(240, 240, 240, 0.95);
 
   // Button
-  --color-button-alt-bg: var(--color-secondary);
-  --color-button-alt-bg-hover: var(--color-secondary);
+  --color-button-alt-bg: var(--color-header-button);
+  --color-button-alt-bg-hover: var(--color-header-button-hover);
   --color-button-alt-text: black;
   --color-button-primary-bg: var(--color-primary);
   --color-button-primary-bg-hover: var(--color-primary-alt-2);

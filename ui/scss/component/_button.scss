@@ -681,7 +681,11 @@ svg + .button__label {
   text-align: center;
 
   &:hover {
-    background-color: var(--color-button-alt-bg-hover);
+    background-color: var(--color-primary);
+    color: var(--color-primary-contrast);
+    .icon {
+      stroke: var(--color-primary-contrast);
+    }
   }
 
   @media (max-width: $breakpoint-small) {

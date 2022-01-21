@@ -51,8 +51,10 @@
   --color-button-secondary-text: #cccccc;
   --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 0.4);
   --color-button-secondary-text-hover: var(--color-primary);
-  --color-button-alt-bg: rgba(25, 25, 25, 0.95);
-  --color-button-alt-bg-hover: rgba(32, 32, 32, 1);
+  //--color-button-alt-bg: rgba(25, 25, 25, 0.95);
+  --color-button-alt-bg: var(--color-header-button);
+  //--color-button-alt-bg-hover: rgba(32, 32, 32, 1);
+  --color-button-alt-bg-hover: var(--color-header-button-hover);
   --color-button-toggle-text: var(--color-primary-contrast);
   --color-button-toggle-bg: rgba(var(--color-primary-dynamic), 1);
   --color-button-toggle-bg-hover: rgba(var(--color-primary-dynamic), 1);
