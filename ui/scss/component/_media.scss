@@ -201,6 +201,24 @@
       margin-bottom: var(--spacing-s);
     }
 
+    .button--file-action {
+      display: flex;
+      background-color: var(--color-header-background);
+      margin-right: var(--spacing-xxxs) !important;
+      justify-content: center;
+      align-items: center;
+    }
+    .button--file-action:last-of-type {
+      margin-right: unset !important;
+    }
+
+    .ratio-wrapper {
+      .button {
+        display: unset;
+        background-color: unset;
+        margin-bottom: 0;
+      }
+    }
     .ratio-wrapper ~ .button--file-action {
       flex: auto;
     }
