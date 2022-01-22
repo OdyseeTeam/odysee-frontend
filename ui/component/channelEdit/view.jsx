@@ -10,7 +10,6 @@ import ColorPicker from 'component/colorPicker';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
 import ChannelThumbnail from 'component/channelThumbnail';
-import SettingsRow from 'component/settingsRow';
 import { isNameValid, parseURI } from 'util/lbryURI';
 import ClaimAbandonButton from 'component/claimAbandonButton';
 import { useHistory } from 'react-router-dom';
@@ -512,15 +511,17 @@ function ChannelForm(props: Props) {
                       ))}
                     </FormField>
                     {NEKODEV && (
-                      <SettingsRow title={__('Channel Color')}>
-                        <ColorPicker />
+                      <fieldset-section class>
+                        <label htmlFor="channel-color">{__('Channel color')}</label>
                         <FormField
                           name="manual-channel-color"
                           type="checkbox"
+                          label="Pick color manually"
                           checked={overrideColor}
                           onChange={() => setOverrideColorFlag(!overrideColor)}
                         />
-                      </SettingsRow>
+                        <ColorPicker />
+                      </fieldset-section>
                     )}
                   </>
                 }
