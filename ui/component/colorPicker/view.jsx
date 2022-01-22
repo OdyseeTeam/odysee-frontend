@@ -36,6 +36,7 @@ function ColorPicker() {
 
   return (
     <div className="color-picker">
+      <input value={'#' + color.hex} />
       <div className="swatch" onClick={() => toggleDisplayColorPicker(!displayColorPicker)}>
         <div className="color" style={styles.color} />
       </div>

@@ -59,6 +59,11 @@
   @media (min-width: $breakpoint-small) {
     padding: 0;
   }
+  @media (max-width: $breakpoint-small) {
+    > .icon {
+      left: 22px;
+    }
+  }
 }
 
 .wunderbar--inline {
