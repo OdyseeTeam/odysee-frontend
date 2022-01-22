@@ -8,47 +8,30 @@ import { SketchPicker } from 'react-color';
 
 // function ColorPicker(props: Props) {
 function ColorPicker() {
-  const [color, setColor] = useState('00ff00');
   const [displayColorPicker, toggleDisplayColorPicker] = useState(false);
-
-  var state = {
-    displayColorPicker: false,
-    color: {
-      r: '241',
-      g: '112',
-      b: '19',
-      a: '1',
-    },
-  };
+  let dynamic = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
+  var rgb = dynamic.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
+  var hex = rgb
+    ? (rgb[1] | (1 << 8)).toString(16).slice(1) +
+      (rgb[2] | (1 << 8)).toString(16).slice(1) +
+      (rgb[3] | (1 << 8)).toString(16).slice(1)
+    : dynamic;
+  const [color, setColor] = useState({
+    hex: hex,
+    rgb: { r: parseInt(rgb[1]), g: parseInt(rgb[2]), b: parseInt(rgb[3]), a: 1 },
+  });
 
   const styles = reactCSS({
     default: {
       color: {
-        background: `rgba(${state.color.r}, ${state.color.g}, ${state.color.b}, ${state.color.a})`,
+        background: `rgba(${color.rgb.r}, ${color.rgb.g}, ${color.rgb.b}, ${color.rgb.a})`,
       },
     },
   });
 
-  if (document.documentElement !== null) {
-    let primary = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
-    console.log('Primary: ', primary);
-    console.log('Primary HEX: ', rgba2hex(primary));
-  }
-
-  function rgba2hex(orig) {
-    var rgb = orig.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
-    console.log('RGB: ', rgb);
-    var hex = rgb
-      ? (rgb[1] | (1 << 8)).toString(16).slice(1) +
-        (rgb[2] | (1 << 8)).toString(16).slice(1) +
-        (rgb[3] | (1 << 8)).toString(16).slice(1)
-      : orig;
-
-    return hex;
-  }
-
   function handleChange(color) {
-    setColor(color.hex);
+    console.log('Color: ', color);
+    setColor(color);
   }
 
   return (
