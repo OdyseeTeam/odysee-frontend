@@ -26,7 +26,7 @@ import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
 
-const NEKODEV = true; // Temporary flag to hide unfinished progress
+const NEKODEV = false; // Temporary flag to hide unfinished progress
 
 const LANG_NONE = 'none';
 
