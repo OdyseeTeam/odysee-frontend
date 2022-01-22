@@ -122,6 +122,7 @@
   width: 42px;
   height: 42px;
   padding: 10px;
+  background-color: rgba(var(--color-primary-dynamic), 0.95) !important;
 
   .icon {
     width: 24px;
@@ -129,7 +130,7 @@
   }
 
   &:hover {
-    background-color: var(--color-secondary) !important;
+    background-color: rgba(var(--color-primary-dynamic), 1) !important;
   }
 }
 
