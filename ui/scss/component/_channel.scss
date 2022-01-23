@@ -68,6 +68,11 @@ $actions-z-index: 2;
   align-items: flex-end;
   box-sizing: content-box;
   color: #fff;
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .channel-cover__custom {

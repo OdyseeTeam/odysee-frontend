@@ -185,6 +185,12 @@
     padding-bottom: var(--spacing-xs);
     justify-content: flex-start;
     flex-direction: column;
+    .button__label {
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
   }
 
   &.navigation-link--with-thumbnail .button__content {

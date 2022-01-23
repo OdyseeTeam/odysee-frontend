@@ -1,13 +1,13 @@
 export function changeColor(rgb) {
-  setPrimary(rgb);
-  setSecondary(rgb);
+  setPrimaryColor(rgb);
+  setSecondaryColor(rgb);
 }
 
-export function getPrimary() {
+export function getPrimaryColor() {
   return getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
 }
 
-function setPrimary(rgb) {
+function setPrimaryColor(rgb) {
   document.documentElement !== null &&
     document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);
   document.documentElement !== null &&
@@ -17,7 +17,7 @@ function setPrimary(rgb) {
     );
 }
 
-function setSecondary(rgb) {
+function setSecondaryColor(rgb) {
   var threshold = 155;
   if (document.documentElement !== null) {
     threshold = getComputedStyle(document.documentElement).getPropertyValue('--color-text') === ' #000000' ? 70 : 155;

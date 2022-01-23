@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import reactCSS from 'reactcss';
 import { SketchPicker } from 'react-color';
 import classNames from 'classnames';
-import { changeColor, getPrimary } from 'util/theme';
+import { changeColor, getPrimaryColor } from 'util/theme';
 
 type Props = {
   disabled?: boolean,
@@ -14,7 +14,7 @@ type Props = {
 function ColorPicker(props: Props) {
   const { disabled } = props;
   const [displayColorPicker, toggleDisplayColorPicker] = useState(false);
-  let dynamic = getPrimary();
+  let dynamic = getPrimaryColor();
   var rgb = dynamic.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
   var hex = rgb
     ? (rgb[1] | (1 << 8)).toString(16).slice(1) +

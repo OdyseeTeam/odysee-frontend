@@ -62,6 +62,11 @@ reach-portal {
   font: inherit;
   text-decoration: initial;
   border-radius: var(--border-radius);
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 [data-reach-menu-item][data-selected] {
