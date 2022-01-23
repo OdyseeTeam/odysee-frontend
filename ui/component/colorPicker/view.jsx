@@ -1,15 +1,20 @@
+// @flow
 'use strict';
 
 import React, { useState } from 'react';
 import reactCSS from 'reactcss';
 import { SketchPicker } from 'react-color';
+import classNames from 'classnames';
+import { changeColor, getPrimary } from 'util/theme';
 
-// type Props = {};
+type Props = {
+  disabled?: boolean,
+};
 
-// function ColorPicker(props: Props) {
-function ColorPicker() {
+function ColorPicker(props: Props) {
+  const { disabled } = props;
   const [displayColorPicker, toggleDisplayColorPicker] = useState(false);
-  let dynamic = getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
+  let dynamic = getPrimary();
   var rgb = dynamic.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i);
   var hex = rgb
     ? (rgb[1] | (1 << 8)).toString(16).slice(1) +
@@ -31,11 +36,16 @@ function ColorPicker() {
 
   function handleChange(color) {
     console.log('Color: ', color);
+    changeColor(color.rgb);
     setColor(color);
   }
 
   return (
-    <div className="color-picker">
+    <div
+      className={classNames('color-picker', {
+        disabled: disabled,
+      })}
+    >
       <input value={color.hex} />
       <div className="swatch" onClick={() => toggleDisplayColorPicker(!displayColorPicker)}>
         <div className="color" style={styles.color} />

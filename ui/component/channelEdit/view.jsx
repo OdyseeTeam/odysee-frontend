@@ -452,6 +452,19 @@ function ChannelForm(props: Props) {
               <Card
                 body={
                   <>
+                    {NEKODEV && (
+                      <fieldset-section class>
+                        <label htmlFor="channel-color">{__('Channel color')}</label>
+                        <FormField
+                          name="manual-channel-color"
+                          type="checkbox"
+                          label="Pick color manually"
+                          checked={overrideColor}
+                          onChange={() => toggleColorOverride(!overrideColor)}
+                        />
+                        <ColorPicker disabled={!overrideColor} />
+                      </fieldset-section>
+                    )}
                     <FormField
                       type="text"
                       name="channel_website2"
@@ -505,19 +518,6 @@ function ChannelForm(props: Props) {
                         </option>
                       ))}
                     </FormField>
-                    {NEKODEV && (
-                      <fieldset-section class>
-                        <label htmlFor="channel-color">{__('Channel color')}</label>
-                        <FormField
-                          name="manual-channel-color"
-                          type="checkbox"
-                          label="Pick color manually"
-                          checked={overrideColor}
-                          onChange={() => toggleColorOverride(!overrideColor)}
-                        />
-                        <ColorPicker />
-                      </fieldset-section>
-                    )}
                   </>
                 }
               />

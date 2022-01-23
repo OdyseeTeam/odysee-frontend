@@ -3,7 +3,7 @@
   height: var(--height-input);
   //background-color:#ff0000;
   border-radius: var(--border-radius);
-  max-width: 200px;
+  max-width: 220px;
   margin-top: var(--spacing-s);
 
   .swatch {
@@ -54,13 +54,16 @@
       }
     }
 
+    .flexbox-fix:nth-child(3) {
+      display: none !important;
+    }
     .flexbox-fix:last-of-type {
       display: none !important;
     }
   }
 
   input {
-    width: 200px;
+    width: 220px;
     display: inline-block;
     padding-left: calc(var(--height-input) + var(--spacing-xxs));
   }
