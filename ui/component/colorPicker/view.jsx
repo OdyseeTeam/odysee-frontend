@@ -17,7 +17,7 @@ function ColorPicker() {
       (rgb[3] | (1 << 8)).toString(16).slice(1)
     : dynamic;
   const [color, setColor] = useState({
-    hex: hex,
+    hex: '#' + hex,
     rgb: { r: parseInt(rgb[1]), g: parseInt(rgb[2]), b: parseInt(rgb[3]), a: 1 },
   });
 
@@ -36,7 +36,7 @@ function ColorPicker() {
 
   return (
     <div className="color-picker">
-      <input value={'#' + color.hex} />
+      <input value={color.hex} />
       <div className="swatch" onClick={() => toggleDisplayColorPicker(!displayColorPicker)}>
         <div className="color" style={styles.color} />
       </div>

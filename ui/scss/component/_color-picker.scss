@@ -1,13 +1,23 @@
 .color-picker {
+  position: relative;
+  height: var(--height-input);
+  //background-color:#ff0000;
+  border-radius: var(--border-radius);
+  max-width: 200px;
+  margin-top: var(--spacing-s);
+
   .swatch {
-    padding: 5px;
+    position: absolute;
+    left: 0;
+    margin: 5px;
     background: var(--color-header-background);
     border-radius: var(--border-radius);
     box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
     display: inline-block;
     cursor: pointer;
-    width: var(--height-input);
-    height: var(--height-input);
+    width: calc(var(--height-input) - (2 * 5px));
+    height: calc(var(--height-input) - (2 * 5px));
+    box-sizing: border-box;
   }
 
   .color {
@@ -52,5 +62,6 @@
   input {
     width: 200px;
     display: inline-block;
+    padding-left: calc(var(--height-input) + var(--spacing-xxs));
   }
 }

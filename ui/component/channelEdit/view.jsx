@@ -124,8 +124,8 @@ function ChannelForm(props: Props) {
     );
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel, nameError, bidError, isNewChannel, params.name]);
 
-  const channelColor = 'ff0000';
-  var overrideColor = channelColor === 'gggggg';
+  // const channelColor = 'ff0000';
+  const [overrideColor, toggleColorOverride] = React.useState(false);
 
   function getChannelParams() {
     // fill this in with sdk data
@@ -215,11 +215,6 @@ function ChannelForm(props: Props) {
     setParams({ ...params, coverUrl });
     setIsUpload({ ...isUpload, cover: uploadSelected });
     setCoverError(false);
-  }
-
-  function setOverrideColorFlag(e) {
-    console.log('COL: ', e);
-    overrideColor = e;
   }
 
   function handleSubmit() {
@@ -518,7 +513,7 @@ function ChannelForm(props: Props) {
                           type="checkbox"
                           label="Pick color manually"
                           checked={overrideColor}
-                          onChange={() => setOverrideColorFlag(!overrideColor)}
+                          onChange={() => toggleColorOverride(!overrideColor)}
                         />
                         <ColorPicker />
                       </fieldset-section>
