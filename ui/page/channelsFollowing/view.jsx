@@ -12,6 +12,7 @@ import Icon from 'component/common/icon';
 import { splitBySeparator } from 'util/lbryURI';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
+import useTimer from 'effects/use-timer';
 
 type Props = {
   subscribedChannels: Array<Subscription>,
@@ -39,11 +40,13 @@ function ChannelsFollowingPage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
+  const { timeoutElapsed: renderTimeoutElapsed } = useTimer(2000);
+
   return !hasSubscribedChannels ? (
     <ChannelsFollowingDiscoverPage />
   ) : (
     <Page noFooter fullWidthPage={tileLayout}>
-      {!fetchingActiveLivestreams && (
+      {(!fetchingActiveLivestreams || renderTimeoutElapsed) && (
         <>
           {!hideScheduledLivestreams && (
             <ScheduledStreams

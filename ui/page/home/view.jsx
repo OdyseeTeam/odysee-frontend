@@ -15,6 +15,7 @@ import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
+import useTimer from 'effects/use-timer';
 
 // @if TARGET='web'
 import Meme from 'web/component/meme';
@@ -142,6 +143,8 @@ function HomePage(props: Props) {
   const [hasScheduledStreams, setHasScheduledStreams] = useState(false);
   const scheduledStreamsLoaded = (total) => setHasScheduledStreams(total > 0);
 
+  const { timeoutElapsed: renderTimeoutElapsed } = useTimer(2000);
+
   return (
     <Page fullWidthPage>
       {!SIMPLE_SITE && (authenticated || !IS_WEB) && !subscribedChannels.length && (
@@ -164,7 +167,7 @@ function HomePage(props: Props) {
       <Ads type="homepage" />
       {/* @endif */}
 
-      {!fetchingActiveLivestreams && (
+      {(!fetchingActiveLivestreams || renderTimeoutElapsed) && (
         <>
           {authenticated && channelIds.length > 0 && !hideScheduledLivestreams && (
             <ScheduledStreams
