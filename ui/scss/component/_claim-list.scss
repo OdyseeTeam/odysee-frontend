@@ -180,6 +180,7 @@
       }
     }
   }
+
   .claim-preview {
     .claim-preview-metadata {
       .media__subtitle {
@@ -951,7 +952,6 @@
 .claim-tile__info {
   display: flex;
   margin-top: var(--spacing-xs);
-  // margin-top: 0;
   color: var(--color-subtitle);
   padding: 0px;
   padding-bottom: var(--spacing-l);
