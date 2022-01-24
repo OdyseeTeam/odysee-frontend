@@ -587,6 +587,7 @@ $actions-z-index: 2;
       color: var(--color-text);
     }
     .claim-tile__info {
+      display: unset;
       margin-top: 0;
       margin-bottom: 0;
       padding-bottom: 0;
