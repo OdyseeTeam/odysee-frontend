@@ -3,6 +3,7 @@ import React from 'react';
 import { useKeycloak } from '@react-keycloak/web';
 import Page from 'component/page';
 import Spinner from 'component/spinner';
+import UserSignUp from 'component/userSignUp';
 
 export default function SignUpPage() {
   const { keycloak, initialized } = useKeycloak();
@@ -20,6 +21,7 @@ export default function SignUpPage() {
           <Spinner delayed />
         </div>
       )}
+      {keycloak.authenticated && <UserSignUp />}
     </Page>
   );
 }

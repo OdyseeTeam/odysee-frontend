@@ -4,8 +4,6 @@ import * as SETTINGS from 'constants/settings';
 import React from 'react';
 import classnames from 'classnames';
 import { useHistory } from 'react-router';
-import UserEmailNew from 'component/userEmailNew';
-import UserEmailVerify from 'component/userEmailVerify';
 import UserFirstChannel from 'component/userFirstChannel';
 import UserChannelFollowIntro from 'component/userChannelFollowIntro';
 import UserTagFollowIntro from 'component/userTagFollowIntro';
@@ -51,7 +49,6 @@ type Props = {
 
 function UserSignUp(props: Props) {
   const {
-    emailToVerify,
     user,
     claimingReward,
     claimedRewards,
@@ -85,7 +82,6 @@ function UserSignUp(props: Props) {
   const hasVerifiedEmail = user && user.has_verified_email;
   const rewardsApproved = user && user.is_reward_approved;
   const isIdentityVerified = user && user.is_identity_verified;
-  const passwordSet = user && user.password_set;
   const hasFetchedReward = useFetched(claimingReward);
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const channelCount = channels ? channels.length : 0;
@@ -104,8 +100,6 @@ function UserSignUp(props: Props) {
   // The verbose variable names are an attempt to alleviate _some_ of the confusion from handling all edge cases that come from
   // reward claiming, channel creation, account syncing, and youtube transfer
   // The possible screens for the sign in flow
-  const showEmail = !hasVerifiedEmail;
-  const showEmailVerification = (emailToVerify && !hasVerifiedEmail) || (!hasVerifiedEmail && passwordSet);
   const showUserVerification = hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
   const showChannelCreation =
     hasVerifiedEmail &&
@@ -158,13 +152,6 @@ function UserSignUp(props: Props) {
   // Loop through this list from the end, until it finds a matching component
   // If it never finds one, assume the user has completed every step and redirect them
   const SIGN_IN_FLOW = [
-    showEmail && (
-      <UserEmailNew
-        interestedInYoutubSync={interestedInYoutubeSync}
-        doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync}
-      />
-    ),
-    showEmailVerification && <UserEmailVerify />,
     showUserVerification && (
       <UserVerify
         onSkip={() => {
@@ -232,7 +219,7 @@ function UserSignUp(props: Props) {
 
   //   $FlowFixMe
   function getSignInStep() {
-    for (var i = SIGN_IN_FLOW.length - 1; i > -1; i--) {
+    for (let i = SIGN_IN_FLOW.length - 1; i > -1; i--) {
       const Component = SIGN_IN_FLOW[i];
       if (Component) {
         // If we want to redirect immediately,

@@ -4,7 +4,7 @@ import { selectGetSyncIsPending, selectSyncHash, selectPrefsReady } from 'redux/
 import { doClaimRewardType } from 'redux/actions/rewards';
 import { doSetClientSetting } from 'redux/actions/settings';
 import { selectClaimedRewards, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
-import { selectUserIsPending, selectYoutubeChannels, selectEmailToVerify, selectUser } from 'redux/selectors/user';
+import { selectUserIsPending, selectYoutubeChannels, selectUser } from 'redux/selectors/user';
 import { selectMyChannelClaims, selectFetchingMyChannels, selectCreatingChannel } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
 import * as SETTINGS from 'constants/settings';
@@ -14,7 +14,7 @@ import { doToggleInterestedInYoutubeSync } from 'redux/actions/app';
 import UserSignIn from './view';
 
 const select = (state) => ({
-  emailToVerify: selectEmailToVerify(state),
+  // emailToVerify: selectEmailToVerify(state), TODO remove selectEmailToVerify
   user: selectUser(state),
   channels: selectMyChannelClaims(state),
   claimedRewards: selectClaimedRewards(state),
