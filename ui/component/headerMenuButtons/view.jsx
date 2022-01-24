@@ -5,6 +5,7 @@ import { ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import HeaderMenuLink from 'component/common/header-menu-link';
 import Icon from 'component/common/icon';
 import NotificationHeaderButton from 'component/headerNotificationButton';
@@ -18,6 +19,7 @@ type HeaderMenuButtonProps = {
   currentTheme: string,
   user: ?User,
   handleThemeToggle: (boolean, string) => void,
+  doOpenModal: (id, params) => void,
 };
 
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
@@ -28,6 +30,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
     activeChannelStakedLevel,
     user,
     handleThemeToggle,
+    doOpenModal,
   } = props;
 
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
@@ -73,6 +76,11 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           <MenuItem className="menu__link" onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}>
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
             {currentTheme === 'light' ? __('Dark') : __('Light')}
+          </MenuItem>
+
+          <MenuItem className="menu__link" onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
+            <Icon icon={ICONS.EYE} />
+            {__('Membership Splash')}
           </MenuItem>
         </MenuList>
       </Menu>
