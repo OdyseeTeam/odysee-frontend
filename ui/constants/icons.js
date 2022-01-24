@@ -189,3 +189,5 @@ export const ODYSEE_DARK_TEXT = 'OdyseeLogoDarkText';
 export const EARLY_ACCESS = 'EarlyAccess';
 export const MEMBER_BADGE = 'MemberBadge';
 export const NO_ADS = 'NoAds';
+export const PREMIUM = 'Premium';
+export const PREMIUM_PLUS = 'PremiumPlus';
