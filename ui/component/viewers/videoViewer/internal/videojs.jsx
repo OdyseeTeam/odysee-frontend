@@ -21,6 +21,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
+import { LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN, LIVESTREAM_STREAM_X_PULL } from 'constants/livestream';
 const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -103,6 +104,15 @@ if (!Object.keys(videojs.getPlugins()).includes('qualityLevels')) {
 
 if (!Object.keys(videojs.getPlugins()).includes('recsys')) {
   videojs.registerPlugin('recsys', recsys);
+}
+
+if (process.env.NODE_ENV !== 'production') {
+  videojs.Vhs.xhr.beforeRequest = (options) => {
+    if (!options.headers) options.headers = {};
+    options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+    options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+    return options;
+  };
 }
 
 // ****************************************************************************
@@ -292,7 +302,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
-    (async function() {
+    (async function () {
       // test if perms to play video are available
       let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
 
@@ -315,6 +325,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
       // change to m3u8 if applicable
+      // @Todo: skip for livestreams.
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
       playerServerRef.current = response.headers.get('x-powered-by');
@@ -351,7 +362,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const adsClaimParentDiv = adsClaimDiv.parentNode;
 
           // watch parent div for when it is on viewport
-          const observer = new IntersectionObserver(function(entries) {
+          const observer = new IntersectionObserver(function (entries) {
             // when ad div parent becomes visible by 1px, show the ad video
             if (entries[0].isIntersecting === true) {
               adsClaimDiv.style.display = 'block';

@@ -141,10 +141,8 @@ export default function LivestreamPage(props: Props) {
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
   React.useEffect(() => {
-    // Set playing uri to null so the popout player doesnt start playing the dummy claim if a user navigates back
-    // This can be removed when we start using the app video player, not a LIVESTREAM iframe
-    doSetPlayingUri({ uri: null });
-  }, [doSetPlayingUri]);
+    doSetPlayingUri({ uri: uri });
+  }, [doSetPlayingUri, uri]);
 
   return (
     <Page

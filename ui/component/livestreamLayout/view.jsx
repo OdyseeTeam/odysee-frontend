@@ -1,14 +1,16 @@
 // @flow
 import { lazyImport } from 'util/lazyImport';
-import { LIVESTREAM_EMBED_URL } from 'constants/livestream';
 import { useIsMobile } from 'effects/use-screensize';
 import classnames from 'classnames';
 import FileTitleSection from 'component/fileTitleSection';
 import LivestreamLink from 'component/livestreamLink';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import React from 'react';
+import FileRenderInitiator from 'component/fileRenderInitiator';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
+
+export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 
 type Props = {
   activeStreamUri: boolean | string,
@@ -37,23 +39,21 @@ export default function LivestreamLayout(props: Props) {
 
   if (!claim || !claim.signing_channel) return null;
 
-  const { name: channelName, claim_id: channelClaimId } = claim.signing_channel;
+  const { name: channelName } = claim.signing_channel;
 
   return (
     <>
       <div className="section card-stack">
         <div
-          className={classnames('file-render file-render--video livestream', {
+          className={classnames('file-render file-render--video', {
             'file-render--scheduledLivestream': !showLivestream,
           })}
         >
           <div className="file-viewer">
             {showLivestream && (
-              <iframe
-                src={`${LIVESTREAM_EMBED_URL}/${channelClaimId}?skin=odysee&autoplay=1`}
-                scrolling="no"
-                allowFullScreen
-              />
+              <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+                <FileRenderInitiator uri={uri} videoTheaterMode={false} />
+              </div>
             )}
 
             {showScheduledInfo && <LivestreamScheduledInfo release={release} />}

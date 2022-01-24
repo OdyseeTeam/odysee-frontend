@@ -1,3 +1,7 @@
+export const LIVESTREAM_CDN_DOMAIN = 'cdn.odysee.live';
+export const LIVESTREAM_STREAM_DOMAIN = 'stream.odysee.com';
+export const LIVESTREAM_STREAM_X_PULL = 'bitwaveCDN';
+
 export const LIVESTREAM_EMBED_URL = 'https://player.odysee.live/odysee';
 export const LIVESTREAM_LIVE_API = 'https://api.live.odysee.com/v1/odysee/live';
 export const LIVESTREAM_REPLAY_API = 'https://api.live.odysee.com/v1/replays/odysee';
