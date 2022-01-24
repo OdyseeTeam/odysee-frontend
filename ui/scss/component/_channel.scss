@@ -586,5 +586,16 @@ $actions-z-index: 2;
     .help--inline {
       color: var(--color-text);
     }
+    .claim-tile__info {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .media__subtitle {
+      .claim-preview-metadata-sub-upload {
+        margin-top: 2px;
+        font-size: var(--font-small) !important;
+      }
+    }
   }
 }
