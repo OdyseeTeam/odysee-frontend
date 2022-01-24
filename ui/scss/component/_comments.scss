@@ -397,6 +397,7 @@ $thumbnailWidthSmall: 1rem;
   }
   .button__content {
     .icon {
+      stroke: var(--color-text);
       fill: transparent;
     }
   }
