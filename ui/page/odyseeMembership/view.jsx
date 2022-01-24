@@ -24,9 +24,18 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  const { openModal, odyseeMembership } = props;
+  const { openModal, odyseeMembership, activeChannelClaim } = props;
+
+  const userChannelName = activeChannelClaim && activeChannelClaim.name;
+  const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;
+
+  console.log(userChannelName, userChannelClaimId);
+
   console.log('odysee membership');
   console.log(odyseeMembership);
+
+  console.log('active channel claim');
+  console.log(activeChannelClaim);
 
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
@@ -159,8 +168,8 @@ const OdyseeMembershipPage = (props: Props) => {
     openModal(MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP, {
       membershipId,
       subscriptionPeriod,
-      odyseeChannelId,
-      odyseeChannelName,
+      userChannelName,
+      userChannelClaimId,
     });
   };
 

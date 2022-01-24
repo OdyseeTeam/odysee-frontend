@@ -15,7 +15,7 @@ type Props = {
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
-  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName } = props;
+  const { closeModal, membershipId, subscriptionPeriod, userChannelName, userChannelClaimId } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
 
@@ -28,8 +28,8 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         environment: stripeEnvironment,
         membership_id: membershipId,
         yearly: subscriptionPeriod,
-        channel_id: odyseeChannelId,
-        channel_name: odyseeChannelName,
+        channel_id: userChannelClaimId,
+        channel_name: userChannelName,
       }, 'post');
 
       console.log('purchase, purchase membership response');
