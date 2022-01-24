@@ -208,7 +208,7 @@ export class FormField extends React.PureComponent<Props> {
           return (
             <div className="form-field--SimpleMDE" onContextMenu={stopContextMenu}>
               <fieldset-section>
-                <div className="form-field__two-column">
+                <div className="form-field-column">
                   <div style={{ display: 'flex' }}>
                     <label htmlFor={name}>{label}</label>
                     {countInfo}
