@@ -10,8 +10,10 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 let stripeEnvironment = getStripeEnvironment();
 
-const isDev = process.env.NODE_ENV !== 'production';
+// const isDev = process.env.NODE_ENV !== 'production';
+const isDev = true;
 
+// odysee channel information since the memberships are only for Odysee
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 const odyseeChannelName = '@odysee';
 
