@@ -43,6 +43,17 @@
     }
   }
 
+  .button--link {
+    color: var(--color-odysee) !important;
+    &:hover {
+      color: var(--color-link-hover) !important;
+    }
+  }
+  .button--primary {
+    background-color: var(--color-odysee) !important;
+    color: var(--color-odysee-contrast) !important;
+  }
+
   @media (max-width: $breakpoint-small) {
     .card__actions--between {
       .header__menu--left,

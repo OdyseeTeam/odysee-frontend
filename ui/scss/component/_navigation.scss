@@ -58,6 +58,11 @@
   transform: translateX(0);
   transform-origin: left;
 
+  .button--secondary {
+    background-color: var(--color-odysee) !important;
+    color: var(--color-odysee-contrast) !important;
+  }
+
   @media (min-width: $breakpoint-small) {
     overflow-y: hidden;
     justify-content: space-between;
