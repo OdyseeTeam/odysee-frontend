@@ -364,11 +364,8 @@ reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) =>
   });
 
 reducers[ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
-  const user = Object.assign({}, state.user);
-
-  user.odyseeMembershipName = action.data.odyseeMembershipName;
   return Object.assign({}, state, {
-    user,
+    odyseeMembershipName: action.data.odyseeMembershipName,
   });
 };
 
