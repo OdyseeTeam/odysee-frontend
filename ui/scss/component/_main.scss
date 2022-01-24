@@ -188,6 +188,12 @@ body {
       }
     }
 
+    .claim-preview__title {
+      .truncated-text {
+        -webkit-line-clamp: 2 !important;
+      }
+    }
+
     @media (max-width: $breakpoint-medium) {
       width: 100%;
       margin-left: 0;
