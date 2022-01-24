@@ -187,6 +187,9 @@
         .button {
           display: inline;
         }
+        span:not(.channel-name) {
+          font-size: var(--font-xxsmall);
+        }
       }
     }
   }
