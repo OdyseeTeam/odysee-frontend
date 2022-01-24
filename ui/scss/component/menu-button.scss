@@ -13,7 +13,7 @@ reach-portal {
 
       [data-reach-menu-item][data-selected] {
         .menu__link {
-          color: var(--color-primary-contrast) !important;
+          color: var(--color-primary-contrast);
         }
         .icon {
           stroke: var(--color-primary-contrast);
@@ -121,6 +121,15 @@ reach-portal {
 
 .menu__list--header {
   @extend .menu__list;
+
+  [data-reach-menu-item][data-selected] {
+    .menu__link {
+      color: var(--color-odysee-contrast) !important;
+    }
+    .icon {
+      stroke: var(--color-primary-contrast);
+    }
+  }
 
   [data-reach-menu-item][data-selected] {
     color: var(--color-odysee-contrast) !important;
