@@ -65,6 +65,7 @@ const ModalPublishPreview = lazyImport(() =>
   import('modal/modalPublishPreview' /* webpackChunkName: "modalPublishPreview" */)
 );
 const ModalRemoveCard = lazyImport(() => import('modal/modalRemoveCard' /* webpackChunkName: "modalRemoveCard" */));
+const ModalConfirmPurchaseOdyseeMembership = lazyImport(() => import('modal/modalConfirmPurchaseOdyseeMembership' /* webpackChunkName: "modalConfirmPurchaseOdyseeMembership" */));
 const ModalRemoveComment = lazyImport(() =>
   import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)
 );
@@ -180,6 +181,8 @@ function getModal(id) {
       return ModalDeleteCollection;
     case MODALS.CONFIRM_REMOVE_CARD:
       return ModalRemoveCard;
+    case MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP:
+      return ModalConfirmPurchaseOdyseeMembership;
     case MODALS.CONFIRM_REMOVE_COMMENT:
       return ModalRemoveComment;
     default:
