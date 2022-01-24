@@ -395,6 +395,18 @@ $thumbnailWidthSmall: 1rem;
   &:disabled {
     opacity: 1;
   }
+  .button__content {
+    .icon {
+      fill: transparent;
+    }
+  }
+  &:hover {
+    .button__content {
+      .icon {
+        fill: var(--color-primary);
+      }
+    }
+  }
 }
 
 .comment__action--active {
