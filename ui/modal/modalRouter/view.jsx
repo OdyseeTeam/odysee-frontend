@@ -65,7 +65,12 @@ const ModalPublishPreview = lazyImport(() =>
   import('modal/modalPublishPreview' /* webpackChunkName: "modalPublishPreview" */)
 );
 const ModalRemoveCard = lazyImport(() => import('modal/modalRemoveCard' /* webpackChunkName: "modalRemoveCard" */));
-const ModalConfirmPurchaseOdyseeMembership = lazyImport(() => import('modal/modalConfirmPurchaseOdyseeMembership' /* webpackChunkName: "modalConfirmPurchaseOdyseeMembership" */));
+const ModalConfirmPurchaseOdyseeMembership = lazyImport(() =>
+  import('modal/modalConfirmPurchaseOdyseeMembership' /* webpackChunkName: "modalConfirmPurchaseOdyseeMembership" */)
+);
+const OdyseeMembershipSplash = lazyImport(() =>
+  import('modal/modalMembershipSplash' /* webpackChunkName: "modalMembershipSplash" */)
+);
 const ModalRemoveComment = lazyImport(() =>
   import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)
 );
@@ -129,6 +134,8 @@ function getModal(id) {
       return ModalFirstSubscription;
     case MODALS.SEND_TIP:
       return ModalSendTip;
+    case MODALS.MEMBERSHIP_SPLASH:
+      return OdyseeMembershipSplash;
     case MODALS.SOCIAL_SHARE:
       return ModalSocialShare;
     case MODALS.PUBLISH:
