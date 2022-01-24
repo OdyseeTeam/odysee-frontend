@@ -50,6 +50,7 @@ class UriIndicator extends React.PureComponent<Props> {
       external = false,
       hideAnonymous = false,
       className,
+      odyseeMembership,
     } = this.props;
 
     if (!claim) {
@@ -82,7 +83,7 @@ class UriIndicator extends React.PureComponent<Props> {
 
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
-          {name} PREM+
+          {name} {odyseeMembership}
         </span>
       );
 
