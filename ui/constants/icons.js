@@ -186,3 +186,6 @@ export const POP_CULTURE = 'Pop Culture';
 export const ODYSEE_LOGO = 'OdyseeLogo';
 export const ODYSEE_WHITE_TEXT = 'OdyseeLogoWhiteText';
 export const ODYSEE_DARK_TEXT = 'OdyseeLogoDarkText';
+export const EARLY_ACCESS = 'EarlyAccess';
+export const MEMBER_BADGE = 'MemberBadge';
+export const NO_ADS = 'NoAds';

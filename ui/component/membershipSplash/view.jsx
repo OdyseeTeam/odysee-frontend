@@ -15,6 +15,8 @@ import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 
+import AstronautAndFriends from './astronaut_n_friends.png';
+
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
@@ -240,62 +242,76 @@ function WalletSendTip(props: Props) {
   );
 
   const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
+  const earlyAcessInfo = (
+    <div className="membership-splash__info-content">
+      <Icon icon={ICONS.EARLY_ACCESS} />
+      {__('Early access to features')}
+    </div>
+  );
+  const badgeInfo = (
+    <div className="membership-splash__info-content">
+      <Icon icon={ICONS.MEMBER_BADGE} />
+      {__('Badge on profile')}
+    </div>
+  );
+  const noAdsInfo = (
+    <div className="membership-splash__info-content">
+      <Icon icon={ICONS.NO_ADS} />
+      {__('No ads')}
+    </div>
+  );
+
   return (
-    <>
+    <div className="membership-splash">
       <div className="membership-splash__banner">
-        {/* (<img src={astronaut} />) */}
+        <img src={AstronautAndFriends} />
 
-        <section>
-          {logo}
-          <span className="membership-splash__title">{__('PREMIUM')}</span>
+        <section className="membership-splash__title">
+          <section>
+            {logo}
+            <span>{__('PREMIUM')}</span>
+          </section>
+          <section>{__('Get early access and features and remove ads for 99c')}</section>
         </section>
-
-        <section>{__('Get early access and features and remove ads for 99c')}</section>
       </div>
 
-      <div className="membership-splash__info">{__('creating a .....')}</div>
-
-      <div className="membership-splash__info">
-        <section className="membership-splash__info-header">
-          {__('99c A MONTH')}
-        </section>
-
-        <div className="membership-splash__info-content">
-          {/* (<Icon icon={ICONS.BADGE} />) */}
-          {__('Badge on profile')}
+      <div className="membership-splash__info-wrapper">
+        <div className="membership-splash__info">
+          {__("creating a revolutionary video platform for everyone is something we're proud to be doing.....")}
         </div>
 
-        <div className="membership-splash__info-content">
-          {/* (<Icon icon={ICONS.KEY} />) */}
-          {__('Early access')}
+        <div className="membership-splash__info">
+          <section className="membership-splash__info-header">
+            <div className="membership-splash__info-price">{__('99¢')}</div>
+            <div className="membership-splash__info-range">{__('A MONTH')}</div>
+          </section>
+
+          {badgeInfo}
+
+          {earlyAcessInfo}
+
+          <div className="membership-splash__info-button">
+            <Button button="primary" label={__('Apply for Membership')} />
+          </div>
         </div>
 
-        <Button label={__('Apply for Membership')} />
+        <div className="membership-splash__info">
+          <section className="membership-splash__info-header">
+            <div className="membership-splash__info-price">{__('$2.99')}</div>
+            <div className="membership-splash__info-range">{__('A MONTH')}</div>
+          </section>
+
+          {noAdsInfo}
+
+          {badgeInfo}
+
+          {earlyAcessInfo}
+          <div className="membership-splash__info-button">
+            <Button button="primary" label={__('Apply for Membership')} />
+          </div>
+        </div>
       </div>
-
-      <div className="membership-splash__info">
-        <section className="membership-splash__info-header">
-          {__('99c A MONTH')}
-        </section>
-
-        <div className="membership-splash__info-content">
-          {/* (<Icon icon={ICONS.NO_ADS} />) */}
-          {__('No Ads')}
-        </div>
-
-        <div className="membership-splash__info-content">
-          {/* (<Icon icon={ICONS.BADGE} />) */}
-          {__('Badge on profile')}
-        </div>
-
-        <div className="membership-splash__info-content">
-          {/* (<Icon icon={ICONS.KEY} />) */}
-          {__('Early access')}
-        </div>
-
-        <Button label={__('Apply for Membership')} />
-      </div>
-    </>
+    </div>
   );
 }
 
