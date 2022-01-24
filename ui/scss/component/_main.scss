@@ -188,9 +188,31 @@ body {
       }
     }
 
-    .claim-preview__title {
-      .truncated-text {
-        -webkit-line-clamp: 2 !important;
+    .claim-preview-metadata {
+      .claim-tile__info {
+        margin-top: 0;
+        .media__subtitle {
+          .button__content {
+            margin-top: 0;
+            .channel-name {
+              margin-top: 0;
+            }
+          }
+          span,
+          .date_time {
+            margin-top: 4px;
+          }
+        }
+      }
+      .claim-preview__title {
+        .truncated-text {
+          -webkit-line-clamp: 2 !important;
+        }
+      }
+      .channel-thumbnail {
+        display: none;
+        width: 1.4rem;
+        height: 1.4rem;
       }
     }
 
