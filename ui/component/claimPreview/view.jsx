@@ -404,9 +404,16 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </NavLink>
                 )}
               </div>
-              <ClaimPreviewSubtitle uri={uri} type={type} />
-              {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
-              {channelSubscribers}
+              <div className="claim-tile__info">
+                {!isChannelUri && signingChannel && (
+                  <div className="claim-preview__channel-staked">
+                    <ChannelThumbnail uri={signingChannel.permanent_url} xsmall />
+                  </div>
+                )}
+                <ClaimPreviewSubtitle uri={uri} type={type} />
+                {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
+                {channelSubscribers}
+              </div>
             </div>
             {type !== 'small' && (
               <div className="claim-preview__actions">
@@ -417,12 +424,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                       actions
                     ) : (
                       <div className="claim-preview__primary-actions">
-                        {!isChannelUri && signingChannel && (
-                          <div className="claim-preview__channel-staked">
-                            <ChannelThumbnail uri={signingChannel.permanent_url} xsmall />
-                          </div>
-                        )}
-
                         {isChannelUri && !banState.muted && !claimIsMine && (
                           <SubscribeButton
                             uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}

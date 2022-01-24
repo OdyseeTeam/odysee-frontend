@@ -180,6 +180,15 @@
       }
     }
   }
+  .claim-preview {
+    .claim-preview-metadata {
+      .media__subtitle {
+        .button {
+          display: inline;
+        }
+      }
+    }
+  }
 
   &:hover {
     .claim__menu-button {
@@ -194,9 +203,6 @@
           margin-right: var(--spacing-s);
         }
         .media__subtitle {
-          .button {
-            display: inline;
-          }
           .button__content {
             height: auto;
           }
@@ -552,6 +558,20 @@
   text-overflow: ellipsis;
   max-width: 100%;
   color: rgba(var(--color-text-base), 0.9);
+  .truncated-text {
+    display: -webkit-box;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    -webkit-line-clamp: 1 !important;
+    @media (max-width: $breakpoint-xsmall) {
+      -webkit-line-clamp: 3 !important;
+    }
+    @media (min-width: $breakpoint-medium) {
+      -webkit-line-clamp: 1 !important;
+    }
+  }
 }
 
 .claim-preview__channel-sub-count {
@@ -931,6 +951,7 @@
 .claim-tile__info {
   display: flex;
   margin-top: var(--spacing-xs);
+  // margin-top: 0;
   color: var(--color-subtitle);
   padding: 0px;
   padding-bottom: var(--spacing-l);
@@ -945,7 +966,14 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    padding-bottom: var(--spacing-m);
+    padding-bottom: 0;
+  }
+
+  .media__subtitle {
+    .button__content {
+      margin-top: 3px;
+      margin-bottom: -3px;
+    }
   }
 }
 
@@ -1219,8 +1247,8 @@
   align-items: center;
 
   .channel-thumbnail {
-    @include handleChannelGif(1.4rem);
-    margin-right: 0;
+    @include handleChannelGif(2.1rem);
+    // margin-right: 0;
   }
 }
 
