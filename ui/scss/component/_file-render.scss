@@ -76,9 +76,11 @@
   }
 
   // Temporary fix
-  .claim-tile__info {
-    display: unset;
-    padding-bottom: 0;
+  .card__main-actions {
+    .claim-tile__info {
+      display: unset;
+      padding-bottom: 0;
+    }
   }
 
   > * {
