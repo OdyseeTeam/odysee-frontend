@@ -7,6 +7,24 @@ export function getPrimaryColor() {
   return getComputedStyle(document.documentElement).getPropertyValue('--color-primary');
 }
 
+export function resetColors(odysee = false) {
+  if (odysee) {
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-primary-dynamic', 'var(--color-primary-static)');
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-primary-contrast', 'var(--color-primary-contrast-static)');
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-secondary-dynamic', 'var(--color-secondary-static)');
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty(
+        '--color-secondary-contrast',
+        'var(--color-secondary-contrast-static)'
+      );
+    document.documentElement !== null &&
+      document.documentElement.style.setProperty('--color-link', 'var(--color-primary)');
+  }
+}
+
 function setPrimaryColor(rgb) {
   document.documentElement !== null &&
     document.documentElement.style.setProperty('--color-primary-dynamic', rgb.r + ',' + rgb.g + ',' + rgb.b);

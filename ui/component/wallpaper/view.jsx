@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import { resetColors } from 'util/theme';
 
 type Props = {
   uri: ?string,
@@ -69,19 +70,7 @@ const Wallpaper = (props: Props) => {
       }
     });
   } else {
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-primary-dynamic', 'var(--color-primary-static)');
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-primary-contrast', 'var(--color-primary-contrast-static)');
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-secondary-dynamic', 'var(--color-secondary-static)');
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty(
-        '--color-secondary-contrast',
-        'var(--color-secondary-contrast-static)'
-      );
-    document.documentElement !== null &&
-      document.documentElement.style.setProperty('--color-link', 'var(--color-primary)');
+    resetColors(true);
   }
 
   function toDataUrl(url, callback) {
