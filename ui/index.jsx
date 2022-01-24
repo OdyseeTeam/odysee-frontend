@@ -41,7 +41,7 @@ import { doToast } from 'redux/actions/notifications';
 import { ReactKeycloakProvider } from '@react-keycloak/web';
 import keycloak, { initOptions } from 'util/keycloak';
 import { getAuthToken, setAuthToken, getTokens, deleteAuthToken } from 'util/saved-passwords';
-import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import { AUTHORIZATION, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { PROXY_URL, DEFAULT_LANGUAGE, LBRY_API_URL } from 'config';
 
 // Import 3rd-party styles before ours for the current way we are code-splitting.
@@ -74,22 +74,16 @@ if (process.env.SDK_API_URL) {
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
-Lbry.setOverride(
-  'publish',
-  (params) =>
-    new Promise((resolve, reject) => {
-      apiPublishCallViaWeb(
-        apiCall,
-        Lbry.getApiRequestHeaders() && Object.keys(Lbry.getApiRequestHeaders()).includes(X_LBRY_AUTH_TOKEN)
-          ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
-          : '',
-        'publish',
-        params,
-        resolve,
-        reject
-      );
-    })
-);
+Lbry.setOverride('publish', (params) => {
+  // We can probably just query from getTokens(), but retaining the original
+  // code of always grabbing from getApiRequestHeaders():
+  const requestHeaders = Lbry.getApiRequestHeaders();
+  const token = requestHeaders[X_LBRY_AUTH_TOKEN] || requestHeaders[AUTHORIZATION] || '';
+
+  return new Promise((resolve, reject) => {
+    apiPublishCallViaWeb(apiCall, token, 'publish', params, resolve, reject);
+  });
+});
 // @endif
 
 analytics.initAppStartTime(Date.now());

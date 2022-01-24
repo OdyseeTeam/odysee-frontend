@@ -2,7 +2,7 @@
 import * as tus from 'tus-js-client';
 import NoopUrlStorage from 'tus-js-client/lib/noopUrlStorage';
 import analytics from '../../ui/analytics';
-import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
+import { AUTHORIZATION, X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
 import { LBRY_WEB_PUBLISH_API_V2 } from 'config';
 
@@ -75,7 +75,7 @@ export function makeResumableUploadRequest(
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
       removeFingerprintOnSuccess: true,
-      headers: { [X_LBRY_AUTH_TOKEN]: token },
+      headers: { [token.startsWith('Bearer') ? AUTHORIZATION : X_LBRY_AUTH_TOKEN]: token },
       metadata: {
         filename: file instanceof File ? file.name : file,
         filetype: file instanceof File ? file.type : undefined,
@@ -121,7 +121,7 @@ export function makeResumableUploadRequest(
           xhr.open('POST', `${uploader.url}/notify`);
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.setRequestHeader('Tus-Resumable', '1.0.0');
-          xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
+          xhr.setRequestHeader(token.startsWith('Bearer') ? AUTHORIZATION : X_LBRY_AUTH_TOKEN, token);
           xhr.responseType = 'json';
           xhr.onloadstart = () => {
             window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify' }));

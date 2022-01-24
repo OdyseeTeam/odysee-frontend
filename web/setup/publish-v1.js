@@ -7,7 +7,7 @@
 
 import analytics from '../../ui/analytics';
 import { PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL } from '../../ui/constants/errors';
-import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
+import { AUTHORIZATION, X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
 import { LBRY_WEB_PUBLISH_API } from 'config';
 
@@ -49,7 +49,7 @@ export function makeUploadRequest(
   return new Promise<any>((resolve, reject) => {
     let xhr = new XMLHttpRequest();
     xhr.open('POST', ENDPOINT);
-    xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
+    xhr.setRequestHeader(token.startsWith('Bearer') ? AUTHORIZATION : X_LBRY_AUTH_TOKEN, token);
     if (!remoteUrl) {
       xhr.timeout = PUBLISH_FETCH_TIMEOUT_MS;
     }
