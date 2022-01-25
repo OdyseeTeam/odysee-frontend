@@ -23,6 +23,9 @@
   @media (min-width: $breakpoint-small) {
     flex-direction: row;
   }
+  @media (max-width: $breakpoint-small) {
+    padding: unset;
+  }
 }
 
 .claim-search__dropdown {
