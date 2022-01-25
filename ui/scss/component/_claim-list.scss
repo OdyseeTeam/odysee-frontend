@@ -289,6 +289,21 @@
   }
 
   .claim-preview__repost-author {
+    left: 0px;
+    top: 0px;
+    //left: auto;
+    font-size: var(--font-small);
+    opacity: 0.8;
+    z-index: 5;
+
+    svg {
+      margin-right: 4px;
+      margin-bottom: -2px;
+    }
+  }
+
+  /*
+  &.claim-preview__repost-author {
     right: 0px;
     top: 54px;
     left: auto;
@@ -299,7 +314,7 @@
       margin-right: 4px;
       margin-bottom: -2px;
     }
-  }
+  }*/
 
   &:hover {
     background: rgba(var(--color-header-background-base), 0.9);
