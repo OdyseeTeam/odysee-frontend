@@ -77,11 +77,6 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
             {currentTheme === 'light' ? __('Dark') : __('Light')}
           </MenuItem>
-
-          <MenuItem className="menu__link" onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
-            <Icon icon={ICONS.EYE} />
-            {__('Membership Splash')}
-          </MenuItem>
         </MenuList>
       </Menu>
     </div>

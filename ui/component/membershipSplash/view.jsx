@@ -8,7 +8,7 @@ import AstronautAndFriends from './astronaut_n_friends.png';
 type Props = {};
 
 export default function MembershipSplash(props: Props) {
-  /** RENDER **/
+  // const { } = props;
 
   const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
 
