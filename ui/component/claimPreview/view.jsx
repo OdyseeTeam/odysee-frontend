@@ -408,7 +408,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
                     <UriIndicator focusable={false} uri={uri} link hideAnonymous>
-                      <ChannelThumbnail uri={uri} xsmall />
+                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall />
                     </UriIndicator>
                   </div>
                 )}
