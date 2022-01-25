@@ -46,6 +46,36 @@ export const setSearchUserId = (userId: ?string) => {
   lighthouse.user_id = userId ? `&user_id=${userId}` : '';
 };
 
+/**
+ * Processes a lighthouse-formatted search result to an array of uris.
+ * @param results
+ */
+const processLighthouseResults = (results: Array<any>) => {
+  const uris = [];
+
+  results.forEach((item) => {
+    if (item) {
+      const { name, claimId } = item;
+      const urlObj: LbryUrlObj = {};
+
+      if (name.startsWith('@')) {
+        urlObj.channelName = name;
+        urlObj.channelClaimId = claimId;
+      } else {
+        urlObj.streamName = name;
+        urlObj.streamClaimId = claimId;
+      }
+
+      const url = buildURI(urlObj);
+      if (isURIValid(url)) {
+        uris.push(url);
+      }
+    }
+  });
+
+  return uris;
+};
+
 export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
   dispatch: Dispatch,
   getState: GetState
@@ -85,31 +115,10 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
   cmd(queryWithOptions)
     .then((data: { body: Array<{ name: string, claimId: string }>, poweredBy: string }) => {
       const { body: result, poweredBy } = data;
-      const uris = [];
+      const uris = processLighthouseResults(result);
+
       const actions = [];
-
-      result.forEach((item) => {
-        if (item) {
-          const { name, claimId } = item;
-          const urlObj: LbryUrlObj = {};
-
-          if (name.startsWith('@')) {
-            urlObj.channelName = name;
-            urlObj.channelClaimId = claimId;
-          } else {
-            urlObj.streamName = name;
-            urlObj.streamClaimId = claimId;
-          }
-
-          const url = buildURI(urlObj);
-          if (isURIValid(url)) {
-            uris.push(url);
-          }
-        }
-      });
-
       actions.push(doResolveUris(uris));
-
       actions.push({
         type: ACTIONS.SEARCH_SUCCESS,
         data: {
@@ -120,6 +129,7 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
           recsys: poweredBy,
         },
       });
+
       dispatch(batchActions(...actions));
     })
     .catch(() => {
