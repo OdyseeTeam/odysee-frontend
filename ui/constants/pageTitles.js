@@ -40,6 +40,7 @@ export const PAGE_TITLE = {
   [PAGES.INVITE]: 'Invite',
   [PAGES.LISTS]: 'Lists',
   [PAGES.LIVESTREAM]: 'Go Live on Odysee',
+  [PAGES.LIVESTREAM_OVERLAY_SETTINGS]: 'Overlay settings',
   [PAGES.LIVESTREAM_CURRENT]: 'Live (Experimental)',
   [PAGES.NOTIFICATIONS]: 'Notifications',
   [PAGES.RECEIVE]: 'Your address',

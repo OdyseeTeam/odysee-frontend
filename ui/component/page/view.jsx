@@ -6,6 +6,7 @@ import { MAIN_CLASS } from 'constants/classnames';
 import { lazyImport } from 'util/lazyImport';
 import SideNavigation from 'component/sideNavigation';
 import SettingsSideNavigation from 'component/settingsSideNavigation';
+import SettingsOverlaySideNavigation from 'component/settingsOverlaySideNavigation';
 import Header from 'component/header';
 /* @if TARGET='app' */
 import StatusBar from 'component/common/status-bar';
@@ -23,6 +24,7 @@ type Props = {
   authPage: boolean,
   filePage: boolean,
   settingsPage?: boolean,
+  settingsOverlay?: boolean,
   noHeader: boolean,
   noFooter: boolean,
   noSideNavigation: boolean,
@@ -46,6 +48,7 @@ function Page(props: Props) {
     className,
     filePage = false,
     settingsPage,
+    settingsOverlay,
     authPage = false,
     fullWidthPage = false,
     noHeader = false,
@@ -81,6 +84,9 @@ function Page(props: Props) {
     if (!authPage) {
       if (settingsPage) {
         return <SettingsSideNavigation />;
+      }
+      if (settingsOverlay) {
+        return <SettingsOverlaySideNavigation />;
       } else if (!noSideNavigation) {
         return (
           <SideNavigation

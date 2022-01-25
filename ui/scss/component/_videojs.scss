@@ -227,7 +227,7 @@ $control-bar-icon-size: 0.8rem;
 }
 
 // larger than default spinner for all but smallest devices
-@media (min-width:680px) {
+@media (min-width: 680px) {
   .vjs-loading-spinner {
     border-radius: 100px;
     height: 75px;

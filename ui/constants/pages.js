@@ -80,6 +80,7 @@ exports.CHANNEL_NEW = 'channel/new';
 exports.NOTIFICATIONS = 'notifications';
 exports.YOUTUBE_SYNC = 'youtube';
 exports.LIVESTREAM = 'livestream';
+exports.LIVESTREAM_OVERLAY_SETTINGS = 'livestream_overlay';
 exports.LIVESTREAM_CURRENT = 'live';
 exports.GENERAL = 'general';
 exports.LIST = 'list';
