@@ -21,6 +21,7 @@ function ClaimPreviewLoading(props: Props) {
         <div className="media__thumb" />
         <div className="placeholder__wrapper">
           <div className="claim-preview__title" />
+          <div className="claim-preview__title_b" />
           <div className="claim-tile__info">
             <div className="channel-thumbnail" />
             <div className="claim-tile__about">

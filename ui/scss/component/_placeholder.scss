@@ -23,7 +23,7 @@
     .media__thumb {
       width: calc(var(--file-list-thumbnail-width) * 1.2);
       @media (max-width: $breakpoint-small) {
-        width: var(--file-list-thumbnail-width) !important;
+        width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
       }
     }
   }
@@ -43,6 +43,11 @@
     @media (max-width: $breakpoint-small) {
       width: 94%;
     }
+  }
+  .claim-preview__title_b {
+    @extend .claim-preview__title;
+    width: 68%;
+    margin-bottom: 9px;
   }
 
   .claim-tile__about {
