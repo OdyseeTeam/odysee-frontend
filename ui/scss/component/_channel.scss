@@ -82,10 +82,13 @@ $actions-z-index: 2;
   box-sizing: content-box;
   color: #fff;
 
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
+  .channel-cover__customm,
+  .channel__quick-actions {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
 }
 
 .channel-cover__custom {
