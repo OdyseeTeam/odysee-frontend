@@ -40,21 +40,16 @@ export const doLocalCollectionCreate = (
   });
 };
 
-export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
+export const doCollectionDelete = (id: string, collectionKey: ?string = undefined) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
   const state = getState();
   const claim = makeSelectClaimForClaimId(id)(state);
-  const collectionDelete = () =>
-    dispatch({
-      type: ACTIONS.COLLECTION_DELETE,
-      data: {
-        id: id,
-        collectionKey: colKey,
-      },
-    });
-  if (claim && !colKey) {
+
+  const collectionDelete = () => dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey } });
+
+  if (claim && !collectionKey) {
     // could support "abandon collection claim, but keep private collection" later
     return dispatch(doAbandonClaim(claim, collectionDelete));
   }

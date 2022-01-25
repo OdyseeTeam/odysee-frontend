@@ -1,39 +1,41 @@
 // @flow
-import React, { useState } from 'react';
+import { FormField } from 'component/common/form';
+import { getClaimTitle } from 'util/claim';
 import { Modal } from 'modal/modal';
+import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
-import { useHistory } from 'react-router-dom';
-import { FormField } from 'component/common/form';
+import React from 'react';
 
 type Props = {
-  closeModal: () => void,
-  collectionDelete: (string, ?string) => void,
   claim: Claim,
   collectionId: string,
   collectionName: string,
-  uri: ?string,
   redirect: ?string,
+  uri: ?string,
+  doHideModal: () => void,
+  doCollectionDelete: (id: string, collectionKey?: string) => void,
 };
 
-function ModalRemoveCollection(props: Props) {
-  const { closeModal, claim, collectionDelete, collectionId, collectionName, uri, redirect } = props;
-  const title = claim && claim.value && claim.value.title;
+export default function ModalRemoveCollection(props: Props) {
+  const { claim, collectionId, collectionName, redirect, uri, doHideModal, doCollectionDelete } = props;
+
   const { replace } = useHistory();
-  const [confirmName, setConfirmName] = useState('');
+  const [confirmName, setConfirmName] = React.useState('');
+  const title = getClaimTitle(claim);
 
   return (
-    <Modal isOpen contentLabel={__('Confirm List Unpublish')} type="card" onAborted={closeModal}>
+    <Modal isOpen contentLabel={__('Confirm List Unpublish')} type="card" onAborted={doHideModal}>
       <Card
         title={__('Delete List')}
         body={
           uri ? (
-            <React.Fragment>
+            <>
               <p>{__('This will permanently delete the list.')}</p>
               <p>{__('Type "%name%" to confirm.', { name: collectionName })}</p>
-              <FormField value={confirmName} type={'text'} onChange={(e) => setConfirmName(e.target.value)} />
-            </React.Fragment>
+              <FormField value={confirmName} type="text" onChange={(e) => setConfirmName(e.target.value)} />
+            </>
           ) : (
             <I18nMessage tokens={{ title: <cite>{uri && title ? `"${title}"` : `"${collectionName}"`}</cite> }}>
               Are you sure you'd like to remove %title%?
@@ -41,25 +43,21 @@ function ModalRemoveCollection(props: Props) {
           )
         }
         actions={
-          <>
-            <div className="section__actions">
-              <Button
-                button="primary"
-                label={__('Delete')}
-                disabled={uri && collectionName !== confirmName}
-                onClick={() => {
-                  if (redirect) replace(redirect);
-                  collectionDelete(collectionId, uri ? 'resolved' : undefined);
-                  closeModal();
-                }}
-              />
-              <Button button="link" label={__('Cancel')} onClick={closeModal} />
-            </div>
-          </>
+          <div className="section__actions">
+            <Button
+              button="primary"
+              label={__('Delete')}
+              disabled={uri && collectionName !== confirmName}
+              onClick={() => {
+                if (redirect) replace(redirect);
+                doCollectionDelete(collectionId, uri ? 'resolved' : undefined);
+                doHideModal();
+              }}
+            />
+            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+          </div>
         }
       />
     </Modal>
   );
 }
-
-export default ModalRemoveCollection;
