@@ -290,8 +290,12 @@ function App(props: Props) {
   }, [appRef, fetchChannelListMine, fetchCollectionListMine]);
 
   useEffect(() => {
-    // $FlowFixMe
-    document.documentElement.setAttribute('theme', theme);
+    if (!pathname.includes('/$/overlay/')) {
+      /* This is needed otherwise the Overlay page will not work correctly. */
+      /* If pathname does not include Overlay, set the following attributes. */
+      document.documentElement.setAttribute('theme', theme);
+      document.documentElement.setAttribute('dir', 'ltr');
+    }
   }, [theme]);
 
   useEffect(() => {
@@ -476,6 +480,17 @@ function App(props: Props) {
   }, [sidebarOpen, isPersonalized, resolvedSubscriptions, subscriptions, resolveUris, setResolvedSubscriptions]);
 
   useDegradedPerformance(setLbryTvApiStatus, user);
+
+  // Overlay page
+  if (pathname.includes('/$/overlay/')) {
+    /* This is needed otherwise the Overlay page will not work correctly. */
+    /* The Overlay page does not need every script since it will be used in OBS or others. */
+    return (
+      <React.Fragment>
+        <Router />
+      </React.Fragment>
+    );
+  }
 
   // Require an internal-api user on lbry.tv
   // This also prevents the site from loading in the un-authed state while we wait for internal-apis to return for the first time

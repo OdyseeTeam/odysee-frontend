@@ -139,7 +139,11 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               loading={isSearching}
               uris={recommendedContentUris}
               hideMenu={isMobile}
-              injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />}
+              injectedItem={
+                SHOW_ADS &&
+                IS_WEB &&
+                !isAuthenticated && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />
+              }
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />

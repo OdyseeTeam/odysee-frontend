@@ -17,6 +17,7 @@ import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
 import usePersistedState from 'effects/use-persisted-state';
 import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
+import SettingsRow from 'component/settingsRow';
 
 type Props = {
   hasChannels: boolean,
@@ -231,6 +232,21 @@ export default function LivestreamSetupPage(props: Props) {
                       copyable={streamKey}
                       snackMessage={__('Copied stream key.')}
                     />
+                    <CopyableText
+                      primaryButton
+                      name="overlay-url"
+                      label={__('Overlay URL')}
+                      copyable={`${location.origin}/$/overlay/${activeChannelClaim.name}/${activeChannelClaim.claim_id}`} // Change this to accurate url when ready for production.
+                      snackMessage={__('Copied overlay URL.')}
+                    />
+                    <SettingsRow title={__('Overlay settings and instructions')}>
+                      <Button
+                        button="link"
+                        label={__('Manage')}
+                        icon={ICONS.ARROW_RIGHT}
+                        navigate={`/$/${PAGES.LIVESTREAM_OVERLAY_SETTINGS}`}
+                      />
+                    </SettingsRow>
                   </>
                 }
               />
