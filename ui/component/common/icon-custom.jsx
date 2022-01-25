@@ -3048,4 +3048,11 @@ export const icons = {
       <polygon id="XMLID_23_" className="st6" points="16.1,13.4 16.1,19.6 20.1,19.6 20.5,15.2 17.8,16.8 " />
     </svg>
   ),
+  [ICONS.MEMBERSHIP]: buildIcon(
+    <g>
+      <path d="m2 6 10-5 10 5M2 6v12l10 5 10-5V6" />
+      <circle cx={12} cy={10} r={5.25} />
+      <path d="M8.5 14.5 6 17h3l1.5 2.5 1-4h1l1 4L15 17h3l-2-2.5" />
+    </g>
+  ),
 };
