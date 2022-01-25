@@ -1,17 +1,18 @@
 // @flow
 import React from 'react';
-import { resetColors } from 'util/theme';
+// import { resetColors } from 'util/theme';
 
 type Props = {
-  uri: ?string,
-  cover: ?string,
-  avatar: ?string,
+  // uri: ?string,
+  // cover: ?string,
+  // avatar: ?string,
   reset: ?boolean,
 };
 
 const Wallpaper = (props: Props) => {
-  const { cover, avatar } = props;
+  // const { cover, avatar } = props;
 
+  /*
   if (avatar) {
     toDataUrl(avatar, function (image) {
       if (image) {
@@ -203,7 +204,9 @@ const Wallpaper = (props: Props) => {
 
     return ((r + g + b) / 3) * 100;
   }
+  */
 
+  /*
   if (cover) {
     return (
       cover && (
@@ -213,20 +216,20 @@ const Wallpaper = (props: Props) => {
         </>
       )
     );
-  } else {
-    return (
-      <>
-        <div
-          className={'background-image'}
-          style={{
-            backgroundImage:
-              'url("https://thumbnails.odysee.com/optimize/plain/https://cdn.lbryplayer.xyz/speech/2e9a7dc6c99f0fb9.jpg")',
-          }}
-        />
-        <div className={'theme'} />
-      </>
-    );
-  }
+  } else {  */
+  return (
+    <>
+      <div
+        className={'background-image'}
+        style={{
+          backgroundImage:
+            'url("https://thumbnails.odysee.com/optimize/plain/https://cdn.lbryplayer.xyz/speech/2e9a7dc6c99f0fb9.jpg")',
+        }}
+      />
+      <div className={'theme'} />
+    </>
+  );
+  // }
 };
 
 export default Wallpaper;
