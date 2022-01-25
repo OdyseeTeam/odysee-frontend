@@ -4,11 +4,6 @@
   white-space: nowrap;
   text-decoration: none;
   cursor: pointer;
-
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
 }
 
 .button--primary,
@@ -637,6 +632,11 @@ svg + .button__label {
   margin: 0;
   background-color: var(--color-header-background);
   color: var(--color-text);
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 
   &:hover:not(.button-toggle--active) {
     color: var(--color-link);
