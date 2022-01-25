@@ -11,6 +11,12 @@ $actions-z-index: 2;
     }
   }
 
+  .claim-preview__wrapper--channel {
+    .menu__button {
+      right: var(--spacing-s);
+    }
+  }
+
   .mb-xl {
     // Temporary fix for upcoming livestreams on channel page
     margin-bottom: 0px;
