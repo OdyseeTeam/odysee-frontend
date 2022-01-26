@@ -35,6 +35,9 @@
 
   .header__menu--right {
     .header__navigationItem--balance {
+      .button__label {
+        margin-left: var(--spacing-xxs) !important;
+      }
       &:hover {
         .button__label {
           color: var(--color-odysee-contrast) !important;
