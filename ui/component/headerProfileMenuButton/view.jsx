@@ -4,6 +4,7 @@ import 'scss/component/_header.scss';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import HeaderMenuLink from 'component/common/header-menu-link';
@@ -15,10 +16,11 @@ type HeaderMenuButtonProps = {
   activeChannelClaim: ?ChannelClaim,
   email: ?string,
   signOut: () => void,
+  doOpenModal: (id, params) => void,
 };
 
 export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
-  const { activeChannelClaim, email, signOut } = props;
+  const { activeChannelClaim, email, signOut, doOpenModal } = props;
 
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
 
@@ -52,7 +54,14 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
               <HeaderMenuLink page={PAGES.CREATOR_DASHBOARD} icon={ICONS.ANALYTICS} name={__('Creator Analytics')} />
               <HeaderMenuLink page={PAGES.REWARDS} icon={ICONS.REWARDS} name={__('Rewards')} />
               <HeaderMenuLink page={PAGES.INVITE} icon={ICONS.INVITE} name={__('Invites')} />
-              <HeaderMenuLink page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.MEMBERSHIP} name={__('Membership')} />
+              <HeaderMenuLink page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Membership')} />
+
+              <MenuItem onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.UPGRADE} />
+                  {__('Premium Introduction')}
+                </div>
+              </MenuItem>
 
               <MenuItem onSelect={signOut}>
                 <div className="menu__link">

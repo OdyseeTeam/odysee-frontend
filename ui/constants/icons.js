@@ -191,4 +191,4 @@ export const MEMBER_BADGE = 'MemberBadge';
 export const NO_ADS = 'NoAds';
 export const PREMIUM = 'Premium';
 export const PREMIUM_PLUS = 'PremiumPlus';
-export const MEMBERSHIP = 'MEMBERSHIP';
+export const UPGRADE = 'Upgrade';

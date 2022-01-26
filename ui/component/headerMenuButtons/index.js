@@ -5,7 +5,6 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import HeaderMenuButtons from './view';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
-import { doOpenModal } from 'redux/actions/app';
 
 const select = (state) => ({
   activeChannelStakedLevel: selectActiveChannelStakedLevel(state),
@@ -20,7 +19,6 @@ const perform = (dispatch) => ({
     if (automaticDarkModeEnabled) dispatch(doSetClientSetting(SETTINGS.AUTOMATIC_DARK_MODE_ENABLED, false));
     dispatch(doSetClientSetting(SETTINGS.THEME, currentTheme === 'dark' ? 'light' : 'dark', true));
   },
-  doOpenModal: (id, params) => dispatch(doOpenModal(id, params)),
 });
 
 export default connect(select, perform)(HeaderMenuButtons);
