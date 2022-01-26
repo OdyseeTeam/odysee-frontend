@@ -54,6 +54,8 @@ type SearchOptions = {
   related_to?: string,
   nsfw?: boolean,
   isBackgroundSearch?: boolean,
+  gid?: string, // for fyp only
+  uuid?: string, // for fyp only
 };
 
 let lighthouse = {
@@ -197,7 +199,10 @@ export const doSetMentionSearchResults = (query: string, uris: Array<string>) =>
   });
 };
 
-export const doFetchRecommendedContent = (uri: string) => (dispatch: Dispatch, getState: GetState) => {
+export const doFetchRecommendedContent = (uri: string, fyp: ?FypParam = null) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const state = getState();
   const claim = selectClaimForUri(state, uri);
   const matureEnabled = selectShowMatureContent(state);
@@ -205,6 +210,12 @@ export const doFetchRecommendedContent = (uri: string) => (dispatch: Dispatch, g
 
   if (claim && claim.value && claim.claim_id) {
     const options: SearchOptions = getRecommendationSearchOptions(matureEnabled, claimIsMature, claim.claim_id);
+
+    if (fyp) {
+      options['gid'] = fyp.gid;
+      options['uuid'] = fyp.uuid;
+    }
+
     const { title } = claim.value;
 
     if (title && options) {
