@@ -188,7 +188,28 @@ body {
 
     .recommended-content__toggles {
       .button-toggle {
+        border-radius: 1rem;
+        padding-left: var(--spacing-m);
+        padding-right: var(--spacing-m);
+        margin-right: var(--spacing-xxs);
+        background-color: rgba(var(--color-header-background-base), 0.4) !important;
+        color: rgba(var(--color-text-base), 0.9);
+        .button__content {
+          height: unset;
+        }
+        &:hover:not(.button-toggle--active) {
+          background-color: rgba(var(--color-header-background-base), 0.6) !important;
+          .button__label {
+            color: rgba(var(--color-text-base), 1) !important;
+          }
+        }
+      }
+      .button-toggle:last-of-type {
         margin-right: 0;
+      }
+      .button-toggle--active {
+        background-color: var(--color-header-background) !important;
+        box-shadow: unset;
       }
     }
 
