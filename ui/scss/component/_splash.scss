@@ -49,3 +49,105 @@
 .doodle {
   position: fixed;
 }
+
+// Membership Splash
+.membership-splash {
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: space-around;
+
+  .membership-splash__banner {
+    display: flex;
+    background: #283263;
+    flex: auto;
+    width: 100%;
+    margin-bottom: var(--spacing-xxs);
+    img {
+      display: inline-block;
+      width: 50%;
+    }
+  }
+
+  .membership-splash__title {
+    display: inline-block;
+    width: 100%;
+    padding: var(--spacing-m);
+  }
+
+  .membership-splash__info-wrapper {
+    display: flex;
+    flex-basis: 100%;
+    .membership-splash__info {
+      background: #fff;
+      flex-basis: 33%;
+      color: #000;
+      padding-bottom: 4.2rem;
+      .membership-splash__info-content {
+        padding-left: var(--spacing-m);
+      }
+    }
+    .membership-splash__info:nth-child(1) {
+      padding: var(--spacing-m);
+      font-size: var(--font-small);
+    }
+    .membership-splash__info:nth-child(2) {
+      margin-left: var(--spacing-xxs);
+      margin-right: var(--spacing-xxs);
+      .membership-splash__info-header {
+        background: #eed7dd;
+        color: #e6344e;
+      }
+    }
+    .membership-splash__info:nth-child(3) {
+      .membership-splash__info-header {
+        background: #e1b9eb;
+        color: #730195;
+      }
+    }
+  }
+
+  .membership-splash__info-header {
+    padding: var(--spacing-s);
+    .membership-splash__info-price {
+      font-size: var(--font-large);
+      font-weight: bold;
+    }
+    .membership-splash__info-range {
+      // Placeholder
+    }
+  }
+
+  .membership-splash__info-content {
+    display: flex;
+    align-items: center;
+    font-size: var(--font-xsmall);
+    font-weight: var(--font-weight-bold);
+    .icon {
+      width: 1.4rem;
+      width: 1.4rem;
+      margin-right: var(--spacing-xs);
+    }
+  }
+
+  .membership-splash__info-button {
+    position: absolute;
+    bottom: 0;
+    display: inline-block;
+    margin-bottom: var(--spacing-m);
+    button {
+      border: 2px solid #debca0;
+      border-radius: 20px;
+      padding: 6px 8px 6px 8px;
+      background-color: unset;
+      .button__label {
+        color: #debca0;
+        text-transform: uppercase;
+        font-size: var(--font-xsmall);
+        font-weight: var(--font-weight-bold);
+      }
+      &:hover {
+        background-color: unset;
+      }
+    }
+  }
+}

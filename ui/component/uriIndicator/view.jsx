@@ -86,7 +86,7 @@ class UriIndicator extends React.PureComponent<Props> {
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
           {name}
-          <Icon sectionIcon icon={ICONS.PREMIUM_PLUS_BADGE} />
+          <Icon sectionIcon icon={ICONS.PREMIUM_PLUS} />
         </span>
       );
 
