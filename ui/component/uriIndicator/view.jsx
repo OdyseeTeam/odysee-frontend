@@ -3,6 +3,8 @@ import type { Node } from 'react';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 
 type Props = {
   isResolvingUri: boolean,
@@ -83,7 +85,8 @@ class UriIndicator extends React.PureComponent<Props> {
 
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
-          {name} {odyseeMembership}
+          {name}
+          <Icon sectionIcon icon={ICONS.PREMIUM_PLUS_BADGE} />
         </span>
       );
 
