@@ -100,7 +100,11 @@ export default function RecommendedPersonal(props: Props) {
   return count > 0 ? (
     <>
       <SectionHeader title={__('Recommended For You')} icon={ICONS.WEB} />
-      <ClaimList tileLayout uris={personalRecommendations.uris.slice(0, finalCount)} />
+      <ClaimList
+        tileLayout
+        uris={personalRecommendations.uris.slice(0, finalCount)}
+        fypId={personalRecommendations.gid}
+      />
 
       {view !== VIEW.ALL_VISIBLE && (
         <div className="livestream-list--view-more">
