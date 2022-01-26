@@ -21,7 +21,7 @@ import { SEARCH_OPTIONS } from 'constants/search';
 // object should be moved into `ui`, but that change will require more testing.
 
 const recsysFyp = {
-  fetchPersonalRecommendations: (userId) => {
+  fetchPersonalRecommendations: (userId: string) => {
     return fetch(`https://recsys.odysee.com/v1/u/${userId}/fyp`)
       .then((response) => response.json())
       .then((result) => result)
@@ -29,6 +29,16 @@ const recsysFyp = {
         console.log('FYP: fetch', { error, userId });
         return {};
       });
+  },
+
+  markPersonalRecommendations: (userId: string, gid: string) => {
+    try {
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon(`https://recsys.odysee.com/v1/u/${userId}/fyp/${gid}/mark`);
+      }
+    } catch (error) {
+      console.log('FYP: mark', { error, userId, gid });
+    }
   },
 };
 
@@ -233,4 +243,4 @@ export const doFetchPersonalRecommendations = () => (dispatch: Dispatch, getStat
     });
 };
 
-export { lighthouse };
+export { lighthouse, recsysFyp };
