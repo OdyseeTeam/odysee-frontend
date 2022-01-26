@@ -16,6 +16,7 @@ import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import FileDownloadLink from 'component/fileDownloadLink';
+import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
@@ -205,6 +206,11 @@ function ClaimPreviewTile(props: Props) {
               <div className="claim-preview__hover-actions">
                 {isPlayable && <FileWatchLaterLink focusable={false} uri={repostedContentUri} />}
               </div>
+              {fypId && (
+                <div className="claim-preview__hover-actions">
+                  {isStream && <FileHideRecommendation focusable={false} uri={repostedContentUri} />}
+                </div>
+              )}
               {/* @if TARGET='app' */}
               <div className="claim-preview__hover-actions">
                 {isStream && <FileDownloadLink focusable={false} uri={canonicalUrl} hideOpenButton />}

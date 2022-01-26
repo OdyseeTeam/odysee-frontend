@@ -1,11 +1,12 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import { doToast } from 'redux/actions/notifications';
 import { selectShowMatureContent } from 'redux/selectors/settings';
-import { selectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIdForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
 import { doResolveUris } from 'redux/actions/claims';
 import { buildURI, isURIValid } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
-import { makeSelectSearchUrisForQuery, selectSearchValue } from 'redux/selectors/search';
+import { makeSelectSearchUrisForQuery, selectPersonalRecommendations, selectSearchValue } from 'redux/selectors/search';
 import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
@@ -39,6 +40,16 @@ const recsysFyp = {
     } catch (error) {
       console.log('FYP: mark', { error, userId, gid });
     }
+  },
+
+  ignoreRecommendation: (userId: string, gid: string, claimId: string) => {
+    return fetch(`https://recsys.odysee.com/v1/u/${userId}/fyp/${gid}/c/${claimId}/ignore`, { method: 'POST' })
+      .then((response) => response.json())
+      .then((result) => result)
+      .catch((error) => {
+        console.log('FYP: ignore', { error, userId, gid, claimId });
+        return {};
+      });
   },
 };
 
@@ -251,6 +262,27 @@ export const doFetchPersonalRecommendations = () => (dispatch: Dispatch, getStat
     })
     .catch(() => {
       dispatch({ type: ACTIONS.FYP_FETCH_FAILED });
+    });
+};
+
+export const doRemovePersonalRecommendation = (uri: string) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const user = selectUser(state);
+  const personalRecommendations = selectPersonalRecommendations(state);
+  const claimId = selectClaimIdForUri(state, uri);
+
+  if (!user || !user.id || !personalRecommendations.gid || !claimId) {
+    return;
+  }
+
+  recsysFyp
+    .ignoreRecommendation(user.id, personalRecommendations.gid, claimId)
+    .then((res) => {
+      dispatch({ type: ACTIONS.FYP_HIDE_URI, data: { uri } });
+      dispatch(doToast({ message: __('Recommendation removed. Thanks for the feedback!') }));
+    })
+    .catch((err) => {
+      console.log('doRemovePersonalRecommendation:', err);
     });
 };
 

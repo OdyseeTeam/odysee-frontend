@@ -90,6 +90,24 @@ export default handleActions(
       ...state,
       personalRecommendations: defaultState.personalRecommendations,
     }),
+
+    [ACTIONS.FYP_HIDE_URI]: (state: SearchState, action: any): SearchState => {
+      const { uri } = action.data;
+      const uris = state.personalRecommendations.uris.slice();
+      const index = uris.findIndex((x) => x === uri);
+      if (index !== -1) {
+        uris.splice(index, 1);
+        return {
+          ...state,
+          personalRecommendations: {
+            gid: state.personalRecommendations.gid,
+            uris,
+          },
+        };
+      }
+
+      return state;
+    },
   },
   defaultState
 );
