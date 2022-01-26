@@ -52,3 +52,8 @@ declare type UpdateSearchOptions = {
   type: ACTIONS.UPDATE_SEARCH_OPTIONS,
   data: SearchOptions,
 };
+
+declare type FypParam = {
+  gid: string,
+  uuid: string,
+};
