@@ -113,8 +113,13 @@
 
 .navigation--micro {
   @extend .navigation;
-
   transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
+
+  .navigation-inner-container {
+    ul:nth-child(3) {
+      border-bottom: unset;
+    }
+  }
 
   @media (max-width: $breakpoint-small) {
     display: none;
