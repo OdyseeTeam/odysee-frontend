@@ -287,6 +287,9 @@
 
 .navigation-inner-container {
   width: var(--side-nav-width);
+  .navigation-links--micro:first-of-type {
+    margin-top: var(--spacing-xxxs);
+  }
 }
 
 .navigation-links--micro {
