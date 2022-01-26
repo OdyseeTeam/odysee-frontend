@@ -104,8 +104,12 @@
 }
 
 .button--alt {
-  background-color: var(--color-header-background);
+  background-color: var(--color-button-alt-bg);
   color: var(--color-button-alt-text);
+  &:hover {
+    background-color: var(--color-button-alt-bg-hover);
+    color: var(--color-button-alt-text-hover);
+  }
 }
 
 .button--icon {

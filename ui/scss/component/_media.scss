@@ -131,11 +131,15 @@
     margin-right: var(--spacing-m);
   }
 
+  .button--file-action {
+    background-color: unset;
+  }
+
   .button {
     &:hover {
       color: var(--color-link);
 
-      svg {
+      .icon {
         stroke: var(--color-link);
       }
     }

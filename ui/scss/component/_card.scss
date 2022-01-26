@@ -330,10 +330,10 @@
     color: var(--color-button-alt-text);
     background-color: var(--color-button-alt-bg);
     &:hover {
-      color: var(--color-button-alt-bg-hover-text);
+      color: var(--color-button-alt-text-hover);
       background-color: var(--color-button-alt-bg-hover);
       .icon {
-        stroke: var(--color-button-alt-bg-hover-text);
+        stroke: var(--color-button-alt-text-hover);
       }
     }
   }

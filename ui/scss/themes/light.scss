@@ -51,23 +51,28 @@
   --color-header-background-transparent: rgba(240, 240, 240, 0.95);
 
   // Button
-  --color-button-alt-bg: var(--color-header-button);
-  --color-button-alt-bg-hover: var(--color-header-button-hover);
-  --color-button-alt-text: black;
   --color-button-primary-bg: var(--color-primary);
   --color-button-primary-bg-hover: var(--color-primary-alt-2);
   --color-button-primary-text: white;
+
   --color-button-secondary-bg: rgba(var(--color-header-background-base), 0.9);
   --color-button-secondary-border: var(--color-primary-alt-3);
   --color-button-secondary-text: black;
   --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 0.4);
   --color-button-secondary-text-hover: var(--color-primary);
+
+  --color-button-alt-bg: var(--color-header-background);
+  --color-button-alt-text: var(--color-text);
+  --color-button-alt-bg-hover: var(--color-primary);
+  --color-button-alt-text-hover: var(--color-primary-contrast);
+
   --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.7);
   --color-button-toggle-text: var(--color-text);
   --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.5);
   --color-button-toggle-text-hover: rgba(var(--color-primary-dynamic), 1);
   --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
   --color-button-toggle-text-active: var(--color-primary);
+
   --color-button-border: var(--color-gray-3);
   --color-link: var(--color-primary);
   --color-link-hover: var(--color-secondary);

@@ -67,6 +67,10 @@ $thumbnailWidthSmall: 1rem;
           padding: 4px;
           background: var(--color-header-background);
           border-radius: var(--border-radius);
+          &:hover {
+            stroke: var(--color-button-alt-text-hover);
+            background-color: var(--color-button-alt-bg-hover) !important;
+          }
         }
       }
     }
