@@ -174,19 +174,21 @@
       position: absolute;
       display: flex;
       left: 0px;
-      bottom: -1px;
+      bottom: -2px;
       width: 100%;
-      height: 1px;
+      height: 3px;
       background-color: var(--color-text);
       z-index: 2;
+      border-radius: 2px;
+      overflow: hidden;
 
       .ratio-bar-like {
-        height: 1px;
+        height: 100%;
         background-color: var(--color-fire);
       }
 
       .ratio-bar-dislike {
-        height: 1px;
+        height: 100%;
         background-color: var(--color-slime);
       }
     }
