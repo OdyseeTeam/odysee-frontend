@@ -631,8 +631,10 @@ svg + .button__label {
   border-left-width: 0;
   border-radius: 0;
   margin: 0;
-  background-color: var(--color-header-background);
+  // background-color: var(--color-header-background);
+  background-color: var(--color-button-toggle-bg) !important;
   color: var(--color-text);
+  // box-shadow: 0px 0px 0px 1px var(--color-text) inset;
 
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -640,8 +642,11 @@ svg + .button__label {
   user-select: none;
 
   &:hover:not(.button-toggle--active) {
-    color: var(--color-link);
-    background-color: var(--color-button-secondary-bg-hover);
+    color: var(--color-button-toggle-text-hover);
+    background-color: var(--color-button-toggle-bg-hover) !important;
+    .icon {
+      stroke: var(--color-button-toggle-text-hover) !important;
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -748,21 +753,23 @@ svg + .button__label {
 }
 
 .button-toggle--active {
-  color: var(--color-button-toggle-text) !important;
-  background-color: var(--color-button-toggle-bg) !important;
+  // color: var(--color-button-toggle-text) !important;
   box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
+  color: var(--color-button-toggle-text-active) !important;
+  background-color: var(--color-button-toggle-bg-active) !important;
 
-  svg {
+  .icon {
     opacity: 1;
+    stroke: var(--color-button-toggle-text-active) !important;
   }
 
   &:hover {
     cursor: default;
     text-decoration: none;
-    background-color: var(--color-button-toggle-bg);
+    background-color: var(--color-button-toggle-bg-active);
 
     .icon {
-      stroke: var(--color-button-toggle-text) !important;
+      stroke: var(--color-button-toggle-text-active) !important;
     }
   }
 

@@ -62,9 +62,12 @@
   --color-button-secondary-text: black;
   --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 0.4);
   --color-button-secondary-text-hover: var(--color-primary);
-  --color-button-toggle-text: var(--color-primary-contrast);
-  --color-button-toggle-bg: var(--color-primary);
-  --color-button-toggle-bg-hover: var(--color-secondary);
+  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.7);
+  --color-button-toggle-text: var(--color-text);
+  --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.5);
+  --color-button-toggle-text-hover: rgba(var(--color-primary-dynamic), 1);
+  --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
+  --color-button-toggle-text-active: var(--color-primary);
   --color-button-border: var(--color-gray-3);
   --color-link: var(--color-primary);
   --color-link-hover: var(--color-secondary);
