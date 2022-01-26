@@ -137,6 +137,9 @@ body {
     }
     @media (max-width: $breakpoint-small) {
       margin-top: var(--spacing-xs);
+      .claim-preview__wrapper {
+        padding: 0 !important;
+      }
     }
   }
 
