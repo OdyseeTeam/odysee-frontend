@@ -1,4 +1,5 @@
 import { connect } from 'react-redux';
+import { doOpenModal } from 'redux/actions/app';
 import {
   selectTitleForUri,
   makeSelectClaimForUri,
@@ -27,4 +28,9 @@ const select = (state, props) => ({
   title: selectTitleForUri(state, props.uri),
 });
 
-export default withRouter(connect(select, { doHideModal, doSendTip, doSendCashTip })(WalletSendTip));
+const perform = (dispatch) => ({
+  doOpenModal,
+  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+});
+
+export default withRouter(connect(select, perform)(WalletSendTip));
