@@ -841,22 +841,13 @@ $control-bar-icon-size: 0.8rem;
 
 .file__viewdate {
   display: flex;
-  justify-content: space-between;
-  flex-direction: column;
+  justify-content: start;
+  flex-direction: row;
   margin-bottom: var(--spacing-s);
 
   > :first-child {
-    margin-bottom: var(--spacing-s);
-  }
-
-  @media (max-width: $breakpoint-medium) {
-    flex-direction: row;
-    justify-content: start;
-
-    > :first-child {
-      margin-bottom: 0;
-      margin-right: 1rem;
-    }
+    margin-bottom: 0;
+    margin-right: 1rem;
   }
 }
 
