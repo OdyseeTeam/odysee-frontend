@@ -180,7 +180,10 @@ body {
     margin-left: var(--spacing-l);
 
     .card__header--between {
-      align-items: center;
+      align-items: unset;
+      .card__title-section--body-list {
+        margin-top: auto;
+      }
     }
 
     .recommended-content__toggles {
