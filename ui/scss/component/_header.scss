@@ -235,6 +235,7 @@
 .header__menu--left {
   @extend .header__menu;
   justify-content: flex-start;
+  margin-left: var(--spacing-s);
 }
 
 .header__menu--right {
