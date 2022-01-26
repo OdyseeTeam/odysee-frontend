@@ -239,6 +239,9 @@
   @extend .header__menu;
   justify-content: flex-start;
   margin-left: var(--spacing-s);
+  @media (max-width: $breakpoint-small) {
+    margin-left: unset;
+  }
 }
 
 .header__menu--right {
