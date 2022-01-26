@@ -234,6 +234,12 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+    display: flex;
+    align-items: flex-end;
+
+    .icon {
+      margin-left: var(--spacing-xxs);
+    }
   }
 
   .markdown-preview & {

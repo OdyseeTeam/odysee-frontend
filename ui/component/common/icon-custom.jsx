@@ -2972,8 +2972,8 @@ export const icons = {
       {...props}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 35 30"
-      width={'40'}
-      height={'40'}
+      width={props.size || '40'}
+      height={props.size || '40'}
       fill="none"
       strokeWidth="1.5"
       strokeLinecap="round"
@@ -2989,13 +2989,21 @@ export const icons = {
         {'.premium-plus--st6{opacity:0.2;fill:#FFFFFF;}'}
       </style>
 
-      <path id="XMLID_141_" className="premium-plus--st0" d="M0,11.7v0.8c0,2.3,2,4.2,4.4,4.2h23.2c2.4,0,4.4-1.9,4.4-4.2v-0.8H0z" />
+      <path
+        id="XMLID_141_"
+        className="premium-plus--st0"
+        d="M0,11.7v0.8c0,2.3,2,4.2,4.4,4.2h23.2c2.4,0,4.4-1.9,4.4-4.2v-0.8H0z"
+      />
       <path
         id="XMLID_133_"
         className="premium-plus--st1"
         d="M1.8,13.4c0.1,0.3,0.3,0.6,0.5,0.8c0.5,0.6,1.2,0.9,2.1,0.9h23.2c0.8,0,1.6-0.4,2.1-0.9c0.2-0.2,0.4-0.5,0.5-0.8H1.8z"
       />
-      <path id="XMLID_139_" className="premium-plus--st2" d="M2.3,14.2c0.5,0.6,1.2,0.9,2.1,0.9h23.2c0.8,0,1.6-0.4,2.1-0.9H2.3z" />
+      <path
+        id="XMLID_139_"
+        className="premium-plus--st2"
+        d="M2.3,14.2c0.5,0.6,1.2,0.9,2.1,0.9h23.2c0.8,0,1.6-0.4,2.1-0.9H2.3z"
+      />
       <path
         id="XMLID_136_"
         className="premium-plus--st0"
@@ -3006,7 +3014,11 @@ export const icons = {
         className="premium-plus--st1"
         d="M3.2,16.8c0.1,0.3,0.3,0.6,0.5,0.8c0.5,0.6,1.2,0.9,2.1,0.9h20.4c0.8,0,1.6-0.4,2.1-0.9c0.2-0.2,0.4-0.5,0.5-0.8H3.2z"
       />
-      <path id="XMLID_134_" className="premium-plus--st2" d="M3.7,17.6c0.5,0.6,1.2,0.9,2.1,0.9h20.4c0.8,0,1.6-0.4,2.1-0.9H3.7z" />
+      <path
+        id="XMLID_134_"
+        className="premium-plus--st2"
+        d="M3.7,17.6c0.5,0.6,1.2,0.9,2.1,0.9h20.4c0.8,0,1.6-0.4,2.1-0.9H3.7z"
+      />
       <path
         id="XMLID_260_"
         className="premium-plus--st0"
@@ -3022,7 +3034,11 @@ export const icons = {
         className="premium-plus--st1"
         d="M4.5,20.3c0.1,0.3,0.3,0.6,0.5,0.8C5.5,21.6,6.2,22,7,22h18.2c0.8,0,1.2-0.4,1.7-0.9c0.2-0.2,0.4-0.5,0.5-0.8H4.5z"
       />
-      <path id="XMLID_254_" className="premium-plus--st2" d="M5,21.1C5.5,21.6,6.2,22,7,22h18.2c0.8,0,1.2-0.4,1.7-0.9H5z" />
+      <path
+        id="XMLID_254_"
+        className="premium-plus--st2"
+        d="M5,21.1C5.5,21.6,6.2,22,7,22h18.2c0.8,0,1.2-0.4,1.7-0.9H5z"
+      />
       <path id="XMLID_130_" className="premium-plus--st4" d="M6.4,14.3" />
       <path id="XMLID_129_" className="premium-plus--st4" d="M2.7,14.3" />
       <path
@@ -3045,7 +3061,11 @@ export const icons = {
         className="premium-plus--st6"
         points="16.1,20.8 21.1,20.8 21.7,13.2 18.1,14.9 16.1,11.3 16.1,7.8 23.9,12.3 23.9,21.616.1,25.9 "
       />
-      <polygon id="XMLID_23_" className="premium-plus--st6" points="16.1,13.4 16.1,19.6 20.1,19.6 20.5,15.2 17.8,16.8 " />
+      <polygon
+        id="XMLID_23_"
+        className="premium-plus--st6"
+        points="16.1,13.4 16.1,19.6 20.1,19.6 20.5,15.2 17.8,16.8 "
+      />
     </svg>
   ),
   [ICONS.UPGRADE]: buildIcon(
