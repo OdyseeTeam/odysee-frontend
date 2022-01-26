@@ -167,8 +167,20 @@ $recent-msg-button__height: 2rem;
       max-height: 18px;
     }
 
+    .button-toggle--active {
+      span {
+        color: var(--color-primary) !important;
+      }
+      &:hover {
+        span {
+          color: var(--color-primary) !important;
+        }
+      }
+    }
+
     .button-toggle:not(.button-toggle--active) {
-      background-color: var(--color-header-button);
+      color: var(--color-text);
+      // background-color: var(--color-header-button) !important;
       &:hover {
         span,
         p {
