@@ -42,7 +42,6 @@ const SIDE_LINKS: Array<SideNavLink> = [
 export default function settingsOverlaySideNavigation() {
   const sidebarOpen = true;
   const isMediumScreen = useIsMediumScreen();
-  const isAbsolute = isMediumScreen;
   const microNavigation = !sidebarOpen || isMediumScreen;
   const { location, goBack } = useHistory();
 
@@ -82,12 +81,7 @@ export default function settingsOverlaySideNavigation() {
   }
 
   return (
-    <div
-      className={classnames('navigation__wrapper', {
-        'navigation__wrapper--micro': microNavigation,
-        'navigation__wrapper--absolute': isAbsolute,
-      })}
-    >
+    <div>
       <nav
         aria-label={'Sidebar'}
         className={classnames('navigation', {

@@ -12,6 +12,7 @@ import { FormField } from 'component/common/form';
 import Yrbl from 'component/yrbl';
 import classnames from 'classnames';
 import SettingUnauthenticated from 'component/settingUnauthenticated';
+import SettingsOverlaySideNavigation from 'component/settingsOverlaySideNavigation';
 
 const DEBOUNCE_REFRESH_MS = 1000;
 
@@ -144,7 +145,6 @@ export default function SettingsOverlayPage(props: Props) {
   return (
     <Page
       noFooter
-      settingsOverlay
       noSideNavigation
       backout={{ title: __('Overlay settings and instructions'), backLabel: __('Back') }}
       className="card-stack main--settings-page"
@@ -200,6 +200,7 @@ export default function SettingsOverlayPage(props: Props) {
 
           {!fetchingChannels && channelId && isAuthenticated && (
             <>
+              <SettingsOverlaySideNavigation />
               <div className="card__title-section">
                 <h2 className="card__title">{__('Chat Overlay')}</h2>
               </div>
