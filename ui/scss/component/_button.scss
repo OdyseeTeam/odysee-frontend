@@ -71,14 +71,22 @@
 }
 
 .button--secondary {
-  background-color: var(--color-primary) !important;
-
+  background-color: var(--color-button-secondary-bg) !important;
   .button__label {
-    color: var(--color-primary-contrast) !important;
+    color: var(--color-button-secondary-text) !important;
+  }
+  .icon {
+    stroke: var(--color-button-secondary-text) !important;
   }
 
-  .icon {
-    stroke: var(--color-primary-contrast) !important;
+  &:hover {
+    background-color: var(--color-button-secondary-bg-hover) !important;
+    .button__label {
+      color: var(--color-button-secondary-text-hover) !important;
+    }
+    .icon {
+      stroke: var(--color-button-secondary-text-hover) !important;
+    }
   }
 
   &:focus-visible {
