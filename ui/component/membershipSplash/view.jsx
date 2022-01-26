@@ -7,6 +7,9 @@ import Button from 'component/button';
 import React from 'react';
 import * as MODALS from 'constants/modal_types';
 import AstronautAndFriends from './astronaut_n_friends.png';
+import BadgePremium from './badge_premium.png';
+import BadgePremiumPlus from './badge_premium-plus.png';
+import OdyseePremium from './odysee_premium.png';
 let stripeEnvironment = getStripeEnvironment();
 
 type Props = {};
@@ -141,28 +144,36 @@ export default function MembershipSplash(props: Props) {
     <div className="membership-splash">
       <div className="membership-splash__banner">
         <img src={AstronautAndFriends} />
-
         <section className="membership-splash__title">
           <section>
-            {logo}
-            <span>{__('PREMIUM')}</span>
+            <img src={OdyseePremium} />
           </section>
-          <section>{__('Get early access and features and remove ads for 99c')}</section>
+          <section>
+            {__('Get ')}
+            <b>{__('early access')}</b>
+            {__(' features and remove ads for ')}
+            <b>{__('99c')}</b>
+          </section>
         </section>
       </div>
 
       <div className="membership-splash__info-wrapper">
         <div className="membership-splash__info">
-          {__("creating a revolutionary video platform for everyone is something we're proud to be doing.....")}
+          {__(
+            "Creating a revolutionary video platform for everyone is something we're proud to be doing, but it isn't something that can happen without support. If you believe in Odysee's mission, please consider becoming a Premium member. As a Premium member, you'll be helping us build the best platform in the universe and we'll give you some cool perks."
+          )}
         </div>
 
         <div className="membership-splash__info">
           <section className="membership-splash__info-header">
             <div className="membership-splash__info-price">
-              <Icon icon={ICONS.PREMIUM} />
-              {__('99¢')}
+              <img src={BadgePremium} />
+
+              <section>
+                {__('99¢c')}
+                <div className="membership-splash__info-range">{__('A MONTH')}</div>
+              </section>
             </div>
-            <div className="membership-splash__info-range">{__('A MONTH')}</div>
           </section>
 
           {badgeInfo}
@@ -186,10 +197,12 @@ export default function MembershipSplash(props: Props) {
         <div className="membership-splash__info">
           <section className="membership-splash__info-header">
             <div className="membership-splash__info-price">
-              <Icon icon={ICONS.PREMIUM_PLUS} />
-              {__('$2.99')}
+              <img src={BadgePremiumPlus} />
+              <section>
+                {__('$2.99')}
+                <div className="membership-splash__info-range">{__('A MONTH')}</div>
+              </section>
             </div>
-            <div className="membership-splash__info-range">{__('A MONTH')}</div>
           </section>
 
           {noAdsInfo}
