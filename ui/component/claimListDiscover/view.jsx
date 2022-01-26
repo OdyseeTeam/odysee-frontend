@@ -607,8 +607,15 @@ function ClaimListDiscover(props: Props) {
 
   // **************************************************************************
   // **************************************************************************
-
+  // TODO: rename variables
+  // fetchViewCount -> shouldFetchViewCount
+  // renderUris -> arrayOfContentUris
+  // claimsByUri -> convertClaimUrlsToIds
+  // doFetchViewCount -> doFetchViewCountsForClaimIds
+  // useFetchViewCount -> useFetchViewCounts
   useFetchViewCount(fetchViewCount, renderUris, claimsByUri, doFetchViewCount);
+
+  // useFetchUserMemberships(shouldFetchUserMemberships, arrayOfContentUris, convertClaimUrlsToIds, doFetchMembershipsForChannelClaimIds);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
