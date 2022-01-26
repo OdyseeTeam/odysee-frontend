@@ -191,7 +191,7 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
-        {false ? (
+        {true ? (
           <MembershipSplash />
         ) : (
           <>
