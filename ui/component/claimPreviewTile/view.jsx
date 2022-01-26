@@ -20,6 +20,7 @@ import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import { FYP_ID } from 'constants/urlParams';
 // $FlowFixMe cannot resolve ...
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 
@@ -42,6 +43,7 @@ type Props = {
   showHiddenByUser?: boolean,
   properties?: (Claim) => void,
   collectionId?: string,
+  fypId?: string,
   showNoSourceClaims?: boolean,
   isLivestream: boolean,
   viewCount: string,
@@ -72,6 +74,7 @@ function ClaimPreviewTile(props: Props) {
     isLivestream,
     isLivestreamActive,
     collectionId,
+    fypId,
     mediaDuration,
     viewCount,
     swipeLayout = false,
@@ -95,7 +98,9 @@ function ClaimPreviewTile(props: Props) {
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId;
   const navigateUrl =
-    formatLbryUrlForWeb(canonicalUrl || uri || '/') + (listId ? generateListSearchUrlParams(listId) : '');
+    formatLbryUrlForWeb(canonicalUrl || uri || '/') +
+    (listId ? generateListSearchUrlParams(listId) : '') +
+    (fypId ? `?${FYP_ID}=${fypId}` : ''); // sigh...
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => e.stopPropagation(),
