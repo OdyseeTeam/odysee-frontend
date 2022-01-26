@@ -6,11 +6,34 @@ import { doResolveUris } from 'redux/actions/claims';
 import { buildURI, isURIValid } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
 import { makeSelectSearchUrisForQuery, selectSearchValue } from 'redux/selectors/search';
+import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
 import { getRecommendationSearchOptions } from 'util/search';
 import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
+
+// ****************************************************************************
+// FYP
+// ****************************************************************************
+// TODO: This should be part of `extras/recsys/recsys`, but due to the circular
+// dependency problem with `extras`, I'm temporarily placing it. The recsys
+// object should be moved into `ui`, but that change will require more testing.
+
+const recsysFyp = {
+  fetchPersonalRecommendations: (userId) => {
+    return fetch(`https://recsys.odysee.com/v1/u/${userId}/fyp`)
+      .then((response) => response.json())
+      .then((result) => result)
+      .catch((error) => {
+        console.log('FYP: fetch', { error, userId });
+        return {};
+      });
+  },
+};
+
+// ****************************************************************************
+// ****************************************************************************
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, search: SearchState, user: User };
@@ -178,6 +201,36 @@ export const doFetchRecommendedContent = (uri: string) => (dispatch: Dispatch, g
       dispatch(doSearch(title, options));
     }
   }
+};
+
+export const doFetchPersonalRecommendations = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const user = selectUser(state);
+
+  if (!user || !user.id) {
+    dispatch({ type: ACTIONS.FYP_FETCH_FAILED });
+    return;
+  }
+
+  recsysFyp
+    .fetchPersonalRecommendations(user.id)
+    .then((data) => {
+      const { gid, recs } = data;
+      if (gid && recs) {
+        dispatch({
+          type: ACTIONS.FYP_FETCH_SUCCESS,
+          data: {
+            gid,
+            uris: processLighthouseResults(recs),
+          },
+        });
+      } else {
+        dispatch({ type: ACTIONS.FYP_FETCH_FAILED });
+      }
+    })
+    .catch(() => {
+      dispatch({ type: ACTIONS.FYP_FETCH_FAILED });
+    });
 };
 
 export { lighthouse };

@@ -22,6 +22,7 @@ const defaultState: SearchState = {
   searching: false,
   results: [],
   mentionQuery: '',
+  personalRecommendations: { gid: '', uris: [] },
 };
 
 export default handleActions(
@@ -73,6 +74,21 @@ export default handleActions(
       ...state,
       results: action.data.uris,
       mentionQuery: action.data.query,
+    }),
+
+    [ACTIONS.FYP_FETCH_SUCCESS]: (state: SearchState, action: any): SearchState => {
+      return {
+        ...state,
+        personalRecommendations: {
+          gid: action.data.gid,
+          uris: action.data.uris,
+        },
+      };
+    },
+
+    [ACTIONS.FYP_FETCH_FAILED]: (state: SearchState, action: any): SearchState => ({
+      ...state,
+      personalRecommendations: defaultState.personalRecommendations,
     }),
   },
   defaultState
