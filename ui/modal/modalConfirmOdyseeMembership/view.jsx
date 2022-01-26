@@ -12,10 +12,11 @@ type Props = {
   closeModal: () => void,
   paymentMethodId: string,
   setAsConfirmingCard: () => void, // ?
+  hasMembership: boolean, // user already has purchased --> invoke Cancel then
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
-  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName } = props;
+  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
 
@@ -24,13 +25,18 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       setWaitingForBackend(true);
 
       // show the memberships the user is subscribed to
-      const response = await Lbryio.call('membership', 'buy', {
-        environment: stripeEnvironment,
-        membership_id: membershipId,
-        yearly: subscriptionPeriod,
-        channel_id: odyseeChannelId,
-        channel_name: odyseeChannelName,
-      }, 'post');
+      const response = await Lbryio.call(
+        'membership',
+        'buy',
+        {
+          environment: stripeEnvironment,
+          membership_id: membershipId,
+          yearly: subscriptionPeriod,
+          channel_id: odyseeChannelId,
+          channel_name: odyseeChannelName,
+        },
+        'post'
+      );
 
       console.log('purchase, purchase membership response');
       console.log(response);
@@ -44,27 +50,34 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     }
   }
 
+  // Cancel
+  async function cancelMembership() {}
+
   return (
     <Modal ariaHideApp={false} isOpen contentLabel={'hello'} type="card" onAborted={closeModal}>
       <Card
-        title={__('Confirm Membership Purchase')}
+        title={hasMembership ? __('Confirm Membership Cancellation') : __('Confirm Membership Purchase')}
         actions={
           <div className="section__actions">
-            { !waitingForBackend && (
+            {!waitingForBackend && (
               <>
                 <Button
                   className="stripe__confirm-remove-card"
                   button="secondary"
                   icon={ICONS.FINANCE}
-                  label={__('Confirm Purchase')}
-                  onClick={purchaseMembership}
+                  label={hasMembership ? __('Confirm Cancellation') : __('Confirm Purchase')}
+                  onClick={hasMembership ? cancelMembership : purchaseMembership}
                 />
                 <Button button="link" label={__('Cancel')} onClick={closeModal} />
               </>
             )}
-            { waitingForBackend && (
+            {waitingForBackend && (
               <>
-                <h1 style={{fontSize: '18px'}}>Facilitating your puchase...</h1>
+                {hasMembership ? (
+                  <h1 style={{ fontSize: '18px' }}>Facilitating your cancel...</h1>
+                ) : (
+                  <h1 style={{ fontSize: '18px' }}>Facilitating your puchase...</h1>
+                )}
               </>
             )}
           </div>
