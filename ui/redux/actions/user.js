@@ -8,6 +8,7 @@ import * as ACTIONS from 'constants/action_types';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
 import { selectEmailToVerify, selectPhoneToVerify, selectUserCountryCode, selectUser } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
+import { doFetchRecommendedContent } from 'redux/actions/search';
 import rewards from 'rewards';
 import { Lbryio } from 'lbryinc';
 import { DOMAIN } from 'config';
