@@ -7,6 +7,7 @@ import { getStripeEnvironment } from 'util/stripe';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
+import MembershipSplash from 'component/membershipSplash';
 import Button from 'component/button';
 let stripeEnvironment = getStripeEnvironment();
 
@@ -44,13 +45,20 @@ const OdyseeMembershipPage = (props: Props) => {
   const [activeMemberships, setActiveMemberships] = React.useState();
   const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
 
-  React.useEffect(function() {
-    (async function() {
+  const hasMembership = activeMemberships && activeMemberships.length > 0;
+
+  React.useEffect(function () {
+    (async function () {
       try {
         // check if there is a payment method
-        const response = await Lbryio.call('customer', 'status', {
-          environment: stripeEnvironment,
-        }, 'post');
+        const response = await Lbryio.call(
+          'customer',
+          'status',
+          {
+            environment: stripeEnvironment,
+          },
+          'post'
+        );
         console.log('status (if there is a payment methods');
         console.log(response);
         // hardcoded to first card
@@ -65,11 +73,16 @@ const OdyseeMembershipPage = (props: Props) => {
 
       try {
         // check the available membership for odysee.com
-        const response = await Lbryio.call('membership', 'list', {
-          environment: stripeEnvironment,
-          channel_id: odyseeChannelId,
-          channel_name: odyseeChannelName,
-        }, 'post');
+        const response = await Lbryio.call(
+          'membership',
+          'list',
+          {
+            environment: stripeEnvironment,
+            channel_id: odyseeChannelId,
+            channel_name: odyseeChannelName,
+          },
+          'post'
+        );
 
         console.log('list, see all the available odysee memberships');
         console.log(response);
@@ -80,9 +93,14 @@ const OdyseeMembershipPage = (props: Props) => {
 
       try {
         // show the memberships the user is subscribed to
-        const response = await Lbryio.call('membership', 'mine', {
-          environment: stripeEnvironment,
-        }, 'post');
+        const response = await Lbryio.call(
+          'membership',
+          'mine',
+          {
+            environment: stripeEnvironment,
+          },
+          'post'
+        );
 
         console.log('mine, my subscriptions');
         console.log(response);
@@ -112,34 +130,26 @@ const OdyseeMembershipPage = (props: Props) => {
     })();
   }, []);
 
-  const cancelMembership = async function(e) {
+  const cancelMembership = async function (e) {
     const membershipId = e.currentTarget.getAttribute('membership-id');
 
-    try {
-      // show the memberships the user is subscribed to
-      const response = await Lbryio.call('membership', 'cancel', {
-        environment: stripeEnvironment,
-        membership_id: membershipId,
-      }, 'post');
-
-      console.log('cancel, cancel membership response');
-      console.log(response);
-
-      // $FlowFixMe
-      location.reload();
-    } catch (err) {
-      console.log(err);
-    }
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId,
+      hasMembership,
+    });
   };
 
-  const stillWaitingFromBackend = purchasedMemberships === undefined || cardSaved === undefined ||
-    membershipOptions === undefined || userMemberships === undefined;
+  const stillWaitingFromBackend =
+    purchasedMemberships === undefined ||
+    cardSaved === undefined ||
+    membershipOptions === undefined ||
+    userMemberships === undefined;
 
-  const formatDate = function(date) {
+  const formatDate = function (date) {
     return moment(new Date(date)).format('MMMM DD YYYY');
   };
 
-  const deleteData = async function() {
+  const deleteData = async function () {
     const response = await Lbryio.call('membership', 'clear', {}, 'post');
 
     console.log('list, see all the available odysee memberships');
@@ -149,7 +159,7 @@ const OdyseeMembershipPage = (props: Props) => {
     location.reload();
   };
 
-  const purchaseMembership = async function(e) {
+  const purchaseMembership = async function (e) {
     e.preventDefault();
     e.stopPropagation();
 
@@ -165,7 +175,7 @@ const OdyseeMembershipPage = (props: Props) => {
       return;
     }
 
-    openModal(MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       subscriptionPeriod,
       userChannelName,
