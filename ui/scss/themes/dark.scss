@@ -51,11 +51,11 @@
   --color-button-secondary-text: #cccccc;
   --color-button-secondary-bg-hover: rgba(var(--color-header-background-base), 0.4);
   --color-button-secondary-text-hover: var(--color-primary);
-  //--color-button-alt-bg: rgba(25, 25, 25, 0.95);
-  //--color-button-alt-bg: var(--color-header-button);
-  --color-button-alt-bg: #ff0000;
-  //--color-button-alt-bg-hover: rgba(32, 32, 32, 1);
-  --color-button-alt-bg-hover: var(--color-header-button-hover);
+
+  --color-button-alt-bg: var(--color-primary);
+  --color-button-alt-text: var(--color-primary-contrast);
+  --color-button-alt-bg-hover: var(--color-primary);
+  --color-button-alt-bg-hover-text: var(--color-primary-contrast);
 
   --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.7);
   --color-button-toggle-text: var(--color-text);
@@ -64,7 +64,7 @@
   --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
   --color-button-toggle-text-active: var(--color-primary);
 
-  --color-button-alt-text: #e2e9f0;
+  // --color-button-alt-text: #e2e9f0;
   --color-button-border: #191919;
   --color-link: var(--color-primary);
   --color-link-hover: var(--color-secondary);

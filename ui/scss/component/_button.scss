@@ -631,10 +631,8 @@ svg + .button__label {
   border-left-width: 0;
   border-radius: 0;
   margin: 0;
-  // background-color: var(--color-header-background);
-  background-color: var(--color-button-toggle-bg) !important;
   color: var(--color-text);
-  // box-shadow: 0px 0px 0px 1px var(--color-text) inset;
+  background-color: var(--color-button-toggle-bg) !important;
 
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -642,8 +640,10 @@ svg + .button__label {
   user-select: none;
 
   &:hover:not(.button-toggle--active) {
-    color: var(--color-button-toggle-text-hover);
     background-color: var(--color-button-toggle-bg-hover) !important;
+    .button__label {
+      color: var(--color-button-toggle-text-hover);
+    }
     .icon {
       stroke: var(--color-button-toggle-text-hover) !important;
     }
@@ -669,6 +669,75 @@ svg + .button__label {
   &:nth-child(4),
   &:nth-child(5) {
     margin-left: 2px;
+  }
+}
+
+.button-toggle--expandformobile {
+  @media (max-width: $breakpoint-small) {
+    display: block;
+    width: 100%;
+    text-align: center;
+    border-radius: var(--border-radius);
+    border: 1px solid var(--color-border);
+
+    &:not(:first-of-type) {
+      margin-top: var(--spacing-s);
+    }
+  }
+}
+
+.button-toggle--active {
+  // color: var(--color-button-toggle-text) !important;
+  box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
+  color: var(--color-button-toggle-text-active) !important;
+  background-color: var(--color-button-toggle-bg-active) !important;
+
+  .icon {
+    opacity: 1;
+    stroke: var(--color-button-toggle-text-active) !important;
+  }
+
+  &:hover {
+    cursor: default;
+    text-decoration: none;
+    background-color: var(--color-button-toggle-bg-active);
+
+    .icon {
+      stroke: var(--color-button-toggle-text-active) !important;
+    }
+  }
+
+  &:focus-visible {
+    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+    box-shadow: 0px 0px 0px 2px var(--color-primary) inset !important;
+
+    .icon {
+      stroke: var(--color-button-toggle-text) !important;
+    }
+  }
+}
+
+.button-toggle--custom {
+  color: var(--color-primary);
+  svg {
+    opacity: 1;
+  }
+}
+
+.button-toggle__label {
+  @extend label;
+  display: inline-block;
+  margin-top: -4px;
+}
+
+.button-toggle-group-action {
+  position: absolute; // Centers the button along toggle buttons
+  margin-left: var(--spacing-xs);
+
+  @media (max-width: $breakpoint-small) {
+    position: relative;
+    top: var(--spacing-s);
+    margin-left: unset;
   }
 }
 
@@ -738,64 +807,6 @@ svg + .button__label {
   }
 }
 
-.button-toggle--expandformobile {
-  @media (max-width: $breakpoint-small) {
-    display: block;
-    width: 100%;
-    text-align: center;
-    border-radius: var(--border-radius);
-    border: 1px solid var(--color-border);
-
-    &:not(:first-of-type) {
-      margin-top: var(--spacing-s);
-    }
-  }
-}
-
-.button-toggle--active {
-  // color: var(--color-button-toggle-text) !important;
-  box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
-  color: var(--color-button-toggle-text-active) !important;
-  background-color: var(--color-button-toggle-bg-active) !important;
-
-  .icon {
-    opacity: 1;
-    stroke: var(--color-button-toggle-text-active) !important;
-  }
-
-  &:hover {
-    cursor: default;
-    text-decoration: none;
-    background-color: var(--color-button-toggle-bg-active);
-
-    .icon {
-      stroke: var(--color-button-toggle-text-active) !important;
-    }
-  }
-
-  &:focus-visible {
-    background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
-    box-shadow: 0px 0px 0px 2px var(--color-primary) inset !important;
-
-    .icon {
-      stroke: var(--color-button-toggle-text) !important;
-    }
-  }
-}
-
-.button-toggle--custom {
-  color: var(--color-primary);
-  svg {
-    opacity: 1;
-  }
-}
-
-.button-toggle__label {
-  @extend label;
-  display: inline-block;
-  margin-top: -4px;
-}
-
 .button-tab-group {
   margin-bottom: var(--spacing-l);
 }
@@ -827,17 +838,6 @@ svg + .button__label {
 .button--file-action {
   &:first-child {
     margin-right: var(--spacing-s);
-  }
-}
-
-.button-toggle-group-action {
-  position: absolute; // Centers the button along toggle buttons
-  margin-left: var(--spacing-xs);
-
-  @media (max-width: $breakpoint-small) {
-    position: relative;
-    top: var(--spacing-s);
-    margin-left: unset;
   }
 }
 

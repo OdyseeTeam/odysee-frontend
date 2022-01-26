@@ -327,14 +327,13 @@
   }
 
   .button--alt {
-    background-color: var(--color-button-secondary-bg);
-    color: var(--color-button-secondary-text);
-
+    color: var(--color-button-alt-text);
+    background-color: var(--color-button-alt-bg);
     &:hover {
-      background-color: var(--color-button-secondary-bg-hover);
-
+      color: var(--color-button-alt-bg-hover-text);
+      background-color: var(--color-button-alt-bg-hover);
       .icon {
-        stroke: var(--color-link);
+        stroke: var(--color-button-alt-bg-hover-text);
       }
     }
   }
