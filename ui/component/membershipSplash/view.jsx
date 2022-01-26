@@ -129,7 +129,7 @@ export default function MembershipSplash(props: Props) {
       return;
     }
 
-    openModal(MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       subscriptionPeriod,
       odyseeChannelId,

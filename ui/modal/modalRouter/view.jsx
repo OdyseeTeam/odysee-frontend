@@ -188,7 +188,7 @@ function getModal(id) {
       return ModalDeleteCollection;
     case MODALS.CONFIRM_REMOVE_CARD:
       return ModalRemoveCard;
-    case MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP:
+    case MODALS.CONFIRM_ODYSEE_MEMBERSHIP:
       return ModalConfirmOdyseeMembership;
     case MODALS.CONFIRM_REMOVE_COMMENT:
       return ModalRemoveComment;

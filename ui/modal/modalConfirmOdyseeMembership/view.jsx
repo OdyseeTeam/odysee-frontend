@@ -51,7 +51,28 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   }
 
   // Cancel
-  async function cancelMembership() {}
+  async function cancelMembership() {
+    try {
+      // show the memberships the user is subscribed to
+      const response = await Lbryio.call(
+        'membership',
+        'cancel',
+        {
+          environment: stripeEnvironment,
+          membership_id: membershipId,
+        },
+        'post'
+      );
+
+      console.log('cancel, cancel membership response');
+      console.log(response);
+
+      // $FlowFixMe
+      location.reload();
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   return (
     <Modal ariaHideApp={false} isOpen contentLabel={'hello'} type="card" onAborted={closeModal}>

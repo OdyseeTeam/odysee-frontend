@@ -36,6 +36,8 @@ const OdyseeMembershipPage = (props: Props) => {
   const [activeMemberships, setActiveMemberships] = React.useState();
   const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
 
+  const hasMembership = activeMemberships && activeMemberships.length > 0;
+
   React.useEffect(function () {
     (async function () {
       try {
@@ -122,26 +124,10 @@ const OdyseeMembershipPage = (props: Props) => {
   const cancelMembership = async function (e) {
     const membershipId = e.currentTarget.getAttribute('membership-id');
 
-    try {
-      // show the memberships the user is subscribed to
-      const response = await Lbryio.call(
-        'membership',
-        'cancel',
-        {
-          environment: stripeEnvironment,
-          membership_id: membershipId,
-        },
-        'post'
-      );
-
-      console.log('cancel, cancel membership response');
-      console.log(response);
-
-      // $FlowFixMe
-      location.reload();
-    } catch (err) {
-      console.log(err);
-    }
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId,
+      hasMembership,
+    });
   };
 
   const stillWaitingFromBackend =
@@ -180,7 +166,7 @@ const OdyseeMembershipPage = (props: Props) => {
       return;
     }
 
-    openModal(MODALS.CONFIRM_PURCHASE_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       subscriptionPeriod,
       odyseeChannelId,
