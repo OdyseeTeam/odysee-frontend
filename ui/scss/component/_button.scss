@@ -882,12 +882,6 @@ svg + .button__label {
 }
 
 .button-like {
-  .button__label {
-    color: var(--color-fire-inactive) !important;
-  }
-  .icon {
-    stroke: var(--color-fire-inactive) !important;
-  }
   &:hover {
     .button__label {
       color: var(--color-fire) !important;
@@ -916,12 +910,6 @@ svg + .button__label {
 }
 
 .button-dislike {
-  .button__label {
-    color: var(--color-slime-inactive) !important;
-  }
-  .icon {
-    stroke: var(--color-slime-inactive) !important;
-  }
   &:hover {
     .button__label {
       color: var(--color-slime) !important;
