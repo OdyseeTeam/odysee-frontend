@@ -21,8 +21,13 @@
   height: var(--height-button);
   border-radius: var(--border-radius);
   padding: var(--spacing-s) var(--spacing-m);
-  line-height: 1.2;
+  line-height: 1.2em;
   font-weight: var(--font-weight-bold);
+
+  .button__label {
+    // height:1em;
+    margin-top: 3px;
+  }
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-small);
