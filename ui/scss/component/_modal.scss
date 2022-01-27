@@ -22,6 +22,7 @@
   justify-content: center;
   position: fixed;
   z-index: 9999;
+  z-index: 9999;
 
   @media (max-width: $breakpoint-small) {
     background-color: rgba(var(--color-header-background-base), 0.95);
@@ -30,6 +31,7 @@
 
 .modal {
   @extend .card;
+  background-color: var(--color-modal-background);
   line-height: 1.55;
   min-width: 500px;
   max-width: var(--modal-width);
@@ -85,6 +87,7 @@
   .card {
     margin: 0;
     border: none;
+
     padding: var(--spacing-l);
     border: 2px solid black;
     border-radius: var(--border-radius);
@@ -99,7 +102,7 @@
     .button-toggle,
     .channel__list-item,
     input {
-      background-color: var(--color-background);
+      background-color: var(--color-header-button) !important;
     }
     .channel__list-item {
       &:hover {
