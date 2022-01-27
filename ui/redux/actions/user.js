@@ -830,3 +830,13 @@ export function doCheckYoutubeTransfer() {
       });
   };
 }
+
+export function doFetchUserMemberships(claimIdCsv: string) {
+  (async function() {
+    const response = await Lbryio.call('membership', 'check', {
+      channel_id: '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8',
+      claim_ids: claimIdCsv,
+    });
+    console.log(response);
+  })();
+}
