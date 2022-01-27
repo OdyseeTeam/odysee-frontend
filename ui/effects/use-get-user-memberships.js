@@ -2,26 +2,25 @@
 import { useState, useEffect } from 'react';
 
 export default function useGetUserMemberships(
-  shouldFetch: ?boolean,
-  uris: Array<string>,
+  shouldFetchUserMemberships: ?boolean,
+  arrayOfContentUris: Array<string>,
   claimsByUri: any,
   doFetchViewCount: (string) => void
 ) {
-  // const [fetchedUris, setFetchedUris] = useState([]);
+  const [fetchedUserClaims, setFetchedUserClaims] = useState([]);
 
   useEffect(() => {
-    if (shouldFetch && uris && uris.length > 0) {
-      // const urisToFetch = uris.filter((uri) => uri && !fetchedUris.includes(uri) && Boolean(claimsByUri[uri]));
+    if (shouldFetchUserMemberships && arrayOfContentUris && arrayOfContentUris.length > 0) {
+      const urisToFetch = arrayOfContentUris.filter((uri) => uri && !fetchedUserClaims.includes(uri) && Boolean(claimsByUri[uri]));
 
-      const claimIds = uris.map((uri) => claimsByUri[uri].claim_id);
+      if (urisToFetch.length > 0) {
+        const claimIds = arrayOfContentUris.map((uri) => claimsByUri[uri].claim_id);
 
-      doFetchViewCount(claimIds.join(','));
+        doFetchViewCount(claimIds.join(','));
 
-      // if (urisToFetch.length > 0) {
-      //
-      //   // setFetchedUris([...fetchedUris, ...urisToFetch]);
-      // }
+        setFetchedUserClaims([...fetchedUserClaims, ...urisToFetch]);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uris]);
+  }, [arrayOfContentUris]);
 }
