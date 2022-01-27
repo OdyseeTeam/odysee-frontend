@@ -940,10 +940,6 @@ svg + .button__label {
   // margin-top: var(--spacing-xs);
   display: flex;
 
-  .card__title-section {
-    display: none;
-  }
-
   .button-toggle:nth-child(2) {
     margin-left: 2px;
     @media (min-width: $breakpoint-small) {
