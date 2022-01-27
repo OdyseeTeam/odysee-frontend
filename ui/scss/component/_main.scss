@@ -223,6 +223,10 @@ body {
         display: none;
         width: 1.4rem;
         height: 1.4rem;
+        @media (max-width: $breakpoint-small) {
+          display: flex;
+          margin-right: var(--spacing-xs);
+        }
       }
     }
 
