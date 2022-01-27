@@ -573,12 +573,6 @@ function ClaimListDiscover(props: Props) {
 
   // **************************************************************************
   // **************************************************************************
-  // TODO: rename variables
-  // fetchViewCount -> shouldFetchViewCount
-  // renderUris -> arrayOfContentUris
-  // claimsByUri -> convertClaimUrlsToIds
-  // doFetchViewCount -> doFetchViewCountsForClaimIds
-  // useFetchViewCount -> useFetchViewCounts
   useFetchViewCount(fetchViewCount, renderUris, claimsByUri, doFetchViewCount);
 
   const shouldFetchUserMemberships = true;

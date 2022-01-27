@@ -107,4 +107,8 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
   }
 });
 
+export const selectOdyseeMembershipByClaimId = function(state, claimId){
+  return state.odyseeMembershipsPerClaimIds[claimId];
+};
+
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));
