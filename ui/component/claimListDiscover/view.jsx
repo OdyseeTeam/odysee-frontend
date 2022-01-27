@@ -581,8 +581,10 @@ function ClaimListDiscover(props: Props) {
   useFetchViewCount(fetchViewCount, renderUris, claimsByUri, doFetchViewCount);
 
   const shouldFetchUserMemberships = true;
+  const arrayOfContentUris = renderUris;
+  const convertClaimUrlsToIds = claimsByUri;
 
-  useGetUserMemberships(shouldFetchUserMemberships, renderUris, claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(shouldFetchUserMemberships, arrayOfContentUris, convertClaimUrlsToIds, doFetchUserMemberships);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
