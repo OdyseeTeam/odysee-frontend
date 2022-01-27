@@ -840,7 +840,10 @@ export function doFetchUserMemberships(claimIdCsv: string) {
         claim_ids: claimIdCsv,
       });
 
+      console.log('response');
       console.log(response);
+
+      dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response } });
 
       // dispatch({
       //   type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA,
