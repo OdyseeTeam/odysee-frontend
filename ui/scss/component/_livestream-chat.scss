@@ -158,22 +158,26 @@ $recent-msg-button__height: 2rem;
   align-items: center;
 
   .recommended-content__toggles {
-    button {
+    .button-toggle {
       height: unset;
       padding: 5px;
-    }
-
-    .button__label {
-      max-height: 18px;
+      background-color: var(--color-header-button) !important;
+      .button__label {
+        color: var(--color-text) !important;
+        max-height: 18px;
+      }
     }
 
     .button-toggle--active {
+      filter: invert(100);
+      box-shadow: unset;
+      background-color: var(--color-header-button) !important;
       span {
-        color: var(--color-primary) !important;
+        color: var(--color-text) !important;
       }
       &:hover {
         span {
-          color: var(--color-primary) !important;
+          color: var(--color-text) !important;
         }
       }
     }
@@ -182,9 +186,10 @@ $recent-msg-button__height: 2rem;
       color: var(--color-text);
       // background-color: var(--color-header-button) !important;
       &:hover {
+        filter: invert(100);
         span,
         p {
-          color: var(--color-primary);
+          color: var(--color-text);
         }
       }
     }
