@@ -952,8 +952,8 @@ svg + .button__label {
     padding-left: var(--spacing-m);
     padding-right: var(--spacing-m);
     margin-right: var(--spacing-xxs);
-    background-color: rgba(var(--color-header-background-base), 0.4) !important;
-    color: rgba(var(--color-text-base), 0.9);
+    background-color: rgba(var(--color-button-bubble-bg-base), 0.6) !important;
+    color: var(--color-button-bubble-text);
     font-size: var(--font-base);
     padding: 0 var(--spacing-xs);
     height: 2rem;
@@ -962,18 +962,24 @@ svg + .button__label {
       height: unset;
     }
     &:hover:not(.button-bubble--active) {
-      background-color: rgba(var(--color-header-background-base), 0.7) !important;
+      background-color: rgba(var(--color-button-bubble-bg-base), 0.9) !important;
+
       .button__label {
-        color: rgba(var(--color-text-base), 1) !important;
+        color: var(--color-button-bubble-text) !important;
       }
     }
   }
-  .button-bubble:last-of-type {
-    margin-right: 0;
+  .button-bubble:first-of-type {
+    margin-left: 0;
   }
   .button-bubble--active {
     color: var(--color-primary);
-    background-color: var(--color-header-background) !important;
+    background-color: rgba(var(--color-button-bubble-bg-base), 1) !important;
+    color: var(--color-button-bubble-text);
+    // background-color: var(--color-header-background) !important;
     box-shadow: unset;
+    &:hover {
+      cursor: default;
+    }
   }
 }
