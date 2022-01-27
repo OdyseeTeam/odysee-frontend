@@ -282,16 +282,20 @@ $recent-msg-button__height: 2rem;
       .icon {
         background-color: var(--color-header-button) !important;
       }
-      color: var(--color-text);
-    }
-    .button--link {
-      border-radius: var(--border-radius);
+      .button__label {
+        color: var(--color-text);
+      }
     }
 
     .section__actions {
       .button--alt,
       .button--link {
+        border-radius: var(--border-radius);
         background-color: var(--color-header-button);
+        &:hover {
+          color: var(--color-primary-contrast);
+          background-color: var(--color-primary);
+        }
       }
     }
   }
