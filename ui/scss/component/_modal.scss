@@ -115,6 +115,14 @@
       color: var(--color-text);
       font-size: var(--font-medium);
     }
+
+    [data-reach-menu-button] {
+      &:hover {
+        .channel__list-item--selected {
+          background-color: var(--color-primary) !important;
+        }
+      }
+    }
   }
 }
 
