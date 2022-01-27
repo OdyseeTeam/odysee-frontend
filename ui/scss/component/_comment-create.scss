@@ -16,10 +16,15 @@ $thumbnailWidthSmall: 1rem;
   }
 
   .section__actions {
+    .button,
     .button--link {
       background-color: var(--color-header-background);
       color: var(--color-text);
       border-radius: var(--border-radius);
+      &:hover {
+        background-color: var(--color-primary);
+        color: var(--color-primary-contrast);
+      }
     }
 
     @media (max-width: $breakpoint-small) {
