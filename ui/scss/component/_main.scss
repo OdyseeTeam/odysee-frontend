@@ -181,7 +181,7 @@ body {
 
     .card__first-pane {
       .card__header--between {
-        .card__title-section--small {
+        .card__title-section {
           display: none !important;
         }
       }
@@ -344,6 +344,20 @@ body {
 
     .collection-preview__edit-group {
       //width: 1.5rem;
+    }
+  }
+
+  .file-page__playlist-collection {
+    @extend .file-page__recommended-collection;
+    .card__first-pane {
+      .card__header--between {
+        .card__title-section {
+          display: unset !important;
+        }
+      }
+    }
+    .file-page__playlist-collection__row {
+      @extend .file-page__recommended-collection__row;
     }
   }
 

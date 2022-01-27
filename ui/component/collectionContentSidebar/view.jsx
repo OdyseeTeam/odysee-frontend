@@ -58,11 +58,11 @@ export default function CollectionContent(props: Props) {
   return (
     <Card
       isBodyList
-      className="file-page__recommended-collection"
+      className="file-page__playlist-collection"
       title={
         <>
           <a href={`/$/${PAGES.LIST}/${id}`}>
-            <span className="file-page__recommended-collection__row">
+            <span className="file-page__playlist-collection__row">
               <Icon
                 icon={
                   (id === COLLECTIONS_CONSTS.WATCH_LATER_ID && ICONS.TIME) ||
@@ -74,7 +74,7 @@ export default function CollectionContent(props: Props) {
               {collectionName}
             </span>
           </a>
-          <span className="file-page__recommended-collection__row">
+          <span className="file-page__playlist-collection__row">
             <Button
               button="alt"
               title={__('Loop')}
