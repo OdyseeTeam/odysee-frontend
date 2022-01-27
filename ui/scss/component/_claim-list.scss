@@ -977,11 +977,11 @@
 
 .claim-tile__title {
   position: relative;
-  padding: var(--spacing-s);
+  padding: var(--spacing-xs);
   padding-left: 0px;
   padding-right: var(--spacing-m);
   padding-bottom: 0;
-  margin-bottom: var(--spacing-s);
+  margin-bottom: 0;
 
   font-weight: 600;
   color: var(--color-text);
@@ -1000,7 +1000,7 @@
 
 .claim-tile__info {
   display: flex;
-  margin-top: var(--spacing-xs);
+  margin-top: var(--spacing-xxxs);
   color: var(--color-subtitle);
   padding: 0px;
   padding-bottom: var(--spacing-l);
