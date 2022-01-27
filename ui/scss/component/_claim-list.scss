@@ -211,7 +211,7 @@
           display: inline;
         }
         span:not(.channel-name) {
-          font-size: var(--font-xxsmall);
+          font-size: var(--font-xsmall);
         }
       }
     }
@@ -242,7 +242,7 @@
             height: auto;
           }
           .view_count {
-            font-size: var(--font-xxsmall);
+            font-size: var(--font-xsmall);
           }
         }
       }
@@ -517,11 +517,11 @@
     .media__subtitle {
       .button__content {
         .channel-name {
-          font-size: var(--font-xxxsmall);
+          font-size: var(--font-xsmall);
         }
       }
       .date_time {
-        font-size: var(--font-xxxsmall);
+        font-size: var(--font-xsmall);
       }
     }
   }
@@ -1053,7 +1053,8 @@
 .claim-tile__about--counts {
   display: flex;
   flex-wrap: wrap;
-  font-size: var(--font-xxsmall);
+  font-size: var(--font-xsmall);
+  margin-top: -3px;
 }
 
 .claim-preview__file-property-overlay {
