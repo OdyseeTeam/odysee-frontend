@@ -1,11 +1,6 @@
 .txo__radios {
   display: flex;
   flex-direction: row;
-
-  .button:nth-child(2) {
-    margin-left: 2px;
-    margin-right: 2px;
-  }
 }
 
 .txo__export {
