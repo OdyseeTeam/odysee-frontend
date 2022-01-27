@@ -676,16 +676,17 @@ svg + .button__label {
     border-bottom-left-radius: var(--border-radius);
   }
 
-  &:last-of-type {
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-  }
-
   &:nth-child(2),
   &:nth-child(3),
   &:nth-child(4),
   &:nth-child(5) {
     margin-left: 2px;
+  }
+
+  &:last-of-type {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+    margin-left: 0;
   }
 }
 
