@@ -174,9 +174,9 @@
       position: absolute;
       display: flex;
       left: 0px;
-      bottom: -2px;
+      bottom: -1px;
       width: 100%;
-      height: 3px;
+      height: 1px;
       background-color: var(--color-text);
       z-index: 2;
       border-radius: 2px;
@@ -184,12 +184,14 @@
 
       .ratio-bar-like {
         height: 100%;
-        background-color: var(--color-fire);
+        // background-color: var(--color-fire);
+        background-color: var(--color-text);
       }
 
       .ratio-bar-dislike {
         height: 100%;
-        background-color: var(--color-slime);
+        //background-color: var(--color-slime);
+        background-color: #999;
       }
     }
 
