@@ -381,9 +381,12 @@
 }
 
 .button--fire {
-  color: var(--color-fire);
   position: relative;
-
+  .button__content {
+    .button__label {
+      color: var(--color-fire) !important;
+    }
+  }
   path {
     stroke: var(--color-fire-outside);
   }
@@ -538,7 +541,11 @@
 }
 
 .button--slime {
-  color: var(--color-slime);
+  .button__content {
+    .button__label {
+      color: var(--color-slime) !important;
+    }
+  }
 }
 
 .button__slime-drop {
