@@ -544,6 +544,14 @@ body {
           }
         }
       }
+      .fieldset-group--smushed {
+        label {
+          margin-left: 0;
+        }
+        fieldset-section:last-of-type {
+          margin-left: 2px;
+        }
+      }
     }
     .settings__row:first-of-type {
       margin-top: var(--spacing-xxxs);
