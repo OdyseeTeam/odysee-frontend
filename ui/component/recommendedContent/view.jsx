@@ -117,7 +117,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               className={classnames('button-bubble', {
                 'button-bubble--active': viewMode === VIEW_ALL_RELATED,
               })}
-              label={__('All')}
+              label={__('Related')}
               onClick={() => setViewMode(VIEW_ALL_RELATED)}
             />
 
