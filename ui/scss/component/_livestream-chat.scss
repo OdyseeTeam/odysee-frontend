@@ -175,6 +175,9 @@ $recent-msg-button__height: 2rem;
       span {
         color: var(--color-text) !important;
       }
+      .icon {
+        filter: invert(100) !important;
+      }
       &:hover {
         span {
           color: var(--color-text) !important;
@@ -187,6 +190,9 @@ $recent-msg-button__height: 2rem;
       // background-color: var(--color-header-button) !important;
       &:hover {
         filter: invert(100);
+        .icon {
+          filter: invert(100) !important;
+        }
         span,
         p {
           color: var(--color-text);
