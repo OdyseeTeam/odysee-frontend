@@ -171,6 +171,7 @@ function ClaimListDiscover(props: Props) {
     maxClaimRender,
     useSkeletonScreen = true,
     excludeUris = [],
+    doFetchUserMemberships,
   } = props;
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;

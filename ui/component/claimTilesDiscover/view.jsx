@@ -5,7 +5,6 @@ import { createNormalizedClaimSearchKey } from 'util/claim';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import usePrevious from 'effects/use-previous';
-import { doFetchUserMemberships } from 'redux/actions/user';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type SearchOptions = {
@@ -96,6 +95,7 @@ function ClaimTilesDiscover(props: Props) {
     doFetchViewCount,
     pageSize = 8,
     options,
+    doFetchUserMemberships,
   } = props;
 
   const searchKey = createNormalizedClaimSearchKey(options);
