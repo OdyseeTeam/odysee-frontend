@@ -935,3 +935,49 @@ svg + .button__label {
     color: var(--color-slime);
   }
 }
+
+.recommended-content__bubble {
+  // margin-top: var(--spacing-xs);
+  display: flex;
+
+  .card__title-section {
+    display: none;
+  }
+
+  .button-toggle:nth-child(2) {
+    margin-left: 2px;
+    @media (min-width: $breakpoint-small) {
+      margin-right: var(--spacing-xs);
+    }
+  }
+
+  .button-bubble {
+    border-radius: 1rem;
+    padding-left: var(--spacing-m);
+    padding-right: var(--spacing-m);
+    margin-right: var(--spacing-xxs);
+    background-color: rgba(var(--color-header-background-base), 0.4) !important;
+    color: rgba(var(--color-text-base), 0.9);
+    font-size: var(--font-base);
+    padding: 0 var(--spacing-xs);
+    height: 2rem;
+    max-width: 15rem;
+    .button__content {
+      height: unset;
+    }
+    &:hover:not(.button-bubble--active) {
+      background-color: rgba(var(--color-header-background-base), 0.7) !important;
+      .button__label {
+        color: rgba(var(--color-text-base), 1) !important;
+      }
+    }
+  }
+  .button-bubble:last-of-type {
+    margin-right: 0;
+  }
+  .button-bubble--active {
+    color: var(--color-primary);
+    background-color: var(--color-header-background) !important;
+    box-shadow: unset;
+  }
+}
