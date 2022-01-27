@@ -694,6 +694,12 @@ svg + .button__label {
     border-top-right-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
   }
+
+  .button__content {
+    .icon {
+      margin-bottom: -4px;
+    }
+  }
 }
 
 .button-toggle--expandformobile {
