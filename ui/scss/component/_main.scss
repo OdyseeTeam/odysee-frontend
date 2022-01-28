@@ -634,6 +634,19 @@ body {
       color: var(--color-text);
     }
   }
+
+  .claim-preview__wrapper--channel {
+    .menu__button {
+      right: var(--spacing-s);
+    }
+    .claim-tile__info {
+      margin-top: 0;
+      padding-bottom: var(--spacing-xxxs);
+      .claim-preview-metadata-sub-upload {
+        margin-top: 3px;
+      }
+    }
+  }
 }
 
 .main--markdown {
