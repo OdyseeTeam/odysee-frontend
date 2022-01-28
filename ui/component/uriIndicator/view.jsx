@@ -53,11 +53,15 @@ class UriIndicator extends React.PureComponent<Props> {
       hideAnonymous = false,
       className,
       odyseeMembership,
-      selectOdyseeMembershipByClaimId
+      selectOdyseeMembershipByClaimId,
     } = this.props;
 
-    console.log('selector thing!');
-    console.log(selectOdyseeMembershipByClaimId);
+    let badgeToShow;
+    if (selectOdyseeMembershipByClaimId === 'Premium') {
+      badgeToShow = 'silver';
+    } else if (selectOdyseeMembershipByClaimId === 'Premium+') {
+      badgeToShow = 'gold';
+    }
 
     if (!claim) {
       return (
@@ -91,7 +95,8 @@ class UriIndicator extends React.PureComponent<Props> {
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
           {name}
-          <Icon sectionIcon icon={ICONS.PREMIUM_PLUS_BADGE} />
+          {badgeToShow === 'silver' && (<Icon sectionIcon icon={ICONS.PREMIUM_PLUS_BADGE} />)}
+          {badgeToShow === 'gold' && (<Icon sectionIcon icon={ICONS.PREMIUM_PLUS_BADGE} />)}
         </span>
       );
 

@@ -192,12 +192,9 @@ export function doAuthenticate(
             data: { user, accessToken: token },
           });
 
-          console.log('is an odysee member');
-          console.log(user.odysee_member);
+          // if user is an Odysee member, get the membership details
           if (user.odysee_member) {
-            console.log('making the call here');
             doCheckUserOdyseeMemberships(dispatch, user);
-            // TODO: make the call here
           }
 
           if (shareUsageData) {
@@ -874,22 +871,13 @@ export function doCheckYoutubeTransfer() {
 
 export function doFetchUserMemberships(claimIdCsv: string) {
   return (dispatch) => {
-
     (async function() {
       const response = await Lbryio.call('membership', 'check', {
         channel_id: '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8',
         claim_ids: claimIdCsv,
       });
 
-      console.log('response');
-      console.log(response);
-
       dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response } });
-
-      // dispatch({
-      //   type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA,
-      //   data: { user, odyseeMembershipName: highestMembershipRanking },
-      // });
     })();
   };
 }

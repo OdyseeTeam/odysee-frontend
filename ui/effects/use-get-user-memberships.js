@@ -16,16 +16,13 @@ export default function useGetUserMemberships(
 
       if (urisToFetch.length > 0) {
         // convert uris to claimIds
-        const claimIds = arrayOfContentUris.map(function(uri){
+        const claimIds = arrayOfContentUris.map(function(uri) {
           if (convertClaimUrlsToIds[uri]) {
             return convertClaimUrlsToIds[uri].signing_channel.claim_id;
           }
         });
 
         const commaSeparatedStringOfIds = claimIds.join(',');
-        console.log('ids');
-        console.log(commaSeparatedStringOfIds);
-
         // hit membership/check and save it in redux
         doFetchUserMemberships(commaSeparatedStringOfIds);
         // update fetched uris
