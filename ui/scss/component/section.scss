@@ -178,6 +178,10 @@
     }
   }
 
+  [aria-expanded='true'].button--file-action:last-of-type {
+    background-color: var(--color-header-background);
+  }
+
   .button--primary ~ .button--link,
   .button--secondary ~ .button--link {
     padding: var(--spacing-s) var(--spacing-m);
