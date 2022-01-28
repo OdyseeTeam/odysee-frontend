@@ -116,17 +116,10 @@ export const selectOdyseeMembershipByClaimId = function(state, uri) {
   } else if (claim && !claim.signing_channel) {
     uploaderChannelClaimId = claim.claim_id;
   }
-  // console.log(claim);
 
   // looks for the uploader id
   const matchingMembershipOfUser = (state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId]);
-  console.log('MATCHING!')
-  console.log(matchingMembershipOfUser);
-  // TODO: need to change this here
-  if (matchingMembershipOfUser == null) {
-    return 'Premium';
-  }
-  // return matchingMembershipOfUser == null;
+  return matchingMembershipOfUser;
 };
 
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));
