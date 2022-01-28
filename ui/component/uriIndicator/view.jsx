@@ -53,7 +53,11 @@ class UriIndicator extends React.PureComponent<Props> {
       hideAnonymous = false,
       className,
       odyseeMembership,
+      selectOdyseeMembershipByClaimId
     } = this.props;
+
+    console.log('selector thing!');
+    console.log(selectOdyseeMembershipByClaimId);
 
     if (!claim) {
       return (
@@ -78,6 +82,7 @@ class UriIndicator extends React.PureComponent<Props> {
     }
 
     const channelClaim = isChannelClaim ? claim : claim.signing_channel;
+    // console.log(claim);
 
     if (channelClaim) {
       const { name } = channelClaim;

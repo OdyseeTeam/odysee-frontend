@@ -5,13 +5,14 @@ import { selectIsUriResolving, makeSelectClaimForUri } from 'redux/selectors/cla
 import UriIndicator from './view';
 import {
   selectOdyseeMembershipName,
+  selectOdyseeMembershipByClaimId,
 } from 'redux/selectors/user';
 
 const select = (state, props) => ({
   claim: makeSelectClaimForUri(props.uri)(state),
   isResolvingUri: selectIsUriResolving(state, props.uri),
   uri: normalizeURI(props.uri),
-  odyseeMembership: selectOdyseeMembershipName(state),
+  selectOdyseeMembershipByClaimId: selectOdyseeMembershipByClaimId(state, props.uri),
 });
 
 const perform = (dispatch) => ({

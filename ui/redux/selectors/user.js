@@ -1,4 +1,5 @@
 import { createSelector } from 'reselect';
+import { selectClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 
 export const selectState = (state) => state.user || {};
 
@@ -107,8 +108,21 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
   }
 });
 
-export const selectOdyseeMembershipByClaimId = function(state, claimId){
-  return state.odyseeMembershipsPerClaimIds[claimId];
+export const selectOdyseeMembershipByClaimId = function(state, uri){
+  const claim = selectClaimForUri(state, uri);
+  let uploaderChannelClaimId;
+  if(claim && claim.signing_channel){
+    uploaderChannelClaimId = claim && claim.signing_channel.claim_id;
+  } else if (claim && !claim.signing_channel){
+    uploaderChannelClaimId = claim.claim_id;
+  }
+  // console.log(claim);
+
+  // looks for the uploader id
+  const matchingMembershipOfUser = (state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId]);
+  console.log(matchingMembershipOfUser);
+  // TODO: need to change this here
+  return matchingMembershipOfUser == null;
 };
 
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));
