@@ -332,6 +332,15 @@ fieldset-group {
       margin-top: var(--spacing-l);
       align-items: flex-end;
       justify-content: center;
+
+      fieldset-section {
+        label {
+          margin-left: 0 !important;
+        }
+        input {
+          margin-bottom: 10px !important;
+        }
+      }
     }
 
     &.fieldgroup--paginate-top {

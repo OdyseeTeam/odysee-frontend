@@ -428,6 +428,10 @@
   padding-left: 0px;
   padding-right: 0px;
 
+  h3 {
+    padding-left: var(--spacing-s);
+  }
+
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-m);
     padding-left: 0px;
