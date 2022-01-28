@@ -697,6 +697,7 @@ textarea {
 
 .transactionsPage-wrapper {
   .card__header--between {
+    align-items: unset;
     .card__title-section {
       width: 100%;
       div {
@@ -706,6 +707,9 @@ textarea {
           .txo__table_header {
             width: auto !important;
           }
+        }
+        .card__subtitle {
+          min-height: 3rem;
         }
       }
     }
