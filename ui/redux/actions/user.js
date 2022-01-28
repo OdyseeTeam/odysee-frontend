@@ -836,7 +836,21 @@ export function doFetchUserMemberships(claimIdCsv: string) {
         claim_ids: claimIdCsv,
       });
 
-      dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response } });
+      let updatedResponse = {};
+
+      for (const user in response) {
+        if (response[user] && response[user].length) {
+          for (const membership of response[user]) {
+            if (membership.channel_name) {
+              updatedResponse[user] = membership.name;
+            }
+          }
+        } else {
+          updatedResponse[user] = null;
+        }
+      }
+
+      dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response: updatedResponse } });
     })();
   };
 }

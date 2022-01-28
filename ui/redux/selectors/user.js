@@ -128,7 +128,8 @@ export const selectOdyseeMembershipByClaimId = function(state, uri) {
 
   // looks for the uploader id
   const matchingMembershipOfUser = (state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId]);
-  // console.log(matchingMembershipOfUser);
+  console.log('MATCHING!')
+  console.log(matchingMembershipOfUser);
   // TODO: need to change this here
   if (matchingMembershipOfUser == null) {
     return 'Premium';
