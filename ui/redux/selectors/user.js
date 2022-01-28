@@ -116,21 +116,24 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
   }
 });
 
-export const selectOdyseeMembershipByClaimId = function(state, uri){
+export const selectOdyseeMembershipByClaimId = function(state, uri) {
   const claim = selectClaimForUri(state, uri);
   let uploaderChannelClaimId;
-  if(claim && claim.signing_channel){
+  if (claim && claim.signing_channel) {
     uploaderChannelClaimId = claim && claim.signing_channel.claim_id;
-  } else if (claim && !claim.signing_channel){
+  } else if (claim && !claim.signing_channel) {
     uploaderChannelClaimId = claim.claim_id;
   }
   // console.log(claim);
 
   // looks for the uploader id
   const matchingMembershipOfUser = (state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId]);
-  console.log(matchingMembershipOfUser);
+  // console.log(matchingMembershipOfUser);
   // TODO: need to change this here
-  return matchingMembershipOfUser == null;
+  if (matchingMembershipOfUser == null) {
+    return 'Premium';
+  }
+  // return matchingMembershipOfUser == null;
 };
 
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));
