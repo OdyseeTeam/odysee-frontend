@@ -13,7 +13,39 @@
 }
 
 .date-header {
-  // width: 30%;
+  min-width: 190px;
+}
+
+.channelName-header {
+  min-width: 210px;
+}
+
+.location-header {
+  min-width: 120px;
+}
+
+.amount-header {
+  min-width: 135px;
+}
+
+.card-header {
+  min-width: 115px;
+}
+
+.anonymous-header {
+  min-width: 115px;
+}
+
+.processingFee-header {
+  min-width: 135px;
+}
+
+.odyseeFee-header {
+  min-width: 115px;
+}
+
+.receivedAmount-header {
+  min-width: 155px;
 }
 
 .grey-text {
