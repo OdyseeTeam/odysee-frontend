@@ -334,11 +334,9 @@ fieldset-group {
       justify-content: center;
 
       fieldset-section {
-        label {
-          margin-left: 0 !important;
-        }
         input {
-          margin-bottom: 10px !important;
+          margin-bottom: 5px !important;
+          margin-left: var(--spacing-s);
         }
       }
     }
