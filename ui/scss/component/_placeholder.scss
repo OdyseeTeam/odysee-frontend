@@ -46,14 +46,18 @@
   }
   .claim-preview__title_b {
     @extend .claim-preview__title;
+    display: none;
     width: 68%;
     margin-bottom: 9px;
+    @media (max-width: $breakpoint-small) {
+      display: block;
+    }
   }
 
   .claim-tile__about {
     .media__subtitle {
       display: block;
-      margin-top: calc(var(--spacing-s) + 1px);
+      margin-top: calc(var(--spacing-s));
       width: 16%;
       height: var(--font-xsmall);
       background-color: var(--color-text);
@@ -67,7 +71,7 @@
       display: flex;
       flex-wrap: wrap;
       margin-top: 4px;
-      width: 7%;
+      width: 14%;
       height: var(--font-xsmall);
       background-color: var(--color-text);
       border-radius: var(--border-radius);
