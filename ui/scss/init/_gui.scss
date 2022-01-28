@@ -725,6 +725,12 @@ textarea {
 }
 
 .playlistPage-wrapper {
+  .button--file-action {
+    &:hover {
+      background-color: unset;
+    }
+  }
+
   .card-stack:first-of-type {
     .card {
       margin-bottom: var(--spacing-l);
