@@ -647,6 +647,16 @@ body {
       }
     }
   }
+  .claim-preview__wrapper--channel.placeholder {
+    .media__thumb {
+      width: 6rem;
+      height: 6rem;
+      border-radius: 50%;
+    }
+    .channel-thumbnail {
+      display: none;
+    }
+  }
 }
 
 .main--markdown {
