@@ -173,15 +173,11 @@
   font-size: var(--font-small);
   font-weight: var(--font-weight-bold);
 
-  will-change: background-color;
-  will-change: color;
-
   .icon {
     height: 1rem;
     width: 1rem;
     stroke: var(--color-navigation-icon);
     stroke-width: 1.5px;
-    will-change: stroke;
   }
 
   .icon--Heart {
