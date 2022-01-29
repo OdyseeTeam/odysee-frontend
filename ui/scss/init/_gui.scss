@@ -859,6 +859,15 @@ textarea {
   }
 }
 
+// Fix Lightbox (Image viewer) modal backdrop bug
+// Context: transform, filter and perspective break "position: fixed" in child element
+.lb-open-lightbox {
+  .modal {
+    -webkit-backdrop-filter: unset;
+    backdrop-filter: unset;
+  }
+}
+
 // Remove tap focus on mobile devices
 input,
 textarea,
