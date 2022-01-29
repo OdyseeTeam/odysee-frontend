@@ -529,6 +529,15 @@
 
 .claim-preview--pending {
   opacity: 0.6;
+  .claim-tile__info {
+    flex-wrap: wrap;
+    .claim-preview__channel-staked {
+      flex-basis: 2.1rem;
+    }
+    .confirming-change {
+      flex-basis: 100%;
+    }
+  }
 }
 
 .claim-preview--padded {
