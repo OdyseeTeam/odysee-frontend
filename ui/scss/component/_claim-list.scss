@@ -538,6 +538,9 @@
       flex-basis: 100%;
     }
   }
+  .card__main-actions {
+    border-top: unset;
+  }
 }
 
 .claim-preview--padded {
