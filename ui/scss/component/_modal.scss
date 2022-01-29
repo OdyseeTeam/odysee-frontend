@@ -124,6 +124,12 @@
         }
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      .card__main-actions {
+        border-top: unset;
+      }
+    }
   }
 }
 

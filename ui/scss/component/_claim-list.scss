@@ -278,6 +278,7 @@
 
   @media (max-width: $breakpoint-small) {
     margin-bottom: var(--spacing-xxs) !important;
+    padding: 0 !important;
   }
 
   .button--uri-indicator {
