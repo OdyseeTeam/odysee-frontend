@@ -736,6 +736,8 @@
   background: var(--color-primary);
   padding: var(--spacing-xxs);
   height: 2.4rem;
+  display: flex;
+  align-items: center;
 }
 
 .claim-upload__progress--inner-text {
