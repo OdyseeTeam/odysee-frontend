@@ -110,7 +110,8 @@ reach-portal {
 
 .menu__list {
   font-size: var(--font-small);
-
+  animation: menu-animate-in var(--animation-duration) var(--animation-style);
+  transform-origin: top;
   border-radius: var(--border-radius);
   padding: var(--spacing-xs) 0;
 
