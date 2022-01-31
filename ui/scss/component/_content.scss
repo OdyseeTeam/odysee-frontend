@@ -55,7 +55,8 @@
   border-radius: 0;
   border: none;
   right: 0;
-  // width: unset !important;
+  // Next line is fixing the player width
+  width: unset !important;
   .file-render--video {
     border-radius: 0;
   }
