@@ -224,8 +224,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    // padding: var(--spacing-s) !important;
-    padding: 0 !important;
+    padding: var(--spacing-s) !important;
 
     .claim-preview {
       .media__thumb {
