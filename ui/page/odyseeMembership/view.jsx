@@ -25,18 +25,9 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  const { openModal, odyseeMembership, activeChannelClaim } = props;
-
-  const userChannelName = activeChannelClaim && activeChannelClaim.name;
-  const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;
-
-  console.log(userChannelName, userChannelClaimId);
-
+  const { openModal, odyseeMembership } = props;
   console.log('odysee membership');
   console.log(odyseeMembership);
-
-  console.log('active channel claim');
-  console.log(activeChannelClaim);
 
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
@@ -178,130 +169,208 @@ const OdyseeMembershipPage = (props: Props) => {
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       subscriptionPeriod,
-      userChannelName,
-      userChannelClaimId,
+      odyseeChannelId,
+      odyseeChannelName,
     });
   };
 
   return (
     <>
       <Page>
-        {/* list available memberships offered by odysee */}
-        <h1 style={{fontSize: '23px'}}>Odysee Memberships</h1>
-        {!stillWaitingFromBackend && membershipOptions && (
-          <div>
-            <h1 style={{marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
-            { membershipOptions.map((membershipOption) => (
+        {true ? (
+          <MembershipSplash />
+        ) : (
+          <>
+            {/* list available memberships offered by odysee */}
+            <h1 style={{ fontSize: '23px' }}>Odysee Memberships</h1>
+            {!stillWaitingFromBackend && membershipOptions && (
+              <div>
+                <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
+                {membershipOptions.map((membershipOption) => (
+                  <>
+                    <div style={{ 'margin-top': '16px', marginBottom: '10px' }}>
+                      <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
+                        Name: {membershipOption.name}
+                      </h4>
+                      <h4 style={{ marginBottom: '3px' }}>Perks: {membershipOption.description}</h4>
+                      {membershipOption.type === 'yearly' && (
+                        <>
+                          <h4 style={{ marginBottom: '4px' }}>Subscription Period Options: Yearly</h4>
+                          <h4 style={{ marginBottom: '4px' }}>
+                            ${(membershipOption.cost_usd * 12) / 100} USD For A One Year Subscription ($
+                            {membershipOption.cost_usd / 100} Per Month)
+                          </h4>
+                        </>
+                      )}
+                      {membershipOption.type === 'both' && (
+                        <>
+                          <h4 style={{ marginBottom: '4px' }}>Subscription Period Options: Yearly And Monthly</h4>
+                          <h4 style={{ marginBottom: '4px' }}>
+                            ${(membershipOption.cost_usd * 12) / 100} USD For A One Year Subscription ($
+                            {membershipOption.cost_usd / 100} Per Month)
+                          </h4>
+                          <h4 style={{ marginBottom: '4px' }}>
+                            ${membershipOption.cost_usd / 100} USD Per Month For A Monthly Renewing Subscription
+                          </h4>
+                        </>
+                      )}
+                      {membershipOption.type === 'both' &&
+                        userMemberships &&
+                        !purchasedMemberships.includes(membershipOption.id) && (
+                          <>
+                            <Button
+                              button="secondary"
+                              onClick={purchaseMembership}
+                              membership-id={membershipOption.id}
+                              membership-subscription-period={membershipOption.type}
+                              style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
+                              label={__('Purchase a one year membership')}
+                              icon={ICONS.FINANCE}
+                            />
+                            {'\n'}
+                            <Button
+                              button="secondary"
+                              onClick={purchaseMembership}
+                              membership-id={membershipOption.id}
+                              membership-subscription-period={membershipOption.type}
+                              label={__('Purchase a one month membership')}
+                              icon={ICONS.FINANCE}
+                            />
+                          </>
+                        )}
+                      {membershipOption.type === 'yearly' &&
+                        userMemberships &&
+                        !purchasedMemberships.includes(membershipOption.id) && (
+                          <>
+                            <Button
+                              button="secondary"
+                              onClick={purchaseMembership}
+                              membership-id={membershipOption.id}
+                              membership-subscription-period={membershipOption.type}
+                              label={__('Purchase a one year membership')}
+                              icon={ICONS.FINANCE}
+                              style={{ marginTop: '4px', marginBottom: '5px' }}
+                            />
+                          </>
+                        )}
+                    </div>
+                  </>
+                ))}
+              </div>
+            )}
+            {!stillWaitingFromBackend && cardSaved === true && (
               <>
-                <div style={{ 'margin-top': '16px', marginBottom: '10px'}}>
-                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membershipOption.name}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Perks: {membershipOption.description}</h4>
-                  { membershipOption.type === 'yearly' && (
+                <h1 style={{ fontSize: '23px', marginTop: '36px', marginBottom: '13px' }}>Your Memberships</h1>
+
+                {/* list of active memberships from user */}
+                <div style={{ marginBottom: '34px' }}>
+                  <h1 style={{ fontSize: '19px' }}>Active Memberships</h1>
+                  {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
                     <>
-                      <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
-                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
+                      <h4>You currently have no active memberships</h4>
                     </>
                   )}
-                  { membershipOption.type === 'both' && (
+                  {!stillWaitingFromBackend &&
+                    activeMemberships &&
+                    activeMemberships.map((membership) => (
+                      <>
+                        <div style={{ 'margin-top': '9px', marginBottom: '10px' }}>
+                          <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
+                            Name: {membership.MembershipDetails.name}
+                          </h4>
+                          <h4 style={{ marginBottom: '3px' }}>
+                            Registered On: {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 style={{ marginBottom: '3px' }}>
+                            Auto-Renews On: {formatDate(membership.Subscription.current_period_end * 1000)}
+                          </h4>
+                          {!stillWaitingFromBackend && membership.type === 'yearly' && (
+                            <>
+                              <h4 style={{ marginBottom: '4px' }}>Subscription Period Options: Yearly</h4>
+                              <h4 style={{ marginBottom: '4px' }}>
+                                ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
+                                {membership.cost_usd / 100} Per Month)
+                              </h4>
+                            </>
+                          )}
+                        </div>
+                        <Button
+                          button="secondary"
+                          membership-id={membership.Membership.membership_id}
+                          onClick={cancelMembership}
+                          style={{ display: 'block', marginBottom: '8px' }}
+                          label={__('Cancel membership')}
+                          icon={ICONS.FINANCE}
+                        />
+                      </>
+                    ))}
+                </div>
+                <>
+                  {/* list canceled memberships of user */}
+                  <h1 style={{ fontSize: '19px' }}>Canceled Memberships</h1>
+                  {canceledMemberships && canceledMemberships.length === 0 && (
                     <>
-                      <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly And Monthly</h4>
-                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd * 12) / 100 } USD For A One Year Subscription (${membershipOption.cost_usd / 100} Per Month)</h4>
-                      <h4 style={{marginBottom: '4px'}}>${(membershipOption.cost_usd) / 100 } USD Per Month For A Monthly Renewing Subscription</h4>
+                      <h4>You currently have no canceled memberships</h4>
                     </>
                   )}
-                  { membershipOption.type === 'both' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
-                    <>
-                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type} style={{display: 'block', marginBottom: '10px', marginTop: '10px'}} label={__('Purchase a one year membership')} icon={ICONS.FINANCE} />
-                      {'\n'}
-                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type} label={__('Purchase a one month membership')} icon={ICONS.FINANCE} />
-                    </>
-                  )}
-                  { membershipOption.type === 'yearly' && userMemberships && !purchasedMemberships.includes(membershipOption.id) && (
-                    <>
-                      <Button button="secondary" onClick={purchaseMembership} membership-id={membershipOption.id} membership-subscription-period={membershipOption.type}  label={__('Purchase a one year membership')} icon={ICONS.FINANCE} style={{marginTop: '4px', marginBottom: '5px'}} />
-                    </>
-                  )}
+                  {canceledMemberships &&
+                    canceledMemberships.map((membership) => (
+                      <>
+                        <div style={{ 'margin-top': '9px', marginBottom: '10px' }}>
+                          <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
+                            Name: {membership.MembershipDetails.name}
+                          </h4>
+                          <h4 style={{ marginBottom: '3px' }}>
+                            Registered On: {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 style={{ marginBottom: '3px' }}>
+                            Canceled At: {formatDate(membership.Subscription.canceled_at * 1000)}
+                          </h4>
+                          <h4 style={{ marginBottom: '3px' }}>
+                            Still Valid Until: {formatDate(membership.Membership.expires)}
+                          </h4>
+                        </div>
+                      </>
+                    ))}
+                </>
+              </>
+            )}
+            {!stillWaitingFromBackend && cardSaved === false && (
+              <div>
+                <br />
+                <h2 className={'getPaymentCard'}>
+                  Please save a card as a payment method so you can join a membership
+                </h2>
+
+                <Button
+                  button="secondary"
+                  label={__('Add A Card')}
+                  icon={ICONS.SETTINGS}
+                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+                  style={{ marginTop: '10px' }}
+                />
+              </div>
+            )}
+            {stillWaitingFromBackend && (
+              <div>
+                <br />
+                <h2 style={{ fontSize: '20px' }}>Loading...</h2>
+              </div>
+            )}
+            {isDev && (
+              <>
+                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+                <div>
+                  <Button
+                    button="secondary"
+                    label={__('Clear Membership Data')}
+                    icon={ICONS.SETTINGS}
+                    style={{ marginTop: '10px' }}
+                    onClick={deleteData}
+                  />
                 </div>
               </>
-            ))}
-          </div>
-        )}
-        { !stillWaitingFromBackend && cardSaved === true && (<>
-          <h1 style={{fontSize: '23px', marginTop: '36px', marginBottom: '13px'}}>Your Memberships</h1>
-
-          {/* list of active memberships from user */}
-          <div style={{marginBottom: '34px'}}>
-          <h1 style={{fontSize: '19px'}}>Active Memberships</h1>
-        { !stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (<>
-          <h4>You currently have no active memberships</h4>
-          </>)}
-        { !stillWaitingFromBackend && activeMemberships && activeMemberships.map((membership) => (
-          <>
-          <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
-          <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
-          <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
-          <h4 style={{marginBottom: '3px'}}>Auto-Renews On: {formatDate(membership.Subscription.current_period_end * 1000)}</h4>
-        { !stillWaitingFromBackend && membership.type === 'yearly' && (
-          <>
-          <h4 style={{marginBottom: '4px'}}>Subscription Period Options: Yearly</h4>
-          <h4 style={{marginBottom: '4px'}}>${(membership.cost_usd * 12) / 100 } USD For A One Year Subscription (${membership.cost_usd / 100} Per Month)</h4>
-          </>
-          )}
-          </div>
-          <Button button="secondary" membership-id={membership.Membership.membership_id} onClick={cancelMembership} style={{display: 'block', marginBottom: '8px'}} label={__('Cancel membership')} icon={ICONS.FINANCE} />
-          </>
-          ))}
-          </div>
-          <>
-            {/* list canceled memberships of user */}
-            <h1 style={{fontSize: '19px'}}>Canceled Memberships</h1>
-            {canceledMemberships && canceledMemberships.length === 0 && (<>
-              <h4>You currently have no canceled memberships</h4>
-            </>)}
-            { canceledMemberships && canceledMemberships.map((membership) => (
-              <>
-                <div style={{ 'margin-top': '9px', marginBottom: '10px'}}>
-                  <h4 style={{marginBottom: '3px', fontWeight: '900', fontSize: '17px'}}>Name: {membership.MembershipDetails.name}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Registered On: {formatDate(membership.Membership.created_at)}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Canceled At: {formatDate(membership.Subscription.canceled_at * 1000)}</h4>
-                  <h4 style={{marginBottom: '3px'}}>Still Valid Until: {formatDate(membership.Membership.expires)}</h4>
-                </div>
-              </>
-            ))}
-          </>
-        </>)}
-        {!stillWaitingFromBackend && cardSaved === false && (
-          <div>
-            <br />
-            <h2 className={'getPaymentCard'}>Please save a card as a payment method so you can join a membership</h2>
-
-            <Button
-              button="secondary"
-              label={__('Add A Card')}
-              icon={ICONS.SETTINGS}
-              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
-              style={{marginTop: '10px'}}
-            />
-          </div>
-        )}
-        {stillWaitingFromBackend && (
-          <div>
-            <br />
-            <h2 style={{fontSize: '20px'}}>Loading...</h2>
-          </div>
-        )}
-        {isDev && (
-          <>
-            <h1 style={{marginTop: '30px', fontSize: '20px'}}>Clear Membership Data (Only Available On Dev)</h1>
-            <div>
-              <Button
-                button="secondary"
-                label={__('Clear Membership Data')}
-                icon={ICONS.SETTINGS}
-                style={{marginTop: '10px'}}
-                onClick={deleteData}
-              />
-            </div>
+            )}
           </>
         )}
       </Page>
