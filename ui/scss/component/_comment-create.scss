@@ -15,6 +15,13 @@ $thumbnailWidthSmall: 1rem;
     margin-top: var(--spacing-m);
   }
 
+  .button--file-action {
+    &:hover {
+      background-color: var(--color-primary) !important;
+      color: var(--color-primary-contrast);
+    }
+  }
+
   .section__actions {
     .button,
     .button--link {
@@ -64,17 +71,22 @@ $thumbnailWidthSmall: 1rem;
     .button--file-action {
       padding: 0px;
       height: var(--height-input-slim);
+      background: var(--color-header-background);
       margin-bottom: 8px;
       .button__content {
         .icon {
           width: var(--height-input-slim);
           height: var(--height-input-slim);
           padding: 4px;
-          background: var(--color-header-background);
           border-radius: var(--border-radius);
-          &:hover {
-            stroke: var(--color-button-alt-text-hover);
-            background-color: var(--color-button-alt-bg-hover) !important;
+        }
+      }
+
+      &:hover {
+        background-color: var(--color-primary) !important;
+        .button__content {
+          .icon {
+            stroke: var(--color-primary-contrast);
           }
         }
       }
