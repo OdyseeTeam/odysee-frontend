@@ -310,15 +310,15 @@ $recent-msg-button__height: 2rem;
 
     .emoteSelector__list {
       background-color: rgba(var(--color-primary-dynamic), 0.02);
-    }
-    .emoteSelector__listRowItems {
-      .button--file-action {
-        background-color: unset !important;
-        .button__label {
-          color: var(--color-text);
-        }
-        &:hover {
-          background-color: var(--color-header-background) !important;
+      .emoteSelector__listRowItems {
+        .button--file-action {
+          background-color: unset !important;
+          .button__label {
+            color: var(--color-text);
+          }
+          &:hover {
+            background-color: var(--color-header-background) !important;
+          }
         }
       }
     }
