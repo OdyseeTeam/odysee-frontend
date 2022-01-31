@@ -213,6 +213,7 @@ function ChannelContent(props: Props) {
           isChannel
           channelIsMine={channelIsMine}
           empty={empty}
+          channelInnerSearchKeyword={searchQuery}
         />
       )}
     </Fragment>
