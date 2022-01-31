@@ -372,8 +372,12 @@ reducers[ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
 reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
   let latestData = {};
 
+  // add additional user membership value
   if (state.odyseeMembershipsPerClaimIds) {
     latestData = Object.assign(state.odyseeMembershipsPerClaimIds, action.data.response);
+  } else {
+    // otherwise just send the current data because nothing is saved yet
+    latestData = action.data.response;
   }
 
   return Object.assign({}, state, {
