@@ -830,9 +830,6 @@ textarea {
               font-size: var(--font-xsmall);
             }
           }
-          .date_time {
-            font-size: var(--font-xsmall);
-          }
         }
       }
     }
@@ -857,6 +854,10 @@ textarea {
       }
     }
   }
+}
+// Temporary master classes
+.date_time {
+  font-size: var(--font-xsmall);
 }
 
 // Fix Lightbox (Image viewer) modal backdrop bug
