@@ -277,6 +277,10 @@
   padding-left: 0px;
   padding-right: 0px;
 
+  .claim-preview__title {
+    font-size: var(--font-small);
+  }
+
   @media (max-width: $breakpoint-small) {
     margin-bottom: var(--spacing-xxs) !important;
     padding: 0 !important;
@@ -606,7 +610,8 @@
 
 .claim-preview__title {
   font-weight: var(--font-weight-bold);
-  font-size: var(--font-small);
+  // font-size: var(--font-small);
+  font-size: var(--font-body);
   margin-right: var(--spacing-m);
   overflow: hidden;
   text-overflow: ellipsis;
