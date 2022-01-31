@@ -1,5 +1,6 @@
 // @flow
 import { useState, useEffect } from 'react';
+import { getChannelFromClaim } from 'util/claim';
 
 export default function useGetUserMemberships(
   shouldFetchUserMemberships: ?boolean,
@@ -12,19 +13,23 @@ export default function useGetUserMemberships(
   useEffect(() => {
     if (shouldFetchUserMemberships && arrayOfContentUris && arrayOfContentUris.length > 0) {
       // check against the uris already saved in memory (already fetched)
-      const urisToFetch = arrayOfContentUris.filter((uri) => uri && !fetchedUserClaims.includes(uri) && Boolean(convertClaimUrlsToIds[uri]));
+      const urisToFetch = arrayOfContentUris.filter(
+        (uri) => uri && !fetchedUserClaims.includes(uri) && Boolean(convertClaimUrlsToIds[uri])
+      );
 
       if (urisToFetch.length > 0) {
         // convert uris to claimIds
-        const claimIds = arrayOfContentUris.map(function(uri) {
-          if (convertClaimUrlsToIds[uri]) {
-            return convertClaimUrlsToIds[uri].signing_channel.claim_id;
+        const claimIds = arrayOfContentUris.map((uri) => {
+          const claimUrlsToId = convertClaimUrlsToIds[uri];
+          if (claimUrlsToId) {
+            console.log(getChannelFromClaim(claimUrlsToId));
+            return getChannelFromClaim(claimUrlsToId);
           }
         });
 
         const commaSeparatedStringOfIds = claimIds.join(',');
         // hit membership/check and save it in redux
-        doFetchUserMemberships(commaSeparatedStringOfIds);
+        if (doFetchUserMemberships) doFetchUserMemberships(commaSeparatedStringOfIds);
         // update fetched uris
         setFetchedUserClaims([...fetchedUserClaims, ...urisToFetch]);
       }
