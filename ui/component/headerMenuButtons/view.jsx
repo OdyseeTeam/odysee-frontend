@@ -5,6 +5,7 @@ import { ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import HeaderMenuLink from 'component/common/header-menu-link';
 import Icon from 'component/common/icon';
 import NotificationHeaderButton from 'component/headerNotificationButton';
@@ -18,6 +19,7 @@ type HeaderMenuButtonProps = {
   currentTheme: string,
   user: ?User,
   handleThemeToggle: (boolean, string) => void,
+  doOpenModal: (id, params) => void,
 };
 
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
@@ -27,7 +29,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
     currentTheme,
     activeChannelStakedLevel,
     user,
-    handleThemeToggle,
+    handleThemeToggle, doOpenModal,
   } = props;
 
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
@@ -69,6 +71,13 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
         <MenuList className="menu__list--header">
           <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
           <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
+
+          <MenuItem onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.UPGRADE} />
+              {__('Upgrade')}
+            </div>
+          </MenuItem>
 
           <MenuItem className="menu__link" onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}>
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
