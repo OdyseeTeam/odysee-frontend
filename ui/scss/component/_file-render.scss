@@ -41,10 +41,6 @@
     .file-viewer--document {
       margin-top: var(--spacing-l);
 
-      @media (min-width: $breakpoint-small) {
-        margin-top: var(--spacing-xl);
-      }
-
       .button {
         display: inline;
 
