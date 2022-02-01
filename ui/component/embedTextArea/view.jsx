@@ -21,7 +21,7 @@ export default function EmbedTextArea(props: Props) {
   const { claim_id: claimId, name } = claim;
   const input = useRef();
 
-  const streamUrl = generateEmbedUrl(name, claimId, includeStartTime, startTime, referralCode);
+  const streamUrl = generateEmbedUrl(name, claimId, includeStartTime && startTime, referralCode);
   const { html: embedText } = generateEmbedIframeData(streamUrl);
 
   function copyToClipboard() {
