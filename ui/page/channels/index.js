@@ -6,6 +6,7 @@ import {
   selectPendingIds,
   selectClaimsByUri,
 } from 'redux/selectors/claims';
+import { doFetchUserMemberships } from 'redux/actions/user';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { doSetActiveChannel } from 'redux/actions/app';
 import { selectYoutubeChannels } from 'redux/selectors/user';
@@ -38,6 +39,7 @@ const select = (state) => {
 const perform = (dispatch) => ({
   fetchChannelListMine: () => dispatch(doFetchChannelListMine()),
   doSetActiveChannel: (claimId) => dispatch(doSetActiveChannel(claimId)),
+  doFetchUserMemberships: (claimIds) => dispatch(doFetchUserMemberships(claimIds)),
 });
 
 export default connect(select, perform)(ChannelsPage);
