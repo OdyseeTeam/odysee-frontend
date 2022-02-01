@@ -361,8 +361,8 @@
   width: var(--height-button) !important;
 
   @media (max-width: $breakpoint-small) {
-    height: var(--height-button-mobile) !important;
-    width: var(--height-button-mobile) !important;
+    height: calc(var(--header-height-mobile) - var(--spacing-m)) !important;
+    width: calc(var(--header-height-mobile) - var(--spacing-m)) !important;
   }
 }
 
