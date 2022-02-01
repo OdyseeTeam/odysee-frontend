@@ -12,10 +12,16 @@ import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
-import { lighthouse } from 'redux/actions/search';
 import ScheduledStreams from 'component/scheduledStreams';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
+type InnerSearchOptions = {
+  size?: number,
+  from?: number,
+  nsfw?: boolean,
+  channel_id: string,
+  isBackgroundSearch: boolean,
+};
 
 type Props = {
   uri: string,
@@ -34,12 +40,12 @@ type Props = {
   showMature: boolean,
   tileLayout: boolean,
   viewHiddenChannels: boolean,
-  doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
   doFetchChannelLiveStatus: (string) => void,
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
+  doInnerSearch: (query: string, options: InnerSearchOptions) => void,
 };
 
 function ChannelContent(props: Props) {
@@ -56,17 +62,17 @@ function ChannelContent(props: Props) {
     showMature,
     tileLayout,
     viewHiddenChannels,
-    doResolveUris,
     claimType,
     empty,
     doFetchChannelLiveStatus,
     activeLivestreamForChannel,
     activeLivestreamInitialized,
+    doInnerSearch,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [searchResults, setSearchResults] = React.useState(undefined);
+  const [searchOptions, setSearchOptions] = React.useState(undefined);
   const {
     location: { pathname, search },
   } = useHistory();
@@ -87,38 +93,29 @@ function ChannelContent(props: Props) {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (searchQuery.trim().length < 3 || !claimId) {
-        // In order to display original search results, search results must be set to null. A query of '' should display original results.
-        return setSearchResults(null);
       } else {
-        lighthouse
-          .search(
-            `s=${encodeURIComponent(searchQuery)}&channel_id=${encodeURIComponent(claimId)}${
-              !showMature ? '&nsfw=false&size=50&from=0' : ''
-            }`
-          )
-          .then(({ body: results }) => {
-            const urls = results.map(({ name, claimId }) => {
-              return `lbry://${name}#${claimId}`;
-            });
-
-            // Batch-resolve the urls before calling 'setSearchResults', as the
-            // latter will immediately cause the tiles to resolve, ending up
-            // calling doResolveUri one by one before the batched one.
-            doResolveUris(urls, true);
-
-            setSearchResults(urls);
-          })
-          .catch(() => {
-            setSearchResults(null);
-          });
+        const options: InnerSearchOptions = showMature
+          ? {
+              channel_id: encodeURIComponent(claimId),
+              isBackgroundSearch: false,
+            }
+          : {
+              channel_id: encodeURIComponent(claimId),
+              size: 20,
+              from: 0,
+              nsfw: false,
+              isBackgroundSearch: false,
+            };
+        doInnerSearch(searchQuery, options);
+        setSearchOptions(options);
       }
     }, DEBOUNCE_WAIT_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [claimId, searchQuery, showMature, doResolveUris]);
+  }, [doInnerSearch, claimId, searchQuery, showMature]);
 
   React.useEffect(() => {
     setSearchQuery('');
-    setSearchResults(null);
+    setSearchOptions(undefined);
   }, [url]);
 
   const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
@@ -187,7 +184,6 @@ function ChannelContent(props: Props) {
           hideFilters={!showFilters}
           hideAdvancedFilter={!showFilters}
           tileLayout={tileLayout}
-          uris={searchResults}
           streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
           channelIds={[claimId]}
           claimType={claimType}
@@ -214,6 +210,7 @@ function ChannelContent(props: Props) {
           channelIsMine={channelIsMine}
           empty={empty}
           channelInnerSearchKeyword={searchQuery}
+          channelInnerSearchOptions={searchOptions}
         />
       )}
     </Fragment>

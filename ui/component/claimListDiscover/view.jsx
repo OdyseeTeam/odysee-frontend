@@ -116,6 +116,7 @@ type Props = {
   swipeLayout: boolean,
 
   channelInnerSearchKeyword?: string,
+  channelInnerSearchOptions?: ChannelInnerSearchOptions,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -189,6 +190,7 @@ function ClaimListDiscover(props: Props) {
 
     // channel inner search
     channelInnerSearchKeyword,
+    channelInnerSearchOptions,
     channelInnerSearchResult,
     channelInnerSearchResultLastPageReached,
     doChannelInnerSearch,
@@ -534,7 +536,7 @@ function ClaimListDiscover(props: Props) {
     </div>
   );
 
-  const renderUris = (channelInnerSearchKeyword && page > 1 && channelInnerSearchResult) || uris || claimSearchResult;
+  const renderUris = uris || channelInnerSearchResult || claimSearchResult;
   injectPinUrls(renderUris, orderParam, pins);
 
   // **************************************************************************
@@ -642,16 +644,13 @@ function ClaimListDiscover(props: Props) {
 
   React.useEffect(() => {
     if (channelInnerSearchKeyword && page > 1) {
-      const channelInnerSearchOptions: ChannelInnerSearchOptions = {
+      doChannelInnerSearch(channelInnerSearchKeyword, {
+        ...channelInnerSearchOptions,
         size: dynamicPageSize,
         from: dynamicPageSize * (page - 1),
-        isBackgroundSearch: false,
-        channel_id: channelIds && channelIds[0],
-        nsfw: false,
-      };
-      doChannelInnerSearch(channelInnerSearchKeyword, channelInnerSearchOptions);
+      });
     }
-  }, [doChannelInnerSearch, channelInnerSearchKeyword, dynamicPageSize, page, channelIds, forceRefresh]);
+  }, [doChannelInnerSearch, channelInnerSearchKeyword, channelInnerSearchOptions, dynamicPageSize, page, forceRefresh]);
 
   const headerToUse = header || (
     <ClaimListHeader

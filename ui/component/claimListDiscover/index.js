@@ -22,21 +22,7 @@ import ClaimListDiscover from './view';
 import { doFetchViewCount } from 'lbryinc';
 
 const getChannelInnerSearchSelect = (state, props) => {
-  const {
-    channelInnerSearchKeyword,
-    dynamicPageSize,
-    channelIds,
-  }: {
-    channelInnerSearchKeyword: string,
-    dynamicPageSize: number,
-    channelIds: Array<string>,
-  } = props;
-  const channelInnerSearchOptions = {
-    size: dynamicPageSize,
-    isBackgroundSearch: false,
-    channel_id: channelIds[0],
-    nsfw: false,
-  };
+  const { channelInnerSearchKeyword, channelInnerSearchOptions } = props;
   const channelInnerSearchQuery = getSearchQueryString(channelInnerSearchKeyword, channelInnerSearchOptions);
   const channelInnerSearchResult = makeSelectSearchUrisForQuery(channelInnerSearchQuery)(state);
   const channelInnerSearchResultLastPageReached = makeSelectHasReachedMaxResultsLength(channelInnerSearchQuery)(state);
