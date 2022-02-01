@@ -33,6 +33,9 @@ $thumbnailWidthSmall: 1rem;
         color: var(--color-primary-contrast);
       }
     }
+    .button--alt {
+      margin-top: -2px;
+    }
 
     @media (max-width: $breakpoint-small) {
       margin-top: var(--spacing-s);
