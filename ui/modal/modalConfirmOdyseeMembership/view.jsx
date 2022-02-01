@@ -16,7 +16,10 @@ type Props = {
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
-  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership } = props;
+  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId } = props;
+
+  console.log('price Id!'):
+  console.log(priceId);
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
 
