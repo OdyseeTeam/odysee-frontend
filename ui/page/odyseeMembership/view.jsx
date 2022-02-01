@@ -9,6 +9,7 @@ import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import MembershipSplash from 'component/membershipSplash';
 import Button from 'component/button';
+import ChannelSelector from 'component/channelSelector';
 let stripeEnvironment = getStripeEnvironment();
 
 // const isDev = process.env.NODE_ENV !== 'production';
@@ -25,7 +26,7 @@ type Props = {
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  const { openModal, odyseeMembership } = props;
+  const { openModal, odyseeMembership, activeChannelClaim } = props;
   console.log('odysee membership');
   console.log(odyseeMembership);
 
@@ -177,12 +178,15 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
-        {true ? (
+        {false ? (
           <MembershipSplash />
         ) : (
           <>
             {/* list available memberships offered by odysee */}
             <h1 style={{ fontSize: '23px' }}>Odysee Memberships</h1>
+            <div style={{ marginTop: '10px' }}>
+              <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url}/>
+            </div>
             {!stillWaitingFromBackend && membershipOptions && (
               <div>
                 <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
