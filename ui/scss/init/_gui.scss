@@ -867,6 +867,9 @@ textarea {
 .date_time {
   font-size: var(--font-xsmall);
 }
+.icon--ExternalLink {
+  margin-top: -5px;
+}
 
 // Fix Lightbox (Image viewer) modal backdrop bug
 // Context: transform, filter and perspective break "position: fixed" in child element
