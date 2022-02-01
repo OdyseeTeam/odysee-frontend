@@ -58,6 +58,13 @@
   transform: translateX(0);
   transform-origin: left;
 
+  .wunderbar__input {
+    background-color: var(--color-header-button);
+  }
+  .empty--centered {
+    font-size: var(--font-body);
+  }
+
   .button--secondary {
     background-color: var(--color-odysee) !important;
     color: var(--color-odysee-contrast) !important;
