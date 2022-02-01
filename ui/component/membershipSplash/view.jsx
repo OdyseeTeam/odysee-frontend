@@ -170,7 +170,7 @@ export default function MembershipSplash(props: Props) {
               <img src={BadgePremium} />
 
               <section>
-                {__('99¢c')}
+                {__('99¢')}
                 <div className="membership-splash__info-range">{__('A MONTH')}</div>
               </section>
             </div>
