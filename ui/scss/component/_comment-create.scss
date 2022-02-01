@@ -33,6 +33,12 @@ $thumbnailWidthSmall: 1rem;
         color: var(--color-primary-contrast);
       }
     }
+    .button--link {
+      margin-top: -2px;
+      .button__label {
+        line-height: 19px;
+      }
+    }
     .button--alt {
       margin-top: -2px;
     }
