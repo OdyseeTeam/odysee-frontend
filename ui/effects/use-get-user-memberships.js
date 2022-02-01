@@ -23,11 +23,12 @@ export default function useGetUserMemberships(
           const claimUrlsToId = convertClaimUrlsToIds[uri];
           if (claimUrlsToId) {
             console.log(getChannelFromClaim(claimUrlsToId));
-            return getChannelFromClaim(claimUrlsToId);
+            return getChannelFromClaim(claimUrlsToId).claim_id;
           }
         });
 
         const commaSeparatedStringOfIds = claimIds.join(',');
+
         // hit membership/check and save it in redux
         if (doFetchUserMemberships) doFetchUserMemberships(commaSeparatedStringOfIds);
         // update fetched uris

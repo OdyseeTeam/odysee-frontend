@@ -17,7 +17,6 @@ import I18nMessage from 'component/i18nMessage';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import { useIsLargeScreen } from 'effects/use-screensize';
-import { doFetchUserMemberships } from 'redux/actions/user';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
