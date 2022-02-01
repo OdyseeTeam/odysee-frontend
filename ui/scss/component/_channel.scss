@@ -614,5 +614,19 @@ $actions-z-index: 2;
         font-size: var(--font-small) !important;
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      .claim-preview--channel {
+        a:first-of-type {
+          .button__content {
+            align-items: unset;
+          }
+        }
+      }
+
+      .claim-preview__actions {
+        margin-top: var(--spacing-s) !important;
+      }
+    }
   }
 }
