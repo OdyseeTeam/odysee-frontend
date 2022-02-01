@@ -8,6 +8,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
+import DebouncedInput from 'component/common/debounced-input';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
@@ -250,8 +251,19 @@ function SideNavigation(props: Props) {
   const showSubscriptionSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
-  let displayedSubscriptions = subscriptions;
-  if (showSubscriptionSection && subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && !expandSubscriptions) {
+  const [subscriptionFilter, setSubscriptionFilter] = React.useState('');
+
+  const filteredSubscriptions = subscriptions.filter(
+    (sub) => !subscriptionFilter || sub.channelName.toLowerCase().includes(subscriptionFilter)
+  );
+
+  let displayedSubscriptions = filteredSubscriptions;
+  if (
+    showSubscriptionSection &&
+    !subscriptionFilter &&
+    subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT &&
+    !expandSubscriptions
+  ) {
     displayedSubscriptions = subscriptions.slice(0, FOLLOWED_ITEM_INITIAL_LIMIT);
   }
 
@@ -292,10 +304,22 @@ function SideNavigation(props: Props) {
       return (
         <>
           <ul className="navigation__secondary navigation-links">
+            {subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
+              <li className="navigation-item">
+                <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
+              </li>
+            )}
             {displayedSubscriptions.map((subscription) => (
               <SubscriptionListItem key={subscription.uri} subscription={subscription} />
             ))}
-            {subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
+            {!!subscriptionFilter && !displayedSubscriptions.length && (
+              <li>
+                <div className="navigation-item">
+                  <div className="empty empty--centered">{__('No results')}</div>
+                </div>
+              </li>
+            )}
+            {!subscriptionFilter && subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
               <Button
                 key="showMore"
                 label={expandSubscriptions ? __('Show less') : __('Show more')}

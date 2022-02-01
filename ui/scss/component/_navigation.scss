@@ -377,6 +377,14 @@
   }
 }
 
+.navigation-item {
+  padding: var(--spacing-s);
+
+  .empty {
+    padding: 0;
+  }
+}
+
 .navigation__overlay {
   position: fixed;
   width: 100vw;
