@@ -178,6 +178,19 @@ const OdyseeMembershipPage = (props: Props) => {
     return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
+  function buildCurrencyDisplay(priceObject) {
+    let currencySymbol;
+    if(priceObject.currency === 'eur'){
+      currencySymbol = '€'
+    } else if (priceObject.currency === 'usd'){
+      currencySymbol = '$';
+    }
+
+    const currency = priceObject.currency.toUpperCase();
+
+    return currency + ' ' + currencySymbol;
+  }
+
   return (
     <>
       <Page>
@@ -206,7 +219,7 @@ const OdyseeMembershipPage = (props: Props) => {
                           {price.currency !== 'eur' && (
                             <>
                               <h4 style={{ marginBottom: '4px' }}>Subscription Interval: {convertPriceToString(price)}</h4>
-                              <h4 style={{ marginBottom: '4px' }}>Subscription Price: {price.currency.toUpperCase()} {price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
+                              <h4 style={{ marginBottom: '4px' }}>Subscription Price: {buildCurrencyDisplay(price)}{price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
                               <Button
                                 button="secondary"
                                 onClick={purchaseMembership}
