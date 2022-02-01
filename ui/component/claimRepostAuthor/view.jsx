@@ -19,8 +19,11 @@ function ClaimRepostAuthor(props: Props) {
   if (short && repostUrl) {
     return (
       <span className="claim-preview__repost-author">
-        <Icon icon={ICONS.REPOST} size={12} />
-        <span>{repostUrl}</span>
+        <div className="claim-preview__repost-ribbon">
+          <Icon icon={ICONS.REPOST} size={12} />
+          <br />
+          <span>{repostUrl}</span>
+        </div>
       </span>
     );
   }

@@ -186,6 +186,15 @@
 }
 
 .searchPage-wrapper {
+  .search__header {
+    .claim-preview__wrapper--channel {
+      .claim-preview__repost-author {
+        top: calc(var(--spacing-m) * -1);
+        left: calc(var(--spacing-m) * -1);
+      }
+    }
+  }
+
   .claim-preview__wrapper {
     .claim-tile__info {
       margin-top: 0;
