@@ -196,6 +196,7 @@
   }
 
   .claim-preview__wrapper {
+    background-color: rgba(var(--color-header-background-base), 0.6);
     .claim-tile__info {
       margin-top: 0;
       padding-bottom: var(--spacing-xxxs);
