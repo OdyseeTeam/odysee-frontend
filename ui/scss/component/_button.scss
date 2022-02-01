@@ -762,6 +762,7 @@ svg + .button__label {
   @media (max-width: $breakpoint-small) {
     position: relative;
     top: var(--spacing-s);
+    margin-bottom: var(--spacing-s);
     margin-left: unset;
   }
 }
