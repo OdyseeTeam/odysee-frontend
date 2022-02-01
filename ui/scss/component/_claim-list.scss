@@ -239,7 +239,7 @@
           margin-top: var(--spacing-xxxs);
         }
         .claim-preview__title {
-          margin-right: var(--spacing-s);
+          margin-right: var(--spacing-m);
         }
         .media__subtitle {
           .button__content {
@@ -613,7 +613,6 @@
 
 .claim-preview__title {
   font-weight: var(--font-weight-bold);
-  // font-size: var(--font-small);
   font-size: var(--font-body);
   margin-right: var(--spacing-m);
   overflow: hidden;
@@ -1258,8 +1257,6 @@
 }
 
 .claim-preview__active {
-  //background-color: var(--color-card-background-highlighted);
-
   .claim-preview__title {
     color: var(--color-link);
   }
