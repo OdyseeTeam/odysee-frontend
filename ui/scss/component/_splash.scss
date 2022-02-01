@@ -88,8 +88,11 @@
     width: 100%;
     flex-basis: 50%;
     padding: var(--spacing-l);
+    padding-top: 0;
+    padding-bottom: 0;
     color: #fff;
     font-size: 2.6rem;
+    font-size: 2.3vw;
     line-height: 3.4rem;
     font-weight: 100;
     b {
@@ -133,6 +136,7 @@
     .membership-splash__info:nth-child(1) {
       padding: var(--spacing-l);
       font-size: 1rem;
+      font-size: 1vw;
       @media (max-width: $breakpoint-small) {
         font-size: 0.9rem;
       }
@@ -162,11 +166,12 @@
     .membership-splash__info-price {
       display: flex;
       align-items: center;
-      font-size: 3rem;
+      font-size: 2.6rem;
+      font-size: 2.6vw;
       font-weight: 900;
       img {
         display: inline-block;
-        width: 8rem;
+        width: 40%;
         margin-left: 1rem;
         margin-right: 1.4rem;
       }
@@ -191,6 +196,7 @@
     display: flex;
     align-items: center;
     font-size: 1rem;
+    font-size: 1vw;
     font-weight: 900;
     margin-top: 8px;
     .icon {
@@ -223,6 +229,7 @@
         color: #debca0;
         text-transform: uppercase;
         font-size: 1.2rem;
+        font-size: 1vw;
         font-weight: var(--font-weight-bold);
       }
       &:hover {
