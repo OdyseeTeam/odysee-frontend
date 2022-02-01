@@ -152,7 +152,7 @@ export default function MembershipSplash(props: Props) {
             {__('Get ')}
             <b>{__('early access')}</b>
             {__(' features and remove ads for ')}
-            <b>{__('99c')}</b>
+            <b>{__('99¢')}</b>
           </section>
         </section>
       </div>
