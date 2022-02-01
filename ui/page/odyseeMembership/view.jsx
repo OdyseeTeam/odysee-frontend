@@ -155,20 +155,9 @@ const OdyseeMembershipPage = (props: Props) => {
 
     const membershipId = e.currentTarget.getAttribute('membership-id');
     const priceId = e.currentTarget.getAttribute('price-id');
-    let subscriptionPeriod = e.currentTarget.getAttribute('membership-subscription-period');
-
-    if (subscriptionPeriod === 'both') {
-      subscriptionPeriod = false;
-    } else if (subscriptionPeriod === 'yearly') {
-      subscriptionPeriod = true;
-    } else {
-      console.log('There was a bug');
-      return;
-    }
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
-      subscriptionPeriod,
       odyseeChannelId,
       odyseeChannelName,
       priceId,
@@ -207,87 +196,31 @@ const OdyseeMembershipPage = (props: Props) => {
                 <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
                 {membershipOptions.map((membershipOption) => (
                   <>
-                    <div style={{ 'margin-top': '16px', marginBottom: '10px' }}>
+                    <div style={{ 'margin-top': '16px', marginBottom: '55px' }}>
                       <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
                         Name: {membershipOption.Membership.name}
                       </h4>
                       <h4 style={{ marginBottom: '3px' }}>Perks: {membershipOption.Membership.description}</h4>
                       {membershipOption.Prices.map((price) => (
                         <>
-                          <h4 style={{ marginBottom: '4px' }}>Subscription Interval: {convertPriceToString(price)}</h4>
-                          <h4 style={{ marginBottom: '4px' }}>Subscription Price: {price.currency.toUpperCase()} {price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
-                          <Button
-                            button="secondary"
-                            onClick={purchaseMembership}
-                            membership-id={membershipOption.Membership.id}
-                            membership-subscription-period={membershipOption.Membership.type}
-                            price-id={price.id}
-                            style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
-                            label={__('Purchase a one year membership')}
-                            icon={ICONS.FINANCE}
-                          />
+                          {price.currency !== 'eur' && (
+                            <>
+                              <h4 style={{ marginBottom: '4px' }}>Subscription Interval: {convertPriceToString(price)}</h4>
+                              <h4 style={{ marginBottom: '4px' }}>Subscription Price: {price.currency.toUpperCase()} {price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
+                              <Button
+                                button="secondary"
+                                onClick={purchaseMembership}
+                                membership-id={membershipOption.Membership.id}
+                                membership-subscription-period={membershipOption.Membership.type}
+                                price-id={price.id}
+                                style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
+                                label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                icon={ICONS.FINANCE}
+                              />
+                            </>
+                          )}
                         </>
                       ))}
-                      {membershipOption.Membership.type === 'yearly' && (
-                        <>
-                          <h4 style={{ marginBottom: '4px' }}>Subscription Period Options: Yearly</h4>
-                          <h4 style={{ marginBottom: '4px' }}>
-                            ${(membershipOption.Membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
-                            {membershipOption.Membership.cost_usd / 100} Per Month)
-                          </h4>
-                        </>
-                      )}
-                      {membershipOption.Membership.type === 'both' && (
-                        <>
-                          <h4 style={{ marginBottom: '4px' }}>Subscription Period Options: Yearly And Monthly</h4>
-                          <h4 style={{ marginBottom: '4px' }}>
-                            ${(membershipOption.cost_usd * 12) / 100} USD For A One Year Subscription ($
-                            {membershipOption.cost_usd / 100} Per Month)
-                          </h4>
-                          <h4 style={{ marginBottom: '4px' }}>
-                            ${membershipOption.cost_usd / 100} USD Per Month For A Monthly Renewing Subscription
-                          </h4>
-                        </>
-                      )}
-                      {membershipOption.type === 'both' &&
-                        userMemberships &&
-                        !purchasedMemberships.includes(membershipOption.id) && (
-                          <>
-                            <Button
-                              button="secondary"
-                              onClick={purchaseMembership}
-                              membership-id={membershipOption.id}
-                              membership-subscription-period={membershipOption.type}
-                              style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
-                              label={__('Purchase a one year membership')}
-                              icon={ICONS.FINANCE}
-                            />
-                            {'\n'}
-                            <Button
-                              button="secondary"
-                              onClick={purchaseMembership}
-                              membership-id={membershipOption.id}
-                              membership-subscription-period={membershipOption.type}
-                              label={__('Purchase a one month membership')}
-                              icon={ICONS.FINANCE}
-                            />
-                          </>
-                        )}
-                      {membershipOption.type === 'yearly' &&
-                        userMemberships &&
-                        !purchasedMemberships.includes(membershipOption.id) && (
-                          <>
-                            <Button
-                              button="secondary"
-                              onClick={purchaseMembership}
-                              membership-id={membershipOption.id}
-                              membership-subscription-period={membershipOption.type}
-                              label={__('Purchase a one year membership')}
-                              icon={ICONS.FINANCE}
-                              style={{ marginTop: '4px', marginBottom: '5px' }}
-                            />
-                          </>
-                        )}
                     </div>
                   </>
                 ))}

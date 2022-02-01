@@ -18,7 +18,7 @@ type Props = {
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId } = props;
 
-  console.log('price Id!'):
+  console.log('price Id!');
   console.log(priceId);
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
@@ -34,9 +34,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         {
           environment: stripeEnvironment,
           membership_id: membershipId,
-          yearly: subscriptionPeriod,
           channel_id: odyseeChannelId,
           channel_name: odyseeChannelName,
+          price_id: priceId,
         },
         'post'
       );
