@@ -209,32 +209,34 @@ const OdyseeMembershipPage = (props: Props) => {
                 <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
                 {membershipOptions.map((membershipOption) => (
                   <>
-                    <div style={{ 'margin-top': '16px', marginBottom: '55px' }}>
-                      <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
-                        Name: {membershipOption.Membership.name}
-                      </h4>
-                      <h4 style={{ marginBottom: '3px' }}>Perks: {membershipOption.Membership.description}</h4>
-                      {membershipOption.Prices.map((price) => (
-                        <>
-                          {price.currency !== 'eur' && (
-                            <>
-                              <h4 style={{ marginBottom: '4px' }}>Subscription Interval: {convertPriceToString(price)}</h4>
-                              <h4 style={{ marginBottom: '4px' }}>Subscription Price: {buildCurrencyDisplay(price)}{price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
-                              <Button
-                                button="secondary"
-                                onClick={purchaseMembership}
-                                membership-id={membershipOption.Membership.id}
-                                membership-subscription-period={membershipOption.Membership.type}
-                                price-id={price.id}
-                                style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
-                                label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
-                                icon={ICONS.FINANCE}
-                              />
-                            </>
-                          )}
-                        </>
-                      ))}
-                    </div>
+                    {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
+                      <div style={{ 'margin-top': '16px', marginBottom: '55px' }}>
+                        <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
+                          Name: {membershipOption.Membership.name}
+                        </h4>
+                        <h4 style={{ marginBottom: '3px' }}>Perks: {membershipOption.Membership.description}</h4>
+                        {membershipOption.Prices.map((price) => (
+                          <>
+                            {price.currency !== 'eur' && (
+                              <>
+                                <h4 style={{ marginBottom: '4px' }}>Subscription Interval: {convertPriceToString(price)}</h4>
+                                <h4 style={{ marginBottom: '4px' }}>Subscription Price: {buildCurrencyDisplay(price)}{price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
+                                <Button
+                                  button="secondary"
+                                  onClick={purchaseMembership}
+                                  membership-id={membershipOption.Membership.id}
+                                  membership-subscription-period={membershipOption.Membership.type}
+                                  price-id={price.id}
+                                  style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
+                                  label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                  icon={ICONS.FINANCE}
+                                />
+                              </>
+                            )}
+                          </>
+                        ))}
+                      </div>
+                    )}
                   </>
                 ))}
               </div>
