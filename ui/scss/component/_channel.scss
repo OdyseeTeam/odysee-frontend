@@ -622,6 +622,12 @@ $actions-z-index: 2;
             align-items: unset;
           }
         }
+        .claim-preview__actions {
+          flex-flow: row;
+          .claim-preview__custom-properties {
+            justify-content: unset;
+          }
+        }
       }
 
       .claim-preview__actions {
