@@ -714,6 +714,14 @@ textarea {
       }
     }
   }
+
+  .card__actions {
+    @media (max-width: $breakpoint-small) {
+      > * {
+        padding-bottom: var(--spacing-m);
+      }
+    }
+  }
 }
 
 .topPage-wrapper {
