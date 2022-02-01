@@ -649,6 +649,14 @@ body {
         margin-top: 3px;
       }
     }
+    .button--secondary {
+      background-color: var(--color-header-button) !important;
+      &:hover {
+        .button__label {
+          color: var(--color-text) !important;
+        }
+      }
+    }
   }
   .claim-preview__wrapper--channel.placeholder {
     .media__thumb {
