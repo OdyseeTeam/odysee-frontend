@@ -45,6 +45,10 @@
   .spinner {
     margin-left: var(--spacing-m);
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-s);
+  }
 }
 
 .claim-list__dropdown {
