@@ -189,6 +189,19 @@
     text-align: left;
   }
 
+  .file-viewer__embedded-header {
+    .file-viewer__embedded-title {
+      width: calc(100% - 120px);
+      .button__label {
+        display: inline-block;
+        width: 100%;
+      }
+    }
+    .file-viewer__overlay-logo {
+      padding-left: 0;
+    }
+  }
+
   .preview-link__url {
     font-size: var(--font-xxsmall);
     margin-top: 0;
