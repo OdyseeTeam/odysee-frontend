@@ -18,9 +18,6 @@ type Props = {
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId } = props;
 
-  console.log('price Id!');
-  console.log(priceId);
-
   const [waitingForBackend, setWaitingForBackend] = React.useState();
 
   async function purchaseMembership() {
@@ -45,7 +42,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       console.log(response);
 
       // $FlowFixMe
-      // location.reload();
+      location.reload();
 
       closeModal();
     } catch (err) {
