@@ -132,6 +132,16 @@ td {
 }
 
 .table--transactions {
+  .table-column-lbc-date {
+    min-width: 140px;
+  }
+  .table-column-lbc-type {
+    min-width: 80px;
+  }
+  .table-column-lbc-transaction {
+    min-width: 100px;
+  }
+
   td:nth-of-type(1) {
     // width: 20%;
   }
