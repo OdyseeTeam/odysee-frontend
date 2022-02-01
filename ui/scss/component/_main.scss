@@ -687,6 +687,14 @@ body {
       }
     }
   }
+  .post__info--grouped {
+    .button__content {
+      color: var(--color-primary);
+      .icon {
+        color: var(--color-text-subtitle);
+      }
+    }
+  }
 }
 
 .main__auth-content {
