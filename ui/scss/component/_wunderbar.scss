@@ -140,13 +140,14 @@
   }
 
   .wunderbar__more-results {
+    font-size: var(--font-small);
     .button--link {
       color: var(--color-odysee);
     }
 
     &:hover {
       .button--link {
-        color: var(--color-odysee-contrast);
+        color: var(--color-odysee-contrast) !important;
       }
     }
   }
