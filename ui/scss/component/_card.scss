@@ -88,6 +88,10 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    > *:not(:last-child) {
+      margin-right: var(--spacing-s);
+    }
+
     > * {
       padding-bottom: var(--spacing-m);
     }
@@ -114,6 +118,13 @@
   margin-top: 0;
 
   @media (max-width: $breakpoint-small) {
+    padding-bottom: 0;
+    &:last-of-type {
+      .button--alt {
+        padding-bottom: 0;
+        margin-top: 6px;
+      }
+    }
     .button__content {
       svg + .button__label {
         display: none;
