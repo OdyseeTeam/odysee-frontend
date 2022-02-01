@@ -441,6 +441,9 @@ body {
       flex-direction: column;
     }
   }
+
+  .file-page__post-comments {
+  }
 }
 
 .main--livestream {
@@ -649,12 +652,18 @@ body {
   }
   .claim-preview__wrapper--channel.placeholder {
     .media__thumb {
-      width: 6rem;
+      width: 6rem !important;
       height: 6rem;
       border-radius: 50%;
     }
     .channel-thumbnail {
       display: none;
+    }
+    @media (max-width: $breakpoint-small) {
+      .media__thumb {
+        width: 4rem !important;
+        height: 4rem;
+      }
     }
   }
 }
