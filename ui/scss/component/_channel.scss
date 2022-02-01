@@ -54,6 +54,7 @@ $actions-z-index: 2;
     .claim__tags {
       .tag {
         margin-top: var(--spacing-xxxs);
+        display: inline-block;
       }
     }
   }
@@ -72,6 +73,9 @@ $actions-z-index: 2;
       font-size: var(--font-base);
       opacity: 0.8;
     }
+  }
+  .media__info-text:first-of-type {
+    opacity: 1;
   }
 }
 .channel-cover {
