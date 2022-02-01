@@ -336,6 +336,9 @@
       align-self: flex-start;
     }
   }
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-m);
+  }
 }
 
 .settings__row--value--vertical-separator {
