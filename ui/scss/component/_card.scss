@@ -257,10 +257,20 @@
 
 .card__title-actions {
   align-self: flex-start;
-
+  .button--alt {
+    padding-top: 2px;
+    .icon {
+      margin-top: -2px;
+    }
+  }
+  .comment__sort {
+    .button--alt {
+      padding-top: 0;
+    }
+  }
   @media (min-width: $breakpoint-small) {
-    padding: var(--spacing-s);
-    padding-right: 0px;
+    // padding: var(--spacing-s);
+    // padding-right: 0px;
   }
 }
 

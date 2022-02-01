@@ -20,7 +20,8 @@
 .button--alt {
   height: var(--height-button);
   border-radius: var(--border-radius);
-  padding: var(--spacing-s) var(--spacing-m);
+  // padding: var(--spacing-s) var(--spacing-m);
+  padding: 0 var(--spacing-m);
   line-height: 1.2em;
   font-weight: var(--font-weight-bold);
 
