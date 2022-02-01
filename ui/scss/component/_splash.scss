@@ -245,3 +245,75 @@
     }
   }
 }
+
+.modal {
+  @media (min-width: $breakpoint-small) {
+    .membership-splash {
+      padding-left: unset;
+      padding-right: unset;
+
+      .membership-splash__banner {
+        .membership-splash__title {
+          font-size: 1.2vw;
+          line-height: 1.5rem;
+          section:first-of-type {
+            margin-bottom: var(--spacing-m);
+          }
+        }
+      }
+
+      .membership-splash__info-wrapper {
+        .membership-splash__info {
+          .membership-splash__info-header {
+            .membership-splash__info-price {
+              img {
+                margin-left: var(--spacing-s);
+                margin-right: var(--spacing-s);
+              }
+              section {
+                font-size: 1.4vw;
+              }
+              .membership-splash__info-range {
+                font-size: 12px;
+                margin-top: -10px;
+              }
+            }
+          }
+          .membership-splash__info-button {
+            margin-left: var(--spacing-xs);
+            .button {
+              padding: 4px 6px 4px 6px;
+              .button__content {
+                .button__label {
+                  font-size: 12px;
+                }
+              }
+            }
+          }
+          .membership-splash__info-content {
+            font-size: 0.6vw;
+            .icon {
+              width: 1.8rem;
+            }
+          }
+        }
+
+        .membership-splash__info:nth-child(1) {
+          padding: var(--spacing-m);
+          font-size: 0.6vw;
+        }
+      }
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    .membership-splash {
+      .membership-splash__banner {
+        .membership-splash__title {
+          img {
+            margin-top: var(--spacing-l);
+          }
+        }
+      }
+    }
+  }
+}
