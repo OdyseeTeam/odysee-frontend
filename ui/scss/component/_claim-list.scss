@@ -1409,6 +1409,7 @@
 .claim__tags--large {
   flex-wrap: wrap;
   margin-left: 0;
+  margin-bottom: var(--spacing-m);
 
   & > * {
     margin-top: var(--spacing-s);
