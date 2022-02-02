@@ -28,6 +28,9 @@ type Props = {
 const OdyseeMembershipPage = (props: Props) => {
   const { openModal, odyseeMembership, activeChannelClaim } = props;
 
+  const userChannelName = activeChannelClaim && activeChannelClaim.name;
+  const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;
+
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [userMemberships, setUserMemberships] = React.useState();
@@ -158,8 +161,8 @@ const OdyseeMembershipPage = (props: Props) => {
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
-      odyseeChannelId,
-      odyseeChannelName,
+      odyseeChannelId: userChannelClaimId,
+      odyseeChannelName: userChannelName,
       priceId,
     });
   };
@@ -194,7 +197,8 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
-        {1 == 2 ? (
+        {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
+        {1 === 2 ? (
           <MembershipSplash />
         ) : (
           <>
@@ -204,17 +208,17 @@ const OdyseeMembershipPage = (props: Props) => {
               <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url}/>
             </div>
             {/* received list of memberships from backend */}
-            {!stillWaitingFromBackend && membershipOptions && (
+            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 2 && (
               <div>
                 <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
                 {membershipOptions.map((membershipOption) => (
                   <>
                     {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
-                      <div style={{ 'margin-top': '16px', marginBottom: '55px' }}>
+                      <div style={{ 'margin-top': '16px', marginBottom: '29px' }}>
                         <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
                           Name: {membershipOption.Membership.name}
                         </h4>
-                        <h4 style={{ marginBottom: '3px' }}>Perks: {membershipOption.Membership.description}</h4>
+                        <h4 style={{ marginBottom: '15px', fontSize: '16px', fontWeight: '900' }}>Perks: {membershipOption.Membership.description}</h4>
                         {membershipOption.Prices.map((price) => (
                           <>
                             {price.currency !== 'eur' && (
@@ -227,7 +231,7 @@ const OdyseeMembershipPage = (props: Props) => {
                                   membership-id={membershipOption.Membership.id}
                                   membership-subscription-period={membershipOption.Membership.type}
                                   price-id={price.id}
-                                  style={{ display: 'block', marginBottom: '10px', marginTop: '10px' }}
+                                  style={{ display: 'block', marginBottom: '18px', marginTop: '10px' }}
                                   label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
                                   icon={ICONS.FINANCE}
                                 />
@@ -243,7 +247,7 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
             {!stillWaitingFromBackend && cardSaved === true && (
               <>
-                <h1 style={{ fontSize: '23px', marginTop: '36px', marginBottom: '13px' }}>Your Memberships</h1>
+                <h1 style={{ fontSize: '23px', marginTop: '-2px', marginBottom: '13px' }}>Your Memberships</h1>
 
                 {/* list of active memberships from user */}
                 <div style={{ marginBottom: '34px' }}>
@@ -281,7 +285,7 @@ const OdyseeMembershipPage = (props: Props) => {
                           button="secondary"
                           membership-id={membership.Membership.membership_id}
                           onClick={cancelMembership}
-                          style={{ display: 'block', marginBottom: '8px' }}
+                          style={{ display: 'block', marginBottom: '20px' }}
                           label={__('Cancel membership')}
                           icon={ICONS.FINANCE}
                         />
@@ -309,7 +313,7 @@ const OdyseeMembershipPage = (props: Props) => {
                           <h4 style={{ marginBottom: '3px' }}>
                             Canceled At: {formatDate(membership.Subscription.canceled_at * 1000)}
                           </h4>
-                          <h4 style={{ marginBottom: '3px' }}>
+                          <h4 style={{ marginBottom: '15px' }}>
                             Still Valid Until: {formatDate(membership.Membership.expires)}
                           </h4>
                         </div>
@@ -336,7 +340,6 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
             {stillWaitingFromBackend && (
               <div>
-                <br />
                 <h2 style={{ fontSize: '20px' }}>Loading...</h2>
               </div>
             )}
