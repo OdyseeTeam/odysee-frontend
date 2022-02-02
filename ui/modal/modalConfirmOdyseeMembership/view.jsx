@@ -78,6 +78,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     <Modal ariaHideApp={false} isOpen contentLabel={'hello'} type="card" onAborted={closeModal}>
       <Card
         title={hasMembership ? __('Confirm Membership Cancellation') : __('Confirm Membership Purchase')}
+        subtitle={'You are purchasing a monthly membership, that is active from [this date] and will resubscribe monthly on [this date]. You can also close this window and choose a different subscription'}
         actions={
           <div className="section__actions">
             {!waitingForBackend && (
@@ -97,7 +98,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
                 {hasMembership ? (
                   <h1 style={{ fontSize: '18px' }}>Facilitating your cancel...</h1>
                 ) : (
-                  <h1 style={{ fontSize: '18px' }}>Facilitating your puchase...</h1>
+                  <h1 style={{ fontSize: '18px' }}>Facilitating your purchase...</h1>
                 )}
               </>
             )}

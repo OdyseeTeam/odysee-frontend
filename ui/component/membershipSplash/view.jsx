@@ -18,7 +18,11 @@ export default function MembershipSplash(props: Props) {
   // const { } = props;
 
   const [membershipOptions, setMembershipOptions] = React.useState();
-  const { openModal, odyseeMembership } = props;
+  const { openModal, odyseeMembership, pageLocation } = props;
+
+  console.log('page location!');
+  console.log(pageLocation);
+
   const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
 
   const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
@@ -209,7 +213,7 @@ export default function MembershipSplash(props: Props) {
             <Button
               button="primary"
               label={__('Apply for Membership')}
-              navigate="/$/membership?confirm=yearly?plan=premium-plus"
+              navigate={`/$/membership?confirm=yearly&plan=premium-plus&pageLocation=${pageLocation}`}
             />
           </div>
         </div>
