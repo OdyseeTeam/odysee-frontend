@@ -317,7 +317,7 @@ $recent-msg-button__height: 2rem;
             color: var(--color-text);
           }
           &:hover {
-            background-color: var(--color-header-background) !important;
+            background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
           }
         }
       }
