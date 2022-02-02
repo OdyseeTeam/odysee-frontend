@@ -194,6 +194,23 @@ const OdyseeMembershipPage = (props: Props) => {
     return currency + ' ' + currencySymbol;
   }
 
+  const params = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+
+  const confirmValue = params.confirm;
+  const planValue = params.plan;
+  if(!stillWaitingFromBackend){
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId: 1,
+      hasMembership,
+    });
+  }
+
+  console.log('confirm value');
+  console.log(confirmValue);
+  console.log(planValue);
+
   return (
     <>
       <Page>

@@ -181,16 +181,11 @@ export default function MembershipSplash(props: Props) {
           {earlyAcessInfo}
 
           <div className="membership-splash__info-button">
-            {membershipOptions && (
-              <Button
-                button="primary"
-                onClick={purchaseMembership}
-                membership-id={membershipOptions[0].id}
-                membership-subscription-period={membershipOptions[0].type}
-                label={__('Apply for Membership')}
-                onClick={purchaseMembership}
-              />
-            )}
+            <Button
+              button="primary"
+              onClick={'test'}
+              label={__('Apply for Membership')}
+            />
           </div>
         </div>
 
@@ -211,16 +206,11 @@ export default function MembershipSplash(props: Props) {
 
           {earlyAcessInfo}
           <div className="membership-splash__info-button">
-            {membershipOptions && (
-              <Button
-                button="primary"
-                onClick={purchaseMembership}
-                membership-id={membershipOptions[1].id}
-                membership-subscription-period={membershipOptions[1].type}
-                label={__('Apply for Membership')}
-                onClick={purchaseMembership}
-              />
-            )}
+            <Button
+              button="primary"
+              label={__('Apply for Membership')}
+              navigate="/$/membership?confirm=yearly?plan=premium-plus"
+            />
           </div>
         </div>
       </div>
