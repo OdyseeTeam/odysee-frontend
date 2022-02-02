@@ -235,7 +235,7 @@ const recsys = {
         const shouldSkip = recsys.entries[claimId].parentUuid && !recsys.entries[claimId].recClaimIds;
         if (!shouldSkip && ((claimId !== playingClaimId && floatingPlayer) || !floatingPlayer)) {
           recsys.entries[claimId]['pageExitedAt'] = Date.now();
-          recsys.sendRecsysEntry(claimId);
+          //  recsys.sendRecsysEntry(claimId); Don't trigger for now, not being used.
         }
         recsys.log('OnNavigate', claimId);
       });
