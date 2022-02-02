@@ -863,6 +863,24 @@ textarea {
     }
   }
 }
+
+.repost-wrapper {
+  .claim-preview__wrapper {
+    background-color: rgba(var(--color-header-background-base), 0.6);
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 0.9);
+    }
+    .claim-tile__info {
+      padding-bottom: 0;
+    }
+    .claim-preview__actions {
+      .claim__tags {
+        margin-left: auto;
+      }
+    }
+  }
+}
+
 // Temporary master classes
 .date_time {
   font-size: var(--font-xsmall);
