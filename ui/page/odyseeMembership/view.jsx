@@ -194,38 +194,46 @@ const OdyseeMembershipPage = (props: Props) => {
     return currency + ' ' + currencySymbol;
   }
 
-  const params = new Proxy(new URLSearchParams(window.location.search), {
-    get: (searchParams, prop) => searchParams.get(prop),
-  });
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
 
+  console.log(params);
   const confirmValue = params.confirm;
   const planValue = params.plan;
-  if(!stillWaitingFromBackend){
+  const pageLocation = params.pageLocation;
+
+  let changeFrontend = false;
+  if(pageLocation === 'confirmPage'){
+    changeFrontend = true;
+  }
+
+  if(!stillWaitingFromBackend && planValue){
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId: 1,
       hasMembership,
     });
   }
 
-  console.log('confirm value');
-  console.log(confirmValue);
+  console.log('plan value')
   console.log(planValue);
 
   return (
     <>
       <Page>
         {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
-        {1 === 2 ? (
-          <MembershipSplash />
+        {!changeFrontend ? (
+          <MembershipSplash pageLocation={'confirmPage'} />
         ) : (
           <>
             {/* list available memberships offered by odysee */}
             <h1 style={{ fontSize: '23px' }}>Odysee Memberships</h1>
-            <div style={{ marginTop: '10px' }}>
-              <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url}/>
-            </div>
+            {!stillWaitingFromBackend && cardSaved !== false && (
+              <div style={{ marginTop: '10px' }}>
+                <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url}/>
+              </div>
+            )}
             {/* received list of memberships from backend */}
-            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 2 && (
+            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 2 && cardSaved !== false && (
               <div>
                 <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
                 {membershipOptions.map((membershipOption) => (
@@ -357,7 +365,7 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
             {stillWaitingFromBackend && (
               <div>
-                <h2 style={{ fontSize: '20px' }}>Loading...</h2>
+                <h2 style={{ fontSize: '20px', marginTop: '10px' }}>Loading...</h2>
               </div>
             )}
             {isDev && (
