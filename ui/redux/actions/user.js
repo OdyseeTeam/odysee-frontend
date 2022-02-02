@@ -113,11 +113,13 @@ async function doCheckUserOdyseeMemberships(
     environment: stripeEnvironment,
   }, 'post');
 
+  console.log(response);
+
   let savedMemberships = [];
   let highestMembershipRanking;
 
   for (const membership of response) {
-    if (membership.Membership.channel_name === '@odysee') {
+    if (membership.MembershipDetails.channel_name === '@odysee') {
       savedMemberships.push(membership.MembershipDetails.name);
     }
   }
