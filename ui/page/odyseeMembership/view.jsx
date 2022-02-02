@@ -216,12 +216,14 @@ const OdyseeMembershipPage = (props: Props) => {
 
   console.log('plan value')
   console.log(planValue);
+  console.log('change frontend');
+  console.log(changeFrontend)
 
   return (
     <>
       <Page>
-        {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
-        {!changeFrontend ? (
+        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && !changeFrontend ? (
+        // {!changeFrontend ? (
           <MembershipSplash pageLocation={'confirmPage'} />
         ) : (
           <>
