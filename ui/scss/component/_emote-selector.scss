@@ -32,6 +32,10 @@
         width: 1.5rem;
         height: 1.5rem;
 
+        .button__label {
+          line-height: normal;
+        }
+
         span {
           margin: auto;
           font-size: var(--font-large);
