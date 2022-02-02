@@ -14,8 +14,7 @@
   overflow-x: hidden;
   max-height: 25vh;
   padding: var(--spacing-s);
-  background-color: rgba(var(--color-primary-dynamic), 0.1);
-  border: 1px solid rgba(var(--color-primary-dynamic), 0.2);
+  background-color: rgba(var(--color-primary-dynamic), 0.01);
   border-radius: var(--border-radius);
 
   .emoteSelector__listRowItems {
@@ -37,6 +36,9 @@
           margin: auto;
           font-size: var(--font-large);
         }
+      }
+      &:hover {
+        background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
       }
     }
   }
