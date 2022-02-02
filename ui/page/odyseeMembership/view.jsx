@@ -203,11 +203,12 @@ const OdyseeMembershipPage = (props: Props) => {
   const pageLocation = params.pageLocation;
 
   let changeFrontend = false;
-  if(pageLocation === 'confirmPage'){
-    changeFrontend = true;
-  }
+  // if(pageLocation === 'confirmPage'){
+  //   changeFrontend = true;
+  // }
 
   if(!stillWaitingFromBackend && planValue){
+    changeFrontend = true;
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId: 1,
       hasMembership,
@@ -222,7 +223,7 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
-        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && !changeFrontend ? (
+        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && ! changeFrontend ? (
         // {!changeFrontend ? (
           <MembershipSplash pageLocation={'confirmPage'} />
         ) : (
