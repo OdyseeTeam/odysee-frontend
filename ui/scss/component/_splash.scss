@@ -57,6 +57,12 @@
   display: flex;
   flex-flow: column wrap;
   justify-content: space-around;
+
+  ::selection {
+    background-color: black;
+    color: white;
+  }
+
   @media (max-width: $breakpoint-small) {
     padding-left: unset;
     padding-right: unset;
@@ -240,6 +246,83 @@
         box-sizing: border-box;
         .button__label {
           font-size: 0.9rem;
+        }
+      }
+    }
+  }
+}
+
+.modal {
+  @media (min-width: $breakpoint-small) {
+    .membership-splash {
+      padding-left: unset;
+      padding-right: unset;
+
+      .membership-splash__banner {
+        .membership-splash__title {
+          padding-left: var(--spacing-m);
+          padding-right: var(--spacing-m);
+          font-size: 1.6rem;
+          line-height: 1.7rem;
+          section:first-of-type {
+            margin-bottom: var(--spacing-m);
+          }
+        }
+      }
+
+      .membership-splash__info-wrapper {
+        .membership-splash__info {
+          .membership-splash__info-header {
+            .membership-splash__info-price {
+              img {
+                margin-left: var(--spacing-s);
+                margin-right: var(--spacing-s);
+              }
+              section {
+                font-size: 1.6rem;
+              }
+              .membership-splash__info-range {
+                font-size: 0.8rem;
+                margin-top: -10px;
+              }
+            }
+          }
+          .membership-splash__info-button {
+            margin-left: var(--spacing-xs);
+            .button {
+              padding: 4px 6px 4px 6px;
+              .button__content {
+                .button__label {
+                  font-size: 0.74rem;
+                }
+              }
+            }
+          }
+          .membership-splash__info-content {
+            padding-left: var(--spacing-xxs);
+            font-size: 0.7rem;
+            .icon {
+              width: 1.7rem;
+              height: 1.7rem;
+              margin-right: var(--spacing-xxs);
+            }
+          }
+        }
+
+        .membership-splash__info:nth-child(1) {
+          padding: var(--spacing-m);
+          font-size: 0.7rem;
+        }
+      }
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    .membership-splash {
+      .membership-splash__banner {
+        .membership-splash__title {
+          img {
+            margin-top: var(--spacing-l);
+          }
         }
       }
     }
