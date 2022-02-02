@@ -725,6 +725,15 @@ textarea {
 }
 
 .topPage-wrapper {
+  .search__header {
+    .claim-preview__wrapper {
+      background-color: rgba(var(--color-header-background-base), 0.6);
+      &:hover {
+        background-color: rgba(var(--color-header-background-base), 0.9);
+      }
+    }
+  }
+
   .claim-preview__wrapper--channel {
     .claim__menu-button {
       right: var(--spacing-xxs) !important;
