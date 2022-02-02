@@ -41,6 +41,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       console.log('purchase, purchase membership response');
       console.log(response);
 
+      var newURL = location.href.split("?")[0];
+      window.history.pushState('object', document.title, newURL);
+
       // $FlowFixMe
       location.reload();
 
@@ -78,7 +81,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     <Modal ariaHideApp={false} isOpen contentLabel={'hello'} type="card" onAborted={closeModal}>
       <Card
         title={hasMembership ? __('Confirm Membership Cancellation') : __('Confirm Membership Purchase')}
-        subtitle={'You are purchasing a monthly membership, that is active from [this date] and will resubscribe monthly on [this date]. You can also close this window and choose a different subscription'}
+        subtitle={'You are purchasing a monthly membership, that is active from [this date] and will resubscribe monthly on [this date]. Your feature of no ads applies site-wide and badges are shown for up to 3 channels. You can also close this window and choose a different subscription'}
         actions={
           <div className="section__actions">
             {!waitingForBackend && (

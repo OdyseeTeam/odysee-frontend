@@ -29,8 +29,15 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
     currentTheme,
     activeChannelStakedLevel,
     user,
-    handleThemeToggle, doOpenModal,
+    handleThemeToggle,
+    doOpenModal,
+    odyseeMembership,
   } = props;
+
+  console.log('odysee membership');
+  console.log(odyseeMembership);
+
+  const isOnMembershipPage = window.location.pathname === '/$/membership';
 
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const livestreamEnabled = Boolean(
@@ -72,12 +79,14 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
           <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
 
-          <MenuItem onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
-            <div className="menu__link">
-              <Icon aria-hidden icon={ICONS.UPGRADE} />
-              {__('Upgrade')}
-            </div>
-          </MenuItem>
+          {!isOnMembershipPage && (
+            <MenuItem onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
+              <div className="menu__link">
+                <Icon aria-hidden icon={ICONS.UPGRADE} />
+                {__('Upgrade')}
+              </div>
+            </MenuItem>
+          )}
 
           <MenuItem className="menu__link" onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}>
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
