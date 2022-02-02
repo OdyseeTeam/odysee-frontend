@@ -693,6 +693,9 @@ body {
       .icon {
         color: var(--color-text-subtitle);
       }
+      &:hover {
+        color: var(--color-secondary);
+      }
     }
   }
 }
