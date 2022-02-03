@@ -125,15 +125,6 @@ const OdyseeMembershipPage = (props: Props) => {
     })();
   }, []);
 
-  const cancelMembership = async function (e) {
-    const membershipId = e.currentTarget.getAttribute('membership-id');
-
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
-      membershipId,
-      hasMembership,
-    });
-  };
-
   const stillWaitingFromBackend =
     purchasedMemberships === undefined ||
     cardSaved === undefined ||
@@ -154,18 +145,52 @@ const OdyseeMembershipPage = (props: Props) => {
     location.reload();
   };
 
-  const purchaseMembership = async function (e) {
+  let featureStrings = {
+    plus: '',
+    premiumPlus: '',
+  }
+
+  function buildPurchaseString(){
+    const thisDayOfTheMonth = 'today, the 5th of January';
+
+    let purchaseString = 'You are purchasing a monthly membership, that is active immediately ' +
+      `and will resubscribe monthly at a price of $2.99. ` +
+      'Your feature of no ads applies site-wide and badges are shown for up to 3 channels. ' +
+      'You can cancel the membership at any time and you can also close this window and choose a different subscription option.';
+
+    return purchaseString;
+  }
+
+  const purchaseMembership = function (e, membershipOption, price) {
     e.preventDefault();
     e.stopPropagation();
 
+    console.log(membershipOption);
+    console.log(price);
+
     const membershipId = e.currentTarget.getAttribute('membership-id');
     const priceId = e.currentTarget.getAttribute('price-id');
+    const purchaseString = buildPurchaseString();
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       odyseeChannelId: userChannelClaimId,
       odyseeChannelName: userChannelName,
       priceId,
+      purchaseString,
+    });
+  };
+
+  const cancelMembership = async function (e, membership) {
+    const membershipId = e.currentTarget.getAttribute('membership-id');
+
+    console.log(membership);
+
+    // TODO: build string here
+
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId,
+      hasMembership,
     });
   };
 
@@ -217,6 +242,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
       setHasShownModal(true);
 
+      // open confirm purchase modal
       openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
         membershipId: 1,
         hasMembership,
@@ -279,7 +305,7 @@ const OdyseeMembershipPage = (props: Props) => {
                                       </h4>
                                       <Button
                                         button="secondary"
-                                        onClick={purchaseMembership}
+                                        onClick={(e) => purchaseMembership(e, membershipOption, price)}
                                         membership-id={membershipOption.Membership.id}
                                         membership-subscription-period={membershipOption.Membership.type}
                                         price-id={price.id}
@@ -340,7 +366,7 @@ const OdyseeMembershipPage = (props: Props) => {
                           <Button
                             button="secondary"
                             membership-id={membership.Membership.membership_id}
-                            onClick={cancelMembership}
+                            onClick={(e) => cancelMembership(e, membership)}
                             className="membership_button"
                             label={__('Cancel membership')}
                             icon={ICONS.FINANCE}
