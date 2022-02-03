@@ -7,6 +7,7 @@ import { getStripeEnvironment } from 'util/stripe';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
+import Card from 'component/common/card';
 import MembershipSplash from 'component/membershipSplash';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
@@ -167,13 +168,13 @@ const OdyseeMembershipPage = (props: Props) => {
     });
   };
 
-  function convertPriceToString(price){
+  function convertPriceToString(price) {
     const interval = price.recurring.interval;
 
-    if(interval === 'year'){
-      return 'Yearly'
-    } else if(interval === 'month') {
-      return 'Monthly'
+    if (interval === 'year') {
+      return 'Yearly';
+    } else if (interval === 'month') {
+      return 'Monthly';
     }
   }
 
@@ -183,9 +184,9 @@ const OdyseeMembershipPage = (props: Props) => {
 
   function buildCurrencyDisplay(priceObject) {
     let currencySymbol;
-    if(priceObject.currency === 'eur'){
-      currencySymbol = '€'
-    } else if (priceObject.currency === 'usd'){
+    if (priceObject.currency === 'eur') {
+      currencySymbol = '€';
+    } else if (priceObject.currency === 'usd') {
       currencySymbol = '$';
     }
 
@@ -203,150 +204,165 @@ const OdyseeMembershipPage = (props: Props) => {
   const pageLocation = params.pageLocation;
 
   let changeFrontend = false;
-  // if(pageLocation === 'confirmPage'){
-  //   changeFrontend = true;
-  // }
-
-  if(!stillWaitingFromBackend && planValue){
+  if (pageLocation === 'confirmPage') {
     changeFrontend = true;
+  }
+
+  if (!stillWaitingFromBackend && planValue) {
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId: 1,
       hasMembership,
     });
   }
 
-  console.log('plan value')
+  console.log('plan value');
   console.log(planValue);
-  console.log('change frontend');
-  console.log(changeFrontend)
 
   return (
     <>
       <Page>
-        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && ! changeFrontend ? (
-        // {!changeFrontend ? (
+        {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
+        {!changeFrontend ? (
           <MembershipSplash pageLocation={'confirmPage'} />
         ) : (
-          <>
+          <div className={'card-stack'}>
             {/* list available memberships offered by odysee */}
             <h1 style={{ fontSize: '23px' }}>Odysee Memberships</h1>
             {!stillWaitingFromBackend && cardSaved !== false && (
               <div style={{ marginTop: '10px' }}>
-                <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url}/>
+                <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url} />
               </div>
             )}
+
             {/* received list of memberships from backend */}
             {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 2 && cardSaved !== false && (
-              <div>
-                <h1 style={{ marginTop: '17px', fontSize: '19px' }}>Available Memberships:</h1>
-                {membershipOptions.map((membershipOption) => (
-                  <>
-                    {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
-                      <div style={{ 'margin-top': '16px', marginBottom: '29px' }}>
-                        <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
-                          Name: {membershipOption.Membership.name}
-                        </h4>
-                        <h4 style={{ marginBottom: '15px', fontSize: '16px', fontWeight: '900' }}>Perks: {membershipOption.Membership.description}</h4>
-                        {membershipOption.Prices.map((price) => (
-                          <>
-                            {price.currency !== 'eur' && (
-                              <>
-                                <h4 style={{ marginBottom: '4px' }}>Subscription Interval: {convertPriceToString(price)}</h4>
-                                <h4 style={{ marginBottom: '4px' }}>Subscription Price: {buildCurrencyDisplay(price)}{price.unit_amount/100}/{capitalizeWord(price.recurring.interval)}</h4>
-                                <Button
-                                  button="secondary"
-                                  onClick={purchaseMembership}
-                                  membership-id={membershipOption.Membership.id}
-                                  membership-subscription-period={membershipOption.Membership.type}
-                                  price-id={price.id}
-                                  style={{ display: 'block', marginBottom: '18px', marginTop: '10px' }}
-                                  label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
-                                  icon={ICONS.FINANCE}
-                                />
-                              </>
-                            )}
-                          </>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                ))}
-              </div>
+              <>
+
+                <div className="card__title-section">
+                  <h2 className="card__title">Available Memberships</h2>
+                </div>
+                <Card>
+
+                  {membershipOptions.map((membershipOption) => (
+                    <>
+                      {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
+                        <>
+                          <h4 className="membership_title">
+                            {membershipOption.Membership.name}
+                          </h4>
+                          <h4 className="membership_subtitle">
+                            {membershipOption.Membership.description}
+                          </h4>
+                          {membershipOption.Prices.map((price) => (
+                            <>
+                              {price.currency !== 'eur' && (
+                                <>
+                                  <h4 className="membership_info">
+                                    <b>Interval:</b> {convertPriceToString(price)}
+                                  </h4>
+                                  <h4 className="membership_info">
+                                    <b>Price:</b> {buildCurrencyDisplay(price)}
+                                    {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                  </h4>
+                                  <Button
+                                    button="secondary"
+                                    onClick={purchaseMembership}
+                                    membership-id={membershipOption.Membership.id}
+                                    membership-subscription-period={membershipOption.Membership.type}
+                                    price-id={price.id}
+                                    className="membership_button"
+                                    label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                    icon={ICONS.FINANCE}
+                                  />
+                                </>
+                              )}
+                            </>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  ))}
+                </Card>
+              </>
             )}
             {!stillWaitingFromBackend && cardSaved === true && (
               <>
-                <h1 style={{ fontSize: '23px', marginTop: '-2px', marginBottom: '13px' }}>Your Memberships</h1>
+                <div className="card__title-section">
+                  <h2 className="card__title">Your active Memberships</h2>
+                </div>
 
-                {/* list of active memberships from user */}
-                <div style={{ marginBottom: '34px' }}>
-                  <h1 style={{ fontSize: '19px' }}>Active Memberships</h1>
-                  {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
-                    <>
-                      <h4>You currently have no active memberships</h4>
-                    </>
-                  )}
-                  {!stillWaitingFromBackend &&
-                    activeMemberships &&
-                    activeMemberships.map((membership) => (
+                <Card>
+                  {/* list of active memberships from user */}
+                  <div>
+                    { /* <h1 style={{ fontSize: '19px' }}>Active Memberships</h1> */ }
+                    {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
                       <>
-                        <div style={{ 'margin-top': '9px', marginBottom: '10px' }}>
-                          <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
-                            Name: {membership.MembershipDetails.name}
+                        <h4>You currently have no active memberships</h4>
+                      </>
+                    )}
+                    {!stillWaitingFromBackend &&
+                      activeMemberships &&
+                      activeMemberships.map((membership) => (
+                        <>
+                          <h4 className="membership_title">
+                            {membership.MembershipDetails.name}
                           </h4>
-                          <h4 style={{ marginBottom: '3px' }}>
-                            Registered On: {formatDate(membership.Membership.created_at)}
+                          <h4 className="membership_info">
+                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
                           </h4>
-                          <h4 style={{ marginBottom: '3px' }}>
-                            Auto-Renews On: {formatDate(membership.Subscription.current_period_end * 1000)}
+                          <h4 className="membership_info">
+                            <b>Auto-Renews On:</b> {formatDate(membership.Subscription.current_period_end * 1000)}
                           </h4>
                           {!stillWaitingFromBackend && membership.type === 'yearly' && (
                             <>
-                              <h4 style={{ marginBottom: '4px' }}>Subscription Period Options: Yearly</h4>
-                              <h4 style={{ marginBottom: '4px' }}>
+                              <h4 className="membership_info"><b>Subscription Period Options:</b> Yearly</h4>
+                              <h4 className="membership_info">
                                 ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
                                 {membership.cost_usd / 100} Per Month)
                               </h4>
                             </>
                           )}
-                        </div>
-                        <Button
-                          button="secondary"
-                          membership-id={membership.Membership.membership_id}
-                          onClick={cancelMembership}
-                          style={{ display: 'block', marginBottom: '20px' }}
-                          label={__('Cancel membership')}
-                          icon={ICONS.FINANCE}
-                        />
-                      </>
-                    ))}
-                </div>
+                          <Button
+                            button="secondary"
+                            membership-id={membership.Membership.membership_id}
+                            onClick={cancelMembership}
+                            className="membership_button"
+                            label={__('Cancel membership')}
+                            icon={ICONS.FINANCE}
+                          />
+                        </>
+                      ))}
+                  </div>
+                </Card>
                 <>
                   {/* list canceled memberships of user */}
-                  <h1 style={{ fontSize: '19px' }}>Canceled Memberships</h1>
-                  {canceledMemberships && canceledMemberships.length === 0 && (
-                    <>
-                      <h4>You currently have no canceled memberships</h4>
-                    </>
-                  )}
-                  {canceledMemberships &&
-                    canceledMemberships.map((membership) => (
+                  <div className="card__title-section">
+                    <h2 className="card__title">Canceled Memberships</h2>
+                  </div>
+                  <Card>
+                    {canceledMemberships && canceledMemberships.length === 0 && (
                       <>
-                        <div style={{ 'margin-top': '9px', marginBottom: '10px' }}>
-                          <h4 style={{ marginBottom: '3px', fontWeight: '900', fontSize: '17px' }}>
-                            Name: {membership.MembershipDetails.name}
-                          </h4>
-                          <h4 style={{ marginBottom: '3px' }}>
-                            Registered On: {formatDate(membership.Membership.created_at)}
-                          </h4>
-                          <h4 style={{ marginBottom: '3px' }}>
-                            Canceled At: {formatDate(membership.Subscription.canceled_at * 1000)}
-                          </h4>
-                          <h4 style={{ marginBottom: '15px' }}>
-                            Still Valid Until: {formatDate(membership.Membership.expires)}
-                          </h4>
-                        </div>
+                        <h4>You currently have no canceled memberships</h4>
                       </>
-                    ))}
+                    )}
+                    {canceledMemberships &&
+                      canceledMemberships.map((membership) => (
+                        <>
+                          <h4 className="membership_title">
+                            {membership.MembershipDetails.name}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Canceled At:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}
+                          </h4>
+                        </>
+                      ))}
+                  </Card>
                 </>
               </>
             )}
@@ -362,7 +378,7 @@ const OdyseeMembershipPage = (props: Props) => {
                   label={__('Add A Card')}
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
-                  style={{ marginTop: '10px' }}
+                  className="membership_button"
                 />
               </div>
             )}
@@ -379,13 +395,13 @@ const OdyseeMembershipPage = (props: Props) => {
                     button="secondary"
                     label={__('Clear Membership Data')}
                     icon={ICONS.SETTINGS}
-                    style={{ marginTop: '10px' }}
+                    className="membership_button"
                     onClick={deleteData}
                   />
                 </div>
               </>
             )}
-          </>
+          </div>
         )}
       </Page>
     </>
