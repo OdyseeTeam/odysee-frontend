@@ -313,6 +313,7 @@ function Comment(props: Props) {
                   charCount={charCount}
                   onChange={handleEditMessageChanged}
                   textAreaMaxLength={FF_MAX_CHARS_IN_COMMENT}
+                  handleSubmit={handleSubmit}
                 />
                 <div className="section__actions section__actions--no-margin">
                   <Button

@@ -42,6 +42,7 @@ type Props = {
   superchatsHidden?: boolean,
   customViewMode?: string,
   theme: string,
+  setCustomViewMode?: (any) => void,
   doCommentList: (string, string, number, number) => void,
   doResolveUris: (Array<string>, boolean) => void,
   doSuperChatList: (string) => void,
@@ -60,6 +61,7 @@ export default function LivestreamChatLayout(props: Props) {
     superchatsHidden,
     customViewMode,
     theme,
+    setCustomViewMode,
     doCommentList,
     doResolveUris,
     doSuperChatList,
@@ -100,6 +102,7 @@ export default function LivestreamChatLayout(props: Props) {
       }
     }
     setViewMode(VIEW_MODES.SUPERCHAT);
+    if (setCustomViewMode) setCustomViewMode(VIEW_MODES.SUPERCHAT);
   }
 
   React.useEffect(() => {

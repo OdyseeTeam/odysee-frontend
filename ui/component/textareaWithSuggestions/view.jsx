@@ -56,14 +56,18 @@ type Props = {
   type?: string,
   uri?: string,
   value: any,
+  autoFocus?: boolean,
+  readOnly?: boolean,
+  submitButtonRef?: any,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
   doSetMentionSearchResults: (query: string, uris: Array<string>) => void,
   onBlur: (any) => any,
   onChange: (any) => any,
   onFocus: (any) => any,
-  handleEmojis: () => any,
+  toggleSelectors: () => any,
   handleTip: (isLBC: boolean) => any,
   handleSubmit: () => any,
+  handlePreventClick?: () => void,
 };
 
 export default function TextareaWithSuggestions(props: Props) {
@@ -85,17 +89,27 @@ export default function TextareaWithSuggestions(props: Props) {
     searchQuery,
     type,
     value: messageValue,
+    autoFocus,
+    readOnly,
+    submitButtonRef,
     doResolveUris,
     doSetMentionSearchResults,
     onBlur,
     onChange,
     onFocus,
-    handleEmojis,
+    toggleSelectors,
     handleTip,
     handleSubmit,
+    handlePreventClick,
   } = props;
 
-  const inputDefaultProps = { className, placeholder, maxLength, type, disabled };
+  const [quickReadOnly, setQuickReadOnly] = React.useState(readOnly);
+
+  React.useEffect(() => {
+    if (quickReadOnly) setQuickReadOnly(false);
+  }, [quickReadOnly]);
+
+  const inputDefaultProps = { className, readOnly: quickReadOnly, placeholder, maxLength, type, disabled };
 
   const [suggestionValue, setSuggestionValue] = React.useState(undefined);
   const [highlightedSuggestion, setHighlightedSuggestion] = React.useState('');
@@ -291,6 +305,13 @@ export default function TextareaWithSuggestions(props: Props) {
   /** ------- **/
 
   React.useEffect(() => {
+    if (!autoFocus) return;
+
+    const inputElement = inputRef && inputRef.current;
+    if (inputElement) inputElement.focus();
+  }, [autoFocus, inputRef]);
+
+  React.useEffect(() => {
     if (!isMention) return;
 
     if (isTyping && suggestionTerm && !invalidTerm) {
@@ -400,9 +421,11 @@ export default function TextareaWithSuggestions(props: Props) {
           messageValue={messageValue}
           inputRef={inputRef}
           inputDefaultProps={inputDefaultProps}
-          handleEmojis={handleEmojis}
+          toggleSelectors={toggleSelectors}
           handleTip={handleTip}
           handleSubmit={handleSubmit}
+          handlePreventClick={handlePreventClick}
+          submitButtonRef={submitButtonRef}
         />
       )}
       renderOption={(optionProps, option) => (

@@ -11,13 +11,25 @@ type Props = {
   messageValue: string,
   inputDefaultProps: any,
   inputRef: any,
-  handleEmojis: () => any,
+  submitButtonRef?: any,
+  toggleSelectors: () => any,
   handleTip: (isLBC: boolean) => void,
   handleSubmit: () => any,
+  handlePreventClick?: () => void,
 };
 
 const TextareaSuggestionsInput = (props: Props) => {
-  const { params, messageValue, inputRef, inputDefaultProps, handleEmojis, handleTip, handleSubmit } = props;
+  const {
+    params,
+    messageValue,
+    inputRef,
+    inputDefaultProps,
+    submitButtonRef,
+    toggleSelectors,
+    handleTip,
+    handleSubmit,
+    handlePreventClick,
+  } = props;
 
   const isMobile = useIsMobile();
 
@@ -26,15 +38,37 @@ const TextareaSuggestionsInput = (props: Props) => {
   const autocompleteProps = { InputProps, disabled, fullWidth, id, inputProps };
 
   if (isMobile) {
-    InputProps.startAdornment = <Button icon={ICONS.STICKER} onClick={handleEmojis} />;
+    InputProps.startAdornment = (
+      <Button
+        icon={ICONS.STICKER}
+        onClick={() => {
+          if (handlePreventClick) handlePreventClick();
+          toggleSelectors();
+        }}
+      />
+    );
     InputProps.endAdornment = (
       <>
-        <Button icon={ICONS.LBC} onClick={() => handleTip(true)} />
-        <Button icon={ICONS.FINANCE} onClick={() => handleTip(false)} />
+        <Button
+          disabled={!messageValue || messageValue.length === 0}
+          icon={ICONS.LBC}
+          onClick={() => handleTip(true)}
+        />
+        <Button
+          disabled={!messageValue || messageValue.length === 0}
+          icon={ICONS.FINANCE}
+          onClick={() => handleTip(false)}
+        />
 
-        <Zoom in={messageValue && messageValue.length > 0} mountOnEnter unmountOnExit>
+        <Zoom in={messageValue ? messageValue.length > 0 : undefined} mountOnEnter unmountOnExit>
           <div>
-            <Button button="primary" icon={ICONS.SUBMIT} iconColor="red" onClick={() => handleSubmit()} />
+            <Button
+              ref={submitButtonRef}
+              button="primary"
+              icon={ICONS.SUBMIT}
+              iconColor="red"
+              onClick={() => handleSubmit()}
+            />
           </div>
         </Zoom>
       </>

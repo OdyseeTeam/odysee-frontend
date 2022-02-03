@@ -24,6 +24,19 @@
   }
 }
 
+.card--comments-list {
+  @extend .card--enable-overflow;
+
+  @media (max-width: $breakpoint-small) {
+    overflow-y: scroll;
+    height: 100%;
+
+    .card__main-actions {
+      margin-top: 0px !important;
+    }
+  }
+}
+
 .card--disabled {
   opacity: 0.3;
   pointer-events: none;
@@ -362,7 +375,7 @@
         margin: 0;
       }
 
-      .media__subtitle--centered::before {
+      span + .media__subtitle--centered::before {
         content: '•';
         margin: 0 5px;
       }

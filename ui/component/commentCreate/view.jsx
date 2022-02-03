@@ -17,7 +17,7 @@ import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import CreditAmount from 'component/common/credit-amount';
-import EmoteSelector from './emote-selector';
+import CommentSelectors from './comment-selectors';
 import Empty from 'component/common/empty';
 import FilePrice from 'component/filePrice';
 import I18nMessage from 'component/i18nMessage';
@@ -25,7 +25,6 @@ import Icon from 'component/common/icon';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import SelectChannel from 'component/selectChannel';
-import StickerSelector from './sticker-selector';
 import type { ElementRef } from 'react';
 import UriIndicator from 'component/uriIndicator';
 import usePersistedState from 'effects/use-persisted-state';
@@ -123,14 +122,14 @@ export function CommentCreate(props: Props) {
   const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
   const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
-  const [stickerSelector, setStickerSelector] = React.useState();
   const [activeTab, setActiveTab] = React.useState();
   const [tipError, setTipError] = React.useState();
   const [deletedComment, setDeletedComment] = React.useState(false);
-  const [showEmotes, setShowEmotes] = React.useState(false);
+  const [showSelectors, setShowSelectors] = React.useState(false);
   const [disableReviewButton, setDisableReviewButton] = React.useState();
   const [exchangeRate, setExchangeRate] = React.useState();
   const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(undefined);
+  const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
   const claimId = claim && claim.claim_id;
   const charCount = commentValue ? commentValue.length : 0;
@@ -155,7 +154,7 @@ export function CommentCreate(props: Props) {
     setSelectedSticker(sticker);
     setReviewingStickerComment(true);
     setTipAmount(sticker.price || 0);
-    setStickerSelector(false);
+    setShowSelectors(false);
 
     if (sticker.price && sticker.price > 0) {
       setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
@@ -266,7 +265,6 @@ export function CommentCreate(props: Props) {
   function handleCreateComment(txid, payment_intent_id, environment) {
     if (isSubmitting || disableInput) return;
 
-    setShowEmotes(false);
     setSubmitting(true);
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
@@ -327,7 +325,7 @@ export function CommentCreate(props: Props) {
   // Stickers: Check if creator has a tip account saved (on selector so that if a paid sticker is selected,
   // it defaults to LBC tip instead of USD)
   React.useEffect(() => {
-    if (!stripeEnvironment || !stickerSelector || canReceiveFiatTip !== undefined) return;
+    if (!stripeEnvironment || !showSelectors || canReceiveFiatTip !== undefined) return;
 
     const channelClaimId = claim.signing_channel ? claim.signing_channel.claim_id : claim.claim_id;
     const tipChannelName = claim.signing_channel ? claim.signing_channel.name : claim.name;
@@ -350,7 +348,7 @@ export function CommentCreate(props: Props) {
         }
       })
       .catch(() => {});
-  }, [canReceiveFiatTip, claim.claim_id, claim.name, claim.signing_channel, stickerSelector]);
+  }, [canReceiveFiatTip, claim.claim_id, claim.name, claim.signing_channel, showSelectors]);
 
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {
@@ -422,6 +420,67 @@ export function CommentCreate(props: Props) {
     );
   }
 
+  function addEmoteToComment(emote: string) {
+    setCommentValue(
+      commentValue + (commentValue && commentValue.charAt(commentValue.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `)
+    );
+
+    const inputRef = formFieldRef && formFieldRef.current && formFieldRef.current.input && formFieldRef.current.input;
+    if (inputRef && inputRef.current) inputRef.current.focus();
+  }
+
+  const commentSelectorsProps = { claimIsMine, addEmoteToComment, handleSelectSticker };
+
+  if (isReviewingSupportComment && isMobile && activeChannelClaim) {
+    return (
+      <>
+        <div className="commentCreate__supportCommentPreview">
+          <CreditAmount
+            amount={tipAmount}
+            className="commentCreate__supportCommentPreviewAmount"
+            isFiat={activeTab === TAB_FIAT}
+            size={activeTab === TAB_LBC ? 18 : 2}
+          />
+
+          <ChannelThumbnail xsmall uri={activeChannelClaim.canonical_url} />
+          <div className="commentCreate__supportCommentBody">
+            <UriIndicator uri={activeChannelClaim.canonical_url} link />
+            <div>{commentValue}</div>
+          </div>
+        </div>
+
+        <div className="section__actions">
+          <Button
+            disabled={isSubmitting}
+            button="primary"
+            label={__('Send')}
+            onClick={() => {
+              handleSupportComment();
+              setSelectedSticker(null);
+              setReviewingStickerComment(false);
+              setShowSelectors(false);
+              setIsSupportComment(false);
+            }}
+          />
+
+          <Button
+            disabled={isSubmitting}
+            button="link"
+            label={__('Cancel')}
+            onClick={() => {
+              setReviewingSupportComment(false);
+              if (stickerPrice) {
+                setReviewingStickerComment(false);
+                setShowSelectors(false);
+                setSelectedSticker(null);
+              }
+            }}
+          />
+        </div>
+      </>
+    );
+  }
+
   return (
     <Form
       onSubmit={() => {}}
@@ -432,9 +491,7 @@ export function CommentCreate(props: Props) {
       })}
     >
       {/* Input Box/Preview Box */}
-      {stickerSelector ? (
-        <StickerSelector onSelect={(sticker) => handleSelectSticker(sticker)} claimIsMine={claimIsMine} />
-      ) : isReviewingStickerComment && activeChannelClaim && selectedSticker ? (
+      {isReviewingStickerComment && activeChannelClaim && selectedSticker ? (
         <div className="commentCreate__stickerPreview">
           <div className="commentCreate__stickerPreviewInfo">
             <ChannelThumbnail xsmall uri={activeChannelClaim.canonical_url} />
@@ -469,12 +526,8 @@ export function CommentCreate(props: Props) {
         </div>
       ) : (
         <>
-          {showEmotes && (
-            <EmoteSelector
-              commentValue={commentValue}
-              setCommentValue={setCommentValue}
-              closeSelector={() => setShowEmotes(false)}
-            />
+          {!isMobile && showSelectors && (
+            <CommentSelectors closeSelector={() => setShowSelectors(false)} {...commentSelectorsProps} />
           )}
 
           <FormField
@@ -493,8 +546,9 @@ export function CommentCreate(props: Props) {
             }
             name={isReply ? 'create__reply' : 'create__comment'}
             onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
-            openEmoteMenu={() => setShowEmotes(!showEmotes)}
-            handleTip={(isLBC) =>
+            handleTip={(isLBC) => {
+              setActiveTab(isLBC ? TAB_LBC : TAB_FIAT);
+              setTipModalOpen(true);
               doOpenModal(MODALS.SEND_TIP, {
                 uri,
                 isTipOnly: true,
@@ -503,10 +557,15 @@ export function CommentCreate(props: Props) {
                   setTipAmount(amount);
                   setReviewingSupportComment(true);
                 },
-              })
-            }
+              });
+            }}
             handleSubmit={handleCreateComment}
-            noEmojis={isMobile}
+            slimInput={isMobile}
+            commentSelectorsProps={commentSelectorsProps}
+            submitButtonRef={buttonRef}
+            setShowSelectors={setShowSelectors}
+            showSelectors={showSelectors}
+            tipModalOpen={tipModalOpen}
             placeholder={__('Say something about this...')}
             quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
             quickActionLabel={
@@ -521,26 +580,27 @@ export function CommentCreate(props: Props) {
         </>
       )}
 
-      {!isMobile && (isSupportComment || (isReviewingStickerComment && stickerPrice)) && (
-        <WalletTipAmountSelector
-          activeTab={activeTab}
-          amount={tipAmount}
-          uri={uri}
-          convertedAmount={convertedAmount}
-          customTipAmount={stickerPrice}
-          exchangeRate={exchangeRate}
-          fiatConversion={selectedSticker && !!selectedSticker.price}
-          onChange={(amount) => setTipAmount(amount)}
-          setConvertedAmount={setConvertedAmount}
-          setDisableSubmitButton={setDisableReviewButton}
-          setTipError={setTipError}
-          tipError={tipError}
-        />
-      )}
+      {(!isMobile || isReviewingStickerComment) &&
+        (isSupportComment || (isReviewingStickerComment && stickerPrice)) && (
+          <WalletTipAmountSelector
+            activeTab={activeTab}
+            amount={tipAmount}
+            uri={uri}
+            convertedAmount={convertedAmount}
+            customTipAmount={stickerPrice}
+            exchangeRate={exchangeRate}
+            fiatConversion={selectedSticker && !!selectedSticker.price}
+            onChange={(amount) => setTipAmount(amount)}
+            setConvertedAmount={setConvertedAmount}
+            setDisableSubmitButton={setDisableReviewButton}
+            setTipError={setTipError}
+            tipError={tipError}
+          />
+        )}
 
       {/* Bottom Action Buttons */}
-      {!isMobile && (
-        <div className="section__actions section__actions--no-margin">
+      {(!isMobile || isReviewingStickerComment) && (
+        <div className="section__actions">
           {/* Submit Button */}
           {isReviewingSupportComment ? (
             <Button
@@ -569,7 +629,7 @@ export function CommentCreate(props: Props) {
                 }
                 setSelectedSticker(null);
                 setReviewingStickerComment(false);
-                setStickerSelector(false);
+                setShowSelectors(false);
                 setIsSupportComment(false);
               }}
             />
@@ -588,7 +648,7 @@ export function CommentCreate(props: Props) {
               <Button
                 ref={buttonRef}
                 button="primary"
-                disabled={disabled || stickerSelector}
+                disabled={disabled}
                 type="submit"
                 label={
                   isReply
@@ -606,7 +666,7 @@ export function CommentCreate(props: Props) {
           )}
 
           {/** Stickers/Support Buttons **/}
-          {!supportDisabled && !stickerSelector && (
+          {!supportDisabled && (
             <>
               {getActionButton(
                 __('Stickers'),
@@ -615,7 +675,7 @@ export function CommentCreate(props: Props) {
                 () => {
                   if (isReviewingStickerComment) setReviewingStickerComment(false);
                   setIsSupportComment(false);
-                  setStickerSelector(true);
+                  setShowSelectors(!showSelectors);
                 }
               )}
 
@@ -628,20 +688,7 @@ export function CommentCreate(props: Props) {
                       ICONS.LBC,
                       () => {
                         setActiveTab(TAB_LBC);
-
-                        if (isMobile) {
-                          doOpenModal(MODALS.SEND_TIP, {
-                            uri,
-                            isTipOnly: true,
-                            hasSelectedTab: TAB_LBC,
-                            setAmount: (amount) => {
-                              setTipAmount(amount);
-                              setReviewingSupportComment(true);
-                            },
-                          });
-                        } else {
-                          setIsSupportComment(true);
-                        }
+                        setIsSupportComment(true);
                       },
                       !commentValue.length
                     )}
@@ -655,19 +702,7 @@ export function CommentCreate(props: Props) {
                       () => {
                         setActiveTab(TAB_FIAT);
 
-                        if (isMobile) {
-                          doOpenModal(MODALS.SEND_TIP, {
-                            uri,
-                            isTipOnly: true,
-                            hasSelectedTab: TAB_FIAT,
-                            setAmount: (amount) => {
-                              setTipAmount(amount);
-                              setReviewingSupportComment(true);
-                            },
-                          });
-                        } else {
-                          setIsSupportComment(true);
-                        }
+                        setIsSupportComment(true);
                       },
                       !commentValue.length
                     )}
@@ -677,11 +712,7 @@ export function CommentCreate(props: Props) {
           )}
 
           {/* Cancel Button */}
-          {(isSupportComment ||
-            isReviewingSupportComment ||
-            stickerSelector ||
-            isReviewingStickerComment ||
-            (isReply && !minTip)) && (
+          {(isSupportComment || isReviewingSupportComment || isReviewingStickerComment || (isReply && !minTip)) && (
             <Button
               disabled={isSupportComment && isSubmitting}
               button="link"
@@ -692,12 +723,12 @@ export function CommentCreate(props: Props) {
                   setReviewingSupportComment(false);
                   if (stickerPrice) {
                     setReviewingStickerComment(false);
-                    setStickerSelector(false);
+                    setShowSelectors(false);
                     setSelectedSticker(null);
                   }
-                } else if (stickerSelector || isReviewingStickerComment) {
+                } else if (showSelectors || isReviewingStickerComment) {
                   setReviewingStickerComment(false);
-                  setStickerSelector(false);
+                  setShowSelectors(false);
                   setSelectedSticker(null);
                 } else if (isReply && !minTip && onCancelReplying) {
                   onCancelReplying();
