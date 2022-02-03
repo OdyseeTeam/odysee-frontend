@@ -98,15 +98,13 @@ export class FormField extends React.PureComponent<Props> {
 
     var charCount = 0;
 
-    console.log(typeof this.props.value);
     if (
       this.props.type === 'markdown' &&
       this.props.value &&
       typeof this.props.value === 'string' &&
       parseInt(this.props.value.length) > 0
     ) {
-      let c = this.props.value.length;
-      charCount = parseInt(c);
+      charCount = this.props.value.length;
     }
 
     const errorMessage = typeof error === 'object' ? error.message : error;
