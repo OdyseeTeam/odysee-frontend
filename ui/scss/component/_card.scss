@@ -20,6 +20,25 @@
 
     .card__main-actions {
       margin-top: 0px !important;
+
+      .comment__sort {
+        margin: 0px !important;
+        display: inline;
+
+        button {
+          padding: var(--spacing-xxs);
+
+          span {
+            font-size: var(--font-xxsmall);
+          }
+        }
+      }
+
+      .comment__sort + button {
+        margin: 0px var(--spacing-xxs);
+        margin-bottom: var(--spacing-xxs);
+        padding: var(--spacing-xxs) var(--spacing-s);
+      }
     }
   }
 }
@@ -502,5 +521,12 @@
       border-top: 1px solid var(--color-border);
       max-width: 100%;
     }
+  }
+}
+
+.ReactModalPortal {
+  .button--close {
+    top: 0;
+    right: 0;
   }
 }

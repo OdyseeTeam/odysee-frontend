@@ -58,6 +58,7 @@ type Props = {
   supportDisabled: boolean,
   uri: string,
   disableInput?: boolean,
+  onSlimInputClick?: () => void,
   createComment: (string, string, string, ?string, ?string, ?string, boolean) => Promise<any>,
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
   doToast: ({ message: string }) => void,
@@ -89,6 +90,7 @@ export function CommentCreate(props: Props) {
     supportDisabled,
     uri,
     disableInput,
+    onSlimInputClick,
     createComment,
     doFetchCreatorSettings,
     doToast,
@@ -562,6 +564,7 @@ export function CommentCreate(props: Props) {
             }}
             handleSubmit={handleCreateComment}
             slimInput={isMobile}
+            onSlimInputClick={onSlimInputClick}
             commentSelectorsProps={commentSelectorsProps}
             submitButtonRef={buttonRef}
             setShowSelectors={setShowSelectors}
@@ -600,7 +603,7 @@ export function CommentCreate(props: Props) {
         )}
 
       {/* Bottom Action Buttons */}
-      {(!isMobile || isReviewingStickerComment) && (
+      {(!isMobile || !isLivestream || isReviewingStickerComment || isReviewingSupportComment) && (
         <div className="section__actions">
           {/* Submit Button */}
           {isReviewingSupportComment ? (
@@ -645,6 +648,7 @@ export function CommentCreate(props: Props) {
               requiresAuth
             />
           ) : (
+            !isMobile &&
             (!minTip || claimIsMine) && (
               <Button
                 ref={buttonRef}
@@ -669,18 +673,19 @@ export function CommentCreate(props: Props) {
           {/** Stickers/Support Buttons **/}
           {!supportDisabled && (
             <>
-              {getActionButton(
-                __('Stickers'),
-                isReviewingStickerComment ? __('Different Sticker') : undefined,
-                ICONS.STICKER,
-                () => {
-                  if (isReviewingStickerComment) setReviewingStickerComment(false);
-                  setIsSupportComment(false);
-                  setShowSelectors(!showSelectors);
-                }
-              )}
+              {!isMobile &&
+                getActionButton(
+                  __('Stickers'),
+                  isReviewingStickerComment ? __('Different Sticker') : undefined,
+                  ICONS.STICKER,
+                  () => {
+                    if (isReviewingStickerComment) setReviewingStickerComment(false);
+                    setIsSupportComment(false);
+                    setShowSelectors(!showSelectors);
+                  }
+                )}
 
-              {!claimIsMine && (
+              {!claimIsMine && !isMobile && (
                 <>
                   {(!isSupportComment || activeTab !== TAB_LBC) &&
                     getActionButton(

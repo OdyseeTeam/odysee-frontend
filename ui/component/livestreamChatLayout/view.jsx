@@ -140,7 +140,7 @@ export default function LivestreamChatLayout(props: Props) {
     function handleScroll() {
       if (discussionElement) {
         const scrollTop = discussionElement.scrollTop;
-        if (scrollTop !== scrollPos) {
+        if (!scrollPos || scrollTop !== scrollPos) {
           setScrollPos(scrollTop);
         }
       }
@@ -156,7 +156,8 @@ export default function LivestreamChatLayout(props: Props) {
   React.useEffect(() => {
     if (discussionElement && commentsLength > 0) {
       // Only update comment scroll if the user hasn't scrolled up to view old comments
-      if (scrollPos >= minScrollPos) {
+      // $FlowFixMe
+      if (scrollPos && (!isMobile || minScrollPos) && scrollPos >= minScrollPos) {
         // +ve scrollPos: not scrolled (Usually, there'll be a few pixels beyond 0).
         // -ve scrollPos: user scrolled.
         const timer = setTimeout(() => {
@@ -241,7 +242,7 @@ export default function LivestreamChatLayout(props: Props) {
       </div>
     );
   }
-
+  console.log(scrollPos, isMobile, minScrollPos, viewMode);
   return (
     <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
@@ -344,7 +345,7 @@ export default function LivestreamChatLayout(props: Props) {
           />
         )}
 
-        {scrollPos < minScrollPos && viewMode === VIEW_MODES.CHAT && (
+        {scrollPos && (!isMobile || minScrollPos) && scrollPos < minScrollPos && viewMode === VIEW_MODES.CHAT ? (
           <Button
             button="secondary"
             className="livestreamComments__scrollToRecent"
@@ -352,7 +353,7 @@ export default function LivestreamChatLayout(props: Props) {
             onClick={restoreScrollPos}
             iconRight={ICONS.DOWN}
           />
-        )}
+        ) : null}
 
         <div className="livestream__comment-create">
           <CommentCreate
@@ -363,6 +364,9 @@ export default function LivestreamChatLayout(props: Props) {
             onDoneReplying={restoreScrollPos}
             pushedMention={quickMention}
             setPushedMention={setMention}
+            onSlimInputClick={
+              scrollPos && minScrollPos && scrollPos >= minScrollPos && viewMode === VIEW_MODES.CHAT && restoreScrollPos
+            }
           />
         </div>
       </div>

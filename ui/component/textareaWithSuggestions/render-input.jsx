@@ -12,6 +12,7 @@ type Props = {
   inputDefaultProps: any,
   inputRef: any,
   submitButtonRef?: any,
+  claimIsMine?: boolean,
   toggleSelectors: () => any,
   handleTip: (isLBC: boolean) => void,
   handleSubmit: () => any,
@@ -25,6 +26,7 @@ const TextareaSuggestionsInput = (props: Props) => {
     inputRef,
     inputDefaultProps,
     submitButtonRef,
+    claimIsMine,
     toggleSelectors,
     handleTip,
     handleSubmit,
@@ -49,16 +51,21 @@ const TextareaSuggestionsInput = (props: Props) => {
     );
     InputProps.endAdornment = (
       <>
-        <Button
-          disabled={!messageValue || messageValue.length === 0}
-          icon={ICONS.LBC}
-          onClick={() => handleTip(true)}
-        />
-        <Button
-          disabled={!messageValue || messageValue.length === 0}
-          icon={ICONS.FINANCE}
-          onClick={() => handleTip(false)}
-        />
+        {!claimIsMine && (
+          <Button
+            disabled={!messageValue || messageValue.length === 0}
+            icon={ICONS.LBC}
+            onClick={() => handleTip(true)}
+          />
+        )}
+
+        {!claimIsMine && (
+          <Button
+            disabled={!messageValue || messageValue.length === 0}
+            icon={ICONS.FINANCE}
+            onClick={() => handleTip(false)}
+          />
+        )}
 
         <Zoom in={messageValue ? messageValue.length > 0 : undefined} mountOnEnter unmountOnExit>
           <div>

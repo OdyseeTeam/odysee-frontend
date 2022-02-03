@@ -196,7 +196,7 @@ $recent-msg-button__height: 2rem;
 .livestream-superchats__wrapper--mobile {
   @extend .livestream-superchats__wrapper;
 
-  z-index: 1300;
+  z-index: 9999999;
   width: 100%;
   background-color: transparent;
   padding: 0px;

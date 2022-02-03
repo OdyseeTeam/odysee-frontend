@@ -54,7 +54,7 @@ export default function LivestreamComment(props: Props) {
   const isSticker = Boolean(stickerUrlFromMessage);
   const timePosted = timestamp * 1000;
   const commentIsMine = comment.channel_id && isMyComment(comment.channel_id);
-  const discussionElement = document.querySelector('.livestream__comments');
+  const discussionElement = document.querySelector('.livestream__comments--mobile');
   const minScrollPos = discussionElement && discussionElement.scrollHeight - window.innerHeight * 0.75;
 
   // todo: implement comment_list --mine in SDK so redux can grab with selectCommentIsMine
@@ -63,7 +63,7 @@ export default function LivestreamComment(props: Props) {
   }
 
   React.useEffect(() => {
-    if (isMobile && discussionElement && discussionElement.scrollTop >= minScrollPos) {
+    if (isMobile && discussionElement && minScrollPos && discussionElement.scrollTop >= minScrollPos) {
       discussionElement.scrollTop = discussionElement.scrollHeight + 999;
     }
   }, [discussionElement, isMobile, minScrollPos]);

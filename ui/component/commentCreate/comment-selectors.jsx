@@ -11,7 +11,7 @@ type Props = {
   claimIsMine?: boolean,
   addEmoteToComment: (string) => void,
   handleSelectSticker: (any) => void,
-  closeSelector: () => void,
+  closeSelector?: () => void,
 };
 
 export default function CommentSelectors(props: Props) {

@@ -49,6 +49,7 @@ type Props = {
   showSelectors?: boolean,
   submitButtonRef?: any,
   tipModalOpen?: boolean,
+  onSlimInputClick?: () => void,
   onChange?: (any) => any,
   setShowSelectors?: (boolean) => void,
   quickActionHandler?: (any) => any,
@@ -109,6 +110,7 @@ export class FormField extends React.PureComponent<Props, State> {
       showSelectors,
       submitButtonRef,
       tipModalOpen,
+      onSlimInputClick,
       quickActionHandler,
       setShowSelectors,
       render,
@@ -258,13 +260,14 @@ export class FormField extends React.PureComponent<Props, State> {
           return (
             <fieldset-section>
               <TextareaWrapper
-                isDrawerOpen={this.state.drawerOpen}
+                isDrawerOpen={Boolean(this.state.drawerOpen)}
                 toggleDrawer={() => this.setState({ drawerOpen: !this.state.drawerOpen })}
                 closeSelector={setShowSelectors ? () => setShowSelectors(false) : () => {}}
                 commentSelectorsProps={commentSelectorsProps}
-                showSelectors={showSelectors}
+                showSelectors={Boolean(showSelectors)}
                 slimInput={slimInput}
                 tipModalOpen={tipModalOpen}
+                onSlimInputClick={onSlimInputClick}
               >
                 {(!slimInput || this.state.drawerOpen) && (label || quickAction) && (
                   <div className="form-field__two-column">
@@ -291,15 +294,15 @@ export class FormField extends React.PureComponent<Props, State> {
                       maxLength={textAreaMaxLength || FF_MAX_CHARS_DEFAULT}
                       inputRef={this.input}
                       isLivestream={isLivestream}
-                      closeSelector={setShowSelectors ? () => setShowSelectors(false) : () => {}}
+                      toggleSelectors={setShowSelectors ? () => setShowSelectors(!showSelectors) : undefined}
                       handleTip={handleTip}
                       handleSubmit={handleSubmit}
+                      claimIsMine={commentSelectorsProps && commentSelectorsProps.claimIsMine}
                       {...inputProps}
                       handlePreventClick={
-                        slimInput && !this.state.drawerOpen ? () => this.setState({ drawerOpen: true }) : undefined
+                        !this.state.drawerOpen ? () => this.setState({ drawerOpen: true }) : undefined
                       }
-                      autoFocus={slimInput && this.state.drawerOpen}
-                      readOnly={slimInput && showSelectors}
+                      autoFocus={this.state.drawerOpen}
                       submitButtonRef={submitButtonRef}
                     />
                   </React.Suspense>
@@ -350,8 +353,9 @@ type TextareaWrapperProps = {
   showSelectors?: boolean,
   commentSelectorsProps?: any,
   tipModalOpen?: boolean,
+  onSlimInputClick?: () => void,
   toggleDrawer: () => void,
-  closeSelector: () => void,
+  closeSelector?: () => void,
 };
 
 function TextareaWrapper(wrapperProps: TextareaWrapperProps) {
@@ -362,18 +366,26 @@ function TextareaWrapper(wrapperProps: TextareaWrapperProps) {
     commentSelectorsProps,
     showSelectors,
     tipModalOpen,
+    onSlimInputClick,
     toggleDrawer,
     closeSelector,
   } = wrapperProps;
 
   function handleCloseAll() {
     toggleDrawer();
-    closeSelector();
+    if (closeSelector) closeSelector();
+    if (onSlimInputClick) onSlimInputClick();
   }
 
   return slimInput ? (
     !isDrawerOpen ? (
-      <div role="button" onClick={toggleDrawer}>
+      <div
+        role="button"
+        onClick={() => {
+          toggleDrawer();
+          if (onSlimInputClick) onSlimInputClick();
+        }}
+      >
         {children}
       </div>
     ) : (

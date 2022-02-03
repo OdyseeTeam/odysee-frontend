@@ -300,6 +300,16 @@ function CommentList(props: Props) {
       }
       actions={
         <>
+          {isMobile && totalComments > 1 && ENABLE_COMMENT_REACTIONS && (
+            <>
+              <span className="comment__sort">
+                {sortButton(__('Best'), ICONS.BEST, SORT_BY.POPULARITY)}
+                {sortButton(__('Controversial'), ICONS.CONTROVERSIAL, SORT_BY.CONTROVERSY)}
+                {sortButton(__('New'), ICONS.NEW, SORT_BY.NEWEST)}
+              </span>
+              <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={() => setPage(0)} />
+            </>
+          )}
           <CommentCreate uri={uri} />
 
           {channelSettings && channelSettings.comments_enabled && !isFetchingComments && !totalComments && (

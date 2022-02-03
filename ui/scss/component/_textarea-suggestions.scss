@@ -27,6 +27,12 @@
   }
 }
 
+.livestream__comment-create {
+  .MuiOutlinedInput-root {
+    padding: 0px var(--spacing-xxs) !important;
+  }
+}
+
 .MuiOutlinedInput-notchedOutline {
   visibility: none;
 }
