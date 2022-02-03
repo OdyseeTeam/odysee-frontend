@@ -573,6 +573,29 @@ body {
     }
   }
 
+  .button--secondary {
+    background-color: var(--color-header-button) !important;
+    .button__content {
+      .icon {
+        stroke: var(--color-text) !important;
+      }
+      .button__label {
+        color: var(--color-text) !important;
+      }
+    }
+    &:hover {
+      background-color: var(--color-primary) !important;
+      .button__content {
+        .icon {
+          stroke: var(--color-primary-contrast) !important;
+        }
+        .button__label {
+          color: var(--color-primary-contrast) !important;
+        }
+      }
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     padding: 0 0;
   }
