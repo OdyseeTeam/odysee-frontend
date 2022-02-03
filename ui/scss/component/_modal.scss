@@ -45,6 +45,10 @@
   backdrop-filter: blur(4px);
 
   .card {
+    .card__main-actions {
+      border-top: unset;
+    }
+
     input {
       background: var(--color-header-button) !important;
       &:focus {
