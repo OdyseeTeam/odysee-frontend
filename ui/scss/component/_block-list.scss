@@ -1,3 +1,13 @@
+.block-list {
+  .claim-preview__wrapper--channel {
+    .button--no-style {
+      .button__content {
+        align-items: unset;
+      }
+    }
+  }
+}
+
 .block-list--moderator {
   .button--no-style {
     .button__content {
