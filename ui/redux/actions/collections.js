@@ -313,58 +313,58 @@ export const doFetchItemsInCollections = (
 
   const resolveReposts = true;
 
-  if (collectionItemsById[0].items) {
-    collectionItemsById[0].items
-      .map((e) => ({ [e.canonical_url]: e }))
-      .forEach((result) => {
-        const fallbackResolveInfo = {
-          stream: null,
-          claimsInChannel: null,
-          channel: null,
-        };
-
-        function processResult(result, resolveInfo = {}, checkReposts = false) {
-          Object.entries(result).forEach(([uri, uriResolveInfo]) => {
-            // Flow has terrible Object.entries support
-            // https://github.com/facebook/flow/issues/2221
-            if (uriResolveInfo) {
-              if (uriResolveInfo.error) {
-                // $FlowFixMe
-                resolveInfo[uri] = { ...fallbackResolveInfo };
-              } else {
-                let result = {};
-                if (uriResolveInfo.value_type === 'channel') {
-                  result.channel = uriResolveInfo;
-                  // $FlowFixMe
-                  result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-                } else if (uriResolveInfo.value_type === 'collection') {
-                  result.collection = uriResolveInfo;
-                  // $FlowFixMe
-                } else {
-                  result.stream = uriResolveInfo;
-                  if (uriResolveInfo.signing_channel) {
-                    result.channel = uriResolveInfo.signing_channel;
-                    result.claimsInChannel =
-                      (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) ||
-                      0;
-                  }
-                }
-                // $FlowFixMe
-                resolveInfo[uri] = result;
-              }
-            }
-          });
-        }
-
+  collectionItemsById.forEach((collection) => {
+    // GenericClaim type probably needs to be updated to avoid this "Any"
+    collection.items &&
+      collection.items.forEach((result: any) => {
+        result = { [result.canonical_url]: result };
         processResult(result, resolveInfo, resolveReposts);
       });
+  });
 
-    dispatch({
-      type: ACTIONS.RESOLVE_URIS_COMPLETED,
-      data: { resolveInfo },
-    });
-  }
+  dispatch({
+    type: ACTIONS.RESOLVE_URIS_COMPLETED,
+    data: { resolveInfo },
+  });
 };
+
+function processResult(result, resolveInfo = {}, checkReposts = false) {
+  const fallbackResolveInfo = {
+    stream: null,
+    claimsInChannel: null,
+    channel: null,
+  };
+
+  Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+    // Flow has terrible Object.entries support
+    // https://github.com/facebook/flow/issues/2221
+    if (uriResolveInfo) {
+      if (uriResolveInfo.error) {
+        // $FlowFixMe
+        resolveInfo[uri] = { ...fallbackResolveInfo };
+      } else {
+        let result = {};
+        if (uriResolveInfo.value_type === 'channel') {
+          result.channel = uriResolveInfo;
+          // $FlowFixMe
+          result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+        } else if (uriResolveInfo.value_type === 'collection') {
+          result.collection = uriResolveInfo;
+          // $FlowFixMe
+        } else {
+          result.stream = uriResolveInfo;
+          if (uriResolveInfo.signing_channel) {
+            result.channel = uriResolveInfo.signing_channel;
+            result.claimsInChannel =
+              (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
+          }
+        }
+        // $FlowFixMe
+        resolveInfo[uri] = result;
+      }
+    }
+  });
+}
 
 export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }, cb?: () => void) => {
   const { collectionId, pageSize } = options;
