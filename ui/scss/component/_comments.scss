@@ -529,6 +529,10 @@ $thumbnailWidthSmall: 1rem;
     @media (min-width: $breakpoint-medium) {
       margin: 0 var(--spacing-xs);
     }
+
+    @media (max-width: $breakpoint-medium) {
+      padding-bottom: 0 !important;
+    }
   }
 
   .comment {
