@@ -34,9 +34,6 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
     odyseeMembership,
   } = props;
 
-  console.log('odysee membership');
-  console.log(odyseeMembership);
-
   const isOnMembershipPage = window.location.pathname === '/$/membership';
 
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
@@ -79,7 +76,8 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
           <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
 
-          {!isOnMembershipPage && (
+          {/* don't show upgrade button if on membership page or already have a membership */}
+          {!isOnMembershipPage && !odyseeMembership && (
             <MenuItem onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
               <div className="menu__link">
                 <Icon aria-hidden icon={ICONS.UPGRADE} />
