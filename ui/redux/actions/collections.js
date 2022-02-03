@@ -289,19 +289,6 @@ export const doFetchItemsInCollections = (
   });
   const formattedClaimsByUri = formatForClaimActions(collectionItemsById);
 
-  dispatch({
-    type: ACTIONS.RESOLVE_URIS_COMPLETED,
-    data: { resolveInfo: formattedClaimsByUri },
-  });
-
-  dispatch({
-    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
-    data: {
-      resolvedCollections: newCollectionObjectsById,
-      failedCollectionIds: invalidCollectionIds,
-    },
-  });
-
   const resolveInfo: {
     [string]: {
       stream: ?StreamClaim,
@@ -324,7 +311,20 @@ export const doFetchItemsInCollections = (
 
   dispatch({
     type: ACTIONS.RESOLVE_URIS_COMPLETED,
+    data: { resolveInfo: formattedClaimsByUri },
+  });
+
+  dispatch({
+    type: ACTIONS.RESOLVE_URIS_COMPLETED,
     data: { resolveInfo },
+  });
+
+  dispatch({
+    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
+    data: {
+      resolvedCollections: newCollectionObjectsById,
+      failedCollectionIds: invalidCollectionIds,
+    },
   });
 };
 
