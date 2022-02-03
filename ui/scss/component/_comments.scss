@@ -269,7 +269,7 @@ $thumbnailWidthSmall: 1rem;
 
 .comment__time {
   @extend .button--uri-indicator;
-  opacity: 0.5;
+  opacity: 0.6;
   white-space: nowrap;
   height: 100%;
   margin-right: var(--spacing-xs);
