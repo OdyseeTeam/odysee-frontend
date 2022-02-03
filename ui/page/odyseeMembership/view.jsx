@@ -38,6 +38,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const [canceledMemberships, setCanceledMemberships] = React.useState();
   const [activeMemberships, setActiveMemberships] = React.useState();
   const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
+  const [hasShownModal, setHasShownModal] = React.useState(false);
 
   const hasMembership = activeMemberships && activeMemberships.length > 0;
 
@@ -209,6 +210,11 @@ const OdyseeMembershipPage = (props: Props) => {
   }
 
   if (!stillWaitingFromBackend && planValue) {
+    // clear query params
+    window.history.replaceState(null, null, window.location.pathname);
+
+    setHasShownModal(true);
+
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId: 1,
       hasMembership,
@@ -221,8 +227,9 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
-        {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
-        {!changeFrontend ? (
+        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && (!planValue && !hasShownModal) ? (
+        // {!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (
+        // {!changeFrontend ? (
           <MembershipSplash pageLocation={'confirmPage'} />
         ) : (
           <div className={'card-stack'}>
