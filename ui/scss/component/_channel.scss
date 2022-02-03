@@ -11,10 +11,6 @@ $actions-z-index: 2;
     }
   }
 
-  .channel__title {
-    margin-bottom: calc(var(--spacing-m) * -1);
-  }
-
   .claim-preview__wrapper--channel {
     .menu__button {
       right: var(--spacing-s);
