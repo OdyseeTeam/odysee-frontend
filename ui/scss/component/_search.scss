@@ -168,16 +168,17 @@
   top: 100%;
   left: 0;
   right: 0;
-  background: #21252980;
-  color: white;
+  // background: #21252980;
+  background: rgba(var(--color-header-background-base), 0.9);
+  color: var(--color-text);
 
   .claim-preview__title {
-    color: #eff1f4;
+    color: var(--color-text);
   }
 
   .button--uri-indicator,
   .media__subtitle {
-    color: #d8dde1;
+    color: rgba(var(--color-text-base), 0.6);
   }
 
   .icon--help {
