@@ -520,18 +520,22 @@
 
     .claim-preview-info {
       .claim-preview__title {
-        font-size: unset;
+        margin-right: 0;
+        font-size: var(--font-xxsmall);
       }
     }
     .media__subtitle {
       .button__content {
         .channel-name {
-          font-size: var(--font-xsmall);
+          font-size: var(--font-xxxsmall);
         }
       }
       .date_time {
-        font-size: var(--font-xsmall);
+        font-size: var(--font-xxxsmall) !important;
       }
+    }
+    .claim-tile__info {
+      padding-bottom: 0;
     }
   }
 }
