@@ -161,6 +161,8 @@ const OdyseeMembershipPage = (props: Props) => {
     return purchaseString;
   }
 
+
+
   const purchaseMembership = function (e, membershipOption, price) {
     e.preventDefault();
     e.stopPropagation();
@@ -224,13 +226,15 @@ const OdyseeMembershipPage = (props: Props) => {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
+  const { interval, plan, pageLocation } = params;
+
   console.log(params);
   const confirmValue = params.confirm;
   const planValue = params.plan;
-  const pageLocation = params.pageLocation;
+  // const pageLocation = params.pageLocation;
 
   // add a bit of a delay otherwise it's a bit jarring
-  let timeoutValue = 0;
+  let timeoutValue = 300;
   if (pageLocation === 'confirmPage') {
     timeoutValue = 300;
   }
@@ -243,10 +247,8 @@ const OdyseeMembershipPage = (props: Props) => {
       setHasShownModal(true);
 
       // open confirm purchase modal
-      openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
-        membershipId: 1,
-        hasMembership,
-      });
+      // document.querySelector(`[plan=${plan}][interval=${interval}]`).click();
+      document.querySelector('[plan="' + plan + '"][interval="' + interval + '"]').click();
     }, timeoutValue);
   }
 
@@ -312,6 +314,8 @@ const OdyseeMembershipPage = (props: Props) => {
                                         className="membership_button"
                                         label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
                                         icon={ICONS.FINANCE}
+                                        interval={price.recurring.interval}
+                                        plan={membershipOption.Membership.name}
                                       />
                                     </>
                                   )}

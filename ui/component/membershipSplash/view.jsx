@@ -187,8 +187,8 @@ export default function MembershipSplash(props: Props) {
           <div className="membership-splash__info-button">
             <Button
               button="primary"
-              onClick={'test'}
               label={__('Apply for Membership')}
+              navigate={`/$/membership?interval=year&plan=Premium&pageLocation=${pageLocation}`}
             />
           </div>
         </div>
@@ -213,7 +213,7 @@ export default function MembershipSplash(props: Props) {
             <Button
               button="primary"
               label={__('Apply for Membership')}
-              navigate={`/$/membership?confirm=yearly&plan=premium-plus&pageLocation=${pageLocation}`}
+              navigate={`/$/membership?interval=year&plan=Premium%2b&pageLocation=${pageLocation}&`}
             />
           </div>
         </div>
