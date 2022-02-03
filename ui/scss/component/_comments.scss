@@ -492,7 +492,7 @@ $thumbnailWidthSmall: 1rem;
     .media__thumb {
       flex-shrink: 0;
       overflow: hidden;
-      $width: 5rem;
+      $width: 6rem;
       @include handleClaimListGifThumbnail($width);
       width: $width;
       height: calc(#{$width} * (9 / 16));
@@ -513,6 +513,12 @@ $thumbnailWidthSmall: 1rem;
   .claim-preview__wrapper {
     margin: 0 0;
     padding: 0;
+
+    &:hover {
+      .claim-preview__hover-actions {
+        display: none;
+      }
+    }
 
     @media (min-width: $breakpoint-medium) {
       margin: 0 var(--spacing-xs);
