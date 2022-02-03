@@ -598,6 +598,15 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: 0 0;
+    .wunderbar__wrapper {
+      margin-right: 0;
+      .wunderbar {
+        padding-left: 0;
+        .icon {
+          left: 11px;
+        }
+      }
+    }
   }
 
   .card__subtitle {
