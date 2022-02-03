@@ -33,8 +33,8 @@ function ChannelListItem(props: ListItemProps) {
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
       {/* TODO: implement with selector properly */}
-      {/*{'silver' === 'silver' && (<Icon size={25} icon={ICONS.PREMIUM} />)}*/}
-      {/*{badgeToShow === 'gold' && (<Icon size={25} icon={ICONS.PREMIUM_PLUS} />)}*/}
+      {/* {'silver' === 'silver' && (<Icon size={25} icon={ICONS.PREMIUM} />)} */}
+      {/* {badgeToShow === 'gold' && (<Icon size={25} icon={ICONS.PREMIUM_PLUS} />)} */}
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );
