@@ -1284,6 +1284,11 @@
     opacity: 1; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);
     background-color: var(--color-live);
+    .claim-preview__overlay-properties {
+      margin-bottom: -2px;
+      color: white;
+      font-weight: var(--font-weight-bold);
+    }
   }
 
   .file-properties {
