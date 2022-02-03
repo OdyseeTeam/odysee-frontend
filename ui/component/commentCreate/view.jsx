@@ -398,6 +398,7 @@ export function CommentCreate(props: Props) {
     return (
       <div
         role="button"
+        className="comment-create__auth"
         onClick={() => {
           if (embed) {
             window.open(`https://odysee.com/$/${PAGES.AUTH}?redirect=/$/${PAGES.LIVESTREAM}`);

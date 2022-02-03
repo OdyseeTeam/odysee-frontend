@@ -69,11 +69,14 @@ export default function LivestreamChatLayout(props: Props) {
 
   const isMobile = useIsMobile() && !isPopoutWindow;
 
-  const discussionElement = document.querySelector('.livestream__comments');
+  const webElement = document.querySelector('.livestream__comments');
+  const mobileElement = document.querySelector('.livestream__comments--mobile');
+  const discussionElement = isMobile ? mobileElement : webElement;
+  const minScrollPos = !isMobile ? 0 : discussionElement && discussionElement.scrollHeight - window.innerHeight * 0.75;
 
   const restoreScrollPos = React.useCallback(() => {
-    if (discussionElement) discussionElement.scrollTop = 0;
-  }, [discussionElement]);
+    if (discussionElement) discussionElement.scrollTop = !isMobile ? 0 : discussionElement.scrollHeight;
+  }, [discussionElement, isMobile]);
 
   const commentsRef = React.createRef();
 
@@ -84,6 +87,7 @@ export default function LivestreamChatLayout(props: Props) {
   const [mention, setMention] = React.useState();
   const [openedPopoutWindow, setPopoutWindow] = React.useState(undefined);
   const [chatHidden, setChatHidden] = React.useState(false);
+  const [didInitialScroll, setDidInitialScroll] = React.useState(false);
 
   const quickMention =
     mention && formatLbryUrlForWeb(mention).substring(1, formatLbryUrlForWeb(mention).indexOf(':') + 3);
@@ -118,6 +122,19 @@ export default function LivestreamChatLayout(props: Props) {
     }
   }, [claimId, uri, doCommentList, doSuperChatList]);
 
+  React.useEffect(() => {
+    if (
+      isMobile &&
+      discussionElement &&
+      viewMode === VIEW_MODES.CHAT &&
+      !didInitialScroll &&
+      discussionElement.scrollTop < discussionElement.scrollHeight
+    ) {
+      discussionElement.scrollTop = discussionElement.scrollHeight;
+      setDidInitialScroll(true);
+    }
+  }, [didInitialScroll, discussionElement, isMobile, viewMode]);
+
   // Register scroll handler (TODO: Should throttle/debounce)
   React.useEffect(() => {
     function handleScroll() {
@@ -139,12 +156,12 @@ export default function LivestreamChatLayout(props: Props) {
   React.useEffect(() => {
     if (discussionElement && commentsLength > 0) {
       // Only update comment scroll if the user hasn't scrolled up to view old comments
-      if (scrollPos >= 0) {
+      if (scrollPos >= minScrollPos) {
         // +ve scrollPos: not scrolled (Usually, there'll be a few pixels beyond 0).
         // -ve scrollPos: user scrolled.
         const timer = setTimeout(() => {
           // Use a timer here to ensure we reset after the new comment has been rendered.
-          discussionElement.scrollTop = 0;
+          discussionElement.scrollTop = !isMobile ? 0 : discussionElement.scrollHeight + 999;
         }, COMMENT_SCROLL_TIMEOUT);
         return () => clearTimeout(timer);
       }
@@ -327,7 +344,7 @@ export default function LivestreamChatLayout(props: Props) {
           />
         )}
 
-        {scrollPos < 0 && (
+        {scrollPos < minScrollPos && viewMode === VIEW_MODES.CHAT && (
           <Button
             button="secondary"
             className="livestreamComments__scrollToRecent"
