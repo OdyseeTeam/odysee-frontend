@@ -186,6 +186,7 @@ const OdyseeMembershipPage = (props: Props) => {
   return (
     <>
       <Page>
+<<<<<<< HEAD
         {/* list available memberships offered by odysee */}
         <h1 style={{fontSize: '23px'}}>Odysee Memberships</h1>
         {!stillWaitingFromBackend && membershipOptions && (
@@ -303,6 +304,189 @@ const OdyseeMembershipPage = (props: Props) => {
               />
             </div>
           </>
+=======
+        {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
+        {!changeFrontend ? (
+          <MembershipSplash pageLocation={'confirmPage'} />
+        ) : (
+          <div className={'card-stack'}>
+            {/* list available memberships offered by odysee */}
+            <h1 style={{ fontSize: '23px' }}>Odysee Memberships</h1>
+            {!stillWaitingFromBackend && cardSaved !== false && (
+              <div style={{ marginTop: '10px' }}>
+                <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url} />
+              </div>
+            )}
+            
+            {/* received list of memberships from backend */}
+            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 2 && cardSaved !== false && (
+              <>
+                
+                <div className="card__title-section">
+                  <h2 className="card__title">Available Memberships</h2>
+                </div>
+                <Card>
+                  
+                  {membershipOptions.map((membershipOption) => (
+                    <>
+                      {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
+                        <>
+                          <h4 className="membership_title">
+                            {membershipOption.Membership.name}
+                          </h4>
+                          <h4 className="membership_subtitle">
+                            {membershipOption.Membership.description}
+                          </h4>
+                          {membershipOption.Prices.map((price) => (
+                            <>
+                              {price.currency !== 'eur' && (
+                                <>
+                                  <h4 className="membership_info">
+                                    <b>Interval:</b> {convertPriceToString(price)}
+                                  </h4>
+                                  <h4 className="membership_info">
+                                    <b>Price:</b> {buildCurrencyDisplay(price)}
+                                    {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                  </h4>
+                                  <Button
+                                    button="secondary"
+                                    onClick={purchaseMembership}
+                                    membership-id={membershipOption.Membership.id}
+                                    membership-subscription-period={membershipOption.Membership.type}
+                                    price-id={price.id}
+                                    className="membership_button"
+                                    label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                    icon={ICONS.FINANCE}
+                                  />
+                                </>
+                              )}
+                            </>
+                          ))}
+                        </>
+                      )}
+                    </>
+                  ))}
+                </Card>
+              </>
+            )}
+            {!stillWaitingFromBackend && cardSaved === true && (
+              <>
+                <div className="card__title-section">
+                  <h2 className="card__title">Your active Memberships</h2>
+                </div>
+
+                <Card>
+                  {/* list of active memberships from user */}
+                  <div>
+                    { /* <h1 style={{ fontSize: '19px' }}>Active Memberships</h1> */ }
+                    {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
+                      <>
+                        <h4>You currently have no active memberships</h4>
+                      </>
+                    )}
+                    {!stillWaitingFromBackend &&
+                      activeMemberships &&
+                      activeMemberships.map((membership) => (
+                        <>
+                          <h4 className="membership_title">
+                            {membership.MembershipDetails.name}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Auto-Renews On:</b> {formatDate(membership.Subscription.current_period_end * 1000)}
+                          </h4>
+                          {!stillWaitingFromBackend && membership.type === 'yearly' && (
+                            <>
+                              <h4 className="membership_info"><b>Subscription Period Options:</b> Yearly</h4>
+                              <h4 className="membership_info">
+                                ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
+                                {membership.cost_usd / 100} Per Month)
+                              </h4>
+                            </>
+                          )}
+                          <Button
+                            button="secondary"
+                            membership-id={membership.Membership.membership_id}
+                            onClick={cancelMembership}
+                            className="membership_button"
+                            label={__('Cancel membership')}
+                            icon={ICONS.FINANCE}
+                          />
+                        </>
+                      ))}
+                  </div>
+                </Card>
+                <>
+                  {/* list canceled memberships of user */}
+                  <div className="card__title-section">
+                    <h2 className="card__title">Canceled Memberships</h2>
+                  </div>
+                  <Card>
+                    {canceledMemberships && canceledMemberships.length === 0 && (
+                      <>
+                        <h4>You currently have no canceled memberships</h4>
+                      </>
+                    )}
+                    {canceledMemberships &&
+                      canceledMemberships.map((membership) => (
+                        <>
+                          <h4 className="membership_title">
+                            {membership.MembershipDetails.name}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Canceled At:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                          </h4>
+                          <h4 className="membership_info">
+                            <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}
+                          </h4>
+                        </>
+                      ))}
+                  </Card>
+                </>
+              </>
+            )}
+            {!stillWaitingFromBackend && cardSaved === false && (
+              <div>
+                <br />
+                <h2 className={'getPaymentCard'}>
+                  Please save a card as a payment method so you can join a membership
+                </h2>
+
+                <Button
+                  button="secondary"
+                  label={__('Add A Card')}
+                  icon={ICONS.SETTINGS}
+                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+                  className="membership_button"
+                />
+              </div>
+            )}
+            {stillWaitingFromBackend && (
+              <div>
+                <h2 style={{ fontSize: '20px', marginTop: '10px' }}>Loading...</h2>
+              </div>
+            )}
+            {isDev && (
+              <>
+                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+                <div>
+                  <Button
+                    button="secondary"
+                    label={__('Clear Membership Data')}
+                    icon={ICONS.SETTINGS}
+                    className="membership_button"
+                    onClick={deleteData}
+                  />
+                </div>
+              </>
+            )}
+          </div>
+>>>>>>> c7519cf6f (Add classes for membership page)
         )}
       </Page>
     </>
