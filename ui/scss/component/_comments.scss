@@ -315,6 +315,9 @@ $thumbnailWidthSmall: 1rem;
 
   .comment__menu-help {
     color: var(--color-text);
+    .icon--ExternalLink {
+      margin-top: unset;
+    }
   }
 
   &:hover {
