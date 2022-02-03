@@ -494,9 +494,15 @@ $thumbnailWidthSmall: 1rem;
       overflow: hidden;
       $width: 6rem;
       @include handleClaimListGifThumbnail($width);
-      width: $width;
+      width: $width !important;
       height: calc(#{$width} * (9 / 16));
       margin-right: var(--spacing-s);
+
+      @media (max-width: $breakpoint-small) {
+        $width: 10rem;
+        width: $width !important;
+        height: calc(#{$width} * (9 / 16));
+      }
     }
 
     .channel-thumbnail {
@@ -535,6 +541,13 @@ $thumbnailWidthSmall: 1rem;
       margin-top: 0;
       margin-left: var(--spacing-s);
     }
+    @media (max-width: $breakpoint-medium) {
+      margin-left: var(--spacing-s);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    border-bottom: 1px solid var(--color-border);
   }
 }
 
