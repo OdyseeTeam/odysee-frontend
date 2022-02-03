@@ -52,6 +52,7 @@ type Props = {
   channelSignature: { signature?: string, signing_ts?: string },
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
+  setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
@@ -88,12 +89,14 @@ function PublishFile(props: Props) {
     channelSignature,
     isCheckingLivestreams,
     setWaitForFile,
+    setOverMaxBitrate,
     fileSource,
     changeFileSource,
     inEditMode,
   } = props;
 
   const RECOMMENDED_BITRATE = 6000000;
+  const MAX_BITRATE = 12000000;
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
@@ -191,6 +194,7 @@ function PublishFile(props: Props) {
     if (!filePath || filePath === '') {
       setCurrentFile('');
       setOversized(false);
+      setOverMaxBitrate(false);
       updateFileInfo(0, 0, false);
     } else if (typeof filePath !== 'string') {
       // Update currentFile file
@@ -255,16 +259,34 @@ function PublishFile(props: Props) {
       return (
         <p className="help--error">
           {UPLOAD_SIZE_MESSAGE}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://lbry.com/faq/video-publishing-guide" />
+          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
         </p>
       );
     }
     // @endif
-    if (isVid && duration && getBitrate(size, duration) > RECOMMENDED_BITRATE) {
+    let bitRate = getBitrate(size, duration);
+    let overMaxBitrate = bitRate > MAX_BITRATE;
+    if (overMaxBitrate) {
+      setOverMaxBitrate(true);
+    } else {
+      setOverMaxBitrate(false);
+    }
+
+    if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
       return (
         <p className="help--warning">
-          {__('Your video has a bitrate over 5 Mbps. We suggest transcoding to provide viewers the best experience.')}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
+          {overMaxBitrate
+            ? __(
+                'Your video has a bitrate over ~12 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
+              )
+            : __(
+                'Your video has a bitrate over 5 Mbps. We suggest transcoding to provide viewers the best experience.'
+              )}{' '}
+          <Button
+            button="link"
+            label={__('Upload Guide')}
+            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
+          />
         </p>
       );
     }
@@ -275,7 +297,11 @@ function PublishFile(props: Props) {
           {__(
             'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 5 Mbps) and resolution (720p) for more reliable streaming.'
           )}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
+          <Button
+            button="link"
+            label={__('Upload Guide')}
+            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
+          />
         </p>
       );
     }
@@ -300,7 +326,11 @@ function PublishFile(props: Props) {
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 5 Mbps) and resolution (720p) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }
           )}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://lbry.com/faq/video-publishing-guide" />
+          <Button
+            button="link"
+            label={__('Upload Guide')}
+            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
+          />
         </p>
       );
     }
@@ -365,6 +395,7 @@ function PublishFile(props: Props) {
     const { showToast } = props;
     window.URL = window.URL || window.webkitURL;
     setOversized(false);
+    setOverMaxBitrate(false);
 
     // select file, start to select a new one, then cancel
     if (!file) {
@@ -429,7 +460,7 @@ function PublishFile(props: Props) {
     if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
       setOversized(true);
       showToast(__(UPLOAD_SIZE_MESSAGE));
-      updatePublishForm({ filePath: '', name: '' });
+      updatePublishForm({ filePath: '' });
       return;
     }
     // @endif

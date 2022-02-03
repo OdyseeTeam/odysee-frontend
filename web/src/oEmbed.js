@@ -2,7 +2,7 @@ const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require
 
 const {
   generateEmbedIframeData,
-  generateEmbedUrl,
+  generateEmbedUrlEncoded,
   getParameterByName,
   getThumbnailCdnUrl,
   escapeHtmlProperty,
@@ -45,7 +45,7 @@ async function getClaim(requestUrl) {
 // Generate
 // ****************************************************************************
 
-function generateOEmbedData(claim, referrerQuery) {
+function generateOEmbedData(claim, embedlyReferrer, timestamp, referral) {
   const { value, signing_channel: authorClaim } = claim;
 
   const claimTitle = value.title;
@@ -53,9 +53,10 @@ function generateOEmbedData(claim, referrerQuery) {
   const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
   const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
+
+  const embedUrl = generateEmbedUrlEncoded(claim.name, claim.claim_id, timestamp, referral);
   const videoUrl =
-    generateEmbedUrl(claim.name, claim.claim_id) +
-    (referrerQuery ? `r=${encodeURIComponent(escapeHtmlProperty(referrerQuery))}` : '');
+    embedUrl + (embedlyReferrer ? `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}` : '');
 
   const { html, width, height } = generateEmbedIframeData(videoUrl);
 
@@ -116,12 +117,21 @@ function generateXmlData(oEmbedData) {
 async function getOEmbed(ctx) {
   const requestUrl = ctx.request.url;
   const urlQuery = getParameterByName('url', requestUrl);
+  const embedlyReferrer = getParameterByName('referrer', requestUrl);
 
-  const { claim, error } = await getClaim(urlQuery);
+  const decodedQueryUri = decodeURIComponent(urlQuery);
+
+  const paramsRegex = /[?&](?:\w=)?/g;
+  const hasUrlParams = RegExp(paramsRegex).test(decodedQueryUri);
+  const claimUrl = hasUrlParams ? decodedQueryUri.substring(0, decodedQueryUri.search(paramsRegex)) : decodedQueryUri;
+
+  const { claim, error } = await getClaim(claimUrl);
+
   if (error) return error;
 
-  const referrerQuery = getParameterByName('referrer', requestUrl);
-  const oEmbedData = generateOEmbedData(claim, referrerQuery);
+  const queryTimestampParam = getParameterByName('t', decodedQueryUri);
+  const queryReferralParam = getParameterByName('r', decodedQueryUri);
+  const oEmbedData = generateOEmbedData(claim, embedlyReferrer, queryTimestampParam, queryReferralParam);
 
   const formatQuery = getParameterByName('format', requestUrl);
   if (formatQuery === 'xml') {
