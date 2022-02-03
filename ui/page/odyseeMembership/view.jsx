@@ -345,21 +345,24 @@ const OdyseeMembershipPage = (props: Props) => {
   const planValue = params.plan;
   const pageLocation = params.pageLocation;
 
-  let changeFrontend = false;
+  // add a bit of a delay otherwise it's a bit jarring
+  let timeoutValue = 0;
   if (pageLocation === 'confirmPage') {
-    changeFrontend = true;
+    timeoutValue = 300;
   }
 
   if (!stillWaitingFromBackend && planValue) {
-    // clear query params
-    window.history.replaceState(null, null, window.location.pathname);
+    setTimeout(function(){
+      // clear query params
+      window.history.replaceState(null, null, window.location.pathname);
 
-    setHasShownModal(true);
+      setHasShownModal(true);
 
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
-      membershipId: 1,
-      hasMembership,
-    });
+      openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+        membershipId: 1,
+        hasMembership,
+      });
+    }, timeoutValue);
   }
 
   console.log('plan value');
