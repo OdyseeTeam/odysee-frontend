@@ -157,7 +157,7 @@ const OdyseeMembershipPage = (props: Props) => {
     let featureString;
     if (plan === 'Premium') {
       featureString = 'Your badges will be shown on up to three channels and you will have early access to new features. ';
-    } else if (featureString === 'Premium+') {
+    } else if (plan === 'Premium+') {
       featureString = 'Your feature of no ads applies site-wide and badges are shown for up to three channels. ';
     }
 
@@ -175,6 +175,8 @@ const OdyseeMembershipPage = (props: Props) => {
 
     console.log(membershipOption);
     console.log(price);
+
+    const planName = membershipOption.Membership.name;
 
     const membershipId = e.currentTarget.getAttribute('membership-id');
 <<<<<<< HEAD
@@ -196,7 +198,7 @@ const OdyseeMembershipPage = (props: Props) => {
       userChannelClaimId,
 =======
     const priceId = e.currentTarget.getAttribute('price-id');
-    const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, membershipOption.Membership.name);
+    const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, planName);
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
@@ -204,6 +206,7 @@ const OdyseeMembershipPage = (props: Props) => {
       odyseeChannelName: userChannelName,
       priceId,
       purchaseString,
+      plan: planName
     });
   };
 

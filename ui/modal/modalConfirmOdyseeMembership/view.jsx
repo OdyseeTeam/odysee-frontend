@@ -16,7 +16,7 @@ type Props = {
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
-  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId, purchaseString } = props;
+  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId, purchaseString, plan } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
 
@@ -81,7 +81,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     <Modal ariaHideApp={false} isOpen contentLabel={'hello'} type="card" onAborted={closeModal}>
       <Card
         className="stripe__confirm-remove-membership"
-        title={hasMembership ? __('Confirm Membership Cancellation') : __('Confirm Premium Membership')}
+        title={hasMembership ? __('Confirm Membership Cancellation') : __(`Confirm ${plan} Membership`)}
         subtitle={purchaseString}
         actions={
           <div className="section__actions">
