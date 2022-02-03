@@ -262,25 +262,30 @@ const OdyseeMembershipPage = (props: Props) => {
                           </h4>
                           {membershipOption.Prices.map((price) => (
                             <>
-                              {price.currency !== 'eur' && (
+                              {/* dont show a monthly Premium membership option */}
+                              {!(price.recurring.interval === 'month' && membershipOption.Membership.name === 'Premium') && (
                                 <>
-                                  <h4 className="membership_info">
-                                    <b>Interval:</b> {convertPriceToString(price)}
-                                  </h4>
-                                  <h4 className="membership_info">
-                                    <b>Price:</b> {buildCurrencyDisplay(price)}
-                                    {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
-                                  </h4>
-                                  <Button
-                                    button="secondary"
-                                    onClick={purchaseMembership}
-                                    membership-id={membershipOption.Membership.id}
-                                    membership-subscription-period={membershipOption.Membership.type}
-                                    price-id={price.id}
-                                    className="membership_button"
-                                    label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
-                                    icon={ICONS.FINANCE}
-                                  />
+                                  {price.currency !== 'eur' && (
+                                    <>
+                                      <h4 className="membership_info">
+                                        <b>Interval:</b> {convertPriceToString(price)}
+                                      </h4>
+                                      <h4 className="membership_info">
+                                        <b>Price:</b> {buildCurrencyDisplay(price)}
+                                        {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                      </h4>
+                                      <Button
+                                        button="secondary"
+                                        onClick={purchaseMembership}
+                                        membership-id={membershipOption.Membership.id}
+                                        membership-subscription-period={membershipOption.Membership.type}
+                                        price-id={price.id}
+                                        className="membership_button"
+                                        label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                        icon={ICONS.FINANCE}
+                                      />
+                                    </>
+                                  )}
                                 </>
                               )}
                             </>
