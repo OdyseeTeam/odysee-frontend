@@ -41,7 +41,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       console.log('purchase, purchase membership response');
       console.log(response);
 
-      var newURL = location.href.split("?")[0];
+      var newURL = location.href.split('?')[0];
       window.history.pushState('object', document.title, newURL);
 
       // $FlowFixMe

@@ -145,23 +145,23 @@ const OdyseeMembershipPage = (props: Props) => {
     location.reload();
   };
 
-  let featureStrings = {
-    plus: '',
-    premiumPlus: '',
-  }
+  function buildPurchaseString(price, interval, plan) {
+    console.log('plan');
+    console.log(plan);
+    let featureString;
+    if (plan === 'Premium') {
+      featureString = 'Your badges will be shown on up to three channels and you will have early access to new features. ';
+    } else if (featureString === 'Premium+') {
+      featureString = 'Your feature of no ads applies site-wide and badges are shown for up to three channels. ';
+    }
 
-  function buildPurchaseString(){
-    const thisDayOfTheMonth = 'today, the 5th of January';
-
-    let purchaseString = 'You are purchasing a monthly membership, that is active immediately ' +
-      `and will resubscribe monthly at a price of $2.99. ` +
-      'Your feature of no ads applies site-wide and badges are shown for up to 3 channels. ' +
+    let purchaseString = `You are purchasing a ${interval}ly membership, that is active immediately ` +
+      `and will resubscribe ${interval}ly at a price of USD $${price / 100}. ` +
+      featureString +
       'You can cancel the membership at any time and you can also close this window and choose a different subscription option.';
 
     return purchaseString;
   }
-
-
 
   const purchaseMembership = function (e, membershipOption, price) {
     e.preventDefault();
@@ -172,7 +172,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
     const membershipId = e.currentTarget.getAttribute('membership-id');
     const priceId = e.currentTarget.getAttribute('price-id');
-    const purchaseString = buildPurchaseString();
+    const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, membershipOption.Membership.name);
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
@@ -240,7 +240,7 @@ const OdyseeMembershipPage = (props: Props) => {
   }
 
   if (!stillWaitingFromBackend && planValue) {
-    setTimeout(function(){
+    setTimeout(function() {
       // clear query params
       window.history.replaceState(null, null, window.location.pathname);
 
