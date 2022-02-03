@@ -44,6 +44,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const [canceledMemberships, setCanceledMemberships] = React.useState();
   const [activeMemberships, setActiveMemberships] = React.useState();
   const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
+  const [hasShownModal, setHasShownModal] = React.useState(false);
 
   const hasMembership = activeMemberships && activeMemberships.length > 0;
 
@@ -183,6 +184,7 @@ const OdyseeMembershipPage = (props: Props) => {
     });
   };
 
+<<<<<<< HEAD
   return (
     <>
       <Page>
@@ -307,6 +309,69 @@ const OdyseeMembershipPage = (props: Props) => {
 =======
         {/*{!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (*/}
         {!changeFrontend ? (
+=======
+  function convertPriceToString(price) {
+    const interval = price.recurring.interval;
+
+    if (interval === 'year') {
+      return 'Yearly';
+    } else if (interval === 'month') {
+      return 'Monthly';
+    }
+  }
+
+  function capitalizeWord(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
+  function buildCurrencyDisplay(priceObject) {
+    let currencySymbol;
+    if (priceObject.currency === 'eur') {
+      currencySymbol = '€';
+    } else if (priceObject.currency === 'usd') {
+      currencySymbol = '$';
+    }
+
+    const currency = priceObject.currency.toUpperCase();
+
+    return currency + ' ' + currencySymbol;
+  }
+
+  const urlSearchParams = new URLSearchParams(window.location.search);
+  const params = Object.fromEntries(urlSearchParams.entries());
+
+  console.log(params);
+  const confirmValue = params.confirm;
+  const planValue = params.plan;
+  const pageLocation = params.pageLocation;
+
+  let changeFrontend = false;
+  if (pageLocation === 'confirmPage') {
+    changeFrontend = true;
+  }
+
+  if (!stillWaitingFromBackend && planValue) {
+    // clear query params
+    window.history.replaceState(null, null, window.location.pathname);
+
+    setHasShownModal(true);
+
+    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+      membershipId: 1,
+      hasMembership,
+    });
+  }
+
+  console.log('plan value');
+  console.log(planValue);
+
+  return (
+    <>
+      <Page>
+        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && (!planValue && !hasShownModal) ? (
+        // {!stillWaitingFromBackend && purchasedMemberships.length === 0 ? (
+        // {!changeFrontend ? (
+>>>>>>> 8824c1f36 (fix logic)
           <MembershipSplash pageLocation={'confirmPage'} />
         ) : (
           <div className={'card-stack'}>
