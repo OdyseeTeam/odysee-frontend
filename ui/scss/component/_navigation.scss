@@ -71,7 +71,7 @@
   }
 
   @media (min-width: $breakpoint-small) {
-    overflow-y: hidden;
+    // overflow-y: hidden;
     justify-content: space-between;
 
     &:hover {
