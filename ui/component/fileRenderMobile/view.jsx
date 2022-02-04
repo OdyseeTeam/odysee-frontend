@@ -56,22 +56,32 @@ export default function FileRenderMobile(props: Props) {
   const { push } = useHistory();
 
   const [fileViewerRect, setFileViewerRect] = useState();
+  // whether or not to move to next upload
+  // TODO: this name is a bit confusing
   const [doNavigate, setDoNavigate] = useState(false);
+
   const [playNextUrl, setPlayNextUrl] = useState(true);
   const [countdownCanceled, setCountdownCanceled] = useState(false);
 
+  // if it's a live livestream
   const isCurrentClaimLive = activeLivestreamForChannel && activeLivestreamForChannel.claimId === claimId;
+
+  /** whether to autoplay content variables **/
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || activeLivestreamForChannel;
   const isReadyToPlay = isPlayable && streamingUrl;
   const isCurrentMediaPlaying = playingUri && playingUri.uri === uri;
 
+  // resize video player
   const handleResize = React.useCallback(() => {
+    // select video player
     const element = document.querySelector(`.${PRIMARY_PLAYER_WRAPPER_CLASS}`);
 
+    // exit if no video
     if (!element) return;
 
+    // get the size of element and its position relative to the viewport
     const rect = element.getBoundingClientRect();
 
     // getBoundingClientRect returns a DomRect, not an object
@@ -89,7 +99,11 @@ export default function FileRenderMobile(props: Props) {
     // $FlowFixMe
     setFileViewerRect({ ...objectRect });
 
-    if (doSetMobilePlayerDimensions && (!mobilePlayerDimensions || mobilePlayerDimensions.height !== rect.height)) {
+    // resize player if the mobile player is not the same size as ____ dimensions
+    const shouldResizePlayer = !mobilePlayerDimensions || mobilePlayerDimensions.height !== rect.height;
+
+    // resize player
+    if (doSetMobilePlayerDimensions && shouldResizePlayer) {
       doSetMobilePlayerDimensions(rect.height, rect.width);
     }
   }, [doSetMobilePlayerDimensions, mobilePlayerDimensions]);
@@ -104,6 +118,7 @@ export default function FileRenderMobile(props: Props) {
     }
   }, [handleResize, uri]);
 
+  // run handleResize function when a resize event fires
   useEffect(() => {
     handleResize();
 
@@ -116,10 +131,15 @@ export default function FileRenderMobile(props: Props) {
     };
   }, [handleResize]);
 
+  // what does this do?
   const doPlay = React.useCallback(
+    //
     (playUri) => {
+      // what is happening here?
       setDoNavigate(false);
+      // get url for browser address
       const navigateUrl = formatLbryUrlForWeb(playUri);
+      // push to browser address
       push({
         pathname: navigateUrl,
         search: collectionId && generateListSearchUrlParams(collectionId),
@@ -129,9 +149,12 @@ export default function FileRenderMobile(props: Props) {
     [collectionId, push]
   );
 
+  // move to next autoplay video
   React.useEffect(() => {
+    // dont autoplay if it's turned off
     if (!doNavigate) return;
 
+    // play next uri
     if (playNextUrl && nextListUri) {
       doPlay(nextListUri);
     } else if (previousListUri) {
@@ -140,17 +163,19 @@ export default function FileRenderMobile(props: Props) {
     setPlayNextUrl(true);
   }, [doNavigate, doPlay, nextListUri, playNextUrl, previousListUri]);
 
-  if (
+  // different reasons why not to play video
+  const shouldntPlayVideo =
     !isCurrentMediaPlaying ||
     !isPlayable ||
     !uri ||
     countdownCanceled ||
-    (collectionId && !canViewFile && !nextListUri)
-  ) {
-    return null;
-  }
+    (collectionId && !canViewFile && !nextListUri);
+
+  // exit early if shouldn't play
+  if (shouldntPlayVideo) return null;
 
   return (
+    // mobile player parent div
     <div
       className="content__viewer content__viewer--inline content__viewer--mobile"
       style={
@@ -165,10 +190,12 @@ export default function FileRenderMobile(props: Props) {
     >
       <div className="content__wrapper">
         {isCurrentClaimLive && channelClaimId ? (
+          // livestream player
           <LivestreamIframeRender channelClaimId={channelClaimId} showLivestream mobileVersion />
         ) : isReadyToPlay ? (
+          // normal video player
           <FileRender uri={uri} />
-        ) : !canViewFile ? (
+        ) : !canViewFile ? ( // TODO: why do we load a countdown if it can't be viewed?
           <div className="content__loading">
             <AutoplayCountdown
               nextRecommendedUri={nextListUri}
@@ -183,6 +210,7 @@ export default function FileRenderMobile(props: Props) {
             />
           </div>
         ) : (
+          // loading screen if not ready to play
           <LoadingScreen status={__('Loading')} />
         )}
       </div>
