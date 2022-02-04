@@ -139,6 +139,11 @@ body {
       margin-top: var(--spacing-xs);
       .claim-preview__wrapper {
         padding: 0 !important;
+        a {
+          .button__content {
+            align-items: unset;
+          }
+        }
       }
     }
   }
