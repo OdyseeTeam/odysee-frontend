@@ -185,35 +185,6 @@ export const doFetchItemsInCollections = (
     }
   }
 
-  function formatForClaimActions(resultClaimsByUri) {
-    const formattedClaims = {};
-    Object.entries(resultClaimsByUri).forEach(([uri, uriResolveInfo]) => {
-      // Flow has terrible Object.entries support
-      // https://github.com/facebook/flow/issues/2221
-      if (uriResolveInfo) {
-        let result = {};
-        if (uriResolveInfo.value_type === 'channel') {
-          result.channel = uriResolveInfo;
-          // $FlowFixMe
-          result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-          // ALSO SKIP COLLECTIONS
-        } else if (uriResolveInfo.value_type === 'collection') {
-          result.collection = uriResolveInfo;
-        } else {
-          result.stream = uriResolveInfo;
-          if (uriResolveInfo.signing_channel) {
-            result.channel = uriResolveInfo.signing_channel;
-            result.claimsInChannel =
-              (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
-          }
-        }
-        // $FlowFixMe
-        formattedClaims[uri] = result;
-      }
-    });
-    return formattedClaims;
-  }
-
   const invalidCollectionIds = [];
   const promisedCollectionItemFetches = [];
   collectionIds.forEach((collectionId) => {
@@ -287,16 +258,8 @@ export const doFetchItemsInCollections = (
       invalidCollectionIds.push(collectionId);
     }
   });
-  const formattedClaimsByUri = formatForClaimActions(collectionItemsById);
 
-  const resolveInfo: {
-    [string]: {
-      stream: ?StreamClaim,
-      channel: ?ChannelClaim,
-      claimsInChannel: ?number,
-      collection: ?CollectionClaim,
-    },
-  } = {};
+  const resolveInfo: ClaimActionResolveInfo = {};
 
   const resolveReposts = true;
 
@@ -310,21 +273,16 @@ export const doFetchItemsInCollections = (
   });
 
   dispatch({
-    type: ACTIONS.RESOLVE_URIS_COMPLETED,
-    data: { resolveInfo: formattedClaimsByUri },
-  });
-
-  dispatch({
-    type: ACTIONS.RESOLVE_URIS_COMPLETED,
-    data: { resolveInfo },
-  });
-
-  dispatch({
     type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
     data: {
       resolvedCollections: newCollectionObjectsById,
       failedCollectionIds: invalidCollectionIds,
     },
+  });
+
+  dispatch({
+    type: ACTIONS.RESOLVE_URIS_COMPLETED,
+    data: { resolveInfo },
   });
 };
 
