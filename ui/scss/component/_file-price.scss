@@ -29,10 +29,12 @@
   font-size: var(--font-body);
   top: calc(var(--spacing-xxs) * -1);
   margin-left: var(--spacing-m);
+  margin-right: var(--spacing-m);
+  height: 2.4rem;
 
   .credit-amount {
     margin: 0 var(--spacing-m);
-    margin-bottom: -0.5rem;
+    margin-bottom: -0.9rem;
   }
 
   &::before {
