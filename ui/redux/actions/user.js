@@ -195,7 +195,7 @@ export function doAuthenticate(
       Lbryio.getTokens().then((tokens) => {
         dispatch({
           type: ACTIONS.AUTHENTICATION_SUCCESS,
-          data: { user },
+          data: { user, accessToken: tokens.access_token },
         });
 
         dispatch(doCheckUserOdyseeMemberships(user));
