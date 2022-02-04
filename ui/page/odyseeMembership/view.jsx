@@ -178,11 +178,11 @@ const OdyseeMembershipPage = (props: Props) => {
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
-      odyseeChannelId: userChannelClaimId,
+      odyseeChannelId: userChannelClaimId, // TODO: this needs to be renamed
       odyseeChannelName: userChannelName,
       priceId,
       purchaseString,
-      plan: planName
+      plan: planName,
     });
   };
 
@@ -191,11 +191,14 @@ const OdyseeMembershipPage = (props: Props) => {
 
     console.log(membership);
 
-    // TODO: build string here
+    const cancellationString = 'You are cancelling your Odysee Membership. You will still have access to all the paid ' +
+      'features until the point of the expiration of your current membership, at which point you will not be charged ' +
+      'again and your membership will no longer be active.';
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       hasMembership,
+      purchaseString: cancellationString,
     });
   };
 
