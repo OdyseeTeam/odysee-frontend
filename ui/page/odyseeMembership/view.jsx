@@ -494,7 +494,7 @@ const OdyseeMembershipPage = (props: Props) => {
             {!stillWaitingFromBackend && cardSaved === true && (
               <>
                 <div className="card__title-section">
-                  <h2 className="card__title">Your active Memberships</h2>
+                  <h2 className="card__title">Your Active Memberships</h2>
                 </div>
 
                 <Card>
