@@ -363,7 +363,7 @@
 
   .media__thumb {
     overflow: hidden;
-    $width: calc(var(--file-list-thumbnail-width * 1.2));
+    $width: var(--file-list-thumbnail-width);
     width: $width;
     @include handleClaimListGifThumbnail($width);
 
