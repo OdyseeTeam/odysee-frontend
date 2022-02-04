@@ -535,6 +535,15 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
+  @media (max-width: $breakpoint-small) {
+    .section__header--actions {
+      .section__actions--inline:last-of-type {
+        .button__label {
+          display: none;
+        }
+      }
+    }
+  }
   .card__body--list {
     background-color: rgba(var(--color-header-background-base), 0.4);
 
@@ -648,15 +657,6 @@ body {
     }
 
     &:hover:not(.opacity-30) {
-      /*
-      border-radius: var(--border-radius);
-      margin-left: calc(var(--spacing-xs) * -1);
-      padding-left: var(--spacing-xs);
-      margin-right: calc(var(--spacing-xs) * -1);
-      padding-right: var(--spacing-xs);
-      background-color: rgba(var(--color-header-background-base), 0.1);
-      */
-
       .settings__row--title {
         color: rgba(var(--color-text-base), 1);
       }
