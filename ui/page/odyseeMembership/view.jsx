@@ -403,7 +403,7 @@ const OdyseeMembershipPage = (props: Props) => {
                             <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
                           </h4>
                           <h4 className="membership_info">
-                            <b>Canceled At:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                            <b>Canceled On:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
                           </h4>
                           <h4 className="membership_info">
                             <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}

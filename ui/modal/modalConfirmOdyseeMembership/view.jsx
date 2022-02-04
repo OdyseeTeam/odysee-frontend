@@ -19,10 +19,12 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId, purchaseString, plan } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
+  const [statusText, setStatusText] = React.useState();
 
   async function purchaseMembership() {
     try {
       setWaitingForBackend(true);
+      setStatusText('Facilitating your purchase...');
 
       // show the memberships the user is subscribed to
       const response = await Lbryio.call(
@@ -44,10 +46,14 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       var newURL = location.href.split('?')[0];
       window.history.pushState('object', document.title, newURL);
 
-      // $FlowFixMe
-      location.reload();
+      setStatusText('Membership purchase was successful');
 
-      closeModal();
+      setTimeout(function(){
+        // $FlowFixMe
+        location.reload();
+        closeModal();
+      }, 950)
+
     } catch (err) {
       console.log(err);
     }
@@ -56,6 +62,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   // Cancel
   async function cancelMembership() {
     try {
+      setWaitingForBackend(true);
+      setStatusText('Canceling your membership...')
+
       // show the memberships the user is subscribed to
       const response = await Lbryio.call(
         'membership',
@@ -70,8 +79,12 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       console.log('cancel, cancel membership response');
       console.log(response);
 
-      // $FlowFixMe
-      location.reload();
+      setStatusText('Membership successfully canceled');
+
+      setTimeout(function() {
+        // $FlowFixMe
+        location.reload();
+      }, 950);
     } catch (err) {
       console.log(err);
     }
@@ -99,11 +112,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             )}
             {waitingForBackend && (
               <>
-                {hasMembership ? (
-                  <h1 style={{ fontSize: '18px' }}>Facilitating your cancel...</h1>
-                ) : (
-                  <h1 style={{ fontSize: '18px' }}>Facilitating your purchase...</h1>
-                )}
+                  <h1 style={{ fontSize: '18px' }}>{statusText}</h1>
               </>
             )}
           </div>
