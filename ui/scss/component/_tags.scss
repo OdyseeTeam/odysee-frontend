@@ -89,8 +89,12 @@
     background-color: var(--color-tag-words-bg);
 
     &:hover {
-      color: var(--color-tag-words-hover);
-      background-color: var(--color-tag-words-bg-hover);
+      background-color: var(--color-primary);
+      .button__content {
+        .button__label {
+          color: var(--color-primary-contrast);
+        }
+      }
     }
   }
 
