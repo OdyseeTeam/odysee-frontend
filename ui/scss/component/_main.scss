@@ -74,7 +74,7 @@ body {
 }
 
 .main-wrapper__inner--auth {
-  min-height: unset;
+  min-height: calc(100vh - var(--header-height));
   padding: 0;
 
   .main--auth-page {

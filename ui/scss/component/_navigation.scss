@@ -70,8 +70,8 @@
     color: var(--color-odysee-contrast) !important;
   }
 
-  @media (min-width: $breakpoint-small) {
-    // overflow-y: hidden;
+  @media (min-width: $breakpoint-medium) {
+    overflow-y: hidden;
     justify-content: space-between;
 
     &:hover {
