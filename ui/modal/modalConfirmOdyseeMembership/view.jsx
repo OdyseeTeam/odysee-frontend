@@ -63,7 +63,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   async function cancelMembership() {
     try {
       setWaitingForBackend(true);
-      setStatusText('Canceling your membership...')
+      setStatusText('Canceling your membership...');
 
       // show the memberships the user is subscribed to
       const response = await Lbryio.call(
