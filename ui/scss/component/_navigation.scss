@@ -89,6 +89,12 @@
   }
 }
 
+.navigation-touch {
+  @media (min-width: $breakpoint-medium) {
+    overflow-y: auto;
+  }
+}
+
 .navigation--push-back {
   transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
 }
