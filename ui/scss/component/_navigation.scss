@@ -90,9 +90,7 @@
 }
 
 .navigation-touch {
-  @media (min-width: $breakpoint-medium) {
-    overflow-y: auto;
-  }
+  overflow-y: auto !important;
 }
 
 .navigation--push-back {
