@@ -2,6 +2,7 @@
 import { ENABLE_PREROLL_ADS } from 'config';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/pages';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { stopContextMenu } from 'util/context-menu';
 import type { Player } from './internal/videojs';
@@ -265,6 +266,12 @@ function VideoViewer(props: Props) {
   function onDispose(event, player) {
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
+
+    const almostFinsished = player.currentTime() / player.duration() >= VIDEO_ALMOST_FINISHED_THRESHOLD;
+
+    if (player.ended() || almostFinsished) {
+      clearPosition(permanentUrl);
+    }
   }
 
   function handlePosition(player) {

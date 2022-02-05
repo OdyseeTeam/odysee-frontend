@@ -86,3 +86,4 @@ exports.LIVESTREAM_CURRENT = 'live';
 exports.GENERAL = 'general';
 exports.LIST = 'list';
 exports.POPOUT = 'popout';
+exports.VIDEO_ALMOST_FINISHED_THRESHOLD = 0.8;
