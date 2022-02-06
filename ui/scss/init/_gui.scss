@@ -890,6 +890,13 @@ textarea {
   }
 }
 
+.scheduledLivestream-wrapper {
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s);
+    padding-top: 0;
+  }
+}
+
 // Temporary master classes
 .date_time {
   font-size: var(--font-xsmall);
