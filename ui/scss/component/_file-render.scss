@@ -843,7 +843,7 @@ $control-bar-icon-size: 0.8rem;
 
   > :first-child {
     margin-bottom: 0;
-    margin-right: 1rem;
+    margin-right: var(--spacing-s);
   }
 }
 

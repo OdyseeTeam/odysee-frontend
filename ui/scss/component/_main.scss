@@ -150,7 +150,7 @@ body {
 
   .media__subtitle--centered::before {
     content: '•';
-    margin-right: var(--spacing-m);
+    margin-right: var(--spacing-s);
   }
 
   @keyframes fadeIn {
