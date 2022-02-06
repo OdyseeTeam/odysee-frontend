@@ -11,6 +11,15 @@ $actions-z-index: 2;
     }
   }
 
+  fieldset-group {
+    fieldset-section:last-of-type {
+      label {
+        text-align: right;
+        margin-left: unset !important;
+      }
+    }
+  }
+
   .claim-preview__wrapper--channel {
     .menu__button {
       right: var(--spacing-s);
