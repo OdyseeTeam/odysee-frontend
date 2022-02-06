@@ -894,6 +894,16 @@ textarea {
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
     padding-top: 0;
+
+    .card__main-actions {
+      .claim-preview__wrapper {
+        a {
+          .button__content {
+            align-items: unset;
+          }
+        }
+      }
+    }
   }
 }
 
