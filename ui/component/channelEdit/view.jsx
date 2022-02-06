@@ -219,6 +219,7 @@ function ChannelForm(props: Props) {
 
   function handleSubmit() {
     if (uri) {
+      console.log('Params A: ', params);
       updateChannel(params).then((success) => {
         if (success) {
           onDone();

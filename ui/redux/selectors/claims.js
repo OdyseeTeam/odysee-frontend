@@ -397,7 +397,7 @@ export const makeSelectCoverForUri = (uri: string) =>
       return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
     } else {
       const cover = claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.cover;
-      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : false;
+      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
     }
   });
 
