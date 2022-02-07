@@ -267,9 +267,9 @@ function VideoViewer(props: Props) {
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
 
-    const almostFinisished = player.currentTime() / player.duration() >= VIDEO_ALMOST_FINISHED_THRESHOLD;
+    const almostFinished = player.currentTime() / player.duration() >= VIDEO_ALMOST_FINISHED_THRESHOLD;
 
-    if (player.ended() || almostFinisished) {
+    if (player.ended() || almostFinished) {
       clearPosition(permanentUrl);
     }
   }
