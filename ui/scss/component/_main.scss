@@ -157,6 +157,10 @@
     width: 35rem;
     margin-left: var(--spacing-m);
 
+    .card__header--between {
+      align-items: center;
+    }
+
     @media (max-width: $breakpoint-medium) {
       width: 100%;
       margin-left: 0;
@@ -169,6 +173,21 @@
     flex-direction: column;
     overflow-wrap: break-word;
 
+    .card__header--between {
+      align-items: flex-start !important;
+
+      .card__title-actions {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        padding: var(--spacing-s);
+
+        button {
+          margin-top: var(--spacing-xxs);
+        }
+      }
+    }
+
     .file-page__recommended-collection__row {
       display: block;
 
@@ -179,6 +198,15 @@
       @media (max-width: $breakpoint-medium) {
         max-width: 50rem;
       }
+    }
+
+    .collection-preview__edit-group {
+      width: 1.5rem;
+    }
+
+    .claim-preview--collection-mine {
+      padding-left: 6.5rem;
+      position: relative;
     }
   }
 
@@ -281,6 +309,14 @@
 .main--full-width {
   @extend .main;
   max-width: none;
+}
+
+.main--popout-chat {
+  @extend .main;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
 }
 
 .main--auth-page {

@@ -1,3 +1,4 @@
+import { RECSYS_ENDPOINT } from 'config';
 import { selectUser } from 'redux/selectors/user';
 import { makeSelectRecommendedRecsysIdForClaimId } from 'redux/selectors/search';
 import { v4 as Uuidv4 } from 'uuid';
@@ -8,7 +9,7 @@ import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
 import { history } from 'ui/store';
 
-const recsysEndpoint = 'https://recsys.odysee.com/log/video/view';
+const recsysEndpoint = RECSYS_ENDPOINT;
 const recsysId = 'lighthouse-v0';
 
 const getClaimIdsFromUris = (uris) => {
@@ -43,6 +44,7 @@ const recsys = {
    *  - pageLoadedAt
    *  - isEmbed
    *  - pageExitedAt
+   *  - autoplay
    *  - recsysId // optional
    */
 
@@ -152,6 +154,16 @@ const recsys = {
    * @param event
    */
   onRecsysPlayerEvent: function (claimId, event, isEmbedded) {
+    const state = window.store.getState();
+    const autoPlayNext = state && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
+    // Check if played through (4 = onEnded) and handle multiple events at end
+    if (recsys.entries[claimId] && !recsys.entries[claimId]['autoplay'] === true) {
+      if (autoPlayNext && event.event === 4) {
+        recsys.entries[claimId]['autoplay'] = true;
+      } else {
+        recsys.entries[claimId]['autoplay'] = false;
+      }
+    }
     if (!recsys.entries[claimId]) {
       recsys.createRecsysEntry(claimId);
       // do something to show it's floating or autoplay
@@ -235,7 +247,7 @@ const recsys = {
         const shouldSkip = recsys.entries[claimId].parentUuid && !recsys.entries[claimId].recClaimIds;
         if (!shouldSkip && ((claimId !== playingClaimId && floatingPlayer) || !floatingPlayer)) {
           recsys.entries[claimId]['pageExitedAt'] = Date.now();
-          recsys.sendRecsysEntry(claimId);
+          // recsys.sendRecsysEntry(claimId); breaks pop out = off, not helping with browser close.
         }
         recsys.log('OnNavigate', claimId);
       });

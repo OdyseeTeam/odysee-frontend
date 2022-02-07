@@ -48,14 +48,14 @@ export default handleActions(
     },
     [ACTIONS.CHANNEL_UNSUBSCRIBE]: (state: SubscriptionState, action): SubscriptionState => {
       const subscriptionToRemove: Subscription = action.data;
+
       const newSubscriptions = state.subscriptions
         .slice()
-        .filter(
-          (subscription) => subscription.channelName.toLowerCase() !== subscriptionToRemove.channelName.toLowerCase()
-        );
+        .filter((subscription) => !isURIEqual(subscription.uri, subscriptionToRemove.uri));
+
       const newFollowing = state.following
         .slice()
-        .filter((subscription) => subscription.uri !== subscriptionToRemove.uri);
+        .filter((subscription) => !isURIEqual(subscription.uri, subscriptionToRemove.uri));
 
       return {
         ...state,

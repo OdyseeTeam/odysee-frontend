@@ -1,9 +1,11 @@
+// @flow
 // Widths are taken from "ui/scss/init/vars.scss"
-import React from 'react';
+import React, { useRef } from 'react';
+const DEFAULT_SCREEN_SIZE = 1080;
 
-function useWindowSize() {
+export function useWindowSize() {
   const isWindowClient = typeof window === 'object';
-  const [windowSize, setWindowSize] = React.useState(isWindowClient ? window.innerWidth : undefined);
+  const [windowSize, setWindowSize] = React.useState(isWindowClient ? window.innerWidth : DEFAULT_SCREEN_SIZE);
 
   React.useEffect(() => {
     function setSize() {
@@ -15,22 +17,44 @@ function useWindowSize() {
 
       return () => window.removeEventListener('resize', setSize);
     }
-  }, [isWindowClient, setWindowSize]);
+  }, [isWindowClient]);
+
+  return windowSize;
+}
+
+function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => boolean) {
+  const isWindowClient = typeof window === 'object';
+  const initialState = isWindowClient ? comparisonFn(window.innerWidth) : comparisonFn(DEFAULT_SCREEN_SIZE);
+  const [windowSize, setWindowSize] = React.useState(initialState);
+  const prev = useRef(window.innerWidth);
+
+  React.useEffect(() => {
+    function setSize() {
+      const curr = comparisonFn(window.innerWidth);
+      if (prev !== curr) {
+        setWindowSize(curr);
+        prev.current = curr;
+      }
+    }
+
+    if (isWindowClient) {
+      window.addEventListener('resize', setSize);
+
+      return () => window.removeEventListener('resize', setSize);
+    }
+  }, [isWindowClient]);
 
   return windowSize;
 }
 
 export function useIsMobile() {
-  const windowSize = useWindowSize();
-  return windowSize < 901;
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 901);
 }
 
 export function useIsMediumScreen() {
-  const windowSize = useWindowSize();
-  return windowSize < 1151;
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1151);
 }
 
 export function useIsLargeScreen() {
-  const windowSize = useWindowSize();
-  return windowSize > 1600;
+  return useHasWindowWidthChangedEnough((windowSize) => windowSize > 1600);
 }

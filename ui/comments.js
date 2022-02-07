@@ -1,25 +1,17 @@
 // @flow
 import { COMMENT_SERVER_API } from 'config';
 
+// prettier-ignore
 const Comments = {
   url: COMMENT_SERVER_API,
   enabled: Boolean(COMMENT_SERVER_API),
-  isCustomServer: false,
-
-  setServerUrl: (customUrl: ?string) => {
-    Comments.url = customUrl === undefined ? COMMENT_SERVER_API : customUrl;
-    Comments.enabled = Boolean(Comments.url);
-    Comments.isCustomServer = Comments.url !== COMMENT_SERVER_API;
-  },
 
   moderation_block: (params: ModerationBlockParams) => fetchCommentsApi('moderation.Block', params),
   moderation_unblock: (params: ModerationBlockParams) => fetchCommentsApi('moderation.UnBlock', params),
   moderation_block_list: (params: BlockedListArgs) => fetchCommentsApi('moderation.BlockedList', params),
   moderation_add_delegate: (params: ModerationAddDelegateParams) => fetchCommentsApi('moderation.AddDelegate', params),
-  moderation_remove_delegate: (params: ModerationRemoveDelegateParams) =>
-    fetchCommentsApi('moderation.RemoveDelegate', params),
-  moderation_list_delegates: (params: ModerationListDelegatesParams) =>
-    fetchCommentsApi('moderation.ListDelegates', params),
+  moderation_remove_delegate: (params: ModerationRemoveDelegateParams) => fetchCommentsApi('moderation.RemoveDelegate', params),
+  moderation_list_delegates: (params: ModerationListDelegatesParams) => fetchCommentsApi('moderation.ListDelegates', params),
   moderation_am_i: (params: ModerationAmIParams) => fetchCommentsApi('moderation.AmI', params),
   comment_list: (params: CommentListParams) => fetchCommentsApi('comment.List', params),
   comment_abandon: (params: CommentAbandonParams) => fetchCommentsApi('comment.Abandon', params),
@@ -39,9 +31,7 @@ const Comments = {
 };
 
 function fetchCommentsApi(method: string, params: {}) {
-  if (!Comments.url) {
-    return Promise.reject(new Error('Commenting server is not set.'));
-  } else if (!Comments.enabled) {
+  if (!Comments.enabled) {
     return Promise.reject('Comments are not currently enabled.'); // eslint-disable-line
   }
 

@@ -2,7 +2,13 @@
 import { handleActions } from 'util/redux-utils';
 import { buildURI } from 'util/lbryURI';
 import { serializeFileObj } from 'util/file';
-import { tusLockAndNotify, tusUnlockAndNotify, tusRemoveAndNotify, tusClearRemovedUploads } from 'util/tus';
+import {
+  tusLockAndNotify,
+  tusUnlockAndNotify,
+  tusRemoveAndNotify,
+  tusClearRemovedUploads,
+  tusClearLockedUploads,
+} from 'util/tus';
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
@@ -33,6 +39,7 @@ type PublishState = {
   language: string,
   releaseTime: ?number,
   releaseTimeEdited: ?number,
+  releaseAnytime: boolean,
   channel: string,
   channelId: ?string,
   name: string,
@@ -45,6 +52,8 @@ type PublishState = {
   optimize: boolean,
   useLBRYUploader: boolean,
   currentUploads: { [key: string]: FileUploadItem },
+  isMarkdownPost: boolean,
+  isLivestreamPublish: boolean,
 };
 
 const defaultState: PublishState = {
@@ -69,6 +78,7 @@ const defaultState: PublishState = {
   language: '',
   releaseTime: undefined,
   releaseTimeEdited: undefined,
+  releaseAnytime: false,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
   channelId: '',
@@ -86,6 +96,8 @@ const defaultState: PublishState = {
   optimize: false,
   useLBRYUploader: false,
   currentUploads: {},
+  isMarkdownPost: false,
+  isLivestreamPublish: false,
 };
 
 export const publishReducer = handleActions(
@@ -161,6 +173,14 @@ export const publishReducer = handleActions(
 
       if (guid === 'force--update') {
         return { ...state, currentUploads };
+      } else if (guid === 'refresh--lock') {
+        // Re-lock all uploads that are in progress under our tab.
+        const uploadKeys = Object.keys(currentUploads);
+        uploadKeys.forEach((k) => {
+          if (currentUploads[k].uploader) {
+            tusLockAndNotify(k);
+          }
+        });
       }
 
       if (!currentUploads[key]) {
@@ -226,6 +246,8 @@ export const publishReducer = handleActions(
           } else {
             tusClearRemovedUploads();
           }
+
+          tusClearLockedUploads();
         }
 
         return newPublish;

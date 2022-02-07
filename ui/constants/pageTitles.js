@@ -7,10 +7,11 @@ import * as PAGES from 'constants/pages';
 
 export const PAGE_TITLE = {
   // --- Categories ---
-  [PAGES.BIG_HITS]: 'Big Hits',
+  [PAGES.CREATIVE_ARTS]: 'Creative Arts',
   [PAGES.DISCOVER]: 'Wild West',
   [PAGES.EDUCATION]: 'Education',
   [PAGES.ENLIGHTENMENT]: 'Enlightenment',
+  [PAGES.FEATURED]: 'Featured',
   [PAGES.FINANCE]: 'Finance 2.0',
   [PAGES.GAMING]: 'Gaming',
   [PAGES.GENERAL]: 'Cheese',
@@ -19,7 +20,6 @@ export const PAGE_TITLE = {
   [PAGES.MUSIC]: 'Music',
   [PAGES.NEWS]: 'News & Politics',
   [PAGES.POP_CULTURE]: 'Pop Culture',
-  // [PAGES.RABBIT_HOLE]: 'The Rabbit Hole';
   [PAGES.TECH]: 'Tech',
   [PAGES.UNIVERSE]: 'The Universe',
   [PAGES.WILD_WEST]: 'Wild West',
@@ -51,7 +51,7 @@ export const PAGE_TITLE = {
   [PAGES.SEARCH]: 'Search',
   [PAGES.SEND]: 'Send Credits',
   [PAGES.SETTINGS]: 'Settings',
-  [PAGES.SETTINGS_BLOCKED_MUTED]: 'Block and muted channels',
+  [PAGES.SETTINGS_BLOCKED_MUTED]: 'Blocked and muted channels',
   [PAGES.SETTINGS_CREATOR]: 'Creator settings',
   [PAGES.SETTINGS_NOTIFICATIONS]: 'Manage notifications',
   [PAGES.SETTINGS_STRIPE_ACCOUNT]: 'Bank Accounts',

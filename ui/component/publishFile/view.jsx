@@ -19,6 +19,7 @@ import Empty from 'component/common/empty';
 import moment from 'moment';
 import classnames from 'classnames';
 import ReactPaginate from 'react-paginate';
+import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
 
 type Props = {
   uri: ?string,
@@ -51,6 +52,10 @@ type Props = {
   channelSignature: { signature?: string, signing_ts?: string },
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
+  setOverMaxBitrate: (boolean) => void,
+  fileSource: string,
+  changeFileSource: (string) => void,
+  inEditMode: boolean,
 };
 
 function PublishFile(props: Props) {
@@ -84,13 +89,14 @@ function PublishFile(props: Props) {
     channelSignature,
     isCheckingLivestreams,
     setWaitForFile,
+    setOverMaxBitrate,
+    fileSource,
+    changeFileSource,
+    inEditMode,
   } = props;
 
-  const SOURCE_NONE = 'none';
-  const SOURCE_SELECT = 'select';
-  const SOURCE_UPLOAD = 'upload';
-
   const RECOMMENDED_BITRATE = 6000000;
+  const MAX_BITRATE = 12000000;
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
@@ -114,16 +120,13 @@ function PublishFile(props: Props) {
   const fileSelectorModes = [
     { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
     { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
-    { label: __('None'), actionName: SOURCE_NONE },
+    { label: isLivestreamClaim ? __('Edit / Update') : __('None'), actionName: SOURCE_NONE },
   ];
 
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
-  const showSourceSelector = isLivestreamClaim || (hasLivestreamData && mode === PUBLISH_MODES.FILE);
 
-  const [fileSelectSource, setFileSelectSource] = useState(
-    IS_WEB && showSourceSelector && name ? SOURCE_SELECT : SOURCE_UPLOAD
-  );
+  const [showSourceSelector, setShowSourceSelector] = useState(false);
   // const [showFileUpdate, setShowFileUpdate] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(null);
   const PAGE_SIZE = 4;
@@ -142,15 +145,29 @@ function PublishFile(props: Props) {
     }
   }, [currentFileType, mode, isStillEditing, updatePublishForm]);
 
-  // set default file source to select if necessary
+  // Initialize default file source state for each mode.
   useEffect(() => {
-    if (hasLivestreamData && isLivestreamClaim) {
-      setWaitForFile(true);
-      setFileSelectSource(SOURCE_SELECT);
-    } else if (isLivestreamClaim) {
-      setFileSelectSource(SOURCE_NONE);
+    setShowSourceSelector(false);
+    switch (mode) {
+      case PUBLISH_MODES.LIVESTREAM:
+        if (inEditMode) {
+          changeFileSource(SOURCE_SELECT);
+          setShowSourceSelector(true);
+        } else {
+          changeFileSource(SOURCE_NONE);
+        }
+        break;
+      case PUBLISH_MODES.POST:
+        changeFileSource(SOURCE_NONE);
+        break;
+      case PUBLISH_MODES.FILE:
+        if (hasLivestreamData) setShowSourceSelector(true);
+        changeFileSource(SOURCE_UPLOAD);
+        break;
+      default:
+        changeFileSource(SOURCE_UPLOAD);
     }
-  }, [hasLivestreamData, isLivestreamClaim, setFileSelectSource]);
+  }, [mode, hasLivestreamData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const normalizeUrlForProtocol = (url) => {
     if (url.startsWith('https://')) {
@@ -177,6 +194,7 @@ function PublishFile(props: Props) {
     if (!filePath || filePath === '') {
       setCurrentFile('');
       setOversized(false);
+      setOverMaxBitrate(false);
       updateFileInfo(0, 0, false);
     } else if (typeof filePath !== 'string') {
       // Update currentFile file
@@ -241,16 +259,34 @@ function PublishFile(props: Props) {
       return (
         <p className="help--error">
           {UPLOAD_SIZE_MESSAGE}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://lbry.com/faq/video-publishing-guide" />
+          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
         </p>
       );
     }
     // @endif
-    if (isVid && duration && getBitrate(size, duration) > RECOMMENDED_BITRATE) {
+    let bitRate = getBitrate(size, duration);
+    let overMaxBitrate = bitRate > MAX_BITRATE;
+    if (overMaxBitrate) {
+      setOverMaxBitrate(true);
+    } else {
+      setOverMaxBitrate(false);
+    }
+
+    if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
       return (
         <p className="help--warning">
-          {__('Your video has a bitrate over 5 Mbps. We suggest transcoding to provide viewers the best experience.')}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
+          {overMaxBitrate
+            ? __(
+                'Your video has a bitrate over ~12 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
+              )
+            : __(
+                'Your video has a bitrate over 5 Mbps. We suggest transcoding to provide viewers the best experience.'
+              )}{' '}
+          <Button
+            button="link"
+            label={__('Upload Guide')}
+            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
+          />
         </p>
       );
     }
@@ -261,7 +297,11 @@ function PublishFile(props: Props) {
           {__(
             'Your video may not be the best format. Use MP4s in H264/AAC format and a friendly bitrate (under 5 Mbps) and resolution (720p) for more reliable streaming.'
           )}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
+          <Button
+            button="link"
+            label={__('Upload Guide')}
+            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
+          />
         </p>
       );
     }
@@ -286,7 +326,11 @@ function PublishFile(props: Props) {
             'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 5 Mbps) and resolution (720p) for more reliable streaming. %SITE_NAME% uploads are restricted to %limit% GB.',
             { SITE_NAME, limit: TV_PUBLISH_SIZE_LIMIT_GB_STR }
           )}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://lbry.com/faq/video-publishing-guide" />
+          <Button
+            button="link"
+            label={__('Upload Guide')}
+            href="https://odysee.com/@OdyseeHelp:b/uploadguide:1?lc=e280f6e6fdec3f5fd4043954c71add50b3fd2d6a9f3ddba979b459da6ae4a1f4"
+          />
         </p>
       );
     }
@@ -328,7 +372,7 @@ function PublishFile(props: Props) {
         updatePublishForm({ remoteFileUrl: livestreamData[selectedFileIndex].data.fileLocation });
       }
     }
-    setFileSelectSource(source);
+    changeFileSource(source);
     setWaitForFile(source !== SOURCE_NONE);
   }
 
@@ -351,6 +395,7 @@ function PublishFile(props: Props) {
     const { showToast } = props;
     window.URL = window.URL || window.webkitURL;
     setOversized(false);
+    setOverMaxBitrate(false);
 
     // select file, start to select a new one, then cancel
     if (!file) {
@@ -415,7 +460,7 @@ function PublishFile(props: Props) {
     if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
       setOversized(true);
       showToast(__(UPLOAD_SIZE_MESSAGE));
-      updatePublishForm({ filePath: '', name: '' });
+      updatePublishForm({ filePath: '' });
       return;
     }
     // @endif
@@ -437,7 +482,7 @@ function PublishFile(props: Props) {
     updatePublishForm(publishFormParams);
   }
 
-  const showFileUpload = mode === PUBLISH_MODES.FILE;
+  const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
   const isPublishPost = mode === PUBLISH_MODES.POST;
 
   return (
@@ -493,13 +538,13 @@ function PublishFile(props: Props) {
                             handleFileSource(fmode.actionName);
                           }}
                           className={classnames('button-toggle', {
-                            'button-toggle--active': fileSelectSource === fmode.actionName,
+                            'button-toggle--active': fileSource === fmode.actionName,
                           })}
                         />
                       ))}
                     </div>
                   </div>
-                  {fileSelectSource === SOURCE_SELECT && (
+                  {fileSource === SOURCE_SELECT && (
                     <Button
                       button="secondary"
                       label={__('Check for Replays')}
@@ -514,7 +559,7 @@ function PublishFile(props: Props) {
               </fieldset-section>
             )}
 
-            {fileSelectSource === SOURCE_UPLOAD && showFileUpload && (
+            {fileSource === SOURCE_UPLOAD && showFileUpload && (
               <>
                 <FileSelector
                   label={__('File')}
@@ -528,7 +573,7 @@ function PublishFile(props: Props) {
                 {getUploadMessage()}
               </>
             )}
-            {fileSelectSource === SOURCE_SELECT && showFileUpload && hasLivestreamData && !isCheckingLivestreams && (
+            {fileSource === SOURCE_SELECT && showFileUpload && hasLivestreamData && !isCheckingLivestreams && (
               <>
                 <fieldset-section>
                   <label>{__('Select Replay')}</label>
@@ -602,12 +647,12 @@ function PublishFile(props: Props) {
                 </fieldset-group>
               </>
             )}
-            {fileSelectSource === SOURCE_SELECT && showFileUpload && !hasLivestreamData && !isCheckingLivestreams && (
+            {fileSource === SOURCE_SELECT && showFileUpload && !hasLivestreamData && !isCheckingLivestreams && (
               <div className="main--empty empty">
                 <Empty text={__('No replays found.')} />
               </div>
             )}
-            {fileSelectSource === SOURCE_SELECT && showFileUpload && isCheckingLivestreams && (
+            {fileSource === SOURCE_SELECT && showFileUpload && isCheckingLivestreams && (
               <div className="main--empty empty">
                 <Spinner small />
               </div>

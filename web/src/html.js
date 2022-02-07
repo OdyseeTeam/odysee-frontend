@@ -18,6 +18,7 @@ const {
   generateStreamUrl,
   getParameterByName,
   getThumbnailCdnUrl,
+  escapeHtmlProperty,
 } = require('../../ui/util/web');
 const { getJsBundleId } = require('../bundle-id.js');
 const { lbryProxy: Lbry } = require('../lbry');
@@ -54,18 +55,7 @@ function truncateDescription(description, maxChars = 200) {
   return chars.length > maxChars ? truncated + '...' : truncated;
 }
 
-function escapeHtmlProperty(property) {
-  return property
-    ? String(property)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#039;')
-    : '';
-}
-
-function getCategoryMeta(path) {
+function getCategoryMetaRenderFn(path) {
   const page = Object.keys(CATEGORY_METADATA).find((x) => path === `/$/${x}` || path === `/$/${x}/`);
   return CATEGORY_METADATA[page];
 }
@@ -74,14 +64,16 @@ function getCategoryMeta(path) {
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path } = overrideOptions;
-  const cleanDescription = removeMd(description || SITE_DESCRIPTION);
+  const { title, description, image, path, urlQueryString } = overrideOptions;
+  const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
+  const cleanTitle = escapeHtmlProperty(title);
+  const url = (path ? `${URL}${path}` : URL) + (urlQueryString ? `?${urlQueryString}` : '');
 
   const head =
     `<title>${SITE_TITLE}</title>\n` +
     `<meta name="description" content="${cleanDescription}" />\n` +
-    `<meta property="og:url" content="${path ? `${URL}${path}` : URL}" />\n` +
-    `<meta property="og:title" content="${title || OG_HOMEPAGE_TITLE || SITE_TITLE}" />\n` +
+    `<meta property="og:url" content="${url}" />\n` +
+    `<meta property="og:title" content="${cleanTitle || OG_HOMEPAGE_TITLE || SITE_TITLE}" />\n` +
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
     `<meta property="og:description" content="${cleanDescription}" />\n` +
     `<meta property="og:image" content="${
@@ -90,7 +82,7 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
     `<meta name="twitter:title" content="${
-      (title && title + ' ' + OG_TITLE_SUFFIX) || OG_HOMEPAGE_TITLE || SITE_TITLE
+      (cleanTitle && cleanTitle + ' ' + OG_TITLE_SUFFIX) || OG_HOMEPAGE_TITLE || SITE_TITLE
     }" />\n` +
     `<meta name="twitter:description" content="${cleanDescription}" />\n` +
     `<meta name="twitter:image" content="${
@@ -204,10 +196,10 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   head += `<link rel="canonical" content="${claimPath}"/>`;
   head += `<link rel="alternate" type="application/json+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
     claimPath
-  )}&format=json${referrerQuery ? `&r=${referrerQuery}` : ''}" title="${title}" />`;
+  )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
   head += `<link rel="alternate" type="text/xml+oembed" href="${URL}/$/oembed?url=${encodeURIComponent(
     claimPath
-  )}&format=xml${referrerQuery ? `&r=${referrerQuery}` : ''}" title="${title}" />`;
+  )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
 
   if (mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) {
     const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);
@@ -355,12 +347,11 @@ async function getHtml(ctx) {
     return insertToHead(html);
   }
 
-  const categoryMeta = getCategoryMeta(requestPath);
-  if (categoryMeta) {
+  const categoryMetaFn = getCategoryMetaRenderFn(requestPath);
+  if (categoryMetaFn) {
+    const categoryMeta = categoryMetaFn(ctx.request.query);
     const categoryPageMetadata = buildOgMetadata({
-      title: categoryMeta.title,
-      description: categoryMeta.description,
-      image: categoryMeta.image,
+      ...categoryMeta,
       path: requestPath,
     });
     return insertToHead(html, categoryPageMetadata);
@@ -369,7 +360,7 @@ async function getHtml(ctx) {
   if (!requestPath.includes('$')) {
     const claimUri = normalizeClaimUrl(requestPath.slice(1));
     const claim = await resolveClaimOrRedirect(ctx, claimUri);
-    const referrerQuery = getParameterByName('r', ctx.request.url);
+    const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
 
     if (claim) {
       const ogMetadata = buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);

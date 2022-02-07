@@ -8,17 +8,32 @@ import { useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
 import { LIVESTREAM_UPCOMING_BUFFER } from 'constants/livestream';
-import ClaimListDiscoverContext from 'component/claimListDiscover/context';
+import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import * as SETTINGS from 'constants/settings';
 
 type Props = {
   channelIds: Array<string>,
   tileLayout: boolean,
   liveUris: Array<string>,
   limitClaimsPerChannel?: number,
+  onLoad: (number) => void,
+  showHideSetting: boolean,
+  // --- perform ---
+  setClientSetting: (string, boolean | string | number, boolean) => void,
+  doShowSnackBar: (string) => void,
 };
 
 const ScheduledStreams = (props: Props) => {
-  const { channelIds, tileLayout, liveUris = [], limitClaimsPerChannel } = props;
+  const {
+    channelIds,
+    tileLayout,
+    liveUris = [],
+    limitClaimsPerChannel,
+    setClientSetting,
+    doShowSnackBar,
+    onLoad,
+    showHideSetting = true,
+  } = props;
   const isMediumScreen = useIsMediumScreen();
   const isLargeScreen = useIsLargeScreen();
 
@@ -26,69 +41,88 @@ const ScheduledStreams = (props: Props) => {
   const [showAllUpcoming, setShowAllUpcoming] = React.useState(false);
 
   const showUpcomingLivestreams = totalUpcomingLivestreams > 0;
+  const useSwipeLayout = totalUpcomingLivestreams > 1 && isMediumScreen;
 
   const upcomingMax = React.useMemo(() => {
-    if (showAllUpcoming) return 50;
+    if (showAllUpcoming || useSwipeLayout) return 50;
     if (isLargeScreen) return 6;
     if (isMediumScreen) return 3;
     return 4;
-  }, [showAllUpcoming, isMediumScreen, isLargeScreen]);
+  }, [showAllUpcoming, isMediumScreen, isLargeScreen, useSwipeLayout]);
 
   const loadedCallback = (total) => {
     setTotalUpcomingLivestreams(total);
+    if (typeof onLoad === 'function') onLoad(total);
+  };
+
+  const hideScheduledStreams = () => {
+    setClientSetting(SETTINGS.HIDE_SCHEDULED_LIVESTREAMS, true, true);
+    doShowSnackBar(__('Scheduled streams hidden, you can re-enable them in settings.'));
+  };
+
+  const Header = () => {
+    return (
+      <div>
+        {__('Upcoming Livestreams')}
+        {showHideSetting && (
+          <Button button="link" label={__('Hide')} onClick={hideScheduledStreams} className={'ml-s text-s'} />
+        )}
+      </div>
+    );
   };
 
   return (
-    <ClaimListDiscoverContext.Provider value={{ listingType: 'UPCOMING' }}>
-      <div className={'mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
-        <ClaimListDiscover
-          useSkeletonScreen={false}
-          channelIds={channelIds}
-          limitClaimsPerChannel={limitClaimsPerChannel}
-          pageSize={50}
-          streamType={'all'}
-          hasNoSource
-          orderBy={CS.ORDER_BY_NEW_ASC}
-          tileLayout={tileLayout}
-          releaseTime={`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`}
-          hideAdvancedFilter
-          hideFilters
-          infiniteScroll={false}
-          showNoSourceClaims
-          hideLayoutButton
-          header={__('Upcoming Livestreams')}
-          maxClaimRender={upcomingMax}
-          excludeUris={liveUris}
-          loadedCallback={loadedCallback}
-        />
-        {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && (
-          <div className="livestream-list--view-more">
-            <Button
-              label={__('Show more upcoming livestreams')}
-              button="link"
-              iconRight={ICONS.ARROW_RIGHT}
-              className="claim-grid__title--secondary"
-              onClick={() => {
-                setShowAllUpcoming(true);
-              }}
-            />
-          </div>
-        )}
-        {showAllUpcoming && (
-          <div className="livestream-list--view-more">
-            <Button
-              label={__('Show less upcoming livestreams')}
-              button="link"
-              iconRight={ICONS.ARROW_RIGHT}
-              className="claim-grid__title--secondary"
-              onClick={() => {
-                setShowAllUpcoming(false);
-              }}
-            />
-          </div>
-        )}
-      </div>
-    </ClaimListDiscoverContext.Provider>
+    <div className={'mb-m mt-m md:mb-xl'} style={{ display: showUpcomingLivestreams ? 'block' : 'none' }}>
+      <ClaimListDiscover
+        swipeLayout={useSwipeLayout}
+        useSkeletonScreen={false}
+        channelIds={channelIds}
+        limitClaimsPerChannel={limitClaimsPerChannel}
+        pageSize={50}
+        streamType={'all'}
+        hasNoSource
+        orderBy={CS.ORDER_BY_NEW_ASC}
+        tileLayout={tileLayout}
+        tags={[SCHEDULED_LIVESTREAM_TAG]}
+        claimType={[CS.CLAIM_STREAM]}
+        releaseTime={`>${moment().subtract(LIVESTREAM_UPCOMING_BUFFER, 'minutes').startOf('minute').unix()}`}
+        hideAdvancedFilter
+        hideFilters
+        infiniteScroll={false}
+        showNoSourceClaims
+        hideLayoutButton
+        header={<Header />}
+        maxClaimRender={upcomingMax}
+        excludeUris={liveUris}
+        loadedCallback={loadedCallback}
+      />
+      {totalUpcomingLivestreams > upcomingMax && !showAllUpcoming && !useSwipeLayout && (
+        <div className="livestream-list--view-more">
+          <Button
+            label={__('Show more upcoming livestreams')}
+            button="link"
+            iconRight={ICONS.ARROW_RIGHT}
+            className="claim-grid__title--secondary"
+            onClick={() => {
+              setShowAllUpcoming(true);
+            }}
+          />
+        </div>
+      )}
+      {showAllUpcoming && (
+        <div className="livestream-list--view-more">
+          <Button
+            label={__('Show less upcoming livestreams')}
+            button="link"
+            iconRight={ICONS.ARROW_RIGHT}
+            className="claim-grid__title--secondary"
+            onClick={() => {
+              setShowAllUpcoming(false);
+            }}
+          />
+        </div>
+      )}
+    </div>
   );
 };
 

@@ -9,20 +9,27 @@ function generateStreamUrl(claimName, claimId) {
     .replace(/\)/g, '%29')}/${claimId}/stream`;
 }
 
-function generateEmbedUrl(claimName, claimId, includeStartTime, startTime, referralLink) {
+function generateEmbedUrl(claimName, claimId, startTime, referralLink) {
   let urlParams = new URLSearchParams();
-  if (includeStartTime && startTime) {
-    urlParams.append('t', startTime);
+
+  if (startTime) {
+    urlParams.append('t', escapeHtmlProperty(startTime));
   }
 
   if (referralLink) {
-    urlParams.append('r', referralLink);
+    urlParams.append('r', escapeHtmlProperty(referralLink));
   }
 
-  return `${URL}/$/embed/${encodeURIComponent(claimName)
-    .replace(/'/g, '%27')
-    .replace(/\(/g, '%28')
-    .replace(/\)/g, '%29')}/${claimId}?${urlParams.toString()}`;
+  const encodedUriName = encodeURIComponent(claimName).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
+
+  const embedUrl = `${URL}/$/embed/${escapeHtmlProperty(encodedUriName)}/${escapeHtmlProperty(claimId)}`;
+  const embedUrlParams = urlParams.toString() ? `?${urlParams.toString()}` : '';
+
+  return `${embedUrl}${embedUrlParams}`;
+}
+
+function generateEmbedUrlEncoded(claimName, claimId, startTime, referralLink) {
+  return generateEmbedUrl(claimName, claimId, startTime, referralLink).replace(/\$/g, '%24');
 }
 
 function generateEmbedIframeData(src) {
@@ -61,6 +68,17 @@ function getParameterByName(name, url) {
   return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
 }
 
+function escapeHtmlProperty(property) {
+  return property
+    ? String(property)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+    : '';
+}
+
 // module.exports needed since the web server imports this function
 module.exports = {
   CONTINENT_COOKIE,
@@ -68,7 +86,9 @@ module.exports = {
   generateDownloadUrl,
   generateEmbedIframeData,
   generateEmbedUrl,
+  generateEmbedUrlEncoded,
   generateStreamUrl,
   getParameterByName,
   getThumbnailCdnUrl,
+  escapeHtmlProperty,
 };

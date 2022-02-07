@@ -8,7 +8,6 @@ import {
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri, makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { doPrepareEdit } from 'redux/actions/publish';
-import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { selectCostInfoForUri } from 'lbryinc';
 import { doSetPlayingUri, doPlayUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
@@ -16,6 +15,7 @@ import { doOpenModal, doSetActiveChannel, doSetIncognito, doAnalyticsView } from
 import fs from 'fs';
 import FileActions from './view';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { DISABLE_DOWNLOAD_BUTTON_TAG } from 'constants/tags';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -28,8 +28,8 @@ const select = (state, props) => {
     costInfo: selectCostInfoForUri(state, props.uri),
     hasChannels: selectHasChannels(state),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, props.uri),
-    reactionsDisabled: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_COMMENTS_TAG)(state),
     streamingUrl: makeSelectStreamingUrlForUri(props.uri)(state),
+    disableDownloadButton: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state),
   };
 };
 

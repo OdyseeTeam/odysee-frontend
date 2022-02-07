@@ -1,7 +1,6 @@
 // @flow
 import type { Node } from 'react';
 import React from 'react';
-import { createNormalizedClaimSearchKey } from 'util/claim';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import usePrevious from 'effects/use-previous';
@@ -69,12 +68,12 @@ type Props = {
   hasNoSource?: boolean,
   // --- select ---
   location: { search: string },
-  claimSearchByQuery: { [string]: Array<string> },
+  claimSearchResults: Array<string>,
   claimsByUri: { [string]: any },
-  fetchingClaimSearchByQuery: { [string]: boolean },
+  fetchingClaimSearch: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
-  options: SearchOptions,
+  optionsStringified: string,
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
@@ -84,10 +83,10 @@ type Props = {
 function ClaimTilesDiscover(props: Props) {
   const {
     doClaimSearch,
-    claimSearchByQuery,
+    claimSearchResults,
     claimsByUri,
     fetchViewCount,
-    fetchingClaimSearchByQuery,
+    fetchingClaimSearch,
     hasNoSource,
     renderProperties,
     pinUrls,
@@ -95,17 +94,15 @@ function ClaimTilesDiscover(props: Props) {
     showNoSourceClaims,
     doFetchViewCount,
     pageSize = 8,
-    options,
+    optionsStringified,
     doFetchUserMemberships,
   } = props;
 
-  const searchKey = createNormalizedClaimSearchKey(options);
-  const fetchingClaimSearch = fetchingClaimSearchByQuery[searchKey];
-  const claimSearchUris = claimSearchByQuery[searchKey] || [];
-  const isUnfetchedClaimSearch = claimSearchByQuery[searchKey] === undefined;
+  const prevUris = React.useRef();
 
-  // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
-  const optionsStringForEffect = JSON.stringify(options);
+  const claimSearchUris = claimSearchResults || [];
+  const isUnfetchedClaimSearch = claimSearchResults === undefined;
+
   const shouldPerformSearch = !fetchingClaimSearch && claimSearchUris.length === 0;
 
   const uris = (prefixUris || []).concat(claimSearchUris);
@@ -127,7 +124,12 @@ function ClaimTilesDiscover(props: Props) {
     uris.push(...Array(pageSize - uris.length).fill(''));
   }
 
-  const prevUris = usePrevious(uris);
+  // Show previous results while we fetch to avoid blinkies and poor CLS.
+  const finalUris = isUnfetchedClaimSearch && prevUris.current ? prevUris.current : uris;
+  prevUris.current = finalUris;
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
 
   useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
 
@@ -138,13 +140,10 @@ function ClaimTilesDiscover(props: Props) {
   // Run `doClaimSearch`
   React.useEffect(() => {
     if (shouldPerformSearch) {
-      const searchOptions = JSON.parse(optionsStringForEffect);
+      const searchOptions = JSON.parse(optionsStringified);
       doClaimSearch(searchOptions);
     }
-  }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect]);
-
-  // Show previous results while we fetch to avoid blinkies and poor CLS.
-  const finalUris = isUnfetchedClaimSearch && prevUris ? prevUris : uris;
+  }, [doClaimSearch, shouldPerformSearch, optionsStringified]);
 
   return (
     <ul className="claim-grid">
@@ -174,33 +173,33 @@ function ClaimTilesDiscover(props: Props) {
 
 export default React.memo<Props>(ClaimTilesDiscover, areEqual);
 
-function debug_trace(val) {
-  if (process.env.DEBUG_TRACE) console.log(`Render due to: ${val}`);
+// ****************************************************************************
+// ****************************************************************************
+
+function trace(key, value) {
+  // @if process.env.DEBUG_TILE_RENDER
+  // $FlowFixMe "cannot coerce certain types".
+  console.log(`[claimTilesDiscover] ${key}: ${value}`); // eslint-disable-line no-console
+  // @endif
 }
 
 function areEqual(prev: Props, next: Props) {
-  const prevOptions: SearchOptions = prev.options;
-  const nextOptions: SearchOptions = next.options;
-
-  const prevSearchKey = createNormalizedClaimSearchKey(prevOptions);
-  const nextSearchKey = createNormalizedClaimSearchKey(nextOptions);
-
-  if (prevSearchKey !== nextSearchKey) {
-    debug_trace('search key');
-    return false;
-  }
-
   // --- Deep-compare ---
-  if (!urisEqual(prev.claimSearchByQuery[prevSearchKey], next.claimSearchByQuery[nextSearchKey])) {
-    debug_trace('claimSearchByQuery');
-    return false;
+  // These are props that are hard to memoize from where it is passed.
+
+  if (prev.claimType !== next.claimType) {
+    // Array<string>: confirm the contents are actually different.
+    if (prev.claimType && next.claimType && JSON.stringify(prev.claimType) !== JSON.stringify(next.claimType)) {
+      trace('claimType', next.claimType);
+      return false;
+    }
   }
 
   const ARRAY_KEYS = ['prefixUris', 'channelIds'];
   for (let i = 0; i < ARRAY_KEYS.length; ++i) {
     const key = ARRAY_KEYS[i];
     if (!urisEqual(prev[key], next[key])) {
-      debug_trace(`${key}`);
+      trace(key, next[key]);
       return false;
     }
   }
@@ -210,13 +209,11 @@ function areEqual(prev: Props, next: Props) {
   // to update this function. Better to render more than miss an important one.
   const KEYS_TO_IGNORE = [
     ...ARRAY_KEYS,
-    'claimSearchByQuery',
-    'fetchingClaimSearchByQuery', // We are showing previous results while fetching.
-    'options', // Covered by search-key comparison.
+    'claimType', // Handled above.
+    'claimsByUri', // Used for view-count. Just ignore it for now.
     'location',
     'history',
     'match',
-    'claimsByUri',
     'doClaimSearch',
   ];
 
@@ -224,7 +221,7 @@ function areEqual(prev: Props, next: Props) {
   for (let i = 0; i < propKeys.length; ++i) {
     const pk = propKeys[i];
     if (!KEYS_TO_IGNORE.includes(pk) && prev[pk] !== next[pk]) {
-      debug_trace(`${pk}`);
+      trace(pk, next[pk]);
       return false;
     }
   }

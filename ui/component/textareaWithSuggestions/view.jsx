@@ -14,6 +14,7 @@ import TextareaSuggestionsItem from 'component/textareaSuggestionsItem';
 import TextField from '@mui/material/TextField';
 import useLighthouse from 'effects/use-lighthouse';
 import useThrottle from 'effects/use-throttle';
+import { parseURI } from 'util/lbryURI';
 
 const SUGGESTION_REGEX = new RegExp(
   '((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)',
@@ -102,7 +103,15 @@ export default function TextareaWithSuggestions(props: Props) {
   const suggestionTerm = suggestionValue && suggestionValue.term;
   const isEmote = suggestionValue && suggestionValue.isEmote;
   const isMention = suggestionValue && !suggestionValue.isEmote;
-  const invalidTerm = suggestionTerm && isMention && suggestionTerm.charAt(1) === ':';
+
+  let invalidTerm = suggestionTerm && isMention && suggestionTerm.charAt(1) === ':';
+  if (isMention && suggestionTerm) {
+    try {
+      parseURI(suggestionTerm);
+    } catch (error) {
+      invalidTerm = true;
+    }
+  }
 
   const additionalOptions = { isBackgroundSearch: false, [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS };
   const { results, loading } = useLighthouse(debouncedTerm, showMature, SEARCH_SIZE, additionalOptions, 0);
@@ -131,7 +140,7 @@ export default function TextareaWithSuggestions(props: Props) {
   let emojiNames;
   const allOptions = [];
   if (isEmote) {
-    emoteNames = EMOTES.map(({ name }) => name.toLowerCase());
+    emoteNames = EMOTES.map(({ name }) => name);
     const hasMinEmojiLength = suggestionTerm && suggestionTerm.length > EMOJI_MIN_CHARACTERS;
     // Filter because our emotes are priority from default emojis, like :eggplant:
     emojiNames = hasMinEmojiLength ? EMOJIS.names.filter((name) => !emoteNames.includes(`:${name}:`)) : [];
@@ -231,6 +240,7 @@ export default function TextareaWithSuggestions(props: Props) {
       const token = isEmote ? ':' : '@';
       const tokenIndex = currentSuggestionValue.indexOf(token);
 
+      if (inputRef && inputRef.current) inputRef.current.setAttribute('typing-term', '');
       // $FlowFixMe
       setSuggestionValue({
         beforeTerm: currentSuggestionValue.substring(0, tokenIndex), // in case of a space or newline
@@ -240,12 +250,13 @@ export default function TextareaWithSuggestions(props: Props) {
         isEmote,
       });
     } else if (suggestionValue) {
+      inputRef.current.removeAttribute('typing-term');
       setSuggestionValue(null);
     }
   }
 
   const handleSelect = React.useCallback(
-    (selectedValue: string) => {
+    (selectedValue: string, key?: number) => {
       if (!suggestionValue) return;
 
       const elem = inputRef && inputRef.current;
@@ -262,6 +273,11 @@ export default function TextareaWithSuggestions(props: Props) {
 
       onChange({ target: { value: newValue } });
       setSuggestionValue(null);
+
+      // no keycode === was selected with TAB (function was called by effect) or on click
+      // ENTER is handled on commentCreate after attempting to send on livestream
+      if (!key && inputRef && inputRef.current) inputRef.current.removeAttribute('typing-term');
+
       elem.focus();
       elem.setSelectionRange(newCursorPos, newCursorPos);
     },
@@ -294,17 +310,6 @@ export default function TextareaWithSuggestions(props: Props) {
     }
   }, [debouncedTerm, doResolveUris, doSetMentionSearchResults, stringifiedResults, suggestionTerm]);
 
-  // Disable sending on Enter on Livestream chat
-  React.useEffect(() => {
-    if (!isLivestream) return;
-
-    if (suggestionTerm && inputRef) {
-      inputRef.current.setAttribute('term', suggestionTerm);
-    } else {
-      inputRef.current.removeAttribute('term');
-    }
-  }, [inputRef, isLivestream, suggestionTerm]);
-
   // Only resolve commentors on Livestreams when first trying to mention/looking for it
   React.useEffect(() => {
     if (isLivestream && commentorUris && suggestionTerm) doResolveUris(commentorUris);
@@ -327,6 +332,29 @@ export default function TextareaWithSuggestions(props: Props) {
 
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [handleSelect, highlightedSuggestion, suggestionTerm]);
+
+  // Prevent keyboard keys Up and Down being overriden by MUI listeners when not in use
+  React.useEffect(() => {
+    const inputElement = inputRef && inputRef.current;
+
+    function overrideKeyHandling(event) {
+      const { keyCode } = event;
+
+      if (!suggestionTerm && (keyCode === KEYCODES.UP || keyCode === KEYCODES.DOWN)) {
+        event.stopPropagation();
+      }
+    }
+
+    if (inputElement) {
+      inputElement.addEventListener('keydown', overrideKeyHandling);
+    }
+
+    return () => {
+      if (inputElement) {
+        inputElement.removeEventListener('keydown', overrideKeyHandling);
+      }
+    };
+  }, [inputRef, suggestionTerm]);
 
   /** ------ **/
   /** Render **/
@@ -357,7 +385,7 @@ export default function TextareaWithSuggestions(props: Props) {
   };
 
   const renderOption = (optionProps: any, label: string) => {
-    const emoteFound = isEmote && EMOTES.find(({ name }) => name.toLowerCase() === label);
+    const emoteFound = isEmote && EMOTES.find(({ name }) => name === label);
     const emoteValue = emoteFound ? { name: label, url: emoteFound.url } : undefined;
     const emojiFound = isEmote && EMOJIS.getUnicode(label);
     const emojiValue = emojiFound ? { name: label, unicode: emojiFound } : undefined;
@@ -382,7 +410,7 @@ export default function TextareaWithSuggestions(props: Props) {
       onBlur={() => onBlur && onBlur()}
       /* Different from onInputChange, onChange is only used for the selected value,
         so here it is acting simply as a selection handler (see it as onSelect) */
-      onChange={(event, value) => handleSelect(value.label)}
+      onChange={(event, value) => handleSelect(value.label, event.keyCode)}
       onClose={(event, reason) => reason !== 'selectOption' && setClose(true)}
       onFocus={() => onFocus && onFocus()}
       onHighlightChange={(event, option) => setHighlightedSuggestion(option)}

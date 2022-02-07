@@ -56,6 +56,7 @@ type MarkdownProps = {
   isMarkdownPost?: boolean,
   disableTimestamps?: boolean,
   stakedLevel?: number,
+  setUserMention?: (boolean) => void,
 };
 
 // ****************************************************************************
@@ -142,7 +143,7 @@ const REPLACE_REGEX = /(<iframe\s+src=["'])(.*?(?=))(["']\s*><\/iframe>)/g;
 // ****************************************************************************
 // ****************************************************************************
 
-const MarkdownPreview = (props: MarkdownProps) => {
+export default React.memo<MarkdownProps>(function MarkdownPreview(props: MarkdownProps) {
   const {
     content,
     strip,
@@ -153,6 +154,7 @@ const MarkdownPreview = (props: MarkdownProps) => {
     isMarkdownPost,
     disableTimestamps,
     stakedLevel,
+    setUserMention,
   } = props;
 
   const strippedContent = content
@@ -187,6 +189,7 @@ const MarkdownPreview = (props: MarkdownProps) => {
               isMarkdownPost={isMarkdownPost}
               simpleLinks={simpleLinks}
               allowPreview={isStakeEnoughForPreview(stakedLevel)}
+              setUserMention={setUserMention}
             />
           ),
       // Workaraund of remarkOptions.Fragment
@@ -252,6 +255,4 @@ const MarkdownPreview = (props: MarkdownProps) => {
       }
     </div>
   );
-};
-
-export default MarkdownPreview;
+});

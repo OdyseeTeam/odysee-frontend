@@ -11,6 +11,7 @@ const PlayerEvent = {
     stop: 1,
     scrub: 2,
     speed: 3,
+    ended: 4,
   },
 };
 
@@ -86,7 +87,7 @@ class RecsysPlugin extends Component {
   }
 
   onEnded(event) {
-    const recsysEvent = newRecsysPlayerEvent(PlayerEvent.event.stop, this.player.currentTime());
+    const recsysEvent = newRecsysPlayerEvent(PlayerEvent.event.ended, this.player.currentTime());
     this.log('onEnded', recsysEvent);
     RecSys.onRecsysPlayerEvent(this.options_.videoId, recsysEvent);
   }
@@ -143,6 +144,9 @@ class RecsysPlugin extends Component {
   }
 
   onDispose(event) {
+    // Some browsers don't send onEnded event when closing player/browser, force it here
+    const recsysEvent = newRecsysPlayerEvent(PlayerEvent.event.stop, this.player.currentTime());
+    RecSys.onRecsysPlayerEvent(this.options_.videoId, recsysEvent);
     RecSys.onPlayerDispose(this.options_.videoId, this.options_.embedded);
   }
 

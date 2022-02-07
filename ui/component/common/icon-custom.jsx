@@ -534,6 +534,9 @@ export const icons = {
     <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
   ),
   [ICONS.UP]: buildIcon(<polyline transform="matrix(1,0,0,-1,0,24.707107)" points="6 9 12 15 18 9" />),
+  [ICONS.UP_TOP]: buildIcon(<path d="m6 16 6-6 6 6M6 8h12" />),
+  [ICONS.DOWN_BOTTOM]: buildIcon(<path d="m6 8 6 6 6-6M6 16h12" />),
+  [ICONS.DRAG]: buildIcon(<path d="m8 18 4 4 4-4M4 14h16M4 10h16M8 6l4-4 4 4" />),
   [ICONS.DOWN]: buildIcon(<polyline points="6 9 12 15 18 9" />),
   [ICONS.FULLSCREEN]: buildIcon(
     <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" />
@@ -3075,4 +3078,33 @@ export const icons = {
       <path d="M8.5 14.5 6 17h3l1.5 2.5 1-4h1l1 4L15 17h3l-2-2.5" />
     </g>
   ),
+  [ICONS.FEATURED]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width={size}
+        height={size}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        {...otherProps}
+      >
+        <circle cx="11.06" cy="9" r="3" />
+        <path d="M14.03,9.53l4.53,4.531a1.414,1.414,0,0,1-2,2l-4.3-4.311" />
+        <line x1="8.939" y1="11.121" x2="13.181" y2="6.88" />
+        <line x1="15" y1="14.5" x2="15" y2="20.5" />
+        <line x1="13.5" y1="20.5" x2="16.5" y2="20.5" />
+        <ellipse cx="14.5" cy="21" rx="7.5" ry="2.5" />
+        <line x1="11.439" y1="14" x2="7.642" y2="19.987" />
+        <path d="M22,21,20.141,1.947a.5.5,0,0,0-.92-.219L15.561,7.5" />
+        <path d="M4.5,2.5A2.231,2.231,0,0,0,7,5c-1.615-.006-2.418.86-2.5,2.5A2.211,2.211,0,0,0,2,5,2.232,2.232,0,0,0,4.5,2.5Z" />
+        <path d="M14,.5A2.231,2.231,0,0,0,16.5,3c-1.615-.006-2.418.86-2.5,2.5A2.211,2.211,0,0,0,11.5,3,2.232,2.232,0,0,0,14,.5Z" />
+      </svg>
+    );
+  },
 };

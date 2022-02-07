@@ -32,9 +32,9 @@ type Props = {
   clearPlayingUri: () => void,
   hideRepost?: boolean,
   isLivestreamClaim: boolean,
-  reactionsDisabled: boolean,
   download: (string) => void,
   streamingUrl: ?string,
+  disableDownloadButton: boolean,
 };
 
 function FileActions(props: Props) {
@@ -52,9 +52,9 @@ function FileActions(props: Props) {
     doToast,
     hideRepost,
     isLivestreamClaim,
-    reactionsDisabled,
     download,
     streamingUrl,
+    disableDownloadButton,
   } = props;
   const {
     push,
@@ -110,13 +110,13 @@ function FileActions(props: Props) {
       push(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`);
       doToast({ message: __('A channel is required to repost on %SITE_NAME%', { SITE_NAME }) });
     } else {
-      push(`/$/${PAGES.REPOST_NEW}?from=${encodeURIComponent(uri)}&redirect=${pathname}`);
+      push(`/$/${PAGES.REPOST_NEW}?from=${encodeURIComponent(uri)}&redirect=${encodeURIComponent(pathname)}`);
     }
   }
 
   const lhsSection = (
     <>
-      {ENABLE_FILE_REACTIONS && !reactionsDisabled && <FileReactions uri={uri} livestream={isLivestreamClaim} />}
+      {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} livestream={isLivestreamClaim} />}
       <ClaimSupportButton uri={uri} fileAction />
       <ClaimCollectionAddButton uri={uri} fileAction />
       {!hideRepost && (
@@ -180,7 +180,7 @@ function FileActions(props: Props) {
           </MenuButton>
           <MenuList className="menu__list">
             {/* @if TARGET='web' */}
-            {!isLivestreamClaim && (
+            {!isLivestreamClaim && !disableDownloadButton && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />

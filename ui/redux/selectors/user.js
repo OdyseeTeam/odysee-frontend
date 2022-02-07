@@ -74,7 +74,6 @@ export const selectUserIsVerificationCandidate = createSelector(
   (user) => user && (!user.has_verified_email || !user.is_identity_verified)
 );
 
-export const selectAccessToken = (state) => selectState(state).accessToken;
 export const selectUserInviteStatusIsPending = (state) => selectState(state).inviteStatusIsPending;
 export const selectUserInvitesRemaining = (state) => selectState(state).invitesRemaining;
 export const selectUserInvitees = (state) => selectState(state).invitees;
@@ -84,10 +83,19 @@ export const selectUserInviteStatusFailed = createSelector(
   () => selectUserInvitesRemaining === null
 );
 
+export const selectUserInviteStatusFetched = (state) => {
+  // A successful fetch produces something; a failed fetch sets it to 'null'.
+  return selectUserInvitees(state) !== undefined;
+};
+
 export const selectUserInviteNewIsPending = (state) => selectState(state).inviteNewIsPending;
 export const selectUserInviteNewErrorMessage = (state) => selectState(state).inviteNewErrorMessage;
 export const selectUserInviteReferralLink = (state) => selectState(state).referralLink;
 
+/**
+ * Returns the invitation referral code.
+ * Clients should use selectUserInviteStatusFetched to check if the info has been fetched.
+ */
 export const selectUserInviteReferralCode = createSelector(selectState, (state) =>
   state.referralCode ? state.referralCode[0] : ''
 );

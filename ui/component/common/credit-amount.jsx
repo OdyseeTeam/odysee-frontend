@@ -1,4 +1,6 @@
 // @flow
+import 'scss/component/_superchat.scss';
+
 import { formatCredits, formatFullPrice } from 'util/format-credits';
 import classnames from 'classnames';
 import LbcSymbol from 'component/common/lbc-symbol';
@@ -9,6 +11,7 @@ type Props = {
   className?: string,
   customAmounts?: { amountFiat: number, amountLBC: number },
   fee?: boolean,
+  hideTitle?: boolean,
   isEstimate?: boolean,
   isFiat?: boolean,
   noFormat?: boolean,
@@ -38,6 +41,7 @@ class CreditAmount extends React.PureComponent<Props> {
       className,
       customAmounts,
       fee,
+      hideTitle,
       isEstimate,
       isFiat,
       noFormat,
@@ -94,11 +98,8 @@ class CreditAmount extends React.PureComponent<Props> {
 
     return (
       <span
-        title={amount ? formatFullPrice(amount, 2) : ''}
-        className={classnames(className, {
-          'super-chat': superChat,
-          'super-chat--light': superChatLight,
-        })}
+        title={amount && !hideTitle ? formatFullPrice(amount, 2) : ''}
+        className={classnames(className, { superChat: superChat, 'superChat--light': superChatLight })}
       >
         {customAmounts
           ? Object.values(customAmounts).map((amount, index) => (

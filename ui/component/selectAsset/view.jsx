@@ -1,16 +1,15 @@
 // @flow
 import React from 'react';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import FileSelector from 'component/common/file-selector';
-import * as SPEECH_URLS from 'constants/speech_urls';
+import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import { generateThumbnailName } from 'util/generate-thumbnail-name';
 import usePersistedState from 'effects/use-persisted-state';
 
 const accept = '.png, .jpg, .jpeg, .gif';
-const SPEECH_READY = 'READY';
-const SPEECH_UPLOADING = 'UPLOADING';
+const STATUS = { READY: 'READY', UPLOADING: 'UPLOADING' };
 
 type Props = {
   assetName: string,
@@ -26,7 +25,8 @@ function SelectAsset(props: Props) {
   const { onUpdate, onDone, assetName, currentValue, recommended, title, inline } = props;
   const [pathSelected, setPathSelected] = React.useState('');
   const [fileSelected, setFileSelected] = React.useState<any>(null);
-  const [uploadStatus, setUploadStatus] = React.useState(SPEECH_READY);
+  const [fileSize, setFileSize] = React.useState(0);
+  const [uploadStatus, setUploadStatus] = React.useState(STATUS.READY);
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [error, setError] = React.useState();
@@ -37,7 +37,7 @@ function SelectAsset(props: Props) {
     };
 
     const onSuccess = (thumbnailUrl) => {
-      setUploadStatus(SPEECH_READY);
+      setUploadStatus(STATUS.READY);
       onUpdate(thumbnailUrl, !useUrl);
 
       if (onDone) {
@@ -45,22 +45,42 @@ function SelectAsset(props: Props) {
       }
     };
 
-    setUploadStatus(SPEECH_UPLOADING);
+    setUploadStatus(STATUS.UPLOADING);
 
     const data = new FormData();
-    const name = generateThumbnailName();
-    data.append('name', name);
-    data.append('file', fileSelected);
+    data.append('file-input', fileSelected);
+    data.append('upload', 'Upload');
 
-    return fetch(SPEECH_URLS.SPEECH_PUBLISH, {
+    return fetch(IMG_CDN_PUBLISH_URL, {
       method: 'POST',
       body: data,
     })
-      .then((response) => response.json())
-      .then((json) => (json.success ? onSuccess(`${json.data.serveUrl}`) : uploadError(json.message)))
+      .then((res) => res.text())
+      .then((text) => {
+        try {
+          return text.length ? JSON.parse(text) : {};
+        } catch {
+          throw new Error(text);
+        }
+      })
+      .then((json) => {
+        return json.type === 'success'
+          ? onSuccess(`${json.message}`)
+          : uploadError(
+              json.message || __('There was an error in the upload. The format or extension might not be supported.')
+            );
+      })
       .catch((err) => {
-        uploadError(err.message);
-        setUploadStatus(SPEECH_READY);
+        if (fileSize >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+          uploadError(
+            __('Thumbnail size over %max_size%MB, please edit and reupload.', {
+              max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+            })
+          );
+        } else {
+          uploadError(err.message);
+        }
+        setUploadStatus(STATUS.READY);
       });
   }
 
@@ -70,7 +90,7 @@ function SelectAsset(props: Props) {
   const selectedLabel = pathSelected ? __('URL Selected') : __('File Selected');
 
   let fileSelectorLabel;
-  if (uploadStatus === SPEECH_UPLOADING) {
+  if (uploadStatus === STATUS.UPLOADING) {
     fileSelectorLabel = __('Uploading...');
   } else {
     // Include the same label/recommendation for both 'URL' and 'UPLOAD'.
@@ -96,13 +116,14 @@ function SelectAsset(props: Props) {
         ) : (
           <FileSelector
             autoFocus
-            disabled={uploadStatus === SPEECH_UPLOADING}
+            disabled={uploadStatus === STATUS.UPLOADING}
             label={fileSelectorLabel}
             name="assetSelector"
             currentPath={pathSelected}
             onFileChosen={(file) => {
               if (file.name) {
                 setFileSelected(file);
+                setFileSize(file.size);
                 // what why? why not target=WEB this?
                 // file.path is undefined in web but available in electron
                 setPathSelected(file.name || file.path);
@@ -119,7 +140,7 @@ function SelectAsset(props: Props) {
             button="primary"
             type="submit"
             label={useUrl ? __('Done') : __('Upload')}
-            disabled={!useUrl && (uploadStatus === SPEECH_UPLOADING || !pathSelected || !fileSelected)}
+            disabled={!useUrl && (uploadStatus === STATUS.UPLOADING || !pathSelected || !fileSelected)}
             onClick={() => doUploadAsset()}
           />
         )}

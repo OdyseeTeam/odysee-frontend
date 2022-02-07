@@ -52,6 +52,7 @@ const CheckoutPage = lazyImport(() => import('page/checkoutPage' /* webpackChunk
 const CreatorDashboard = lazyImport(() => import('page/creatorDashboard' /* webpackChunkName: "creatorDashboard" */));
 const DiscoverPage = lazyImport(() => import('page/discover' /* webpackChunkName: "discover" */));
 const EmbedWrapperPage = lazyImport(() => import('page/embedWrapper' /* webpackChunkName: "embedWrapper" */));
+const PopoutChatPage = lazyImport(() => import('page/popoutChatWrapper' /* webpackChunkName: "popoutChat" */));
 const FileListPublished = lazyImport(() =>
   import('page/fileListPublished' /* webpackChunkName: "fileListPublished" */)
 );
@@ -215,7 +216,7 @@ function AppRouter(props: Props) {
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
       const title = pathname.startsWith('/$/') ? PAGE_TITLE[pathname.substring(3)] : '';
-      return __(title) || (IS_WEB ? SITE_TITLE : 'LBRY');
+      return __(title) || (IS_WEB ? SITE_TITLE : 'Odysee');
     };
 
     if (uri) {
@@ -353,6 +354,8 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.AUTH_WALLET_PASSWORD}`} component={SignInWalletPasswordPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_OWN_COMMENTS}`} component={OwnComments} />
         <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} component={OdyseeMembershipPage} />
+
+        <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />

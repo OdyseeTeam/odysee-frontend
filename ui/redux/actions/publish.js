@@ -3,6 +3,7 @@ import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
 import { batchActions } from 'util/batch-actions';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
 import {
   makeSelectClaimForUri,
@@ -18,12 +19,13 @@ import { push } from 'connected-react-router';
 import analytics from 'analytics';
 import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
-import { SPEECH_STATUS, SPEECH_PUBLISH } from 'constants/speech_urls';
+import { IMG_CDN_PUBLISH_URL, IMG_CDN_STATUS_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { creditsToString } from 'util/format-credits';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
 import { isClaimNsfw } from 'util/claim';
+import { LBRY_FIRST_TAG, SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -57,6 +59,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     description,
     language,
     releaseTimeEdited,
+    releaseAnytime,
     // license,
     licenseUrl,
     useLBRYUploader,
@@ -92,6 +95,8 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   const namedChannelClaim = myChannels ? myChannels.find((myChannel) => myChannel.name === channel) : null;
   const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
 
+  const nowTimeStamp = Number(Math.round(Date.now() / 1000));
+
   const publishPayload: {
     name: ?string,
     bid: string,
@@ -101,7 +106,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     license_url?: string,
     license?: string,
     thumbnail_url?: string,
-    release_time?: number,
+    release_time: number,
     fee_currency?: string,
     fee_amount?: string,
     languages?: Array<string>,
@@ -120,6 +125,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     languages: [language],
     tags: tags && tags.map((tag) => tag.name),
     thumbnail_url: thumbnail,
+    release_time: nowTimeStamp,
     blocking: true,
     preview: false,
   };
@@ -144,18 +150,25 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   }
 
   if (useLBRYUploader) {
-    publishPayload.tags.push('lbry-first');
+    publishPayload.tags.push(LBRY_FIRST_TAG);
   }
 
-  // Set release time to curret date. On edits, keep original release/transaction time as release_time
+  // Set release time to the newly edited time.
+  // On edits, if not explicitly set to anytime, keep the original release/transaction time as release_time
   if (releaseTimeEdited) {
     publishPayload.release_time = releaseTimeEdited;
-  } else if (myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
+  } else if (!releaseAnytime && myClaimForUriEditing && myClaimForUriEditing.value.release_time) {
     publishPayload.release_time = Number(myClaimForUri.value.release_time);
-  } else if (myClaimForUriEditing && myClaimForUriEditing.timestamp) {
+  } else if (!releaseAnytime && myClaimForUriEditing && myClaimForUriEditing.timestamp) {
     publishPayload.release_time = Number(myClaimForUriEditing.timestamp);
-  } else {
-    publishPayload.release_time = Number(Math.round(Date.now() / 1000));
+  }
+
+  // Remove internal scheduled tag if it exists.
+  publishPayload.tags = publishPayload.tags.filter((tag) => tag !== SCHEDULED_LIVESTREAM_TAG);
+
+  // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
+  if (isLivestreamPublish && publishPayload.release_time > nowTimeStamp) {
+    publishPayload.tags.push(SCHEDULED_LIVESTREAM_TAG);
   }
 
   if (channelId) {
@@ -269,7 +282,7 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     actions.push({
       type: ACTIONS.PUBLISH_FAIL,
     });
-    actions.push(doError(error.message));
+    actions.push(doError({ message: error.message, cause: error.cause }));
     dispatch(batchActions(...actions));
   };
 
@@ -339,7 +352,7 @@ export const doPublishResume = (publishPayload: any) => (dispatch: Dispatch, get
     actions.push({
       type: ACTIONS.PUBLISH_FAIL,
     });
-    actions.push(doError(error.message));
+    actions.push(doError({ message: error.message, cause: error.cause }));
     dispatch(batchActions(...actions));
   };
 
@@ -355,10 +368,10 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
     },
   });
 
-  return fetch(SPEECH_STATUS)
+  return fetch(IMG_CDN_STATUS_URL)
     .then((res) => res.json())
-    .then((status) => {
-      if (status.disabled) {
+    .then((json) => {
+      if (json.status !== 'online') {
         throw Error();
       }
 
@@ -400,15 +413,7 @@ export const doUploadThumbnail = (
   path?: any,
   cb?: (string) => void
 ) => (dispatch: Dispatch) => {
-  const downMessage = __('Thumbnail upload service may be down, try again later.');
-  let thumbnail, fileExt, fileName, fileType;
-
-  const makeid = () => {
-    let text = '';
-    const possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    for (let i = 0; i < 24; i += 1) text += possible.charAt(Math.floor(Math.random() * 62));
-    return text;
-  };
+  let thumbnail, fileExt, fileName, fileType, stats, size;
 
   const uploadError = (error = '') => {
     dispatch(
@@ -428,28 +433,38 @@ export const doUploadThumbnail = (
 
   dispatch({
     type: ACTIONS.UPDATE_PUBLISH_FORM,
-    data: {
-      thumbnailError: undefined,
-    },
+    data: { thumbnailError: undefined },
   });
 
   const doUpload = (data) => {
-    return fetch(SPEECH_PUBLISH, {
+    return fetch(IMG_CDN_PUBLISH_URL, {
       method: 'POST',
       body: data,
     })
       .then((res) => res.text())
-      .then((text) => (text.length ? JSON.parse(text) : {}))
-      .then((json) => {
-        if (!json.success) return uploadError(json.message || downMessage);
-        if (cb) {
-          cb(json.data.serveUrl);
+      .then((text) => {
+        try {
+          return text.length ? JSON.parse(text) : {};
+        } catch {
+          throw new Error(text);
         }
+      })
+      .then((json) => {
+        if (json.type !== 'success') {
+          return uploadError(
+            json.message || __('There was an error in the upload. The format or extension might not be supported.')
+          );
+        }
+
+        if (cb) {
+          cb(json.message);
+        }
+
         return dispatch({
           type: ACTIONS.UPDATE_PUBLISH_FORM,
           data: {
             uploadThumbnailStatus: THUMBNAIL_STATUSES.COMPLETE,
-            thumbnail: json.data.serveUrl,
+            thumbnail: json.message,
           },
         });
       })
@@ -458,10 +473,17 @@ export const doUploadThumbnail = (
 
         // This sucks but ¯\_(ツ)_/¯
         if (message === 'Failed to fetch') {
-          message = downMessage;
+          message = __('Thumbnail upload service may be down, try again later.');
         }
 
-        uploadError(message);
+        const userInput = [fileName, fileExt, fileType, thumbnail, size];
+        if (size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+          message = __('Thumbnail size over %max_size%MB, please edit and reupload.', {
+            max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+          });
+        }
+
+        uploadError({ message, cause: `${userInput.join(' | ')}` });
       });
   };
 
@@ -477,10 +499,9 @@ export const doUploadThumbnail = (
       fileType = 'image/png';
 
       const data = new FormData();
-      const name = makeid();
-      data.append('name', name);
       // $FlowFixMe
-      data.append('file', { uri: 'file://' + filePath, type: fileType, name: fileName });
+      data.append('file-input', { uri: 'file://' + filePath, type: fileType, name: fileName });
+      data.append('upload', 'Upload');
       return doUpload(data);
     });
   } else {
@@ -488,21 +509,23 @@ export const doUploadThumbnail = (
       thumbnail = fs.readFileSync(filePath);
       fileExt = path.extname(filePath);
       fileName = path.basename(filePath);
+      stats = fs.statSync(filePath);
+      size = stats.size;
       fileType = `image/${fileExt.slice(1)}`;
     } else if (thumbnailBlob) {
       fileExt = `.${thumbnailBlob.type && thumbnailBlob.type.split('/')[1]}`;
       fileName = thumbnailBlob.name;
       fileType = thumbnailBlob.type;
+      size = thumbnailBlob.size;
     } else {
       return null;
     }
 
     const data = new FormData();
-    const name = makeid();
     const file = thumbnailBlob || (thumbnail && new File([thumbnail], fileName, { type: fileType }));
-    data.append('name', name);
     // $FlowFixMe
-    data.append('file', file);
+    data.append('file-input', file);
+    data.append('upload', 'Upload');
     return doUpload(data);
   }
 };

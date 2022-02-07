@@ -63,7 +63,7 @@ type Analytics = {
   tagFollowEvent: (string, boolean, ?string) => void,
   playerLoadedEvent: (string, ?boolean) => void,
   playerVideoStartedEvent: (?boolean) => void,
-  videoStartEvent: (string, number, string, number, string, any, number) => void,
+  videoStartEvent: (?string, number, string, ?number, string, any, ?number) => void,
   videoIsPlaying: (boolean, any) => void,
   videoBufferEvent: (
     StreamClaim,
@@ -329,7 +329,6 @@ const analytics: Analytics = {
           claim_id: claimId,
         };
 
-        // lbry.tv streams from AWS so we don't care about the time to start
         if (timeToStart && !IS_WEB) {
           params.time_to_start = timeToStart;
         }

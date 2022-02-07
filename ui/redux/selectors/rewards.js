@@ -70,3 +70,14 @@ export const selectHasClaimedInitialRewards = createSelector(selectClaimedReward
   const confirmEmailClaimed = !!claims.find((claim) => claim && claim.reward_type === REWARDS.TYPE_CONFIRM_EMAIL);
   return newUserClaimed && confirmEmailClaimed;
 });
+
+export const selectWeeklyWatchClaimedThisWeek = createSelector(selectUnclaimedRewards, (unclaimedRewards) => {
+  const weeklyWatch = unclaimedRewards.find((x) => x.reward_type === REWARDS.TYPE_WEEKLY_WATCH);
+  if (weeklyWatch && weeklyWatch.data && weeklyWatch.data.last_claimed) {
+    const last = new Date(weeklyWatch.data.last_claimed);
+    const diff = new Date() - last;
+    const diffDays = Math.ceil(diff / (1000 * 60 * 60 * 24));
+    return diffDays < 6;
+  }
+  return false;
+});
