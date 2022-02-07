@@ -88,7 +88,7 @@ $control-bar-icon-size: 0.8rem;
 
   // Volume slider
   .vjs-volume-panel {
-    margin-left: var(--spacing-xxs);
+    // margin-left: var(--spacing-xxs);
     margin-right: calc(var(--spacing-xxs) * -1);
 
     &.vjs-control {
