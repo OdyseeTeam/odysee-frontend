@@ -333,6 +333,18 @@
   @media (max-width: $breakpoint-small) {
     display: none;
   }
+
+  @media (min-width: $breakpoint-xlarge) {
+    .icon {
+      height: 2.5rem;
+      width: 2.5rem;
+      margin-top: 6px;
+    }
+    .button__label {
+      margin-top: 4px;
+      margin-bottom: 2px;
+    }
+  }
 }
 
 .navigation-links--absolute {
