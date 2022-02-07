@@ -22,6 +22,7 @@ export default function useGetUserMemberships(
         const claimIds = arrayOfContentUris.map((uri) => {
           const claimUrlsToId = convertClaimUrlsToIds[uri];
           if (claimUrlsToId) {
+            // TODO: flow error
             return getChannelFromClaim(claimUrlsToId).claim_id;
           }
         });

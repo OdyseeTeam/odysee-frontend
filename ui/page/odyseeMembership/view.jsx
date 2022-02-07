@@ -164,7 +164,7 @@ const OdyseeMembershipPage = (props: Props) => {
   };
 
   function buildPurchaseString(price, interval, plan) {
-    let featureString;
+    let featureString = '';
     if (plan === 'Premium') {
       featureString =
         'Your badges will be shown on up to three channels and you will have early access to new features. ';
@@ -421,7 +421,8 @@ const OdyseeMembershipPage = (props: Props) => {
 
       setHasShownModal(true);
 
-      // open confirm purchase modal
+      // open confirm purchase
+      // $FlowFixMe
       document.querySelector('[plan="' + plan + '"][interval="' + interval + '"]').click();
     }, timeoutValue);
   }

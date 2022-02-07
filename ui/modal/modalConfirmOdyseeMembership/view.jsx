@@ -20,7 +20,7 @@ type Props = {
   priceId: string,
   purchaseString: string,
   plan: string,
-  setMembershipOptions: () => void,
+  setMembershipOptions: (any) => void,
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
@@ -62,6 +62,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       console.log('purchase, purchase membership response');
       console.log(response);
 
+      // $FlowFixMe
       var newURL = location.href.split('?')[0];
       window.history.pushState('object', document.title, newURL);
 
@@ -72,12 +73,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       setMembershipOptions(false);
 
       closeModal();
-
-      // setTimeout(function(){
-      //   // $FlowFixMe
-      //   // location.reload();
-      //   closeModal();
-      // }, 950)
     } catch (err) {
       console.log(err);
     }
@@ -108,11 +103,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       await populateMembershipData();
 
       closeModal();
-
-      // setTimeout(function () {
-      //   // $FlowFixMe
-      //   // location.reload();
-      // }, 950);
     } catch (err) {
       console.log(err);
     }
