@@ -15,6 +15,7 @@ import TextField from '@mui/material/TextField';
 import useLighthouse from 'effects/use-lighthouse';
 import useThrottle from 'effects/use-throttle';
 import { parseURI } from 'util/lbryURI';
+const { escapeHtmlProperty } = require('util/web');
 
 const SUGGESTION_REGEX = new RegExp(
   '((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)',
@@ -100,7 +101,7 @@ export default function TextareaWithSuggestions(props: Props) {
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
   // const [mostSupported, setMostSupported] = React.useState('');
 
-  const suggestionTerm = suggestionValue && suggestionValue.term;
+  const suggestionTerm = suggestionValue && escapeHtmlProperty(suggestionValue.term);
   const isEmote = suggestionValue && suggestionValue.isEmote;
   const isMention = suggestionValue && !suggestionValue.isEmote;
 

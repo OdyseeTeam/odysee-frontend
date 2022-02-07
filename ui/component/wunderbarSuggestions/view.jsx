@@ -19,6 +19,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 import Yrbl from 'component/yrbl';
 import { SEARCH_OPTIONS } from 'constants/search';
 import Spinner from 'component/spinner';
+const { escapeHtmlProperty } = require('util/web');
 
 const LBRY_PROTOCOL = 'lbry://';
 const WEB_DEV_PREFIX = `${URL_DEV}/`;
@@ -170,7 +171,7 @@ export default function WunderBarSuggestions(props: Props) {
   React.useEffect(() => {
     const timer = setTimeout(() => {
       if (debouncedTerm !== term) {
-        setDebouncedTerm(term.length < LIGHTHOUSE_MIN_CHARACTERS ? '' : term);
+        setDebouncedTerm(term.length < LIGHTHOUSE_MIN_CHARACTERS ? '' : escapeHtmlProperty(term));
       }
     }, WUNDERBAR_INPUT_DEBOUNCE_MS);
 

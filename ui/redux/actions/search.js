@@ -11,6 +11,7 @@ import { getSearchQueryString } from 'util/query-params';
 import { getRecommendationSearchOptions } from 'util/search';
 import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
+const { escapeHtmlProperty } = require('util/web');
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, search: SearchState };
@@ -50,7 +51,7 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
-  const query = rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+  const query = escapeHtmlProperty(rawQuery.replace(/^lbry:\/\//i, '').replace(/\//, ' '));
 
   if (!query) {
     dispatch({
