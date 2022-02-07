@@ -248,3 +248,40 @@ $control-bar-icon-size: 0.8rem;
 button.vjs-big-play-button {
   display: none !important;
 }
+
+// Rearrange icons
+.vjs-play-control {
+  order: 1 !important;
+}
+.vjs-volume-panel {
+  order: 2 !important;
+}
+.vjs-current-time {
+  order: 3 !important;
+}
+.vjs-time-divider {
+  order: 4 !important;
+}
+.vjs-duration {
+  order: 5 !important;
+}
+
+.vjs-custom-control-spacer {
+  order: 6 !important;
+}
+
+.vjs-button--autoplay-next {
+  order: 7 !important;
+}
+.vjs-playback-rate {
+  order: 8 !important;
+}
+.vjs-chromecast-button {
+  order: 9 !important;
+}
+.vjs-button--theater-mode {
+  order: 10 !important;
+}
+.vjs-fullscreen-control {
+  order: 11 !important;
+}
