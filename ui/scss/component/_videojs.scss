@@ -279,9 +279,12 @@ button.vjs-big-play-button {
 .vjs-chromecast-button {
   order: 9 !important;
 }
-.vjs-button--theater-mode {
+.vjs-quality-selector {
   order: 10 !important;
 }
-.vjs-fullscreen-control {
+.vjs-button--theater-mode {
   order: 11 !important;
+}
+.vjs-fullscreen-control {
+  order: 12 !important;
 }
