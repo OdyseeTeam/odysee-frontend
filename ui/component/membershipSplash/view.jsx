@@ -20,11 +20,7 @@ export default function MembershipSplash(props: Props) {
   const [membershipOptions, setMembershipOptions] = React.useState();
   const { openModal, odyseeMembership, pageLocation } = props;
 
-  console.log('page location!');
-  console.log(pageLocation);
-
   const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
-
 
   const earlyAcessInfo = (
     <div className="membership-splash__info-content">

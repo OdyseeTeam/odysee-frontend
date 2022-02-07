@@ -16,7 +16,18 @@ type Props = {
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
-  const { closeModal, membershipId, subscriptionPeriod, odyseeChannelId, odyseeChannelName, hasMembership, priceId, purchaseString, plan } = props;
+  const {
+    closeModal,
+    membershipId,
+    populateMembershipData,
+    odyseeChannelId,
+    odyseeChannelName,
+    hasMembership,
+    priceId,
+    purchaseString,
+    plan,
+    setMembershipOptions,
+  } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
   const [statusText, setStatusText] = React.useState();
@@ -48,12 +59,17 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       setStatusText('Membership purchase was successful');
 
-      setTimeout(function(){
-        // $FlowFixMe
-        location.reload();
-        closeModal();
-      }, 950)
+      await populateMembershipData();
+      // clear the other membership options after making a purchase
+      setMembershipOptions(false);
 
+      closeModal();
+
+      // setTimeout(function(){
+      //   // $FlowFixMe
+      //   // location.reload();
+      //   closeModal();
+      // }, 950)
     } catch (err) {
       console.log(err);
     }
@@ -81,10 +97,14 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       setStatusText('Membership successfully canceled');
 
-      setTimeout(function() {
-        // $FlowFixMe
-        location.reload();
-      }, 950);
+      await populateMembershipData();
+
+      closeModal();
+
+      // setTimeout(function () {
+      //   // $FlowFixMe
+      //   // location.reload();
+      // }, 950);
     } catch (err) {
       console.log(err);
     }
@@ -105,14 +125,15 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
                   button="secondary"
                   icon={ICONS.FINANCE}
                   label={hasMembership ? __('Confirm Cancellation') : __('Confirm Purchase')}
-                  onClick={hasMembership ? cancelMembership : purchaseMembership}
+                  onClick={() => (hasMembership ? cancelMembership() : purchaseMembership())}
+                  // onClick={hasMembership ? cancelMembership : purchaseMembership}
                 />
                 <Button button="link" label={__('Cancel')} onClick={closeModal} />
               </>
             )}
             {waitingForBackend && (
               <>
-                  <h1 style={{ fontSize: '18px' }}>{statusText}</h1>
+                <h1 style={{ fontSize: '18px' }}>{statusText}</h1>
               </>
             )}
           </div>
