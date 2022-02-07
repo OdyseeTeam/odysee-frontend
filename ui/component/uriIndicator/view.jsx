@@ -25,6 +25,7 @@ type Props = {
   external?: boolean,
   className?: string,
   focusable: boolean,
+  selectOdyseeMembershipByClaimId: string,
 };
 
 class UriIndicator extends React.PureComponent<Props> {
@@ -85,6 +86,10 @@ class UriIndicator extends React.PureComponent<Props> {
       external = false,
       hideAnonymous = false,
       className,
+<<<<<<< HEAD
+=======
+      selectOdyseeMembershipByClaimId,
+>>>>>>> fa9b2ebcb (fixing lint errors)
     } = this.props;
 
     if (!channelInfo && !claim) {
@@ -114,7 +119,13 @@ class UriIndicator extends React.PureComponent<Props> {
 
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
+<<<<<<< HEAD
           {channelName}
+=======
+          {name}
+          {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
+          {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
+>>>>>>> fa9b2ebcb (fixing lint errors)
         </span>
       );
 

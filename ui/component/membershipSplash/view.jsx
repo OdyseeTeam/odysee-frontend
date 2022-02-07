@@ -1,26 +1,21 @@
 // @flow
 import * as ICONS from 'constants/icons';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import React from 'react';
-import * as MODALS from 'constants/modal_types';
 import AstronautAndFriends from './astronaut_n_friends.png';
 import BadgePremium from './badge_premium.png';
 import BadgePremiumPlus from './badge_premium-plus.png';
 import OdyseePremium from './odysee_premium.png';
-let stripeEnvironment = getStripeEnvironment();
 
-type Props = {};
+type Props = {
+  pageLocation: string,
+};
 
 export default function MembershipSplash(props: Props) {
-  // const { } = props;
+  const { pageLocation } = props;
 
-  const [membershipOptions, setMembershipOptions] = React.useState();
-  const { openModal, odyseeMembership, pageLocation } = props;
-
-  const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
+  // const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
 
   const earlyAcessInfo = (
     <div className="membership-splash__info-content">

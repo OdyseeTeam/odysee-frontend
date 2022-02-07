@@ -13,6 +13,14 @@ type Props = {
   paymentMethodId: string,
   setAsConfirmingCard: () => void, // ?
   hasMembership: boolean, // user already has purchased --> invoke Cancel then
+  membershipId: string,
+  populateMembershipData: () => void,
+  odyseeChannelId: string,
+  odyseeChannelName: string,
+  priceId: string,
+  purchaseString: string,
+  plan: string,
+  setMembershipOptions: () => void,
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
@@ -126,7 +134,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
                   icon={ICONS.FINANCE}
                   label={hasMembership ? __('Confirm Cancellation') : __('Confirm Purchase')}
                   onClick={() => (hasMembership ? cancelMembership() : purchaseMembership())}
-                  // onClick={hasMembership ? cancelMembership : purchaseMembership}
                 />
                 <Button button="link" label={__('Cancel')} onClick={closeModal} />
               </>

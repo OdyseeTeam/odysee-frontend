@@ -22,6 +22,7 @@ type Props = {
   doSetActiveChannel: (string) => void,
   pendingChannels: Array<string>,
   claimsByUri: { [string]: any },
+  doFetchUserMemberships: (claimIdCsv: string) => void,
 };
 
 export default function ChannelsPage(props: Props) {

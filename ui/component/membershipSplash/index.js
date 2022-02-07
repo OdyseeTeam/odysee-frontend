@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { doOpenModal, doHideModal } from 'redux/actions/app';
+import { doOpenModal } from 'redux/actions/app';
 import {
   selectTitleForUri,
   makeSelectClaimForUri,
@@ -7,7 +7,6 @@ import {
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 
-import { doSendTip, doSendCashTip } from 'redux/actions/wallet';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
