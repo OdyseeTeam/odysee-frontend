@@ -229,14 +229,14 @@ export function savePosition(uri: string, position: number) {
           position,
         })
       );
-
-      dispatch({
-        type: ACTIONS.SET_CONTENT_POSITION,
-        data: { claimId, outpoint, position },
-      });
     } catch (e) {
       console.error('localStorage not available');
     }
+
+    dispatch({
+      type: ACTIONS.SET_CONTENT_POSITION,
+      data: { claimId, outpoint, position },
+    });
   };
 }
 
