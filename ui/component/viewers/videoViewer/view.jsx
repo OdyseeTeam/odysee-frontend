@@ -1,6 +1,7 @@
 // @flow
 import { ENABLE_PREROLL_ADS } from 'config';
 import * as PAGES from 'constants/pages';
+import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { stopContextMenu } from 'util/context-menu';
@@ -134,6 +135,16 @@ function VideoViewer(props: Props) {
   breaks because some browsers (e.g. Firefox) block autoplay but leave the player.play Promise pending */
   const [replay, setReplay] = useState(false);
   const [videoNode, setVideoNode] = useState();
+  const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
+  const isFirstRender = React.useRef(true);
+
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    toggleAutoplayNext();
+  }, [localAutoplayNext]);
 
   const updateVolumeState = React.useCallback(
     debounce((volume, muted) => {
@@ -265,6 +276,12 @@ function VideoViewer(props: Props) {
   function onDispose(event, player) {
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
+
+    const almostFinished = player.currentTime() / player.duration() >= VIDEO_ALMOST_FINISHED_THRESHOLD;
+
+    if (player.ended() || almostFinished) {
+      clearPosition(permanentUrl);
+    }
   }
 
   function handlePosition(player) {
@@ -318,7 +335,13 @@ function VideoViewer(props: Props) {
           addPlayNextButton(player, doPlayNext);
           addPlayPreviousButton(player, doPlayPrevious);
         } else {
-          addAutoplayNextButton(player, toggleAutoplayNext, autoplayNext);
+          addAutoplayNextButton(
+            player,
+            () => {
+              setLocalAutoplayNext((e) => !e);
+            },
+            autoplayNext
+          );
         }
       }
     }
@@ -457,7 +480,7 @@ function VideoViewer(props: Props) {
         startMuted={autoplayIfEmbedded}
         toggleVideoTheaterMode={toggleVideoTheaterMode}
         autoplay={!embedded || autoplayIfEmbedded}
-        autoplaySetting={autoplayNext}
+        autoplaySetting={localAutoplayNext}
         claimId={claimId}
         title={claim && ((claim.value && claim.value.title) || claim.name)}
         channelName={channelName}

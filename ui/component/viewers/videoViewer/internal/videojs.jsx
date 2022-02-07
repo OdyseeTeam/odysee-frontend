@@ -32,6 +32,7 @@ export type Player = {
   chromecast: (any) => void,
   currentTime: (?number) => number,
   dispose: () => void,
+  duration: () => number,
   ended: () => boolean,
   error: () => any,
   exitFullscreen: () => boolean,
@@ -351,7 +352,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const adsClaimParentDiv = adsClaimDiv.parentNode;
 
           // watch parent div for when it is on viewport
-          const observer = new IntersectionObserver(function(entries) {
+          const observer = new IntersectionObserver(function (entries) {
             // when ad div parent becomes visible by 1px, show the ad video
             if (entries[0].isIntersecting === true) {
               adsClaimDiv.style.display = 'block';
