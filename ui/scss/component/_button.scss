@@ -656,13 +656,17 @@ svg + .button__label {
   border-left-width: 0;
   border-radius: 0;
   margin: 0;
-  color: var(--color-text);
+  color: var(--color-button-toggle-text) !important;
   background-color: var(--color-button-toggle-bg) !important;
 
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+
+  .icon {
+    // margin-bottom:-4px;
+  }
 
   &:hover:not(.button-toggle--active) {
     background-color: var(--color-button-toggle-bg-hover) !important;
@@ -713,7 +717,7 @@ svg + .button__label {
 
 .button-toggle--active {
   // color: var(--color-button-toggle-text) !important;
-  box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
+  //box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
   color: var(--color-button-toggle-text-active) !important;
   background-color: var(--color-button-toggle-bg-active) !important;
 
