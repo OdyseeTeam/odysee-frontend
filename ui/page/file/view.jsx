@@ -1,5 +1,6 @@
 // @flow
 import * as PAGES from 'constants/pages';
+import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
@@ -72,7 +73,7 @@ function FilePage(props: Props) {
     const durationInSecs =
       fileInfo && fileInfo.metadata && fileInfo.metadata.video ? fileInfo.metadata.video.duration : 0;
     const isVideoTooShort = durationInSecs <= 45;
-    const almostFinishedPlaying = position / durationInSecs >= PAGES.VIDEO_ALMOST_FINISHED_THRESHOLD;
+    const almostFinishedPlaying = position / durationInSecs >= VIDEO_ALMOST_FINISHED_THRESHOLD;
 
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
   }, [fileInfo, position]);

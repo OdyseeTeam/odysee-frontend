@@ -1,8 +1,8 @@
 // @flow
 import { ENABLE_PREROLL_ADS } from 'config';
 import * as PAGES from 'constants/pages';
+import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as ICONS from 'constants/icons';
-import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/pages';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { stopContextMenu } from 'util/context-menu';
 import type { Player } from './internal/videojs';
