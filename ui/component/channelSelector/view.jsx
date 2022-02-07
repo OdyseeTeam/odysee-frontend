@@ -26,7 +26,7 @@ type ListItemProps = {
 };
 
 function ChannelListItem(props: ListItemProps) {
-  const { uri, isSelected = false, selectOdyseeMembershipByClaimId } = props;
+  const { uri, isSelected = false } = props;
 
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>

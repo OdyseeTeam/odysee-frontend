@@ -95,6 +95,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
+  doFetchUserMemberships: (claimIdCsv: string) => void,
 
   hideLayoutButton?: boolean,
   loadedCallback?: (number) => void,

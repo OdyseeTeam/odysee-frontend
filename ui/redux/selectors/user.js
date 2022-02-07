@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { selectClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri } from 'redux/selectors/claims';
 
 export const selectState = (state) => state.user || {};
 
@@ -108,7 +108,7 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
   }
 });
 
-export const selectOdyseeMembershipByClaimId = function(state, uri) {
+export const selectOdyseeMembershipByClaimId = function (state, uri) {
   const claim = selectClaimForUri(state, uri);
 
   let uploaderChannelClaimId;
@@ -119,7 +119,8 @@ export const selectOdyseeMembershipByClaimId = function(state, uri) {
   }
 
   // looks for the uploader id
-  const matchingMembershipOfUser = (state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId]);
+  const matchingMembershipOfUser =
+    state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
   return matchingMembershipOfUser;
 };
 

@@ -24,10 +24,12 @@ type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
   totalBalance: ?number,
+  openModal: (string, {}) => void,
+  activeChannelClaim: ?ChannelClaim,
 };
 
 const OdyseeMembershipPage = (props: Props) => {
-  const { openModal, odyseeMembership, activeChannelClaim } = props;
+  const { openModal, activeChannelClaim } = props;
 
   const userChannelName = activeChannelClaim && activeChannelClaim.name;
   const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;

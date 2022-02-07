@@ -20,6 +20,7 @@ type HeaderMenuButtonProps = {
   user: ?User,
   handleThemeToggle: (boolean, string) => void,
   doOpenModal: (id, params) => void,
+  odyseeMembership: string,
 };
 
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
