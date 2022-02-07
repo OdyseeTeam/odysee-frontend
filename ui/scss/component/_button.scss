@@ -933,6 +933,14 @@ svg + .button__label {
   }
 }
 
+.button-following {
+  color: var(--color-text) !important;
+  background-color: var(--color-border) !important;
+  .icon {
+    stroke: var(--color-text) !important;
+  }
+}
+
 .recommended-content__bubble {
   // margin-top: var(--spacing-xs);
   display: flex;
