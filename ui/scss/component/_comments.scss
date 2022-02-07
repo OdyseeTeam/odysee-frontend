@@ -188,6 +188,7 @@ $thumbnailWidthSmall: 1rem;
   justify-content: flex-start;
   align-items: center;
   height: 100%;
+  width: calc(100% - var(--spacing-m) - var(--spacing-s));
 
   .channel-name {
     color: var(--color-link);
@@ -207,11 +208,20 @@ $thumbnailWidthSmall: 1rem;
 }
 
 .comment__pin {
+  display: inline-block;
   margin: 0 var(--spacing-s);
+  margin-right: 0;
   font-size: var(--font-xsmall);
 
   .icon {
     padding-top: 1px;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    width: 90%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
