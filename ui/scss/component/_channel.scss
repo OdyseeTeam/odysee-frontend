@@ -9,6 +9,16 @@ $actions-z-index: 2;
         stroke: var(--color-text);
       }
     }
+    .button-following {
+      color: var(--color-text) !important;
+      background-color: var(--color-button-alt-bg) !important;
+      .icon {
+        stroke: var(--color-text) !important;
+      }
+      &:hover {
+        color: var(--color-primary) !important;
+      }
+    }
   }
 
   fieldset-group {
