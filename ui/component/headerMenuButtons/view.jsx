@@ -19,7 +19,7 @@ type HeaderMenuButtonProps = {
   currentTheme: string,
   user: ?User,
   handleThemeToggle: (boolean, string) => void,
-  doOpenModal: (id, params) => void,
+  doOpenModal: (string, {}) => void,
   odyseeMembership: string,
 };
 
