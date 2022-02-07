@@ -130,7 +130,7 @@ export default function SubscribeButton(props: Props) {
           <Button
             button="alt"
             icon={notificationsDisabled ? ICONS.BELL : ICONS.BELL_ON}
-            className={notificationsDisabled ? '' : 'button-following'}
+            className={isSubscribed ? 'button-following' : ''}
             aria-label={notificationsDisabled ? __('Turn on notifications') : __('Turn off notifications')}
             onClick={() => {
               const newNotificationsDisabled = !notificationsDisabled;
