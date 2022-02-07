@@ -325,6 +325,13 @@ textarea {
   @extend .help--warning;
   background-color: rgba(var(--color-primary-dynamic), 0.03);
   color: var(--color-text);
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: -1.5px;
+    border: unset;
+    box-shadow: 0px 0px 0px 1px var(--color-primary) inset;
+    padding-bottom: 10px;
+  }
 }
 
 .help--inline {
