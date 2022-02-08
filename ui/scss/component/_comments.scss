@@ -197,14 +197,6 @@ $thumbnailWidthSmall: 1rem;
       color: rgba(var(--color-secondary-dynamic), 1);
     }
   }
-
-  .comment__time {
-    color: var(--color-secondary);
-
-    &:hover {
-      color: rgba(var(--color-secondary-dynamic), 0.8);
-    }
-  }
 }
 
 .comment__pin {

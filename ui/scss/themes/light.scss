@@ -9,7 +9,7 @@
   --color-odysee: rgba(var(--color-primary-static), 1);
   --color-odysee-contrast: var(--color-primary-contrast-static);
   --color-secondary-static: 166, 0, 94;
-  --color-secondary-dynamic: 166, 0, 94;
+  --color-secondary-dynamic: 137, 0, 116;
   --color-secondary: rgba(var(--color-secondary-dynamic), 1);
   --color-secondary-contrast-static: #ffffff;
   --color-secondary-contrast: #ffffff;
@@ -76,9 +76,6 @@
   --color-button-toggle-text-hover: var(--color-text);
   --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
   --color-button-toggle-text-active: var(--color-text);
-
-  --color-button-bubble-bg-base: 15, 15, 15;
-  --color-button-bubble-text: #fff;
 
   --color-button-border: var(--color-gray-3);
   --color-link: var(--color-primary);

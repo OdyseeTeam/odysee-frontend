@@ -132,6 +132,17 @@ body {
       font-size: var(--font-small);
     }
 
+    .comment__meta-information {
+      .date_time {
+        font-size: var(--font-xxsmall) !important;
+        color: rgba(var(--color-secondary-dynamic), 0.5);
+
+        &:hover {
+          color: rgba(var(--color-secondary-dynamic), 0.8);
+        }
+      }
+    }
+
     @media (min-width: $breakpoint-medium) {
       flex-direction: row;
     }
