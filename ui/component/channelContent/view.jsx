@@ -14,6 +14,7 @@ import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
 import { lighthouse } from 'redux/actions/search';
 import ScheduledStreams from 'component/scheduledStreams';
+import { escapeHtmlProperty } from 'util/web';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -92,7 +93,7 @@ function ChannelContent(props: Props) {
       } else {
         lighthouse
           .search(
-            `s=${encodeURIComponent(searchQuery)}&channel_id=${encodeURIComponent(claimId)}${
+            `s=${encodeURIComponent(escapeHtmlProperty(searchQuery))}&channel_id=${encodeURIComponent(claimId)}${
               !showMature ? '&nsfw=false&size=50&from=0' : ''
             }`
           )
