@@ -21,6 +21,14 @@ $actions-z-index: 2;
     }
   }
 
+  .claim-preview__live {
+    margin-bottom: 0;
+    .card__title-section {
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+  }
+
   fieldset-group {
     fieldset-section:last-of-type {
       label {
