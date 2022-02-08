@@ -18,6 +18,7 @@ type Props = {
   doSetActiveChannel: (string) => void,
   incognito: boolean,
   doSetIncognito: (boolean) => void,
+  selectOdyseeMembershipByClaimId: string,
 };
 
 type ListItemProps = {
@@ -26,6 +27,7 @@ type ListItemProps = {
 };
 
 function ChannelListItem(props: ListItemProps) {
+  console.log(props);
   const { uri, isSelected = false } = props;
 
   return (
@@ -55,7 +57,17 @@ function IncognitoSelector(props: IncognitoSelectorProps) {
 }
 
 function ChannelSelector(props: Props) {
-  const { channels, activeChannelClaim, doSetActiveChannel, hideAnon = false, incognito, doSetIncognito } = props;
+  console.log(props);
+  const {
+    channels,
+    activeChannelClaim,
+    doSetActiveChannel,
+    hideAnon = false,
+    incognito,
+    doSetIncognito,
+    selectOdyseeMembershipByClaimId,
+  } = props;
+  console.log(selectOdyseeMembershipByClaimId);
   const {
     push,
     location: { pathname },
