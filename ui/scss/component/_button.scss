@@ -962,8 +962,8 @@ svg + .button__label {
     padding-left: var(--spacing-m);
     padding-right: var(--spacing-m);
     margin-right: var(--spacing-xxs);
-    background-color: rgba(var(--color-button-bubble-bg-base), 0.5) !important;
-    color: var(--color-button-bubble-text);
+    background-color: var(--color-button-toggle-bg) !important;
+    color: var(--color-button-toggle-text);
     font-size: var(--font-base);
     padding: 0 var(--spacing-xs);
     height: 2rem;
@@ -972,10 +972,10 @@ svg + .button__label {
       height: unset;
     }
     &:hover:not(.button-bubble--active) {
-      background-color: rgba(var(--color-button-bubble-bg-base), 0.9) !important;
+      background-color: var(--color-button-toggle-bg-hover) !important;
 
       .button__label {
-        color: var(--color-button-bubble-text) !important;
+        color: var(--color-button-toggle-text-hover) !important;
       }
     }
   }
@@ -983,10 +983,8 @@ svg + .button__label {
     margin-left: 0;
   }
   .button-bubble--active {
-    color: var(--color-primary);
-    background-color: rgba(var(--color-button-bubble-bg-base), 1) !important;
-    color: var(--color-button-bubble-text);
-    // background-color: var(--color-header-background) !important;
+    color: var(--color-button-toggle-text-active) !important;
+    background-color: var(--color-button-toggle-bg-active) !important;
     box-shadow: unset;
     &:hover {
       cursor: default;
