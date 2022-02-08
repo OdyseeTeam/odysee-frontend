@@ -1,5 +1,6 @@
 // @flow
 import { SEARCH_OPTIONS } from 'constants/search';
+import { escapeHtmlProperty } from 'util/web';
 
 const DEFAULT_SEARCH_RESULT_FROM = 0;
 const DEFAULT_SEARCH_SIZE = 20;
@@ -31,11 +32,19 @@ export function updateQueryParam(uri: string, key: string, value: string) {
   }
 }
 
+function isSurroundedByDoubleQuotes(str) {
+  const decodedStr = decodeURIComponent(str);
+  return (
+    (decodedStr.startsWith('&quot;') && decodedStr.endsWith('&quot;')) ||
+    (decodedStr.startsWith('"') && decodedStr.endsWith('"'))
+  );
+}
+
 export const getSearchQueryString = (query: string, options: any = {}) => {
-  const isSurroundedByQuotes = (str) => str[0] === '"' && str[str.length - 1] === '"';
-  const encodedQuery = encodeURIComponent(query);
+  const encodedQuery = encodeURIComponent(escapeHtmlProperty(query));
+
   const queryParams = [
-    options.exact && !isSurroundedByQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,
+    options.exact && !isSurroundedByDoubleQuotes(encodedQuery) ? `s="${encodedQuery}"` : `s=${encodedQuery}`,
     `size=${options.size || DEFAULT_SEARCH_SIZE}`,
     `from=${options.from || DEFAULT_SEARCH_RESULT_FROM}`,
   ];
