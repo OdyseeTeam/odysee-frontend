@@ -594,6 +594,11 @@ textarea {
   .mb-xl {
     margin-bottom: 0px;
   }
+  .icon__wrapper--Heart {
+    .icon {
+      fill: var(--color-header-background);
+    }
+  }
 }
 
 // The following wrapper classes are temporary to fix page specific issues
