@@ -5,12 +5,17 @@ import { doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { selectOdyseeMembershipByClaimId } from 'redux/selectors/user';
 import ChannelSelector from './view';
 
-const select = (state, props) => ({
-  channels: selectMyChannelClaims(state),
-  activeChannelClaim: selectActiveChannelClaim(state),
-  incognito: selectIncognito(state),
-  selectOdyseeMembershipByClaimId: selectOdyseeMembershipByClaimId(state, props.uri),
-});
+const select = (state, props) => {
+  const activeChannelClaim = selectActiveChannelClaim(state);
+  const uri = activeChannelClaim && activeChannelClaim.permanent_url;
+
+  return {
+    channels: selectMyChannelClaims(state),
+    activeChannelClaim,
+    incognito: selectIncognito(state),
+    selectOdyseeMembershipByClaimId: selectOdyseeMembershipByClaimId(state, uri),
+  };
+};
 
 export default connect(select, {
   doSetActiveChannel,
