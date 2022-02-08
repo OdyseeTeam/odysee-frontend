@@ -135,10 +135,10 @@ body {
     .comment__meta-information {
       .date_time {
         font-size: var(--font-xxsmall) !important;
-        color: rgba(var(--color-secondary-dynamic), 0.7);
+        color: rgba(var(--color-secondary-dynamic), 0.8);
 
         &:hover {
-          color: rgba(var(--color-secondary-dynamic), 0.9);
+          color: rgba(var(--color-secondary-dynamic), 1);
         }
       }
     }
