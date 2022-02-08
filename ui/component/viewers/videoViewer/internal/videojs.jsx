@@ -171,24 +171,24 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const { createVideoPlayerDOM } = functions({ isAudio });
 
-  const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
-    tapToUnmuteRef,
-    tapToRetryRef,
-    setReload,
-    videoTheaterMode,
-    playerRef,
-    autoplaySetting,
-    replay,
-    claimValues,
-    userId,
-    claimId,
-    embedded,
-    doAnalyticsView,
-    claimRewards,
-    uri,
-    playerServerRef,
-    clearPosition,
-  });
+  // const { unmuteAndHideHint, retryVideoAfterFailure, initializeEvents } = events({
+  //   tapToUnmuteRef,
+  //   tapToRetryRef,
+  //   setReload,
+  //   videoTheaterMode,
+  //   playerRef,
+  //   autoplaySetting,
+  //   replay,
+  //   claimValues,
+  //   userId,
+  //   claimId,
+  //   embedded,
+  //   doAnalyticsView,
+  //   claimRewards,
+  //   uri,
+  //   playerServerRef,
+  //   clearPosition,
+  // });
 
   const videoJsOptions = {
     preload: 'auto',
@@ -228,7 +228,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
 
-      initializeEvents();
+      // initializeEvents();
 
       // Replace volume bar with custom LBRY volume bar
       LbryVolumeBarClass.replaceExisting(player);
@@ -325,27 +325,36 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
+      console.log(source);
+
       // change to m3u8 if applicable
       // @Todo: skip for livestreams.
       const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
+      console.log(response);
+
       playerServerRef.current = response.headers.get('x-powered-by');
 
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        // use m3u8 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: 'application/x-mpegURL',
-          src: response.url,
-        });
-      } else {
-        // use original mp4 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: sourceType,
-          src: source,
-        });
-      }
+      vjsPlayer.src({
+        type: 'application/x-mpegURL',
+        src: 'https://cdn.odysee.live/hls/cde3b125543e3e930ac2647df957a836e3da3816/index.m3u8',
+      });
+
+      // if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+      //   // use m3u8 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: 'application/x-mpegURL',
+      //     src: response.url,
+      //   });
+      // } else {
+      //   // use original mp4 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: sourceType,
+      //     src: source,
+      //   });
+      // }
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
@@ -396,22 +405,22 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   return (
     <div className={classnames('video-js-parent', { 'video-js-parent--ios': IS_IOS })} ref={containerRef}>
-      <Button
-        label={__('Tap to unmute')}
-        button="link"
-        icon={ICONS.VOLUME_MUTED}
-        className="video-js--tap-to-unmute"
-        onClick={unmuteAndHideHint}
-        ref={tapToUnmuteRef}
-      />
-      <Button
-        label={__('Retry')}
-        button="link"
-        icon={ICONS.REFRESH}
-        className="video-js--tap-to-unmute"
-        onClick={retryVideoAfterFailure}
-        ref={tapToRetryRef}
-      />
+      {/* <Button */}
+      {/*  label={__('Tap to unmute')} */}
+      {/*  button="link" */}
+      {/*  icon={ICONS.VOLUME_MUTED} */}
+      {/*  className="video-js--tap-to-unmute" */}
+      {/*  onClick={unmuteAndHideHint} */}
+      {/*  ref={tapToUnmuteRef} */}
+      {/* /> */}
+      {/* <Button */}
+      {/*  label={__('Retry')} */}
+      {/*  button="link" */}
+      {/*  icon={ICONS.REFRESH} */}
+      {/*  className="video-js--tap-to-unmute" */}
+      {/*  onClick={retryVideoAfterFailure} */}
+      {/*  ref={tapToRetryRef} */}
+      {/* /> */}
     </div>
   );
 });

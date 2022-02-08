@@ -1,4 +1,5 @@
 // @flow
+// @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 // @if TARGET='app'

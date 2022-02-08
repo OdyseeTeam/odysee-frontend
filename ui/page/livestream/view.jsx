@@ -140,6 +140,9 @@ export default function LivestreamPage(props: Props) {
     }
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
+  console.log('uri');
+  console.log(uri);
+
   React.useEffect(() => {
     doSetPlayingUri({ uri: uri });
   }, [doSetPlayingUri, uri]);

@@ -699,6 +699,7 @@ export const makeSelectClaimHasSource = (uri: string) =>
   });
 
 export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
+  // return true if it is a stream with no source
   return claim ? Boolean(claim.value_type === 'stream' && !claim.value.source) : false;
 };
 

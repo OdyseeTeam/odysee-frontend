@@ -103,6 +103,10 @@ export default function FileRenderInitiator(props: Props) {
         e.stopPropagation();
       }
 
+      // const newUri = 'lbry://@AlexJonesChannel#c/7Feb22#d';
+      //
+      // console.log(newUri, collectionId, isPlayable);
+
       play(uri, collectionId, isPlayable);
     },
     [play, uri, isPlayable, collectionId]
@@ -135,6 +139,9 @@ export default function FileRenderInitiator(props: Props) {
         RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode))
     ) {
       viewFile();
+    } else {
+      console.log('NOT VIEWING FILE');
+      // viewFile();
     }
   }, [autoplay, canViewFile, forceAutoplayParam, isPlayable, renderMode, viewFile]);
 

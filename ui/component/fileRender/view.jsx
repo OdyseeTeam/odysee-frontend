@@ -75,6 +75,8 @@ class FileRender extends React.PureComponent<Props> {
     switch (renderMode) {
       case RENDER_MODES.AUDIO:
       case RENDER_MODES.VIDEO:
+        console.log('hey here');
+        console.log(source, contentType);
         return <VideoViewer uri={uri} source={source} contentType={contentType} />;
       case RENDER_MODES.IMAGE:
         return (

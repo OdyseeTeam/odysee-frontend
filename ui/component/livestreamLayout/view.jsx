@@ -7,6 +7,7 @@ import LivestreamLink from 'component/livestreamLink';
 import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import React from 'react';
 import FileRenderInitiator from 'component/fileRenderInitiator';
+import VideoViewer from 'component/viewers/videoViewer';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
 
@@ -35,6 +36,9 @@ export default function LivestreamLayout(props: Props) {
     uri,
   } = props;
 
+  console.log('we got a uri here');
+  console.log(uri);
+
   const isMobile = useIsMobile();
 
   if (!claim || !claim.signing_channel) return null;
@@ -45,6 +49,7 @@ export default function LivestreamLayout(props: Props) {
     <>
       <div className="section card-stack">
         <div
+          style={{ marginBottom: '635px' }}
           className={classnames('file-render file-render--video', {
             'file-render--scheduledLivestream': !showLivestream,
           })}
@@ -52,7 +57,28 @@ export default function LivestreamLayout(props: Props) {
           <div className="file-viewer">
             {showLivestream && (
               <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-                <FileRenderInitiator uri={uri} videoTheaterMode={false} />
+                {/* <FileRenderInitiator uri={uri} videoTheaterMode={false} /> */}
+                <>
+                  <div
+                    className="content__viewer content__viewer--inline react-draggable"
+                    style={{ marginBottom: '635px', width: '1103px', height: '621px' }}
+                  >
+                    <div className="content__wrapper">
+                      <div className="file-render draggable file-render--video">
+                        <div className="file-viewer">
+                          <VideoViewer
+                            uri={uri}
+                            source={
+                              'https://player.odycdn.com/api/v4/streams/free/7Feb22/dcf8c9f6948963fcbe05a3dbfe4aac769e2a515b/00e9fd'
+                            }
+                            contentType={'video/mp4'}
+                          />
+                          ;
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </>
               </div>
             )}
 
