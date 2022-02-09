@@ -203,7 +203,7 @@ export function doAuthenticate(
         if (shareUsageData) {
           dispatch(doRewardList());
 
-          if (callInstall && !user?.device_types?.includes('web')) {
+          if (callInstall) {
             doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
           }
         }
