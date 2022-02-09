@@ -118,6 +118,7 @@ class UriIndicator extends React.PureComponent<Props> {
       const { channelName, channelLink } = data;
 
       const inner = (
+<<<<<<< HEAD
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
 <<<<<<< HEAD
           {channelName}
@@ -127,6 +128,15 @@ class UriIndicator extends React.PureComponent<Props> {
           {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
 >>>>>>> fa9b2ebcb (fixing lint errors)
         </span>
+=======
+        <>
+          <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
+            {name}
+          </span>
+          {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
+          {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
+        </>
+>>>>>>> facf6d8c4 (Add badge to live chat)
       );
 
       if (!channelLink) {
