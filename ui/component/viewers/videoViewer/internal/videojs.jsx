@@ -107,15 +107,6 @@ if (!Object.keys(videojs.getPlugins()).includes('recsys')) {
   videojs.registerPlugin('recsys', recsys);
 }
 
-if (process.env.NODE_ENV !== 'production') {
-  videojs.Vhs.xhr.beforeRequest = (options) => {
-    if (!options.headers) options.headers = {};
-    options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-    options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-    return options;
-  };
-}
-
 // ****************************************************************************
 // VideoJs
 // ****************************************************************************
@@ -157,8 +148,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestream,
   } = props;
 
-  console.log(isLivestream);
-  console.log('is livestream');
+  // console.log(isLivestream);
+  // console.log('is livestream');
 
   const userClaimId = claim.signing_channel.claim_id;
 

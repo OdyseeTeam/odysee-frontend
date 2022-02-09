@@ -160,27 +160,27 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: (Ge
       })
       .catch((error) => {
 
+        dispatch({
+          type: ACTIONS.PURCHASE_URI_FAILED,
+          data: { uri, error },
+        });
+
+        dispatch({
+          type: ACTIONS.FETCH_FILE_INFO_FAILED,
+          data: { outpoint },
+        });
+
         console.log('error here!');
         console.log(error);
 
-        // TODO: suppress error
-
-        // dispatch({
-        //   type: ACTIONS.PURCHASE_URI_FAILED,
-        //   data: { uri, error },
-        // });
+        // TODO: suppress error toast
         //
-        // dispatch({
-        //   type: ACTIONS.FETCH_FILE_INFO_FAILED,
-        //   data: { outpoint },
-        // });
-        //
-        // dispatch(
-        //   doToast({
-        //     message: `Failed to view ${uri}, please try again. If this problem persists, visit https://odysee.com/@OdyseeHelp:b?view=about for support.`,
-        //     isError: true,
-        //   })
-        // );
+        dispatch(
+          doToast({
+            message: `Failed to view ${uri}, please try again. If this problem persists, visit https://odysee.com/@OdyseeHelp:b?view=about for support.`,
+            isError: true,
+          })
+        );
       });
   };
 }
