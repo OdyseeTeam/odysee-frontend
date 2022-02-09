@@ -9,6 +9,7 @@ import ChannelTitle from 'component/channelTitle';
 import Icon from 'component/common/icon';
 import { useHistory } from 'react-router';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import CommentBadge from 'component/common/comment-badge';
 
 type Props = {
   selectedChannelUrl: string, // currently selected channel
@@ -51,8 +52,8 @@ function ChannelListItem(props: ListItemProps) {
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
-      {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
-      {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
+          {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+          {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );

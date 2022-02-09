@@ -130,19 +130,18 @@ export default function LivestreamComment(props: Props) {
             {claimName}
           </Button>
 
-          {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} size={16} />}
-          {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
-          {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
-
-          {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
-          {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
-
           {isPinned && (
             <span className="comment__pin">
               <Icon icon={ICONS.PIN} size={14} />
               {__('Pinned')}
             </span>
           )}
+
+          {isGlobalMod && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
+          {isModerator && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} size={16} />}
+          {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
+          {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+          {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
 
           {/* Use key to force timestamp update */}
           <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />

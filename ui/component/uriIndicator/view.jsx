@@ -3,11 +3,16 @@ import type { Node } from 'react';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
+<<<<<<< HEAD
 
 type ChannelInfo = {
   uri: string,
   name: string,
 };
+=======
+import * as ICONS from 'constants/icons';
+import CommentBadge from 'component/common/comment-badge';
+>>>>>>> ed8986134 (add user badge)
 
 type Props = {
   isResolvingUri: boolean,
@@ -119,6 +124,7 @@ class UriIndicator extends React.PureComponent<Props> {
 
       const inner = (
 <<<<<<< HEAD
+<<<<<<< HEAD
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
 <<<<<<< HEAD
           {channelName}
@@ -137,6 +143,13 @@ class UriIndicator extends React.PureComponent<Props> {
           {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
         </>
 >>>>>>> facf6d8c4 (Add badge to live chat)
+=======
+        <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
+          {name}
+          {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+          {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
+        </span>
+>>>>>>> ed8986134 (add user badge)
       );
 
       if (!channelLink) {
