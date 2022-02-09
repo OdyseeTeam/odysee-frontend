@@ -8,6 +8,7 @@ import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import ChannelTitle from 'component/channelTitle';
 import Icon from 'component/common/icon';
 import { useHistory } from 'react-router';
+import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
   selectedChannelUrl: string, // currently selected channel
@@ -18,23 +19,40 @@ type Props = {
   doSetActiveChannel: (string) => void,
   incognito: boolean,
   doSetIncognito: (boolean) => void,
+  claimsByUri: { [string]: any },
+  doFetchUserMemberships: (claimIdCsv: string) => void,
+  selectOdyseeMembershipByClaimId: (uri: string) => string,
 };
 
 type ListItemProps = {
   uri: string,
   isSelected?: boolean,
+  claimsByUri: { [string]: any },
+  doFetchUserMemberships: (claimIdCsv: string) => void,
+  selectOdyseeMembershipByClaimId: (uri: string) => string,
 };
 
 function ChannelListItem(props: ListItemProps) {
-  const { uri, isSelected = false } = props;
+  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, selectOdyseeMembershipByClaimId } = props;
+
+  const membership = selectOdyseeMembershipByClaimId(uri);
+
+  let badgeToShow;
+  if (membership === 'Premium') {
+    badgeToShow = 'silver';
+  } else if (membership === 'Premium+') {
+    badgeToShow = 'gold';
+  }
+
+  const shouldFetchUserMemberships = true;
+  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships);
 
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
-      {/* TODO: implement with selector properly */}
-      {/* {'silver' === 'silver' && (<Icon size={25} icon={ICONS.PREMIUM} />)} */}
-      {/* {badgeToShow === 'gold' && (<Icon size={25} icon={ICONS.PREMIUM_PLUS} />)} */}
+      {badgeToShow === 'silver' && <Icon size={25} icon={ICONS.PREMIUM} />}
+      {badgeToShow === 'gold' && <Icon size={25} icon={ICONS.PREMIUM_PLUS} />}
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );
@@ -55,11 +73,23 @@ function IncognitoSelector(props: IncognitoSelectorProps) {
 }
 
 function ChannelSelector(props: Props) {
-  const { channels, activeChannelClaim, doSetActiveChannel, hideAnon = false, incognito, doSetIncognito } = props;
+  const {
+    channels,
+    activeChannelClaim,
+    doSetActiveChannel,
+    hideAnon = false,
+    incognito,
+    doSetIncognito,
+    selectOdyseeMembershipByClaimId,
+    claimsByUri,
+    doFetchUserMemberships,
+  } = props;
+
   const {
     push,
     location: { pathname },
   } = useHistory();
+
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
 
   function handleChannelSelect(channelClaim) {
@@ -74,14 +104,28 @@ function ChannelSelector(props: Props) {
           {(incognito && !hideAnon) || !activeChannelUrl ? (
             <IncognitoSelector isSelected />
           ) : (
-            <ChannelListItem uri={activeChannelUrl} isSelected />
+            <>
+              <ChannelListItem
+                selectOdyseeMembershipByClaimId={selectOdyseeMembershipByClaimId}
+                uri={activeChannelUrl}
+                isSelected
+                claimsByUri={claimsByUri}
+                doFetchUserMemberships={doFetchUserMemberships}
+              />
+            </>
           )}
         </MenuButton>
+
         <MenuList className="menu__list channel__list">
           {channels &&
             channels.map((channel) => (
               <MenuItem key={channel.permanent_url} onSelect={() => handleChannelSelect(channel)}>
-                <ChannelListItem uri={channel.permanent_url} />
+                <ChannelListItem
+                  selectOdyseeMembershipByClaimId={selectOdyseeMembershipByClaimId}
+                  uri={channel.permanent_url}
+                  claimsByUri={claimsByUri}
+                  doFetchUserMemberships={doFetchUserMemberships}
+                />
               </MenuItem>
             ))}
           {!hideAnon && (
