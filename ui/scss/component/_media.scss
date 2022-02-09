@@ -272,7 +272,7 @@
 
     .button--file-action {
       display: flex;
-      background-color: var(--color-header-background);
+      background-color: rgba(var(--color-header-background-base), 1);
       margin-right: var(--spacing-xxxs);
       justify-content: center;
       align-items: center;
