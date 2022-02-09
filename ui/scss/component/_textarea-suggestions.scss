@@ -241,4 +241,9 @@
   select .button {
     background-color: var(--mui-button);
   }
+
+  .tab__divider {
+    margin-top: calc(var(--tab-indicator-size) * -1 - var(--spacing-l) + 10px);
+    top: 0;
+  }
 }
