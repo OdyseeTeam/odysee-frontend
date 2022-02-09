@@ -103,11 +103,7 @@ function UserSignUp(props: Props) {
   const showUserVerification = hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
   const showChannelCreation =
     hasVerifiedEmail &&
-    ((balance !== undefined &&
-      balance !== null &&
-      balance > DEFAULT_BID_FOR_FIRST_CHANNEL &&
-      channelCount === 0 &&
-      !hasYoutubeChannels) ||
+    ((balance !== undefined && balance !== null && balance > DEFAULT_BID_FOR_FIRST_CHANNEL && channelCount === 0) ||
       interestedInYoutubeSync);
   const showYoutubeTransfer = hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete;
   const showFollowIntro = step === 'channels' || (hasVerifiedEmail && !followingAcknowledged);
