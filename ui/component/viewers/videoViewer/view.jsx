@@ -107,7 +107,11 @@ function VideoViewer(props: Props) {
     previousListUri,
     videoTheaterMode,
     isMarkdownOrComment,
+    isLivestream,
   } = props;
+
+  console.log('is livestream');
+  console.log(isLivestream);
 
   console.log(claim);
 
@@ -502,6 +506,8 @@ function VideoViewer(props: Props) {
         uri={uri}
         clearPosition={clearPosition}
         centerPlayButton={centerPlayButton}
+        claim={claim}
+        isLivestream={isLivestream}
       />
     </div>
   );

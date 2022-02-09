@@ -153,7 +153,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     uri,
     clearPosition,
     centerPlayButton,
+    claim,
+    isLivestream,
   } = props;
+
+  const userClaimId = claim.signing_channel.claim_id;
 
   // will later store the videojs player
   const playerRef = useRef();
@@ -325,35 +329,36 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
-      // change to m3u8 if applicable
-      // @Todo: skip for livestreams.
-      const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+      const livestreamSource = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
 
-      playerServerRef.current = response.headers.get('x-powered-by');
+      if (isLivestream) {
+        vjsPlayer.src({
+          type: 'application/x-mpegURL',
+          src: livestreamSource,
+        });
+      } else {
+        // change to m3u8 if applicable
+        const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
-      const thingSource =
-        'https://cdn.odysee.live/transcode_480/cde3b125543e3e930ac2647df957a836e3da3816_src/index.m3u8';
+        playerServerRef.current = response.headers.get('x-powered-by');
 
-      vjsPlayer.src({
-        type: 'application/x-mpegURL',
-        src: thingSource,
-      });
+        if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+          // use m3u8 source
+          // $FlowFixMe
+          vjsPlayer.src({
+            type: 'application/x-mpegURL',
+            src: response.url,
+          });
+        } else {
+          // use original mp4 source
+          // $FlowFixMe
+          vjsPlayer.src({
+            type: sourceType,
+            src: source,
+          });
+        }
+      }
 
-      // if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-      //   // use m3u8 source
-      //   // $FlowFixMe
-      //   vjsPlayer.src({
-      //     type: 'application/x-mpegURL',
-      //     src: response.url,
-      //   });
-      // } else {
-      //   // use original mp4 source
-      //   // $FlowFixMe
-      //   vjsPlayer.src({
-      //     type: sourceType,
-      //     src: source,
-      //   });
-      // }
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();

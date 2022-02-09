@@ -106,6 +106,8 @@ export default function FileRenderInitiator(props: Props) {
         e.stopPropagation();
       }
 
+      console.log('calling play here');
+
       play(uri, collectionId, isPlayable);
     },
     [play, uri, isPlayable, collectionId]
@@ -137,6 +139,7 @@ export default function FileRenderInitiator(props: Props) {
       ((autoplay && (!videoOnPage || forceAutoplayParam) && isPlayable) ||
         RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode))
     ) {
+      console.log('TRYING TO VIEW FILE');
       viewFile();
     }
   }, [autoplay, canViewFile, forceAutoplayParam, isPlayable, renderMode, viewFile]);
