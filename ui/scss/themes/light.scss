@@ -180,8 +180,8 @@
   --color-scrollbar-thumb-bg: rgba(0, 0, 0, 0.2);
   --color-scrollbar-track-bg: transparent;
 
-  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.6) 2%, #efefef),
-    radial-gradient(circle at 50% 217%, rgba(var(--color-background-base), 0.6) 0, #efefef 100%);
+  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.6) 2%, #ffffff),
+    radial-gradient(circle at 50% 217%, rgba(var(--color-background-base), 0.6) 0, #ffffff 100%);
 
   --mui-background: #fff;
   --mui-button: var(--color-header-button);
