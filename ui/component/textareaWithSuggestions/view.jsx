@@ -6,15 +6,14 @@ import * as KEYCODES from 'constants/keycodes';
 import Autocomplete from '@mui/material/Autocomplete';
 import BusyIndicator from 'component/common/busy-indicator';
 import EMOJIS from 'emoji-dictionary';
-import LbcSymbol from 'component/common/lbc-symbol';
 import Popper from '@mui/material/Popper';
 import React from 'react';
-import replaceAll from 'core-js-pure/features/string/replace-all';
-import TextareaSuggestionsItem from 'component/textareaSuggestionsItem';
-import TextField from '@mui/material/TextField';
 import useLighthouse from 'effects/use-lighthouse';
 import useThrottle from 'effects/use-throttle';
 import { parseURI } from 'util/lbryURI';
+import TextareaSuggestionsOption from './render-option';
+import TextareaSuggestionsInput from './render-input';
+import TextareaSuggestionsGroup from './render-group';
 
 const SUGGESTION_REGEX = new RegExp(
   '((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)',
@@ -54,15 +53,22 @@ type Props = {
   maxLength?: number,
   placeholder?: string,
   searchQuery?: string,
-  showMature: boolean,
   type?: string,
   uri?: string,
   value: any,
-  doResolveUris: (Array<string>) => void,
-  doSetMentionSearchResults: (string, Array<string>) => void,
+  autoFocus?: boolean,
+  submitButtonRef?: any,
+  claimIsMine?: boolean,
+  slimInput?: boolean,
+  doResolveUris: (uris: Array<string>, cache: boolean) => void,
+  doSetMentionSearchResults: (query: string, uris: Array<string>) => void,
   onBlur: (any) => any,
   onChange: (any) => any,
   onFocus: (any) => any,
+  toggleSelectors: () => any,
+  handleTip: (isLBC: boolean) => any,
+  handleSubmit: () => any,
+  handlePreventClick?: () => void,
 };
 
 export default function TextareaWithSuggestions(props: Props) {
@@ -82,14 +88,21 @@ export default function TextareaWithSuggestions(props: Props) {
     maxLength,
     placeholder,
     searchQuery,
-    showMature,
     type,
     value: messageValue,
+    autoFocus,
+    submitButtonRef,
+    claimIsMine,
+    slimInput,
     doResolveUris,
     doSetMentionSearchResults,
     onBlur,
     onChange,
     onFocus,
+    toggleSelectors,
+    handleTip,
+    handleSubmit,
+    handlePreventClick,
   } = props;
 
   const inputDefaultProps = { className, placeholder, maxLength, type, disabled };
@@ -98,10 +111,9 @@ export default function TextareaWithSuggestions(props: Props) {
   const [highlightedSuggestion, setHighlightedSuggestion] = React.useState('');
   const [shouldClose, setClose] = React.useState();
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
-  // const [mostSupported, setMostSupported] = React.useState('');
 
   const suggestionTerm = suggestionValue && suggestionValue.term;
-  const isEmote = suggestionValue && suggestionValue.isEmote;
+  const isEmote = Boolean(suggestionValue && suggestionValue.isEmote);
   const isMention = suggestionValue && !suggestionValue.isEmote;
 
   let invalidTerm = suggestionTerm && isMention && suggestionTerm.charAt(1) === ':';
@@ -114,7 +126,7 @@ export default function TextareaWithSuggestions(props: Props) {
   }
 
   const additionalOptions = { isBackgroundSearch: false, [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS };
-  const { results, loading } = useLighthouse(debouncedTerm, showMature, SEARCH_SIZE, additionalOptions, 0);
+  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0);
   const stringifiedResults = JSON.stringify(results);
 
   const hasMinLength = suggestionTerm && isMention && suggestionTerm.length >= LIGHTHOUSE_MIN_CHARACTERS;
@@ -169,7 +181,7 @@ export default function TextareaWithSuggestions(props: Props) {
           let emoteLabel;
           if (isEmote) {
             // $FlowFixMe
-            emoteLabel = `:${replaceAll(option, ':', '')}:`;
+            emoteLabel = `:${option.replace(/:/g, '')}:`;
           }
 
           return {
@@ -289,6 +301,16 @@ export default function TextareaWithSuggestions(props: Props) {
   /** ------- **/
 
   React.useEffect(() => {
+    if (!autoFocus) return;
+
+    const inputElement = inputRef && inputRef.current;
+    if (inputElement) {
+      inputElement.focus();
+      if (messageValue) inputElement.setSelectionRange(messageValue.length, messageValue.length);
+    }
+  }, [autoFocus, inputRef, messageValue]);
+
+  React.useEffect(() => {
     if (!isMention) return;
 
     if (isTyping && suggestionTerm && !invalidTerm) {
@@ -305,14 +327,14 @@ export default function TextareaWithSuggestions(props: Props) {
 
     const arrayResults = JSON.parse(stringifiedResults);
     if (debouncedTerm && arrayResults && arrayResults.length > 0) {
-      doResolveUris([debouncedTerm, ...arrayResults]);
+      doResolveUris([debouncedTerm, ...arrayResults], true);
       doSetMentionSearchResults(debouncedTerm, arrayResults);
     }
   }, [debouncedTerm, doResolveUris, doSetMentionSearchResults, stringifiedResults, suggestionTerm]);
 
   // Only resolve commentors on Livestreams when first trying to mention/looking for it
   React.useEffect(() => {
-    if (isLivestream && commentorUris && suggestionTerm) doResolveUris(commentorUris);
+    if (isLivestream && commentorUris && suggestionTerm) doResolveUris(commentorUris, true);
   }, [commentorUris, doResolveUris, isLivestream, suggestionTerm]);
 
   // Allow selecting with TAB key
@@ -360,39 +382,6 @@ export default function TextareaWithSuggestions(props: Props) {
   /** Render **/
   /** ------ **/
 
-  const renderGroup = (groupName: string, children: any) => (
-    <div key={groupName} className="textareaSuggestions__group">
-      <label className="textareaSuggestions__label">
-        {groupName === 'Top' ? (
-          <LbcSymbol prefix={__('Winning Search for %matching_term%', { matching_term: searchQuery })} />
-        ) : suggestionTerm && suggestionTerm.length > 1 ? (
-          __('%group_name% matching %matching_term%', { group_name: groupName, matching_term: suggestionTerm })
-        ) : (
-          groupName
-        )}
-      </label>
-      {children}
-      <hr className="textareaSuggestions__topSeparator" />
-    </div>
-  );
-
-  const renderInput = (params: any) => {
-    const { InputProps, disabled, fullWidth, id, inputProps: autocompleteInputProps } = params;
-    const inputProps = { ...autocompleteInputProps, ...inputDefaultProps };
-    const autocompleteProps = { InputProps, disabled, fullWidth, id, inputProps };
-
-    return <TextField inputRef={inputRef} multiline select={false} {...autocompleteProps} />;
-  };
-
-  const renderOption = (optionProps: any, label: string) => {
-    const emoteFound = isEmote && EMOTES.find(({ name }) => name === label);
-    const emoteValue = emoteFound ? { name: label, url: emoteFound.url } : undefined;
-    const emojiFound = isEmote && EMOJIS.getUnicode(label);
-    const emojiValue = emojiFound ? { name: label, unicode: emojiFound } : undefined;
-
-    return <TextareaSuggestionsItem key={label} uri={label} emote={emoteValue || emojiValue} {...optionProps} />;
-  };
-
   return (
     <Autocomplete
       PopperComponent={AutocompletePopper}
@@ -420,16 +409,34 @@ export default function TextareaWithSuggestions(props: Props) {
         or else it will be displayed all the time as empty (no options) */
       open={!!suggestionTerm && !shouldClose}
       options={allOptionsGrouped}
-      renderGroup={({ group, children }) => renderGroup(group, children)}
-      renderInput={(params) => renderInput(params)}
-      renderOption={(optionProps, option) => renderOption(optionProps, option.label)}
+      renderGroup={({ group, children }) => (
+        <TextareaSuggestionsGroup groupName={group} suggestionTerm={suggestionTerm} searchQuery={searchQuery}>
+          {children}
+        </TextareaSuggestionsGroup>
+      )}
+      renderInput={(params) => (
+        <TextareaSuggestionsInput
+          params={params}
+          messageValue={messageValue}
+          inputRef={inputRef}
+          inputDefaultProps={inputDefaultProps}
+          toggleSelectors={toggleSelectors}
+          handleTip={handleTip}
+          handleSubmit={handleSubmit}
+          handlePreventClick={handlePreventClick}
+          submitButtonRef={submitButtonRef}
+          claimIsMine={claimIsMine}
+          slimInput={slimInput}
+        />
+      )}
+      renderOption={(optionProps, option) => (
+        <TextareaSuggestionsOption label={option.label} isEmote={isEmote} optionProps={optionProps} />
+      )}
     />
   );
 }
 
-function AutocompletePopper(props: any) {
-  return <Popper {...props} placement="top" />;
-}
+const AutocompletePopper = (props: any) => <Popper {...props} placement="top" />;
 
 function useSuggestionMatch(term: string, list: Array<string>) {
   const throttledTerm = useThrottle(term);

@@ -381,6 +381,10 @@
   }
 }
 
+.button--file-action--menu {
+  @extend .button--file-action;
+}
+
 .button--fire {
   position: relative;
   .button__content {
@@ -990,4 +994,8 @@ svg + .button__label {
       cursor: default;
     }
   }
+}
+
+.file-reaction__tooltip-inner {
+  margin: 0px !important;
 }

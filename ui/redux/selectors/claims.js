@@ -3,7 +3,7 @@ import { normalizeURI, parseURI, isURIValid } from 'util/lbryURI';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { isClaimNsfw, filterClaims, getChannelIdFromClaim } from 'util/claim';
+import { isClaimNsfw, filterClaims, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
 
@@ -597,6 +597,24 @@ export const selectClaimIsNsfwForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export const selectChannelForClaimUri = createCachedSelector(
+  (state, uri, includePrefix) => includePrefix,
+  selectClaimForUri,
+  (includePrefix?: boolean, claim: Claim) => {
+    if (!claim || !claim.signing_channel || !claim.is_channel_signature_valid) {
+      return null;
+    }
+
+    const { canonical_url: canonicalUrl, permanent_url: permanentUrl } = claim.signing_channel;
+
+    if (canonicalUrl) {
+      return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
+    } else {
+      return includePrefix ? permanentUrl : permanentUrl.slice('lbry://'.length);
+    }
+  }
+)((state, uri, includePrefix) => `${String(uri)}:${String(includePrefix)}`);
+
 // Returns the associated channel uri for a given claim uri
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
@@ -718,10 +736,6 @@ export const makeSelectClaimHasSource = (uri: string) =>
 
     return Boolean(claim.value.source);
   });
-
-export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
-  return claim ? Boolean(claim.value_type === 'stream' && !claim.value.source) : false;
-};
 
 export const selectIsStreamPlaceholderForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);

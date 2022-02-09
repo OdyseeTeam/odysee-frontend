@@ -195,3 +195,5 @@ export const ODYSEE_LOGO = 'OdyseeLogo';
 export const ODYSEE_WHITE_TEXT = 'OdyseeLogoWhiteText';
 export const ODYSEE_DARK_TEXT = 'OdyseeLogoDarkText';
 export const FEATURED = 'Featured';
+export const DISMISS_ALL = 'DismissAll';
+export const SUBMIT = 'Submit';

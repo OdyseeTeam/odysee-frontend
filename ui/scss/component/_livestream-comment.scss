@@ -53,6 +53,31 @@
   }
 }
 
+.livestream__comment--mobile {
+  @extend .livestream__comment;
+
+  display: flex;
+  justify-content: space-between;
+
+  .livestreamComment__menu {
+    position: relative;
+    right: 0;
+    top: var(--spacing-xxs);
+    .menu__button {
+      opacity: 1;
+    }
+  }
+
+  .comment__author {
+    color: var(--color-primary);
+  }
+
+  span,
+  p {
+    font-size: var(--font-xxsmall) !important;
+  }
+}
+
 .livestream__comment--mentioned {
   background-color: var(--color-card-background-highlighted);
 }
@@ -65,6 +90,7 @@
   background-color: rgba(var(--color-primary-dynamic), 0.05);
   //background-color: var(--color-card-background-highlighted);
   box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
+  display: unset;
 
   + .livestream__comment--superchat {
     margin-bottom: var(--spacing-xxs);
@@ -88,6 +114,21 @@
   .date_time {
     opacity: 1;
   }
+  .livestreamComment__menu {
+    position: absolute;
+  }
+
+  &::before {
+    position: absolute;
+    left: 0;
+    height: 100%;
+    max-height: 4rem;
+    border-top-right-radius: 2px;
+    border-bottom-right-radius: 2px;
+    width: 5px;
+    background-color: var(--color-superchat);
+    content: '';
+  }
 }
 
 .livestreamComment__body {
@@ -100,6 +141,10 @@
     @include handleChannelGif(2rem);
     margin-top: var(--spacing-s);
     flex-shrink: 0;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-left: 0;
   }
 }
 
@@ -167,7 +212,7 @@
 }
 
 .livestreamComment__text {
-  padding-right: var(--spacing-xl);
+  padding-right: var(--spacing-s);
   padding-bottom: var(--spacing-xxs);
 
   .markdown-preview {

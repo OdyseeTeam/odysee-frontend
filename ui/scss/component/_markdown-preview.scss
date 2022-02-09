@@ -71,6 +71,25 @@
 
     @media (max-width: $breakpoint-small) {
       margin-bottom: 0;
+      font-size: var(--font-xsmall);
+      word-wrap: break-word;
+      overflow: hidden;
+
+      a {
+        .button__content {
+          display: block;
+        }
+
+        span {
+          font-size: var(--font-xsmall);
+          font-weight: var(--font-weight-bold);
+        }
+
+        svg {
+          margin-left: var(--spacing-xxs);
+          bottom: 2;
+        }
+      }
     }
   }
 

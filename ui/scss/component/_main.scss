@@ -40,6 +40,11 @@ body {
 
 .main-wrapper__inner--filepage {
   padding: 0;
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: 0px;
+    padding-top: var(--header-height-mobile);
+  }
 }
 
 .main-wrapper__inner--theater-mode {
@@ -89,11 +94,13 @@ body {
   z-index: 0;
   margin-right: auto;
   margin-left: auto;
-  min-height: calc(100vh - var(--header-height));
+
+  @media (min-width: $breakpoint-small) {
+    min-height: calc(100vh - var(--header-height));
+  }
 
   @media (max-width: $breakpoint-small) {
     width: 100%;
-    min-height: calc(100vh - var(--header-height-mobile));
   }
 }
 
@@ -115,7 +122,7 @@ body {
 
   .file-page__secondary-content {
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     justify-content: center;
     width: 100%;
     margin-top: var(--spacing-m);
@@ -146,8 +153,13 @@ body {
     @media (min-width: $breakpoint-medium) {
       flex-direction: row;
     }
+    @media (max-width: $breakpoint-medium) {
+      section + .empty__wrap {
+        margin: var(--spacing-m);
+      }
+    }
     @media (max-width: $breakpoint-small) {
-      margin-top: var(--spacing-xs);
+      margin-top: var(--spacing-xs) !important;
       .claim-preview__wrapper {
         padding: 0 !important;
         a {
@@ -250,6 +262,14 @@ body {
       width: 100%;
       margin-left: 0;
       margin-top: var(--spacing-l);
+    }
+
+    @media (max-width: $breakpoint-small) {
+      .card__header--between {
+        padding: var(--spacing-xxs);
+        padding-bottom: var(--spacing-s);
+        padding-left: 0;
+      }
     }
   }
 
@@ -391,9 +411,26 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
+    // margin-top: var(--spacing-s);
     flex-direction: column;
     padding-top: 0;
-    margin-top: var(--spacing-s);
+    margin: 0;
+    padding: 0;
+
+    .file-page__secondary-content {
+      margin: 0;
+      padding: 0;
+    }
+
+    .card {
+      border-radius: 0;
+      margin-bottom: 0px !important;
+      padding: var(--spacing-xxs);
+    }
+
+    .file-page__recommended {
+      margin-top: 0px !important;
+    }
   }
 }
 
@@ -475,14 +512,14 @@ body {
   .card-stack {
     margin-bottom: var(--spacing-m);
 
-    @media (min-width: $breakpoint-large + 300px) {
+    @media (min-width: ($breakpoint-large + 300px)) {
       max-width: calc(var(--page-max-width--filepage) / 1.25);
       margin-left: auto;
       margin-right: auto;
       width: calc(100% - var(--livestream-comments-width));
     }
 
-    @media (min-width: $breakpoint-medium) and (max-width: $breakpoint-large + 300px) {
+    @media (min-width: $breakpoint-medium) and (max-width: ($breakpoint-large + 300px)) {
       max-width: calc(100vw - var(--livestream-comments-width) - var(--spacing-m) * 3);
       margin-left: var(--spacing-m);
       margin-right: var(--spacing-m);
@@ -523,6 +560,29 @@ body {
         }
       }
     }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    padding: 0;
+
+    .card {
+      margin: 0;
+      .card__first-pane {
+        .card__main-actions {
+          .claim-preview {
+            align-items: unset;
+          }
+        }
+      }
+    }
+
+    .card-stack {
+      margin: 0;
+    }
+  }
+
+  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+    padding: 0 var(--spacing-m);
   }
 }
 
@@ -949,13 +1009,13 @@ body {
 .main-wrapper--scrollbar {
   // The W3C future standard; currently supported by Firefox only.
   // It'll hopefully auto fallback to this when 'webkit-scrollbar' below is deprecated in the future.
-  scrollbar-width: 8px;
+  scrollbar-width: 6px;
   scrollbar-color: var(--color-scrollbar-thumb-bg) var(--color-scrollbar-track-bg);
 }
 
 .main-wrapper--scrollbar *::-webkit-scrollbar {
-  width: 12px;
-  height: 12px;
+  width: 6px;
+  height: 6px;
 }
 
 .main-wrapper--scrollbar *::-webkit-scrollbar-track {

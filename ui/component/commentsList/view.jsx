@@ -3,6 +3,7 @@ import { COMMENT_PAGE_SIZE_TOP_LEVEL, SORT_BY } from 'constants/comment';
 import { ENABLE_COMMENT_REACTIONS } from 'config';
 import { getChannelIdFromClaim } from 'util/claim';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { getCommentsListTitle } from 'util/comments';
 import * as ICONS from 'constants/icons';
 import * as REACTION_TYPES from 'constants/reactions';
 import Button from 'component/button';
@@ -84,13 +85,13 @@ function CommentList(props: Props) {
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen();
-  const desktopView = !isMobile && !isMediumScreen;
+
   const spinnerRef = React.useRef();
   const DEFAULT_SORT = ENABLE_COMMENT_REACTIONS ? SORT_BY.POPULARITY : SORT_BY.NEWEST;
   const [sort, setSort] = usePersistedState('comment-sort-by', DEFAULT_SORT);
   const [page, setPage] = React.useState(0);
   const [commentsToDisplay, setCommentsToDisplay] = React.useState(topLevelComments);
-  const hasDefaultExpansion = commentsAreExpanded || desktopView;
+  const hasDefaultExpansion = commentsAreExpanded || !isMediumScreen || isMobile;
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const channelId = getChannelIdFromClaim(claim);
@@ -99,6 +100,7 @@ function CommentList(props: Props) {
   const isResolvingComments = topLevelComments && resolvedComments.length !== topLevelComments.length;
   const alreadyResolved = !isResolvingComments && resolvedComments.length !== 0;
   const canDisplayComments = commentsToDisplay && commentsToDisplay.length === topLevelComments.length;
+  const title = getCommentsListTitle(totalComments);
 
   // Display comments immediately if not fetching reactions
   // If not, wait to show comments until reactions are fetched
@@ -267,41 +269,17 @@ function CommentList(props: Props) {
       />
     ));
 
-  const sortButton = (label, icon, sortOption) => (
-    <Button
-      button="alt"
-      label={label}
-      icon={icon}
-      iconSize={18}
-      onClick={() => changeSort(sortOption)}
-      className={classnames(`button-toggle`, {
-        'button-toggle--active': sort === sortOption,
-      })}
-    />
-  );
+  const actionButtonsProps = { totalComments, sort, changeSort, setPage };
 
   return (
     <Card
       className="card--enable-overflow"
-      title={
-        (totalComments === 0 && __('Leave a comment')) ||
-        (totalComments === 1 && __('1 comment')) ||
-        __('%total_comments% comments', { total_comments: totalComments })
-      }
-      titleActions={
-        <>
-          {totalComments > 1 && ENABLE_COMMENT_REACTIONS && (
-            <span className="comment__sort">
-              {sortButton(__('Best'), ICONS.BEST, SORT_BY.POPULARITY)}
-              {sortButton(__('Controversial'), ICONS.CONTROVERSIAL, SORT_BY.CONTROVERSY)}
-              {sortButton(__('New'), ICONS.NEW, SORT_BY.NEWEST)}
-            </span>
-          )}
-          <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={() => setPage(0)} />
-        </>
-      }
+      title={!isMobile && title}
+      titleActions={<CommentActionButtons {...actionButtonsProps} />}
       actions={
         <>
+          {isMobile && <CommentActionButtons {...actionButtonsProps} />}
+
           <CommentCreate uri={uri} />
 
           {channelSettings && channelSettings.comments_enabled && !isFetchingComments && !totalComments && (
@@ -310,8 +288,8 @@ function CommentList(props: Props) {
 
           <ul
             className={classnames({
-              comments: desktopView || expandedComments,
-              'comments--contracted': !desktopView && !expandedComments,
+              comments: !isMediumScreen || expandedComments,
+              'comments--contracted': isMediumScreen && !expandedComments,
             })}
           >
             {readyToDisplayComments && pinnedComments && getCommentElems(pinnedComments)}
@@ -351,3 +329,55 @@ function CommentList(props: Props) {
 }
 
 export default CommentList;
+
+type ActionButtonsProps = {
+  totalComments: number,
+  sort: string,
+  changeSort: (string) => void,
+  setPage: (number) => void,
+};
+
+const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
+  const { totalComments, sort, changeSort, setPage } = actionButtonsProps;
+
+  const sortButtonProps = { activeSort: sort, changeSort };
+
+  return (
+    <>
+      {totalComments > 1 && ENABLE_COMMENT_REACTIONS && (
+        <span className="comment__sort">
+          <SortButton {...sortButtonProps} label={__('Best')} icon={ICONS.BEST} sortOption={SORT_BY.POPULARITY} />
+          <SortButton
+            {...sortButtonProps}
+            label={__('Controversial')}
+            icon={ICONS.CONTROVERSIAL}
+            sortOption={SORT_BY.CONTROVERSY}
+          />
+          <SortButton {...sortButtonProps} label={__('New')} icon={ICONS.NEW} sortOption={SORT_BY.NEWEST} />
+        </span>
+      )}
+
+      <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={() => setPage(0)} />
+    </>
+  );
+};
+
+type SortButtonProps = {
+  activeSort: string,
+  sortOption: string,
+  changeSort: (string) => void,
+};
+
+const SortButton = (sortButtonProps: SortButtonProps) => {
+  const { activeSort, sortOption, changeSort, ...buttonProps } = sortButtonProps;
+
+  return (
+    <Button
+      {...buttonProps}
+      className={classnames(`button-toggle`, { 'button-toggle--active': activeSort === sortOption })}
+      button="alt"
+      iconSize={18}
+      onClick={() => changeSort(sortOption)}
+    />
+  );
+};

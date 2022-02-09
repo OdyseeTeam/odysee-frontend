@@ -9,8 +9,8 @@ const config = {
   LBRY_WEB_API: process.env.LBRY_WEB_API, // api.na-backend.odysee.com',
   LBRY_WEB_PUBLISH_API: process.env.LBRY_WEB_PUBLISH_API,
   LBRY_WEB_PUBLISH_API_V2: process.env.LBRY_WEB_PUBLISH_API_V2,
-  LBRY_API_URL: process.env.LBRY_API_URL, // api.lbry.com',
-  LBRY_WEB_STREAMING_API: process.env.LBRY_WEB_STREAMING_API, // cdn.lbryplayer.xyz',
+  LBRY_API_URL: process.env.LBRY_API_URL, // api.odysee.com',
+  LBRY_WEB_STREAMING_API: process.env.LBRY_WEB_STREAMING_API, // player.odycdn.com
   LBRY_WEB_BUFFER_API: process.env.LBRY_WEB_BUFFER_API,
   SEARCH_SERVER_API: process.env.SEARCH_SERVER_API,
   SEARCH_SERVER_API_ALT: process.env.SEARCH_SERVER_API_ALT,
@@ -63,7 +63,7 @@ const config = {
   CHANNEL_STAKED_LEVEL_LIVESTREAM: process.env.CHANNEL_STAKED_LEVEL_LIVESTREAM,
   WEB_PUBLISH_SIZE_LIMIT_GB: process.env.WEB_PUBLISH_SIZE_LIMIT_GB,
   LOADING_BAR_COLOR: process.env.LOADING_BAR_COLOR,
-  SIMPLE_SITE: process.env.SIMPLE_SITE === 'true',
+  SIMPLE_SITE: process.env.SIMPLE_SITE === 'true',  
   SHOW_ADS: process.env.SHOW_ADS === 'true',
   PINNED_URI_1: process.env.PINNED_URI_1,
   PINNED_LABEL_1: process.env.PINNED_LABEL_1,
@@ -89,7 +89,7 @@ const config = {
   FIREBASE_VAPID_KEY: process.env.FIREBASE_VAPID_KEY,
 
   AD_KEYWORD_BLOCKLIST: process.env.AD_KEYWORD_BLOCKLIST,
-  AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION: process.env.AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION
+  AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION: process.env.AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION,
 };
 
 config.SDK_API_PATH = `${config.LBRY_WEB_API}/api/v1`;

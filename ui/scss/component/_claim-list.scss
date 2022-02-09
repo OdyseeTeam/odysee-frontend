@@ -228,7 +228,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-s) !important;
+    // padding: var(--spacing-s) !important;
 
     .claim-preview {
       .media__thumb {
@@ -1398,10 +1398,23 @@
   .tag {
     background-color: var(--color-primary);
     color: var(--color-primary-contrast);
+    /*
     @media (max-width: $breakpoint-xsmall) {
       display: none;
     }
+    */
     font-size: var(--font-xsmall);
+
+    @media (max-width: $breakpoint-small) {
+      font-size: var(--font-xxsmall);
+      margin-top: var(--spacing-xxs);
+      padding: 2px var(--spacing-xxs);
+      height: unset;
+
+      .button__content {
+        height: unset;
+      }
+    }
 
     &:hover {
       background-color: var(--color-secondary);

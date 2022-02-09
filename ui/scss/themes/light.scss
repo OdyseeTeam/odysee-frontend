@@ -25,7 +25,7 @@
 
   // Structure
   --color-border: rgba(0, 0, 0, 0.2);
-  --color-background-base: 221, 221, 221;
+  --color-background-base: 231, 231, 231;
   --color-background: rgba(var(--color-background-base), 1);
   --color-background-overlay: #21252980;
   --color-card-background: var(--color-header-background);
@@ -180,6 +180,9 @@
   --color-scrollbar-thumb-bg: rgba(0, 0, 0, 0.2);
   --color-scrollbar-track-bg: transparent;
 
-  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.4) 2%, #efefef),
-    radial-gradient(circle at 50% 217%, rgba(var(--color-background-base), 0.4) 0, #efefef 100%);
+  --background-shade: linear-gradient(-180deg, rgba(var(--color-background-base), 0.6) 2%, #efefef),
+    radial-gradient(circle at 50% 217%, rgba(var(--color-background-base), 0.6) 0, #efefef 100%);
+
+  --mui-background: #fff;
+  --mui-button: var(--color-header-button);
 }

@@ -1,7 +1,6 @@
 @import '../init/mixins';
 
 input,
-textarea,
 select,
 .date-picker-input {
   height: var(--height-input);
@@ -29,6 +28,44 @@ select,
     height: auto;
     height: 0.5rem;
     background-color: var(--color-secondary);
+  }
+}
+
+@media (min-width: $breakpoint-small) {
+  textarea {
+    height: var(--height-input);
+    border-radius: var(--border-radius);
+    border: 1px solid;
+    color: var(--color-input);
+    border-color: var(--color-input-border);
+    background-color: var(--color-input-bg);
+    padding-right: var(--spacing-s);
+    padding-left: var(--spacing-s);
+
+    /*
+    &:focus {
+      @include focus;
+    }
+    */
+
+    &::placeholder {
+      color: var(--color-input-placeholder);
+      opacity: 0.4;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+
+      & + label {
+        opacity: 0.4;
+      }
+    }
+
+    &[type='range'] {
+      height: auto;
+      height: 0.5rem;
+      background-color: var(--color-secondary);
+    }
   }
 }
 
@@ -454,6 +491,12 @@ fieldset-group {
   @media (min-width: $breakpoint-small) {
     column-count: 2;
   }
+
+  @media (max-width: $breakpoint-small) {
+    span {
+      font-size: var(--font-xxsmall);
+    }
+  }
 }
 
 .form-field__quick-action {
@@ -495,12 +538,24 @@ fieldset-section {
 
     @media (min-width: $breakpoint-small) {
       max-width: none;
+
+      select {
+        max-height: 1.5rem !important;
+        padding: 0 var(--spacing-xs);
+        padding-right: var(--spacing-l);
+      }
     }
 
     select {
       max-height: var(--height-input-slim) !important;
       padding: 0 var(--spacing-xs);
       padding-right: var(--spacing-l);
+    }
+
+    @media (max-width: $breakpoint-small) {
+      select {
+        max-height: 1.25rem !important;
+      }
     }
   }
 

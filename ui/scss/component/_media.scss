@@ -95,12 +95,37 @@
 
 .media__info-text--contracted,
 .media__info-text--expanded {
+  margin-top: var(--spacing-m);
   max-width: 50rem;
+  max-height: auto;
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: 0px;
+  }
+}
+
+.media__info-text--contracted {
+  @extend .media__info-text--expanded;
+  overflow: hidden;
+
+  .mediaInfo__description {
+    max-height: 5rem;
+  }
+}
+
+@media (max-width: $breakpoint-small) {
+  .mediaInfo__description {
+    margin-top: var(--spacing-s);
+  }
 }
 
 .media__info-text--fade {
-  -webkit-mask-image: -webkit-gradient(linear, left 30%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+  // -webkit-mask-image: -webkit-gradient(linear, left 30%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
   overflow-wrap: anywhere;
+
+  // both needed for compatibility
+  -webkit-mask-image: -webkit-gradient(linear, left 55%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
+  mask-image: -webkit-gradient(linear, left 55%, left bottom, from(rgba(0, 0, 0, 1)), to(rgba(0, 0, 0, 0)));
 }
 
 .media__info-expand {
@@ -119,7 +144,7 @@
   @include font-sans;
   position: relative;
   display: flex;
-  flex-wrap: wrap;
+  // flex-wrap: wrap;
   margin-top: 0;
 
   > *:not(:last-child) {
@@ -179,6 +204,11 @@
       border-radius: 2px;
       overflow: hidden;
 
+      @media (max-width: $breakpoint-small) {
+        height: 1px;
+        bottom: -1px;
+      }
+
       .ratio-bar-like {
         height: 100%;
         background-color: var(--color-fire);
@@ -197,9 +227,43 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    flex-wrap: wrap;
+    justify-content: space-around !important;
+    margin: 0;
+    padding: 0;
+
     > * {
       margin-right: var(--spacing-s);
       margin-bottom: var(--spacing-s);
+    }
+
+    .button--file-action {
+      // margin: 0 !important;
+      // padding: var(--spacing-xxs);
+      padding: 0 !important;
+      // width: 3.1rem;
+      // height: 3.5rem;
+
+      .button__content {
+        // flex-direction: column;
+        justify-content: space-between;
+
+        .button__label {
+          margin: 0;
+          margin-top: 2px;
+          margin-left: var(--spacing-xxxs);
+          font-size: var(--font-small);
+        }
+      }
+    }
+
+    .button--file-action--menu {
+      width: unset;
+      // height: 2rem;
+    }
+
+    .icon--Plus {
+      top: -2px;
     }
 
     .button--file-action:last-child {

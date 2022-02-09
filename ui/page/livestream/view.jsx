@@ -7,6 +7,7 @@ import LivestreamLayout from 'component/livestreamLayout';
 import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
+import { useIsMobile } from 'effects/use-screensize';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
 
@@ -40,6 +41,8 @@ export default function LivestreamPage(props: Props) {
     doFetchChannelLiveStatus,
     doUserSetReferrer,
   } = props;
+
+  const isMobile = useIsMobile();
 
   const [activeStreamUri, setActiveStreamUri] = React.useState(false);
   const [showLivestream, setShowLivestream] = React.useState(false);
@@ -144,7 +147,11 @@ export default function LivestreamPage(props: Props) {
     // Set playing uri to null so the popout player doesnt start playing the dummy claim if a user navigates back
     // This can be removed when we start using the app video player, not a LIVESTREAM iframe
     doSetPlayingUri({ uri: null });
-  }, [doSetPlayingUri]);
+
+    return () => {
+      if (isMobile) doSetPlayingUri({ uri: null });
+    };
+  }, [doSetPlayingUri, isMobile]);
 
   return (
     <Page

@@ -11,10 +11,12 @@ type Props = {
   commentsToDisplay: Array<Comment>,
   fetchingComments: boolean,
   uri: string,
+  isMobile?: boolean,
+  restoreScrollPos?: () => void,
 };
 
 export default function LivestreamComments(props: Props) {
-  const { commentsToDisplay, fetchingComments, uri } = props;
+  const { commentsToDisplay, fetchingComments, uri, isMobile, restoreScrollPos } = props;
 
   const [forceUpdate, setForceUpdate] = React.useState(0);
 
@@ -43,7 +45,23 @@ export default function LivestreamComments(props: Props) {
 
   /* top to bottom comment display */
   if (!fetchingComments && commentsToDisplay && commentsToDisplay.length > 0) {
-    return (
+    return isMobile ? (
+      <div className="livestream__comments--mobile">
+        {commentsToDisplay
+          .slice(0)
+          .reverse()
+          .map((comment) => (
+            <LivestreamComment
+              comment={comment}
+              key={comment.comment_id}
+              uri={uri}
+              forceUpdate={forceUpdate}
+              isMobile
+              restoreScrollPos={restoreScrollPos}
+            />
+          ))}
+      </div>
+    ) : (
       <div className="livestream__comments">
         {commentsToDisplay.map((comment) => (
           <LivestreamComment comment={comment} key={comment.comment_id} uri={uri} forceUpdate={forceUpdate} />
