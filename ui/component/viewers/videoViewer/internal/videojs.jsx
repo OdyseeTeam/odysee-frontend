@@ -326,13 +326,24 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const livestreamSource = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
 
       if (isLivestream) {
-        console.log('is a livestream');
+        videojs.Vhs.xhr.beforeRequest = (options) => {
+          if (!options.headers) options.headers = {};
+          options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+          options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+          return options;
+        };
 
         vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: livestreamSource,
         });
       } else {
+        videojs.Vhs.xhr.beforeRequest = (options) => {
+          if (!options.headers) options.headers = {};
+          delete options.headers['X-Pull'];
+          return options;
+        };
+
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
