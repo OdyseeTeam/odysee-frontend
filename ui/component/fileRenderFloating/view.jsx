@@ -153,10 +153,7 @@ export default function FileRenderFloating(props: Props) {
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
-  console.log('is playable');
-  console.log(isPlayable);
-  console.log(streamingUrl);
-  console.log(fileInfo);
+  // TODO: have to fix this
   // const isReadyToPlay = isPlayable && (streamingUrl || (fileInfo && fileInfo.completed));
   const isReadyToPlay = true;
   const loadingMessage =

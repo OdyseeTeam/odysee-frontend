@@ -157,6 +157,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestream,
   } = props;
 
+  console.log(isLivestream);
+  console.log('is livestream');
+
   const userClaimId = claim.signing_channel.claim_id;
 
   // will later store the videojs player
@@ -332,6 +335,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const livestreamSource = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
 
       if (isLivestream) {
+        console.log('is a livestream');
+
         vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: livestreamSource,

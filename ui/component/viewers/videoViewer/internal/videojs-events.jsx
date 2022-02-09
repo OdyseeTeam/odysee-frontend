@@ -286,7 +286,7 @@ const VideoJsEvents = ({
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
     // custom tracking plugin, event used for watchman data, and marking view/getting rewards
-    player.on('tracking:firstplay', doTrackingFirstPlay);
+    // player.on('tracking:firstplay', doTrackingFirstPlay);
     // hide forcing control bar show
     player.on('canplaythrough', function() {
       setTimeout(function() {
