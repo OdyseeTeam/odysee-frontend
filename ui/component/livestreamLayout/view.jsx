@@ -37,6 +37,8 @@ export default function LivestreamLayout(props: Props) {
 
   const isMobile = useIsMobile();
 
+  console.log(claim);
+
   if (!claim || !claim.signing_channel) return null;
 
   const { name: channelName } = claim.signing_channel;

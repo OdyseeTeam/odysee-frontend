@@ -375,8 +375,14 @@ export const makeSelectEffectiveAmountForUri = (uri: string) =>
     );
   });
 
+/**
+ * Get the media_type for the uri [video]
+ * @param uri
+ */
 export const makeSelectContentTypeForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
+    const isAStream = isStreamPlaceholderClaim(claim);
+    if (isAStream) return 'livestream';
     const source = claim && claim.value && claim.value.source;
     return source ? source.media_type : undefined;
   });
@@ -698,6 +704,11 @@ export const makeSelectClaimHasSource = (uri: string) =>
     return Boolean(claim.value.source);
   });
 
+/**
+ * Returns a claim if it's a stream, otherwise returns false.
+ * @param claim
+ * @returns {*|boolean}
+ */
 export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
   return claim ? Boolean(claim.value_type === 'stream' && !claim.value.source) : false;
 };

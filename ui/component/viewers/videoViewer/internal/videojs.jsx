@@ -331,21 +331,29 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       playerServerRef.current = response.headers.get('x-powered-by');
 
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        // use m3u8 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: 'application/x-mpegURL',
-          src: response.url,
-        });
-      } else {
-        // use original mp4 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: sourceType,
-          src: source,
-        });
-      }
+      const thingSource =
+        'https://cdn.odysee.live/transcode_480/cde3b125543e3e930ac2647df957a836e3da3816_src/index.m3u8';
+
+      vjsPlayer.src({
+        type: 'application/x-mpegURL',
+        src: thingSource,
+      });
+
+      // if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+      //   // use m3u8 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: 'application/x-mpegURL',
+      //     src: response.url,
+      //   });
+      // } else {
+      //   // use original mp4 source
+      //   // $FlowFixMe
+      //   vjsPlayer.src({
+      //     type: sourceType,
+      //     src: source,
+      //   });
+      // }
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();

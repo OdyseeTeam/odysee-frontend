@@ -103,7 +103,9 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
     makeSelectMediaTypeForUri(uri),
     makeSelectFileExtensionForUri(uri),
     (contentType, mediaType, extension) => {
-      if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType)) {
+      // console.log('media type');
+      // console.log(mediaType);
+      if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) || mediaType === 'livestream') {
         return RENDER_MODES.VIDEO;
       }
       if (mediaType === 'audio') {

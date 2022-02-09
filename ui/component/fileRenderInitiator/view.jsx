@@ -55,6 +55,9 @@ export default function FileRenderInitiator(props: Props) {
     collectionId,
   } = props;
 
+  console.log('render mode');
+  console.log(renderMode);
+
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = location && location.href && location.href.indexOf('t=') > -1;
   const forceAutoplayParam = location && location.state && location.state.forceAutoplay;
