@@ -51,12 +51,6 @@ reducers[ACTIONS.AUTHENTICATION_SUCCESS] = (state, action) => {
   if (action.data) {
     if (action.data.user) {
       newUserState.user = action.data.user;
-
-      if (action.data.accessToken) {
-        // OIDC logins will not have this field populated, but it is being used
-        // by the rest of the code to indicate "authenticated".
-        newUserState.user.has_verified_email = true;
-      }
     }
   }
 
