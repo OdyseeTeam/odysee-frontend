@@ -384,6 +384,9 @@
 .button--file-action--menu {
   @extend .button--file-action;
 }
+[aria-expanded='true'].button--file-action--menu {
+  background-color: var(--color-header-background) !important;
+}
 
 .button--fire {
   position: relative;
