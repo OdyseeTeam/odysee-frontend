@@ -36,7 +36,6 @@ const select = (state, props) => {
     collectionId,
     activeLivestreamForChannel: channelClaimId && selectActiveLivestreamForChannel(state, channelClaimId),
     claimId,
-    channelClaimId,
     mobilePlayerDimensions: selectMobilePlayerDimensions(state),
     primaryUri,
     playingUri,

@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { doUriInitiatePlay, doSetPlayingUri } from 'redux/actions/content';
+import { doUriInitiatePlay } from 'redux/actions/content';
 import { selectThumbnailForUri, selectClaimForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
@@ -42,7 +42,6 @@ const select = (state, props) => {
 
 const perform = {
   doUriInitiatePlay,
-  doSetPlayingUri,
 };
 
 export default withRouter(connect(select, perform)(FileRenderInitiator));

@@ -169,12 +169,17 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: (Ge
           data: { outpoint },
         });
 
-        dispatch(
-          doToast({
-            message: `Failed to view ${uri}, please try again. If this problem persists, visit https://odysee.com/@OdyseeHelp:b?view=about for support.`,
-            isError: true,
-          })
-        );
+        console.log('error here!');
+        console.log(error);
+
+        // TODO: suppress error toast
+        //
+        // dispatch(
+        //   doToast({
+        //     message: `Failed to view ${uri}, please try again. If this problem persists, visit https://odysee.com/@OdyseeHelp:b?view=about for support.`,
+        //     isError: true,
+        //   })
+        // );
       });
   };
 }

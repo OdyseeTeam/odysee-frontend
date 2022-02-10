@@ -7,7 +7,6 @@ import { useHistory } from 'react-router';
 import LoadingScreen from 'component/common/loading-screen';
 import FileRender from 'component/fileRender';
 import AutoplayCountdown from 'component/autoplayCountdown';
-import LivestreamIframeRender from 'component/livestreamLayout/iframe-render';
 
 const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const INLINE_PLAYER_WRAPPER_CLASS = 'inline-player__wrapper';
@@ -27,7 +26,6 @@ type Props = {
   nextListUri: string,
   previousListUri: string,
   activeLivestreamForChannel?: any,
-  channelClaimId?: any,
   playingUri?: PlayingUri,
   primaryUri: ?string,
   mobilePlayerDimensions?: any,
@@ -47,7 +45,6 @@ export default function FileRenderMobile(props: Props) {
     nextListUri,
     previousListUri,
     activeLivestreamForChannel,
-    channelClaimId,
     playingUri,
     primaryUri,
     mobilePlayerDimensions,
@@ -167,9 +164,7 @@ export default function FileRenderMobile(props: Props) {
       }
     >
       <div className="content__wrapper">
-        {isCurrentClaimLive && channelClaimId ? (
-          <LivestreamIframeRender channelClaimId={channelClaimId} showLivestream mobileVersion />
-        ) : isReadyToPlay ? (
+        {isCurrentClaimLive || isReadyToPlay ? (
           <FileRender uri={uri} />
         ) : !canViewFile ? (
           <div className="content__loading">

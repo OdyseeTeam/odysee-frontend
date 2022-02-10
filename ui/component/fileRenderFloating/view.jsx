@@ -153,7 +153,9 @@ export default function FileRenderFloating(props: Props) {
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
-  const isReadyToPlay = isPlayable && (streamingUrl || (fileInfo && fileInfo.completed));
+  // TODO: have to fix this
+  // const isReadyToPlay = isPlayable && (streamingUrl || (fileInfo && fileInfo.completed));
+  const isReadyToPlay = true;
   const loadingMessage =
     fileInfo && fileInfo.blobs_completed >= 1 && (!fileInfo.download_path || !fileInfo.written_bytes)
       ? __("It looks like you deleted or moved this file. We're rebuilding it now. It will only take a few seconds.")

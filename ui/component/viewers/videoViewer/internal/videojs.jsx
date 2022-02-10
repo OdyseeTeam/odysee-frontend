@@ -21,6 +21,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
+import { LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN, LIVESTREAM_STREAM_X_PULL } from 'constants/livestream';
 const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -143,7 +144,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     uri,
     clearPosition,
     centerPlayButton,
+    claim,
+    isLivestream,
   } = props;
+
+  // console.log(isLivestream);
+  // console.log('is livestream');
+
+  const userClaimId = claim.signing_channel.claim_id;
 
   // will later store the videojs player
   const playerRef = useRef();
@@ -315,26 +323,49 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
-      // change to m3u8 if applicable
-      const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+      const livestreamSource = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
 
-      playerServerRef.current = response.headers.get('x-powered-by');
+      if (isLivestream) {
+        videojs.Vhs.xhr.beforeRequest = (options) => {
+          if (!options.headers) options.headers = {};
+          options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+          options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+          return options;
+        };
 
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        // use m3u8 source
-        // $FlowFixMe
         vjsPlayer.src({
           type: 'application/x-mpegURL',
-          src: response.url,
+          src: livestreamSource,
         });
       } else {
-        // use original mp4 source
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: sourceType,
-          src: source,
-        });
+        videojs.Vhs.xhr.beforeRequest = (options) => {
+          if (!options.headers) options.headers = {};
+          delete options.headers['X-Pull'];
+          return options;
+        };
+
+        // change to m3u8 if applicable
+        const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+
+        playerServerRef.current = response.headers.get('x-powered-by');
+
+        if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+          // use m3u8 source
+          // $FlowFixMe
+          vjsPlayer.src({
+            type: 'application/x-mpegURL',
+            src: response.url,
+          });
+        } else {
+          // use original mp4 source
+          // $FlowFixMe
+          vjsPlayer.src({
+            type: sourceType,
+            src: source,
+          });
+        }
       }
+
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();

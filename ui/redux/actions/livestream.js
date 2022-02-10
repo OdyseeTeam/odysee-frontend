@@ -49,6 +49,8 @@ const FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS = 5 * 60 * 1000;
 const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
   return data.reduce((acc, curr) => {
     acc[curr.claimId] = {
+      url: curr.url,
+      type: curr.type,
       live: curr.live,
       viewCount: curr.viewCount,
       creatorId: curr.claimId,

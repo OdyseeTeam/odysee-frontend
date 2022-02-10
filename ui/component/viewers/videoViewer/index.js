@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import { makeSelectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
+import { isStreamPlaceholderClaim } from 'util/claim';
 import {
   makeSelectNextUrlForCollectionAndUrl,
   makeSelectPreviousUrlForCollectionAndUrl,
@@ -29,6 +30,9 @@ const select = (state, props) => {
   const urlParams = new URLSearchParams(search);
   const autoplay = urlParams.get('autoplay');
   const uri = props.uri;
+
+  const claim = makeSelectClaimForUri(uri)(state);
+  const isLivestream = isStreamPlaceholderClaim(claim);
 
   // TODO: eventually this should be received from DB and not local state (https://github.com/lbryio/lbry-desktop/issues/6796)
   const position = urlParams.get('t') !== null ? urlParams.get('t') : makeSelectContentPositionForUri(uri)(state);
@@ -62,12 +66,13 @@ const select = (state, props) => {
     muted: selectMute(state),
     videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
     thumbnail: selectThumbnailForUri(state, uri),
-    claim: makeSelectClaimForUri(uri)(state),
+    claim,
     homepageData: selectHomepageData(state),
     authenticated: selectUserVerifiedEmail(state),
     shareTelemetry: IS_WEB || selectDaemonSettings(state).share_usage_data,
     isFloating: makeSelectIsPlayerFloating(props.location)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    isLivestream,
   };
 };
 

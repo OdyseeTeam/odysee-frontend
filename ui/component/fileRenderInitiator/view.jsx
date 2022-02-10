@@ -34,7 +34,6 @@ type Props = {
   activeLivestreamForChannel?: any,
   claimId?: string,
   doUriInitiatePlay: (uri: string, collectionId: ?string, isPlayable: boolean) => void,
-  doSetPlayingUri: ({ uri: ?string }) => void,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -56,7 +55,6 @@ export default function FileRenderInitiator(props: Props) {
     activeLivestreamForChannel,
     claimId,
     doUriInitiatePlay,
-    doSetPlayingUri,
   } = props;
 
   const containerRef = React.useRef<any>();
@@ -72,27 +70,18 @@ export default function FileRenderInitiator(props: Props) {
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = href && href.indexOf('t=') > -1;
   const forceAutoplayParam = locationState && locationState.forceAutoplay;
-  const shouldAutoplay = forceAutoplayParam || urlTimeParam || autoplay;
+  const isCurrentClaimLive = activeLivestreamForChannel && claimId && activeLivestreamForChannel.claimId === claimId;
+  const isMobileClaimLive = isMobile && isCurrentClaimLive;
+  const shouldAutoplay = forceAutoplayParam || urlTimeParam || autoplay || isCurrentClaimLive;
 
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
   const isText = RENDER_MODES.TEXT_MODES.includes(renderMode);
-  const isCurrentClaimLive = activeLivestreamForChannel && claimId && activeLivestreamForChannel.claimId === claimId;
-  const isMobileClaimLive = isMobile && isCurrentClaimLive;
-  const foundCover = thumbnail !== FileRenderPlaceholder;
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
   const disabled = renderUnsupported || (!fileInfo && insufficientCredits && !claimWasPurchased);
   const shouldRedirect = !authenticated && !isFree;
-
-  React.useEffect(() => {
-    // Set livestream as playing uri so it can be rendered by <FileRenderMobile />
-    // instead of showing an empty cover image. Needs cover to fill the space with the player.
-    if (isMobileClaimLive && foundCover) {
-      doSetPlayingUri({ uri });
-    }
-  }, [doSetPlayingUri, foundCover, isMobileClaimLive, uri]);
 
   function doAuthRedirect() {
     history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(location.pathname)}`);

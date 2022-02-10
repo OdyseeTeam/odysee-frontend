@@ -12,7 +12,7 @@ import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'page/file/view';
 import FileRenderInitiator from 'component/fileRenderInitiator';
-import LivestreamIframeRender from './iframe-render';
+import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import { DrawerExpandButton } from 'component/swipeableDrawer/view';
@@ -63,28 +63,20 @@ export default function LivestreamLayout(props: Props) {
 
   if (!claim || !claim.signing_channel) return null;
 
-  const { name: channelName, claim_id: channelClaimId } = claim.signing_channel;
+  const { name: channelName } = claim.signing_channel;
 
   return (
     <>
       {!isMobile && <GlobalStyles />}
 
       <div className="section card-stack">
-        <React.Suspense fallback={null}>
-          {isMobile && isCurrentClaimLive ? (
-            <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-              {/* Mobile needs to handle the livestream player like any video player */}
-              <FileRenderInitiator uri={uri} />
-            </div>
-          ) : (
-            <LivestreamIframeRender
-              channelClaimId={channelClaimId}
-              release={release}
-              showLivestream={showLivestream}
-              showScheduledInfo={showScheduledInfo}
-            />
-          )}
-        </React.Suspense>
+        {((isMobile && isCurrentClaimLive) || showLivestream) && (
+          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+            <FileRenderInitiator uri={uri} videoTheaterMode={false} />
+          </div>
+        )}
+
+        {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
 
         {hideComments && !showScheduledInfo && (
           <div className="help--notice">
