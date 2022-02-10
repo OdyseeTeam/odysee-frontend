@@ -287,8 +287,8 @@ $recent-msg-button__height: 2rem;
     .section__actions {
       .comment-create__min-amount-notice {
         width: 100%;
-        margin-bottom: var(--spacing-xxxs);
-        margin-left: 0;
+        margin-bottom: var(--spacing-xxxs) !important;
+        margin-left: 0 !important;
         margin-right: 0;
         text-align: center;
       }
