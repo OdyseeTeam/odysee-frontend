@@ -31,14 +31,13 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         ) : (
           <MenuButton
             aria-label={__('Your account')}
-            title={__('Your account')}
             className={classnames('header__navigationItem', {
               'header__navigationItem--icon': !activeChannelUrl,
               'header__navigationItem--profilePic': activeChannelUrl,
             })}
           >
             {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} small noLazyLoad />
+              <ChannelThumbnail uri={activeChannelUrl} small noLazyLoad showMemberBadge />
             ) : (
               <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
             )}

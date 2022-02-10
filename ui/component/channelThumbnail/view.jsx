@@ -31,6 +31,7 @@ type Props = {
   claimsByUri: { [string]: any },
   selectOdyseeMembershipByClaimId: string,
   doFetchUserMemberships: (claimIdCsv: string) => void,
+  showMemberBadge?: boolean,
 };
 
 function ChannelThumbnail(props: Props) {
@@ -53,6 +54,7 @@ function ChannelThumbnail(props: Props) {
     claimsByUri,
     selectOdyseeMembershipByClaimId,
     doFetchUserMemberships,
+    showMemberBadge,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -64,10 +66,12 @@ function ChannelThumbnail(props: Props) {
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
 
   let badgeToShow;
-  if (selectOdyseeMembershipByClaimId === 'Premium') {
-    badgeToShow = 'silver';
-  } else if (selectOdyseeMembershipByClaimId === 'Premium+') {
-    badgeToShow = 'gold';
+  if (showMemberBadge) {
+    if (selectOdyseeMembershipByClaimId === 'Premium') {
+      badgeToShow = 'silver';
+    } else if (selectOdyseeMembershipByClaimId === 'Premium+') {
+      badgeToShow = 'gold';
+    }
   }
 
   const shouldFetchUserMemberships = true;
