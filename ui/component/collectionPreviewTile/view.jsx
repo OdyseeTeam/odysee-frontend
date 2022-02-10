@@ -6,9 +6,12 @@ import ClaimPreviewTile from 'component/claimPreviewTile';
 import TruncatedText from 'component/common/truncated-text';
 import CollectionCount from './collectionCount';
 import CollectionPrivate from './collectionPrivate';
-import CollectionMenuList from 'component/collectionMenuList';
+import CollectionMenuItems from 'component/collectionMenuItems';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import FileThumbnail from 'component/fileThumbnail';
+import { Menu, MenuButton, MenuList } from '@reach/menu-button';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 
 type Props = {
   uri: string,
@@ -40,6 +43,7 @@ type Props = {
   deleteCollection: (string) => void,
   resolveCollectionItems: (any) => void,
   isResolvingCollectionClaims: boolean,
+  inline?: boolean,
 };
 
 function CollectionPreviewTile(props: Props) {
@@ -52,6 +56,7 @@ function CollectionPreviewTile(props: Props) {
     isResolvingCollectionClaims,
     collectionItemUrls,
     claim,
+    inline,
     resolveCollectionItems,
   } = props;
 
@@ -147,7 +152,25 @@ function CollectionPreviewTile(props: Props) {
       <NavLink {...navLinkProps}>
         <h2 className="claim-tile__title">
           <TruncatedText text={collectionName} lines={1} />
-          <CollectionMenuList collectionId={collectionId} />
+
+          <Menu>
+            <MenuButton
+              className={classnames('menu__button', {
+                'claim__menu-button': !inline,
+                'claim__menu-button--inline': inline,
+              })}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+            >
+              <Icon size={20} icon={ICONS.MORE_VERTICAL} />
+            </MenuButton>
+
+            <MenuList className="menu__list">
+              <CollectionMenuItems collectionId={collectionId} />
+            </MenuList>
+          </Menu>
         </h2>
       </NavLink>
       <div>

@@ -8,8 +8,9 @@ import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList } from '@reach/menu-button';
 import { MenuItem, MenuLink } from 'component/common/menu-components';
+import CollectionMenuItems from 'component/collectionMenuItems';
 import Icon from 'component/common/icon';
-import { generateShareUrl, generateRssUrl, formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import { generateShareUrl, generateRssUrl } from 'util/url';
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
 import { getChannelPermanentUrlFromClaim, getIsClaimPlayable } from 'util/claim';
@@ -32,21 +33,14 @@ type Props = {
   claimIsMine?: boolean,
   isSubscribed?: boolean,
   isChannelPage?: boolean,
-  editedCollection?: Collection,
   isAuthenticated: boolean,
-  playNextUri?: string,
-  resolvedList?: boolean,
   doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void,
-  doFetchItemsInCollection: (resolveItemsOptions: { collectionIds: Array<string> }) => void,
   doOpenModal: (id: string, {}) => void,
   doPrepareEdit: (claim: StreamClaim, uri: string) => void,
-  doSetActiveChannel: (claimId: string) => void,
-  doSetIncognito: (incognitoEnabled: boolean) => void,
   doToast: ({ message: string, isError?: boolean }) => void,
   doToggleBlockChannel: (commenterUri: string) => void,
   doToggleBlockChannelAsAdmin: (commenterUri: string) => void,
   doToggleMute: (uri: string) => void,
-  doToggleShuffleList: (currentUri?: string, collectionId: string, shuffle: boolean) => void,
   doToggleSubscribe: (subscription: Subscription) => void,
 };
 
@@ -65,25 +59,18 @@ export default function ClaimMenuList(props: Props) {
     claimIsMine,
     isSubscribed,
     isChannelPage = false,
-    editedCollection,
     isAuthenticated,
-    playNextUri,
-    resolvedList,
     doCollectionEdit,
-    doFetchItemsInCollection,
     doOpenModal,
     doPrepareEdit,
     doToast,
     doToggleBlockChannel,
     doToggleBlockChannelAsAdmin,
     doToggleMute,
-    doToggleShuffleList,
     doToggleSubscribe,
   } = props;
 
   const { push } = useHistory();
-
-  const [doShuffle, setDoShuffle] = React.useState(false);
 
   const contentClaim = (claim && claim.reposted_claim) || claim;
   // $FlowFixMe
@@ -106,11 +93,6 @@ export default function ClaimMenuList(props: Props) {
 
   const shareUrl = generateShareUrl(SHARE_DOMAIN, uri);
   const rssUrl = isChannel && generateRssUrl(SHARE_DOMAIN, claim);
-
-  function handleShuffle() {
-    if (!resolvedList && collectionClaimId) doFetchItemsInCollection({ collectionIds: [collectionClaimId] });
-    setDoShuffle(true);
-  }
 
   function handleAdd(isInSource, name, collectionId) {
     if (contentClaim) {
@@ -173,20 +155,6 @@ export default function ClaimMenuList(props: Props) {
       });
   }
 
-  React.useEffect(() => {
-    if (collectionClaimId && doShuffle && resolvedList) {
-      doToggleShuffleList(undefined, collectionClaimId, true);
-
-      if (playNextUri) {
-        push({
-          pathname: formatLbryUrlForWeb(playNextUri),
-          search: generateListSearchUrlParams(collectionClaimId),
-          state: { collectionClaimId, forceAutoplay: true },
-        });
-      }
-    }
-  }, [collectionClaimId, doShuffle, doToggleShuffleList, playNextUri, push, resolvedList]);
-
   return (
     <Menu>
       <MenuButton
@@ -202,27 +170,7 @@ export default function ClaimMenuList(props: Props) {
       <MenuList className="menu__list">
         {/* COLLECTION OPERATIONS */}
         {collectionClaimId ? (
-          <>
-            <MenuLink page={`${PAGES.LIST}/${collectionClaimId}`} icon={ICONS.VIEW} label={__('View List')} />
-
-            <MenuItem onSelect={handleShuffle} icon={ICONS.SHUFFLE} label={__('Shuffle Play')} />
-
-            {isMyCollection && (
-              <>
-                <MenuLink
-                  page={`${PAGES.LIST}/${collectionClaimId}?view=edit`}
-                  icon={ICONS.PUBLISH}
-                  label={editedCollection ? __('Publish') : __('Edit List')}
-                />
-
-                <MenuItem
-                  onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionClaimId })}
-                  icon={ICONS.DELETE}
-                  label={__('Delete List')}
-                />
-              </>
-            )}
-          </>
+          <CollectionMenuItems collectionId={collectionClaimId} />
         ) : (
           isAuthenticated &&
           isPlayable && (
@@ -315,11 +263,13 @@ export default function ClaimMenuList(props: Props) {
               </>
             )}
 
-            {claimIsMine && !isChannelPage && !isRepost && (
+            {claimIsMine && !isChannelPage && !isRepost && !isCollectionClaim && (
               <MenuItem onSelect={handleEdit} icon={ICONS.EDIT} label={__('Edit')} />
             )}
 
-            {claimIsMine && <MenuItem onSelect={handleDelete} icon={ICONS.DELETE} label={__('Delete')} />}
+            {claimIsMine && !isCollectionClaim && (
+              <MenuItem onSelect={handleDelete} icon={ICONS.DELETE} label={__('Delete')} />
+            )}
 
             <hr className="menu__separator" />
           </>
