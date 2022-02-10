@@ -94,7 +94,7 @@ export class FormField extends React.PureComponent<Props, State> {
       affixClass,
       autoFocus,
       blockWrap,
-      // charCount = 0,
+      charCount,
       children,
       error,
       helper,
@@ -126,31 +126,8 @@ export class FormField extends React.PureComponent<Props, State> {
       ...inputProps
     } = this.props;
 
-    var charCount = 0;
-
-    if (
-      this.props.type === 'markdown' &&
-      this.props.value &&
-      typeof this.props.value === 'string' &&
-      parseInt(this.props.value.length) > 0
-    ) {
-      charCount = this.props.value.length;
-    }
-
     const errorMessage = typeof error === 'object' ? error.message : error;
 
-    // Ideally, the character count should (and can) be appended to the
-    // SimpleMDE's "options::status" bar. However, I couldn't figure out how
-    // to pass the current value to it's callback, nor query the current
-    // text length from the callback. So, we'll use our own widget.
-    // const hasCharCount = charCount !== undefined && charCount >= 0;
-    /*
-    const countInfo = hasCharCount && textAreaMaxLength !== undefined && (
-      <span className="comment__char-count-mde" style={{ marginLeft: 'auto', paddingRight: 0 }}>
-        {textAreaMaxLength - charCount}
-      </span>
-    );
-    */
     const wrapperProps = { type, helper };
     const labelProps = { name, label };
     const countInfoProps = { charCount, textAreaMaxLength };
