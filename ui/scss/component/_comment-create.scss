@@ -36,7 +36,7 @@ $thumbnailWidthSmall: 1rem;
     .button--link {
       flex: auto;
       margin-top: -2px;
-      height: 2rem;
+      height: var(--height-button);
       .button__content {
         justify-content: center;
       }
@@ -56,6 +56,9 @@ $thumbnailWidthSmall: 1rem;
         .button__content {
           justify-content: center;
         }
+      }
+      .button--link {
+        height: 2rem;
       }
     }
   }
