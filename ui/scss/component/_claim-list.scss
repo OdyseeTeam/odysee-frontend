@@ -562,7 +562,7 @@
 
 .claim-preview--inline {
   .channel-thumbnail {
-    @include handleChannelGif(3rem);
+    @include handleChannelGif(2.5rem);
 
     @media (min-width: $breakpoint-small) {
       @include handleChannelGif(var(--channel-thumbnail-width--small));
