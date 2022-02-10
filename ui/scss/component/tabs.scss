@@ -114,7 +114,7 @@
 
   &::after {
     position: absolute;
-    bottom: calc(var(--tab-indicator-size) * -2);
+    bottom: calc(var(--tab-indicator-size) * -2 + 6px);
     height: 0;
     width: 100%;
     content: '';
