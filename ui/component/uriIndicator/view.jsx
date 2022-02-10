@@ -94,7 +94,11 @@ class UriIndicator extends React.PureComponent<Props> {
 <<<<<<< HEAD
 =======
       selectOdyseeMembershipByClaimId,
+<<<<<<< HEAD
 >>>>>>> fa9b2ebcb (fixing lint errors)
+=======
+      comment,
+>>>>>>> eed44eb23 (fix badge display on comments)
     } = this.props;
 
     if (!channelInfo && !claim) {
@@ -146,8 +150,10 @@ class UriIndicator extends React.PureComponent<Props> {
 =======
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
           {name}
-          {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
-          {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
+          {!comment && (<>
+            {badgeToShow === 'silver' && <CommentBadge label={__('Premium')} icon={ICONS.PREMIUM} size={25} />}
+            {badgeToShow === 'gold' && <CommentBadge label={__('Premium +')} icon={ICONS.PREMIUM_PLUS} size={25} />}
+          </>)}
         </span>
 >>>>>>> ed8986134 (add user badge)
       );
