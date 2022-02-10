@@ -332,6 +332,18 @@ $recent-msg-button__height: 2rem;
         color: var(--color-text);
       }
     }
+    .section {
+      .button-toggle {
+        background-color: rgba(var(--color-header-button-base), 0.4) !important;
+        &:hover {
+          background-color: rgba(var(--color-header-button-base), 0.9) !important;
+        }
+      }
+      .button-toggle--active,
+      .button--secondary {
+        background-color: rgba(var(--color-header-button-base), 0.9) !important;
+      }
+    }
 
     .section__actions {
       .button--alt,
@@ -381,15 +393,17 @@ $recent-msg-button__height: 2rem;
       margin: 0px;
     }
 
-    .commentCreate__stickerPreview,
-    .section__actions {
-      margin-left: var(--spacing-xxxs);
-      margin-right: var(--spacing-xxxs);
-      width: auto;
-    }
-    .section__actions {
-      .button {
-        margin-bottom: var(--spacing-xxxs);
+    .livestream__comment-create {
+      .commentCreate__stickerPreview,
+      .section__actions {
+        margin-left: var(--spacing-xxxs);
+        margin-right: var(--spacing-xxxs);
+        width: auto;
+      }
+      .section__actions {
+        .button {
+          margin-bottom: var(--spacing-xxxs);
+        }
       }
     }
   }
