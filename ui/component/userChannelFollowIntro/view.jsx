@@ -14,12 +14,12 @@ type Props = {
   language: string,
   prefsReady: boolean,
   subscribedChannels: Array<Subscription>,
-  channelSubscribe: (string, string) => void,
+  doToggleSubscription: ({ claimName: string, channelUri: string }) => void,
   onContinue: () => void,
 };
 
 function UserChannelFollowIntro(props: Props) {
-  const { homepageData, language, prefsReady, subscribedChannels, channelSubscribe, onContinue } = props;
+  const { homepageData, language, prefsReady, subscribedChannels, doToggleSubscription, onContinue } = props;
 
   const { PRIMARY_CONTENT, LATEST } = homepageData;
 
@@ -55,7 +55,7 @@ function UserChannelFollowIntro(props: Props) {
             claimName = name;
           } catch (e) {}
 
-          if (claimName) channelSubscribe(claimName, channelUri);
+          if (claimName) doToggleSubscription({ claimName, channelUri });
         });
       };
       setTimeout(delayedChannelSubscribe, 1000);

@@ -349,24 +349,29 @@ export const makeSelectCommentsListTitleForUri = (uri: string) =>
   });
 
 // Personal list
-export const makeSelectChannelIsBlocked = (uri: string) =>
-  createSelector(selectModerationBlockList, (blockedChannelUris) => {
-    if (!blockedChannelUris || !blockedChannelUris) {
-      return false;
-    }
+export const selectChannelIsBlocked = createCachedSelector(
+  (state, uri) => uri,
+  selectModerationBlockList,
+  (uri, blockedChannelUris) => {
+    return blockedChannelUris ? blockedChannelUris.includes(uri) : false;
+  }
+)((state, uri) => String(uri));
 
-    return blockedChannelUris.includes(uri);
-  });
-
-export const makeSelectChannelIsAdminBlocked = (uri: string) =>
-  createSelector(selectAdminBlockList, (list) => {
+export const selectChannelIsAdminBlocked = createCachedSelector(
+  (state, uri) => uri,
+  selectAdminBlockList,
+  (uri, list) => {
     return list ? list.includes(uri) : false;
-  });
+  }
+)((state, uri) => String(uri));
 
-export const makeSelectChannelIsModeratorBlocked = (uri: string) =>
-  createSelector(selectModeratorBlockList, (list) => {
+export const selectChannelIsModeratorBlocked = createCachedSelector(
+  (state, uri) => uri,
+  selectModeratorBlockList,
+  (uri, list) => {
     return list ? list.includes(uri) : false;
-  });
+  }
+)((state, uri) => String(uri));
 
 export const makeSelectChannelIsModeratorBlockedForCreator = (uri: string, creatorUri: string) =>
   createSelector(selectModeratorBlockList, selectModeratorBlockListDelegatorsMap, (blockList, delegatorsMap) => {

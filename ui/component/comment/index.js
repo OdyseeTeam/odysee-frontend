@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 import {
   selectStakedLevelForChannelUri,
-  makeSelectClaimForUri,
+  selectClaimForUri,
   selectThumbnailForUri,
   selectHasChannels,
   selectMyClaimIdsRaw,
 } from 'redux/selectors/claims';
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
-import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
+import { selectChannelIsMuted } from 'redux/selectors/blocked';
 import { doToast } from 'redux/actions/notifications';
 import { doClearPlayingUri } from 'redux/actions/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -22,30 +22,30 @@ import Comment from './view';
 
 const select = (state, props) => {
   const { comment, uri } = props;
-  const { comment_id, author_uri } = comment || {};
+  const { comment_id: commentId, author_uri: authorUri } = comment || {};
 
   const activeChannelClaim = selectActiveChannelClaim(state);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
-  const reactionKey = activeChannelId ? `${comment_id}:${activeChannelId}` : comment_id;
+  const reactionKey = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
 
   return {
     myChannelIds: selectMyClaimIdsRaw(state),
-    claim: makeSelectClaimForUri(uri)(state),
-    thumbnail: author_uri && selectThumbnailForUri(state, author_uri),
-    channelIsBlocked: author_uri && makeSelectChannelIsMuted(author_uri)(state),
+    claim: selectClaimForUri(state, uri),
+    thumbnail: authorUri && selectThumbnailForUri(state, authorUri),
+    channelIsBlocked: authorUri && selectChannelIsMuted(state, authorUri),
     commentingEnabled: IS_WEB ? Boolean(selectUserVerifiedEmail(state)) : true,
     othersReacts: selectOthersReactsForComment(state, reactionKey),
     activeChannelClaim,
     hasChannels: selectHasChannels(state),
     playingUri: selectPlayingUri(state),
-    stakedLevel: selectStakedLevelForChannelUri(state, author_uri),
+    stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
     linkedCommentAncestors: selectLinkedCommentAncestors(state),
-    totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
+    totalReplyPages: makeSelectTotalReplyPagesForParentId(commentId)(state),
   };
 };
 
 const perform = {
-  doClearPlayingUri,
+  clearPlayingUri: doClearPlayingUri,
   updateComment: doCommentUpdate,
   fetchReplies: doCommentList,
   doToast,

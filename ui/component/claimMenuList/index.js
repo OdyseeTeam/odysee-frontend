@@ -10,22 +10,13 @@ import {
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
-import { doChannelMute, doChannelUnmute } from 'redux/actions/blocked';
+import { selectChannelIsMuted } from 'redux/selectors/blocked';
+import { doToggleMuteChannel } from 'redux/actions/blocked';
 import { doOpenModal } from 'redux/actions/app';
-import {
-  doCommentModBlock,
-  doCommentModUnBlock,
-  doCommentModBlockAsAdmin,
-  doCommentModUnBlockAsAdmin,
-} from 'redux/actions/comments';
-import {
-  selectHasAdminChannel,
-  makeSelectChannelIsBlocked,
-  makeSelectChannelIsAdminBlocked,
-} from 'redux/selectors/comments';
+import { doToggleBlockChannel, doToggleBlockChannelAsAdmin } from 'redux/actions/comments';
+import { selectHasAdminChannel, selectChannelIsBlocked, selectChannelIsAdminBlocked } from 'redux/selectors/comments';
 import { doToast } from 'redux/actions/notifications';
-import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
+import { doToggleSubscription } from 'redux/actions/subscriptions';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectListShuffle } from 'redux/selectors/content';
@@ -60,11 +51,11 @@ const select = (state, props) => {
       COLLECTIONS_CONSTS.FAVORITES_ID,
       contentPermanentUri
     )(state),
-    channelIsMuted: makeSelectChannelIsMuted(contentChannelUri)(state),
-    channelIsBlocked: makeSelectChannelIsBlocked(contentChannelUri)(state),
+    channelIsMuted: selectChannelIsMuted(state, contentChannelUri),
+    channelIsBlocked: selectChannelIsBlocked(state, contentChannelUri),
     fileInfo: makeSelectFileInfoForUri(contentPermanentUri)(state),
     isSubscribed: selectIsSubscribedForUri(state, contentChannelUri),
-    channelIsAdminBlocked: makeSelectChannelIsAdminBlocked(props.uri)(state),
+    channelIsAdminBlocked: selectChannelIsAdminBlocked(state, props.uri),
     isAdmin: selectHasAdminChannel(state),
     claimInCollection: makeSelectCollectionForIdHasClaimUrl(collectionId, contentPermanentUri)(state),
     isMyCollection: makeSelectCollectionIsMine(collectionId)(state),
@@ -79,15 +70,10 @@ const perform = (dispatch) => ({
   prepareEdit: (publishData, uri, fileInfo) => doEditForChannel(publishData, uri, fileInfo, fs),
   doToast: (props) => dispatch(doToast(props)),
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  handleMute: (muted, channelUri) => dispatch(muted ? doChannelUnmute(channelUri) : doChannelMute(channelUri)),
-  handleModBlock: (blocked, channelUri) =>
-    dispatch(blocked ? doCommentModUnBlock(channelUri) : doCommentModBlock(channelUri)),
-  handleAdminBlock: (blocked, channelUri) =>
-    dispatch(
-      blocked ? doCommentModUnBlockAsAdmin(channelUri, '') : doCommentModBlockAsAdmin(channelUri, undefined, undefined)
-    ),
-  handleSubscribe: (subscribed, subscription) =>
-    dispatch(subscribed ? doChannelUnsubscribe(subscription) : doChannelSubscribe(subscription)),
+  toggleMute: (channelUri) => dispatch(doToggleMuteChannel(channelUri)),
+  toggleModBlock: (channelUri) => dispatch(doToggleBlockChannel(channelUri)),
+  toggleAdminBlock: (channelUri) => dispatch(doToggleBlockChannelAsAdmin(channelUri)),
+  toggleSubscribe: (subscription) => dispatch(doToggleSubscription(subscription)),
   doCollectionEdit: (collection, props) => dispatch(doCollectionEdit(collection, props)),
   fetchCollectionItems: (collectionId) => dispatch(doFetchItemsInCollection({ collectionId })),
   doToggleShuffleList: (collectionId) => {

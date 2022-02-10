@@ -10,12 +10,9 @@ type Props = {
   isBlocked: boolean,
   isBlockingOrUnBlocking: boolean,
   isToggling: boolean,
-  doCommentModUnBlock: (string, boolean) => void,
-  doCommentModBlock: (string, ?string, ?Number, boolean) => void,
-  doCommentModUnBlockAsAdmin: (string, string) => void,
-  doCommentModBlockAsAdmin: (string, ?string, ?string) => void,
-  doCommentModUnBlockAsModerator: (string, string, string) => void,
-  doCommentModBlockAsModerator: (string, ?string, string, ?string) => void,
+  doToggleBlockChannel: (string) => void,
+  doToggleBlockChannelAsAdmin: (string) => void,
+  doToggleBlockChannelAsModerator: (string, ?string, string) => void,
 };
 
 function ChannelBlockButton(props: Props) {
@@ -23,44 +20,29 @@ function ChannelBlockButton(props: Props) {
     uri,
     blockLevel,
     creatorUri,
-    doCommentModUnBlock,
-    doCommentModBlock,
-    doCommentModUnBlockAsAdmin,
-    doCommentModBlockAsAdmin,
-    doCommentModUnBlockAsModerator,
-    doCommentModBlockAsModerator,
     isBlocked,
     isBlockingOrUnBlocking,
     isToggling,
+    doToggleBlockChannel,
+    doToggleBlockChannelAsAdmin,
+    doToggleBlockChannelAsModerator,
   } = props;
 
   function handleClick() {
     switch (blockLevel) {
       default:
       case BLOCK_LEVEL.SELF:
-        if (isBlocked) {
-          doCommentModUnBlock(uri, false);
-        } else {
-          doCommentModBlock(uri, undefined, undefined, false);
-        }
+        doToggleBlockChannel(uri);
         break;
 
       case BLOCK_LEVEL.MODERATOR:
         if (creatorUri) {
-          if (isBlocked) {
-            doCommentModUnBlockAsModerator(uri, creatorUri, '');
-          } else {
-            doCommentModBlockAsModerator(uri, undefined, creatorUri, undefined);
-          }
+          doToggleBlockChannelAsModerator(uri, undefined, creatorUri);
         }
         break;
 
       case BLOCK_LEVEL.ADMIN:
-        if (isBlocked) {
-          doCommentModUnBlockAsAdmin(uri, '');
-        } else {
-          doCommentModBlockAsAdmin(uri, undefined, undefined);
-        }
+        doToggleBlockChannelAsAdmin(uri);
         break;
     }
   }

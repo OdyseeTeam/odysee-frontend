@@ -34,14 +34,14 @@ type Props = {
   contentClaimIsMine: ?boolean,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   doHideModal: () => void,
-  doCommentModBlock: (commenterUri: string, offendingCommentId: ?string, timeoutSec: ?number) => void,
-  doCommentModBlockAsAdmin: (
+  doToggleBlockChannel: (commenterUri: string, offendingCommentId: ?string, timeoutSec: ?number) => void,
+  doToggleBlockChannelAsAdmin: (
     commenterUri: string,
     offendingCommentId: ?string,
     blockerId: ?string,
     timeoutSec: ?number
   ) => void,
-  doCommentModBlockAsModerator: (
+  doToggleBlockChannelAsModerator: (
     commenterUri: string,
     offendingCommentId: ?string,
     creatorUri: string,
@@ -59,9 +59,9 @@ export default function ModalBlockChannel(props: Props) {
     contentClaimIsMine,
     moderationDelegatorsById,
     doHideModal,
-    doCommentModBlock,
-    doCommentModBlockAsAdmin,
-    doCommentModBlockAsModerator,
+    doToggleBlockChannel,
+    doToggleBlockChannelAsAdmin,
+    doToggleBlockChannelAsModerator,
   } = props;
 
   const contentChannelClaim = getChannelFromClaim(contentClaim);
@@ -236,12 +236,12 @@ export default function ModalBlockChannel(props: Props) {
 
     switch (tab) {
       case TAB.PERSONAL:
-        doCommentModBlock(commenterUri, offendingCommentId, duration);
+        doToggleBlockChannel(commenterUri, offendingCommentId, duration);
         break;
 
       case TAB.MODERATOR:
         if (activeChannelClaim && contentChannelClaim) {
-          doCommentModBlockAsModerator(
+          doToggleBlockChannelAsModerator(
             commenterUri,
             offendingCommentId,
             contentChannelClaim.permanent_url,
@@ -253,7 +253,7 @@ export default function ModalBlockChannel(props: Props) {
 
       case TAB.ADMIN:
         if (activeChannelClaim) {
-          doCommentModBlockAsAdmin(commenterUri, offendingCommentId, activeChannelClaim.claim_id, duration);
+          doToggleBlockChannelAsAdmin(commenterUri, offendingCommentId, activeChannelClaim.claim_id, duration);
         }
         break;
     }
@@ -266,7 +266,7 @@ export default function ModalBlockChannel(props: Props) {
 
   if (isPersonalTheOnlyTab && !isTimeoutAvail) {
     // There's only 1 option. Just execute it and don't show the modal.
-    doCommentModBlock(commenterUri, offendingCommentId);
+    doToggleBlockChannel(commenterUri, offendingCommentId);
     doHideModal();
     return null;
   }

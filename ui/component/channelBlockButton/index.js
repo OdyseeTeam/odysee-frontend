@@ -1,16 +1,13 @@
 import { connect } from 'react-redux';
 import { selectClaimIdForUri } from 'redux/selectors/claims';
 import {
-  doCommentModUnBlock,
-  doCommentModBlock,
-  doCommentModBlockAsAdmin,
-  doCommentModUnBlockAsAdmin,
-  doCommentModUnBlockAsModerator,
-  doCommentModBlockAsModerator,
+  doToggleBlockChannel,
+  doToggleBlockChannelAsAdmin,
+  doToggleBlockChannelAsModerator,
 } from 'redux/actions/comments';
 import {
-  makeSelectChannelIsBlocked,
-  makeSelectChannelIsAdminBlocked,
+  selectChannelIsBlocked,
+  selectChannelIsAdminBlocked,
   makeSelectChannelIsModeratorBlockedForCreator,
   makeSelectUriIsBlockingOrUnBlocking,
   makeSelectIsTogglingForDelegator,
@@ -26,7 +23,7 @@ const select = (state, props) => {
   switch (props.blockLevel) {
     default:
     case BLOCK_LEVEL.SELF:
-      isBlocked = makeSelectChannelIsBlocked(props.uri)(state);
+      isBlocked = selectChannelIsBlocked(state, props.uri);
       break;
 
     case BLOCK_LEVEL.MODERATOR:
@@ -35,7 +32,7 @@ const select = (state, props) => {
       break;
 
     case BLOCK_LEVEL.ADMIN:
-      isBlocked = makeSelectChannelIsAdminBlocked(props.uri)(state);
+      isBlocked = selectChannelIsAdminBlocked(state, props.uri);
       break;
   }
 
@@ -47,11 +44,10 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select, {
-  doCommentModUnBlock,
-  doCommentModBlock,
-  doCommentModUnBlockAsAdmin,
-  doCommentModBlockAsAdmin,
-  doCommentModUnBlockAsModerator,
-  doCommentModBlockAsModerator,
-})(ChannelBlockButton);
+const perform = {
+  doToggleBlockChannel,
+  doToggleBlockChannelAsAdmin,
+  doToggleBlockChannelAsModerator,
+};
+
+export default connect(select, perform)(ChannelBlockButton);

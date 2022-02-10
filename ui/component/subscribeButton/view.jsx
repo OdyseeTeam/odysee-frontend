@@ -8,17 +8,10 @@ import { useIsMobile } from 'effects/use-screensize';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import useBrowserNotifications from '$web/component/browserNotificationSettings/use-browser-notifications';
 
-type SubscriptionArgs = {
-  channelName: string,
-  uri: string,
-  notificationsDisabled?: boolean,
-};
-
 type Props = {
   permanentUrl: ?string,
   isSubscribed: boolean,
-  doChannelSubscribe: (SubscriptionArgs, boolean) => void,
-  doChannelUnsubscribe: (SubscriptionArgs, boolean) => void,
+  doToggleSubscription: (Subscription, boolean) => void,
   doToast: ({ message: string }) => void,
   shrinkOnMobile: boolean,
   notificationsDisabled: boolean,
@@ -29,8 +22,7 @@ type Props = {
 export default function SubscribeButton(props: Props) {
   const {
     permanentUrl,
-    doChannelSubscribe,
-    doChannelUnsubscribe,
+    doToggleSubscription,
     isSubscribed,
     doToast,
     shrinkOnMobile = false,
@@ -61,8 +53,6 @@ export default function SubscribeButton(props: Props) {
 
   const { pushSupported, pushEnabled, pushRequest, pushErrorModal } = useBrowserNotifications();
 
-  const subscriptionHandler = isSubscribed ? doChannelUnsubscribe : doChannelSubscribe;
-
   const subscriptionLabel = isSubscribed
     ? __('Following --[button label indicating a channel has been followed]--')
     : __('Follow');
@@ -86,13 +76,13 @@ export default function SubscribeButton(props: Props) {
           onClick={(e) => {
             e.stopPropagation();
 
-            subscriptionHandler(
+            doToggleSubscription(
               {
                 channelName: '@' + rawChannelName,
                 uri: uri,
                 notificationsDisabled: true,
               },
-              true
+              false
             );
           }}
         />
@@ -114,13 +104,13 @@ export default function SubscribeButton(props: Props) {
         onClick={(e) => {
           e.stopPropagation();
 
-          subscriptionHandler(
+          doToggleSubscription(
             {
               channelName: claimName,
               uri: permanentUrl,
               notificationsDisabled: true,
             },
-            true
+            false
           );
         }}
       />
@@ -133,13 +123,13 @@ export default function SubscribeButton(props: Props) {
             onClick={() => {
               const newNotificationsDisabled = !notificationsDisabled;
 
-              doChannelSubscribe(
+              doToggleSubscription(
                 {
                   channelName: claimName,
                   uri: permanentUrl,
                   notificationsDisabled: newNotificationsDisabled,
                 },
-                false
+                true
               );
 
               doToast({

@@ -1,4 +1,5 @@
 // @flow
+import { createCachedSelector } from 're-reselect';
 import { createSelector } from 'reselect';
 import { splitBySeparator } from 'util/lbryURI';
 
@@ -8,10 +9,13 @@ const selectState = (state: State) => state.blocked || {};
 
 export const selectMutedChannels = (state: State) => selectState(state).blockedChannels;
 
-export const makeSelectChannelIsMuted = (uri: string) =>
-  createSelector(selectMutedChannels, (state: Array<string>) => {
-    return state.includes(uri);
-  });
+export const selectChannelIsMuted = createCachedSelector(
+  (state, uri) => uri,
+  selectMutedChannels,
+  (uri, mutedChannels) => {
+    return mutedChannels.includes(uri);
+  }
+)((state, uri) => String(uri));
 
 export const selectMutedAndBlockedChannelIds = createSelector(
   selectState,

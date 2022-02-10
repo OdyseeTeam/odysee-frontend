@@ -33,7 +33,7 @@ type Props = {
   handleEditComment: () => void,
   openModal: (id: string, {}) => void,
   clearPlayingUri: () => void,
-  muteChannel: (string) => void,
+  muteChannel: () => void,
   pinComment: (string, string, boolean) => Promise<any>,
   commentModAddDelegate: (string, string, ChannelClaim) => void,
   setQuickReply: (any) => void,
@@ -235,7 +235,7 @@ function CommentMenuList(props: Props) {
           >
             {getBlockOptionElem()}
           </MenuItem>
-          <MenuItem className="comment__menu-option" onSelect={() => muteChannel(authorUri)}>
+          <MenuItem className="comment__menu-option" onSelect={muteChannel}>
             <div className="menu__link">
               <Icon aria-hidden icon={ICONS.MUTE} />
               {__('Mute')}

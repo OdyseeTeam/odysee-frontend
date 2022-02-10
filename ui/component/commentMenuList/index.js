@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { doChannelMute } from 'redux/actions/blocked';
+import { doToggleMuteChannel } from 'redux/actions/blocked';
 import { doCommentPin, doCommentModAddDelegate } from 'redux/actions/comments';
 import { doOpenModal } from 'redux/actions/app';
 import { doSetPlayingUri } from 'redux/actions/content';
@@ -21,10 +21,10 @@ const select = (state, props) => {
   };
 };
 
-const perform = (dispatch) => ({
+const perform = (dispatch, ownProps) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   clearPlayingUri: () => dispatch(doSetPlayingUri({ uri: null })),
-  muteChannel: (channelUri) => dispatch(doChannelMute(channelUri)),
+  muteChannel: () => dispatch(doToggleMuteChannel(ownProps.authorUri)),
   pinComment: (commentId, claimId, remove) => dispatch(doCommentPin(commentId, claimId, remove)),
   commentModAddDelegate: (modChanId, modChanName, creatorChannelClaim) =>
     dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim, true)),

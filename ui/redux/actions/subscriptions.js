@@ -5,37 +5,26 @@ import { Lbryio } from 'lbryinc';
 import { doClaimRewardType } from 'redux/actions/rewards';
 import { parseURI } from 'util/lbryURI';
 import { doAlertWaitingForSync } from 'redux/actions/app';
+import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { doToast } from 'redux/actions/notifications';
 
-type SubscriptionArgs = {
-  channelName: string,
-  uri: string,
-  notificationsDisabled?: boolean,
-};
-
-export function doToggleSubscription(
-  subscription: SubscriptionArgs,
-  followToast: boolean,
-  isSubscribed: boolean = false
-) {
+export function doToggleSubscription(subscription: Subscription, hideToast?: boolean) {
   return async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+
     const {
-      settings: { daemonSettings },
       sync: { prefsReady: ready },
-    } = getState();
+    } = state;
 
-    if (!ready) {
-      return dispatch(doAlertWaitingForSync());
-    }
+    if (!ready) return dispatch(doAlertWaitingForSync());
 
-    const { share_usage_data: shareSetting } = daemonSettings;
-    const isSharingData = shareSetting || IS_WEB;
+    const { uri: subscriptionUri, channelName, notificationsDisabled } = subscription;
 
-    if (!isSubscribed) {
-      const subscriptionUri = subscription.uri;
-      if (!subscriptionUri.startsWith('lbry://')) {
-        throw Error(`Subscription uris must include the "lbry://" prefix.\nTried to subscribe to ${subscriptionUri}`);
-      }
+    const isSubscribed = selectIsSubscribedForUri(state, subscriptionUri);
+    const { channelClaimId } = parseURI(subscriptionUri);
+
+    if (!isSubscribed && !subscriptionUri.startsWith('lbry://')) {
+      throw Error(`Subscription uris must include the "lbry://" prefix.\nTried to subscribe to ${subscriptionUri}`);
     }
 
     dispatch({
@@ -43,45 +32,28 @@ export function doToggleSubscription(
       data: subscription,
     });
 
-    // if the user isn't sharing data, keep the subscriptions entirely in the app
-    if (isSharingData || IS_WEB) {
-      const { channelClaimId } = parseURI(subscription.uri);
+    if (!isSubscribed) {
+      Lbryio.call('subscription', 'new', {
+        channel_name: channelName,
+        claim_id: channelClaimId,
+        notifications_disabled: notificationsDisabled,
+      });
 
-      if (!isSubscribed) {
-        // They are sharing data, we can store their subscriptions in our internal database
-        Lbryio.call('subscription', 'new', {
-          channel_name: subscription.channelName,
-          claim_id: channelClaimId,
-          notifications_disabled: subscription.notificationsDisabled,
-        });
-
-        dispatch(doClaimRewardType(REWARDS.TYPE_SUBSCRIPTION, { failSilently: true }));
-      } else {
-        Lbryio.call('subscription', 'delete', {
-          claim_id: channelClaimId,
-        });
-      }
+      dispatch(doClaimRewardType(REWARDS.TYPE_SUBSCRIPTION, { failSilently: true }));
+    } else {
+      Lbryio.call('subscription', 'delete', {
+        claim_id: channelClaimId,
+      });
     }
-    if (followToast) {
+
+    if (!hideToast) {
       dispatch(
         doToast({
           message: __(!isSubscribed ? 'You followed %CHANNEL_NAME%!' : 'Unfollowed %CHANNEL_NAME%.', {
-            CHANNEL_NAME: subscription.channelName,
+            CHANNEL_NAME: channelName,
           }),
         })
       );
     }
-  };
-}
-
-export function doChannelSubscribe(subscription: SubscriptionArgs, followToast: boolean = true) {
-  return (dispatch: Dispatch) => {
-    return dispatch(doToggleSubscription(subscription, followToast));
-  };
-}
-
-export function doChannelUnsubscribe(subscription: SubscriptionArgs, followToast: boolean = true) {
-  return (dispatch: Dispatch) => {
-    return dispatch(doToggleSubscription(subscription, followToast, true));
   };
 }

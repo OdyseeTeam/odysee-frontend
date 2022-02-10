@@ -3,39 +3,25 @@ import * as ACTIONS from 'constants/action_types';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { doAlertWaitingForSync } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
+import { selectChannelIsMuted } from 'redux/selectors/blocked';
 
-export function doToggleMuteChannel(uri: string, showLink: boolean, unmute: boolean = false) {
+export function doToggleMuteChannel(uri: string, hideLink: boolean) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
 
-    if (!ready) {
-      return dispatch(doAlertWaitingForSync());
-    }
+    if (!ready) return dispatch(doAlertWaitingForSync());
 
-    dispatch({
-      type: ACTIONS.TOGGLE_BLOCK_CHANNEL,
-      data: {
-        uri,
-      },
-    });
+    const isMuted = selectChannelIsMuted(state, uri);
 
-    dispatch(doToast({
-      message: __(!unmute ? 'Channel muted. You will not see them again.' : 'Channel unmuted!'),
-      linkText: __(showLink ? 'See All' : ''),
-      linkTarget: '/settings/block_and_mute',
-    }));
-  };
-}
+    dispatch({ type: ACTIONS.TOGGLE_BLOCK_CHANNEL, data: { uri } });
 
-export function doChannelMute(uri: string, showLink: boolean = true) {
-  return (dispatch: Dispatch) => {
-    return dispatch(doToggleMuteChannel(uri, showLink));
-  };
-}
-
-export function doChannelUnmute(uri: string, showLink: boolean = true) {
-  return (dispatch: Dispatch) => {
-    return dispatch(doToggleMuteChannel(uri, showLink, true));
+    dispatch(
+      doToast({
+        message: __(!isMuted ? 'Channel muted. You will not see them again.' : 'Channel unmuted!'),
+        linkText: __(hideLink ? '' : 'See All'),
+        linkTarget: '/settings/block_and_mute',
+      })
+    );
   };
 }
