@@ -109,7 +109,14 @@
       border-left: 1px solid var(--color-border);
     }
 
-    .button-toggle,
+    .button-toggle {
+      background-color: var(--color-button-toggle-bg) !important;
+      &:hover {
+        background-color: var(--color-header-button) !important;
+      }
+    }
+
+    .button-toggle--active,
     .channel__list-item,
     .button--secondary,
     input {
