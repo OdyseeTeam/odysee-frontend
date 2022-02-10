@@ -195,7 +195,7 @@
 
 .MuiPaper-root {
   //background-color:rgba(var(--color-header-background-base),1);
-  background-color: var(--color-background);
+  background-color: var(--mui-background);
   .form-field__two-column {
     display: flex;
     justify-content: space-between;
@@ -232,6 +232,18 @@
         }
       }
     }
+  }
+
+  .comment-create__label-wrapper {
+    select {
+      margin: 2px 0 0 0;
+      height: 1.4rem;
+      background-color: var(--color-header-button);
+    }
+  }
+
+  .comment__char-count-mde {
+    padding-right: 0;
   }
 
   .livestream__chat {
