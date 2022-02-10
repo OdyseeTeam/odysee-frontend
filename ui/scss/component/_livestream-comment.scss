@@ -58,7 +58,7 @@
 
   display: flex;
   justify-content: space-between;
-  padding: 0 var(--spacing-xxxs);
+  padding: 0;
 
   .livestreamComment__menu {
     position: relative;
@@ -102,6 +102,10 @@
     align-items: flex-start;
     flex-direction: unset;
     flex: unset;
+
+    .channel-thumbnail--xsmall {
+      margin-left: var(--spacing-xs);
+    }
   }
 
   .livestreamComment__info {
@@ -120,6 +124,7 @@
   }
 
   &::before {
+    display: none;
     position: absolute;
     left: 0;
     height: 100%;
