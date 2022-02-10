@@ -65,6 +65,11 @@
     .credit-amount {
       font-size: var(--font-xsmall);
     }
+
+    @media (max-width: $breakpoint-small) {
+      padding-top: calc(var(--spacing-xs) + 3px);
+      font-size: var(--font-xsmall);
+    }
   }
 }
 
