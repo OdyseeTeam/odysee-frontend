@@ -92,7 +92,6 @@ const Header = (props: Props) => {
 
   // on the verify page don't let anyone escape other than by closing the tab to keep session data consistent
   const isVerifyPage = pathname.includes(PAGES.AUTH_VERIFY);
-  const isSignUpPage = pathname.includes(PAGES.AUTH);
   const isSignInPage = pathname.includes(PAGES.AUTH_SIGNIN);
   const isPwdResetPage = pathname.includes(PAGES.AUTH_PASSWORD_RESET);
   const iYTSyncPage = pathname.includes(PAGES.YOUTUBE_SYNC);
@@ -299,7 +298,7 @@ const Header = (props: Props) => {
 
                         if (syncError) signOut();
 
-                        if ((isSignInPage && !emailToVerify) || isSignUpPage || isPwdResetPage || iYTSyncPage) {
+                        if ((isSignInPage && !emailToVerify) || isPwdResetPage || iYTSyncPage) {
                           goBack();
                         } else {
                           push('/');
