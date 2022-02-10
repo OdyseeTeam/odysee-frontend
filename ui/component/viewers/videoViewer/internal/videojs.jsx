@@ -326,6 +326,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const livestreamSource = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
 
       if (isLivestream) {
+        vjsPlayer.addClass('livestreamPlayer');
+
         videojs.Vhs.xhr.beforeRequest = (options) => {
           if (!options.headers) options.headers = {};
           options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
@@ -338,6 +340,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           src: livestreamSource,
         });
       } else {
+        vjsPlayer.removeClass('livestreamPlayer');
+
         videojs.Vhs.xhr.beforeRequest = (options) => {
           if (!options.headers) options.headers = {};
           delete options.headers['X-Pull'];

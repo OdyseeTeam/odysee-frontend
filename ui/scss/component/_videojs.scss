@@ -302,3 +302,15 @@ button.vjs-big-play-button {
 .vjs-fullscreen-control {
   order: 14 !important;
 }
+
+// livestream player
+.livestreamPlayer {
+  .vjs-current-time,
+  .vjs-duration,
+  .vjs-time-divider,
+  .vjs-button--theater-mode,
+  .vjs-quality-selector,
+  .vjs-button--autoplay-next {
+    display: none !important;
+  }
+}
