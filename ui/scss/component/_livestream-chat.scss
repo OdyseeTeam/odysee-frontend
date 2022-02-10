@@ -605,14 +605,9 @@ $recent-msg-button__height: 2rem;
     @include handleChannelGif(2rem);
 
     @media (max-width: $breakpoint-small) {
+      margin-top: var(--spacing-xxs);
       margin-right: var(--spacing-xxs);
       @include handleChannelGif(1.5rem);
-
-      .channel-staked__wrapper {
-        padding: 0px;
-        left: -0.4rem;
-        bottom: -0.5rem;
-      }
     }
   }
 
@@ -635,12 +630,18 @@ $recent-msg-button__height: 2rem;
     }
   }
 
+  .channel-name,
+  .credit-amount {
+    color: var(--color-black);
+  }
+  /*
   &:nth-of-type(-n + 3) {
     .channel-name,
     .credit-amount {
       color: var(--color-black);
     }
   }
+  */
 
   .channel-name {
     max-width: 5rem;
@@ -651,7 +652,9 @@ $recent-msg-button__height: 2rem;
   @extend .livestream-superchat;
 
   background-color: #fff;
-  padding: 5px;
+  padding-top: 0;
+  padding-left: 5px;
+  padding-right: 5px;
   padding-bottom: 2px;
 
   span {

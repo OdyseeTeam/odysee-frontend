@@ -59,6 +59,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0;
+  padding-left: var(--spacing-xxxs);
 
   .livestreamComment__menu {
     position: relative;
@@ -92,6 +93,7 @@
   //background-color: var(--color-card-background-highlighted);
   box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
   display: unset;
+  padding-left: 0;
 
   + .livestream__comment--superchat {
     margin-bottom: var(--spacing-xxs);
