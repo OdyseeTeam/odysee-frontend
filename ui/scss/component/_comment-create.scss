@@ -34,7 +34,7 @@ $thumbnailWidthSmall: 1rem;
       }
     }
     .button--link {
-      flex: auto;
+      // flex: auto;
       margin-top: -2px;
       height: var(--height-button);
       .button__content {
@@ -58,6 +58,7 @@ $thumbnailWidthSmall: 1rem;
         }
       }
       .button--link {
+        flex: auto;
         height: 2rem;
       }
     }
