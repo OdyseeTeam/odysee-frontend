@@ -204,11 +204,6 @@
       border-radius: 2px;
       overflow: hidden;
 
-      @media (max-width: $breakpoint-small) {
-        height: 1px;
-        bottom: -1px;
-      }
-
       .ratio-bar-like {
         height: 100%;
         background-color: var(--color-fire);
@@ -224,6 +219,14 @@
       margin-right: 0px;
       float: right;
     }
+
+    @media (max-width: $breakpoint-small) {
+      margin-right: 0px;
+      .ratio-bar {
+        height: 1px;
+        bottom: -1px;
+      }
+    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -231,7 +234,6 @@
     justify-content: space-around !important;
     margin: 0;
     padding: 0;
-    margin-right: 0px;
 
     > * {
       margin-right: var(--spacing-s);
@@ -239,14 +241,9 @@
     }
 
     .button--file-action {
-      // margin: 0 !important;
-      // padding: var(--spacing-xxs);
       padding: 0 !important;
-      // width: 3.1rem;
-      // height: 3.5rem;
 
       .button__content {
-        // flex-direction: column;
         justify-content: space-between;
 
         .button__label {
