@@ -34,7 +34,12 @@ $thumbnailWidthSmall: 1rem;
       }
     }
     .button--link {
+      flex: auto;
       margin-top: -2px;
+      height: 2rem;
+      .button__content {
+        justify-content: center;
+      }
       .button__label {
         margin-top: 1px;
         line-height: 18px;
