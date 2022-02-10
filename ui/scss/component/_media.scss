@@ -190,7 +190,7 @@
   .ratio-wrapper {
     position: relative;
     width: 100%;
-    margin-right: 0px;
+    margin-right: var(--spacing-m);
 
     .ratio-bar {
       position: absolute;
@@ -231,6 +231,7 @@
     justify-content: space-around !important;
     margin: 0;
     padding: 0;
+    margin-right: 0px;
 
     > * {
       margin-right: var(--spacing-s);
