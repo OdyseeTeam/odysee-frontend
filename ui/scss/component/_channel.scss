@@ -70,6 +70,17 @@ $actions-z-index: 2;
   width: 5rem;
   background-size: cover;
   margin-right: var(--spacing-m);
+
+  .comment__badge {
+    @extend .channel-staked__wrapper;
+    left: unset !important;
+    background-color: unset !important;
+    right: -0.8rem !important;
+
+    svg {
+      stroke: unset;
+    }
+  }
 }
 
 .channel-thumbnail--resolving {
