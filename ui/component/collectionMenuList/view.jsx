@@ -11,19 +11,23 @@ import { useHistory } from 'react-router';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 
 type Props = {
-  inline?: boolean,
-  doOpenModal: (string, {}) => void,
-  collectionName?: string,
   collectionId: string,
-  playNextUri: string,
-  doToggleShuffleList: (string) => void,
+  inline?: boolean,
+  // redux
+  shuffleList?: any,
+  doOpenModal: (id: string, params: any) => void,
+  doToggleShuffleList: (currentUri?: string, collectionId: string, shuffle: boolean, hideToast: boolean) => void,
 };
 
-function CollectionMenuList(props: Props) {
-  const { inline = false, collectionId, collectionName, doOpenModal, playNextUri, doToggleShuffleList } = props;
-  const [doShuffle, setDoShuffle] = React.useState(false);
+export default function CollectionMenuList(props: Props) {
+  const { collectionId, inline, shuffleList, doOpenModal, doToggleShuffleList } = props;
 
   const { push } = useHistory();
+
+  const [doShuffle, setDoShuffle] = React.useState(false);
+
+  const shuffle = shuffleList && shuffleList.collectionId === collectionId && shuffleList.newUrls;
+  const playNextUri = shuffle && shuffle[0];
 
   React.useEffect(() => {
     if (playNextUri && doShuffle) {
@@ -48,36 +52,27 @@ function CollectionMenuList(props: Props) {
       >
         <Icon size={20} icon={ICONS.MORE_VERTICAL} />
       </MenuButton>
+
       <MenuList className="menu__list">
-        {collectionId && collectionName && (
-          <>
-            <MenuLink page={`${PAGES.LIST}/${collectionId}`} icon={ICONS.VIEW} label={__('View List')} />
+        <MenuLink page={`${PAGES.LIST}/${collectionId}`} icon={ICONS.VIEW} label={__('View List')} />
 
-            <MenuItem
-              onSelect={() => {
-                doToggleShuffleList(collectionId);
-                setDoShuffle(true);
-              }}
-              icon={ICONS.SHUFFLE}
-              label={__('Shuffle Play')}
-            />
+        <MenuItem
+          onSelect={() => {
+            doToggleShuffleList(undefined, collectionId, true, true);
+            setDoShuffle(true);
+          }}
+          icon={ICONS.SHUFFLE}
+          label={__('Shuffle Play')}
+        />
 
-            <MenuLink
-              page={`${PAGES.LIST}/${collectionId}?view=edit`}
-              icon={ICONS.PUBLISH}
-              label={__('Publish List')}
-            />
+        <MenuLink page={`${PAGES.LIST}/${collectionId}?view=edit`} icon={ICONS.PUBLISH} label={__('Publish List')} />
 
-            <MenuItem
-              onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}
-              icon={ICONS.DELETE}
-              label={__('Delete List')}
-            />
-          </>
-        )}
+        <MenuItem
+          onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}
+          icon={ICONS.DELETE}
+          label={__('Delete List')}
+        />
       </MenuList>
     </Menu>
   );
 }
-
-export default CollectionMenuList;

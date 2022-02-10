@@ -330,7 +330,7 @@ export function doToggleLoopList(collectionId: string, loop: boolean, hideToast:
   };
 }
 
-export function doToggleShuffleList(currentUri: string, collectionId: string, shuffle: boolean, hideToast: boolean) {
+export function doToggleShuffleList(currentUri?: string, collectionId: string, shuffle: boolean, hideToast: boolean) {
   return (dispatch: Dispatch, getState: () => any) => {
     if (shuffle) {
       const state = getState();
