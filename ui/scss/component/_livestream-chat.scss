@@ -365,8 +365,7 @@ $recent-msg-button__height: 2rem;
     margin-top: var(--spacing-s);
   }
   @media (max-width: $breakpoint-small) {
-    // padding: 0px;
-    padding: var(--spacing-xxxs);
+    padding: 0px;
 
     span,
     select,
@@ -380,6 +379,18 @@ $recent-msg-button__height: 2rem;
 
     .select--slim {
       margin: 0px;
+    }
+
+    .commentCreate__stickerPreview,
+    .section__actions {
+      margin-left: var(--spacing-xxxs);
+      margin-right: var(--spacing-xxxs);
+      width: auto;
+    }
+    .section__actions {
+      .button {
+        margin-bottom: var(--spacing-xxxs);
+      }
     }
   }
 }
