@@ -2,7 +2,8 @@
 // $FlowFixMe
 import { Global } from '@emotion/react';
 
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList } from '@reach/menu-button';
+import { MenuItem } from 'component/common/menu-components';
 import { useHistory } from 'react-router-dom';
 import usePersistedState from 'effects/use-persisted-state';
 import * as ICONS from 'constants/icons';
@@ -58,40 +59,27 @@ export default function LivestreamMenu(props: Props) {
         </MenuButton>
 
         <MenuList className="menu__list">
-          <MenuItem className="comment__menu-option" onSelect={() => setShowTimestamps(!showTimestamps)}>
-            <span className="menu__link">
-              <Icon aria-hidden icon={ICONS.TIME} />
-              {__('Toggle Timestamps')}
-            </span>
-          </MenuItem>
+          <MenuItem
+            onSelect={() => setShowTimestamps(!showTimestamps)}
+            icon={ICONS.TIME}
+            label={__('Toggle Timestamps')}
+          />
 
           {!isMobile ? (
             <>
               {/* No need for Hide Chat on mobile with the expand/collapse drawer */}
-              <MenuItem className="comment__menu-option" onSelect={hideChat}>
-                <span className="menu__link">
-                  <Icon aria-hidden icon={ICONS.EYE} />
-                  {__('Hide Chat')}
-                </span>
-              </MenuItem>
+              {hideChat && <MenuItem onSelect={hideChat} icon={ICONS.EYE} label={__('Hide Chat')} />}
 
-              {!isPopoutWindow && (
-                <MenuItem className="comment__menu-option" onSelect={handlePopout}>
-                  <span className="menu__link">
-                    <Icon aria-hidden icon={ICONS.EXTERNAL} />
-                    {__('Popout Chat')}
-                  </span>
-                </MenuItem>
-              )}
+              {!isPopoutWindow && <MenuItem onSelect={handlePopout} icon={ICONS.EXTERNAL} label={__('Popout Chat')} />}
             </>
           ) : (
-            !noSuperchats && (
-              <MenuItem className="comment__menu-option" onSelect={toggleSuperchats}>
-                <span className="menu__link">
-                  <Icon aria-hidden icon={superchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
-                  {superchatsHidden ? __('Display Superchats') : __('Dismiss Superchats')}
-                </span>
-              </MenuItem>
+            !noSuperchats &&
+            toggleSuperchats && (
+              <MenuItem
+                onSelect={toggleSuperchats}
+                icon={superchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL}
+                label={superchatsHidden ? __('Display Superchats') : __('Dismiss Superchats')}
+              />
             )
           )}
         </MenuList>

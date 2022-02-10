@@ -104,6 +104,10 @@
   }
 }
 
+.menu__item {
+  @extend .menu__link;
+}
+
 .menu__link-help {
   @extend .menu__link;
   display: block;
@@ -113,6 +117,10 @@
   white-space: normal;
   text-overflow: ellipsis;
   overflow-x: hidden;
+}
+
+.menu__item-help {
+  @extend .menu__link-help;
 }
 
 .menu__link--notification {

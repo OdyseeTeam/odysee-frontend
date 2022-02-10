@@ -3,7 +3,8 @@ import 'scss/component/_swipeable-drawer.scss';
 
 import { lazyImport } from 'util/lazyImport';
 import { useIsMobile } from 'effects/use-screensize';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton } from '@reach/menu-button';
+import { MenuItem } from 'component/common/menu-components';
 import FileTitleSection from 'component/fileTitleSection';
 import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
@@ -169,16 +170,17 @@ const ChatModeSelector = (chatSelectorProps: any) => {
       </MenuButton>
 
       <MenuList className="menu__list--header">
-        <MenuItem className="menu__link" onSelect={() => setChatViewMode(VIEW_MODES.CHAT)}>
-          {__('Live Chat')}
-        </MenuItem>
+        <MenuItem onSelect={() => setChatViewMode(VIEW_MODES.CHAT)} label={__('Live Chat')} />
 
-        <MenuItem className="menu__link" onSelect={() => setChatViewMode(VIEW_MODES.SUPERCHAT)}>
-          <div className="recommended-content__toggles">
-            <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /
-            <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
-          </div>
-        </MenuItem>
+        <MenuItem
+          onSelect={() => setChatViewMode(VIEW_MODES.SUPERCHAT)}
+          label={
+            <div className="recommended-content__toggles">
+              <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /
+              <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
+            </div>
+          }
+        />
       </MenuList>
     </Menu>
   );

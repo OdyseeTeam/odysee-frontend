@@ -1,9 +1,8 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import React from 'react';
-import { MenuItem } from '@reach/menu-button';
+import { MenuItem } from 'component/common/menu-components';
 import { parseURI } from 'util/lbryURI';
-import Icon from 'component/common/icon';
 
 type Props = {
   uri: string,
@@ -32,12 +31,10 @@ export default function NotificationContentChannelMenu(props: Props) {
   }
 
   return (
-    <MenuItem onSelect={handleClick}>
-      <div className="menu__link">
-        <Icon aria-hidden icon={notificationsDisabled ? ICONS.BELL : ICONS.BELL_ON} />
-        {notificationsDisabled ? __('Turn Back On') : __('Turn Off')}
-      </div>
-      <span className="menu__link-help">{claimName}</span>
-    </MenuItem>
+    <MenuItem
+      onSelect={handleClick}
+      icon={notificationsDisabled ? ICONS.BELL : ICONS.BELL_ON}
+      label={notificationsDisabled ? __('Turn Back On') : __('Turn Off')}
+    />
   );
 }

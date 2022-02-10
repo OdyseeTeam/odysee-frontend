@@ -13,7 +13,8 @@ import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimCollectionAddButton from 'component/claimCollectionAddButton';
 import { useHistory } from 'react-router';
 import FileReactions from 'component/fileReactions';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList } from '@reach/menu-button';
+import { MenuItem, MenuLink } from 'component/common/menu-components';
 import Icon from 'component/common/icon';
 import { webDownloadClaim } from 'util/downloadClaim';
 import Tooltip from 'component/common/tooltip';
@@ -184,64 +185,48 @@ export default function FileActions(props: Props) {
             {isMobile && (
               <>
                 {!hideRepost && !isLivestreamClaim && (
-                  <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
-                    <div className="menu__link">
-                      <Icon aria-hidden icon={ICONS.REPOST} />
-                      {claimMeta.reposted > 1
+                  <MenuItem
+                    onSelect={handleRepostClick}
+                    icon={ICONS.REPOST}
+                    label={
+                      claimMeta.reposted > 1
                         ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted })
-                        : __('Repost')}
-                    </div>
-                  </MenuItem>
+                        : __('Repost')
+                    }
+                  />
                 )}
 
                 {claimIsMine && (
                   <>
                     <MenuItem
-                      className="comment__menu-option"
                       onSelect={() => {
                         doEditForChannel(claim, editUri);
                         push(`/$/${PAGES.UPLOAD}`);
                       }}
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={ICONS.EDIT} />
-                        {isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
-                      </div>
-                    </MenuItem>
+                      icon={ICONS.EDIT}
+                      label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
+                    />
 
                     <MenuItem
-                      className="comment__menu-option"
                       onSelect={() => doOpenModal(MODALS.CONFIRM_FILE_REMOVE, { uri })}
-                    >
-                      <div className="menu__link">
-                        <Icon aria-hidden icon={ICONS.DELETE} />
-                        {__('Delete')}
-                      </div>
-                    </MenuItem>
+                      icon={ICONS.DELETE}
+                      label={__('Delete')}
+                    />
                   </>
                 )}
               </>
             )}
 
             {!isLivestreamClaim && !disableDownloadButton && (
-              <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
-                <div className="menu__link">
-                  <Icon aria-hidden icon={ICONS.DOWNLOAD} />
-                  {__('Download')}
-                </div>
-              </MenuItem>
+              <MenuItem onSelect={handleWebDownload} icon={ICONS.DOWNLOAD} label={__('Download')} />
             )}
 
             {!claimIsMine && (
-              <MenuItem
-                className="comment__menu-option"
-                onSelect={() => push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
-              >
-                <div className="menu__link">
-                  <Icon aria-hidden icon={ICONS.REPORT} />
-                  {__('Report content')}
-                </div>
-              </MenuItem>
+              <MenuLink
+                page={`${PAGES.REPORT_CONTENT}?claimId=${claimId}`}
+                icon={ICONS.REPORT}
+                label={__('Report content')}
+              />
             )}
           </MenuList>
         </Menu>

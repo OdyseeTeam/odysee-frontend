@@ -79,15 +79,15 @@ const perform = (dispatch) => ({
   prepareEdit: (publishData, uri, fileInfo) => doEditForChannel(publishData, uri, fileInfo, fs),
   doToast: (props) => dispatch(doToast(props)),
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  doChannelMute: (channelUri) => dispatch(doChannelMute(channelUri)),
-  doChannelUnmute: (channelUri) => dispatch(doChannelUnmute(channelUri)),
-  doCommentModBlock: (channelUri) => dispatch(doCommentModBlock(channelUri)),
-  doCommentModUnBlock: (channelUri) => dispatch(doCommentModUnBlock(channelUri)),
-  doCommentModBlockAsAdmin: (a, b, c) => dispatch(doCommentModBlockAsAdmin(a, b, c)),
-  doCommentModUnBlockAsAdmin: (commenterUri, blockerId) =>
-    dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
-  doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
-  doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
+  handleMute: (muted, channelUri) => dispatch(muted ? doChannelUnmute(channelUri) : doChannelMute(channelUri)),
+  handleModBlock: (blocked, channelUri) =>
+    dispatch(blocked ? doCommentModUnBlock(channelUri) : doCommentModBlock(channelUri)),
+  handleAdminBlock: (blocked, channelUri) =>
+    dispatch(
+      blocked ? doCommentModUnBlockAsAdmin(channelUri, '') : doCommentModBlockAsAdmin(channelUri, undefined, undefined)
+    ),
+  handleSubscribe: (subscribed, subscription) =>
+    dispatch(subscribed ? doChannelUnsubscribe(subscription) : doChannelSubscribe(subscription)),
   doCollectionEdit: (collection, props) => dispatch(doCollectionEdit(collection, props)),
   fetchCollectionItems: (collectionId) => dispatch(doFetchItemsInCollection({ collectionId })),
   doToggleShuffleList: (collectionId) => {

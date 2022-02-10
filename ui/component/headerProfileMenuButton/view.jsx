@@ -1,12 +1,12 @@
 // @flow
 import 'scss/component/_header.scss';
 
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
-import HeaderMenuLink from 'component/common/header-menu-link';
+import { MenuItem, MenuLink } from 'component/common/menu-components';
 import Icon from 'component/common/icon';
 import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
@@ -48,26 +48,20 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         <MenuList className="menu__list--header">
           {authenticated ? (
             <>
-              <HeaderMenuLink page={PAGES.UPLOADS} icon={ICONS.PUBLISH} name={__('Uploads')} />
-              <HeaderMenuLink page={PAGES.CHANNELS} icon={ICONS.CHANNEL} name={__('Channels')} />
-              <HeaderMenuLink page={PAGES.CREATOR_DASHBOARD} icon={ICONS.ANALYTICS} name={__('Creator Analytics')} />
-              <HeaderMenuLink page={PAGES.REWARDS} icon={ICONS.REWARDS} name={__('Rewards')} />
-              <HeaderMenuLink page={PAGES.INVITE} icon={ICONS.INVITE} name={__('Invites')} />
+              <MenuLink page={PAGES.UPLOADS} icon={ICONS.PUBLISH} label={__('Uploads')} />
+              <MenuLink page={PAGES.CHANNELS} icon={ICONS.CHANNEL} label={__('Channels')} />
+              <MenuLink page={PAGES.CREATOR_DASHBOARD} icon={ICONS.ANALYTICS} label={__('Creator Analytics')} />
+              <MenuLink page={PAGES.REWARDS} icon={ICONS.REWARDS} label={__('Rewards')} />
+              <MenuLink page={PAGES.INVITE} icon={ICONS.INVITE} label={__('Invites')} />
 
-              <MenuItem onSelect={signOut}>
-                <div className="menu__link">
-                  <Icon aria-hidden icon={ICONS.SIGN_OUT} />
-                  {__('Sign Out')}
-                </div>
-                <span className="menu__link-help">{email}</span>
-              </MenuItem>
+              <MenuItem onSelect={signOut} icon={ICONS.SIGN_OUT} label={__('Sign Out')} help={email} />
             </>
           ) : (
             <>
-              <HeaderMenuLink page={PAGES.AUTH_SIGNIN} icon={ICONS.SIGN_IN} name={__('Log In')} />
-              <HeaderMenuLink page={PAGES.AUTH} icon={ICONS.SIGN_UP} name={__('Sign Up')} />
-              <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
-              <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
+              <MenuLink page={PAGES.AUTH_SIGNIN} icon={ICONS.SIGN_IN} label={__('Log In')} />
+              <MenuLink page={PAGES.AUTH} icon={ICONS.SIGN_UP} label={__('Sign Up')} />
+              <MenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} label={__('Settings')} />
+              <MenuLink page={PAGES.HELP} icon={ICONS.HELP} label={__('Help')} />
             </>
           )}
         </MenuList>

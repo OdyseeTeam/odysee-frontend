@@ -2,10 +2,10 @@
 import 'scss/component/_header.scss';
 
 import { ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
-import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
+import { Menu, MenuList, MenuButton } from '@reach/menu-button';
+import { MenuItem, MenuLink } from 'component/common/menu-components';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import HeaderMenuLink from 'component/common/header-menu-link';
 import Icon from 'component/common/icon';
 import NotificationHeaderButton from 'component/headerNotificationButton';
 import React from 'react';
@@ -49,10 +49,10 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           </Tooltip>
 
           <MenuList className="menu__list--header">
-            <HeaderMenuLink page={PAGES.UPLOAD} icon={ICONS.PUBLISH} name={__('Upload')} />
-            <HeaderMenuLink page={PAGES.CHANNEL_NEW} icon={ICONS.CHANNEL} name={__('New Channel')} />
-            <HeaderMenuLink page={PAGES.YOUTUBE_SYNC} icon={ICONS.YOUTUBE} name={__('Sync YouTube Channel')} />
-            {livestreamEnabled && <HeaderMenuLink page={PAGES.LIVESTREAM} icon={ICONS.VIDEO} name={__('Go Live')} />}
+            <MenuLink page={PAGES.UPLOAD} icon={ICONS.PUBLISH} label={__('Upload')} />
+            <MenuLink page={PAGES.CHANNEL_NEW} icon={ICONS.CHANNEL} label={__('New Channel')} />
+            <MenuLink page={PAGES.YOUTUBE_SYNC} icon={ICONS.YOUTUBE} label={__('Sync YouTube Channel')} />
+            {livestreamEnabled && <MenuLink page={PAGES.LIVESTREAM} icon={ICONS.VIDEO} label={__('Go Live')} />}
           </MenuList>
         </Menu>
       )}
@@ -67,13 +67,14 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
         </Tooltip>
 
         <MenuList className="menu__list--header">
-          <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
-          <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
+          <MenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} label={__('Settings')} />
+          <MenuLink page={PAGES.HELP} icon={ICONS.HELP} label={__('Help')} />
 
-          <MenuItem className="menu__link" onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}>
-            <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
-            {currentTheme === 'light' ? __('Dark') : __('Light')}
-          </MenuItem>
+          <MenuItem
+            onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}
+            icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT}
+            label={currentTheme === 'light' ? __('Dark') : __('Light')}
+          />
         </MenuList>
       </Menu>
     </div>

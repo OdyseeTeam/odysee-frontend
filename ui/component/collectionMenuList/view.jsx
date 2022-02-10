@@ -3,7 +3,8 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import React from 'react';
 import classnames from 'classnames';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { Menu, MenuButton, MenuList } from '@reach/menu-button';
+import { MenuItem, MenuLink } from 'component/common/menu-components';
 import Icon from 'component/common/icon';
 import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router';
@@ -50,42 +51,28 @@ function CollectionMenuList(props: Props) {
       <MenuList className="menu__list">
         {collectionId && collectionName && (
           <>
-            <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.LIST}/${collectionId}`)}>
-              <a className="menu__link" href={`/$/${PAGES.LIST}/${collectionId}`}>
-                <Icon aria-hidden icon={ICONS.VIEW} />
-                {__('View List')}
-              </a>
-            </MenuItem>
+            <MenuLink page={`${PAGES.LIST}/${collectionId}`} icon={ICONS.VIEW} label={__('View List')} />
+
             <MenuItem
-              className="comment__menu-option"
               onSelect={() => {
                 doToggleShuffleList(collectionId);
                 setDoShuffle(true);
               }}
-            >
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.SHUFFLE} />
-                {__('Shuffle Play')}
-              </div>
-            </MenuItem>
+              icon={ICONS.SHUFFLE}
+              label={__('Shuffle Play')}
+            />
+
+            <MenuLink
+              page={`${PAGES.LIST}/${collectionId}?view=edit`}
+              icon={ICONS.PUBLISH}
+              label={__('Publish List')}
+            />
+
             <MenuItem
-              className="comment__menu-option"
-              onSelect={() => push(`/$/${PAGES.LIST}/${collectionId}?view=edit`)}
-            >
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.PUBLISH} />
-                {__('Publish List')}
-              </div>
-            </MenuItem>
-            <MenuItem
-              className="comment__menu-option"
               onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}
-            >
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.DELETE} />
-                {__('Delete List')}
-              </div>
-            </MenuItem>
+              icon={ICONS.DELETE}
+              label={__('Delete List')}
+            />
           </>
         )}
       </MenuList>
