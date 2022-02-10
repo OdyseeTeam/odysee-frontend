@@ -211,6 +211,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       requestSubtitleFn: (src) => channelName || '',
     },
     bigPlayButton: embedded, // only show big play button if embedded
+    liveui: true,
   };
 
   // Initialize video.js
