@@ -261,8 +261,17 @@
     }
   }
 
-  .comment__char-count-mde {
-    padding-right: 0;
+  .form-field__two-column {
+    display: flex;
+    align-items: center;
+    .comment-create__label {
+      padding-top: 2px;
+    }
+    .comment__char-count-mde {
+      padding-top: 2px;
+      padding-right: 0;
+      align-self: unset;
+    }
   }
 
   .livestream__chat {
