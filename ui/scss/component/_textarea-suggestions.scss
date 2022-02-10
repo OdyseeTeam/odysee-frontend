@@ -232,9 +232,11 @@
     }
   }
 
-  .MuiOutlinedInput-root {
-    // padding-left:0 !important;
+  label {
+    padding-left: var(--spacing-xxxs);
+  }
 
+  .MuiOutlinedInput-root {
     textarea {
       &:focus-visible {
         box-shadow: unset;
