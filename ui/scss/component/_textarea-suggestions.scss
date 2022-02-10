@@ -290,3 +290,7 @@
     top: 0;
   }
 }
+
+.MuiPaper-root:focus-visible {
+  background: #ff0000 !important;
+}
