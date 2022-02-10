@@ -312,4 +312,14 @@
     margin-top: calc(var(--tab-indicator-size) * -1 - var(--spacing-l) + 10px);
     top: 0;
   }
+
+  @media (max-width: $breakpoint-small) {
+    .commentCreate {
+      .section__actions {
+        .button {
+          background-color: var(--color-header-button);
+        }
+      }
+    }
+  }
 }

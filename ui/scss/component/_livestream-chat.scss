@@ -269,6 +269,20 @@ $recent-msg-button__height: 2rem;
   @media (max-width: $breakpoint-small) {
     height: 100%;
     flex-direction: column;
+
+    .livestream__comment-create {
+      .commentCreate__stickerPreview,
+      .section__actions {
+        margin-left: var(--spacing-xxxs);
+        margin-right: var(--spacing-xxxs);
+        width: auto;
+      }
+      .section__actions {
+        .button {
+          margin-bottom: var(--spacing-xxxs);
+        }
+      }
+    }
   }
 }
 
@@ -376,6 +390,7 @@ $recent-msg-button__height: 2rem;
   .section {
     margin-top: var(--spacing-s);
   }
+
   @media (max-width: $breakpoint-small) {
     padding: 0px;
 
@@ -391,20 +406,6 @@ $recent-msg-button__height: 2rem;
 
     .select--slim {
       margin: 0px;
-    }
-
-    .livestream__comment-create {
-      .commentCreate__stickerPreview,
-      .section__actions {
-        margin-left: var(--spacing-xxxs);
-        margin-right: var(--spacing-xxxs);
-        width: auto;
-      }
-      .section__actions {
-        .button {
-          margin-bottom: var(--spacing-xxxs);
-        }
-      }
     }
   }
 }
