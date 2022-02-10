@@ -280,6 +280,13 @@
     background-color: rgba(var(--color-header-button-base), 0.9);
   }
 
+  .emote-selector__items,
+  .sticker-selector__items {
+    .button--file-action {
+      background: unset;
+    }
+  }
+
   .form-field__two-column {
     display: flex;
     align-items: center;
