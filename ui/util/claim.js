@@ -114,6 +114,13 @@ export function getChannelFromClaim(claim: ?Claim) {
     : null;
 }
 
+export function getChannelPermanentUrlFromClaim(claim: ?Claim) {
+  if (!claim) return null;
+
+  const channel = getChannelFromClaim(claim);
+  return channel && channel.permanent_url;
+}
+
 export function getClaimMetadata(claim: ?Claim) {
   const metadata = claim && claim.value;
   return metadata || (claim === undefined ? undefined : null);
@@ -127,3 +134,12 @@ export function getClaimTitle(claim: ?Claim) {
 export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
   return claim ? Boolean(claim.value_type === 'stream' && !claim.value.source) : false;
 };
+
+export const getIsClaimPlayable = (claim: ?Claim) =>
+  claim &&
+  // $FlowFixMe
+  claim.value &&
+  // $FlowFixMe
+  claim.value.stream_type &&
+  // $FlowFixMe
+  (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
