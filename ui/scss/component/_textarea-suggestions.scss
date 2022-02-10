@@ -36,16 +36,12 @@
   .MuiPaper-root {
     .form-field__two-column,
     .MuiOutlinedInput-root {
-      padding: 0px var(--spacing-xxs) !important;
+      padding: 0px var(--spacing-xxs) 0px 0px !important;
     }
   }
 }
 
 .livestream__comment-create {
-  .MuiOutlinedInput-root {
-    // padding: 0px var(--spacing-xxs) !important;
-  }
-
   @media (max-width: $breakpoint-small) {
     .MuiOutlinedInput-notchedOutline {
       display: none;
@@ -91,7 +87,8 @@
     font-size: var(--font-xsmall) !important;
     flex-wrap: nowrap !important;
     color: var(--color-text) !important;
-    padding: 0px !important;
+    // padding: 0px !important;
+    padding: 0px var(--spacing-xxs) 0px 0px !important;
 
     textarea {
       border: none;
@@ -236,6 +233,8 @@
   }
 
   .MuiOutlinedInput-root {
+    // padding-left:0 !important;
+
     textarea {
       &:focus-visible {
         box-shadow: unset;
