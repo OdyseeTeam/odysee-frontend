@@ -211,12 +211,16 @@ $thumbnailWidthSmall: 1rem;
 }
 
 .comment-create__min-amount-notice {
+  margin-top: calc(var(--spacing-xxs) - 2px);
+  padding-top: calc(var(--spacing-xs) + 1px);
+  height: var(--height-button);
   .icon {
     margin-bottom: -3px; // TODO fix few instances of these (find "-2px")
   }
 
   @media (max-width: $breakpoint-small) {
     margin: 0px;
+    padding-top: calc(var(--spacing-xs) + 3px);
     font-size: var(--font-xsmall);
   }
 }
