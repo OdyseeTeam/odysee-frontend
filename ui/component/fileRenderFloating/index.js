@@ -1,5 +1,10 @@
 import { connect } from 'react-redux';
-import { selectTitleForUri, selectClaimIsNsfwForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
+import {
+  selectTitleForUri,
+  selectClaimIsNsfwForUri,
+  makeSelectClaimWasPurchased,
+  selectIsStreamPlaceholderForUri,
+} from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri, makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   makeSelectNextUrlForCollectionAndUrl,
@@ -43,6 +48,7 @@ const select = (state, props) => {
     nextListUri: collectionId && makeSelectNextUrlForCollectionAndUrl(collectionId, uri)(state),
     previousListUri: collectionId && makeSelectPreviousUrlForCollectionAndUrl(collectionId, uri)(state),
     collectionId,
+    isLivestream: selectIsStreamPlaceholderForUri(state, uri),
   };
 };
 
