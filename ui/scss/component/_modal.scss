@@ -110,9 +110,9 @@
     }
 
     .button-toggle {
-      background-color: var(--color-button-toggle-bg) !important;
+      background-color: rgba(var(--color-header-button-base), 0.4) !important;
       &:hover {
-        background-color: var(--color-header-button) !important;
+        background-color: rgba(var(--color-header-button-base), 0.9) !important;
       }
     }
 
@@ -120,7 +120,7 @@
     .channel__list-item,
     .button--secondary,
     input {
-      background-color: var(--color-header-button) !important;
+      background-color: rgba(var(--color-header-button-base), 0.9) !important;
     }
     .channel__list-item {
       &:hover {
