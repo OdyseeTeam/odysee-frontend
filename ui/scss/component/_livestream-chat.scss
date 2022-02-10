@@ -283,6 +283,16 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+
+    .section__actions {
+      .comment-create__min-amount-notice {
+        width: 100%;
+        margin-bottom: var(--spacing-xxxs);
+        margin-left: 0;
+        margin-right: 0;
+        text-align: center;
+      }
+    }
   }
 }
 
@@ -368,6 +378,9 @@ $recent-msg-button__height: 2rem;
           color: var(--color-primary-contrast);
           background-color: var(--color-primary);
         }
+      }
+      .button--link {
+        margin-right: 0;
       }
     }
 

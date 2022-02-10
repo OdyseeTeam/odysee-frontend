@@ -57,8 +57,14 @@
 
 .MuiDrawer-root {
   .comment-create__min-amount-notice {
-    margin: 0px;
+    margin: 2px;
+    margin-left: var(--spacing-xxxs);
+    margin-right: var(--spacing-xxxs);
     padding: var(--spacing-xxs);
+    text-align: center !important;
+    .credit-amount {
+      font-size: var(--font-xsmall);
+    }
   }
 }
 
