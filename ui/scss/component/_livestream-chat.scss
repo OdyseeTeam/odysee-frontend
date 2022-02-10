@@ -404,6 +404,14 @@ $recent-msg-button__height: 2rem;
     margin-top: var(--spacing-s);
   }
 
+  .section__actions {
+    margin-top: var(--spacing-xs);
+    .comment-create__min-amount-notice {
+      margin-top: -2px;
+      margin-bottom: 0;
+    }
+  }
+
   @media (max-width: $breakpoint-small) {
     padding: 0px;
 
