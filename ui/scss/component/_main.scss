@@ -528,6 +528,14 @@ body {
     @media (max-width: $breakpoint-medium) {
       max-width: none;
     }
+
+    @media (max-width: $breakpoint-small) {
+      .help--notice {
+        margin: var(--spacing-xs);
+        margin-top: var(--spacing-xs);
+        margin-bottom: var(--spacing-xs);
+      }
+    }
   }
 
   .card__body {
