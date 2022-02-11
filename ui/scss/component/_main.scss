@@ -853,6 +853,16 @@ body {
       }
     }
   }
+  .markdown-preview {
+    p {
+      .button__content {
+        .channel-name {
+          font-size: var(--font-large);
+          color: var(--color-primary);
+        }
+      }
+    }
+  }
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
