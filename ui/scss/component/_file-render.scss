@@ -204,6 +204,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
+    border-radius: unset;
     .autoplay-countdown {
       .file-viewer__overlay-secondary {
         margin-bottom: 0 !important;
