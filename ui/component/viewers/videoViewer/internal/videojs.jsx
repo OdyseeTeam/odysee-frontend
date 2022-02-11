@@ -81,6 +81,8 @@ type Props = {
   claimValues: any,
   clearPosition: (string) => void,
   centerPlayButton: () => void,
+  isLivestream: boolean,
+  claim: StreamClaim,
 };
 
 const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -147,6 +149,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claim,
     isLivestream,
   } = props;
+
+  // console.log('claim');
+  // console.log(claim);
 
   // console.log(isLivestream);
   // console.log('is livestream');
@@ -328,6 +333,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       if (isLivestream) {
         vjsPlayer.addClass('livestreamPlayer');
+
+        const livestreamEndpoint = `https://api.odysee.live/livestream/is_live?channel_claim_id=${userClaimId}`;
+
+        const livestreamResponse = await fetch(livestreamEndpoint, { method: 'GET' });
+
+        console.log('livestream livestreamResponse');
+        console.log(await livestreamResponse.json());
 
         videojs.Vhs.xhr.beforeRequest = (options) => {
           if (!options.headers) options.headers = {};

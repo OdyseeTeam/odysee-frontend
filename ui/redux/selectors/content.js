@@ -37,7 +37,7 @@ export const makeSelectIsPlayerFloating = (location: UrlLocation) =>
   createSelector(selectPrimaryUri, selectPlayingUri, (primaryUri, playingUri) => {
     if (!playingUri) return false;
 
-    console.log(playingUri, primaryUri)
+    // console.log(playingUri, primaryUri)
     const { pathname, search } = location;
     const hasSecondarySource = Boolean(playingUri.source);
     const isComment = playingUri.source === 'comment';

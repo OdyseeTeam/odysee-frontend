@@ -65,6 +65,7 @@ type Props = {
   isMarkdownOrComment: boolean,
   doAnalyticsView: (string, number) => void,
   claimRewards: () => void,
+  isLivestream: boolean,
 };
 
 /*
@@ -177,13 +178,12 @@ function VideoViewer(props: Props) {
 
   // TODO: analytics functionality
   function doTrackingBuffered(e: Event, data: any) {
-    if(!isLivestream){
+    if (!isLivestream) {
       fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
         data.playerPoweredBy = response.headers.get('x-powered-by');
         doAnalyticsBuffer(uri, data);
       });
     }
-
   }
 
   const doPlay = useCallback(

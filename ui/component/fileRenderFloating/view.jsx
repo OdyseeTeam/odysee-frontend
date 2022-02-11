@@ -103,6 +103,7 @@ type Props = {
   claimWasPurchased: boolean,
   nextListUri: string,
   previousListUri: string,
+  isLivestream: boolean,
 };
 
 export default function FileRenderFloating(props: Props) {
