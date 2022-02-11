@@ -200,7 +200,7 @@
     .header__navigationItem--icon {
       width: calc(var(--header-height-mobile) - var(--spacing-m));
       height: calc(var(--header-height-mobile) - var(--spacing-m));
-      background-color: rgba(var(--color-primary-static), 0.4);
+      background-color: rgba(var(--color-primary-static), 0.6);
       .icon {
         stroke: var(--color-odysee-contrast);
       }
