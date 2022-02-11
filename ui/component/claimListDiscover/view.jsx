@@ -18,15 +18,6 @@ import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import { useIsLargeScreen } from 'effects/use-screensize';
 
-type ChannelInnerSearchOptions = {
-  size?: number,
-  from?: number,
-  related_to?: string,
-  nsfw?: boolean,
-  channel_id?: string,
-  isBackgroundSearch?: boolean,
-};
-
 type Props = {
   uris: Array<string>,
   prefixUris?: Array<string>,
@@ -99,13 +90,10 @@ type Props = {
   mutedUris: Array<string>,
   blockedUris: Array<string>,
   searchInLanguage: boolean,
-  channelInnerSearchResult: Array<string>,
-  channelInnerSearchResultLastPageReached: boolean,
 
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
-  doChannelInnerSearch: (query: string, searchOptions: ChannelInnerSearchOptions) => void,
 
   hideLayoutButton?: boolean,
   loadedCallback?: (number) => void,
@@ -114,9 +102,6 @@ type Props = {
   excludeUris?: Array<string>,
 
   swipeLayout: boolean,
-
-  channelInnerSearchKeyword?: string,
-  channelInnerSearchOptions?: ChannelInnerSearchOptions,
 };
 
 function ClaimListDiscover(props: Props) {
@@ -187,13 +172,6 @@ function ClaimListDiscover(props: Props) {
     useSkeletonScreen = true,
     excludeUris = [],
     swipeLayout = false,
-
-    // channel inner search
-    channelInnerSearchKeyword,
-    channelInnerSearchOptions,
-    channelInnerSearchResult,
-    channelInnerSearchResultLastPageReached,
-    doChannelInnerSearch,
   } = props;
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
@@ -536,7 +514,7 @@ function ClaimListDiscover(props: Props) {
     </div>
   );
 
-  const renderUris = uris || channelInnerSearchResult || claimSearchResult;
+  const renderUris = uris || claimSearchResult;
   injectPinUrls(renderUris, orderParam, pins);
 
   // **************************************************************************
@@ -578,10 +556,7 @@ function ClaimListDiscover(props: Props) {
     }
 
     if (!loading && infiniteScroll) {
-      if (
-        (claimSearchResult && !claimSearchResultLastPageReached) ||
-        (channelInnerSearchResult && !channelInnerSearchResultLastPageReached)
-      ) {
+      if (claimSearchResult && !claimSearchResultLastPageReached) {
         setPage(page + 1);
       }
     }
@@ -636,21 +611,11 @@ function ClaimListDiscover(props: Props) {
   useFetchViewCount(fetchViewCount, renderUris, claimsByUri, doFetchViewCount);
 
   React.useEffect(() => {
-    if (shouldPerformSearch && !channelInnerSearchKeyword) {
+    if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringForEffect);
       doClaimSearch(searchOptions);
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh]);
-
-  React.useEffect(() => {
-    if (channelInnerSearchKeyword && page > 1) {
-      doChannelInnerSearch(channelInnerSearchKeyword, {
-        ...channelInnerSearchOptions,
-        size: dynamicPageSize,
-        from: dynamicPageSize * (page - 1),
-      });
-    }
-  }, [doChannelInnerSearch, channelInnerSearchKeyword, channelInnerSearchOptions, dynamicPageSize, page, forceRefresh]);
 
   const headerToUse = header || (
     <ClaimListHeader

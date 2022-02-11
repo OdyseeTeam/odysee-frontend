@@ -7,7 +7,6 @@ import {
   makeSelectTotalPagesInChannelSearch,
   selectClaimForUri,
 } from 'redux/selectors/claims';
-import { doSearch } from 'redux/actions/search';
 import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { withRouter } from 'react-router';
@@ -42,7 +41,6 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   doFetchChannelLiveStatus: (channelID) => dispatch(doFetchChannelLiveStatus(channelID)),
-  doInnerSearch: (query, options) => dispatch(doSearch(query, options)),
 });
 
 export default withRouter(connect(select, perform)(ChannelContent));
