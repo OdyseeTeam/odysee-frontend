@@ -790,6 +790,16 @@ body {
         }
       }
     }
+    .claim__tags {
+      a.button {
+        .button__content {
+          margin-top: -3px;
+          .button__label {
+            overflow: unset;
+          }
+        }
+      }
+    }
   }
   .claim-preview__wrapper--channel.placeholder {
     .media__thumb {
