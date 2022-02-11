@@ -19,6 +19,12 @@ $actions-z-index: 2;
         color: var(--color-primary) !important;
       }
     }
+    .button-following:last-of-type {
+      margin-left: 2px;
+      &:hover {
+        color: var(--color-text) !important;
+      }
+    }
   }
 
   .claim-preview__live {
