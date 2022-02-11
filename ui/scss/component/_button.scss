@@ -864,6 +864,9 @@ svg + .button__label {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     margin-left: 1px;
+    &:hover {
+      fill: var(--color-text) !important;
+    }
   }
 
   .button--file-action {
