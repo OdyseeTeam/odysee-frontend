@@ -118,6 +118,16 @@
   }
 }
 
+a.button--alt {
+  @media (max-width: $breakpoint-small) {
+    .button__label {
+      div:first-of-type {
+        top: 23% !important;
+      }
+    }
+  }
+}
+
 .button--icon {
   width: 5rem;
   height: 5rem;
