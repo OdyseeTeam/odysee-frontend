@@ -399,6 +399,14 @@ body {
     }
     .file-page__playlist-collection__row {
       @extend .file-page__recommended-collection__row;
+
+      .button--file-action {
+        &:hover {
+          .icon {
+            stroke: white !important;
+          }
+        }
+      }
     }
   }
 

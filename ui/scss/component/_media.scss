@@ -293,6 +293,7 @@
     }
 
     &.stretch {
+      margin-top: var(--spacing-xxxs);
       .button {
         flex: auto;
         background-color: var(--color-header-background);
@@ -304,6 +305,9 @@
       .section {
         margin-right: unset;
         margin-left: var(--spacing-xxs);
+        .button {
+          margin-right: 0;
+        }
       }
     }
   }
