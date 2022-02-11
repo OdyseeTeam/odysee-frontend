@@ -50,6 +50,8 @@
   display: flex;
   flex-direction: column;
   background: var(--color-header-background);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
 
   animation-timing-function: var(--resizing-animation-function);
   transition: transform var(--resizing-animation-timing);
