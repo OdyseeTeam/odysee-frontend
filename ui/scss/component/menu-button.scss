@@ -35,7 +35,9 @@ reach-portal {
   display: block;
   white-space: nowrap;
   outline: none;
-  background-color: var(--color-header-background) !important;
+  // background-color: var(--color-header-background) !important;
+  background-color: rgba(var(--color-header-button-base), 0.9) !important;
+  border: 2px solid var(--color-header-background) !important;
   border-top: none;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
@@ -116,7 +118,7 @@ reach-portal {
   padding: var(--spacing-xs) 0;
 
   [data-reach-menu-item] {
-    margin: 0 var(--spacing-xs);
+    margin: 0 var(--spacing-xxs);
   }
 }
 
