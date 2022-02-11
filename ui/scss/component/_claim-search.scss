@@ -103,7 +103,7 @@
   margin-right: var(--spacing-s);
 
   .button:nth-child(2):not(:last-child) {
-    margin-left: 2px;
+    // margin-left: 2px;
   }
 
   @media (max-width: $breakpoint-small) {
