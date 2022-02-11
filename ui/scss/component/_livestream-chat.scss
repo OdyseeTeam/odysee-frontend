@@ -53,7 +53,7 @@ $recent-msg-button__height: 2rem;
       margin-right: var(--spacing-xs);
 
       .button-toggle:nth-child(2) {
-        margin-left: 2px;
+        // margin-left: 2px;
       }
 
       .button-toggle--active {
@@ -655,19 +655,19 @@ $recent-msg-button__height: 2rem;
       background-color: #fff;
     }
   }
+  &:nth-of-type(n + 4) {
+    // background-color: var(--color-superchat-3);
+    background-color: #fff;
+
+    @media (max-width: $breakpoint-small) {
+      background-color: #fff;
+    }
+  }
 
   .channel-name,
   .credit-amount {
     color: var(--color-black);
   }
-  /*
-  &:nth-of-type(-n + 3) {
-    .channel-name,
-    .credit-amount {
-      color: var(--color-black);
-    }
-  }
-  */
 
   .channel-name {
     max-width: 5rem;

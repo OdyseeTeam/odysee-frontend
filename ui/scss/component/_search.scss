@@ -141,7 +141,7 @@
   }
 
   .button-toggle:nth-child(2) {
-    margin-left: 2px;
+    // margin-left: 2px;
     @media (min-width: $breakpoint-small) {
       margin-right: var(--spacing-xs);
     }
