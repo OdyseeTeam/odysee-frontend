@@ -273,6 +273,10 @@ $recent-msg-button__height: 2rem;
     }
   }
 
+  .commentCreate__stickerPreview {
+    background-color: var(--color-header-button);
+  }
+
   @media (min-width: $breakpoint-small) {
     height: calc(100vh - var(--header-height) - #{$discussion-header__height} - var(--spacing-l));
   }
@@ -287,6 +291,7 @@ $recent-msg-button__height: 2rem;
         margin-left: var(--spacing-xxxs);
         margin-right: var(--spacing-xxxs);
         width: auto;
+        background-color: var(--color-header-button);
       }
       .section__actions {
         .button {
