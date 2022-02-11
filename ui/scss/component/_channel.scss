@@ -98,13 +98,6 @@ $actions-z-index: 2;
     font-weight: var(--font-weight-bold);
   }
 
-  .claim-search__menus {
-    .claim-search__dropdown,
-    .claim-search__input-container {
-      padding-left: 0;
-    }
-  }
-
   .media__info-text,
   .media__info-text--constrained {
     font-size: var(--font-base) !important;
