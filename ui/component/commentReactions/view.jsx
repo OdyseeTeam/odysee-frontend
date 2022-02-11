@@ -11,14 +11,18 @@ import { useHistory } from 'react-router';
 import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
+  uri: string,
+  contentChannelUri: ?string, // if provided, skips resolving 'uri'
+  commentId: string,
+  // --- redux:
   myReacts: Array<string>,
   othersReacts: any,
   react: (string, string) => void,
-  commentId: string,
   pendingCommentReacts: Array<string>,
   claimIsMine: boolean,
+  claimsByUri: { [string]: Claim },
+  myChannelClaimIds: ?Array<string>,
   activeChannelId: ?string,
-  uri: string,
   claim: ?ChannelClaim,
   doToast: ({ message: string }) => void,
   hideCreatorLike: boolean,
@@ -27,11 +31,14 @@ type Props = {
 
 export default function CommentReactions(props: Props) {
   const {
+    contentChannelUri,
     myReacts,
     othersReacts,
     commentId,
     react,
     claimIsMine,
+    claimsByUri,
+    myChannelClaimIds,
     uri,
     claim,
     activeChannelId,
@@ -47,21 +54,35 @@ export default function CommentReactions(props: Props) {
   const isMobile = useIsMobile();
 
   React.useEffect(() => {
-    if (!claim) {
+    if (!claim && !contentChannelUri) {
       resolve(uri);
     }
-  }, [claim, resolve, uri]);
+  }, [claim, resolve, uri, contentChannelUri]);
 
-  const canCreatorReact =
-    claim &&
-    claimIsMine &&
-    (claim.value_type === 'channel'
-      ? claim.claim_id === activeChannelId
-      : claim.signing_channel && claim.signing_channel.claim_id === activeChannelId);
+  let canCreatorReact;
+  let creatorThumbnail;
+
+  if (contentChannelUri) {
+    const contentChannelClaim = claimsByUri[contentChannelUri];
+    const contentChannelId = contentChannelClaim?.claim_id;
+    const channelIsMine = myChannelClaimIds && myChannelClaimIds.includes(contentChannelId);
+
+    canCreatorReact = channelIsMine && contentChannelId === activeChannelId;
+    creatorThumbnail = contentChannelClaim?.value?.thumbnail?.url;
+  } else {
+    canCreatorReact =
+      claim &&
+      claimIsMine &&
+      (claim.value_type === 'channel'
+        ? claim.claim_id === activeChannelId
+        : claim.signing_channel && claim.signing_channel.claim_id === activeChannelId);
+  }
+
   const authorUri =
-    claim && claim.value_type === 'channel'
+    contentChannelUri ||
+    (claim && claim.value_type === 'channel'
       ? claim.canonical_url
-      : claim && claim.signing_channel && claim.signing_channel.canonical_url;
+      : claim && claim.signing_channel && claim.signing_channel.canonical_url);
 
   const getCountForReact = (type) => {
     let count = 0;
@@ -142,7 +163,14 @@ export default function CommentReactions(props: Props) {
           onClick={() => react(commentId, REACTION_TYPES.CREATOR_LIKE)}
         >
           {creatorLiked && (
-            <ChannelThumbnail xsmall uri={authorUri} hideStakedIndicator className="comment__creator-like" allowGifs />
+            <ChannelThumbnail
+              xsmall
+              uri={authorUri}
+              thumbnailPreview={creatorThumbnail}
+              hideStakedIndicator
+              className="comment__creator-like"
+              allowGifs
+            />
           )}
         </Button>
       )}

@@ -150,6 +150,15 @@ export default function Notification(props: Props) {
     }
   }
 
+  function getCommentedContentOwnerUri(uri) {
+    try {
+      const { channelName, channelClaimId } = parseURI(uri);
+      return `lbry://@${channelName}#${channelClaimId}`;
+    } catch {
+      return undefined;
+    }
+  }
+
   function handleNotificationClick() {
     if (!is_read) readNotification();
     if (menuButton && notificationLink) push(notificationLink);
@@ -271,6 +280,7 @@ export default function Notification(props: Props) {
             <CommentReactions
               uri={notificationTarget}
               commentId={notification_parameters.dynamic.hash}
+              contentChannelUri={getCommentedContentOwnerUri(notification_parameters?.device?.target)}
               hideCreatorLike
             />
           </div>
