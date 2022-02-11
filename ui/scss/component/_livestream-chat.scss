@@ -520,6 +520,17 @@ $recent-msg-button__height: 2rem;
     color: var(--color-text-subtitle);
   }
 
+  .comment__pin {
+    width: unset;
+    margin-right: calc(var(--spacing-s) + var(--spacing-xs));
+    .icon {
+      margin-bottom: -1px;
+    }
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: -5px;
+    }
+  }
+
   @media (min-width: $breakpoint-small) {
     padding: var(--spacing-xs);
     width: var(--livestream-comments-width);
