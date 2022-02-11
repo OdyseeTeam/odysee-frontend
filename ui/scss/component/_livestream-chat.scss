@@ -169,7 +169,12 @@ $recent-msg-button__height: 2rem;
     padding-bottom: 0;
   }
   .livestream__comment-create {
-    padding-bottom: var(--spacing-s);
+    // padding-bottom: var(--spacing-s);
+    padding-bottom: 3px;
+    // padding-bottom: 0;
+    textarea:focus-visible {
+      box-shadow: unset;
+    }
   }
 }
 
