@@ -275,6 +275,14 @@ $recent-msg-button__height: 2rem;
       img {
         margin: 0;
       }
+
+      .section__title {
+        text-align: center;
+      }
+
+      .button--secondary {
+        background-color: var(--color-header-button) !important;
+      }
     }
   }
 
