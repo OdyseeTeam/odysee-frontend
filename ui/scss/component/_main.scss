@@ -135,6 +135,15 @@ body {
       max-width: 100%;
     }
 
+    .claim-preview__wrapper--inline {
+      .media__subtitle {
+        padding-bottom: 0;
+        a.button {
+          display: inline-block !important;
+        }
+      }
+    }
+
     .date_time {
       font-size: var(--font-small);
     }
