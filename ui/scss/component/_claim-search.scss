@@ -64,6 +64,10 @@
 .claim-search__dropdown,
 .claim-search__input-container {
   padding-left: 0;
+  padding-right: var(--spacing-m);
+  @media (max-width: $breakpoint-small) {
+    padding-right: 0;
+  }
 }
 
 .claim-search__filter-button {
