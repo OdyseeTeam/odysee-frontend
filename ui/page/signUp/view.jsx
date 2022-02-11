@@ -4,13 +4,14 @@ import { useKeycloak } from '@react-keycloak/web';
 import Page from 'component/page';
 import Spinner from 'component/spinner';
 import UserSignUp from 'component/userSignUp';
+import * as PAGES from 'constants/icons';
 
 export default function SignUpPage() {
   const { keycloak, initialized } = useKeycloak();
 
   React.useEffect(() => {
     if (initialized && !keycloak.authenticated) {
-      keycloak.register();
+      keycloak.register(`/$/${PAGES.SIGN_UP}`);
     }
   }, [initialized, keycloak]);
 
