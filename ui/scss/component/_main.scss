@@ -853,6 +853,10 @@ body {
       }
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xxxs);
+  }
 }
 
 .main__auth-content {
