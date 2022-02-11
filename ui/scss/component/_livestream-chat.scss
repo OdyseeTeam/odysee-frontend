@@ -658,6 +658,13 @@ $recent-msg-button__height: 2rem;
       @include handleChannelGif(1.5rem);
     }
   }
+  .button--uri-indicator {
+    &:hover {
+      .channel-name {
+        color: black;
+      }
+    }
+  }
 
   &:first-of-type {
     background-color: var(--color-superchat);
