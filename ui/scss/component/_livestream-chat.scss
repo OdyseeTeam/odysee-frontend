@@ -157,8 +157,19 @@ $recent-msg-button__height: 2rem;
     width: 100%;
   }
 
+  .livestream__comment {
+    padding-left: var(--spacing-xxxs);
+  }
+
+  .livestream__comment--superchat {
+    padding-left: 0;
+  }
+
   .livestream__commentCreate {
     padding-bottom: 0;
+  }
+  .livestream__comment-create {
+    padding-bottom: var(--spacing-s);
   }
 }
 
