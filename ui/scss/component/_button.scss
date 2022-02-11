@@ -755,7 +755,12 @@ svg + .button__label {
 }
 
 .button-toggle--custom {
-  color: var(--color-primary);
+  color: var(--color-primary) !important;
+  .button__content {
+    .icon {
+      stroke: var(--color-primary) !important;
+    }
+  }
   svg {
     opacity: 1;
   }
