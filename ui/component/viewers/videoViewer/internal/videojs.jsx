@@ -329,8 +329,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
-      const livestreamSource = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
-
       if (isLivestream) {
         vjsPlayer.addClass('livestreamPlayer');
 
@@ -338,19 +336,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         const livestreamResponse = await fetch(livestreamEndpoint, { method: 'GET' });
 
-        console.log('livestream livestreamResponse');
-        console.log(await livestreamResponse.json());
-
-        videojs.Vhs.xhr.beforeRequest = (options) => {
-          if (!options.headers) options.headers = {};
-          options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-          options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-          return options;
-        };
+        const livestreamVideoUrl = (await livestreamResponse.json()).data.VideoURL;
 
         vjsPlayer.src({
           type: 'application/x-mpegURL',
-          src: livestreamSource,
+          src: livestreamVideoUrl,
         });
       } else {
         vjsPlayer.removeClass('livestreamPlayer');
