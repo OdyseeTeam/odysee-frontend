@@ -147,11 +147,15 @@ export default function LivestreamPage(props: Props) {
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
   React.useEffect(() => {
+    // Set the primary file uri used by playingUri on floating player so
+    // it behaves according to same or different uris
+    doSetPrimaryUri(uri);
+
     return () => {
       doSetPrimaryUri(null);
       if (isMobile) doSetPlayingUri({ uri: null });
     };
-  }, [doSetPlayingUri, doSetPrimaryUri, isMobile]);
+  }, [doSetPlayingUri, doSetPrimaryUri, isMobile, uri]);
 
   return (
     <Page
