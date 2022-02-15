@@ -8,6 +8,7 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import { Form, FormField } from 'component/common/form';
+import { DEFAULT_BID_FOR_FIRST_CHANNEL } from 'component/userFirstChannel/view';
 import { INVALID_NAME_ERROR } from 'constants/claim';
 import { isNameValid } from 'util/lbryURI';
 import { Lbryio } from 'lbryinc';
@@ -22,13 +23,14 @@ const NEW_CHANNEL_PARAM = 'new_channel';
 
 type Props = {
   youtubeChannels: ?Array<{ transfer_state: string, sync_status: string }>,
+  balance: ?number,
   doUserFetch: () => void,
   inSignUpFlow?: boolean,
   doToggleInterestedInYoutubeSync: () => void,
 };
 
 export default function YoutubeSync(props: Props) {
-  const { youtubeChannels, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync } = props;
+  const { youtubeChannels, balance, doUserFetch, inSignUpFlow = false, doToggleInterestedInYoutubeSync } = props;
   const {
     location: { search, pathname },
     push,
@@ -44,6 +46,7 @@ export default function YoutubeSync(props: Props) {
   const [acknowledgedTerms, setAcknowledgedTerms] = React.useState(false);
   const [addingNewChannel, setAddingNewChannel] = React.useState(newChannelParam);
   const hasYoutubeChannels = youtubeChannels && youtubeChannels.length > 0;
+  const canCreateChannel = balance !== undefined && balance !== null && balance > DEFAULT_BID_FOR_FIRST_CHANNEL;
 
   React.useEffect(() => {
     const urlParamsInEffect = new URLSearchParams(search);
@@ -189,7 +192,11 @@ export default function YoutubeSync(props: Props) {
                   />
 
                   {inSignUpFlow && !errorMessage && (
-                    <Button button="link" label={__('Skip')} onClick={() => doToggleInterestedInYoutubeSync()} />
+                    <Button
+                      button="link"
+                      label={canCreateChannel ? __('Create channel instead') : __('Skip')}
+                      onClick={() => doToggleInterestedInYoutubeSync()}
+                    />
                   )}
 
                   {errorMessage && <Button button="link" label={__('Skip')} navigate={`/$/${PAGES.REWARDS}`} />}

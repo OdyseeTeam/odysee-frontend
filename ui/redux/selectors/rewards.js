@@ -33,8 +33,9 @@ export const makeSelectIsRewardClaimPending = () =>
 
 export const selectClaimErrorsByType = (state) => selectState(state).claimErrorsByType;
 
-const selectClaimRewardError = (state, props) => selectClaimErrorsByType(state, props)[props.reward_type];
+export const selectClaimRewardError = (state, props) => selectClaimErrorsByType(state, props)[props.reward_type];
 
+// DEPRECATED. Use selectClaimRewardError instead.
 export const makeSelectClaimRewardError = () => createSelector(selectClaimRewardError, (errorMessage) => errorMessage);
 
 const selectRewardByType = (state, rewardType) =>

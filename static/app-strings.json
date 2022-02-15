@@ -1488,6 +1488,7 @@
   "how the program works": "how the program works",
   "Claim Now": "Claim Now",
   "I want to sync my content to %site_name% and the LBRY network and agree to %terms%. I have also read and understand %faq%.": "I want to sync my content to %site_name% and the LBRY network and agree to %terms%. I have also read and understand %faq%.",
+  "Create channel instead": "Create channel instead",
   "This will verify you are an active YouTuber with over %count% subscribers and original content. Channel names cannot be changed once chosen, please be extra careful. %learn_more%.": "This will verify you are an active YouTuber with over %count% subscribers and original content. Channel names cannot be changed once chosen, please be extra careful. %learn_more%.",
   "Invite sent to %email%": "Invite sent to %email%",
   "Log in to reply": "Log in to reply",

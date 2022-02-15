@@ -33,6 +33,7 @@ type Props = {
   claimConfirmEmailReward: () => void,
   claimNewUserReward: () => void,
   claimedRewards: Array<Reward>,
+  claimRewardError: ?string,
   youtubeChannels: Array<any>,
   syncEnabled: boolean,
   hasSynced: boolean,
@@ -55,6 +56,7 @@ function UserSignUp(props: Props) {
     channels,
     claimConfirmEmailReward,
     claimNewUserReward,
+    claimRewardError,
     balance,
     youtubeChannels,
     syncEnabled,
@@ -102,9 +104,8 @@ function UserSignUp(props: Props) {
   // The possible screens for the sign in flow
   const showUserVerification = hasVerifiedEmail && !rewardsApproved && !isIdentityVerified && !rewardsAcknowledged;
   const showChannelCreation =
-    hasVerifiedEmail &&
-    ((balance !== undefined && balance !== null && balance > DEFAULT_BID_FOR_FIRST_CHANNEL && channelCount === 0) ||
-      interestedInYoutubeSync);
+    hasVerifiedEmail && balance && balance > DEFAULT_BID_FOR_FIRST_CHANNEL && channelCount === 0;
+  const showYoutubeSync = hasVerifiedEmail && interestedInYoutubeSync;
   const showYoutubeTransfer = hasVerifiedEmail && hasYoutubeChannels && !isYoutubeTransferComplete;
   const showFollowIntro = step === 'channels' || (hasVerifiedEmail && !followingAcknowledged);
   const showTagsIntro = SHOW_TAGS_INTRO && (step === 'tags' || (hasVerifiedEmail && !tagsAcknowledged));
@@ -113,7 +114,7 @@ function UserSignUp(props: Props) {
   const isCurrentlyFetchingSomething = fetchingChannels || claimingReward || showSpinnerForSync || creatingChannel;
   const isWaitingForSomethingToFinish =
     // If the user has claimed the email award, we need to wait until the balance updates sometime in the future
-    (!hasFetchedReward && !hasClaimedEmailAward) || (syncEnabled && !hasSynced);
+    (!hasFetchedReward && !hasClaimedEmailAward && claimRewardError === undefined) || (syncEnabled && !hasSynced);
   const showLoadingSpinner =
     canHijackSignInFlowWithSpinner && (isCurrentlyFetchingSomething || isWaitingForSomethingToFinish);
 
@@ -155,12 +156,8 @@ function UserSignUp(props: Props) {
         }}
       />
     ),
-    showChannelCreation &&
-      (interestedInYoutubeSync ? (
-        <YoutubeSync inSignUpFlow doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
-      ) : (
-        <UserFirstChannel doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />
-      )),
+    showChannelCreation && <UserFirstChannel doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />,
+    showYoutubeSync && <YoutubeSync inSignUpFlow doToggleInterestedInYoutubeSync={doToggleInterestedInYoutubeSync} />,
     showFollowIntro && (
       <UserChannelFollowIntro
         onContinue={() => {

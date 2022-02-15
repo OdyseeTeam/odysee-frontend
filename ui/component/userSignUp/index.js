@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { selectGetSyncIsPending, selectSyncHash, selectPrefsReady } from 'redux/selectors/sync';
 import { doClaimRewardType } from 'redux/actions/rewards';
 import { doSetClientSetting } from 'redux/actions/settings';
-import { selectClaimedRewards, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
+import { selectClaimedRewards, selectClaimRewardError, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
 import { selectUserIsPending, selectYoutubeChannels, selectUser } from 'redux/selectors/user';
 import { selectMyChannelClaims, selectFetchingMyChannels, selectCreatingChannel } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -21,6 +21,7 @@ const select = (state) => ({
   claimingReward: makeSelectIsRewardClaimPending()(state, {
     reward_type: REWARD_TYPES.TYPE_CONFIRM_EMAIL,
   }),
+  claimRewardError: selectClaimRewardError(state, { reward_type: REWARD_TYPES.TYPE_CONFIRM_EMAIL }),
   balance: selectBalance(state),
   fetchingChannels: selectFetchingMyChannels(state),
   youtubeChannels: selectYoutubeChannels(state),
