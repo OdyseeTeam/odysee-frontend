@@ -342,7 +342,9 @@ export default function FileRenderFloating(props: Props) {
           'content__viewer--floating': isFloating,
           'content__viewer--inline': !isFloating,
           'content__viewer--secondary': isComment,
-          'content__viewer--theater-mode': !isFloating && videoTheaterMode && playingUri?.uri === primaryUri,
+          // Disable theater mode class on livestream or floating viewer
+          'content__viewer--theater-mode':
+            !isFloating && videoTheaterMode && playingUri?.uri === primaryUri && !isLivestream,
           'content__viewer--disable-click': wasDragging,
         })}
         style={
