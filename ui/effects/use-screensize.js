@@ -31,7 +31,7 @@ function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => bo
   React.useEffect(() => {
     function setSize() {
       const curr = comparisonFn(window.innerWidth);
-      if (prev !== curr) {
+      if (prev.current !== curr) {
         setWindowSize(curr);
         prev.current = curr;
       }
