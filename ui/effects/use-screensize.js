@@ -24,9 +24,9 @@ export function useWindowSize() {
 
 function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => boolean) {
   const isWindowClient = typeof window === 'object';
-  const initialState = isWindowClient ? comparisonFn(window.innerWidth) : comparisonFn(DEFAULT_SCREEN_SIZE);
-  const [windowSize, setWindowSize] = React.useState(initialState);
-  const prev = useRef(window.innerWidth);
+  const initialState: boolean = isWindowClient ? comparisonFn(window.innerWidth) : comparisonFn(DEFAULT_SCREEN_SIZE);
+  const [windowSize, setWindowSize] = React.useState<boolean>(initialState);
+  const prev = useRef<boolean>(initialState);
 
   React.useEffect(() => {
     function setSize() {
