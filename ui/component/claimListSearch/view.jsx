@@ -23,7 +23,7 @@ export type SearchOptions = {
 type Props = {
   uris: Array<string>,
   type: string,
-  pageSize?: number,
+  pageSize: number,
 
   fetchViewCount?: boolean,
   hideAdvancedFilter?: boolean,
@@ -81,7 +81,7 @@ type Props = {
   searchOptions: SearchOptions,
 };
 
-function ClaimListDiscover(props: Props) {
+function ClaimListSearch(props: Props) {
   const {
     showHeader = true,
     type,
@@ -90,6 +90,7 @@ function ClaimListDiscover(props: Props) {
     loading,
     meta,
     channelIds,
+    // eslint-disable-next-line no-unused-vars
     claimId,
     fetchViewCount,
     location,
@@ -263,4 +264,4 @@ function ClaimListDiscover(props: Props) {
   );
 }
 
-export default withRouter(ClaimListDiscover);
+export default withRouter(ClaimListSearch);

@@ -7,14 +7,14 @@ import {
 } from 'redux/selectors/search';
 import { getSearchQueryString } from 'util/query-params';
 import { doSearch } from 'redux/actions/search';
-import ClaimListSearch, { SearchOptions } from './view';
+import ClaimListSearch from './view';
 import { doFetchViewCount } from 'lbryinc';
 
 const select = (state, props) => {
   const { searchKeyword, pageSize, claimId, showMature } = props;
   const channel_id = encodeURIComponent(claimId);
   const isBackgroundSearch = false;
-  const searchOptions: SearchOptions = showMature
+  const searchOptions = showMature
     ? {
         channel_id,
         isBackgroundSearch,
