@@ -69,15 +69,24 @@ export default function LivestreamLayout(props: Props) {
     <>
       {!isMobile && <GlobalStyles />}
 
+      {/* if livestream is ready, show the video */}
       <div className="section card-stack">
-        {((isMobile && isCurrentClaimLive) || showLivestream) && (
+        {(isMobile && isCurrentClaimLive) || showLivestream ? (
           <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-            <FileRenderInitiator uri={uri} videoTheaterMode={false} />
+            {/* Mobile needs to handle the livestream player like any video player */}
+            <FileRenderInitiator uri={uri} />
+          </div>
+        ) : (
+          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+            <div className="file-render file-render--video livestream file-render--scheduledLivestream">
+              <div className="file-viewer" />
+            </div>
           </div>
         )}
 
         {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
 
+        {/* if chat is disabled */}
         {hideComments && !showScheduledInfo && (
           <div className="help--notice">
             {channelName
