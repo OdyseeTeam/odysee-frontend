@@ -203,6 +203,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         overrideNative: !videojs.browser.IS_ANY_SAFARI,
       },
     },
+    liveTracker: {
+      trackingThreshold: 0,
+      liveTolerance: 10,
+    },
     autoplay: autoplay,
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
@@ -336,7 +340,24 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         const livestreamResponse = await fetch(livestreamEndpoint, { method: 'GET' });
 
-        const livestreamVideoUrl = (await livestreamResponse.json()).data.VideoURL;
+        const livestreamData = (await livestreamResponse.json()).data;
+
+        const livestreamVideoUrl = livestreamData.VideoURL;
+
+        const newPoster = livestreamData.ThumbnailURL;
+
+        // const livestreamVideoUrl = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
+        //
+        // videojs.Vhs.xhr.beforeRequest = (options) => {
+        //   if (!options.headers) options.headers = {};
+        //   options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+        //   options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+        //   return options;
+        // };
+        
+        vjsPlayer.poster(newPoster);
+
+        console.log(livestreamVideoUrl);
 
         vjsPlayer.src({
           type: 'application/x-mpegURL',
@@ -344,12 +365,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         });
       } else {
         vjsPlayer.removeClass('livestreamPlayer');
-
-        videojs.Vhs.xhr.beforeRequest = (options) => {
-          if (!options.headers) options.headers = {};
-          delete options.headers['X-Pull'];
-          return options;
-        };
 
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });

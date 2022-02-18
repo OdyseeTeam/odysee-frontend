@@ -60,19 +60,45 @@ const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
   }, {});
 };
 
+// TODO: change this here
 const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
+  console.log('fetching live channels');
   const response = await fetch(LIVESTREAM_LIVE_API);
+  console.log(response);
   const json = await response.json();
   if (!json.data) throw new Error();
   return transformLivestreamData(json.data);
 };
 
+
+// TODO: change this here
 const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> => {
+
+  const newApiEndpoint = 'https://api.odysee.live/livestream/is_live?channel_claim_id=';
+
+  const newApiResponse = await fetch(`${newApiEndpoint}${channelId}`);
+  const newApiData = (await newApiResponse.json()).data;
+
+  // transform data to old API standard
+  const translatedData = {
+    url: newApiData.VideoURL,
+    type: 'application/x-mpegurl',
+    viewCount: newApiData.ViewerCount,
+    claimId: newApiData.ChannelClaimID,
+    timestamp: newApiData.Start
+  };
+
+  const isLive = newApiData.Live;
+
   try {
     const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
     const json = await response.json();
-    if (json.data?.live === false) return { channelStatus: LiveStatus.NOT_LIVE };
-    return { channelStatus: LiveStatus.LIVE, channelData: transformLivestreamData([json.data]) };
+    if (isLive === false) {
+      return {
+        channelStatus: LiveStatus.NOT_LIVE,
+      };
+    }
+    return { channelStatus: LiveStatus.LIVE, channelData: transformLivestreamData([translatedData]) };
   } catch {
     return { channelStatus: LiveStatus.UNKNOWN };
   }
@@ -177,6 +203,8 @@ const findActiveStreams = async (channelIDs: Array<string>, orderBy: Array<strin
 
 export const doFetchChannelLiveStatus = (channelId: string) => {
   return async (dispatch: Dispatch) => {
+
+    console.log('getting live status');
     try {
       const { channelStatus, channelData } = await fetchLiveChannel(channelId);
 
@@ -202,6 +230,11 @@ export const doFetchChannelLiveStatus = (channelId: string) => {
   };
 };
 
+/**
+ *
+ * @param orderBy
+ * @returns {(function(React.Dispatch, GetState): Promise<void>)|*}
+ */
 export const doFetchActiveLivestreams = (orderBy: Array<string> = ['release_time']) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -212,14 +245,17 @@ export const doFetchActiveLivestreams = (orderBy: Array<string> = ['release_time
     const nextOptions = { order_by: orderBy };
     const sameOptions = JSON.stringify(prevOptions) === JSON.stringify(nextOptions);
 
+    // already fetched livestreams within the interval, skip for now
     if (sameOptions && timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
       dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SKIPPED });
       return;
     }
 
+    // start fetching livestreams
     dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED });
 
     try {
+
       const liveChannels = await fetchLiveChannels();
       const liveChannelIds = Object.keys(liveChannels);
 

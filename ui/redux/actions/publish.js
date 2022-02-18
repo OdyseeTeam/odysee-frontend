@@ -607,6 +607,15 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
 };
 
+// TODO: copy this over
+/**
+ * Publishes a claim and accepts different callbacks for different events as params
+ * @param success
+ * @param fail
+ * @param preview
+ * @param payload
+ * @returns {(function(React.Dispatch, function(): {}): (*))|*}
+ */
 export const doPublish = (success: Function, fail: Function, preview: Function, payload: any) => (
   dispatch: Dispatch,
   getState: () => {}

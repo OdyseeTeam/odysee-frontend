@@ -1,6 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
+import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { SOCKETY_SERVER_API } from 'config';
 
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
@@ -113,6 +114,7 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
   doSocketConnect(
     url,
     (response) => {
+      console.log(response);
       if (response.type === 'delta') {
         const newComment = response.data.comment;
         dispatch({
@@ -144,6 +146,15 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
           type: ACTIONS.COMMENT_MARK_AS_REMOVED,
           data: { comment_id },
         });
+      }
+
+      if (response.type === 'livestream') {
+        const { live, channel_id, live_claim_id } = response.data;
+
+        // update the live status for the stream
+        dispatch(doFetchChannelLiveStatus(channel_id));
+
+        // if (live && window.player) window.player.play();
       }
     },
     'comment'

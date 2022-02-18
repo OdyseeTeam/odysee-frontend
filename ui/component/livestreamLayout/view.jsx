@@ -20,6 +20,7 @@ import LivestreamMenu from 'component/livestreamChatLayout/livestream-menu';
 import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import { getTipValues } from 'util/livestream';
+import classnames from 'classnames';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
 
@@ -65,26 +66,32 @@ export default function LivestreamLayout(props: Props) {
 
   const { name: channelName } = claim.signing_channel;
 
+  console.log('show livestream, currentclaimlive, activestreamurl');
+  console.log(showLivestream, isCurrentClaimLive, activeStreamUri)
+
   return (
     <>
       {!isMobile && <GlobalStyles />}
 
       {/* if livestream is ready, show the video */}
       <div className="section card-stack">
-        {(isMobile && isCurrentClaimLive) || showLivestream ? (
+        {((isMobile && isCurrentClaimLive) || showLivestream) ? (
           <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
             {/* Mobile needs to handle the livestream player like any video player */}
             <FileRenderInitiator uri={uri} />
+            {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
           </div>
         ) : (
-          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-            <div className="file-render file-render--video livestream file-render--scheduledLivestream">
-              <div className="file-viewer" />
+          <>
+            <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+              <div className={classnames('file-render file-render--video livestream', {
+                'file-render--scheduledLivestream': !window.player,
+              })}>
+                  {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
+              </div>
             </div>
-          </div>
+          </>
         )}
-
-        {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
 
         {/* if chat is disabled */}
         {hideComments && !showScheduledInfo && (
@@ -95,8 +102,9 @@ export default function LivestreamLayout(props: Props) {
           </div>
         )}
 
+        {/* stream isn't live copy text  */}
         {!activeStreamUri && !showScheduledInfo && !isCurrentClaimLive && (
-          <div className="help--notice">
+          <div className="help--notice" style={{ marginTop: '20px' }}>
             {channelName
               ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {
                   channelName,
