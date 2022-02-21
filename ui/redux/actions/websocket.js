@@ -149,12 +149,10 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
       }
 
       if (response.type === 'livestream') {
-        const { live, channel_id, live_claim_id } = response.data;
+        const { channel_id } = response.data;
 
         // update the live status for the stream
         dispatch(doFetchChannelLiveStatus(channel_id));
-
-        // if (live && window.player) window.player.play();
       }
     },
     'comment'

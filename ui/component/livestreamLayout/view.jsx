@@ -66,8 +66,9 @@ export default function LivestreamLayout(props: Props) {
 
   const { name: channelName } = claim.signing_channel;
 
-  console.log('show livestream, currentclaimlive, activestreamurl');
-  console.log(showLivestream, isCurrentClaimLive, activeStreamUri)
+  // TODO: use this to show the 'user is not live functionality'
+  // console.log('show livestream, currentclaimlive, activestreamurl');
+  // console.log(showLivestream, isCurrentClaimLive, activeStreamUri);
 
   return (
     <>

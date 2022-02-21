@@ -21,7 +21,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
-import { LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN, LIVESTREAM_STREAM_X_PULL } from 'constants/livestream';
 const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -346,24 +345,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         const newPoster = livestreamData.ThumbnailURL;
 
-        // const livestreamVideoUrl = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
-        //
-        // videojs.Vhs.xhr.beforeRequest = (options) => {
-        //   if (!options.headers) options.headers = {};
-        //   options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-        //   options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-        //   return options;
-        // };
-
         vjsPlayer.poster(newPoster);
 
+        /** don't show progress bar functionality **/
         vjsPlayer.on('play', function() {
           vjsPlayer.liveTracker.seekToLiveEdge();
         });
 
         document.getElementsByClassName('vjs-progress-control')[0].style.display = 'none';
-
-        console.log(livestreamVideoUrl);
+        /** **/
 
         vjsPlayer.src({
           type: 'application/x-mpegURL',

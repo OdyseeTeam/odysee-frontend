@@ -221,8 +221,6 @@ function PublishForm(props: Props) {
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelClaimStr = activeChannelClaim && JSON.stringify(activeChannelClaim);
-  // console.log('active channel thing');
-  // console.log(activeChannelClaimStr);
 
   // Editing content info
   const fileMimeType =
@@ -261,16 +259,9 @@ function PublishForm(props: Props) {
   const [previewing, setPreviewing] = React.useState(false);
 
   React.useEffect(() => {
-    console.log('running here 100');
     if (activeChannelClaimStr) {
-      console.log('GETTING CLAIM ID REPLAYS');
       const channelClaim = JSON.parse(activeChannelClaimStr);
 
-      console.log('channel claim');
-      console.log(channelClaim);
-
-
-      const message = 'get-claim-id-replays';
       setSignedMessage({ signature: null, signing_ts: null });
       // ensure we have a channel
       if (channelClaim.claim_id) {
@@ -304,19 +295,11 @@ function PublishForm(props: Props) {
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
   function fetchLivestreams(channelId, signature, timestamp, channelName) {
-    (async function(){
+    (async function() {
       setCheckingLivestreams(true);
-
-      console.log('signature');
-      console.log(signature)
-      console.log('timestamp');
-      console.log(timestamp);
 
       const newEndpointUrl = `https://api.odysee.live/replays/list?channel_claim_id=${channelId}` +
         `&signature=${signature}&signature_ts=${timestamp}&channel_name=${channelName}`;
-
-      console.log('new endpoint url!!');
-      console.log(newEndpointUrl);
 
       const responseFromNewApi = await fetch(newEndpointUrl);
 
@@ -327,34 +310,23 @@ function PublishForm(props: Props) {
           return {
             data: {
               fileLocation: dataItem.URL,
-              fileDuration: (dataItem.Duration/1000000000).toString(), // convert nanoseconds to second
+              fileDuration: (dataItem.Duration / 1000000000).toString(), // convert nanoseconds to second
               thumbnails: [dataItem.ThumbnailURL],
               uploadedAt: dataItem.Created,
-            }
+            },
           };
         }
       });
 
-      console.log('new data');
-      console.log(data);
-
-      console.log('newest data!');
-      console.log(newData);
-
-      console.log(responseFromNewApi);
-
-
-
-
       fetch(`${LIVESTREAM_REPLAY_API}/${channelId}?signature=${signature || ''}&signing_ts=${timestamp || ''}`) // claimChannelId
         .then((res) => res.json())
         .then((res) => {
-          console.log('response of replays');
-          console.log(res);
+          // TODO: have to touch this up
           if (!res || !res.data) {
             setLivestreamData([]);
           }
 
+          // TODO: there is no guarantee this code doesn't blow up
           const amountOfUploadsToRemove = newData.length;
 
           let newOldApiData = res.data;
@@ -363,9 +335,6 @@ function PublishForm(props: Props) {
 
           const dataToSend = newData.concat(newOldApiData);
 
-          console.log('data to senddd!');
-          console.log(dataToSend);
-
           setLivestreamData(dataToSend);
           setCheckingLivestreams(false);
         })
@@ -373,11 +342,10 @@ function PublishForm(props: Props) {
           setLivestreamData([]);
           setCheckingLivestreams(false);
         });
-    })()
+    })();
   }
 
   useEffect(() => {
-    console.log('running here 1000');
     const signedMessage = JSON.parse(signedMessageStr);
     if (claimChannelId && signedMessage.signature) {
       fetchLivestreams(claimChannelId, signedMessage.signature, signedMessage.signing_ts, activeChannelName);

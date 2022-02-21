@@ -70,10 +70,8 @@ const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
   return transformLivestreamData(json.data);
 };
 
-
 // TODO: change this here
 const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> => {
-
   const newApiEndpoint = 'https://api.odysee.live/livestream/is_live?channel_claim_id=';
 
   const newApiResponse = await fetch(`${newApiEndpoint}${channelId}`);
@@ -85,14 +83,15 @@ const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> =
     type: 'application/x-mpegurl',
     viewCount: newApiData.ViewerCount,
     claimId: newApiData.ChannelClaimID,
-    timestamp: newApiData.Start
+    timestamp: newApiData.Start,
   };
 
   const isLive = newApiData.Live;
 
   try {
-    const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
-    const json = await response.json();
+    // TODO: can remove fully at some point
+    // const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
+    // const json = await response.json();
     if (isLive === false) {
       return {
         channelStatus: LiveStatus.NOT_LIVE,
@@ -203,7 +202,6 @@ const findActiveStreams = async (channelIDs: Array<string>, orderBy: Array<strin
 
 export const doFetchChannelLiveStatus = (channelId: string) => {
   return async (dispatch: Dispatch) => {
-
     console.log('getting live status');
     try {
       const { channelStatus, channelData } = await fetchLiveChannel(channelId);
@@ -255,7 +253,6 @@ export const doFetchActiveLivestreams = (orderBy: Array<string> = ['release_time
     dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED });
 
     try {
-
       const liveChannels = await fetchLiveChannels();
       const liveChannelIds = Object.keys(liveChannels);
 
