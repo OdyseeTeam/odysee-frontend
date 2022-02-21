@@ -111,9 +111,6 @@ function VideoViewer(props: Props) {
     isLivestream,
   } = props;
 
-  // console.log('is livestream');
-  // console.log(isLivestream);
-
   const permanentUrl = claim && claim.permanent_url;
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;

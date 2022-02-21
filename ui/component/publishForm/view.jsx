@@ -267,7 +267,7 @@ function PublishForm(props: Props) {
       if (channelClaim.claim_id) {
         Lbry.channel_sign({
           channel_id: channelClaim.claim_id,
-          hexdata: toHex(channelClaim.name), // TODO: have to change this to channelName
+          hexdata: toHex(channelClaim.name),
         })
           .then((data) => {
             setSignedMessage(data);

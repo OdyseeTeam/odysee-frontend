@@ -16,7 +16,7 @@ import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
 import usePersistedState from 'effects/use-persisted-state';
-import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
+import { LIVESTREAM_RTMP_URL, NEW_LIVESTREAM_RTMP_URL } from 'constants/livestream';
 
 type Props = {
   hasChannels: boolean,
@@ -220,7 +220,7 @@ export default function LivestreamSetupPage(props: Props) {
                       primaryButton
                       name="stream-server"
                       label={__('Stream server')}
-                      copyable={LIVESTREAM_RTMP_URL}
+                      copyable={NEW_LIVESTREAM_RTMP_URL}
                       snackMessage={__('Copied stream server URL.')}
                     />
                     <CopyableText

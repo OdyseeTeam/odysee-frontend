@@ -607,7 +607,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
 };
 
-// TODO: copy this over
 /**
  * Publishes a claim and accepts different callbacks for different events as params
  * @param success

@@ -149,12 +149,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestream,
   } = props;
 
-  // console.log('claim');
-  // console.log(claim);
-
-  // console.log(isLivestream);
-  // console.log('is livestream');
-
   const userClaimId = claim.signing_channel.claim_id;
 
   // will later store the videojs player

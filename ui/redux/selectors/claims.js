@@ -383,8 +383,9 @@ export const makeSelectEffectiveAmountForUri = (uri: string) =>
  */
 export const makeSelectContentTypeForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
-    const isAStream = isStreamPlaceholderClaim(claim);
-    if (isAStream) return 'livestream';
+    // whether claim is a livestream
+    const isALivestream = isStreamPlaceholderClaim(claim);
+    if (isALivestream) return 'livestream';
     const source = claim && claim.value && claim.value.source;
     return source ? source.media_type : undefined;
   });
