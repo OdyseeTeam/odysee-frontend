@@ -150,7 +150,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestream,
   } = props;
 
-  const userClaimId = claim.signing_channel.claim_id;
+  // get channel claim id for livestream api calls
+  const userClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
 
   // will later store the videojs player
   const playerRef = useRef();
@@ -328,6 +329,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
       if (isLivestream) {
+        // $FlowFixMe
         vjsPlayer.addClass('livestreamPlayer');
 
         const livestreamEndpoint = `${NEW_LIVESTREAM_LIVE_API}?channel_claim_id=${userClaimId}`;
@@ -338,23 +340,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         const livestreamVideoUrl = livestreamData.VideoURL;
 
-        const newPoster = livestreamData.ThumbnailURL;
+        // const newPoster = livestreamData.ThumbnailURL;
 
-        vjsPlayer.poster(newPoster);
+        // pretty sure it's not working
+        // vjsPlayer.poster(newPoster);
 
         /** don't show progress bar functionality **/
+        // $FlowFixMe
         vjsPlayer.on('play', function() {
+          // $FlowFixMe
           vjsPlayer.liveTracker.seekToLiveEdge();
         });
 
         document.getElementsByClassName('vjs-progress-control')[0].style.display = 'none';
         /** **/
 
+        // $FlowFixMe
         vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: livestreamVideoUrl,
         });
       } else {
+        // $FlowFixMe
         vjsPlayer.removeClass('livestreamPlayer');
 
         // change to m3u8 if applicable
