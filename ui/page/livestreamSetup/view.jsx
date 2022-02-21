@@ -101,6 +101,8 @@ export default function LivestreamSetupPage(props: Props) {
   );
 
   React.useEffect(() => {
+    console.log('channel id, channelName')
+    console.log(channelId, channelName);
     // ensure we have a channel
     if (channelId && channelName) {
       Lbry.channel_sign({
@@ -108,6 +110,8 @@ export default function LivestreamSetupPage(props: Props) {
         hexdata: toHex(channelName),
       })
         .then((data) => {
+          console.log('channel sign!');
+          console.log(data);
           setSigData(data);
         })
         .catch((error) => {

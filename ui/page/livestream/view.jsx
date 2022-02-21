@@ -84,9 +84,10 @@ export default function LivestreamPage(props: Props) {
     };
   }, [claim, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
 
-  // Find out current channels status + active live claim.
+  // Find out current channels status + active live claim every 30 seconds
   React.useEffect(() => {
     doFetchChannelLiveStatus(livestreamChannelId);
+    console.log('livestream channel id!');
     const intervalId = setInterval(() => doFetchChannelLiveStatus(livestreamChannelId), 30000);
     return () => clearInterval(intervalId);
   }, [livestreamChannelId, doFetchChannelLiveStatus]);
@@ -158,6 +159,7 @@ export default function LivestreamPage(props: Props) {
       noFooter
       livestream
       chatDisabled={hideComments}
+      // whether to display livestream chat
       rightSide={
         !hideComments &&
         isInitialized && (
