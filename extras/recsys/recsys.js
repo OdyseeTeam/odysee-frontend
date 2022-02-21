@@ -153,7 +153,17 @@ const recsys = {
    * @param claimId
    * @param event
    */
-  onRecsysPlayerEvent: (claimId, event, isEmbedded) => {
+  onRecsysPlayerEvent: function(claimId, event, isEmbedded) {
+    const state = window.store.getState();
+    const autoPlayNext = state && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
+    // Check if played through (4 = onEnded) and handle multiple events at end
+    if (recsys.entries[claimId] && !recsys.entries[claimId]['autoplay'] === true) {
+      if (autoPlayNext && event.event === 4) {
+        recsys.entries[claimId]['autoplay'] = true;
+      } else {
+        recsys.entries[claimId]['autoplay'] = false;
+      }
+    }
     if (!recsys.entries[claimId]) {
       recsys.createRecsysEntry(claimId);
       // do something to show it's floating or autoplay
