@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // @flow
 
 import * as ICONS from 'constants/icons';
@@ -315,6 +316,7 @@ function RepostCreate(props: Props) {
       <ChannelSelector />
 
       <Card
+        className="repost-wrapper"
         actions={
           <div>
             {uri && (
@@ -352,7 +354,7 @@ function RepostCreate(props: Props) {
                       ) : (
                         <span>
                           {__('Repost URL')}
-                          <HelpLink href="https://lbry.com/faq/naming" />
+                          <HelpLink href="https://odysee.com/@OdyseeHelp:b/trending:50" />
                         </span>
                       )}
                     </label>

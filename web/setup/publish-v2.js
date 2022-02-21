@@ -7,7 +7,7 @@ import { LBRY_WEB_PUBLISH_API_V2 } from 'config';
 
 const RESUMABLE_ENDPOINT = LBRY_WEB_PUBLISH_API_V2;
 const RESUMABLE_ENDPOINT_METHOD = 'publish';
-const UPLOAD_CHUNK_SIZE_BYTE = 25000000;
+const UPLOAD_CHUNK_SIZE_BYTE = 10 * 1024 * 1024;
 
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
@@ -60,7 +60,7 @@ export function makeResumableUploadRequest(
     const uploader = new tus.Upload(file, {
       ...urlOptions,
       chunkSize: UPLOAD_CHUNK_SIZE_BYTE,
-      retryDelays: [0, 5000, 10000, 15000],
+      retryDelays: [5000, 10000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       removeFingerprintOnSuccess: true,
@@ -72,20 +72,46 @@ export function makeResumableUploadRequest(
       onShouldRetry: (err, retryAttempt, options) => {
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'retry' }));
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
-        return !inStatusCategory(status, 400);
+        return !inStatusCategory(status, 400) || status === STATUS_CONFLICT || status === STATUS_LOCKED;
       },
       onError: (err) => {
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
         const errMsg = typeof err === 'string' ? err : err.message;
 
-        if (status === STATUS_CONFLICT || status === STATUS_LOCKED || errMsg === 'file currently locked') {
-          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'conflict' }));
-          // prettier-ignore
-          reject(new Error(`${status}: concurrent upload detected. Uploading the same file from multiple tabs or windows is not allowed.`));
-        } else {
-          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-          reject(new Error(err));
+        let customErr;
+        if (status === STATUS_LOCKED || errMsg === 'file currently locked') {
+          customErr = 'File is locked. Try resuming after waiting a few minutes';
         }
+
+        let localStorageInfo;
+        if (errMsg.includes('QuotaExceededError')) {
+          try {
+            localStorageInfo = `${window.localStorage.length} items; ${
+              JSON.stringify(window.localStorage).length
+            } bytes`;
+          } catch (e) {
+            localStorageInfo = 'inaccessible';
+          }
+        }
+
+        window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
+
+        analytics.sentryError(err, uploader);
+
+        reject(
+          // $FlowFixMe - flow's constructor for Error is incorrect.
+          new Error(customErr || err, {
+            cause: {
+              url: uploader.url,
+              status,
+              ...(uploader._fingerprint ? { fingerprint: uploader._fingerprint } : {}),
+              ...(uploader._retryAttempt ? { retryAttempt: uploader._retryAttempt } : {}),
+              ...(uploader._offsetBeforeRetry ? { offsetBeforeRetry: uploader._offsetBeforeRetry } : {}),
+              ...(customErr ? { original: errMsg } : {}),
+              ...(localStorageInfo ? { localStorageInfo } : {}),
+            },
+          })
+        );
       },
       onProgress: (bytesUploaded, bytesTotal) => {
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);

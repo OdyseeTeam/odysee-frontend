@@ -21,6 +21,16 @@ declare type Comment = {
   removed?: boolean,
 };
 
+declare type CommentSubmitParams = {
+  comment: string,
+  claim_id: string,
+  parent_id?: string,
+  txid?: ?string,
+  payment_intent_id?: ?string,
+  environment?: ?string,
+  sticker: boolean,
+};
+
 declare type PerChannelSettings = {
   words?: Array<string>,
   comments_enabled?: boolean,
@@ -55,21 +65,41 @@ declare type CommentsState = {
   moderationBlockList: ?Array<string>, // @KP rename to "personalBlockList"?
   adminBlockList: ?Array<string>,
   moderatorBlockList: ?Array<string>,
-  moderatorBlockListDelegatorsMap: {[string]: Array<string>}, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
+  moderatorBlockListDelegatorsMap: { [string]: Array<string> }, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
   fetchingModerationBlockList: boolean,
   moderationDelegatesById: { [string]: Array<{ channelId: string, channelName: string }> },
   fetchingModerationDelegates: boolean,
-  moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } }},
+  moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   fetchingModerationDelegators: boolean,
   blockingByUri: {},
   unBlockingByUri: {},
   personalTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
   adminTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
   moderatorTimeoutMap: { [uri: string]: { blockedAt: string, bannedFor: number, banRemaining: number } },
-  togglingForDelegatorMap: {[string]: Array<string>}, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
+  togglingForDelegatorMap: { [string]: Array<string> }, // {"blockedUri": ["delegatorUri1", ""delegatorUri2", ...]}
   settingsByChannelId: { [string]: PerChannelSettings }, // ChannelID -> settings
   fetchingSettings: boolean,
   fetchingBlockedWords: boolean,
+};
+
+// Authorization parameters for calls requiring user authentication
+declare type Authorization = {
+  channel_name: string,
+  channel_id: string,
+  signature: string,
+  signing_ts: string,
+};
+
+// ModAuthorization parameters for calls requiring creator/moderator authentication
+declare type ModAuthorization = {
+  // Publisher, Moderator or Commentron Admin
+  mod_channel_id: string,
+  mod_channel_name: string,
+  // Creator that Moderator is delegated from. Used for delegated moderation
+  creator_channel_id: string,
+  creator_channel_name: string,
+  signature: string,
+  signing_ts: string,
 };
 
 declare type CommentReactParams = {
@@ -93,7 +123,7 @@ declare type ReactionReactParams = {
 };
 
 declare type ReactionReactResponse = {
-  Reactions: { [string]: { [string]: number} },
+  Reactions: { [string]: { [string]: number } },
 };
 
 declare type ReactionListParams = {
@@ -111,23 +141,23 @@ declare type ReactionListResponse = {
 };
 
 declare type CommentListParams = {
-  page: number,             // pagination: which page of results
-  page_size: number,        // pagination: nr of comments to show in a page (max 200)
-  claim_id?: string,        // claim id of claim being commented on
-  channel_name?: string,    // signing channel name of claim (enables 'commentsEnabled' check)
-  channel_id?: string,      // signing channel claim id of claim (enables 'commentsEnabled' check)
+  page: number, // pagination: which page of results
+  page_size: number, // pagination: nr of comments to show in a page (max 200)
+  claim_id?: string, // claim id of claim being commented on
+  channel_name?: string, // signing channel name of claim (enables 'commentsEnabled' check)
+  channel_id?: string, // signing channel claim id of claim (enables 'commentsEnabled' check)
   author_claim_id?: string, // filters comments to just this author
-  parent_id?: string,       // filters comments to those under this thread
-  top_level?: boolean,      // filters to only top level comments
-  hidden?: boolean,         // if true, will show hidden comments as well
-  sort_by?: number,         // @see: ui/constants/comments.js::SORT_BY
+  parent_id?: string, // filters comments to those under this thread
+  top_level?: boolean, // filters to only top level comments
+  hidden?: boolean, // if true, will show hidden comments as well
+  sort_by?: number, // @see: ui/constants/comments.js::SORT_BY
 };
 
 declare type CommentListResponse = {
   items: Array<Comment>,
   page: number,
   page_size: number,
-  total_items: number,          // Grand total for the claim being commented on.
+  total_items: number, // Grand total for the claim being commented on.
   total_filtered_items: number, // Total for filtered queries (e.g. top_level=true, parent_id=xxx, etc.).
   total_pages: number,
   has_hidden_comments: boolean,
@@ -136,13 +166,13 @@ declare type CommentListResponse = {
 declare type CommentByIdParams = {
   comment_id: string,
   with_ancestors: boolean,
-}
+};
 
 declare type CommentByIdResponse = {
   item: Comment,
   items: Comment,
   ancestors: Array<Comment>,
-}
+};
 
 declare type CommentPinParams = {
   comment_id: string,
@@ -151,20 +181,20 @@ declare type CommentPinParams = {
   remove?: boolean,
   signature: string,
   signing_ts: string,
-}
+};
 
 declare type CommentPinResponse = {
   items: Comment, // "items" is an inherited typo to match SDK. Will be "item" in a new version.
-}
+};
 
 declare type CommentEditParams = {
   comment: string,
   comment_id: string,
   signature: string,
   signing_ts: string,
-}
+};
 
-declare type CommentEditResponse = Comment
+declare type CommentEditResponse = Comment;
 
 declare type CommentAbandonParams = {
   comment_id: string,
@@ -176,6 +206,11 @@ declare type CommentAbandonParams = {
   mod_channel_name?: string,
 };
 
+declare type MentionedChannel = {
+  channel_name: string,
+  channel_id: string,
+};
+
 declare type CommentCreateParams = {
   comment: string,
   claim_id: string,
@@ -183,6 +218,7 @@ declare type CommentCreateParams = {
   signature: string,
   signing_ts: string,
   support_tx_id?: string,
+  mentioned_channels?: Array<MentionedChannel>,
 };
 
 declare type SuperListParams = {};
@@ -237,36 +273,23 @@ declare type BlockedListArgs = {
   signing_ts: string,
 };
 
-declare type ModerationAddDelegateParams = {
+declare type ModerationAddDelegateParams = Authorization & {
   mod_channel_id: string,
   mod_channel_name: string,
-  creator_channel_id: string,
-  creator_channel_name: string,
-  signature: string,
-  signing_ts: string,
 };
 
-declare type ModerationRemoveDelegateParams = {
+declare type ModerationRemoveDelegateParams = Authorization & {
   mod_channel_id: string,
   mod_channel_name: string,
-  creator_channel_id: string,
-  creator_channel_name: string,
-  signature: string,
-  signing_ts: string,
 };
 
-declare type ModerationListDelegatesParams = {
-  creator_channel_id: string,
-  creator_channel_name: string,
-  signature: string,
-  signing_ts: string,
-};
+declare type ModerationListDelegatesParams = Authorization;
 
 declare type ModerationAmIParams = {
   channel_name: string,
   channel_id: string,
   signature: string,
-  signing_ts: string
+  signing_ts: string,
 };
 
 declare type SettingsParams = {
@@ -295,7 +318,7 @@ declare type UpdateSettingsParams = {
   min_tip_amount_comment?: number,
   min_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
-}
+};
 
 declare type BlockWordParams = {
   channel_name: string,

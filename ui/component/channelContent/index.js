@@ -7,13 +7,12 @@ import {
   makeSelectTotalPagesInChannelSearch,
   selectClaimForUri,
 } from 'redux/selectors/claims';
-import { doResolveUris } from 'redux/actions/claims';
 import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { withRouter } from 'react-router';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
-import { doFetchActiveLivestream } from 'redux/actions/livestream';
+import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
 import ChannelContent from './view';
@@ -41,8 +40,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  doResolveUris: (uris, returnCachedUris) => dispatch(doResolveUris(uris, returnCachedUris)),
-  doFetchActiveLivestream: (channelID) => dispatch(doFetchActiveLivestream(channelID)),
+  doFetchChannelLiveStatus: (channelID) => dispatch(doFetchChannelLiveStatus(channelID)),
 });
 
 export default withRouter(connect(select, perform)(ChannelContent));

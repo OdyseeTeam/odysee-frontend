@@ -23,6 +23,14 @@ import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PAGES from 'constants/pages';
 import analytics from 'analytics';
 
+// prettier-ignore
+const Lazy = {
+  // $FlowFixMe
+  DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
+  // $FlowFixMe
+  Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
+};
+
 const LANG_NONE = 'none';
 const MAX_TAG_SELECT = 5;
 
@@ -55,6 +63,7 @@ type Props = {
   onDone: (string) => void,
   setActiveChannel: (string) => void,
   setIncognito: (boolean) => void,
+  doCollectionEdit: (CollectionEditParams) => void,
 };
 
 function CollectionForm(props: Props) {
@@ -88,6 +97,7 @@ function CollectionForm(props: Props) {
     setActiveChannel,
     setIncognito,
     onDone,
+    doCollectionEdit,
   } = props;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   let prefix = `${DOMAIN}/`;
@@ -197,6 +207,17 @@ function CollectionForm(props: Props) {
     return collectionParams;
   }
 
+  function handleOnDragEnd(result) {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    const { index: from } = source;
+    const { index: to } = destination;
+
+    doCollectionEdit({ order: { from, to } });
+  }
+
   function handleLanguageChange(index, code) {
     let langs = [...languageParam];
     if (index === 0) {
@@ -292,7 +313,7 @@ function CollectionForm(props: Props) {
 
   return (
     <>
-      <div className={classnames('main--contained', { 'card--disabled': disabled })}>
+      <div className={classnames('main--contained publishList-wrapper', { 'card--disabled': disabled })}>
         <Tabs>
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('General')}</Tab>
@@ -360,7 +381,21 @@ function CollectionForm(props: Props) {
               </div>
             </TabPanel>
             <TabPanel>
-              <ClaimList uris={collectionUrls} collectionId={collectionId} empty={__('This list has no items.')} />
+              <React.Suspense fallback={null}>
+                <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+                  <Lazy.Droppable droppableId="list__ordering">
+                    {(DroppableProvided) => (
+                      <ClaimList
+                        uris={collectionUrls}
+                        collectionId={collectionId}
+                        empty={__('This list has no items.')}
+                        showEdit
+                        droppableProvided={DroppableProvided}
+                      />
+                    )}
+                  </Lazy.Droppable>
+                </Lazy.DragDropContext>
+              </React.Suspense>
             </TabPanel>
             <TabPanel>
               <Card

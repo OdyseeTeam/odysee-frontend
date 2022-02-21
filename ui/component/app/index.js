@@ -1,14 +1,14 @@
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
 import { selectGetSyncErrorMessage, selectSyncFatalError, selectSyncIsLocked } from 'redux/selectors/sync';
-import { doFetchAccessToken, doUserSetReferrer } from 'redux/actions/user';
-import { selectUser, selectAccessToken, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { doUserSetReferrer } from 'redux/actions/user';
+import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { doFetchChannelListMine, doFetchCollectionListMine, doResolveUris } from 'redux/actions/claims';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
 import { selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
-import { selectModal, selectActiveChannelId, selectIsReloadRequired } from 'redux/selectors/app';
+import { selectModal, selectActiveChannelClaim, selectIsReloadRequired } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
 import { doSetLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
@@ -18,7 +18,6 @@ import App from './view';
 
 const select = (state) => ({
   user: selectUser(state),
-  accessToken: selectAccessToken(state),
   theme: selectThemePath(state),
   language: selectLanguage(state),
   languages: selectLoadedLanguages(state),
@@ -30,13 +29,12 @@ const select = (state) => ({
   isAuthenticated: selectUserVerifiedEmail(state),
   currentModal: selectModal(state),
   syncFatalError: selectSyncFatalError(state),
-  activeChannelId: selectActiveChannelId(state),
+  activeChannelClaim: selectActiveChannelClaim(state),
   myChannelClaimIds: selectMyChannelClaimIds(state),
   subscriptions: selectSubscriptions(state),
 });
 
 const perform = (dispatch) => ({
-  fetchAccessToken: () => dispatch(doFetchAccessToken()),
   fetchChannelListMine: () => dispatch(doFetchChannelListMine()),
   fetchCollectionListMine: () => dispatch(doFetchCollectionListMine()),
   setLanguage: (language) => dispatch(doSetLanguage(language)),

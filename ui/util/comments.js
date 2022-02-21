@@ -101,5 +101,19 @@ export function parseSticker(comment: string) {
   const stickerName = stickerValue && stickerValue.replace(/<stkr>/g, '');
   const commentIsSticker = stickerValue && stickerValue.length === comment.length;
 
-  return commentIsSticker && ALL_VALID_STICKERS.find((sticker) => sticker.name === stickerName);
+  return commentIsSticker && ALL_VALID_STICKERS.find(({ name }) => name === stickerName);
+}
+
+export function getStickerUrl(comment: string) {
+  const stickerFromComment = parseSticker(comment);
+  return stickerFromComment && stickerFromComment.url;
+}
+
+export function getCommentsListTitle(totalComments: number) {
+  const title =
+    (totalComments === 0 && __('Leave a comment')) ||
+    (totalComments === 1 && __('1 comment')) ||
+    __('%total_comments% comments', { total_comments: totalComments });
+
+  return title;
 }

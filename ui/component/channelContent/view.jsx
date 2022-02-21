@@ -7,13 +7,14 @@ import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import ClaimListDiscover from 'component/claimListDiscover';
+import ClaimListSearch from 'component/claimListSearch';
 import Ads from 'web/component/ads';
 import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
 import { DEBOUNCE_WAIT_DURATION_MS } from 'constants/search';
-import { lighthouse } from 'redux/actions/search';
 import ScheduledStreams from 'component/scheduledStreams';
+import { useIsLargeScreen } from 'effects/use-screensize';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -34,10 +35,9 @@ type Props = {
   showMature: boolean,
   tileLayout: boolean,
   viewHiddenChannels: boolean,
-  doResolveUris: (Array<string>, boolean) => void,
   claimType: string,
   empty?: string,
-  doFetchActiveLivestream: (string) => void,
+  doFetchChannelLiveStatus: (string) => void,
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
 };
@@ -56,17 +56,17 @@ function ChannelContent(props: Props) {
     showMature,
     tileLayout,
     viewHiddenChannels,
-    doResolveUris,
     claimType,
     empty,
-    doFetchActiveLivestream,
+    doFetchChannelLiveStatus,
     activeLivestreamForChannel,
     activeLivestreamInitialized,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState('');
-  const [searchResults, setSearchResults] = React.useState(undefined);
+  const [isSearch, setIsSearch] = React.useState(false);
+  const isLargeScreen = useIsLargeScreen();
   const {
     location: { pathname, search },
   } = useHistory();
@@ -78,180 +78,27 @@ function ChannelContent(props: Props) {
     (Array.isArray(claimType)
       ? claimType.every((ct) => TYPES_TO_ALLOW_FILTER.includes(ct))
       : TYPES_TO_ALLOW_FILTER.includes(claimType));
+  const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * (3 / 2)) : defaultPageSize;
 
   function handleInputChange(e) {
     const { value } = e.target;
     setSearchQuery(value);
   }
 
-  // returns true if passed element is fully visible on screen
-  // function isScrolledIntoView(el) {
-  //   const rect = el.getBoundingClientRect();
-  //   const elemTop = rect.top;
-  //   const elemBottom = rect.bottom;
-  //
-  //   // Only completely visible elements return true:
-  //   const isVisible = elemTop >= 0 && elemBottom <= window.innerHeight;
-  //   return isVisible;
-  // }
-  //
-  // React.useEffect(() => {
-  //   if (isAuthenticated || !SHOW_ADS) {
-  //     return;
-  //   }
-  //
-  //   const urlParams = new URLSearchParams(window.location.search);
-  //   const viewType = urlParams.get('view');
-  //
-  //   // only insert ad if it's a content view
-  //   if (viewType !== 'content') return;
-  //
-  //   (async function () {
-  //     // test if adblock is enabled
-  //     let adBlockEnabled = false;
-  //     const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-  //     try {
-  //       await fetch(new Request(googleAdUrl)).catch((_) => {
-  //         adBlockEnabled = true;
-  //       });
-  //     } catch (e) {
-  //       adBlockEnabled = true;
-  //     } finally {
-  //       if (!adBlockEnabled) {
-  //         // select the cards on page
-  //         let cards = document.getElementsByClassName('card claim-preview--tile');
-  //
-  //         // eslint-disable-next-line no-inner-declarations
-  //         function checkFlag() {
-  //           if (cards.length === 0) {
-  //             window.setTimeout(checkFlag, 100);
-  //           } else {
-  //             // find the last fully visible card
-  //             let lastCard;
-  //
-  //             // width of browser window
-  //             const windowWidth = window.innerWidth;
-  //
-  //             // on small screens, grab the second item
-  //             if (windowWidth <= 900) {
-  //               lastCard = cards[1];
-  //             } else {
-  //               // otherwise, get the last fully visible card
-  //               for (const card of cards) {
-  //                 const isFullyVisible = isScrolledIntoView(card);
-  //                 if (!isFullyVisible) break;
-  //                 lastCard = card;
-  //               }
-  //             }
-  //
-  //             // clone the last card
-  //             // $FlowFixMe
-  //             const clonedCard = lastCard.cloneNode(true);
-  //
-  //             // insert cloned card
-  //             // $FlowFixMe
-  //             lastCard.parentNode.insertBefore(clonedCard, lastCard);
-  //
-  //             // delete last card so that it doesn't mess up formatting
-  //             // $FlowFixMe
-  //             // lastCard.remove();
-  //
-  //             // change the appearance of the cloned card
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim__menu-button').remove();
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.truncated-text').innerHTML = __(
-  //               'Hate these? Login to Odysee for an ad free experience'
-  //             );
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__info').remove();
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('[role="none"]').removeAttribute('href');
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
-  //
-  //             // $FlowFixMe
-  //             clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
-  //
-  //             // $FlowFixMe
-  //             clonedCard
-  //               .querySelector('.media__thumb')
-  //               .replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
-  //
-  //             // show the homepage ad which is not displayed at first
-  //             document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
-  //
-  //             // $FlowFixMe
-  //             const imageHeight = window.getComputedStyle(lastCard.querySelector('.media__thumb')).height;
-  //             // $FlowFixMe
-  //             const imageWidth = window.getComputedStyle(lastCard.querySelector('.media__thumb')).width;
-  //
-  //             const styles = `#av-container, #AVcontent, #aniBox {
-  //               height: ${imageHeight} !important;
-  //               width: ${imageWidth} !important;
-  //             }`;
-  //
-  //             const styleSheet = document.createElement('style');
-  //             styleSheet.type = 'text/css';
-  //             styleSheet.id = 'customAniviewStyling';
-  //             styleSheet.innerText = styles;
-  //             // $FlowFixMe
-  //             document.head.appendChild(styleSheet);
-  //
-  //             window.dispatchEvent(new CustomEvent('scroll'));
-  //           }
-  //         }
-  //         checkFlag();
-  //       }
-  //     }
-  //   })();
-  // }, []);
-
   React.useEffect(() => {
     const timer = setTimeout(() => {
-      if (searchQuery === '' || !claimId) {
-        // In order to display original search results, search results must be set to null. A query of '' should display original results.
-        return setSearchResults(null);
+      if (searchQuery.trim().length < 3 || !claimId) {
+        setIsSearch(false);
       } else {
-        lighthouse
-          .search(
-            `s=${encodeURIComponent(searchQuery)}&channel_id=${encodeURIComponent(claimId)}${
-              !showMature ? '&nsfw=false&size=50&from=0' : ''
-            }`
-          )
-          .then(({ body: results }) => {
-            const urls = results.map(({ name, claimId }) => {
-              return `lbry://${name}#${claimId}`;
-            });
-
-            // Batch-resolve the urls before calling 'setSearchResults', as the
-            // latter will immediately cause the tiles to resolve, ending up
-            // calling doResolveUri one by one before the batched one.
-            doResolveUris(urls, true);
-
-            setSearchResults(urls);
-          })
-          .catch(() => {
-            setSearchResults(null);
-          });
+        setIsSearch(true);
       }
     }, DEBOUNCE_WAIT_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [claimId, searchQuery, showMature, doResolveUris]);
+  }, [claimId, searchQuery]);
 
   React.useEffect(() => {
     setSearchQuery('');
-    setSearchResults(null);
+    setIsSearch(false);
   }, [url]);
 
   const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
@@ -259,10 +106,10 @@ function ChannelContent(props: Props) {
 
   // Find out current channels status + active live claim.
   React.useEffect(() => {
-    doFetchActiveLivestream(claimId);
-    const intervalId = setInterval(() => doFetchActiveLivestream(claimId), 30000);
+    doFetchChannelLiveStatus(claimId);
+    const intervalId = setInterval(() => doFetchChannelLiveStatus(claimId), 30000);
     return () => clearInterval(intervalId);
-  }, [claimId, doFetchActiveLivestream]);
+  }, [claimId, doFetchChannelLiveStatus]);
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
@@ -283,6 +130,7 @@ function ChannelContent(props: Props) {
           liveUris={
             isChannelBroadcasting && activeLivestreamForChannel.claimUri ? [activeLivestreamForChannel.claimUri] : []
           }
+          showHideSetting={false}
         />
       )}
 
@@ -307,46 +155,82 @@ function ChannelContent(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-      <Ads type="homepage" />
+      {/* <Ads type="homepage" /> */}
 
-      {!fetching && (
-        <ClaimListDiscover
-          hasSource
-          defaultFreshness={CS.FRESH_ALL}
-          showHiddenByUser={viewHiddenChannels}
-          forceShowReposts
-          fetchViewCount
-          hideFilters={!showFilters}
-          hideAdvancedFilter={!showFilters}
-          tileLayout={tileLayout}
-          uris={searchResults}
-          streamType={CS.CONTENT_ALL}
-          channelIds={[claimId]}
-          claimType={claimType}
-          feeAmount={CS.FEE_AMOUNT_ANY}
-          defaultOrderBy={CS.ORDER_BY_NEW}
-          pageSize={defaultPageSize}
-          infiniteScroll={defaultInfiniteScroll}
-          injectedItem={SHOW_ADS && !isAuthenticated && <Ads type="video" />}
-          meta={
-            showFilters && (
-              <Form onSubmit={() => {}} className="wunderbar--inline">
-                <Icon icon={ICONS.SEARCH} />
-                <FormField
-                  className="wunderbar__input--inline"
-                  value={searchQuery}
-                  onChange={handleInputChange}
-                  type="text"
-                  placeholder={__('Search')}
-                />
-              </Form>
-            )
-          }
-          isChannel
-          channelIsMine={channelIsMine}
-          empty={empty}
-        />
-      )}
+      {!fetching &&
+        (isSearch ? (
+          <ClaimListSearch
+            defaultFreshness={CS.FRESH_ALL}
+            showHiddenByUser={viewHiddenChannels}
+            fetchViewCount
+            hideFilters={!showFilters}
+            hideAdvancedFilter={!showFilters}
+            tileLayout={tileLayout}
+            streamType={CS.CONTENT_ALL}
+            channelIds={[claimId]}
+            claimId={claimId}
+            claimType={claimType}
+            feeAmount={CS.FEE_AMOUNT_ANY}
+            defaultOrderBy={CS.ORDER_BY_NEW}
+            pageSize={dynamicPageSize}
+            infiniteScroll={defaultInfiniteScroll}
+            injectedItem={SHOW_ADS && !isAuthenticated && <Ads type="video" />}
+            meta={
+              showFilters && (
+                <Form onSubmit={() => {}} className="wunderbar--inline">
+                  <Icon icon={ICONS.SEARCH} />
+                  <FormField
+                    className="wunderbar__input--inline"
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    type="text"
+                    placeholder={__('Search')}
+                  />
+                </Form>
+              )
+            }
+            channelIsMine={channelIsMine}
+            empty={empty}
+            showMature={showMature}
+            searchKeyword={searchQuery}
+          />
+        ) : (
+          <ClaimListDiscover
+            hasSource
+            defaultFreshness={CS.FRESH_ALL}
+            showHiddenByUser={viewHiddenChannels}
+            forceShowReposts
+            fetchViewCount
+            hideFilters={!showFilters}
+            hideAdvancedFilter={!showFilters}
+            tileLayout={tileLayout}
+            streamType={CS.CONTENT_ALL}
+            channelIds={[claimId]}
+            claimType={claimType}
+            feeAmount={CS.FEE_AMOUNT_ANY}
+            defaultOrderBy={CS.ORDER_BY_NEW}
+            pageSize={defaultPageSize}
+            infiniteScroll={defaultInfiniteScroll}
+            injectedItem={SHOW_ADS && !isAuthenticated && <Ads type="video" />}
+            meta={
+              showFilters && (
+                <Form onSubmit={() => {}} className="wunderbar--inline">
+                  <Icon icon={ICONS.SEARCH} />
+                  <FormField
+                    className="wunderbar__input--inline"
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    type="text"
+                    placeholder={__('Search')}
+                  />
+                </Form>
+              )
+            }
+            isChannel
+            channelIsMine={channelIsMine}
+            empty={empty}
+          />
+        ))}
     </Fragment>
   );
 }

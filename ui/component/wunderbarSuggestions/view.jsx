@@ -284,7 +284,7 @@ export default function WunderBarSuggestions(props: Props) {
         className={classnames('wunderbar__wrapper', { 'wunderbar__wrapper--mobile': isMobile })}
         onSubmit={() => handleSelect(term)}
       >
-        <Combobox className="wunderbar" onSelect={handleSelect}>
+        <Combobox className="wunderbar" onSelect={handleSelect} openOnFocus>
           <Icon icon={ICONS.SEARCH} />
           <ComboboxInput
             ref={inputRef}

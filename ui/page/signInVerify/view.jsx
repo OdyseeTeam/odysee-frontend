@@ -8,7 +8,6 @@ import Button from 'component/button';
 import { Lbryio } from 'lbryinc';
 import I18nMessage from 'component/i18nMessage';
 import Card from 'component/common/card';
-import Pixel from 'web/component/pixel';
 
 type Props = {
   history: { push: (string) => void, location: { search: string } },
@@ -29,25 +28,46 @@ function SignInVerifyPage(props: Props) {
   const verificationToken = urlParams.get('verification_token');
   const needsRecaptcha = urlParams.get('needs_recaptcha') === 'true';
 
-  function onAuthError(message) {
-    doToast({
-      message: message || __('Authentication failure.'),
-      isError: true,
-    });
-    push(`/$/${PAGES.AUTH}`);
-  }
+  const onAuthError = React.useCallback(
+    (message) => {
+      doToast({
+        message: message || __('Authentication failure.'),
+        isError: true,
+      });
+      push(`/$/${PAGES.AUTH}`);
+    },
+    [doToast, push]
+  );
+
+  const verifyUser = React.useCallback(
+    (captchaValue) => {
+      Lbryio.call('user_email', 'confirm', {
+        auth_token: authToken,
+        email: userSubmittedEmail,
+        verification_token: verificationToken,
+        ...(captchaValue ? { recaptcha: captchaValue } : {}),
+      })
+        .then(() => {
+          setIsAuthenticationSuccess(true);
+        })
+        .catch(() => {
+          onAuthError(__('Invalid captcha response or other authentication error.'));
+        });
+    },
+    [authToken, onAuthError, userSubmittedEmail, verificationToken]
+  );
 
   React.useEffect(() => {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     }
-  }, [authToken, userSubmittedEmail, verificationToken, doToast, push]);
+  }, [authToken, userSubmittedEmail, verificationToken, doToast, push, onAuthError]);
 
   React.useEffect(() => {
     if (!needsRecaptcha) {
       verifyUser();
     }
-  }, [needsRecaptcha]);
+  }, [needsRecaptcha, verifyUser]);
 
   React.useEffect(() => {
     let captchaTimeout;
@@ -73,23 +93,8 @@ function SignInVerifyPage(props: Props) {
     setCaptchaLoaded(true);
   }
 
-  function verifyUser(captchaValue) {
-    Lbryio.call('user_email', 'confirm', {
-      auth_token: authToken,
-      email: userSubmittedEmail,
-      verification_token: verificationToken,
-      ...(captchaValue ? { recaptcha: captchaValue } : {}),
-    })
-      .then(() => {
-        setIsAuthenticationSuccess(true);
-      })
-      .catch(() => {
-        onAuthError(__('Invalid captcha response or other authentication error.'));
-      });
-  }
-
   return (
-    <Page authPage>
+    <Page authPage noFooter>
       <div className="main__sign-up">
         <Card
           title={isAuthenticationSuccess ? __('Log in success!') : __('Log in')}
@@ -133,7 +138,6 @@ function SignInVerifyPage(props: Props) {
           }
         />
       </div>
-      <Pixel type={'kill'} />
     </Page>
   );
 }

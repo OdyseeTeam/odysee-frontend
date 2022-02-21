@@ -1,7 +1,8 @@
+/* eslint-disable no-console */
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
-import { doOpenModal } from 'redux/actions/app';
+import { doOpenModal, doAnalyticsView, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
 import { makeSelectClaimForUri, selectClaimIsMineForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { makeSelectUrlsForCollectionId } from 'redux/selectors/collections';
@@ -19,6 +20,8 @@ export function doSetPrimaryUri(uri: ?string) {
     });
   };
 }
+
+export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null }));
 
 export function doSetPlayingUri({
   uri,
@@ -54,6 +57,22 @@ export function doPurchaseUriWrapper(uri: string, cost: number, saveFile: boolea
     }
 
     dispatch(doPurchaseUri(uri, { cost }, saveFile, onSuccess));
+  };
+}
+
+export function doDownloadUri(uri: string) {
+  return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsView(uri))));
+}
+
+export function doUriInitiatePlay(uri: string, collectionId?: string, isPlayable?: boolean) {
+  return (dispatch: Dispatch) => {
+    dispatch(doSetPrimaryUri(uri));
+
+    if (isPlayable) {
+      dispatch(doSetPlayingUri({ uri, collectionId }));
+    }
+
+    dispatch(doPlayUri(uri, false, true, (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo))));
   };
 }
 
@@ -125,6 +144,19 @@ export function savePosition(uri: string, position: number) {
     const claim = makeSelectClaimForUri(uri)(state);
     const { claim_id: claimId, txid, nout } = claim;
     const outpoint = `${txid}:${nout}`;
+
+    try {
+      localStorage.setItem(
+        ACTIONS.SET_CONTENT_POSITION,
+        JSON.stringify({
+          claimId,
+          outpoint,
+          position,
+        })
+      );
+    } catch (e) {
+      console.error('localStorage not available');
+    }
 
     dispatch({
       type: ACTIONS.SET_CONTENT_POSITION,

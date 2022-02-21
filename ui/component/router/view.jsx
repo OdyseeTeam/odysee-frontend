@@ -11,6 +11,7 @@ import { parseURI, isURIValid } from 'util/lbryURI';
 import { SITE_TITLE } from 'config';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
+import * as CS from 'constants/claim_search';
 
 import HomePage from 'page/home';
 
@@ -46,6 +47,7 @@ const CheckoutPage = lazyImport(() => import('page/checkoutPage' /* webpackChunk
 const CreatorDashboard = lazyImport(() => import('page/creatorDashboard' /* webpackChunkName: "creatorDashboard" */));
 const DiscoverPage = lazyImport(() => import('page/discover' /* webpackChunkName: "discover" */));
 const EmbedWrapperPage = lazyImport(() => import('page/embedWrapper' /* webpackChunkName: "embedWrapper" */));
+const PopoutChatPage = lazyImport(() => import('page/popoutChatWrapper' /* webpackChunkName: "popoutChat" */));
 const FileListPublished = lazyImport(() =>
   import('page/fileListPublished' /* webpackChunkName: "fileListPublished" */)
 );
@@ -122,6 +124,7 @@ type Props = {
   setReferrer: (?string) => void,
   hasUnclaimedRefereeReward: boolean,
   homepageData: any,
+  wildWestDisabled: boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -160,12 +163,15 @@ function AppRouter(props: Props) {
     hasUnclaimedRefereeReward,
     setReferrer,
     homepageData,
+    wildWestDisabled,
   } = props;
+
   const { entries, listen, action: historyAction } = history;
   const entryIndex = history.index;
   const urlParams = new URLSearchParams(search);
   const resetScroll = urlParams.get('reset_scroll');
   const hasLinkedCommentInUrl = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
+  const tagParams = urlParams.get(CS.TAGS_KEY);
   const isLargeScreen = useIsLargeScreen();
 
   const homeCategoryPages = React.useMemo(() => {
@@ -261,8 +267,9 @@ function AppRouter(props: Props) {
         <Redirect from={`/$/${PAGES.DEPRECATED__PUBLISHED}`} to={`/$/${PAGES.UPLOADS}`} />
 
         <Route path={`/`} exact component={HomePage} />
-        <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />
-        <Route path={`/$/${PAGES.WILD_WEST}`} exact component={DiscoverPage} />
+
+        {(!wildWestDisabled || tagParams) && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
+        {!wildWestDisabled && <Route path={`/$/${PAGES.WILD_WEST}`} exact component={DiscoverPage} />}
         {homeCategoryPages}
 
         <Route path={`/$/${PAGES.AUTH_SIGNIN}`} exact component={SignInPage} />
@@ -330,6 +337,8 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.NOTIFICATIONS}`} component={NotificationsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.AUTH_WALLET_PASSWORD}`} component={SignInWalletPasswordPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_OWN_COMMENTS}`} component={OwnComments} />
+
+        <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />

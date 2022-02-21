@@ -1,29 +1,20 @@
 import { connect } from 'react-redux';
-import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
-import { doResolveUris } from 'redux/actions/claims';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { doCommentList, doSuperChatList } from 'redux/actions/comments';
-import {
-  selectTopLevelCommentsForUri,
-  selectIsFetchingComments,
-  selectSuperChatsForUri,
-  selectSuperChatTotalAmountForUri,
-  selectPinnedCommentsForUri,
-} from 'redux/selectors/comments';
-
+import { selectIsFetchingComments } from 'redux/selectors/comments';
+import { selectIsUriResolving } from 'redux/selectors/claims';
+import { VIEW_MODES } from 'ui/component/livestreamChatLayout/view';
 import LivestreamComments from './view';
 
-const select = (state, props) => ({
-  claim: selectClaimForUri(state, props.uri),
-  comments: selectTopLevelCommentsForUri(state, props.uri, MAX_LIVESTREAM_COMMENTS),
-  pinnedComments: selectPinnedCommentsForUri(state, props.uri),
-  fetchingComments: selectIsFetchingComments(state),
-  superChats: selectSuperChatsForUri(state, props.uri),
-  superChatsTotalAmount: selectSuperChatTotalAmountForUri(state, props.uri),
-});
+const select = (state, props) => {
+  const { comments, viewMode } = props;
 
-export default connect(select, {
-  doCommentList,
-  doSuperChatList,
-  doResolveUris,
-})(LivestreamComments);
+  return {
+    fetchingComments: selectIsFetchingComments(state),
+    resolvingSuperchats: Boolean(
+      viewMode === VIEW_MODES.SUPERCHAT &&
+        comments &&
+        comments.some(({ channel_url }) => selectIsUriResolving(state, channel_url))
+    ),
+  };
+};
+
+export default connect(select)(LivestreamComments);

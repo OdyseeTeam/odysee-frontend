@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useEffect } from 'react';
 import Button from 'component/button';
 import DateTimePicker from 'react-datetime-picker';
 
@@ -85,6 +85,13 @@ const PublishReleaseDate = (props: Props) => {
         break;
     }
   }
+
+  useEffect(() => {
+    return () => {
+      updatePublishForm({ releaseTimeEdited: undefined });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="form-field-date-picker">

@@ -7,15 +7,17 @@ import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
-import { doFetchActiveLivestream } from 'redux/actions/livestream';
+import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import LivestreamPage from './view';
 
 const select = (state, props) => {
-  const channelClaimId = getChannelIdFromClaim(selectClaimForUri(state, props.uri));
+  const { uri } = props;
+  const channelClaimId = getChannelIdFromClaim(selectClaimForUri(state, uri));
+
   return {
     isAuthenticated: selectUserVerifiedEmail(state),
     channelClaimId,
-    chatDisabled: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_COMMENTS_TAG)(state),
+    chatDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
   };
@@ -26,7 +28,7 @@ const perform = {
   doUserSetReferrer,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
-  doFetchActiveLivestream,
+  doFetchChannelLiveStatus,
 };
 
 export default connect(select, perform)(LivestreamPage);

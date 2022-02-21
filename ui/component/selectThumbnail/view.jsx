@@ -2,7 +2,7 @@
 import * as MODALS from 'constants/modal_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Lbry from 'lbry';
-import { DOMAIN } from 'config';
+import { DOMAIN, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import * as React from 'react';
 import { FormField } from 'component/common/form';
 import FileSelector from 'component/common/file-selector';
@@ -123,64 +123,67 @@ function SelectThumbnail(props: Props) {
   return (
     <>
       {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
-        <div className="column">
-          {thumbPreview}
-          {publishForm && thumbUploaded ? (
-            <div className="column__item">
-              <p>{__('Upload complete.')}</p>
-              <div className="section__actions">
-                <Button button="link" label={__('New thumbnail')} onClick={resetThumbnailStatus} />
+        <>
+          <label>{__('Thumbnail')}</label>
+          <div className="column">
+            {thumbPreview}
+            {publishForm && thumbUploaded ? (
+              <div className="column__item">
+                <p>{__('Upload complete.')}</p>
+                <div className="section__actions">
+                  <Button button="link" label={__('New thumbnail')} onClick={resetThumbnailStatus} />
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="column__item">
-              {manualInput ? (
-                <FormField
-                  type="text"
-                  name="content_thumbnail"
-                  label="URL"
-                  placeholder="https://images.fbi.gov/alien"
-                  value={thumbnail}
-                  disabled={formDisabled}
-                  onChange={handleThumbnailChange}
-                />
-              ) : (
-                <FileSelector
-                  currentPath={thumbnailPath}
-                  label={__('Thumbnail')}
-                  placeholder={__('Choose an enticing thumbnail')}
-                  accept={accept}
-                  onFileChosen={(file) =>
-                    openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
-                      file,
-                      cb: (url) => !publishForm && updateThumbnailParams({ thumbnail_url: url }),
-                    })
-                  }
-                />
-              )}
-              <div className="card__actions">
-                <Button
-                  button="link"
-                  label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
-                  onClick={() =>
-                    updatePublishForm({
-                      uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
-                    })
-                  }
-                />
-                {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && (
-                  // Disabled on desktop until this is resolved
-                  // https://github.com/electron/electron/issues/20750#issuecomment-709505902
-                  <Button
-                    button="link"
-                    label={__('Take a snapshot from your video')}
-                    onClick={() => openModal(MODALS.AUTO_GENERATE_THUMBNAIL, { filePath: actualFilePath })}
+            ) : (
+              <div className="column__item">
+                {manualInput ? (
+                  <FormField
+                    type="text"
+                    name="content_thumbnail"
+                    label="URL"
+                    placeholder="https://images.fbi.gov/alien"
+                    value={thumbnail}
+                    disabled={formDisabled}
+                    onChange={handleThumbnailChange}
+                  />
+                ) : (
+                  <FileSelector
+                    currentPath={thumbnailPath}
+                    label={__('Thumbnail')}
+                    placeholder={__('Choose an enticing thumbnail')}
+                    accept={accept}
+                    onFileChosen={(file) =>
+                      openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
+                        file,
+                        cb: (url) => !publishForm && updateThumbnailParams({ thumbnail_url: url }),
+                      })
+                    }
                   />
                 )}
+                <div className="card__actions">
+                  <Button
+                    button="link"
+                    label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
+                    onClick={() =>
+                      updatePublishForm({
+                        uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
+                      })
+                    }
+                  />
+                  {status === THUMBNAIL_STATUSES.READY && isSupportedVideo && (
+                    // Disabled on desktop until this is resolved
+                    // https://github.com/electron/electron/issues/20750#issuecomment-709505902
+                    <Button
+                      button="link"
+                      label={__('Take a snapshot from your video')}
+                      onClick={() => openModal(MODALS.AUTO_GENERATE_THUMBNAIL, { filePath: actualFilePath })}
+                    />
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </>
       )}
 
       {status === THUMBNAIL_STATUSES.IN_PROGRESS && <p>{__('Uploading thumbnail')}...</p>}
@@ -188,7 +191,10 @@ function SelectThumbnail(props: Props) {
         <p className="help">
           {manualInput
             ? __('Enter a URL for your thumbnail.')
-            : __('Upload your thumbnail to %domain%. Recommended size is 16:9.', { domain: DOMAIN })}
+            : __('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
+                domain: DOMAIN,
+                max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+              })}
         </p>
       )}
     </>

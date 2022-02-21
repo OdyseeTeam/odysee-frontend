@@ -8,13 +8,15 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
+import DebouncedInput from 'component/common/debounced-input';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsLargeScreen, isTouch } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
 
 const FOLLOWED_ITEM_INITIAL_LIMIT = 10;
+const touch = isTouch();
 
 type SideNavLink = {
   title: string,
@@ -110,6 +112,7 @@ type Props = {
   user: ?User,
   homepageData: any,
   activeChannelStakedLevel: number,
+  wildWestDisabled: boolean,
 };
 
 function SideNavigation(props: Props) {
@@ -128,6 +131,7 @@ function SideNavigation(props: Props) {
     user,
     followedTags,
     activeChannelStakedLevel,
+    wildWestDisabled,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
@@ -221,14 +225,17 @@ function SideNavigation(props: Props) {
   const isAbsolute = isOnFilePage || isMediumScreen;
   const isMobile = useIsMobile();
 
-  const menuCanCloseCompletely = isOnFilePage || isMobile;
+  const [menuInitialized, setMenuInitialized] = React.useState(false);
+
+  const menuCanCloseCompletely = (isOnFilePage && !isMobile) || (isMobile && menuInitialized);
   const hideMenuFromView = menuCanCloseCompletely && !sidebarOpen;
 
   const [canDisposeMenu, setCanDisposeMenu] = React.useState(false);
 
   React.useEffect(() => {
-    if (hideMenuFromView) {
+    if (hideMenuFromView || !menuInitialized) {
       const handler = setTimeout(() => {
+        setMenuInitialized(true);
         setCanDisposeMenu(true);
       }, 250);
       return () => {
@@ -237,18 +244,30 @@ function SideNavigation(props: Props) {
     } else {
       setCanDisposeMenu(false);
     }
-  }, [hideMenuFromView]);
+  }, [hideMenuFromView, menuInitialized]);
 
   const shouldRenderLargeMenu = menuCanCloseCompletely || sidebarOpen;
 
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
   const showPushMenu = sidebarOpen && !menuCanCloseCompletely;
+  const showOverlay = isAbsolute && sidebarOpen;
 
   const showSubscriptionSection = shouldRenderLargeMenu && isPersonalized && subscriptions && subscriptions.length > 0;
   const showTagSection = sidebarOpen && isPersonalized && followedTags && followedTags.length;
 
-  let displayedSubscriptions = subscriptions;
-  if (showSubscriptionSection && subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && !expandSubscriptions) {
+  const [subscriptionFilter, setSubscriptionFilter] = React.useState('');
+
+  const filteredSubscriptions = subscriptions.filter(
+    (sub) => !subscriptionFilter || sub.channelName.toLowerCase().includes(subscriptionFilter.toLowerCase())
+  );
+
+  let displayedSubscriptions = filteredSubscriptions;
+  if (
+    showSubscriptionSection &&
+    !subscriptionFilter &&
+    subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT &&
+    !expandSubscriptions
+  ) {
     displayedSubscriptions = subscriptions.slice(0, FOLLOWED_ITEM_INITIAL_LIMIT);
   }
 
@@ -289,10 +308,22 @@ function SideNavigation(props: Props) {
       return (
         <>
           <ul className="navigation__secondary navigation-links">
+            {subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
+              <li className="navigation-item">
+                <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
+              </li>
+            )}
             {displayedSubscriptions.map((subscription) => (
               <SubscriptionListItem key={subscription.uri} subscription={subscription} />
             ))}
-            {subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
+            {!!subscriptionFilter && !displayedSubscriptions.length && (
+              <li>
+                <div className="navigation-item">
+                  <div className="empty empty--centered">{__('No results')}</div>
+                </div>
+              </li>
+            )}
+            {!subscriptionFilter && subscriptions.length > FOLLOWED_ITEM_INITIAL_LIMIT && (
               <Button
                 key="showMore"
                 label={expandSubscriptions ? __('Show less') : __('Show more')}
@@ -331,6 +362,11 @@ function SideNavigation(props: Props) {
     }
     return null;
   }
+
+  React.useEffect(() => {
+    // $FlowFixMe
+    document.body.style.overflowY = showOverlay ? 'hidden' : '';
+  }, [showOverlay]);
 
   React.useEffect(() => {
     if (purchaseSuccess) {
@@ -421,6 +457,7 @@ function SideNavigation(props: Props) {
           'navigation--micro': showMicroMenu,
           'navigation--push': showPushMenu,
           'navigation-file-page-and-mobile': hideMenuFromView,
+          'navigation-touch': touch,
         })}
       >
         {(!canDisposeMenu || sidebarOpen) && (
@@ -451,7 +488,7 @@ function SideNavigation(props: Props) {
                 <>
                   {/* $FlowFixMe -- GetLinksData should fix it's data type */}
                   {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
-                  {getLink(WILD_WEST)}
+                  {!wildWestDisabled && getLink(WILD_WEST)}
                 </>
               )}
             </ul>
@@ -470,7 +507,7 @@ function SideNavigation(props: Props) {
       </nav>
       <div
         className={classnames('navigation__overlay', {
-          'navigation__overlay--active': isAbsolute && sidebarOpen,
+          'navigation__overlay--active': showOverlay,
         })}
         onClick={() => setSidebarOpen(false)}
       />

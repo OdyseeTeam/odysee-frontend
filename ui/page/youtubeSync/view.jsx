@@ -52,7 +52,7 @@ export default function YoutubeSync(props: Props) {
     }
 
     replace(`?${urlParamsInEffect.toString()}`);
-  }, [pathname, search]);
+  }, [pathname, replace, search]);
 
   React.useEffect(() => {
     if (statusToken && !hasYoutubeChannels) {
@@ -124,7 +124,7 @@ export default function YoutubeSync(props: Props) {
                       {nameError ? (
                         <span className="error__text">{nameError}</span>
                       ) : (
-                        __('Your %site_name% desired channel name', { site_name: SITE_NAME })
+                        __('Your desired %site_name% channel name', { site_name: SITE_NAME })
                       )}
                     </label>
                     <div className="form-field__prefix">@</div>

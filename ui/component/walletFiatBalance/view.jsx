@@ -5,7 +5,6 @@ import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Icon from 'component/common/icon';
-import I18nMessage from 'component/i18nMessage';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
@@ -26,6 +25,7 @@ const WalletBalance = () => {
 
   // calculate account transactions section
   React.useEffect(() => {
+    // eslint-disable-next-line space-before-function-paren
     (async function () {
       try {
         if (!stripeEnvironment) {
@@ -35,9 +35,11 @@ const WalletBalance = () => {
 
         setAccountStatusResponse(response);
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.log(err);
       }
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [stripeEnvironment]);
 
   return (
@@ -54,18 +56,15 @@ const WalletBalance = () => {
             </>
           }
           subtitle={
-            accountStatusResponse && accountStatusResponse.total_received_unpaid > 0 ? (
-              <I18nMessage>
-                This is your pending balance that will be automatically sent to your bank account.
-              </I18nMessage>
-            ) : (
-              <I18nMessage>When you begin to receive tips your balance will be updated here.</I18nMessage>
-            )
+            accountStatusResponse && accountStatusResponse.total_received_unpaid > 0
+              ? __('This is your pending balance that will be automatically sent to your bank account.')
+              : __('When you begin to receive tips your balance will be updated here.')
           }
           actions={
             <>
               <h2 className="section__title--small">
-                ${(accountStatusResponse && accountStatusResponse.total_received_unpaid / 100) || 0} {__('Total Received Tips')}
+                ${(accountStatusResponse && accountStatusResponse.total_received_unpaid / 100) || 0}{' '}
+                {__('Total Received Tips')}
               </h2>
 
               <h2 className="section__title--small">

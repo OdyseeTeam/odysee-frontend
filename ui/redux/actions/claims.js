@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
@@ -10,6 +11,8 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
   selectPendingClaimsById,
+  selectClaimIsMine,
+  selectIsMyChannelCountOverLimit,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -263,7 +266,8 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
   };
 }
 
-export function doAbandonClaim(txid: string, nout: number, cb: (string) => void) {
+export function doAbandonClaim(claim: Claim, cb: (string) => void) {
+  const { txid, nout } = claim;
   const outpoint = `${txid}:${nout}`;
 
   return (dispatch: Dispatch, getState: GetState) => {
@@ -272,7 +276,8 @@ export function doAbandonClaim(txid: string, nout: number, cb: (string) => void)
     const mySupports: { [string]: Support } = selectSupportsByOutpoint(state);
 
     // A user could be trying to abandon a support or one of their claims
-    const claimToAbandon = myClaims.find((claim) => claim.txid === txid && claim.nout === nout);
+    const claimIsMine = selectClaimIsMine(state, claim);
+    const claimToAbandon = claimIsMine ? claim : myClaims.find((claim) => claim.txid === txid && claim.nout === nout);
     const supportToAbandon = mySupports[outpoint];
 
     if (!claimToAbandon && !supportToAbandon) {
@@ -387,10 +392,21 @@ export function doClearChannelErrors() {
 }
 
 export function doCreateChannel(name: string, amount: number, optionalParams: any, onConfirm: any) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const channelCountOverLimit = selectIsMyChannelCountOverLimit(state);
+
     dispatch({
       type: ACTIONS.CREATE_CHANNEL_STARTED,
     });
+
+    if (channelCountOverLimit) {
+      dispatch({
+        type: ACTIONS.CREATE_CHANNEL_FAILED,
+        data: 'Channel limit exceeded',
+      });
+      return;
+    }
 
     const createParams: {
       name: string,

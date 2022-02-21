@@ -1,3 +1,4 @@
+import { RECSYS_ENDPOINT } from 'config';
 import { selectUser } from 'redux/selectors/user';
 import { makeSelectRecommendedRecsysIdForClaimId } from 'redux/selectors/search';
 import { v4 as Uuidv4 } from 'uuid';
@@ -8,7 +9,7 @@ import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { history } from 'ui/store';
 
-const recsysEndpoint = 'https://recsys.odysee.com/log/video/view';
+const recsysEndpoint = RECSYS_ENDPOINT;
 const recsysId = 'lighthouse-v0';
 
 const getClaimIdsFromUris = (uris) => {
@@ -43,6 +44,7 @@ const recsys = {
    *  - pageLoadedAt
    *  - isEmbed
    *  - pageExitedAt
+   *  - autoplay
    *  - recsysId // optional
    */
 
@@ -236,7 +238,7 @@ const recsys = {
         const shouldSkip = recsys.entries[claimId].parentUuid && !recsys.entries[claimId].recClaimIds;
         if (!shouldSkip && ((claimId !== playingClaimId && floatingPlayer) || !floatingPlayer)) {
           recsys.entries[claimId]['pageExitedAt'] = Date.now();
-          recsys.sendRecsysEntry(claimId);
+          // recsys.sendRecsysEntry(claimId); breaks pop out = off, not helping with browser close.
         }
         recsys.log('OnNavigate', claimId);
       });

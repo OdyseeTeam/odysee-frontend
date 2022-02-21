@@ -16,6 +16,14 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import Spinner from 'component/spinner';
 
+// prettier-ignore
+const Lazy = {
+  // $FlowFixMe
+  DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
+  // $FlowFixMe
+  Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
+};
+
 export const PAGE_VIEW_QUERY = 'view';
 export const EDIT_PAGE = 'edit';
 
@@ -51,6 +59,7 @@ export default function CollectionPage(props: Props) {
     collectionHasEdits,
     claimIsPending,
     isResolvingCollection,
+    editCollection,
     fetchCollectionItems,
     deleteCollection,
   } = props;
@@ -62,8 +71,22 @@ export default function CollectionPage(props: Props) {
 
   const [didTryResolve, setDidTryResolve] = React.useState(false);
   const [showInfo, setShowInfo] = React.useState(false);
+  const [showEdit, setShowEdit] = React.useState(false);
+  const [unavailableUris, setUnavailable] = React.useState([]);
+
   const { name, totalItems } = collection || {};
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_LISTS.includes(collectionId);
+
+  function handleOnDragEnd(result) {
+    const { source, destination } = result;
+
+    if (!destination) return;
+
+    const { index: from } = source;
+    const { index: to } = destination;
+
+    editCollection(collectionId, { order: { from, to } });
+  }
 
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
@@ -93,6 +116,18 @@ export default function CollectionPage(props: Props) {
     />
   );
 
+  const removeUnavailable = (
+    <Button
+      button="close"
+      icon={ICONS.DELETE}
+      label={__('Remove all unavailable claims')}
+      onClick={() => {
+        editCollection(collectionId, { uris: unavailableUris, remove: true });
+        setUnavailable([]);
+      }}
+    />
+  );
+
   let titleActions;
   if (collectionHasEdits) {
     titleActions = unpublished;
@@ -108,6 +143,9 @@ export default function CollectionPage(props: Props) {
       {uri && <ClaimAuthor uri={uri} />}
     </div>
   );
+
+  const listName = claim ? claim.value.title || claim.name : collection && collection.name;
+
   const info = (
     <Card
       title={
@@ -120,10 +158,10 @@ export default function CollectionPage(props: Props) {
             }
             className="icon--margin-right"
           />
-          {claim ? claim.value.title || claim.name : collection && collection.name}
+          {isBuiltin ? __(listName) : listName}
         </span>
       }
-      titleActions={titleActions}
+      titleActions={unavailableUris.length > 0 ? removeUnavailable : titleActions}
       subtitle={subTitle}
       body={
         <CollectionActions
@@ -133,6 +171,8 @@ export default function CollectionPage(props: Props) {
           showInfo={showInfo}
           isBuiltin={isBuiltin}
           collectionUrls={collectionUrls}
+          setShowEdit={setShowEdit}
+          showEdit={showEdit}
         />
       }
       actions={
@@ -185,10 +225,25 @@ export default function CollectionPage(props: Props) {
 
   if (urlsReady) {
     return (
-      <Page>
+      <Page className="playlistPage-wrapper">
+        {editing}
         <div className={classnames('section card-stack')}>
           {info}
-          <ClaimList uris={collectionUrls} collectionId={collectionId} />
+          <React.Suspense fallback={null}>
+            <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+              <Lazy.Droppable droppableId="list__ordering">
+                {(DroppableProvided) => (
+                  <ClaimList
+                    uris={collectionUrls}
+                    collectionId={collectionId}
+                    showEdit={showEdit}
+                    droppableProvided={DroppableProvided}
+                    unavailableUris={unavailableUris}
+                  />
+                )}
+              </Lazy.Droppable>
+            </Lazy.DragDropContext>
+          </React.Suspense>
         </div>
       </Page>
     );

@@ -1,9 +1,11 @@
 // @flow
+import { CHANNEL_CREATION_LIMIT } from 'config';
 import { normalizeURI, parseURI, isURIValid } from 'util/lbryURI';
+import { selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { isClaimNsfw, filterClaims, getChannelIdFromClaim } from 'util/claim';
+import { isClaimNsfw, filterClaims, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
 
@@ -333,6 +335,9 @@ export const makeSelectMetadataForUri = (uri: string) =>
 
 export const makeSelectMetadataItemForUri = (uri: string, key: string) =>
   createSelector(makeSelectMetadataForUri(uri), (metadata: ChannelMetadata | StreamMetadata) => {
+    if (metadata && metadata.tags && key === 'tags') {
+      return metadata.tags ? metadata.tags.filter((tag) => !INTERNAL_TAGS.includes(tag)) : [];
+    }
     return metadata ? metadata[key] : undefined;
   });
 
@@ -389,8 +394,29 @@ export const selectThumbnailForUri = createCachedSelector(selectClaimForUri, (cl
 
 export const makeSelectCoverForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
-    const cover = claim && claim.value && claim.value.cover;
-    return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    if (claim && claim.value.cover) {
+      const cover = claim && claim.value && claim.value.cover;
+      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    } else {
+      const cover = claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.cover;
+      return cover && cover.url ? cover.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    }
+  });
+
+export const makeSelectAvatarForUri = (uri: string) =>
+  createSelector(makeSelectClaimForUri(uri), (claim) => {
+    if (claim && claim.value.cover) {
+      const avatar = claim && claim.value && claim.value.thumbnail && claim.value.thumbnail;
+      return avatar && avatar.url ? avatar.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
+    } else {
+      const avatar =
+        claim &&
+        claim.signing_channel &&
+        claim.signing_channel.value &&
+        claim.signing_channel.value.thumbnail &&
+        claim.signing_channel.value.thumbnail;
+      return avatar && avatar.url ? avatar.url.trim().replace(/^http:\/\//i, 'https://') : false;
+    }
   });
 
 export const selectIsFetchingClaimListMine = (state: State) => selectState(state).isFetchingClaimListMine;
@@ -573,6 +599,24 @@ export const selectClaimIsNsfwForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export const selectChannelForClaimUri = createCachedSelector(
+  (state, uri, includePrefix) => includePrefix,
+  selectClaimForUri,
+  (includePrefix?: boolean, claim: Claim) => {
+    if (!claim || !claim.signing_channel || !claim.is_channel_signature_valid) {
+      return null;
+    }
+
+    const { canonical_url: canonicalUrl, permanent_url: permanentUrl } = claim.signing_channel;
+
+    if (canonicalUrl) {
+      return includePrefix ? canonicalUrl : canonicalUrl.slice('lbry://'.length);
+    } else {
+      return includePrefix ? permanentUrl : permanentUrl.slice('lbry://'.length);
+    }
+  }
+)((state, uri, includePrefix) => `${String(uri)}:${String(includePrefix)}`);
+
 // Returns the associated channel uri for a given claim uri
 // accepts a regular claim uri lbry://something
 // returns the channel uri that created this claim lbry://@channel
@@ -695,10 +739,6 @@ export const makeSelectClaimHasSource = (uri: string) =>
     return Boolean(claim.value.source);
   });
 
-export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
-  return claim ? Boolean(claim.value_type === 'stream' && !claim.value.source) : false;
-};
-
 export const selectIsStreamPlaceholderForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return isStreamPlaceholderClaim(claim);
@@ -735,3 +775,19 @@ export const selectUpdatingCollection = (state: State) => selectState(state).upd
 export const selectUpdateCollectionError = (state: State) => selectState(state).updateCollectionError;
 export const selectCreatingCollection = (state: State) => selectState(state).creatingCollection;
 export const selectCreateCollectionError = (state: State) => selectState(state).createCollectionError;
+
+export const selectIsMyChannelCountOverLimit = createSelector(
+  selectMyChannelClaimIds,
+  selectYoutubeChannels,
+  (myClaimIds, ytChannels: ?Array<{ channel_claim_id: string }>) => {
+    if (myClaimIds) {
+      if (ytChannels && ytChannels.length > 0) {
+        // $FlowFixMe - null 'ytChannels' already excluded
+        const ids = myClaimIds.filter((id) => !ytChannels.some((yt) => yt.channel_claim_id === id));
+        return ids.length > CHANNEL_CREATION_LIMIT;
+      }
+      return myClaimIds.length > CHANNEL_CREATION_LIMIT;
+    }
+    return false;
+  }
+);

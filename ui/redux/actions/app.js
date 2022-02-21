@@ -1,7 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
-import { DOMAIN } from 'config';
 import { doFetchChannelListMine, doFetchCollectionListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimIsMineForUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
@@ -87,8 +86,6 @@ export function doDaemonReady() {
       doAuthenticate(
         appVersion,
         undefined,
-        undefined,
-        true,
         (status) => {
           const trendingAlgorithm =
             status &&
@@ -100,8 +97,7 @@ export function doDaemonReady() {
             analytics.trendingAlgorithmEvent(trendingAlgorithm);
           }
         },
-        undefined,
-        DOMAIN
+        undefined
       )
     );
 }
@@ -158,7 +154,7 @@ export function doAnalyticsView(uri, timeToStart) {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const { txid, nout, claim_id: claimId } = claim;
-    const claimIsMine = selectClaimIsMineForUri(state, claim);
+    const claimIsMine = selectClaimIsMineForUri(state, uri);
     const outpoint = `${txid}:${nout}`;
 
     if (claimIsMine) {
@@ -400,3 +396,8 @@ export function doSetIncognito(incognitoEnabled) {
     },
   };
 }
+
+export const doSetMobilePlayerDimensions = (height, width) => ({
+  type: ACTIONS.SET_MOBILE_PLAYER_DIMENSIONS,
+  data: { heightWidth: { height, width } },
+});

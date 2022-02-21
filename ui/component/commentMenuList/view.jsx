@@ -9,6 +9,7 @@ import * as MODALS from 'constants/modal_types';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import React from 'react';
+import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   uri: ?string,
@@ -36,6 +37,7 @@ type Props = {
   pinComment: (string, string, boolean) => Promise<any>,
   commentModAddDelegate: (string, string, ChannelClaim) => void,
   setQuickReply: (any) => void,
+  handleDismissPin?: () => void,
 };
 
 function CommentMenuList(props: Props) {
@@ -63,7 +65,10 @@ function CommentMenuList(props: Props) {
     pinComment,
     commentModAddDelegate,
     setQuickReply,
+    handleDismissPin,
   } = props;
+
+  const isMobile = useIsMobile();
 
   const {
     location: { pathname, search },
@@ -248,6 +253,13 @@ function CommentMenuList(props: Props) {
             <Icon aria-hidden icon={ICONS.COPY_LINK} />
             {__('Copy Link')}
           </div>
+        </MenuItem>
+      )}
+
+      {isPinned && isLiveComment && isMobile && (
+        <MenuItem className="comment__menu-option menu__link" onSelect={handleDismissPin}>
+          <Icon aria-hidden icon={ICONS.DISMISS_ALL} />
+          {__('Dismiss Pin')}
         </MenuItem>
       )}
 

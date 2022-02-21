@@ -55,9 +55,8 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
       },
     });
   if (claim && !colKey) {
-    // could support "abandon, but keep" later
-    const { txid, nout } = claim;
-    return dispatch(doAbandonClaim(txid, nout, collectionDelete));
+    // could support "abandon collection claim, but keep private collection" later
+    return dispatch(doAbandonClaim(claim, collectionDelete));
   }
   return collectionDelete();
 };
@@ -161,8 +160,8 @@ export const doFetchItemsInCollections = (
 
       for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
         batches[i] = Lbry.claim_search({
-          claim_ids: claim.value.claims,
-          page: i + 1,
+          claim_ids: claim.value.claims.slice(i * batchSize, (i + 1) * batchSize),
+          page: 1,
           page_size: batchSize,
           no_totals: true,
         });
@@ -184,35 +183,6 @@ export const doFetchItemsInCollections = (
         items: null,
       };
     }
-  }
-
-  function formatForClaimActions(resultClaimsByUri) {
-    const formattedClaims = {};
-    Object.entries(resultClaimsByUri).forEach(([uri, uriResolveInfo]) => {
-      // Flow has terrible Object.entries support
-      // https://github.com/facebook/flow/issues/2221
-      if (uriResolveInfo) {
-        let result = {};
-        if (uriResolveInfo.value_type === 'channel') {
-          result.channel = uriResolveInfo;
-          // $FlowFixMe
-          result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-          // ALSO SKIP COLLECTIONS
-        } else if (uriResolveInfo.value_type === 'collection') {
-          result.collection = uriResolveInfo;
-        } else {
-          result.stream = uriResolveInfo;
-          if (uriResolveInfo.signing_channel) {
-            result.channel = uriResolveInfo.signing_channel;
-            result.claimsInChannel =
-              (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
-          }
-        }
-        // $FlowFixMe
-        formattedClaims[uri] = result;
-      }
-    });
-    return formattedClaims;
   }
 
   const invalidCollectionIds = [];
@@ -288,11 +258,18 @@ export const doFetchItemsInCollections = (
       invalidCollectionIds.push(collectionId);
     }
   });
-  const formattedClaimsByUri = formatForClaimActions(collectionItemsById);
 
-  dispatch({
-    type: ACTIONS.RESOLVE_URIS_COMPLETED,
-    data: { resolveInfo: formattedClaimsByUri },
+  const resolveInfo: ClaimActionResolveInfo = {};
+
+  const resolveReposts = true;
+
+  collectionItemsById.forEach((collection) => {
+    // GenericClaim type probably needs to be updated to avoid this "Any"
+    collection.items &&
+      collection.items.forEach((result: any) => {
+        result = { [result.canonical_url]: result };
+        processResult(result, resolveInfo, resolveReposts);
+      });
   });
 
   dispatch({
@@ -302,7 +279,50 @@ export const doFetchItemsInCollections = (
       failedCollectionIds: invalidCollectionIds,
     },
   });
+
+  dispatch({
+    type: ACTIONS.RESOLVE_URIS_COMPLETED,
+    data: { resolveInfo },
+  });
 };
+
+function processResult(result, resolveInfo = {}, checkReposts = false) {
+  const fallbackResolveInfo = {
+    stream: null,
+    claimsInChannel: null,
+    channel: null,
+  };
+
+  Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+    // Flow has terrible Object.entries support
+    // https://github.com/facebook/flow/issues/2221
+    if (uriResolveInfo) {
+      if (uriResolveInfo.error) {
+        // $FlowFixMe
+        resolveInfo[uri] = { ...fallbackResolveInfo };
+      } else {
+        let result = {};
+        if (uriResolveInfo.value_type === 'channel') {
+          result.channel = uriResolveInfo;
+          // $FlowFixMe
+          result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+        } else if (uriResolveInfo.value_type === 'collection') {
+          result.collection = uriResolveInfo;
+          // $FlowFixMe
+        } else {
+          result.stream = uriResolveInfo;
+          if (uriResolveInfo.signing_channel) {
+            result.channel = uriResolveInfo.signing_channel;
+            result.claimsInChannel =
+              (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
+          }
+        }
+        // $FlowFixMe
+        resolveInfo[uri] = result;
+      }
+    }
+  });
+}
 
 export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }, cb?: () => void) => {
   const { collectionId, pageSize } = options;
@@ -319,160 +339,49 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 ) => {
   const state = getState();
   const collection: Collection = makeSelectCollectionForId(collectionId)(state);
+
+  if (!collection) return dispatch({ type: ACTIONS.COLLECTION_ERROR, data: { message: 'collection does not exist' } });
+
   const editedCollection: Collection = makeSelectEditedCollectionForId(collectionId)(state);
   const unpublishedCollection: Collection = makeSelectUnpublishedCollectionForId(collectionId)(state);
   const publishedCollection: Collection = makeSelectPublishedCollectionForId(collectionId)(state); // needs to be published only
 
-  const generateCollectionItemsFromSearchResult = (results) => {
-    return (
-      Object.values(results)
-        // $FlowFixMe
-        .reduce(
-          (
-            acc,
-            cur: {
-              stream: ?StreamClaim,
-              channel: ?ChannelClaim,
-              claimsInChannel: ?number,
-              collection: ?CollectionClaim,
-            }
-          ) => {
-            let url;
-            if (cur.stream) {
-              url = cur.stream.permanent_url;
-            } else if (cur.channel) {
-              url = cur.channel.permanent_url;
-            } else if (cur.collection) {
-              url = cur.collection.permanent_url;
-            } else {
-              return acc;
-            }
-            acc.push(url);
-            return acc;
-          },
-          []
-        )
-    );
-  };
-
-  if (!collection) {
-    return dispatch({
-      type: ACTIONS.COLLECTION_ERROR,
-      data: {
-        message: 'collection does not exist',
-      },
-    });
-  }
-
-  let currentItems = collection.items ? collection.items.concat() : [];
-  const { claims: passedClaims, order, claimIds, replace, remove, type } = params;
+  const { uris, order, remove, type } = params;
 
   const collectionType = type || collection.type;
-  let newItems: Array<?string> = currentItems;
+  const currentUrls = collection.items ? collection.items.concat() : [];
+  let newItems = currentUrls;
 
-  if (passedClaims) {
+  // Passed uris to add/remove:
+  if (uris) {
     if (remove) {
-      const passedUrls = passedClaims.map((claim) => claim.permanent_url);
-      // $FlowFixMe // need this?
-      newItems = currentItems.filter((item: string) => !passedUrls.includes(item));
+      // Filters (removes) the passed uris from the current list items
+      newItems = currentUrls.filter((url) => url && !uris.includes(url));
     } else {
-      passedClaims.forEach((claim) => newItems.push(claim.permanent_url));
+      // Pushes (adds to the end) the passed uris to the current list items
+      uris.forEach((url) => newItems.push(url));
     }
   }
 
-  if (claimIds) {
-    const batches = [];
-    if (claimIds.length > 50) {
-      for (let i = 0; i < Math.ceil(claimIds.length / 50); i++) {
-        batches[i] = claimIds.slice(i * 50, (i + 1) * 50);
-      }
-    } else {
-      batches[0] = claimIds;
-    }
-    const resultArray = await Promise.all(
-      batches.map((batch) => {
-        let options = { claim_ids: batch, page: 1, page_size: 50 };
-        return dispatch(doClaimSearch(options));
-      })
-    );
-
-    const searchResults = Object.assign({}, ...resultArray);
-
-    if (replace) {
-      newItems = generateCollectionItemsFromSearchResult(searchResults);
-    } else {
-      newItems = currentItems.concat(generateCollectionItemsFromSearchResult(searchResults));
-    }
-  }
-
+  // Passed an ordering to change: (doesn't need the uris here since
+  // the items are already on the list)
   if (order) {
-    const [movedItem] = currentItems.splice(order.from, 1);
-    currentItems.splice(order.to, 0, movedItem);
+    const [movedItem] = currentUrls.splice(order.from, 1);
+    currentUrls.splice(order.to, 0, movedItem);
   }
 
-  // console.log('p&e', publishedCollection.items, newItems, publishedCollection.items.join(','), newItems.join(','))
-  if (editedCollection) {
-    // delete edited if newItems are the same as publishedItems
-    if (publishedCollection.items.join(',') === newItems.join(',')) {
-      dispatch({
-        type: ACTIONS.COLLECTION_DELETE,
-        data: {
-          id: collectionId,
-          collectionKey: 'edited',
-        },
-      });
-    } else {
-      dispatch({
-        type: ACTIONS.COLLECTION_EDIT,
-        data: {
-          id: collectionId,
-          collectionKey: 'edited',
-          collection: {
-            items: newItems,
-            id: collectionId,
-            name: params.name || collection.name,
-            updatedAt: getTimestamp(),
-            type: collectionType,
-          },
-        },
-      });
-    }
-  } else if (publishedCollection) {
+  // Delete 'edited' if newItems are the same as publishedItems
+  if (editedCollection && newItems && publishedCollection.items.join(',') === newItems.join(',')) {
+    dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id: collectionId, collectionKey: 'edited' } });
+  } else {
     dispatch({
       type: ACTIONS.COLLECTION_EDIT,
       data: {
         id: collectionId,
-        collectionKey: 'edited',
-        collection: {
-          items: newItems,
-          id: collectionId,
-          name: params.name || collection.name,
-          updatedAt: getTimestamp(),
-          type: collectionType,
-        },
-      },
-    });
-  } else if (COLS.BUILTIN_LISTS.includes(collectionId)) {
-    dispatch({
-      type: ACTIONS.COLLECTION_EDIT,
-      data: {
-        id: collectionId,
-        collectionKey: 'builtin',
-        collection: {
-          items: newItems,
-          id: collectionId,
-          name: params.name || collection.name,
-          updatedAt: getTimestamp(),
-          type: collectionType,
-        },
-      },
-    });
-  } else if (unpublishedCollection) {
-    dispatch({
-      type: ACTIONS.COLLECTION_EDIT,
-      data: {
-        id: collectionId,
-        collectionKey: 'unpublished',
+        collectionKey:
+          ((editedCollection || publishedCollection) && 'edited') ||
+          (COLS.BUILTIN_LISTS.includes(collectionId) && 'builtin') ||
+          (unpublishedCollection && 'unpublished'),
         collection: {
           items: newItems,
           id: collectionId,
@@ -483,5 +392,6 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       },
     });
   }
+
   return true;
 };

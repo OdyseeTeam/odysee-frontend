@@ -37,6 +37,7 @@ export type AppState = {
   interestedInYoutubeSync: boolean,
   activeChannel: ?string,
   incognito: boolean,
+  mobilePlayerDimensions?: { height: number, width: number },
 };
 
 const defaultState: AppState = {
@@ -69,6 +70,7 @@ const defaultState: AppState = {
   interestedInYoutubeSync: false,
   activeChannel: undefined,
   incognito: false,
+  mobilePlayerDimensions: undefined,
 };
 
 // @@router comes from react-router
@@ -217,6 +219,13 @@ reducers[ACTIONS.SET_INCOGNITO] = (state, action) => {
   return {
     ...state,
     incognito: action.data.enabled,
+  };
+};
+
+reducers[ACTIONS.SET_MOBILE_PLAYER_DIMENSIONS] = (state, action) => {
+  return {
+    ...state,
+    mobilePlayerDimensions: action.data.heightWidth,
   };
 };
 

@@ -7,7 +7,6 @@ import ClaimEffectiveAmount from 'component/claimEffectiveAmount';
 import SearchTopClaim from 'component/searchTopClaim';
 import * as CS from 'constants/claim_search';
 import Button from 'component/button';
-import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
 
 type Props = {
@@ -21,7 +20,7 @@ function TopPage(props: Props) {
   // if the query was actually '@name', still offer repost for 'name'
   const queryName = name[0] === '@' ? name.slice(1) : name;
   return (
-    <Page>
+    <Page className="topPage-wrapper">
       <SearchTopClaim query={name} hideLink setChannelActive={setChannelActive} />
       <ClaimListDiscover
         name={channelActive ? `@${queryName}` : queryName}
@@ -30,22 +29,8 @@ function TopPage(props: Props) {
         streamType={CS.CONTENT_ALL}
         meta={
           <div className="search__top-links">
-            <I18nMessage
-              tokens={{
-                repost: (
-                  <Button
-                    button="secondary"
-                    navigate={`/$/${PAGES.REPOST_NEW}?to=${queryName}`}
-                    label={__('Repost Here')}
-                  />
-                ),
-                publish: (
-                  <Button button="secondary" onClick={() => beginPublish(queryName)} label={__('Publish Here')} />
-                ),
-              }}
-            >
-              %repost% %publish%
-            </I18nMessage>
+            <Button button="secondary" navigate={`/$/${PAGES.REPOST_NEW}?to=${queryName}`} label={__('Repost Here')} />
+            <Button button="secondary" onClick={() => beginPublish(queryName)} label={__('Publish Here')} />
           </div>
         }
         includeSupportAction

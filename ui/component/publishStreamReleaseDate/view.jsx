@@ -13,14 +13,15 @@ function dateToLinuxTimestamp(date: Date) {
 }
 
 type Props = {
+  isScheduled: boolean,
   releaseTime: ?number,
   updatePublishForm: ({}) => void,
 };
 const PublishStreamReleaseDate = (props: Props) => {
-  const { releaseTime, updatePublishForm } = props;
+  const { isScheduled, releaseTime, updatePublishForm } = props;
 
   const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : 'DEFAULT');
-  const [publishLater, setPublishLater] = React.useState(Boolean(releaseTime));
+  const [publishLater, setPublishLater] = React.useState(isScheduled);
 
   const handleToggle = () => {
     const shouldPublishLater = !publishLater;
@@ -41,8 +42,9 @@ const PublishStreamReleaseDate = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!releaseTime) updatePublishForm({ releaseTimeEdited: undefined, releaseAnytime: true });
+    if (!isScheduled) updatePublishForm({ releaseTimeEdited: undefined, releaseAnytime: true });
     return () => updatePublishForm({ releaseTimeEdited: undefined, releaseAnytime: false });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const helpText = !publishLater
@@ -59,8 +61,8 @@ const PublishStreamReleaseDate = (props: Props) => {
 
       <div className={'w-full flex flex-col mt-s md:mt-0 md:h-12 md:items-center md:flex-row'}>
         <FormField
-          type="checkbox"
-          name="rightNow"
+          type="radio"
+          name="anytime"
           disabled={false}
           onChange={handleToggle}
           checked={!publishLater}
@@ -69,8 +71,8 @@ const PublishStreamReleaseDate = (props: Props) => {
 
         <div className={'md:ml-m mt-s md:mt-0'}>
           <FormField
-            type="checkbox"
-            name="rightNow"
+            type="radio"
+            name="scheduled_time"
             disabled={false}
             onChange={handleToggle}
             checked={publishLater}

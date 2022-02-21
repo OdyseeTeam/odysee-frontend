@@ -81,7 +81,33 @@ function ChannelsFollowingDiscover(props: Props) {
   }
 
   return (
-    <Page>
+    <Page className="discoverPage-wrapper">
+      {/* !SIMPLE_SITE &&
+        rowDataWithGenericOptions.map(({ title, link, help, options = {} }) => (
+          <div key={title} className="claim-grid__wrapper">
+            <h1 className="section__actions">
+              {link ? (
+                <Button
+                  className="claim-grid__title"
+                  button="link"
+                  navigate={link}
+                  iconRight={ICONS.ARROW_RIGHT}
+                  label={__(title)}
+                />
+              ) : (
+                <span className="claim-grid__title">{__(title)}</span>
+              )}
+              {help}
+            </h1>
+
+            <ClaimTilesDiscover {...options} />
+          </div>
+              ))}
+      {!SIMPLE_SITE && (
+        <h1 id={MORE_CHANNELS_ANCHOR} className="claim-grid__title">
+          {__('More Channels')}
+        </h1>
+      ) */}
       <ClaimListDiscover
         defaultOrderBy={CS.ORDER_BY_TRENDING}
         defaultFreshness={CS.FRESH_ALL}

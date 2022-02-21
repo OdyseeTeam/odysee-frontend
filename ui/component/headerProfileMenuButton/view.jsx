@@ -12,20 +12,25 @@ import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 
 type HeaderMenuButtonProps = {
+  myChannelClaimIds: ?Array<string>,
   activeChannelClaim: ?ChannelClaim,
+  authenticated: boolean,
   email: ?string,
   signOut: () => void,
 };
 
 export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
-  const { activeChannelClaim, email, signOut } = props;
+  const { myChannelClaimIds, activeChannelClaim, authenticated, email, signOut } = props;
 
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
+  // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
+  const noActiveChannel = activeChannelUrl === null;
+  const pendingChannelFetch = !noActiveChannel && myChannelClaimIds === undefined;
 
   return (
     <div className="header__buttons">
       <Menu>
-        {activeChannelUrl === undefined ? (
+        {pendingChannelFetch ? (
           <Skeleton variant="circular" animation="wave" className="header__navigationItem--iconSkeleton" />
         ) : (
           <MenuButton
@@ -37,7 +42,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             })}
           >
             {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} small noLazyLoad />
+              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad />
             ) : (
               <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
             )}
@@ -45,7 +50,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         )}
 
         <MenuList className="menu__list--header">
-          {email ? (
+          {authenticated ? (
             <>
               <HeaderMenuLink page={PAGES.UPLOADS} icon={ICONS.PUBLISH} name={__('Uploads')} />
               <HeaderMenuLink page={PAGES.CHANNELS} icon={ICONS.CHANNEL} name={__('Channels')} />

@@ -19,7 +19,6 @@ import ChannelEdit from 'component/channelEdit';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import ClaimSupportButton from 'component/claimSupportButton';
-import ChannelStakedIndicator from 'component/channelStakedIndicator';
 import ClaimMenuList from 'component/claimMenuList';
 import OptimizedImage from 'component/optimizedImage';
 import Yrbl from 'component/yrbl';
@@ -27,6 +26,8 @@ import I18nMessage from 'component/i18nMessage';
 import TruncatedText from 'component/common/truncated-text';
 // $FlowFixMe cannot resolve ...
 import PlaceholderTx from 'static/img/placeholderTx.gif';
+import Tooltip from 'component/common/tooltip';
+import { toCompactNotation } from 'util/string';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -58,6 +59,7 @@ type Props = {
   blockedChannels: Array<string>,
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
+  lang: string,
 };
 
 function ChannelPage(props: Props) {
@@ -77,6 +79,7 @@ function ChannelPage(props: Props) {
     blockedChannels,
     mutedChannels,
     unpublishedCollections,
+    lang,
   } = props;
   const {
     push,
@@ -91,6 +94,7 @@ function ChannelPage(props: Props) {
   const { channelName } = parseURI(uri);
   const { permanent_url: permanentUrl } = claim;
   const claimId = claim.claim_id;
+  const compactSubCount = toCompactNotation(subCount, lang, 10000);
   const formattedSubCount = Number(subCount).toLocaleString();
   const isBlocked = claim && blockedChannels.includes(claim.permanent_url);
   const isMuted = claim && mutedChannels.includes(claim.permanent_url);
@@ -203,7 +207,7 @@ function ChannelPage(props: Props) {
   }
 
   return (
-    <Page noFooter>
+    <Page className="channelPage-wrapper" noFooter>
       <header className="channel-cover">
         <div className="channel__quick-actions">
           {isMyYouTubeChannel && (
@@ -223,18 +227,19 @@ function ChannelPage(props: Props) {
         {cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} />}
         {cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} objectFit="cover" />}
         <div className="channel__primary-info">
-          <ChannelThumbnail className="channel__thumbnail--channel-page" uri={uri} allowGifs hideStakedIndicator />
+          <ChannelThumbnail className="channel__thumbnail--channel-page" uri={uri} allowGifs />
           <h1 className="channel__title">
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
-            <ChannelStakedIndicator uri={uri} large />
           </h1>
           <div className="channel__meta">
-            <span>
-              {formattedSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
-              <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
-            </span>
+            <Tooltip title={formattedSubCount} followCursor placement="top">
+              <span>
+                {compactSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
+                <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+              </span>
+            </Tooltip>
             {channelIsMine && (
               <>
                 {pending ? (

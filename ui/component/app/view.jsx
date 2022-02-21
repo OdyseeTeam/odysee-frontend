@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @flow
 import * as PAGES from 'constants/pages';
 import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
@@ -12,6 +13,7 @@ import ReactModal from 'react-modal';
 import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import FileRenderFloating from 'component/fileRenderFloating';
+import FileRenderMobile from 'component/fileRenderMobile';
 import { withRouter } from 'react-router';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/common/nag';
@@ -57,7 +59,6 @@ type Props = {
   user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
   location: { pathname: string, hash: string, search: string },
   history: { push: (string) => void },
-  fetchAccessToken: () => void,
   fetchChannelListMine: () => void,
   fetchCollectionListMine: () => void,
   signIn: () => void,
@@ -74,7 +75,7 @@ type Props = {
   syncLoop: (?boolean) => void,
   currentModal: any,
   syncFatalError: boolean,
-  activeChannelId: ?string,
+  activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
   subscriptions: Array<Subscription>,
   setActiveChannelIfNotSet: () => void,
@@ -88,7 +89,6 @@ function App(props: Props) {
   const {
     theme,
     user,
-    fetchAccessToken,
     fetchChannelListMine,
     fetchCollectionListMine,
     signIn,
@@ -107,7 +107,7 @@ function App(props: Props) {
     currentModal,
     syncFatalError,
     myChannelClaimIds,
-    activeChannelId,
+    activeChannelClaim,
     setActiveChannelIfNotSet,
     setIncognito,
     fetchModBlockedList,
@@ -144,7 +144,7 @@ function App(props: Props) {
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const hasActiveChannelClaim = activeChannelId !== undefined;
+  const hasActiveChannelClaim = activeChannelClaim !== undefined;
   const isPersonalized = hasVerifiedEmail;
   const renderFiledrop = !isMobile && isAuthenticated;
   const connectionStatus = useConnectionStatus();
@@ -273,14 +273,17 @@ function App(props: Props) {
     if (wrapperElement) {
       ReactModal.setAppElement(wrapperElement);
     }
-
-    fetchAccessToken();
-  }, [appRef, fetchAccessToken, fetchChannelListMine, fetchCollectionListMine]);
+  }, [appRef, fetchChannelListMine, fetchCollectionListMine]);
 
   useEffect(() => {
     // $FlowFixMe
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
+
+  useEffect(() => {
+    // $FlowFixMe
+    document.body.style.overflowY = currentModal ? 'hidden' : '';
+  }, [currentModal]);
 
   useEffect(() => {
     if (hasMyChannels && !hasActiveChannelClaim) {
@@ -506,7 +509,7 @@ function App(props: Props) {
           <Router />
           <ModalRouter />
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
-          <FileRenderFloating />
+          {isMobile ? <FileRenderMobile /> : <FileRenderFloating />}
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
 

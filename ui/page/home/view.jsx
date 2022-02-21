@@ -1,8 +1,9 @@
 // @flow
 import * as ICONS from 'constants/icons';
-import { SHOW_ADS, ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import Ads from 'web/component/ads';
-import React from 'react';
+import * as PAGES from 'constants/pages';
+import { ENABLE_NO_SOURCE_CLAIMS, SHOW_ADS } from 'config';
+import Ads, { injectAd } from 'web/component/ads';
+import React, { useState } from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -14,8 +15,8 @@ import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
+import classnames from 'classnames';
 
-import Pixel from 'web/component/pixel';
 import Meme from 'web/component/meme';
 
 type Props = {
@@ -27,6 +28,7 @@ type Props = {
   activeLivestreams: any,
   doFetchActiveLivestreams: () => void,
   fetchingActiveLivestreams: boolean,
+  hideScheduledLivestreams: boolean,
 };
 
 function HomePage(props: Props) {
@@ -39,6 +41,7 @@ function HomePage(props: Props) {
     activeLivestreams,
     doFetchActiveLivestreams,
     fetchingActiveLivestreams,
+    hideScheduledLivestreams,
   } = props;
   const showPersonalizedChannels = authenticated && subscribedChannels && subscribedChannels.length > 0;
   const showPersonalizedTags = authenticated && followedTags && followedTags.length > 0;
@@ -60,6 +63,24 @@ function HomePage(props: Props) {
     showNsfw
   );
 
+  type SectionHeaderProps = {
+    title: string,
+    navigate?: string,
+    icon?: string,
+    help?: string,
+  };
+  const SectionHeader = ({ title, navigate = '/', icon = '', help }: SectionHeaderProps) => {
+    return (
+      <h1 className="claim-grid__header">
+        <Button navigate={navigate} button="link">
+          <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />
+          <span className="claim-grid__title">{title}</span>
+          {help}
+        </Button>
+      </h1>
+    );
+  };
+
   function getRowElements(title, route, link, icon, help, options, index, pinUrls) {
     const tilePlaceholder = (
       <ul className="claim-grid">
@@ -80,16 +101,15 @@ function HomePage(props: Props) {
     );
 
     return (
-      <div key={title} className="claim-grid__wrapper">
+      <div
+        key={title}
+        className={classnames('claim-grid__wrapper', {
+          'show-ribbon': index === 0,
+        })}
+      >
         {/* category header */}
         {index !== 0 && title && typeof title === 'string' && (
-          <h1 className="claim-grid__header">
-            <Button navigate={route || link} button="link">
-              {icon && <Icon className="claim-grid__header-icon" sectionIcon icon={icon} size={20} />}
-              <span className="claim-grid__title">{__(title)}</span>
-              {help}
-            </Button>
-          </h1>
+          <SectionHeader title={__(title)} navigate={route || link} icon={icon} help={help} />
         )}
 
         {index === 0 && <>{claimTiles}</>}
@@ -115,154 +135,61 @@ function HomePage(props: Props) {
 
   React.useEffect(() => {
     doFetchActiveLivestreams();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // returns true if passed element is fully visible on screen
-  function isScrolledIntoView(el) {
-    const rect = el.getBoundingClientRect();
-    const elemTop = rect.top;
-    const elemBottom = rect.bottom;
-
-    // Only completely visible elements return true:
-    const isVisible = elemTop >= 0 && elemBottom <= window.innerHeight;
-    return isVisible;
-  }
 
   React.useEffect(() => {
-    if (authenticated || !SHOW_ADS) {
-      return;
-    }
-
-    (async () => {
-      // test if adblock is enabled
-      let adBlockEnabled = false;
-      const googleAdUrl = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js';
-      try {
-        await fetch(new Request(googleAdUrl)).catch((_) => {
-          adBlockEnabled = true;
-        });
-      } catch (e) {
-        adBlockEnabled = true;
-      } finally {
-        if (!adBlockEnabled) {
-          // select the cards on page
-          let cards = document.getElementsByClassName('card claim-preview--tile');
-
-          // eslint-disable-next-line no-inner-declarations
-          function checkFlag() {
-            if (cards.length === 0) {
-              window.setTimeout(checkFlag, 100);
-            } else {
-              // find the last fully visible card
-              let lastCard;
-
-              // width of browser window
-              const windowWidth = window.innerWidth;
-
-              // on small screens, grab the second item
-              if (windowWidth <= 900) {
-                lastCard = cards[1];
-              } else {
-                // otherwise, get the last fully visible card
-                for (const card of cards) {
-                  const isFullyVisible = isScrolledIntoView(card);
-                  if (!isFullyVisible) break;
-                  lastCard = card;
-                }
-
-                // if no last card was found, just exit the function to not cause errors
-                if (!lastCard) return;
-              }
-
-              // clone the last card
-              // $FlowFixMe
-              const clonedCard = lastCard.cloneNode(true);
-
-              // insert cloned card
-              // $FlowFixMe
-              lastCard.parentNode.insertBefore(clonedCard, lastCard);
-
-              // change the appearance of the cloned card
-              // $FlowFixMe
-              clonedCard.querySelector('.claim__menu-button').remove();
-
-              // $FlowFixMe
-              clonedCard.querySelector('.truncated-text').innerHTML = __(
-                'Hate these? Login to Odysee for an ad free experience'
-              );
-
-              // $FlowFixMe
-              clonedCard.querySelector('.claim-tile__info').remove();
-
-              // $FlowFixMe
-              clonedCard.querySelector('[role="none"]').removeAttribute('href');
-
-              // $FlowFixMe
-              clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
-
-              // $FlowFixMe
-              clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');
-
-              // $FlowFixMe
-              clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('title');
-
-              // $FlowFixMe
-              clonedCard.querySelector('.claim-tile__header').firstChild.removeAttribute('aria-label');
-
-              // $FlowFixMe
-              clonedCard
-                .querySelector('.media__thumb')
-                .replaceWith(document.getElementsByClassName('homepageAdContainer')[0]);
-
-              // show the homepage ad which is not displayed at first
-              document.getElementsByClassName('homepageAdContainer')[0].style.display = 'block';
-
-              const thumbnail = window.getComputedStyle(lastCard.querySelector('.media__thumb'));
-
-              const styles = `#av-container, #AVcontent, #aniBox {
-                height: ${thumbnail.height} !important;
-                width: ${thumbnail.width} !important;
-              }`;
-
-              const styleSheet = document.createElement('style');
-              styleSheet.type = 'text/css';
-              styleSheet.id = 'customAniviewStyling';
-              styleSheet.innerText = styles;
-              // $FlowFixMe
-              document.head.appendChild(styleSheet);
-
-              // delete last card to not introduce layout shifts
-              lastCard.remove();
-            }
-          }
-          checkFlag();
-        }
-      }
-    })();
+    const shouldShowAds = SHOW_ADS && !authenticated;
+    // inject ad into last visible card
+    injectAd(shouldShowAds);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const [hasScheduledStreams, setHasScheduledStreams] = useState(false);
+  const scheduledStreamsLoaded = (total) => setHasScheduledStreams(total > 0);
+
   return (
-    <Page fullWidthPage>
+    <Page className="homePage-wrapper" fullWidthPage>
+      {/* !SIMPLE_SITE && (authenticated || !IS_WEB) && !subscribedChannels.length && (
+        <div className="notice-message">
+          <h1 className="section__title">
+            {__("%SITE_NAME% is more fun if you're following channels", { SITE_NAME })}
+          </h1>
+          <p className="section__actions">
+            <Button
+              button="primary"
+              navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
+              label={__('Find new channels to follow')}
+            />
+          </p>
+        </div>
+      ) */}
+
       <Meme />
       <Ads type="homepage" />
 
       {!fetchingActiveLivestreams && (
         <>
-          {authenticated && channelIds.length > 0 && (
+          {authenticated && channelIds.length > 0 && !hideScheduledLivestreams && (
             <ScheduledStreams
               channelIds={channelIds}
               tileLayout
               liveUris={getLivestreamUris(activeLivestreams, channelIds)}
               limitClaimsPerChannel={2}
+              onLoad={scheduledStreamsLoaded}
             />
           )}
-          {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
-            // add pins here
-            return getRowElements(title, route, link, icon, help, options, index, pinUrls);
-          })}
+
+          {authenticated && hasScheduledStreams && !hideScheduledLivestreams && (
+            <SectionHeader title={__('Following')} navigate={`/$/${PAGES.CHANNELS_FOLLOWING}`} icon={ICONS.SUBSCRIBE} />
+          )}
         </>
       )}
-      <Pixel type={'retargeting'} />
+
+      {rowData.map(({ title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
+        // add pins here
+        return getRowElements(title, route, link, icon, help, options, index, pinUrls);
+      })}
     </Page>
   );
 }

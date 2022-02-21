@@ -4,43 +4,73 @@ import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
 
+type ChannelInfo = { uri: string, name: string };
+
 type Props = {
-  isResolvingUri: boolean,
-  channelUri: ?string,
-  link: ?boolean,
-  claim: ?Claim,
-  hideAnonymous: boolean,
-  // Lint thinks we aren't using these, even though we are.
-  // Possibly because the resolve function is an arrow function that is passed in props?
-  resolveUri: (string) => void,
   uri: string,
-  // to allow for other elements to be nested within the UriIndicator
-  children: ?Node,
-  inline: boolean,
+  channelInfo: ?ChannelInfo, // Direct channel info to use, bypassing the need to resolve 'uri'.
+  link: ?boolean,
   external?: boolean,
+  focusable?: boolean, // Defaults to 'true' if not provided.
+  hideAnonymous?: boolean,
+  inline?: boolean,
   className?: string,
-  focusable: boolean,
+  children: ?Node, // to allow for other elements to be nested within the UriIndicator (commit: 1e82586f).
+  // --- redux ---
+  claim: ?Claim,
+  isResolvingUri: boolean,
+  resolveUri: (string) => void,
 };
 
 class UriIndicator extends React.PureComponent<Props> {
   componentDidMount() {
-    this.resolve(this.props);
+    this.resolveClaim(this.props);
   }
 
   componentDidUpdate() {
-    this.resolve(this.props);
+    this.resolveClaim(this.props);
   }
 
-  resolve = (props: Props) => {
-    const { isResolvingUri, resolveUri, claim, uri } = props;
+  resolveClaim = (props: Props) => {
+    const { isResolvingUri, resolveUri, claim, uri, channelInfo } = props;
 
-    if (!isResolvingUri && claim === undefined && uri) {
+    if (!channelInfo && !isResolvingUri && claim === undefined && uri) {
       resolveUri(uri);
+    }
+  };
+
+  resolveState = (channelInfo: ?ChannelInfo, claim: ?Claim, isLinkType: ?boolean) => {
+    if (channelInfo) {
+      return {
+        hasChannelData: true,
+        isAnonymous: false,
+        channelName: channelInfo.name,
+        channelLink: isLinkType ? channelInfo.uri : false,
+      };
+    } else if (claim) {
+      const signingChannel = claim.signing_channel && claim.signing_channel.amount;
+      const isChannelClaim = claim.value_type === 'channel';
+      const channelClaim = isChannelClaim ? claim : claim.signing_channel;
+
+      return {
+        hasChannelData: Boolean(channelClaim),
+        isAnonymous: !signingChannel && !isChannelClaim,
+        channelName: channelClaim?.name,
+        channelLink: isLinkType ? channelClaim?.canonical_url || channelClaim?.permanent_url : false,
+      };
+    } else {
+      return {
+        hasChannelData: false,
+        isAnonymous: undefined,
+        channelName: undefined,
+        channelLink: undefined,
+      };
     }
   };
 
   render() {
     const {
+      channelInfo,
       link,
       isResolvingUri,
       claim,
@@ -52,7 +82,7 @@ class UriIndicator extends React.PureComponent<Props> {
       className,
     } = this.props;
 
-    if (!claim) {
+    if (!channelInfo && !claim) {
       return (
         <span className={classnames('empty', className)}>
           {isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
@@ -60,9 +90,9 @@ class UriIndicator extends React.PureComponent<Props> {
       );
     }
 
-    const isChannelClaim = claim.value_type === 'channel';
-    const signingChannel = claim.signing_channel && claim.signing_channel.amount;
-    if (!signingChannel && !isChannelClaim) {
+    const data = this.resolveState(channelInfo, claim, link);
+
+    if (data.isAnonymous) {
       if (hideAnonymous) {
         return null;
       }
@@ -74,15 +104,12 @@ class UriIndicator extends React.PureComponent<Props> {
       );
     }
 
-    const channelClaim = isChannelClaim ? claim : claim.signing_channel;
-
-    if (channelClaim) {
-      const { name } = channelClaim;
-      const channelLink = link ? channelClaim.canonical_url || channelClaim.permanent_url : false;
+    if (data.hasChannelData) {
+      const { channelName, channelLink } = data;
 
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
-          {name}
+          {channelName}
         </span>
       );
 

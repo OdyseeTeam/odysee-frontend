@@ -63,7 +63,7 @@ type Analytics = {
   tagFollowEvent: (string, boolean, ?string) => void,
   playerLoadedEvent: (string, ?boolean) => void,
   playerVideoStartedEvent: (?boolean) => void,
-  videoStartEvent: (string, number, string, number, string, any, number) => void,
+  videoStartEvent: (?string, number, string, ?number, string, any, ?number) => void,
   videoIsPlaying: (boolean, any) => void,
   videoBufferEvent: (
     StreamClaim,
@@ -322,6 +322,10 @@ const analytics: Analytics = {
           outpoint,
           claim_id: claimId,
         };
+
+        // if (timeToStart && !IS_WEB) {
+        //  params.time_to_start = timeToStart;
+        // }
 
         resolve(Lbryio.call('file', 'view', params));
       } else {
