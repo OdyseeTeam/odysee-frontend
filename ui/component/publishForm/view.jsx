@@ -30,7 +30,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
-import { LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import { LIVESTREAM_REPLAY_API, NEW_LIVESTREAM_REPLAY_URL } from 'constants/livestream';
 import PublishStreamReleaseDate from 'component/publishStreamReleaseDate';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
@@ -298,7 +298,7 @@ function PublishForm(props: Props) {
     (async function() {
       setCheckingLivestreams(true);
 
-      const newEndpointUrl = `https://api.odysee.live/replays/list?channel_claim_id=${channelId}` +
+      const newEndpointUrl = `${LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
         `&signature=${signature}&signature_ts=${timestamp}&channel_name=${channelName}`;
 
       const responseFromNewApi = await fetch(newEndpointUrl);

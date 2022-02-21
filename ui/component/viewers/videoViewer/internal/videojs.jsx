@@ -22,6 +22,7 @@ import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
 const canAutoplay = require('./plugins/canAutoplay');
+import { NEW_LIVESTREAM_LIVE_API } from 'constants/livestream';
 
 require('@silvermine/videojs-chromecast')(videojs);
 
@@ -329,7 +330,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (isLivestream) {
         vjsPlayer.addClass('livestreamPlayer');
 
-        const livestreamEndpoint = `https://api.odysee.live/livestream/is_live?channel_claim_id=${userClaimId}`;
+        const livestreamEndpoint = `${NEW_LIVESTREAM_LIVE_API}?channel_claim_id=${userClaimId}`;
 
         const livestreamResponse = await fetch(livestreamEndpoint, { method: 'GET' });
 

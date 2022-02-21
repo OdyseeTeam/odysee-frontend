@@ -16,7 +16,7 @@ import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
 import usePersistedState from 'effects/use-persisted-state';
-import { LIVESTREAM_RTMP_URL, NEW_LIVESTREAM_RTMP_URL } from 'constants/livestream';
+import { NEW_LIVESTREAM_RTMP_URL } from 'constants/livestream';
 
 type Props = {
   hasChannels: boolean,

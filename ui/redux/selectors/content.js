@@ -37,7 +37,6 @@ export const makeSelectIsPlayerFloating = (location: UrlLocation) =>
   createSelector(selectPrimaryUri, selectPlayingUri, (primaryUri, playingUri) => {
     if (!playingUri) return false;
 
-    // console.log(playingUri, primaryUri)
     const { pathname, search } = location;
     const hasSecondarySource = Boolean(playingUri.source);
     const isComment = playingUri.source === 'comment';
@@ -107,8 +106,6 @@ export const makeSelectFileRenderModeForUri = (uri: string) =>
     makeSelectMediaTypeForUri(uri),
     makeSelectFileExtensionForUri(uri),
     (contentType, mediaType, extension) => {
-      // console.log('media type');
-      // console.log(mediaType);
       if (mediaType === 'video' || FORCE_CONTENT_TYPE_PLAYER.includes(contentType) || mediaType === 'livestream') {
         return RENDER_MODES.VIDEO;
       }

@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import { doClaimSearch } from 'redux/actions/claims';
-import { LIVESTREAM_LIVE_API, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
+import { LIVESTREAM_LIVE_API, LIVESTREAM_STARTS_SOON_BUFFER, NEW_LIVESTREAM_LIVE_API } from 'constants/livestream';
 import moment from 'moment';
 
 const LiveStatus = Object.freeze({
@@ -62,17 +62,19 @@ const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
 
 // TODO: change this here
 const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
-  console.log('fetching live channels');
   const response = await fetch(LIVESTREAM_LIVE_API);
-  console.log(response);
   const json = await response.json();
   if (!json.data) throw new Error();
   return transformLivestreamData(json.data);
 };
 
-// TODO: change this here
+/**
+ * Check whether or not the channel is used, used for long polling to display live status on claim viewing page
+ * @param channelId
+ * @returns {Promise<{channelStatus: string}|{channelData: LivestreamInfo, channelStatus: string}>}
+ */
 const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> => {
-  const newApiEndpoint = 'https://api.odysee.live/livestream/is_live?channel_claim_id=';
+  const newApiEndpoint = `${NEW_LIVESTREAM_LIVE_API}?channel_claim_id=`;
 
   const newApiResponse = await fetch(`${newApiEndpoint}${channelId}`);
   const newApiData = (await newApiResponse.json()).data;
@@ -202,7 +204,6 @@ const findActiveStreams = async (channelIDs: Array<string>, orderBy: Array<strin
 
 export const doFetchChannelLiveStatus = (channelId: string) => {
   return async (dispatch: Dispatch) => {
-    console.log('getting live status');
     try {
       const { channelStatus, channelData } = await fetchLiveChannel(channelId);
 

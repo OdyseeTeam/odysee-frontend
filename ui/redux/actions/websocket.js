@@ -114,7 +114,6 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
   doSocketConnect(
     url,
     (response) => {
-      console.log(response);
       if (response.type === 'delta') {
         const newComment = response.data.comment;
         dispatch({
