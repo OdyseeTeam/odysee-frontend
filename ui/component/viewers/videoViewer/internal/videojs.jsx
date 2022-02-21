@@ -205,7 +205,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     liveTracker: {
       trackingThreshold: 0,
-      liveTolerance: 10,
+      liveTolerance: 35,
     },
     autoplay: autoplay,
     muted: startMuted,
@@ -354,8 +354,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         //   options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
         //   return options;
         // };
-        
+
         vjsPlayer.poster(newPoster);
+
+        vjsPlayer.on('play', function() {
+          vjsPlayer.liveTracker.seekToLiveEdge();
+        });
+
+        document.getElementsByClassName('vjs-progress-control')[0].style.display = 'none';
 
         console.log(livestreamVideoUrl);
 
