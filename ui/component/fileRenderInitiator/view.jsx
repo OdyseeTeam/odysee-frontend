@@ -76,7 +76,7 @@ export default function FileRenderInitiator(props: Props) {
 
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isFree || claimWasPurchased;
-  const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode);
+  const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
   const isText = RENDER_MODES.TEXT_MODES.includes(renderMode);
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
