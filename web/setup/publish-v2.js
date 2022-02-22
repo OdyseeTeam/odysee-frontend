@@ -1,5 +1,6 @@
 // @flow
 import * as tus from 'tus-js-client';
+import NoopUrlStorage from 'tus-js-client/lib/noopUrlStorage';
 import analytics from '../../ui/analytics';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
@@ -64,6 +65,7 @@ export function makeResumableUploadRequest(
       retryDelays: [5000, 10000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
+      urlStorage: new NoopUrlStorage(),
       removeFingerprintOnSuccess: true,
       headers: { [X_LBRY_AUTH_TOKEN]: token },
       metadata: {
