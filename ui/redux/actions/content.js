@@ -148,9 +148,9 @@ export function doDownloadUri(uri: string) {
   return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsView(uri))));
 }
 
-export function doUriInitiatePlay(uri: string, collectionId?: string, isPlayable?: boolean) {
+export function doUriInitiatePlay(uri: string, collectionId?: string, isPlayable?: boolean, isFloating?: boolean) {
   return (dispatch: Dispatch) => {
-    dispatch(doSetPrimaryUri(uri));
+    if (!isFloating) dispatch(doSetPrimaryUri(uri));
 
     if (isPlayable) {
       dispatch(doSetPlayingUri({ uri, collectionId }));
