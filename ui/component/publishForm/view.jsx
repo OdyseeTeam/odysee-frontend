@@ -300,8 +300,7 @@ function PublishForm(props: Props) {
 
       const newEndpointUrl =
         `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
-        // $FlowFixMe
-        `&signature=${signature}&signature_ts=${timestamp}&channel_name=${channelName}`;
+        `&signature=${signature}&signature_ts=${timestamp}&channel_name=${channelName || ''}`;
 
       const responseFromNewApi = await fetch(newEndpointUrl);
 
