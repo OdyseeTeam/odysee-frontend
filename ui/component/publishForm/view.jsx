@@ -305,29 +305,34 @@ function PublishForm(props: Props) {
 
       const data = (await responseFromNewApi.json()).data;
 
-      const newData = data.map(function(dataItem) {
-        if (dataItem.Status === 'ready') {
-          return {
-            data: {
-              fileLocation: dataItem.URL,
-              fileDuration: (dataItem.Duration / 1000000000).toString(), // convert nanoseconds to second
-              thumbnails: [dataItem.ThumbnailURL],
-              uploadedAt: dataItem.Created,
-            },
-          };
-        }
-      });
+      let newData;
+      if (data && data.length > 0) {
+        newData = data.map(function(dataItem) {
+          if (dataItem.Status === 'ready') {
+            return {
+              data: {
+                fileLocation: dataItem.URL,
+                fileDuration: (dataItem.Duration / 1000000000).toString(), // convert nanoseconds to second
+                thumbnails: [dataItem.ThumbnailURL],
+                uploadedAt: dataItem.Created,
+              },
+            };
+          }
+        });
+      }
 
       fetch(`${LIVESTREAM_REPLAY_API}/${channelId}?signature=${signature || ''}&signing_ts=${timestamp || ''}`) // claimChannelId
         .then((res) => res.json())
         .then((res) => {
+          const hasNoReplays = !res.data && !newData;
+
           // TODO: have to touch this up
-          if (!res || !res.data) {
+          if (!res || hasNoReplays) {
             setLivestreamData([]);
           }
 
           // TODO: there is no guarantee this code doesn't blow up
-          const amountOfUploadsToRemove = newData.length;
+          const amountOfUploadsToRemove = newData && newData.length;
 
           let newOldApiData = res.data;
           // TODO: use a pure functional method instead

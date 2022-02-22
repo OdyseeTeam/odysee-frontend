@@ -320,7 +320,10 @@ button.vjs-big-play-button {
   .vjs-time-divider,
   .vjs-button--theater-mode,
   //.vjs-quality-selector,
-  .vjs-button--autoplay-next {
+  .vjs-chromecast-button, // hopefully we can use chromecast in the future at some point
+  .vjs-button--autoplay-next,
+  .vjs-progress-control // hiding for now, can bring back letter when we can handle rewinds better
+  {
     display: none !important;
-  }
+  },
 }

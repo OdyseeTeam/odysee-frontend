@@ -17286,10 +17286,9 @@ vfile@^2.0.0:
     videojs-font "3.2.0"
     videojs-vtt.js "^0.15.3"
 
-video.js@^7.17.0:
+"video.js@git://github.com/mayeaux/video-js-fork":
   version "7.17.0"
-  resolved "https://registry.yarnpkg.com/video.js/-/video.js-7.17.0.tgz#35918cc03748a5680f5d5f1da410e06eeea7786e"
-  integrity sha512-8RbLu9+Pdpep9OTPncUHIvZXFgn/7hKdPnSTE/lGSnlFSucXtTUBp41R7NDwncscMLQ0WgazUbmFlvr4MNWMbA==
+  resolved "git://github.com/mayeaux/video-js-fork#dcc08bc935c45a3e9e4ecb3ef787debb9431ca21"
   dependencies:
     "@babel/runtime" "^7.12.5"
     "@videojs/http-streaming" "2.12.0"

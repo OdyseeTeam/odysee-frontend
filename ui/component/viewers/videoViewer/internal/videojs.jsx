@@ -21,8 +21,9 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
-const canAutoplay = require('./plugins/canAutoplay');
 import { NEW_LIVESTREAM_LIVE_API } from 'constants/livestream';
+
+const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
 
@@ -345,15 +346,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // pretty sure it's not working
         // vjsPlayer.poster(newPoster);
 
-        /** don't show progress bar functionality **/
+        // here specifically because we don't allow rewinds at the moment
         // $FlowFixMe
         vjsPlayer.on('play', function() {
           // $FlowFixMe
           vjsPlayer.liveTracker.seekToLiveEdge();
         });
-
-        document.getElementsByClassName('vjs-progress-control')[0].style.display = 'none';
-        /** **/
 
         // $FlowFixMe
         vjsPlayer.src({
