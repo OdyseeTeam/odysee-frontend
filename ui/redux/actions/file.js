@@ -20,6 +20,7 @@ import {
   selectDownloadingByOutpoint,
   makeSelectStreamingUrlForUri,
 } from 'redux/selectors/file_info';
+import { isStreamPlaceholderClaim } from 'util/claim';
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, file: FileState, content: any };
@@ -117,7 +118,9 @@ export function doDeleteFileAndMaybeGoBack(
 export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: (GetResponse) => any) {
   return (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
-    const { nout, txid } = makeSelectClaimForUri(uri)(state);
+    const claim = makeSelectClaimForUri(uri)(state);
+    const isALivestream = isStreamPlaceholderClaim(claim);
+    const { nout, txid } = claim;
     const outpoint = `${txid}:${nout}`;
 
     dispatch({
@@ -169,17 +172,16 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: (Ge
           data: { outpoint },
         });
 
-        console.log('error here!');
-        console.log(error);
+        // TODO: probably a better way to address this
+        // supress no source error if it's a livestream
+        if (isALivestream && error.message === 'stream doesn\'t have source data') return;
 
-        // TODO: suppress error toast
-        //
-        // dispatch(
-        //   doToast({
-        //     message: `Failed to view ${uri}, please try again. If this problem persists, visit https://odysee.com/@OdyseeHelp:b?view=about for support.`,
-        //     isError: true,
-        //   })
-        // );
+        dispatch(
+          doToast({
+            message: `Failed to view ${uri}, please try again. If this problem persists, visit https://odysee.com/@OdyseeHelp:b?view=about for support.`,
+            isError: true,
+          })
+        );
       });
   };
 }
