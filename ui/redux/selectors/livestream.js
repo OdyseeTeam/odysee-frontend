@@ -87,6 +87,18 @@ export const selectActiveLivestreamForChannel = createCachedSelector(
   }
 )((state, channelId) => String(channelId));
 
+export const selectIsCurrentClaimLive = createCachedSelector(
+  (state, claimId) => claimId,
+  selectActiveLivestreamForClaimId,
+  (claimId, activeLivestreamForClaim) => {
+    if (!claimId || !activeLivestreamForClaim) {
+      return null;
+    }
+
+    return activeLivestreamForClaim.claimId === claimId || null;
+  }
+)((state, channelId) => String(channelId));
+
 export const selectFetchingActiveLivestreams = (state: State) => selectState(state).fetchingActiveLivestreams;
 
 export const selectActiveLivestreamInitialized = (state: State) => selectState(state).activeLivestreamInitialized;

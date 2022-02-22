@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectTitleForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
+import { selectTitleForUri, makeSelectClaimWasPurchased, selectClaimForUri } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   makeSelectNextUrlForCollectionAndUrl,
@@ -17,6 +17,10 @@ import { selectCostInfoForUri } from 'lbryinc';
 import { doUriInitiatePlay, doSetPlayingUri } from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
 import { withRouter } from 'react-router';
+import { getChannelIdFromClaim } from 'util/claim';
+import { selectMobilePlayerDimensions } from 'redux/selectors/app';
+import { selectIsCurrentClaimLive } from 'redux/selectors/livestream';
+import { doSetMobilePlayerDimensions } from 'redux/actions/app';
 import FileRenderFloating from './view';
 
 const select = (state, props) => {
@@ -24,6 +28,9 @@ const select = (state, props) => {
 
   const playingUri = selectPlayingUri(state);
   const { uri, collectionId } = playingUri || {};
+
+  const claim = selectClaimForUri(state, uri);
+  const { claim_id: claimId } = claim || {};
 
   return {
     uri,
@@ -40,6 +47,9 @@ const select = (state, props) => {
     nextListUri: collectionId && makeSelectNextUrlForCollectionAndUrl(collectionId, uri)(state),
     previousListUri: collectionId && makeSelectPreviousUrlForCollectionAndUrl(collectionId, uri)(state),
     collectionId,
+    isCurrentClaimLive: selectIsCurrentClaimLive(state, claimId),
+    channelClaimId: claim && getChannelIdFromClaim(claim),
+    mobilePlayerDimensions: selectMobilePlayerDimensions(state),
   };
 };
 
@@ -47,6 +57,7 @@ const perform = {
   doFetchRecommendedContent,
   doUriInitiatePlay,
   doSetPlayingUri,
+  doSetMobilePlayerDimensions,
 };
 
 export default withRouter(connect(select, perform)(FileRenderFloating));
