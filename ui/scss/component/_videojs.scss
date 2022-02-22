@@ -322,8 +322,8 @@ button.vjs-big-play-button {
   //.vjs-quality-selector,
   .vjs-chromecast-button, // hopefully we can use chromecast in the future at some point
   .vjs-button--autoplay-next,
-  .vjs-progress-control // hiding for now, can bring back letter when we can handle rewinds better
-  {
+  .vjs-progress-control {
+    // hiding progress control for now
     display: none !important;
-  },
+  }
 }

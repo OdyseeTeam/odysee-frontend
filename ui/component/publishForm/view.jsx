@@ -295,10 +295,12 @@ function PublishForm(props: Props) {
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
   function fetchLivestreams(channelId, signature, timestamp, channelName) {
-    (async function() {
+    (async function () {
       setCheckingLivestreams(true);
 
-      const newEndpointUrl = `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
+      const newEndpointUrl =
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
+        // $FlowFixMe
         `&signature=${signature}&signature_ts=${timestamp}&channel_name=${channelName}`;
 
       const responseFromNewApi = await fetch(newEndpointUrl);

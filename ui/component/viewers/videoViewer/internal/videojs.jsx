@@ -333,6 +333,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // $FlowFixMe
         vjsPlayer.addClass('livestreamPlayer');
 
+        // $FlowFixMe
         const livestreamEndpoint = `${NEW_LIVESTREAM_LIVE_API}?channel_claim_id=${userClaimId}`;
 
         const livestreamResponse = await fetch(livestreamEndpoint, { method: 'GET' });
@@ -348,7 +349,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // here specifically because we don't allow rewinds at the moment
         // $FlowFixMe
-        vjsPlayer.on('play', function() {
+        vjsPlayer.on('play', function () {
           // $FlowFixMe
           vjsPlayer.liveTracker.seekToLiveEdge();
         });
