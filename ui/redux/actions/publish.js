@@ -473,7 +473,10 @@ export const doUploadThumbnail = (
 
         // This sucks but ¯\_(ツ)_/¯
         if (message === 'Failed to fetch') {
-          message = __('Thumbnail upload service may be down, try again later.');
+          // message = __('Thumbnail upload service may be down, try again later.');
+          message = __(
+            'Thumbnail upload service may be down, try again later. Some plugins like AdGuard Français may be blocking the service.'
+          );
         }
 
         const userInput = [fileName, fileExt, fileType, thumbnail, size];
