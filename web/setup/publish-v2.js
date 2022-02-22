@@ -141,17 +141,7 @@ export function makeResumableUploadRequest(
       },
     });
 
-    uploader
-      .findPreviousUploads()
-      .then((previousUploads) => {
-        if (!isPreview) {
-          window.store.dispatch(doUpdateUploadAdd(file, params, uploader));
-        }
-
-        uploader.start();
-      })
-      .catch((err) => {
-        reject(new Error(__('Failed to initiate upload (%err%)', { err })));
-      });
+    window.store.dispatch(doUpdateUploadAdd(file, params, uploader));
+    uploader.start();
   });
 }
