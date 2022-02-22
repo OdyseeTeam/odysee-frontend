@@ -3,6 +3,7 @@ import * as tus from 'tus-js-client';
 import analytics from '../../ui/analytics';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
+import { getLocalStorageSummary } from '../../ui/util/storage';
 import { LBRY_WEB_PUBLISH_API_V2 } from 'config';
 
 const RESUMABLE_ENDPOINT = LBRY_WEB_PUBLISH_API_V2;
@@ -83,19 +84,7 @@ export function makeResumableUploadRequest(
           customErr = 'File is locked. Try resuming after waiting a few minutes';
         }
 
-        let localStorageInfo;
-        if (errMsg.includes('QuotaExceededError')) {
-          try {
-            localStorageInfo = `${window.localStorage.length} items; ${
-              JSON.stringify(window.localStorage).length
-            } bytes`;
-          } catch (e) {
-            localStorageInfo = 'inaccessible';
-          }
-        }
-
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-
         analytics.sentryError('tus-upload', err);
 
         reject(
@@ -108,7 +97,7 @@ export function makeResumableUploadRequest(
               ...(uploader._retryAttempt ? { retryAttempt: uploader._retryAttempt } : {}),
               ...(uploader._offsetBeforeRetry ? { offsetBeforeRetry: uploader._offsetBeforeRetry } : {}),
               ...(customErr ? { original: errMsg } : {}),
-              ...(localStorageInfo ? { localStorageInfo } : {}),
+              localStorage: getLocalStorageSummary(),
             },
           })
         );
