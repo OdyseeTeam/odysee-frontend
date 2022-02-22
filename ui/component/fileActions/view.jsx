@@ -56,6 +56,14 @@ export default function FileActions(props: Props) {
     doDownloadUri,
   } = props;
 
+  let showEmbedButton = true;
+  if (isLivestreamClaim) {
+    showEmbedButton = false;
+  }
+
+  console.log('show embed button1');
+  console.log(showEmbedButton);
+
   const {
     push,
     location: { pathname, search },
@@ -139,7 +147,7 @@ export default function FileActions(props: Props) {
           className="button--file-action"
           icon={ICONS.SHARE}
           label={__('Share')}
-          onClick={() => doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId })}
+          onClick={() => doOpenModal(MODALS.SOCIAL_SHARE, { showEmbedButton, uri, webShareable, collectionId })}
         />
       </Tooltip>
 
