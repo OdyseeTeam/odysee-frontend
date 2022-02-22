@@ -9,20 +9,17 @@ type Props = {
   uri: string,
   webShareable: boolean,
   collectionId?: number,
-  showEmbedButton: boolean,
 };
 
 class ModalSocialShare extends React.PureComponent<Props> {
   render() {
-    const { closeModal, uri, webShareable, collectionId, showEmbedButton = true } = this.props;
+    const { closeModal, uri, webShareable, collectionId = true } = this.props;
 
-    console.log('show embed button2');
-    console.log(showEmbedButton);
     return (
       <Modal isOpen onAborted={closeModal} type="card">
         <Card
           title={__('Share')}
-          actions={<SocialShare uri={uri} webShareable={webShareable} collectionId={collectionId} showEmbedButton />}
+          actions={<SocialShare uri={uri} webShareable={webShareable} collectionId={collectionId} />}
         />
       </Modal>
     );

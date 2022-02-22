@@ -10,6 +10,7 @@ import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
+const LIVESTREAM_STATUS_CHECK_INTERVAL = 60000;
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -87,8 +88,10 @@ export default function LivestreamPage(props: Props) {
   // Find out current channels status + active live claim every 30 seconds
   React.useEffect(() => {
     doFetchChannelLiveStatus(livestreamChannelId);
-    console.log('livestream channel id!');
-    const intervalId = setInterval(() => doFetchChannelLiveStatus(livestreamChannelId), 30000);
+    const intervalId = setInterval(
+      () => doFetchChannelLiveStatus(livestreamChannelId),
+      LIVESTREAM_STATUS_CHECK_INTERVAL
+    );
     return () => clearInterval(intervalId);
   }, [livestreamChannelId, doFetchChannelLiveStatus]);
 

@@ -29,7 +29,6 @@ type Props = {
   position: number,
   collectionId?: number,
   doFetchInviteStatus: (boolean) => void,
-  showEmbedButton: boolean,
 };
 
 function SocialShare(props: Props) {
@@ -43,7 +42,6 @@ function SocialShare(props: Props) {
     position,
     collectionId,
     doFetchInviteStatus,
-    showEmbedButton = true,
   } = props;
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
@@ -52,9 +50,6 @@ function SocialShare(props: Props) {
   const [startTime, setStartTime]: [string, any] = React.useState(secondsToHms(position));
   const startTimeSeconds: number = hmsToSeconds(startTime);
   const isMobile = useIsMobile();
-
-  console.log('show embed button');
-  console.log(showEmbedButton);
 
   React.useEffect(() => {
     if (!inviteStatusFetched) {
@@ -196,7 +191,7 @@ function SocialShare(props: Props) {
           title={__('Share on Facebook')}
           href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
         />
-        {webShareable && !isCollection && !isChannel && showEmbedButton && (
+        {webShareable && !isCollection && !isChannel && (
           <Button
             className="share"
             iconSize={24}
