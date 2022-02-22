@@ -305,11 +305,11 @@ function PublishForm(props: Props) {
 
       const data = (await responseFromNewApi.json()).data;
 
-      let newData;
+      let newData = [];
       if (data && data.length > 0) {
-        newData = data.map(function(dataItem) {
+        for (const dataItem of data) {
           if (dataItem.Status === 'ready') {
-            return {
+            const objectToPush = {
               data: {
                 fileLocation: dataItem.URL,
                 fileDuration: (dataItem.Duration / 1000000000).toString(), // convert nanoseconds to second
@@ -317,28 +317,34 @@ function PublishForm(props: Props) {
                 uploadedAt: dataItem.Created,
               },
             };
+            newData.push(objectToPush);
           }
-        });
+        }
       }
 
       fetch(`${LIVESTREAM_REPLAY_API}/${channelId}?signature=${signature || ''}&signing_ts=${timestamp || ''}`) // claimChannelId
         .then((res) => res.json())
         .then((res) => {
-          const hasNoReplays = !res.data && !newData;
+          const hasReplaysFromNewApi = newData.length !== 0;
+          const hasNoReplays = !res.data && !hasReplaysFromNewApi;
 
-          // TODO: have to touch this up
           if (!res || hasNoReplays) {
             setLivestreamData([]);
           }
 
-          // TODO: there is no guarantee this code doesn't blow up
-          const amountOfUploadsToRemove = newData && newData.length;
+          // TODO: this code could still use some attention
+          const amountOfUploadsToRemove = newData.length;
 
-          let newOldApiData = res.data;
-          // TODO: use a pure functional method instead
-          newOldApiData.splice(0, amountOfUploadsToRemove);
+          let replaysFromOldApi = res.data;
+          let dataToSend;
+          if (hasReplaysFromNewApi) {
+            // TODO: use a pure functional method instead
+            replaysFromOldApi.splice(0, amountOfUploadsToRemove);
 
-          const dataToSend = newData.concat(newOldApiData);
+            dataToSend = newData.concat(replaysFromOldApi);
+          } else {
+            dataToSend = replaysFromOldApi;
+          }
 
           setLivestreamData(dataToSend);
           setCheckingLivestreams(false);
