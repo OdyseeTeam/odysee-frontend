@@ -51,7 +51,7 @@ type Props = {
   nextListUri: string,
   previousListUri: string,
   doFetchRecommendedContent: (uri: string) => void,
-  doUriInitiatePlay: (uri: string, collectionId?: string, isPlayable?: boolean, isFloating?: boolean) => void,
+  doUriInitiatePlay: (uri: string, collectionId: ?string, isPlayable: ?boolean, isFloating: ?boolean) => void,
   doSetPlayingUri: ({ uri?: ?string }) => void,
   // mobile only
   isCurrentClaimLive?: boolean,
@@ -163,9 +163,7 @@ export default function FileRenderFloating(props: Props) {
   }, [setPosition]);
 
   const clampToScreenOnResize = React.useCallback(
-    debounce(() => {
-      restoreToRelativePosition();
-    }, DEBOUNCE_WINDOW_RESIZE_HANDLER_MS),
+    debounce(restoreToRelativePosition, DEBOUNCE_WINDOW_RESIZE_HANDLER_MS),
     []
   );
 
@@ -217,12 +215,16 @@ export default function FileRenderFloating(props: Props) {
       window.removeEventListener('resize', onWindowResize);
       if (!isFloating) onFullscreenChange(window, 'remove', handleResize);
     };
+
+    // Only listen to these and avoid infinite loops
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clampToScreenOnResize, handleResize, isFloating]);
 
   React.useEffect(() => {
     // Initial update for relativePosRef:
     relativePosRef.current = calculateRelativePos(position.x, position.y);
+
+    // only on mount
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

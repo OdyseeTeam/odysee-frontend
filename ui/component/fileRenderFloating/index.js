@@ -19,7 +19,7 @@ import { doFetchRecommendedContent } from 'redux/actions/search';
 import { withRouter } from 'react-router';
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectMobilePlayerDimensions } from 'redux/selectors/app';
-import { selectIsCurrentClaimLive } from 'redux/selectors/livestream';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { doSetMobilePlayerDimensions } from 'redux/actions/app';
 import FileRenderFloating from './view';
 
@@ -30,7 +30,6 @@ const select = (state, props) => {
   const { uri, collectionId } = playingUri || {};
 
   const claim = selectClaimForUri(state, uri);
-  const { claim_id: claimId } = claim || {};
 
   return {
     uri,
@@ -47,7 +46,7 @@ const select = (state, props) => {
     nextListUri: collectionId && makeSelectNextUrlForCollectionAndUrl(collectionId, uri)(state),
     previousListUri: collectionId && makeSelectPreviousUrlForCollectionAndUrl(collectionId, uri)(state),
     collectionId,
-    isCurrentClaimLive: selectIsCurrentClaimLive(state, claimId),
+    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     channelClaimId: claim && getChannelIdFromClaim(claim),
     mobilePlayerDimensions: selectMobilePlayerDimensions(state),
   };

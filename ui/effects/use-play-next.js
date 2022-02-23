@@ -6,12 +6,12 @@ import { useHistory } from 'react-router';
 // Returns web blob from the streaming url
 export default function usePlayNext(
   isFloating: boolean,
-  collectionId?: string,
+  collectionId: ?string,
   shouldPlayNext: boolean,
-  nextListUri?: string,
-  previousListUri?: string,
+  nextListUri: ?string,
+  previousListUri: ?string,
   doNavigate: boolean,
-  doUriInitiatePlay: (uri: string, collectionId?: string, isPlayable?: boolean, isFloating?: boolean) => void,
+  doUriInitiatePlay: (uri: string, collectionId: ?string, isPlayable: ?boolean, isFloating: ?boolean) => void,
   resetState: () => void
 ) {
   const { push } = useHistory();

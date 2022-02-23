@@ -1,17 +1,17 @@
 // @flow
 import { FLOATING_PLAYER_CLASS } from './view';
 
-function getMainEl() {
+function getRootEl() {
   return document && document.documentElement;
 }
 
 export function getScreenWidth() {
-  const mainEl = getMainEl();
+  const mainEl = getRootEl();
   return mainEl ? mainEl.clientWidth : window.innerWidth;
 }
 
 export function getScreenHeight() {
-  const mainEl = getMainEl();
+  const mainEl = getRootEl();
   return mainEl ? mainEl.clientHeight : window.innerHeight;
 }
 

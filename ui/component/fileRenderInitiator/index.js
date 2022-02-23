@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { doUriInitiatePlay, doSetPlayingUri, doSetPrimaryUri } from 'redux/actions/content';
-import { selectThumbnailForUri, selectClaimForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
+import { selectThumbnailForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri } from 'lbryinc';
@@ -14,13 +14,10 @@ import {
   makeSelectFileRenderModeForUri,
 } from 'redux/selectors/content';
 import FileRenderInitiator from './view';
-import { selectIsCurrentClaimLive } from 'redux/selectors/livestream';
+import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 
 const select = (state, props) => {
   const { uri } = props;
-
-  const claim = selectClaimForUri(state, uri);
-  const { claim_id: claimId } = claim || {};
 
   return {
     claimThumbnail: selectThumbnailForUri(state, uri),
@@ -33,7 +30,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     claimWasPurchased: makeSelectClaimWasPurchased(uri)(state),
     authenticated: selectUserVerifiedEmail(state),
-    isCurrentClaimLive: selectIsCurrentClaimLive(state, claimId),
+    isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
   };
 };
 
