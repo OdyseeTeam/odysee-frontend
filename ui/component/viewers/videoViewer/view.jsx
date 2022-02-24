@@ -265,12 +265,14 @@ function VideoViewer(props: Props) {
     setReplay(false);
     setDoNavigate(false);
     analytics.videoIsPlaying(true, player);
+    if (window.cordova) window.cordova.functions.onPlay(claim, channelName, thumbnail);
   }
 
   function onPause(event, player) {
     setIsPlaying(false);
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
+    if (window.cordova) window.cordova.functions.onPause();
   }
 
   function onDispose(event, player) {

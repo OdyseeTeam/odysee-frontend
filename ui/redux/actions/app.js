@@ -526,6 +526,10 @@ export function doSignIn() {
       pushNotifications.reconnect(user.id);
       pushNotifications.validate(user.id);
     }
+    if (window.cordova && user) {
+      pushNotifications.reconnect(user.id);
+      pushNotifications.validate(user.id);
+    }
 
     dispatch(doNotificationSocketConnect(true));
     dispatch(doNotificationList(null, false));

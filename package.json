@@ -22,6 +22,7 @@
   "scripts": {
     "compile:electron": "node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.electron.config.js",
     "compile:web": "yarn copyenv && cd web && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.config.js",
+    "compile:cordova": "yarn compile:web && rm ../cordova/www/*.js*; rm -r ../cordova/www/public; cp -r ./web/dist/* ../cordova/www",
     "compile": "cross-env NODE_ENV=production yarn compile:electron && cross-env NODE_ENV=production yarn compile:web",
     "copyenv": "copyfiles ./.env* web/",
     "dev": "yarn dev:electron",

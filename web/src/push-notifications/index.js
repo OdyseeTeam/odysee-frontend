@@ -30,6 +30,19 @@ let pushSystem = null;
       validate,
     };
   }
+  if (window.cordova) {
+    const app = initializeApp(firebaseConfig);
+    messaging = getMessaging(app);
+    pushSystem = {
+      supported: true,
+      subscribe,
+      unsubscribe,
+      subscribed,
+      reconnect,
+      disconnect,
+      validate,
+    };
+  }
 })();
 
 // Proxy will forward to push system if it's supported.
@@ -39,6 +52,8 @@ export default new Proxy(
   {
     get(target, prop) {
       if (pushSystem) {
+        return pushSystem[prop];
+      } else if (window.cordova) {
         return pushSystem[prop];
       } else {
         if (prop === 'supported') return false;
@@ -58,22 +73,31 @@ const subscriptionMetaData = () => {
 const getFcmToken = async (): Promise<string | void> => {
   const swRegistration = await navigator.serviceWorker?.ready;
   if (!swRegistration) return;
+  if (window.cordova) return;
   return getToken(messaging, { serviceWorkerRegistration: swRegistration, vapidKey });
 };
 
 const subscribe = async (userId: number, permanent: boolean = true): Promise<boolean> => {
+  console.log('NEKO subscribe');
   try {
-    const fcmToken = await getFcmToken();
+    var fcmToken = await getFcmToken();
+    if (window.cordova) {
+      console.log('Storage test: ', localStorage.getItem('fcmToken'));
+      fcmToken = localStorage.getItem('fcmToken');
+      // window.cordova.functions.getFcmToken();
+    }
     if (!fcmToken) return false;
     await Lbryio.call('cfm', 'add', { token: fcmToken, ...subscriptionMetaData() });
     if (permanent) addRegistration(userId);
     return true;
-  } catch {
+  } catch (err) {
+    console.log('FCM Fail: ', err);
     return false;
   }
 };
 
 const unsubscribe = async (userId: number, permanent: boolean = true): Promise<boolean> => {
+  console.log('NEKO unsubscribe');
   try {
     const fcmToken = await getFcmToken();
     if (!fcmToken) return false;
@@ -87,6 +111,7 @@ const unsubscribe = async (userId: number, permanent: boolean = true): Promise<b
 };
 
 const subscribed = async (userId: number): Promise<boolean> => {
+  console.log('NEKO subscribed');
   const swRegistration = await navigator.serviceWorker?.ready;
   if (!swRegistration || !swRegistration.pushManager) return false;
   const browserSubscriptionExists = (await swRegistration.pushManager.getSubscription()) !== null;
@@ -95,16 +120,19 @@ const subscribed = async (userId: number): Promise<boolean> => {
 };
 
 const reconnect = async (userId: number): Promise<boolean> => {
+  console.log('NEKO reconnect');
   if (hasRegistration(userId)) return subscribe(userId, false);
   return false;
 };
 
 const disconnect = async (userId: number): Promise<boolean> => {
+  console.log('NEKO disconnect');
   if (hasRegistration(userId)) return unsubscribe(userId, false);
   return false;
 };
 
 const validate = async (userId: number) => {
+  console.log('NEKO validate');
   if (!hasRegistration(userId)) return;
   window.requestIdleCallback(async () => {
     const serverTokens = await Lbryio.call('cfm', 'list');
