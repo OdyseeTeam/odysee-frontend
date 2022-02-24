@@ -64,7 +64,7 @@ export default function ShowPage(props: Props) {
   } = props;
 
   const { push } = useHistory();
-  const { search, pathname } = location;
+  const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get('lc');
 
@@ -95,7 +95,10 @@ export default function ShowPage(props: Props) {
 
   useEffect(() => {
     if (canonicalUrl) {
-      const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':');
+      const urlPath = pathname + hash;
+      const fullParams =
+        urlPath.indexOf('?') > 0 ? urlPath.substring(urlPath.indexOf('?')) : search.length > 0 ? search : '';
+      const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':') + fullParams;
 
       // replaceState will fail if on a different domain (like webcache.googleusercontent.com)
       const hostname = isDev ? 'localhost' : DOMAIN;
