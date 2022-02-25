@@ -13,7 +13,7 @@ type Props = {
   labelOk?: string,
   labelCancel?: string,
   hideCancel?: boolean,
-  onConfirm: () => void,
+  onConfirm: (closeModal: () => void, setIsBusy: (boolean) => void) => void,
   // --- perform ---
   doHideModal: () => void,
 };
@@ -24,9 +24,9 @@ export default function ModalConfirm(props: Props) {
   const [isBusy, setIsBusy] = React.useState(false);
 
   function handleOnClick() {
-    if (onConfirm) onConfirm();
-    doHideModal();
-    setIsBusy(true);
+    if (onConfirm) {
+      onConfirm(doHideModal, setIsBusy);
+    }
   }
 
   return (

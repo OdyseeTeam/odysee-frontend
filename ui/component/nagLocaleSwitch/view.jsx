@@ -5,6 +5,7 @@ import HOMEPAGE_LANGUAGES from 'constants/homepage_languages';
 import Nag from 'component/common/nag';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
+import LANGUAGES from 'constants/languages';
 
 const LOCALE_OPTIONS = {
   BOTH: 'both',
@@ -30,7 +31,7 @@ export default function NagLocaleSwitch(props: Props) {
   const message = __(
     // If no homepage, only suggest language switch
     noHomepageForLang
-      ? 'There are language translations available for your location! Do you want to switch from english?'
+      ? 'There are language translations available for your location! Do you want to switch from English?'
       : 'A homepage and language translations are available for your location! Do you want to switch?'
   );
 
@@ -104,15 +105,21 @@ const LanguageSelect = (props: LangProps) => {
 
   const [selection, setSelection] = React.useState(localeLangs[0]);
 
-  return localeLangs.map((lang) => (
-    <FormField
-      type="radio"
-      className={`language-switch ${selection === lang ? 'checked' : ''}`}
-      name={`language_switch ${lang}`}
-      key={lang}
-      label={lang}
-      checked={selection === lang}
-      onChange={(e) => setSelection(lang)}
-    />
-  ));
+  return localeLangs.map((lang) => {
+    const language = LANGUAGES[lang][0];
+    const languageName = LANGUAGES[lang][1];
+    const label = language === languageName ? language : `${language} (${languageName})`;
+
+    return (
+      <FormField
+        type="radio"
+        className={`language-switch ${selection === lang ? 'checked' : ''}`}
+        name={`language_switch ${lang}`}
+        key={lang}
+        label={label}
+        checked={selection === lang}
+        onChange={(e) => setSelection(lang)}
+      />
+    );
+  });
 };

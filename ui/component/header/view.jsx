@@ -235,6 +235,7 @@ const Header = (props: Props) => {
                       title: __('Changelog'),
                       subtitle: __('Warning: this is a test instance.'),
                       body: <p style={{ whiteSpace: 'pre-wrap' }}>{process.env.DEV_CHANGELOG}</p>,
+                      onConfirm: (closeModal) => closeModal(),
                       hideCancel: true,
                     })
                   }

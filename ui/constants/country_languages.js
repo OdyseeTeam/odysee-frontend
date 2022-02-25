@@ -160,7 +160,7 @@ const COUNTRY_LANGUAGES = {
   mv: 'dv',
   mw: 'en,ny',
   mx: 'es',
-  my: 'ms',
+  my: 'en,ms,zh,ta',
   mz: 'pt',
   na: 'en,sf,de',
   nc: 'fr',
@@ -260,7 +260,7 @@ export default function getLanguagesForCountry(countryCode) {
   // ----overrides----
   if (country === 'br') return ['pt-BR'];
 
-  const zhCountries = ['zh', 'cn', 'hk', 'tw', 'sg', 'my'];
+  const zhCountries = ['cn', 'hk', 'tw'];
   if (zhCountries.includes(country)) return ['zh-Hans', 'zh-Hant'];
   // -----------------
 

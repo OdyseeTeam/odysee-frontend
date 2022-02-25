@@ -110,7 +110,10 @@ function WalletSwap(props: Props) {
       title: __('Remove Swap'),
       subtitle: <I18nMessage tokens={{ address: <em>{`${chargeCode}`}</em> }}>Remove %address%?</I18nMessage>,
       body: <p className="help--warning">{__('This process cannot be reversed.')}</p>,
-      onConfirm: () => removeCoinSwap(chargeCode),
+      onConfirm: (closeModal) => {
+        removeCoinSwap(chargeCode);
+        closeModal();
+      },
     });
   }
 

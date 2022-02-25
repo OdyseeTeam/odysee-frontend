@@ -34,6 +34,7 @@ export default function WebUploadItem(props: Props) {
         title: __('Invalid file'),
         subtitle: __('It appears to be a different or modified file.'),
         body: <p className="help--warning">{__('Please select the same file from the initial upload.')}</p>,
+        onConfirm: (closeModal) => closeModal(),
         hideCancel: true,
       });
     }
@@ -44,7 +45,7 @@ export default function WebUploadItem(props: Props) {
       title: __('Cancel upload'),
       subtitle: __('Cancel and remove the selected upload?'),
       body: params.name ? <p className="empty">{`lbry://${params.name}`}</p> : undefined,
-      onConfirm: () => {
+      onConfirm: (closeModal) => {
         if (tusIsSessionLocked(params.guid)) {
           // Corner-case: it's possible for the upload to resume in another tab
           // after the modal has appeared. Make a final lock-check here.
@@ -63,6 +64,7 @@ export default function WebUploadItem(props: Props) {
           // The second parameter (params) can be removed after January 2022.
           doUpdateUploadRemove(params.guid, params);
         }
+        closeModal();
       },
     });
   }
