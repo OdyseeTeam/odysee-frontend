@@ -124,6 +124,13 @@ history = createMemoryHistory({
 // @endif
 // @if TARGET='web'
 history = createBrowserHistory();
+if (window.cordova) {
+  history = createMemoryHistory({
+    initialEntries: [generateInitialUrl(window.location.hash)],
+    initialIndex: 0,
+  });
+  window.cordova.functions.history = history;
+}
 // @endif
 
 const triggerSharedStateActions = [

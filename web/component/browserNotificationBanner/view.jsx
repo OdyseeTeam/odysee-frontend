@@ -18,7 +18,15 @@ export const BrowserNotificationBanner = () => {
   } = useBrowserNotifications();
   const [hasAcknowledgedPush, setHasAcknowledgedPush] = usePersistedState('push-nag', false);
 
-  if (!pushInitialized || !pushSupported || pushEnabled || pushPermission === 'denied' || hasAcknowledgedPush) {
+  // if (!pushInitialized || !pushSupported || pushEnabled || pushPermission === 'denied' || hasAcknowledgedPush) {
+  if (
+    !pushInitialized ||
+    !pushSupported ||
+    pushEnabled ||
+    pushPermission === 'denied' ||
+    hasAcknowledgedPush ||
+    window.cordova
+  ) {
     return null;
   }
 
