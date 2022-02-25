@@ -321,8 +321,9 @@ button.vjs-big-play-button {
   .vjs-button--theater-mode,
   //.vjs-quality-selector,
   .vjs-chromecast-button, // hopefully we can use chromecast in the future at some point
-  .vjs-button--autoplay-next,
-  .vjs-progress-control {
+  .vjs-button--autoplay-next
+  //,.vjs-progress-control
+  {
     // hiding progress control for now
     display: none !important;
   }

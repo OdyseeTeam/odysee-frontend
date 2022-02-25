@@ -201,7 +201,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     liveTracker: {
       trackingThreshold: 0,
-      liveTolerance: 35,
+      liveTolerance: 10,
     },
     autoplay: autoplay,
     muted: startMuted,
@@ -349,10 +349,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // here specifically because we don't allow rewinds at the moment
         // $FlowFixMe
-        vjsPlayer.on('play', function () {
-          // $FlowFixMe
-          vjsPlayer.liveTracker.seekToLiveEdge();
-        });
+        // vjsPlayer.on('play', function () {
+        //   // $FlowFixMe
+        //   vjsPlayer.liveTracker.seekToLiveEdge();
+        // });
 
         // $FlowFixMe
         vjsPlayer.src({
