@@ -1,0 +1,106 @@
+html,
+body,
+div#app {
+  background-color: transparent !important;
+  background: transparent !important;
+}
+
+.chat-wrapper {
+  height: 100%;
+  width: 100%;
+}
+.chat {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: auto;
+  overflow: hidden;
+}
+.chat-comment {
+  padding: 2.5px 2.5px 2.5px 2.5px;
+}
+.chat-body {
+  background-color: #241c30;
+  color: white;
+  word-wrap: break-word;
+  display: flex;
+  border-radius: 15px;
+  bottom: 0;
+  padding: 5px 5px 5px 5px;
+}
+.chat-info {
+  padding: 10px 10px 10px 10px;
+  display: inline-flex;
+  position: relative;
+}
+span.chat-author-badge {
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+}
+span.chat-author {
+  padding-left: 5px;
+  display: inline-flex;
+  position: relative;
+  align-items: center;
+}
+.chat-text {
+  display: inline-flex;
+  padding-left: 7.5px;
+}
+
+.viewercount-wrapper {
+  height: 30px;
+  width: auto;
+  position: absolute;
+  top: 10px;
+  left: 25%;
+  background-color: #241c30;
+  color: white;
+  border-radius: 15px;
+  padding: 5px 5px 5px 5px;
+}
+.viewercount-number {
+  color: white;
+  text-align: center;
+  padding: 0px 5px 0px 5px;
+}
+
+.sticker-wrapper {
+  height: 100%;
+  width: 100%;
+}
+
+.tip-goal-wrapper {
+  transform: translateY(-50%) translateX(-50%);
+  position: absolute;
+  width: auto;
+  top: 5%;
+  left: 47.5%;
+}
+.tip-goal {
+  background-color: #241c30;
+  color: white;
+  border-radius: 30px;
+  padding: 5px 25px 5px 25px;
+  overflow: hidden;
+}
+.tip-title {
+  background-color: #241c30;
+  color: white;
+  text-align: center;
+  font-size: 20px;
+}
+.tip-goal-progress-background {
+  background-color: #ff9b20;
+  text-align: right;
+  margin-left: 25px;
+  margin-right: 25px;
+}
+.tip-goal-progress {
+  background-color: #ff6635;
+  padding: 5px;
+  text-align: right;
+  color: white;
+  width: 0%;
+}

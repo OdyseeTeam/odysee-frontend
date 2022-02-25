@@ -66,6 +66,9 @@ const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChu
 const ListsPage = lazyImport(() => import('page/lists' /* webpackChunkName: "lists" */));
 const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "lists" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
+const LivestreamSetupOverlayPage = lazyImport(() =>
+  import('page/livestreamSetupOverlay' /* webpackChunkName: "livestreamSetupOverlay" */)
+);
 const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
 );
@@ -99,6 +102,7 @@ const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
 const Welcome = lazyImport(() => import('page/welcome' /* webpackChunkName: "welcome" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
+const OverlayPage = lazyImport(() => import('page/overlay' /* webpackChunkName: "overlay" */));
 
 // Tell the browser we are handling scroll restoration
 if ('scrollRestoration' in history) {
@@ -348,6 +352,11 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNELS}`} component={ChannelsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
+        <PrivateRoute
+          {...props}
+          path={`/$/${PAGES.LIVESTREAM_OVERLAY_SETTINGS}`}
+          component={LivestreamSetupOverlayPage}
+        />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.RECEIVE}`} component={ReceivePage} />
@@ -361,6 +370,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
+        <Route path={`/$/overlay/:claimName/:claimId`} exact component={OverlayPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
         <Route path="/:claimName" exact component={ShowPage} />
