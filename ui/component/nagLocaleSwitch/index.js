@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doSetLanguage, doSetHomepage } from 'redux/actions/settings';
 import { doOpenModal } from 'redux/actions/app';
-import NagContinueFirstRun from './view';
+import NagLocaleSwitch from './view';
 
 const perform = {
   doSetLanguage,
@@ -9,4 +9,4 @@ const perform = {
   doOpenModal,
 };
 
-export default connect(null, perform)(NagContinueFirstRun);
+export default connect(null, perform)(NagLocaleSwitch);

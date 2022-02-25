@@ -20,7 +20,7 @@ type Props = {
   doOpenModal: (string, {}) => void,
 };
 
-export default function NagContinueFirstRun(props: Props) {
+export default function NagLocaleSwitch(props: Props) {
   const { localeLangs, doSetLanguage, doSetHomepage, doOpenModal } = props;
 
   const [switchOption, setSwitchOption] = React.useState(LOCALE_OPTIONS.BOTH);
@@ -41,7 +41,9 @@ export default function NagContinueFirstRun(props: Props) {
   function handleSwitch() {
     dismissSwitch();
 
-    if (localeLangs.length > 1) {
+    const switchLanguage = switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.LANG;
+
+    if (localeLangs.length > 1 && switchLanguage) {
       doOpenModal(MODALS.CONFIRM, {
         title: __('Choose Your Preferred Language'),
         body: <LanguageSelect localeLangs={localeLangs} />,
@@ -54,7 +56,7 @@ export default function NagContinueFirstRun(props: Props) {
     } else {
       const language = localeLangs[0];
 
-      if (switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.LANG) {
+      if (switchLanguage) {
         doSetLanguage(language);
       }
       if (switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.HOME) {
