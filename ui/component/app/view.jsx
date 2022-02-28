@@ -417,7 +417,7 @@ function App(props: Props) {
     }
 
     // haven't done a gdpr check, do it now
-    if (gdprRequired === null) {
+    if (gdprRequired === null || gdprRequired === undefined) {
       fetchLocaleApi().then((response) => {
         const gdprRequiredBasedOnLocation = response?.data?.gdpr_required;
 
