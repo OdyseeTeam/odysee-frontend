@@ -1,14 +1,14 @@
-import LANGUAGES from './languages';
+import { getLanguageName } from 'constants/languages';
 
 const HOMEPAGE_LANGUAGES = {
-  en: LANGUAGES.en[1],
-  fr: LANGUAGES.fr[1],
-  es: LANGUAGES.es[1],
-  de: LANGUAGES.de[1],
-  'zh-Hans': LANGUAGES.zh[1],
-  'zh-Hant': LANGUAGES.zh[1],
-  ru: LANGUAGES.ru[1],
-  'pt-BR': LANGUAGES['pt-BR'][1],
+  en: getLanguageName('en'),
+  fr: getLanguageName('fr'),
+  es: getLanguageName('es'),
+  de: getLanguageName('de'),
+  'zh-Hans': getLanguageName('zh'),
+  'zh-Hant': getLanguageName('zh'),
+  ru: getLanguageName('ru'),
+  'pt-BR': getLanguageName('pt-BR'),
 };
 
 export default HOMEPAGE_LANGUAGES;

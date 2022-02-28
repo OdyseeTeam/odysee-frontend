@@ -35,6 +35,7 @@ import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 import { fetchLocaleApi } from 'locale';
 import getLanguagesForCountry from 'constants/country_languages';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
@@ -136,6 +137,7 @@ function App(props: Props) {
 
   const [gdprRequired, setGdprRequired] = usePersistedState('gdprRequired');
   const [localeLangs, setLocaleLangs] = React.useState();
+  const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
 
   const [showAnalyticsNag, setShowAnalyticsNag] = usePersistedState('analytics-nag', true);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
@@ -448,13 +450,18 @@ function App(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    if (!localeLangs) {
-      fetchLocaleApi().then((response) => {
-        const countryCode = response?.data?.country;
-        setLocaleLangs(getLanguagesForCountry(countryCode));
-      });
-    }
-  }, [localeLangs]);
+    if (localeLangs || localeSwitchDismissed) return;
+
+    fetchLocaleApi().then((response) => {
+      const countryCode = response?.data?.country;
+      const langs = getLanguagesForCountry(countryCode);
+
+      const supportedLangs = [];
+      langs.forEach((lang) => lang !== 'en' && SUPPORTED_LANGUAGES[lang] && supportedLangs.push(lang));
+
+      if (supportedLangs.length > 0) setLocaleLangs(supportedLangs);
+    });
+  }, [localeLangs, localeSwitchDismissed]);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
