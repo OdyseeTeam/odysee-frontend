@@ -1,14 +1,21 @@
-import { getLanguageName } from 'constants/languages';
+import { getLanguageEngName } from 'constants/languages';
 
 const HOMEPAGE_LANGUAGES = {
-  en: getLanguageName('en'),
-  fr: getLanguageName('fr'),
-  es: getLanguageName('es'),
-  de: getLanguageName('de'),
-  'zh-Hans': getLanguageName('zh'),
-  'zh-Hant': getLanguageName('zh'),
-  ru: getLanguageName('ru'),
-  'pt-BR': getLanguageName('pt-BR'),
+  en: getLanguageEngName('en'),
+  fr: getLanguageEngName('fr'),
+  es: getLanguageEngName('es'),
+  de: getLanguageEngName('de'),
+  zh: getLanguageEngName('zh'),
+  ru: getLanguageEngName('ru'),
+  pt: getLanguageEngName('pt-BR'),
 };
+
+export function getHomepageLanguage(code) {
+  // -----override-----
+  if (code === 'zh-Hans' || code === 'zh-Hant') return HOMEPAGE_LANGUAGES.zh;
+  // ------------------
+
+  return HOMEPAGE_LANGUAGES[code] || null;
+}
 
 export default HOMEPAGE_LANGUAGES;

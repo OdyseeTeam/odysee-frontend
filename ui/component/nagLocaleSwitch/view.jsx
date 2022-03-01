@@ -1,7 +1,7 @@
 // @flow
 import { FormField } from 'component/common/form';
 import * as MODALS from 'constants/modal_types';
-import HOMEPAGE_LANGUAGES from 'constants/homepage_languages';
+import { getHomepageLanguage } from 'constants/homepage_languages';
 import Nag from 'component/common/nag';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
@@ -27,7 +27,7 @@ export default function NagLocaleSwitch(props: Props) {
   const [switchOption, setSwitchOption] = React.useState(LOCALE_OPTIONS.BOTH);
   const [localeSwitchDismissed, setLocaleSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
 
-  const hasHomepageForLang = localeLangs.some((lang) => HOMEPAGE_LANGUAGES[lang]);
+  const hasHomepageForLang = localeLangs.some((lang) => getHomepageLanguage(lang));
   const message = __(
     // If no homepage, only suggest language switch
     !hasHomepageForLang
@@ -41,34 +41,52 @@ export default function NagLocaleSwitch(props: Props) {
 
   function handleSwitch() {
     const homepages = [];
-    localeLangs.forEach((lang) => HOMEPAGE_LANGUAGES[lang] && homepages.push(lang));
+    localeLangs.forEach((lang) => {
+      const homepageLanguage = getHomepageLanguage(lang);
 
-    if (localeLangs.length > 1) {
+      if (homepageLanguage && !homepages.includes(homepageLanguage)) {
+        homepages.push(homepageLanguage);
+      }
+    });
+
+    const homeSwitchSelected = switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.HOME;
+    const multipleHomepages = homeSwitchSelected && homepages.length > 1;
+    const langSwitchSelected = switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.LANG;
+    const multipleLangs = langSwitchSelected && localeLangs.length > 1;
+
+    // if language or homepage has more than 1 option, modal for selection
+    // if some has only one option, still show the selection for confirmation of what's being switched
+    if (multipleHomepages || multipleLangs) {
       doOpenModal(MODALS.CONFIRM, {
         title: __('Choose Your Preference'),
         body: (
           <>
-            <LanguageSelect langs={localeLangs} />
-            {homepages.length > 1 && <HomepageSelect homepages={homepages} />}
+            {langSwitchSelected && <LanguageSelect langs={localeLangs} />}
+            {homeSwitchSelected && <HomepageSelect homepages={homepages} />}
           </>
         ),
         onConfirm: (closeModal) => {
-          // $FlowFixMe
-          const selection = document.querySelector('.language-switch.checked').id.split(' ')[1];
-          doSetLanguage(selection);
+          if (langSwitchSelected) {
+            // $FlowFixMe
+            const selection = document.querySelector('.language-switch.checked').id.split(' ')[1];
+            doSetLanguage(selection);
+          }
+          if (homeSwitchSelected) {
+            // $FlowFixMe
+            const selection = document.querySelector('.homepage-switch.checked').id.split(' ')[1];
+            doSetHomepage(selection);
+          }
           dismissNag();
           closeModal();
         },
       });
-    } else {
-      const language = localeLangs[0];
 
-      if (switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.LANG) {
-        doSetLanguage(language);
-      }
-      if (switchOption === LOCALE_OPTIONS.BOTH || switchOption === LOCALE_OPTIONS.HOME) {
-        doSetHomepage(language);
-      }
+      // if selected switch has only one option, just make the switch
+    } else {
+      const onlyLanguage = localeLangs[0];
+
+      if (langSwitchSelected) doSetLanguage(onlyLanguage);
+      if (homeSwitchSelected) doSetHomepage(onlyLanguage);
 
       dismissNag();
     }
@@ -117,23 +135,17 @@ const HomepageSelect = (props: HomepageProps) => {
     <>
       <h1>{__('Homepage')}</h1>
 
-      {homepages.map((homepage) => {
-        const language = getLanguageEngName(homepage);
-        const languageName = getLanguageName(homepage);
-        const label = language === languageName ? language : `${language} (${languageName})`;
-
-        return (
-          <FormField
-            type="radio"
-            className={`homepage-switch ${selection === homepage ? 'checked' : ''}`}
-            name={`homepage_switch ${homepage}`}
-            key={homepage}
-            label={label}
-            checked={selection === homepage}
-            onChange={() => setSelection(homepage)}
-          />
-        );
-      })}
+      {homepages.map((homepage) => (
+        <FormField
+          type="radio"
+          className={`homepage-switch ${selection === homepage ? 'checked' : ''}`}
+          name={`homepage_switch ${homepage}`}
+          key={homepage}
+          label={homepage}
+          checked={selection === homepage}
+          onChange={() => setSelection(homepage)}
+        />
+      ))}
     </>
   );
 };
@@ -154,7 +166,7 @@ const LanguageSelect = (props: LangProps) => {
       {langs.map((lang) => {
         const language = getLanguageEngName(lang);
         const languageName = getLanguageName(lang);
-        const label = language === languageName ? language : `${language} (${languageName})`;
+        const label = language === languageName ? language : `${language} - ${languageName}`;
 
         return (
           <FormField
