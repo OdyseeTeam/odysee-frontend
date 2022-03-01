@@ -409,31 +409,41 @@ function App(props: Props) {
     secondScript.innerHTML = 'function OptanonWrapper() { }';
 
     // gdpr is known to be required, add script
-    if (gdprRequired === 'true') {
+    if (gdprRequired) {
       // $FlowFixMe
       document.head.appendChild(script);
       // $FlowFixMe
       document.head.appendChild(secondScript);
     }
 
-    // haven't done a gdpr check, do it now
-    if (gdprRequired === null || gdprRequired === undefined) {
-      fetchLocaleApi().then((response) => {
+    fetchLocaleApi().then((response) => {
+      if (!localeLangs && !localeSwitchDismissed) {
+        const countryCode = response?.data?.country;
+        const langs = getLanguagesForCountry(countryCode);
+
+        const supportedLangs = [];
+        langs.forEach((lang) => lang !== 'en' && SUPPORTED_LANGUAGES[lang] && supportedLangs.push(lang));
+
+        if (supportedLangs.length > 0) setLocaleLangs(supportedLangs);
+      }
+
+      // haven't done a gdpr check, do it now
+      if (gdprRequired === null || gdprRequired === undefined) {
         const gdprRequiredBasedOnLocation = response?.data?.gdpr_required;
 
         // note we need gdpr and load script
         if (gdprRequiredBasedOnLocation) {
-          setGdprRequired('true');
+          setGdprRequired(true);
           // $FlowFixMe
           document.head.appendChild(script);
           // $FlowFixMe
           document.head.appendChild(secondScript);
           // note we don't need gdpr, save to session
         } else if (gdprRequiredBasedOnLocation === false) {
-          setGdprRequired('false');
+          setGdprRequired(false);
         }
-      });
-    }
+      }
+    });
 
     return () => {
       try {
@@ -448,20 +458,6 @@ function App(props: Props) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  React.useEffect(() => {
-    if (localeLangs || localeSwitchDismissed) return;
-
-    fetchLocaleApi().then((response) => {
-      const countryCode = response?.data?.country;
-      const langs = getLanguagesForCountry(countryCode);
-
-      const supportedLangs = [];
-      langs.forEach((lang) => lang !== 'en' && SUPPORTED_LANGUAGES[lang] && supportedLangs.push(lang));
-
-      if (supportedLangs.length > 0) setLocaleLangs(supportedLangs);
-    });
-  }, [localeLangs, localeSwitchDismissed]);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
