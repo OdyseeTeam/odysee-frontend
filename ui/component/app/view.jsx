@@ -221,7 +221,8 @@ function App(props: Props) {
     }
 
     if (localeLangs) {
-      return <NagLocaleSwitch localeLangs={localeLangs} />;
+      const noLanguageSet = language === 'en' && languages.length === 1;
+      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} />;
     }
   }
 

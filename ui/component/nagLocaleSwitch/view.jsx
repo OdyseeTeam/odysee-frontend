@@ -15,6 +15,7 @@ const LOCALE_OPTIONS = {
 
 type Props = {
   localeLangs: Array<string>,
+  noLanguageSet: boolean,
   // redux
   doSetLanguage: (string) => void,
   doSetHomepage: (string) => void,
@@ -22,7 +23,7 @@ type Props = {
 };
 
 export default function NagLocaleSwitch(props: Props) {
-  const { localeLangs, doSetLanguage, doSetHomepage, doOpenModal } = props;
+  const { localeLangs, noLanguageSet, doSetLanguage, doSetHomepage, doOpenModal } = props;
 
   const [switchOption, setSwitchOption] = React.useState(LOCALE_OPTIONS.BOTH);
   const [localeSwitchDismissed, setLocaleSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
@@ -34,6 +35,8 @@ export default function NagLocaleSwitch(props: Props) {
       ? 'There are language translations available for your location! Do you want to switch from English?'
       : 'A homepage and language translations are available for your location! Do you want to switch?'
   );
+
+  if (localeSwitchDismissed || (!noLanguageSet && !hasHomepageForLang)) return null;
 
   function dismissNag() {
     setLocaleSwitchDismissed(true);
@@ -93,32 +96,30 @@ export default function NagLocaleSwitch(props: Props) {
   }
 
   return (
-    !localeSwitchDismissed && (
-      <Nag
-        message={message}
-        type="helpful"
-        action={
-          // Menu field only needed if there is a homepage + language to choose, otherwise
-          // there is only 1 option to switch, so use the nag button
-          hasHomepageForLang && (
-            <FormField
-              className="nag__select"
-              type="select"
-              value={switchOption}
-              onChange={(e) => setSwitchOption(e.target.value)}
-            >
-              <option value={LOCALE_OPTIONS.BOTH}>{__('Both')}</option>
-              <option value={LOCALE_OPTIONS.LANG}>{__('Only Language')}</option>
-              <option value={LOCALE_OPTIONS.HOME}>{__('Only Homepage')}</option>
-            </FormField>
-          )
-        }
-        actionText={__('Switch Now')}
-        onClick={handleSwitch}
-        onClose={dismissNag}
-        closeTitle={__('Dismiss')}
-      />
-    )
+    <Nag
+      message={message}
+      type="helpful"
+      action={
+        // Menu field only needed if there is a homepage + language to choose, otherwise
+        // there is only 1 option to switch, so use the nag button
+        hasHomepageForLang && (
+          <FormField
+            className="nag__select"
+            type="select"
+            value={switchOption}
+            onChange={(e) => setSwitchOption(e.target.value)}
+          >
+            <option value={LOCALE_OPTIONS.BOTH}>{__('Both')}</option>
+            <option value={LOCALE_OPTIONS.LANG}>{__('Only Language')}</option>
+            <option value={LOCALE_OPTIONS.HOME}>{__('Only Homepage')}</option>
+          </FormField>
+        )
+      }
+      actionText={__('Switch Now')}
+      onClick={handleSwitch}
+      onClose={dismissNag}
+      closeTitle={__('Dismiss')}
+    />
   );
 }
 
