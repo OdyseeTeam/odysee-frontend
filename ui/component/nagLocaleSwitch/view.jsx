@@ -1,7 +1,7 @@
 // @flow
 import { FormField } from 'component/common/form';
 import * as MODALS from 'constants/modal_types';
-import { getHomepageLanguage } from 'constants/homepage_languages';
+import HOMEPAGE_LANGUAGES, { getHomepageLanguage } from 'constants/homepage_languages';
 import Nag from 'component/common/nag';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
@@ -77,7 +77,15 @@ export default function NagLocaleSwitch(props: Props) {
           if (homeSwitchSelected) {
             // $FlowFixMe
             const selection = document.querySelector('.homepage-switch.checked').id.split(' ')[1];
-            doSetHomepage(selection);
+            let homepageSelection = '';
+            Object.values(HOMEPAGE_LANGUAGES).some((lang, index) => {
+              if (lang === selection) {
+                homepageSelection = Object.keys(HOMEPAGE_LANGUAGES)[index];
+                return true;
+              }
+            });
+
+            doSetHomepage(homepageSelection);
           }
           dismissNag();
           closeModal();
