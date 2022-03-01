@@ -256,16 +256,24 @@ const COUNTRY_LANGUAGES = {
 
 export default function getLanguagesForCountry(countryCode) {
   const country = countryCode.toLowerCase();
+  const countryLanguages = COUNTRY_LANGUAGES[country];
+
+  if (!countryLanguages || countryLanguages.length === 0) return null;
+
+  const languages = countryLanguages.split(',');
 
   // ----overrides----
   if (country === 'br') return ['pt-BR'];
 
   const zhCountries = ['cn', 'hk', 'tw'];
-  if (zhCountries.includes(country)) return ['zh-Hans', 'zh-Hant'];
+  const zhLangs = ['zh-Hans', 'zh-Hant'];
+
+  if (zhCountries.includes(country)) return zhLangs;
+  if (languages.includes('zh')) {
+    languages.filter((lang) => lang === 'zh');
+    languages.push(...zhLangs);
+  }
   // -----------------
 
-  const languages = COUNTRY_LANGUAGES[country];
-  if (!languages || languages.length === 0) return null;
-
-  return languages.split(',');
+  return languages;
 }
