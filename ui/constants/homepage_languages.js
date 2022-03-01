@@ -7,7 +7,7 @@ const HOMEPAGE_LANGUAGES = {
   de: getLanguageEngName('de'),
   zh: getLanguageEngName('zh'),
   ru: getLanguageEngName('ru'),
-  pt: getLanguageEngName('pt-BR'),
+  'pt-BR': getLanguageEngName('pt-BR'),
 };
 
 export function getHomepageLanguage(code) {
