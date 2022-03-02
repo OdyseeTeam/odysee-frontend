@@ -11,8 +11,10 @@ import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
 import { getRecommendationSearchOptions } from 'util/search';
-import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT } from 'config';
+import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
+import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import { getAuthToken } from 'util/saved-passwords';
 
 // ****************************************************************************
 // FYP
@@ -21,9 +23,11 @@ import { SEARCH_OPTIONS } from 'constants/search';
 // dependency problem with `extras`, I'm temporarily placing it. The recsys
 // object should be moved into `ui`, but that change will require more testing.
 
+console.assert(RECSYS_FYP_ENDPOINT, 'RECSYS_FYP_ENDPOINT not defined!');
+
 const recsysFyp = {
   fetchPersonalRecommendations: (userId: string) => {
-    return fetch(`https://recsys.odysee.com/v1/u/${userId}/fyp`)
+    return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp`, { headers: { [X_LBRY_AUTH_TOKEN]: getAuthToken() } })
       .then((response) => response.json())
       .then((result) => result)
       .catch((error) => {
@@ -33,17 +37,20 @@ const recsysFyp = {
   },
 
   markPersonalRecommendations: (userId: string, gid: string) => {
-    try {
-      if (navigator.sendBeacon) {
-        navigator.sendBeacon(`https://recsys.odysee.com/v1/u/${userId}/fyp/${gid}/mark`);
-      }
-    } catch (error) {
+    return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp/${gid}/mark`, {
+      method: 'POST',
+      headers: { [X_LBRY_AUTH_TOKEN]: getAuthToken() },
+    }).catch((error) => {
       console.log('FYP: mark', { error, userId, gid });
-    }
+      return {};
+    });
   },
 
   ignoreRecommendation: (userId: string, gid: string, claimId: string) => {
-    return fetch(`https://recsys.odysee.com/v1/u/${userId}/fyp/${gid}/c/${claimId}/ignore`, { method: 'POST' })
+    return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp/${gid}/c/${claimId}/ignore`, {
+      method: 'POST',
+      headers: { [X_LBRY_AUTH_TOKEN]: getAuthToken() },
+    })
       .then((response) => response.json())
       .then((result) => result)
       .catch((error) => {
