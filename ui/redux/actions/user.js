@@ -51,22 +51,16 @@ export function doFetchInviteStatus(shouldCallRewardList = true) {
 export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, domain) {
   const payload = { app_version: appVersion, domain };
 
-  Lbry.status().then((status) => {
-    payload.app_id =
-      domain && domain !== 'lbry.tv'
-        ? (domain.replace(/[.]/gi, '') + status.installation_id).slice(0, 66)
-        : status.installation_id;
-    payload.node_id = status.lbry_id;
-    Lbry.version().then((version) => {
-      payload.daemon_version = version.lbrynet_version;
-      payload.operating_system = version.os_system;
-      payload.platform = version.platform;
-      Lbryio.call('install', 'new', payload);
+  payload.app_id = 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
+  Lbry.version().then((version) => {
+    payload.daemon_version = version.lbrynet_version;
+    payload.operating_system = 'android';
+    payload.platform = 'android';
+    Lbryio.call('install', 'new', payload);
 
-      if (callbackForUsersWhoAreSharingData) {
-        callbackForUsersWhoAreSharingData(status);
-      }
-    });
+    if (callbackForUsersWhoAreSharingData) {
+      callbackForUsersWhoAreSharingData(status);
+    }
   });
 }
 
