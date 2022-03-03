@@ -316,7 +316,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
-  const { interval, plan, pageLocation } = params;
+  const { interval, plan } = params;
 
   const planValue = params.plan;
 

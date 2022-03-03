@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
@@ -50,10 +49,10 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   async function purchaseMembership() {
     try {
       setWaitingForBackend(true);
-      setStatusText(__('Facilitating your purchase...'));
+      setStatusText(__('Completing your purchase...'));
 
       // show the memberships the user is subscribed to
-      const response = await Lbryio.call(
+      await Lbryio.call(
         'membership',
         'buy',
         {
@@ -93,9 +92,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         throw new Error(error);
       });
 
-      console.log('purchase, purchase membership response');
-      console.log(response);
-
       // cleary query params
       // $FlowFixMe
       let newURL = location.href.split('?')[0];
@@ -124,7 +120,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       setStatusText(__('Canceling your membership...'));
 
       // show the memberships the user is subscribed to
-      const response = await Lbryio.call(
+      await Lbryio.call(
         'membership',
         'cancel',
         {
@@ -133,9 +129,6 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         },
         'post'
       );
-
-      console.log('cancel, cancel membership response');
-      console.log(response);
 
       setStatusText(__('Membership successfully canceled'));
 

@@ -46,7 +46,6 @@ function removeIfExists(querySelector) {
 
 function Ads(props: Props) {
   const {
-    location: { pathname },
     type = 'video',
     small,
     userHasPremiumPlus,
