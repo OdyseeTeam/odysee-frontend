@@ -115,6 +115,7 @@ export function doCheckUserOdyseeMemberships(user) {
   return async (dispatch) => {
     // get memberships for a given user
     // TODO: in the future, can we specify this just to @odysee?
+
     const response = await Lbryio.call(
       'membership',
       'mine',
@@ -214,6 +215,11 @@ export function doUserFetch() {
 
       Lbryio.getCurrentUser()
         .then((user) => {
+          // get user membership status
+          if (user.odysee_member) {
+            dispatch(doCheckUserOdyseeMemberships(user));
+          }
+
           dispatch({
             type: ACTIONS.USER_FETCH_SUCCESS,
             data: { user },
