@@ -35,8 +35,8 @@ type Props = {
   small: boolean,
   claim: Claim,
   isMature: boolean,
-  authenticated: boolean,
   triggerBlacklist: boolean,
+  userHasPremiumPlus: boolean,
 };
 
 function removeIfExists(querySelector) {
@@ -49,11 +49,11 @@ function Ads(props: Props) {
     location: { pathname },
     type = 'video',
     small,
-    authenticated,
+    userHasPremiumPlus,
     triggerBlacklist,
   } = props;
 
-  const shouldShowAds = SHOW_ADS && !authenticated;
+  const shouldShowAds = SHOW_ADS && !userHasPremiumPlus;
   const mobileAds = IS_ANDROID || IS_IOS;
 
   // this is populated from app based on location
@@ -115,8 +115,8 @@ function Ads(props: Props) {
         log_in_to_domain: (
           <Button
             button="link"
-            label={__('Log in to %domain%', { domain: DOMAIN })}
-            navigate={`/$/${PAGES.AUTH}?redirect=${pathname}`}
+            label={__('Get Odysee Premium+', { domain: DOMAIN })}
+            navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}
           />
         ),
       }}
@@ -232,7 +232,7 @@ async function injectAd(shouldShowAds: boolean) {
 
           // $FlowFixMe
           clonedCard.querySelector('.truncated-text').innerHTML = __(
-            'Hate these? Login to Odysee for an ad free experience'
+            'Hate these? Get Odysee Premium+ for an ad-free experience'
           );
 
           // $FlowFixMe
@@ -242,7 +242,7 @@ async function injectAd(shouldShowAds: boolean) {
           clonedCard.querySelector('[role="none"]').removeAttribute('href');
 
           // $FlowFixMe
-          clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/signin';
+          clonedCard.querySelector('.claim-tile__header').firstChild.href = '/$/membership';
 
           // $FlowFixMe
           clonedCard.querySelector('.claim-tile__title').firstChild.removeAttribute('aria-label');

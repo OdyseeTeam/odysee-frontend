@@ -776,18 +776,19 @@ export const selectUpdateCollectionError = (state: State) => selectState(state).
 export const selectCreatingCollection = (state: State) => selectState(state).creatingCollection;
 export const selectCreateCollectionError = (state: State) => selectState(state).createCollectionError;
 
-export const selectIsMyChannelCountOverLimit = createSelector(
-  selectMyChannelClaimIds,
-  selectYoutubeChannels,
-  (myClaimIds, ytChannels: ?Array<{ channel_claim_id: string }>) => {
-    if (myClaimIds) {
-      if (ytChannels && ytChannels.length > 0) {
-        // $FlowFixMe - null 'ytChannels' already excluded
-        const ids = myClaimIds.filter((id) => !ytChannels.some((yt) => yt.channel_claim_id === id));
-        return ids.length > CHANNEL_CREATION_LIMIT;
+export const selectIsMyChannelCountOverLimit = (state: State) =>
+  createSelector(
+    selectMyChannelClaimIds,
+    selectYoutubeChannels,
+    (myClaimIds, ytChannels: ?Array<{ channel_claim_id: string }>) => {
+      if (myClaimIds) {
+        if (ytChannels && ytChannels.length > 0) {
+          // $FlowFixMe - null 'ytChannels' already excluded
+          const ids = myClaimIds.filter((id) => !ytChannels.some((yt) => yt.channel_claim_id === id));
+          return ids.length > CHANNEL_CREATION_LIMIT;
+        }
+        return myClaimIds.length > CHANNEL_CREATION_LIMIT;
       }
-      return myClaimIds.length > CHANNEL_CREATION_LIMIT;
+      return false;
     }
-    return false;
-  }
-);
+  );

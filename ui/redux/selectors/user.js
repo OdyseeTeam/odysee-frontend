@@ -1,4 +1,6 @@
 import { createSelector } from 'reselect';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { getChannelIdFromClaim } from 'util/claim';
 
 export const selectState = (state) => state.user || {};
 
@@ -104,6 +106,10 @@ export const selectYouTubeImportError = (state) => selectState(state).youtubeCha
 export const selectSetReferrerPending = (state) => selectState(state).referrerSetIsPending;
 export const selectSetReferrerError = (state) => selectState(state).referrerSetError;
 
+export const selectOdyseeMembershipName = (state) => selectState(state).odyseeMembershipName;
+
+export const selectOdyseeMembershipIsPremiumPlus = (state) => selectState(state).odyseeMembershipName === 'Premium+';
+
 export const selectYouTubeImportVideosComplete = createSelector(selectState, (state) => {
   const total = state.youtubeChannelImportTotal;
   const complete = state.youtubeChannelImportComplete || 0;
@@ -112,5 +118,23 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
     return [complete, total];
   }
 });
+
+/**
+ * Given a uri of a channel, check if there an Odysee membership value
+ * @param state
+ * @param uri
+ * @returns {*}
+ */
+export const selectOdyseeMembershipByUri = function (state, uri) {
+  const claim = selectClaimForUri(state, uri);
+
+  const uploaderChannelClaimId = getChannelIdFromClaim(claim);
+
+  // looks for the uploader id
+  const matchingMembershipOfUser =
+    state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
+
+  return matchingMembershipOfUser;
+};
 
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));

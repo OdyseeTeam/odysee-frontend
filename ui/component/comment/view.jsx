@@ -30,6 +30,8 @@ import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
+import PremiumBadge from 'component/common/premium-badge';
+import { getBadgeToShow } from 'util/premium';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
 
@@ -64,6 +66,7 @@ type Props = {
   supportDisabled: boolean,
   setQuickReply: (any) => void,
   quickReply: any,
+  selectOdyseeMembershipByUri: string,
 };
 
 const LENGTH_TO_COLLAPSE = 300;
@@ -93,6 +96,7 @@ function CommentView(props: Props) {
     supportDisabled,
     setQuickReply,
     quickReply,
+    selectOdyseeMembershipByUri,
   } = props;
 
   const {
@@ -151,6 +155,8 @@ function CommentView(props: Props) {
       channelOwnerOfContent = channelName;
     }
   } catch (e) {}
+
+  const badgeToShow = getBadgeToShow(selectOdyseeMembershipByUri);
 
   useEffect(() => {
     if (isEditing) {
@@ -265,9 +271,6 @@ function CommentView(props: Props) {
         <div className="comment__body-container">
           <div className="comment__meta">
             <div className="comment__meta-information">
-              {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_MOD} />}
-              {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-
               {!author ? (
                 <span className="comment__author">{__('Anonymous')}</span>
               ) : (
@@ -277,9 +280,13 @@ function CommentView(props: Props) {
                   })}
                   link
                   uri={authorUri}
+                  comment
                   showAtSign
                 />
               )}
+              {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
+              {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
+              <PremiumBadge badgeToShow={badgeToShow} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}

@@ -1,10 +1,9 @@
 import { connect } from 'react-redux';
-import { selectActiveChannelStakedLevel } from 'redux/selectors/app';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
 import { doClearClaimSearch } from 'redux/actions/claims';
 import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
-import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { selectUserVerifiedEmail, selectUser, selectOdyseeMembershipName } from 'redux/selectors/user';
 import { selectHomepageData, selectWildWestDisabled } from 'redux/selectors/settings';
 import { doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
@@ -20,8 +19,8 @@ const select = (state) => ({
   unseenCount: selectUnseenNotificationCount(state),
   user: selectUser(state),
   homepageData: selectHomepageData(state),
-  activeChannelStakedLevel: selectActiveChannelStakedLevel(state),
   wildWestDisabled: selectWildWestDisabled(state),
+  odyseeMembership: selectOdyseeMembershipName(state),
 });
 
 export default connect(select, {

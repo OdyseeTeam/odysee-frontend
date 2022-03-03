@@ -15,7 +15,7 @@ import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { useIsMobile, useIsLargeScreen, isTouch } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
-import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
+import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 
 const touch = isTouch();
 
@@ -70,6 +70,13 @@ const PLAYLISTS = {
   hideForUnauth: true,
 };
 
+const PREMIUM = {
+  title: 'Premium',
+  link: `/$/${PAGES.ODYSEE_MEMBERSHIP}`,
+  icon: ICONS.UPGRADE,
+  hideForUnauth: true,
+};
+
 const UNAUTH_LINKS: Array<SideNavLink> = [
   {
     title: 'Log In',
@@ -117,9 +124,9 @@ type Props = {
   doClearPurchasedUriSuccess: () => void,
   user: ?User,
   homepageData: any,
-  activeChannelStakedLevel: number,
   wildWestDisabled: boolean,
   doClearClaimSearch: () => void,
+  odyseeMembership: string,
 };
 
 function SideNavigation(props: Props) {
@@ -137,9 +144,9 @@ function SideNavigation(props: Props) {
     homepageData,
     user,
     followedTags,
-    activeChannelStakedLevel,
     wildWestDisabled,
     doClearClaimSearch,
+    odyseeMembership,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
@@ -224,12 +231,7 @@ function SideNavigation(props: Props) {
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const isAuthenticated = Boolean(email);
 
-  const livestreamEnabled = Boolean(
-    ENABLE_NO_SOURCE_CLAIMS &&
-      user &&
-      !user.odysee_live_disabled &&
-      (activeChannelStakedLevel >= CHANNEL_STAKED_LEVEL_LIVESTREAM || user.odysee_live_enabled)
-  );
+  const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
 
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
   const [expandTags, setExpandTags] = React.useState(false);
@@ -244,6 +246,8 @@ function SideNavigation(props: Props) {
   const hideMenuFromView = menuCanCloseCompletely && !sidebarOpen;
 
   const [canDisposeMenu, setCanDisposeMenu] = React.useState(false);
+
+  const isOnMembershipPage = window.location.pathname === `/$/${PAGES.ODYSEE_MEMBERSHIP}`;
 
   React.useEffect(() => {
     if (hideMenuFromView || !menuInitialized) {
@@ -487,6 +491,7 @@ function SideNavigation(props: Props) {
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
               {getLink(PLAYLISTS)}
+              {!isOnMembershipPage && !odyseeMembership && getLink(PREMIUM)}
             </ul>
 
             <ul

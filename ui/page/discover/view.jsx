@@ -28,10 +28,10 @@ type Props = {
   searchInLanguage: boolean,
   doToggleTagFollowDesktop: (string) => void,
   doResolveUri: (string) => void,
-  isAuthenticated: boolean,
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
   doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
+  userHasPremiumPlus: boolean,
 };
 
 function DiscoverPage(props: Props) {
@@ -44,11 +44,11 @@ function DiscoverPage(props: Props) {
     searchInLanguage,
     doToggleTagFollowDesktop,
     doResolveUri,
-    isAuthenticated,
     tileLayout,
     activeLivestreams,
     doFetchActiveLivestreams,
     dynamicRouteProps,
+    userHasPremiumPlus,
   } = props;
 
   const buttonRef = useRef();
@@ -178,11 +178,14 @@ function DiscoverPage(props: Props) {
   React.useEffect(() => {
     const hasAdOnPage = document.querySelector('.homepageAdContainer');
 
-    if (hasAdOnPage || isAuthenticated || !SHOW_ADS || window.location.pathname === `/$/${PAGES.WILD_WEST}`) {
+    const userIsOnWildWest = window.location.pathname === `/$/${PAGES.WILD_WEST}`;
+
+    // different reasons to not show ad
+    if (hasAdOnPage || userHasPremiumPlus || !SHOW_ADS || userIsOnWildWest) {
       return;
     }
     injectAd();
-  }, [isAuthenticated]);
+  }, [userHasPremiumPlus]);
 
   return (
     <Page noFooter fullWidthPage={tileLayout} className="main__discover">
@@ -200,7 +203,7 @@ function DiscoverPage(props: Props) {
         hiddenNsfwMessage={<HiddenNsfw type="page" />}
         repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
         injectedItem={
-          SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false
+          SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !userHasPremiumPlus && <Ads small type={'video'} />) : false
         }
         // Assume wild west page if no dynamicRouteProps
         // Not a very good solution, but just doing it for now

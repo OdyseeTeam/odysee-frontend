@@ -3,6 +3,7 @@ import type { Node } from 'react';
 import React from 'react';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import useFetchViewCount from 'effects/use-fetch-view-count';
+import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 function urisEqual(prev: ?Array<string>, next: ?Array<string>) {
   if (!prev || !next) {
@@ -54,6 +55,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
+  doFetchUserMemberships: (claimIdCsv: string) => void,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -71,6 +73,7 @@ function ClaimTilesDiscover(props: Props) {
     doFetchViewCount,
     pageSize = 8,
     optionsStringified,
+    doFetchUserMemberships,
   } = props;
 
   const prevUris = React.useRef();
@@ -108,6 +111,10 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
 
   useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
+
+  const shouldFetchUserMemberships = true;
+
+  useGetUserMemberships(shouldFetchUserMemberships, uris, claimsByUri, doFetchUserMemberships);
 
   // Run `doClaimSearch`
   React.useEffect(() => {

@@ -31,6 +31,7 @@ type Props = {
   doFetchActiveLivestreams: () => void,
   fetchingActiveLivestreams: boolean,
   hideScheduledLivestreams: boolean,
+  userHasPremiumPlus: boolean,
 };
 
 function HomePage(props: Props) {
@@ -44,6 +45,7 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams,
     fetchingActiveLivestreams,
     hideScheduledLivestreams,
+    userHasPremiumPlus,
   } = props;
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
@@ -140,7 +142,7 @@ function HomePage(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    const shouldShowAds = SHOW_ADS && !authenticated;
+    const shouldShowAds = SHOW_ADS && !userHasPremiumPlus;
     // inject ad into last visible card
     injectAd(shouldShowAds);
   }, []);

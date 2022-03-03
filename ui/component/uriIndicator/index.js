@@ -3,11 +3,13 @@ import { normalizeURI } from 'util/lbryURI';
 import { doResolveUri } from 'redux/actions/claims';
 import { selectIsUriResolving, makeSelectClaimForUri } from 'redux/selectors/claims';
 import UriIndicator from './view';
+import { selectOdyseeMembershipByUri } from 'redux/selectors/user';
 
 const select = (state, props) => ({
   claim: makeSelectClaimForUri(props.uri)(state),
   isResolvingUri: selectIsUriResolving(state, props.uri),
   uri: normalizeURI(props.uri),
+  odyseeMembership: selectOdyseeMembershipByUri(state, props.uri),
 });
 
 const perform = (dispatch) => ({
