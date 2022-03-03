@@ -365,6 +365,7 @@ function CommentView(props: Props) {
                         promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
+                        hasMembership={badgeToShow}
                       />
                     </Expandable>
                   ) : (
@@ -373,6 +374,7 @@ function CommentView(props: Props) {
                       promptLinks
                       parentCommentId={commentId}
                       stakedLevel={stakedLevel}
+                      hasMembership={badgeToShow}
                     />
                   )}
                 </div>

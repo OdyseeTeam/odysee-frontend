@@ -155,6 +155,7 @@ export default function LivestreamComment(props: Props) {
                   stakedLevel={stakedLevel}
                   disableTimestamps
                   setUserMention={setUserMention}
+                  hasMembership={badgeToShow}
                 />
               )}
             </div>
