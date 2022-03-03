@@ -5,7 +5,6 @@ import { ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import * as MODALS from 'constants/modal_types';
 import HeaderMenuLink from 'component/common/header-menu-link';
 import Icon from 'component/common/icon';
 import NotificationHeaderButton from 'component/headerNotificationButton';
@@ -24,15 +23,7 @@ type HeaderMenuButtonProps = {
 };
 
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
-  const {
-    authenticated,
-    automaticDarkModeEnabled,
-    currentTheme,
-    user,
-    handleThemeToggle,
-    doOpenModal,
-    odyseeMembership,
-  } = props;
+  const { authenticated, automaticDarkModeEnabled, currentTheme, user, handleThemeToggle, odyseeMembership } = props;
 
   const isOnMembershipPage = window.location.pathname === `/$/${PAGES.ODYSEE_MEMBERSHIP}`;
 

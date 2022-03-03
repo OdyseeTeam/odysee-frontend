@@ -410,54 +410,56 @@ const OdyseeMembershipPage = (props: Props) => {
                       <div key={i}>
                         {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
                           <>
-                            <h4 className="membership_title">
-                              {membershipOption.Membership.name}
-                              <PremiumBadge
-                                badgeToShow={membershipOption.Membership.name === 'Premium' ? 'silver' : 'gold'}
-                              />
-                            </h4>
+                            <div className="premium-option">
+                              <h4 className="membership_title">
+                                {membershipOption.Membership.name}
+                                <PremiumBadge
+                                  badgeToShow={membershipOption.Membership.name === 'Premium' ? 'silver' : 'gold'}
+                                />
+                              </h4>
 
-                            {/* plan description */}
-                            <h4 className="membership_subtitle">
-                              {getPlanDescription(membershipOption.Membership.name)}
-                            </h4>
-                            <>
-                              {membershipOption.Prices.map((price) => (
-                                <>
-                                  {/* dont show a monthly Premium membership option */}
-                                  {!(
-                                    price.recurring.interval === 'month' &&
-                                    membershipOption.Membership.name === 'Premium'
-                                  ) && (
-                                    <>
-                                      {price.currency === currencyToUse && (
-                                        <div className="premium-option">
-                                          <h4 className="membership_info">
-                                            <b>{__('Interval:')}</b> {convertPriceToString(price)}
-                                          </h4>
-                                          <h4 className="membership_info">
-                                            <b>{__('Price:')}</b> {buildCurrencyDisplay(price)}
-                                            {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
-                                          </h4>
-                                          <Button
-                                            button="primary"
-                                            onClick={(e) => purchaseMembership(e, membershipOption, price)}
-                                            membership-id={membershipOption.Membership.id}
-                                            membership-subscription-period={membershipOption.Membership.type}
-                                            price-id={price.id}
-                                            className="membership_button"
-                                            label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
-                                            icon={ICONS.FINANCE}
-                                            interval={price.recurring.interval}
-                                            plan={membershipOption.Membership.name}
-                                          />
-                                        </div>
-                                      )}
-                                    </>
-                                  )}
-                                </>
-                              ))}
-                            </>
+                              {/* plan description */}
+                              <h4 className="membership_subtitle">
+                                {getPlanDescription(membershipOption.Membership.name)}
+                              </h4>
+                              <>
+                                {membershipOption.Prices.map((price) => (
+                                  <>
+                                    {/* dont show a monthly Premium membership option */}
+                                    {!(
+                                      price.recurring.interval === 'month' &&
+                                      membershipOption.Membership.name === 'Premium'
+                                    ) && (
+                                      <>
+                                        {price.currency === currencyToUse && (
+                                          <div>
+                                            <h4 className="membership_info">
+                                              <b>Interval:</b> {convertPriceToString(price)}
+                                            </h4>
+                                            <h4 className="membership_info">
+                                              <b>Price:</b> {buildCurrencyDisplay(price)}
+                                              {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                            </h4>
+                                            <Button
+                                              button="primary"
+                                              onClick={(e) => purchaseMembership(e, membershipOption, price)}
+                                              membership-id={membershipOption.Membership.id}
+                                              membership-subscription-period={membershipOption.Membership.type}
+                                              price-id={price.id}
+                                              className="membership_button"
+                                              label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                              icon={ICONS.FINANCE}
+                                              interval={price.recurring.interval}
+                                              plan={membershipOption.Membership.name}
+                                            />
+                                          </div>
+                                        )}
+                                      </>
+                                    )}
+                                  </>
+                                ))}
+                              </>
+                            </div>
                           </>
                         )}
                       </div>
@@ -486,20 +488,20 @@ const OdyseeMembershipPage = (props: Props) => {
                       activeMemberships &&
                       activeMemberships.map((membership) => (
                         <>
-                          {/* membership name */}
-                          <h4 className="membership_title">
-                            {membership.MembershipDetails.name}
-                            <PremiumBadge
-                              badgeToShow={membership.MembershipDetails.name === 'Premium' ? 'silver' : 'gold'}
-                            />
-                          </h4>
-
-                          {/* description section */}
-                          <h4 className="membership_subtitle">
-                            {getPlanDescription(membership.MembershipDetails.name)}
-                          </h4>
-
                           <div className="premium-option">
+                            {/* membership name */}
+                            <h4 className="membership_title">
+                              {membership.MembershipDetails.name}
+                              <PremiumBadge
+                                badgeToShow={membership.MembershipDetails.name === 'Premium' ? 'silver' : 'gold'}
+                              />
+                            </h4>
+
+                            {/* description section */}
+                            <h4 className="membership_subtitle">
+                              {getPlanDescription(membership.MembershipDetails.name)}
+                            </h4>
+
                             <h4 className="membership_info">
                               <b>{__('Registered On:')}</b> {formatDate(membership.Membership.created_at)}
                             </h4>

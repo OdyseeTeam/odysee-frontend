@@ -63,34 +63,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
           price_id: priceId,
         },
         'post'
-      ).catch((error) => {
-        const errorMessage = error.message;
-
-        const subscriptionFailedBackendError = 'failed to create subscription with default card';
-
-        // wait a bit to show the message so it's not jarring for the user
-        let errorMessageTimeout = 1150;
-
-        // don't do an error delay if there's already a network error
-        if (errorMessage === subscriptionFailedBackendError) {
-          errorMessageTimeout = 0;
-        }
-
-        setTimeout(function () {
-          const genericErrorMessage = __(
-            "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
-          );
-
-          doToast({
-            message: genericErrorMessage,
-            isError: true,
-          });
-
-          closeModal();
-        }, errorMessageTimeout);
-
-        throw new Error(error);
-      });
+      );
 
       // cleary query params
       // $FlowFixMe
@@ -109,6 +82,31 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       closeModal();
     } catch (err) {
+      const errorMessage = err.message;
+
+      const subscriptionFailedBackendError = 'failed to create subscription with default card';
+
+      // wait a bit to show the message so it's not jarring for the user
+      let errorMessageTimeout = 1150;
+
+      // don't do an error delay if there's already a network error
+      if (errorMessage === subscriptionFailedBackendError) {
+        errorMessageTimeout = 0;
+      }
+
+      setTimeout(function () {
+        const genericErrorMessage = __(
+          "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
+        );
+
+        doToast({
+          message: genericErrorMessage,
+          isError: true,
+        });
+
+        closeModal();
+      }, errorMessageTimeout);
+
       console.log(err);
     }
   }
