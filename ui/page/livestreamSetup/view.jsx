@@ -195,11 +195,11 @@ export default function LivestreamSetupPage(props: Props) {
       {/* no livestreaming privs because no premium membership */}
       {!livestreamEnabled && !odyseeMembership && (
         <div>
-          <h2 className={''}>Please purchase an Odysee Premium membership to be able to live-stream</h2>
+          <h2 className={''}>Join Odysee Premium to be able to livestream</h2>
 
           <Button
             button="primary"
-            label={__('Purchase Odysee Premium')}
+            label={__('Join Odysee Premium')}
             icon={ICONS.FINANCE}
             navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}
             className="membership_button"

@@ -72,7 +72,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const [hasShownModal, setHasShownModal] = React.useState(false);
   const [shouldFetchUserMemberships, setFetchUserMemberships] = React.useState(true);
 
-  const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
+  const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
   const hasMembership = activeMemberships && activeMemberships.length > 0;
 
@@ -214,7 +214,7 @@ const OdyseeMembershipPage = (props: Props) => {
         ' channel in all areas of the app, and can be added to two additional channels in the future for free. ';
     } else if (plan === 'Premium+' && !noChannelsOrIncognitoMode) {
       featureString =
-        'Your feature of no ads applies site-wide for all channels and your badge will be shown for your ' +
+        'The no ads feature applies site-wide for all channels and your badge will be shown for your ' +
         userChannelName +
         ' channel in all areas of the app, and can be added to two additional channels in the future for free. ';
     } else if (plan === 'Premium' && !channels) {
@@ -223,7 +223,7 @@ const OdyseeMembershipPage = (props: Props) => {
         'If you register a channel later you will be able to show a badge for up to three channels.';
     } else if (plan === 'Premium+' && !channels) {
       featureString =
-        'Your feature of no ads applies site-wide. You currently have no channels. To show your badge on a channel, please create a channel first. ' +
+        'The no ads feature applies site-wide. You currently have no channels. To show your badge on a channel, please create a channel first. ' +
         'If you register a channel later you will be able to show a badge for up to three channels.';
     } else if (plan === 'Premium' && incognito) {
       featureString =
@@ -231,17 +231,17 @@ const OdyseeMembershipPage = (props: Props) => {
         'or you can show a badge for up to three channels in the future for free.';
     } else if (plan === 'Premium+' && incognito) {
       featureString =
-        'Your feature of no ads applies site-wide. You currently have no channel selected and will not have a badge be visible, ' +
+        'The no ads feature applies site-wide. You currently have no channel selected and will not have a badge be visible, ' +
         'if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.';
     }
 
     let purchaseString =
       `You are purchasing a ${interval}ly membership, that is active immediately ` +
-      `and will resubscribe ${interval}ly at a price of ${currencyToUse.toUpperCase()} ${
+      `and will renew ${interval}ly at a price of ${currencyToUse.toUpperCase()} ${
         currencyToUse === 'usd' ? '$' : '€'
       }${price / 100}. ` +
       featureString +
-      'You can cancel the membership at any time and you can also close this window and choose a different subscription option.';
+      'You can cancel Premium at any time and you can also close this window and choose a different membership option.';
 
     return __(purchaseString);
   }
@@ -273,9 +273,10 @@ const OdyseeMembershipPage = (props: Props) => {
   const cancelMembership = async function (e, membership) {
     const membershipId = e.currentTarget.getAttribute('membership-id');
 
-    const cancellationString = __(
-      'You are cancelling your Odysee Premium Membership. You will still have access to all the paid features until the point of the expiration of your current membership, at which point you will not be charged again and your membership will no longer be active.'
-    );
+    const cancellationString =
+      'You are cancelling your Odysee Premium. You will still have access to all the paid ' +
+      'features until the point of the expiration of your current membership, at which point you will not be charged ' +
+      'again and your membership will no longer be active. At this time, there is no way to subscribe to another membership if you cancel and there are no refunds.';
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
@@ -322,11 +323,11 @@ const OdyseeMembershipPage = (props: Props) => {
   // description to be shown under plan name
   function getPlanDescription(plan) {
     if (plan === 'Premium') {
-      return __('Badge on profile, Early Access to new features');
+      return 'Badge on profile, exclusive and early access to features';
 
       // if there's more plans added this needs to be expanded
     } else {
-      return __('All Premium features, and No Ads');
+      return 'All Premium features, and no ads';
     }
   }
 
@@ -350,14 +351,34 @@ const OdyseeMembershipPage = (props: Props) => {
     <div className="section__subtitle">
       <p>
         {__(
-          `Create a Livestream by first submitting your livestream details and waiting for approval confirmation. This can be done well in advance and will take a few minutes.`
-        )}{' '}
-        {__(
-          `Scheduled livestreams will appear at the top of your channel page and for your followers. Regular livestreams will only appear once you are actually live.`
-        )}{' '}
-        {__(
-          `Once the your livestream is confirmed, configure your streaming software (OBS, Restream, etc) and input the server URL along with the stream key in it.`
+          `First of all, thank you for considering or purchasing a membership, it means a ton to us! A few important details to know: `
         )}
+      </p>
+      <p>
+        <ul>
+          <li>
+            {__(
+              `The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.`
+            )}
+          </li>
+          <li>{__(`These are limited time rates, so get in early!`)}</li>
+          <li>
+            {__(
+              `Early access and exclusive features include: livestreaming and the ability to post odysee hyperlinks and images in comments + blogs. More to come later.`
+            )}
+          </li>
+          <li>
+            {__(
+              `There may be higher tiers available in the future for creators and anyone else who wants to support us.`
+            )}
+          </li>
+          <li>
+            {__(`Badges will be displayed on a single channel to start, with an option to add on two more later on.`)}
+          </li>
+          <li>
+            {__(`Cannot upgrade or downgrade a membership at this time. Refunds are not available. Choose wisely.`)}
+          </li>
+        </ul>
       </p>
     </div>
   );
@@ -388,7 +409,7 @@ const OdyseeMembershipPage = (props: Props) => {
                       />
                     }
                     title={__('Get More Information')}
-                    subtitle={<>{__(`Learn more about how Odysee Premium will work`)} </>}
+                    subtitle={<>{__(`Expand to learn more about how Odysee Premium works`)} </>}
                     actions={showHelp && helpText}
                     className={'premium-explanation-text'}
                   />
@@ -447,7 +468,7 @@ const OdyseeMembershipPage = (props: Props) => {
                                               membership-subscription-period={membershipOption.Membership.type}
                                               price-id={price.id}
                                               className="membership_button"
-                                              label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                              label={__('Join via ' + price.recurring.interval + 'ly membership')}
                                               icon={ICONS.FINANCE}
                                               interval={price.recurring.interval}
                                               plan={membershipOption.Membership.name}
@@ -512,10 +533,10 @@ const OdyseeMembershipPage = (props: Props) => {
                             {!stillWaitingFromBackend && membership.type === 'yearly' && (
                               <>
                                 <h4 className="membership_info">
-                                  <b>{__('Subscription Period Options:')}</b> {__('Yearly')}
+                                  <b>{__('Membership Period Options:')}</b> {__('Yearly')}
                                 </h4>
                                 <h4 className="membership_info">
-                                  ${(membership.cost_usd * 12) / 100} {__('USD For A One Year Subscription')} ($
+                                  ${(membership.cost_usd * 12) / 100} {__('USD For A One Year Membership')} ($
                                   {membership.cost_usd / 100} {__('Per Month')})
                                 </h4>
                               </>
@@ -577,7 +598,9 @@ const OdyseeMembershipPage = (props: Props) => {
               <div>
                 <br />
                 <h2 className={'getPaymentCard'}>
-                  {__('Please save a card as a payment method so you can join Odysee Premium')}
+                  {__(
+                    'Please save a card as a payment method so you can join Odysee Premium. After the card is added, click Back.'
+                  )}
                 </h2>
 
                 <Button

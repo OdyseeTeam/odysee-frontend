@@ -70,7 +70,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       let newURL = location.href.split('?')[0];
       window.history.pushState('object', document.title, newURL);
 
-      setStatusText(__('Membership purchase was successful'));
+      setStatusText(__('Membership was successful'));
 
       // populate the new data and update frontend
       await populateMembershipData();

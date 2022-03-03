@@ -35,7 +35,7 @@ export default function MembershipSplash(props: Props) {
   const earlyAcessInfo = (
     <div className="membership-splash__info-content">
       <Icon icon={ICONS.EARLY_ACCESS} />
-      {__('Early access to features')}
+      {__('Exclusive and early access to features')}
     </div>
   );
   const badgeInfo = (
@@ -75,7 +75,7 @@ export default function MembershipSplash(props: Props) {
             Creating a revolutionary video platform for everyone is something we're proud to be doing, but it isn't
             something that can happen without support. If you believe in Odysee's mission, please consider becoming a
             Premium member. As a Premium member, you'll be helping us build the best platform in the universe and we'll
-            give you some cool perks.
+            give you some cool perks!
           </I18nMessage>
         </div>
 

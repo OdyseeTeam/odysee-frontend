@@ -60,12 +60,11 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
 
         <MenuList className="menu__list--header">
           <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
-          <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
-
           {/* don't show upgrade button if on membership page or already have a membership */}
           {!isOnMembershipPage && !odyseeMembership && (
-            <HeaderMenuLink page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Upgrade')} />
+            <HeaderMenuLink page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
           )}
+          <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
 
           <MenuItem className="menu__link" onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}>
             <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
