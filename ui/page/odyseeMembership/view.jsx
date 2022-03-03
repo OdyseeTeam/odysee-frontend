@@ -368,7 +368,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
   return (
     <>
-      <Page>
+      <Page className="premium-wrapper">
         {/** splash frontend **/}
         {!stillWaitingFromBackend && purchasedMemberships.length === 0 && !planValue && !hasShownModal ? (
           <MembershipSplash pageLocation={'confirmPage'} currencyToUse={currencyToUse} />
@@ -424,40 +424,42 @@ const OdyseeMembershipPage = (props: Props) => {
                           <h4 className="membership_subtitle">
                             {getPlanDescription(membershipOption.Membership.name)}
                           </h4>
-                          {membershipOption.Prices.map((price) => (
-                            <>
-                              {/* dont show a monthly Premium membership option */}
-                              {!(
-                                price.recurring.interval === 'month' && membershipOption.Membership.name === 'Premium'
-                              ) && (
-                                <>
-                                  {price.currency === currencyToUse && (
-                                    <>
-                                      <h4 className="membership_info">
-                                        <b>Interval:</b> {convertPriceToString(price)}
-                                      </h4>
-                                      <h4 className="membership_info">
-                                        <b>Price:</b> {buildCurrencyDisplay(price)}
-                                        {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
-                                      </h4>
-                                      <Button
-                                        button="primary"
-                                        onClick={(e) => purchaseMembership(e, membershipOption, price)}
-                                        membership-id={membershipOption.Membership.id}
-                                        membership-subscription-period={membershipOption.Membership.type}
-                                        price-id={price.id}
-                                        className="membership_button"
-                                        label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
-                                        icon={ICONS.FINANCE}
-                                        interval={price.recurring.interval}
-                                        plan={membershipOption.Membership.name}
-                                      />
-                                    </>
-                                  )}
-                                </>
-                              )}
-                            </>
-                          ))}
+                          <>
+                            {membershipOption.Prices.map((price) => (
+                              <>
+                                {/* dont show a monthly Premium membership option */}
+                                {!(
+                                  price.recurring.interval === 'month' && membershipOption.Membership.name === 'Premium'
+                                ) && (
+                                  <>
+                                    {price.currency === currencyToUse && (
+                                      <div className="premium-option">
+                                        <h4 className="membership_info">
+                                          <b>Interval:</b> {convertPriceToString(price)}
+                                        </h4>
+                                        <h4 className="membership_info">
+                                          <b>Price:</b> {buildCurrencyDisplay(price)}
+                                          {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                        </h4>
+                                        <Button
+                                          button="primary"
+                                          onClick={(e) => purchaseMembership(e, membershipOption, price)}
+                                          membership-id={membershipOption.Membership.id}
+                                          membership-subscription-period={membershipOption.Membership.type}
+                                          price-id={price.id}
+                                          className="membership_button"
+                                          label={__('Subscribe to a ' + price.recurring.interval + 'ly membership')}
+                                          icon={ICONS.FINANCE}
+                                          interval={price.recurring.interval}
+                                          plan={membershipOption.Membership.name}
+                                        />
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                              </>
+                            ))}
+                          </>
                         </>
                       )}
                     </>
@@ -498,31 +500,33 @@ const OdyseeMembershipPage = (props: Props) => {
                             {getPlanDescription(membership.MembershipDetails.name)}
                           </h4>
 
-                          <h4 className="membership_info">
-                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
-                          </h4>
-                          <h4 className="membership_info">
-                            <b>Auto-Renews On:</b> {formatDate(membership.Subscription.current_period_end * 1000)}
-                          </h4>
-                          {!stillWaitingFromBackend && membership.type === 'yearly' && (
-                            <>
-                              <h4 className="membership_info">
-                                <b>Subscription Period Options:</b> Yearly
-                              </h4>
-                              <h4 className="membership_info">
-                                ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
-                                {membership.cost_usd / 100} Per Month)
-                              </h4>
-                            </>
-                          )}
-                          <Button
-                            button="alt"
-                            membership-id={membership.Membership.membership_id}
-                            onClick={(e) => cancelMembership(e, membership)}
-                            className="cancel-membership-button"
-                            label={__('Cancel membership')}
-                            icon={ICONS.FINANCE}
-                          />
+                          <div className="premium-option">
+                            <h4 className="membership_info">
+                              <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                            </h4>
+                            <h4 className="membership_info">
+                              <b>Auto-Renews On:</b> {formatDate(membership.Subscription.current_period_end * 1000)}
+                            </h4>
+                            {!stillWaitingFromBackend && membership.type === 'yearly' && (
+                              <>
+                                <h4 className="membership_info">
+                                  <b>Subscription Period Options:</b> Yearly
+                                </h4>
+                                <h4 className="membership_info">
+                                  ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
+                                  {membership.cost_usd / 100} Per Month)
+                                </h4>
+                              </>
+                            )}
+                            <Button
+                              button="alt"
+                              membership-id={membership.Membership.membership_id}
+                              onClick={(e) => cancelMembership(e, membership)}
+                              className="cancel-membership-button"
+                              label={__('Cancel membership')}
+                              icon={ICONS.FINANCE}
+                            />
+                          </div>
                         </>
                       ))}
                   </div>
@@ -547,15 +551,18 @@ const OdyseeMembershipPage = (props: Props) => {
                               badgeToShow={membership.MembershipDetails.name === 'Premium' ? 'silver' : 'gold'}
                             />
                           </h4>
-                          <h4 className="membership_info">
-                            <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
-                          </h4>
-                          <h4 className="membership_info">
-                            <b>Canceled On:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
-                          </h4>
-                          <h4 className="membership_info">
-                            <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}
-                          </h4>
+
+                          <div className="premium-option">
+                            <h4 className="membership_info">
+                              <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                            </h4>
+                            <h4 className="membership_info">
+                              <b>Canceled On:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                            </h4>
+                            <h4 className="membership_info">
+                              <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}
+                            </h4>
+                          </div>
                         </>
                       ))}
                   </Card>

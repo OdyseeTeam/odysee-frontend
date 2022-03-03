@@ -209,7 +209,7 @@
       font-weight: 900;
       img {
         display: inline-block;
-        width: 40%;
+        width: 36%;
         //margin-left: 1rem;
         margin-left: 7%;
         //margin-right: 1.4rem;
@@ -268,7 +268,7 @@
   }
 
   .membership-splash__info-button {
-    text-align: center;
+    text-align: left;
     position: absolute;
     width: calc(100% - (var(--spacing-m) * 2));
     bottom: 0;
@@ -278,9 +278,9 @@
     margin-bottom: var(--spacing-m);
     .button--primary {
       display: inline-block;
-      border: 2px solid #debca0;
-      border-radius: 20px;
-      padding: 8px 20px 8px 20px;
+      border: 3px solid #debca0;
+      border-radius: 3rem;
+      padding: 22px 30px 22px 30px;
       background-color: unset !important;
       text-align: center;
       .button__label {
@@ -288,14 +288,15 @@
         display: inline-block;
         color: #debca0;
         text-transform: uppercase;
-        font-size: 12px;
+        font-size: 2rem;
+        line-height: 2rem;
         font-weight: var(--font-weight-bold);
       }
       &:hover {
         background-color: unset;
       }
       @media (min-width: $breakpoint-xlarge) {
-        padding: 24px 40px 24px 40px;
+        padding: 18px 40px 18px 40px;
         height: 4.8rem;
         border-radius: 2.4rem;
         margin-bottom: 3%;
@@ -307,7 +308,7 @@
         padding: 8px 10px 8px 10px;
         box-sizing: border-box;
         .button__label {
-          font-size: 0.9rem;
+          font-size: 1.2rem;
         }
       }
     }
