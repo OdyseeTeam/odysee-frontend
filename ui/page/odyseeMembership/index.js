@@ -20,7 +20,7 @@ const select = (state) => {
 
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  doFetchUserMemberships: (claimIds) => dispatch(doFetchUserMemberships(claimIds)),
+  fetchUserMemberships: (claimIds) => dispatch(doFetchUserMemberships(claimIds)),
   updateUserOdyseeMembershipStatus: (user) => dispatch(doCheckUserOdyseeMemberships(user)),
 });
 

@@ -34,7 +34,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  fetchUserMemberships: (claimIdCsv: string) => void,
   incognito: boolean,
   updateUserOdyseeMembershipStatus: () => void,
   user: ?User,
@@ -46,7 +46,7 @@ const OdyseeMembershipPage = (props: Props) => {
     activeChannelClaim,
     channels,
     claimsByUri,
-    doFetchUserMemberships,
+    fetchUserMemberships,
     updateUserOdyseeMembershipStatus,
     incognito,
     user,
@@ -80,7 +80,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
   // check if membership data for user is already fetched, if it's needed then fetch it
   useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, (value) => {
-    doFetchUserMemberships(value);
+    fetchUserMemberships(value);
     setFetchUserMemberships(false);
   });
 
@@ -119,6 +119,9 @@ const OdyseeMembershipPage = (props: Props) => {
       setActiveMemberships(activeMemberships);
       setCanceledMemberships(canceledMemberships);
       setPurchasedMemberships(purchasedMemberships);
+
+      // update the state to show the badge
+      fetchUserMemberships(userChannelClaimId || '');
 
       setUserMemberships(response);
     } catch (err) {
