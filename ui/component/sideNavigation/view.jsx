@@ -247,8 +247,6 @@ function SideNavigation(props: Props) {
 
   const [canDisposeMenu, setCanDisposeMenu] = React.useState(false);
 
-  const isOnMembershipPage = window.location.pathname === `/$/${PAGES.ODYSEE_MEMBERSHIP}`;
-
   React.useEffect(() => {
     if (hideMenuFromView || !menuInitialized) {
       const handler = setTimeout(() => {
@@ -491,7 +489,7 @@ function SideNavigation(props: Props) {
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
               {getLink(PLAYLISTS)}
-              {!isOnMembershipPage && !odyseeMembership && getLink(PREMIUM)}
+              {!odyseeMembership && getLink(PREMIUM)}
             </ul>
 
             <ul

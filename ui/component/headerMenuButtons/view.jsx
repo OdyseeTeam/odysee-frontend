@@ -73,12 +73,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
 
           {/* don't show upgrade button if on membership page or already have a membership */}
           {!isOnMembershipPage && !odyseeMembership && (
-            <MenuItem onSelect={() => doOpenModal(MODALS.MEMBERSHIP_SPLASH, {})}>
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.UPGRADE} />
-                {__('Upgrade')}
-              </div>
-            </MenuItem>
+            <HeaderMenuLink page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Upgrade')} />
           )}
 
           <MenuItem className="menu__link" onSelect={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}>
