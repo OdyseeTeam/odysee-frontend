@@ -243,7 +243,7 @@ const OdyseeMembershipPage = (props: Props) => {
       featureString +
       'You can cancel the membership at any time and you can also close this window and choose a different subscription option.';
 
-    return purchaseString;
+    return __(purchaseString);
   }
 
   const purchaseMembership = function (e, membershipOption, price) {
@@ -273,10 +273,9 @@ const OdyseeMembershipPage = (props: Props) => {
   const cancelMembership = async function (e, membership) {
     const membershipId = e.currentTarget.getAttribute('membership-id');
 
-    const cancellationString =
-      'You are cancelling your Odysee Premium Membership. You will still have access to all the paid ' +
-      'features until the point of the expiration of your current membership, at which point you will not be charged ' +
-      'again and your membership will no longer be active.';
+    const cancellationString = __(
+      'You are cancelling your Odysee Premium Membership. You will still have access to all the paid features until the point of the expiration of your current membership, at which point you will not be charged again and your membership will no longer be active.'
+    );
 
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
@@ -323,11 +322,11 @@ const OdyseeMembershipPage = (props: Props) => {
   // description to be shown under plan name
   function getPlanDescription(plan) {
     if (plan === 'Premium') {
-      return 'Badge on profile, Early Access to new features';
+      return __('Badge on profile, Early Access to new features');
 
       // if there's more plans added this needs to be expanded
     } else {
-      return 'All Premium features, and No Ads';
+      return __('All Premium features, and No Ads');
     }
   }
 
@@ -374,7 +373,7 @@ const OdyseeMembershipPage = (props: Props) => {
           <div className={'card-stack'}>
             {!stillWaitingFromBackend && cardSaved !== false && (
               <>
-                <h1 style={{ fontSize: '23px' }}>Odysee Premium</h1>
+                <h1 style={{ fontSize: '23px' }}>{__('Odysee Premium')}</h1>
                 {/* let user switch channel */}
                 <div style={{ marginTop: '10px' }}>
                   <ChannelSelector uri={activeChannelClaim && activeChannelClaim.permanent_url} />
@@ -402,7 +401,7 @@ const OdyseeMembershipPage = (props: Props) => {
             {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 1 && cardSaved !== false && (
               <>
                 <div className="card__title-section">
-                  <h2 className="card__title">Available Memberships</h2>
+                  <h2 className="card__title">{__('Available Memberships')}</h2>
                 </div>
 
                 <Card>
@@ -427,16 +426,17 @@ const OdyseeMembershipPage = (props: Props) => {
                                 <>
                                   {/* dont show a monthly Premium membership option */}
                                   {!(
-                                    price.recurring.interval === 'month' && membershipOption.Membership.name === 'Premium'
+                                    price.recurring.interval === 'month' &&
+                                    membershipOption.Membership.name === 'Premium'
                                   ) && (
                                     <>
                                       {price.currency === currencyToUse && (
                                         <div className="premium-option">
                                           <h4 className="membership_info">
-                                            <b>Interval:</b> {convertPriceToString(price)}
+                                            <b>{__('Interval:')}</b> {convertPriceToString(price)}
                                           </h4>
                                           <h4 className="membership_info">
-                                            <b>Price:</b> {buildCurrencyDisplay(price)}
+                                            <b>{__('Price:')}</b> {buildCurrencyDisplay(price)}
                                             {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
                                           </h4>
                                           <Button
@@ -469,7 +469,7 @@ const OdyseeMembershipPage = (props: Props) => {
             {!stillWaitingFromBackend && cardSaved === true && (
               <>
                 <div className="card__title-section">
-                  <h2 className="card__title">Your Active Memberships</h2>
+                  <h2 className="card__title">{__('Your Active Memberships')}</h2>
                 </div>
 
                 <Card>
@@ -478,7 +478,7 @@ const OdyseeMembershipPage = (props: Props) => {
                     {/* <h1 style={{ fontSize: '19px' }}>Active Memberships</h1> */}
                     {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
                       <>
-                        <h4>You currently have no active memberships</h4>
+                        <h4>{__('You currently have no active memberships')}</h4>
                       </>
                     )}
                     {/** active memberships **/}
@@ -501,19 +501,20 @@ const OdyseeMembershipPage = (props: Props) => {
 
                           <div className="premium-option">
                             <h4 className="membership_info">
-                              <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                              <b>{__('Registered On:')}</b> {formatDate(membership.Membership.created_at)}
                             </h4>
                             <h4 className="membership_info">
-                              <b>Auto-Renews On:</b> {formatDate(membership.Subscription.current_period_end * 1000)}
+                              <b>{__('Auto-Renews On')}:</b>{' '}
+                              {formatDate(membership.Subscription.current_period_end * 1000)}
                             </h4>
                             {!stillWaitingFromBackend && membership.type === 'yearly' && (
                               <>
                                 <h4 className="membership_info">
-                                  <b>Subscription Period Options:</b> Yearly
+                                  <b>{__('Subscription Period Options:')}</b> {__('Yearly')}
                                 </h4>
                                 <h4 className="membership_info">
-                                  ${(membership.cost_usd * 12) / 100} USD For A One Year Subscription ($
-                                  {membership.cost_usd / 100} Per Month)
+                                  ${(membership.cost_usd * 12) / 100} {__('USD For A One Year Subscription')} ($
+                                  {membership.cost_usd / 100} {__('Per Month')})
                                 </h4>
                               </>
                             )}
@@ -533,12 +534,12 @@ const OdyseeMembershipPage = (props: Props) => {
                 <>
                   {/** canceled memberships **/}
                   <div className="card__title-section">
-                    <h2 className="card__title">Canceled Memberships</h2>
+                    <h2 className="card__title">{__('Canceled Memberships')}</h2>
                   </div>
                   <Card>
                     {canceledMemberships && canceledMemberships.length === 0 && (
                       <>
-                        <h4>You currently have no canceled memberships</h4>
+                        <h4>{__('You currently have no canceled memberships')}</h4>
                       </>
                     )}
                     {canceledMemberships &&
@@ -553,13 +554,13 @@ const OdyseeMembershipPage = (props: Props) => {
 
                           <div className="premium-option">
                             <h4 className="membership_info">
-                              <b>Registered On:</b> {formatDate(membership.Membership.created_at)}
+                              <b>{__('Registered On:')}</b> {formatDate(membership.Membership.created_at)}
                             </h4>
                             <h4 className="membership_info">
-                              <b>Canceled On:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                              <b>{__('Canceled On:')}</b> {formatDate(membership.Subscription.canceled_at * 1000)}
                             </h4>
                             <h4 className="membership_info">
-                              <b>Still Valid Until:</b> {formatDate(membership.Membership.expires)}
+                              <b>{__('Still Valid Until:')}</b> {formatDate(membership.Membership.expires)}
                             </h4>
                           </div>
                         </>
@@ -574,7 +575,7 @@ const OdyseeMembershipPage = (props: Props) => {
               <div>
                 <br />
                 <h2 className={'getPaymentCard'}>
-                  Please save a card as a payment method so you can join Odysee Premium
+                  {__('Please save a card as a payment method so you can join Odysee Premium')}
                 </h2>
 
                 <Button
@@ -597,7 +598,9 @@ const OdyseeMembershipPage = (props: Props) => {
             {/** clear membership data (only available on dev) **/}
             {isDev && cardSaved && purchasedMemberships.length > 0 && (
               <>
-                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>
+                  {__('Clear Membership Data (Only Available On Dev)')}
+                </h1>
                 <div>
                   <Button
                     button="primary"
