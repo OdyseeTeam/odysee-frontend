@@ -6,7 +6,7 @@ import {
   selectClaimsByUri,
 } from 'redux/selectors/claims';
 import { doResolveUri } from 'redux/actions/claims';
-import { selectOdyseeMembershipByUri } from 'redux/selectors/user';
+import { selectOdyseeMembershipForUri } from 'redux/selectors/user';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import ChannelThumbnail from './view';
 
@@ -14,7 +14,7 @@ const select = (state, props) => ({
   thumbnail: selectThumbnailForUri(state, props.uri),
   claim: selectClaimForUri(state, props.uri),
   isResolving: selectIsUriResolving(state, props.uri),
-  odyseeMembership: selectOdyseeMembershipByUri(state, props.uri),
+  odyseeMembership: selectOdyseeMembershipForUri(state, props.uri),
   claimsByUri: selectClaimsByUri(state),
 });
 
