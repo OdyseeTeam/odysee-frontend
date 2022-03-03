@@ -2795,7 +2795,7 @@ export const icons = {
       <line className="early-access--st0" x1="314.7" y1="380.8" x2="295.1" y2="400.5" />
       <text
         transform="matrix(1 0 0 1 294.7307 394.0567)"
-        style={{ fill: '#DCBDA2', 'font-family': 'Roboto-Bold', 'font-size': '10.1968px' }}
+        style={{ fill: '#DCBDA2', 'fontFamily': 'Roboto-Bold', 'fontSize': '10.1968px' }}
       >
         ADS
       </text>
@@ -2847,7 +2847,7 @@ export const icons = {
       <line className="member-bage--st0" x1="314.7" y1="433.6" x2="295.1" y2="453.2" />
       <text
         transform="matrix(1 0 0 1 294.7307 446.8067)"
-        style={{ fill: '#DCBDA2', 'font-family': 'Roboto-Bold', 'font-size': '10.1968px' }}
+        style={{ fill: '#DCBDA2', 'fontFamily': 'Roboto-Bold', 'fontSize': '10.1968px' }}
       >
         ADS
       </text>
@@ -2901,7 +2901,7 @@ export const icons = {
       <line className="st0--no-ads" x1="314.7" y1="331.8" x2="295.1" y2="351.5" />
       <text
         transform="matrix(1 0 0 1 294.7307 345.0567)"
-        style={{ fill: '#DCBDA2', 'font-family': 'Roboto-Bold', 'font-size': '10.1968px' }}
+        style={{ fill: '#DCBDA2', 'fontFamily': 'Roboto-Bold', 'fontSize': '10.1968px' }}
       >
         ADS
       </text>
