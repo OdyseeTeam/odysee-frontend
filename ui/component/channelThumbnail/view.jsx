@@ -32,6 +32,7 @@ type Props = {
   doFetchUserMemberships: (claimIdCsv: string) => void,
   showMemberBadge?: boolean,
   isChannel?: boolean,
+  checkMembership: boolean,
 };
 
 function ChannelThumbnail(props: Props) {
@@ -56,6 +57,7 @@ function ChannelThumbnail(props: Props) {
     doFetchUserMemberships,
     showMemberBadge,
     isChannel,
+    checkMembership = true,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -74,8 +76,7 @@ function ChannelThumbnail(props: Props) {
     className: isChannel ? 'profile-badge__tooltip' : undefined,
   };
 
-  const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchUserMemberships);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);

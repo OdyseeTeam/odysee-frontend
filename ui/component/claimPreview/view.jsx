@@ -368,7 +368,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link>
-              <ChannelThumbnail uri={uri} small={type === 'inline'} showMemberBadge={showMemberBadge} />
+              <ChannelThumbnail uri={uri} small={type === 'inline'} showMemberBadge={showMemberBadge} checkMembership={false} />
             </UriIndicator>
           ) : (
             <>
@@ -413,7 +413,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
                     <UriIndicator focusable={false} uri={uri} link hideAnonymous>
-                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall showMemberBadge={showMemberBadge} />
+                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall showMemberBadge={showMemberBadge} checkMembership={false} />
                     </UriIndicator>
                   </div>
                 )}

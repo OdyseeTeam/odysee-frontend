@@ -1,6 +1,12 @@
 // @flow
 import { useState, useEffect } from 'react';
 import { getChannelFromClaim } from 'util/claim';
+import usePersistedState from 'effects/use-persisted-state';
+
+setTimeout(function() {
+  // clear out the cache every 3 minutes
+  localStorage.setItem('odysee-memberships', JSON.stringify('[]'));
+}, 1000 * 60 * 3);
 
 export default function useGetUserMemberships(
   shouldFetchUserMemberships: ?boolean,
@@ -8,31 +14,51 @@ export default function useGetUserMemberships(
   convertClaimUrlsToIds: any,
   doFetchUserMemberships: (string) => void // fetch membership values and save in redux
 ) {
-  const [fetchedUserClaims, setFetchedUserClaims] = useState([]);
+  // const [userMemberships, setUserMemberships] = usePersistedState('odysee-memberships');
+
+  let userMemberships = JSON.parse(localStorage.getItem('odysee-memberships'));
 
   useEffect(() => {
+    if (!userMemberships) {
+      userMemberships = [];
+    }
+
     if (shouldFetchUserMemberships && arrayOfContentUris && arrayOfContentUris.length > 0) {
-      // check against the uris already saved in memory (already fetched)
-      const urisToFetch = arrayOfContentUris.filter(
-        (uri) => uri && !fetchedUserClaims.includes(uri) && Boolean(convertClaimUrlsToIds[uri])
+      const urisToFetch = arrayOfContentUris;
+
+      // TODO: bring back the filter here
+      const claimIds = urisToFetch.map((uri) => {
+        // get claim id from array
+        const claimUrlsToId = convertClaimUrlsToIds[uri];
+
+        if (claimUrlsToId) {
+          const { claim_id: claimId } = getChannelFromClaim(claimUrlsToId) || {};
+          return claimId;
+        }
+      });
+
+      const dedupedChannelIds = [...new Set(claimIds)];
+
+      const channelClaimIdsToCheck = dedupedChannelIds.filter(
+        // not in fetched claims but exists in array
+        (claimId) => claimId && !userMemberships.includes(claimId)
       );
 
-      if (urisToFetch.length > 0) {
-        // convert uris to claimIds
-        const claimIds = arrayOfContentUris.map((uri) => {
-          const claimUrlsToId = convertClaimUrlsToIds[uri];
-          if (claimUrlsToId) {
-            const { claim_id: claimId } = getChannelFromClaim(claimUrlsToId) || {};
-            return claimId;
-          }
-        });
+      const channelsToFetch = channelClaimIdsToCheck.filter(
+        // not in fetched claims but exists in array
+        (uri) => uri && !userMemberships.includes(uri)
+      );
 
-        const commaSeparatedStringOfIds = claimIds.join(',');
+      const commaSeparatedStringOfIds = channelsToFetch.join(',');
 
+      if (channelsToFetch && channelsToFetch.length > 0) {
         // hit membership/check and save it in redux
+
+        const combinedArray = [...userMemberships, ...channelsToFetch];
+
+        localStorage.setItem('odysee-memberships', JSON.stringify(combinedArray));
+
         if (doFetchUserMemberships) doFetchUserMemberships(commaSeparatedStringOfIds);
-        // update fetched uris
-        setFetchedUserClaims([...fetchedUserClaims, ...urisToFetch]);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
