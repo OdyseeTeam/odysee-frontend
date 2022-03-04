@@ -1,7 +1,6 @@
 // @flow
 import { useState, useEffect } from 'react';
 import { getChannelFromClaim } from 'util/claim';
-import usePersistedState from 'effects/use-persisted-state';
 
 setTimeout(function() {
   // clear out the cache every 3 minutes
@@ -14,14 +13,11 @@ export default function useGetUserMemberships(
   convertClaimUrlsToIds: any,
   doFetchUserMemberships: (string) => void // fetch membership values and save in redux
 ) {
-  // const [userMemberships, setUserMemberships] = usePersistedState('odysee-memberships');
+  const [userMemberships, setUserMemberships] = useState([])
 
-  let userMemberships = JSON.parse(localStorage.getItem('odysee-memberships'));
+  // let userMemberships = JSON.parse(localStorage.getItem('odysee-memberships'));
 
   useEffect(() => {
-    if (!userMemberships) {
-      userMemberships = [];
-    }
 
     if (shouldFetchUserMemberships && arrayOfContentUris && arrayOfContentUris.length > 0) {
       const urisToFetch = arrayOfContentUris;
@@ -56,7 +52,7 @@ export default function useGetUserMemberships(
 
         const combinedArray = [...userMemberships, ...channelsToFetch];
 
-        localStorage.setItem('odysee-memberships', JSON.stringify(combinedArray));
+        setUserMemberships(combinedArray);
 
         if (doFetchUserMemberships) doFetchUserMemberships(commaSeparatedStringOfIds);
       }
