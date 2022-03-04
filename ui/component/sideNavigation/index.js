@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
-import { selectSubscriptions } from 'redux/selectors/subscriptions';
+import { doFetchLastActiveSubs } from 'redux/actions/subscriptions';
+import { selectLastActiveSubscriptions, selectSubscriptions } from 'redux/selectors/subscriptions';
 import { doClearClaimSearch } from 'redux/actions/claims';
 import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
@@ -13,6 +14,7 @@ import SideNavigation from './view';
 
 const select = (state) => ({
   subscriptions: selectSubscriptions(state),
+  lastActiveSubs: selectLastActiveSubscriptions(state),
   followedTags: selectFollowedTags(state),
   email: selectUserVerifiedEmail(state),
   purchaseSuccess: selectPurchaseUriSuccess(state),
@@ -28,4 +30,5 @@ export default connect(select, {
   doClearClaimSearch,
   doSignOut,
   doClearPurchasedUriSuccess,
+  doFetchLastActiveSubs,
 })(SideNavigation);
