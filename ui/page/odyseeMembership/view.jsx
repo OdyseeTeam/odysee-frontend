@@ -19,8 +19,7 @@ import usePersistedState from 'effects/use-persisted-state';
 
 let stripeEnvironment = getStripeEnvironment();
 
-// const isDev = process.env.NODE_ENV !== 'production';
-const isDev = true;
+const isDev = process.env.NODE_ENV !== 'production';
 
 // odysee channel information since the memberships are only for Odysee
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
