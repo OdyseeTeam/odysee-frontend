@@ -31,7 +31,6 @@ import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
 import PremiumBadge from 'component/common/premium-badge';
-import { getBadgeToShow } from 'util/premium';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
 
@@ -155,8 +154,6 @@ function CommentView(props: Props) {
       channelOwnerOfContent = channelName;
     }
   } catch (e) {}
-
-  const badgeToShow = getBadgeToShow(selectOdyseeMembershipForUri);
 
   useEffect(() => {
     if (isEditing) {
@@ -286,7 +283,7 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge badgeToShow={badgeToShow} linkPage />
+              <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
@@ -365,7 +362,7 @@ function CommentView(props: Props) {
                         promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
-                        hasMembership={badgeToShow}
+                        hasMembership={selectOdyseeMembershipForUri}
                       />
                     </Expandable>
                   ) : (
@@ -374,7 +371,7 @@ function CommentView(props: Props) {
                       promptLinks
                       parentCommentId={commentId}
                       stakedLevel={stakedLevel}
-                      hasMembership={badgeToShow}
+                      hasMembership={selectOdyseeMembershipForUri}
                     />
                   )}
                 </div>

@@ -8,7 +8,6 @@ import OptimizedImage from 'component/optimizedImage';
 import { AVATAR_DEFAULT } from 'config';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import PremiumBadge from 'component/common/premium-badge';
-import { getBadgeToShow } from 'util/premium';
 
 type Props = {
   thumbnail: ?string,
@@ -67,9 +66,8 @@ function ChannelThumbnail(props: Props) {
   const isGif = channelThumbnail && channelThumbnail.endsWith('gif');
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
 
-  const badgeToShow = showMemberBadge ? getBadgeToShow(odyseeMembership) : null;
   const badgeProps = {
-    badgeToShow,
+    membership: odyseeMembership,
     linkPage: isChannel,
     placement: isChannel ? 'bottom' : undefined,
     hideTooltip,
@@ -99,7 +97,7 @@ function ChannelThumbnail(props: Props) {
   if (isGif && !allowGifs) {
     return (
       <FreezeframeWrapper src={channelThumbnail} className={classnames('channel-thumbnail', className)}>
-        <PremiumBadge {...badgeProps} />
+        {showMemberBadge && <PremiumBadge {...badgeProps} />}
       </FreezeframeWrapper>
     );
   }
@@ -126,7 +124,7 @@ function ChannelThumbnail(props: Props) {
           }
         }}
       />
-      <PremiumBadge {...badgeProps} />
+      {showMemberBadge && <PremiumBadge {...badgeProps} />}
     </div>
   );
 }

@@ -437,9 +437,7 @@ const OdyseeMembershipPage = (props: Props) => {
                             <div className="premium-option">
                               <h4 className="membership_title">
                                 {membershipOption.Membership.name}
-                                <PremiumBadge
-                                  badgeToShow={membershipOption.Membership.name === 'Premium' ? 'silver' : 'gold'}
-                                />
+                                <PremiumBadge membership={membershipOption.Membership.name} />
                               </h4>
 
                               {/* plan description */}
@@ -516,9 +514,7 @@ const OdyseeMembershipPage = (props: Props) => {
                             {/* membership name */}
                             <h4 className="membership_title">
                               {membership.MembershipDetails.name}
-                              <PremiumBadge
-                                badgeToShow={membership.MembershipDetails.name === 'Premium' ? 'silver' : 'gold'}
-                              />
+                              <PremiumBadge badgemembership={membership.MembershipDetails.name} />
                             </h4>
 
                             {/* description section */}
@@ -573,9 +569,7 @@ const OdyseeMembershipPage = (props: Props) => {
                         <>
                           <h4 className="membership_title">
                             {membership.MembershipDetails.name}
-                            <PremiumBadge
-                              badgeToShow={membership.MembershipDetails.name === 'Premium' ? 'silver' : 'gold'}
-                            />
+                            <PremiumBadge badgemembership={membership.MembershipDetails.name} />
                           </h4>
 
                           <div className="premium-option">
