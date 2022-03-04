@@ -16,6 +16,7 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import { useIsMobile, useIsLargeScreen, isTouch } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import PremiumBadge from 'component/common/premium-badge';
 
 const touch = isTouch();
 
@@ -127,6 +128,7 @@ type Props = {
   wildWestDisabled: boolean,
   doClearClaimSearch: () => void,
   odyseeMembership: string,
+  odyseeMembershipByUri: (uri: string) => string,
 };
 
 function SideNavigation(props: Props) {
@@ -147,6 +149,7 @@ function SideNavigation(props: Props) {
     wildWestDisabled,
     doClearClaimSearch,
     odyseeMembership,
+    odyseeMembershipByUri,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
@@ -323,7 +326,11 @@ function SideNavigation(props: Props) {
               </li>
             )}
             {displayedSubscriptions.map((subscription) => (
-              <SubscriptionListItem key={subscription.uri} subscription={subscription} />
+              <SubscriptionListItem
+                key={subscription.uri}
+                subscription={subscription}
+                odyseeMembershipByUri={odyseeMembershipByUri}
+              />
             ))}
             {!!subscriptionFilter && !displayedSubscriptions.length && (
               <li>
@@ -529,8 +536,17 @@ function SideNavigation(props: Props) {
   );
 }
 
-function SubscriptionListItem({ subscription }: { subscription: Subscription }) {
+type SubItemProps = {
+  subscription: Subscription,
+  odyseeMembershipByUri: (uri: string) => string,
+}
+
+function SubscriptionListItem(props: SubItemProps) {
+  const { subscription, odyseeMembershipByUri } = props;
   const { uri, channelName } = subscription;
+
+  const membership = odyseeMembershipByUri(uri);
+
   return (
     <li className="navigation-link__wrapper navigation__subscription">
       <Button
@@ -543,6 +559,7 @@ function SubscriptionListItem({ subscription }: { subscription: Subscription }) 
           <ClaimPreviewTitle uri={uri} />
           <span dir="auto" className="channel-name">
             {channelName}
+            <PremiumBadge membership={membership} />
           </span>
         </div>
       </Button>
