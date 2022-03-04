@@ -125,7 +125,7 @@ class UriIndicator extends React.PureComponent<Props> {
 
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
-          {showAtSign ? channelName : stripLeadingAtSign(channelTitle)}
+          <p>{showAtSign ? channelName : stripLeadingAtSign(channelTitle)}</p>
           {!comment && showMemberBadge && <PremiumBadge membership={odyseeMembership} />}
         </span>
       );
