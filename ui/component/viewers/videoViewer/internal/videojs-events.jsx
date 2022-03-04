@@ -63,28 +63,31 @@ const VideoJsEvents = ({
 
     analytics.playerVideoStartedEvent(embedded);
 
-    // convert bytes to bits, and then divide by seconds
-    const contentInBits = Number(claimValues.source.size) * 8;
-    const durationInSeconds = claimValues.video && claimValues.video.duration;
-    let bitrateAsBitsPerSecond;
-    if (durationInSeconds) {
-      bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
+    // don't send this data on livestream
+    if (claimValues.size) {
+      // convert bytes to bits, and then divide by seconds
+      const contentInBits = Number(claimValues.source.size) * 8;
+      const durationInSeconds = claimValues.video && claimValues.video.duration;
+      let bitrateAsBitsPerSecond;
+      if (durationInSeconds) {
+        bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
+      }
+
+      // figure out what server the video is served from and then run start analytic event
+      // server string such as 'eu-p6'
+      const playerPoweredBy = playerServerRef.current;
+
+      // populates data for watchman, sends prom and matomo event
+      analytics.videoStartEvent(
+        claimId,
+        timeToStartVideo,
+        playerPoweredBy,
+        userId,
+        uri,
+        this, // pass the player
+        bitrateAsBitsPerSecond
+      );
     }
-
-    // figure out what server the video is served from and then run start analytic event
-    // server string such as 'eu-p6'
-    const playerPoweredBy = playerServerRef.current;
-
-    // populates data for watchman, sends prom and matomo event
-    analytics.videoStartEvent(
-      claimId,
-      timeToStartVideo,
-      playerPoweredBy,
-      userId,
-      uri,
-      this, // pass the player
-      bitrateAsBitsPerSecond
-    );
 
     // hit backend to mark a view
     doAnalyticsView(uri, timeToStartVideo).then(() => {

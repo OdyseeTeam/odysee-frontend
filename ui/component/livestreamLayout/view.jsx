@@ -12,7 +12,7 @@ import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'page/file/view';
 import FileRenderInitiator from 'component/fileRenderInitiator';
-import LivestreamIframeRender from './iframe-render';
+import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import { DrawerExpandButton } from 'component/swipeableDrawer/view';
@@ -20,6 +20,7 @@ import LivestreamMenu from 'component/livestreamChatLayout/livestream-menu';
 import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import { getTipValues } from 'util/livestream';
+import classnames from 'classnames';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
 
@@ -63,29 +64,37 @@ export default function LivestreamLayout(props: Props) {
 
   if (!claim || !claim.signing_channel) return null;
 
-  const { name: channelName, claim_id: channelClaimId } = claim.signing_channel;
+  const { name: channelName } = claim.signing_channel;
+
+  // TODO: use this to show the 'user is not live functionality'
+  // console.log('show livestream, currentclaimlive, activestreamurl');
+  // console.log(showLivestream, isCurrentClaimLive, activeStreamUri);
 
   return (
     <>
       {!isMobile && <GlobalStyles />}
 
+      {/* if livestream is ready, show the video */}
       <div className="section card-stack">
-        <React.Suspense fallback={null}>
-          {isMobile && isCurrentClaimLive ? (
+        {((isMobile && isCurrentClaimLive) || showLivestream) ? (
+          <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+            {/* Mobile needs to handle the livestream player like any video player */}
+            <FileRenderInitiator uri={uri} />
+            {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
+          </div>
+        ) : (
+          <>
             <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-              {/* Mobile needs to handle the livestream player like any video player */}
-              <FileRenderInitiator uri={claim.canonical_url} />
+              <div className={classnames('file-render file-render--video livestream', {
+                'file-render--scheduledLivestream': !window.player,
+              })}>
+                  {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
+              </div>
             </div>
-          ) : (
-            <LivestreamIframeRender
-              channelClaimId={channelClaimId}
-              release={release}
-              showLivestream={showLivestream}
-              showScheduledInfo={showScheduledInfo}
-            />
-          )}
-        </React.Suspense>
+          </>
+        )}
 
+        {/* if chat is disabled */}
         {hideComments && !showScheduledInfo && (
           <div className="help--notice">
             {channelName
@@ -94,8 +103,9 @@ export default function LivestreamLayout(props: Props) {
           </div>
         )}
 
+        {/* stream isn't live copy text  */}
         {!activeStreamUri && !showScheduledInfo && !isCurrentClaimLive && (
-          <div className="help--notice">
+          <div className="help--notice" style={{ marginTop: '20px' }}>
             {channelName
               ? __("%channelName% isn't live right now, but the chat is! Check back later to watch the stream.", {
                   channelName,

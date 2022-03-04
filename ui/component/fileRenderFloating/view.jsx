@@ -306,7 +306,9 @@ export default function FileRenderFloating(props: Props) {
           [FLOATING_PLAYER_CLASS]: isFloating,
           'content__viewer--inline': !isFloating,
           'content__viewer--secondary': isComment,
-          'content__viewer--theater-mode': !isFloating && videoTheaterMode && playingUri?.uri === primaryUri,
+          // Disable theater mode class on livestream or floating viewer
+          'content__viewer--theater-mode':
+            !isFloating && videoTheaterMode && playingUri?.uri === primaryUri && !isLivestream,
           'content__viewer--disable-click': wasDragging,
           'content__viewer--mobile': isMobile,
         })}

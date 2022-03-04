@@ -30,7 +30,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
-import { LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import { LIVESTREAM_REPLAY_API, NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import PublishStreamReleaseDate from 'component/publishStreamReleaseDate';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
@@ -221,6 +221,7 @@ function PublishForm(props: Props) {
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelClaimStr = activeChannelClaim && JSON.stringify(activeChannelClaim);
+
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
@@ -260,13 +261,13 @@ function PublishForm(props: Props) {
   React.useEffect(() => {
     if (activeChannelClaimStr) {
       const channelClaim = JSON.parse(activeChannelClaimStr);
-      const message = 'get-claim-id-replays';
+
       setSignedMessage({ signature: null, signing_ts: null });
       // ensure we have a channel
       if (channelClaim.claim_id) {
         Lbry.channel_sign({
           channel_id: channelClaim.claim_id,
-          hexdata: toHex(message),
+          hexdata: toHex(channelClaim.name),
         })
           .then((data) => {
             setSignedMessage(data);
@@ -293,27 +294,73 @@ function PublishForm(props: Props) {
   }, [modal]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  function fetchLivestreams(channelId, signature, timestamp) {
-    setCheckingLivestreams(true);
-    fetch(`${LIVESTREAM_REPLAY_API}/${channelId}?signature=${signature || ''}&signing_ts=${timestamp || ''}`) // claimChannelId
-      .then((res) => res.json())
-      .then((res) => {
-        if (!res || !res.data) {
-          setLivestreamData([]);
+  function fetchLivestreams(channelId, signature, timestamp, channelName) {
+    (async function () {
+      setCheckingLivestreams(true);
+
+      const newEndpointUrl =
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
+        `&signature=${signature}&signature_ts=${timestamp}&channel_name=${channelName || ''}`;
+
+      const responseFromNewApi = await fetch(newEndpointUrl);
+
+      const data = (await responseFromNewApi.json()).data;
+
+      let newData = [];
+      if (data && data.length > 0) {
+        for (const dataItem of data) {
+          if (dataItem.Status === 'ready') {
+            const objectToPush = {
+              data: {
+                fileLocation: dataItem.URL,
+                fileDuration: (dataItem.Duration / 1000000000).toString(), // convert nanoseconds to second
+                thumbnails: [dataItem.ThumbnailURL],
+                uploadedAt: dataItem.Created,
+              },
+            };
+            newData.push(objectToPush);
+          }
         }
-        setLivestreamData(res.data);
-        setCheckingLivestreams(false);
-      })
-      .catch((e) => {
-        setLivestreamData([]);
-        setCheckingLivestreams(false);
-      });
+      }
+
+      fetch(`${LIVESTREAM_REPLAY_API}/${channelId}?signature=${signature || ''}&signing_ts=${timestamp || ''}`) // claimChannelId
+        .then((res) => res.json())
+        .then((res) => {
+          const hasReplaysFromNewApi = newData.length !== 0;
+          const hasNoReplays = !res.data && !hasReplaysFromNewApi;
+
+          if (!res || hasNoReplays) {
+            setLivestreamData([]);
+          }
+
+          // TODO: this code could still use some attention
+          const amountOfUploadsToRemove = newData.length;
+
+          let replaysFromOldApi = res.data;
+          let dataToSend;
+          if (hasReplaysFromNewApi) {
+            // TODO: use a pure functional method instead
+            replaysFromOldApi.splice(0, amountOfUploadsToRemove);
+
+            dataToSend = newData.concat(replaysFromOldApi);
+          } else {
+            dataToSend = replaysFromOldApi;
+          }
+
+          setLivestreamData(dataToSend);
+          setCheckingLivestreams(false);
+        })
+        .catch((e) => {
+          setLivestreamData([]);
+          setCheckingLivestreams(false);
+        });
+    })();
   }
 
   useEffect(() => {
     const signedMessage = JSON.parse(signedMessageStr);
     if (claimChannelId && signedMessage.signature) {
-      fetchLivestreams(claimChannelId, signedMessage.signature, signedMessage.signing_ts);
+      fetchLivestreams(claimChannelId, signedMessage.signature, signedMessage.signing_ts, activeChannelName);
     }
   }, [claimChannelId, signedMessageStr]);
 
@@ -631,7 +678,7 @@ function PublishForm(props: Props) {
 
           {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
-          <Card actions={<SelectThumbnail livestreamdData={livestreamData} />} />
+          <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
           <label style={{ marginTop: 'var(--spacing-l)' }}>{__('Tags')}</label>
           <TagsSelect

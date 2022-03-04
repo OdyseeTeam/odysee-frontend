@@ -1,7 +1,7 @@
 // @flow
 
 import React from 'react';
-import { SITE_HELP_EMAIL } from 'config';
+// import { SITE_HELP_EMAIL } from 'config';
 import Button from 'component/button';
 import { killStream } from '$web/src/livestreaming';
 import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
@@ -37,12 +37,12 @@ const ClaimPreviewReset = (props: Props) => {
 
   return (
     <p className={'claimPreviewReset'}>
-      <span className={'claimPreviewReset__hint'}>
-        {__(
-          "If you're having trouble starting a stream or if your stream shows that you're live but aren't, try a reset. If the problem persists, please reach out at %SITE_HELP_EMAIL%.",
-          { SITE_HELP_EMAIL }
-        )}
-      </span>
+      {/* <span className={'claimPreviewReset__hint'}> */}
+      {/*  {__( */}
+      {/*    "If you're having trouble starting a stream or if your stream shows that you're live but aren't, try a reset. If the problem persists, please reach out at %SITE_HELP_EMAIL%.", */}
+      {/*    { SITE_HELP_EMAIL } */}
+      {/*  )} */}
+      {/* </span> */}
       <Button
         button="primary"
         label={__('Reset stream')}
