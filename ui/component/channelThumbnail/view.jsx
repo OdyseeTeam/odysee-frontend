@@ -76,7 +76,7 @@ function ChannelThumbnail(props: Props) {
     className: isChannel ? 'profile-badge__tooltip' : undefined,
   };
 
-  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchUserMemberships, [uri]);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);

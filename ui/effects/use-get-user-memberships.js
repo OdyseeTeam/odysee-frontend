@@ -2,36 +2,34 @@
 import { useState, useEffect } from 'react';
 import { getChannelFromClaim } from 'util/claim';
 
-setTimeout(function() {
-  // clear out the cache every 3 minutes
-  localStorage.setItem('odysee-memberships', JSON.stringify('[]'));
-}, 1000 * 60 * 3);
-
 export default function useGetUserMemberships(
   shouldFetchUserMemberships: ?boolean,
   arrayOfContentUris: ?Array<string>,
   convertClaimUrlsToIds: any,
-  doFetchUserMemberships: (string) => void // fetch membership values and save in redux
+  doFetchUserMemberships: (string) => void, // fetch membership values and save in redux
+  dependency: any,
+  alreadyClaimIds: boolean,
 ) {
-  const [userMemberships, setUserMemberships] = useState([])
-
-  // let userMemberships = JSON.parse(localStorage.getItem('odysee-memberships'));
+  const [userMemberships, setUserMemberships] = useState([]);
 
   useEffect(() => {
-
     if (shouldFetchUserMemberships && arrayOfContentUris && arrayOfContentUris.length > 0) {
       const urisToFetch = arrayOfContentUris;
 
-      // TODO: bring back the filter here
-      const claimIds = urisToFetch.map((uri) => {
-        // get claim id from array
-        const claimUrlsToId = convertClaimUrlsToIds[uri];
+      let claimIds;
+      if (!alreadyClaimIds) {
+        claimIds = urisToFetch.map((uri) => {
+          // get claim id from array
+          const claimUrlsToId = convertClaimUrlsToIds[uri];
 
-        if (claimUrlsToId) {
-          const { claim_id: claimId } = getChannelFromClaim(claimUrlsToId) || {};
-          return claimId;
-        }
-      });
+          if (claimUrlsToId) {
+            const { claim_id: claimId } = getChannelFromClaim(claimUrlsToId) || {};
+            return claimId;
+          }
+        });
+      } else {
+        claimIds = arrayOfContentUris;
+      }
 
       const dedupedChannelIds = [...new Set(claimIds)];
 
@@ -54,9 +52,11 @@ export default function useGetUserMemberships(
 
         setUserMemberships(combinedArray);
 
-        if (doFetchUserMemberships) doFetchUserMemberships(commaSeparatedStringOfIds);
+        if (doFetchUserMemberships) {
+          doFetchUserMemberships(commaSeparatedStringOfIds);
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [arrayOfContentUris]);
+  }, dependency || [arrayOfContentUris]);
 }

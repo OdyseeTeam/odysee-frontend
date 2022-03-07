@@ -39,7 +39,7 @@ function ChannelListItem(props: ListItemProps) {
   const membership = odyseeMembershipByUri(uri);
 
   const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships, [uri]);
 
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>

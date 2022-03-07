@@ -43,7 +43,7 @@ const BadgeWrapper = (props: WrapperProps) => {
   const { linkPage, children } = props;
 
   return linkPage ? (
-    <Button target="_blank" navigate="/$/membership">
+    <Button navigate="/$/membership">
       {children}
     </Button>
   ) : (

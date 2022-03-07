@@ -68,12 +68,14 @@ export default function LivestreamComment(props: Props) {
   const [hasUserMention, setUserMention] = React.useState(false);
 
   const shouldFetchUserMemberships = true;
-  useGetUserMemberships(
-    shouldFetchUserMemberships,
-    authorUri ? [authorUri] : undefined,
-    claimsByUri,
-    doFetchUserMemberships
-  );
+
+  // useGetUserMemberships(
+  //   shouldFetchUserMemberships,
+  //   authorUri ? [authorUri] : undefined,
+  //   claimsByUri,
+  //   doFetchUserMemberships,
+  //   [authorUri]
+  // );
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
   const { claimName } = parseURI(authorUri || '');
