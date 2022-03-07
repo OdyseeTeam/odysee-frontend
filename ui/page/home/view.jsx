@@ -142,10 +142,14 @@ function HomePage(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    const shouldShowAds = SHOW_ADS && !userHasPremiumPlus;
-    // inject ad into last visible card
-    injectAd(shouldShowAds);
-  }, []);
+    // if the call from the backend has come through
+    if (userHasPremiumPlus !== undefined) {
+      const shouldShowAds = SHOW_ADS && !userHasPremiumPlus;
+
+      // inject ad into last visible card
+      injectAd(shouldShowAds);
+    }
+  }, [userHasPremiumPlus]);
 
   const [hasScheduledStreams, setHasScheduledStreams] = useState(false);
   const scheduledStreamsLoaded = (total) => setHasScheduledStreams(total > 0);
