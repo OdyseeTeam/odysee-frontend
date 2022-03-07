@@ -130,7 +130,7 @@ type Props = {
   doClearClaimSearch: () => void,
   odyseeMembership: string,
   odyseeMembershipByUri: (uri: string) => string,
-  doFetchLastActiveSubs: (count?: number) => void,
+  doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
 };
 
 function SideNavigation(props: Props) {
@@ -318,7 +318,8 @@ function SideNavigation(props: Props) {
         const filter = subscriptionFilter.toLowerCase();
         displayedSubscriptions = subscriptions.filter((sub) => sub.channelName.toLowerCase().includes(filter));
       } else {
-        displayedSubscriptions = lastActiveSubs || subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
+        displayedSubscriptions =
+          lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
       }
 
       return (
