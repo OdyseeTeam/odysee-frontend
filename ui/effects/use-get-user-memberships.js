@@ -7,8 +7,8 @@ export default function useGetUserMemberships(
   arrayOfContentUris: ?Array<string>,
   convertClaimUrlsToIds: any,
   doFetchUserMemberships: (string) => void, // fetch membership values and save in redux
-  dependency: any,
-  alreadyClaimIds: boolean,
+  dependency?: any,
+  alreadyClaimIds?: boolean,
 ) {
   const [userMemberships, setUserMemberships] = useState([]);
 

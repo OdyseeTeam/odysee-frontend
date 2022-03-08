@@ -102,7 +102,7 @@ export default function LivestreamChatLayout(props: Props) {
   }
 
   // get commenter claim ids for checking premium status
-  const commenterClaimIds = commentsByChronologicalOrder.map(function(comment){
+  const commenterClaimIds = commentsByChronologicalOrder.map(function(comment) {
     return comment.channel_id;
   });
 

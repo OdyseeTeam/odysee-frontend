@@ -1,9 +1,8 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectOdyseeMembershipForUri } from 'redux/selectors/claims';
 import TextareaSuggestionsItem from './view';
 import { formatLbryChannelName } from 'util/url';
 import { getClaimTitle } from 'util/claim';
-import { selectOdyseeMembershipForUri } from 'redux/selectors/user';
 
 const select = (state, props) => {
   const { uri } = props;

@@ -776,19 +776,37 @@ export const selectUpdateCollectionError = (state: State) => selectState(state).
 export const selectCreatingCollection = (state: State) => selectState(state).creatingCollection;
 export const selectCreateCollectionError = (state: State) => selectState(state).createCollectionError;
 
-export const selectIsMyChannelCountOverLimit = (state: State) =>
-  createSelector(
-    selectMyChannelClaimIds,
-    selectYoutubeChannels,
-    (myClaimIds, ytChannels: ?Array<{ channel_claim_id: string }>) => {
-      if (myClaimIds) {
-        if (ytChannels && ytChannels.length > 0) {
-          // $FlowFixMe - null 'ytChannels' already excluded
-          const ids = myClaimIds.filter((id) => !ytChannels.some((yt) => yt.channel_claim_id === id));
-          return ids.length > CHANNEL_CREATION_LIMIT;
-        }
-        return myClaimIds.length > CHANNEL_CREATION_LIMIT;
+export const selectIsMyChannelCountOverLimit = createSelector(
+  selectMyChannelClaimIds,
+  selectYoutubeChannels,
+  (myClaimIds, ytChannels: ?Array<{ channel_claim_id: string }>) => {
+    if (myClaimIds) {
+      if (ytChannels && ytChannels.length > 0) {
+        // $FlowFixMe - null 'ytChannels' already excluded
+        const ids = myClaimIds.filter((id) => !ytChannels.some((yt) => yt.channel_claim_id === id));
+        return ids.length > CHANNEL_CREATION_LIMIT;
       }
-      return false;
+      return myClaimIds.length > CHANNEL_CREATION_LIMIT;
     }
-  );
+    return false;
+  }
+);
+
+/**
+ * Given a uri of a channel, check if there an Odysee membership value
+ * @param state
+ * @param uri
+ * @returns {*}
+ */
+export const selectOdyseeMembershipForUri = function (state: State, uri: string) {
+  const claim = selectClaimForUri(state, uri);
+
+  const uploaderChannelClaimId = getChannelIdFromClaim(claim);
+
+  // looks for the uploader id
+  // $FlowFixMe
+  const matchingMembershipOfUser = state.user && state.user.odyseeMembershipsPerClaimIds &&
+    state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
+
+  return matchingMembershipOfUser;
+};

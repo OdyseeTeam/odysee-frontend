@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectIsUriResolving } from 'redux/selectors/claims';
-import { selectOdyseeMembershipForUri } from 'redux/selectors/user';
+import { selectClaimForUri, selectIsUriResolving, selectOdyseeMembershipForUri } from 'redux/selectors/claims';
 import WunderbarSuggestion from './view';
 
 const select = (state, props) => {

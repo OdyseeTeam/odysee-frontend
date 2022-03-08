@@ -55,7 +55,7 @@ const perform = {
   fetchComment: doCommentById,
   fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
-  doFetchUserMemberships
+  doFetchUserMemberships,
 };
 
 export default connect(select, perform)(CommentsList);

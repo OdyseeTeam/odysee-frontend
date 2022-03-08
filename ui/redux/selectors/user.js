@@ -1,6 +1,4 @@
 import { createSelector } from 'reselect';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { getChannelIdFromClaim } from 'util/claim';
 
 export const selectState = (state) => state.user || {};
 
@@ -122,23 +120,5 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
     return [complete, total];
   }
 });
-
-/**
- * Given a uri of a channel, check if there an Odysee membership value
- * @param state
- * @param uri
- * @returns {*}
- */
-export const selectOdyseeMembershipForUri = function (state, uri) {
-  const claim = selectClaimForUri(state, uri);
-
-  const uploaderChannelClaimId = getChannelIdFromClaim(claim);
-
-  // looks for the uploader id
-  const matchingMembershipOfUser =
-    state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
-
-  return matchingMembershipOfUser;
-};
 
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));

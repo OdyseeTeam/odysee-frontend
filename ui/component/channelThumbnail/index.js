@@ -4,9 +4,9 @@ import {
   selectClaimForUri,
   selectIsUriResolving,
   selectClaimsByUri,
+  selectOdyseeMembershipForUri,
 } from 'redux/selectors/claims';
 import { doResolveUri } from 'redux/actions/claims';
-import { selectOdyseeMembershipForUri } from 'redux/selectors/user';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import ChannelThumbnail from './view';
 

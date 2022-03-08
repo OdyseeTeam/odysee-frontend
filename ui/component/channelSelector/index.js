@@ -1,8 +1,7 @@
 import { connect } from 'react-redux';
-import { selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
+import { selectMyChannelClaims, selectClaimsByUri, selectOdyseeMembershipForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
-import { selectOdyseeMembershipForUri } from 'redux/selectors/user';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import ChannelSelector from './view';
 

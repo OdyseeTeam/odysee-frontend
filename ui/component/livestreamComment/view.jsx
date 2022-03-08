@@ -16,7 +16,6 @@ import Empty from 'component/common/empty';
 import Icon from 'component/common/icon';
 import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import React from 'react';
 import PremiumBadge from 'component/common/premium-badge';
 
@@ -47,8 +46,6 @@ export default function LivestreamComment(props: Props) {
     isMobile,
     handleDismissPin,
     restoreScrollPos,
-    claimsByUri,
-    doFetchUserMemberships,
     odyseeMembership,
   } = props;
 
@@ -66,16 +63,6 @@ export default function LivestreamComment(props: Props) {
   } = comment;
 
   const [hasUserMention, setUserMention] = React.useState(false);
-
-  const shouldFetchUserMemberships = true;
-
-  // useGetUserMemberships(
-  //   shouldFetchUserMemberships,
-  //   authorUri ? [authorUri] : undefined,
-  //   claimsByUri,
-  //   doFetchUserMemberships,
-  //   [authorUri]
-  // );
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
   const { claimName } = parseURI(authorUri || '');

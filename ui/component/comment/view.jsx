@@ -261,7 +261,7 @@ function CommentView(props: Props) {
           {authorUri ? (
             <ChannelThumbnail uri={authorUri} obscure={channelIsBlocked} xsmall className="comment__author-thumbnail" checkMembership={false} />
           ) : (
-            <ChannelThumbnail xsmall className="comment__author-thumbnail" checkMembership={false}/>
+            <ChannelThumbnail xsmall className="comment__author-thumbnail" checkMembership={false} />
           )}
         </div>
 

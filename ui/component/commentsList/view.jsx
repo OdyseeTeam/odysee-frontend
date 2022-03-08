@@ -106,7 +106,7 @@ export default function CommentList(props: Props) {
   );
 
   // get commenter claim ids for checking premium status
-  const commenterClaimIds = topLevelComments.map(function(comment){
+  const commenterClaimIds = topLevelComments.map(function(comment) {
     return comment.channel_id;
   });
 

@@ -5,12 +5,13 @@ import {
   selectThumbnailForUri,
   selectHasChannels,
   selectMyClaimIdsRaw,
+  selectOdyseeMembershipForUri,
+  selectUserVerifiedEmail,
 } from 'redux/selectors/claims';
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { doToast } from 'redux/actions/notifications';
 import { doClearPlayingUri } from 'redux/actions/content';
-import { selectUserVerifiedEmail, selectOdyseeMembershipForUri } from 'redux/selectors/user';
 import {
   selectLinkedCommentAncestors,
   selectOthersReactsForComment,
