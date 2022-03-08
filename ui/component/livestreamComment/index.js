@@ -4,8 +4,9 @@ import {
   selectClaimForUri,
   selectMyClaimIdsRaw,
   selectClaimsByUri,
+  selectOdyseeMembershipForUri
 } from 'redux/selectors/claims';
-import { doFetchUserMemberships } from 'redux/actions/user';
+
 import LivestreamComment from './view';
 
 const select = (state, props) => {
@@ -17,11 +18,10 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
     myChannelIds: selectMyClaimIdsRaw(state),
     claimsByUri: selectClaimsByUri(state),
+    odyseeMembership: selectOdyseeMembershipForUri(state, authorUri),
   };
 };
 
-const perform = {
-  doFetchUserMemberships,
-};
+const perform = {};
 
 export default connect(select, perform)(LivestreamComment);

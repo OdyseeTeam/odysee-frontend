@@ -133,7 +133,7 @@ export function doCheckUserOdyseeMemberships(user) {
     // loop through all memberships and save the @odysee ones
     // maybe in the future we can only hit @odysee in the API call
     for (const membership of response) {
-      if (membership.MembershipDetails.channel_name === '@odysee') {
+      if (membership.MembershipDetails && membership.MembershipDetails.channel_name === '@odysee') {
         savedMemberships.push(membership.MembershipDetails.name);
       }
     }

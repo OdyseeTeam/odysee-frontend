@@ -32,7 +32,6 @@ type Props = {
   handleDismissPin?: () => void,
   restoreScrollPos?: () => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
 };
 
 export default function LivestreamComment(props: Props) {
