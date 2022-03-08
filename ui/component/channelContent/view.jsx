@@ -177,8 +177,6 @@ function ChannelContent(props: Props) {
 
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
-      {/* <Ads type="homepage" /> */}
-
       {!fetching && (
         <ClaimListDiscover
           ignoreSearchInLanguage
@@ -198,7 +196,7 @@ function ChannelContent(props: Props) {
           defaultOrderBy={CS.ORDER_BY_NEW}
           pageSize={defaultPageSize}
           infiniteScroll={defaultInfiniteScroll}
-          injectedItem={SHOW_ADS && !userHasPremiumPlus && IS_WEB && <Ads type="video" />}
+          injectedItem={SHOW_ADS && !userHasPremiumPlus && { node: <Ads type="video" tileLayout={tileLayout} small /> }}
           meta={
             showFilters && (
               <Form onSubmit={() => {}} className="wunderbar--inline">

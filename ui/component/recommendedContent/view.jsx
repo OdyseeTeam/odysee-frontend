@@ -63,7 +63,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     return false;
   }
 
-  const triggerBlacklist = React.useMemo(() => injectAds && claimContainsBlockedWords(claim), [injectAds, claim]);
+  const blacklistTriggered = React.useMemo(() => injectAds && claimContainsBlockedWords(claim), [injectAds, claim]);
 
   const [viewMode, setViewMode] = React.useState(VIEW_ALL_RELATED);
   const signingChannel = claim && claim.signing_channel;
@@ -71,6 +71,14 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const isMobile = useIsMobile();
   const isMedium = useIsMediumScreen();
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
+
+  const InjectedAd =
+    injectAds && !blacklistTriggered
+      ? {
+          node: <Ads small type="video" className="ads__claim-item--recommended" />,
+          index: isMobile ? 0 : 3,
+        }
+      : null;
 
   React.useEffect(() => {
     doFetchRecommendedContent(uri);
@@ -135,9 +143,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               loading={isSearching}
               uris={recommendedContentUris}
               hideMenu={isMobile}
-              // TODO: Since 'triggerBlacklist' is handled by clients of <Ads> instead of internally by <Ads>, we don't
-              // need that parameter and can just not mount it when 'true', instead of mount-then-hide.
-              injectedItem={injectAds && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />}
+              injectedItem={InjectedAd}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
@@ -156,7 +162,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
               hideMenu={isMobile}
-              injectedItem={SHOW_ADS && IS_WEB && !userHasPremiumPlus && <Ads small type={'video'} />}
+              injectedItem={InjectedAd}
               empty={__('No related content found')}
             />
           )}

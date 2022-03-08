@@ -7,6 +7,7 @@ import ClaimPreview from 'component/claimPreview';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form';
 import usePersistedState from 'effects/use-persisted-state';
+import useLastVisibleItem from 'effects/use-last-visible-item';
 import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 
@@ -40,7 +41,7 @@ type Props = {
   renderActions?: (Claim) => ?Node,
   renderProperties?: (Claim) => ?Node,
   includeSupportAction?: boolean,
-  injectedItem: ?Node,
+  injectedItem?: { node: Node, index?: number, replace?: boolean },
   timedOutMessage?: Node,
   tileLayout?: boolean,
   searchInLanguage: boolean,
@@ -101,6 +102,11 @@ export default function ClaimList(props: Props) {
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
 
+  // reference to the claim-grid
+  const listRef = React.useRef();
+  // determine the index where the ad should be injected
+  const injectedIndex = useLastVisibleItem(injectedItem, listRef);
+
   // Exclude prefix uris in these results variables. We don't want to show
   // anything if the search failed or timed out.
   const timedOut = uris === null;
@@ -143,6 +149,13 @@ export default function ClaimList(props: Props) {
     // https://github.com/lbryio/lbry-redux/blob/master/src/redux/actions/publish.js#L74-L79
     return claim.name.length === 24 && !claim.name.includes(' ') && claim.value.author === 'Spee.ch';
   }, []);
+
+  // @if process.env.NODE_ENV!='production'
+  // code to enable replacing of a claim tile isn't available here yet
+  if (injectedItem && injectedItem.replace) {
+    throw new Error('claimList: "injectedItem.replace" is not implemented yet');
+  }
+  // @endif
 
   useEffect(() => {
     const handleScroll = debounce((e) => {
@@ -191,19 +204,30 @@ export default function ClaimList(props: Props) {
     />
   );
 
+  // returns injected ad DOM when indexes match
+  const getInjectedItem = (index) => {
+    if (injectedItem && injectedItem.node && injectedIndex === index) {
+      return injectedItem.node;
+    }
+    return null;
+  };
+
   return tileLayout && !header ? (
-    <section className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
+    <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
       {urisLength > 0 &&
-        tileUris.map((uri) => (
-          <ClaimPreviewTile
-            key={uri}
-            uri={uri}
-            showHiddenByUser={showHiddenByUser}
-            properties={renderProperties}
-            collectionId={collectionId}
-            showNoSourceClaims={showNoSourceClaims}
-            swipeLayout={swipeLayout}
-          />
+        tileUris.map((uri, index) => (
+          <React.Fragment key={uri}>
+            {getInjectedItem(index)}
+            {/* inject ad node */}
+            <ClaimPreviewTile
+              uri={uri}
+              showHiddenByUser={showHiddenByUser}
+              properties={renderProperties}
+              collectionId={collectionId}
+              showNoSourceClaims={showNoSourceClaims}
+              swipeLayout={swipeLayout}
+            />
+          </React.Fragment>
         ))}
       {loading && useLoadingSpinner && <ClaimPreviewTile placeholder="loading" swipeLayout={swipeLayout} />}
       {!timedOut && urisLength === 0 && !loading && <div className="empty main--empty">{empty || noResultMsg}</div>}
@@ -251,45 +275,47 @@ export default function ClaimList(props: Props) {
             'swipe-list': swipeLayout,
           })}
           {...(droppableProvided && droppableProvided.droppableProps)}
-          ref={droppableProvided && droppableProvided.innerRef}
+          ref={droppableProvided ? droppableProvided.innerRef : listRef}
         >
-          {injectedItem && sortedUris.some((uri, index) => index === 4) && <li>{injectedItem}</li>}
+          {droppableProvided ? (
+            <>
+              {sortedUris.map((uri, index) => (
+                <React.Suspense fallback={null} key={uri}>
+                  <Draggable draggableId={uri} index={index}>
+                    {(draggableProvided, draggableSnapshot) => {
+                      // Restrict dragging to vertical axis
+                      // https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919
+                      let transform = draggableProvided.draggableProps.style.transform;
+                      if (draggableSnapshot.isDragging && transform) {
+                        transform = transform.replace(/\(.+,/, '(0,');
+                      }
 
-          {sortedUris.map((uri, index) =>
-            droppableProvided ? (
-              <React.Suspense fallback={null} key={uri}>
-                <Draggable draggableId={uri} index={index}>
-                  {(draggableProvided, draggableSnapshot) => {
-                    // Restrict dragging to vertical axis
-                    // https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919
-                    let transform = draggableProvided.draggableProps.style.transform;
+                      const style = {
+                        ...draggableProvided.draggableProps.style,
+                        transform,
+                      };
 
-                    if (draggableSnapshot.isDragging && transform) {
-                      transform = transform.replace(/\(.+,/, '(0,');
-                    }
-
-                    const style = {
-                      ...draggableProvided.draggableProps.style,
-                      transform,
-                    };
-
-                    return (
-                      <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} style={style}>
-                        {/* https://github.com/atlassian/react-beautiful-dnd/issues/1756 */}
-                        <div style={{ display: 'none' }} {...draggableProvided.dragHandleProps} />
-
-                        {getClaimPreview(uri, index, draggableProvided)}
-                      </li>
-                    );
-                  }}
-                </Draggable>
-              </React.Suspense>
-            ) : (
-              getClaimPreview(uri, index)
-            )
+                      return (
+                        <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} style={style}>
+                          {/* https://github.com/atlassian/react-beautiful-dnd/issues/1756 */}
+                          <div style={{ display: 'none' }} {...draggableProvided.dragHandleProps} />
+                          {getClaimPreview(uri, index, draggableProvided)}
+                        </li>
+                      );
+                    }}
+                  </Draggable>
+                </React.Suspense>
+              ))}
+              {droppableProvided.placeholder}
+            </>
+          ) : (
+            sortedUris.map((uri, index) => (
+              <React.Fragment key={uri}>
+                {getInjectedItem(index)}
+                {getClaimPreview(uri, index)}
+              </React.Fragment>
+            ))
           )}
-
-          {droppableProvided && droppableProvided.placeholder}
         </ul>
       )}
 

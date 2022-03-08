@@ -3,6 +3,7 @@ import type { Node } from 'react';
 import React from 'react';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import useFetchViewCount from 'effects/use-fetch-view-count';
+import useLastVisibleItem from 'effects/use-last-visible-item';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 function urisEqual(prev: ?Array<string>, next: ?Array<string>) {
@@ -26,6 +27,7 @@ type Props = {
   prefixUris?: Array<string>,
   pinUrls?: Array<string>,
   uris: Array<string>,
+  injectedItem?: { node: Node, index?: number, replace?: boolean },
   showNoSourceClaims?: boolean,
   renderProperties?: (Claim) => ?Node,
   fetchViewCount?: boolean,
@@ -69,6 +71,7 @@ function ClaimTilesDiscover(props: Props) {
     renderProperties,
     pinUrls,
     prefixUris,
+    injectedItem,
     showNoSourceClaims,
     doFetchViewCount,
     pageSize = 8,
@@ -76,8 +79,12 @@ function ClaimTilesDiscover(props: Props) {
     doFetchUserMemberships,
   } = props;
 
-  const prevUris = React.useRef();
+  // reference to the claim-grid
+  const sectionRef = React.useRef();
+  // determine the index where the ad should be injected
+  const injectedIndex = useLastVisibleItem(injectedItem, sectionRef);
 
+  const prevUris = React.useRef();
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
 
@@ -110,6 +117,7 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
+  // populate the view counts for the current claim uris
   useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
 
   const shouldFetchUserMemberships = true;
@@ -125,17 +133,25 @@ function ClaimTilesDiscover(props: Props) {
   }, [doClaimSearch, shouldPerformSearch, optionsStringified]);
 
   return (
-    <ul className="claim-grid">
+    <ul ref={sectionRef} className="claim-grid">
       {finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
+              // if indexes match, inject ad in place of tile (aka replace it)
+              if (injectedIndex === i && injectedItem && injectedItem.replace) {
+                return <React.Fragment key={uri}>{injectedItem.node}</React.Fragment>;
+              }
+
               return (
-                <ClaimPreviewTile
-                  showNoSourceClaims={hasNoSource || showNoSourceClaims}
-                  key={uri}
-                  uri={uri}
-                  properties={renderProperties}
-                />
+                <React.Fragment key={uri}>
+                  {injectedIndex === i && injectedItem && injectedItem.node}
+                  {/* inject ad */}
+                  <ClaimPreviewTile
+                    showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                    uri={uri}
+                    properties={renderProperties}
+                  />
+                </React.Fragment>
               );
             } else {
               return <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder />;
