@@ -3,6 +3,7 @@ import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import { doCollectionEdit, doFetchItemsInCollection } from 'redux/actions/collections';
 import { doEditForChannel } from 'redux/actions/publish';
 import {
+  makeSelectCollectionForId,
   makeSelectCollectionForIdHasClaimUrl,
   makeSelectCollectionIsMine,
   makeSelectEditedCollectionForId,
@@ -45,7 +46,8 @@ const select = (state, props) => {
   const shuffleList = selectListShuffle(state);
   const shuffle = shuffleList && shuffleList.collectionId === collectionId && shuffleList.newUrls;
   const playNextUri = shuffle && shuffle[0];
-  const lastUsedCollection = selectLastUsedCollection(state);
+  const lastUsedCollectionId = selectLastUsedCollection(state);
+  const lastUsedCollection = makeSelectCollectionForId(lastUsedCollectionId)(state);
 
   return {
     claim,
@@ -75,12 +77,13 @@ const select = (state, props) => {
     resolvedList: makeSelectUrlsForCollectionId(collectionId)(state),
     playNextUri,
     lastUsedCollection,
-    hasClaimInLastUsedCollection:
-      lastUsedCollection && makeSelectCollectionForIdHasClaimUrl(lastUsedCollection.id, contentPermanentUri)(state),
+    hasClaimInLastUsedCollection: makeSelectCollectionForIdHasClaimUrl(
+      lastUsedCollectionId,
+      contentPermanentUri
+    )(state),
     lastUsedCollectionIsNotBuiltin:
-      lastUsedCollection &&
-      lastUsedCollection.id !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
-      lastUsedCollection.id !== COLLECTIONS_CONSTS.FAVORITES_ID,
+      lastUsedCollectionId !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
+      lastUsedCollectionId !== COLLECTIONS_CONSTS.FAVORITES_ID,
   };
 };
 
