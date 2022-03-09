@@ -82,6 +82,7 @@ class UriIndicator extends React.PureComponent<Props> {
 
   render() {
     const {
+      uri,
       channelInfo,
       link,
       isResolvingUri,
@@ -101,7 +102,7 @@ class UriIndicator extends React.PureComponent<Props> {
     if (!channelInfo && !claim) {
       return (
         <span className={classnames('empty', className)}>
-          {isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
+          {uri === null ? '---' : isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
         </span>
       );
     }

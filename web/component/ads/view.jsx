@@ -50,6 +50,20 @@ function removeIfExists(querySelector) {
   if (element) element.remove();
 }
 
+function clearAdElements() {
+  // clear aniview state to allow ad reload
+  delete window.aniplayerPos;
+  delete window.storageAni;
+  delete window.__VIDCRUNCH_CONFIG_618bb4d28aac298191eec411__;
+  delete window.__player_618bb4d28aac298191eec411__;
+
+  // clean DOM elements from ad related elements
+  removeIfExists('[src^="https://cdn.vidcrunch.com/618bb4d28aac298191eec411.js"]');
+  removeIfExists('[src^="https://player.aniview.com/script/6.1/aniview.js"]');
+  removeIfExists('[id^="AVLoaderaniplayer_vidcrunch"]');
+  removeIfExists('#av_css_id');
+}
+
 function Ads(props: Props) {
   const { type = 'video', tileLayout, small, userHasPremiumPlus, className } = props;
 
@@ -58,17 +72,14 @@ function Ads(props: Props) {
 
   // this is populated from app based on location
   const isInEu = localStorage.getItem('gdprRequired') === 'true';
-
-  // const adConfig = isInEu ? AD_CONFIGS.EU : mobileAds ? AD_CONFIGS.MOBILE : AD_CONFIGS.DEFAULT;
-  // -- The logic above is what we are asked to do, but the EU script breaks our
-  // -- app's CSS when ran on mobile.
-  const adConfig = mobileAds ? AD_CONFIGS.MOBILE : isInEu ? AD_CONFIGS.EU : AD_CONFIGS.DEFAULT;
+  const adConfig = isInEu ? AD_CONFIGS.EU : mobileAds ? AD_CONFIGS.MOBILE : AD_CONFIGS.DEFAULT;
 
   // add script to DOM
   useEffect(() => {
     if (shouldShowAds) {
       let script;
       try {
+        clearAdElements();
         script = document.createElement('script');
         script.src = adConfig.url;
         // $FlowFixMe
@@ -77,19 +88,7 @@ function Ads(props: Props) {
         return () => {
           // $FlowFixMe
           document.head.removeChild(script);
-
-          // clear aniview state to allow ad reload
-          delete window.aniplayerPos;
-          delete window.storageAni;
-          delete window.__VIDCRUNCH_CONFIG_618bb4d28aac298191eec411__;
-          delete window.__player_618bb4d28aac298191eec411__;
-
-          // clean DOM elements from ad related elements
-          removeIfExists('[src^="https://cdn.vidcrunch.com/618bb4d28aac298191eec411.js"]');
-          removeIfExists('[src^="https://player.aniview.com/script/6.1/aniview.js"]');
-          removeIfExists('[id^="AVLoaderaniplayer_vidcrunch"]');
-          removeIfExists('#av_css_id');
-          removeIfExists('#customAniviewStyling');
+          clearAdElements();
         };
       } catch (e) {}
     }
@@ -115,7 +114,7 @@ function Ads(props: Props) {
     return (
       <div
         className={classnames('ads ads__claim-item', className, {
-          'ads__claim-item--tile': tileLayout, // with no tileLayout it indicates sidebar ad
+          'ads__claim-item--tile': tileLayout,
         })}
       >
         <div className="ad__container">
