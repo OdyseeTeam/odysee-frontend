@@ -336,18 +336,21 @@ const OdyseeMembershipPage = (props: Props) => {
   // add a bit of a delay otherwise it's a bit jarring
   const timeoutValue = 300;
 
-  if (!stillWaitingFromBackend && planValue && cardSaved) {
-    setTimeout(function () {
-      // clear query params
-      window.history.replaceState(null, null, window.location.pathname);
+  // if user already selected plan, wait a bit (so it's not jarring) and open modal
+  React.useEffect(() => {
+    if (!stillWaitingFromBackend && planValue && cardSaved) {
+      setTimeout(function () {
+        // clear query params
+        window.history.replaceState(null, null, window.location.pathname);
 
-      setHasShownModal(true);
+        setHasShownModal(true);
 
-      // open confirm purchase
-      // $FlowFixMe
-      document.querySelector('[plan="' + plan + '"][interval="' + interval + '"]').click();
-    }, timeoutValue);
-  }
+        // open confirm purchase
+        // $FlowFixMe
+        document.querySelector('[plan="' + plan + '"][interval="' + interval + '"]').click();
+      }, timeoutValue);
+    }
+  }, [stillWaitingFromBackend, planValue, cardSaved]);
 
   const helpText = (
     <div className="section__subtitle">

@@ -9,7 +9,7 @@ import { isClaimNsfw, filterClaims, getChannelIdFromClaim, isStreamPlaceholderCl
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
 
-type State = { claims: any };
+type State = { claims: any, user: User };
 
 const selectState = (state: State) => state.claims || {};
 
@@ -804,13 +804,16 @@ export const selectOdyseeMembershipForUri = function (state: State, uri: string)
   const uploaderChannelClaimId = getChannelIdFromClaim(claim);
 
   // looks for the uploader id
-  // $FlowFixMe
-  const matchingMembershipOfUser =
-    state.user &&
-    state.user.odyseeMembershipsPerClaimIds &&
-    state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
+  if (uploaderChannelClaimId) {
+    const matchingMembershipOfUser =
+      state.user &&
+      state.user.odyseeMembershipsPerClaimIds &&
+      state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
 
-  return matchingMembershipOfUser;
+    return matchingMembershipOfUser;
+  }
+
+  return undefined;
 };
 
 /**
@@ -821,7 +824,6 @@ export const selectOdyseeMembershipForUri = function (state: State, uri: string)
  */
 export const selectOdyseeMembershipForChannelId = function (state: State, channelId: string) {
   // looks for the uploader id
-  // $FlowFixMe
   const matchingMembershipOfUser =
     state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
 
