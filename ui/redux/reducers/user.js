@@ -29,6 +29,7 @@ const defaultState = {
   youtubeChannelImportErrorMessage: '',
   referrerSetIsPending: false,
   referrerSetError: '',
+  odyseeMembershipsPerClaimIds: {}, // <------ please put proper default so we can reset
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
