@@ -241,6 +241,11 @@ export function doUserCheckEmailVerified() {
   return (dispatch) => {
     Lbryio.getCurrentUser().then((user) => {
       if (user.has_verified_email) {
+        // check premium membership
+        if (user.odysee_member) {
+          dispatch(doCheckUserOdyseeMemberships(user));
+        }
+
         dispatch(doRewardList());
 
         dispatch({
@@ -414,16 +419,19 @@ export function doUserCheckIfEmailExists(email) {
 
     Lbryio.call('user', 'exists', { email }, 'post')
       .catch((error) => {
+        // no email
         if (error.response && error.response.status === 404) {
           dispatch({
             type: ACTIONS.USER_EMAIL_NEW_DOES_NOT_EXIST,
           });
+          // sign in by email
         } else if (error.response && error.response.status === 412) {
           triggerEmailFlow(false);
         }
 
         throw error;
       })
+      // sign the user in
       .then(success, failure);
   };
 }
