@@ -243,7 +243,7 @@ const OdyseeMembershipPage = (props: Props) => {
         currencyToUse === 'usd' ? '$' : '€'
       }${price / 100}. ` +
       featureString +
-      'You can cancel Premium at any time and you can also close this window and choose a different membership option.';
+      'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.';
 
     return __(purchaseString);
   }
@@ -363,14 +363,14 @@ const OdyseeMembershipPage = (props: Props) => {
         <ul>
           <li>
             {__(
-              `The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.`
-            )}
-          </li>
-          <li>{__(`These are limited time rates, so get in early!`)}</li>
-          <li>
-            {__(
               `Early access and exclusive features include: livestreaming and the ability to post odysee hyperlinks and images in comments + blogs. More to come later.`
             )}
+            <li>
+              {__(
+                `The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.`
+              )}
+            </li>
+            <li>{__(`These are limited time rates, so get in early!`)}</li>
           </li>
           <li>
             {__(
