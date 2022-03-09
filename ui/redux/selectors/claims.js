@@ -805,8 +805,25 @@ export const selectOdyseeMembershipForUri = function (state: State, uri: string)
 
   // looks for the uploader id
   // $FlowFixMe
-  const matchingMembershipOfUser = state.user && state.user.odyseeMembershipsPerClaimIds &&
+  const matchingMembershipOfUser =
+    state.user &&
+    state.user.odyseeMembershipsPerClaimIds &&
     state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
+
+  return matchingMembershipOfUser;
+};
+
+/**
+ * Given a uri of a channel, check if there an Odysee membership value
+ * @param state
+ * @param channelId
+ * @returns {*}
+ */
+export const selectOdyseeMembershipForChannelId = function (state: State, channelId: string) {
+  // looks for the uploader id
+  // $FlowFixMe
+  const matchingMembershipOfUser =
+    state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
 
   return matchingMembershipOfUser;
 };
