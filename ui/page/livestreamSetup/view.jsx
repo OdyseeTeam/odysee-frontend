@@ -194,8 +194,10 @@ export default function LivestreamSetupPage(props: Props) {
     <Page>
       {/* no livestreaming privs because no premium membership */}
       {!livestreamEnabled && !odyseeMembership && (
-        <div>
-          <h2 className={''}>Join Odysee Premium to be able to livestream</h2>
+        <div style={{ marginTop: '11px' }}>
+          <h2 style={{ marginBottom: '15px' }}>
+            {__('To stream on Odysee, please join Odysee Premium or have 50 Credits as support on your channel')}
+          </h2>
 
           <Button
             button="primary"
@@ -203,6 +205,7 @@ export default function LivestreamSetupPage(props: Props) {
             icon={ICONS.FINANCE}
             navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}
             className="membership_button"
+            style={{ maxWidth: '238px' }}
           />
         </div>
       )}

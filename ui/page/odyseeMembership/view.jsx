@@ -16,6 +16,7 @@ import ChannelSelector from 'component/channelSelector';
 import PremiumBadge from 'component/common/premium-badge';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
+import { fetchLocaleApi } from 'locale';
 
 let stripeEnvironment = getStripeEnvironment();
 
@@ -51,20 +52,13 @@ const OdyseeMembershipPage = (props: Props) => {
     user,
   } = props;
 
-  const shouldUseEuro = localStorage.getItem('gdprRequired');
-  let currencyToUse;
-  if (shouldUseEuro === 'true') {
-    currencyToUse = 'eur';
-  } else {
-    currencyToUse = 'usd';
-  }
-
   const userChannelName = activeChannelClaim ? activeChannelClaim.name : '';
   const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;
 
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [userMemberships, setUserMemberships] = React.useState();
+  const [currencyToUse, setCurrencyToUse] = React.useState('usd');
   const [canceledMemberships, setCanceledMemberships] = React.useState();
   const [activeMemberships, setActiveMemberships] = React.useState();
   const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
@@ -135,7 +129,9 @@ const OdyseeMembershipPage = (props: Props) => {
     if (!shouldFetchUserMemberships) setFetchUserMemberships(true);
   }, [shouldFetchUserMemberships]);
 
+  // make calls to backend and populate all the data for the frontend
   React.useEffect(function () {
+    // TODO: this should be refactored to make these calls in parallel
     (async function () {
       try {
         // check if there is a payment method
@@ -147,6 +143,7 @@ const OdyseeMembershipPage = (props: Props) => {
           },
           'post'
         );
+
         // hardcoded to first card
         const hasAPaymentCard = Boolean(response && response.PaymentMethods && response.PaymentMethods[0]);
 
@@ -185,16 +182,27 @@ const OdyseeMembershipPage = (props: Props) => {
         console.log(err);
       }
 
+      try {
+        // use EUR if from European continent
+        const localeResponse = await fetchLocaleApi();
+        const isFromEurope = localeResponse?.data?.continent === 'EU';
+        if (isFromEurope) setCurrencyToUse('eur');
+      } catch (err) {
+        console.log(err);
+      }
+
       populateMembershipData();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // we are still waiting from the backend if any of these are undefined
   const stillWaitingFromBackend =
     purchasedMemberships === undefined ||
     cardSaved === undefined ||
     membershipOptions === undefined ||
-    userMemberships === undefined;
+    userMemberships === undefined ||
+    currencyToUse === undefined;
 
   const formatDate = function (date) {
     return moment(new Date(date)).format('MMMM DD YYYY');
@@ -326,15 +334,16 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const planValue = params.plan;
 
-  // TODO: better description describer after someone has already purchased
   // description to be shown under plan name
-  function getPlanDescription(plan) {
+  function getPlanDescription(plan, active?) {
     if (plan === 'Premium') {
-      return 'Badge on profile, exclusive and early access to features';
+      return 'Badge on profile, livestreaming, automatic rewards confirmation, and early access to new features';
 
       // if there's more plans added this needs to be expanded
-    } else {
+    } else if (active) {
       return 'All Premium features, and no ads';
+    } else {
+      return 'Badge on profile, livestreaming, automatic rewards confirmation, early access to new features, and no ads';
     }
   }
 
@@ -399,7 +408,7 @@ const OdyseeMembershipPage = (props: Props) => {
     <>
       <Page className="premium-wrapper">
         {/** splash frontend **/}
-        {!stillWaitingFromBackend && purchasedMemberships.length === 0 && !planValue && !hasShownModal ? (
+        {!stillWaitingFromBackend && !apiError && purchasedMemberships.length === 0 && !planValue && !hasShownModal ? (
           <MembershipSplash pageLocation={'confirmPage'} currencyToUse={currencyToUse} />
         ) : (
           /** odysee membership page **/
@@ -528,7 +537,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
                             {/* description section */}
                             <h4 className="membership_subtitle">
-                              {getPlanDescription(membership.MembershipDetails.name)}
+                              {getPlanDescription(membership.MembershipDetails.name, 'active')}
                             </h4>
 
                             <h4 className="membership_info">
@@ -604,10 +613,10 @@ const OdyseeMembershipPage = (props: Props) => {
               <div>
                 <br />
                 <h2 className={'getPaymentCard'}>
-                  {__(
-                    'Please save a card as a payment method so you can join Odysee Premium. After the card is added, click Back.'
-                  )}
+                  {__('Please save a card as a payment method so you can join Odysee Premium')}
                 </h2>
+
+                <h2 className={'getPaymentCard'}>{__('After the card is added, click Back')}</h2>
 
                 <Button
                   button="primary"
@@ -615,6 +624,7 @@ const OdyseeMembershipPage = (props: Props) => {
                   icon={ICONS.SETTINGS}
                   navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
                   className="membership_button"
+                  style={{ maxWidth: '151px' }}
                 />
               </div>
             )}
