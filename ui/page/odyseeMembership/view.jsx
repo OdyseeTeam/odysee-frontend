@@ -537,7 +537,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
                             {/* description section */}
                             <h4 className="membership_subtitle">
-                              {getPlanDescription(membership.MembershipDetails.name, 'active')}
+                              {__(getPlanDescription(membership.MembershipDetails.name, 'active'))}
                             </h4>
 
                             <h4 className="membership_info">
