@@ -70,6 +70,7 @@ const OdyseeMembershipPage = (props: Props) => {
   const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
   const [hasShownModal, setHasShownModal] = React.useState(false);
   const [shouldFetchUserMemberships, setFetchUserMemberships] = React.useState(true);
+  const [apiError, setApiError] = React.useState(false);
 
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
@@ -124,6 +125,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
       setUserMemberships(response);
     } catch (err) {
+      setApiError(true);
       console.log(err);
     }
     setFetchUserMemberships(false);
@@ -154,6 +156,7 @@ const OdyseeMembershipPage = (props: Props) => {
         if (err.message === customerDoesntExistError) {
           setCardSaved(false);
         } else {
+          setApiError(true);
           console.log(err);
         }
       }
@@ -178,6 +181,7 @@ const OdyseeMembershipPage = (props: Props) => {
           setMembershipOptions(response);
         }
       } catch (err) {
+        setApiError(true);
         console.log(err);
       }
 
@@ -340,7 +344,7 @@ const OdyseeMembershipPage = (props: Props) => {
   // if user already selected plan, wait a bit (so it's not jarring) and open modal
   React.useEffect(() => {
     if (!stillWaitingFromBackend && planValue && cardSaved) {
-      setTimeout(function () {
+      const delayTimeout = setTimeout(function () {
         // clear query params
         window.history.replaceState(null, null, window.location.pathname);
 
@@ -350,6 +354,8 @@ const OdyseeMembershipPage = (props: Props) => {
         // $FlowFixMe
         document.querySelector('[plan="' + plan + '"][interval="' + interval + '"]').click();
       }, timeoutValue);
+
+      return () => clearTimeout(delayTimeout);
     }
   }, [stillWaitingFromBackend, planValue, cardSaved]);
 
@@ -614,9 +620,18 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
 
             {/** loading section **/}
-            {stillWaitingFromBackend && (
+            {stillWaitingFromBackend && !apiError && (
               <div className="main--empty">
                 <Spinner />
+              </div>
+            )}
+
+            {/** loading section **/}
+            {stillWaitingFromBackend && apiError && (
+              <div className="main--empty">
+                <h1 style={{ fontSize: '19px' }}>
+                  Sorry, there was an error, please contact support or try again later
+                </h1>
               </div>
             )}
 
