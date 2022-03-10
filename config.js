@@ -90,6 +90,21 @@ const config = {
   AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION: process.env.AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION,
 };
 
+config.GEOBLOCKED_CHANNELS = {};
+if (process.env.GEOBLOCKED_CHANNELS) {
+  const entries = process.env.GEOBLOCKED_CHANNELS.split('|');
+  entries.forEach((entry) => {
+    const fields = entry.split(',');
+    if (fields.length > 0) {
+      const channelId = fields[0];
+      config.GEOBLOCKED_CHANNELS[channelId] = {};
+      for (let i = 1; i < fields.length; ++i) {
+        config.GEOBLOCKED_CHANNELS[channelId][fields[i]] = true;
+      }
+    }
+  });
+}
+
 config.SDK_API_PATH = `${config.LBRY_WEB_API}/api/v1`;
 config.PROXY_URL = `${config.SDK_API_PATH}/proxy`;
 
