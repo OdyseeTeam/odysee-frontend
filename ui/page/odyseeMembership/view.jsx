@@ -283,7 +283,7 @@ const OdyseeMembershipPage = (props: Props) => {
     openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
       membershipId,
       hasMembership,
-      purchaseString: cancellationString,
+      purchaseString: __(cancellationString),
       populateMembershipData,
     });
   };
@@ -322,6 +322,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const planValue = params.plan;
 
+  // TODO: better description describer after someone has already purchased
   // description to be shown under plan name
   function getPlanDescription(plan) {
     if (plan === 'Premium') {
@@ -444,7 +445,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
                               {/* plan description */}
                               <h4 className="membership_subtitle">
-                                {getPlanDescription(membershipOption.Membership.name)}
+                                {__(getPlanDescription(membershipOption.Membership.name))}
                               </h4>
                               <>
                                 {membershipOption.Prices.map((price) => (
@@ -458,10 +459,10 @@ const OdyseeMembershipPage = (props: Props) => {
                                         {price.currency === currencyToUse && (
                                           <div>
                                             <h4 className="membership_info">
-                                              <b>Interval:</b> {convertPriceToString(price)}
+                                              <b>{__('Interval')}:</b> {convertPriceToString(price)}
                                             </h4>
                                             <h4 className="membership_info">
-                                              <b>Price:</b> {buildCurrencyDisplay(price)}
+                                              <b>{__('Price')}:</b> {buildCurrencyDisplay(price)}
                                               {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
                                             </h4>
                                             <Button

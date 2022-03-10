@@ -17,7 +17,7 @@ import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
 import usePersistedState from 'effects/use-persisted-state';
 import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
-import { ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from '../../../config';
+import { ENABLE_NO_SOURCE_CLAIMS, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
 
 type Props = {
   hasChannels: boolean,
