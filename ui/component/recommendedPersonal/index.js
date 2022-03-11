@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doFetchPersonalRecommendations } from 'redux/actions/search';
 import { selectPersonalRecommendations } from 'redux/selectors/search';
-import { selectUser } from 'redux/selectors/user';
+import { selectHasOdyseeMembership, selectUser } from 'redux/selectors/user';
 
 import RecommendedPersonal from './view';
 
@@ -10,6 +10,7 @@ const select = (state) => {
   return {
     userId: user && user.id,
     personalRecommendations: selectPersonalRecommendations(state),
+    hasMembership: selectHasOdyseeMembership(state),
   };
 };
 

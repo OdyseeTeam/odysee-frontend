@@ -51,11 +51,12 @@ type Props = {
   // --- redux ---
   userId: ?string,
   personalRecommendations: { gid: string, uris: Array<string> },
+  hasMembership: boolean,
   doFetchPersonalRecommendations: () => void,
 };
 
 export default function RecommendedPersonal(props: Props) {
-  const { onLoad, userId, personalRecommendations, doFetchPersonalRecommendations } = props;
+  const { onLoad, userId, personalRecommendations, hasMembership, doFetchPersonalRecommendations } = props;
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
   const isLargeScreen = useIsLargeScreen();
@@ -97,7 +98,11 @@ export default function RecommendedPersonal(props: Props) {
     doFetchPersonalRecommendations();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return count > 0 ? (
+  if ((!hasMembership && !process.env.ENABLE_WIP_FEATURES) || count < 1) {
+    return null;
+  }
+
+  return (
     <>
       <SectionHeader title={__('Recommended For You')} icon={ICONS.WEB} />
       <ClaimList
@@ -125,5 +130,5 @@ export default function RecommendedPersonal(props: Props) {
         </div>
       )}
     </>
-  ) : null;
+  );
 }
