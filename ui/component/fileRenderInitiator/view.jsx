@@ -3,7 +3,6 @@
 // The actual viewer for a file exists in TextViewer and FileRenderFloating
 // They can't exist in one component because we need to handle/listen for the start of a new file view
 // while a file is currently being viewed
-import { useIsMobile } from 'effects/use-screensize';
 import React from 'react';
 import classnames from 'classnames';
 import * as PAGES from 'constants/pages';
@@ -14,6 +13,7 @@ import Nag from 'component/common/nag';
 // $FlowFixMe cannot resolve ...
 import FileRenderPlaceholder from 'static/img/fileRenderPlaceholder.png';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   isPlaying: boolean,
@@ -32,9 +32,8 @@ type Props = {
   authenticated: boolean,
   videoTheaterMode: boolean,
   isCurrentClaimLive?: boolean,
+  isLivestreamClaim: boolean,
   doUriInitiatePlay: (uri: string, collectionId: ?string, isPlayable: boolean) => void,
-  doSetPlayingUri: ({ uri: ?string }) => void,
-  doSetPrimaryUri: (uri: ?string) => void,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -54,14 +53,13 @@ export default function FileRenderInitiator(props: Props) {
     authenticated,
     videoTheaterMode,
     isCurrentClaimLive,
+    isLivestreamClaim,
     doUriInitiatePlay,
-    doSetPlayingUri,
-    doSetPrimaryUri,
   } = props;
 
-  const containerRef = React.useRef<any>();
-
   const isMobile = useIsMobile();
+
+  const containerRef = React.useRef<any>();
 
   const [thumbnail, setThumbnail] = React.useState(FileRenderPlaceholder);
 
@@ -72,27 +70,18 @@ export default function FileRenderInitiator(props: Props) {
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = href && href.indexOf('t=') > -1;
   const forceAutoplayParam = locationState && locationState.forceAutoplay;
-  const shouldAutoplay = forceAutoplayParam || urlTimeParam || autoplay;
-
+  const shouldAutoplay = forceAutoplayParam || urlTimeParam || autoplay || isCurrentClaimLive;
   const isFree = costInfo && costInfo.cost === 0;
-  const canViewFile = isFree || claimWasPurchased;
+  const canViewFile = isCurrentClaimLive || isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
   const isText = RENDER_MODES.TEXT_MODES.includes(renderMode);
-  const isMobileClaimLive = isMobile && isCurrentClaimLive;
-  const foundCover = thumbnail !== FileRenderPlaceholder;
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
-  const disabled = renderUnsupported || (!fileInfo && insufficientCredits && !claimWasPurchased);
+  const disabled =
+    (isLivestreamClaim && !isCurrentClaimLive) ||
+    renderUnsupported ||
+    (!fileInfo && insufficientCredits && !claimWasPurchased);
   const shouldRedirect = !authenticated && !isFree;
-
-  React.useEffect(() => {
-    // Set livestream as playing uri so it can be rendered by <FileRenderFloating /> on mobile
-    // instead of showing an empty cover image. Needs cover to fill the space with the player.
-    if (isMobileClaimLive && foundCover) {
-      doSetPlayingUri({ uri });
-      doSetPrimaryUri(uri);
-    }
-  }, [doSetPlayingUri, doSetPrimaryUri, foundCover, isMobileClaimLive, uri]);
 
   function doAuthRedirect() {
     history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(location.pathname)}`);
@@ -148,11 +137,11 @@ export default function FileRenderInitiator(props: Props) {
   return (
     <div
       ref={containerRef}
-      onClick={disabled || isMobileClaimLive ? undefined : shouldRedirect ? doAuthRedirect : viewFile}
+      onClick={disabled ? undefined : shouldRedirect ? doAuthRedirect : viewFile}
       style={thumbnail && !obscurePreview ? { backgroundImage: `url("${thumbnail}")` } : {}}
       className={classnames('content__cover', {
         'content__cover--disabled': disabled,
-        'content__cover--theater-mode': videoTheaterMode,
+        'content__cover--theater-mode': videoTheaterMode && !isMobile,
         'content__cover--text': isText,
         'card__media--nsfw': obscurePreview,
       })}
@@ -178,7 +167,7 @@ export default function FileRenderInitiator(props: Props) {
         )
       )}
 
-      {!disabled && !isMobileClaimLive && (
+      {!disabled && (
         <Button
           requiresAuth={shouldRedirect}
           onClick={viewFile}

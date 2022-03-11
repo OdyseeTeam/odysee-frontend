@@ -101,7 +101,7 @@ function Page(props: Props) {
       <div
         className={classnames('main-wrapper__inner', {
           'main-wrapper__inner--filepage': isOnFilePage,
-          'main-wrapper__inner--theater-mode': isOnFilePage && videoTheaterMode,
+          'main-wrapper__inner--theater-mode': isOnFilePage && videoTheaterMode && !isMobile,
           'main-wrapper__inner--auth': authPage,
           'main--popout-chat': isPopoutWindow,
         })}
@@ -135,7 +135,7 @@ function Page(props: Props) {
               'main--file-page': filePage,
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
-              'main--theater-mode': isOnFilePage && videoTheaterMode && !livestream && !isMarkdown,
+              'main--theater-mode': isOnFilePage && videoTheaterMode && !livestream && !isMarkdown && !isMobile,
               'main--livestream': livestream && !chatDisabled,
               'main--popout-chat': isPopoutWindow,
             })}

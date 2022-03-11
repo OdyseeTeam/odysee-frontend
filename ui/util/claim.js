@@ -124,6 +124,7 @@ export function getClaimTitle(claim: ?Claim) {
   return metadata && metadata.title;
 }
 
+// Determine whether claim is a livestream based on if it's a stream with no source
 export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
   return claim ? Boolean(claim.value_type === 'stream' && !claim.value.source) : false;
 };

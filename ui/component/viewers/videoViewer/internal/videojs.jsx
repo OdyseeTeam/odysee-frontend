@@ -21,6 +21,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
+import {
+  LIVESTREAM_LIVE_API,
+  LIVESTREAM_STREAM_X_PULL,
+  LIVESTREAM_CDN_DOMAIN,
+  LIVESTREAM_STREAM_DOMAIN,
+} from 'constants/livestream';
+import { useIsMobile } from 'effects/use-screensize';
+
 const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
@@ -80,6 +88,8 @@ type Props = {
   claimValues: any,
   clearPosition: (string) => void,
   centerPlayButton: () => void,
+  isLivestreamClaim: boolean,
+  claim: StreamClaim,
 };
 
 const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
@@ -143,7 +153,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     uri,
     clearPosition,
     centerPlayButton,
+    claim,
+    isLivestreamClaim,
   } = props;
+
+  const isMobile = useIsMobile();
+
+  // get channel claim id for livestream api calls
+  const userClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
 
   // will later store the videojs player
   const playerRef = useRef();
@@ -155,7 +172,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const playerServerRef = useRef();
 
   // initiate keyboard shortcuts
-  const { curried_function } = keyboardShorcuts({ toggleVideoTheaterMode, playNext, playPrevious });
+  const { curried_function } = keyboardShorcuts({
+    isMobile,
+    isLivestreamClaim,
+    toggleVideoTheaterMode,
+    playNext,
+    playPrevious,
+  });
 
   const [reload, setReload] = useState('initial');
 
@@ -190,6 +213,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         overrideNative: !videojs.browser.IS_ANY_SAFARI,
       },
     },
+    liveTracker: {
+      trackingThreshold: 0,
+      liveTolerance: 10,
+    },
     autoplay: autoplay,
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
@@ -203,6 +230,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       requestSubtitleFn: (src) => channelName || '',
     },
     bigPlayButton: embedded, // only show big play button if embedded
+    liveui: true,
   };
 
   // Initialize video.js
@@ -315,26 +343,69 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
 
-      // change to m3u8 if applicable
-      const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+      if (isLivestreamClaim) {
+        // $FlowFixMe
+        vjsPlayer.addClass('livestreamPlayer');
 
-      playerServerRef.current = response.headers.get('x-powered-by');
+        // $FlowFixMe
+        const livestreamEndpoint = `${LIVESTREAM_LIVE_API}/${userClaimId}`;
 
-      if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-        // use m3u8 source
+        const livestreamResponse = await fetch(livestreamEndpoint, { method: 'GET' });
+
+        const livestreamData = (await livestreamResponse.json()).data;
+
+        const livestreamVideoUrl = `https://cdn.odysee.live/hls/${userClaimId}/index.m3u8`;
+
+        videojs.Vhs.xhr.beforeRequest = (options) => {
+          if (!options.headers) options.headers = {};
+          options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+          options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+          return options;
+        };
+
+        // const newPoster = livestreamData.ThumbnailURL;
+
+        // pretty sure it's not working
+        // vjsPlayer.poster(newPoster);
+
+        // here specifically because we don't allow rewinds at the moment
+        // $FlowFixMe
+        // vjsPlayer.on('play', function () {
+        //   // $FlowFixMe
+        //   vjsPlayer.liveTracker.seekToLiveEdge();
+        // });
+
         // $FlowFixMe
         vjsPlayer.src({
           type: 'application/x-mpegURL',
-          src: response.url,
+          src: livestreamVideoUrl,
         });
       } else {
-        // use original mp4 source
         // $FlowFixMe
-        vjsPlayer.src({
-          type: sourceType,
-          src: source,
-        });
+        vjsPlayer.removeClass('livestreamPlayer');
+
+        // change to m3u8 if applicable
+        const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
+
+        playerServerRef.current = response.headers.get('x-powered-by');
+
+        if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+          // use m3u8 source
+          // $FlowFixMe
+          vjsPlayer.src({
+            type: 'application/x-mpegURL',
+            src: response.url,
+          });
+        } else {
+          // use original mp4 source
+          // $FlowFixMe
+          vjsPlayer.src({
+            type: sourceType,
+            src: source,
+          });
+        }
       }
+
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();

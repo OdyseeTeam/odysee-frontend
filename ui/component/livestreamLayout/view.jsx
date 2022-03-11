@@ -1,9 +1,6 @@
 // @flow
 import 'scss/component/_swipeable-drawer.scss';
 
-// $FlowFixMe
-import { Global } from '@emotion/react';
-
 import { lazyImport } from 'util/lazyImport';
 import { useIsMobile } from 'effects/use-screensize';
 import { Menu, MenuList, MenuButton, MenuItem } from '@reach/menu-button';
@@ -12,7 +9,7 @@ import LivestreamLink from 'component/livestreamLink';
 import React from 'react';
 import { PRIMARY_PLAYER_WRAPPER_CLASS } from 'page/file/view';
 import FileRenderInitiator from 'component/fileRenderInitiator';
-import LivestreamIframeRender from './iframe-render';
+import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import { DrawerExpandButton } from 'component/swipeableDrawer/view';
@@ -63,28 +60,20 @@ export default function LivestreamLayout(props: Props) {
 
   if (!claim || !claim.signing_channel) return null;
 
-  const { name: channelName, claim_id: channelClaimId } = claim.signing_channel;
+  const { name: channelName } = claim.signing_channel;
+
+  // TODO: use this to show the 'user is not live functionality'
+  // console.log('show livestream, currentclaimlive, activestreamurl');
+  // console.log(showLivestream, isCurrentClaimLive, activeStreamUri);
 
   return (
     <>
-      {!isMobile && <GlobalStyles />}
-
       <div className="section card-stack">
-        <React.Suspense fallback={null}>
-          {isMobile && isCurrentClaimLive ? (
-            <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
-              {/* Mobile needs to handle the livestream player like any video player */}
-              <FileRenderInitiator uri={claim.canonical_url} />
-            </div>
-          ) : (
-            <LivestreamIframeRender
-              channelClaimId={channelClaimId}
-              release={release}
-              showLivestream={showLivestream}
-              showScheduledInfo={showScheduledInfo}
-            />
-          )}
-        </React.Suspense>
+        <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+          <FileRenderInitiator uri={uri} />
+
+          {showScheduledInfo && <LivestreamScheduledInfo release={release} />}
+        </div>
 
         {hideComments && !showScheduledInfo && (
           <div className="help--notice">
@@ -204,18 +193,3 @@ const ChatDrawerTitle = (titleProps: any) => {
     </div>
   );
 };
-
-const GlobalStyles = () => (
-  <Global
-    styles={{
-      body: {
-        'scrollbar-width': '0px',
-
-        '&::-webkit-scrollbar': {
-          width: '0px',
-          height: '0px',
-        },
-      },
-    }}
-  />
-);

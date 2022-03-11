@@ -10,9 +10,9 @@ import Yrbl from 'component/yrbl';
 import { GEOBLOCKED_CHANNELS } from 'config';
 import * as SETTINGS from 'constants/settings';
 import React from 'react';
-import { useIsMobile } from 'effects/use-screensize';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
+const LIVESTREAM_STATUS_CHECK_INTERVAL = 30000;
 
 function isLivestreamGeoAllowed(channelId: ?string, isLive: boolean) {
   const locale: LocaleInfo = window[SETTINGS.LOCALE];
@@ -40,7 +40,7 @@ type Props = {
   claim: StreamClaim,
   isAuthenticated: boolean,
   uri: string,
-  doSetPlayingUri: ({ uri: ?string }) => void,
+  doSetPrimaryUri: (uri: ?string) => void,
   doCommentSocketConnect: (string, string, string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doFetchChannelLiveStatus: (string) => void,
@@ -56,14 +56,12 @@ export default function LivestreamPage(props: Props) {
     claim,
     isAuthenticated,
     uri,
-    doSetPlayingUri,
+    doSetPrimaryUri,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
     doUserSetReferrer,
   } = props;
-
-  const isMobile = useIsMobile();
 
   const [activeStreamUri, setActiveStreamUri] = React.useState(false);
   const [showLivestream, setShowLivestream] = React.useState(false);
@@ -104,10 +102,13 @@ export default function LivestreamPage(props: Props) {
     };
   }, [claim, uri, doCommentSocketConnect, doCommentSocketDisconnect]);
 
-  // Find out current channels status + active live claim.
+  // Find out current channels status + active live claim every 30 seconds
   React.useEffect(() => {
     doFetchChannelLiveStatus(livestreamChannelId);
-    const intervalId = setInterval(() => doFetchChannelLiveStatus(livestreamChannelId), 30000);
+    const intervalId = setInterval(
+      () => doFetchChannelLiveStatus(livestreamChannelId),
+      LIVESTREAM_STATUS_CHECK_INTERVAL
+    );
     return () => clearInterval(intervalId);
   }, [livestreamChannelId, doFetchChannelLiveStatus]);
 
@@ -166,14 +167,9 @@ export default function LivestreamPage(props: Props) {
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
   React.useEffect(() => {
-    // Set playing uri to null so the popout player doesnt start playing the dummy claim if a user navigates back
-    // This can be removed when we start using the app video player, not a LIVESTREAM iframe
-    doSetPlayingUri({ uri: null });
-
-    return () => {
-      if (isMobile) doSetPlayingUri({ uri: null });
-    };
-  }, [doSetPlayingUri, isMobile]);
+    doSetPrimaryUri(uri);
+    return () => doSetPrimaryUri(null);
+  }, [doSetPrimaryUri, uri]);
 
   return (
     <Page

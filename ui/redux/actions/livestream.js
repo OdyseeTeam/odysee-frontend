@@ -49,6 +49,8 @@ const FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS = 5 * 60 * 1000;
 const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
   return data.reduce((acc, curr) => {
     acc[curr.claimId] = {
+      url: curr.url,
+      type: curr.type,
       live: curr.live,
       viewCount: curr.viewCount,
       creatorId: curr.claimId,
@@ -58,6 +60,7 @@ const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
   }, {});
 };
 
+// TODO: change this here
 const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
   const response = await fetch(LIVESTREAM_LIVE_API);
   const json = await response.json();
@@ -65,12 +68,37 @@ const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
   return transformLivestreamData(json.data);
 };
 
+/**
+ * Check whether or not the channel is used, used for long polling to display live status on claim viewing page
+ * @param channelId
+ * @returns {Promise<{channelStatus: string}|{channelData: LivestreamInfo, channelStatus: string}>}
+ */
 const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> => {
+  const newApiEndpoint = `${LIVESTREAM_LIVE_API}/`;
+
+  const newApiResponse = await fetch(`${newApiEndpoint}${channelId}`);
+  const newApiData = (await newApiResponse.json()).data;
+  // transform data to old API standard
+  const translatedData = {
+    url: newApiData.url,
+    type: 'application/x-mpegurl',
+    viewCount: newApiData.viewCount,
+    claimId: newApiData.claimId,
+    timestamp: newApiData.timestamp,
+  };
+
+  const isLive = newApiData.live;
+
   try {
-    const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
-    const json = await response.json();
-    if (json.data?.live === false) return { channelStatus: LiveStatus.NOT_LIVE };
-    return { channelStatus: LiveStatus.LIVE, channelData: transformLivestreamData([json.data]) };
+    // TODO: can remove fully at some point
+    // const response = await fetch(`${LIVESTREAM_LIVE_API}/${channelId}`);
+    // const json = await response.json();
+    if (isLive === false) {
+      return {
+        channelStatus: LiveStatus.NOT_LIVE,
+      };
+    }
+    return { channelStatus: LiveStatus.LIVE, channelData: transformLivestreamData([translatedData]) };
   } catch {
     return { channelStatus: LiveStatus.UNKNOWN };
   }
@@ -222,11 +250,13 @@ export const doFetchActiveLivestreams = (orderBy: Array<string> = ['release_time
     const nextOptions = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
     const sameOptions = JSON.stringify(prevOptions) === JSON.stringify(nextOptions);
 
+    // already fetched livestreams within the interval, skip for now
     if (sameOptions && timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
       dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_SKIPPED });
       return;
     }
 
+    // start fetching livestreams
     dispatch({ type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED });
 
     try {
