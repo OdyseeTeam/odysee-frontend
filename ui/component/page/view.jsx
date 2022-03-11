@@ -142,9 +142,7 @@ function Page(props: Props) {
           >
             {children}
 
-            {!isMobile && rightSide && (!livestream || !chatDisabled) && (
-              <div className="main__right-side">{rightSide}</div>
-            )}
+            {!isMobile && (!livestream || !chatDisabled) && rightSide}
           </main>
 
           {!noFooter && (
