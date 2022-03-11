@@ -208,8 +208,16 @@ const OdyseeMembershipPage = (props: Props) => {
     return moment(new Date(date)).format('MMMM DD YYYY');
   };
 
+  // clear membership data
   const deleteData = async function () {
-    await Lbryio.call('membership', 'clear', {}, 'post');
+    await Lbryio.call(
+      'membership',
+      'clear',
+      {
+        environment: 'test',
+      },
+      'post'
+    );
     // $FlowFixMe
     location.reload();
   };
@@ -222,40 +230,57 @@ const OdyseeMembershipPage = (props: Props) => {
     let featureString = '';
     // generate different strings depending on other conditions
     if (plan === 'Premium' && !noChannelsOrIncognitoMode) {
+      // user has channel selected
       featureString =
         'Your badge will be shown for your ' +
         userChannelName +
         ' channel in all areas of the app, and can be added to two additional channels in the future for free. ';
     } else if (plan === 'Premium+' && !noChannelsOrIncognitoMode) {
+      // user has channel selected
       featureString =
         'The no ads feature applies site-wide for all channels and your badge will be shown for your ' +
         userChannelName +
         ' channel in all areas of the app, and can be added to two additional channels in the future for free. ';
     } else if (plan === 'Premium' && !channels) {
+      // user has no channels
       featureString =
         'You currently have no channels. To show your badge on a channel, please create a channel first. ' +
         'If you register a channel later you will be able to show a badge for up to three channels.';
     } else if (plan === 'Premium+' && !channels) {
+      // user has no channels
       featureString =
         'The no ads feature applies site-wide. You currently have no channels. To show your badge on a channel, please create a channel first. ' +
         'If you register a channel later you will be able to show a badge for up to three channels.';
     } else if (plan === 'Premium' && incognito) {
+      // user has incognito selected
       featureString =
         'You currently have no channel selected and will not have a badge be visible, if you want to show a badge you can select a channel now, ' +
         'or you can show a badge for up to three channels in the future for free.';
     } else if (plan === 'Premium+' && incognito) {
+      // user has incognito selected
       featureString =
         'The no ads feature applies site-wide. You currently have no channel selected and will not have a badge be visible, ' +
         'if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.';
     }
 
+    const priceDisplayString = __(
+      'You are purchasing a %displayInterval% Credit Tip membership, ' +
+        'that is active immediately and will renew %displayInterval% at a price of %displayCurrency% %currencySymbol%' +
+        price / 100 +
+        '. ',
+      {
+        displayInterval: interval + 'ly',
+        displayCurrency: currencyToUse.toUpperCase(),
+        currencySymbol: currencyToUse === 'usd' ? '$' : '€',
+      }
+    );
+
     let purchaseString =
-      `You are purchasing a ${interval}ly membership, that is active immediately ` +
-      `and will renew ${interval}ly at a price of ${currencyToUse.toUpperCase()} ${
-        currencyToUse === 'usd' ? '$' : '€'
-      }${price / 100}. ` +
-      featureString +
-      'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.';
+      priceDisplayString +
+      __(featureString) +
+      __(
+        'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
+      );
 
     return __(purchaseString);
   }
@@ -300,18 +325,22 @@ const OdyseeMembershipPage = (props: Props) => {
     });
   };
 
-  function convertPriceToString(price) {
+  function convertIntervalVariableToString(price) {
     const interval = price.recurring.interval;
 
     if (interval === 'year') {
-      return 'Yearly';
+      return __('Yearly');
     } else if (interval === 'month') {
-      return 'Monthly';
+      return __('Monthly');
     }
   }
 
-  function capitalizeWord(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  function capitalizedInterval(planInterval) {
+    if (planInterval === 'year') {
+      return __('Year');
+    } else {
+      return __('Month');
+    }
   }
 
   function buildCurrencyDisplay(priceObject) {
@@ -453,8 +482,9 @@ const OdyseeMembershipPage = (props: Props) => {
                         {purchasedMemberships && !purchasedMemberships.includes(membershipOption.Membership.id) && (
                           <>
                             <div className="premium-option">
+                              {/* plan title */}
                               <h4 className="membership_title">
-                                {membershipOption.Membership.name}
+                                {__(membershipOption.Membership.name)}
                                 <PremiumBadge membership={membershipOption.Membership.name} />
                               </h4>
 
@@ -463,9 +493,10 @@ const OdyseeMembershipPage = (props: Props) => {
                                 {__(getPlanDescription(membershipOption.Membership.name))}
                               </h4>
                               <>
+                                {/* display different plans */}
                                 {membershipOption.Prices.map((price) => (
                                   <>
-                                    {/* dont show a monthly Premium membership option */}
+                                    {/* dont show a monthly Premium membership option (yearly only) */}
                                     {!(
                                       price.recurring.interval === 'month' &&
                                       membershipOption.Membership.name === 'Premium'
@@ -474,11 +505,11 @@ const OdyseeMembershipPage = (props: Props) => {
                                         {price.currency === currencyToUse && (
                                           <div>
                                             <h4 className="membership_info">
-                                              <b>{__('Interval')}:</b> {convertPriceToString(price)}
+                                              <b>{__('Interval')}:</b> {convertIntervalVariableToString(price)}
                                             </h4>
                                             <h4 className="membership_info">
                                               <b>{__('Price')}:</b> {buildCurrencyDisplay(price)}
-                                              {price.unit_amount / 100}/{capitalizeWord(price.recurring.interval)}
+                                              {price.unit_amount / 100}/{capitalizedInterval(price.recurring.interval)}
                                             </h4>
                                             <Button
                                               button="primary"
@@ -487,7 +518,9 @@ const OdyseeMembershipPage = (props: Props) => {
                                               membership-subscription-period={membershipOption.Membership.type}
                                               price-id={price.id}
                                               className="membership_button"
-                                              label={__('Join via ' + price.recurring.interval + 'ly membership')}
+                                              label={__('Join via %displayInterval% membership', {
+                                                displayInterval: price.recurring.interval,
+                                              })}
                                               icon={ICONS.FINANCE}
                                               interval={price.recurring.interval}
                                               plan={membershipOption.Membership.name}
@@ -592,13 +625,13 @@ const OdyseeMembershipPage = (props: Props) => {
 
                           <div className="premium-option">
                             <h4 className="membership_info">
-                              <b>{__('Registered On:')}</b> {formatDate(membership.Membership.created_at)}
+                              <b>{__('Registered On')}:</b> {formatDate(membership.Membership.created_at)}
                             </h4>
                             <h4 className="membership_info">
-                              <b>{__('Canceled On:')}</b> {formatDate(membership.Subscription.canceled_at * 1000)}
+                              <b>{__('Canceled On')}:</b> {formatDate(membership.Subscription.canceled_at * 1000)}
                             </h4>
                             <h4 className="membership_info">
-                              <b>{__('Still Valid Until:')}</b> {formatDate(membership.Membership.expires)}
+                              <b>{__('Still Valid Until')}:</b> {formatDate(membership.Membership.expires)}
                             </h4>
                           </div>
                         </>
@@ -640,7 +673,7 @@ const OdyseeMembershipPage = (props: Props) => {
             {stillWaitingFromBackend && apiError && (
               <div className="main--empty">
                 <h1 style={{ fontSize: '19px' }}>
-                  Sorry, there was an error, please contact support or try again later
+                  {__('Sorry, there was an error, please contact support or try again later')}
                 </h1>
               </div>
             )}
