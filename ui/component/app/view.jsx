@@ -431,7 +431,8 @@ function App(props: Props) {
     }
 
     const shouldFetchLanguage = !localeLangs && !localeSwitchDismissed;
-    const shouldFetchGdpr = !window.cordova && (gdprRequired === null || gdprRequired === undefined);
+    // const shouldFetchGdpr = !window.cordova && (gdprRequired === null || gdprRequired === undefined);
+    const shouldFetchGdpr = false;
 
     if (shouldFetchLanguage || shouldFetchGdpr) {
       fetchLocaleApi().then((response) => {
