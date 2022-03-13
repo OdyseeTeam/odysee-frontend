@@ -12,9 +12,9 @@ import LivestreamLayout from 'component/livestreamLayout';
 import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
-import { useIsMobile } from 'effects/use-screensize';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
+const LIVESTREAM_STATUS_CHECK_INTERVAL = 30000;
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -48,8 +48,6 @@ export default function LivestreamPage(props: Props) {
     doFetchChannelLiveStatus,
     doUserSetReferrer,
   } = props;
-
-  const isMobile = useIsMobile();
 
   const [activeStreamUri, setActiveStreamUri] = React.useState(false);
   const [showLivestream, setShowLivestream] = React.useState(false);

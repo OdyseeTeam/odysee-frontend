@@ -390,6 +390,10 @@ export const makeSelectEffectiveAmountForUri = (uri: string) =>
     );
   });
 
+/**
+ * Get the media_type for the uri [video]
+ * @param uri
+ */
 export const makeSelectContentTypeForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     const isLivestreamClaim = isStreamPlaceholderClaim(claim);

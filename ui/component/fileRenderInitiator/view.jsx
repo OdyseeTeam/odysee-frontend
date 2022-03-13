@@ -3,7 +3,6 @@
 // The actual viewer for a file exists in TextViewer and FileRenderFloating
 // They can't exist in one component because we need to handle/listen for the start of a new file view
 // while a file is currently being viewed
-import { useIsMobile } from 'effects/use-screensize';
 import React from 'react';
 import classnames from 'classnames';
 import * as PAGES from 'constants/pages';

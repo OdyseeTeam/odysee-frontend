@@ -8,18 +8,13 @@
  * disconnect function returned upon connecting.
  */
 
-import { isLiveStreaming } from '$web/src/livestreaming';
-
 const POLL_INTERVAL = 30000; // 30 seconds.
 const pollers = {};
 
 const pollingMechanism = {
-  streaming: false,
-
   startPolling() {
     if (this.interval !== 0) return;
     const poll = async () => {
-      this.streaming = await isLiveStreaming(this.channelId);
       this.subscribers.forEach((cb) => {
         if (cb) cb(this.streaming);
       });
@@ -48,11 +43,12 @@ const pollingMechanism = {
   },
 };
 
-const generateLongPoll = (channelId: string) => {
+const generateLongPoll = (channelId: string, streaming: boolean) => {
   if (pollers[channelId]) return pollers[channelId];
 
   pollers[channelId] = Object.create({
     channelId,
+    streaming,
     interval: 0,
     subscribers: [],
     ...pollingMechanism,
@@ -60,9 +56,9 @@ const generateLongPoll = (channelId: string) => {
   return pollers[channelId];
 };
 
-const watchLivestreamStatus = (channelId: ?string, cb: (boolean) => void) => {
+const watchLivestreamStatus = (channelId: ?string, streaming: boolean, cb: (boolean) => void) => {
   if (!channelId || typeof cb !== 'function') return undefined;
-  const poll = generateLongPoll(channelId);
+  const poll = generateLongPoll(channelId, streaming);
   const subscriberIndex = poll.connect(cb);
   return () => poll.disconnect(subscriberIndex);
 };

@@ -343,10 +343,12 @@
 
 .content__cover--disabled {
   pointer-events: none;
+
   .nag {
     /* boo fire Jeremy */
     pointer-events: auto;
   }
+
   &:after {
     content: '';
     top: 0;

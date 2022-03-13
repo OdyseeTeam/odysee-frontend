@@ -169,6 +169,8 @@ export default function LivestreamChatLayout(props: Props) {
     if (setCustomViewMode) setCustomViewMode(VIEW_MODES.SUPERCHAT);
   }
 
+  React.useEffect(() => setContentLoaded && setContentLoaded(true), [setContentLoaded]);
+
   React.useEffect(() => {
     if (setLayountRendered) setLayountRendered(true);
   }, [setLayountRendered]);

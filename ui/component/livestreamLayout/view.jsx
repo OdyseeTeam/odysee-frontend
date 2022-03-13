@@ -36,6 +36,7 @@ type Props = {
   uri: string,
   superChats: Array<Comment>,
   activeViewers?: number,
+  contentLoaded: boolean,
 };
 
 export default function LivestreamLayout(props: Props) {
@@ -50,6 +51,7 @@ export default function LivestreamLayout(props: Props) {
     uri,
     superChats,
     activeViewers,
+    contentLoaded,
   } = props;
 
   const isMobile = useIsMobile();
