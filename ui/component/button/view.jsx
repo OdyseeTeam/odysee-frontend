@@ -100,6 +100,11 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
   // Label can be a string or object ( use title instead )
   const ariaLabel = description || (typeof label === 'string' ? label : title);
 
+  function onClickCordova(e) {
+    let link = e.substr(e.indexOf('odysee.com/') + 10, e.length);
+    window.odysee.functions.history.push(link);
+  }
+
   const content = (
     <span className="button__content">
       {icon && <Icon icon={icon} iconColor={iconColor} size={iconSize} />}
@@ -145,6 +150,21 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
 
   if (href || (navigate && navigate.startsWith('http'))) {
     // TODO: replace the below with an outbound link tracker for matomo
+    if (href.indexOf('odysee.com/') !== -1) {
+      return (
+        <a
+          target="_blank"
+          rel="noopener noreferrer"
+          className={combinedClassName}
+          title={title}
+          onClick={() => onClickCordova(href)}
+          aria-label={ariaLabel}
+          disabled={disabled} // is there a reason this wasn't here before?
+        >
+          {content}
+        </a>
+      );
+    }
     return (
       <a
         target="_blank"

@@ -48,7 +48,8 @@ function SelectThumbnail(props: Props) {
   const thumbnail = publishForm ? props.thumbnail : thumbnailParam;
   const thumbnailError = publishForm ? props.thumbnailError : props.thumbnailParamError;
 
-  const accept = '.png, .jpg, .jpeg, .gif';
+  var accept = '.png, .jpg, .jpeg, .gif';
+  if (window.cordova) accept = 'image/*';
   const manualInput = status === THUMBNAIL_STATUSES.API_DOWN || status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const isUrlInput = thumbnail !== ThumbnailMissingImage && thumbnail !== ThumbnailBrokenImage;

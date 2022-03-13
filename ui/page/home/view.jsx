@@ -171,6 +171,7 @@ function HomePage(props: Props) {
 
       {/* @if TARGET='web' */}
       {SIMPLE_SITE && <Meme />}
+      {false && (<Ads type="homepage" />)}
       {/* @endif */}
 
       <RecommendedPersonal />

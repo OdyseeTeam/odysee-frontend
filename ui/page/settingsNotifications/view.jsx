@@ -31,6 +31,9 @@ export default function NotificationSettingsPage(props: Props) {
   const urlParams = new URLSearchParams(location.search);
   const verificationToken = urlParams.get('verification_token');
   const lbryIoParams = verificationToken ? { auth_token: verificationToken } : undefined;
+  const [appNotification, setAppNotification] = React.useState(
+    window.localStorage.getItem('appNotification') ? Boolean(window.localStorage.getItem('appNotification')) : false
+  );
 
   React.useEffect(() => {
     if (isAuthenticated) {
@@ -93,6 +96,12 @@ export default function NotificationSettingsPage(props: Props) {
       });
   }
 
+  function toggleNotification() {
+    console.log('Set local storage to ', !appNotification);
+    window.localStorage.setItem('appNotification', !appNotification);
+    setAppNotification(!appNotification);
+  }
+
   if (IS_WEB && !isAuthenticated && !verificationToken) {
     return <Redirect to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
   }
@@ -123,86 +132,121 @@ export default function NotificationSettingsPage(props: Props) {
           }
         />
       ) : (
-        <div className="card-stack">
-          <div>
-            <h2 className="card__title">{__('Notification Delivery')}</h2>
-            <div className="card__subtitle">{__("Choose how you'd like to receive your Odysee notifications.")}</div>
-          </div>
-          <Card
-            isBodyList
-            body={
-              <>
-                {enabledEmails && enabledEmails.length > 0 && (
-                  <>
-                    {enabledEmails.map(({ email, isEnabled }) => (
-                      <SettingsRow
-                        key={email}
-                        title={__('Email Notifications')}
-                        subtitle={__(`Receive notifications to the email address: %email%`, { email })}
-                      >
-                        <FormField
-                          type="checkbox"
-                          name={`active-email:${email}`}
+        true && (
+          <div className="card-stack">
+            <div>
+              <h2 className="card__title">{__('Notification Delivery')}</h2>
+              <div className="card__subtitle">{__("Choose how you'd like to receive your Odysee notifications.")}</div>
+            </div>
+            <Card
+              isBodyList
+              body={
+                <>
+                  {enabledEmails && enabledEmails.length > 0 && (
+                    <>
+                      {enabledEmails.map(({ email, isEnabled }) => (
+                        <SettingsRow
                           key={email}
-                          onChange={() => handleChangeEmail(email, !isEnabled)}
-                          checked={isEnabled}
-                        />
-                      </SettingsRow>
-                    ))}
-                  </>
-                )}
-
-                {/* @if TARGET='web' */}
-                <BrowserNotificationSettings />
-                {/* @endif */}
-
-                {/* @if TARGET='app' */}
-                <SettingsRow
-                  title={__('Desktop Notifications')}
-                  subtitle={__('Get notified when an upload or channel is confirmed.')}
-                >
-                  <FormField
-                    type="checkbox"
-                    name="desktopNotification"
-                    onChange={() => setClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled)}
-                    checked={osNotificationsEnabled}
-                  />
-                </SettingsRow>
-                {/* @endif */}
-              </>
-            }
-          />
-
-          {tags && tags.length > 0 && (
-            <>
-              <div>
-                <h2 className="card__title">{__('Email Notification Topics')}</h2>
-                <div className="card__subtitle">{__('Choose which topics you’d like to be emailed about.')}</div>
-              </div>
-              <Card
-                isBodyList
-                body={
-                  <>
-                    {tags.map((tag) => {
-                      const isEnabled = tagMap[tag.name];
-                      return (
-                        <SettingsRow key={tag.name} subtitle={__(tag.description)}>
+                          title={__('Email Notifications')}
+                          subtitle={__(`Receive notifications to the email address: %email%`, { email })}
+                        >
                           <FormField
                             type="checkbox"
-                            key={tag.name}
-                            name={tag.name}
-                            onChange={() => handleChangeTag(tag.name, !isEnabled)}
+                            name={`active-email:${email}`}
+                            key={email}
+                            onChange={() => handleChangeEmail(email, !isEnabled)}
                             checked={isEnabled}
                           />
                         </SettingsRow>
-                      );
-                    })}
-                  </>
-                }
-              />
-            </>
-          )}
-        </div>
+                      ))}
+                    </>
+                  )}
+
+                  {/* @if TARGET='web' */}
+                  {!window.cordova && <BrowserNotificationSettings />}
+                  {/* @endif */}
+
+                  {/* @if TARGET='app' */}
+                  <SettingsRow
+                    title={__('Desktop Notifications')}
+                    subtitle={__('Get notified when an upload or channel is confirmed.')}
+                  >
+                    <FormField
+                      type="checkbox"
+                      name="desktopNotification"
+                      onChange={() => setClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled)}
+                      checked={osNotificationsEnabled}
+                    />
+                  </SettingsRow>
+                  {/* @endif */}
+                </>
+              }
+            />
+
+            {true && tags && tags.length > 0 && (
+              <>
+                <div>
+                  <h2 className="card__title">{__('Email Notification Topics')}</h2>
+                  <div className="card__subtitle">{__('Choose which topics you’d like to be emailed about.')}</div>
+                </div>
+                <Card
+                  isBodyList
+                  body={
+                    <>
+                      {tags.map((tag) => {
+                        const isEnabled = tagMap[tag.name];
+                        return (
+                          <SettingsRow key={tag.name} subtitle={__(tag.description)}>
+                            <FormField
+                              type="checkbox"
+                              key={tag.name}
+                              name={tag.name}
+                              onChange={() => handleChangeTag(tag.name, !isEnabled)}
+                              checked={isEnabled}
+                            />
+                          </SettingsRow>
+                        );
+                      })}
+                    </>
+                  }
+                />
+              </>
+            )}
+          </div>
+        )
+      )}
+      {false && (
+        <>
+          <div>
+            <h2 className="card__title">{__('Notifications')}</h2>
+          </div>
+          <div className="card cordova-settings">
+            <div className="card__body--list">
+              <div className="settings__row">
+                <div className="settings__row--title">
+                  {__('App notifications')}
+                  <label className="switch">
+                    <input type="checkbox" onChange={() => toggleNotification()} checked={appNotification} />
+                    <span className="slider" />
+                  </label>
+                </div>
+              </div>
+              {false && (
+                <>
+                  <div className="settings__row">
+                    <div className="settings__row--title">{__('Livestreams')}</div>
+                  </div>
+                  <div className="settings__row">
+                    <div className="settings__row--title">{__('Comments')}</div>
+                  </div>
+                  <div className="settings__row">
+                    <div className="settings__row--title">{__('Replies')}</div>
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+        </>
       )}
     </Page>
   );

@@ -180,6 +180,7 @@ export default function LivestreamPage(props: Props) {
       noFooter
       livestream
       chatDisabled={hideComments}
+      // whether to display livestream chat
       rightSide={
         !hideComments &&
         isInitialized && (

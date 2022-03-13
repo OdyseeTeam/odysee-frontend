@@ -364,14 +364,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // $FlowFixMe
         vjsPlayer.addClass('livestreamPlayer');
 
-        // @if process.env.NODE_ENV!='production'
-        videojs.Vhs.xhr.beforeRequest = (options) => {
-          if (!options.headers) options.headers = {};
-          options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-          options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-          return options;
-        };
-        // @endif
+        if (!window.cordova) {
+          // @if process.env.NODE_ENV!='production'
+          videojs.Vhs.xhr.beforeRequest = (options) => {
+            if (!options.headers) options.headers = {};
+            options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+            options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+            return options;
+          };
+          // @endif
+        }
 
         // const newPoster = livestreamData.ThumbnailURL;
 

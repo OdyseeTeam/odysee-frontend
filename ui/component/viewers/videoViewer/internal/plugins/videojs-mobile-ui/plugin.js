@@ -8,8 +8,9 @@ const VERSION = '0.4.1';
 // Default options for the plugin.
 const defaults = {
   fullscreen: {
-    enterOnRotate: true,
-    lockOnRotate: true,
+    enterOnRotate: false,
+    exitOnRotate: false,
+    lockOnRotate: false,
     iOS: false,
   },
   touchControls: {
@@ -61,7 +62,7 @@ const onPlayerReady = (player, options) => {
     !player.el_.ownerDocument.querySelector('.bc-iframe')
   ) {
     player.tech_.el_.setAttribute('playsinline', 'playsinline');
-    player.tech_.supportsFullScreen = function() {
+    player.tech_.supportsFullScreen = function () {
       return false;
     };
   }
@@ -115,7 +116,7 @@ const onPlayerReady = (player, options) => {
     screen.orientation.onchange = rotationHandler;
   }
 
-  player.on('ended', _ => {
+  player.on('ended', (_) => {
     if (locked === true) {
       screen.orientation.unlock();
       locked = false;
@@ -150,9 +151,9 @@ const onPlayerReady = (player, options) => {
  *           Whether to disable when the video ends (e.g., if there is an endscreen)
  *           Never shows if the endscreen plugin is present
  */
-const mobileUi = function(options) {
+const mobileUi = function (options) {
   // if (videojs.browser.IS_ANDROID || videojs.browser.IS_IOS) {
-  if (videojs.browser.IS_ANDROID) {
+  if (window.cordova || videojs.browser.IS_ANDROID) {
     this.ready(() => {
       onPlayerReady(this, videojs.mergeOptions(defaults, options));
     });

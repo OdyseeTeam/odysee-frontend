@@ -116,6 +116,7 @@ const persistOptions = {
 };
 
 let history;
+let hashHistory;
 // @if TARGET='app'
 history = createMemoryHistory({
   initialEntries: [generateInitialUrl(window.location.hash)],
@@ -124,6 +125,14 @@ history = createMemoryHistory({
 // @endif
 // @if TARGET='web'
 history = createBrowserHistory();
+if (window.cordova) {
+  history = createMemoryHistory({
+    initialEntries: [generateInitialUrl(window.location.hash)],
+    initialIndex: 0,
+  });
+  window.odysee.functions.history = history;
+  window.odysee.functions.checkPayload();
+}
 // @endif
 
 const triggerSharedStateActions = [
@@ -239,4 +248,4 @@ window.addEventListener('storage', (e) => {
   }
 });
 
-export { store, persistor, history, whiteListedReducers };
+export { store, persistor, history, hashHistory, whiteListedReducers };

@@ -57,6 +57,10 @@ export default function MembershipSplash(props: Props) {
   //   </div>
   // );
 
+  function onClickCordova(url) {
+    if (window.cordova) window.odysee.functions.history.push(url);
+  }
+
   return (
     <div className="membership-splash">
       <div className="membership-splash__banner">
@@ -110,7 +114,10 @@ export default function MembershipSplash(props: Props) {
             <Button
               button="primary"
               label={__('Join')}
-              navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium&pageLocation=${pageLocation}`}
+              // onClick={() => window.odysee.functions.history.push(`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium&pageLocation=${pageLocation}`)}
+              onClick={() =>
+                onClickCordova(`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium&pageLocation=${pageLocation}`)
+              }
             />
           </div>
         </div>
@@ -142,7 +149,10 @@ export default function MembershipSplash(props: Props) {
             <Button
               button="primary"
               label={__('Join')}
-              navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium%2b&pageLocation=${pageLocation}&`}
+              //onClick={() => onClickCordova(`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium%2b&pageLocation=${pageLocation}&`)}
+              onClick={() =>
+                onClickCordova(`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium+pageLocation=${pageLocation}&`)
+              }
             />
           </div>
         </div>

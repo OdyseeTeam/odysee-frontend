@@ -454,16 +454,16 @@ function SideNavigation(props: Props) {
   const helpLinks = (
     <ul className="navigation__tertiary navigation-links--small">
       <li className="navigation-link">
-        <Button label={__('FAQ and Support')} href="https://odysee.com/@OdyseeHelp:b" />
+        <Button label={__('FAQ and Support')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b') } />
       </li>
       <li className="navigation-link">
-        <Button label={__('Community Guidelines')} href="https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c" />
+        <Button label={__('Community Guidelines')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c') } />
       </li>
       <li className="navigation-link">
-        <Button label={__('Terms')} href="https://odysee.com/$/tos" />
+        <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos') } />
       </li>
       <li className="navigation-link">
-        <Button label={__('Privacy Policy')} href="https://odysee.com/$/privacypolicy" />
+        <Button label={__('Privacy Policy')} onClick={() => window.odysee.functions.history.push('/$/privacypolicy') } />
       </li>
       <li className="navigation-link" id="gdprSidebarLink">
         <Button label={__('Cookie Settings')} onClick={() => window.Optanon && window.Optanon.ToggleInfoDisplay()} />

@@ -4,6 +4,7 @@ const SAVED_PASSWORD = 'saved_password';
 const domain =
   typeof window === 'object' && window.location.hostname.includes('localhost') ? window.location.hostname : DOMAIN;
 const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = true;
 const maxExpiration = 2147483647;
 let sessionPassword;
 

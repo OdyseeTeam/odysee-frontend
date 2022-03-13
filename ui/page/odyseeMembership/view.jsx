@@ -21,7 +21,8 @@ import { fetchLocaleApi } from 'locale';
 
 let stripeEnvironment = getStripeEnvironment();
 
-const isDev = process.env.NODE_ENV !== 'production';
+// const isDev = process.env.NODE_ENV !== 'production';
+const isDev = false;
 
 // odysee channel information since the memberships are only for Odysee
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
@@ -361,9 +362,18 @@ const OdyseeMembershipPage = (props: Props) => {
   const urlSearchParams = new URLSearchParams(window.location.search);
   const params = Object.fromEntries(urlSearchParams.entries());
 
-  const { interval, plan } = params;
+  var { interval, plan } = params;
+  var planValue = params.plan;
 
-  const planValue = params.plan;
+  if (window.cordova) {
+    let entry = window.odysee.functions.history.entries[window.odysee.functions.history.entries.length - 1];
+    let loop = entry.search.split('&');
+    for (let entry of loop) {
+      if (entry.indexOf('interval') !== -1) interval = entry.substr(entry.indexOf('=') + 1, entry.length);
+      if (entry.indexOf('plan') !== -1) plan = entry.substr(entry.indexOf('=') + 1, entry.length);
+    }
+    planValue = plan;
+  }
 
   // description to be shown under plan name
   function getPlanDescription(plan, active?) {

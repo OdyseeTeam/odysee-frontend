@@ -181,7 +181,6 @@ export default function FilePage(props: Props) {
       </>
     );
   }
-
   const rightSideProps = { hasCollectionById, collectionId, uri };
 
   if (obscureNsfw && isMature) {

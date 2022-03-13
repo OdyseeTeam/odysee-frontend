@@ -6,7 +6,7 @@ $recent-msg-button__height: 2rem;
 
 .livestream__chat {
   width: 100%;
-  min-width: var(--livestream-comments-width);
+  // min-width: var(--livestream-comments-width);
   background-color: rgba(var(--color-header-background-base), 1);
   border-radius: var(--border-radius);
   margin-left: var(--spacing-m);

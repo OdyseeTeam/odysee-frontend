@@ -8,7 +8,8 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import usePersistedState from 'effects/use-persisted-state';
 
-const accept = '.png, .jpg, .jpeg, .gif';
+var accept = '.png, .jpg, .jpeg, .gif';
+if (window.cordova) accept = 'image/*';
 const STATUS = { READY: 'READY', UPLOADING: 'UPLOADING' };
 
 type Props = {

@@ -4,6 +4,7 @@
 const __ = (msg) => msg;
 
 const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = true;
 const channelNameMinLength = 1;
 const claimIdMaxLength = 40;
 

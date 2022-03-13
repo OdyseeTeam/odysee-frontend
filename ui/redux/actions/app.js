@@ -517,12 +517,31 @@ export function doAnaltyicsPurchaseEvent(fileInfo) {
   };
 }
 
+/*
+reconnect()
+function reconnect() {
+  return (getState) => {
+    const state = getState();
+    const user = selectUser(state);
+
+    if (window.cordova && user) {
+      pushNotifications.reconnect(user.id);
+      pushNotifications.validate(user.id);
+    }
+  }  
+}
+*/
+
 export function doSignIn() {
   return (dispatch, getState) => {
     const state = getState();
     const user = selectUser(state);
 
     if (pushNotifications.supported && user) {
+      pushNotifications.reconnect(user.id);
+      pushNotifications.validate(user.id);
+    }
+    if (window.cordova && user) {
       pushNotifications.reconnect(user.id);
       pushNotifications.validate(user.id);
     }

@@ -250,14 +250,36 @@ function ClaimMenuList(props: Props) {
   }
 
   function copyToClipboard(textToCopy, successMsg, failureMsg) {
-    navigator.clipboard
-      .writeText(textToCopy)
-      .then(() => {
+    if (window.cordova) {
+      var textArea = document.createElement('textarea');
+      textArea.value = textToCopy;
+
+      // Avoid scrolling to bottom
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.position = 'fixed';
+
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
         doToast({ message: __(successMsg) });
-      })
-      .catch(() => {
-        doToast({ message: __(failureMsg), isError: true });
-      });
+      } catch {
+        // doToast({ message: __(failureMsg), isError: true });
+      }
+      document.body.removeChild(textArea);
+    } else {
+      navigator.clipboard
+        .writeText(textToCopy)
+        .then(() => {
+          doToast({ message: __(successMsg) });
+        })
+        .catch((err) => {
+          console.log('Copy err: ', err);
+          doToast({ message: __(failureMsg), isError: true });
+        });
+    }
   }
 
   function handleCopyRssLink() {
@@ -265,6 +287,10 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
+    () =>
+      function (event) {
+        event.preventDefault();
+      };
     copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
   }
 
@@ -304,7 +330,7 @@ function ClaimMenuList(props: Props) {
           {collectionId && isCollectionClaim ? (
             <>
               <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.LIST}/${collectionId}`)}>
-                <a className="menu__link" href={`/$/${PAGES.LIST}/${collectionId}`}>
+                <a className="menu__link">
                   <Icon aria-hidden icon={ICONS.VIEW} />
                   {__('View List')}
                 </a>

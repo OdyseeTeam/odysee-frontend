@@ -12,6 +12,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import analytics from 'analytics';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
+// import Ads, { injectAd } from 'web/component/ads';
 import Ads from 'web/component/ads';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
@@ -52,7 +53,7 @@ function DiscoverPage(props: Props) {
   const buttonRef = useRef();
   const isHovering = useHover(buttonRef);
   const isMobile = useIsMobile();
-  const isWildWest = window.location.pathname === `/$/${PAGES.WILD_WEST}`;
+  // const isWildWest = window.location.pathname === `/$/${PAGES.WILD_WEST}`;
 
   const urlParams = new URLSearchParams(search);
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
@@ -174,8 +175,20 @@ function DiscoverPage(props: Props) {
     );
   }
 
+  /*
+  React.useEffect(() => {
+    const hasAdOnPage = document.querySelector('.homepageAdContainer');
+
+    if (hasAdOnPage || isAuthenticated || !SHOW_ADS || window.location.pathname === `/$/${PAGES.WILD_WEST}`) {
+      return;
+    }
+    // injectAd();
+  }, [isAuthenticated]);
+  */
+
   return (
     <Page noFooter fullWidthPage={tileLayout} className="main__discover">
+      {false && (<Ads type="homepage" />)}
       <ClaimListDiscover
         pins={getPins(dynamicRouteProps)}
         hideFilters={SIMPLE_SITE ? !(dynamicRouteProps || tags) : undefined}
@@ -188,7 +201,7 @@ function DiscoverPage(props: Props) {
         tags={tags}
         hiddenNsfwMessage={<HiddenNsfw type="page" />}
         repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-        injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
+        // injectedItem={SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
         // Assume wild west page if no dynamicRouteProps
         // Not a very good solution, but just doing it for now
         // until we are sure this page will stay around

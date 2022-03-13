@@ -1,5 +1,4 @@
 import * as ACTIONS from 'constants/action_types';
-import Lbry from 'lbry';
 import querystring from 'querystring';
 import analytics from 'analytics';
 
@@ -156,52 +155,43 @@ Lbryio.authenticate = (domain, language) => {
             return user;
           }
 
-          return Lbry.status()
-            .then(
-              (status) =>
-                new Promise((res, rej) => {
-                  const appId =
-                    domain && domain !== 'lbry.tv'
-                      ? (domain.replace(/[.]/gi, '') + status.installation_id).slice(0, 66)
-                      : status.installation_id;
-                  Lbryio.call(
-                    'user',
-                    'new',
-                    {
-                      auth_token: '',
-                      language: language || 'en',
-                      app_id: appId,
-                    },
-                    'post'
-                  )
-                    .then((response) => {
-                      if (!response.auth_token) {
-                        throw new Error('auth_token was not set in the response');
-                      }
-
-                      const { store } = window;
-                      if (Lbryio.overrides.setAuthToken) {
-                        Lbryio.overrides.setAuthToken(response.auth_token);
-                      }
-
-                      if (store) {
-                        store.dispatch({
-                          type: ACTIONS.GENERATE_AUTH_TOKEN_SUCCESS,
-                          data: { authToken: response.auth_token },
-                        });
-                      }
-                      Lbryio.authToken = response.auth_token;
-                      return res(response);
-                    })
-                    .catch((error) => rej(error));
-                })
+          return new Promise((res, rej) => {
+            Lbryio.call(
+              'user',
+              'new',
+              {
+                auth_token: '',
+                language: language || 'en',
+                app_id: 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V',
+              },
+              'post'
             )
-            .then((newUser) => {
-              if (!newUser) {
-                return Lbryio.getCurrentUser();
-              }
-              return newUser;
-            });
+              .then((response) => {
+                if (!response.auth_token) {
+                  throw new Error('auth_token was not set in the response');
+                }
+
+                const { store } = window;
+                if (Lbryio.overrides.setAuthToken) {
+                  Lbryio.overrides.setAuthToken(response.auth_token);
+                }
+
+                if (store) {
+                  store.dispatch({
+                    type: ACTIONS.GENERATE_AUTH_TOKEN_SUCCESS,
+                    data: { authToken: response.auth_token },
+                  });
+                }
+                Lbryio.authToken = response.auth_token;
+                return res(response);
+              })
+              .catch((error) => rej(error));
+          }).then((newUser) => {
+            if (!newUser) {
+              return Lbryio.getCurrentUser();
+            }
+            return newUser;
+          });
         })
         .then(resolve, reject);
     });

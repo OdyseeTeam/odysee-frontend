@@ -1193,6 +1193,63 @@ img {
   }
 }
 
+.cordova-settings {
+  .switch {
+    position: relative;
+    // display: inline-block;
+    width: 40px;
+    height: 34px;
+    top: 3px;
+    margin-right: var(--spacing-xxs);
+    float: right;
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--color-gray-4);
+      -webkit-transition: 0.4s;
+      height: 18px;
+      transition: 0.4s;
+      border-radius: 9px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: '';
+      height: 18px;
+      width: 18px;
+      left: 0px;
+      bottom: 0px;
+      background-color: white;
+      -webkit-transition: 0.4s;
+      transition: 0.4s;
+      border-radius: 50%;
+    }
+
+    input {
+      height: 8px;
+    }
+
+    input:checked + .slider {
+      background-color: var(--color-primary);
+    }
+
+    input:focus + .slider {
+      box-shadow: 0 0 1px var(--color-primary);
+    }
+
+    input:checked + .slider:before {
+      -webkit-transform: translateX(26px);
+      -ms-transform: translateX(26px);
+      transform: translateX(26px);
+    }
+  }
+}
+
 // Temporary master classes
 .date_time {
   font-size: var(--font-xsmall);

@@ -32,7 +32,11 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    font-size: var(--font-small);
+    .button__content {
+      .button__label {
+        font-size: var(--font-body);
+      }
+    }
   }
 }
 
@@ -271,6 +275,14 @@ a.button--alt {
 
   &:hover {
     color: var(--color-link-hover);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .button__content {
+      .button__label {
+        font-size: var(--font-body);
+      }
+    }
   }
 }
 

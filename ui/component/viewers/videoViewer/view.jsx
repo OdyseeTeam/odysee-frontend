@@ -284,12 +284,14 @@ function VideoViewer(props: Props) {
     setReplay(false);
     setDoNavigate(false);
     analytics.videoIsPlaying(true, player);
+    if (window.cordova) window.odysee.functions.onPlay(claim, channelName, thumbnail);
   }
 
   function onPause(event, player) {
     setIsPlaying(false);
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
+    if (window.cordova) window.odysee.functions.onPause();
   }
 
   function onDispose(event, player) {
@@ -298,6 +300,7 @@ function VideoViewer(props: Props) {
 
     const almostFinished = player.currentTime() / player.duration() >= VIDEO_ALMOST_FINISHED_THRESHOLD;
 
+    if (window.cordova) window.odysee.functions.onPause();
     if (player.ended() || almostFinished) {
       clearPosition(permanentUrl);
     }

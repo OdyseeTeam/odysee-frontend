@@ -43,7 +43,8 @@ export const GA_DIMENSIONS = {
 // get user bandwidth every minute, starting after an initial one minute wait
 // setInterval(getUserBandwidth, 1000 * 60);
 
-const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = true;
 const devInternalApis = process.env.LBRY_API_URL && process.env.LBRY_API_URL.includes('dev');
 
 export const SHARE_INTERNAL = 'shareInternal';
@@ -204,7 +205,7 @@ function startWatchmanIntervalIfNotRunning() {
     lastSentTime = new Date();
 
     // only set an interval if analytics are enabled and is prod
-    if (isProduction && IS_WEB) {
+    if (isProduction && (IS_WEB || window.cordova)) {
       watchmanInterval = setInterval(sendAndResetWatchmanData, 1000 * SEND_DATA_TO_WATCHMAN_INTERVAL);
     }
   }
@@ -465,6 +466,8 @@ const analytics: Analytics = {
 
 function sendGaEvent(event: string, params?: { [string]: string | number }) {
   if (isGaAllowed && window.gtag) {
+    if (!params) params = {};
+    params.appVersion = 'android';
     window.gtag('event', event, params);
   }
 }

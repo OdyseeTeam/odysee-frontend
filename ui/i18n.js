@@ -2,6 +2,7 @@
 import { isLocalStorageAvailable } from 'util/storage';
 
 const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = true;
 const localStorageAvailable = isLocalStorageAvailable();
 
 window.i18n_messages = window.i18n_messages || {};

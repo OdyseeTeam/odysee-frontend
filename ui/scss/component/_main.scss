@@ -671,6 +671,9 @@ body {
     margin-top: var(--spacing-main-padding);
     padding: 0 var(--spacing-l);
   }
+  @media (max-width: $breakpoint-small) {
+    margin-top: var(--spacing-m);
+  }
 }
 
 .main--settings-page {

@@ -30,9 +30,24 @@ export default () => {
         }
       });
     }
-    return () => {
-      mounted = false;
-    };
+    if (window.cordova) {
+      pushNotifications.subscribed(user.id).then((isSubscribed: boolean) => {
+        setSubscribed(isSubscribed);
+        setPushInitialized(true);
+      });
+    }
+    if (window.cordova) {
+      pushNotifications.subscribed(user.id).then((isSubscribed: boolean) => {
+        setSubscribed(isSubscribed);
+        setPushInitialized(true);
+      });
+    }
+    if (window.cordova) {
+      pushNotifications.subscribed(user.id).then((isSubscribed: boolean) => {
+        setSubscribed(isSubscribed);
+        setPushInitialized(true);
+      });
+    }
   }, [user]);
 
   useMemo(() => setPushEnabled(pushPermission === 'granted' && subscribed), [pushPermission, subscribed]);

@@ -68,10 +68,10 @@ function AutoplayCountdown(props: Props) {
   // Update 'setTimerPaused'.
   React.useEffect(() => {
     // Ensure correct 'setTimerPaused' on initial render.
-    setTimerPaused(shouldPauseAutoplay());
+    if (!window.cordova) setTimerPaused(shouldPauseAutoplay());
 
     const handleScroll = debounce((e) => {
-      setTimerPaused(shouldPauseAutoplay());
+      if (!window.cordova) setTimerPaused(shouldPauseAutoplay());
     }, DEBOUNCE_SCROLL_HANDLER_MS);
 
     window.addEventListener('scroll', handleScroll);
@@ -82,7 +82,7 @@ function AutoplayCountdown(props: Props) {
   React.useEffect(() => {
     let interval;
     if (!timerCanceled && nextRecommendedUri) {
-      if (isTimerPaused || isAnyInputFocused()) {
+      if (isTimerPaused || isAnyInputFocused() || !window.cordova) {
         clearInterval(interval);
         setTimer(countdownTime);
       } else {

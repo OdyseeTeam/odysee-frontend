@@ -6,7 +6,7 @@ import { parseURI, isNameValid } from 'util/lbryURI';
 import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import SearchOptions from 'component/searchOptions';
-import Ads from 'web/component/ads';
+// import Ads from 'web/component/ads';
 import SearchTopClaim from 'component/searchTopClaim';
 import { formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
@@ -103,7 +103,7 @@ export default function SearchPage(props: Props) {
                   onSearchOptionsChanged={resetPage}
                 />
               }
-              injectedItem={{ node: <Ads small type="video" />, index: 3 }}
+              // injectedItem={SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
             />
 
             <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>

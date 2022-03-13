@@ -19,6 +19,7 @@ const DIST_ROOT = path.resolve(__dirname, 'dist/');
 const WEB_STATIC_ROOT = path.resolve(__dirname, 'static/');
 const WEB_PLATFORM_ROOT = __dirname;
 const isProduction = process.env.NODE_ENV === 'production';
+// const isProduction = true;
 const hasSentryToken = process.env.SENTRY_AUTH_TOKEN !== undefined;
 const jsBundleId = getJsBundleId();
 
