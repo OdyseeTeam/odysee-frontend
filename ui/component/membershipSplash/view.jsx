@@ -4,13 +4,13 @@ import * as PAGES from 'constants/pages';
 
 import Icon from 'component/common/icon';
 import Button from 'component/button';
+import I18nMessage from 'component/i18nMessage';
 
 import React from 'react';
 import AstronautAndFriends from './astronaut_n_friends.png';
 import BadgePremium from './badge_premium.png';
 import BadgePremiumPlus from './badge_premium-plus.png';
 import OdyseePremium from './odysee_premium.png';
-import I18nMessage from 'component/i18nMessage';
 
 type Props = {
   pageLocation: string,

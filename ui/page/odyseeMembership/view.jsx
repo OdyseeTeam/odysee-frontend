@@ -14,6 +14,7 @@ import MembershipSplash from 'component/membershipSplash';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import PremiumBadge from 'component/common/premium-badge';
+import I18nMessage from 'component/i18nMessage';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
 import { fetchLocaleApi } from 'locale';
@@ -228,13 +229,19 @@ const OdyseeMembershipPage = (props: Props) => {
   // TODO: can clean this up, some repeating text
   function buildPurchaseString(price, interval, plan) {
     let featureString = '';
+
     // generate different strings depending on other conditions
     if (plan === 'Premium' && !noChannelsOrIncognitoMode) {
-      // user has channel selected
-      featureString =
-        'Your badge will be shown for your ' +
-        userChannelName +
-        ' channel in all areas of the app, and can be added to two additional channels in the future for free. ';
+      featureString = (
+        <I18nMessage
+          tokens={{
+            user_channel_name: <b className="membership-bolded">{userChannelName}</b>,
+          }}
+        >
+          Your badge will be shown for your %user_channel_name% channel in all areas of the app, and can be added to two
+          additional channels in the future for free.
+        </I18nMessage>
+      );
     } else if (plan === 'Premium+' && !noChannelsOrIncognitoMode) {
       // user has channel selected
       featureString =
@@ -275,14 +282,17 @@ const OdyseeMembershipPage = (props: Props) => {
       }
     );
 
-    let purchaseString =
-      priceDisplayString +
-      __(featureString) +
-      __(
-        'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
-      );
+    let purchaseString = (
+      <>
+        {priceDisplayString}
+        {featureString}
+        {__(
+          'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
+        )}
+      </>
+    );
 
-    return __(purchaseString);
+    return purchaseString;
   }
 
   const purchaseMembership = function (e, membershipOption, price) {
@@ -573,24 +583,30 @@ const OdyseeMembershipPage = (props: Props) => {
                               {__(getPlanDescription(membership.MembershipDetails.name, 'active'))}
                             </h4>
 
+                            {/* registered on */}
                             <h4 className="membership_info">
                               <b>{__('Registered On:')}</b> {formatDate(membership.Membership.created_at)}
                             </h4>
+
+                            {/* autorenews at */}
                             <h4 className="membership_info">
                               <b>{__('Auto-Renews On')}:</b>{' '}
                               {formatDate(membership.Subscription.current_period_end * 1000)}
                             </h4>
+
                             {!stillWaitingFromBackend && membership.type === 'yearly' && (
                               <>
                                 <h4 className="membership_info">
                                   <b>{__('Membership Period Options:')}</b> {__('Yearly')}
                                 </h4>
+                                {/* TODO: this looks wrong, should support EUR as well */}
                                 <h4 className="membership_info">
                                   ${(membership.cost_usd * 12) / 100} {__('USD For A One Year Membership')} ($
                                   {membership.cost_usd / 100} {__('Per Month')})
                                 </h4>
                               </>
                             )}
+                            {/* cancel membership button */}
                             <Button
                               button="alt"
                               membership-id={membership.Membership.membership_id}
