@@ -278,7 +278,7 @@ const OdyseeMembershipPage = (props: Props) => {
     }
 
     const priceDisplayString = __(
-      'You are purchasing a %displayInterval% Credit Tip membership, ' +
+      'You are purchasing a %displayInterval% %plan% membership, ' +
         'that is active immediately and will renew %displayInterval% at a price of %displayCurrency% %currencySymbol%' +
         price / 100 +
         '. ',
@@ -286,6 +286,7 @@ const OdyseeMembershipPage = (props: Props) => {
         displayInterval: interval + 'ly',
         displayCurrency: currencyToUse.toUpperCase(),
         currencySymbol: currencyToUse === 'usd' ? '$' : '€',
+        plan,
       }
     );
 
