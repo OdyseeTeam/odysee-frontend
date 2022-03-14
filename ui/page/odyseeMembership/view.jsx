@@ -244,10 +244,17 @@ const OdyseeMembershipPage = (props: Props) => {
       );
     } else if (plan === 'Premium+' && !noChannelsOrIncognitoMode) {
       // user has channel selected
-      featureString =
-        'The no ads feature applies site-wide for all channels and your badge will be shown for your ' +
-        userChannelName +
-        ' channel in all areas of the app, and can be added to two additional channels in the future for free. ';
+      featureString = (
+        <I18nMessage
+          tokens={{
+            user_channel_name: <b className="membership-bolded">{userChannelName}</b>,
+          }}
+        >
+          The no ads feature applies site-wide for all channels and your badge will be shown for your
+          %user_channel_name% channel in all areas of the app, and can be added to two additional channels in the future
+          for free.
+        </I18nMessage>
+      );
     } else if (plan === 'Premium' && !channels) {
       // user has no channels
       featureString =
@@ -287,7 +294,7 @@ const OdyseeMembershipPage = (props: Props) => {
         {priceDisplayString}
         {featureString}
         {__(
-          'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
+          ' You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
         )}
       </>
     );
