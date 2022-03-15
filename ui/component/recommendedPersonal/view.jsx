@@ -7,7 +7,7 @@ import ClaimList from 'component/claimList';
 import { URL, SHARE_DOMAIN_URL } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsLargeScreen, useIsMediumScreen } from 'effects/use-screensize';
 
 // TODO: recsysFyp will be moved into 'RecSys', so the redux import in a jsx
 // violation is just temporary.
@@ -42,8 +42,8 @@ const SectionHeader = ({ title, icon = '', help }: SectionHeaderProps) => {
 
 const VIEW = { ALL_VISIBLE: 0, COLLAPSED: 1, EXPANDED: 2 };
 
-function getSuitablePageSizeForScreen(defaultSize, isLargeScreen) {
-  return isLargeScreen ? defaultSize * (3 / 2) : defaultSize;
+function getSuitablePageSizeForScreen(defaultSize, isLargeScreen, isMediumScreen) {
+  return isMediumScreen ? 6 : isLargeScreen ? Math.ceil(defaultSize * (3 / 2)) : defaultSize;
 }
 
 type Props = {
@@ -60,9 +60,10 @@ export default function RecommendedPersonal(props: Props) {
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
   const isLargeScreen = useIsLargeScreen();
+  const isMediumScreen = useIsMediumScreen();
 
   const count = personalRecommendations.uris.length;
-  const countCollapsed = getSuitablePageSizeForScreen(8, isLargeScreen);
+  const countCollapsed = getSuitablePageSizeForScreen(8, isLargeScreen, isMediumScreen);
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : count;
 
   React.useEffect(() => {
