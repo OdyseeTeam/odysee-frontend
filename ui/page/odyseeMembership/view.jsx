@@ -426,15 +426,16 @@ const OdyseeMembershipPage = (props: Props) => {
         <ul>
           <li>
             {__(
-              `Early access and exclusive features include: livestreaming and the ability to post odysee hyperlinks and images in comments + blogs. More to come later.`
+              `Early access and exclusive features include: livestreaming and the ability to post odysee hyperlinks and images in comments + blogs. Account is also automatically eligible for Rewards. More to come later.`
             )}
-            <li>
-              {__(
-                `The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.`
-              )}
-            </li>
-            <li>{__(`These are limited time rates, so get in early!`)}</li>
           </li>
+          <li>
+            {__(
+              `The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.`
+            )}
+          </li>
+          <li>{__(`These are limited time rates, so get in early!`)}</li>
+
           <li>
             {__(
               `There may be higher tiers available in the future for creators and anyone else who wants to support us.`
