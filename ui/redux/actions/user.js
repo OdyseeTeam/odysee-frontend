@@ -874,6 +874,7 @@ export function doFetchUserMemberships(claimIdCsv) {
     const response = await Lbryio.call('membership', 'check', {
       channel_id: ODYSEE_CHANNEL_ID,
       claim_ids: claimIdCsv,
+      environment: stripeEnvironment,
     });
 
     let updatedResponse = {};
