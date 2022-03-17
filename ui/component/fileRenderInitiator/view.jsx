@@ -73,7 +73,8 @@ export default function FileRenderInitiator(props: Props) {
 
   const layountRendered = React.useContext(LayoutRenderContext);
 
-  const isMobile = useIsMobile();
+  // const isMobile = useIsMobile();
+  const isMobile = true;
 
   const containerRef = React.useRef<any>();
   const [thumbnail, setThumbnail] = React.useState(FileRenderPlaceholder);

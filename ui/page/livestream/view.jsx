@@ -14,7 +14,7 @@ import Page from 'component/page';
 import React from 'react';
 
 const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
-const LIVESTREAM_STATUS_CHECK_INTERVAL = 30000;
+// const LIVESTREAM_STATUS_CHECK_INTERVAL = 30000;
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -53,7 +53,7 @@ export default function LivestreamPage(props: Props) {
   const [showLivestream, setShowLivestream] = React.useState(false);
   const [showScheduledInfo, setShowScheduledInfo] = React.useState(false);
   const [hideComments, setHideComments] = React.useState(false);
-  const [layountRendered, setLayountRendered] = React.useState(chatDisabled || isMobile);
+  const [layountRendered, setLayountRendered] = React.useState(chatDisabled || true);
 
   const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
