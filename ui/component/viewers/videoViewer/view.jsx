@@ -375,13 +375,18 @@ function VideoViewer(props: Props) {
             // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
           }
 
-          centerPlayButton();
+          // centerPlayButton();
 
           // to turn muted autoplay on
-          // if (player.autoplay() && !player.muted()) {
-            // player.muted(true);
-            // player.play();
-          // }
+          if (player.autoplay() && !player.muted()) {
+            (async function(){
+              player.muted(true);
+              player.play();
+              console.log('running here!');
+              document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
+              document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+            })()
+          }
         }
         setIsPlaying(false);
       });

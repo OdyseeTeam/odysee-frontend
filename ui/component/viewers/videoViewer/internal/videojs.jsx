@@ -245,7 +245,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   };
 
   // Initialize video.js
-  function initializeVideoPlayer(el, canAutoplayVideo) {
+  function initializeVideoPlayer(el, canAutoplayVideo, player) {
+    if(player) return player;
     if (!el) return;
 
     const vjs = videojs(el, videoJsOptions, async () => {
@@ -345,23 +346,32 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function () {
-      // test if perms to play video are available
-      let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
+      let vjsPlayer;
+      if (1 == 1) {
+        console.log('need to instantiate!');
 
-      canAutoplayVideo = canAutoplayVideo.result === true;
+        // test if perms to play video are available
+        let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
 
-      const vjsElement = createVideoPlayerDOM(containerRef.current);
+        canAutoplayVideo = canAutoplayVideo.result === true;
 
-      // Initialize Video.js
-      const vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
+        const vjsElement = createVideoPlayerDOM(containerRef.current);
 
-      // Add reference to player to global scope
-      window.player = vjsPlayer;
+        // Initialize Video.js
+        vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo, window.player);
 
-      // Set reference in component state
-      playerRef.current = vjsPlayer;
+        // Add reference to player to global scope
+        window.player = vjsPlayer;
 
-      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+        // Set reference in component state
+        playerRef.current = vjsPlayer;
+
+        window.addEventListener('keydown', curried_function(playerRef, containerRef));
+      } else {
+        console.log('already have!');
+        vjsPlayer = window.player;
+        console.log(vjsPlayer);
+      }
 
       // $FlowFixMe
       const controlBar = document.querySelector('.vjs-control-bar');
@@ -408,6 +418,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         playerServerRef.current = response.headers.get('x-powered-by');
 
         if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+          console.log('response');
+          console.log(response.url);
+
           // use m3u8 source
           // $FlowFixMe
           vjsPlayer.src({
@@ -415,6 +428,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             src: response.url,
           });
         } else {
+          console.log(sourceType);
+          console.log(source);
+
           // use original mp4 source
           // $FlowFixMe
           vjsPlayer.src({
@@ -427,6 +443,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // load video once source setup
       // $FlowFixMe
       vjsPlayer.load();
+
+      if (window.oldSavedDiv) {
+        document.querySelector('.video-js-parent').replaceWith(window.oldSavedDiv);
+      }
 
       // fix invisible vidcrunch overlay on IOS
       if (IS_IOS) {
@@ -455,24 +475,32 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         }
       }
 
-      if (!canAutoplayVideo && IS_IOS) {
-        document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle')
-      }
+      // if (!canAutoplayVideo && IS_IOS) {
+      //   // document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle')
+      // }
     })();
 
     // Cleanup
     return () => {
       window.removeEventListener('keydown', curried_function);
 
-      const player = playerRef.current;
-      if (player) {
-        try {
-          window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
-        } catch {}
+      window.player.pause();
 
-        player.dispose();
-        window.player = undefined;
-      }
+      window.oldSavedDiv = document.querySelector('.video-js-parent');
+
+      // const player = playerRef.current;
+      //
+      // window.player = player;
+      // if (player) {
+      //   try {
+      //     window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
+      //   } catch {}
+      //
+      //   player.pause();
+
+        // player.dispose();
+        // window.player = undefined;
+      // }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
 
