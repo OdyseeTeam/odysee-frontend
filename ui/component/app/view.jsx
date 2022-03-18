@@ -388,7 +388,7 @@ function App(props: Props) {
       }
     }
 
-    if (inIframe() || !locale || !locale.gdpr_required) {
+    if (inIframe() || !locale || !locale.gdpr_required || window.cordova) {
       return;
     }
 

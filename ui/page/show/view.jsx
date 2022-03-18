@@ -19,7 +19,7 @@ const AbandonedChannelPreview = lazyImport(() =>
 );
 const FilePage = lazyImport(() => import('page/file' /* webpackChunkName: "filePage" */));
 const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = false;
 
 type Props = {
   isResolvingUri: boolean,

@@ -3,7 +3,7 @@
 import React from 'react';
 import { SITE_HELP_EMAIL } from 'config';
 import Button from 'component/button';
-import { killStream } from 'livestream';
+import { killStream } from 'util/livestream';
 import watchLivestreamStatus from '$web/src/livestreaming/long-polling';
 import 'scss/component/claim-preview-reset.scss';
 

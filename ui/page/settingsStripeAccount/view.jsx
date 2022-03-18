@@ -10,7 +10,7 @@ import { Lbryio } from 'lbryinc';
 import { URL, WEBPACK_WEB_PORT } from 'config';
 import { getStripeEnvironment } from 'util/stripe';
 
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = false;
 
 let stripeEnvironment = getStripeEnvironment();
 let successStripeRedirectUrl, failureStripeRedirectUrl;
@@ -282,26 +282,28 @@ class StripeAccountConnection extends React.Component<Props, State> {
             </div>
           }
           // only show additional buttons if its for additional verification or to show transaction page
-          actions={(stillRequiringVerification || accountConfirmed) &&
-            <>
-              {stillRequiringVerification && (
-                <Button
-                  button="primary"
-                  label={__('Complete Verification')}
-                  icon={ICONS.SETTINGS}
-                  navigate={stripeConnectionUrl}
-                  className="stripe__complete-verification-button"
-                />
-              )}
-              {accountConfirmed && (
-                <Button
-                  button="secondary"
-                  label={__('View Transactions')}
-                  icon={ICONS.SETTINGS}
-                  navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
-                />
-              )}
-            </>
+          actions={
+            (stillRequiringVerification || accountConfirmed) && (
+              <>
+                {stillRequiringVerification && (
+                  <Button
+                    button="primary"
+                    label={__('Complete Verification')}
+                    icon={ICONS.SETTINGS}
+                    navigate={stripeConnectionUrl}
+                    className="stripe__complete-verification-button"
+                  />
+                )}
+                {accountConfirmed && (
+                  <Button
+                    button="secondary"
+                    label={__('View Transactions')}
+                    icon={ICONS.SETTINGS}
+                    navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
+                  />
+                )}
+              </>
+            )
           }
         />
         <br />
