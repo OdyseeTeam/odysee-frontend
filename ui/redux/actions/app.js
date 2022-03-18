@@ -566,6 +566,7 @@ export function doSignOut() {
     } finally {
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
+
         .then(() => {
           // @if TARGET='web'
           window.persistor.purge();
