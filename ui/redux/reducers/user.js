@@ -1,8 +1,9 @@
+// @flow
 import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
-const defaultState = {
+const defaultState: UserState = {
   authenticationIsPending: false,
   userIsPending: false,
   emailNewIsPending: false,
@@ -29,6 +30,8 @@ const defaultState = {
   youtubeChannelImportErrorMessage: '',
   referrerSetIsPending: false,
   referrerSetError: '',
+  odyseeMembershipsPerClaimIds: undefined,
+  locale: undefined,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
@@ -363,6 +366,11 @@ reducers[ACTIONS.USER_PASSWORD_SET_FAILURE] = (state, action) =>
     passwordSetError: action.data.error,
   });
 
+reducers[ACTIONS.USER_FETCH_LOCALE_DONE] = (state, action) =>
+  Object.assign({}, state, {
+    locale: action.data,
+  });
+
 reducers[ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
   return Object.assign({}, state, {
     odyseeMembershipName: action.data.odyseeMembershipName,
@@ -385,7 +393,7 @@ reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
   });
 };
 
-export default function userReducer(state = defaultState, action) {
+export default function userReducer(state: UserState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
