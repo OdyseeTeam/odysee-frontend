@@ -267,7 +267,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.reloadSourceOnError({ errorInterval: 10 });
 
       // Initialize mobile UI.
-      player.mobileUi();
+      player.mobileUi({
+        fullscreen: {
+          enterOnRotate: false,
+        },
+      });
 
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
