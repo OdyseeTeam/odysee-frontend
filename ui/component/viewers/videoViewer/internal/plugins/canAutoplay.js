@@ -2073,13 +2073,15 @@ $jscomp.polyfill(
     audio: function (b) {
       b = a(b);
       return c(b, function () {
-        return { element: document.createElement('audio'), source: URL.createObjectURL(e) };
+        //return { element: document.createElement('audio'), source: URL.createObjectURL(e) };
+        return { element: document.createElement('audio'), source: e };
       });
     },
     video: function (b) {
       b = a(b);
       return c(b, function () {
-        return { element: document.createElement('video'), source: URL.createObjectURL(f) };
+        // return { element: document.createElement('video'), source: URL.createObjectURL(f) };
+        return { element: document.createElement('video'), source: f };
       });
     },
   };

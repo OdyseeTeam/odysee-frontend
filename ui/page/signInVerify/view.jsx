@@ -65,14 +65,14 @@ function SignInVerifyPage(props: Props) {
   }, [needsRecaptcha, captchaLoaded]);
 
   function onCaptchaChange(value) {
-    verifyUser(value);
+    verifyUser(value, true);
   }
 
   function onCaptchaReady() {
     setCaptchaLoaded(true);
   }
 
-  function verifyUser(captchaValue) {
+  function verifyUser(captchaValue, signup) {
     Lbryio.call('user_email', 'confirm', {
       auth_token: authToken,
       email: userSubmittedEmail,
@@ -80,7 +80,13 @@ function SignInVerifyPage(props: Props) {
       ...(captchaValue ? { recaptcha: captchaValue } : {}),
     })
       .then(() => {
-        setIsAuthenticationSuccess(true);
+        if (signup) {
+          window.odysee.functions.history.push('/$/signup');
+        } else {
+          //setIsAuthenticationSuccess(true);
+          window.location.reload();
+          window.odysee.functions.history.push('/');
+        }
       })
       .catch(() => {
         onAuthError(__('Invalid captcha response or other authentication error.'));

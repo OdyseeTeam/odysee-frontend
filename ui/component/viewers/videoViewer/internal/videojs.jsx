@@ -3,7 +3,7 @@ import 'videojs-contrib-ads'; // must be loaded in this order
 import 'videojs-ima'; // loads directly after contrib-ads
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
-import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+import '@neko/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import * as ICONS from 'constants/icons';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
@@ -26,7 +26,7 @@ import { useIsMobile } from 'effects/use-screensize';
 
 const canAutoplay = require('./plugins/canAutoplay');
 
-require('@silvermine/videojs-chromecast')(videojs);
+require('@neko/videojs-chromecast')(videojs);
 
 export type Player = {
   controlBar: { addChild: (string, any) => void },
@@ -368,6 +368,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             return options;
           };
           // @endif
+        } else {
+          videojs.Vhs.xhr.beforeRequest = (options) => {
+            if (!options.headers) options.headers = {};
+            options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
+            options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
+            window.odysee.chromecast.setBlob(options.uri);
+          };
         }
 
         // const newPoster = livestreamData.ThumbnailURL;
@@ -392,6 +399,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.removeClass('livestreamPlayer');
         videojs.Vhs.xhr.beforeRequest = (options) => {};
 
+        if (window.cordova) window.odysee.chromecast.setBlob(source);
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 

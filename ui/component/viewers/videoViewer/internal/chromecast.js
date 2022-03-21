@@ -9,8 +9,10 @@ export default class Chromecast {
    */
   static initialize(player: any) {
     // --- Start plugin ---
-    player.chromecast();
+    // player.chromecast();
+    // window.odysee.chromecast.createChromecastButton()
     // --- Init cast framework ---
+    /*
     const CHROMECAST_API_SCRIPT_ID = 'chromecastApi';
     const existingChromecastScript = document.getElementById(CHROMECAST_API_SCRIPT_ID);
     if (!existingChromecastScript) {
@@ -20,5 +22,6 @@ export default class Chromecast {
       // $FlowFixMe
       document.body.appendChild(script);
     }
+    */
   }
 }
