@@ -43,6 +43,7 @@ type Props = {
   doCommentSocketConnect: (string, string, string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doFetchActiveLivestreams: () => void,
+  setReferrer: (uri: string) => void,
 };
 
 export const EmbedContext = React.createContext<any>();
@@ -77,6 +78,7 @@ export default function EmbedWrapperPage(props: Props) {
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doFetchActiveLivestreams,
+    setReferrer,
   } = props;
 
   const {
@@ -106,6 +108,10 @@ export default function EmbedWrapperPage(props: Props) {
     );
 
   const thumbnail = useThumbnail(claimThumbnail, containerRef);
+
+  React.useEffect(() => {
+    setReferrer(uri);
+  }, [setReferrer, uri]);
 
   React.useEffect(() => {
     if (doFetchActiveLivestreams && isLivestreamClaim) {
