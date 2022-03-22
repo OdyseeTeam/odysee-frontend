@@ -90,6 +90,8 @@ export default function EmbedWrapperPage(props: Props) {
 
   const channelUrl = channelUri && formatLbryChannelName(channelUri);
   const urlParams = new URLSearchParams(search);
+  const rawReferrerParam = urlParams.get('r');
+  const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
   const embedLightBackground = urlParams.get('embedBackgroundLight');
   const readyToDisplay = isCurrentClaimLive || (haveClaim && streamingUrl);
   const isLiveClaimFetching = isLivestreamClaim && !activeLivestreamInitialized;
@@ -110,8 +112,8 @@ export default function EmbedWrapperPage(props: Props) {
   const thumbnail = useThumbnail(claimThumbnail, containerRef);
 
   React.useEffect(() => {
-    setReferrer(uri);
-  }, [setReferrer, uri]);
+    if (!sanitizedReferrerParam) setReferrer(uri);
+  }, [sanitizedReferrerParam, setReferrer, uri]);
 
   React.useEffect(() => {
     if (doFetchActiveLivestreams && isLivestreamClaim) {
