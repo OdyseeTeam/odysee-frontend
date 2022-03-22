@@ -9,7 +9,7 @@ import * as ACTIONS from 'constants/action_types';
 import { doFetchGeoBlockedList } from 'redux/actions/blocked';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
 import { selectEmailToVerify, selectPhoneToVerify, selectUserCountryCode, selectUser } from 'redux/selectors/user';
-import { selectHasUnclaimedRefereeReward, selectIsRewardApproved } from 'redux/selectors/rewards';
+import { selectIsRewardApproved } from 'redux/selectors/rewards';
 import { doToast } from 'redux/actions/notifications';
 import rewards from 'rewards';
 import { Lbryio } from 'lbryinc';
@@ -722,36 +722,32 @@ export function doUserSetReferrerReset() {
 export function doUserSetReferrerWithUri(uri) {
   return async (dispatch, getState) => {
     const state = getState();
-    const referredRewardAvailable = selectHasUnclaimedRefereeReward(state);
-    const isRewardApproved = selectIsRewardApproved(state);
+    let claim = selectClaimForUri(state, uri);
 
-    if (referredRewardAvailable && isRewardApproved) {
-      let claim = selectClaimForUri(state, uri);
-
-      let referrerCode;
-      if (!claim) {
-        try {
-          const response = await Lbry.resolve({ urls: [uri] });
-          if (response && response[uri] && !response[uri].error) claim = response && response[uri];
-          if (claim) {
-            if (claim.signing_channel) {
-              referrerCode = claim.signing_channel.permanent_url.replace('lbry://', '');
-            } else {
-              referrerCode = claim.permanent_url.replace('lbry://', '');
-            }
-            dispatch(doUserSetReferrer(referrerCode, isRewardApproved));
+    let referrerCode;
+    if (!claim) {
+      try {
+        const response = await Lbry.resolve({ urls: [uri] });
+        if (response && response[uri] && !response[uri].error) claim = response && response[uri];
+        if (claim) {
+          if (claim.signing_channel) {
+            referrerCode = claim.signing_channel.permanent_url.replace('lbry://', '');
+          } else {
+            referrerCode = claim.permanent_url.replace('lbry://', '');
           }
-        } catch (error) {
-          dispatch({
-            type: ACTIONS.USER_SET_REFERRER_FAILURE,
-            data: { error },
-          });
+          const isRewardApproved = selectIsRewardApproved(state);
+          dispatch(doUserSetReferrer(referrerCode, isRewardApproved));
         }
-      } else {
-        referrerCode = claim.permanent_url.replace('lbry://', '');
-        const isRewardApproved = selectIsRewardApproved(state);
-        dispatch(doUserSetReferrer(referrerCode, isRewardApproved));
+      } catch (error) {
+        dispatch({
+          type: ACTIONS.USER_SET_REFERRER_FAILURE,
+          data: { error },
+        });
       }
+    } else {
+      referrerCode = claim.permanent_url.replace('lbry://', '');
+      const isRewardApproved = selectIsRewardApproved(state);
+      dispatch(doUserSetReferrer(referrerCode, isRewardApproved));
     }
   };
 }
