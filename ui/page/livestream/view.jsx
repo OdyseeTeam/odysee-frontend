@@ -27,7 +27,7 @@ type Props = {
   doUserSetReferrer: (string) => void,
 };
 
-export const LayoutRenderContext = React.createContext<any>();
+export const LivestreamContext = React.createContext<any>();
 
 export default function LivestreamPage(props: Props) {
   const {
@@ -176,7 +176,7 @@ export default function LivestreamPage(props: Props) {
       }
     >
       {isInitialized && (
-        <LayoutRenderContext.Provider value={layountRendered}>
+        <LivestreamContext.Provider value={{ livestreamPage: true, layountRendered }}>
           <LivestreamLayout
             uri={uri}
             hideComments={hideComments}
@@ -186,7 +186,7 @@ export default function LivestreamPage(props: Props) {
             showScheduledInfo={showScheduledInfo}
             activeStreamUri={activeStreamUri}
           />
-        </LayoutRenderContext.Provider>
+        </LivestreamContext.Provider>
       )}
     </Page>
   );

@@ -53,7 +53,6 @@ type Props = {
   showNoSourceClaims?: boolean,
   onClick?: (e: any, claim?: ?Claim, index?: number) => void,
   maxClaimRender?: number,
-  excludeUris?: Array<string>,
   loadedCallback?: (number) => void,
   swipeLayout: boolean,
   showEdit?: boolean,
@@ -93,7 +92,6 @@ export default function ClaimList(props: Props) {
     showNoSourceClaims,
     onClick,
     maxClaimRender,
-    excludeUris = [],
     loadedCallback,
     swipeLayout = false,
     showEdit,
@@ -114,14 +112,14 @@ export default function ClaimList(props: Props) {
   const urisLength = (uris && uris.length) || 0;
 
   let tileUris = (prefixUris || []).concat(uris || []);
-  tileUris = tileUris.filter((uri) => !excludeUris.includes(uri));
+
   if (prefixUris && prefixUris.length) tileUris.splice(prefixUris.length * -1, prefixUris.length);
 
   const totalLength = tileUris.length;
 
   if (maxClaimRender) tileUris = tileUris.slice(0, maxClaimRender);
 
-  let sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
+  const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
 
   React.useEffect(() => {
     if (typeof loadedCallback === 'function') loadedCallback(totalLength);

@@ -10,7 +10,7 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import Button from 'component/button';
 import Nag from 'component/common/nag';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { LayoutRenderContext } from 'page/livestream/view';
+import { LivestreamContext } from 'page/livestream/view';
 import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';
@@ -70,7 +70,7 @@ export default function FileRenderInitiator(props: Props) {
     doFetchChannelLiveStatus,
   } = props;
 
-  const layountRendered = React.useContext(LayoutRenderContext);
+  const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
 
   // const isMobile = useIsMobile();
   const isMobile = true;
@@ -104,7 +104,7 @@ export default function FileRenderInitiator(props: Props) {
     history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(pathname)}`);
   }
 
-  useFetchLiveStatus(channelClaimId, doFetchChannelLiveStatus);
+  useFetchLiveStatus(livestreamPage ? undefined : channelClaimId, doFetchChannelLiveStatus);
 
   const thumbnail = useThumbnail(claimThumbnail, containerRef);
 

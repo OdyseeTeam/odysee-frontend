@@ -16,6 +16,7 @@ import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import FileRenderFloating from 'component/fileRenderFloating';
 import { withRouter } from 'react-router';
+import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/common/nag';
 import REWARDS from 'rewards';
@@ -86,11 +87,13 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
   subscriptions: Array<Subscription>,
+  hasPremiumPlus: ?boolean,
   setActiveChannelIfNotSet: () => void,
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
   resolveUris: (Array<string>) => void,
   fetchModAmIList: () => void,
+  homepageFetched: boolean,
 };
 
 function App(props: Props) {
@@ -125,7 +128,9 @@ function App(props: Props) {
     fetchModBlockedList,
     resolveUris,
     subscriptions,
+    hasPremiumPlus,
     fetchModAmIList,
+    homepageFetched,
   } = props;
 
   const isMobile = useIsMobile();
@@ -138,6 +143,7 @@ function App(props: Props) {
   const previousRewardApproved = usePrevious(isRewardApproved);
 
   const [localeLangs, setLocaleLangs] = React.useState();
+  const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
   const [showAnalyticsNag, setShowAnalyticsNag] = usePersistedState('analytics-nag', true);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
 
@@ -156,7 +162,8 @@ function App(props: Props) {
   const rawReferrerParam = urlParams.get('r');
   const fromLbrytvParam = urlParams.get('sunset');
   const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
-  const shouldHideNag = pathname.startsWith(`/$/${PAGES.EMBED}`) || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
+  const embedPath = pathname.startsWith(`/$/${PAGES.EMBED}`);
+  const shouldHideNag = embedPath || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
   const userId = user && user.id;
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
@@ -219,9 +226,9 @@ function App(props: Props) {
       );
     }
 
-    if (localeLangs) {
+    if (localeLangs && !embedPath && !localeSwitchDismissed && homepageFetched) {
       const noLanguageSet = language === 'en' && languages.length === 1;
-      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} />;
+      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} onFrontPage={pathname === '/'} />;
     }
   }
 
@@ -479,6 +486,8 @@ function App(props: Props) {
   }, [sidebarOpen, isPersonalized, resolvedSubscriptions, subscriptions, resolveUris, setResolvedSubscriptions]);
 
   useDegradedPerformance(setLbryTvApiStatus, user);
+  // hiding ads for now
+  useAdOutbrain(Boolean(hasPremiumPlus), true);
 
   useEffect(() => {
     // When language is changed or translations are fetched, we render.

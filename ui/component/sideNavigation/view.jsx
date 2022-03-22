@@ -4,7 +4,7 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Button from 'component/button';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
 import classnames from 'classnames';
@@ -61,6 +61,20 @@ const NOTIFICATIONS = {
   link: `/$/${PAGES.NOTIFICATIONS}`,
   icon: ICONS.NOTIFICATION,
   extra: <NotificationBubble inline />,
+  hideForUnauth: true,
+};
+
+const WATCH_LATER = {
+  title: 'Watch Later',
+  link: `/$/${PAGES.LIST}/watchlater`,
+  icon: ICONS.TIME,
+  hideForUnauth: true,
+};
+
+const FAVORITES = {
+  title: 'Favorites',
+  link: `/$/${PAGES.LIST}/favorites`,
+  icon: ICONS.STAR,
   hideForUnauth: true,
 };
 
@@ -421,7 +435,7 @@ function SideNavigation(props: Props) {
     return () => window.removeEventListener('keydown', handleKeydown);
   }, [sidebarOpen, setSidebarOpen, isAbsolute]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!window.Optanon) {
       const gdprDiv = document.getElementById('gdprSidebarLink');
       if (gdprDiv) {
@@ -454,16 +468,19 @@ function SideNavigation(props: Props) {
   const helpLinks = (
     <ul className="navigation__tertiary navigation-links--small">
       <li className="navigation-link">
-        <Button label={__('FAQ and Support')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b') } />
+        <Button label={__('FAQ and Support')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b')} />
       </li>
       <li className="navigation-link">
-        <Button label={__('Community Guidelines')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c') } />
+        <Button
+          label={__('Community Guidelines')}
+          onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c')}
+        />
       </li>
       <li className="navigation-link">
-        <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos') } />
+        <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos')} />
       </li>
       <li className="navigation-link">
-        <Button label={__('Privacy Policy')} onClick={() => window.odysee.functions.history.push('/$/privacypolicy') } />
+        <Button label={__('Privacy Policy')} onClick={() => window.odysee.functions.history.push('/$/privacypolicy')} />
       </li>
       <li className="navigation-link" id="gdprSidebarLink">
         <Button label={__('Cookie Settings')} onClick={() => window.Optanon && window.Optanon.ToggleInfoDisplay()} />
@@ -502,8 +519,18 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
-              {getLink(PLAYLISTS)}
               {!odyseeMembership && getLink(PREMIUM)}
+            </ul>
+
+            <ul
+              className={classnames('navigation-links', {
+                'navigation-links--micro': showMicroMenu,
+                'navigation-links--absolute': shouldRenderLargeMenu,
+              })}
+            >
+              {!showMicroMenu && getLink(WATCH_LATER)}
+              {!showMicroMenu && getLink(FAVORITES)}
+              {getLink(PLAYLISTS)}
             </ul>
 
             <ul
@@ -514,7 +541,7 @@ function SideNavigation(props: Props) {
             >
               {EXTRA_SIDEBAR_LINKS && (
                 <>
-                  {/* $FlowFixMe -- GetLinksData should fix it's data type */}
+                  {/* $FlowFixMe: GetLinksData type needs an update */}
                   {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
                   {!wildWestDisabled && getLink(WILD_WEST)}
                 </>
@@ -546,7 +573,7 @@ function SideNavigation(props: Props) {
 type SubItemProps = {
   subscription: Subscription,
   odyseeMembershipByUri: (uri: string) => string,
-}
+};
 
 function SubscriptionListItem(props: SubItemProps) {
   const { subscription, odyseeMembershipByUri } = props;
