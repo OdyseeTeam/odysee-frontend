@@ -23,6 +23,9 @@ let stripeEnvironment = getStripeEnvironment();
 // const isDev = process.env.NODE_ENV !== 'production';
 const isDev = false;
 
+let log = function (input) {};
+if (isDev) log = console.log;
+
 // odysee channel information since the memberships are only for Odysee
 const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 const odyseeChannelName = '@odysee';
@@ -93,6 +96,9 @@ const OdyseeMembershipPage = (props: Props) => {
         'post'
       );
 
+      log('mine response');
+      log(response);
+
       let activeMemberships = [];
       let canceledMemberships = [];
       let purchasedMemberships = [];
@@ -147,6 +153,9 @@ const OdyseeMembershipPage = (props: Props) => {
           'post'
         );
 
+        log('customer/status response');
+        log(response);
+
         // hardcoded to first card
         const hasAPaymentCard = Boolean(response && response.PaymentMethods && response.PaymentMethods[0]);
 
@@ -173,6 +182,9 @@ const OdyseeMembershipPage = (props: Props) => {
           },
           'post'
         );
+
+        log('membership/list response');
+        log(response);
 
         // hide other options if there's already a membership
         if (activeMemberships && activeMemberships.length > 0) {
@@ -416,7 +428,7 @@ const OdyseeMembershipPage = (props: Props) => {
         <ul>
           <li>
             {__(
-              'Exclusive and early access features include: recommended content on homepage, livestreaming, and the ability to post odysee hyperlinks + images in comments. Account is also automatically eligible for Rewards. More to come later.'
+              'Exclusive and early access features include: recommended content on homepage, livestreaming, and the ability to post Odysee hyperlinks + images in comments. Account is also automatically eligible for Rewards. More to come later.'
             )}
           </li>
           <li>

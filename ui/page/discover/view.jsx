@@ -1,9 +1,10 @@
 // @flow
+import React, { useRef } from 'react';
+import classnames from 'classnames';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
-import React, { useRef } from 'react';
 import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
@@ -13,7 +14,6 @@ import analytics from 'analytics';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
 // import Ads, { injectAd } from 'web/component/ads';
-import Ads from 'web/component/ads';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
@@ -25,6 +25,7 @@ type Props = {
   followedTags: Array<Tag>,
   repostedUri: string,
   repostedClaim: ?GenericClaim,
+  hideRepostRibbon?: boolean,
   languageSetting: string,
   searchInLanguage: boolean,
   doToggleTagFollowDesktop: (string) => void,
@@ -40,6 +41,7 @@ function DiscoverPage(props: Props) {
     followedTags,
     repostedClaim,
     repostedUri,
+    hideRepostRibbon,
     languageSetting,
     searchInLanguage,
     doToggleTagFollowDesktop,
@@ -187,8 +189,11 @@ function DiscoverPage(props: Props) {
   */
 
   return (
-    <Page noFooter fullWidthPage={tileLayout} className="main__discover">
-      {false && (<Ads type="homepage" />)}
+    <Page
+      noFooter
+      fullWidthPage={tileLayout}
+      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
+    >
       <ClaimListDiscover
         pins={getPins(dynamicRouteProps)}
         hideFilters={SIMPLE_SITE ? !(dynamicRouteProps || tags) : undefined}

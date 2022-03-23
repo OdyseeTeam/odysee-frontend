@@ -45,7 +45,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   } = props;
 
   const claimId: ?string = claim && claim.claim_id;
-  const injectAds = SHOW_ADS && IS_WEB && !userHasPremiumPlus;
+  const injectAds = false && SHOW_ADS && IS_WEB && !userHasPremiumPlus;
 
   function claimContainsBlockedWords(claim: ?StreamClaim) {
     if (BLOCKED_WORDS) {
@@ -159,7 +159,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               hideMenu={isMobile}
               // TODO: Since 'triggerBlacklist' is handled by clients of <Ads> instead of internally by <Ads>, we don't
               // need that parameter and can just not mount it when 'true', instead of mount-then-hide.
-              // injectedItem={injectAds && <Ads small type={'video'} triggerBlacklist={triggerBlacklist} />}
+              injectedItem={InjectedAd}
               empty={__('No related content found')}
               onClick={handleRecommendationClicked}
             />
@@ -178,7 +178,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
               channelIds={[signingChannel.claim_id]}
               loading={isSearching}
               hideMenu={isMobile}
-              injectedItem={SHOW_ADS && IS_WEB && !isAuthenticated && <Ads small type={'video'} />}
+              injectedItem={InjectedAd}
               empty={__('No related content found')}
             />
           )}
