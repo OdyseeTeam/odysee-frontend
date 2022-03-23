@@ -177,6 +177,11 @@
           width: 26px !important;
           height: 20px !important;
         }
+
+        &::after {
+          left: calc(50% - 7px) !important;
+          width: 14px !important;
+        }
       }
     }
   }

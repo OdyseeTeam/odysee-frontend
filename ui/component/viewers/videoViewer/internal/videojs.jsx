@@ -14,7 +14,7 @@ import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-keyboard-shortcuts';
 import LbryVolumeBarClass from './lbry-volume-bar';
-import Chromecast from './chromecast';
+// import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
@@ -26,7 +26,7 @@ import { useIsMobile } from 'effects/use-screensize';
 
 const canAutoplay = require('./plugins/canAutoplay');
 
-require('@neko/videojs-chromecast')(videojs);
+// require('@neko/videojs-chromecast')(videojs);
 
 export type Player = {
   controlBar: { addChild: (string, any) => void },
@@ -231,11 +231,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       durationDisplay: !isLivestreamClaim,
       remainingTimeDisplay: !isLivestreamClaim,
     },
-    techOrder: ['chromecast', 'html5'],
-    chromecast: {
-      requestTitleFn: (src) => title || '',
-      requestSubtitleFn: (src) => channelName || '',
-    },
+    techOrder: ['html5'],
     bigPlayButton: embedded, // only show big play button if embedded
     liveui: true,
     suppressNotSupportedError: true,
@@ -269,7 +265,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
         const bigPlayButton = document.querySelector('.vjs-big-play-button');
-        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
+        // if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
       }
 
       // Add quality selector to player
@@ -290,10 +286,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
-        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
+        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
         // $FlowFixMe
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
 
       // I think this is a callback function
@@ -310,8 +306,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         }
         window.player.userActive(true);
       }
-
-      Chromecast.initialize(player);
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
