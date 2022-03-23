@@ -107,12 +107,13 @@ function HomePage(props: Props) {
         hasSource
         prefixUris={getLivestreamUris(activeLivestreams, options.channelIds)}
         pinUrls={pinUrls}
+        /*
         injectedItem={
           index === 0 && {
             node: <Ads small type="video" tileLayout />,
             replace: adBlockerFound === false,
           }
-        }
+        }*/
       />
     );
 

@@ -174,7 +174,7 @@ export function doPlayUri(
   hideFailModal: boolean = false
 ) {
   return (dispatch: Dispatch, getState: () => any) => {
-    window.odysee.chromecast.initializePlay(uri);
+    // window.odysee.chromecast.initializePlay(uri);
 
     const state = getState();
     const isMine = selectClaimIsMineForUri(state, uri);
