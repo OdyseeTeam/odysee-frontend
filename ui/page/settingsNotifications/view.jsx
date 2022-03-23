@@ -1,7 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import * as SETTINGS from 'constants/settings';
 import * as React from 'react';
 
 import Page from 'component/page';
@@ -14,20 +13,22 @@ import { Redirect } from 'react-router-dom';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
+import SettingNotifications from 'component/settingNotifications';
 
 type Props = {
-  osNotificationsEnabled: boolean,
   isAuthenticated: boolean,
-  setClientSetting: (string, boolean) => void,
 };
 
 export default function NotificationSettingsPage(props: Props) {
-  const { osNotificationsEnabled, setClientSetting, isAuthenticated } = props;
+  const { isAuthenticated } = props;
+
+  const { location } = useHistory();
+
   const [error, setError] = React.useState();
   const [tagMap, setTagMap] = React.useState({});
   const [tags, setTags] = React.useState();
   const [enabledEmails, setEnabledEmails] = React.useState();
-  const { location } = useHistory();
+
   const urlParams = new URLSearchParams(location.search);
   const verificationToken = urlParams.get('verification_token');
   const lbryIoParams = verificationToken ? { auth_token: verificationToken } : undefined;
@@ -93,7 +94,7 @@ export default function NotificationSettingsPage(props: Props) {
       });
   }
 
-  if (IS_WEB && !isAuthenticated && !verificationToken) {
+  if (!isAuthenticated && !verificationToken) {
     return <Redirect to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
   }
 
@@ -128,47 +129,32 @@ export default function NotificationSettingsPage(props: Props) {
             <h2 className="card__title">{__('Notification Delivery')}</h2>
             <div className="card__subtitle">{__("Choose how you'd like to receive your Odysee notifications.")}</div>
           </div>
+
+          <SettingNotifications />
+
           <Card
             isBodyList
             body={
               <>
-                {enabledEmails && enabledEmails.length > 0 && (
-                  <>
-                    {enabledEmails.map(({ email, isEnabled }) => (
-                      <SettingsRow
+                {enabledEmails &&
+                  enabledEmails.length > 0 &&
+                  enabledEmails.map(({ email, isEnabled }) => (
+                    <SettingsRow
+                      key={email}
+                      title={__('Email Notifications')}
+                      subtitle={__(`Receive notifications to the email address: %email%`, { email })}
+                    >
+                      <FormField
+                        type="checkbox"
+                        name={`active-email:${email}`}
                         key={email}
-                        title={__('Email Notifications')}
-                        subtitle={__(`Receive notifications to the email address: %email%`, { email })}
-                      >
-                        <FormField
-                          type="checkbox"
-                          name={`active-email:${email}`}
-                          key={email}
-                          onChange={() => handleChangeEmail(email, !isEnabled)}
-                          checked={isEnabled}
-                        />
-                      </SettingsRow>
-                    ))}
-                  </>
-                )}
+                        onChange={() => handleChangeEmail(email, !isEnabled)}
+                        checked={isEnabled}
+                      />
+                    </SettingsRow>
+                  ))}
 
-                {/* @if TARGET='web' */}
                 <BrowserNotificationSettings />
-                {/* @endif */}
-
-                {/* @if TARGET='app' */}
-                <SettingsRow
-                  title={__('Desktop Notifications')}
-                  subtitle={__('Get notified when an upload or channel is confirmed.')}
-                >
-                  <FormField
-                    type="checkbox"
-                    name="desktopNotification"
-                    onChange={() => setClientSetting(SETTINGS.OS_NOTIFICATIONS_ENABLED, !osNotificationsEnabled)}
-                    checked={osNotificationsEnabled}
-                  />
-                </SettingsRow>
-                {/* @endif */}
               </>
             }
           />
@@ -179,26 +165,24 @@ export default function NotificationSettingsPage(props: Props) {
                 <h2 className="card__title">{__('Email Notification Topics')}</h2>
                 <div className="card__subtitle">{__('Choose which topics you’d like to be emailed about.')}</div>
               </div>
+
               <Card
                 isBodyList
-                body={
-                  <>
-                    {tags.map((tag) => {
-                      const isEnabled = tagMap[tag.name];
-                      return (
-                        <SettingsRow key={tag.name} subtitle={__(tag.description)}>
-                          <FormField
-                            type="checkbox"
-                            key={tag.name}
-                            name={tag.name}
-                            onChange={() => handleChangeTag(tag.name, !isEnabled)}
-                            checked={isEnabled}
-                          />
-                        </SettingsRow>
-                      );
-                    })}
-                  </>
-                }
+                body={tags.map((tag) => {
+                  const isEnabled = tagMap[tag.name];
+
+                  return (
+                    <SettingsRow key={tag.name} subtitle={__(tag.description)}>
+                      <FormField
+                        type="checkbox"
+                        key={tag.name}
+                        name={tag.name}
+                        onChange={() => handleChangeTag(tag.name, !isEnabled)}
+                        checked={isEnabled}
+                      />
+                    </SettingsRow>
+                  );
+                })}
               />
             </>
           )}

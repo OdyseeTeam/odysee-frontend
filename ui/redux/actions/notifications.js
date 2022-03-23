@@ -7,8 +7,12 @@ import {
   selectNotifications,
   selectNotificationsFiltered,
   selectNotificationCategories,
+  selectNotificationDisabled,
+  selectFollowerMentions,
+  selectFollowedMentions,
 } from 'redux/selectors/notifications';
 import { doResolveUris } from 'redux/actions/claims';
+import Notifications from 'notifications';
 
 export function doToast(params: ToastParams) {
   if (!params) {
@@ -190,5 +194,84 @@ export function doDeleteNotification(notificationId: number) {
       .catch(() => {
         dispatch(doToast({ isError: true, message: __('Unable to delete this right now. Please try again later.') }));
       });
+  };
+}
+
+export function doFetchNotificationSettings() {
+  return (dispatch: Dispatch) => {
+    return Notifications.settings_get()
+      .then(({ data }) => {
+        const notificationSettings = data[0].setting;
+
+        dispatch({
+          type: ACTIONS.NOTIFICATION_SETTINGS_FETCHED,
+          data: { notificationSettings },
+        });
+      })
+      .catch((e) => {
+        dispatch({
+          type: ACTIONS.NOTIFICATION_SETTINGS_FAILED,
+        });
+      });
+  };
+}
+
+export function doToggleNotificationsDisabled() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const notificationDisabled = selectNotificationDisabled(state);
+    const followerMentions = selectFollowerMentions(state);
+    const followedMentions = selectFollowedMentions(state);
+
+    return Notifications.settings_set({
+      channel_id: '*',
+      channel_name: '*',
+      data: {
+        setting: {
+          disabled: { all: !notificationDisabled },
+          mention: { from_followers: followerMentions, from_followed: followedMentions },
+        },
+      },
+    });
+  };
+}
+
+export function doToggleFollowerNotifications() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const notificationDisabled = selectNotificationDisabled(state);
+    const followerMentions = selectFollowerMentions(state);
+    const followedMentions = selectFollowedMentions(state);
+
+    return Notifications.settings_set({
+      channel_id: '*',
+      channel_name: '*',
+      data: {
+        setting: {
+          disabled: { all: notificationDisabled },
+          mention: { from_followers: !followerMentions, from_followed: followedMentions },
+        },
+      },
+    });
+  };
+}
+
+export function doToggleFollowedNotifications() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const notificationDisabled = selectNotificationDisabled(state);
+    const followerMentions = selectFollowerMentions(state);
+    const followedMentions = selectFollowedMentions(state);
+
+    return Notifications.settings_set({
+      channel_id: '*',
+      channel_name: '*',
+      data: {
+        setting: {
+          disabled: { all: notificationDisabled },
+          mention: { from_followers: followerMentions, from_followed: !followedMentions },
+        },
+      },
+    });
   };
 }
