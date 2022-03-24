@@ -206,9 +206,5 @@ export const doFetchNotificationSettings = () => (dispatch: Dispatch) =>
     })
     .catch((e) => dispatch({ type: ACTIONS.NOTIFICATION_SETTINGS_FAILED }));
 
-export const doSetNotificationSettings = (params: NotificationSettings) => (dispatch: Dispatch) =>
-  Notifications.settings_set({
-    channel_id: '*',
-    channel_name: '*',
-    data: params,
-  });
+export const doSetNotificationSettings = (params: NotificationSettingsParams) => (dispatch: Dispatch) =>
+  Notifications.settings_set(params);

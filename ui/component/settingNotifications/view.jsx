@@ -8,15 +8,18 @@ import Spinner from 'component/spinner';
 
 type Props = {
   // --- select ---
+  channelId: ?string,
+  channelName: ?string,
   notificationSettings: ?NotificationSettings,
   // --- perform ---
   doFetchNotificationSettings: () => void,
-  doSetNotificationSettings: (params: NotificationSettings) => void,
+  doSetNotificationSettings: (params: NotificationSettingsParams) => void,
 };
 
 type State = {
   fetchComplete: boolean,
   settingsState: ?NotificationSettings,
+  byChannel: boolean,
 };
 
 class SettingNotifications extends React.PureComponent<Props, State> {
@@ -26,6 +29,7 @@ class SettingNotifications extends React.PureComponent<Props, State> {
     this.state = {
       fetchComplete: false,
       settingsState: props.notificationSettings,
+      byChannel: false,
     };
   }
 
@@ -43,14 +47,30 @@ class SettingNotifications extends React.PureComponent<Props, State> {
   }
 
   componentWillUnmount() {
-    const { notificationSettings, doSetNotificationSettings } = this.props;
-    const { settingsState } = this.state;
+    const { channelId, channelName, notificationSettings, doSetNotificationSettings } = this.props;
+    const { settingsState, byChannel } = this.state;
 
-    if (settingsState && settingsState !== notificationSettings) doSetNotificationSettings(settingsState);
+    if (settingsState && settingsState !== notificationSettings) {
+      const channelData =
+        byChannel && channelId && channelName
+          ? { channel_id: channelId, channel_name: channelName }
+          : { channel_id: '*', channel_name: '*' };
+
+      doSetNotificationSettings({ ...channelData, data: { ...settingsState } });
+    }
+  }
+
+  handleClick(all: boolean, from_followers: boolean, from_followed: boolean) {
+    this.setState({
+      settingsState: {
+        disabled: { all },
+        mention: { from_followers, from_followed },
+      },
+    });
   }
 
   render() {
-    const { fetchComplete, settingsState } = this.state;
+    const { fetchComplete, settingsState, byChannel } = this.state;
 
     const { disabled, mention } = settingsState || {};
     const { all: notificationsDisabled } = disabled || {};
@@ -58,7 +78,7 @@ class SettingNotifications extends React.PureComponent<Props, State> {
 
     return (
       <>
-        <ChannelSelector hideAnon />
+        <ChannelSelector hideAnon disabled={!byChannel} />
 
         {!fetchComplete ? (
           <div className="main--empty">
@@ -69,24 +89,21 @@ class SettingNotifications extends React.PureComponent<Props, State> {
             isBodyList
             body={
               <>
+                <SettingsRow title={__('Set by Channel?')}>
+                  <FormField
+                    type="checkbox"
+                    name="notifications_disable"
+                    checked={byChannel}
+                    onChange={() => this.setState({ byChannel: !byChannel })}
+                  />
+                </SettingsRow>
+
                 <SettingsRow title={__('Disable All')}>
                   <FormField
                     type="checkbox"
                     name="notifications_disable"
                     checked={notificationsDisabled}
-                    onChange={() =>
-                      this.setState({
-                        settingsState: {
-                          disabled: {
-                            all: !notificationsDisabled,
-                          },
-                          mention: {
-                            from_followers: followersDisabled,
-                            from_followed: followedDisabled,
-                          },
-                        },
-                      })
-                    }
+                    onChange={() => this.handleClick(!notificationsDisabled, followersDisabled, followedDisabled)}
                   />
                 </SettingsRow>
 
@@ -96,38 +113,14 @@ class SettingNotifications extends React.PureComponent<Props, State> {
                     name="mention_followed"
                     checked={followersDisabled}
                     label={__('From Followers')}
-                    onChange={() =>
-                      this.setState({
-                        settingsState: {
-                          disabled: {
-                            all: notificationsDisabled,
-                          },
-                          mention: {
-                            from_followers: !followersDisabled,
-                            from_followed: followedDisabled,
-                          },
-                        },
-                      })
-                    }
+                    onChange={() => this.handleClick(notificationsDisabled, !followersDisabled, followedDisabled)}
                   />
                   <FormField
                     type="checkbox"
                     name="mention_follower"
                     checked={followedDisabled}
                     label={__('From Followed')}
-                    onChange={() =>
-                      this.setState({
-                        settingsState: {
-                          disabled: {
-                            all: notificationsDisabled,
-                          },
-                          mention: {
-                            from_followers: followersDisabled,
-                            from_followed: !followedDisabled,
-                          },
-                        },
-                      })
-                    }
+                    onChange={() => this.handleClick(notificationsDisabled, followersDisabled, !followedDisabled)}
                   />
                 </SettingsRow>
               </>

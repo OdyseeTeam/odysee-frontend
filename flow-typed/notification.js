@@ -153,5 +153,5 @@ declare type NotificationSettings = {
 declare type NotificationSettingsParams = {
   channel_name: string,
   channel_id: string,
-  data: { setting: NotificationSettings },
+  data: NotificationSettings,
 };
