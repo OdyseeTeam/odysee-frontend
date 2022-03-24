@@ -3,27 +3,49 @@ import { NOTIFICATION_SETTINGS_API } from 'config';
 import { getAuthToken } from 'util/saved-passwords';
 import querystring from 'querystring';
 
+const METHODS = {
+  GET: 'get',
+  SET: 'set',
+};
+
+type SettingsSetParams = {
+  channel_name: string,
+  channel_id: string,
+  data: NotificationSettings,
+};
+
 const Notifications = {
   url: NOTIFICATION_SETTINGS_API,
 
-  settings_get: () => fetchNotificationsApi('get', {}),
-  settings_set: (params: NotificationSettingsParams) => fetchNotificationsApi('set', params),
+  settings_get: () => fetchNotificationsApi(METHODS.GET),
+  settings_set: (params: SettingsSetParams) => fetchNotificationsApi(METHODS.SET, params),
 };
 
-function fetchNotificationsApi(method: string, params: NotificationSettingsParams) {
-  const fullParams = { auth_token: getAuthToken(), ...params };
-  Object.keys(fullParams).forEach((key) => {
-    const value = fullParams[key];
-    if (typeof value === 'object') {
-      fullParams[key] = JSON.stringify(value);
-    }
-  });
+function fetchNotificationsApi(method: string, params: ?SettingsSetParams) {
+  const fullParams = { auth_token: getAuthToken() };
 
   const qs = querystring.stringify(fullParams);
-  const queryParams = qs ? `?${qs}` : '';
-  const url = `${Notifications.url}${method}${queryParams}`;
+  const url = `${Notifications.url}${method}?${qs}`;
 
-  return fetch(url)
+  let options;
+  if (method === METHODS.SET && params) {
+    Object.keys(params).forEach((key) => {
+      // $FlowFixMe
+      const value = params[key];
+      if (typeof value === 'object') {
+        // $FlowFixMe
+        params[key] = JSON.stringify(value);
+      }
+    });
+
+    options = {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: querystring.stringify(params),
+    };
+  }
+
+  return fetch(url, options)
     .then((res) => res.json())
     .then((json) => {
       return json;

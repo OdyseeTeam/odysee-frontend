@@ -7,16 +7,6 @@ export const selectNotificationsFiltered = (state) => selectState(state).notific
 export const selectNotificationCategories = (state) => selectState(state).notificationCategories;
 export const selectNotificationSettings = (state) => selectState(state).notificationSettings;
 
-export const selectNotificationDisabled = createSelector(selectNotificationSettings, (setting) =>
-  Boolean(setting?.disabled?.all)
-);
-export const selectFollowerMentions = createSelector(selectNotificationSettings, (setting) =>
-  Boolean(setting?.mention?.from_followers)
-);
-export const selectFollowedMentions = createSelector(selectNotificationSettings, (setting) =>
-  Boolean(setting?.mention?.from_followed)
-);
-
 export const makeSelectNotificationForCommentId = (id) =>
   createSelector(selectNotifications, (notifications) => {
     const match =
