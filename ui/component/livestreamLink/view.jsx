@@ -9,6 +9,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 type Props = {
   title?: string,
   claimUri: string,
+  children: any,
 };
 
 export default function LivestreamLink(props: Props) {
