@@ -1,9 +1,11 @@
 /* eslint-disable */
 import videojs from 'video.js';
-import { version as VERSION } from './package.json';
+import p from 'package.json';
 import ConcreteButton from './ConcreteButton';
 import ConcreteMenuItem from './ConcreteMenuItem';
 import * as QUALITY_OPTIONS from 'constants/player';
+
+const { version: VERSION } = p;
 
 // Default options for the plugin.
 const defaults = {};

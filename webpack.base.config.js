@@ -1,14 +1,14 @@
+require('dotenv-defaults').config();
 const path = require('path');
 const webpack = require('webpack');
 const Dotenv = require('dotenv-webpack');
-const { DefinePlugin } = require('webpack');
+const { DefinePlugin, ProvidePlugin } = require('webpack');
 const { getIfUtils } = require('webpack-config-utils');
 const TerserPlugin = require('terser-webpack-plugin');
 
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const { ifProduction } = getIfUtils(NODE_ENV);
 const UI_ROOT = path.resolve(__dirname, 'ui/');
-const STATIC_ROOT = path.resolve(__dirname, 'static/');
 
 const optInPlugins = [];
 
@@ -50,16 +50,17 @@ let baseConfig = {
       {
         test: /\.s?css$/,
         use: [
-          { loader: 'style-loader' },
-          { loader: 'css-loader' },
-          { loader: 'postcss-loader',
-            options: {
-              plugins: function () {
-                return [ require('postcss-rtl')() ];
-              },
-            },
-          },
-          { loader: 'sass-loader'},
+          'style-loader',
+          'css-loader',
+          // {
+          //   loader: 'postcss-loader',
+          //   options: {
+          //     plugins: function () {
+          //       return [ require('postcss-rtl')() ];
+          //     },
+          //   },
+          // },
+          'sass-loader',
         ],
       },
       {
@@ -106,7 +107,7 @@ let baseConfig = {
   },
 
   plugins: [
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new webpack.IgnorePlugin({resourceRegExp: /moment\/locale\//}),
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new DefinePlugin({
       __static: `"${path.join(__dirname, 'static').replace(/\\/g, '\\\\')}"`,
@@ -114,6 +115,11 @@ let baseConfig = {
       'process.env.LBRY_API_URL': JSON.stringify(process.env.LBRY_API_URL),
       'process.env.SENTRY_AUTH_TOKEN': JSON.stringify(process.env.SENTRY_AUTH_TOKEN),
       'process.env.MOONPAY_SECRET_KEY': JSON.stringify(process.env.MOONPAY_SECRET_KEY),
+    }),
+    new ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: 'process/browser',
+      __: [path.resolve(path.join(__dirname, 'ui/i18n')), '__'],
     }),
     new Dotenv({
       allowEmptyValues: true, // allow empty variables (e.g. `FOO=`) (treat it as empty string, rather than missing)
