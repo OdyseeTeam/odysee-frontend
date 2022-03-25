@@ -167,6 +167,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const livestreamVideoUrl = activeLivestreamForChannel?.url;
 
   // show quality selector if not a livestream, or a transcoded livestream
+  // $FlowFixMe
   const showQualitySelector = !isLivestreamClaim || livestreamVideoUrl?.includes('/transcode/');
 
   // initiate keyboard shortcuts
