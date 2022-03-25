@@ -1,8 +1,13 @@
 // @flow
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery, selectClaimsByUri } from 'redux/selectors/claims';
-import { doClaimSearch } from 'redux/actions/claims';
+import {
+  selectClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
+  selectClaimsByUri,
+  selectById,
+} from 'redux/selectors/claims';
+import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import * as SETTINGS from 'constants/settings';
 import { MATURE_TAGS } from 'constants/tags';
@@ -27,6 +32,7 @@ const select = (state, props) => {
   return {
     claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
     claimsByUri: selectClaimsByUri(state),
+    claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
     hideReposts,
@@ -39,6 +45,8 @@ const perform = {
   doClaimSearch,
   doFetchViewCount,
   doFetchUserMemberships,
+  doResolveClaimIds,
+  doResolveUris,
 };
 
 export default withRouter(connect(select, perform)(ClaimListDiscover));

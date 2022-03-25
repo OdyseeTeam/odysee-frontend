@@ -144,7 +144,7 @@ function HomePage(props: Props) {
     );
   };
 
-  function getRowElements(id, title, route, link, icon, help, options, index, pinUrls) {
+  function getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds) {
     const tilePlaceholder = (
       <ul className="claim-grid">
         {new Array(options.pageSize || 8).fill(1).map((x, i) => (
@@ -159,7 +159,7 @@ function HomePage(props: Props) {
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
         hasSource
         prefixUris={getLivestreamUris(activeLivestreams, options.channelIds)}
-        pinUrls={pinUrls}
+        pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         injectedItem={
           index === 0 && {
             node: <Ads small type="video" tileLayout />,
@@ -246,9 +246,11 @@ function HomePage(props: Props) {
         </div>
       )}
 
-      {sortedRowData.map(({ id, title, route, link, icon, help, pinnedUrls: pinUrls, options = {} }, index) => {
-        return getRowElements(id, title, route, link, icon, help, options, index, pinUrls);
-      })}
+      {sortedRowData.map(
+        ({ id, title, route, link, icon, help, pinnedUrls: pinUrls, pinnedClaimIds, options = {} }, index) => {
+          return getRowElements(id, title, route, link, icon, help, options, index, pinUrls, pinnedClaimIds);
+        }
+      )}
     </Page>
   );
 }
