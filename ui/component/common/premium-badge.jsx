@@ -43,5 +43,5 @@ type WrapperProps = {
 const BadgeWrapper = (props: WrapperProps) => {
   const { linkPage, children } = props;
 
-  return linkPage ? <Button navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>{children}</Button> : children;
+  return linkPage ? <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button> : children;
 };

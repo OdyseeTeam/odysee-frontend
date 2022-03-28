@@ -88,5 +88,6 @@ exports.LIVESTREAM = 'livestream';
 exports.LIVESTREAM_CURRENT = 'live';
 exports.GENERAL = 'general';
 exports.LIST = 'list';
-exports.ODYSEE_MEMBERSHIP = 'membership';
+exports.ODYSEE_PREMIUM = 'premium';
+exports.CREATOR_MEMBERSHIPS = 'memberships';
 exports.POPOUT = 'popout';

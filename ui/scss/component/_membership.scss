@@ -79,3 +79,125 @@
 .membership-bolded {
   color: var(--color-text);
 }
+
+/** CREATOR MEMBERSHIPS PAGE **/
+
+.my-membership__div {
+  .form-field--copyable {
+    max-width: 535px;
+    margin-top: 5px;
+  }
+
+  .channel__selector {
+    margin-bottom: 17px;
+  }
+
+  .membership_button {
+    max-width: 279px;
+  }
+}
+
+/** MODAL **/
+
+.ReactModalPortal .join-membership-modal > .card__first-pane > .card__header--between > .card__title-section {
+  display: block;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.ReactModalPortal section.join-membership-modal {
+  max-width: 550px;
+}
+
+.join-membership-modal__subheader {
+  color: #e1d6d6;
+}
+
+.join-membership-modal-information__div {
+  text-align: left;
+  padding: 19px;
+  max-width: 388px;
+  min-width: 350px;
+
+  .join-membership-modal-plan__header {
+    margin-top: 17px;
+    color: white;
+    margin-bottom: 7px;
+    font-size: 18px;
+  }
+
+  .join-membership-modal-plan__description {
+    margin-bottom: 12px;
+  }
+
+  .join-membership-modal-purchase__button {
+    margin-top: 32px;
+  }
+}
+
+// membership page tab from channel
+.tab__panel {
+  .join-membership-modal-information__div {
+    max-width: 100%;
+    min-width: 100%;
+  }
+
+  .join-membership-modal__subheader {
+    display: inline;
+  }
+
+  .join-membership-modal__subheader:nth-of-type(2) {
+    margin-left: 5px;
+  };
+
+  .card__header--between, .card__title-section {
+    display: block;
+  }
+
+  .card__first-pane, .join-membership-modal-information__div {
+    text-align: center;
+  }
+
+  .join-membership-modal-perks p {
+    text-align: left;
+  }
+
+  .join-membership-modal-perks {
+    max-width: 487px;
+    margin: 0 auto;
+  }
+
+  .membership-modal-tab-buttons {
+    margin-top: 10px;
+  }
+
+  .join-membership-tab-renewal-date__header {
+    color: white;
+    font-size: 1.1rem;
+    margin-top: 43px;
+  }
+}
+
+.join-membership-modal-perks__li {
+  margin-left: 0px;
+  margin-right: 0px;
+}
+
+.join-membership-modal-perks > h1 {
+  color: white;
+}
+
+.join-membership-support-time__header {
+  color: white;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.join-membership-support-time__header:nth-of-type(2) {
+  margin-bottom: 34px;
+};
+
+.join-membership-modal-perks h1 {
+  font-size: 1.1rem;
+  margin-bottom: 11px;
+}

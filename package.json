@@ -103,7 +103,7 @@
     "@reach/combobox": "^0.12.1",
     "@reach/menu-button": "0.8.6",
     "@reach/rect": "^0.16.0",
-    "@reach/tabs": "^0.1.5",
+    "@reach/tabs": "^0.6.5",
     "@reach/tooltip": "^0.12.1",
     "@reach/utils": "^0.12.1",
     "@sentry/browser": "^5.12.1",

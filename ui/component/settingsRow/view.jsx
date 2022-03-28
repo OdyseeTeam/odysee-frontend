@@ -29,7 +29,7 @@ export default function SettingsRow(props: Props) {
         <span>
           {title}
           {membersOnly && (
-            <Button className="settings-row__members-only" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+            <Button className="settings-row__members-only" navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>
               {'PREMIUM'}
             </Button>
           )}
