@@ -129,7 +129,7 @@ function Ads(props: Props) {
     <I18nMessage
       tokens={{
         sign_up_for_premium: (
-          <Button button="link" label={__('Get Odysee Premium+')} navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} />
+          <Button button="link" label={__('Get Odysee Premium+')} navigate={`/$/${PAGES.ODYSEE_PREMIUM}`} />
         ),
       }}
     >
