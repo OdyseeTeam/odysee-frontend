@@ -175,7 +175,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            display: unset !important;
+            display: unset;
 
             &:hover {
               color: var(--color-secondary);
@@ -1194,7 +1194,7 @@
             text-overflow: ellipsis;
             white-space: nowrap;
             overflow: hidden;
-            display: unset !important;
+            display: unset;
 
             &:hover {
               opacity: 0.8;
