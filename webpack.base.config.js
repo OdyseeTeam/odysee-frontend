@@ -32,6 +32,9 @@ let baseConfig = {
       }),
     ],
   },
+  cache: {
+    type: 'filesystem',
+  },
   node: {
     __dirname: false,
   },
