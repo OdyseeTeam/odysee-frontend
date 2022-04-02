@@ -28,13 +28,13 @@ type Props = {
   customTipAmount?: number,
   exchangeRate?: any,
   fiatConversion?: boolean,
-  tipError: boolean,
   tipError: string,
   uri: string,
   onChange: (number) => void,
   setConvertedAmount?: (number) => void,
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
+  preferredCurrency: string,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -52,6 +52,7 @@ function WalletTipAmountSelector(props: Props) {
     setConvertedAmount,
     setDisableSubmitButton,
     setTipError,
+    preferredCurrency,
   } = props;
 
   const isMobile = useIsMobile();
@@ -225,7 +226,12 @@ function WalletTipAmountSelector(props: Props) {
 
   if (!claim) return null;
 
-  const getHelpMessage = (helpMessage: any) => <div className="help">{helpMessage}</div>;
+  const getHelpMessage = (helpMessage: any, customClassName) => (
+    <div className={classnames('help', customClassName)}>{helpMessage}</div>
+  );
+
+  let fiatIconToUse = ICONS.FINANCE;
+  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
 
   return (
     <>
@@ -242,7 +248,7 @@ function WalletTipAmountSelector(props: Props) {
                 'button-toggle--disabled': amount > balance,
               })}
               label={defaultAmount}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
+              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
               onClick={() => {
                 handleCustomPriceChange(defaultAmount);
                 setUseCustomTip(false);
@@ -256,7 +262,7 @@ function WalletTipAmountSelector(props: Props) {
           className={classnames('button-toggle button-toggle--expandformobile', {
             'button-toggle--active': useCustomTip,
           })}
-          icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
+          icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
           label={__('Custom')}
           onClick={() => setUseCustomTip(true)}
         />
@@ -304,13 +310,16 @@ function WalletTipAmountSelector(props: Props) {
 
       {/* lbc tab */}
       {activeTab === TAB_LBC && <WalletSpendableBalanceHelp />}
+
+      {/* help message */}
       {activeTab === TAB_FIAT &&
         (!hasCardSaved
           ? getHelpMessage(
               <>
                 <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
                 {' ' + __('To Tip Creators')}
-              </>
+              </>,
+              'add-a-card-help-message'
             )
           : !canReceiveFiatTip
           ? getHelpMessage(__('Only creators that verify cash accounts can receive tips'))

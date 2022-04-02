@@ -4,10 +4,11 @@ import * as REACTION_TYPES from 'constants/reactions';
 import * as PAGES from 'constants/pages';
 import { SORT_BY, BLOCK_LEVEL } from 'constants/comment';
 import Lbry from 'lbry';
+import { resolveApiMessage } from 'util/api-message';
 import { parseURI, buildURI, isURIEqual } from 'util/lbryURI';
-import { devToast, doFailedSignatureToast, resolveCommentronError } from 'util/commentron-error';
+import { devToast, doFailedSignatureToast } from 'util/toast-wrappers';
 import { selectClaimForUri, selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
-import { doResolveUris, doClaimSearch } from 'redux/actions/claims';
+import { doResolveUris, doClaimSearch, doResolveClaimIds } from 'redux/actions/claims';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
 import {
   selectMyReactsForComment,
@@ -65,8 +66,6 @@ export function doCommentList(
       .then((result: CommentListResponse) => {
         const { items: comments, total_items, total_filtered_items, total_pages } = result;
 
-        const commentChannelUrls = comments && comments.map((comment) => comment.channel_url || '');
-
         const returnResult = () => {
           dispatch({
             type: ACTIONS.COMMENT_LIST_COMPLETED,
@@ -84,16 +83,13 @@ export function doCommentList(
           return result;
         };
 
-        // Batch resolve comment channel urls
-        if (commentChannelUrls && !isLivestream) {
-          const resolve = async () => await doResolveUris(commentChannelUrls, true);
-
-          return resolve()
-            .then(() => dispatch(doResolveUris(commentChannelUrls, true)).then(() => returnResult()))
-            .catch(() => returnResult());
+        // Batch resolve comment authors
+        const commentChannelIds = comments && comments.map((comment) => comment.channel_id || '');
+        if (commentChannelIds && !isLivestream) {
+          return dispatch(doResolveClaimIds(commentChannelIds)).finally(() => returnResult());
         }
 
-        returnResult();
+        return returnResult();
       })
       .catch((error) => {
         const { message } = error;
@@ -558,7 +554,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       })
       .catch((error) => {
         dispatch({ type: ACTIONS.COMMENT_CREATE_FAILED, data: error });
-        dispatch(doToast(resolveCommentronError(error.message)));
+        dispatch(doToast({ message: resolveApiMessage(error.message), isError: true }));
         return Promise.reject(error);
       });
   };

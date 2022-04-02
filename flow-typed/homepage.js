@@ -12,12 +12,14 @@ declare type HomepageData = {
 };
 
 declare type RowDataItem = {
+  id: string,
   title: any,
   link?: string,
   help?: any,
   icon?: string,
   extra?: any,
   pinnedUrls?: Array<string>,
+  pinnedClaimIds?: Array<string>, // pinnedUrls takes precedence
   options?: {
     channelIds?: Array<string>,
     limitClaimsPerChannel?: number,

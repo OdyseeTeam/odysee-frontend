@@ -50,12 +50,6 @@ export default function MembershipSplash(props: Props) {
       {__('No ads')}
     </div>
   );
-  // const livestreamInfo = (
-  //   <div className="membership-splash__info-content">
-  //     <Icon icon={ICONS.NO_ADS} />
-  //     {__('Livestreaming')}
-  //   </div>
-  // );
 
   function onClickCordova(url) {
     if (window.cordova) window.odysee.functions.history.push(url);
@@ -106,8 +100,6 @@ export default function MembershipSplash(props: Props) {
 
           {badgeInfo}
 
-          {/* {livestreamInfo} */}
-
           {earlyAcessInfo}
 
           <div className="membership-splash__info-button">
@@ -139,8 +131,6 @@ export default function MembershipSplash(props: Props) {
             </div>
           </section>
           {badgeInfo}
-
-          {/* {livestreamInfo} */}
 
           {earlyAcessInfo}
 

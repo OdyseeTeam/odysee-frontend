@@ -8,10 +8,11 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { parseURI, isURIValid } from 'util/lbryURI';
-import { SITE_TITLE, WELCOME_VERSION } from 'config';
+import { SITE_TITLE } from 'config';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
 import * as CS from 'constants/claim_search';
+import { buildUnseenCountStr } from 'util/notifications';
 
 import HomePage from 'page/home';
 
@@ -104,7 +105,6 @@ const TagsFollowingManagePage = lazyImport(() =>
 const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing' /* webpackChunkName: "tagsFollowing" */));
 const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */));
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
-const Welcome = lazyImport(() => import('page/welcome' /* webpackChunkName: "welcome" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
 
 // Tell the browser we are handling scroll restoration
@@ -138,6 +138,8 @@ type Props = {
   hasUnclaimedRefereeReward: boolean,
   homepageData: any,
   wildWestDisabled: boolean,
+  unseenCount: number,
+  hideTitleNotificationCount: boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -171,13 +173,14 @@ function AppRouter(props: Props) {
     history,
     uri,
     title,
-    welcomeVersion,
     hasNavigated,
     setHasNavigated,
     hasUnclaimedRefereeReward,
     setReferrer,
     homepageData,
     wildWestDisabled,
+    unseenCount,
+    hideTitleNotificationCount,
   } = props;
 
   const { entries, listen, action: historyAction } = history;
@@ -197,7 +200,9 @@ function AppRouter(props: Props) {
       <Route
         key={dynamicRouteProps.route}
         path={dynamicRouteProps.route}
-        component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
+        component={(routerProps) => (
+          <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} hideRepostRibbon />
+        )}
       />
     ));
   }, [homepageData, isLargeScreen]);
@@ -244,10 +249,10 @@ function AppRouter(props: Props) {
       document.title = getDefaultTitle(pathname);
     }
 
-    // @if TARGET='app'
-    entries[entryIndex].title = document.title;
-    // @endif
-  }, [pathname, entries, entryIndex, title, uri]);
+    if (unseenCount > 0 && !hideTitleNotificationCount) {
+      document.title = `(${buildUnseenCountStr(unseenCount)}) ${document.title}`;
+    }
+  }, [pathname, entries, entryIndex, title, uri, unseenCount]);
 
   useEffect(() => {
     if (!hasLinkedCommentInUrl) {
@@ -274,9 +279,6 @@ function AppRouter(props: Props) {
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
-        {/* @if TARGET='app' */}
-        {welcomeVersion < WELCOME_VERSION && <Route path="/*" component={Welcome} />}
-        {/* @endif */}
         <Redirect
           from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING_MANAGE}`}
           to={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
@@ -298,7 +300,6 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.AUTH_PASSWORD_SET}`} exact component={PasswordSetPage} />
         <Route path={`/$/${PAGES.AUTH}`} exact component={SignUpPage} />
         <Route path={`/$/${PAGES.AUTH}/*`} exact component={SignUpPage} />
-        <Route path={`/$/${PAGES.WELCOME}`} exact component={Welcome} />
 
         <Route path={`/$/${PAGES.HELP}`} exact component={HelpPage} />
         {/* @if TARGET='app' */}

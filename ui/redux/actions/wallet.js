@@ -289,7 +289,8 @@ export function doSendDraftTransaction(address, amount) {
         });
         dispatch(
           doToast({
-            message: __('You sent %amount% LBRY Credits', { amount: amount }),
+            message: __("Tip successfully sent. I'm sure they appreciate it!"),
+            subMessage: `${amount} LBC`,
             linkText: __('History'),
             linkTarget: '/wallet',
           })
@@ -366,8 +367,9 @@ export function doSendTip(params, isSupport, successCallback, errorCallback, sho
         dispatch(
           doToast({
             message: shouldSupport
-              ? __('You deposited %amount% LBRY Credits as a support!', { amount: params.amount })
-              : __('You sent %amount% LBRY Credits as a tip, Mahalo!', { amount: params.amount }),
+              ? __('Boost transaction successful.')
+              : __("Tip successfully sent. I'm sure they appreciate it!"),
+            subMessage: `${params.amount} LBC`,
             linkText: __('History'),
             linkTarget: '/wallet',
           })
@@ -715,9 +717,15 @@ export const doCheckPendingTxs = () => (dispatch, getState) => {
   }, 30000);
 };
 
-export const doSendCashTip = (tipParams, anonymous, userParams, claimId, stripeEnvironment, successCallback) => (
-  dispatch
-) => {
+export const doSendCashTip = (
+  tipParams,
+  anonymous,
+  userParams,
+  claimId,
+  stripeEnvironment,
+  preferredCurrency,
+  successCallback
+) => (dispatch) => {
   Lbryio.call(
     'customer',
     'tip',
@@ -728,7 +736,7 @@ export const doSendCashTip = (tipParams, anonymous, userParams, claimId, stripeE
       creator_channel_claim_id: tipParams.channelClaimId,
       tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
       tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
-      currency: 'USD',
+      currency: preferredCurrency || 'USD',
       anonymous: anonymous,
       source_claim_id: claimId,
       environment: stripeEnvironment,
@@ -736,12 +744,12 @@ export const doSendCashTip = (tipParams, anonymous, userParams, claimId, stripeE
     'post'
   )
     .then((customerTipResponse) => {
+      const fiatSymbol = preferredCurrency === 'USD' ? '$' : '€';
+
       dispatch(
         doToast({
-          message: __("You sent $%tipAmount% as a tip to %tipChannelName%, I'm sure they appreciate it!", {
-            tipAmount: tipParams.tipAmount,
-            tipChannelName: tipParams.tipChannelName,
-          }),
+          message: __("Tip successfully sent. I'm sure they appreciate it!"),
+          subMessage: `${fiatSymbol}${tipParams.tipAmount} ⇒ ${tipParams.tipChannelName}`,
         })
       );
 

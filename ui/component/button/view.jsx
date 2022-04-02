@@ -101,8 +101,10 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
   const ariaLabel = description || (typeof label === 'string' ? label : title);
 
   function onClickCordova(e) {
-    let link = e.substr(e.indexOf('odysee.com/') + 10, e.length);
-    window.odysee.functions.history.push(link);
+    if (e) {
+      let link = e.substr(e.indexOf('odysee.com/') + 10, e.length);
+      window.odysee.functions.history.push(link);
+    }
   }
 
   const content = (
@@ -148,9 +150,19 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     </span>
   );
 
+  // check if the link is for odysee.com
+  function isAnOdyseeLink(urlString) {
+    return (
+      urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1)
+    );
+  }
+
+  // if it's an internal link we won't open a new tab
+  const isAnInternalLink = (href || navigate) && (isAnOdyseeLink(href) || isAnOdyseeLink(navigate));
+
   if (href || (navigate && navigate.startsWith('http'))) {
     // TODO: replace the below with an outbound link tracker for matomo
-    if (href.indexOf('odysee.com/') !== -1) {
+    if (href && href.indexOf('odysee.com/') !== -1) {
       return (
         <a
           target="_blank"
@@ -167,7 +179,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     }
     return (
       <a
-        target="_blank"
+        target={isAnInternalLink ? '' : '_blank'}
         rel="noopener noreferrer"
         href={href || navigate}
         className={combinedClassName}

@@ -58,6 +58,7 @@ type Props = {
   mobilePlayerDimensions?: any,
   socketConnected: boolean,
   isLivestreamClaim: boolean,
+  geoRestriction: ?GeoRestriction,
   doSetMobilePlayerDimensions: ({ height?: ?number, width?: ?number }) => void,
   doCommentSocketConnect: (string, string, string) => void,
   doCommentSocketDisconnect: (string, string) => void,
@@ -88,6 +89,7 @@ export default function FileRenderFloating(props: Props) {
     doSetPlayingUri,
     isCurrentClaimLive,
     mobilePlayerDimensions,
+    geoRestriction,
     doSetMobilePlayerDimensions,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
@@ -271,6 +273,7 @@ export default function FileRenderFloating(props: Props) {
   }, [doSetMobilePlayerDimensions, doSetPlayingUri, isFloating, isMobile]);
 
   if (
+    geoRestriction ||
     !isPlayable ||
     !uri ||
     (isFloating && noFloatingPlayer) ||
@@ -311,14 +314,6 @@ export default function FileRenderFloating(props: Props) {
       setPosition(newPos);
       relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
     }
-  }
-
-  function closeFloatingPlayer() {
-    // if(window.cordova) window.odysee.functions.onStop()
-    if (window.cordova)
-      window.odysee.functions.killControls(function (res) {
-        doSetPlayingUri({ uri: null });
-      });
   }
 
   return (
@@ -362,7 +357,7 @@ export default function FileRenderFloating(props: Props) {
           {isFloating && (
             <Button
               title={__('Close')}
-              onClick={() => closeFloatingPlayer()}
+              onClick={() => doSetPlayingUri({ uri: null })}
               icon={ICONS.REMOVE}
               button="primary"
               className="content__floating-close"

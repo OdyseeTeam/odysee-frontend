@@ -140,8 +140,8 @@ reducers[ACTIONS.FILE_DELETE] = (state, action) => {
 
 reducers[ACTIONS.SET_FILE_LIST_SORT] = (state, action) => {
   const pageSortStates = {
-    [PAGES.PUBLISHED]: 'fileListPublishedSort',
-    [PAGES.DOWNLOADED]: 'fileListDownloadedSort',
+    [PAGES.DEPRECATED__PUBLISH]: 'fileListPublishedSort',
+    [PAGES.DEPRECATED__DOWNLOADED]: 'fileListDownloadedSort',
   };
   const pageSortState = pageSortStates[action.data.page];
   const { value } = action.data;

@@ -4,6 +4,7 @@ import 'videojs-ima'; // loads directly after contrib-ads
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
@@ -21,7 +22,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
-import { LIVESTREAM_STREAM_X_PULL, LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN } from 'constants/livestream';
 import { useIsMobile } from 'effects/use-screensize';
 
 const canAutoplay = require('./plugins/canAutoplay');
@@ -61,7 +61,7 @@ type Props = {
   autoplaySetting: boolean,
   claimId: ?string,
   // title: ?string,
-  // channelName: ?string,
+  channelName: ?string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -126,7 +126,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplaySetting,
     claimId,
     // title,
-    // channelName,
+    channelName,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -233,7 +233,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     techOrder: ['html5'],
     bigPlayButton: embedded, // only show big play button if embedded
-    liveui: true,
+    liveui: isLivestreamClaim,
     suppressNotSupportedError: true,
   };
 
@@ -354,47 +354,26 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // $FlowFixMe
         vjsPlayer.addClass('livestreamPlayer');
 
-        if (!window.cordova) {
-          // @if process.env.NODE_ENV!='production'
-          videojs.Vhs.xhr.beforeRequest = (options) => {
-            if (!options.headers) options.headers = {};
-            options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-            options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-            return options;
-          };
-          // @endif
-        } else {
-          videojs.Vhs.xhr.beforeRequest = (options) => {
-            if (!options.headers) options.headers = {};
-            options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-            options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-            window.odysee.chromecast.setBlob(options.uri);
-          };
-        }
-
-        // const newPoster = livestreamData.ThumbnailURL;
-
-        // pretty sure it's not working
-        // vjsPlayer.poster(newPoster);
-
-        // here specifically because we don't allow rewinds at the moment
-        // $FlowFixMe
-        // vjsPlayer.on('play', function () {
-        //   // $FlowFixMe
-        //   vjsPlayer.liveTracker.seekToLiveEdge();
-        // });
-
         // $FlowFixMe
         vjsPlayer.src({
           type: 'application/x-mpegURL',
           src: livestreamVideoUrl,
         });
+        if (window.cordova) {
+          let payload = {
+            uri: livestreamVideoUrl,
+            claim: claimValues,
+            fileType: 'application/x-mpegURL',
+            channel: channelName,
+          };
+          if (!payload.claim.stream_type) payload.claim.stream_type = 'video';
+          window.odysee.chromecast.setMediaPayload(payload);
+        }
       } else {
         // $FlowFixMe
         vjsPlayer.removeClass('livestreamPlayer');
-        videojs.Vhs.xhr.beforeRequest = (options) => {};
 
-        if (window.cordova) window.odysee.chromecast.setBlob(source);
+        if (window.cordova) window.odysee.chromecast.setMediaPayload(source);
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 
@@ -407,6 +386,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             type: 'application/x-mpegURL',
             src: response.url,
           });
+          if (window.cordova) {
+            let payload = {
+              uri: response.url,
+              claim: claimValues,
+              fileType: 'application/x-mpegURL',
+              channel: channelName,
+            };
+            window.odysee.chromecast.setMediaPayload(payload);
+          }
         } else {
           // use original mp4 source
           // $FlowFixMe
@@ -414,6 +402,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             type: sourceType,
             src: source,
           });
+          if (window.cordova) {
+            let payload = {
+              uri: source,
+              claim: claimValues,
+              fileType: sourceType,
+              channel: channelName,
+            };
+            window.odysee.chromecast.setMediaPayload(payload);
+          }
         }
       }
 

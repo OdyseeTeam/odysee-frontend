@@ -623,6 +623,11 @@ img {
   }
 }
 
+.homePage-wrapper__section-title {
+  display: flex;
+  justify-content: space-between;
+}
+
 // The following wrapper classes are temporary to fix page specific issues
 .discoverPage-wrapper {
   .claim-preview__wrapper {
@@ -1063,6 +1068,10 @@ img {
 }
 
 .publishList-wrapper {
+  .help {
+    color: var(--color-text);
+  }
+
   @media (min-width: $breakpoint-small) {
     .claim-preview--collection-mine {
       height: unset;
@@ -1259,7 +1268,7 @@ img {
 }
 .hide-ribbon {
   .claim-tile__repost-author {
-    // display: none;
+    display: none;
   }
 }
 .show-ribbon {
@@ -1280,6 +1289,11 @@ img {
 // Remove resize icon in textareas
 ::-webkit-resizer {
   display: none;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:focus {
+  transition: background-color 600000s 0s, color 600000s 0s;
 }
 
 // Remove tap focus on mobile devices

@@ -8,6 +8,7 @@ import { UNSYNCED_SETTINGS } from 'config';
 
 const { CLIENT_SYNC_KEYS } = SHARED_PREFERENCES;
 const settingsToIgnore = (UNSYNCED_SETTINGS && UNSYNCED_SETTINGS.trim().split(' ')) || [];
+
 const clientSyncKeys = settingsToIgnore.length
   ? CLIENT_SYNC_KEYS.filter((k) => !settingsToIgnore.includes(k))
   : CLIENT_SYNC_KEYS;
@@ -43,8 +44,10 @@ const defaultState = {
     [SETTINGS.THEME]: __('dark'),
     [SETTINGS.THEMES]: [__('dark'), __('light')],
     [SETTINGS.HOMEPAGE]: null,
+    [SETTINGS.HOMEPAGE_ORDER]: { active: null, hidden: null },
     [SETTINGS.HIDE_SPLASH_ANIMATION]: false,
     [SETTINGS.HIDE_BALANCE]: false,
+    [SETTINGS.HIDE_TITLE_NOTIFICATION_COUNT]: false,
     [SETTINGS.OS_NOTIFICATIONS_ENABLED]: true,
     [SETTINGS.AUTOMATIC_DARK_MODE_ENABLED]: false,
     [SETTINGS.CLOCK_24H]: false,
@@ -64,6 +67,7 @@ const defaultState = {
       currency: 'LBC',
       amount: 0.1,
     },
+    [SETTINGS.PREFERRED_CURRENCY]: 'USD',
 
     // Content
     [SETTINGS.SHOW_MATURE]: false,
@@ -72,7 +76,6 @@ const defaultState = {
     [SETTINGS.AUTO_DOWNLOAD]: true,
     [SETTINGS.HIDE_REPOSTS]: false,
     [SETTINGS.HIDE_SCHEDULED_LIVESTREAMS]: false,
-    [SETTINGS.HIDE_REPOSTS]: false,
 
     // OS
     [SETTINGS.AUTO_LAUNCH]: true,

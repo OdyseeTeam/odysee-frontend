@@ -18,13 +18,14 @@ import I18nMessage from 'component/i18nMessage';
 import LangFilterIndicator from 'component/langFilterIndicator';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
+import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
   uris: Array<string>,
   prefixUris?: Array<string>,
-  pins?: { urls: Array<string>, onlyPinForOrder?: string },
+  pins?: { urls?: Array<string>, claimIds?: Array<string>, onlyPinForOrder?: string },
   name?: string,
   type: string,
   pageSize?: number,
@@ -88,6 +89,7 @@ type Props = {
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: boolean },
   claimsByUri: { [string]: any },
+  claimsById: { [string]: any },
   loading: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
@@ -100,6 +102,8 @@ type Props = {
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
   doFetchUserMemberships: (claimIdCsv: string) => void,
+  doResolveClaimIds: (Array<string>) => Promise<any>,
+  doResolveUris: (Array<string>, boolean) => Promise<any>,
 
   hideLayoutButton?: boolean,
   loadedCallback?: (number) => void,
@@ -173,6 +177,7 @@ function ClaimListDiscover(props: Props) {
     showNoSourceClaims,
     empty,
     claimsByUri,
+    claimsById,
     doFetchViewCount,
     hideLayoutButton = false,
     loadedCallback,
@@ -181,7 +186,11 @@ function ClaimListDiscover(props: Props) {
     excludeUris = [],
     doFetchUserMemberships,
     swipeLayout = false,
+    doResolveUris,
+    doResolveClaimIds,
   } = props;
+
+  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
   const didNavigateForward = history.action === 'PUSH';
   const { search } = location;
   const prevUris = React.useRef();
@@ -525,16 +534,16 @@ function ClaimListDiscover(props: Props) {
   if (uris) {
     // --- direct uris
     finalUris = uris;
-    injectPinUrls(finalUris, orderParam, pins);
-    filterExcludedUris(finalUris, excludeUris);
+    injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
+    finalUris = filterExcludedUris(finalUris, excludeUris);
   } else {
     // --- searched uris
     if (isUnfetchedClaimSearch && prevUris.current) {
       finalUris = prevUris.current;
     } else {
       finalUris = claimSearchResult;
-      injectPinUrls(finalUris, orderParam, pins);
-      filterExcludedUris(finalUris, excludeUris);
+      injectPinUrls(finalUris, orderParam, pins, resolvedPinUris);
+      finalUris = filterExcludedUris(finalUris, excludeUris);
       prevUris.current = finalUris;
     }
   }
@@ -611,14 +620,13 @@ function ClaimListDiscover(props: Props) {
     return order_by;
   }
 
-  function injectPinUrls(uris, order, pins) {
-    if (!pins || !pins.urls || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
+  function injectPinUrls(uris, order, pins, resolvedPinUris) {
+    if (!pins || !uris || uris.length <= 2 || (pins.onlyPinForOrder && pins.onlyPinForOrder !== order)) {
       return;
     }
 
-    const pinUrls = pins.urls;
-    if (pinUrls && uris && uris.length > 2) {
-      pinUrls.forEach((pin) => {
+    if (resolvedPinUris) {
+      resolvedPinUris.forEach((pin) => {
         if (uris.includes(pin)) {
           uris.splice(uris.indexOf(pin), 1);
         } else {
@@ -626,14 +634,15 @@ function ClaimListDiscover(props: Props) {
         }
       });
 
-      uris.splice(2, 0, ...pinUrls);
+      uris.splice(2, 0, ...resolvedPinUris);
     }
   }
 
   function filterExcludedUris(uris, excludeUris) {
     if (uris && excludeUris && excludeUris.length) {
-      uris = uris.filter((uri) => !excludeUris.includes(uri));
+      return uris.filter((uri) => !excludeUris.includes(uri));
     }
+    return uris;
   }
 
   // **************************************************************************
@@ -641,11 +650,7 @@ function ClaimListDiscover(props: Props) {
 
   useFetchViewCount(fetchViewCount, finalUris, claimsByUri, doFetchViewCount);
 
-  const shouldFetchUserMemberships = true;
-  const arrayOfContentUris = finalUris;
-  const convertClaimUrlsToIds = claimsByUri;
-
-  useGetUserMemberships(shouldFetchUserMemberships, arrayOfContentUris, convertClaimUrlsToIds, doFetchUserMemberships);
+  useGetUserMemberships(true, finalUris, claimsByUri, doFetchUserMemberships);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

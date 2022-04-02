@@ -1,8 +1,13 @@
 // @flow
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
-import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery, selectClaimsByUri } from 'redux/selectors/claims';
-import { doClaimSearch } from 'redux/actions/claims';
+import {
+  selectClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
+  selectClaimsByUri,
+  selectById,
+} from 'redux/selectors/claims';
+import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import * as SETTINGS from 'constants/settings';
 import { MATURE_TAGS } from 'constants/tags';
@@ -18,15 +23,24 @@ import ClaimListDiscover from './view';
 const select = (state, props) => {
   const showNsfw = selectShowMatureContent(state);
   const hideReposts = selectClientSetting(state, SETTINGS.HIDE_REPOSTS);
+  const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = selectMutedAndBlockedChannelIds(state);
 
   // TODO: memoize these 2 function calls. Lots of params, though; might not be feasible.
-  const options = resolveSearchOptions({ showNsfw, hideReposts, mutedAndBlockedChannelIds, pageSize: 8, ...props });
+  const options = resolveSearchOptions({
+    showNsfw,
+    hideReposts,
+    forceShowReposts,
+    mutedAndBlockedChannelIds,
+    pageSize: 8,
+    ...props,
+  });
   const searchKey = createNormalizedClaimSearchKey(options);
 
   return {
     claimSearchResults: selectClaimSearchByQuery(state)[searchKey],
     claimsByUri: selectClaimsByUri(state),
+    claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     showNsfw,
     hideReposts,
@@ -39,6 +53,8 @@ const perform = {
   doClaimSearch,
   doFetchViewCount,
   doFetchUserMemberships,
+  doResolveClaimIds,
+  doResolveUris,
 };
 
 export default withRouter(connect(select, perform)(ClaimListDiscover));
@@ -71,6 +87,7 @@ function resolveSearchOptions(props) {
   const {
     showNsfw,
     hideReposts,
+    forceShowReposts,
     mutedAndBlockedChannelIds,
     location,
     pageSize,
@@ -136,7 +153,7 @@ function resolveSearchOptions(props) {
   }
 
   // https://github.com/lbryio/lbry-desktop/issues/3774
-  if (hideReposts) {
+  if (hideReposts && !forceShowReposts) {
     if (Array.isArray(options.claim_type)) {
       options.claim_type = options.claim_type.filter((claimType) => claimType !== 'repost');
     } else {

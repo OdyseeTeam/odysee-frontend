@@ -63,9 +63,18 @@ type Props = {
   doFetchCreatorSettings: (channelId: string) => Promise<any>,
   doToast: ({ message: string }) => void,
   doCommentById: (commentId: string, toastIfNotFound: boolean) => Promise<any>,
-  doSendCashTip: (TipParams, anonymous: boolean, UserParams, claimId: string, stripe: ?string, (any) => void) => string,
+  doSendCashTip: (
+    TipParams,
+    anonymous: boolean,
+    UserParams,
+    claimId: string,
+    stripe: ?string,
+    preferredCurrency: string,
+    (any) => void
+  ) => string,
   doSendTip: (params: {}, isSupport: boolean, successCb: (any) => void, errorCb: (any) => void, boolean) => void,
   doOpenModal: (id: string, any) => void,
+  preferredCurrency: string,
 };
 
 export function CommentCreate(props: Props) {
@@ -101,6 +110,7 @@ export function CommentCreate(props: Props) {
     doSendTip,
     setQuickReply,
     doOpenModal,
+    preferredCurrency,
   } = props;
 
   const isMobile = useIsMobile();
@@ -288,10 +298,8 @@ export function CommentCreate(props: Props) {
           }, 1500);
 
           doToast({
-            message: __("You sent %tipAmount% Credits as a tip to %tipChannelName%, I'm sure they appreciate it!", {
-              tipAmount: tipAmount, // force show decimal places
-              tipChannelName,
-            }),
+            message: __("Tip successfully sent. I'm sure they appreciate it!"),
+            subMessage: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
           });
 
           setSuccessTip({ txid, tipAmount });
@@ -306,17 +314,25 @@ export function CommentCreate(props: Props) {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
       const userParams: UserParams = { activeChannelName, activeChannelId: activeChannelClaimId };
 
-      doSendCashTip(tipParams, false, userParams, claimId, stripeEnvironment, (customerTipResponse) => {
-        const { payment_intent_id } = customerTipResponse;
+      doSendCashTip(
+        tipParams,
+        false,
+        userParams,
+        claimId,
+        stripeEnvironment,
+        preferredCurrency,
+        (customerTipResponse) => {
+          const { payment_intent_id } = customerTipResponse;
 
-        handleCreateComment(null, payment_intent_id, stripeEnvironment);
+          handleCreateComment(null, payment_intent_id, stripeEnvironment);
 
-        setCommentValue('');
-        setReviewingSupportComment(false);
-        setTipSelector(false);
-        setCommentFailure(false);
-        setSubmitting(false);
-      });
+          setCommentValue('');
+          setReviewingSupportComment(false);
+          setTipSelector(false);
+          setCommentFailure(false);
+          setSubmitting(false);
+        }
+      );
     }
   }
 
@@ -381,6 +397,9 @@ export function CommentCreate(props: Props) {
     setShowSelectors({ tab: showSelectors.tab || undefined, open: false });
     setTipSelector(false);
   }
+
+  let fiatIconToUse = ICONS.FINANCE;
+  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
 
   // **************************************************************************
   // Effects
@@ -640,7 +659,7 @@ export function CommentCreate(props: Props) {
             <Button
               {...submitButtonProps}
               disabled={disabled || tipSelectorError || !minAmountMet}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : ICONS.FINANCE}
+              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
               label={__('Review')}
               onClick={() => {
                 setReviewingSupportComment(true);
@@ -682,7 +701,7 @@ export function CommentCreate(props: Props) {
                   <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
                   {stripeEnvironment && (
-                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={ICONS.FINANCE} tab={TAB_FIAT} />
+                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIconToUse} tab={TAB_FIAT} />
                   )}
                 </>
               )}

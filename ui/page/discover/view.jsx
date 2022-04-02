@@ -1,9 +1,10 @@
 // @flow
+import React, { useRef } from 'react';
+import classnames from 'classnames';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
-import React, { useRef } from 'react';
 import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
@@ -12,8 +13,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import analytics from 'analytics';
 import HiddenNsfw from 'component/common/hidden-nsfw';
 import Icon from 'component/common/icon';
-// import Ads, { injectAd } from 'web/component/ads';
-import Ads from 'web/component/ads';
+// import Ads from 'web/component/ads';
 import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
@@ -25,6 +25,7 @@ type Props = {
   followedTags: Array<Tag>,
   repostedUri: string,
   repostedClaim: ?GenericClaim,
+  hideRepostRibbon?: boolean,
   languageSetting: string,
   searchInLanguage: boolean,
   doToggleTagFollowDesktop: (string) => void,
@@ -40,6 +41,7 @@ function DiscoverPage(props: Props) {
     followedTags,
     repostedClaim,
     repostedUri,
+    hideRepostRibbon,
     languageSetting,
     searchInLanguage,
     doToggleTagFollowDesktop,
@@ -126,9 +128,10 @@ function DiscoverPage(props: Props) {
   }
 
   function getPins(routeProps) {
-    if (routeProps && routeProps.pinnedUrls) {
+    if (routeProps && (routeProps.pinnedUrls || routeProps.pinnedClaimIds)) {
       return {
         urls: routeProps.pinnedUrls,
+        claimIds: routeProps.pinnedClaimIds,
         onlyPinForOrder: CS.ORDER_BY_TRENDING,
       };
     }
@@ -175,20 +178,12 @@ function DiscoverPage(props: Props) {
     );
   }
 
-  /*
-  React.useEffect(() => {
-    const hasAdOnPage = document.querySelector('.homepageAdContainer');
-
-    if (hasAdOnPage || isAuthenticated || !SHOW_ADS || window.location.pathname === `/$/${PAGES.WILD_WEST}`) {
-      return;
-    }
-    // injectAd();
-  }, [isAuthenticated]);
-  */
-
   return (
-    <Page noFooter fullWidthPage={tileLayout} className="main__discover">
-      {false && (<Ads type="homepage" />)}
+    <Page
+      noFooter
+      fullWidthPage={tileLayout}
+      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
+    >
       <ClaimListDiscover
         pins={getPins(dynamicRouteProps)}
         hideFilters={SIMPLE_SITE ? !(dynamicRouteProps || tags) : undefined}
@@ -201,7 +196,7 @@ function DiscoverPage(props: Props) {
         tags={tags}
         hiddenNsfwMessage={<HiddenNsfw type="page" />}
         repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-        // injectedItem={SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
+        // injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
         // Assume wild west page if no dynamicRouteProps
         // Not a very good solution, but just doing it for now
         // until we are sure this page will stay around
@@ -221,6 +216,7 @@ function DiscoverPage(props: Props) {
         }
         meta={getMeta()}
         hasSource
+        forceShowReposts={dynamicRouteProps}
       />
     </Page>
   );
