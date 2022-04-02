@@ -3,7 +3,7 @@ import 'videojs-contrib-ads'; // must be loaded in this order
 import 'videojs-ima'; // loads directly after contrib-ads
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
-import '@neko/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import * as ICONS from 'constants/icons';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
@@ -60,8 +60,8 @@ type Props = {
   autoplay: boolean,
   autoplaySetting: boolean,
   claimId: ?string,
-  title: ?string,
-  channelName: ?string,
+  // title: ?string,
+  // channelName: ?string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -125,8 +125,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplay,
     autoplaySetting,
     claimId,
-    title,
-    channelName,
+    // title,
+    // channelName,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -264,7 +264,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
-        const bigPlayButton = document.querySelector('.vjs-big-play-button');
+        // const bigPlayButton = document.querySelector('.vjs-big-play-button');
         // if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
       }
 
@@ -286,6 +286,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
+        // $FlowFixMe
         document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
         // $FlowFixMe
