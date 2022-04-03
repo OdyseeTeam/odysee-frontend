@@ -259,7 +259,7 @@ function ClaimMenuList(props: Props) {
       textArea.style.left = '0';
       textArea.style.position = 'fixed';
 
-      document.body.appendChild(textArea);
+      if (document.body) document.body.appendChild(textArea);
       textArea.focus();
       textArea.select();
       try {
@@ -268,7 +268,7 @@ function ClaimMenuList(props: Props) {
       } catch {
         // doToast({ message: __(failureMsg), isError: true });
       }
-      document.body.removeChild(textArea);
+      if (document.body) document.body.removeChild(textArea);
     } else {
       navigator.clipboard
         .writeText(textToCopy)
@@ -287,6 +287,7 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
+    // $FlowFixMe
     () =>
       function (event) {
         event.preventDefault();

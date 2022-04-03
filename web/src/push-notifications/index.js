@@ -54,6 +54,7 @@ export default new Proxy(
       if (pushSystem) {
         return pushSystem[prop];
       } else if (window.cordova) {
+        // $FlowFixMe
         return pushSystem[prop];
       } else {
         if (prop === 'supported') return false;

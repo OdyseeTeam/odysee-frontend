@@ -373,7 +373,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // $FlowFixMe
         vjsPlayer.removeClass('livestreamPlayer');
 
-        if (window.cordova) window.odysee.chromecast.setMediaPayload(source);
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
 

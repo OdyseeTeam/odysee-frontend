@@ -184,6 +184,14 @@
         }
       }
     }
+
+    .vjs-control-bar {
+      button,
+      span,
+      div:not(.vjs-progress-control):not(.vjs-progress-holder):not(.vjs-load-progress):not(.vjs-play-progress) {
+        display: none;
+      }
+    }
   }
 }
 
