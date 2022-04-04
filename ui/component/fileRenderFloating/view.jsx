@@ -316,6 +316,14 @@ export default function FileRenderFloating(props: Props) {
     }
   }
 
+  function closeMiniPlayer() {
+    if (window.cordova) {
+      window.odysee.functions.killControls(function () {
+        doSetPlayingUri({ uri: null });
+      });
+    }
+  }
+
   return (
     <Draggable
       onDrag={!isMobile ? handleDragMove : null}
@@ -357,7 +365,7 @@ export default function FileRenderFloating(props: Props) {
           {isFloating && (
             <Button
               title={__('Close')}
-              onClick={() => doSetPlayingUri({ uri: null })}
+              onClick={() => closeMiniPlayer()}
               icon={ICONS.REMOVE}
               button="primary"
               className="content__floating-close"
