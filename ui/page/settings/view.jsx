@@ -36,8 +36,7 @@ class SettingsPage extends React.PureComponent<Props> {
   }
 
   render() {
-    const { daemonSettings, isAuthenticated } = this.props;
-    const noDaemonSettings = !daemonSettings || Object.keys(daemonSettings).length === 0;
+    const { isAuthenticated } = this.props;
 
     return (
       <Page
@@ -47,7 +46,7 @@ class SettingsPage extends React.PureComponent<Props> {
         backout={{ title: __('Settings'), backLabel: __('Save') }}
         className="card-stack"
       >
-        {!isAuthenticated && IS_WEB && (
+        {!isAuthenticated && (
           <>
             <SettingUnauthenticated />
             <div className="main--empty">
@@ -65,18 +64,12 @@ class SettingsPage extends React.PureComponent<Props> {
           </>
         )}
 
-        {!IS_WEB && noDaemonSettings ? (
-          <section className="card card--section">
-            <div className="card__title card__title--deprecated">{__('Failed to load settings.')}</div>
-          </section>
-        ) : (
-          <div className={classnames('card-stack', { 'card--disabled': IS_WEB && !isAuthenticated })}>
-            <SettingAppearance />
-            <SettingAccount />
-            <SettingContent />
-            <SettingSystem />
-          </div>
-        )}
+        <div className={classnames('card-stack', { 'card--disabled': !isAuthenticated })}>
+          <SettingAppearance />
+          <SettingAccount />
+          <SettingContent />
+          <SettingSystem />
+        </div>
       </Page>
     );
   }

@@ -11,7 +11,6 @@ type Props = {
   theme: string,
   renderMode: string,
   source: {
-    file: (?string) => any,
     stream: string,
     contentType: string,
   },
@@ -35,26 +34,7 @@ class DocumentViewer extends React.PureComponent<Props, State> {
 
   componentDidMount() {
     const { source } = this.props;
-    // @if TARGET='app'
-    if (source && source.file) {
-      const stream = source.file('utf8');
 
-      let data = '';
-
-      stream.on('data', (chunk) => {
-        data += chunk;
-      });
-
-      stream.on('end', () => {
-        this.setState({ content: data, loading: false });
-      });
-
-      stream.on('error', () => {
-        this.setState({ error: true, loading: false });
-      });
-    }
-    // @endif
-    // @if TARGET='web'
     if (source && source.stream) {
       https.get(source.stream, (response) => {
         if (response.statusCode === 200) {
@@ -70,7 +50,6 @@ class DocumentViewer extends React.PureComponent<Props, State> {
         }
       });
     }
-    // @endif
   }
 
   renderDocument() {

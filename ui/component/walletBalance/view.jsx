@@ -40,7 +40,6 @@ const WalletBalance = (props: Props) => {
     supportsBalance,
     tipsBalance,
     doOpenModal,
-    hasSynced,
     doUtxoConsolidate,
     doFetchUtxoCounts,
     consolidatingUtxos,
@@ -140,22 +139,6 @@ const WalletBalance = (props: Props) => {
                   </dl>
                 </div>
               )}
-
-              {/* @if TARGET='app' */}
-              {hasSynced ? (
-                <p className="section help">
-                  {__('A backup of your wallet is synced with lbry.tv.')}
-                  <HelpLink href="https://lbry.com/faq/account-sync" />
-                </p>
-              ) : (
-                <p className="help--warning">
-                  {__(
-                    'Your wallet is not currently synced with lbry.tv. You are in control of backing up your wallet.'
-                  )}
-                  <HelpLink navigate={`/$/${PAGES.BACKUP}`} />
-                </p>
-              )}
-              {/* @endif */}
               <div className="section__actions">
                 <Button button="primary" label={__('Buy')} icon={ICONS.BUY} navigate={`/$/${PAGES.BUY}`} />
                 <Button

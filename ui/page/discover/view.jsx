@@ -101,7 +101,7 @@ function DiscoverPage(props: Props) {
           icon={ICONS.SUBSCRIBE}
           iconColor="red"
           onClick={handleFollowClick}
-          requiresAuth={IS_WEB}
+          requiresAuth
           label={label}
         />
       );

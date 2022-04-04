@@ -16,7 +16,6 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
-import FileDownloadLink from 'component/fileDownloadLink';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
@@ -212,11 +211,6 @@ function ClaimPreviewTile(props: Props) {
                   {isStream && <FileHideRecommendation focusable={false} uri={repostedContentUri} />}
                 </div>
               )}
-              {/* @if TARGET='app' */}
-              <div className="claim-preview__hover-actions">
-                {isStream && <FileDownloadLink focusable={false} uri={canonicalUrl} hideOpenButton />}
-              </div>
-              {/* @endif */}
               <div className="claim-preview__file-property-overlay">
                 <PreviewOverlayProperties uri={uri} properties={liveProperty || properties} />
               </div>

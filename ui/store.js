@@ -6,7 +6,7 @@ import { createFilter, createBlacklistFilter } from 'redux-persist-transform-fil
 import localForage from 'localforage';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
-import { createMemoryHistory, createBrowserHistory } from 'history';
+import { createBrowserHistory } from 'history';
 import { routerMiddleware } from 'connected-react-router';
 import createRootReducer from './reducers';
 import Lbry from 'lbry';
@@ -14,7 +14,6 @@ import { createAnalyticsMiddleware } from 'redux/middleware/analytics';
 import { buildSharedStateMiddleware } from 'redux/middleware/shared-state';
 import { doSyncLoop } from 'redux/actions/sync';
 import { getAuthToken } from 'util/saved-passwords';
-import { generateInitialUrl } from 'util/url';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 
 function isFunction(object) {
@@ -115,16 +114,7 @@ const persistOptions = {
   transforms,
 };
 
-let history;
-// @if TARGET='app'
-history = createMemoryHistory({
-  initialEntries: [generateInitialUrl(window.location.hash)],
-  initialIndex: 0,
-});
-// @endif
-// @if TARGET='web'
-history = createBrowserHistory();
-// @endif
+const history = createBrowserHistory();
 
 const triggerSharedStateActions = [
   ACTIONS.CHANNEL_SUBSCRIBE,
@@ -211,9 +201,7 @@ const analyticsMiddleware = createAnalyticsMiddleware();
 
 const middleware = [
   sharedStateMiddleware,
-  // @if TARGET='web'
   populateAuthTokenHeader,
-  // @endif
   routerMiddleware(history),
   thunk,
   bulkThunk,

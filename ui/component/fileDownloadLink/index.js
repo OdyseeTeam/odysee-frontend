@@ -1,11 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimIsMine, selectClaimForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
-import {
-  makeSelectFileInfoForUri,
-  makeSelectDownloadingForUri,
-  makeSelectLoadingForUri,
-  makeSelectStreamingUrlForUri,
-} from 'redux/selectors/file_info';
+import { makeSelectFileInfoForUri, makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCostInfoForUri } from 'lbryinc';
 import { doOpenModal } from 'redux/actions/app';
 import { doSetPlayingUri, doDownloadUri } from 'redux/actions/content';
@@ -16,8 +11,6 @@ const select = (state, props) => {
 
   return {
     fileInfo: makeSelectFileInfoForUri(props.uri)(state),
-    downloading: makeSelectDownloadingForUri(props.uri)(state),
-    loading: makeSelectLoadingForUri(props.uri)(state),
     claimIsMine: selectClaimIsMine(state, claim),
     claim,
     costInfo: selectCostInfoForUri(state, props.uri),

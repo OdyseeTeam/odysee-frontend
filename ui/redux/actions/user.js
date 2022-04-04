@@ -78,7 +78,7 @@ export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, doma
 
 function checkAuthBusy() {
   let time = Date.now();
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     (function waitForAuth() {
       try {
         sessionStorage.setItem('test', 'available');
@@ -89,7 +89,7 @@ function checkAuthBusy() {
           // no session storage
         }
       }
-      if (!IS_WEB || !sessionStorageAvailable) {
+      if (!sessionStorageAvailable) {
         return resolve();
       }
       const inProgress = window.sessionStorage.getItem(AUTH_IN_PROGRESS);

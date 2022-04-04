@@ -6,32 +6,24 @@ import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import SettingsRow from 'component/settingsRow';
-import SyncToggle from 'component/syncToggle';
 import { getPasswordFromCookie } from 'util/saved-passwords';
 import { getStripeEnvironment } from 'util/stripe';
 
 type Props = {
   // --- redux ---
   isAuthenticated: boolean,
-  walletEncrypted: boolean,
   user: User,
   hasChannels: boolean,
   doWalletStatus: () => void,
 };
 
 export default function SettingAccount(props: Props) {
-  const { isAuthenticated, walletEncrypted, user, hasChannels, doWalletStatus } = props;
-  const [storedPassword, setStoredPassword] = React.useState(false);
-
+  const { isAuthenticated, user, hasChannels, doWalletStatus } = props;
   // Determine if password is stored.
   React.useEffect(() => {
-    if (isAuthenticated || !IS_WEB) {
+    if (isAuthenticated) {
       doWalletStatus();
-      getPasswordFromCookie().then((p) => {
-        if (typeof p === 'string') {
-          setStoredPassword(true);
-        }
-      });
+      getPasswordFromCookie();
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -57,11 +49,6 @@ export default function SettingAccount(props: Props) {
               </SettingsRow>
             )}
 
-            {/* @if TARGET='app' */}
-            <SyncToggle disabled={walletEncrypted && !storedPassword && storedPassword !== ''} />
-            {/* @endif */}
-
-            {/* @if TARGET='web' */}
             {user && getStripeEnvironment() && (
               <SettingsRow
                 title={__('Bank Accounts')}
@@ -75,9 +62,7 @@ export default function SettingAccount(props: Props) {
                 />
               </SettingsRow>
             )}
-            {/* @endif */}
 
-            {/* @if TARGET='web' */}
             {isAuthenticated && getStripeEnvironment() && (
               <SettingsRow
                 title={__('Payment Methods')}
@@ -91,7 +76,6 @@ export default function SettingAccount(props: Props) {
                 />
               </SettingsRow>
             )}
-            {/* @endif */}
 
             {hasChannels && (
               <SettingsRow title={__('Comments')} subtitle={__('View your past comments.')}>

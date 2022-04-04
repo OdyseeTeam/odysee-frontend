@@ -32,7 +32,7 @@ function TagsFollowingPage(props: Props) {
             button="secondary"
             icon={ICONS.EDIT}
             label={__('Manage')}
-            requiresAuth={IS_WEB}
+            requiresAuth
             navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
           />
         }

@@ -10,11 +10,9 @@ import Card from 'component/common/card';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { sortLanguageMap } from 'util/default-languages';
 
-// @if TARGET='app'
 // import ErrorText from 'component/common/error-text';
 // import { LbryFirst } from 'lbry-redux';
 // import { ipcRenderer } from 'electron';
-// @endif
 
 type Props = {
   user: ?User,
@@ -49,13 +47,12 @@ function PublishAdditionalOptions(props: Props) {
   //   const [hasLaunchedLbryFirst, setHasLaunchedLbryFirst] = React.useState(false);
   //   const [ytError, setYtError] = React.useState(false);
   //   const isLBRYFirstUser = user && user.lbry_first_approved;
-  //   const showLbryFirstCheckbox = !IS_WEB && isLBRYFirstUser && hasLaunchedLbryFirst;
+  //   const showLbryFirstCheckbox = false;
 
   function toggleHideSection() {
     setHideSection(!hideSection);
   }
 
-  //   @if TARGET='app'
   //   function signup() {
   //     updatePublishForm({ ytSignupPending: true });
   //     LbryFirst.ytSignup()
@@ -109,7 +106,6 @@ function PublishAdditionalOptions(props: Props) {
   //         });
   //     }
   //   }, [updatePublishForm, useLBRYUploader, isLBRYFirstUser, hasLaunchedLbryFirst, accessToken]);
-  // @endif
 
   return (
     <Card
@@ -118,7 +114,6 @@ function PublishAdditionalOptions(props: Props) {
         <React.Fragment>
           {!hideSection && (
             <div className={classnames({ 'card--disabled': !name })}>
-              {/* @if TARGET='app' */}
               {/* {showLbryFirstCheckbox && (
                 <div className="section">
                   <>
@@ -152,7 +147,7 @@ function PublishAdditionalOptions(props: Props) {
                   </>
                 </div>
               )} */}
-              {/* @endif */}
+
               <div className="section">
                 {!showSchedulingOptions && <PublishReleaseDate />}
 

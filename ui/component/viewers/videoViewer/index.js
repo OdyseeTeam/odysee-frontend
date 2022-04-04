@@ -22,7 +22,7 @@ import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
 import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
-import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
+import { selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 
@@ -69,7 +69,7 @@ const select = (state, props) => {
     claim,
     homepageData: selectHomepageData(state),
     authenticated: selectUserVerifiedEmail(state),
-    shareTelemetry: IS_WEB || selectDaemonSettings(state).share_usage_data,
+    shareTelemetry: true,
     isFloating: makeSelectIsPlayerFloating(props.location)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),

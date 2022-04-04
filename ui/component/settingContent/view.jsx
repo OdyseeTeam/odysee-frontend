@@ -10,7 +10,6 @@ import { SETTINGS_GRP } from 'constants/settings';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
-import MaxPurchasePrice from 'component/maxPurchasePrice';
 import SettingsRow from 'component/settingsRow';
 
 type Price = {
@@ -138,16 +137,14 @@ export default function SettingContent(props: Props) {
                     name="show_nsfw"
                     checked={showNsfw}
                     onChange={() =>
-                      !IS_WEB || showNsfw
-                        ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw)
-                        : openModal(MODALS.CONFIRM_AGE)
+                      showNsfw ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw) : openModal(MODALS.CONFIRM_AGE)
                     }
                   />
                 </SettingsRow>
               </>
             )}
 
-            {(isAuthenticated || !IS_WEB) && (
+            {isAuthenticated && (
               <>
                 <SettingsRow title={__('Notifications')}>
                   <Button
@@ -189,12 +186,6 @@ export default function SettingContent(props: Props) {
                 onChange={() => setClientSetting(SETTINGS.ENABLE_PUBLISH_PREVIEW, !enablePublishPreview)}
               />
             </SettingsRow>
-
-            {/* @if TARGET='app' */}
-            <SettingsRow title={__('Max purchase price')} subtitle={__(HELP.MAX_PURCHASE_PRICE)} multirow>
-              <MaxPurchasePrice />
-            </SettingsRow>
-            {/* @endif */}
 
             <SettingsRow title={__('Purchase and tip confirmations')} multirow>
               <FormField

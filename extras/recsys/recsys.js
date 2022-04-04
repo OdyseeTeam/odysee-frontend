@@ -8,7 +8,7 @@ import * as SETTINGS from 'constants/settings';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
-import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { history } from 'ui/store';
 
 const recsysEndpoint = RECSYS_ENDPOINT;
@@ -58,7 +58,7 @@ const recsys = {
    * @param parentClaimId: string,
    * @param newClaimId: string,
    */
-  onClickedRecommended: function (parentClaimId, newClaimId) {
+  onClickedRecommended: (parentClaimId, newClaimId) => {
     const parentEntry = recsys.entries[parentClaimId] ? recsys.entries[parentClaimId] : null;
     const parentUuid = parentEntry['uuid'];
     const parentRecommendedClaims = parentEntry['recClaimIds'] || [];
@@ -133,9 +133,8 @@ const recsys = {
    * @param claimId
    * @param isTentative
    */
-  sendRecsysEntry: function (claimId, isTentative) {
-    const shareTelemetry =
-      IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data);
+  sendRecsysEntry: (claimId, isTentative) => {
+    const shareTelemetry = true;
 
     if (recsys.entries[claimId] && shareTelemetry) {
       const data = JSON.stringify(recsys.entries[claimId]);
@@ -163,7 +162,7 @@ const recsys = {
    * @param claimId
    * @param event
    */
-  onRecsysPlayerEvent: function (claimId, event, isEmbedded) {
+  onRecsysPlayerEvent: (claimId, event, isEmbedded) => {
     const state = window.store.getState();
     const autoPlayNext = state && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT);
     // Check if played through (4 = onEnded) and handle multiple events at end
@@ -184,8 +183,9 @@ const recsys = {
     recsys.entries[claimId].events.push(event);
     recsys.log('onRecsysPlayerEvent', claimId);
   },
-  log: function (callName, claimId) {
+  log: (callName, claimId) => {
     if (recsys.debug) {
+      // eslint-disable-next-line no-console
       console.log(`Call: ***${callName}***, ClaimId: ${claimId}, Recsys Entries`, Object.assign({}, recsys.entries));
     }
   },
@@ -194,7 +194,7 @@ const recsys = {
    * Player closed. Check to see if primaryUri = playingUri
    * if so, send the Entry.
    */
-  onPlayerDispose: function (claimId, isEmbedded) {
+  onPlayerDispose: (claimId, isEmbedded) => {
     if (window && window.store) {
       const state = window.store.getState();
       const playingUri = selectPlayingUri(state);
@@ -217,7 +217,7 @@ const recsys = {
   //  * If floating enabled, leaving file page will pop out player, leading to
   //  * more events until player is disposed. Don't send unless floatingPlayer playingUri
   //  */
-  // onLeaveFilePage: function (primaryUri) {
+  // onLeaveFilePage: (primaryUri) {
   //   if (window && window.store) {
   //     const state = window.store.getState();
   //     const claim = makeSelectClaimForUri(primaryUri)(state);
@@ -243,7 +243,7 @@ const recsys = {
    * Navigate event
    * Send all claimIds that aren't currently playing.
    */
-  onNavigate: function () {
+  onNavigate: () => {
     if (window && window.store) {
       const state = window.store.getState();
       const playingUri = selectPlayingUri(state);
@@ -264,13 +264,12 @@ const recsys = {
     }
   },
 };
-// @if TARGET='web'
-document.addEventListener('visibilitychange', function logData() {
+
+document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'hidden') {
     Object.keys(recsys.entries).map((claimId) => recsys.sendRecsysEntry(claimId, true));
   }
 });
-// @endif
 
 history.listen(() => {
   recsys.onNavigate();

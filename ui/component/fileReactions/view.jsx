@@ -107,7 +107,7 @@ export default function FileReactions(props: Props) {
       <div className={'ratio-wrapper'}>
         <Button
           title={__('I like this')}
-          requiresAuth={IS_WEB}
+          requiresAuth
           authSrc="filereaction_like"
           className={classnames('button--file-action button-like', {
             'button--fire': myReaction === REACTION_TYPES.LIKE,
@@ -118,7 +118,7 @@ export default function FileReactions(props: Props) {
           onClick={() => doReactionLike(uri)}
         />
         <Button
-          requiresAuth={IS_WEB}
+          requiresAuth
           authSrc={'filereaction_dislike'}
           title={__('I dislike this')}
           className={classnames('button--file-action button-dislike', {

@@ -97,8 +97,8 @@ type LogPublishParams = {
   channel_claim_id?: string,
 };
 
-let internalAnalyticsEnabled: boolean = IS_WEB || false;
-// let thirdPartyAnalyticsEnabled: boolean = IS_WEB || false;
+let internalAnalyticsEnabled: boolean = true;
+// let thirdPartyAnalyticsEnabled: boolean = true;
 
 const isGaAllowed = internalAnalyticsEnabled && isProduction;
 
@@ -110,9 +110,6 @@ const isGaAllowed = internalAnalyticsEnabled && isProduction;
  */
 function getDeviceType() {
   // We may not care what the device is if it's in a web browser. Commenting out for now.
-  // if (!IS_WEB) {
-  //   return 'elt';
-  // }
   // const userAgent = navigator.userAgent || navigator.vendor || window.opera;
   //
   // if (/android/i.test(userAgent)) {
@@ -125,9 +122,6 @@ function getDeviceType() {
   // }
 
   // default as web, this can be optimized
-  if (!IS_WEB) {
-    return 'dsk';
-  }
   return 'web';
 }
 // variables initialized for watchman
@@ -204,7 +198,7 @@ function startWatchmanIntervalIfNotRunning() {
     lastSentTime = new Date();
 
     // only set an interval if analytics are enabled and is prod
-    if (isProduction && IS_WEB) {
+    if (isProduction) {
       watchmanInterval = setInterval(sendAndResetWatchmanData, 1000 * SEND_DATA_TO_WATCHMAN_INTERVAL);
     }
   }
@@ -328,10 +322,6 @@ const analytics: Analytics = {
           outpoint,
           claim_id: claimId,
         };
-
-        if (timeToStart && !IS_WEB) {
-          params.time_to_start = timeToStart;
-        }
 
         resolve(Lbryio.call('file', 'view', params));
       } else {
@@ -470,12 +460,10 @@ function sendGaEvent(event: string, params?: { [string]: string | number }) {
 }
 
 function sendPromMetric(name: string, value?: number) {
-  if (IS_WEB) {
-    let url = new URL(SDK_API_PATH + '/metric/ui');
-    const params = { name: name, value: value ? value.toString() : '' };
-    url.search = new URLSearchParams(params).toString();
-    return fetch(url, { method: 'post' }).catch(function (error) {});
-  }
+  let url = new URL(SDK_API_PATH + '/metric/ui');
+  const params = { name: name, value: value ? value.toString() : '' };
+  url.search = new URLSearchParams(params).toString();
+  return fetch(url, { method: 'post' }).catch(function (error) {});
 }
 
 // Activate

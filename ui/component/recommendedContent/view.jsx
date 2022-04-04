@@ -45,7 +45,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   } = props;
 
   const claimId: ?string = claim && claim.claim_id;
-  const injectAds = SHOW_ADS && IS_WEB && !userHasPremiumPlus;
+  const injectAds = SHOW_ADS && !userHasPremiumPlus;
 
   function claimContainsBlockedWords(claim: ?StreamClaim) {
     if (BLOCKED_WORDS) {

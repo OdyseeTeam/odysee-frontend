@@ -2,9 +2,6 @@
 import React from 'react';
 import { Modal } from 'modal/modal';
 import { formatFileSystemPath } from 'util/url';
-// @if TARGET='app'
-import { shell } from 'electron';
-// @endif
 
 type Props = {
   uri: string,
@@ -22,24 +19,11 @@ function ModalOpenExternalResource(props: Props) {
   }
 
   function openResource() {
-    // @if TARGET='app'
-    const { openExternal, openPath, showItemInFolder } = shell;
-    if (uri) {
-      openExternal(uri);
-    } else if (path) {
-      const success = openPath(path);
-      if (!success) {
-        showItemInFolder(path);
-      }
-    }
-    // @endif
-    // @if TARGET='web'
     if (uri) {
       window.open(uri);
     } else if (path) {
       window.open(formatFileSystemPath(path));
     }
-    // @endif
 
     closeModal();
   }

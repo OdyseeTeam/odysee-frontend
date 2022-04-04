@@ -56,7 +56,7 @@ function FileThumbnail(props: Props) {
   const fallback = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
 
   let url = thumbnail || (hasResolvedClaim ? Placeholder : '');
-  // @if TARGET='web'
+
   // Pass image urls through a compression proxy
   if (thumbnail) {
     if (isGif) {
@@ -70,7 +70,6 @@ function FileThumbnail(props: Props) {
       });
     }
   }
-  // @endif
 
   const thumbnailUrl = url ? url.replace(/'/g, "\\'") : '';
 

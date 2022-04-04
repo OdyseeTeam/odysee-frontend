@@ -344,7 +344,7 @@ function CommentView(props: Props) {
                     button="primary"
                     type="submit"
                     label={__('Done')}
-                    requiresAuth={IS_WEB}
+                    requiresAuth
                     disabled={message === editedMessage}
                   />
                   <Button button="link" label={__('Cancel')} onClick={() => setEditing(false)} />
@@ -386,7 +386,7 @@ function CommentView(props: Props) {
                   <div className="comment__actions">
                     {threadDepth !== 0 && (
                       <Button
-                        requiresAuth={IS_WEB}
+                        requiresAuth
                         label={commentingEnabled ? __('Reply') : __('Log in to reply')}
                         className="comment__action"
                         onClick={handleCommentReply}

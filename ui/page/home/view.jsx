@@ -62,8 +62,8 @@ function HomePage(props: Props) {
     hasMembership,
   } = props;
 
-  const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
-  const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
+  const showPersonalizedChannels = authenticated && subscribedChannels && subscribedChannels.length > 0;
+  const showPersonalizedTags = authenticated && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
@@ -220,7 +220,7 @@ function HomePage(props: Props) {
 
   React.useEffect(() => {
     doFetchActiveLivestreams();
-  }, []);
+  }, [doFetchActiveLivestreams]);
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>

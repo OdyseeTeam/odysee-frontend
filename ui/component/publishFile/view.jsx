@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import type { Node } from 'react';
@@ -10,8 +11,6 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-import I18nMessage from 'component/i18nMessage';
-import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from 'component/publishName';
 import CopyableText from 'component/copyableText';
@@ -37,7 +36,6 @@ type Props = {
   inProgress: boolean,
   clearPublish: () => void,
   ffmpegStatus: any,
-  optimize: boolean,
   size: number,
   duration: number,
   isVid: boolean,
@@ -73,7 +71,6 @@ function PublishFile(props: Props) {
     publishing,
     inProgress,
     clearPublish,
-    optimize,
     ffmpegStatus = {},
     size,
     duration,
@@ -100,18 +97,11 @@ function PublishFile(props: Props) {
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
-  const PROCESSING_MB_PER_SECOND = 0.5;
-  const MINUTES_THRESHOLD = 30;
-  const HOURS_THRESHOLD = MINUTES_THRESHOLD * 60;
   const MARKDOWN_FILE_EXTENSIONS = ['txt', 'md', 'markdown'];
-  const sizeInMB = Number(size) / 1000000;
-  const secondsToProcess = sizeInMB / PROCESSING_MB_PER_SECOND;
   const ffmpegAvail = ffmpegStatus.available;
   const [oversized, setOversized] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
   const [currentFileType, setCurrentFileType] = useState(null);
-  const [optimizeAvail, setOptimizeAvail] = useState(false);
-  const [userOptimize, setUserOptimize] = usePersistedState('publish-file-user-optimize', false);
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
     SITE_NAME,
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
@@ -206,12 +196,12 @@ function PublishFile(props: Props) {
 
   useEffect(() => {
     const isOptimizeAvail = currentFile && currentFile !== '' && isVid && ffmpegAvail;
-    const finalOptimizeState = isOptimizeAvail && userOptimize;
+    const finalOptimizeState = isOptimizeAvail;
 
-    setOptimizeAvail(isOptimizeAvail);
     updatePublishForm({ optimize: finalOptimizeState });
-  }, [currentFile, filePath, isVid, ffmpegAvail, userOptimize, updatePublishForm]);
+  }, [currentFile, filePath, isVid, ffmpegAvail, updatePublishForm]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   function updateFileInfo(duration, size, isvid) {
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
   }
@@ -230,31 +220,7 @@ function PublishFile(props: Props) {
     }
   }
 
-  function getTimeForMB(s) {
-    if (s < MINUTES_THRESHOLD) {
-      return Math.floor(secondsToProcess);
-    } else if (s >= MINUTES_THRESHOLD && s < HOURS_THRESHOLD) {
-      return Math.floor(secondsToProcess / 60);
-    } else {
-      return Math.floor(secondsToProcess / 60 / 60);
-    }
-  }
-
-  function getUnitsForMB(s) {
-    if (s < MINUTES_THRESHOLD) {
-      if (secondsToProcess > 1) return __('seconds');
-      return __('second');
-    } else if (s >= MINUTES_THRESHOLD && s < HOURS_THRESHOLD) {
-      if (Math.floor(secondsToProcess / 60) > 1) return __('minutes');
-      return __('minute');
-    } else {
-      if (Math.floor(secondsToProcess / 3600) > 1) return __('hours');
-      return __('hour');
-    }
-  }
-
   function getUploadMessage() {
-    // @if TARGET='web'
     if (oversized) {
       return (
         <p className="help--error">
@@ -263,7 +229,7 @@ function PublishFile(props: Props) {
         </p>
       );
     }
-    // @endif
+
     let bitRate = getBitrate(size, duration);
     let overMaxBitrate = bitRate > MAX_BITRATE;
     if (overMaxBitrate) {
@@ -318,7 +284,7 @@ function PublishFile(props: Props) {
         </p>
       );
     }
-    // @if TARGET='web'
+
     if (!isStillEditing) {
       return (
         <p className="help">
@@ -334,20 +300,6 @@ function PublishFile(props: Props) {
         </p>
       );
     }
-    // @endif
-
-    // @if TARGET='app'
-    if (!isStillEditing) {
-      return (
-        <p className="help">
-          {__(
-            'For video content, use MP4s in H264/AAC format and a friendly bitrate (under 5 Mbps) and resolution (720p) for more reliable streaming.'
-          )}{' '}
-          <Button button="link" label={__('Upload Guide')} href="https://odysee.com/@OdyseeHelp:b/uploadguide:1" />
-        </p>
-      );
-    }
-    // @endif
   }
 
   function parseName(newName) {
@@ -455,7 +407,6 @@ function PublishFile(props: Props) {
       setPublishMode(PUBLISH_MODES.FILE);
     }
 
-    // @if TARGET='web'
     // we only need to enforce file sizes on 'web'
     if (file.size && Number(file.size) > TV_PUBLISH_SIZE_LIMIT_BYTES) {
       setOversized(true);
@@ -463,7 +414,6 @@ function PublishFile(props: Props) {
       updatePublishForm({ filePath: '' });
       return;
     }
-    // @endif
 
     const publishFormParams: { filePath: string | WebFile, name?: string, optimize?: boolean } = {
       // if electron, we'll set filePath to the path string because SDK is handling publishing.
@@ -518,7 +468,6 @@ function PublishFile(props: Props) {
             onChange={handleTitleChange}
           />
           {/* Decide whether to show file upload or replay selector */}
-          {/* @if TARGET='web' */}
           <>
             {showSourceSelector && (
               <fieldset-section>
@@ -658,53 +607,6 @@ function PublishFile(props: Props) {
               </div>
             )}
           </>
-          {/* @endif */}
-          {/* @if TARGET='app' */}
-          {showFileUpload && (
-            <FileSelector
-              label={__('File')}
-              disabled={disabled}
-              currentPath={currentFile}
-              onFileChosen={handleFileChange}
-              // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-              placeholder={__('Select file to upload')}
-            />
-          )}
-          {showFileUpload && (
-            <FormField
-              type="checkbox"
-              checked={userOptimize}
-              disabled={!optimizeAvail}
-              onChange={() => setUserOptimize(!userOptimize)}
-              label={__('Optimize and transcode video')}
-              name="optimize"
-            />
-          )}
-          {showFileUpload && !ffmpegAvail && (
-            <p className="help">
-              <I18nMessage
-                tokens={{
-                  settings_link: <Button button="link" navigate="/$/settings" label={__('Settings')} />,
-                }}
-              >
-                FFmpeg not configured. More in %settings_link%.
-              </I18nMessage>
-            </p>
-          )}
-          {showFileUpload && Boolean(size) && ffmpegAvail && optimize && isVid && (
-            <p className="help">
-              <I18nMessage
-                tokens={{
-                  size: Math.ceil(sizeInMB),
-                  processTime: getTimeForMB(sizeInMB),
-                  units: getUnitsForMB(sizeInMB),
-                }}
-              >
-                Transcoding this %size% MB file should take under %processTime% %units%.
-              </I18nMessage>
-            </p>
-          )}
-          {/* @endif */}
           {isPublishPost && (
             <PostEditor
               label={__('Post --[noun, markdown post tab button]--')}

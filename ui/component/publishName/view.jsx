@@ -34,7 +34,7 @@ function PublishName(props: Props) {
   const [nameError, setNameError] = useState(undefined);
   const [blurred, setBlurred] = React.useState(false);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
-  let prefix = IS_WEB ? `${DOMAIN}/` : 'lbry://';
+  let prefix = `${DOMAIN}/`;
   if (activeChannelName && !incognito) {
     prefix += `${activeChannelName}/`;
   }

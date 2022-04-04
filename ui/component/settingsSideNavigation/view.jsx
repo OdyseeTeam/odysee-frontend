@@ -7,9 +7,6 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import classnames from 'classnames';
 import Button from 'component/button';
-// @if TARGET='app'
-import { IS_MAC } from 'component/app/view';
-// @endif
 import { useIsMediumScreen } from 'effects/use-screensize';
 
 type SideNavLink = {
@@ -98,9 +95,6 @@ export default function SettingsSideNavigation() {
         aria-label={'Sidebar'}
         className={classnames('navigation', {
           'navigation--micro': microNavigation,
-          // @if TARGET='app'
-          'navigation--mac': IS_MAC,
-          // @endif
         })}
       >
         <div>
@@ -127,13 +121,7 @@ export default function SettingsSideNavigation() {
 
       {isMediumScreen && sidebarOpen && (
         <>
-          <nav
-            className={classnames('navigation--absolute', {
-              // @if TARGET='app'
-              'navigation--mac': IS_MAC,
-              // @endif
-            })}
-          >
+          <nav className="navigation--absolute">
             <div>
               <ul className="navigation-links--absolute">
                 {SIDE_LINKS.map((linkProps) => {

@@ -24,7 +24,7 @@ class ModalPublishSuccess extends React.PureComponent<Props> {
     clearPublish();
   }
   render() {
-    const { closeModal, clearPublish, navigate, uri, isEdit, filePath, lbryFirstError, claim } = this.props;
+    const { closeModal, clearPublish, navigate, uri, isEdit, lbryFirstError, claim } = this.props;
     //   $FlowFixMe
     const livestream = claim && claim.value && claim.value_type === 'stream' && !claim.value.source;
     let contentLabel;
@@ -61,16 +61,6 @@ class ModalPublishSuccess extends React.PureComponent<Props> {
               <div className="card--inline">
                 <ClaimPreview type="small" uri={uri} />
               </div>
-              {filePath && !IS_WEB && (
-                <p className="help">
-                  <React.Fragment>
-                    {__(
-                      `Upload will continue in the background, please do not shut down immediately. Leaving the app running helps the network, thank you!`
-                    )}{' '}
-                    <Button button="link" href="https://lbry.com/faq/host-content" label={__('Learn More')} />
-                  </React.Fragment>
-                </p>
-              )}
             </React.Fragment>
           }
           actions={

@@ -9,8 +9,6 @@ type Props = {
   uri: string,
   claim: StreamClaim,
   claimIsMine: boolean,
-  downloading: boolean,
-  loading: boolean,
   focusable: boolean,
   fileInfo: ?FileListItem,
   openModal: (id: string, { path: string }) => void,
@@ -20,15 +18,12 @@ type Props = {
   buttonType: ?string,
   showLabel: ?boolean,
   hideOpenButton: boolean,
-  hideDownloadStatus: boolean,
   streamingUrl: ?string,
 };
 
 function FileDownloadLink(props: Props) {
   const {
     fileInfo,
-    downloading,
-    loading,
     openModal,
     pause,
     claimIsMine,
@@ -39,21 +34,18 @@ function FileDownloadLink(props: Props) {
     focusable = true,
     showLabel = false,
     hideOpenButton = false,
-    hideDownloadStatus = false,
     streamingUrl,
   } = props;
 
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
   const fileName = claim && claim.value && claim.value.source && claim.value.source.name;
 
-  // @if TARGET='web'
   React.useEffect(() => {
     if (didClickDownloadButton && streamingUrl) {
       webDownloadClaim(streamingUrl, fileName);
       setDidClickDownloadButton(false);
     }
   }, [streamingUrl, didClickDownloadButton, fileName]);
-  // @endif
 
   function handleDownload(e) {
     setDidClickDownloadButton(true);
@@ -64,21 +56,6 @@ function FileDownloadLink(props: Props) {
   if (!claim) {
     return null;
   }
-
-  // @if TARGET='app'
-  if (downloading || loading) {
-    if (hideDownloadStatus) {
-      return null;
-    }
-
-    if (fileInfo && fileInfo.written_bytes > 0) {
-      const progress = (fileInfo.written_bytes / fileInfo.total_bytes) * 100;
-      return <span className="download-text">{__('%percent%% downloaded', { percent: progress.toFixed(0) })}</span>;
-    } else {
-      return <span className="download-text">{__('Connecting...')}</span>;
-    }
-  }
-  // @endif
 
   if (fileInfo && fileInfo.download_path && fileInfo.completed) {
     const openLabel = __('Open file');

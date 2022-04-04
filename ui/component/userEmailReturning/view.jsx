@@ -20,7 +20,6 @@ type Props = {
   doClearEmailEntry: () => void,
   doUserSignIn: (string, ?string) => void,
   doUserCheckIfEmailExists: (string) => void,
-  doSetWalletSyncPreference: (boolean) => void,
   doSetClientSetting: (string, boolean, ?boolean) => void,
   isPending: boolean,
 };
@@ -33,7 +32,6 @@ function UserEmailReturning(props: Props) {
     emailToVerify,
     doClearEmailEntry,
     emailDoesNotExist,
-    doSetWalletSyncPreference,
     isPending,
   } = props;
   const { push, location } = useHistory();
@@ -44,15 +42,11 @@ function UserEmailReturning(props: Props) {
   const hasPasswordSet = user && user.password_set;
 
   const [email, setEmail] = useState(defaultEmail);
-  const [syncEnabled, setSyncEnabled] = useState(true);
 
   const valid = email.match(EMAIL_REGEX);
   const showEmailVerification = emailToVerify || hasPasswordSet;
 
   function handleSubmit() {
-    // @if TARGET='app'
-    doSetWalletSyncPreference(syncEnabled);
-    // @endif
     doUserCheckIfEmailExists(email);
   }
 
@@ -95,21 +89,6 @@ function UserEmailReturning(props: Props) {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                 />
-
-                {/* @if TARGET='app' */}
-                <FormField
-                  type="checkbox"
-                  name="sync_checkbox"
-                  label={
-                    <React.Fragment>
-                      {__('Backup your account and wallet data.')}{' '}
-                      <Button button="link" href="https://lbry.com/faq/account-sync" label={__('Learn More')} />
-                    </React.Fragment>
-                  }
-                  checked={syncEnabled}
-                  onChange={() => setSyncEnabled(!syncEnabled)}
-                />
-                {/* @endif */}
 
                 <div className="section__actions">
                   <Button

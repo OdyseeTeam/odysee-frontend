@@ -13,7 +13,6 @@ type Props = {
 export default function FileRenderDownload(props: Props) {
   const { uri, renderMode } = props;
 
-  // @if TARGET='web'
   if (RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode)) {
     return (
       <Card
@@ -34,7 +33,6 @@ export default function FileRenderDownload(props: Props) {
       />
     );
   }
-  // @endif
 
   return <Card title={__('Download')} actions={<FileDownloadLink uri={uri} buttonType="primary" showLabel />} />;
 }
