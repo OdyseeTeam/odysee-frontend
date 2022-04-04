@@ -4,7 +4,6 @@ require('dotenv-defaults').config({ silent: false });
 
 const config = {
   WEBPACK_WEB_PORT: process.env.WEBPACK_WEB_PORT,
-  WEBPACK_ELECTRON_PORT: process.env.WEBPACK_ELECTRON_PORT,
   WEB_SERVER_PORT: process.env.WEB_SERVER_PORT,
   LBRY_WEB_API: process.env.LBRY_WEB_API, // api.na-backend.odysee.com',
   LBRY_WEB_PUBLISH_API: process.env.LBRY_WEB_PUBLISH_API,
