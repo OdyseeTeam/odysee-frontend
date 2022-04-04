@@ -684,8 +684,6 @@
   "There was an error. Try %refreshing_the_app_link% to fix it. If that doesn't work, try pressing Ctrl+R/Cmd+R.": "There was an error. Try %refreshing_the_app_link% to fix it. If that doesn't work, try pressing Ctrl+R/Cmd+R.",
   "You are not currently sharing diagnostic data so this error was not reported.": "You are not currently sharing diagnostic data so this error was not reported.",
   "Find channels to follow": "Find channels to follow",
-  "Find new channels to follow": "Find new channels to follow",
-  "%SITE_NAME% is more fun if you're following channels": "%SITE_NAME% is more fun if you're following channels",
   "Saved zip archive to %outputPath%": "Saved zip archive to %outputPath%",
   "FINAL WARNING: This action is permanent and cannot be undone.": "FINAL WARNING: This action is permanent and cannot be undone.",
   "This action is permanent and cannot be undone": "This action is permanent and cannot be undone",
