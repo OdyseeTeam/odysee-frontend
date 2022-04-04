@@ -984,7 +984,7 @@ img {
     .card__title-section {
       width: 100%;
       flex-wrap: wrap;
-      div:first-child {
+      div:first-child:not(.channel-thumbnail) {
         width: 100%;
         .card__subtitle {
           background-color: var(--color-header-background);
@@ -1265,6 +1265,15 @@ img {
 }
 .icon--ExternalLink {
   margin-top: -5px;
+  margin-left: 2px;
+  margin-left: var(--spacing-xxs) !important;
+}
+.markdown-preview {
+  .icon--ExternalLink {
+    flex-shrink: 0;
+    margin-bottom: -1px !important;
+    // margin-left:2px !important;
+  }
 }
 .hide-ribbon {
   .claim-tile__repost-author {

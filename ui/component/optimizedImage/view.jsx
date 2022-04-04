@@ -4,7 +4,9 @@ import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 
 function scaleToDevicePixelRatio(value: number) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
-  return Math.ceil(value * devicePixelRatio);
+  const nextInteger = Math.ceil(value * devicePixelRatio);
+  // Round to next 100px for better caching
+  return Math.ceil(nextInteger / 100) * 100;
 }
 
 function getOptimizedImgUrl(url, width, height, quality) {
@@ -36,7 +38,7 @@ function OptimizedImage(props: Props) {
   const {
     src,
     width = 0, // 0 = use intrinsic width
-    quality = 85,
+    quality = 95,
     waitLoad,
     ...imgProps
   } = props;

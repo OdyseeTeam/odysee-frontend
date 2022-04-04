@@ -627,7 +627,7 @@ body {
       .claim-preview__wrapper {
         a {
           .button__content {
-            align-items: unset;
+            // align-items: unset;
           }
         }
       }
@@ -950,7 +950,7 @@ body {
 
     > :first-child {
       position: fixed;
-      background-color: var(--color-background);
+      // background-color: var(--color-background);
       width: calc(40% - var(--spacing-l));
       margin-top: var(--spacing-xl);
     }
@@ -1130,6 +1130,39 @@ body {
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
       width: unset; // It was being set to '100%' at the base level.
+    }
+  }
+
+  .claim-preview {
+    .claim-preview__text {
+      overflow: hidden;
+    }
+    .claim-preview-metadata {
+      .claim-tile__info {
+        .media__subtitle {
+          width: calc(100% - 2.1rem);
+          .button {
+            display: inline;
+            @media (max-width: $breakpoint-small) {
+              .button__content {
+                width: 100%;
+                .channel-name {
+                  width: 100%;
+                  p {
+                    width: 99%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                }
+              }
+            }
+          }
+          span:not(.channel-name) {
+            font-size: var(--font-xsmall);
+          }
+        }
+      }
     }
   }
 }
