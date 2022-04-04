@@ -67,7 +67,6 @@ const config = {
   CHANNEL_CREATION_LIMIT: process.env.CHANNEL_CREATION_LIMIT,
   WEB_PUBLISH_SIZE_LIMIT_GB: process.env.WEB_PUBLISH_SIZE_LIMIT_GB,
   LOADING_BAR_COLOR: process.env.LOADING_BAR_COLOR,
-  SIMPLE_SITE: process.env.SIMPLE_SITE === 'true',
   SHOW_ADS: process.env.SHOW_ADS === 'true',
   KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS ? process.env.KNOWN_APP_DOMAINS.split(',') : [],
   STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,

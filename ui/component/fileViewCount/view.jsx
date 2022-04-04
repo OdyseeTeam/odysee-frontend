@@ -1,7 +1,5 @@
 // @flow
-import { SIMPLE_SITE } from 'config';
 import React from 'react';
-import HelpLink from 'component/common/help-link';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 
@@ -40,7 +38,6 @@ function FileViewCount(props: Props) {
         {!livestream &&
           activeViewers === undefined &&
           (viewCount !== 1 ? __('%view_count% views', { view_count: countCompact }) : __('1 view'))}
-        {!SIMPLE_SITE && <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />}
       </span>
     </Tooltip>
   );

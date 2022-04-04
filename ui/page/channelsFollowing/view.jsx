@@ -2,7 +2,6 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
-import { SIMPLE_SITE } from 'config';
 import React from 'react';
 import ChannelsFollowingDiscoverPage from 'page/channelsFollowingDiscover';
 import LivestreamSection from 'page/discover/livestreamSection';
@@ -56,8 +55,8 @@ function ChannelsFollowingPage(props: Props) {
           )}
 
           <ClaimListDiscover
-            hideAdvancedFilter={SIMPLE_SITE}
-            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+            hideAdvancedFilter
+            streamType={CS.CONTENT_ALL}
             tileLayout={tileLayout}
             headerLabel={
               <span>

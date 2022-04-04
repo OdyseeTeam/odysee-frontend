@@ -4,18 +4,13 @@ import * as PAGES from 'constants/pages';
 import React from 'react';
 import * as SETTINGS from 'constants/settings';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
-import * as MODALS from 'constants/modal_types';
 import { SETTINGS_GRP } from 'constants/settings';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
 import SettingsRow from 'component/settingsRow';
 
-type Price = {
-  currency: string,
-  amount: number,
-};
+type Price = { currency: string, amount: number };
 
 type Props = {
   // --- select ---
@@ -24,7 +19,6 @@ type Props = {
   autoplayMedia: boolean,
   autoplayNext: boolean,
   hideReposts: ?boolean,
-  showNsfw: boolean,
   hideScheduledLivestreams: boolean,
   myChannelUrls: ?Array<string>,
   instantPurchaseEnabled: boolean,
@@ -33,7 +27,6 @@ type Props = {
   // --- perform ---
   setClientSetting: (string, boolean | string | number) => void,
   clearPlayingUri: () => void,
-  openModal: (string) => void,
 };
 
 export default function SettingContent(props: Props) {
@@ -43,7 +36,6 @@ export default function SettingContent(props: Props) {
     autoplayMedia,
     autoplayNext,
     hideReposts,
-    showNsfw,
     hideScheduledLivestreams,
     myChannelUrls,
     instantPurchaseEnabled,
@@ -51,7 +43,6 @@ export default function SettingContent(props: Props) {
     enablePublishPreview,
     setClientSetting,
     clearPlayingUri,
-    openModal,
   } = props;
 
   return (
@@ -117,32 +108,6 @@ export default function SettingContent(props: Props) {
                 checked={hideScheduledLivestreams}
               />
             </SettingsRow>
-
-            {!SIMPLE_SITE && (
-              <>
-                {/*
-              <SettingsRow title={__('Show anonymous content')} subtitle={__('Anonymous content is published without a channel.')} >
-                <FormField
-                  type="checkbox"
-                  name="show_anonymous"
-                  onChange={() => setClientSetting(SETTINGS.SHOW_ANONYMOUS, !showAnonymous)}
-                  checked={showAnonymous}
-                />
-              </SettingsRow>
-              */}
-
-                <SettingsRow title={__('Show mature content')} subtitle={__(HELP.SHOW_MATURE)}>
-                  <FormField
-                    type="checkbox"
-                    name="show_nsfw"
-                    checked={showNsfw}
-                    onChange={() =>
-                      showNsfw ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw) : openModal(MODALS.CONFIRM_AGE)
-                    }
-                  />
-                </SettingsRow>
-              </>
-            )}
 
             {isAuthenticated && (
               <>
@@ -229,6 +194,6 @@ const HELP = {
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE: 'Mature content may include nudity, intense sexuality, profanity, or other adult content. By displaying mature content, you are affirming you are of legal age to view mature content in your country or jurisdiction.  ',
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
-  ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
+  ONLY_CONFIRM_OVER_AMOUNT: '', // [feels redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',
 };

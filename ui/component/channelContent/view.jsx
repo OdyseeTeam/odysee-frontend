@@ -1,5 +1,4 @@
 // @flow
-import { SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
@@ -149,7 +148,7 @@ function ChannelContent(props: Props) {
           hideAdvancedFilter={!showFilters}
           tileLayout={tileLayout}
           uris={isSearching ? [] : null}
-          streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+          streamType={CS.CONTENT_ALL}
           channelIds={[claimId]}
           claimType={claimType}
           feeAmount={CS.FEE_AMOUNT_ANY}

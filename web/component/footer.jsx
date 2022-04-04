@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import Button from 'component/button';
-import { SIMPLE_SITE } from 'config';
 
 export default function Footer() {
   useEffect(() => {
@@ -23,9 +22,6 @@ export default function Footer() {
     checkForOneTrust();
   }, []);
 
-  if (!SIMPLE_SITE) {
-    return null;
-  }
   return (
     <footer className="footer">
       <ul className="navigation__tertiary footer__links">

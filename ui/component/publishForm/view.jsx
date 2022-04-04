@@ -8,7 +8,7 @@
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import React, { useEffect, useState } from 'react';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
@@ -161,7 +161,7 @@ function PublishForm(props: Props) {
   });
 
   const MODE_TO_I18N_STR = {
-    [PUBLISH_MODES.FILE]: SIMPLE_SITE ? 'Video/Audio' : 'File',
+    [PUBLISH_MODES.FILE]: 'Video/Audio',
     [PUBLISH_MODES.POST]: 'Post --[noun, markdown post tab button]--',
     [PUBLISH_MODES.LIVESTREAM]: 'Livestream --[noun, livestream tab button]--',
   };
@@ -596,7 +596,7 @@ function PublishForm(props: Props) {
 
           <label style={{ marginTop: 'var(--spacing-l)' }}>{__('Tags')}</label>
           <TagsSelect
-            suggestMature={!SIMPLE_SITE}
+            suggestMature={false}
             disableAutoFocus
             hideHeader
             label={__('Selected Tags')}

@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 // @flow
-import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
+import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import type { Node } from 'react';
 import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
@@ -516,8 +516,8 @@ function PublishFile(props: Props) {
                   currentPath={currentFile}
                   onFileChosen={handleFileChange}
                   // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-                  accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*' : undefined}
-                  placeholder={SIMPLE_SITE ? __('Select video or audio file to upload') : __('Select a file to upload')}
+                  accept={'video/mp4,video/x-m4v,video/*,audio/*'}
+                  placeholder={__('Select video or audio file to upload')}
                 />
                 {getUploadMessage()}
               </>

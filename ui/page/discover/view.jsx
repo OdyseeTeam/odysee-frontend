@@ -1,7 +1,7 @@
 // @flow
 import React, { useRef } from 'react';
 import classnames from 'classnames';
-import { DOMAIN, SIMPLE_SITE } from 'config';
+import { DOMAIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
@@ -64,8 +64,8 @@ function DiscoverPage(props: Props) {
   const tags = tagsQuery ? tagsQuery.split(',') : null;
   const repostedClaimIsResolved = repostedUri && repostedClaim;
 
-  const discoverIcon = SIMPLE_SITE ? ICONS.WILD_WEST : ICONS.DISCOVER;
-  const discoverLabel = SIMPLE_SITE ? __('Wild West') : __('All Content');
+  const discoverIcon = ICONS.WILD_WEST;
+  const discoverLabel = __('Wild West');
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
   const tag = (tags && tags[0]) || null;
@@ -186,11 +186,11 @@ function DiscoverPage(props: Props) {
     >
       <ClaimListDiscover
         pins={getPins(dynamicRouteProps)}
-        hideFilters={SIMPLE_SITE ? !(dynamicRouteProps || tags) : undefined}
+        hideFilters={!(dynamicRouteProps || tags)}
         header={repostedUri ? <span /> : undefined}
         subSection={getSubSection()}
         tileLayout={repostedUri ? false : tileLayout}
-        defaultOrderBy={SIMPLE_SITE ? (dynamicRouteProps ? undefined : CS.ORDER_BY_TRENDING) : undefined}
+        defaultOrderBy={dynamicRouteProps ? undefined : CS.ORDER_BY_TRENDING}
         claimType={claimType ? [claimType] : undefined}
         headerLabel={headerLabel}
         tags={tags}
@@ -203,16 +203,12 @@ function DiscoverPage(props: Props) {
         // TODO: find a better way to determine discover / wild west vs other modes release times
         // for now including && !tags so that
         releaseTime={
-          SIMPLE_SITE
-            ? !dynamicRouteProps && !tags && `>${Math.floor(moment().subtract(1, 'day').startOf('week').unix())}`
-            : undefined
+          !dynamicRouteProps && !tags && `>${Math.floor(moment().subtract(1, 'day').startOf('week').unix())}`
         }
-        feeAmount={SIMPLE_SITE ? !dynamicRouteProps && CS.FEE_AMOUNT_ANY : undefined}
+        feeAmount={!dynamicRouteProps && CS.FEE_AMOUNT_ANY}
         channelIds={channelIds}
         limitClaimsPerChannel={
-          SIMPLE_SITE
-            ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
-            : 3
+          (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
         }
         meta={getMeta()}
         hasSource
