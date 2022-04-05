@@ -51,6 +51,18 @@ const MESSAGE_MAP: Array<ApiMsgConfig> = Object.freeze([
   //   originalMsg: /^Earn a random reward of at least 0.1 LBC for watching cool stuff at least 3 days during the week. You last claimed it (.*) ago!$/,
   //   replacement: 'Earn a random reward of at least 0.1 LBC for watching cool stuff at least 3 days during the week. You last claimed it %1% ago!',
   // },
+  {
+    originalMsg: 'invalid email or verification token',
+    replacement: 'Invalid email or verification token.',
+  },
+  {
+    originalMsg: 'invalid Recaptcha',
+    replacement: 'Invalid Recaptcha.',
+  },
+  {
+    originalMsg: 'verification token expired. Check your email for a new token',
+    replacement: 'Verification token expired.',
+  },
 ]);
 
 /**

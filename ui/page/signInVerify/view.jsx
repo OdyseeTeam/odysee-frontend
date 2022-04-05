@@ -1,5 +1,4 @@
 // @flow
-import * as PAGES from 'constants/pages';
 import React, { useState } from 'react';
 import { withRouter } from 'react-router';
 import Page from 'component/page';
@@ -8,22 +7,25 @@ import Button from 'component/button';
 import { Lbryio } from 'lbryinc';
 import I18nMessage from 'component/i18nMessage';
 import Card from 'component/common/card';
+import Spinner from 'component/spinner';
+import { resolveApiMessage } from 'util/api-message';
 
 type Props = {
   history: { push: (string) => void, location: { search: string } },
-  doToast: ({}) => void,
 };
 
 let authenticationCompleted = false;
 
 function SignInVerifyPage(props: Props) {
   const {
-    history: { push, location },
-    doToast,
+    history: { location },
   } = props;
+
   const [isAuthenticationSuccess, setIsAuthenticationSuccess] = useState(authenticationCompleted);
   const [showCaptchaMessage, setShowCaptchaMessage] = useState(false);
   const [captchaLoaded, setCaptchaLoaded] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
+
   const urlParams = new URLSearchParams(location.search);
   const authToken = urlParams.get('auth_token');
   const userSubmittedEmail = urlParams.get('email');
@@ -31,18 +33,14 @@ function SignInVerifyPage(props: Props) {
   const needsRecaptcha = urlParams.get('needs_recaptcha') === 'true';
 
   function onAuthError(message) {
-    doToast({
-      message: message || __('Authentication failure.'),
-      isError: true,
-    });
-    push(`/$/${PAGES.AUTH}`);
+    setErrorMsg(message || __('Authentication failure.'));
   }
 
   React.useEffect(() => {
     if (!authToken || !userSubmittedEmail || !verificationToken) {
       onAuthError(__('Invalid or expired sign-in link.'));
     }
-  }, [authToken, userSubmittedEmail, verificationToken, doToast, push]);
+  }, [authToken, userSubmittedEmail, verificationToken]);
 
   React.useEffect(() => {
     if (!needsRecaptcha && !isAuthenticationSuccess) {
@@ -82,19 +80,35 @@ function SignInVerifyPage(props: Props) {
       ...(captchaValue ? { recaptcha: captchaValue } : {}),
     })
       .then(() => {
-        authenticationCompleted = true;
         setIsAuthenticationSuccess(true);
       })
-      .catch(() => {
-        onAuthError(__('Invalid captcha response or other authentication error.'));
+      .catch((e) => {
+        onAuthError(
+          e.message ? resolveApiMessage(e.message) : __('Invalid captcha response or other authentication error.')
+        );
+      })
+      .finally(() => {
+        authenticationCompleted = true;
       });
+  }
+
+  if (!needsRecaptcha && authenticationCompleted === false) {
+    return (
+      <Page authPage noFooter>
+        <div className="main--empty">
+          <Spinner delayed />
+        </div>
+      </Page>
+    );
   }
 
   return (
     <Page authPage noFooter>
       <div className="main__sign-up">
         <Card
-          title={isAuthenticationSuccess ? __('Log in success!') : __('Log in')}
+          title={
+            isAuthenticationSuccess ? __('Log in success!') : errorMsg ? __('Authentication failure.') : __('Log in')
+          }
           subtitle={
             <React.Fragment>
               <p>
@@ -102,6 +116,8 @@ function SignInVerifyPage(props: Props) {
                   ? __('You can now close this tab.')
                   : needsRecaptcha
                   ? null
+                  : errorMsg
+                  ? __(errorMsg)
                   : __('Welcome back! You are automatically being signed in.')}
               </p>
               {showCaptchaMessage && !isAuthenticationSuccess && (
