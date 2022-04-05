@@ -1261,6 +1261,36 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
+.install-apk-button {
+  position: fixed;
+  bottom: 0px;
+  left: 0px;
+  right: 0px;
+  background-color: var(--color-header-background);
+  padding: var(--spacing-s);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border-top: 2px solid black;
+
+  img {
+    width: 44px;
+    height: 44px;
+    border-radius: var(--border-radius);
+  }
+
+  span {
+    margin-left: var(--spacing-s);
+    font-size: var(--font-large);
+    font-weight: 900;
+  }
+
+  button {
+    float: right;
+    font-size: var(--font-large);
+    color: var(--color-primary-contrast);
+  }
+}
+
 .video-js .vjs-volume-level {
   &::before {
     color: white !important;
