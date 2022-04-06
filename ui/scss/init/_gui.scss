@@ -1261,7 +1261,7 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.install-apk-button {
+.app-promt-wrapper {
   position: fixed;
   bottom: 0px;
   left: 0px;
@@ -1271,6 +1271,7 @@ a {
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
   border-top: 2px solid black;
+  display: none;
 
   img {
     width: 44px;
@@ -1284,10 +1285,10 @@ a {
     font-weight: 900;
   }
 
-  button {
+  .gplay {
     float: right;
-    font-size: var(--font-large);
-    color: var(--color-primary-contrast);
+    padding: 4px;
+    background: var(--color-text);
   }
 }
 
