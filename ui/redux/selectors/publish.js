@@ -60,19 +60,9 @@ export const selectMyClaimForUri = createSelector(
     let { channelName: contentName, streamName: claimName } = parseURI(uri);
     const { streamClaimId: editClaimId } = parseURI(editingURI);
 
-    console.log('my claims');
-    console.log(myClaims);
-
-    console.log('claim name');
-    console.log(claimName);
-
+    // force to lower case for case insensitive check
     claimName = claimName.toLowerCase();
-
-    console.log('content name');
-    console.log(contentName);
-
-    console.log('is still editing');
-    console.log(isStillEditing);
+    contentName = contentName.toLowerCase();
 
     // If isStillEditing
     // They clicked "edit" from the file page
@@ -81,14 +71,12 @@ export const selectMyClaimForUri = createSelector(
     return isStillEditing
       ? claimsById[editClaimId]
       : myClaims.find(function (claim) {
+          // force to lower case for case insensitive check
           const lowercaseClaimName = claim.name.toLowerCase();
 
-          console.log('claim');
-          console.log(claim);
-          console.log('lowercase claim name');
-          console.log(lowercaseClaimName)
-
-          return !contentName ? lowercaseClaimName === claimName : lowercaseClaimName === contentName || lowercaseClaimName=== claimName
+          return !contentName
+            ? lowercaseClaimName === claimName
+            : lowercaseClaimName === contentName || lowercaseClaimName === claimName;
         });
   }
 );

@@ -369,6 +369,24 @@ function PublishForm(props: Props) {
     }
   }, [fileText, prevFileText, fileEdited]);
 
+  // if the last character is a letter, switch it to opposite character
+  // and then return the string with that changed character replacing the previous last character
+  // used to double check for case sensitivity because of an SDK bug
+  function alternateCapitalizeString(uri) {
+    const lastCharacter = uri.substr(uri.length - 1);
+    const isLetter = lastCharacter.toLowerCase() !== lastCharacter.toUpperCase();
+    if (!isLetter) return '';
+
+    const isUpperCase = lastCharacter === lastCharacter.toUpperCase();
+    const isLowerCase = lastCharacter === lastCharacter.toLowerCase();
+    if (isUpperCase) {
+      return uri.slice(0, -1) + lastCharacter.toLowerCase();
+    } else if (isLowerCase) {
+      return uri.slice(0, -1) + lastCharacter.toUpperCase();
+    }
+    return '';
+  }
+
   // Every time the channel or name changes, resolve the uris to find winning bid amounts
   useEffect(() => {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
@@ -387,6 +405,12 @@ function PublishForm(props: Props) {
 
     const isValid = uri && isURIValid(uri);
     if (uri && isValid && checkAvailability && name) {
+      const otherUriToResolve = alternateCapitalizeString(uri);
+      if (otherUriToResolve) {
+        resolveUri(otherUriToResolve);
+        checkAvailability(alternateCapitalizeString(name));
+      }
+
       resolveUri(uri);
       checkAvailability(name);
       updatePublishForm({ uri });
