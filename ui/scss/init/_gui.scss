@@ -1272,6 +1272,7 @@ a {
   backdrop-filter: blur(4px);
   border-top: 2px solid black;
   display: none;
+  z-index: 9999999999999;
 
   img {
     width: 44px;

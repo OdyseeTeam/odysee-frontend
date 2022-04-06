@@ -17,38 +17,40 @@
     </script>
     <script>
       if (/android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream)) {
-        window.addEventListener('beforeinstallprompt', (e) => {
-          e.preventDefault();
-          deferredPrompt = e;
-          let appPromptWrapper = document.createElement('div');
-          appPromptWrapper.classList.add('app-promt-wrapper')
-          appPromptWrapper.style.display = 'block';
-          let icon = document.createElement('img');
-          icon.src = '/public/pwa/icon-180.png';
-          let label = document.createElement('span');
-          label.innerHTML = 'Odysee App'
-          let play = document.createElement('img');
-          play.classList.add('gplay')
-          play.src = '/public/img/google-play.png';        
-          appPromptWrapper.appendChild(icon);        
-          appPromptWrapper.appendChild(label);
-          appPromptWrapper.appendChild(play);
-          document.body.appendChild(appPromptWrapper);
+        if(!document.getElementsByClassName('app-promt-wrapper').length){
+          window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            let appPromptWrapper = document.createElement('div');
+            appPromptWrapper.classList.add('app-promt-wrapper')
+            appPromptWrapper.style.display = 'block';
+            let icon = document.createElement('img');
+            icon.src = '/public/pwa/icon-180.png';
+            let label = document.createElement('span');
+            label.innerHTML = 'Odysee App'
+            let play = document.createElement('img');
+            play.classList.add('gplay')
+            play.src = '/public/img/google-play.png';        
+            appPromptWrapper.appendChild(icon);        
+            appPromptWrapper.appendChild(label);
+            appPromptWrapper.appendChild(play);
+            document.body.appendChild(appPromptWrapper);
 
-          appPromptWrapper.addEventListener('click', (e) => {
-            appPromptWrapper.style.display = 'none';
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice
-              .then((choiceResult) => {
-                if (choiceResult.outcome === 'accepted') {
-                  console.log('User accepted the A2HS prompt');
-                } else {
-                  console.log('User dismissed the A2HS prompt');
-                }
-                deferredPrompt = null;
-              });
-          });
-        });      
+            appPromptWrapper.addEventListener('click', (e) => {
+              appPromptWrapper.style.display = 'none';
+              deferredPrompt.prompt();
+              deferredPrompt.userChoice
+                .then((choiceResult) => {
+                  if (choiceResult.outcome === 'accepted') {
+                    console.log('User accepted the A2HS prompt');
+                  } else {
+                    console.log('User dismissed the A2HS prompt');
+                  }
+                  deferredPrompt = null;
+                });
+            });
+          });      
+        }        
       }      
     </script>
 
