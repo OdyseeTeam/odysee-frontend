@@ -1274,7 +1274,7 @@ a {
   display: none;
   z-index: 9999999999999;
 
-  img {
+  .icon {
     width: 44px;
     height: 44px;
     border-radius: var(--border-radius);
@@ -1286,10 +1286,15 @@ a {
     font-weight: 900;
   }
 
-  .gplay {
+  .store {
     float: right;
-    padding: 4px;
-    background: var(--color-text);
+    height: 44px;
+    width: 44px;
+    padding: 6px;
+    // background: var(--color-text);
+    background: #000;
+    border-radius: var(--border-radius);
+    text-align: center;
   }
 }
 
