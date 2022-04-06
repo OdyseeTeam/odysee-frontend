@@ -21,6 +21,10 @@ type Props = {
 function NameHelpText(props: Props) {
   const { uri, myClaimForUri, currentUploads, onEditMyClaim, isStillEditing } = props;
 
+  console.log('logging here');
+  console.log(myClaimForUri);
+  console.log(uri);
+
   const currentUploadNames: Array<string> = React.useMemo(() => {
     // $FlowFixMe - unable to resolve mixed
     return Object.values(currentUploads).map((x) => (x.params ? x.params.name : ''));
@@ -45,6 +49,9 @@ function NameHelpText(props: Props) {
       streamClaimId: myClaimForUri.claim_id,
     });
 
+    console.log('my claim for uri');
+    console.log(myClaimForUri);
+
     nameHelpText = (
       <React.Fragment>
         <div className="error__text">
@@ -52,7 +59,7 @@ function NameHelpText(props: Props) {
             tokens={{
               existing_uri: (
                 <u>
-                  <em>{uri}</em>
+                  <em>lbry://{myClaimForUri.normalized_name}</em>
                 </u>
               ),
             }}

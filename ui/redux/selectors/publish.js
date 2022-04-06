@@ -57,8 +57,22 @@ export const selectMyClaimForUri = createSelector(
   selectClaimsById,
   selectMyClaimsWithoutChannels,
   ({ editingURI, uri }, isStillEditing, claimsById, myClaims) => {
-    const { channelName: contentName, streamName: claimName } = parseURI(uri);
+    let { channelName: contentName, streamName: claimName } = parseURI(uri);
     const { streamClaimId: editClaimId } = parseURI(editingURI);
+
+    console.log('my claims');
+    console.log(myClaims);
+
+    console.log('claim name');
+    console.log(claimName);
+
+    claimName = claimName.toLowerCase();
+
+    console.log('content name');
+    console.log(contentName);
+
+    console.log('is still editing');
+    console.log(isStillEditing);
 
     // If isStillEditing
     // They clicked "edit" from the file page
@@ -66,9 +80,16 @@ export const selectMyClaimForUri = createSelector(
     // Get the claim so they can edit without re-uploading a new file
     return isStillEditing
       ? claimsById[editClaimId]
-      : myClaims.find((claim) =>
-          !contentName ? claim.name === claimName : claim.name === contentName || claim.name === claimName
-        );
+      : myClaims.find(function (claim) {
+          const lowercaseClaimName = claim.name.toLowerCase();
+
+          console.log('claim');
+          console.log(claim);
+          console.log('lowercase claim name');
+          console.log(lowercaseClaimName)
+
+          return !contentName ? lowercaseClaimName === claimName : lowercaseClaimName === contentName || lowercaseClaimName=== claimName
+        });
   }
 );
 

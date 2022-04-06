@@ -450,11 +450,20 @@ export const selectMyClaims = createSelector(
   (myClaimIds, byId, abandoningIds) => {
     const claims = [];
 
+    console.log('my claim ids');
+    console.log(myClaimIds);
+
+    console.log('by id')
+    console.log(byId)
+
     myClaimIds.forEach((id) => {
       const claim = byId[id];
 
       if (claim && abandoningIds.indexOf(id) === -1) claims.push(claim);
     });
+
+    console.log('claims here!');
+    console.log([...claims])
 
     return [...claims];
   }
