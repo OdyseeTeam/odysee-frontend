@@ -18,28 +18,33 @@
     <script>
       let userAgent = navigator.userAgent || navigator.vendor || window.opera;
       if (/android/i.test(userAgent) || (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream)) {
-        if(!document.getElementsByClassName('app-promt-wrapper').length){
+        
           window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
-            deferredPrompt = e;
-            let appPromptWrapper = document.createElement('div');
-            appPromptWrapper.classList.add('app-promt-wrapper')
-            appPromptWrapper.style.display = 'block';
-            let icon = document.createElement('img');
-            icon.classList.add('icon')
-            icon.src = '/public/pwa/icon-180.png';
-            let label = document.createElement('span');
-            label.innerHTML = 'Odysee App'
-            let store = document.createElement('div');
-            let storeIcon = document.createElement('img');
-            store.classList.add('store')
-            if(/android/i.test(userAgent)) storeIcon.src = '/public/img/google-play.png';
-            else if(/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) storeIcon.src = '/public/img/apple.png';
-            store.appendChild(storeIcon);   
-            appPromptWrapper.appendChild(icon);        
-            appPromptWrapper.appendChild(label);
-            appPromptWrapper.appendChild(store);
-            document.body.appendChild(appPromptWrapper);
+            let deferredPrompt = e;
+            let appPromptWrapper = undefined
+            if(!document.getElementsByClassName('app-promt-wrapper').length){
+              appPromptWrapper = document.createElement('div');
+              appPromptWrapper.classList.add('app-promt-wrapper')
+              appPromptWrapper.style.display = 'block';
+              let icon = document.createElement('img');
+              icon.classList.add('icon')
+              icon.src = '/public/pwa/icon-180.png';
+              let label = document.createElement('span');
+              label.innerHTML = 'Odysee App'
+              let store = document.createElement('div');
+              let storeIcon = document.createElement('img');
+              store.classList.add('store')
+              if(/android/i.test(userAgent)) storeIcon.src = '/public/img/google-play.png';
+              else if(/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) storeIcon.src = '/public/img/apple.png';
+              store.appendChild(storeIcon);   
+              appPromptWrapper.appendChild(icon);        
+              appPromptWrapper.appendChild(label);
+              appPromptWrapper.appendChild(store);
+              document.body.appendChild(appPromptWrapper);
+            }else{
+              appPromptWrapper = document.getElementsByClassName('app-promt-wrapper')[0]
+            }
 
             appPromptWrapper.addEventListener('click', (e) => {
               appPromptWrapper.style.display = 'none';
