@@ -16,6 +16,7 @@ import { browserData } from '$web/src/ua';
 import { isPushSupported } from '$web/src/push-notifications/push-supported';
 // @endif
 // @if process.env.FLOSS
+// $FlowFixMe
 isPushSupported = false;
 // @endif
 
