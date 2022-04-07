@@ -1275,6 +1275,14 @@ img {
     // margin-left:2px !important;
   }
 }
+.comments {
+  .markdown-preview {
+    .claim-link {
+      width: 40%;
+      margin-top: var(--spacing-xs);
+    }
+  }
+}
 .hide-ribbon {
   .claim-tile__repost-author {
     display: none;
@@ -1312,6 +1320,12 @@ button,
 select,
 a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+.video-js .vjs-volume-level {
+  &::before {
+    color: white !important;
+  }
 }
 
 // Temporary fix for focus-visible

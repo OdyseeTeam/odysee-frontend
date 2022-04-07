@@ -189,6 +189,11 @@ const webConfig = {
     },
   },
   plugins,
+  // @if process.env.FLOSS
+  externals: {
+    '@firebase/analytics-compat': '@firebase/analytics-compat',
+  },
+  // @endif
 };
 
 // @if process.env.FLOSS!='true'

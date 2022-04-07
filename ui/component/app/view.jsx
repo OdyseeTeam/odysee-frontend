@@ -64,7 +64,7 @@ type Props = {
   user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string },
-  history: { push: (string) => void },
+  history: { push: (string) => void, location: { pathname: string } },
   fetchChannelListMine: () => void,
   fetchCollectionListMine: () => void,
   signIn: () => void,
@@ -472,8 +472,8 @@ function App(props: Props) {
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
 
   useDegradedPerformance(setLbryTvApiStatus, user);
-  // hiding ads for now
-  useAdOutbrain(Boolean(hasPremiumPlus), true);
+
+  useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
 
   useEffect(() => {
     // When language is changed or translations are fetched, we render.

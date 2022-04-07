@@ -28,7 +28,6 @@ type Props = {
   claim: StreamClaim,
   location: UrlLocation,
   blackListedOutpointMap: { [string]: number },
-  title: string,
   claimIsMine: boolean,
   claimIsPending: boolean,
   isLivestream: boolean,
@@ -36,6 +35,7 @@ type Props = {
   collection: Collection,
   collectionUrls: Array<string>,
   isResolvingCollection: boolean,
+  isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
   doResolveUri: (uri: string, returnCached: boolean, resolveReposts: boolean, options: any) => void,
   doBeginPublish: (name: ?string) => void,
@@ -57,6 +57,7 @@ export default function ShowPage(props: Props) {
     collection,
     collectionUrls,
     isResolvingCollection,
+    isAuthenticated,
     geoRestriction,
     doResolveUri,
     doBeginPublish,
@@ -123,16 +124,27 @@ export default function ShowPage(props: Props) {
 
     if (
       (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
-      (claimExists && !claimIsPending && (!canonicalUrl || isMine === undefined))
+      (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)))
     ) {
       doResolveUri(
         uri,
         false,
         true,
-        isMine === undefined ? { include_is_my_output: true, include_purchase_receipt: true } : {}
+        isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );
     }
-  }, [doResolveUri, isResolvingUri, canonicalUrl, uri, claimExists, haventFetchedYet, isMine, claimIsPending, search]);
+  }, [
+    doResolveUri,
+    isResolvingUri,
+    canonicalUrl,
+    uri,
+    claimExists,
+    haventFetchedYet,
+    isMine,
+    claimIsPending,
+    search,
+    isAuthenticated,
+  ]);
 
   // Don't navigate directly to repost urls
   // Always redirect to the actual content
