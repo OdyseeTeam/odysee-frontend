@@ -376,6 +376,10 @@ function App(props: Props) {
   //   }
   // }, []);
 
+  // @if process.env.FLOSS
+  console.log('THIS IS FLOSS!');
+  // @endif
+
   // add OneTrust script
   useEffect(() => {
     // don't add script for embedded content

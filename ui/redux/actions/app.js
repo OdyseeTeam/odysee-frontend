@@ -17,7 +17,9 @@ import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
 import { doClearPublish } from 'redux/actions/publish';
 import { Lbryio } from 'lbryinc';
 import { doToast, doError, doNotificationList } from 'redux/actions/notifications';
+// @if process.env.FLOSS!='true'
 import pushNotifications from '$web/src/push-notifications';
+// @endif
 
 import Native from 'native';
 import {
@@ -528,7 +530,7 @@ function reconnect() {
       pushNotifications.reconnect(user.id);
       pushNotifications.validate(user.id);
     }
-  }  
+  }
 }
 */
 
@@ -537,6 +539,7 @@ export function doSignIn() {
     const state = getState();
     const user = selectUser(state);
 
+    // @if process.env.FLOSS!='true'
     if (pushNotifications.supported && user) {
       pushNotifications.reconnect(user.id);
       pushNotifications.validate(user.id);
@@ -545,6 +548,7 @@ export function doSignIn() {
       pushNotifications.reconnect(user.id);
       pushNotifications.validate(user.id);
     }
+    // @endif
 
     dispatch(doNotificationSocketConnect(true));
     dispatch(doNotificationList(null, false));
@@ -556,6 +560,7 @@ export function doSignIn() {
 }
 
 export function doSignOut() {
+  // @if process.env.FLOSS!='true'
   return async (dispatch, getState) => {
     const state = getState();
     const user = selectUser(state);
@@ -580,6 +585,7 @@ export function doSignOut() {
         .catch(() => location.reload());
     }
   };
+  // @endif
 }
 
 export function doSetWelcomeVersion(version) {

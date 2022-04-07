@@ -7,10 +7,17 @@
 import { Lbryio } from 'lbryinc';
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, deleteToken } from 'firebase/messaging';
+// @if process.env.FLOSS!='true'
 import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
+// @endif
 import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
 import { browserData } from '$web/src/ua';
+// @if process.env.FLOSS!='true'
 import { isPushSupported } from '$web/src/push-notifications/push-supported';
+// @endif
+// @if process.env.FLOSS
+isPushSupported = false;
+// @endif
 
 let messaging = null;
 let pushSystem = null;
@@ -31,7 +38,9 @@ let pushSystem = null;
     };
   }
   if (window.cordova) {
+    // @if process.env.FLOSS!='true'
     const app = initializeApp(firebaseConfig);
+    // @endif
     messaging = getMessaging(app);
     pushSystem = {
       supported: true,
