@@ -62,9 +62,7 @@ const onPlayerReady = (player, options) => {
     !player.el_.ownerDocument.querySelector('.bc-iframe')
   ) {
     player.tech_.el_.setAttribute('playsinline', 'playsinline');
-    player.tech_.supportsFullScreen = function () {
-      return false;
-    };
+    player.tech_.supportsFullScreen = () => false;
   }
 
   const controlBar = player.getChild('ControlBar');
@@ -151,14 +149,12 @@ const onPlayerReady = (player, options) => {
  *           Whether to disable when the video ends (e.g., if there is an endscreen)
  *           Never shows if the endscreen plugin is present
  */
-const mobileUi = function (options) {
+function mobileUi(options) {
   // if (videojs.browser.IS_ANDROID || videojs.browser.IS_IOS) {
   if (window.cordova || videojs.browser.IS_ANDROID) {
-    this.ready(() => {
-      onPlayerReady(this, videojs.mergeOptions(defaults, options));
-    });
+    this.ready(() => onPlayerReady(this, videojs.mergeOptions(defaults, options)));
   }
-};
+}
 
 // Register the plugin with video.js.
 registerPlugin('mobileUi', mobileUi);
