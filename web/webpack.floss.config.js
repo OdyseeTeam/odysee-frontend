@@ -3,9 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const merge = require('webpack-merge');
 const baseConfig = require('../webpack.base.config.js');
-// @if process.env.FLOSS!='true'
-const serviceWorkerConfig = require('./webpack.sw.config.js');
-// @endif
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const { DefinePlugin, ProvidePlugin } = require('webpack');
@@ -18,7 +15,7 @@ const CUSTOM_ROOT = path.resolve(__dirname, '../custom/');
 const STATIC_ROOT = path.resolve(__dirname, '../static/');
 const UI_ROOT = path.resolve(__dirname, '../ui/');
 const DIST_ROOT = path.resolve(__dirname, 'dist/');
-const WEB_STATIC_ROOT = path.resolve(__dirname, 'static/');
+// const WEB_STATIC_ROOT = path.resolve(__dirname, 'static/');
 const WEB_PLATFORM_ROOT = __dirname;
 const isProduction = process.env.NODE_ENV === 'production';
 // const isProduction = true;
@@ -66,10 +63,6 @@ const copyWebpackCommands = [
   {
     from: `${STATIC_ROOT}/font/`,
     to: `${DIST_ROOT}/public/font/`,
-  },
-  {
-    from: `${WEB_STATIC_ROOT}/pwa/`,
-    to: `${DIST_ROOT}/public/pwa/`,
   },
 ];
 
@@ -127,7 +120,7 @@ if (isProduction && hasSentryToken) {
     new SentryWebpackPlugin({
       include: './dist',
       ignoreFile: '.sentrycliignore',
-      ignore: ['node_modules', 'webpack.config.js'],
+      ignore: ['node_modules', 'webpack.config.js', 'webpack.floss.config.js'],
       configFile: 'sentry.properties',
     })
   );
@@ -138,9 +131,7 @@ const webConfig = {
   entry: {
     [`ui-${jsBundleId}`]: '../ui/index.jsx',
   },
-  // @if process.env.FLOSS
   externals: /^(@firebase|\$)$/i,
-  // @endif
   output: {
     filename: '[name].js',
     path: path.join(__dirname, 'dist/public/'),
@@ -194,9 +185,4 @@ const webConfig = {
   plugins,
 };
 
-// @if process.env.FLOSS!='true'
-module.exports = [merge(baseConfig, webConfig), serviceWorkerConfig];
-// @endif
-// @if process.env.FLOSS
 module.exports = [merge(baseConfig, webConfig)];
-// @endif

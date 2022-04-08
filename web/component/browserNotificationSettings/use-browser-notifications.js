@@ -1,7 +1,9 @@
 // @flow
 import React, { useEffect, useState, useMemo } from 'react';
+// @if process.env.FLOSS!='true'
 import pushNotifications from '$web/src/push-notifications';
 import { BrowserNotificationErrorModal } from '$web/component/browserNotificationHints';
+// @endif
 
 // @todo: Once we are on Redux 7 we should have proper hooks we can use here for store access.
 import { store } from '$ui/store';
@@ -18,6 +20,7 @@ export default () => {
 
   const [user] = useState(selectUser(store.getState()));
 
+  // @if process.env.FLOSS!='true'
   useEffect(() => {
     if (!user) return;
     let mounted = true;
@@ -49,6 +52,7 @@ export default () => {
       });
     }
   }, [user]);
+  // @endif
 
   useMemo(() => setPushEnabled(pushPermission === 'granted' && subscribed), [pushPermission, subscribed]);
 
@@ -84,9 +88,11 @@ export default () => {
     return window.Notification?.permission !== 'granted' ? subscribe() : null;
   };
 
+  // @if process.env.FLOSS!='true'
   const pushErrorModal = () => {
     return <>{encounteredError && <BrowserNotificationErrorModal doHideModal={() => setEncounteredError(false)} />}</>;
   };
+  // @endif
 
   return {
     pushInitialized,

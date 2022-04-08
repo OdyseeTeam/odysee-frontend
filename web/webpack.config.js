@@ -3,9 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const merge = require('webpack-merge');
 const baseConfig = require('../webpack.base.config.js');
-// @if process.env.FLOSS!='true'
 const serviceWorkerConfig = require('./webpack.sw.config.js');
-// @endif
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const { DefinePlugin, ProvidePlugin } = require('webpack');
@@ -138,9 +136,6 @@ const webConfig = {
   entry: {
     [`ui-${jsBundleId}`]: '../ui/index.jsx',
   },
-  // @if process.env.FLOSS
-  externals: /^(@firebase|\$)$/i,
-  // @endif
   output: {
     filename: '[name].js',
     path: path.join(__dirname, 'dist/public/'),
@@ -194,9 +189,4 @@ const webConfig = {
   plugins,
 };
 
-// @if process.env.FLOSS!='true'
 module.exports = [merge(baseConfig, webConfig), serviceWorkerConfig];
-// @endif
-// @if process.env.FLOSS
-module.exports = [merge(baseConfig, webConfig)];
-// @endif
