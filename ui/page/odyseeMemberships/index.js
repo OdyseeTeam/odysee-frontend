@@ -3,7 +3,7 @@ import { doOpenModal } from 'redux/actions/app';
 import MembershipsPage from './view';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
-import { doFetchUserMemberships, doCheckUserOdyseeMemberships } from 'redux/actions/user';
+import { doFetchUserMemberships, doCheckUserOdyseeMemberships } from 'redux/actions/memberships';
 import { selectUser, selectUserLocale } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 

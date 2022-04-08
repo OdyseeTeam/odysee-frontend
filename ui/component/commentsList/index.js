@@ -21,7 +21,7 @@ import {
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelIdFromClaim } from 'util/claim';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchUserMemberships } from 'redux/actions/memberships';
 import CommentsList from './view';
 
 const select = (state, props) => {
