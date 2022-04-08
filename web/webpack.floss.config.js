@@ -1,4 +1,4 @@
-const { WEBPACK_WEB_PORT, LBRY_WEB_API, BRANDED_SITE } = require('../config.js');
+const { WEBPACK_WEB_PORT, LBRY_WEB_API, BRANDED_SITE } = require('../config.floss.js');
 const path = require('path');
 const fs = require('fs');
 const merge = require('webpack-merge');
@@ -28,7 +28,7 @@ const jsBundleId = getJsBundleId();
 // copy static files to dist folder
 const copyWebpackCommands = [
   {
-    from: `${STATIC_ROOT}/index-web.html`,
+    from: `${STATIC_ROOT}/index-web-floss.html`,
     to: `${DIST_ROOT}/index.html`,
     // add javascript script to index.html, generate/insert metatags
     transform(content, path) {
