@@ -143,10 +143,37 @@ function ClaimTilesDiscover(props: Props) {
 
   useGetUserMemberships(true, uris, claimsByUri, doFetchUserMemberships);
 
+  // type CS_FAILURES = { [string]: Array<number> };
+  const [failures, setFailures] = React.useState({});
+
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      doClaimSearch(searchOptions);
+
+      if (failures[optionsStringified]) {
+        const failedTimes = failures[optionsStringified];
+        if (failedTimes.length > 3 && failedTimes[failedTimes.length - 1] - failedTimes[0] < 3000) {
+          return;
+        }
+      }
+
+      doClaimSearch(searchOptions).then((results) => {
+        if (results === false) {
+          setFailures((prevFailures) => {
+            return {
+              ...prevFailures,
+              [optionsStringified]: (prevFailures[optionsStringified] || []).concat(Date.now()),
+            };
+          });
+        } else {
+          setFailures((prevFailures) => {
+            return {
+              ...prevFailures,
+              [optionsStringified]: undefined,
+            };
+          });
+        }
+      });
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringified]);
 
