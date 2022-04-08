@@ -6,7 +6,7 @@ import {
   selectPendingIds,
   selectClaimsByUri,
 } from 'redux/selectors/claims';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchUserMemberships } from 'redux/actions/memberships';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { doSetActiveChannel } from 'redux/actions/app';
 import { selectYoutubeChannels } from 'redux/selectors/user';

@@ -442,7 +442,7 @@ const MembershipsPage = (props: Props) => {
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('My Memberships')}</Tab>
             <Tab>{__('Create Tiers')}</Tab>
-            { haveAlreadyConfirmedBankAccount && <Tab>{__('My Supporters')}</Tab>}
+            <Tab>{__('My Supporters')}</Tab>
             <Tab>{__('My Pledges')}</Tab>
           </TabList>
           <TabPanels>
@@ -453,13 +453,11 @@ const MembershipsPage = (props: Props) => {
             <TabPanel>
               {createTiers}
             </TabPanel>
-            { haveAlreadyConfirmedBankAccount && (
-              <TabPanel>
-                <h1 style={{ marginTop: '10px' }}> Here's some info about your supporters </h1>
+            <TabPanel>
+              <h1 style={{ marginTop: '10px' }}> Here's some info about your supporters </h1>
 
-                {/* <h1 style={{ marginTop: '10px' }}> You can find some creators to support on the membership page here </h1> */}
-              </TabPanel>
-            )}
+              {/* <h1 style={{ marginTop: '10px' }}> You can find some creators to support on the membership page here </h1> */}
+            </TabPanel>
             <TabPanel>
               <h1 style={{ marginTop: '10px' }}> You are not currently supporting any creators </h1>
 

@@ -18,7 +18,7 @@ import UriIndicator from 'component/uriIndicator';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import ClaimTags from 'component/claimTags';
 import SubscribeButton from 'component/subscribeButton';
-import JoinMembershipButton from 'component/joinMembershipButton';
+import JoinMembershipButton from 'component/memberships/joinMembershipButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimSupportButton from 'component/claimSupportButton';
 import useGetThumbnail from 'effects/use-get-thumbnail';

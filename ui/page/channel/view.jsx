@@ -7,7 +7,7 @@ import { YOUTUBE_STATUSES } from 'lbryinc';
 import Page from 'component/page';
 import SubscribeButton from 'component/subscribeButton';
 import ShareButton from 'component/shareButton';
-import JoinMembershipButton from 'component/joinMembershipButton';
+import JoinMembershipButton from 'component/memberships/joinMembershipButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
@@ -29,8 +29,8 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
-import JoinMembership from 'component/joinMembership';
-import MembershipView from 'component/membershipView';
+import JoinMembership from 'component/memberships/joinMembership';
+import MembershipChannelTab from 'component/memberships/membershipChannelTab';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -373,7 +373,7 @@ function ChannelPage(props: Props) {
 
             <TabPanel>
               {currentView === PAGE.MEMBERSHIP && 1 === 1 ? (
-                <MembershipView channel={channelName} duration={'73 days'} membership={membershipTiers[2]} />
+                <MembershipChannelTab uri={uri} testMembership={membershipTiers[2]} />
               ) : (
                 <JoinMembership uri={uri} />
               )}
