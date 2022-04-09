@@ -1,8 +1,8 @@
 require('dotenv-defaults').config({
   silent: false,
-  path: './web/.env',
+  path: './.env',
   encoding: 'utf8',
-  defaults: './web/.env.floss.defaults'
+  defaults: './.env.floss.defaults'
 });
 
 const config = {

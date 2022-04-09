@@ -9,7 +9,7 @@ const {
   SITE_NAME,
   SITE_TITLE,
   URL,
-} = require('../../config.js');
+} = require('../../config.floss.js');
 
 const { CATEGORY_METADATA } = require('./category-metadata');
 const {

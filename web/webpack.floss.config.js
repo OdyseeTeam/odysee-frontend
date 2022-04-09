@@ -131,7 +131,7 @@ const webConfig = {
   entry: {
     [`ui-${jsBundleId}`]: '../ui/index.jsx',
   },
-  externals: /^(@firebase|\$)$/i,
+  externals: [/^(@firebase|\$)$/i, /^(@analytics|\$)$/i],
   output: {
     filename: '[name].js',
     path: path.join(__dirname, 'dist/public/'),
