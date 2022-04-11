@@ -6,24 +6,41 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import React from 'react';
+import Skeleton from '@mui/material/Skeleton';
+import { parseURI } from 'util/lbryURI';
 
 type Props = {
   uri: string,
+  permanentUrl: string,
+  isChannelPage?: boolean,
   // -- redux --
-  membershipName: ?string,
+  activeMembershipName: ?string,
+  fetchingMemberships: boolean,
+  creatorHasMemberships: ?boolean,
   doOpenModal: (id: string, {}) => void,
-  doMembershipMine: () => void,
+  doMembershipList: ({ channel_name: string, channel_id: string }) => void,
 };
 
 export default function ShareButton(props: Props) {
-  const { uri, membershipName, doOpenModal, doMembershipMine } = props;
+  const {
+    uri,
+    permanentUrl,
+    isChannelPage,
+    activeMembershipName,
+    fetchingMemberships,
+    creatorHasMemberships,
+    doOpenModal,
+    doMembershipList,
+  } = props;
 
   const { push } = useHistory();
 
-  const hasMembership = Boolean(membershipName);
+  console.log(fetchingMemberships)
+
+  const userHasMembership = Boolean(activeMembershipName);
 
   function handleClick() {
-    if (hasMembership) {
+    if (userHasMembership) {
       const channelPath = formatLbryUrlForWeb(uri);
       const urlParams = new URLSearchParams();
       urlParams.set(VIEW, MEMBERSHIP);
@@ -35,20 +52,35 @@ export default function ShareButton(props: Props) {
   }
 
   React.useEffect(() => {
-    doMembershipMine();
-  }, [doMembershipMine]);
+    if (creatorHasMemberships === undefined) {
+      const { channelName, channelClaimId } = parseURI(permanentUrl);
+      doMembershipList({ channel_name: `@${channelName}`, channel_id: channelClaimId });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [doMembershipList, permanentUrl]);
+
+  if ((fetchingMemberships || creatorHasMemberships === undefined) && !isChannelPage) {
+    return <Skeleton variant="text" animation="wave" sx={{ width: '10rem', height: 'var(--height-button)' }} />;
+  }
+
+  if ((userHasMembership || fetchingMemberships) && isChannelPage) {
+    // No need to show the Member button on channel page
+    // the Membership Tab is already there
+    return null;
+  }
 
   return (
     <Button
       button="alt"
       icon={ICONS.UPGRADE}
-      label={membershipName || __('Become A Member')}
+      label={activeMembershipName || __('Become A Member')}
       title={
-        hasMembership
-          ? __('You are a "%membership_tier_name%" member', { membership_tier_name: membershipName })
+        userHasMembership
+          ? __('You are a "%membership_tier_name%" member', { membership_tier_name: activeMembershipName })
           : __('Become A Member')
       }
       onClick={handleClick}
+      style={{ opacity: !creatorHasMemberships ? '0.7' : undefined }}
     />
   );
 }

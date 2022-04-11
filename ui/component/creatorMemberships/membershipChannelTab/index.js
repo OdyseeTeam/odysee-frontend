@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doMembershipMine, doMembershipDeleteData } from 'redux/actions/memberships';
 import { withRouter } from 'react-router';
-import { selectMembershipMineStarted, selectMembershipForChannelUri } from 'redux/selectors/memberships';
+import { selectMembershipMineStarted, selectActiveMembershipForChannelUri } from 'redux/selectors/memberships';
 import WalletSendTip from './view';
 
 const select = (state, props) => {
@@ -9,7 +9,9 @@ const select = (state, props) => {
 
   return {
     fetchStarted: selectMembershipMineStarted(state),
-    channelMembership: selectMembershipForChannelUri(state, uri),
+    activeMembershipName: selectActiveMembershipForChannelUri(state, uri),
+    // selectMembershipListByChannelName:
+    //   activeMembershipName && selectActiveMembershipForChannelUri(state, activeMembershipName.Membership.channel_name),
   };
 };
 

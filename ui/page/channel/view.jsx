@@ -7,7 +7,6 @@ import { YOUTUBE_STATUSES } from 'lbryinc';
 import Page from 'component/page';
 import SubscribeButton from 'component/subscribeButton';
 import ShareButton from 'component/shareButton';
-import JoinMembershipButton from 'component/memberships/joinMembershipButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
@@ -29,8 +28,8 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
-import JoinMembership from 'component/memberships/joinMembership';
-import MembershipChannelTab from 'component/memberships/membershipChannelTab';
+import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
+import MembershipChannelTab from 'component/creatorMemberships/membershipChannelTab';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -249,8 +248,6 @@ function ChannelPage(props: Props) {
     },
   ];
 
-  const hasMembership = true;
-
   return (
     <Page className="channelPage-wrapper" noFooter>
       <header className="channel-cover">
@@ -263,7 +260,7 @@ function ChannelPage(props: Props) {
               navigate={`/$/${PAGES.CHANNELS}`}
             />
           )}
-          <JoinMembershipButton uri={uri} />
+          <JoinMembershipButton uri={uri} permanentUrl={claim.permanent_url} isChannelPage />
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!channelIsBlackListed && <ShareButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
@@ -372,10 +369,8 @@ function ChannelPage(props: Props) {
             </TabPanel>
 
             <TabPanel>
-              {currentView === PAGE.MEMBERSHIP && 1 === 1 ? (
+              {currentView === PAGE.MEMBERSHIP && (
                 <MembershipChannelTab uri={uri} testMembership={membershipTiers[2]} />
-              ) : (
-                <JoinMembership uri={uri} />
               )}
             </TabPanel>
 

@@ -155,7 +155,7 @@ export default function JoinMembership(props: Props) {
   const tabButtonProps = { isOnConfirmationPage, activeTab, setActiveTab, setMembershipIndex };
 
   return (
-    <Form style={{ maxHeight: '475px' }}>
+    <Form>
       <Card
         title="Join Creator Membership"
         className={'join-membership-modal'}

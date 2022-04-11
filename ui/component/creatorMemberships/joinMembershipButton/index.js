@@ -1,20 +1,29 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
-import { doMembershipMine } from 'redux/actions/memberships';
-import { selectMembershipNameForChannelUri } from 'redux/selectors/memberships';
+import { doMembershipList } from 'redux/actions/memberships';
+import {
+  selectActiveMembershipNameForChannelUri,
+  selectMembershipMineFetching,
+  selectCreatorHasMembershipsById,
+} from 'redux/selectors/memberships';
+import { parseURI } from 'util/lbryURI';
 import ShareButton from './view';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, permanentUrl } = props;
+
+  const { channelClaimId } = parseURI(permanentUrl);
 
   return {
-    membershipName: selectMembershipNameForChannelUri(state, uri),
+    activeMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
+    fetchingMemberships: selectMembershipMineFetching(state),
+    creatorHasMemberships: selectCreatorHasMembershipsById(state, channelClaimId),
   };
 };
 
 const perform = {
   doOpenModal,
-  doMembershipMine,
+  doMembershipList,
 };
 
 export default connect(select, perform)(ShareButton);
