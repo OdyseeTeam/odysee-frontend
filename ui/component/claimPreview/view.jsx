@@ -18,7 +18,7 @@ import UriIndicator from 'component/uriIndicator';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import ClaimTags from 'component/claimTags';
 import SubscribeButton from 'component/subscribeButton';
-import JoinMembershipButton from 'component/memberships/joinMembershipButton';
+import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimSupportButton from 'component/claimSupportButton';
 import useGetThumbnail from 'effects/use-get-thumbnail';
@@ -453,7 +453,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     ) : (
                       <div className="claim-preview__primary-actions">
                         <div className="button-group">
-                          <JoinMembershipButton uri={uri} />
+                          <JoinMembershipButton uri={uri} permanentUrl={claim.permanent_url} />
                         </div>
                         {isChannelUri && !banState.muted && !claimIsMine && (
                           <SubscribeButton

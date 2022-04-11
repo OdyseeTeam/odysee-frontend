@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
-import JoinMembership from 'component/memberships/joinMembership';
+import JoinMembership from 'component/creatorMemberships/joinMembership';
 
 type Props = {
   uri: string,

@@ -2,9 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
-import { selectMembershipForChannelUri } from 'redux/selectors/memberships';
-import { ODYSEE_CHANNEL_ID } from 'constants/odysee';
-import { buildURI } from 'util/lbryURI';
+import { ODYSEE_CHANNEL_ID, ODYSEE_CHANNEL_NAME } from 'constants/odysee';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -17,48 +15,26 @@ const stripeEnvironment = getStripeEnvironment();
  */
 export function doCheckUserOdyseeMemberships(user) {
   return async (dispatch) => {
-    // get memberships for a given user
-    // TODO: in the future, can we specify this just to @odysee?
-
-    const response = await Lbryio.call(
-      'membership',
-      'mine',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    );
-
-    let savedMemberships = [];
-    let highestMembershipRanking;
-
-    // TODO: this will work for now, but it should be adjusted
     // TODO: to check if it's active, or if it's cancelled if it's still valid past current date
-    // loop through all memberships and save the @odysee ones
-    // maybe in the future we can only hit @odysee in the API call
-    for (const membership of response) {
-      if (membership.MembershipDetails && membership.MembershipDetails.channel_name === '@odysee') {
-        savedMemberships.push(membership.MembershipDetails.name);
+    function mineFetchCb(odyseeMemberships) {
+      let highestMembershipRanking;
+
+      // determine highest ranking membership based on returned data
+      // note: this is from an odd state in the API where a user can be both premium/Premium + at the same time
+      // I expect this can change once upgrade/downgrade is implemented
+      if (odyseeMemberships.length > 0) {
+        // if premium plus is a membership, return that, otherwise it's only premium
+        const premiumPlusExists = odyseeMemberships.includes('Premium+');
+        highestMembershipRanking = premiumPlusExists ? 'Premium+' : 'Premium';
       }
+
+      dispatch({
+        type: ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA,
+        data: { user, odyseeMembershipName: highestMembershipRanking },
+      });
     }
 
-    // determine highest ranking membership based on returned data
-    // note: this is from an odd state in the API where a user can be both premium/Premium + at the same time
-    // I expect this can change once upgrade/downgrade is implemented
-    if (savedMemberships.length > 0) {
-      // if premium plus is a membership, return that, otherwise it's only premium
-      const premiumPlusExists = savedMemberships.includes('Premium+');
-      if (premiumPlusExists) {
-        highestMembershipRanking = 'Premium+';
-      } else {
-        highestMembershipRanking = 'Premium';
-      }
-    }
-
-    dispatch({
-      type: ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA,
-      data: { user, odyseeMembershipName: highestMembershipRanking },
-    });
+    dispatch(doMembershipMine(ODYSEE_CHANNEL_NAME, mineFetchCb));
   };
 }
 
@@ -104,7 +80,7 @@ export function doFetchUserMemberships(claimIdCsv) {
   };
 }
 
-export function doMembershipMine(channelName?: string) {
+export function doMembershipMine(channelName?: string, channelMembershipCb?: () => void) {
   return async (dispatch: Dispatch) => {
     try {
       // show the memberships the user is subscribed to
@@ -142,21 +118,23 @@ export function doMembershipMine(channelName?: string) {
         data: { activeMemberships, canceledMemberships, purchasedMemberships },
       });
 
-      if (channelName) {
-        const activeMembershipForChannel = activeMemberships?.find(
-          (membership) => membership.Membership.channel_name === channelName
-        );
-        dispatch(
-          doToast({
-            message: __(
-              'Congraulations, you are now a "%membership_tier_name%" member of %creator_channel_name%\'s channel, enjoy the perks and special features!',
-              {
-                membership_tier_name: activeMembershipForChannel.MembershipDetails.name,
-                creator_channel_name: channelName,
-              }
-            ),
-          })
-        );
+      // Find a channelName's specific membership and do something (callback function)
+      if (channelName && channelMembershipCb) {
+        let activeMembershipForChannel;
+
+        if (channelName === ODYSEE_CHANNEL_NAME) {
+          // loop through all memberships and save the @odysee ones
+          // maybe in the future we can only hit @odysee in the API call
+          activeMembershipForChannel = purchasedMemberships?.filter(
+            (membership) => membership.Membership.channel_name === channelName
+          );
+        } else {
+          activeMembershipForChannel = activeMemberships?.find(
+            (membership) => membership.Membership.channel_name === channelName
+          );
+        }
+
+        channelMembershipCb(activeMembershipForChannel);
       }
     } catch (err) {
       dispatch({
@@ -202,10 +180,24 @@ export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => v
       // callback function
       if (cb) cb();
 
+      const mineSuccessCb = (membership) => {
+        dispatch(
+          doToast({
+            message: __(
+              'Congraulations, you are now a "%membership_tier_name%" member of %creator_channel_name%\'s channel, enjoy the perks and special features!',
+              {
+                membership_tier_name: membership.MembershipDetails.name,
+                creator_channel_name: userChannelName,
+              }
+            ),
+          })
+        );
+      };
+
       // populate the new data and update frontend
       // and send userChannelName as search for response
       // to notify success
-      dispatch(doMembershipMine(userChannelName));
+      dispatch(doMembershipMine(userChannelName, mineSuccessCb));
     } catch (err) {
       const errorMessage = err.message;
       const subscriptionFailedBackendError = 'failed to create subscription with default card';
@@ -248,5 +240,31 @@ export function doMembershipDeleteData() {
 
     // $FlowFixMe
     location.reload();
+  };
+}
+
+export function doMembershipList(params: { channel_name: string, channel_id: string }) {
+  return async (dispatch: Dispatch) => {
+    try {
+      const response = await Lbryio.call(
+        'membership',
+        'list',
+        {
+          environment: stripeEnvironment,
+          ...params,
+        },
+        'post'
+      );
+
+      dispatch({
+        type: ACTIONS.LIST_MEMBERSHIP_DATA,
+        data: { channelId: params.channel_id, list: response },
+      });
+    } catch (err) {
+      dispatch({
+        type: ACTIONS.LIST_MEMBERSHIP_DATA_ERROR,
+        data: err,
+      });
+    }
   };
 }

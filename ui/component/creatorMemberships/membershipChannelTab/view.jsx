@@ -5,7 +5,7 @@ import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
-import JoinMembership from 'component/memberships/joinMembership';
+import JoinMembership from 'component/creatorMemberships/joinMembership';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -38,7 +38,7 @@ type Props = {
   isModal: boolean,
   // -- redux --
   fetchStarted: ?boolean,
-  channelMembership: any,
+  activeMembershipName: any,
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
 };
@@ -50,7 +50,7 @@ export default function MembershiPChannelTab(props: Props) {
     isModal,
     // -- redux --
     fetchStarted,
-    channelMembership,
+    activeMembershipName,
     doMembershipMine,
     doMembershipDeleteData,
   } = props;
@@ -71,24 +71,24 @@ export default function MembershiPChannelTab(props: Props) {
     <Form style={{ maxHeight: '475px' }}>
       <Card
         title={
-          channelMembership
-            ? __('Your %channel_name% membership', { channel_name: channelMembership.Membership.channel_name })
+          activeMembershipName
+            ? __('Your %channel_name% membership', { channel_name: activeMembershipName.Membership.channel_name })
             : undefined
         }
         className={'join-membership-modal'}
         subtitle={
-          channelMembership ? (
+          activeMembershipName ? (
             <>
               <div className="join-membership-modal-information__div">
                 <h1 className="join-membership-support-time__header">
-                  You have been supporting {channelMembership?.Membership?.channel_name} for 2 months
+                  You have been supporting {activeMembershipName?.Membership?.channel_name} for 2 months
                 </h1>
                 <h1 className="join-membership-support-time__header">I am sure they appreciate it!</h1>
                 <h1 className="join-membership-modal-plan__header">
-                  Your tier: {channelMembership?.MembershipDetails?.name}
+                  Your tier: {activeMembershipName?.MembershipDetails?.name}
                 </h1>
                 <h1 className="join-membership-modal-plan__description">
-                  {channelMembership?.MembershipDetails?.description}
+                  {activeMembershipName?.MembershipDetails?.description}
                 </h1>
                 <div className="join-membership-modal-perks">
                   <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
