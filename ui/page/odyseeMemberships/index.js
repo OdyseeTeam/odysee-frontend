@@ -2,10 +2,11 @@ import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import MembershipsPage from './view';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
-import { selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
-import { doFetchUserMemberships, doCheckUserOdyseeMemberships } from 'redux/actions/memberships';
+import { selectClaimsById, selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
 import { selectUser, selectUserLocale } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
+import { doResolveClaimIds } from 'redux/actions/claims';
+import { doFetchUserMemberships, doCheckUserOdyseeMemberships } from 'redux/actions/memberships';
 
 const select = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -17,10 +18,12 @@ const select = (state) => {
     incognito: selectIncognito(state),
     user: selectUser(state),
     locale: selectUserLocale(state),
+    claimsById: selectClaimsById(state),
   };
 };
 
 const perform = (dispatch) => ({
+  doResolveClaimIds: (claimIds) => dispatch(doResolveClaimIds(claimIds)),
   doToast: (options) => dispatch(doToast(options)),
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   fetchUserMemberships: (claimIds) => dispatch(doFetchUserMemberships(claimIds)),

@@ -280,6 +280,34 @@ function CreateTiersTab(props: Props) {
           />
         </>
       )}
+
+        <div className="show-additional-membership-info__div">
+          <h2 className="show-additional-membership-info__header">Additional Info</h2>
+          <FormField
+            type="checkbox"
+            defaultChecked={true}
+            // disabled={!optimizeAvail}
+            // onChange={() => setUserOptimize(!userOptimize)}
+            label={'Show the amount of supporters on your Become A Member page'}
+            name={'showSupporterAmount'}
+          />
+          <FormField
+            type="checkbox"
+            defaultChecked={false}
+            // disabled={!optimizeAvail}
+            // onChange={() => setUserOptimize(!userOptimize)}
+            label={'Show the amount you make monthly on your Become A Member page'}
+            name={'showMonthlyIncomeAmount'}
+          />
+          <Button
+            button="primary"
+            onClick={(e) => addMembership()}
+            className="activate-memberships-button"
+            label={__('Activate Memberships')}
+            icon={ICONS.ADD}
+          />
+      </div>
+
     </div>
   );
 };

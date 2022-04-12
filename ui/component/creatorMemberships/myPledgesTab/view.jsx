@@ -39,8 +39,14 @@ function MyPledgesTab(props: Props) {
 
   const [myMemberships, setMyMemberships] = React.useState([]);
 
+  function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+  }
+
   React.useEffect(() => {
     (async function() {
+      console.log('running here1');
+
       const response = await Lbryio.call(
         'membership',
         'mine',
@@ -69,27 +75,29 @@ function MyPledgesTab(props: Props) {
         channelIdsToResolve.push(membership.MembershipDetails.channel_id);
       }
 
-      await doResolveClaimIds(channelIdsToResolve);
-
-      console.log('running here');
-
-      // add the full url from the claim
-      pledges = pledges.map(function(pledge) {
-        const fullClaim = claimsById[pledge.channelId];
-        console.log(fullClaim);
-        if (fullClaim.short_url) {
-          pledge.url = formatLbryUrlForWeb(fullClaim.short_url);
-        }
-        pledge.thumbnail = getThumbnailFromClaim(fullClaim);
-        return pledge;
-      });
-
       setMyMemberships(pledges);
+
+      await doResolveClaimIds(channelIdsToResolve);
     })();
   }, []);
 
-  // TODO: replace with API call
-  const yourPledges = myMemberships;
+  React.useEffect(() => {
+    console.log('running here2');
+    let pledges = myMemberships;
+
+    // add the full url from the claim
+    pledges = pledges.map(function(pledge) {
+      const fullClaim = claimsById[pledge.channelId];
+      console.log(fullClaim);
+      if (fullClaim?.short_url) {
+        pledge.url = formatLbryUrlForWeb(fullClaim.short_url);
+      }
+      pledge.thumbnail = getThumbnailFromClaim(fullClaim);
+      return pledge;
+    });
+
+    setMyMemberships(pledges);
+  }, [claimsById]);
 
   return (
     <>
@@ -115,7 +123,8 @@ function MyPledgesTab(props: Props) {
                   </Button>
                 </td>
                 <td>{pledge.tierName}</td>
-                <td>{pledge.channelName}</td>
+                {/* TODO: add moment logic here to calculate number of months */}
+                <td>2 Months</td>
                 <td>${pledge.supportAmount / 100} {pledge.currency} / {capitalizeFirstLetter(pledge.period)}</td>
                 <td><span dir="auto" className="button__label"><Button button="primary" label={__('See Details')} navigate={pledge.url + '?view=membership'} /></span></td>
               </>
@@ -125,7 +134,7 @@ function MyPledgesTab(props: Props) {
         </table>
       )}
 
-      { yourPledges.length === 0 && (
+      { myMemberships.length === 0 && (
         <>
           <h1 style={{ marginTop: '10px' }}> You are not currently supporting any creators </h1>
 
