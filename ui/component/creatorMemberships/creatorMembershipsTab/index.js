@@ -4,8 +4,10 @@ import MembershipsPage from './view';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClaimsById, selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
 import { selectUser, selectUserLocale } from 'redux/selectors/user';
+import { selectBankAccountConfirmed } from 'redux/selectors/stripe';
 import { doToast } from 'redux/actions/notifications';
 import { doResolveClaimIds } from 'redux/actions/claims';
+import { doAccountTipStatus } from 'redux/actions/stripe';
 
 const select = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -18,13 +20,15 @@ const select = (state) => {
     user: selectUser(state),
     locale: selectUserLocale(state),
     claimsById: selectClaimsById(state),
+    bankAccountConfirmed: selectBankAccountConfirmed(state),
   };
 };
 
-const perform = (dispatch) => ({
-  doResolveClaimIds: (claimIds) => dispatch(doResolveClaimIds(claimIds)),
-  doToast: (options) => dispatch(doToast(options)),
-  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-});
+const perform = {
+  doResolveClaimIds,
+  doToast,
+  doOpenModal,
+  doAccountTipStatus,
+};
 
 export default connect(select, perform)(MembershipsPage);

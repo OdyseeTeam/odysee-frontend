@@ -1,13 +1,11 @@
 // @flow
 import { Form } from 'component/common/form';
-import { Lbryio } from 'lbryinc';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import classnames from 'classnames';
 import React from 'react';
-import usePersistedState from 'effects/use-persisted-state';
 import Spinner from 'component/spinner';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -70,11 +68,25 @@ type Props = {
   // -- redux --
   claim: ChannelClaim,
   fetchStarted: ?boolean,
+  canReceiveFiatTips: ?boolean,
+  hasSavedCard: ?boolean,
   doMembershipBuy: (any: any) => void,
+  doTipAccountCheck: (params: { channel_claim_id: string, channel_name: string }) => void,
+  doAccountTipStatus: () => void,
 };
 
 export default function JoinMembership(props: Props) {
-  const { claim, fetchStarted, isModal, closeModal, doMembershipBuy } = props;
+  const {
+    claim,
+    fetchStarted,
+    canReceiveFiatTips,
+    hasSavedCard,
+    isModal,
+    closeModal,
+    doMembershipBuy,
+    doTipAccountCheck,
+    doAccountTipStatus,
+  } = props;
 
   // setup variables for tip API
   const channelClaimId = claim ? (claim.signing_channel ? claim.signing_channel.claim_id : claim.claim_id) : undefined;
@@ -82,14 +94,12 @@ export default function JoinMembership(props: Props) {
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
 
-  const [hasCardSaved, setHasSavedCard] = usePersistedState('comment-support:hasCardSaved', false);
-  const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(); // dont persist because it needs to be calc'd per creator
-
   const [membershipIndex, setMembershipIndex] = React.useState(0);
 
   const [activeTab, setActiveTab] = React.useState('Tier1');
 
   // if a membership can't be purchased from the creator
+  const disable = !canReceiveFiatTips || !hasSavedCard;
   const shouldDisableSelector = claim?.name !== '@test35234';
 
   function handleJoinMembership() {
@@ -100,49 +110,17 @@ export default function JoinMembership(props: Props) {
     }
   }
 
-  // check if user has a payment method saved
   React.useEffect(() => {
-    if (!stripeEnvironment) return;
+    if (stripeEnvironment && canReceiveFiatTips === undefined && tipChannelName) {
+      doTipAccountCheck({ channel_claim_id: channelClaimId, channel_name: tipChannelName });
+    }
+  }, [canReceiveFiatTips, channelClaimId, doTipAccountCheck, tipChannelName]);
 
-    Lbryio.call(
-      'customer',
-      'status',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    ).then((customerStatusResponse) => {
-      const defaultPaymentMethodId =
-        customerStatusResponse.Customer &&
-        customerStatusResponse.Customer.invoice_settings &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method.id;
-
-      setHasSavedCard(Boolean(defaultPaymentMethodId));
-    });
-  }, [setHasSavedCard]);
-
-  // check if creator has a tip account saved
   React.useEffect(() => {
-    if (!stripeEnvironment) return;
-
-    Lbryio.call(
-      'account',
-      'check',
-      {
-        channel_claim_id: channelClaimId,
-        channel_name: tipChannelName,
-        environment: stripeEnvironment,
-      },
-      'post'
-    )
-      .then((accountCheckResponse) => {
-        if (accountCheckResponse === true && canReceiveFiatTip !== true) {
-          setCanReceiveFiatTip(true);
-        }
-      })
-      .catch(() => {});
-  }, [canReceiveFiatTip, channelClaimId, tipChannelName]);
+    if (hasSavedCard === undefined) {
+      doAccountTipStatus();
+    }
+  }, [doAccountTipStatus, hasSavedCard]);
 
   if (fetchStarted) {
     return (
@@ -237,7 +215,7 @@ export default function JoinMembership(props: Props) {
               {/* help message */}
               {shouldDisableSelector && (
                 <div className={'help add-a-card-help-message'}>
-                  {!hasCardSaved ? (
+                  {!hasSavedCard ? (
                     <>
                       <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
                       {' ' + __('To Become a Channel Member')}

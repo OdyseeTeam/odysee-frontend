@@ -15,6 +15,7 @@ import notificationsReducer from 'redux/reducers/notifications';
 import rewardsReducer from 'redux/reducers/rewards';
 import userReducer from 'redux/reducers/user';
 import membershipsReducer from 'redux/reducers/memberships';
+import stripeReducer from 'redux/reducers/stripe';
 import commentsReducer from 'redux/reducers/comments';
 import blockedReducer from 'redux/reducers/blocked';
 import coinSwapReducer from 'redux/reducers/coinSwap';
@@ -50,6 +51,7 @@ export default (history) =>
     coinSwap: coinSwapReducer,
     user: userReducer,
     memberships: membershipsReducer,
+    stripe: stripeReducer,
     wallet: walletReducer,
     sync: syncReducer,
     collections: collectionsReducer,

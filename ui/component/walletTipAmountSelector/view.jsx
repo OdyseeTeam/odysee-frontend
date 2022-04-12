@@ -1,7 +1,6 @@
 // @flow
 import 'scss/component/_wallet-tip-selector.scss';
 import { FormField } from 'component/common/form';
-import { Lbryio } from 'lbryinc';
 import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
@@ -30,11 +29,15 @@ type Props = {
   fiatConversion?: boolean,
   tipError: string,
   uri: string,
+  canReceiveFiatTips: ?boolean,
+  hasSavedCard: ?boolean,
   onChange: (number) => void,
   setConvertedAmount?: (number) => void,
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
   preferredCurrency: string,
+  doTipAccountCheck: (params: { channel_claim_id: string, channel_name: string }) => void,
+  doAccountTipStatus: () => void,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -48,17 +51,19 @@ function WalletTipAmountSelector(props: Props) {
     exchangeRate,
     fiatConversion,
     tipError,
+    canReceiveFiatTips,
+    hasSavedCard,
     onChange,
     setConvertedAmount,
     setDisableSubmitButton,
     setTipError,
     preferredCurrency,
+    doTipAccountCheck,
+    doAccountTipStatus,
   } = props;
 
   const isMobile = useIsMobile();
   const [useCustomTip, setUseCustomTip] = usePersistedState('comment-support:useCustomTip', true);
-  const [hasCardSaved, setHasSavedCard] = usePersistedState('comment-support:hasCardSaved', false);
-  const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(); // dont persist because it needs to be calc'd per creator
 
   const convertToTwoDecimalsOrMore = (number: number, decimals: number = 2) =>
     Number((Math.round(number * 10 ** decimals) / 10 ** decimals).toFixed(decimals));
@@ -71,7 +76,7 @@ function WalletTipAmountSelector(props: Props) {
       : DEFAULT_TIP_AMOUNTS;
 
   // if it's fiat but there's no card saved OR the creator can't receive fiat tips
-  const shouldDisableFiatSelectors = activeTab === TAB_FIAT && (!hasCardSaved || !canReceiveFiatTip);
+  const shouldDisableFiatSelectors = activeTab === TAB_FIAT && (!hasSavedCard || !canReceiveFiatTips);
 
   // setup variables for tip API
   const channelClaimId = claim ? (claim.signing_channel ? claim.signing_channel.claim_id : claim.claim_id) : undefined;
@@ -104,6 +109,18 @@ function WalletTipAmountSelector(props: Props) {
   }
 
   React.useEffect(() => {
+    if (stripeEnvironment && canReceiveFiatTips === undefined && tipChannelName) {
+      doTipAccountCheck({ channel_claim_id: channelClaimId, channel_name: tipChannelName });
+    }
+  }, [canReceiveFiatTips, channelClaimId, doTipAccountCheck, tipChannelName]);
+
+  React.useEffect(() => {
+    if (hasSavedCard === undefined) {
+      doAccountTipStatus();
+    }
+  }, [doAccountTipStatus, hasSavedCard]);
+
+  React.useEffect(() => {
     if (setDisableSubmitButton) setDisableSubmitButton(shouldDisableFiatSelectors);
   }, [setDisableSubmitButton, shouldDisableFiatSelectors]);
 
@@ -112,50 +129,6 @@ function WalletTipAmountSelector(props: Props) {
       setConvertedAmount(amount * exchangeRate);
     }
   }, [amount, convertedAmount, exchangeRate, setConvertedAmount]);
-
-  // check if user has a payment method saved
-  React.useEffect(() => {
-    if (!stripeEnvironment) return;
-
-    Lbryio.call(
-      'customer',
-      'status',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    ).then((customerStatusResponse) => {
-      const defaultPaymentMethodId =
-        customerStatusResponse.Customer &&
-        customerStatusResponse.Customer.invoice_settings &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method.id;
-
-      setHasSavedCard(Boolean(defaultPaymentMethodId));
-    });
-  }, [setHasSavedCard]);
-
-  // check if creator has a tip account saved
-  React.useEffect(() => {
-    if (!stripeEnvironment) return;
-
-    Lbryio.call(
-      'account',
-      'check',
-      {
-        channel_claim_id: channelClaimId,
-        channel_name: tipChannelName,
-        environment: stripeEnvironment,
-      },
-      'post'
-    )
-      .then((accountCheckResponse) => {
-        if (accountCheckResponse === true && canReceiveFiatTip !== true) {
-          setCanReceiveFiatTip(true);
-        }
-      })
-      .catch(() => {});
-  }, [canReceiveFiatTip, channelClaimId, tipChannelName]);
 
   React.useEffect(() => {
     let regexp;
@@ -313,7 +286,7 @@ function WalletTipAmountSelector(props: Props) {
 
       {/* help message */}
       {activeTab === TAB_FIAT &&
-        (!hasCardSaved
+        (!hasSavedCard
           ? getHelpMessage(
               <>
                 <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
@@ -321,7 +294,7 @@ function WalletTipAmountSelector(props: Props) {
               </>,
               'add-a-card-help-message'
             )
-          : !canReceiveFiatTip
+          : !canReceiveFiatTips
           ? getHelpMessage(__('Only creators that verify cash accounts can receive tips'))
           : getHelpMessage(__('Send a tip directly from your attached card')))}
     </>

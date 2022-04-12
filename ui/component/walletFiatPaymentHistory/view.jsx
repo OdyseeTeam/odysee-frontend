@@ -1,46 +1,22 @@
 // @flow
 import React from 'react';
 import Button from 'component/button';
-import { Lbryio } from 'lbryinc';
 import moment from 'moment';
-import { getStripeEnvironment } from 'util/stripe';
-let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   accountDetails: any,
   transactions: any,
+  lastFour: ?any,
+  doGetCustomerStatus: () => void,
 };
 
 const WalletBalance = (props: Props) => {
   // receive transactions from parent component
-  const { transactions: accountTransactions } = props;
+  const { transactions: accountTransactions, lastFour, doGetCustomerStatus } = props;
 
-  const [lastFour, setLastFour] = React.useState();
-
-  function getCustomerStatus() {
-    return Lbryio.call(
-      'customer',
-      'status',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    );
-  }
-
-  // TODO: this is actually incorrect, last4 should be populated based on the transaction not the current customer details
   React.useEffect(() => {
-    (async function () {
-      const customerStatusResponse = await getCustomerStatus();
-
-      const lastFour =
-        customerStatusResponse.PaymentMethods &&
-        customerStatusResponse.PaymentMethods.length &&
-        customerStatusResponse.PaymentMethods[0].card.last4;
-
-      setLastFour(lastFour);
-    })();
-  }, []);
+    doGetCustomerStatus();
+  }, [doGetCustomerStatus]);
 
   return (
     <>
