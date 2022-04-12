@@ -3,7 +3,6 @@ import { doOpenModal } from 'redux/actions/app';
 import { doMembershipList } from 'redux/actions/memberships';
 import {
   selectActiveMembershipNameForChannelUri,
-  selectMembershipMineFetched,
   selectCreatorHasMembershipsById,
   selectCreatorMembershipsFetchedById,
 } from 'redux/selectors/memberships';
@@ -17,7 +16,6 @@ const select = (state, props) => {
 
   return {
     activeChannelMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
-    userMembershipsFetched: selectMembershipMineFetched(state),
     creatorHasMemberships: selectCreatorHasMembershipsById(state, channelClaimId),
     creatorMembershipsFetched: selectCreatorMembershipsFetchedById(state, channelClaimId),
   };
