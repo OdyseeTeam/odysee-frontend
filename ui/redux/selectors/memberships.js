@@ -15,20 +15,24 @@ export const selectMembershipListByChannelId = createSelector(
   (channelId, byId) => byId[channelId]
 );
 
-export const selectCreatorHasMembershipsById = createSelector(
+export const selectCreatorMembershipsFetchedById = createSelector(
   selectMembershipListByChannelId,
-  (memberships) => memberships && memberships.length > 0
+  (memberships) => memberships !== undefined
 );
 
-export const selectMembershipMineFetching = createSelector(
+export const selectCreatorHasMembershipsById = createSelector(selectMembershipListByChannelId, (memberships) =>
+  Boolean(memberships?.length > 0)
+);
+
+export const selectMembershipMineFetched = createSelector(
   selectMembershipMineData,
-  (membershipMine: ?any) => membershipMine === undefined
+  (membershipMine) => membershipMine !== undefined
 );
 
 export const selectActiveMembershipForChannelUri = createCachedSelector(
   (state, uri) => uri,
   selectMembershipMineData,
-  (uri: String, membershipMine: ?any) => {
+  (uri, membershipMine) => {
     const { channelName } = parseURI(uri);
 
     const activeMemberships = membershipMine?.activeMemberships;
@@ -45,7 +49,5 @@ export const selectActiveMembershipForChannelUri = createCachedSelector(
 
 export const selectActiveMembershipNameForChannelUri = createSelector(
   selectActiveMembershipForChannelUri,
-  (membership) => {
-    return membership && membership.MembershipDetails?.name;
-  }
+  (membership) => membership?.MembershipDetails?.name
 );

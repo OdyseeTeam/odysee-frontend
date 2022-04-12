@@ -14,7 +14,7 @@ import rewards from 'rewards';
 import { Lbryio } from 'lbryinc';
 import { DOMAIN, LOCALE_API } from 'config';
 import { getDefaultLanguage } from 'util/default-languages';
-import { doCheckUserOdyseeMemberships } from 'redux/actions/memberships';
+import { doCheckUserOdyseeMemberships, doMembershipMine } from 'redux/actions/memberships';
 
 const AUTH_IN_PROGRESS = 'authInProgress';
 export let sessionStorageAvailable = false;
@@ -132,6 +132,7 @@ export function doAuthenticate(
           if (user.odysee_member) {
             dispatch(doCheckUserOdyseeMemberships(user));
           }
+          dispatch(doMembershipMine(user));
 
           if (shareUsageData) {
             dispatch(doRewardList());
@@ -168,6 +169,7 @@ export function doUserFetch() {
           if (user.odysee_member) {
             dispatch(doCheckUserOdyseeMemberships(user));
           }
+          dispatch(doMembershipMine(user));
 
           dispatch({
             type: ACTIONS.USER_FETCH_SUCCESS,
@@ -194,6 +196,7 @@ export function doUserCheckEmailVerified() {
         if (user.odysee_member) {
           dispatch(doCheckUserOdyseeMemberships(user));
         }
+        dispatch(doMembershipMine(user));
 
         dispatch(doRewardList());
 

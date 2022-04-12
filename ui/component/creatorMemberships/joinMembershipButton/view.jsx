@@ -14,9 +14,10 @@ type Props = {
   permanentUrl: string,
   isChannelPage?: boolean,
   // -- redux --
-  activeMembershipName: ?string,
-  fetchingMemberships: boolean,
-  creatorHasMemberships: ?boolean,
+  activeChannelMembershipName: ?string,
+  userMembershipsFetched: boolean,
+  creatorHasMemberships: boolean,
+  creatorMembershipsFetched: boolean,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => void,
 };
@@ -26,21 +27,22 @@ export default function ShareButton(props: Props) {
     uri,
     permanentUrl,
     isChannelPage,
-    activeMembershipName,
-    fetchingMemberships,
+    activeChannelMembershipName,
+    userMembershipsFetched,
     creatorHasMemberships,
+    creatorMembershipsFetched,
     doOpenModal,
     doMembershipList,
   } = props;
 
+  const prevState = React.useRef();
+
   const { push } = useHistory();
 
-  console.log(fetchingMemberships)
-
-  const userHasMembership = Boolean(activeMembershipName);
+  const userIsActiveMember = Boolean(activeChannelMembershipName);
 
   function handleClick() {
-    if (userHasMembership) {
+    if (userIsActiveMember) {
       const channelPath = formatLbryUrlForWeb(uri);
       const urlParams = new URLSearchParams();
       urlParams.set(VIEW, MEMBERSHIP);
@@ -52,18 +54,30 @@ export default function ShareButton(props: Props) {
   }
 
   React.useEffect(() => {
-    if (creatorHasMemberships === undefined) {
+    if (!creatorMembershipsFetched) {
       const { channelName, channelClaimId } = parseURI(permanentUrl);
       doMembershipList({ channel_name: `@${channelName}`, channel_id: channelClaimId });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [doMembershipList, permanentUrl]);
+  }, [creatorMembershipsFetched, doMembershipList, permanentUrl]);
 
-  if ((fetchingMemberships || creatorHasMemberships === undefined) && !isChannelPage) {
-    return <Skeleton variant="text" animation="wave" sx={{ width: '10rem', height: 'var(--height-button)' }} />;
+  if (!prevState.current && (!userMembershipsFetched || !creatorMembershipsFetched) && !isChannelPage) {
+    // Entered a page and everything is fetching: show this as a placeholder for the button and then it will show up
+    // on its correct state (the button won't pop up out of nowhere, and the text won't change according to member status)
+    return (
+      <Skeleton
+        variant="text"
+        animation="wave"
+        sx={{ width: '10rem', height: 'var(--height-button)', 'background-color': 'var(--color-ads-background)' }}
+      />
+    );
+  } else {
+    // If everything was already fetched, maintain prevState as true so that the button will stay there when switching videos
+    // since most of the times it will hardly change, there is no need to show something else waiting for each channel fetch
+    // prevState indicates it has been mounted and fetched before
+    prevState.current = true;
   }
 
-  if ((userHasMembership || fetchingMemberships) && isChannelPage) {
+  if (userIsActiveMember && isChannelPage) {
     // No need to show the Member button on channel page
     // the Membership Tab is already there
     return null;
@@ -73,14 +87,16 @@ export default function ShareButton(props: Props) {
     <Button
       button="alt"
       icon={ICONS.UPGRADE}
-      label={activeMembershipName || __('Become A Member')}
+      label={activeChannelMembershipName || __('Memberships')}
       title={
-        userHasMembership
-          ? __('You are a "%membership_tier_name%" member', { membership_tier_name: activeMembershipName })
+        userIsActiveMember
+          ? __('You are a "%membership_tier_name%" member', { membership_tier_name: activeChannelMembershipName })
           : __('Become A Member')
       }
       onClick={handleClick}
-      style={{ opacity: !creatorHasMemberships ? '0.7' : undefined }}
+      style={{
+        opacity: !userIsActiveMember && !creatorHasMemberships ? '0.7' : undefined,
+      }}
     />
   );
 }
