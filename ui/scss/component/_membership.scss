@@ -202,3 +202,27 @@
   font-size: 1.1rem;
   margin-bottom: 11px;
 }
+
+.show-additional-membership-info__div {
+  label {
+    font-size: 17px;
+  }
+
+  .show-additional-membership-info__header {
+    font-size: 17px;
+    margin-top: 42px;
+  }
+
+  .checkbox:nth-of-type(1){
+    margin-top: 13px;
+  }
+
+  .checkbox:nth-of-type(2){
+    margin-top: 11px;
+    margin-bottom: 15px;
+  }
+
+  .activate-memberships-button {
+    margin-top: 23px;
+  }
+}

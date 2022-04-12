@@ -156,6 +156,7 @@ export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => v
         channel_name: userChannelName,
         price_id: priceId,
       } = membershipParams;
+      dispatch(doMembershipList({ channel_id: userChannelClaimId, channel_name: userChannelName }));
 
       // show the memberships the user is subscribed to
       await Lbryio.call(
