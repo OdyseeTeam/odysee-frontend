@@ -22,7 +22,7 @@ export default function ModalRemoveCard(props: Props) {
   }
 
   return (
-    <Modal ariaHideApp={false} isOpen contentLabel={'hello'} type="card" onAborted={closeModal}>
+    <Modal ariaHideApp={false} isOpen type="card" onAborted={closeModal}>
       <Card
         title={__('Confirm Delete Membership')}
         actions={
