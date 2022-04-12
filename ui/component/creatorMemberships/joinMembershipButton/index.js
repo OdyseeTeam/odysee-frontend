@@ -3,8 +3,9 @@ import { doOpenModal } from 'redux/actions/app';
 import { doMembershipList } from 'redux/actions/memberships';
 import {
   selectActiveMembershipNameForChannelUri,
-  selectMembershipMineFetching,
+  selectMembershipMineFetched,
   selectCreatorHasMembershipsById,
+  selectCreatorMembershipsFetchedById,
 } from 'redux/selectors/memberships';
 import { parseURI } from 'util/lbryURI';
 import ShareButton from './view';
@@ -15,9 +16,10 @@ const select = (state, props) => {
   const { channelClaimId } = parseURI(permanentUrl);
 
   return {
-    activeMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
-    fetchingMemberships: selectMembershipMineFetching(state),
+    activeChannelMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
+    userMembershipsFetched: selectMembershipMineFetched(state),
     creatorHasMemberships: selectCreatorHasMembershipsById(state, channelClaimId),
+    creatorMembershipsFetched: selectCreatorMembershipsFetchedById(state, channelClaimId),
   };
 };
 
