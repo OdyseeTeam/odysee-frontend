@@ -27,7 +27,7 @@ class SnackBar extends React.PureComponent<Props> {
       return null;
     }
 
-    const { message, subMessage, duration, linkText, linkTarget, isError } = snack;
+    const { message, subMessage, duration, linkText, linkTarget, linkPath, isError } = snack;
 
     if (this.hideTimeout === null) {
       this.hideTimeout = setTimeout(
@@ -62,10 +62,14 @@ class SnackBar extends React.PureComponent<Props> {
             onClick={() => removeSnack()}
           />
         </div>
-        {linkText && linkTarget && (
+        {linkText && (linkTarget || linkPath) && (
           // This is a little weird because of `linkTarget` code in `lbry-redux`
           // Any navigation code should happen in the app, and that should be removed from lbry-redux
-          <Button navigate={`/$${linkTarget}`} className="snack-bar__action" label={linkText} />
+          <Button
+            navigate={linkPath ? `${linkPath}` : `/$${linkTarget}`}
+            className="snack-bar__action"
+            label={linkText}
+          />
         )}
       </div>
     );

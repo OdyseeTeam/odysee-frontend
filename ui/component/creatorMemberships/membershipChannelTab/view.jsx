@@ -36,6 +36,7 @@ type Props = {
   testMembership: { displayName: string, description: string, perks: Array<string> },
   isModal: boolean,
   // -- redux --
+  channelId: string,
   activeMembershipName: any,
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
@@ -46,6 +47,7 @@ export default function MembershiPChannelTab(props: Props) {
     uri,
     testMembership,
     isModal,
+    channelId,
     // -- redux --
     activeMembershipName,
     doMembershipMine,
@@ -100,12 +102,13 @@ export default function MembershiPChannelTab(props: Props) {
                 </h1>
 
                 <Button
-                  className="membership-join-purchase__button"
+                  className="join-membership-modal-purchase__button"
                   icon={ICONS.FINANCE}
                   button="secondary"
                   type="submit"
                   disabled={false}
                   label={`View Membership History`}
+                  navigate={`/${channelId}/membership_history`}
                 />
 
                 <Button

@@ -205,7 +205,7 @@ export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => v
               }
             ),
             linkText: __('View your Member page!'),
-            linkTarget: `${channelPath}?${urlParams}`,
+            linkPath: `${channelPath}?${urlParams}`,
           })
         );
       };
