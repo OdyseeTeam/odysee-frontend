@@ -3,6 +3,10 @@ import * as ACTIONS from 'constants/action_types';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
 import { ODYSEE_CHANNEL_ID, ODYSEE_CHANNEL_NAME } from 'constants/odysee';
+import { buildURI } from 'util/lbryURI';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { formatLbryUrlForWeb } from 'util/url';
+import { VIEW, MEMBERSHIP } from 'constants/urlParams';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -182,6 +186,15 @@ export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => v
       if (cb) cb();
 
       const mineSuccessCb = (membership) => {
+        const state = getState();
+        const channelUri = buildURI({ channelName: userChannelName, channelClaimId: userChannelClaimId });
+        const claim = selectClaimForUri(state, channelUri);
+        const uri = claim.canonical_url;
+
+        const channelPath = formatLbryUrlForWeb(uri);
+        const urlParams = new URLSearchParams();
+        urlParams.set(VIEW, MEMBERSHIP);
+
         dispatch(
           doToast({
             message: __(
@@ -191,6 +204,8 @@ export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => v
                 creator_channel_name: userChannelName,
               }
             ),
+            linkText: __('View your Member page!'),
+            linkTarget: `${channelPath}?${urlParams}`,
           })
         );
       };

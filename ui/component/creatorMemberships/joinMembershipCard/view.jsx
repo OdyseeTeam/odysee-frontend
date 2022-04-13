@@ -35,7 +35,6 @@ let membershipTiers = [
 
 type Props = {
   uri: string,
-  isModal?: boolean,
   closeModal?: () => void,
   // -- redux --
   channelName: ?string,
@@ -47,10 +46,9 @@ type Props = {
   doGetCustomerStatus: () => void,
 };
 
-export default function JoinMembership(props: Props) {
+export default function JoinMembershipCard(props: Props) {
   const {
     uri,
-    isModal,
     closeModal,
     channelName,
     fetchStarted,
@@ -63,11 +61,6 @@ export default function JoinMembership(props: Props) {
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [membershipIndex, setMembershipIndex] = React.useState(0);
-  const [activeTab, setActiveTab] = React.useState('Tier 1');
-
-  // if a membership can't be purchased from the creator
-  // const shouldDisableSelector = !canReceiveFiatTips || !hasSavedCard;
-  const shouldDisableSelector = channelName !== '@test35234';
 
   function handleJoinMembership() {
     if (!isOnConfirmationPage) {
@@ -89,14 +82,15 @@ export default function JoinMembership(props: Props) {
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
-  const tabButtonProps = { isOnConfirmationPage, activeTab, setActiveTab, setMembershipIndex };
+  const tabButtonProps = { isOnConfirmationPage, setMembershipIndex };
 
   return (
     <Form>
       <Card
         title={__('Join Creator Membership')}
         className="membership-join"
-        subtitle={
+        subtitle={!isOnConfirmationPage && __("Join this creator's channel for access to exclusive content and perks")}
+        body={
           isOnConfirmationPage ? (
             <ConfirmationPage
               channelName={channelName}
@@ -107,12 +101,11 @@ export default function JoinMembership(props: Props) {
             />
           ) : (
             <PreviewPage
+              channelName={channelName}
               membershipTier={membershipTiers[membershipIndex]}
               handleJoinMembership={handleJoinMembership}
-              isModal={isModal}
-              shouldDisableSelector={shouldDisableSelector}
+              canReceiveFiatTips={canReceiveFiatTips}
               hasSavedCard={hasSavedCard}
-              activeTab={activeTab}
               tabButtonProps={tabButtonProps}
             />
           )

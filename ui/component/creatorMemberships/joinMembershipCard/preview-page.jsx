@@ -51,8 +51,8 @@ let membershipTiers = [
 ];
 
 type Props = {
-  isModal: boolean,
-  shouldDisableSelector: boolean,
+  channelName: string,
+  canReceiveFiatTips: boolean,
   hasSavedCard: boolean,
   membershipTier: any,
   tabButtonProps: any,
@@ -60,14 +60,26 @@ type Props = {
 };
 
 export default function ConfirmationPage(props: Props) {
-  const { isModal, shouldDisableSelector, hasSavedCard, membershipTier, handleJoinMembership, tabButtonProps } = props;
+  const {
+    channelName,
+    canReceiveFiatTips,
+    hasSavedCard,
+    membershipTier,
+    handleJoinMembership,
+    tabButtonProps: passedProps,
+  } = props;
+
+  const [activeTab, setActiveTab] = React.useState('Tier 1');
+
+  // if a membership can't be purchased from the creator
+  // TODO: || !hasMemberships
+  const shouldDisablePurchase = !canReceiveFiatTips || !hasSavedCard;
+  const shouldDisableSelector = channelName !== '@test35234';
+
+  const tabButtonProps = { ...passedProps, activeTab, setActiveTab };
 
   return (
     <>
-      <h1 className="membership-join__subheader">
-        {__("Join this creator's channel for access to exclusive content and perks")}
-      </h1>
-
       <div className="section membership-join__tab-buttons">
         {membershipTiers.map((membershipTier, index) => {
           const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
@@ -76,10 +88,13 @@ export default function ConfirmationPage(props: Props) {
       </div>
 
       <div className="membership-join__body">
-        <h1 className="membership-join__plan-header">{membershipTier.displayName}</h1>
-        <h1 className="membership-join__plan-description">{membershipTier.description}</h1>
-        <div className="membership-join__plan-perks">
-          <h1>{isModal ? 'Perks:' : 'Perks'}</h1>
+        <section className="membership-join__plan-info">
+          <h1 className="membership-join__plan-header">{membershipTier.displayName}</h1>
+          <span className="card__subtitle membership-join__plan-description">{membershipTier.description}</span>
+        </section>
+
+        <section className="membership-join__plan-perks">
+          <h1 className="membership-join__plan-header">{__('Perks')}</h1>
           <ul>
             <Expandable forceExpand={tabButtonProps.activeTab !== 'Tier 1'}>
               {membershipTier.perks.map((tierPerk, i) => (
@@ -87,25 +102,25 @@ export default function ConfirmationPage(props: Props) {
                   {perkDescriptions.map(
                     (globalPerk, i) =>
                       tierPerk === globalPerk.perkName && (
-                        <li className="membership-join__plan-perks__li">{globalPerk.perkDescription}</li>
+                        <li className="card__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
                       )
                   )}
                 </p>
               ))}
             </Expandable>
           </ul>
-        </div>
+        </section>
       </div>
 
       {shouldDisableSelector && (
-        <div className={'help add-a-card-help-message'}>
+        <div className="help help__no-card">
           {!hasSavedCard ? (
             <>
               <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
               {' ' + __('To Become a Channel Member')}
             </>
           ) : (
-            __('Only creators that verify cash accounts can receive tips')
+            __('This creator cannot receive channel Memberships.')
           )}
         </div>
       )}

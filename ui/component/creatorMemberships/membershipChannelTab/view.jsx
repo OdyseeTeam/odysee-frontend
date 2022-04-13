@@ -4,7 +4,7 @@ import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
-import JoinMembership from 'component/creatorMemberships/joinMembershipCard';
+import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -36,7 +36,6 @@ type Props = {
   testMembership: { displayName: string, description: string, perks: Array<string> },
   isModal: boolean,
   // -- redux --
-  fetchStarted: ?boolean,
   activeMembershipName: any,
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
@@ -48,7 +47,6 @@ export default function MembershiPChannelTab(props: Props) {
     testMembership,
     isModal,
     // -- redux --
-    fetchStarted,
     activeMembershipName,
     doMembershipMine,
     doMembershipDeleteData,
@@ -89,7 +87,7 @@ export default function MembershiPChannelTab(props: Props) {
                         (globalPerk, i) =>
                           tierPerk === globalPerk.perkName && (
                             <ul>
-                              <li className="membership-join__plan-perks__li">{globalPerk.perkDescription}</li>
+                              <li className="membership-join__perk-item">{globalPerk.perkDescription}</li>
                             </ul>
                           )
                       )}
@@ -138,7 +136,7 @@ export default function MembershiPChannelTab(props: Props) {
               )}
             </>
           ) : (
-            <JoinMembership uri={uri} />
+            <JoinMembershipCard uri={uri} />
           )
         }
       />

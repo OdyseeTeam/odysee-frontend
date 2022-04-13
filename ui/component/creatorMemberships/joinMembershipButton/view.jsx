@@ -1,7 +1,6 @@
 // @flow
 import { formatLbryUrlForWeb } from 'util/url';
 import { VIEW, MEMBERSHIP } from 'constants/urlParams';
-import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
@@ -32,18 +31,10 @@ export default function ShareButton(props: Props) {
     doMembershipList,
   } = props;
 
-  const { push } = useHistory();
-
   const userIsActiveMember = Boolean(activeChannelMembershipName);
 
   function handleClick() {
-    if (userIsActiveMember) {
-      const channelPath = formatLbryUrlForWeb(uri);
-      const urlParams = new URLSearchParams();
-      urlParams.set(VIEW, MEMBERSHIP);
-
-      push(`/${channelPath}?${urlParams}`);
-    } else {
+    if (!userIsActiveMember) {
       doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri });
     }
   }
@@ -61,9 +52,18 @@ export default function ShareButton(props: Props) {
     return null;
   }
 
+  let memberPageUrl;
+  if (userIsActiveMember) {
+    const channelPath = formatLbryUrlForWeb(uri);
+    const urlParams = new URLSearchParams();
+    urlParams.set(VIEW, MEMBERSHIP);
+    memberPageUrl = `/${channelPath}?${urlParams}`;
+  }
+
   return (
     <Button
       button="alt"
+      navigate={userIsActiveMember ? memberPageUrl : undefined}
       icon={ICONS.UPGRADE}
       label={activeChannelMembershipName || __('Memberships')}
       title={

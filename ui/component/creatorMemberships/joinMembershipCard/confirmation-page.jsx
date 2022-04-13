@@ -28,7 +28,7 @@ const perkDescriptions = [
 
 type Props = {
   channelName: string,
-  membershipTier: any,
+  membershipTier: any, // todo: membership type
   fetchStarted: boolean,
   handleJoinMembership: () => void,
   onCancel: () => void,
@@ -39,24 +39,23 @@ export default function ConfirmationPage(props: Props) {
 
   return (
     <div className="confirm__wrapper">
-      <ConfirmationGroup label={__('Subscribing to:')} value={channelName} />
-      <ConfirmationGroup label={__('On tier:')} value={membershipTier.displayName} />
-      <ConfirmationGroup label={__('For:')} value={`$${membershipTier.monthlyContributionInUSD}`} />
-      <ConfirmationGroup
+      <ConfirmationSection label={__('Subscribing to:')} value={channelName} />
+      <ConfirmationSection label={__('On tier:')} value={membershipTier.displayName} />
+      <ConfirmationSection label={__('For:')} value={`$${membershipTier.monthlyContributionInUSD}`} />
+      <ConfirmationSection
         label={__('You get:')}
-        value={membershipTier.perks.map((tierPerk, i) => (
-          <p key={tierPerk}>
-            {/* list all the perks */}
-            {perkDescriptions.map(
-              (globalPerk, i) =>
-                tierPerk === globalPerk.perkName && (
-                  <ul>
-                    <li className="membership-join__plan-perks__li">{globalPerk.perkDescription}</li>
-                  </ul>
-                )
+        value={
+          <ul>
+            {membershipTier.perks.map((tierPerk, i) =>
+              perkDescriptions.map(
+                (globalPerk, i) =>
+                  tierPerk === globalPerk.perkName && (
+                    <li className="membership-join__perk-item">{globalPerk.perkDescription}</li>
+                  )
+              )
             )}
-          </p>
-        ))}
+          </ul>
+        }
       />
 
       {fetchStarted ? (
@@ -78,13 +77,13 @@ type GroupProps = {
   value: string | Array<Node>,
 };
 
-const ConfirmationGroup = (props: GroupProps) => {
+const ConfirmationSection = (props: GroupProps) => {
   const { label, value } = props;
 
   return (
-    <div className="confirm__group">
+    <section className="confirm__section">
       <span className="confirm__label">{label}</span>
       <span className="confirm__value">{value}</span>
-    </div>
+    </section>
   );
 };

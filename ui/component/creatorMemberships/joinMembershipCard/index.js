@@ -6,7 +6,7 @@ import { withRouter } from 'react-router';
 import { selectMembershipMineStarted } from 'redux/selectors/memberships';
 import { selectChannelCanReceiveFiatTipsByUri, selectHasSavedCard } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri, doGetCustomerStatus } from 'redux/actions/stripe';
-import WalletSendTip from './view';
+import JoinMembershipCard from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -26,4 +26,4 @@ const perform = {
   doGetCustomerStatus,
 };
 
-export default withRouter(connect(select, perform)(WalletSendTip));
+export default withRouter(connect(select, perform)(JoinMembershipCard));

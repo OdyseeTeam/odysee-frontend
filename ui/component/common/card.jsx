@@ -77,36 +77,40 @@ export default function Card(props: Props) {
               })}
             >
               {icon && <Icon sectionIcon icon={icon} />}
-              <div>
-                {isPageTitle && <h1 className="card__title">{title}</h1>}
-                {!isPageTitle && (
+              <div className="card__title-wrapper">
+                {isPageTitle ? (
+                  <h1 className="card__title">{title}</h1>
+                ) : (
                   <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{title}</h2>
                 )}
                 {subtitle && <div className="card__subtitle">{subtitle}</div>}
               </div>
             </div>
-            <div className="card__title-actions-container">
-              {titleActions && (
-                <div
-                  className={classnames('card__title-actions', {
-                    'card__title-actions--small': smallTitle,
-                  })}
-                >
-                  {titleActions}
-                </div>
-              )}
-              {expandable && (
-                <div className="card__title-actions">
-                  <Button
-                    button="alt"
-                    aria-expanded={expanded}
-                    aria-label={expanded ? __('Less') : __('More')}
-                    icon={expanded ? ICONS.SUBTRACT : ICONS.ADD}
-                    onClick={() => setExpanded(!expanded)}
-                  />
-                </div>
-              )}
-            </div>
+
+            {(titleActions || expandable) && (
+              <div className="card__title-actions-container">
+                {titleActions && (
+                  <div
+                    className={classnames('card__title-actions', {
+                      'card__title-actions--small': smallTitle,
+                    })}
+                  >
+                    {titleActions}
+                  </div>
+                )}
+                {expandable && (
+                  <div className="card__title-actions">
+                    <Button
+                      button="alt"
+                      aria-expanded={expanded}
+                      aria-label={expanded ? __('Less') : __('More')}
+                      icon={expanded ? ICONS.SUBTRACT : ICONS.ADD}
+                      onClick={() => setExpanded(!expanded)}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
         {(!expandable || (expandable && expanded)) && (
