@@ -4,7 +4,7 @@ import { selectClaimForUri } from 'redux/selectors/claims';
 import WalletTipAmountSelector from './view';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectChannelCanReceiveFiatTipsByUri, selectHasSavedCard } from 'redux/selectors/stripe';
-import { doTipAccountCheck, doGetCustomerStatus } from 'redux/actions/stripe';
+import { doTipAccountCheckForUri, doGetCustomerStatus } from 'redux/actions/stripe';
 import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
@@ -20,7 +20,7 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doTipAccountCheck,
+  doTipAccountCheckForUri,
   doGetCustomerStatus,
 };
 

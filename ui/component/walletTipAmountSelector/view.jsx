@@ -11,14 +11,12 @@ import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 
-import { getStripeEnvironment } from 'util/stripe';
-const stripeEnvironment = getStripeEnvironment();
-
 const DEFAULT_TIP_AMOUNTS = [1, 5, 25, 100];
 const TAB_FIAT = 'TabFiat';
 const TAB_LBC = 'TabLBC';
 
 type Props = {
+  uri: string,
   activeTab: string,
   amount: number,
   balance: number,
@@ -36,12 +34,13 @@ type Props = {
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
   preferredCurrency: string,
-  doTipAccountCheck: (params: { channel_claim_id: string, channel_name: string }) => void,
+  doTipAccountCheckForUri: (uri: string) => void,
   doGetCustomerStatus: () => void,
 };
 
 function WalletTipAmountSelector(props: Props) {
   const {
+    uri,
     activeTab,
     amount,
     balance,
@@ -58,7 +57,7 @@ function WalletTipAmountSelector(props: Props) {
     setDisableSubmitButton,
     setTipError,
     preferredCurrency,
-    doTipAccountCheck,
+    doTipAccountCheckForUri,
     doGetCustomerStatus,
   } = props;
 
@@ -77,10 +76,6 @@ function WalletTipAmountSelector(props: Props) {
 
   // if it's fiat but there's no card saved OR the creator can't receive fiat tips
   const shouldDisableFiatSelectors = activeTab === TAB_FIAT && (!hasSavedCard || !canReceiveFiatTips);
-
-  // setup variables for tip API
-  const channelClaimId = claim ? (claim.signing_channel ? claim.signing_channel.claim_id : claim.claim_id) : undefined;
-  const tipChannelName = claim ? (claim.signing_channel ? claim.signing_channel.name : claim.name) : undefined;
 
   /**
    * whether tip amount selection/review functionality should be disabled
@@ -125,10 +120,10 @@ function WalletTipAmountSelector(props: Props) {
   }, [doGetCustomerStatus, hasSavedCard]);
 
   React.useEffect(() => {
-    if (stripeEnvironment && canReceiveFiatTips === undefined && tipChannelName) {
-      doTipAccountCheck({ channel_claim_id: channelClaimId, channel_name: tipChannelName });
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
     }
-  }, [canReceiveFiatTips, channelClaimId, doTipAccountCheck, tipChannelName]);
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
     let regexp;

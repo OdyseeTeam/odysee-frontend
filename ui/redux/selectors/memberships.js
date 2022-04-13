@@ -2,6 +2,7 @@
 import { parseURI } from 'util/lbryURI';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
+import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 
 const selectState = (state) => state.memberships || {};
 
@@ -9,18 +10,18 @@ export const selectMembershipMineData = (state) => selectState(state).membership
 export const selectMembershipMineStarted = (state) => selectState(state).fetchStarted;
 export const selectById = (state) => selectState(state).membershipListById || {};
 
-export const selectMembershipListByChannelId = createSelector(
-  (state, channelId) => channelId,
+export const selectChannelMembershipListByUri = createSelector(
+  selectChannelClaimIdForUri,
   selectById,
   (channelId, byId) => byId[channelId]
 );
 
-export const selectCreatorMembershipsFetchedById = createSelector(
-  selectMembershipListByChannelId,
+export const selectCreatorMembershipsFetchedByUri = createSelector(
+  selectChannelMembershipListByUri,
   (memberships) => memberships !== undefined
 );
 
-export const selectCreatorHasMembershipsById = createSelector(selectMembershipListByChannelId, (memberships) =>
+export const selectCreatorHasMembershipsByUri = createSelector(selectChannelMembershipListByUri, (memberships) =>
   Boolean(memberships?.length > 0)
 );
 

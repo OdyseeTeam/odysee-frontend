@@ -10,9 +10,9 @@ import { parseURI } from 'util/lbryURI';
 
 type Props = {
   uri: string,
-  permanentUrl: string,
   isChannelPage?: boolean,
   // -- redux --
+  permanentUrl?: string,
   activeChannelMembershipName: ?string,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
@@ -23,8 +23,8 @@ type Props = {
 export default function ShareButton(props: Props) {
   const {
     uri,
-    permanentUrl,
     isChannelPage,
+    permanentUrl,
     activeChannelMembershipName,
     creatorHasMemberships,
     creatorMembershipsFetched,

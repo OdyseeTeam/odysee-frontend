@@ -76,7 +76,7 @@ type Props = {
   doSendTip: (params: {}, isSupport: boolean, successCb: (any) => void, errorCb: (any) => void, boolean) => void,
   doOpenModal: (id: string, any) => void,
   preferredCurrency: string,
-  doTipAccountCheck: (params: { channel_claim_id: string, channel_name: string }) => void,
+  doTipAccountCheckForUri: (uri: string) => void,
 };
 
 export function CommentCreate(props: Props) {
@@ -114,7 +114,7 @@ export function CommentCreate(props: Props) {
     setQuickReply,
     doOpenModal,
     preferredCurrency,
-    doTipAccountCheck,
+    doTipAccountCheckForUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -439,9 +439,10 @@ export function CommentCreate(props: Props) {
   // Stickers: Check if creator has a tip account saved (on selector so that if a paid sticker is selected,
   // it defaults to LBC tip instead of USD)
   React.useEffect(() => {
-    if (!stripeEnvironment || canReceiveFiatTips !== undefined || !tipChannelName) return;
-    doTipAccountCheck({ channel_claim_id: channelClaimId, channel_name: tipChannelName });
-  }, [canReceiveFiatTips, channelClaimId, doTipAccountCheck, tipChannelName]);
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {

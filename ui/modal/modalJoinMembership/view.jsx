@@ -1,11 +1,11 @@
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
-import JoinMembership from 'component/creatorMemberships/joinMembership';
+import JoinMembership from 'component/creatorMemberships/joinMembershipCard';
 
 type Props = {
   uri: string,
-  claimIsMine: boolean,
+  // -- redux --
   doHideModal: () => void,
 };
 
@@ -14,7 +14,7 @@ class ModalJoinMembership extends React.PureComponent<Props> {
     const { uri, doHideModal } = this.props;
 
     return (
-      <Modal className="join-membership-modal" onAborted={doHideModal} isOpen type="card">
+      <Modal onAborted={doHideModal} isOpen type="card">
         <JoinMembership uri={uri} closeModal={doHideModal} isModal />
       </Modal>
     );

@@ -17,7 +17,7 @@ import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectChannelCanReceiveFiatTipsByUri } from 'redux/selectors/stripe';
-import { doTipAccountCheck } from 'redux/actions/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
@@ -59,7 +59,7 @@ const perform = {
   doSendCashTip,
   doSendTip,
   doOpenModal,
-  doTipAccountCheck,
+  doTipAccountCheckForUri,
 };
 
 export default connect(select, perform)(CommentCreate);

@@ -12,6 +12,7 @@ import {
   getChannelIdFromClaim,
   isStreamPlaceholderClaim,
   getThumbnailFromClaim,
+  getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
@@ -132,6 +133,8 @@ export const selectClaimForUri = createCachedSelector(
     }
   }
 )((state, uri, returnRepost = true) => `${String(uri)}:${returnRepost ? '1' : '0'}`);
+
+export const selectChannelClaimIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
 
 // Note: this is deprecated. Use "selectClaimForUri(state, uri)" instead.
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
@@ -694,6 +697,9 @@ export const selectPermanentUrlForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return claim && claim.permanent_url;
 };
+
+export const selectChannelIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
+export const selectChannelNameForUri = createSelector(selectClaimForUri, (claim) => getChannelNameFromClaim(claim));
 
 export const makeSelectSupportsForUri = (uri: string) =>
   createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim: ?StreamClaim) => {

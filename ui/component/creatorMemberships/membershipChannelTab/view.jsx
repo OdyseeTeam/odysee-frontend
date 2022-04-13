@@ -4,8 +4,7 @@ import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
-import Spinner from 'component/spinner';
-import JoinMembership from 'component/creatorMemberships/joinMembership';
+import JoinMembership from 'component/creatorMemberships/joinMembershipCard';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -59,14 +58,6 @@ export default function MembershiPChannelTab(props: Props) {
     doMembershipMine();
   }, [doMembershipMine]);
 
-  if (fetchStarted) {
-    return (
-      <div className="main--empty">
-        <Spinner />
-      </div>
-    );
-  }
-
   return (
     <Form style={{ maxHeight: '475px' }}>
       <Card
@@ -75,22 +66,22 @@ export default function MembershiPChannelTab(props: Props) {
             ? __('Your %channel_name% membership', { channel_name: activeMembershipName.Membership.channel_name })
             : undefined
         }
-        className={'join-membership-modal'}
+        className={'membership-join'}
         subtitle={
           activeMembershipName ? (
             <>
-              <div className="join-membership-modal-information__div">
+              <div className="membership__body">
                 <h1 className="join-membership-support-time__header">
                   You have been supporting {activeMembershipName?.Membership?.channel_name} for 2 months
                 </h1>
                 <h1 className="join-membership-support-time__header">I am sure they appreciate it!</h1>
-                <h1 className="join-membership-modal-plan__header">
+                <h1 className="membership-join__plan-header">
                   Your tier: {activeMembershipName?.MembershipDetails?.name}
                 </h1>
-                <h1 className="join-membership-modal-plan__description">
+                <h1 className="membership-join__plan-description">
                   {activeMembershipName?.MembershipDetails?.description}
                 </h1>
-                <div className="join-membership-modal-perks">
+                <div className="membership__plan-perks">
                   <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
                   {testMembership.perks.map((tierPerk, i) => (
                     <p key={tierPerk}>
@@ -98,7 +89,7 @@ export default function MembershiPChannelTab(props: Props) {
                         (globalPerk, i) =>
                           tierPerk === globalPerk.perkName && (
                             <ul>
-                              <li className="join-membership-modal-perks__li">{globalPerk.perkDescription}</li>
+                              <li className="membership-join__plan-perks__li">{globalPerk.perkDescription}</li>
                             </ul>
                           )
                       )}
@@ -111,7 +102,7 @@ export default function MembershiPChannelTab(props: Props) {
                 </h1>
 
                 <Button
-                  className="join-membership-modal-purchase__button"
+                  className="membership-join-purchase__button"
                   icon={ICONS.FINANCE}
                   button="secondary"
                   type="submit"
@@ -120,7 +111,7 @@ export default function MembershiPChannelTab(props: Props) {
                 />
 
                 <Button
-                  className="join-membership-modal-purchase__button"
+                  className="membership-join-purchase__button"
                   style={{ 'margin-left': '1rem' }}
                   icon={ICONS.DELETE}
                   button="secondary"

@@ -2,6 +2,7 @@
 import { doToast } from 'redux/actions/notifications';
 import { Lbryio } from 'lbryinc';
 import { URL, WEBPACK_WEB_PORT } from 'config';
+import { selectChannelIdForUri, selectChannelNameForUri } from 'redux/selectors/claims';
 import * as ACTIONS from 'constants/action_types';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -23,23 +24,26 @@ if (isDev) {
 // const APIS_DOWN_ERROR_RESPONSE = __('There was an error from the server, please try again later');
 // const CARD_SETUP_ERROR_RESPONSE = __('There was an error getting your card setup, please try again later');
 
-export function doTipAccountCheck(params: { channel_claim_id: string, channel_name: string }) {
-  return (dispatch: Dispatch) => {
+export function doTipAccountCheckForUri(uri: string) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const channelClaimId = selectChannelIdForUri(state, uri);
+    const channelName = selectChannelNameForUri(state, uri);
+
     Lbryio.call(
       'account',
       'check',
       {
-        ...params,
+        channel_claim_id: channelClaimId,
+        channel_name: channelName,
         environment: stripeEnvironment,
       },
       'post'
     ).then((accountCheckResponse) => {
       if (accountCheckResponse === true) {
-        const { channel_claim_id: claimId } = params;
-
         dispatch({
           type: ACTIONS.SET_CAN_RECEIVE_FIAT_TIPS,
-          data: claimId,
+          data: channelClaimId,
         });
       }
     });

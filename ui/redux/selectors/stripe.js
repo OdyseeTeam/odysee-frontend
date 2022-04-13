@@ -1,7 +1,6 @@
 // @flow
 import { createSelector } from 'reselect';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { getChannelIdFromClaim } from 'util/claim';
+import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 
 const selectState = (state) => state.stripe || {};
 
@@ -18,7 +17,8 @@ export const selectPaymentHistory = (state) => selectState(state).accountPayment
 export const selectAccountTransactions = (state) => selectState(state).accountTransactions;
 export const selectLastFour = (state) => selectState(state).lastFour;
 
-export const selectChannelCanReceiveFiatTipsByUri = createSelector(selectClaimForUri, selectById, (claim, byId) => {
-  const channelId = getChannelIdFromClaim(claim);
-  return channelId && byId[channelId];
-});
+export const selectChannelCanReceiveFiatTipsByUri = createSelector(
+  selectChannelClaimIdForUri,
+  selectById,
+  (channelId, byId) => byId[channelId]
+);
