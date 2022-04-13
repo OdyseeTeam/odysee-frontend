@@ -112,13 +112,18 @@ export default function MembershiPChannelTab(props: Props) {
                 />
 
                 <Button
-                  className="membership-join-purchase__button"
+                  className="join-membership-modal-purchase__button"
                   style={{ 'margin-left': '1rem' }}
                   icon={ICONS.DELETE}
                   button="secondary"
                   type="submit"
                   disabled={false}
                   label={`Cancel Membership`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {});
+                  }}
                 />
               </div>
 
