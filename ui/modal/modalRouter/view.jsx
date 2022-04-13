@@ -12,6 +12,7 @@ const MAP = Object.freeze({
   [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)),
   [MODALS.AUTO_UPDATE_DOWNLOADED]: lazyImport(() => import('modal/modalAutoUpdateDownloaded' /* webpackChunkName: "modalAutoUpdateDownloaded" */)),
   [MODALS.BLOCK_CHANNEL]: lazyImport(() => import('modal/modalBlockChannel' /* webpackChunkName: "modalBlockChannel" */)),
+  [MODALS.CANCEL_CREATOR_MEMBERSHIP]: lazyImport(() => import('modal/modalCancelCreatorMembership' /* webpackChunkName: "modalCancelCreatorMembership" */)),
   [MODALS.COLLECTION_ADD]: lazyImport(() => import('modal/modalClaimCollectionAdd' /* webpackChunkName: "modalClaimCollectionAdd" */)),
   [MODALS.COLLECTION_DELETE]: lazyImport(() => import('modal/modalRemoveCollection' /* webpackChunkName: "modalRemoveCollection" */)),
   [MODALS.CONFIRM]: lazyImport(() => import('modal/modalConfirm' /* webpackChunkName: "modalConfirm" */)),

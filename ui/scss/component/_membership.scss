@@ -234,6 +234,25 @@
   }
 }
 
+.ReactModal__Overlay {
+  .cancel-creator-membership__modal {
+    min-width: unset;
+    max-width: 486px;
+  }
+
+  .card__subtitle {
+    line-height: 39px;
+  }
+
+  .card__title-section {
+    padding: 0;
+  }
+
+  .card__title {
+    text-align: center;
+  }
+}
+
 
 .billingHistory__header {
   text-align: center;

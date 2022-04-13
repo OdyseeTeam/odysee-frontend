@@ -1,11 +1,13 @@
 // @flow
 import { Form } from 'component/common/form';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
 import JoinMembership from 'component/creatorMemberships/joinMembership';
+import { CANCEL_CREATOR_MEMBERSHIP } from '../../../constants/modal_types';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -55,6 +57,7 @@ export default function MembershipChannelTab(props: Props) {
     activeMembershipName,
     doMembershipMine,
     doMembershipDeleteData,
+    openModal,
   } = props;
 
   React.useEffect(() => {
@@ -130,7 +133,13 @@ export default function MembershipChannelTab(props: Props) {
                   type="submit"
                   disabled={false}
                   label={`Cancel Membership`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {});
+                  }}
                 />
+
               </div>
 
               {/** clear membership data (only available on dev) **/}
