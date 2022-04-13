@@ -319,3 +319,41 @@
     margin-top: 23px;
   }
 }
+
+.ReactModal__Overlay {
+  .activate-memberships__modal {
+    min-width: unset;
+    max-width: 486px;
+  }
+}
+
+.ReactModal__Overlay {
+  .cancel-creator-membership__modal {
+    min-width: unset;
+    max-width: 486px;
+  }
+
+  .card__subtitle {
+    line-height: 39px;
+  }
+
+  .card__title-section {
+    padding: 0;
+  }
+
+  .card__title {
+    text-align: center;
+  }
+}
+
+
+.billingHistory__header {
+  text-align: center;
+  font-size: 25px;
+  margin-top: 28px;
+  margin-bottom: 30px;
+}
+
+.billingHistory-back__button {
+  margin-top: 34px;
+}

@@ -436,8 +436,6 @@ export function CommentCreate(props: Props) {
     if (stickerPrice && !exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
   }, [exchangeRate, stickerPrice]);
 
-  // Stickers: Check if creator has a tip account saved (on selector so that if a paid sticker is selected,
-  // it defaults to LBC tip instead of USD)
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
       doTipAccountCheckForUri(uri);

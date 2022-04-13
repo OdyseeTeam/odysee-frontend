@@ -89,6 +89,14 @@ function CreateTiersTab(props: Props) {
     });
   };
 
+  // TODO: have to replace this with actual API
+  const haveConfirmedBankAccount = true;
+  const openActivateMembershipsModal = function() {
+    openModal(MODALS.ACTIVATE_CREATOR_MEMBERSHIPS, {
+      haveConfirmedBankAccount,
+    });
+  };
+
   const addMembership = function () {
     const amountOfMembershipsCurrently = creatorMemberships.length;
 
@@ -301,7 +309,7 @@ function CreateTiersTab(props: Props) {
           />
           <Button
             button="primary"
-            onClick={(e) => addMembership()}
+            onClick={(e) => openActivateMembershipsModal()}
             className="activate-memberships-button"
             label={__('Activate Memberships')}
             icon={ICONS.ADD}

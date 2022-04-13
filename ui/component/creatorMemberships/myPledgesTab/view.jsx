@@ -45,8 +45,6 @@ function MyPledgesTab(props: Props) {
 
   React.useEffect(() => {
     (async function() {
-      console.log('running here1');
-
       const response = await Lbryio.call(
         'membership',
         'mine',
@@ -82,7 +80,6 @@ function MyPledgesTab(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    console.log('running here2');
     let pledges = myMemberships;
 
     // add the full url from the claim
