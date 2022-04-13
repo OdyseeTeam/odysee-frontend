@@ -370,7 +370,7 @@ function ChannelPage(props: Props) {
 
             <TabPanel>
               {currentView === PAGE.MEMBERSHIP && (
-                <MembershipChannelTab uri={uri} testMembership={membershipTiers[2]} />
+                <MembershipChannelTab uri={uri} testMembership={membershipTiers[2]} claimId={claimId} />
               )}
             </TabPanel>
 

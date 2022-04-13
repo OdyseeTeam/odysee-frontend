@@ -36,6 +36,7 @@ type Props = {
   uri: string,
   testMembership: { displayName: string, description: string, perks: Array<string> },
   isModal: boolean,
+  claimId: string,
   // -- redux --
   fetchStarted: ?boolean,
   activeMembershipName: any,
@@ -43,11 +44,12 @@ type Props = {
   doMembershipDeleteData: () => void,
 };
 
-export default function MembershiPChannelTab(props: Props) {
+export default function MembershipChannelTab(props: Props) {
   const {
     uri,
     testMembership,
     isModal,
+    claimId,
     // -- redux --
     fetchStarted,
     activeMembershipName,
@@ -117,6 +119,7 @@ export default function MembershiPChannelTab(props: Props) {
                   type="submit"
                   disabled={false}
                   label={`View Membership History`}
+                  navigate={`/${claimId}/membership_history`}
                 />
 
                 <Button
