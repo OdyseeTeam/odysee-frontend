@@ -11,25 +11,24 @@ import { URL } from '../../../../config';
 import ChannelSelector from 'component/channelSelector';
 import { formatLbryUrlForWeb } from 'util/url';
 import CopyableText from 'component/copyableText';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
-
-
-let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
+  bankAccountConfirmed: ?boolean,
   openModal: (string, {}) => void,
   activeChannelClaim: ?ChannelClaim,
+  doTipAccountStatus: () => void,
 };
 
 function CreatorMembershipsTab(props: Props) {
   const {
+    bankAccountConfirmed,
     openModal,
     activeChannelClaim,
     doToast,
     claim,
     doResolveClaimIds,
     claimsById,
+    doTipAccountStatus,
   } = props;
 
   const {
@@ -38,23 +37,10 @@ function CreatorMembershipsTab(props: Props) {
   } = useHistory();
 
   React.useEffect(() => {
-    (async function() {
-      const response = await Lbryio.call(
-        'account',
-        'status',
-        {
-          environment: stripeEnvironment,
-        },
-        'post'
-      );
-
-      if (response.charges_enabled) {
-        setHaveAlreadyConfirmedBankAccount(true);
-      }
-    })();
-  }, []);
-
-  const [haveAlreadyConfirmedBankAccount, setHaveAlreadyConfirmedBankAccount] = React.useState(false);
+    if (bankAccountConfirmed === undefined) {
+      doTipAccountStatus({ getBank: true });
+    }
+  }, [bankAccountConfirmed, doTipAccountStatus]);
 
   let localMembershipPageUrl;
   let remoteMembershipPageUrl;
@@ -79,7 +65,13 @@ function CreatorMembershipsTab(props: Props) {
 
       <h1 style={{ marginTop: '10px' }}>You can also click the button below to copy your membership page url</h1>
 
-      <CopyableText className="membership-page__copy-button" primaryButton copyable={remoteMembershipPageUrl} snackMessage={__('Page location copied')} style={{ maxWidth: '535px', marginTop: '5px' }} />
+      <CopyableText
+        className="membership-page__copy-button"
+        primaryButton
+        copyable={remoteMembershipPageUrl}
+        snackMessage={__('Page location copied')}
+        style={{ maxWidth: '535px', marginTop: '5px' }}
+      />
 
       <h1 style={{ fontSize: '20px', marginTop: '25px' }}>Received Funds</h1>
 
@@ -94,11 +86,9 @@ function CreatorMembershipsTab(props: Props) {
       <div className="bank-account-information__div" style={{ marginTop: '33px' }}>
         <h1 style={{ fontSize: '20px' }}>Bank Account Status</h1>
         <div className="bank-account-status__div" style={{ marginTop: '15px' }}>
-          {!haveAlreadyConfirmedBankAccount && (
+          {!bankAccountConfirmed && (
             <>
-              <h1>
-                To be able to begin receiving payments you must connect a Bank Account first
-              </h1>
+              <h1>To be able to begin receiving payments you must connect a Bank Account first</h1>
               <Button
                 button="primary"
                 className="membership_button"
@@ -109,15 +99,17 @@ function CreatorMembershipsTab(props: Props) {
               />
             </>
           )}
-          {haveAlreadyConfirmedBankAccount && (
-            <><h1>
-              Congratulations, you have successfully linked your bank account and can receive tips and memberships
-            </h1></>
+          {bankAccountConfirmed && (
+            <>
+              <h1>
+                Congratulations, you have successfully linked your bank account and can receive tips and memberships
+              </h1>
+            </>
           )}
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default CreatorMembershipsTab;
