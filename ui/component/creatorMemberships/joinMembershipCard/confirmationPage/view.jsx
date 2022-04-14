@@ -7,7 +7,7 @@ const testChannel = {
   membership_id: 7,
   channel_id: '0b67b972c8e9a15ebc5fd1f316ad38460767c939',
   channel_name: '@test35234',
-  price_id: 'price_1KlXw8IrsVv9ySuhFJJ4HSgq',
+  price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj',
 };
 
 const perkDescriptions = [

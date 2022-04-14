@@ -346,7 +346,7 @@
 
   .membership-join-perks__list {
     text-align: left;
-    max-width: 47%;
+    max-width: 450px;
     margin: 0 auto;
   }
 
@@ -367,6 +367,23 @@
   .confirm__section {
     margin-bottom: 7px;
   }
+}
 
+.membership-tab {
+  .membership__body {
+    padding: 0px 20%;
+  }
 
+  .membership__perk-item {
+    color: var(--color-text-subtitle);
+  }
+
+  .membership__plan-header {
+    font-size: 22px;
+  }
+
+  .membership__plan-description {
+    font-size: 19px;
+    margin-top: 3px;
+  }
 }
