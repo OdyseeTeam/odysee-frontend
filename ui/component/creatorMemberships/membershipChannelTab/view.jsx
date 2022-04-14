@@ -44,7 +44,7 @@ type Props = {
   openModal: (id: string, {}) => void,
 };
 
-export default function MembershiPChannelTab(props: Props) {
+export default function MembershipChannelTab(props: Props) {
   const {
     uri,
     testMembership,
@@ -65,7 +65,7 @@ export default function MembershiPChannelTab(props: Props) {
   }, [doMembershipMine, myMemberships]);
 
   if (!activeChannelMembership) {
-    return <JoinMembershipCard uri={uri} />;
+    return <JoinMembershipCard uri={uri} channelTab />;
   }
 
   const { Membership } = activeChannelMembership;

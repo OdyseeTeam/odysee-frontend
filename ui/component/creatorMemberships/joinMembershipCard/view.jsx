@@ -29,10 +29,11 @@ let membershipTiers = [
 type Props = {
   uri: string,
   closeModal?: () => void,
+  channelTab: boolean,
 };
 
 export default function JoinMembershipCard(props: Props) {
-  const { uri, closeModal } = props;
+  const { uri, closeModal, channelTab } = props;
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [membershipIndex, setMembershipIndex] = React.useState(0);
@@ -40,11 +41,13 @@ export default function JoinMembershipCard(props: Props) {
 
   const tabButtonProps = { isOnConfirmationPage, setMembershipIndex, activeTab, setActiveTab };
 
+  const titleText = channelTab ?  'Join Membership' : 'Join Creator Membership';
+
   return (
     <Form>
       <Card
-        title={__('Join Creator Membership')}
-        className="membership-join"
+        title={__(titleText)}
+        className={channelTab ? 'membership-join-tab' : 'membership-join'}
         subtitle={!isOnConfirmationPage && __("Join this creator's channel for access to exclusive content and perks")}
         body={
           isOnConfirmationPage ? (

@@ -306,3 +306,40 @@
 .billingHistory-back__button {
   margin-top: 34px;
 }
+
+// membership card
+.membership-join-tab {
+  min-height: 600px;
+
+  .card__header--between, .card__title-section {
+    display: block;
+  }
+
+  .card__header--between, .membership-join__tab-buttons, .membership-join-purchase__div {
+    text-align: center;
+  }
+
+  .membership-join__body {
+    height: unset;
+  }
+
+  .card__body {
+    text-align: center;
+  }
+
+  .confirm__value {
+    display: block;
+    margin-top: 0px;
+    font-size: 19px;
+  }
+
+  .membership-join-perks__list {
+    text-align: left;
+    max-width: 47%;
+    margin: 0 auto;
+  }
+
+  .section__actions {
+    display: block;
+  }
+}

@@ -136,17 +136,19 @@ export default function PreviewPage(props: Props) {
         </div>
       )}
 
-      <Button
-        className="membership-join-purchase__button"
-        icon={ICONS.UPGRADE}
-        button="primary"
-        type="submit"
-        disabled={shouldDisablePurchase}
-        label={__('Signup for $%membership_price% a month', {
-          membership_price: selectedTier.monthlyContributionInUSD,
-        })}
-        onClick={handleConfirm}
-      />
+      <div className="membership-join-purchase__div">
+        <Button
+          className="membership-join-purchase__button"
+          icon={ICONS.UPGRADE}
+          button="primary"
+          type="submit"
+          disabled={shouldDisablePurchase}
+          label={__('Signup for $%membership_price% a month', {
+            membership_price: selectedTier.monthlyContributionInUSD,
+          })}
+          onClick={handleConfirm}
+        />
+      </div>
     </>
   );
 }

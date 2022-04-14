@@ -58,7 +58,7 @@ export default function ConfirmationPage(props: Props) {
       <ConfirmationSection
         label={__('Features and Perks:')}
         value={
-          <ul>
+          <ul className="membership-join-perks__list">
             {selectedTier.perks.map((tierPerk, i) =>
               perkDescriptions.map(
                 (globalPerk, i) =>
