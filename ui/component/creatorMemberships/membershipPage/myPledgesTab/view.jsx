@@ -23,10 +23,14 @@ type Props = {
   myActiveMemberships: any,
   claimsById: any,
   doMembershipMine: () => void,
+  doResolveClaimIds: (a: any) => void,
 };
 
 function MyPledgesTab(props: Props) {
-  const { myActiveMemberships, claimsById, doMembershipMine } = props;
+  const { myActiveMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
+
+  const [pledges, setPledges] = React.useState();
+  const [resolved, setResolved] = React.useState();
 
   function capitalizeFirstLetter(string) {
     return string?.charAt(0).toUpperCase() + string?.slice(1);
@@ -37,10 +41,41 @@ function MyPledgesTab(props: Props) {
       doMembershipMine();
     }
   }, [doMembershipMine, myActiveMemberships]);
-;
+
+  console.log(myActiveMemberships);
+
+  React.useEffect(() => {
+    if (myActiveMemberships) {
+      const claimIds = myActiveMemberships.map((membership) => membership.Membership.channel_id);
+
+      doResolveClaimIds(claimIds).then(() => setResolved(true));
+    }
+  }, [doResolveClaimIds, myActiveMemberships]);
+
+  React.useEffect(() => {
+    if (myActiveMemberships && resolved) {
+      const allPledges = myActiveMemberships.map((membership) => {
+        const pledgeData = {};
+        const fullClaim = claimsById[membership.Membership.channel_id];
+
+        if (fullClaim?.short_url) {
+          pledgeData.url = formatLbryUrlForWeb(fullClaim.short_url);
+        }
+        pledgeData.thumbnail = getThumbnailFromClaim(fullClaim);
+        pledgeData.currency = membership.Subscription.plan.currency.toUpperCase();
+        pledgeData.supportAmount = membership.Subscription.plan.amount; // in cents or 1/100th EUR
+        pledgeData.period = membership.Subscription.plan.interval;
+
+        return pledgeData;
+      });
+
+      setPledges(allPledges);
+    }
+  }, [claimsById, myActiveMemberships, resolved]);
+
   return (
     <>
-      {myActiveMemberships?.length > 0 && (
+      {pledges?.length > 0 && (
         <table className="table table--transactions">
           <thead>
             <tr>
@@ -53,27 +88,31 @@ function MyPledgesTab(props: Props) {
           </thead>
           <tbody>
             <tr>
-              {myActiveMemberships?.map((pledge, i) => {
-  console.log(pledge);
+              {myActiveMemberships?.map((membership, i) => {
                 return (
                   <>
                     <td>
-                      <Button button="link" navigate={pledge.url + '?view=membership'}>
-                        <img src={pledge.thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
+                      <Button button="link" navigate={pledges[i].url + '?view=membership'}>
+                        <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
                         <span dir="auto" className="button__label">
-                          {pledge.Membership.channel_name}
+                          {membership.Membership.channel_name}
                         </span>
                       </Button>
                     </td>
-                    <td>{pledge.MembershipDetails.name}</td>
+                    <td>{membership.MembershipDetails.name}</td>
                     {/* TODO: add moment logic here to calculate number of months */}
                     <td>2 Months</td>
                     <td>
-                      ${pledge.supportAmount / 100} {pledge.currency} / {capitalizeFirstLetter(pledge.period)}
+                      ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
+                      {capitalizeFirstLetter(pledges[i].period)}
                     </td>
                     <td>
                       <span dir="auto" className="button__label">
-                        <Button button="primary" label={__('See Details')} navigate={pledge.url + '?view=membership'} />
+                        <Button
+                          button="primary"
+                          label={__('See Details')}
+                          navigate={pledges[i].url + '?view=membership'}
+                        />
                       </span>
                     </td>
                   </>
