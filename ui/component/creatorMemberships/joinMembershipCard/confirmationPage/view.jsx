@@ -54,16 +54,16 @@ export default function ConfirmationPage(props: Props) {
     <div className="confirm__wrapper">
       <ConfirmationSection label={__('Subscribing to:')} value={channelName} />
       <ConfirmationSection label={__('On tier:')} value={selectedTier.displayName} />
-      <ConfirmationSection label={__('For:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
+      <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
       <ConfirmationSection
-        label={__('You get:')}
+        label={__('Features and Perks:')}
         value={
           <ul>
             {selectedTier.perks.map((tierPerk, i) =>
               perkDescriptions.map(
                 (globalPerk, i) =>
                   tierPerk === globalPerk.perkName && (
-                    <li className="card__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                    <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
                   )
               )
             )}
@@ -96,7 +96,7 @@ const ConfirmationSection = (props: GroupProps) => {
   return (
     <section className="confirm__section">
       <span className="confirm__label">{label}</span>
-      <span className="card__subtitle confirm__value">{value}</span>
+      <span className="section__subtitle confirm__value">{value}</span>
     </section>
   );
 };

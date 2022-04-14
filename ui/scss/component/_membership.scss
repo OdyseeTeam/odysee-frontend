@@ -116,7 +116,7 @@
   font-size: calc(var(--font-base) + 4px);
 }
 
-.membership-join__plan-perks {
+.membership__plan-perks {
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -159,17 +159,13 @@
 
 /** JOIN CARD ON CHANNEL PAGE **/
 
-.channelPage-wrapper {
-  .membership-join {
-    padding: 0px 10rem;
-  }
-}
-
+.channelPage-wrapper .membership-join,
 .membership__body {
-  width: 100%;
+  padding: 0px 20rem;
 }
 
-.membership-join {
+.membership-join,
+.membership {
   .card__header--between {
     justify-content: center !important;
   }
@@ -182,12 +178,8 @@
     padding-top: var(--spacing-s);
 
     .confirm__section {
-      &:not(:last-of-type) {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        align-items: start;
-        justify-items: start;
-      }
+      display: flex;
+      flex-direction: column;
 
       &:not(:first-of-type) {
         margin-top: var(--spacing-m);
@@ -203,6 +195,8 @@
 
         ul {
           padding: var(--spacing-s);
+          max-height: 15rem;
+          overflow: scroll;
         }
 
         .membership-join__perk-item {

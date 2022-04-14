@@ -66,7 +66,7 @@ export default function PreviewPage(props: Props) {
   const {
     uri,
     selectedTier,
-    tabButtonProps: passedTabProps,
+    tabButtonProps,
     handleConfirm,
     // -- redux --
     canReceiveFiatTips,
@@ -75,8 +75,6 @@ export default function PreviewPage(props: Props) {
     doTipAccountCheckForUri,
     doGetCustomerStatus,
   } = props;
-
-  const [activeTab, setActiveTab] = React.useState('Tier 1');
 
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
@@ -93,11 +91,9 @@ export default function PreviewPage(props: Props) {
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
-  const tabButtonProps = { ...passedTabProps, activeTab, setActiveTab };
-
   return (
     <>
-      <div className="section membership-join__tab-buttons">
+      <div className="membership-join__tab-buttons">
         {membershipTiers.map((membershipTier, index) => {
           const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
           return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
@@ -107,10 +103,10 @@ export default function PreviewPage(props: Props) {
       <div className="membership-join__body">
         <section className="membership-join__plan-info">
           <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
-          <span className="card__subtitle membership-join__plan-description">{selectedTier.description}</span>
+          <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
         </section>
 
-        <section className="membership-join__plan-perks">
+        <section className="membership__plan-perks">
           <h1 className="membership-join__plan-header">{__('Perks')}</h1>
           <ul>
             {selectedTier.perks.map((tierPerk, i) => (
@@ -118,7 +114,7 @@ export default function PreviewPage(props: Props) {
                 {perkDescriptions.map(
                   (globalPerk, i) =>
                     tierPerk === globalPerk.perkName && (
-                      <li className="card__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                      <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
                     )
                 )}
               </p>

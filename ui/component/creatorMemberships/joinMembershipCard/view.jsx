@@ -36,8 +36,9 @@ export default function JoinMembershipCard(props: Props) {
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [membershipIndex, setMembershipIndex] = React.useState(0);
+  const [activeTab, setActiveTab] = React.useState('Tier 1');
 
-  const tabButtonProps = { isOnConfirmationPage, setMembershipIndex };
+  const tabButtonProps = { isOnConfirmationPage, setMembershipIndex, activeTab, setActiveTab };
 
   return (
     <Form>

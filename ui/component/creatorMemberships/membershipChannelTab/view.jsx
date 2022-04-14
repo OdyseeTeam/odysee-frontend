@@ -1,5 +1,4 @@
 // @flow
-import { Form } from 'component/common/form';
 import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
 import React from 'react';
@@ -37,7 +36,8 @@ type Props = {
   isModal: boolean,
   // -- redux --
   channelId: string,
-  activeMembershipName: any,
+  activeChannelMembership: any,
+  myMemberships: any,
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
 };
@@ -49,99 +49,113 @@ export default function MembershiPChannelTab(props: Props) {
     isModal,
     channelId,
     // -- redux --
-    activeMembershipName,
+    activeChannelMembership,
+    myMemberships,
     doMembershipMine,
     doMembershipDeleteData,
   } = props;
 
   React.useEffect(() => {
-    doMembershipMine();
-  }, [doMembershipMine]);
+    if (myMemberships === undefined) {
+      doMembershipMine();
+    }
+  }, [doMembershipMine, myMemberships]);
+
+  if (!activeChannelMembership) {
+    return <JoinMembershipCard uri={uri} />;
+  }
+
+  const { Membership } = activeChannelMembership;
+  const { channel_name: channelName } = Membership;
 
   return (
-    <Form style={{ maxHeight: '475px' }}>
-      <Card
-        title={
-          activeMembershipName
-            ? __('Your %channel_name% membership', { channel_name: activeMembershipName.Membership.channel_name })
-            : undefined
-        }
-        className={'membership-join'}
-        subtitle={
-          activeMembershipName ? (
-            <>
-              <div className="membership__body">
-                <h1 className="join-membership-support-time__header">
-                  You have been supporting {activeMembershipName?.Membership?.channel_name} for 2 months
-                </h1>
-                <h1 className="join-membership-support-time__header">I am sure they appreciate it!</h1>
-                <h1 className="membership-join__plan-header">
-                  Your tier: {activeMembershipName?.MembershipDetails?.name}
-                </h1>
-                <h1 className="membership-join__plan-description">
-                  {activeMembershipName?.MembershipDetails?.description}
-                </h1>
-                <div className="membership__plan-perks">
-                  <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
-                  {testMembership.perks.map((tierPerk, i) => (
-                    <p key={tierPerk}>
-                      {perkDescriptions.map(
-                        (globalPerk, i) =>
-                          tierPerk === globalPerk.perkName && (
-                            <ul>
-                              <li className="membership-join__perk-item">{globalPerk.perkDescription}</li>
-                            </ul>
-                          )
-                      )}
-                    </p>
-                  ))}
-                </div>
+    <Card
+      title={activeChannelMembership ? __('Your %channel_name% membership', { channel_name: channelName }) : undefined}
+      className="membership"
+      subtitle={
+        <>
+          <h1 className="join-membership-support-time__header">
+            {__('You have been supporting %channel_name% for %membership_duration%', {
+              channel_name: channelName,
+            })}
+          </h1>
+          <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
+        </>
+      }
+      body={
+        <>
+          <div className="membership__body">
+            <h1 className="membership__plan-header">
+              {__('Your tier:')} {activeChannelMembership?.MembershipDetails?.name}
+            </h1>
 
-                <h1 className="join-membership-tab-renewal-date__header">
-                  Your membership will renew on April 15, 2022 (15 days)
-                </h1>
+            <h1 className="membership__plan-description">{activeChannelMembership?.MembershipDetails?.description}</h1>
 
+            <div className="membership__plan-perks">
+              <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
+              {testMembership.perks.map((tierPerk, i) => (
+                <p key={tierPerk}>
+                  {perkDescriptions.map(
+                    (globalPerk, i) =>
+                      tierPerk === globalPerk.perkName && (
+                        <ul>
+                          <li className="membership__perk-item">{globalPerk.perkDescription}</li>
+                        </ul>
+                      )
+                  )}
+                </p>
+              ))}
+            </div>
+
+            <h1 className="join-membership-tab-renewal-date__header">
+              {__('Your membership will renew on %renewal_date%', {})}
+            </h1>
+
+            <div className="section__actions--centered">
+              <Button
+                className="join-membership-modal-purchase__button"
+                icon={ICONS.FINANCE}
+                button="secondary"
+                type="submit"
+                disabled={false}
+                label={`View Membership History`}
+                navigate={`/${channelId}/membership_history`}
+              />
+
+              <Button
+                className="membership-purchase__button"
+                icon={ICONS.DELETE}
+                button="secondary"
+                type="submit"
+                disabled={false}
+                label={`Cancel Membership`}
+              />
+            </div>
+          </div>
+
+          {/** clear membership data (only available on dev) **/}
+          {isDev && (
+            <section
+              style={{
+                display: 'flex',
+                'flex-direction': 'column',
+                'align-items': 'center',
+              }}
+            >
+              <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+              <div>
                 <Button
-                  className="join-membership-modal-purchase__button"
-                  icon={ICONS.FINANCE}
-                  button="secondary"
-                  type="submit"
-                  disabled={false}
-                  label={`View Membership History`}
-                  navigate={`/${channelId}/membership_history`}
-                />
-
-                <Button
-                  className="membership-join-purchase__button"
-                  icon={ICONS.DELETE}
-                  button="secondary"
-                  type="submit"
-                  disabled={false}
-                  label={`Cancel Membership`}
+                  button="primary"
+                  label="Clear Membership Data"
+                  icon={ICONS.SETTINGS}
+                  className="membership_button"
+                  onClick={doMembershipDeleteData}
                 />
               </div>
-
-              {/** clear membership data (only available on dev) **/}
-              {isDev && (
-                <>
-                  <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
-                  <div>
-                    <Button
-                      button="primary"
-                      label="Clear Membership Data"
-                      icon={ICONS.SETTINGS}
-                      className="membership_button"
-                      onClick={doMembershipDeleteData}
-                    />
-                  </div>
-                </>
-              )}
-            </>
-          ) : (
-            <JoinMembershipCard uri={uri} />
-          )
-        }
-      />
-    </Form>
+            </section>
+          )}
+        </>
+      }
+    />
   );
 }
