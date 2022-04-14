@@ -41,8 +41,8 @@ export default function ShareButton(props: Props) {
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
-      const { channelName, channelClaimId } = parseURI(permanentUrl);
-      doMembershipList({ channel_name: `@${channelName}`, channel_id: channelClaimId });
+      const { channelName, channelClaimId } = parseURI(permanentUrl || '');
+      doMembershipList({ channel_name: `@${channelName || ''}`, channel_id: channelClaimId || '' });
     }
   }, [creatorMembershipsFetched, doMembershipList, permanentUrl]);
 
@@ -57,6 +57,7 @@ export default function ShareButton(props: Props) {
     const channelPath = formatLbryUrlForWeb(uri);
     const urlParams = new URLSearchParams();
     urlParams.set(VIEW, MEMBERSHIP);
+    // $FlowFixMe
     memberPageUrl = `/${channelPath}?${urlParams}`;
   }
 
@@ -73,7 +74,7 @@ export default function ShareButton(props: Props) {
       }
       onClick={handleClick}
       style={{
-        opacity: !userIsActiveMember && !creatorHasMemberships ? '0.7' : undefined,
+        opacity: !creatorHasMemberships ? '0.7' : undefined,
       }}
     />
   );

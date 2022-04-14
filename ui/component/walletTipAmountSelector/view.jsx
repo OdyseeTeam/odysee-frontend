@@ -104,18 +104,6 @@ function WalletTipAmountSelector(props: Props) {
   }
 
   React.useEffect(() => {
-    if (stripeEnvironment && canReceiveFiatTips === undefined && tipChannelName) {
-      doTipAccountCheck({ channel_claim_id: channelClaimId, channel_name: tipChannelName });
-    }
-  }, [canReceiveFiatTips, channelClaimId, doTipAccountCheck, tipChannelName]);
-
-  React.useEffect(() => {
-    if (hasSavedCard === undefined) {
-      doAccountTipStatus();
-    }
-  }, [doAccountTipStatus, hasSavedCard]);
-
-  React.useEffect(() => {
     if (setDisableSubmitButton) setDisableSubmitButton(shouldDisableFiatSelectors);
   }, [setDisableSubmitButton, shouldDisableFiatSelectors]);
 

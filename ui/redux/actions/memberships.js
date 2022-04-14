@@ -17,8 +17,8 @@ const stripeEnvironment = getStripeEnvironment();
  * @param user
  * @returns {Promise<void>}
  */
-export function doCheckUserOdyseeMemberships(user) {
-  return async (dispatch) => {
+export function doCheckUserOdyseeMemberships(user: any) {
+  return async (dispatch: Dispatch) => {
     // TODO: to check if it's active, or if it's cancelled if it's still valid past current date
     function mineFetchCb(odyseeMemberships) {
       let highestMembershipRanking;
@@ -26,7 +26,7 @@ export function doCheckUserOdyseeMemberships(user) {
       // determine highest ranking membership based on returned data
       // note: this is from an odd state in the API where a user can be both premium/Premium + at the same time
       // I expect this can change once upgrade/downgrade is implemented
-      if (odyseeMemberships.length > 0) {
+      if (odyseeMemberships?.length > 0) {
         // if premium plus is a membership, return that, otherwise it's only premium
         const premiumPlusExists = odyseeMemberships.includes('Premium+');
         highestMembershipRanking = premiumPlusExists ? 'Premium+' : 'Premium';
@@ -47,8 +47,8 @@ export function doCheckUserOdyseeMemberships(user) {
  * @param claimIdCsv
  * @returns {(function(*): Promise<void>)|*}
  */
-export function doFetchUserMemberships(claimIdCsv) {
-  return async (dispatch) => {
+export function doFetchUserMemberships(claimIdCsv: any) {
+  return async (dispatch: Dispatch) => {
     if (!claimIdCsv || (claimIdCsv.length && claimIdCsv.length < 1)) return;
 
     // check if users have odysee memberships (premium/premium+)
@@ -84,7 +84,7 @@ export function doFetchUserMemberships(claimIdCsv) {
   };
 }
 
-export function doMembershipMine(channelName?: string, channelMembershipCb?: () => void) {
+export function doMembershipMine(channelName?: string, channelMembershipCb?: (a: any) => void) {
   return async (dispatch: Dispatch) => {
     try {
       // show the memberships the user is subscribed to
@@ -129,10 +129,12 @@ export function doMembershipMine(channelName?: string, channelMembershipCb?: () 
         if (channelName === ODYSEE_CHANNEL_NAME) {
           // loop through all memberships and save the @odysee ones
           // maybe in the future we can only hit @odysee in the API call
+          // $FlowFixMe
           activeMembershipForChannel = purchasedMemberships?.filter(
             (membership) => membership.Membership.channel_name === channelName
           );
         } else {
+          // $FlowFixMe
           activeMembershipForChannel = activeMemberships?.find(
             (membership) => membership.Membership.channel_name === channelName
           );
@@ -149,7 +151,8 @@ export function doMembershipMine(channelName?: string, channelMembershipCb?: () 
   };
 }
 
-export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => void) {
+// todo: type membership
+export function doMembershipBuy(membershipParams: any, cb?: () => void) {
   return async (dispatch: Dispatch, getState: GetState) => {
     try {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED });
@@ -197,14 +200,12 @@ export function doMembershipBuy(membershipParams: MembershipParams, cb?: () => v
 
         dispatch(
           doToast({
-            message: __(
-              'Congraulations, you are now a "%membership_tier_name%" member of %creator_channel_name%\'s channel, enjoy the perks and special features!',
-              {
-                membership_tier_name: membership.MembershipDetails.name,
-                creator_channel_name: userChannelName,
-              }
-            ),
-            linkText: __('View your Member page!'),
+            message: __('You are now a "%membership_tier_name%" member, enjoy the perks and special features!', {
+              membership_tier_name: membership.MembershipDetails.name,
+              creator_channel_name: userChannelName,
+            }),
+            linkText: __('View your Member page'),
+            // $FlowFixMe
             linkPath: `${channelPath}?${urlParams}`,
           })
         );

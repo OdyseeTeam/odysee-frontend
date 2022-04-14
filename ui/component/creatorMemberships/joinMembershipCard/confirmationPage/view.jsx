@@ -3,6 +3,13 @@ import React from 'react';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 
+const testChannel = {
+  membership_id: 7,
+  channel_id: '0b67b972c8e9a15ebc5fd1f316ad38460767c939',
+  channel_name: '@test35234',
+  price_id: 'price_1KlXw8IrsVv9ySuhFJJ4HSgq',
+};
+
 const perkDescriptions = [
   {
     perkName: 'exclusiveAccess',
@@ -27,26 +34,32 @@ const perkDescriptions = [
 ];
 
 type Props = {
-  channelName: string,
-  membershipTier: any, // todo: membership type
-  fetchStarted: boolean,
-  handleJoinMembership: () => void,
+  selectedTier: any, // todo: membership type
   onCancel: () => void,
+  closeModal?: () => void,
+  // -- redux --
+  channelName: string,
+  fetchStarted: boolean,
+  doMembershipBuy: (membershipParams: any, cb?: () => void) => void,
 };
 
 export default function ConfirmationPage(props: Props) {
-  const { channelName, membershipTier, fetchStarted, handleJoinMembership, onCancel } = props;
+  const { selectedTier, onCancel, closeModal, channelName, fetchStarted, doMembershipBuy } = props;
+
+  function handleJoinMembership() {
+    doMembershipBuy(testChannel, closeModal);
+  }
 
   return (
     <div className="confirm__wrapper">
       <ConfirmationSection label={__('Subscribing to:')} value={channelName} />
-      <ConfirmationSection label={__('On tier:')} value={membershipTier.displayName} />
-      <ConfirmationSection label={__('For:')} value={`$${membershipTier.monthlyContributionInUSD}`} />
+      <ConfirmationSection label={__('On tier:')} value={selectedTier.displayName} />
+      <ConfirmationSection label={__('For:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
       <ConfirmationSection
         label={__('You get:')}
         value={
           <ul>
-            {membershipTier.perks.map((tierPerk, i) =>
+            {selectedTier.perks.map((tierPerk, i) =>
               perkDescriptions.map(
                 (globalPerk, i) =>
                   tierPerk === globalPerk.perkName && (
@@ -74,7 +87,7 @@ export default function ConfirmationPage(props: Props) {
 
 type GroupProps = {
   label: string,
-  value: string | Array<Node>,
+  value: string | any,
 };
 
 const ConfirmationSection = (props: GroupProps) => {

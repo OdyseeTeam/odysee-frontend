@@ -2,15 +2,8 @@
 import { Form } from 'component/common/form';
 import Card from 'component/common/card';
 import React from 'react';
-import ConfirmationPage from './confirmation-page';
-import PreviewPage from './preview-page';
-
-const testChannel = {
-  membership_id: 7,
-  channel_id: '0b67b972c8e9a15ebc5fd1f316ad38460767c939',
-  channel_name: '@test35234',
-  price_id: 'price_1KlXw8IrsVv9ySuhFJJ4HSgq',
-};
+import ConfirmationPage from './confirmationPage';
+import PreviewPage from './previewPage';
 
 let membershipTiers = [
   {
@@ -36,51 +29,13 @@ let membershipTiers = [
 type Props = {
   uri: string,
   closeModal?: () => void,
-  // -- redux --
-  channelName: ?string,
-  fetchStarted: ?boolean,
-  canReceiveFiatTips: ?boolean,
-  hasSavedCard: ?boolean,
-  doMembershipBuy: (any: any) => void,
-  doTipAccountCheckForUri: (uri: string) => void,
-  doGetCustomerStatus: () => void,
 };
 
 export default function JoinMembershipCard(props: Props) {
-  const {
-    uri,
-    closeModal,
-    channelName,
-    fetchStarted,
-    canReceiveFiatTips,
-    hasSavedCard,
-    doMembershipBuy,
-    doTipAccountCheckForUri,
-    doGetCustomerStatus,
-  } = props;
+  const { uri, closeModal } = props;
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [membershipIndex, setMembershipIndex] = React.useState(0);
-
-  function handleJoinMembership() {
-    if (!isOnConfirmationPage) {
-      setConfirmationPage(true);
-    } else {
-      doMembershipBuy(testChannel, closeModal);
-    }
-  }
-
-  React.useEffect(() => {
-    if (hasSavedCard === undefined) {
-      doGetCustomerStatus();
-    }
-  }, [doGetCustomerStatus, hasSavedCard]);
-
-  React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
-      doTipAccountCheckForUri(uri);
-    }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   const tabButtonProps = { isOnConfirmationPage, setMembershipIndex };
 
@@ -93,19 +48,16 @@ export default function JoinMembershipCard(props: Props) {
         body={
           isOnConfirmationPage ? (
             <ConfirmationPage
-              channelName={channelName}
-              membershipTier={membershipTiers[membershipIndex]}
-              fetchStarted={fetchStarted}
-              handleJoinMembership={handleJoinMembership}
+              uri={uri}
+              selectedTier={membershipTiers[membershipIndex]}
               onCancel={() => setConfirmationPage(false)}
+              closeModal={closeModal}
             />
           ) : (
             <PreviewPage
-              channelName={channelName}
-              membershipTier={membershipTiers[membershipIndex]}
-              handleJoinMembership={handleJoinMembership}
-              canReceiveFiatTips={canReceiveFiatTips}
-              hasSavedCard={hasSavedCard}
+              uri={uri}
+              selectedTier={membershipTiers[membershipIndex]}
+              handleConfirm={() => setConfirmationPage(true)}
               tabButtonProps={tabButtonProps}
             />
           )

@@ -4,11 +4,13 @@ import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 
-const selectState = (state) => state.memberships || {};
+type State = { memberships: any };
 
-export const selectMembershipMineData = (state) => selectState(state).membershipMine;
-export const selectMembershipMineStarted = (state) => selectState(state).fetchStarted;
-export const selectById = (state) => selectState(state).membershipListById || {};
+const selectState = (state: State) => state.memberships || {};
+
+export const selectMembershipMineData = (state: State) => selectState(state).membershipMine;
+export const selectMembershipMineStarted = (state: State) => selectState(state).fetchStarted;
+export const selectById = (state: State) => selectState(state).membershipListById || {};
 
 export const selectChannelMembershipListByUri = createSelector(
   selectChannelClaimIdForUri,
@@ -40,8 +42,9 @@ export const selectActiveMembershipForChannelUri = createCachedSelector(
 
     if (activeMemberships === undefined) return undefined;
 
+    // $FlowFixMe
     const activeMembershipForChannel = activeMemberships?.find(
-      (membership) => membership.Membership.channel_name === `@${channelName}`
+      (membership) => membership.Membership.channel_name === `@${channelName || ''}`
     );
 
     return activeMembershipForChannel || null;

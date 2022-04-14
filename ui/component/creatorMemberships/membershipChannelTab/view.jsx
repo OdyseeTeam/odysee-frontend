@@ -113,7 +113,6 @@ export default function MembershiPChannelTab(props: Props) {
 
                 <Button
                   className="membership-join-purchase__button"
-                  style={{ 'margin-left': '1rem' }}
                   icon={ICONS.DELETE}
                   button="secondary"
                   type="submit"

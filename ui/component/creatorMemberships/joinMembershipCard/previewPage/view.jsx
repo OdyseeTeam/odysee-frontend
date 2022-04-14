@@ -4,7 +4,6 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import classnames from 'classnames';
-import Expandable from 'component/expandable';
 
 const perkDescriptions = [
   {
@@ -51,70 +50,86 @@ let membershipTiers = [
 ];
 
 type Props = {
-  channelName: string,
-  canReceiveFiatTips: boolean,
-  hasSavedCard: boolean,
-  membershipTier: any,
+  uri: string,
+  selectedTier: any,
   tabButtonProps: any,
-  handleJoinMembership: () => void,
+  handleConfirm: () => void,
+  // -- redux --
+  canReceiveFiatTips: ?boolean,
+  hasSavedCard: ?boolean,
+  creatorHasMemberships: boolean,
+  doTipAccountCheckForUri: (uri: string) => void,
+  doGetCustomerStatus: () => void,
 };
 
-export default function ConfirmationPage(props: Props) {
+export default function PreviewPage(props: Props) {
   const {
-    channelName,
+    uri,
+    selectedTier,
+    tabButtonProps: passedTabProps,
+    handleConfirm,
+    // -- redux --
     canReceiveFiatTips,
     hasSavedCard,
-    membershipTier,
-    handleJoinMembership,
-    tabButtonProps: passedProps,
+    creatorHasMemberships,
+    doTipAccountCheckForUri,
+    doGetCustomerStatus,
   } = props;
 
   const [activeTab, setActiveTab] = React.useState('Tier 1');
 
   // if a membership can't be purchased from the creator
-  // TODO: || !hasMemberships
-  const shouldDisablePurchase = !canReceiveFiatTips || !hasSavedCard;
-  const shouldDisableSelector = channelName !== '@test35234';
+  const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
 
-  const tabButtonProps = { ...passedProps, activeTab, setActiveTab };
+  React.useEffect(() => {
+    if (hasSavedCard === undefined) {
+      doGetCustomerStatus();
+    }
+  }, [doGetCustomerStatus, hasSavedCard]);
+
+  React.useEffect(() => {
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+
+  const tabButtonProps = { ...passedTabProps, activeTab, setActiveTab };
 
   return (
     <>
       <div className="section membership-join__tab-buttons">
         {membershipTiers.map((membershipTier, index) => {
           const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
-          return <TabSwitchButton key={tierStr} index={index} label={tierStr} name={tierStr} {...tabButtonProps} />;
+          return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
         })}
       </div>
 
       <div className="membership-join__body">
         <section className="membership-join__plan-info">
-          <h1 className="membership-join__plan-header">{membershipTier.displayName}</h1>
-          <span className="card__subtitle membership-join__plan-description">{membershipTier.description}</span>
+          <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
+          <span className="card__subtitle membership-join__plan-description">{selectedTier.description}</span>
         </section>
 
         <section className="membership-join__plan-perks">
           <h1 className="membership-join__plan-header">{__('Perks')}</h1>
           <ul>
-            <Expandable forceExpand={tabButtonProps.activeTab !== 'Tier 1'}>
-              {membershipTier.perks.map((tierPerk, i) => (
-                <p key={tierPerk}>
-                  {perkDescriptions.map(
-                    (globalPerk, i) =>
-                      tierPerk === globalPerk.perkName && (
-                        <li className="card__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                      )
-                  )}
-                </p>
-              ))}
-            </Expandable>
+            {selectedTier.perks.map((tierPerk, i) => (
+              <p key={tierPerk}>
+                {perkDescriptions.map(
+                  (globalPerk, i) =>
+                    tierPerk === globalPerk.perkName && (
+                      <li className="card__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                    )
+                )}
+              </p>
+            ))}
           </ul>
         </section>
       </div>
 
-      {shouldDisableSelector && (
+      {shouldDisablePurchase && (
         <div className="help help__no-card">
-          {!hasSavedCard ? (
+          {hasSavedCard === false ? (
             <>
               <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
               {' ' + __('To Become a Channel Member')}
@@ -130,20 +145,18 @@ export default function ConfirmationPage(props: Props) {
         icon={ICONS.UPGRADE}
         button="primary"
         type="submit"
-        disabled={shouldDisableSelector}
+        disabled={shouldDisablePurchase}
         label={__('Signup for $%membership_price% a month', {
-          membership_price: membershipTier.monthlyContributionInUSD,
+          membership_price: selectedTier.monthlyContributionInUSD,
         })}
-        onClick={handleJoinMembership}
+        onClick={handleConfirm}
       />
     </>
   );
 }
 
 type TabButtonProps = {
-  icon: string,
   label: string,
-  name: string,
   isOnConfirmationPage: boolean,
   activeTab: string,
   setActiveTab: (string) => void,
@@ -152,32 +165,21 @@ type TabButtonProps = {
 };
 
 const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
-  const {
-    icon,
-    label,
-    name,
-    isOnConfirmationPage,
-    activeTab,
-    setActiveTab,
-    index,
-    setMembershipIndex,
-  } = tabButtonProps;
+  const { label, isOnConfirmationPage, activeTab, setActiveTab, index, setMembershipIndex } = tabButtonProps;
 
   return (
     <Button
-      key={name}
-      icon={icon}
       label={label}
       button="alt"
       onClick={() => {
         const tipInputElement = document.getElementById('tip-input');
         if (tipInputElement) tipInputElement.focus();
         if (!isOnConfirmationPage) {
-          setActiveTab(name);
+          setActiveTab(label);
           setMembershipIndex(index);
         }
       }}
-      className={classnames('button-toggle', { 'button-toggle--active': activeTab === name })}
+      className={classnames('button-toggle', { 'button-toggle--active': activeTab === label })}
     />
   );
 };
