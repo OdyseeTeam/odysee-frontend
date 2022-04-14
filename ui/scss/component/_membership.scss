@@ -166,6 +166,10 @@
 
 .membership-join,
 .membership {
+  .section__actions {
+    display: block;
+  }
+
   .card__header--between {
     justify-content: center !important;
   }
@@ -330,7 +334,14 @@
   .confirm__value {
     display: block;
     margin-top: 0px;
-    font-size: 19px;
+  }
+
+  .confirm__label {
+    font-size: 17px;
+  }
+
+  .confirm__value {
+    font-size: 16px;
   }
 
   .membership-join-perks__list {
@@ -342,4 +353,20 @@
   .section__actions {
     display: block;
   }
+
+  .membership-features-confirmation__section {
+    margin-top: 5px;
+    .confirm__value {
+      max-width: 65%;
+      margin: 0 auto;
+      margin-top: 5px;
+      margin-bottom: 23px;
+    }
+  }
+
+  .confirm__section {
+    margin-bottom: 7px;
+  }
+
+
 }

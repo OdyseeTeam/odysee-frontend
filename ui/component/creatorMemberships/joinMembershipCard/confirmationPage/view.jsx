@@ -52,10 +52,11 @@ export default function ConfirmationPage(props: Props) {
 
   return (
     <div className="confirm__wrapper">
-      <ConfirmationSection label={__('Subscribing to:')} value={channelName} />
-      <ConfirmationSection label={__('On tier:')} value={selectedTier.displayName} />
+      <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
+      <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.displayName} />
       <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
       <ConfirmationSection
+        className="membership-features-confirmation__section"
         label={__('Features and Perks:')}
         value={
           <ul className="membership-join-perks__list">
@@ -86,15 +87,16 @@ export default function ConfirmationPage(props: Props) {
 }
 
 type GroupProps = {
+  className: string,
   label: string,
   value: string | any,
 };
 
 const ConfirmationSection = (props: GroupProps) => {
-  const { label, value } = props;
+  const { label, value, className } = props;
 
   return (
-    <section className="confirm__section">
+    <section className={`confirm__section ${className || ''}`}>
       <span className="confirm__label">{label}</span>
       <span className="section__subtitle confirm__value">{value}</span>
     </section>
