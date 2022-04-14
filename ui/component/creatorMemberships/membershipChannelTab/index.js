@@ -3,6 +3,7 @@ import { doMembershipMine, doMembershipDeleteData } from 'redux/actions/membersh
 import { withRouter } from 'react-router';
 import { selectActiveMembershipForChannelUri, selectMembershipMineData } from 'redux/selectors/memberships';
 import { selectChannelIdForUri } from 'redux/selectors/claims';
+import { doOpenModal } from 'redux/actions/app';
 import WalletSendTip from './view';
 
 const select = (state, props) => {
@@ -20,6 +21,7 @@ const select = (state, props) => {
 const perform = {
   doMembershipMine,
   doMembershipDeleteData,
+  openModal: doOpenModal,
 };
 
 export default withRouter(connect(select, perform)(WalletSendTip));

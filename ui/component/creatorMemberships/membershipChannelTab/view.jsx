@@ -1,4 +1,5 @@
 // @flow
+import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import Card from 'component/common/card';
 import React from 'react';
@@ -40,6 +41,7 @@ type Props = {
   myMemberships: any,
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
+  openModal: (id: string, {}) => void,
 };
 
 export default function MembershiPChannelTab(props: Props) {
@@ -53,6 +55,7 @@ export default function MembershiPChannelTab(props: Props) {
     myMemberships,
     doMembershipMine,
     doMembershipDeleteData,
+    openModal,
   } = props;
 
   React.useEffect(() => {
@@ -122,38 +125,44 @@ export default function MembershiPChannelTab(props: Props) {
                 navigate={`/${channelId}/membership_history`}
               />
 
-              <Button
-                className="membership-purchase__button"
-                icon={ICONS.DELETE}
-                button="secondary"
-                type="submit"
-                disabled={false}
-                label={`Cancel Membership`}
-              />
-            </div>
-          </div>
-
-          {/** clear membership data (only available on dev) **/}
-          {isDev && (
-            <section
-              style={{
-                display: 'flex',
-                'flex-direction': 'column',
-                'align-items': 'center',
-              }}
-            >
-              <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
-              <div>
                 <Button
-                  button="primary"
-                  label="Clear Membership Data"
-                  icon={ICONS.SETTINGS}
-                  className="membership_button"
-                  onClick={doMembershipDeleteData}
+                  className="join-membership-modal-purchase__button"
+                  style={{ 'margin-left': '1rem' }}
+                  icon={ICONS.DELETE}
+                  button="secondary"
+                  type="submit"
+                  disabled={false}
+                  label={`Cancel Membership`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {});
+                  }}
                 />
               </div>
-            </section>
-          )}
+
+            {/** clear membership data (only available on dev) **/}
+            {isDev && (
+              <section
+                style={{
+                  display: 'flex',
+                  'flex-direction': 'column',
+                  'align-items': 'center',
+                }}
+              >
+                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+                <div>
+                  <Button
+                    button="primary"
+                    label="Clear Membership Data"
+                    icon={ICONS.SETTINGS}
+                    className="membership_button"
+                    onClick={doMembershipDeleteData}
+                  />
+                </div>
+              </section>
+            )}
+          </div>
         </>
       }
     />
