@@ -5,6 +5,7 @@ import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
 import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard';
+import moment from 'moment';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -68,19 +69,56 @@ export default function MembershipChannelTab(props: Props) {
     return <JoinMembershipCard uri={uri} channelTab />;
   }
 
-  const { Membership } = activeChannelMembership;
-  const { channel_name: channelName } = Membership;
+  console.log(channelId);
+
+  console.log('my memberships');
+  console.log(myMemberships);
+
+  const activeMemberships = myMemberships?.activeMemberships;
+
+  const membershipForThisChannel = activeMemberships?.length && activeMemberships.filter(function(membership) {
+    console.log('membership');
+    console.log(membership);
+    return membership.Membership.channel_id === channelId;
+  });
+
+  console.log('membership for this channel');
+  console.log(membershipForThisChannel);
+
+  let Membership, MembershipDetails, Subscription, channelName;
+  if (membershipForThisChannel && membershipForThisChannel.length) {
+    ({ Membership, MembershipDetails, Subscription } = membershipForThisChannel[0]);
+    ({ channel_name: channelName } = Membership);
+
+    // TODO: replace amount of months there
+    const startDate = Subscription.current_period_start * 1000;
+    const endDate = Subscription.current_period_end * 1000;
+    const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true)
+    console.log(amountOfMonths);
+  }
+
+  console.log(Membership);
+  console.log(channelName);
+  console.log('sub');
+  console.log(Subscription)
+  // const { Membership } = membershipForThisChannel;
+  // const { channel_name: channelName } = Membership;
+
+  const formatDate = function (date) {
+    return moment(new Date(date)).format('MMMM DD YYYY');
+  };
+
 
   return (
     <Card
-      title={activeChannelMembership ? __('Your %channel_name% membership', { channel_name: channelName }) : undefined}
+      title={Membership ? __('Your %channel_name% membership', { channel_name: channelName }) : undefined}
       className="membership membership-tab"
       subtitle={
         <>
           <h1 className="join-membership-support-time__header">
             {__('You have been supporting %channel_name% for %membership_duration%', {
               channel_name: channelName,
-              membership_duration: '2 months',
+              membership_duration: '2 months', // TODO: do this here
             })}
           </h1>
           <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
@@ -90,14 +128,14 @@ export default function MembershipChannelTab(props: Props) {
         <>
           <div className="membership__body">
             <h1 className="membership__plan-header">
-              {activeChannelMembership?.MembershipDetails?.name}
+              {MembershipDetails?.name}
             </h1>
 
-            <h1 className="membership__plan-description">{activeChannelMembership?.MembershipDetails?.description}</h1>
+            <h1 className="membership__plan-description">{MembershipDetails?.description}</h1>
 
             <div className="membership__plan-perks">
               <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
-              {testMembership.perks.map((tierPerk, i) => (
+              {testMembership.perks.map((tierPerk, i) => ( // TODO: need this to come from API
                 <p key={tierPerk}>
                   {perkDescriptions.map(
                     (globalPerk, i) =>
@@ -114,6 +152,7 @@ export default function MembershipChannelTab(props: Props) {
             <h1 className="join-membership-tab-renewal-date__header">
               {__('Your membership will renew on %renewal_date%', {
                 renewal_date: 'May 15',
+                // renewal_date: formatDate(Subscription.current_period_end * 1000),
               })}
             </h1>
 
