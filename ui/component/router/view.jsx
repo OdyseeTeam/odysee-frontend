@@ -78,7 +78,7 @@ const OdyseeMembershipPage = lazyImport(() =>
   import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
 );
 const OdyseeMembershipsPage = lazyImport(() =>
-  import('page/odyseeMemberships' /* webpackChunkName: "odyseeMembership" */)
+  import('page/odyseeMemberships/view' /* webpackChunkName: "odyseeMembership" */)
 );
 const CreatorMembershipPage = lazyImport(() =>
   import('page/creatorMembership' /* webpackChunkName: "creatorMembership" */)

@@ -7,7 +7,7 @@ import Button from 'component/button';
 import { useHistory } from 'react-router';
 import { FormField } from 'component/common/form';
 import moment from 'moment';
-import { URL } from '../../../../config';
+import { URL } from 'config';
 import ChannelSelector from 'component/channelSelector';
 import { formatLbryUrlForWeb } from 'util/url';
 import CopyableText from 'component/copyableText';

@@ -12,6 +12,11 @@ export const selectMembershipMineData = (state: State) => selectState(state).mem
 export const selectMembershipMineStarted = (state: State) => selectState(state).fetchStarted;
 export const selectById = (state: State) => selectState(state).membershipListById || {};
 
+export const selectMyActiveMemberships = createSelector(
+  selectMembershipMineData,
+  (memberships) => memberships?.activeMemberships
+);
+
 export const selectChannelMembershipListByUri = createSelector(
   selectChannelClaimIdForUri,
   selectById,

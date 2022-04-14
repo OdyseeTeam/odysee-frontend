@@ -5,10 +5,10 @@ import Page from 'component/page';
 import { useHistory } from 'react-router';
 import * as PAGES from 'constants/pages';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
-import CreateTiersTab from 'component/creatorMemberships/createTiersTab';
-import CreatorMembershipsTab from 'component/creatorMemberships/creatorMembershipsTab';
-import MyPledgesTab from 'component/creatorMemberships/myPledgesTab';
-import MySupportersTab from 'component/creatorMemberships/mySupportersTab';
+import CreateTiersTab from 'component/creatorMemberships/membershipPage/createTiersTab';
+import CreatorMembershipsTab from 'component/creatorMemberships/membershipPage/creatorMembershipsTab';
+import MyPledgesTab from 'component/creatorMemberships/membershipPage/myPledgesTab';
+import MySupportersTab from 'component/creatorMemberships/membershipPage/mySupportersTab';
 
 const TAB_QUERY = 'tab';
 
@@ -19,35 +19,19 @@ const TABS = {
   MY_PLEDGES: 'my_pledges',
 };
 
-type Props = {
-  openModal: (string, {}) => void,
-  activeChannelClaim: ?ChannelClaim,
-};
-
 const MembershipsPage = (props: Props) => {
-  const {
-  } = props;
-
   const {
     location: { search },
     push,
   } = useHistory();
 
-  function capitalizeFirstLetter(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
   const urlParams = new URLSearchParams(search);
-
   // if tiers are saved, then go to balance, otherwise go to tiers
   const currentView = urlParams.get(TAB_QUERY) || TABS.MY_MEMBERSHIPS;
 
   // based on query param or default, update value which will determine which tab to show
   let tabIndex;
   switch (currentView) {
-    case TABS.MY_MEMBERSHIPS:
-      tabIndex = 0;
-      break;
     case TABS.CREATE_TIERS:
       tabIndex = 1;
       break;
@@ -57,12 +41,12 @@ const MembershipsPage = (props: Props) => {
     case TABS.MY_PLEDGES:
       tabIndex = 3;
       break;
+    case TABS.MY_MEMBERSHIPS:
     default:
       tabIndex = 0;
       break;
   }
 
-  // change the url based on the tab index value
   function onTabChange(newTabIndex) {
     let url = `/$/${PAGES.CREATOR_MEMBERSHIPS}?`;
 
@@ -79,41 +63,34 @@ const MembershipsPage = (props: Props) => {
   }
 
   return (
-    <>
-      <Page className="premium-wrapper">
-        <Tabs onChange={onTabChange} index={tabIndex}>
-          <TabList className="tabs__list--collection-edit-page">
-            <Tab>{__('My Memberships')}</Tab>
-            <Tab>{__('Create Tiers')}</Tab>
-            <Tab>{__('My Supporters')}</Tab>
-            <Tab>{__('My Pledges')}</Tab>
-          </TabList>
-          <TabPanels>
+    <Page className="premium-wrapper">
+      <Tabs onChange={onTabChange} index={tabIndex}>
+        <TabList className="tabs__list--collection-edit-page">
+          <Tab>{__('My Memberships')}</Tab>
+          <Tab>{__('Create Tiers')}</Tab>
+          <Tab>{__('My Supporters')}</Tab>
+          <Tab>{__('My Pledges')}</Tab>
+        </TabList>
 
-            {/** creator membership tab **/}
-            <TabPanel>
-              <CreatorMembershipsTab />
-            </TabPanel>
+        <TabPanels>
+          <TabPanel>
+            <CreatorMembershipsTab />
+          </TabPanel>
 
-            {/** create tiers tab **/}
-            <TabPanel>
-              <CreateTiersTab />
-            </TabPanel>
+          <TabPanel>
+            <CreateTiersTab />
+          </TabPanel>
 
-            {/** my supporters tab **/}
-            <TabPanel>
-              <MySupportersTab />
-            </TabPanel>
+          <TabPanel>
+            <MySupportersTab />
+          </TabPanel>
 
-            {/** your pledges tab **/}
-            <TabPanel>
-              <MyPledgesTab />
-            </TabPanel>
-
-          </TabPanels>
-        </Tabs>
-      </Page>
-    </>
+          <TabPanel>
+            <MyPledgesTab />
+          </TabPanel>
+        </TabPanels>
+      </Tabs>
+    </Page>
   );
 };
 
