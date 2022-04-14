@@ -93,61 +93,75 @@ export default function PreviewPage(props: Props) {
 
   return (
     <>
-      <div className="membership-join__tab-buttons">
-        {membershipTiers.map((membershipTier, index) => {
-          const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
-          return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
-        })}
-      </div>
+      {!shouldDisablePurchase && (
+        <>
+          <div className="membership-join__tab-buttons">
+            {membershipTiers.map((membershipTier, index) => {
+              const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
+              return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
+            })}
+          </div>
 
-      <div className="membership-join__body">
-        <section className="membership-join__plan-info">
-          <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
-          <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
-        </section>
+          <div className="membership-join__body">
+            <section className="membership-join__plan-info">
+              <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
+              <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
+            </section>
 
-        <section className="membership__plan-perks">
-          <h1 className="membership-join__plan-header">{__('Perks')}</h1>
-          <ul>
-            {selectedTier.perks.map((tierPerk, i) => (
-              <p key={tierPerk}>
-                {perkDescriptions.map(
-                  (globalPerk, i) =>
-                    tierPerk === globalPerk.perkName && (
-                      <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                    )
-                )}
-              </p>
-            ))}
-          </ul>
-        </section>
-      </div>
-
-      {shouldDisablePurchase && (
-        <div className="help help__no-card">
-          {hasSavedCard === false ? (
-            <>
-              <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-              {' ' + __('To Become a Channel Member')}
-            </>
-          ) : (
-            __('This creator cannot receive channel Memberships.')
-          )}
-        </div>
+            <section className="membership__plan-perks">
+              <h1 className="membership-join__plan-header">{__('Perks')}</h1>
+              <ul>
+                {selectedTier.perks.map((tierPerk, i) => (
+                  <p key={tierPerk}>
+                    {perkDescriptions.map(
+                      (globalPerk, i) =>
+                        tierPerk === globalPerk.perkName && (
+                          <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                        )
+                    )}
+                  </p>
+                ))}
+              </ul>
+            </section>
+          </div>
+        </>
       )}
 
+      {shouldDisablePurchase &&
+        (hasSavedCard === false ? (
+          <div className="help help__no-card">
+            <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+            {' ' + __('To Become a Channel Member')}
+          </div>
+        ) : (
+          __(
+            "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers and have your own memberships by following this link:"
+          )
+        ))}
+
       <div className="membership-join-purchase__div">
-        <Button
-          className="membership-join-purchase__button"
-          icon={ICONS.UPGRADE}
-          button="primary"
-          type="submit"
-          disabled={shouldDisablePurchase}
-          label={__('Signup for $%membership_price% a month', {
-            membership_price: selectedTier.monthlyContributionInUSD,
-          })}
-          onClick={handleConfirm}
-        />
+        {shouldDisablePurchase ? (
+          <Button
+            className="membership-join-purchase__button"
+            icon={ICONS.UPGRADE}
+            button="primary"
+            type="submit"
+            label={__('Create')}
+            navigate={'$/memberships?tab=create_tiers'}
+          />
+        ) : (
+          <Button
+            className="membership-join-purchase__button"
+            icon={ICONS.UPGRADE}
+            button="primary"
+            type="submit"
+            disabled={shouldDisablePurchase}
+            label={__('Signup for $%membership_price% a month', {
+              membership_price: selectedTier.monthlyContributionInUSD,
+            })}
+            onClick={handleConfirm}
+          />
+        )}
       </div>
     </>
   );
