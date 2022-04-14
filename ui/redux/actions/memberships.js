@@ -203,10 +203,7 @@ export function doMembershipBuy(membershipParams: any, cb?: () => void) {
             message: __('You are now a "%membership_tier_name%" member, enjoy the perks and special features!', {
               membership_tier_name: membership.MembershipDetails.name,
               creator_channel_name: userChannelName,
-            }),
-            linkText: __('View your Member page'),
-            // $FlowFixMe
-            linkPath: `${channelPath}?${urlParams}`,
+            })
           })
         );
       };

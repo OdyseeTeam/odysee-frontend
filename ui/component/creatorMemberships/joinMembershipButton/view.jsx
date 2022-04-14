@@ -74,7 +74,7 @@ export default function ShareButton(props: Props) {
       }
       onClick={handleClick}
       style={{
-        opacity: !creatorHasMemberships ? '0.7' : undefined,
+        filter: !creatorHasMemberships ? 'brightness(50%)' : undefined,
       }}
     />
   );

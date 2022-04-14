@@ -74,12 +74,13 @@ export default function MembershipChannelTab(props: Props) {
   return (
     <Card
       title={activeChannelMembership ? __('Your %channel_name% membership', { channel_name: channelName }) : undefined}
-      className="membership"
+      className="membership membership-tab"
       subtitle={
         <>
           <h1 className="join-membership-support-time__header">
             {__('You have been supporting %channel_name% for %membership_duration%', {
               channel_name: channelName,
+              membership_duration: '2 months',
             })}
           </h1>
           <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
@@ -89,7 +90,7 @@ export default function MembershipChannelTab(props: Props) {
         <>
           <div className="membership__body">
             <h1 className="membership__plan-header">
-              {__('Your tier:')} {activeChannelMembership?.MembershipDetails?.name}
+              {activeChannelMembership?.MembershipDetails?.name}
             </h1>
 
             <h1 className="membership__plan-description">{activeChannelMembership?.MembershipDetails?.description}</h1>
@@ -111,7 +112,9 @@ export default function MembershipChannelTab(props: Props) {
             </div>
 
             <h1 className="join-membership-tab-renewal-date__header">
-              {__('Your membership will renew on %renewal_date%', {})}
+              {__('Your membership will renew on %renewal_date%', {
+                renewal_date: 'May 15',
+              })}
             </h1>
 
             <div className="section__actions--centered">
