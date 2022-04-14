@@ -63,7 +63,7 @@ export default function ConfirmationPage(props: Props) {
               perkDescriptions.map(
                 (globalPerk, i) =>
                   tierPerk === globalPerk.perkName && (
-                    <li className="membership-join__perk-item">{globalPerk.perkDescription}</li>
+                    <li className="card__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
                   )
               )
             )}
@@ -96,7 +96,7 @@ const ConfirmationSection = (props: GroupProps) => {
   return (
     <section className="confirm__section">
       <span className="confirm__label">{label}</span>
-      <span className="confirm__value">{value}</span>
+      <span className="card__subtitle confirm__value">{value}</span>
     </section>
   );
 };

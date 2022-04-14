@@ -145,7 +145,7 @@
 
   ul,
   li {
-    list-style-position: inside;
+    list-style-position: inside !important;
   }
 
   p {
@@ -182,21 +182,32 @@
     padding-top: var(--spacing-s);
 
     .confirm__section {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      align-items: start;
-      justify-items: start;
+      &:not(:last-of-type) {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        align-items: start;
+        justify-items: start;
+      }
 
       &:not(:first-of-type) {
-        margin-top: var(--spacing-s);
+        margin-top: var(--spacing-m);
+      }
+
+      .confirm__label {
+        margin-top: 0px;
       }
 
       .confirm__value {
         font-size: unset;
         display: unset;
 
+        ul {
+          padding: var(--spacing-s);
+        }
+
         .membership-join__perk-item {
           text-align: start;
+          list-style-position: inside !important;
         }
       }
     }
