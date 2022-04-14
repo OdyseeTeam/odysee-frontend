@@ -158,7 +158,6 @@
 }
 
 /** JOIN CARD ON CHANNEL PAGE **/
-
 .channelPage-wrapper {
   .membership-join {
     padding: 0px 10rem;
@@ -311,4 +310,17 @@
 
 .billingHistory-back__button {
   margin-top: 34px;
+}
+
+// CARD TAB
+.membership-join-tab {
+  .card__header--between, .card__title-section {
+    display: block
+  }
+
+  .card__title, .membership-join__plan-header {
+    color: white;
+  }
+
+
 }

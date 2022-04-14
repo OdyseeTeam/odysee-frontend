@@ -66,7 +66,7 @@ export default function MembershiPChannelTab(props: Props) {
             ? __('Your %channel_name% membership', { channel_name: activeMembershipName.Membership.channel_name })
             : undefined
         }
-        className={'membership-join'}
+        className={'membership-join-tab'}
         subtitle={
           activeMembershipName ? (
             <>
