@@ -4,63 +4,60 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
-import { useHistory } from 'react-router';
 import { FormField } from 'component/common/form';
 import moment from 'moment';
 
-type Props = {
-  openModal: (string, {}) => void,
-  activeChannelClaim: ?ChannelClaim,
-};
-
-function CreateTiersTab(props: Props) {
-  const {
-    openModal,
-    activeChannelClaim,
-    doToast,
-    claim,
-    doResolveClaimIds,
-    claimsById,
-  } = props;
-
-  const {
-    location: { search },
-    push,
-  } = useHistory();
-
-  let membershipTiers = [{
+let membershipTiers = [
+  {
     displayName: 'Helping Hand',
-    description: 'You\'re doing your part, thank you!',
+    description: "You're doing your part, thank you!",
     monthlyContributionInUSD: 5,
     perks: ['exclusiveAccess', 'badge'],
-  }, {
+  },
+  {
     displayName: 'Big-Time Supporter',
     description: 'You are a true fan and are helping in a big way!',
     monthlyContributionInUSD: 10,
     perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
-  }, {
+  },
+  {
     displayName: 'Community MVP',
     description: 'Where would this creator be without you? You are a true legend!',
     monthlyContributionInUSD: 20,
     perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  }];
+  },
+];
 
-  const perkDescriptions = [{
+const perkDescriptions = [
+  {
     perkName: 'exclusiveAccess',
     perkDescription: 'You will exclusive access to members-only content',
-  }, {
+  },
+  {
     perkName: 'earlyAccess',
     perkDescription: 'You will get early access to this creators content',
-  }, {
+  },
+  {
     perkName: 'badge',
     perkDescription: 'You will get a generic badge showing you are a supporter of this creator',
-  }, {
+  },
+  {
     perkName: 'emojis',
     perkDescription: 'You will get access to custom members-only emojis offered by the creator',
-  }, {
+  },
+  {
     perkName: 'custom-badge',
     perkDescription: 'You can choose a custom badge showing you are an MVP supporter',
-  }];
+  },
+];
+
+type Props = {
+  openModal: (string, {}) => void,
+  doToast: ({ message: string }) => void,
+};
+
+function CreateTiersTab(props: Props) {
+  const { openModal, doToast } = props;
 
   const [isEditing, setIsEditing] = React.useState(false);
 
@@ -68,12 +65,12 @@ function CreateTiersTab(props: Props) {
 
   const [editTierDescription, setEditTierDescription] = React.useState('');
 
-  const editMembership = function (e, tierIndex, tierDescription) {
+  const editMembership = (e, tierIndex, tierDescription) => {
     setEditTierDescription(tierDescription);
     setIsEditing(tierIndex);
   };
 
-  const deleteMembership = function (tierIndex) {
+  const deleteMembership = (tierIndex) => {
     let membershipsBeforeDeletion = creatorMemberships;
 
     const amountOfMembershipsCurrently = creatorMemberships.length;
@@ -91,13 +88,13 @@ function CreateTiersTab(props: Props) {
 
   // TODO: have to replace this with actual API
   const haveConfirmedBankAccount = true;
-  const openActivateMembershipsModal = function() {
+  const openActivateMembershipsModal = () => {
     openModal(MODALS.ACTIVATE_CREATOR_MEMBERSHIPS, {
       haveConfirmedBankAccount,
     });
   };
 
-  const addMembership = function () {
+  const addMembership = () => {
     const amountOfMembershipsCurrently = creatorMemberships.length;
 
     const nextMembershipOrdinal = moment.localeData().ordinal(amountOfMembershipsCurrently + 1);
@@ -123,21 +120,24 @@ function CreateTiersTab(props: Props) {
     setEditTierDescription(event.target.value);
   };
 
-  const cancelEditingMembership =  function () {
+  const cancelEditingMembership = () => {
     setIsEditing(false);
   };
 
   function saveMembership(tierIndex) {
     const copyOfMemberships = creatorMemberships;
 
+    // $FlowFixMe
     const newTierName = document.querySelectorAll('input[name=tier_name]')[0]?.value;
     const newTierDescription = editTierDescription;
+    // $FlowFixMe
     const newTierMonthlyContribution = document.querySelectorAll('input[name=tier_contribution]')[0]?.value;
 
     let selectedPerks = [];
 
     for (const perkDescription of perkDescriptions) {
-      const odyseePerkSelected = document.getElementById(perkDescription.perkName).checked;
+      // $FlowFixMe
+      const odyseePerkSelected = document.getElementById(perkDescription.perkName)?.checked;
       if (odyseePerkSelected) {
         selectedPerks.push(perkDescription.perkName);
       }
@@ -158,18 +158,13 @@ function CreateTiersTab(props: Props) {
   }
 
   function createEditTier(tier, membershipIndex) {
-    const containsPerk = function(perk) {
+    const containsPerk = (perk) => {
       return tier.perks.indexOf(perk) > -1;
     };
 
     return (
       <div className="edit-div" style={{ marginBottom: '45px' }}>
-        <FormField
-          type="text"
-          name="tier_name"
-          label={__('Tier Name')}
-          defaultValue={tier.displayName}
-        />
+        <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.displayName} />
         {/* could be cool to have markdown */}
         {/* <FormField */}
         {/*  type="markdown" */}
@@ -183,7 +178,9 @@ function CreateTiersTab(props: Props) {
           value={editTierDescription}
           onChange={handleChange}
         />
-        <label htmlFor="tier_name" style={{ marginTop: '15px', marginBottom: '8px' }}>Odysee Perks</label>
+        <label htmlFor="tier_name" style={{ marginTop: '15px', marginBottom: '8px' }}>
+          Odysee Perks
+        </label>
         {perkDescriptions.map((tierPerk, i) => (
           <>
             <FormField
@@ -215,8 +212,7 @@ function CreateTiersTab(props: Props) {
 
   return (
     <div className="create-tiers-div">
-
-      <div className="memberships-header" style={{ marginBottom: 'var(--spacing-xl)'}}>
+      <div className="memberships-header" style={{ marginBottom: 'var(--spacing-xl)' }}>
         <h1 style={{ fontSize: '24px', marginBottom: 'var(--spacing-s)' }}>Create Your Membership Tiers</h1>
         <h2 style={{ fontSize: '18px' }}>Define the tiers that your viewers can subscribe to</h2>
       </div>
@@ -224,16 +220,16 @@ function CreateTiersTab(props: Props) {
       {/* list through different tiers */}
       {creatorMemberships.map((membershipTier, membershipIndex) => (
         <>
-          {isEditing === membershipIndex && (
-            <>
-              {createEditTier(membershipTier, membershipIndex)}
-            </>
-          )}
+          {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
           {isEditing !== membershipIndex && (
-            <div style={{ marginBottom: 'var(--spacing-xxl)'}}>
-              <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>{membershipIndex + 1}) Tier Name: {membershipTier.displayName}</div>
-              <h1 style={{ marginBottom: 'var(--spacing-s)'}}>{membershipTier.description}</h1>
-              <h1 style={{ marginBottom: 'var(--spacing-s)'}}>Monthly Pledge: ${membershipTier.monthlyContributionInUSD}</h1>
+            <div style={{ marginBottom: 'var(--spacing-xxl)' }}>
+              <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
+                {membershipIndex + 1}) Tier Name: {membershipTier.displayName}
+              </div>
+              <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.description}</h1>
+              <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
+                Monthly Pledge: ${membershipTier.monthlyContributionInUSD}
+              </h1>
               {membershipTier.perks.map((tierPerk, i) => (
                 <>
                   <p>
@@ -243,9 +239,7 @@ function CreateTiersTab(props: Props) {
                         {tierPerk === globalPerk.perkName && (
                           <>
                             <ul>
-                              <li>
-                                {globalPerk.perkDescription}
-                              </li>
+                              <li>{globalPerk.perkDescription}</li>
                             </ul>
                           </>
                         )}
@@ -277,7 +271,7 @@ function CreateTiersTab(props: Props) {
         </>
       ))}
 
-      { creatorMemberships.length < 5 && (
+      {creatorMemberships.length < 5 && (
         <>
           <Button
             button="primary"
@@ -289,35 +283,34 @@ function CreateTiersTab(props: Props) {
         </>
       )}
 
-        <div className="show-additional-membership-info__div">
-          <h2 className="show-additional-membership-info__header">Additional Info</h2>
-          <FormField
-            type="checkbox"
-            defaultChecked={true}
-            // disabled={!optimizeAvail}
-            // onChange={() => setUserOptimize(!userOptimize)}
-            label={'Show the amount of supporters on your Become A Member page'}
-            name={'showSupporterAmount'}
-          />
-          <FormField
-            type="checkbox"
-            defaultChecked={false}
-            // disabled={!optimizeAvail}
-            // onChange={() => setUserOptimize(!userOptimize)}
-            label={'Show the amount you make monthly on your Become A Member page'}
-            name={'showMonthlyIncomeAmount'}
-          />
-          <Button
-            button="primary"
-            onClick={(e) => openActivateMembershipsModal()}
-            className="activate-memberships-button"
-            label={__('Activate Memberships')}
-            icon={ICONS.ADD}
-          />
+      <div className="show-additional-membership-info__div">
+        <h2 className="show-additional-membership-info__header">Additional Info</h2>
+        <FormField
+          type="checkbox"
+          defaultChecked
+          // disabled={!optimizeAvail}
+          // onChange={() => setUserOptimize(!userOptimize)}
+          label={'Show the amount of supporters on your Become A Member page'}
+          name={'showSupporterAmount'}
+        />
+        <FormField
+          type="checkbox"
+          defaultChecked={false}
+          // disabled={!optimizeAvail}
+          // onChange={() => setUserOptimize(!userOptimize)}
+          label={'Show the amount you make monthly on your Become A Member page'}
+          name={'showMonthlyIncomeAmount'}
+        />
+        <Button
+          button="primary"
+          onClick={(e) => openActivateMembershipsModal()}
+          className="activate-memberships-button"
+          label={__('Activate Memberships')}
+          icon={ICONS.ADD}
+        />
       </div>
-
     </div>
   );
-};
+}
 
 export default CreateTiersTab;
