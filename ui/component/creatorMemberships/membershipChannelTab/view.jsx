@@ -69,45 +69,26 @@ export default function MembershipChannelTab(props: Props) {
     return <JoinMembershipCard uri={uri} channelTab />;
   }
 
-  console.log(channelId);
-
-  console.log('my memberships');
-  console.log(myMemberships);
-
   const activeMemberships = myMemberships?.activeMemberships;
 
   const membershipForThisChannel = activeMemberships?.length && activeMemberships.filter(function(membership) {
-    console.log('membership');
-    console.log(membership);
     return membership.Membership.channel_id === channelId;
   });
 
-  console.log('membership for this channel');
-  console.log(membershipForThisChannel);
-
-  let Membership, MembershipDetails, Subscription, channelName;
+  let Membership, MembershipDetails, Subscription, channelName, timeAgo;
   if (membershipForThisChannel && membershipForThisChannel.length) {
     ({ Membership, MembershipDetails, Subscription } = membershipForThisChannel[0]);
     ({ channel_name: channelName } = Membership);
 
-    // TODO: replace amount of months there
     const startDate = Subscription.current_period_start * 1000;
     const endDate = Subscription.current_period_end * 1000;
-    const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true)
-    console.log(amountOfMonths);
+    const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
+    timeAgo = amountOfMonths === 1 ? '1 month' : amountOfMonths + ' months';
   }
 
-  console.log(Membership);
-  console.log(channelName);
-  console.log('sub');
-  console.log(Subscription)
-  // const { Membership } = membershipForThisChannel;
-  // const { channel_name: channelName } = Membership;
-
   const formatDate = function (date) {
-    return moment(new Date(date)).format('MMMM DD YYYY');
+    return moment(new Date(date)).format('MMMM DD');
   };
-
 
   return (
     <Card
@@ -118,7 +99,7 @@ export default function MembershipChannelTab(props: Props) {
           <h1 className="join-membership-support-time__header">
             {__('You have been supporting %channel_name% for %membership_duration%', {
               channel_name: channelName,
-              membership_duration: '2 months', // TODO: do this here
+              membership_duration: timeAgo, // TODO: do this here
             })}
           </h1>
           <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
@@ -151,8 +132,7 @@ export default function MembershipChannelTab(props: Props) {
 
             <h1 className="join-membership-tab-renewal-date__header">
               {__('Your membership will renew on %renewal_date%', {
-                renewal_date: 'May 15',
-                // renewal_date: formatDate(Subscription.current_period_end * 1000),
+                renewal_date: formatDate(Subscription.current_period_end * 1000),
               })}
             </h1>
 
