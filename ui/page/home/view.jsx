@@ -12,13 +12,14 @@ import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
 import classnames from 'classnames';
 import Ads from 'web/component/ads';
+import AdsBanner from 'web/component/adsBanner';
 import Meme from 'web/component/meme';
 
 const FYP_SECTION: RowDataItem = {
@@ -71,6 +72,7 @@ function HomePage(props: Props) {
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
+  const isMobileScreen = useIsMobile();
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
 
   const rowData: Array<RowDataItem> = GetLinksData(
@@ -212,6 +214,8 @@ function HomePage(props: Props) {
                 label={__('View More')}
               />
             )}
+            {isMobileScreen && <AdsBanner />}
+            {!isMobileScreen && (index === 0 || index % 2 === 0) && <AdsBanner />}
           </>
         )}
       </div>
