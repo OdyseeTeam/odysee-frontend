@@ -5,7 +5,7 @@ import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
 import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard';
-import moment from 'moment';
+import { formatDateToMonthAndDay, getTimeAgoStr } from 'util/time';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -39,7 +39,7 @@ type Props = {
   // -- redux --
   channelId: string,
   activeChannelMembership: any,
-  myMemberships: any,
+  myActiveMemberships: any,
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
   openModal: (id: string, {}) => void,
@@ -53,53 +53,38 @@ export default function MembershipChannelTab(props: Props) {
     channelId,
     // -- redux --
     activeChannelMembership,
-    myMemberships,
+    myActiveMemberships,
     doMembershipMine,
     doMembershipDeleteData,
     openModal,
   } = props;
 
   React.useEffect(() => {
-    if (myMemberships === undefined) {
+    if (myActiveMemberships === undefined) {
       doMembershipMine();
     }
-  }, [doMembershipMine, myMemberships]);
+  }, [doMembershipMine, myActiveMemberships]);
 
   if (!activeChannelMembership) {
-    return <JoinMembershipCard uri={uri} channelTab />;
+    return <JoinMembershipCard uri={uri} isChannelTab />;
   }
 
-  const activeMemberships = myMemberships?.activeMemberships;
+  const { Membership, MembershipDetails, Subscription } = activeChannelMembership;
+  const { channel_name: channelName } = Membership;
 
-  const membershipForThisChannel = activeMemberships?.length && activeMemberships.filter(function(membership) {
-    return membership.Membership.channel_id === channelId;
-  });
-
-  let Membership, MembershipDetails, Subscription, channelName, timeAgo;
-  if (membershipForThisChannel && membershipForThisChannel.length) {
-    ({ Membership, MembershipDetails, Subscription } = membershipForThisChannel[0]);
-    ({ channel_name: channelName } = Membership);
-
-    const startDate = Subscription.current_period_start * 1000;
-    const endDate = Subscription.current_period_end * 1000;
-    const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
-    timeAgo = amountOfMonths === 1 ? '1 month' : amountOfMonths + ' months';
-  }
-
-  const formatDate = function (date) {
-    return moment(new Date(date)).format('MMMM DD');
-  };
+  const startDate = Subscription.current_period_start * 1000;
+  const timeAgo = getTimeAgoStr(startDate).replace(' ago', '');
 
   return (
     <Card
-      title={Membership ? __('Your %channel_name% membership', { channel_name: channelName }) : undefined}
+      title={__('Your %channel_name% membership', { channel_name: channelName })}
       className="membership membership-tab"
       subtitle={
         <>
           <h1 className="join-membership-support-time__header">
             {__('You have been supporting %channel_name% for %membership_duration%', {
               channel_name: channelName,
-              membership_duration: timeAgo, // TODO: do this here
+              membership_duration: timeAgo,
             })}
           </h1>
           <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
@@ -108,15 +93,16 @@ export default function MembershipChannelTab(props: Props) {
       body={
         <>
           <div className="membership__body">
-            <h1 className="membership__plan-header">
-              {MembershipDetails?.name}
-            </h1>
+            <h1 className="membership__plan-header">{MembershipDetails.name}</h1>
 
-            <h1 className="membership__plan-description">{MembershipDetails?.description}</h1>
+            <h1 className="membership__plan-description">{MembershipDetails.description}</h1>
 
             <div className="membership__plan-perks">
               <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
-              {testMembership.perks.map((tierPerk, i) => ( // TODO: need this to come from API
+              {testMembership.perks.map((
+                tierPerk,
+                i // TODO: need this to come from API
+              ) => (
                 <p key={tierPerk}>
                   {perkDescriptions.map(
                     (globalPerk, i) =>
@@ -132,7 +118,7 @@ export default function MembershipChannelTab(props: Props) {
 
             <h1 className="join-membership-tab-renewal-date__header">
               {__('Your membership will renew on %renewal_date%', {
-                renewal_date: formatDate(Subscription.current_period_end * 1000),
+                renewal_date: formatDateToMonthAndDay(Subscription.current_period_end * 1000),
               })}
             </h1>
 
@@ -147,21 +133,21 @@ export default function MembershipChannelTab(props: Props) {
                 navigate={`/${channelId}/membership_history`}
               />
 
-                <Button
-                  className="join-membership-modal-purchase__button"
-                  style={{ 'margin-left': '1rem' }}
-                  icon={ICONS.DELETE}
-                  button="secondary"
-                  type="submit"
-                  disabled={false}
-                  label={`Cancel Membership`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {});
-                  }}
-                />
-              </div>
+              <Button
+                className="join-membership-modal-purchase__button"
+                style={{ 'margin-left': '1rem' }}
+                icon={ICONS.DELETE}
+                button="secondary"
+                type="submit"
+                disabled={false}
+                label={`Cancel Membership`}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {});
+                }}
+              />
+            </div>
 
             {/** clear membership data (only available on dev) **/}
             {isDev && (

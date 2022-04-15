@@ -93,7 +93,7 @@ export default function PreviewPage(props: Props) {
 
   return (
     <>
-      {!shouldDisablePurchase && (
+      {!shouldDisablePurchase ? (
         <>
           <div className="membership-join__tab-buttons">
             {membershipTiers.map((membershipTier, index) => {
@@ -125,19 +125,16 @@ export default function PreviewPage(props: Props) {
             </section>
           </div>
         </>
+      ) : hasSavedCard === false ? (
+        <div className="help help__no-card">
+          <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+          {' ' + __('To Become a Channel Member')}
+        </div>
+      ) : (
+        __(
+          "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers and have your own memberships by following this link:"
+        )
       )}
-
-      {shouldDisablePurchase &&
-        (hasSavedCard === false ? (
-          <div className="help help__no-card">
-            <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-            {' ' + __('To Become a Channel Member')}
-          </div>
-        ) : (
-          __(
-            "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers and have your own memberships by following this link:"
-          )
-        ))}
 
       <div className="membership-join-purchase__div">
         {shouldDisablePurchase ? (
@@ -147,7 +144,7 @@ export default function PreviewPage(props: Props) {
             button="primary"
             type="submit"
             label={__('Create')}
-            navigate={'$/memberships?tab=create_tiers'}
+            navigate="$/memberships?tab=create_tiers"
           />
         ) : (
           <Button
@@ -169,7 +166,6 @@ export default function PreviewPage(props: Props) {
 
 type TabButtonProps = {
   label: string,
-  isOnConfirmationPage: boolean,
   activeTab: string,
   setActiveTab: (string) => void,
   index: number,
@@ -177,7 +173,7 @@ type TabButtonProps = {
 };
 
 const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
-  const { label, isOnConfirmationPage, activeTab, setActiveTab, index, setMembershipIndex } = tabButtonProps;
+  const { label, activeTab, setActiveTab, index, setMembershipIndex } = tabButtonProps;
 
   return (
     <Button
@@ -186,10 +182,8 @@ const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
       onClick={() => {
         const tipInputElement = document.getElementById('tip-input');
         if (tipInputElement) tipInputElement.focus();
-        if (!isOnConfirmationPage) {
-          setActiveTab(label);
-          setMembershipIndex(index);
-        }
+        setActiveTab(label);
+        setMembershipIndex(index);
       }}
       className={classnames('button-toggle', { 'button-toggle--active': activeTab === label })}
     />

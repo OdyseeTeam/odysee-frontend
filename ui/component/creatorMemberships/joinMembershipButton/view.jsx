@@ -33,12 +33,6 @@ export default function ShareButton(props: Props) {
 
   const userIsActiveMember = Boolean(activeChannelMembershipName);
 
-  function handleClick() {
-    if (!userIsActiveMember) {
-      doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri });
-    }
-  }
-
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
       const { channelName, channelClaimId } = parseURI(permanentUrl || '');
@@ -61,18 +55,25 @@ export default function ShareButton(props: Props) {
     memberPageUrl = `/${channelPath}?${urlParams}`;
   }
 
+  if (userIsActiveMember) {
+    return (
+      <Button
+        button="alt"
+        navigate={memberPageUrl}
+        icon={ICONS.UPGRADE}
+        label={activeChannelMembershipName}
+        title={__('You are a "%membership_tier_name%" member', { membership_tier_name: activeChannelMembershipName })}
+      />
+    );
+  }
+
   return (
     <Button
       button="alt"
-      navigate={userIsActiveMember ? memberPageUrl : undefined}
       icon={ICONS.UPGRADE}
-      label={activeChannelMembershipName || __('Memberships')}
-      title={
-        userIsActiveMember
-          ? __('You are a "%membership_tier_name%" member', { membership_tier_name: activeChannelMembershipName })
-          : __('Become A Member')
-      }
-      onClick={handleClick}
+      label={__('Memberships')}
+      title={__('Become A Member')}
+      onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}
       style={{
         filter: !creatorHasMemberships ? 'brightness(50%)' : undefined,
       }}

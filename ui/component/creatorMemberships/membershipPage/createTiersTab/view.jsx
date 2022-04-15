@@ -60,9 +60,7 @@ function CreateTiersTab(props: Props) {
   const { openModal, doToast } = props;
 
   const [isEditing, setIsEditing] = React.useState(false);
-
   const [creatorMemberships, setCreatorMemberships] = React.useState(membershipTiers);
-
   const [editTierDescription, setEditTierDescription] = React.useState('');
 
   const editMembership = (e, tierIndex, tierDescription) => {

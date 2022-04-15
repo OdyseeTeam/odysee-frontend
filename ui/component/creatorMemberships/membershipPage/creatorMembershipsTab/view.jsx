@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 import React from 'react';
 import * as ICONS from 'constants/icons';

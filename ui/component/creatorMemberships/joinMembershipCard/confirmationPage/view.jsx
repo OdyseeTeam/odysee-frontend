@@ -87,9 +87,9 @@ export default function ConfirmationPage(props: Props) {
 }
 
 type GroupProps = {
-  className: string,
+  className?: string,
   label: string,
-  value: string | any,
+  value: string | React$Node,
 };
 
 const ConfirmationSection = (props: GroupProps) => {
