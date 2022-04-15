@@ -131,9 +131,11 @@ export default function PreviewPage(props: Props) {
           {' ' + __('To Become a Channel Member')}
         </div>
       ) : (
-        __(
-          "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers and have your own memberships by following this link:"
-        )
+        <div className="can-create-your-own-memberships__div">
+          {__(
+          "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers and have your own memberships by following this link"
+          )}
+        </div>
       )}
 
       <div className="membership-join-purchase__div">
@@ -143,8 +145,8 @@ export default function PreviewPage(props: Props) {
             icon={ICONS.UPGRADE}
             button="primary"
             type="submit"
-            label={__('Create')}
-            navigate="$/memberships?tab=create_tiers"
+            label={__('Create Your Memberships')}
+            navigate="$/memberships"
           />
         ) : (
           <Button
