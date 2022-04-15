@@ -6,6 +6,7 @@ import React from 'react';
 import Button from 'component/button';
 import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard';
 import { formatDateToMonthAndDay, getTimeAgoStr } from 'util/time';
+import moment from 'moment';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -73,7 +74,9 @@ export default function MembershipChannelTab(props: Props) {
   const { channel_name: channelName } = Membership;
 
   const startDate = Subscription.current_period_start * 1000;
-  const timeAgo = getTimeAgoStr(startDate).replace(' ago', '');
+  const endDate = Subscription.current_period_end * 1000;
+  const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
+  const timeAgo = amountOfMonths === 1 ? '1 month' : amountOfMonths + ' months';
 
   return (
     <Card
