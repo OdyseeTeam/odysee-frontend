@@ -3,12 +3,12 @@ import React from 'react';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 
-const testChannel = {
-  membership_id: 7,
-  channel_id: '0b67b972c8e9a15ebc5fd1f316ad38460767c939',
-  channel_name: '@test35234',
-  price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj',
-};
+// const testChannel = {
+//   membership_id: 7,
+//   channel_id: '0b67b972c8e9a15ebc5fd1f316ad38460767c939',
+//   channel_name: '@test35234',
+//   price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj',
+// };
 
 const perkDescriptions = [
   {
@@ -40,14 +40,22 @@ type Props = {
   // -- redux --
   channelName: string,
   fetchStarted: boolean,
+  activeChannelClaim: any,
   doMembershipBuy: (membershipParams: any, cb?: () => void) => void,
 };
 
 export default function ConfirmationPage(props: Props) {
-  const { selectedTier, onCancel, closeModal, channelName, fetchStarted, doMembershipBuy } = props;
+  const { selectedTier, onCancel, closeModal, channelName, fetchStarted, activeChannelClaim, doMembershipBuy } = props;
 
   function handleJoinMembership() {
-    doMembershipBuy(testChannel, closeModal);
+    const testChannelParams = {
+      membership_id: 7,
+      channel_id: activeChannelClaim.claim_id,
+      channel_name: activeChannelClaim.name,
+      price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj',
+    };
+
+    doMembershipBuy(testChannelParams, closeModal);
   }
 
   return (
