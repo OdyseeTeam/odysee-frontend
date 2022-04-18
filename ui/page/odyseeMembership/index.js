@@ -3,7 +3,11 @@ import { doOpenModal } from 'redux/actions/app';
 import OdyseeMembership from './view';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
-import { doFetchUserMemberships, doCheckUserOdyseeMemberships, doMembershipMine } from 'redux/actions/memberships';
+import {
+  doFetchOdyseeMembershipsById,
+  doCheckUserOdyseeMemberships,
+  doMembershipMine,
+} from 'redux/actions/memberships';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectUser, selectUserLocale } from 'redux/selectors/user';
 import { selectMembershipMineData } from 'redux/selectors/memberships';
@@ -26,7 +30,7 @@ const select = (state) => {
 
 const perform = {
   openModal: doOpenModal,
-  fetchUserMemberships: doFetchUserMemberships,
+  fetchUserMemberships: doFetchOdyseeMembershipsById,
   updateUserOdyseeMembershipStatus: doCheckUserOdyseeMemberships,
   doMembershipMine,
 };

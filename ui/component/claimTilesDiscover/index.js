@@ -8,7 +8,7 @@ import {
   selectById,
 } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
-import { doFetchUserMemberships } from 'redux/actions/memberships';
+import { doFetchOdyseeMembershipsById } from 'redux/actions/memberships';
 import * as SETTINGS from 'constants/settings';
 import { MATURE_TAGS } from 'constants/tags';
 import { doFetchViewCount } from 'lbryinc';
@@ -52,7 +52,7 @@ const select = (state, props) => {
 const perform = {
   doClaimSearch,
   doFetchViewCount,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipsById,
   doResolveClaimIds,
   doResolveUris,
 };

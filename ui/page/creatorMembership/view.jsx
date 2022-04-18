@@ -90,7 +90,7 @@ const OdyseeMembershipPage = (props: Props) => {
                 <td>Community MVP</td>
                 <td>{new Date().toLocaleString()}</td>
                 <td>$29.99</td>
-                <Button button="link" navigate={pledge.url + '?view=membership'} style={{ marginTop: '5px' }}>
+                <Button button="link" /* navigate={pledge.url + '?view=membership'} */ style={{ marginTop: '5px' }}>
                   <span dir="auto" className="button__label">
                     See Receipt
                   </span>

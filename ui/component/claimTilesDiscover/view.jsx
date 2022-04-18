@@ -64,7 +64,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
 };
@@ -87,7 +87,7 @@ function ClaimTilesDiscover(props: Props) {
     doFetchViewCount,
     pageSize = 8,
     optionsStringified,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     doResolveClaimIds,
     doResolveUris,
   } = props;
@@ -146,7 +146,7 @@ function ClaimTilesDiscover(props: Props) {
 
   useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
 
-  useGetUserMemberships(true, uris, claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(true, uris, claimsByUri, doFetchOdyseeMembershipsById);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

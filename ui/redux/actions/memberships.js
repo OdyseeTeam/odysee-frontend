@@ -3,10 +3,6 @@ import * as ACTIONS from 'constants/action_types';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
 import { ODYSEE_CHANNEL_ID, ODYSEE_CHANNEL_NAME } from 'constants/odysee';
-import { buildURI } from 'util/lbryURI';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { formatLbryUrlForWeb } from 'util/url';
-import { VIEW, MEMBERSHIP } from 'constants/urlParams';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
@@ -47,7 +43,7 @@ export function doCheckUserOdyseeMemberships(user: any) {
  * @param claimIdCsv
  * @returns {(function(*): Promise<void>)|*}
  */
-export function doFetchUserMemberships(claimIdCsv: any) {
+export function doFetchOdyseeMembershipsById(claimIdCsv: any) {
   return async (dispatch: Dispatch) => {
     if (!claimIdCsv || (claimIdCsv.length && claimIdCsv.length < 1)) return;
 
@@ -123,7 +119,7 @@ export function doMembershipMine(channelName?: string, channelMembershipCb?: (a:
       });
 
       // Find a channelName's specific membership and do something (callback function)
-      if (channelName && channelMembershipCb) {
+      if (channelName) {
         let activeMembershipForChannel;
 
         if (channelName === ODYSEE_CHANNEL_NAME) {
@@ -140,7 +136,7 @@ export function doMembershipMine(channelName?: string, channelMembershipCb?: (a:
           );
         }
 
-        channelMembershipCb(activeMembershipForChannel);
+        if (channelMembershipCb) channelMembershipCb(activeMembershipForChannel);
       }
     } catch (err) {
       dispatch({
@@ -153,7 +149,7 @@ export function doMembershipMine(channelName?: string, channelMembershipCb?: (a:
 
 // todo: type membership
 export function doMembershipBuy(membershipParams: any, cb?: () => void) {
-  return async (dispatch: Dispatch, getState: GetState) => {
+  return async (dispatch: Dispatch) => {
     try {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED });
 
@@ -188,25 +184,15 @@ export function doMembershipBuy(membershipParams: any, cb?: () => void) {
       // callback function
       if (cb) cb();
 
-      const mineSuccessCb = (membership) => {
-        const state = getState();
-        const channelUri = buildURI({ channelName: userChannelName, channelClaimId: userChannelClaimId });
-        const claim = selectClaimForUri(state, channelUri);
-        const uri = claim.canonical_url;
-
-        const channelPath = formatLbryUrlForWeb(uri);
-        const urlParams = new URLSearchParams();
-        urlParams.set(VIEW, MEMBERSHIP);
-
+      const mineSuccessCb = (membership) =>
         dispatch(
           doToast({
             message: __('You are now a "%membership_tier_name%" member, enjoy the perks and special features!', {
               membership_tier_name: membership.MembershipDetails.name,
               creator_channel_name: userChannelName,
-            })
+            }),
           })
         );
-      };
 
       // populate the new data and update frontend
       // and send userChannelName as search for response

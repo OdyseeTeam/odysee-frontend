@@ -51,7 +51,7 @@ type Props = {
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
   doSuperChatList: (uri: string) => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   setLayountRendered: (boolean) => void,
 };
 
@@ -72,7 +72,7 @@ export default function LivestreamChatLayout(props: Props) {
     doCommentList,
     doResolveUris,
     doSuperChatList,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     claimsByUri,
     setLayountRendered,
   } = props;
@@ -114,7 +114,7 @@ export default function LivestreamChatLayout(props: Props) {
     shouldFetchUserMemberships,
     commenterClaimIds,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     [commentsByChronologicalOrder],
     true
   );
