@@ -35,6 +35,8 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     purchaseString,
     plan,
     doMembershipBuy,
+    updateUserOdyseeMembershipStatus,
+    user,
   } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
@@ -59,10 +61,13 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       setStatusText(__('Membership successfully canceled'));
 
+      // TODO: add a toast here saying it was canceled
       // populate the new data and update frontend
-      doMembershipMine();
-
-      closeModal();
+      doMembershipMine(membershipId, function() {
+        closeModal();
+        // TODO: not working, but should
+        updateUserOdyseeMembershipStatus(user);
+      });
     } catch (err) {
       console.log(err);
     }
@@ -85,6 +90,8 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
         // populate the new data and update frontend
         doMembershipMine(membershipId, function() {
+          // TODO: not working, but should
+          updateUserOdyseeMembershipStatus(user);
           setTimeout(function() {
             closeModal();
           }, 300);
