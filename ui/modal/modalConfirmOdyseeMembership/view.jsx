@@ -72,18 +72,23 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     if (hasMembership) {
       cancelMembership();
     } else {
+      setWaitingForBackend(true);
+      setStatusText(__('Completing your purchase...'));
+
       doMembershipBuy({
         membership_id: membershipId,
         channel_id: userChannelClaimId,
         channel_name: userChannelName,
         price_id: priceId,
-      }, function(){
-        console.log('running here!');
+      }, function() {
+        setStatusText(__('Purchase was successful'));
 
         // populate the new data and update frontend
-        doMembershipMine();
-
-        closeModal()
+        doMembershipMine(membershipId, function() {
+          setTimeout(function() {
+            closeModal();
+          }, 300);
+        });
       });
     }
   }

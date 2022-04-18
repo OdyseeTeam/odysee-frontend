@@ -302,7 +302,7 @@ const OdyseeMembershipPage = (props: Props) => {
       'features until the point of the expiration of your current membership, at which point you will not be charged ' +
       'again and your membership will no longer be active. At this time, there is no way to subscribe to another membership if you cancel and there are no refunds.';
 
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       hasMembership,
       purchaseString: __(cancellationString),
