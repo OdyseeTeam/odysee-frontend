@@ -18,7 +18,8 @@ type Props = {
 export default function PremiumBadge(props: Props) {
   const { membership, linkPage, placement, className, hideTooltip } = props;
 
-  const badgeToShow = membership === 'Premium' ? 'silver' : membership === 'Premium+' ? 'gold' : null;
+  const badgeToShow =
+    membership === 'Premium' ? 'silver' : membership === 'Premium+' ? 'gold' : !membership ? null : 'user';
 
   if (!badgeToShow) return null;
 
@@ -28,8 +29,10 @@ export default function PremiumBadge(props: Props) {
     <BadgeWrapper linkPage={linkPage}>
       {badgeToShow === 'silver' ? (
         <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />
-      ) : (
+      ) : badgeToShow === 'gold' ? (
         badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />
+      ) : (
+        <CommentBadge label="Channel Member" icon={ICONS.MEMBERSHIP} {...badgeProps} />
       )}
     </BadgeWrapper>
   );

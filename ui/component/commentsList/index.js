@@ -20,8 +20,9 @@ import {
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { didFetchById } from 'redux/selectors/user';
 import { getChannelIdFromClaim } from 'util/claim';
-import { doFetchUserMemberships } from 'redux/actions/memberships';
+import { doFetchOdyseeMembershipsById, doFetchChannelMembershipsByIds } from 'redux/actions/memberships';
 import CommentsList from './view';
 
 const select = (state, props) => {
@@ -29,6 +30,7 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
   const activeChannelClaim = selectActiveChannelClaim(state);
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   return {
     topLevelComments: selectTopLevelCommentsForUri(state, uri),
@@ -46,8 +48,9 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     myReactsByCommentId: selectMyReacts(state),
     othersReactsById: selectOthersReacts(state),
-    activeChannelId: activeChannelClaim && activeChannelClaim.claim_id,
+    activeChannelId,
     claimsByUri: selectClaimsByUri(state),
+    didFetchById: claim && didFetchById(state, getChannelIdFromClaim(claim)),
   };
 };
 
@@ -56,7 +59,8 @@ const perform = {
   fetchComment: doCommentById,
   fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipsById,
+  doFetchChannelMembershipsByIds,
 };
 
 export default connect(select, perform)(CommentsList);

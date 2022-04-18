@@ -76,7 +76,41 @@ export function doFetchOdyseeMembershipsById(claimIdCsv: any) {
       }
     }
 
-    dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response: updatedResponse } });
+    dispatch({ type: ACTIONS.ADD_CLAIMIDS_ODYSEE_MEMBERSHIP_DATA, data: { response: updatedResponse } });
+  };
+}
+export function doFetchChannelMembershipsByIds(channelId: string, claimIds: Array<string>) {
+  return async (dispatch: Dispatch) => {
+    // create csv string for backend
+    const commaSeparatedStringOfIds = claimIds.join(',');
+
+    const response = await Lbryio.call('membership', 'check', {
+      channel_id: channelId,
+      claim_ids: commaSeparatedStringOfIds,
+      environment: stripeEnvironment,
+    });
+
+    let updatedResponse = {};
+
+    // loop through returned users
+    for (const user in response) {
+      // if array was returned for a user (indicating a membership exists), otherwise is null
+      if (response[user] && response[user].length) {
+        // get membership for user
+        // note: a for loop is kind of odd, indicates there may be multiple memberships?
+        // probably not needed depending on what we do with the frontend, should revisit
+        for (const membership of response[user]) {
+          if (membership.channel_name) {
+            updatedResponse[user] = membership.name;
+          }
+        }
+      } else {
+        // note the user has been fetched but is null
+        updatedResponse[user] = null;
+      }
+    }
+
+    dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response: updatedResponse, channelId } });
   };
 }
 

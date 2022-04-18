@@ -846,6 +846,14 @@ export const selectOdyseeMembershipForChannelId = function (state: State, channe
   return matchingMembershipOfUser;
 };
 
+export const selectMembershipForChannelId = function (state: State, channelId: string) {
+  // looks for the uploader id
+  const matchingMembershipOfUser =
+    state.user && state.user.membershipsPerClaimIds && state.user.membershipsPerClaimIds[channelId];
+
+  return matchingMembershipOfUser;
+};
+
 export const selectGeoRestrictionForUri = createCachedSelector(
   selectClaimForUri,
   selectGeoBlockLists,

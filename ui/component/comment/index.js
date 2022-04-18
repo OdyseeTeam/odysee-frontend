@@ -6,6 +6,7 @@ import {
   selectHasChannels,
   selectMyClaimIdsRaw,
   selectOdyseeMembershipForUri,
+  selectMembershipForChannelId,
 } from 'redux/selectors/claims';
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
@@ -25,7 +26,7 @@ import Comment from './view';
 
 const select = (state, props) => {
   const { comment, uri } = props;
-  const { comment_id, channel_url } = comment || {};
+  const { comment_id, channel_url, channel_id } = comment || {};
 
   const activeChannelClaim = selectActiveChannelClaim(state);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
@@ -45,6 +46,7 @@ const select = (state, props) => {
     linkedCommentAncestors: selectLinkedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     selectOdyseeMembershipForUri: channel_url && selectOdyseeMembershipForUri(state, channel_url),
+    membership: channel_id && selectMembershipForChannelId(state, channel_id),
   };
 };
 
