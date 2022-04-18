@@ -159,7 +159,15 @@ function ChannelContent(props: Props) {
           defaultOrderBy={CS.ORDER_BY_NEW}
           pageSize={dynamicPageSize}
           infiniteScroll={defaultInfiniteScroll}
-          injectedItem={{ node: <Ads small type="video" tileLayout /> }}
+          injectedItem={{
+            node: (index, lastVisibleIndex, pageSize) => {
+              if (pageSize && index < pageSize) {
+                return index === lastVisibleIndex ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+              } else {
+                return index % (pageSize * 2) === 0 ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+              }
+            },
+          }}
           meta={
             showFilters && (
               <Form onSubmit={() => {}} className="wunderbar--inline">
