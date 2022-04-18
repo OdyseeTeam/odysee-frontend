@@ -805,7 +805,6 @@
     lodash "^4.17.13"
     to-fast-properties "^2.0.0"
 
-// @if process.env.FLOSS!='true'
 "@firebase/analytics-compat@0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@firebase/analytics-compat/-/analytics-compat-0.1.3.tgz#20a67a9583cf9cc87a04a762e96d697c9ecc08d7"
@@ -1165,7 +1164,6 @@
   version "0.6.0"
   resolved "https://registry.yarnpkg.com/@firebase/webchannel-wrapper/-/webchannel-wrapper-0.6.0.tgz#e18ea901c84917f8dadd0185048a9d00573fe595"
   integrity sha512-Pz4+7HPzKvOFI1ICQ6pyUv/VgStEWq9IGiVaaV1cQLi66NIA1mD5INnY4CDNoVAxlkuZvDEUZ+cVHLQ8iwA2hQ==
-// @endif
 
 "@grpc/grpc-js@^1.3.2":
   version "1.4.1"

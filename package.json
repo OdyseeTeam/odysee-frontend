@@ -23,7 +23,7 @@
     "compile:electron": "node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.electron.config.js",
     "compile:web": "yarn copyenv && cd web && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.config.js",
     "compile:cordova": "yarn compile:web && rm ../cordova/www/*.js*; rm -r ../cordova/www/public; cp -r ./web/dist/* ../cordova/www",
-    "compile:cordova-floss": "cross-env FLOSS=true yarn copyenv && cd web && node --max_old_space_size=4096 ./node_modules/webpack/bin/webpack.js --config webpack.floss.config.js && cd .. && rm ../cordova-floss/www/*.js*; rm -r ../cordova-floss/www/public; cp -r ./web/dist/* ../cordova-floss/www; rm ../cordova-floss/www/sw.js",
+    "compile:cordova-floss": "yarn compile:web && rm ../cordova-floss/www/*.js*; rm -r ../cordova-floss/www/public; cp -r ./web/dist/* ../cordova-floss/www;",
     "compile": "cross-env NODE_ENV=production yarn compile:electron && cross-env NODE_ENV=production yarn compile:web",
     "copyenv": "copyfiles ./.env* web/",
     "dev": "yarn dev:electron",

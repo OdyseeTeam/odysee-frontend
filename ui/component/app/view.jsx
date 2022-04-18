@@ -377,7 +377,7 @@ function App(props: Props) {
   // }, []);
 
   // @if process.env.FLOSS
-  console.log('THIS IS FLOSS!');
+  console.log('FLOSS BUILD');
   // @endif
 
   // add OneTrust script

@@ -70,8 +70,6 @@ type Props = {
   autoplay: boolean,
   autoplaySetting: boolean,
   claimId: ?string,
-  // title: ?string,
-  channelName: ?string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -130,8 +128,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplay,
     autoplaySetting,
     claimId,
-    // title,
-    channelName,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -370,16 +366,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           type: 'application/x-mpegURL',
           src: livestreamVideoUrl,
         });
-        if (window.cordova) {
-          let payload = {
-            uri: livestreamVideoUrl,
-            claim: claimValues,
-            fileType: 'application/x-mpegURL',
-            channel: channelName,
-          };
-          if (!payload.claim.stream_type) payload.claim.stream_type = 'video';
-          window.odysee.chromecast.setMediaPayload(payload);
-        }
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
@@ -396,15 +382,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             type: 'application/x-mpegURL',
             src: response.url,
           });
-          if (window.cordova) {
-            let payload = {
-              uri: response.url,
-              claim: claimValues,
-              fileType: 'application/x-mpegURL',
-              channel: channelName,
-            };
-            window.odysee.chromecast.setMediaPayload(payload);
-          }
         } else {
           // use original mp4 source
           // $FlowFixMe
@@ -412,15 +389,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             type: sourceType,
             src: source,
           });
-          if (window.cordova) {
-            let payload = {
-              uri: source,
-              claim: claimValues,
-              fileType: sourceType,
-              channel: channelName,
-            };
-            window.odysee.chromecast.setMediaPayload(payload);
-          }
         }
       }
 

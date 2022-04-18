@@ -22,7 +22,6 @@ package-lock.json
 /web/node_modules/*
 /web/.env
 /web/.env.defaults
-/web/.env.floss.defaults
 /custom/*
 /custom/homepages/*
 /custom/content/*

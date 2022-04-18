@@ -13,7 +13,7 @@ import { useHistory } from 'react-router';
 import { Redirect } from 'react-router-dom';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
-import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
+// import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
 
 type Props = {
   osNotificationsEnabled: boolean,
@@ -161,10 +161,6 @@ export default function NotificationSettingsPage(props: Props) {
                       ))}
                     </>
                   )}
-
-                  {/* @if TARGET='web' */}
-                  {!window.cordova && <BrowserNotificationSettings />}
-                  {/* @endif */}
 
                   {/* @if TARGET='app' */}
                   <SettingsRow
