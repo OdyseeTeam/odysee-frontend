@@ -116,7 +116,8 @@ ol {
     padding-bottom: var(--spacing-m);
 
     .claim__menu-button {
-      right: -8px;
+      // right: -8px;
+      right: 2px;
     }
   }
 }
@@ -626,6 +627,27 @@ img {
 .homePage-wrapper__section-title {
   display: flex;
   justify-content: space-between;
+
+  @media (max-width: $breakpoint-small) {
+    button {
+      right: calc(var(--spacing-xs) * -1);
+      .button__content {
+        padding: 10px;
+        background-color: var(--color-header-background);
+        height: unset;
+        border-radius: 50% 0 0 50%;
+
+        .icon {
+          margin-left: 0;
+          width: 22px;
+          height: 22px;
+        }
+      }
+      .button__label {
+        display: none;
+      }
+    }
+  }
 }
 
 // The following wrapper classes are temporary to fix page specific issues
@@ -1116,6 +1138,13 @@ img {
 }
 
 .repost-wrapper {
+  // Repost now uses a modal. Lock the width because the bid message
+  // keeps changing as you type the desired name.
+  min-width: var(--modal-width);
+  @media (max-width: $breakpoint-small) {
+    min-width: 100%;
+  }
+
   .claim-preview__wrapper {
     background-color: rgba(var(--color-header-background-base), 0.6);
     &:hover {
@@ -1136,16 +1165,6 @@ img {
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-s);
     padding-top: 0;
-
-    .card__main-actions {
-      .claim-preview__wrapper {
-        a {
-          .button__content {
-            align-items: unset;
-          }
-        }
-      }
-    }
   }
 }
 
@@ -1280,6 +1299,9 @@ img {
     .claim-link {
       width: 40%;
       margin-top: var(--spacing-xs);
+      @media (max-width: $breakpoint-small) {
+        width: 100%;
+      }
     }
   }
 }

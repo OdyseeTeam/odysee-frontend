@@ -197,16 +197,8 @@
     }
 
     button {
-      height: 2rem;
+      height: var(--height-button);
       padding: 0px var(--spacing-s);
-
-      .button__content {
-        height: unset;
-
-        span {
-          font-size: var(--font-small);
-        }
-      }
     }
 
     .button--link {
@@ -382,4 +374,10 @@
   border: 1px solid var(--color-secondary);
   border-radius: 5px;
   vertical-align: middle;
+}
+
+.section {
+  .help {
+    color: var(--color-text);
+  }
 }

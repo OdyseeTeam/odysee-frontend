@@ -29,13 +29,9 @@
     // height:1em;
     margin-top: 1px;
     padding-top: 2px;
-  }
 
-  @media (max-width: $breakpoint-small) {
-    .button__content {
-      .button__label {
-        font-size: var(--font-body);
-      }
+    @media (max-width: $breakpoint-small) {
+      // font-size: var(--font-small) !important;
     }
   }
 }
@@ -127,7 +123,8 @@ a.button--alt {
   @media (max-width: $breakpoint-small) {
     .button__label {
       div:first-of-type {
-        top: 23% !important;
+        //top: 23% !important;
+        top: 0%;
       }
     }
   }
