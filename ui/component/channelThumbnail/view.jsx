@@ -29,7 +29,7 @@ type Props = {
   ThumbUploadError: boolean,
   claimsByUri: { [string]: any },
   odyseeMembership: string,
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   showMemberBadge?: boolean,
   isChannel?: boolean,
   checkMembership: boolean,
@@ -54,7 +54,7 @@ function ChannelThumbnail(props: Props) {
     ThumbUploadError,
     claimsByUri,
     odyseeMembership,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     showMemberBadge,
     isChannel,
     checkMembership = true,
@@ -76,7 +76,7 @@ function ChannelThumbnail(props: Props) {
     className: isChannel ? 'profile-badge__tooltip' : undefined,
   };
 
-  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchUserMemberships, [uri]);
+  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchOdyseeMembershipsById, [uri]);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);

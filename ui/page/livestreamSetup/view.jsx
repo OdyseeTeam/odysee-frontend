@@ -190,6 +190,15 @@ export default function LivestreamSetupPage(props: Props) {
           <h2 style={{ marginBottom: '15px' }}>
             {__('This account has livestreaming disabled, please reach out to hello@odysee.com for assistance.')}
           </h2>
+
+          <Button
+            button="primary"
+            label={__('Join Odysee Premium')}
+            icon={ICONS.FINANCE}
+            navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}
+            className="membership_button"
+            style={{ maxWidth: '238px' }}
+          />
         </div>
       )}
 

@@ -25,7 +25,7 @@ type HeaderMenuButtonProps = {
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const { authenticated, automaticDarkModeEnabled, currentTheme, user, handleThemeToggle, odyseeMembership } = props;
 
-  const isOnMembershipPage = window.location.pathname === `/$/${PAGES.ODYSEE_MEMBERSHIP}`;
+  const isOnMembershipPage = window.location.pathname === `/$/${PAGES.ODYSEE_PREMIUM}`;
 
   const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled);
@@ -62,7 +62,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           <HeaderMenuLink page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
           {/* don't show upgrade button if on membership page or already have a membership */}
           {!isOnMembershipPage && !odyseeMembership && (
-            <HeaderMenuLink page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
+            <HeaderMenuLink page={PAGES.ODYSEE_PREMIUM} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
           )}
           <HeaderMenuLink page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
 

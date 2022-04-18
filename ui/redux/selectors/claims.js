@@ -134,6 +134,8 @@ export const selectClaimForUri = createCachedSelector(
   }
 )((state, uri, returnRepost = true) => `${String(uri)}:${returnRepost ? '1' : '0'}`);
 
+export const selectChannelClaimIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
+
 // Note: this is deprecated. Use "selectClaimForUri(state, uri)" instead.
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
   createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
@@ -840,6 +842,14 @@ export const selectOdyseeMembershipForChannelId = (state: State, channelId: stri
   // looks for the uploader id
   const matchingMembershipOfUser =
     state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
+
+  return matchingMembershipOfUser;
+};
+
+export const selectMembershipForChannelId = function (state: State, channelId: string) {
+  // looks for the uploader id
+  const matchingMembershipOfUser =
+    state.user && state.user.membershipsPerClaimIds && state.user.membershipsPerClaimIds[channelId];
 
   return matchingMembershipOfUser;
 };

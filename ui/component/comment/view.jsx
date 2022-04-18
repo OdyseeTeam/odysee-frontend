@@ -66,6 +66,7 @@ type Props = {
   setQuickReply: (any) => void,
   quickReply: any,
   selectOdyseeMembershipForUri: string,
+  membership: any,
 };
 
 const LENGTH_TO_COLLAPSE = 300;
@@ -96,6 +97,7 @@ function CommentView(props: Props) {
     setQuickReply,
     quickReply,
     selectOdyseeMembershipForUri,
+    membership,
   } = props;
 
   const {
@@ -290,6 +292,7 @@ function CommentView(props: Props) {
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
               <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
+              <PremiumBadge membership={membership} />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}

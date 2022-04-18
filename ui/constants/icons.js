@@ -208,3 +208,4 @@ export const SUBMIT = 'Submit';
 export const FILTERED_BY_LANG = 'FilteredByLang';
 export const EURO = 'Euro';
 export const SPORTS = 'Sports';
+export const MEMBERSHIP = 'Membership';

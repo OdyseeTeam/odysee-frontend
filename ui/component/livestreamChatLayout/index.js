@@ -9,7 +9,7 @@ import {
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
 import { selectThemePath } from 'redux/selectors/settings';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchOdyseeMembershipsById } from 'redux/actions/memberships';
 import LivestreamChatLayout from './view';
 
 const select = (state, props) => {
@@ -30,7 +30,7 @@ const perform = {
   doCommentList,
   doSuperChatList,
   doResolveUris,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipsById,
 };
 
 export default connect(select, perform)(LivestreamChatLayout);

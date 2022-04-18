@@ -89,7 +89,7 @@ const PLAYLISTS: SideNavLink = {
 
 const PREMIUM: SideNavLink = {
   title: 'Premium',
-  link: `/$/${PAGES.ODYSEE_MEMBERSHIP}`,
+  link: `/$/${PAGES.ODYSEE_PREMIUM}`,
   icon: ICONS.UPGRADE,
   hideForUnauth: true,
   noI18n: true,

@@ -21,7 +21,7 @@ type Props = {
   incognito: boolean,
   doSetIncognito: (boolean) => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   odyseeMembershipByUri: (uri: string) => string,
 };
 
@@ -29,17 +29,17 @@ type ListItemProps = {
   uri: string,
   isSelected?: boolean,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   odyseeMembershipByUri: (uri: string) => string,
 };
 
 function ChannelListItem(props: ListItemProps) {
-  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, odyseeMembershipByUri } = props;
+  const { uri, isSelected = false, claimsByUri, doFetchOdyseeMembershipsById, odyseeMembershipByUri } = props;
 
   const membership = odyseeMembershipByUri(uri);
 
   const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships, [uri]);
+  useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchOdyseeMembershipsById, [uri]);
 
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
@@ -75,7 +75,7 @@ function ChannelSelector(props: Props) {
     doSetIncognito,
     odyseeMembershipByUri,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
   } = props;
 
   const {
@@ -102,7 +102,7 @@ function ChannelSelector(props: Props) {
               uri={activeChannelUrl}
               isSelected
               claimsByUri={claimsByUri}
-              doFetchUserMemberships={doFetchUserMemberships}
+              doFetchOdyseeMembershipsById={doFetchOdyseeMembershipsById}
             />
           )}
         </MenuButton>
@@ -115,7 +115,7 @@ function ChannelSelector(props: Props) {
                   odyseeMembershipByUri={odyseeMembershipByUri}
                   uri={channel.permanent_url}
                   claimsByUri={claimsByUri}
-                  doFetchUserMemberships={doFetchUserMemberships}
+                  doFetchOdyseeMembershipsById={doFetchOdyseeMembershipsById}
                 />
               </MenuItem>
             ))}

@@ -7,10 +7,12 @@ import { lazyImport } from 'util/lazyImport';
 
 // prettier-ignore
 const MAP = Object.freeze({
+  [MODALS.ACTIVATE_CREATOR_MEMBERSHIPS]: lazyImport(() => import('modal/modalActivateCreatorMemberships' /* webpackChunkName: "modalActiveCreatorMemberships" */)),
   [MODALS.AFFIRM_PURCHASE]: lazyImport(() => import('modal/modalAffirmPurchase' /* webpackChunkName: "modalAffirmPurchase" */)),
   [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)),
   [MODALS.AUTO_UPDATE_DOWNLOADED]: lazyImport(() => import('modal/modalAutoUpdateDownloaded' /* webpackChunkName: "modalAutoUpdateDownloaded" */)),
   [MODALS.BLOCK_CHANNEL]: lazyImport(() => import('modal/modalBlockChannel' /* webpackChunkName: "modalBlockChannel" */)),
+  [MODALS.CANCEL_CREATOR_MEMBERSHIP]: lazyImport(() => import('modal/modalCancelCreatorMembership' /* webpackChunkName: "modalCancelCreatorMembership" */)),
   [MODALS.COLLECTION_ADD]: lazyImport(() => import('modal/modalClaimCollectionAdd' /* webpackChunkName: "modalClaimCollectionAdd" */)),
   [MODALS.COLLECTION_DELETE]: lazyImport(() => import('modal/modalRemoveCollection' /* webpackChunkName: "modalRemoveCollection" */)),
   [MODALS.CONFIRM]: lazyImport(() => import('modal/modalConfirm' /* webpackChunkName: "modalConfirm" */)),
@@ -18,8 +20,9 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_CLAIM_REVOKE]: lazyImport(() => import('modal/modalRevokeClaim' /* webpackChunkName: "modalRevokeClaim" */)),
   [MODALS.CONFIRM_EXTERNAL_RESOURCE]: lazyImport(() => import('modal/modalOpenExternalResource' /* webpackChunkName: "modalOpenExternalResource" */)),
   [MODALS.CONFIRM_FILE_REMOVE]: lazyImport(() => import('modal/modalRemoveFile' /* webpackChunkName: "modalRemoveFile" */)),
-  [MODALS.CONFIRM_ODYSEE_MEMBERSHIP]: lazyImport(() => import('modal/modalConfirmOdyseeMembership' /* webpackChunkName: "modalConfirmOdyseeMembership" */)),
+  [MODALS.CONFIRM_ODYSEE_PREMIUM]: lazyImport(() => import('modal/modalConfirmOdyseeMembership' /* webpackChunkName: "modalConfirmOdyseeMembership" */)),
   [MODALS.CONFIRM_REMOVE_CARD]: lazyImport(() => import('modal/modalRemoveCard' /* webpackChunkName: "modalRemoveCard" */)),
+  [MODALS.CONFIRM_DELETE_MEMBERSHIP]: lazyImport(() => import('modal/modalDeleteMembership' /* webpackChunkName: "modalDeleteMembership" */)),
   [MODALS.CONFIRM_REMOVE_COMMENT]: lazyImport(() => import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)),
   [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload' /* webpackChunkName: "modalConfirmThumbnailUpload" */)),
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction' /* webpackChunkName: "modalConfirmTransaction" */)),
@@ -31,6 +34,7 @@ const MAP = Object.freeze({
   [MODALS.FIRST_REWARD]: lazyImport(() => import('modal/modalFirstReward' /* webpackChunkName: "modalFirstReward" */)),
   [MODALS.HIDE_RECOMMENDATION]: lazyImport(() => import('modal/modalHideRecommendation' /* webpackChunkName: "modalHideRecommendation" */)),
   [MODALS.IMAGE_UPLOAD]: lazyImport(() => import('modal/modalImageUpload' /* webpackChunkName: "modalImageUpload" */)),
+  [MODALS.JOIN_MEMBERSHIP]: lazyImport(() => import('modal/modalJoinMembership' /* webpackChunkName: "modalJoinMembership" */)),
   [MODALS.LIQUIDATE_SUPPORTS]: lazyImport(() => import('modal/modalSupportsLiquidate' /* webpackChunkName: "modalSupportsLiquidate" */)),
   [MODALS.MASS_TIP_UNLOCK]: lazyImport(() => import('modal/modalMassTipUnlock' /* webpackChunkName: "modalMassTipUnlock" */)),
   [MODALS.MEMBERSHIP_SPLASH]: lazyImport(() => import('modal/modalMembershipSplash' /* webpackChunkName: "modalMembershipSplash" */)),

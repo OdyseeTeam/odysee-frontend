@@ -102,7 +102,7 @@ export default function MembershipSplash(props: Props) {
             <Button
               button="primary"
               label={__('Join')}
-              navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium&pageLocation=${pageLocation}`}
+              navigate={`/$/${PAGES.ODYSEE_PREMIUM}?interval=year&plan=Premium&pageLocation=${pageLocation}`}
             />
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function MembershipSplash(props: Props) {
             <Button
               button="primary"
               label={__('Join')}
-              navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}?interval=year&plan=Premium%2b&pageLocation=${pageLocation}&`}
+              navigate={`/$/${PAGES.ODYSEE_PREMIUM}?interval=year&plan=Premium%2b&pageLocation=${pageLocation}&`}
             />
           </div>
         </div>

@@ -47,12 +47,16 @@ type Props = {
   activeChannelId: ?string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   commentsAreExpanded?: boolean,
+  activeChannelMembership: ?any,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
   resetComments: (claimId: string) => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
+  doFetchChannelMembershipsByIds: (channelId: string, claimIds: Array<string>) => void,
+  membershipForChannelId: any,
+  didFetchById: any,
 };
 
 export default function CommentList(props: Props) {
@@ -80,7 +84,9 @@ export default function CommentList(props: Props) {
     fetchReacts,
     resetComments,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
+    doFetchChannelMembershipsByIds,
+    didFetchById,
   } = props;
 
   const isMobile = useIsMobile();
@@ -115,7 +121,7 @@ export default function CommentList(props: Props) {
     shouldFetchUserMemberships,
     commenterClaimIds,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     [topLevelComments],
     true
   );
@@ -143,6 +149,13 @@ export default function CommentList(props: Props) {
   useEffect(() => {
     return () => handleReset();
   }, [handleReset]);
+
+  // Reset comments only on claim switch
+  useEffect(() => {
+    if (channelId && commenterClaimIds && !didFetchById) {
+      doFetchChannelMembershipsByIds(channelId, commenterClaimIds);
+    }
+  }, [channelId, commenterClaimIds, didFetchById, doFetchChannelMembershipsByIds]);
 
   // Fetch top-level comments
   useEffect(() => {
