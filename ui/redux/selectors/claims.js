@@ -12,6 +12,7 @@ import {
   getChannelIdFromClaim,
   isStreamPlaceholderClaim,
   getThumbnailFromClaim,
+  getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
@@ -695,6 +696,9 @@ export const selectPermanentUrlForUri = (state: State, uri: string) => {
   return claim && claim.permanent_url;
 };
 
+export const selectChannelIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
+export const selectChannelNameForUri = createSelector(selectClaimForUri, (claim) => getChannelNameFromClaim(claim));
+
 export const makeSelectSupportsForUri = (uri: string) =>
   createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim: ?StreamClaim) => {
     if (!claim || !claim.is_my_output) {
@@ -808,7 +812,7 @@ export const selectIsMyChannelCountOverLimit = createSelector(
  * @param uri
  * @returns {*}
  */
-export const selectOdyseeMembershipForUri = function (state: State, uri: string) {
+export const selectOdyseeMembershipForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
 
   const uploaderChannelClaimId = getChannelIdFromClaim(claim);
@@ -832,7 +836,7 @@ export const selectOdyseeMembershipForUri = function (state: State, uri: string)
  * @param channelId
  * @returns {*}
  */
-export const selectOdyseeMembershipForChannelId = function (state: State, channelId: string) {
+export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) => {
   // looks for the uploader id
   const matchingMembershipOfUser =
     state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];

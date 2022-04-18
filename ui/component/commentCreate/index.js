@@ -16,6 +16,8 @@ import { selectSettingsByChannelId } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
 import { selectClientSetting } from 'redux/selectors/settings';
+import { selectChannelCanReceiveFiatTipsByUri } from 'redux/selectors/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
@@ -45,6 +47,7 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
+    canReceiveFiatTips: selectChannelCanReceiveFiatTipsByUri(state, uri),
   };
 };
 
@@ -56,6 +59,7 @@ const perform = {
   doSendCashTip,
   doSendTip,
   doOpenModal,
+  doTipAccountCheckForUri,
 };
 
 export default connect(select, perform)(CommentCreate);
