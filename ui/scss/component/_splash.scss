@@ -402,12 +402,18 @@
 }
 
 .stripe__confirm-remove-membership {
+  max-width: 600px;
   padding: var(--spacing-m) var(--spacing-l) !important;
 
   .card__subtitle {
     line-height: 39px;
     margin-top: 5px;
     margin-bottom: -1px;
+  }
+
+  .section__actions {
+    display: block;
+    text-align: center;
   }
 
   .card__main-actions {

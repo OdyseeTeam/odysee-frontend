@@ -77,6 +77,13 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         channel_id: userChannelClaimId,
         channel_name: userChannelName,
         price_id: priceId,
+      }, function(){
+        console.log('running here!');
+
+        // populate the new data and update frontend
+        doMembershipMine();
+
+        closeModal()
       });
     }
   }
