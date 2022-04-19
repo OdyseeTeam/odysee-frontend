@@ -4,6 +4,7 @@ import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 
 type Props = {
   closeModal: () => void,
@@ -19,7 +20,6 @@ export default function ModalRemoveCard(props: Props) {
 
   const activateMembershipsButton =
     <Button
-      className="stripe__confirm-remove-card"
       button="secondary"
       icon={ICONS.UPGRADE}
       label={__('Activate Memberships')}
@@ -28,16 +28,15 @@ export default function ModalRemoveCard(props: Props) {
 
   const addBankAccountButton =
     <Button
-      className="stripe__confirm-remove-card"
       button="primary"
       icon={ICONS.FINANCE}
       label={__('Add A Bank Account')}
-      // onClick={deleteMembership}
+      navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
     />;
 
-  const needToAddABankAccountText = 'Add a bank account first s users will be able to subscribe to your created tiers.\n' +
-    '            If a user subscribes to your tier you will not be able to delete it until their subscription has been cancelled\n' +
-    '            (by them or by you), so don’t activate your memberships until you’re ready!'
+  const needToAddABankAccountText = 'Before you can activate your memberships you have to link a bank account first.\n' +
+    '            This will be the way you can receive your monthly payments from users.\n' +
+    '            Once you have linked your bank account you can click this button again and launch your memberships!';
 
   return (
     <Modal className="activate-memberships__modal" ariaHideApp={false} isOpen type="card" onAborted={closeModal}>
