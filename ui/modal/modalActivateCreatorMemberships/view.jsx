@@ -7,19 +7,35 @@ import * as ICONS from 'constants/icons';
 
 type Props = {
   closeModal: () => void,
-  haveConfirmedBankAccount: boolean,
+  bankAccountConfirmed: boolean,
 };
 
 export default function ModalRemoveCard(props: Props) {
-  const { closeModal, haveConfirmedBankAccount } = props;
+  const { closeModal, bankAccountConfirmed } = props;
 
-  function deleteMembership() {
-    const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== tierIndex);
-    setCreatorMemberships(membershipsAfterDeletion);
-    closeModal();
-  }
+  const activateYourMembershipsText = 'Once you activate your memberships users will be able to subscribe to your created tiers.\n' +
+    '            If a user subscribes to your tier you will not be able to delete it until their subscription has been cancelled\n' +
+    '            (by them or by you), so don’t activate your memberships until you’re ready!';
 
-  const explainerText = 'Once you activate your memberships users will be able to subscribe to your created tiers.\n' +
+  const activateMembershipsButton =
+    <Button
+      className="stripe__confirm-remove-card"
+      button="secondary"
+      icon={ICONS.UPGRADE}
+      label={__('Activate Memberships')}
+      // onClick={deleteMembership}
+    />;
+
+  const addBankAccountButton =
+    <Button
+      className="stripe__confirm-remove-card"
+      button="primary"
+      icon={ICONS.FINANCE}
+      label={__('Add A Bank Account')}
+      // onClick={deleteMembership}
+    />;
+
+  const needToAddABankAccountText = 'Add a bank account first s users will be able to subscribe to your created tiers.\n' +
     '            If a user subscribes to your tier you will not be able to delete it until their subscription has been cancelled\n' +
     '            (by them or by you), so don’t activate your memberships until you’re ready!'
 
@@ -28,16 +44,10 @@ export default function ModalRemoveCard(props: Props) {
       <Card
         className="stripe__confirm-remove-membership"
         title={__('Activate Memberships')}
-        subtitle={explainerText}
+        subtitle={!bankAccountConfirmed ? needToAddABankAccountText : activateYourMembershipsText}
         actions={
           <div className="section__actions">
-            {haveConfirmedBankAccount && <Button
-              className="stripe__confirm-remove-card"
-              button="secondary"
-              icon={ICONS.UPGRADE}
-              label={__('Activate Memberships')}
-              // onClick={deleteMembership}
-            />}
+            {!bankAccountConfirmed ? addBankAccountButton : activateMembershipsButton }
             <Button button="link" label={__('Cancel')} onClick={closeModal} />
           </div>
         }

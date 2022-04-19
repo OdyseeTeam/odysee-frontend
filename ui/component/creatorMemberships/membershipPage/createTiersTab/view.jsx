@@ -85,11 +85,9 @@ function CreateTiersTab(props: Props) {
     });
   };
 
-  // TODO: have to replace this with actual API
-  const haveConfirmedBankAccount = true;
   const openActivateMembershipsModal = () => {
     openModal(MODALS.ACTIVATE_CREATOR_MEMBERSHIPS, {
-      haveConfirmedBankAccount,
+      bankAccountConfirmed,
     });
   };
 
