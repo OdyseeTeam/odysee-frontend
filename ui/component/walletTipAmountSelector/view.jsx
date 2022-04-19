@@ -26,7 +26,6 @@ type Props = {
   exchangeRate?: any,
   fiatConversion?: boolean,
   tipError: string,
-  uri: string,
   canReceiveFiatTips: ?boolean,
   hasSavedCard: ?boolean,
   onChange: (number) => void,
@@ -34,13 +33,11 @@ type Props = {
   setDisableSubmitButton: (boolean) => void,
   setTipError: (any) => void,
   preferredCurrency: string,
-  doTipAccountCheckForUri: (uri: string) => void,
   doGetCustomerStatus: () => void,
 };
 
 function WalletTipAmountSelector(props: Props) {
   const {
-    uri,
     activeTab,
     amount,
     balance,
@@ -118,12 +115,6 @@ function WalletTipAmountSelector(props: Props) {
       doGetCustomerStatus();
     }
   }, [doGetCustomerStatus, hasSavedCard]);
-
-  React.useEffect(() => {
-    if (canReceiveFiatTips === undefined) {
-      doTipAccountCheckForUri(uri);
-    }
-  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
     let regexp;

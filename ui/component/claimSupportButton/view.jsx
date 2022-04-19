@@ -14,10 +14,18 @@ type Props = {
   isRepost?: boolean,
   doOpenModal: (id: string, {}) => void,
   preferredCurrency: string,
+  doTipAccountCheckForUri: (uri: string) => void,
+  canReceiveFiatTips: ?boolean,
 };
 
 export default function ClaimSupportButton(props: Props) {
-  const { uri, fileAction, isRepost, disableSupport, doOpenModal, preferredCurrency } = props;
+  const { uri, fileAction, isRepost, disableSupport, doOpenModal, preferredCurrency, canReceiveFiatTips, doTipAccountCheckForUri } = props;
+
+  React.useEffect(() => {
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   const currencyToUse = preferredCurrency;
 
@@ -36,7 +44,7 @@ export default function ClaimSupportButton(props: Props) {
     <Tooltip title={__('Support this claim')} arrow={false}>
       <Button
         button={!fileAction ? 'alt' : undefined}
-        className={classnames('support-claim-button', { 'button--file-action': fileAction })}
+        className={classnames('support-claim-button', { 'button--file-action': fileAction, 'approved-bank-account__button': canReceiveFiatTips })}
         icon={iconToUse[currencyToUse].icon}
         iconSize={iconToUse[currencyToUse].iconSize}
         label={isRepost ? __('Support Repost') : __('Support --[button to support a claim]--')}
