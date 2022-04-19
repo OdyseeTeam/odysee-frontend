@@ -17,12 +17,6 @@ type Props = {
 function CreatorMembershipsTab(props: Props) {
   const { bankAccountConfirmed, activeChannelClaim, doTipAccountStatus } = props;
 
-  React.useEffect(() => {
-    if (bankAccountConfirmed === undefined) {
-      doTipAccountStatus({ getBank: true });
-    }
-  }, [bankAccountConfirmed, doTipAccountStatus]);
-
   let localMembershipPageUrl = '';
   let remoteMembershipPageUrl;
   if (activeChannelClaim) {

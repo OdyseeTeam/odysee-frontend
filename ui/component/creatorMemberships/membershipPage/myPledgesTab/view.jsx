@@ -42,8 +42,6 @@ function MyPledgesTab(props: Props) {
     }
   }, [doMembershipMine, myActiveMemberships]);
 
-  console.log(myActiveMemberships);
-
   React.useEffect(() => {
     if (myActiveMemberships) {
       const claimIds = myActiveMemberships.map((membership) => membership.Membership.channel_id);

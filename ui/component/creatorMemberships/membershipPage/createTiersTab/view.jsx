@@ -54,10 +54,11 @@ const perkDescriptions = [
 type Props = {
   openModal: (string, {}) => void,
   doToast: ({ message: string }) => void,
+  bankAccountConfirmed: boolean,
 };
 
 function CreateTiersTab(props: Props) {
-  const { openModal, doToast } = props;
+  const { openModal, doToast, bankAccountConfirmed } = props;
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState(membershipTiers);

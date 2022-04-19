@@ -20,6 +20,14 @@ const TABS = {
 };
 
 const MembershipsPage = (props: Props) => {
+  const { bankAccountConfirmed, doTipAccountStatus } = props;
+
+  React.useEffect(() => {
+    if (bankAccountConfirmed === undefined) {
+      doTipAccountStatus({ getBank: true });
+    }
+  }, [bankAccountConfirmed, doTipAccountStatus]);
+
   const {
     location: { search },
     push,
