@@ -21,6 +21,7 @@ type Props = {
   purchaseString: string,
   plan: string,
   doMembershipBuy: (any: any) => void,
+  doFetchOdyseeMembershipsById: (string) => void,
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
@@ -35,6 +36,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     purchaseString,
     plan,
     doMembershipBuy,
+    doFetchOdyseeMembershipsById,
   } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
@@ -59,10 +61,12 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       setStatusText(__('Membership successfully canceled'));
 
+      // TODO: add a toast here saying it was canceled
       // populate the new data and update frontend
-      doMembershipMine();
-
-      closeModal();
+      doMembershipMine(membershipId, function() {
+        closeModal();
+        doFetchOdyseeMembershipsById([userChannelClaimId]);
+      });
     } catch (err) {
       console.log(err);
     }
@@ -72,11 +76,24 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     if (hasMembership) {
       cancelMembership();
     } else {
+      setWaitingForBackend(true);
+      setStatusText(__('Completing your purchase...'));
+
       doMembershipBuy({
         membership_id: membershipId,
         channel_id: userChannelClaimId,
         channel_name: userChannelName,
         price_id: priceId,
+      }, function() {
+        setStatusText(__('Purchase was successful'));
+
+        // populate the new data and update frontend
+        doMembershipMine(membershipId, function() {
+          doFetchOdyseeMembershipsById(userChannelClaimId);
+          setTimeout(function() {
+            closeModal();
+          }, 300);
+        });
       });
     }
   }

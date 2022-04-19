@@ -69,9 +69,13 @@ const OdyseeMembershipPage = (props: Props) => {
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [currencyToUse, setCurrencyToUse] = React.useState('usd');
+
   const canceledMemberships = membershipMine?.canceledMemberships;
-  const activeMemberships = membershipMine?.activeMemberships;
-  const purchasedMemberships = membershipMine?.purchasedMemberships;
+  const activeMemberships = membershipMine?.activeMemberships.filter(
+    (membership) => membership.MembershipDetails.channel_name === '@odysee');
+
+  const purchasedMemberships = membershipMine?.purchasedMemberships.filter(
+    (membership) => membership.MembershipDetails.channel_name === '@odysee');
   const [hasShownModal, setHasShownModal] = React.useState(false);
   const [shouldFetchUserMemberships, setFetchUserMemberships] = React.useState(true);
   const [apiError, setApiError] = React.useState(false);
@@ -276,7 +280,7 @@ const OdyseeMembershipPage = (props: Props) => {
     const priceId = e.currentTarget.getAttribute('price-id');
     const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, planName);
 
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       userChannelClaimId: noChannelsOrIncognitoMode ? undefined : userChannelClaimId,
       userChannelName: noChannelsOrIncognitoMode ? undefined : userChannelName,
@@ -298,7 +302,7 @@ const OdyseeMembershipPage = (props: Props) => {
       'features until the point of the expiration of your current membership, at which point you will not be charged ' +
       'again and your membership will no longer be active. At this time, there is no way to subscribe to another membership if you cancel and there are no refunds.';
 
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       hasMembership,
       purchaseString: __(cancellationString),

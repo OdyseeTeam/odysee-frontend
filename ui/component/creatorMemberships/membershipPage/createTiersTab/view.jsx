@@ -54,10 +54,11 @@ const perkDescriptions = [
 type Props = {
   openModal: (string, {}) => void,
   doToast: ({ message: string }) => void,
+  bankAccountConfirmed: boolean,
 };
 
 function CreateTiersTab(props: Props) {
-  const { openModal, doToast } = props;
+  const { openModal, doToast, bankAccountConfirmed } = props;
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState(membershipTiers);
@@ -84,11 +85,9 @@ function CreateTiersTab(props: Props) {
     });
   };
 
-  // TODO: have to replace this with actual API
-  const haveConfirmedBankAccount = true;
   const openActivateMembershipsModal = () => {
     openModal(MODALS.ACTIVATE_CREATOR_MEMBERSHIPS, {
-      haveConfirmedBankAccount,
+      bankAccountConfirmed,
     });
   };
 

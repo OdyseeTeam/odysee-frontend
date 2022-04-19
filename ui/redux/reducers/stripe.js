@@ -32,6 +32,11 @@ reducers[ACTIONS.SET_BANK_ACCOUNT_CONFIRMED] = (state, action) =>
     bankAccountConfirmed: true,
   });
 
+reducers[ACTIONS.SET_BANK_ACCOUNT_MISSING] = (state, action) =>
+  Object.assign({}, state, {
+    bankAccountConfirmed: false,
+  });
+
 reducers[ACTIONS.SET_STRIPE_ACCOUNT_TOTALS] = (state, action) =>
   Object.assign({}, state, {
     accountTotals: action.data,
@@ -77,7 +82,7 @@ reducers[ACTIONS.SET_PAYMENT_LAST_FOUR] = (state, action) =>
     lastFour: action.data,
   });
 
-export default function stripeReducer(state: StripeState = defaultState, action: any) {
+export default function stripeReducer(state: UserState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;

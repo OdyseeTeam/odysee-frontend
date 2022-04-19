@@ -17,11 +17,11 @@ export default function CreatorMembershipsTab() {
     <table className="table table--transactions">
       <thead>
         <tr>
-          <th className="date-header">Supporter Channel Name</th>
+          <th className="date-header">Channel Name</th>
           <th className="channelName-header">Membership Tier</th>
           <th className="location-header">Support Amount</th>
+          <th className="amount-header">Subscribed At</th>
           <th className="channelName-header">Total Supporting Time</th>
-          <th className="amount-header">Details</th>
         </tr>
       </thead>
       <tbody>
@@ -35,12 +35,8 @@ export default function CreatorMembershipsTab() {
               </td>
               <td>Community MVP</td>
               <td>$20 USD / Month</td>
+              <td>March 19, 2022</td>
               <td>2 Months</td>
-              <td>
-                <span dir="auto" className="button__label">
-                  See Details
-                </span>
-              </td>
             </>
           ))}
         </tr>

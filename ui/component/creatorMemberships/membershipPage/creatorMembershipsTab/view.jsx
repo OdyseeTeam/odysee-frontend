@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import { URL } from 'config';
 import ChannelSelector from 'component/channelSelector';
@@ -16,12 +17,6 @@ type Props = {
 
 function CreatorMembershipsTab(props: Props) {
   const { bankAccountConfirmed, activeChannelClaim, doTipAccountStatus } = props;
-
-  React.useEffect(() => {
-    if (bankAccountConfirmed === undefined) {
-      doTipAccountStatus({ getBank: true });
-    }
-  }, [bankAccountConfirmed, doTipAccountStatus]);
 
   let localMembershipPageUrl = '';
   let remoteMembershipPageUrl;
@@ -58,6 +53,7 @@ function CreatorMembershipsTab(props: Props) {
         style={{ maxWidth: '535px', marginTop: '5px' }}
       />
 
+      {/* Dashboard showing income/supporters amount */}
       <h1 style={{ fontSize: '20px', marginTop: '25px' }}>{__('Received Funds')}</h1>
 
       <h1 style={{ marginTop: '10px' }}>{__('You currently have 0 supporters')}</h1>
@@ -68,6 +64,7 @@ function CreatorMembershipsTab(props: Props) {
 
       <h1 style={{ marginTop: '10px' }}>{__('You do not any withdrawable funds')}</h1>
 
+      {/* Bank account connection status */}
       <div className="bank-account-information__div" style={{ marginTop: '33px' }}>
         <h1 style={{ fontSize: '20px' }}>{__('Bank Account Status')}</h1>
         <div className="bank-account-status__div" style={{ marginTop: '15px' }}>
@@ -79,7 +76,7 @@ function CreatorMembershipsTab(props: Props) {
                 className="membership_button"
                 label={__('Connect a bank account')}
                 icon={ICONS.FINANCE}
-                navigate={'$/settings/tip_account'}
+                navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
                 style={{ maxWidth: '254px' }}
               />
             </>
