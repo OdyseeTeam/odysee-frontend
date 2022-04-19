@@ -21,6 +21,7 @@ type Props = {
   purchaseString: string,
   plan: string,
   doMembershipBuy: (any: any) => void,
+  doFetchOdyseeMembershipsById: (string) => void,
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
@@ -35,8 +36,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     purchaseString,
     plan,
     doMembershipBuy,
-    updateUserOdyseeMembershipStatus,
-    user,
+    doFetchOdyseeMembershipsById,
   } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
@@ -65,8 +65,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       // populate the new data and update frontend
       doMembershipMine(membershipId, function() {
         closeModal();
-        // TODO: not working, but should
-        updateUserOdyseeMembershipStatus(user);
+        doFetchOdyseeMembershipsById([userChannelClaimId]);
       });
     } catch (err) {
       console.log(err);
@@ -90,8 +89,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
         // populate the new data and update frontend
         doMembershipMine(membershipId, function() {
-          // TODO: not working, but should
-          updateUserOdyseeMembershipStatus(user);
+          doFetchOdyseeMembershipsById(userChannelClaimId);
           setTimeout(function() {
             closeModal();
           }, 300);
