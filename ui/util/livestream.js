@@ -34,9 +34,14 @@ type StreamData = {
  *
  * @param activeLivestreams Object obtained from `selectActiveLivestreams`.
  * @param channelIds List of channel IDs to filter the results with.
+ * @param excludedChannelIds
  * @returns {[]|Array<*>}
  */
-export function getLivestreamUris(activeLivestreams: ?LivestreamInfo, channelIds: ?Array<string>) {
+export function getLivestreamUris(
+  activeLivestreams: ?LivestreamInfo,
+  channelIds: ?Array<string>,
+  excludedChannelIds?: Array<string>
+) {
   let values = (activeLivestreams && Object.values(activeLivestreams)) || [];
 
   if (channelIds && channelIds.length > 0) {
@@ -45,6 +50,11 @@ export function getLivestreamUris(activeLivestreams: ?LivestreamInfo, channelIds
   } else {
     // $FlowFixMe
     values = values.filter((v) => Boolean(v.claimUri));
+  }
+
+  if (excludedChannelIds) {
+    // $FlowFixMe
+    values = values.filter((v) => !excludedChannelIds.includes(v.creatorId));
   }
 
   // $FlowFixMe
@@ -86,13 +96,33 @@ const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
   }, {});
 };
 
+const transformNewLivestreamData = (data: Array<any>): LivestreamInfo => {
+  return data.reduce((acc, curr) => {
+    acc[curr.ChannelClaimID] = {
+      url: curr.VideoURL,
+      type: 'application/x-mpegurl',
+      live: curr.Live,
+      viewCount: curr.ViewerCount,
+      creatorId: curr.ChannelClaimID,
+      startedStreaming: moment(curr.Start),
+    };
+    return acc;
+  }, {});
+};
+
 export const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
-  const response = await fetch(LIVESTREAM_LIVE_API);
-  const json = await response.json();
+  const newApiResponse = await fetch(`${NEW_LIVESTREAM_LIVE_API}/all`);
+  const newApiData = (await newApiResponse.json()).data;
+  if (!newApiData) throw new Error();
+  const newTranslatedData = transformNewLivestreamData(newApiData);
 
-  if (!json.data) throw new Error();
+  const oldApiResponse = await fetch(`${LIVESTREAM_LIVE_API}`);
+  const oldApiData = (await oldApiResponse.json()).data;
+  if (!oldApiData) throw new Error();
+  const oldTranslatedData = transformLivestreamData(oldApiData);
+  const mergedData = { ...oldTranslatedData, ...newTranslatedData };
 
-  return transformLivestreamData(json.data);
+  return mergedData;
 };
 
 /**
@@ -106,35 +136,26 @@ export const fetchLiveChannel = async (channelId: string): Promise<LiveChannelSt
   const newApiResponse = await fetch(`${newApiEndpoint}/is_live?channel_claim_id=${channelId}`);
   const newApiData = (await newApiResponse.json()).data;
   let isLive = newApiData.Live;
-  let translatedData = [];
+  let translatedData;
   // transform data to old API standard
   if (isLive) {
-    translatedData = {
-      url: newApiData.VideoURL,
-      type: 'application/x-mpegurl',
-      viewCount: newApiData.ViewerCount,
-      claimId: newApiData.ChannelClaimID,
-      timestamp: newApiData.Start,
-    };
+    translatedData = transformNewLivestreamData([newApiData]);
   } else {
     const oldApiResponse = await fetch(`${oldApiEndpoint}/${channelId}`);
     const oldApiData = (await oldApiResponse.json()).data;
 
     isLive = oldApiData.live;
-    translatedData = {
-      url: oldApiData.url,
-      type: 'application/x-mpegurl',
-      viewCount: oldApiData.viewCount,
-      claimId: oldApiData.claimId,
-      timestamp: oldApiData.timestamp,
-    };
+    translatedData = transformLivestreamData([oldApiData]);
   }
 
   try {
     if (isLive === false) {
       return { channelStatus: LiveStatus.NOT_LIVE };
     }
-    return { channelStatus: LiveStatus.LIVE, channelData: transformLivestreamData([translatedData]) };
+    return {
+      channelStatus: LiveStatus.LIVE,
+      channelData: translatedData,
+    };
   } catch {
     return { channelStatus: LiveStatus.UNKNOWN };
   }
@@ -162,14 +183,15 @@ export const killStream = async (channelId: string, channelName: string) => {
   try {
     const streamData = await getStreamData(channelId, channelName);
 
-    fetch(`${LIVESTREAM_KILL}/${channelId}`, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(streamData),
-    }).then((res) => {
-      if (res.status !== 200) throw new Error('Kill stream API failed.');
-    });
+    const encodedChannelName = encodeURIComponent(channelName);
+
+    const apiData = await fetch(
+      `${LIVESTREAM_KILL}channel_claim_id=${channelId}&channel_name=${encodedChannelName}&signature_ts=${streamData.t}&signature=${streamData.s}`
+    );
+
+    const data = (await apiData.json()).data;
+
+    if (!data) throw new Error('Kill stream API failed.');
   } catch (e) {
     throw e;
   }

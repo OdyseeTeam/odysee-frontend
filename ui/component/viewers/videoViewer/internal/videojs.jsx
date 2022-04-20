@@ -214,10 +214,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     html5: {
       hls: {
         overrideNative: !videojs.browser.IS_ANY_SAFARI,
-        allowSeeksWithinUnsafeLiveWindow: true,
         enableLowInitialPlaylist: false,
-        handlePartialData: true,
         fastQualityChange: true,
+        useDtsForTimestampOffset: true,
       },
     },
     liveTracker: {
@@ -232,7 +231,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     // fixes problem of errant CC button showing up on iOS
     // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
     controlBar: {
-      subsCapsButton: false,
       currentTimeDisplay: !isLivestreamClaim,
       timeDivider: !isLivestreamClaim,
       durationDisplay: !isLivestreamClaim,
