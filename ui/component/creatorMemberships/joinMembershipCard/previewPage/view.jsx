@@ -4,6 +4,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import classnames from 'classnames';
+import { getChannelFromClaim } from 'util/claim';
 
 const perkDescriptions = [
   {
@@ -60,6 +61,8 @@ type Props = {
   creatorHasMemberships: boolean,
   doTipAccountCheckForUri: (uri: string) => void,
   doGetCustomerStatus: () => void,
+  myChannelClaimIds: ?Array<string>,
+  claim: StreamClaim,
 };
 
 export default function PreviewPage(props: Props) {
@@ -74,7 +77,15 @@ export default function PreviewPage(props: Props) {
     creatorHasMemberships,
     doTipAccountCheckForUri,
     doGetCustomerStatus,
+    myChannelClaimIds,
+    claim,
   } = props;
+
+  const contentChannelClaim = getChannelFromClaim(claim);
+  const channelClaimId = contentChannelClaim.claim_id;
+  const checkingOneJoinCard = myChannelClaimIds.includes(channelClaimId);
+
+  console.log('checkingOneJoinCard', checkingOneJoinCard);
 
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
