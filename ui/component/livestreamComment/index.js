@@ -5,6 +5,7 @@ import {
   selectMyClaimIdsRaw,
   selectClaimsByUri,
   selectOdyseeMembershipForChannelId,
+  selectMembershipForChannelId,
 } from 'redux/selectors/claims';
 
 import LivestreamComment from './view';
@@ -19,6 +20,7 @@ const select = (state, props) => {
     myChannelIds: selectMyClaimIdsRaw(state),
     claimsByUri: selectClaimsByUri(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
+    membership: channelId && selectMembershipForChannelId(state, channelId),
   };
 };
 

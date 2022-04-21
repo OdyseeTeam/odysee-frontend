@@ -2,6 +2,7 @@
 import 'scss/component/_livestream-comment.scss';
 
 import { getStickerUrl } from 'util/comments';
+import { getChannelFromClaim } from 'util/claim';
 import { Menu, MenuButton } from '@reach/menu-button';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
@@ -17,7 +18,7 @@ import Icon from 'component/common/icon';
 import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
-import PremiumBadge from 'component/common/premium-badge';
+import PremiumBadge from 'component/memberships/premiumBadge';
 
 type Props = {
   comment: Comment,
@@ -32,6 +33,7 @@ type Props = {
   handleDismissPin?: () => void,
   restoreScrollPos?: () => void,
   claimsByUri: { [string]: any },
+  membership: any,
 };
 
 export default function LivestreamComment(props: Props) {
@@ -46,6 +48,7 @@ export default function LivestreamComment(props: Props) {
     handleDismissPin,
     restoreScrollPos,
     odyseeMembership,
+    membership,
   } = props;
 
   const {
@@ -69,6 +72,8 @@ export default function LivestreamComment(props: Props) {
   const isSticker = Boolean(stickerUrlFromMessage);
   const timePosted = timestamp * 1000;
   const commentIsMine = comment.channel_id && isMyComment(comment.channel_id);
+  const contentChannelClaim = getChannelFromClaim(claim);
+  const channelUri = contentChannelClaim && contentChannelClaim.canonical_url;
 
   // todo: implement comment_list --mine in SDK so redux can grab with selectCommentIsMine
   function isMyComment(channelId: string) {
@@ -121,6 +126,7 @@ export default function LivestreamComment(props: Props) {
           {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
           {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
           <PremiumBadge membership={odyseeMembership} linkPage />
+          <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
 
           {/* Use key to force timestamp update */}
           <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />

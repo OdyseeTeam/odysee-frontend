@@ -19,6 +19,7 @@ import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import useCheckCreatorMemberships from 'effects/use-check-creator-memberships';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -52,7 +53,9 @@ type Props = {
   doSuperChatList: (uri: string) => void,
   claimsByUri: { [string]: any },
   doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
+  doFetchChannelMembershipsByIds: (channelId: string, claimIdCsv: string) => void,
   setLayountRendered: (boolean) => void,
+  channelId: string,
 };
 
 export default function LivestreamChatLayout(props: Props) {
@@ -75,6 +78,8 @@ export default function LivestreamChatLayout(props: Props) {
     doFetchOdyseeMembershipsById,
     claimsByUri,
     setLayountRendered,
+    doFetchChannelMembershipsByIds,
+    channelId,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -117,6 +122,16 @@ export default function LivestreamChatLayout(props: Props) {
     doFetchOdyseeMembershipsById,
     [commentsByChronologicalOrder],
     true
+  );
+
+  useCheckCreatorMemberships(
+    shouldFetchUserMemberships,
+    commenterClaimIds,
+    claimsByUri,
+    doFetchChannelMembershipsByIds,
+    [commentsByChronologicalOrder],
+    true,
+    channelId
   );
 
   const commentsToDisplay =

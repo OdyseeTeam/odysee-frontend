@@ -9,8 +9,9 @@ import {
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
 import { selectThemePath } from 'redux/selectors/settings';
-import { doFetchOdyseeMembershipsById } from 'redux/actions/memberships';
+import { doFetchOdyseeMembershipsById, doFetchChannelMembershipsByIds } from 'redux/actions/memberships';
 import LivestreamChatLayout from './view';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -23,6 +24,7 @@ const select = (state, props) => {
     superChats: selectSuperChatsForUri(state, uri),
     theme: selectThemePath(state),
     claimsByUri: selectClaimsByUri(state),
+    channelId: getChannelIdFromClaim(claim),
   };
 };
 
@@ -31,6 +33,7 @@ const perform = {
   doSuperChatList,
   doResolveUris,
   doFetchOdyseeMembershipsById,
+  doFetchChannelMembershipsByIds,
 };
 
 export default connect(select, perform)(LivestreamChatLayout);
