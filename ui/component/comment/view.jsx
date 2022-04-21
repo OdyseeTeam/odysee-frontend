@@ -100,9 +100,6 @@ function CommentView(props: Props) {
     membership,
   } = props;
 
-  console.log('membership');
-  console.log(membership);
-
   const {
     channel_url: authorUri,
     channel_name: author,
@@ -151,6 +148,7 @@ function CommentView(props: Props) {
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
+  const channelUri = contentChannelClaim && contentChannelClaim.canonical_url;
 
   let channelOwnerOfContent;
   try {
@@ -295,7 +293,7 @@ function CommentView(props: Props) {
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
               <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
-              <PremiumBadge membership={membership} uri={uri} linkPage />
+              <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
