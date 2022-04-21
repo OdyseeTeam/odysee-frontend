@@ -79,14 +79,13 @@ export function doFetchOdyseeMembershipsById(claimIdCsv: any) {
     dispatch({ type: ACTIONS.ADD_CLAIMIDS_ODYSEE_MEMBERSHIP_DATA, data: { response: updatedResponse } });
   };
 }
-export function doFetchChannelMembershipsByIds(channelId: string, claimIds: Array<string>) {
-  return async (dispatch: Dispatch) => {
-    // create csv string for backend
-    const commaSeparatedStringOfIds = claimIds.join(',');
 
+export function doFetchChannelMembershipsByIds(channelId: string, claimIdCsv: string) {
+  return async (dispatch: Dispatch) => {
+    // hit backend with csv
     const response = await Lbryio.call('membership', 'check', {
       channel_id: channelId,
-      claim_ids: commaSeparatedStringOfIds,
+      claim_ids: claimIdCsv,
       environment: stripeEnvironment,
     });
 
@@ -102,11 +101,13 @@ export function doFetchChannelMembershipsByIds(channelId: string, claimIds: Arra
         for (const membership of response[user]) {
           if (membership.channel_name) {
             updatedResponse[user] = membership.name;
+            window.checkedCreatorMemberships[channelId][user] = membership.name;
           }
         }
       } else {
         // note the user has been fetched but is null
         updatedResponse[user] = null;
+        window.checkedCreatorMemberships[channelId][user] = null;
       }
     }
 

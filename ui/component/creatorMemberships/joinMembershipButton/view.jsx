@@ -46,6 +46,7 @@ export default function ShareButton(props: Props) {
     return null;
   }
 
+  // build link to membership tab of user's channel
   let memberPageUrl;
   if (userIsActiveMember) {
     const channelPath = formatLbryUrlForWeb(uri);
@@ -55,6 +56,7 @@ export default function ShareButton(props: Props) {
     memberPageUrl = `/${channelPath}?${urlParams}`;
   }
 
+  // link to membership tab of channel
   if (userIsActiveMember) {
     return (
       <Button
@@ -67,6 +69,7 @@ export default function ShareButton(props: Props) {
     );
   }
 
+  // open join membership modal
   return (
     <Button
       button="alt"

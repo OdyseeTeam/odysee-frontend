@@ -30,7 +30,7 @@ import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
-import PremiumBadge from 'component/common/premium-badge';
+import PremiumBadge from 'component/memberships/premiumBadge';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
 
@@ -99,6 +99,9 @@ function CommentView(props: Props) {
     selectOdyseeMembershipForUri,
     membership,
   } = props;
+
+  console.log('membership');
+  console.log(membership);
 
   const {
     channel_url: authorUri,
@@ -292,7 +295,7 @@ function CommentView(props: Props) {
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
               <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
-              <PremiumBadge membership={membership} />
+              <PremiumBadge membership={membership} uri={uri} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}

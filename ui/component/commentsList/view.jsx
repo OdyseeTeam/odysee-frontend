@@ -16,6 +16,7 @@ import React, { useEffect } from 'react';
 import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import useCheckCreatorMemberships from 'effects/use-check-creator-memberships';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
 
@@ -126,6 +127,16 @@ export default function CommentList(props: Props) {
     true
   );
 
+  useCheckCreatorMemberships(
+    shouldFetchUserMemberships,
+    commenterClaimIds,
+    claimsByUri,
+    doFetchChannelMembershipsByIds,
+    [topLevelComments],
+    true,
+    channelId
+  );
+
   const handleReset = React.useCallback(() => {
     if (claimId) resetComments(claimId);
     setPage(1);
@@ -149,13 +160,6 @@ export default function CommentList(props: Props) {
   useEffect(() => {
     return () => handleReset();
   }, [handleReset]);
-
-  // Reset comments only on claim switch
-  useEffect(() => {
-    if (channelId && commenterClaimIds && !didFetchById) {
-      doFetchChannelMembershipsByIds(channelId, commenterClaimIds);
-    }
-  }, [channelId, commenterClaimIds, didFetchById, doFetchChannelMembershipsByIds]);
 
   // Fetch top-level comments
   useEffect(() => {

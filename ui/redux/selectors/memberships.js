@@ -49,7 +49,7 @@ export const selectActiveMembershipForChannelUri = createCachedSelector(
 
     // $FlowFixMe
     const activeMembershipForChannel = activeMemberships?.find(
-      (membership) => membership.Membership.channel_name === `@${channelName || ''}`
+      (membership) => membership.MembershipDetails.channel_name === `@${channelName || ''}`
     );
 
     return activeMembershipForChannel || null;

@@ -833,7 +833,7 @@ export const selectOdyseeMembershipForUri = (state: State, uri: string) => {
 };
 
 /**
- * Given a uri of a channel, check if there an Odysee membership value
+ * Given a channel id of a user, check if there is an Odysee membership value
  * @param state
  * @param channelId
  * @returns {*}
@@ -846,6 +846,12 @@ export const selectOdyseeMembershipForChannelId = (state: State, channelId: stri
   return matchingMembershipOfUser;
 };
 
+/**
+ * Given a channel id of a user, check if there an Odysee membership value
+ * @param state
+ * @param channelId
+ * @returns {*}
+ */
 export const selectMembershipForChannelId = function (state: State, channelId: string) {
   // looks for the uploader id
   const matchingMembershipOfUser =

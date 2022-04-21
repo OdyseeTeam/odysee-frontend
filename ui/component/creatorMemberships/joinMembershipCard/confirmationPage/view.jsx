@@ -49,10 +49,10 @@ export default function ConfirmationPage(props: Props) {
 
   function handleJoinMembership() {
     const testChannelParams = {
-      membership_id: 7,
+      membership_id: 7, // TODO: this is hardcoded for now
       channel_id: activeChannelClaim.claim_id,
       channel_name: activeChannelClaim.name,
-      price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj',
+      price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj', // TODO: this is hardcoded for now
     };
 
     doMembershipBuy(testChannelParams, closeModal);
