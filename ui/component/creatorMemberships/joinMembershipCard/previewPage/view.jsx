@@ -81,11 +81,10 @@ export default function PreviewPage(props: Props) {
     claim,
   } = props;
 
+  // check if a user is looking at their own memberships
   const contentChannelClaim = getChannelFromClaim(claim);
   const channelClaimId = contentChannelClaim.claim_id;
-  const checkingOneJoinCard = myChannelClaimIds.includes(channelClaimId);
-
-  console.log('checkingOneJoinCard', checkingOneJoinCard);
+  const checkingOwnMembershipCard = myChannelClaimIds.includes(channelClaimId);
 
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
@@ -160,17 +159,20 @@ export default function PreviewPage(props: Props) {
             navigate="$/memberships"
           />
         ) : (
-          <Button
-            className="membership-join-purchase__button"
-            icon={ICONS.UPGRADE}
-            button="primary"
-            type="submit"
-            disabled={shouldDisablePurchase}
-            label={__('Signup for $%membership_price% a month', {
-              membership_price: selectedTier.monthlyContributionInUSD,
-            })}
-            onClick={handleConfirm}
-          />
+          <>
+            <Button
+              className="membership-join-purchase__button"
+              icon={ICONS.UPGRADE}
+              button="primary"
+              type="submit"
+              disabled={shouldDisablePurchase || checkingOwnMembershipCard}
+              label={__('Signup for $%membership_price% a month', {
+                membership_price: selectedTier.monthlyContributionInUSD,
+              })}
+              onClick={handleConfirm}
+            />
+            {checkingOwnMembershipCard && (<h1 style={{ marginTop: '10px' }}>You're not able to signup for your own memberships</h1>)}
+          </>
         )}
       </div>
     </>

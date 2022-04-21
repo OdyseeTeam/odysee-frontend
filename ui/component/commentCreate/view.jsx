@@ -115,7 +115,19 @@ export function CommentCreate(props: Props) {
     doOpenModal,
     preferredCurrency,
     doTipAccountCheckForUri,
+    activeChannelMembershipName,
   } = props;
+
+  // TODO: had to include
+  const isAChannelMember = Boolean(activeChannelMembershipName);
+
+  const canCommentInMemberOnly = claimIsMine || isAChannelMember;
+
+  const isAMemberOnlyChat = true;
+  const shouldDisableChat = !canCommentInMemberOnly && isAMemberOnlyChat;
+  const enabledChatMessage = 'Say something about this..';
+  const disabledChatMessage = 'Sorry, the creator has made this chat members only';
+  const chatMessageToUse = shouldDisableChat ? disabledChatMessage : enabledChatMessage;
 
   const isMobile = useIsMobile();
 
@@ -499,8 +511,8 @@ export function CommentCreate(props: Props) {
         <FormField
           type="textarea"
           name="comment__signup-prompt"
-          placeholder={__('Say something about this...')}
-          disabled={isMobile}
+          placeholder={__(chatMessageToUse)}
+          disabled={isMobile || shouldDisableChat}
         />
 
         {!isMobile && (
@@ -571,7 +583,7 @@ export function CommentCreate(props: Props) {
             autoFocus={isReply}
             charCount={charCount}
             className={isReply ? 'create__reply' : 'create__comment'}
-            disabled={isFetchingChannels || disableInput}
+            disabled={isFetchingChannels || disableInput || shouldDisableChat}
             isLivestream={isLivestream}
             label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
             noticeLabel={
@@ -591,7 +603,7 @@ export function CommentCreate(props: Props) {
             setShowSelectors={setShowSelectors}
             showSelectors={showSelectors}
             tipModalOpen={tipModalOpen}
-            placeholder={__('Say something about this...')}
+            placeholder={__(chatMessageToUse)}
             quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
             quickActionLabel={
               !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))

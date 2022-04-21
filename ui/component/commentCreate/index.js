@@ -19,6 +19,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectChannelCanReceiveFiatTipsByUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import * as SETTINGS from 'constants/settings';
+import { selectActiveMembershipNameForChannelUri } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -48,6 +49,7 @@ const select = (state, props) => {
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
     canReceiveFiatTips: selectChannelCanReceiveFiatTipsByUri(state, uri),
+    activeChannelMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
   };
 };
 
