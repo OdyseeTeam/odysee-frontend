@@ -129,7 +129,7 @@ export default function MembershipChannelTab(props: Props) {
                 {__('Your %active_or_cancelled% membership will %renew_or_end% on %renewal_date%', {
                   renewal_date: formattedEndOfMembershipDate,
                   renew_or_end: membershipisActive ? 'renew' : 'end',
-                  active_or_cancelled: membershipisActive ? 'active' : 'cancelled',
+                  active_or_cancelled: membershipisActive ? '' : 'cancelled',
                 })}
               </h1>
 

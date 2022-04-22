@@ -22,6 +22,7 @@ type Props = {
   plan: string,
   doMembershipBuy: (any: any) => void,
   endOfMembershipDate: string,
+  // doToast:
 };
 
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
@@ -29,9 +30,17 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     closeModal,
     endOfMembershipDate,
     membershipId,
+    doToast,
+    doMembershipMine,
   } = props;
 
+  const [waitingForBackend, setWaitingForBackend] = React.useState();
+  const [statusText, setStatusText] = React.useState();
+
   async function cancelMembership() {
+    setWaitingForBackend(true);
+    setStatusText(__('Cancelling your membership...'));
+
     // show the memberships the user is subscribed to
     await Lbryio.call(
       'membership',
@@ -42,6 +51,16 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       },
       'post'
     );
+
+    setStatusText(__('Membership successfully cancelled'));
+
+    doMembershipMine();
+    setTimeout(function(){
+      closeModal();
+
+      doToast({ message: __('Your membership was cancelled and will no longer be renewed') });
+    }, 700);
+
   }
 
   const cancellationString = 'Are you sure you want to cancel your membership? ' +
@@ -55,16 +74,20 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         subtitle={cancellationString}
         actions={
           <div className="section__actions">
-            <>
-              <Button
-                className="stripe__confirm-remove-card"
-                button="primary"
-                icon={ICONS.DELETE}
-                label={__('Cancel Membership')}
-                onClick={cancelMembership}
-              />
-              <Button button="link" label={__('Cancel')} onClick={closeModal} />
-            </>
+            {!waitingForBackend ? (
+              <>
+                <Button
+                  className="stripe__confirm-remove-card"
+                  button="primary"
+                  icon={ICONS.DELETE}
+                  label={__('Cancel Membership')}
+                  onClick={cancelMembership}
+                />
+                <Button button="link" label={__('Cancel')} onClick={closeModal} />
+              </>
+            ) : (
+              <h1 style={{ fontSize: '18px' }}>{statusText}</h1>
+            )}
           </div>
         }
       />
