@@ -56,6 +56,25 @@ export const selectActiveMembershipForChannelUri = createCachedSelector(
   }
 )((state, uri) => `${String(uri)}`);
 
+export const selectUserPurchasedMembershipForChannelUri = createCachedSelector(
+  (state, uri) => uri,
+  selectMembershipMineData,
+  (uri, membershipMine) => {
+      const { channelName } = parseURI(uri);
+
+      const purchasedMemberships = membershipMine?.purchasedMemberships;
+
+      if (purchasedMemberships === undefined) return undefined;
+
+      // $FlowFixMe
+      const purchasedMembershipForChannel = purchasedMemberships?.find(
+        (membership) => membership.MembershipDetails.channel_name === `@${channelName || ''}`
+      );
+
+      return purchasedMembershipForChannel || null;
+  }
+)((state, uri) => `${String(uri)}`);
+
 export const selectActiveMembershipNameForChannelUri = createSelector(
   selectActiveMembershipForChannelUri,
   (membership) => membership?.MembershipDetails?.name

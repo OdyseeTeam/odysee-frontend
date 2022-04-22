@@ -83,8 +83,8 @@ export default function PreviewPage(props: Props) {
 
   // check if a user is looking at their own memberships
   const contentChannelClaim = getChannelFromClaim(claim);
-  const channelClaimId = contentChannelClaim.claim_id;
-  const checkingOwnMembershipCard = myChannelClaimIds.includes(channelClaimId);
+  const channelClaimId = contentChannelClaim && contentChannelClaim.claim_id;
+  const checkingOwnMembershipCard = myChannelClaimIds && myChannelClaimIds.includes(channelClaimId);
 
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;

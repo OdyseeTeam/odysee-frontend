@@ -5,7 +5,7 @@ import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
 import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard';
-import { formatDateToMonthAndDay, getTimeAgoStr } from 'util/time';
+import { formatDateToMonthAndDay } from 'util/time';
 import moment from 'moment';
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -44,6 +44,7 @@ type Props = {
   doMembershipMine: () => void,
   doMembershipDeleteData: () => void,
   openModal: (id: string, {}) => void,
+  purchasedChannelMembership: any,
 };
 
 export default function MembershipChannelTab(props: Props) {
@@ -58,6 +59,7 @@ export default function MembershipChannelTab(props: Props) {
     doMembershipMine,
     doMembershipDeleteData,
     openModal,
+    purchasedChannelMembership,
   } = props;
 
   React.useEffect(() => {
@@ -66,116 +68,128 @@ export default function MembershipChannelTab(props: Props) {
     }
   }, [doMembershipMine, myActiveMemberships]);
 
-  if (!activeChannelMembership) {
+  if (!purchasedChannelMembership) {
     return <JoinMembershipCard uri={uri} isChannelTab />;
   }
 
-  const { Membership, MembershipDetails, Subscription } = activeChannelMembership;
+  const { Membership, MembershipDetails, Subscription } = purchasedChannelMembership;
   const { channel_name: channelName } = Membership;
 
   const startDate = Subscription.current_period_start * 1000;
   const endDate = Subscription.current_period_end * 1000;
   const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
   const timeAgo = amountOfMonths === 1 ? '1 month' : amountOfMonths + ' months';
+  const formattedEndOfMembershipDate = formatDateToMonthAndDay(Subscription.current_period_end * 1000);
+
+  const membershipisActive = Membership.auto_renew;
 
   return (
-    <Card
-      title={__('Your %channel_name% membership', { channel_name: channelName })}
-      className="membership membership-tab"
-      subtitle={
-        <>
-          <h1 className="join-membership-support-time__header">
-            {__('You have been supporting %channel_name% for %membership_duration%', {
-              channel_name: channelName,
-              membership_duration: timeAgo,
-            })}
-          </h1>
-          <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
-        </>
-      }
-      body={
-        <>
-          <div className="membership__body">
-            <h1 className="membership__plan-header">{MembershipDetails.name}</h1>
-
-            <h1 className="membership__plan-description">{MembershipDetails.description}</h1>
-
-            <div className="membership__plan-perks">
-              <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
-              {testMembership.perks.map((
-                tierPerk,
-                i // TODO: need this to come from API
-              ) => (
-                <p key={tierPerk}>
-                  {perkDescriptions.map(
-                    (globalPerk, i) =>
-                      tierPerk === globalPerk.perkName && (
-                        <ul>
-                          <li className="membership__perk-item">{globalPerk.perkDescription}</li>
-                        </ul>
-                      )
-                  )}
-                </p>
-              ))}
-            </div>
-
-            <h1 className="join-membership-tab-renewal-date__header">
-              {__('Your membership will renew on %renewal_date%', {
-                renewal_date: formatDateToMonthAndDay(Subscription.current_period_end * 1000),
+    <>
+      <Card
+        title={__('Your %channel_name% membership', { channel_name: channelName })}
+        className="membership membership-tab"
+        subtitle={
+          <>
+            <h1 className="join-membership-support-time__header">
+              {__('You have been supporting %channel_name% for %membership_duration%', {
+                channel_name: channelName,
+                membership_duration: timeAgo,
               })}
             </h1>
+            <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
+          </>
+        }
+        body={
+          <>
+            <div className="membership__body">
+              <h1 className="membership__plan-header">{MembershipDetails.name}</h1>
 
-            <div className="section__actions--centered">
-              <Button
-                className="join-membership-modal-purchase__button"
-                icon={ICONS.FINANCE}
-                button="secondary"
-                type="submit"
-                disabled={false}
-                label={`View Membership History`}
-                navigate={`/${channelId}/membership_history`}
-              />
+              <h1 className="membership__plan-description">{MembershipDetails.description}</h1>
 
-              <Button
-                className="join-membership-modal-purchase__button"
-                style={{ 'margin-left': '1rem' }}
-                icon={ICONS.DELETE}
-                button="secondary"
-                type="submit"
-                disabled={false}
-                label={`Cancel Membership`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {});
-                }}
-              />
+              <div className="membership__plan-perks">
+                <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
+                {testMembership.perks.map((
+                  tierPerk,
+                  i // TODO: need this to come from API
+                ) => (
+                  <p key={tierPerk}>
+                    {perkDescriptions.map(
+                      (globalPerk, i) =>
+                        tierPerk === globalPerk.perkName && (
+                          <ul>
+                            <li className="membership__perk-item">{globalPerk.perkDescription}</li>
+                          </ul>
+                        )
+                    )}
+                  </p>
+                ))}
+              </div>
+
+              <h1 className="join-membership-tab-renewal-date__header">
+                {__('Your %active_or_cancelled% membership will %renew_or_end% on %renewal_date%', {
+                  renewal_date: formattedEndOfMembershipDate,
+                  renew_or_end: membershipisActive ? 'renew' : 'end',
+                  active_or_cancelled: membershipisActive ? 'active' : 'cancelled',
+                })}
+              </h1>
+
+              <h1>{}</h1>
+
+              <div className="section__actions--centered">
+                <Button
+                  className="join-membership-modal-purchase__button"
+                  icon={ICONS.FINANCE}
+                  button="secondary"
+                  type="submit"
+                  disabled={false}
+                  label={`View Membership History`}
+                  navigate={`/${channelId}/membership_history`}
+                />
+
+                {membershipisActive && <Button
+                  className="join-membership-modal-purchase__button"
+                  style={{ 'margin-left': '1rem' }}
+                  icon={ICONS.DELETE}
+                  button="secondary"
+                  type="submit"
+                  disabled={false}
+                  label={`Cancel Membership`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {
+                      endOfMembershipDate: formattedEndOfMembershipDate,
+                      membershipId: Membership.membership_id,
+                    });
+                  }}
+                />}
+              </div>
+
+              {/** clear membership data (only available on dev) **/}
+              {isDev && (
+                <section
+                  style={{
+                    display: 'flex',
+                    'flex-direction': 'column',
+                    'align-items': 'center',
+                  }}
+                >
+                  <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
+                  <div>
+                    <Button
+                      button="primary"
+                      label="Clear Membership Data"
+                      icon={ICONS.SETTINGS}
+                      className="membership_button"
+                      onClick={doMembershipDeleteData}
+                    />
+                  </div>
+                </section>
+              )}
             </div>
-
-            {/** clear membership data (only available on dev) **/}
-            {isDev && (
-              <section
-                style={{
-                  display: 'flex',
-                  'flex-direction': 'column',
-                  'align-items': 'center',
-                }}
-              >
-                <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
-                <div>
-                  <Button
-                    button="primary"
-                    label="Clear Membership Data"
-                    icon={ICONS.SETTINGS}
-                    className="membership_button"
-                    onClick={doMembershipDeleteData}
-                  />
-                </div>
-              </section>
-            )}
-          </div>
-        </>
-      }
-    />
+          </>
+        }
+      />
+    </>
   );
 }

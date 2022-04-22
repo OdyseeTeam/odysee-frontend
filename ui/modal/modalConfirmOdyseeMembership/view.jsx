@@ -22,8 +22,10 @@ type Props = {
   plan: string,
   doMembershipBuy: (any: any) => void,
   doFetchOdyseeMembershipsById: (string) => void,
+  doToast: ({ message: string }) => void,
 };
 
+// TODO: should be renamed ConfirmOrCancelOdyseePremiumModal
 export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   const {
     closeModal,
@@ -37,6 +39,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     plan,
     doMembershipBuy,
     doFetchOdyseeMembershipsById,
+    doToast,
   } = props;
 
   const [waitingForBackend, setWaitingForBackend] = React.useState();
@@ -61,7 +64,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       setStatusText(__('Membership successfully canceled'));
 
-      // TODO: add a toast here saying it was canceled
+      // TODO: this copy isn't great
+      doToast({ message: __('Your membership was cancelled and will no longer be renewed.') });
+
       // populate the new data and update frontend
       doMembershipMine(membershipId, function() {
         closeModal();
