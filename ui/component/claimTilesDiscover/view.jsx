@@ -111,12 +111,6 @@ function ClaimTilesDiscover(props: Props) {
     injectPinUrls(uris, pins, resolvedPinUris);
   }
 
-  if (uris.length > 0 && uris.length < pageSize && shouldPerformSearch) {
-    // prefixUri and pinUrls might already be present while waiting for the
-    // remaining claim_search results. Fill the space to prevent layout shifts.
-    uris.push(...Array(pageSize - uris.length).fill(''));
-  }
-
   // Show previous results while we fetch to avoid blinkies and poor CLS.
   const finalUris = isUnfetchedClaimSearch && prevUris.current ? prevUris.current : uris;
   prevUris.current = finalUris;
