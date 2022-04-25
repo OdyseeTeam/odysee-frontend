@@ -7,6 +7,7 @@ import { INVALID_NAME_ERROR } from 'constants/claim';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import analytics from 'analytics';
+import * as ICONS from 'constants/icons';
 
 export const DEFAULT_BID_FOR_FIRST_CHANNEL = 0.01;
 
@@ -53,6 +54,22 @@ function UserFirstChannel(props: Props) {
 
   return (
     <div className="main__channel-creation">
+      <div className="help--card-actions notificationsBlocked">
+        <I18nMessage
+          tokens={{
+            sync_channel: (
+              <Button
+                icons={ICONS.ALERT}
+                button="link"
+                label={__('Sync it and skip this step')}
+                onClick={() => doToggleInterestedInYoutubeSync()}
+              />
+            ),
+          }}
+        >
+          Have a YouTube channel? %sync_channel%.
+        </I18nMessage>
+      </div>
       <Card
         title={__('Create a Channel')}
         subtitle={
@@ -92,21 +109,6 @@ function UserFirstChannel(props: Props) {
                 disabled={nameError || !channel || creatingChannel || claimingReward}
                 label={creatingChannel || claimingReward ? __('Creating') : __('Create')}
               />
-            </div>
-            <div className="help--card-actions">
-              <I18nMessage
-                tokens={{
-                  sync_channel: (
-                    <Button
-                      button="link"
-                      label={__('Sync it and skip this step')}
-                      onClick={() => doToggleInterestedInYoutubeSync()}
-                    />
-                  ),
-                }}
-              >
-                Have a YouTube channel? %sync_channel%.
-              </I18nMessage>
             </div>
           </Form>
         }
