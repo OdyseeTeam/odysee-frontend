@@ -269,13 +269,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Initialize mobile UI.
       player.mobileUi();
 
-      if (!embedded) {
-        window.player.bigPlayButton && window.player.bigPlayButton.hide();
-      } else {
-        const bigPlayButton = document.querySelector('.vjs-big-play-button');
-        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
-      }
-
       // Add quality selector to player
       if (showQualitySelector) {
         player.hlsQualitySelector({
@@ -299,10 +292,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
-        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
-      } else {
-        // $FlowFixMe
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
 
       // I think this is a callback function

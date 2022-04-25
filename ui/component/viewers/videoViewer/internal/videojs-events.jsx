@@ -157,9 +157,6 @@ const VideoJsEvents = ({
   function onInitialPlay() {
     const player = playerRef.current;
 
-    const bigPlayButton = document.querySelector('.vjs-big-play-button');
-    if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none');
-
     if (player && (player.muted() || player.volume() === 0)) {
       // The css starts as "hidden". We make it visible here without
       // re-rendering the whole thing.
@@ -282,7 +279,6 @@ const VideoJsEvents = ({
 
   function initializeEvents() {
     const player = playerRef.current;
-    // Add various event listeners to player
     player.one('play', onInitialPlay);
     player.on('play', resolveCtrlText);
     player.on('pause', resolveCtrlText);
@@ -300,10 +296,6 @@ const VideoJsEvents = ({
         const vjsControlBar = document.querySelector('.vjs-control-bar');
         if (vjsControlBar) vjsControlBar.style.removeProperty('opacity');
       }, 1000 * 3); // wait 3 seconds to hit control bar
-    });
-    player.on('playing', function () {
-      // $FlowFixMe
-      document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
     });
     // player.on('ended', onEnded);
 

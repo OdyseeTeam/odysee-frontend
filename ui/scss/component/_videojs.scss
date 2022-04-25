@@ -250,11 +250,6 @@ $control-bar-icon-size: 0.8rem;
   }
 }
 
-// TODO: make sure there's no bad side effects of this
-button.vjs-big-play-button {
-  display: none !important;
-}
-
 .vjs-big-play-centered {
   .vjs-big-play-button {
     left: calc(50% - 2.5rem) !important;
