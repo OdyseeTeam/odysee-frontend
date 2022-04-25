@@ -44,7 +44,8 @@ type Props = {
   showHiddenByUser?: boolean,
   showNoSourceClaims?: boolean,
   tileLayout: boolean,
-  ignoreSearchInLanguage?: boolean,
+  searchLanguages?: Array<string>,
+  ignoreSearchInLanguage?: boolean, // Negate the redux setting where it doesn't make sense.
 
   orderBy?: Array<string>, // Trending, New, Top
   defaultOrderBy?: string,
@@ -70,13 +71,14 @@ type Props = {
   limitClaimsPerChannel?: number,
 
   channelIds?: Array<string>,
+  excludedChannelIds?: Array<string>,
   claimIds?: Array<string>,
   subscribedChannels: Array<Subscription>,
 
   header?: Node,
   headerLabel?: string | Node,
   hiddenNsfwMessage?: Node,
-  injectedItem?: { node: Node, index?: number, replace?: boolean },
+  injectedItem?: ListInjectedItem,
   meta?: Node,
   subSection?: Node, // Additional section below [Header|Meta]
   renderProperties?: (Claim) => Node,
@@ -127,6 +129,7 @@ function ClaimListDiscover(props: Props) {
     meta,
     subSection,
     channelIds,
+    excludedChannelIds,
     showNsfw,
     hideReposts,
     fetchViewCount,
@@ -165,6 +168,7 @@ function ClaimListDiscover(props: Props) {
     maxPages,
     forceShowReposts = false,
     languageSetting,
+    searchLanguages,
     searchInLanguage,
     ignoreSearchInLanguage,
     limitClaimsPerChannel,
@@ -212,8 +216,8 @@ function ClaimListDiscover(props: Props) {
   );
 
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
-  const searchInSelectedLangOnly = searchInLanguage && !ignoreSearchInLanguage;
-  const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLangOnly, langParam);
+  const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
+  const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLang, searchLanguages, langParam);
 
   let claimTypeParam = claimType || defaultClaimType || null;
   let streamTypeParam = streamType || defaultStreamType || null;
@@ -257,6 +261,7 @@ function ClaimListDiscover(props: Props) {
   const durationParam = urlParams.get(CS.DURATION_KEY) || null;
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
+  const excludedIdsParam = excludedChannelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
   // const originalPageSize = pageSize || CS.PAGE_SIZE;
   const originalPageSize = 12;
@@ -344,6 +349,10 @@ function ClaimListDiscover(props: Props) {
 
   if (channelIdsParam) {
     options.channel_ids = channelIdsParam;
+  }
+
+  if (excludedIdsParam) {
+    options.not_channel_ids = (options.not_channel_ids || []).concat(excludedIdsParam);
   }
 
   if (tagsParam) {
@@ -694,7 +703,7 @@ function ClaimListDiscover(props: Props) {
             <div className="section__header--actions">
               <div className="section__actions">
                 {headerToUse}
-                {searchInSelectedLangOnly && <LangFilterIndicator />}
+                {searchInSelectedLang && <LangFilterIndicator />}
               </div>
               {meta && <div className="section__actions--no-margin">{meta}</div>}
             </div>
@@ -734,7 +743,7 @@ function ClaimListDiscover(props: Props) {
             <div className="section__header--actions">
               <div className="section__actions">
                 {headerToUse}
-                {searchInSelectedLangOnly && <LangFilterIndicator />}
+                {searchInSelectedLang && <LangFilterIndicator />}
               </div>
               {meta && <div className="section__actions--no-margin">{meta}</div>}
             </div>

@@ -44,12 +44,14 @@ type Props = {
   commentsListTitle: string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   isPlaying?: boolean,
+  claimWasPurchased: boolean,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   clearPosition: (uri: string) => void,
   doClearPlayingUri: () => void,
   doToggleAppDrawer: () => void,
+  doFileGet: (uri: string) => void,
 };
 
 export default function FilePage(props: Props) {
@@ -73,16 +75,18 @@ export default function FilePage(props: Props) {
     audioVideoDuration,
     commentsListTitle,
     settingsByChannelId,
+    claimWasPurchased,
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
     clearPosition,
     doToggleAppDrawer,
+    doFileGet,
   } = props;
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
-
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
   const cost = costInfo ? costInfo.cost : null;
@@ -123,6 +127,7 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
+    if (claimWasPurchased && !hasFileInfo) doFileGet(uri);
 
     return () => doSetPrimaryUri(null);
   }, [
@@ -135,6 +140,8 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
+    doFileGet,
+    claimWasPurchased,
   ]);
 
   function renderFilePageLayout() {
@@ -142,7 +149,7 @@ export default function FilePage(props: Props) {
       return (
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
           {/* playables will be rendered and injected by <FileRenderFloating> */}
-          <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+          <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         </div>
       );
     }
@@ -188,7 +195,7 @@ export default function FilePage(props: Props) {
 
     return (
       <>
-        <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+        <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         <FileRenderInline uri={uri} />
         <FileTitleSection uri={uri} />
       </>
@@ -202,7 +209,7 @@ export default function FilePage(props: Props) {
         <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
           <FileTitleSection uri={uri} isNsfwBlocked />
         </div>
-        {!isMarkdown && !videoTheaterMode && <RightSideContent {...rightSideProps} />}
+        {!isMarkdown && !theaterMode && <RightSideContent {...rightSideProps} />}
       </Page>
     );
   }
@@ -251,13 +258,13 @@ export default function FilePage(props: Props) {
               </React.Suspense>
             </section>
 
-            {!isMarkdown && videoTheaterMode && <RightSideContent {...rightSideProps} />}
+            {!isMarkdown && theaterMode && <RightSideContent {...rightSideProps} />}
           </div>
         )}
       </div>
 
       {!isMarkdown
-        ? !videoTheaterMode && <RightSideContent {...rightSideProps} />
+        ? !theaterMode && <RightSideContent {...rightSideProps} />
         : !contentCommentsDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>

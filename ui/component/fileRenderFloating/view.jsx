@@ -148,6 +148,8 @@ export default function FileRenderFloating(props: Props) {
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
   const isReadyToPlay = isCurrentClaimLive || (isPlayable && streamingUrl);
 
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
+
   // ****************************************************************************
   // FUNCTIONS
   // ****************************************************************************
@@ -245,7 +247,7 @@ export default function FileRenderFloating(props: Props) {
     if (playingPrimaryUri || playingUrl) {
       handleResize();
     }
-  }, [handleResize, playingPrimaryUri, videoTheaterMode, playingUrl]);
+  }, [handleResize, playingPrimaryUri, theaterMode, playingUrl]);
 
   // Listen to main-window resizing and adjust the floating player position accordingly:
   React.useEffect(() => {
@@ -376,7 +378,7 @@ export default function FileRenderFloating(props: Props) {
           [FLOATING_PLAYER_CLASS]: isFloating,
           'content__viewer--inline': !isFloating,
           'content__viewer--secondary': isComment,
-          'content__viewer--theater-mode': videoTheaterMode && mainFilePlaying && !isCurrentClaimLive && !isMobile,
+          'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isCurrentClaimLive && !isMobile,
           'content__viewer--disable-click': wasDragging,
           'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
         })}
@@ -397,7 +399,7 @@ export default function FileRenderFloating(props: Props) {
         {uri && videoAspectRatio && fileViewerRect ? (
           <PlayerGlobalStyles
             videoAspectRatio={videoAspectRatio}
-            videoTheaterMode={videoTheaterMode}
+            theaterMode={theaterMode}
             appDrawerOpen={appDrawerOpen && !isLandscapeRotated && !isTabletLandscape}
             initialPlayerHeight={initialPlayerHeight}
             isFloating={isFloating}
@@ -456,7 +458,7 @@ export default function FileRenderFloating(props: Props) {
 
 type GlobalStylesProps = {
   videoAspectRatio: number,
-  videoTheaterMode: boolean,
+  theaterMode: boolean,
   appDrawerOpen: boolean,
   initialPlayerHeight: ElementRef<any>,
   isFloating: boolean,
@@ -469,7 +471,7 @@ type GlobalStylesProps = {
 const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   const {
     videoAspectRatio,
-    videoTheaterMode,
+    theaterMode,
     appDrawerOpen,
     initialPlayerHeight,
     isFloating,
@@ -490,7 +492,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
 
   // forceDefaults = no styles should be applied to any of these conditions
   // !mainFilePlaying = embeds on markdown (comments or posts)
-  const forceDefaults = !mainFilePlaying || videoTheaterMode || isFloating || isMobile;
+  const forceDefaults = !mainFilePlaying || theaterMode || isFloating || isMobile;
 
   const videoGreaterThanLandscape = heightForViewer > maxLandscapeHeight;
 
@@ -586,15 +588,15 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     background: videoGreaterThanLandscape && mainFilePlaying && !forceDefaults ? 'transparent !important' : undefined,
   };
   const maxHeight = {
-    maxHeight: !videoTheaterMode && !isMobile ? 'var(--desktop-portrait-player-max-height)' : undefined,
+    maxHeight: !theaterMode && !isMobile ? 'var(--desktop-portrait-player-max-height)' : undefined,
   };
 
   return (
     <Global
       styles={{
         [`.${PRIMARY_PLAYER_WRAPPER_CLASS}`]: {
-          height: !videoTheaterMode && mainFilePlaying ? `${heightResult} !important` : undefined,
-          opacity: !videoTheaterMode && mainFilePlaying ? '0 !important' : undefined,
+          height: !theaterMode && mainFilePlaying ? `${heightResult} !important` : undefined,
+          opacity: !theaterMode && mainFilePlaying ? '0 !important' : undefined,
         },
 
         '.file-render--video': {
