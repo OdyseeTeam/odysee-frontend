@@ -124,6 +124,7 @@ function CreateTiersTab(props: Props) {
   function saveMembership(tierIndex) {
     const copyOfMemberships = creatorMemberships;
 
+    // grab the tier name, description, monthly amount and perks
     // $FlowFixMe
     const newTierName = document.querySelectorAll('input[name=tier_name]')[0]?.value;
     const newTierDescription = editTierDescription;
@@ -149,18 +150,27 @@ function CreateTiersTab(props: Props) {
 
     copyOfMemberships[tierIndex] = newObject;
 
+    // TODO: better way than setTimeout
+    setTimeout(function() {
+      document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
+    }, 15);
+
     setCreatorMemberships(copyOfMemberships);
 
     setIsEditing(false);
   }
 
-  function createEditTier(tier, membershipIndex) {
-    const containsPerk = (perk) => {
-      return tier.perks.indexOf(perk) > -1;
-    };
+  const containsPerk = (perk, tier) => {
+    return tier.perks.indexOf(perk, tier) > -1;
+  };
 
+  function createEditTier(tier, membershipIndex) {
+    // TODO: better way than setTimeout
+    setTimeout(function() {
+      document.getElementById('edit-div').scrollIntoView({ behavior: 'smooth' });
+    }, 15);
     return (
-      <div className="edit-div" style={{ marginBottom: '45px' }}>
+      <div id="edit-div" className="edit-div" style={{ marginBottom: '45px' }}>
         <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.displayName} />
         {/* could be cool to have markdown */}
         {/* <FormField */}
@@ -182,7 +192,7 @@ function CreateTiersTab(props: Props) {
           <>
             <FormField
               type="checkbox"
-              defaultChecked={containsPerk(tierPerk.perkName)}
+              defaultChecked={containsPerk(tierPerk.perkName, tier)}
               // disabled={!optimizeAvail}
               // onChange={() => setUserOptimize(!userOptimize)}
               label={tierPerk.perkDescription}
@@ -209,6 +219,7 @@ function CreateTiersTab(props: Props) {
 
   return (
     <div className="create-tiers-div">
+      {/* page header */}
       <div className="memberships-header" style={{ marginBottom: 'var(--spacing-xl)' }}>
         <h1 style={{ fontSize: '24px', marginBottom: 'var(--spacing-s)' }}>Create Your Membership Tiers</h1>
         <h2 style={{ fontSize: '18px' }}>Define the tiers that your viewers can subscribe to</h2>
@@ -217,9 +228,11 @@ function CreateTiersTab(props: Props) {
       {/* list through different tiers */}
       {creatorMemberships.map((membershipTier, membershipIndex) => (
         <>
+          {/* if the membership tier is marked as editing, show the edit functionality */}
           {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
+          {/* display info for the tier */}
           {isEditing !== membershipIndex && (
-            <div style={{ marginBottom: 'var(--spacing-xxl)' }}>
+            <div className="membership-tier__div" style={{ marginBottom: 'var(--spacing-xxl)' }}>
               <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
                 {membershipIndex + 1}) Tier Name: {membershipTier.displayName}
               </div>
@@ -268,6 +281,7 @@ function CreateTiersTab(props: Props) {
         </>
       ))}
 
+      {/* add membership tier button */}
       {creatorMemberships.length < 5 && (
         <>
           <Button
@@ -280,32 +294,31 @@ function CreateTiersTab(props: Props) {
         </>
       )}
 
+      {/* additional options checkboxes */}
       <div className="show-additional-membership-info__div">
         <h2 className="show-additional-membership-info__header">Additional Info</h2>
         <FormField
           type="checkbox"
-          defaultChecked
-          // disabled={!optimizeAvail}
-          // onChange={() => setUserOptimize(!userOptimize)}
+          defaultChecked={false}
           label={'Show the amount of supporters on your Become A Member page'}
           name={'showSupporterAmount'}
         />
         <FormField
           type="checkbox"
           defaultChecked={false}
-          // disabled={!optimizeAvail}
-          // onChange={() => setUserOptimize(!userOptimize)}
           label={'Show the amount you make monthly on your Become A Member page'}
           name={'showMonthlyIncomeAmount'}
         />
-        <Button
-          button="primary"
-          onClick={(e) => openActivateMembershipsModal()}
-          className="activate-memberships-button"
-          label={__('Activate Memberships')}
-          icon={ICONS.ADD}
-        />
       </div>
+
+      {/* activate memberships button */}
+      <Button
+        button="primary"
+        onClick={(e) => openActivateMembershipsModal()}
+        className="activate-memberships-button"
+        label={__('Activate Memberships')}
+        icon={ICONS.ADD}
+      />
     </div>
   );
 }

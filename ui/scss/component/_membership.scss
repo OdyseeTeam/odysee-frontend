@@ -196,6 +196,7 @@
       .confirm__value {
         font-size: unset;
         display: unset;
+        margin-top: 0px;
 
         ul {
           padding: var(--spacing-s);
@@ -392,4 +393,9 @@
   max-width: 641px;
   margin: 0 auto;
   margin-bottom: 18px;
+}
+
+.edit-div, .membership-tier__div {
+  // this accounts for the header when scrolling
+  scroll-margin-top: 83px;
 }

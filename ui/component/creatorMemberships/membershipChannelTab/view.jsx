@@ -83,6 +83,10 @@ export default function MembershipChannelTab(props: Props) {
 
   const membershipisActive = Membership.auto_renew;
 
+  const supportingPeriodString =
+    membershipisActive ? 'You have been supporting %channel_name% for %membership_duration%'
+    : 'You supported %channel_name% for %membership_duration%';
+
   return (
     <>
       <Card
@@ -91,7 +95,7 @@ export default function MembershipChannelTab(props: Props) {
         subtitle={
           <>
             <h1 className="join-membership-support-time__header">
-              {__('You have been supporting %channel_name% for %membership_duration%', {
+              {__(supportingPeriodString, {
                 channel_name: channelName,
                 membership_duration: timeAgo,
               })}
