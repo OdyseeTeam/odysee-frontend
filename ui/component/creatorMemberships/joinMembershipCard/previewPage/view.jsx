@@ -120,7 +120,7 @@ export default function PreviewPage(props: Props) {
 
             <section className="membership__plan-perks">
               <h1 className="membership-join__plan-header">{__('Perks')}</h1>
-              <ul>
+              <ul className="membership-join-perks__list">
                 {selectedTier.perks.map((tierPerk, i) => (
                   <p key={tierPerk}>
                     {perkDescriptions.map(

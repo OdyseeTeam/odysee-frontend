@@ -236,9 +236,9 @@ export default function WalletSendTip(props: Props) {
       case TAB_BOOST:
         return titleText;
       case TAB_FIAT:
-        return __('Send a %amount% tip', { amount: `${fiatSymbolToUse}${displayAmount}` });
+        return __('Send a %amount% Tip', { amount: `${fiatSymbolToUse}${displayAmount}` });
       case TAB_LBC:
-        return __('Send a %amount% tip', { amount: `${displayAmount} LBC` });
+        return __('Send a %amount% Tip', { amount: `${displayAmount} LBC` });
       default:
         return titleText;
     }

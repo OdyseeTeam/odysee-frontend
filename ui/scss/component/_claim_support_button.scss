@@ -10,8 +10,8 @@
 .channel__quick-actions, .media__actions {
   .approved-bank-account__button {
     span, svg {
-      color: #64f064;
-      stroke: #64f064 !important;
+      color: var(--color-support-button);
+      stroke: var(--color-support-button) !important;
     }
   }
 }

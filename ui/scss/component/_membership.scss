@@ -117,6 +117,7 @@
 .membership-join__plan-header {
   margin-top: var(--spacing-m);
   font-size: calc(var(--font-base) + 4px);
+  margin-bottom: 3px;
 }
 
 .membership__plan-perks {
@@ -356,12 +357,6 @@
     font-size: 16px;
   }
 
-  .membership-join-perks__list {
-    text-align: left;
-    max-width: 450px;
-    margin: 0 auto;
-  }
-
   .section__actions {
     display: block;
   }
@@ -379,6 +374,12 @@
   .confirm__section {
     margin-bottom: 7px;
   }
+}
+
+.membership-join-perks__list {
+  text-align: left;
+  max-width: 450px;
+  margin: 0 auto;
 }
 
 .membership-tab {

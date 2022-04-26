@@ -55,12 +55,11 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     setStatusText(__('Membership successfully cancelled'));
 
     doMembershipMine();
-    setTimeout(function(){
+    setTimeout(function() {
       closeModal();
 
       doToast({ message: __('Your membership was cancelled and will no longer be renewed') });
     }, 700);
-
   }
 
   const cancellationString = 'Are you sure you want to cancel your membership? ' +
