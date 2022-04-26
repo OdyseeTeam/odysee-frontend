@@ -54,47 +54,46 @@ function ChannelsFollowingPage(props: Props) {
               limitClaimsPerChannel={2}
             />
           )}
-
-          <ClaimListDiscover
-            hideAdvancedFilter={SIMPLE_SITE}
-            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-            tileLayout={tileLayout}
-            headerLabel={
-              <span>
-                <Icon icon={ICONS.SUBSCRIBE} size={10} />
-                {__('Following')}
-              </span>
-            }
-            defaultOrderBy={CS.ORDER_BY_NEW}
-            channelIds={channelIds}
-            meta={
-              <>
-                <Button
-                  icon={ICONS.SEARCH}
-                  button="secondary"
-                  label={__('Discover Channels')}
-                  navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
-                />
-                <Button
-                  icon={ICONS.SETTINGS}
-                  button="secondary"
-                  label={__('Manage')}
-                  navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
-                />
-              </>
-            }
-            subSection={
-              <LivestreamSection
-                tileLayout={tileLayout}
-                channelIds={channelIds}
-                activeLivestreams={activeLivestreams}
-                doFetchActiveLivestreams={doFetchActiveLivestreams}
-              />
-            }
-            hasSource
-          />
         </>
       )}
+      <ClaimListDiscover
+        hideAdvancedFilter={SIMPLE_SITE}
+        streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+        tileLayout={tileLayout}
+        headerLabel={
+          <span>
+            <Icon icon={ICONS.SUBSCRIBE} size={10} />
+            {__('Following')}
+          </span>
+        }
+        defaultOrderBy={CS.ORDER_BY_NEW}
+        channelIds={channelIds}
+        meta={
+          <>
+            <Button
+              icon={ICONS.SEARCH}
+              button="secondary"
+              label={__('Discover Channels')}
+              navigate={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
+            />
+            <Button
+              icon={ICONS.SETTINGS}
+              button="secondary"
+              label={__('Manage')}
+              navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
+            />
+          </>
+        }
+        subSection={
+          <LivestreamSection
+            tileLayout={tileLayout}
+            channelIds={channelIds}
+            activeLivestreams={activeLivestreams}
+            doFetchActiveLivestreams={doFetchActiveLivestreams}
+          />
+        }
+        hasSource
+      />
     </Page>
   );
 }
