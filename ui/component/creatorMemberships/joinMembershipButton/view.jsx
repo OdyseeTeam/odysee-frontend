@@ -19,7 +19,7 @@ type Props = {
   doMembershipList: ({ channel_name: string, channel_id: string }) => void,
 };
 
-export default function ShareButton(props: Props) {
+export default function JoinMembershipButton(props: Props) {
   const {
     uri,
     isChannelPage,

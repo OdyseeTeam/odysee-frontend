@@ -34,9 +34,13 @@
 }
 
 .cancel-membership-button {
-  display: block;
-  margin-bottom: 18px;
   margin-top: 13px;
+  display: inline;
+  margin-left: 10px;
+}
+
+.edit-membership-button {
+  display: inline;
 }
 
 .explanation-text {
@@ -111,7 +115,6 @@
 }
 
 .membership-join__plan-header {
-  margin-top: var(--spacing-l);
   margin-top: var(--spacing-m);
   font-size: calc(var(--font-base) + 4px);
 }
@@ -262,7 +265,7 @@
 
   .show-additional-membership-info__header {
     font-size: 17px;
-    margin-top: 42px;
+    margin-top: 30px;
   }
 
   .checkbox:nth-of-type(1) {
@@ -273,9 +276,17 @@
     margin-top: 11px;
     margin-bottom: 15px;
   }
+}
 
-  .activate-memberships-button {
+.activate-memberships-button__div {
+  text-align: center;
+
+  .activate-memberships__button {
     margin-top: 23px;
+  }
+
+  .button__label {
+    font-size: 18px;
   }
 }
 
@@ -398,4 +409,21 @@
 .edit-div, .membership-tier__div {
   // this accounts for the header when scrolling
   scroll-margin-top: 83px;
+}
+
+// create tiers tab
+.create-tier__card {
+  background-color: rgba(var(--color-header-background-base), 0.4);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+}
+
+.create-tiers__header {
+  margin-bottom: 22px;
+}
+
+.add-membership__button {
+  margin-top: 13px;
+  font-size: 18px;
 }

@@ -218,9 +218,9 @@ function CreateTiersTab(props: Props) {
   }
 
   return (
-    <div className="create-tiers-div">
+    <div className="create-tiers__div">
       {/* page header */}
-      <div className="memberships-header" style={{ marginBottom: 'var(--spacing-xl)' }}>
+      <div className="create-tiers__header">
         <h1 style={{ fontSize: '24px', marginBottom: 'var(--spacing-s)' }}>Create Your Membership Tiers</h1>
         <h2 style={{ fontSize: '18px' }}>Define the tiers that your viewers can subscribe to</h2>
       </div>
@@ -228,56 +228,58 @@ function CreateTiersTab(props: Props) {
       {/* list through different tiers */}
       {creatorMemberships.map((membershipTier, membershipIndex) => (
         <>
-          {/* if the membership tier is marked as editing, show the edit functionality */}
-          {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
-          {/* display info for the tier */}
-          {isEditing !== membershipIndex && (
-            <div className="membership-tier__div" style={{ marginBottom: 'var(--spacing-xxl)' }}>
-              <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
-                {membershipIndex + 1}) Tier Name: {membershipTier.displayName}
+          <div className="create-tier__card">
+            {/* if the membership tier is marked as editing, show the edit functionality */}
+            {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
+            {/* display info for the tier */}
+            {isEditing !== membershipIndex && (
+              <div className="membership-tier__div">
+                <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
+                  {membershipIndex + 1}) Tier Name: {membershipTier.displayName}
+                </div>
+                <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.description}</h1>
+                <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
+                  Monthly Pledge: ${membershipTier.monthlyContributionInUSD}
+                </h1>
+                {membershipTier.perks.map((tierPerk, i) => (
+                  <>
+                    <p>
+                      {/* list all the perks */}
+                      {perkDescriptions.map((globalPerk, i) => (
+                        <>
+                          {tierPerk === globalPerk.perkName && (
+                            <>
+                              <ul>
+                                <li>{globalPerk.perkDescription}</li>
+                              </ul>
+                            </>
+                          )}
+                        </>
+                      ))}
+                    </p>
+                  </>
+                ))}
+                <div className="buttons-div" style={{ marginTop: '13px' }}>
+                  {/* cancel membership button */}
+                  <Button
+                    button="alt"
+                    onClick={(e) => editMembership(e, membershipIndex, membershipTier.description)}
+                    className="edit-membership-button"
+                    label={__('Edit Tier')}
+                    icon={ICONS.EDIT}
+                  />
+                  {/* cancel membership button */}
+                  <Button
+                    button="alt"
+                    onClick={(e) => deleteMembership(membershipIndex)}
+                    className="cancel-membership-button"
+                    label={__('Delete Tier')}
+                    icon={ICONS.DELETE}
+                  />
+                </div>
               </div>
-              <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.description}</h1>
-              <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                Monthly Pledge: ${membershipTier.monthlyContributionInUSD}
-              </h1>
-              {membershipTier.perks.map((tierPerk, i) => (
-                <>
-                  <p>
-                    {/* list all the perks */}
-                    {perkDescriptions.map((globalPerk, i) => (
-                      <>
-                        {tierPerk === globalPerk.perkName && (
-                          <>
-                            <ul>
-                              <li>{globalPerk.perkDescription}</li>
-                            </ul>
-                          </>
-                        )}
-                      </>
-                    ))}
-                  </p>
-                </>
-              ))}
-              <div className="buttons-div" style={{ marginTop: '13px' }}>
-                {/* cancel membership button */}
-                <Button
-                  button="alt"
-                  onClick={(e) => editMembership(e, membershipIndex, membershipTier.description)}
-                  className="edit-membership-button"
-                  label={__('Edit Tier')}
-                  icon={ICONS.EDIT}
-                />
-                {/* cancel membership button */}
-                <Button
-                  button="alt"
-                  onClick={(e) => deleteMembership(membershipIndex)}
-                  className="cancel-membership-button"
-                  label={__('Delete Tier')}
-                  icon={ICONS.DELETE}
-                />
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </>
       ))}
 
@@ -287,7 +289,7 @@ function CreateTiersTab(props: Props) {
           <Button
             button="primary"
             onClick={(e) => addMembership()}
-            className="add-membership-button"
+            className="add-membership__button"
             label={__('Add Tier')}
             icon={ICONS.ADD}
           />
@@ -312,13 +314,15 @@ function CreateTiersTab(props: Props) {
       </div>
 
       {/* activate memberships button */}
-      <Button
-        button="primary"
-        onClick={(e) => openActivateMembershipsModal()}
-        className="activate-memberships-button"
-        label={__('Activate Memberships')}
-        icon={ICONS.ADD}
-      />
+      <div className="activate-memberships-button__div">
+        <Button
+          button="primary"
+          onClick={(e) => openActivateMembershipsModal()}
+          className="activate-memberships__button"
+          label={__('Activate Memberships')}
+          icon={ICONS.ADD}
+        />
+      </div>
     </div>
   );
 }
