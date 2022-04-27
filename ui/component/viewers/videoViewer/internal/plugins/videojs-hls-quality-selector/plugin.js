@@ -108,20 +108,15 @@ class HlsQualitySelectorPlugin {
       this.config.placementIndex || placementIndex
     );
 
-    console.log('ololo: ', this.config.displayCurrentQuality);
     concreteButtonInstance.addClass('vjs-quality-selector');
     if (!this.config.displayCurrentQuality) {
-      console.log('A');
       const icon = ` ${this.config.vjsIconClass || 'vjs-icon-hd'}`;
 
       concreteButtonInstance.menuButton_.$('.vjs-icon-placeholder').className += icon;
     } else {
-      console.log('B');
       this.setButtonInnerText(QUALITY_OPTIONS.AUTO);
     }
-    console.log('C: ', concreteButtonInstance.el_.className);
     concreteButtonInstance.removeClass('vjs-hidden');
-    console.log('D: ', concreteButtonInstance.el_.className);
   }
 
   resolveOriginalQualityLabel(abbreviatedForm, includeResolution) {

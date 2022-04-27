@@ -15,7 +15,7 @@ import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
 import keyboardShorcuts from './videojs-keyboard-shortcuts';
 import LbryVolumeBarClass from './lbry-volume-bar';
-// import Chromecast from './chromecast';
+import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
@@ -28,7 +28,8 @@ import usePersistedState from 'effects/use-persisted-state';
 
 const canAutoplay = require('./plugins/canAutoplay');
 
-// require('@neko/videojs-chromecast')(videojs);
+require('@silvermine/videojs-chromecast')(videojs);
+require('@silvermine/videojs-airplay')(videojs);
 
 export type Player = {
   // -- custom --
@@ -133,7 +134,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplay,
     autoplaySetting,
     claimId,
-    // title,
+    title,
     channelName,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
@@ -246,7 +247,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       durationDisplay: !isLivestreamClaim,
       remainingTimeDisplay: !isLivestreamClaim,
     },
-    techOrder: ['html5'],
+    techOrder: ['chromecast', 'html5'],
+    chromecast: {
+      requestTitleFn: (src) => title || '',
+      requestSubtitleFn: (src) => channelName || '',
+    },
     bigPlayButton: embedded, // only show big play button if embedded
     liveui: isLivestreamClaim,
     suppressNotSupportedError: true,
@@ -279,8 +284,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
-        // const bigPlayButton = document.querySelector('.vjs-big-play-button');
-        // if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
+        const bigPlayButton = document.querySelector('.vjs-big-play-button');
+        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
       }
 
       // Add quality selector to player
@@ -310,11 +315,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canAutoplayVideo === true) {
         // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
-        // $FlowFixMe
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
+        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
         // $FlowFixMe
-        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
       }
 
       // I think this is a callback function
@@ -331,6 +335,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         }
         window.player.userActive(true);
       }
+
+      Chromecast.initialize(player);
+      player.airPlay();
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
@@ -377,16 +384,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
         vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
-        if (window.cordova) {
-          let payload = {
-            uri: livestreamVideoUrl,
-            claim: claimValues,
-            fileType: 'application/x-mpegURL',
-            channel: channelName,
-          };
-          if (!payload.claim.stream_type) payload.claim.stream_type = 'video';
-          window.odysee.chromecast.setMediaPayload(payload);
-        }
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
@@ -399,26 +396,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
           vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
-          if (window.cordova) {
-            let payload = {
-              uri: response.url,
-              claim: claimValues,
-              fileType: 'application/x-mpegURL',
-              channel: channelName,
-            };
-            window.odysee.chromecast.setMediaPayload(payload);
-          }
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
-          if (window.cordova) {
-            let payload = {
-              uri: vjsPlayer.claimSrcOriginal,
-              claim: claimValues,
-              fileType: sourceType,
-              channel: channelName,
-            };
-            window.odysee.chromecast.setMediaPayload(payload);
-          }
         }
       }
 
