@@ -292,3 +292,8 @@ $thumbnailWidthSmall: 1rem;
     }
   }
 }
+
+// make text saying that it's members only chat more visible
+.members-only__textarea {
+  opacity: 0.9 !important;
+}

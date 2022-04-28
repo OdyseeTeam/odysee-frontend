@@ -12,7 +12,7 @@ type Props = {
   isChannelPage?: boolean,
   // -- redux --
   permanentUrl?: string,
-  activeChannelMembershipName: ?string,
+  validUserMembershipForChannel: ?any,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
   doOpenModal: (id: string, {}) => void,
@@ -24,14 +24,15 @@ export default function JoinMembershipButton(props: Props) {
     uri,
     isChannelPage,
     permanentUrl,
-    activeChannelMembershipName,
+    validUserMembershipForChannel,
     creatorHasMemberships,
     creatorMembershipsFetched,
     doOpenModal,
     doMembershipList,
   } = props;
 
-  const userIsActiveMember = Boolean(activeChannelMembershipName);
+  const userIsActiveMember = Boolean(validUserMembershipForChannel);
+  const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
@@ -63,8 +64,8 @@ export default function JoinMembershipButton(props: Props) {
         button="alt"
         navigate={memberPageUrl}
         icon={ICONS.UPGRADE}
-        label={activeChannelMembershipName}
-        title={__('You are a "%membership_tier_name%" member', { membership_tier_name: activeChannelMembershipName })}
+        label={membershipName}
+        title={__('You are a "%membership_tier_name%" member', { membership_tier_name: membershipName })}
       />
     );
   }

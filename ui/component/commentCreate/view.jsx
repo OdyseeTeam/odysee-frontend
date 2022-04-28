@@ -77,6 +77,8 @@ type Props = {
   doOpenModal: (id: string, any) => void,
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
+  activeChannelMembershipName: ?string,
+  validUserMembershipForChannel: any,
 };
 
 export function CommentCreate(props: Props) {
@@ -115,15 +117,15 @@ export function CommentCreate(props: Props) {
     doOpenModal,
     preferredCurrency,
     doTipAccountCheckForUri,
-    activeChannelMembershipName,
+    validUserMembershipForChannel,
   } = props;
 
-  // TODO: had to include
-  const isAChannelMember = Boolean(activeChannelMembershipName);
+  const isAChannelMember = Boolean(validUserMembershipForChannel);
 
   const canCommentInMemberOnly = claimIsMine || isAChannelMember;
 
-  const isAMemberOnlyChat = true;
+  // TODO: this will eventually come from the backend, hardcode to single user for now
+  const isAMemberOnlyChat = tipChannelName === '@test35234';
   const shouldDisableChat = !canCommentInMemberOnly && isAMemberOnlyChat;
   const enabledChatMessage = 'Say something about this..';
   const disabledChatMessage = 'Sorry, the creator has made this chat members only';
@@ -512,7 +514,8 @@ export function CommentCreate(props: Props) {
           type="textarea"
           name="comment__signup-prompt"
           placeholder={__(chatMessageToUse)}
-          disabled={isMobile || shouldDisableChat}
+          disabled={isMobile}
+          className={classnames({ 'members-only__textarea': shouldDisableChat })}
         />
 
         {!isMobile && (
@@ -582,7 +585,9 @@ export function CommentCreate(props: Props) {
           <FormField
             autoFocus={isReply}
             charCount={charCount}
-            className={isReply ? 'create__reply' : 'create__comment'}
+            className={classnames(isReply ? 'create__reply' : 'create__comment', {
+              'members-only__textarea': shouldDisableChat,
+            })}
             disabled={isFetchingChannels || disableInput || shouldDisableChat}
             isLivestream={isLivestream}
             label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
@@ -690,6 +695,7 @@ export function CommentCreate(props: Props) {
                 isReviewingStickerComment={isReviewingStickerComment}
                 icon={ICONS.STICKER}
                 onClick={handleStickerComment}
+                disabled={shouldDisableChat}
               />
 
               {!supportDisabled && !claimIsMine && (

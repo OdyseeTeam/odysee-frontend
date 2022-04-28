@@ -7,8 +7,11 @@ import Button from 'component/button';
 import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard';
 import { formatDateToMonthAndDay } from 'util/time';
 import moment from 'moment';
+import { getStripeEnvironment } from 'util/stripe';
 
-const isDev = process.env.NODE_ENV !== 'production';
+let stripeEnvironment = getStripeEnvironment();
+
+const isDev = stripeEnvironment === 'test';
 
 const perkDescriptions = [
   {
@@ -54,7 +57,6 @@ export default function MembershipChannelTab(props: Props) {
     isModal,
     channelId,
     // -- redux --
-    activeChannelMembership,
     myActiveMemberships,
     doMembershipMine,
     doMembershipDeleteData,

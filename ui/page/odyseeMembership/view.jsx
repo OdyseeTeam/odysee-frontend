@@ -24,7 +24,7 @@ import usePersistedState from 'effects/use-persisted-state';
 
 let stripeEnvironment = getStripeEnvironment();
 
-const isDev = process.env.NODE_ENV !== 'production';
+const isDev = stripeEnvironment === 'test';
 
 let log = (input) => {};
 if (isDev) log = console.log;

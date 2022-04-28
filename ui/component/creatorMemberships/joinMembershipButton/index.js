@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import { doMembershipList } from 'redux/actions/memberships';
 import {
-  selectActiveMembershipNameForChannelUri,
+  selectUserValidMembershipForChannelUri,
   selectCreatorHasMembershipsByUri,
   selectCreatorMembershipsFetchedByUri,
 } from 'redux/selectors/memberships';
@@ -14,7 +14,7 @@ const select = (state, props) => {
 
   return {
     permanentUrl: selectPermanentUrlForUri(state, uri),
-    activeChannelMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
+    validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri),
     creatorHasMemberships: selectCreatorHasMembershipsByUri(state, uri),
     creatorMembershipsFetched: selectCreatorMembershipsFetchedByUri(state, uri),
   };
