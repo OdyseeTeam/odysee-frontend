@@ -60,11 +60,20 @@ function seekVideo(stepSize: number, playerRef, containerRef, jumpTo?: boolean) 
 function toggleFullscreen(playerRef) {
   const player = playerRef.current;
   if (!player) return;
+  if (window.cordova) {
+    if (!window.odysee.fullscreen) {
+      window.odysee.functions.requestFullscreen();
+    } else {
+      window.odysee.functions.exitFullscreen();
+    }
+  }
+  /*
   if (!player.isFullscreen()) {
     player.requestFullscreen();
   } else {
     player.exitFullscreen();
   }
+  */
 }
 
 function toggleMute(containerRef) {
