@@ -108,10 +108,37 @@
   padding: var(--spacing-s);
   margin-bottom: var(--spacing-m);
   height: 22rem;
-  width: 100%;
+  //width: 100%;
   overflow: scroll;
   display: flex;
   flex-direction: column;
+
+  border: 1px solid white;
+  flex-basis: 33%;
+
+  @media (max-width: $breakpoint-xsmall) {
+    flex-basis: 66%;
+    //width: var(--file-list-thumbnail-width) !important;
+  }
+}
+
+.membership-join-tab {
+  .card__body {
+    display: flex;
+    flex-wrap: wrap;
+    max-width: 72rem;
+    margin: 0 auto;
+
+    .membership-join__body:nth-child(4), .membership-join__body:nth-child(5) {
+      display: none;
+    }
+  }
+
+  .tierInfo {
+    height: 156px;
+    overflow: hidden;
+  }
+
 }
 
 .membership-join__plan-header {
@@ -124,7 +151,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  //height: 100%;
 
   ul {
     display: flex;

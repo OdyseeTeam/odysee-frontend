@@ -101,39 +101,91 @@ export default function PreviewPage(props: Props) {
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
+  function isOverflown(element) {
+    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+  }
+
+  const showMore = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const showMoreButton = e.currentTarget;
+    showMoreButton.style.display = 'none';
+    const tierDiv = showMoreButton.parentNode.querySelector('.tierInfo');
+    tierDiv.style.height = 'unset';
+    tierDiv.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  React.useEffect(() => {
+    setTimeout(function(){
+      const tiers = document.getElementsByClassName('tierInfo');
+      console.log(tiers);
+      for (const tier of tiers) {
+        const elementIsOverflown = isOverflown(tier);
+        console.log(elementIsOverflown);
+        console.log(tier);
+        const seeMoreButton = tier.parentNode.querySelector('.tier-show-more__button');
+        seeMoreButton.style.display = 'block';
+      }
+    }, 1000);
+  }, []);
+
   return (
     <>
       {!shouldDisablePurchase ? (
         <>
-          <div className="membership-join__tab-buttons">
-            {membershipTiers.map((membershipTier, index) => {
-              const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
-              return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
-            })}
-          </div>
+          {membershipTiers.map(function(membership) {
+            return (
+                <div className="membership-join__body">
+                  <section className="membership-join__plan-info">
+                    <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
+                    <Button
+                      className="membership-join-purchase__button"
+                      icon={ICONS.UPGRADE}
+                      button="primary"
+                      type="submit"
+                      disabled={shouldDisablePurchase || checkingOwnMembershipCard}
+                      label={__('Signup for $%membership_price% a month', {
+                        membership_price: selectedTier.monthlyContributionInUSD,
+                      })}
+                      onClick={handleConfirm}
+                    />
+                  </section>
 
-          <div className="membership-join__body">
-            <section className="membership-join__plan-info">
-              <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
-              <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
-            </section>
+                  <div className="tierInfo">
+                    <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
 
-            <section className="membership__plan-perks">
-              <h1 className="membership-join__plan-header">{__('Perks')}</h1>
-              <ul className="membership-join-perks__list">
-                {selectedTier.perks.map((tierPerk, i) => (
-                  <p key={tierPerk}>
-                    {perkDescriptions.map(
-                      (globalPerk, i) =>
-                        tierPerk === globalPerk.perkName && (
-                          <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                        )
-                    )}
-                  </p>
-                ))}
-              </ul>
-            </section>
-          </div>
+                    <section className="membership__plan-perks">
+                      <h1 className="membership-join__plan-header">{__('Perks')}</h1>
+                      <ul className="membership-join-perks__list">
+                        {selectedTier.perks.map((tierPerk, i) => (
+                          <p key={tierPerk}>
+                            {perkDescriptions.map(
+                              (globalPerk, i) =>
+                                tierPerk === globalPerk.perkName && (
+                                  <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                                )
+                            )}
+                          </p>
+                        ))}
+                      </ul>
+                    </section>
+                    <h1>Hello</h1>
+                    <h1>Hello</h1>
+                    <h1>Hello</h1>
+                    <h1>Hello</h1>
+                    <h1>Hello</h1>
+                    <h1>Hello</h1>
+                    <h1>Hello</h1>
+                  </div>
+
+                  <div className="tier-show-more__button" style={{ display: 'none' }} onClick={(e) => showMore(e)}>
+                    <h1>SHOW MORE!!</h1>
+                  </div>
+                </div>
+              );
+          })}
+
+          <h1 style={{ margin: '0 auto' }}>See More</h1>
         </>
       ) : hasSavedCard === false ? (
         <div className="help help__no-card">
@@ -148,33 +200,33 @@ export default function PreviewPage(props: Props) {
         </div>
       )}
 
-      <div className="membership-join-purchase__div">
-        {shouldDisablePurchase ? (
-          <Button
-            className="membership-join-purchase__button"
-            icon={ICONS.UPGRADE}
-            button="primary"
-            type="submit"
-            label={__('Create Your Memberships')}
-            navigate="$/memberships"
-          />
-        ) : (
-          <>
-            <Button
-              className="membership-join-purchase__button"
-              icon={ICONS.UPGRADE}
-              button="primary"
-              type="submit"
-              disabled={shouldDisablePurchase || checkingOwnMembershipCard}
-              label={__('Signup for $%membership_price% a month', {
-                membership_price: selectedTier.monthlyContributionInUSD,
-              })}
-              onClick={handleConfirm}
-            />
-            {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}
-          </>
-        )}
-      </div>
+      {/*<div className="membership-join-purchase__div">*/}
+      {/*  {shouldDisablePurchase ? (*/}
+      {/*    <Button*/}
+      {/*      className="membership-join-purchase__button"*/}
+      {/*      icon={ICONS.UPGRADE}*/}
+      {/*      button="primary"*/}
+      {/*      type="submit"*/}
+      {/*      label={__('Create Your Memberships')}*/}
+      {/*      navigate="$/memberships"*/}
+      {/*    />*/}
+      {/*  ) : (*/}
+      {/*    <>*/}
+      {/*      <Button*/}
+      {/*        className="membership-join-purchase__button"*/}
+      {/*        icon={ICONS.UPGRADE}*/}
+      {/*        button="primary"*/}
+      {/*        type="submit"*/}
+      {/*        disabled={shouldDisablePurchase || checkingOwnMembershipCard}*/}
+      {/*        label={__('Signup for $%membership_price% a month', {*/}
+      {/*          membership_price: selectedTier.monthlyContributionInUSD,*/}
+      {/*        })}*/}
+      {/*        onClick={handleConfirm}*/}
+      {/*      />*/}
+      {/*      {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}*/}
+      {/*    </>*/}
+      {/*  )}*/}
+      {/*</div>*/}
     </>
   );
 }

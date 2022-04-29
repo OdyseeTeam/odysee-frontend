@@ -125,8 +125,6 @@ function MyPledgesTab(props: Props) {
         <>
           <h1 style={{ marginTop: '10px' }}> You are not currently supporting any creators </h1>
 
-          <h1 style={{ marginTop: '10px' }}> When you do join a membership you will be able to see it here </h1>
-
           {/* <h1 style={{ marginTop: '10px' }}> You can find some creators to support on the membership page here </h1> */}
         </>
       )}
