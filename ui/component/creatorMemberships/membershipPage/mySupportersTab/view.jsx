@@ -18,10 +18,10 @@ export default function CreatorMembershipsTab() {
       <thead>
         <tr>
           <th className="date-header">Channel Name</th>
-          <th className="channelName-header">Membership Tier</th>
-          <th className="location-header">Support Amount</th>
-          <th className="amount-header">Subscribed At</th>
-          <th className="channelName-header">Total Supporting Time</th>
+          <th className="channelName-header">Tier</th>
+          <th className="location-header">Amount</th>
+          <th className="amount-header">Joined On</th>
+          <th className="channelName-header">Membership Length</th>
         </tr>
       </thead>
       <tbody>

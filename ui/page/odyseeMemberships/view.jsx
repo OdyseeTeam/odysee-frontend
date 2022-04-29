@@ -74,9 +74,9 @@ const MembershipsPage = (props: Props) => {
     <Page className="premium-wrapper">
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('My Memberships')}</Tab>
-          <Tab>{__('Create Tiers')}</Tab>
-          <Tab>{__('My Supporters')}</Tab>
+          <Tab>{__('Basics')}</Tab>
+          <Tab>{__('Tiers')}</Tab>
+          <Tab>{__('Supporters')}</Tab>
           <Tab>{__('My Pledges')}</Tab>
         </TabList>
 

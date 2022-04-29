@@ -56,13 +56,13 @@ function CreatorMembershipsTab(props: Props) {
       {/* Dashboard showing income/supporters amount */}
       <h1 style={{ fontSize: '20px', marginTop: '25px' }}>{__('Received Funds')}</h1>
 
-      <h1 style={{ marginTop: '10px' }}>{__('You currently have 0 supporters')}</h1>
+      <h1 style={{ marginTop: '10px' }}>{__('Total Supporters: 0')}</h1>
 
-      <h1 style={{ marginTop: '10px' }}>{__('Your estimated monthly income is currently $0')}</h1>
+      <h1 style={{ marginTop: '10px' }}>{__('Estimated Monthly Income: $0')}</h1>
 
-      <h1 style={{ marginTop: '10px' }}>{__('You have received $0 total from your supporters')}</h1>
+      <h1 style={{ marginTop: '10px' }}>{__('Total Received: $0')}</h1>
 
-      <h1 style={{ marginTop: '10px' }}>{__('You do not any withdrawable funds')}</h1>
+      {/*<h1 style={{ marginTop: '10px' }}>{__('You do not any withdrawable funds')}</h1>*/}
 
       {/* Bank account connection status */}
       <div className="bank-account-information__div" style={{ marginTop: '33px' }}>

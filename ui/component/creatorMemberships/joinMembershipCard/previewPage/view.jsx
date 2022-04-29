@@ -171,7 +171,7 @@ export default function PreviewPage(props: Props) {
               })}
               onClick={handleConfirm}
             />
-            {checkingOwnMembershipCard && (<h1 style={{ marginTop: '10px' }}>You're not able to signup for your own memberships</h1>)}
+            {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}
           </>
         )}
       </div>

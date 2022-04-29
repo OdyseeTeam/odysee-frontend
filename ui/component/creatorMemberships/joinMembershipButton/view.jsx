@@ -75,7 +75,7 @@ export default function JoinMembershipButton(props: Props) {
     <Button
       button="alt"
       icon={ICONS.UPGRADE}
-      label={__('Memberships')}
+      label={__('Join')}
       title={__('Become A Member')}
       onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}
       style={{
