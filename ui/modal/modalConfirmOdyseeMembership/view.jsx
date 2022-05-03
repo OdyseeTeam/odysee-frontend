@@ -104,7 +104,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   }
 
   return (
-    <Modal ariaHideApp={false} isOpen contentLabel={'Confirm Membership Purchase'} type="card" onAborted={closeModal}>
+    <Modal className="confirm-odysee-premium__modal" ariaHideApp={false} isOpen contentLabel={'Confirm Membership Purchase'} type="card" onAborted={closeModal}>
       <Card
         className="stripe__confirm-remove-membership"
         title={hasMembership ? __('Confirm Membership Cancellation') : __('Confirm %plan% Membership', { plan })}

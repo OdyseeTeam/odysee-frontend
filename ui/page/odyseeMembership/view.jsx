@@ -384,24 +384,24 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const helpText = (
     <div className="section__subtitle">
-      <p>
+      <p className="balance-text">
         {__(
           'First of all, thank you for considering or purchasing a membership, it means a ton to us! A few important details to know:'
         )}
       </p>
       <p>
         <ul>
-          <li>
+          <li className="balance-text">
             {__(
               'Exclusive and early access features include: recommended content, homepage customization, and the ability to post Odysee hyperlinks + images in comments. Account is also automatically eligible for Rewards. More to come later.'
             )}
           </li>
-          <li>
+          <li className="balance-text">
             {__(
               'The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.'
             )}
           </li>
-          <li>{__('These are limited time rates, so get in early!')}</li>
+          <li className="balance-text">{__('These are limited time rates, so get in early!')}</li>
           <li>
             {__(
               'There may be higher tiers available in the future for creators and anyone else who wants to support us.'

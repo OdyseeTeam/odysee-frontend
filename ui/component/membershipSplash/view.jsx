@@ -6,7 +6,7 @@ import Icon from 'component/common/icon';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import AstronautAndFriends from './astronaut_n_friends.png';
 import BadgePremium from './badge_premium.png';
 import BadgePremiumPlus from './badge_premium-plus.png';
@@ -19,6 +19,10 @@ type Props = {
 
 export default function MembershipSplash(props: Props) {
   const { pageLocation, currencyToUse } = props;
+
+  useEffect(() => {
+    window.balanceText();
+  }, []);
 
   const premiumDisplayAmounts = {
     eur: '€0.89',
@@ -35,19 +39,19 @@ export default function MembershipSplash(props: Props) {
   const earlyAcessInfo = (
     <div className="membership-splash__info-content">
       <Icon icon={ICONS.EARLY_ACCESS} />
-      {__('Exclusive and early access to features')}
+      <h1 className="balance-text">{__('Exclusive and early ass to features')}</h1>
     </div>
   );
   const badgeInfo = (
     <div className="membership-splash__info-content">
       <Icon icon={ICONS.MEMBER_BADGE} />
-      {__('Badge on profile')}
+      <h1 className="balance-text">{__('Badge on profile')}</h1>
     </div>
   );
   const noAdsInfo = (
     <div className="membership-splash__info-content">
       <Icon icon={ICONS.NO_ADS} />
-      {__('No ads')}
+      <h1 className="balance-text">{__('No ads')}</h1>
     </div>
   );
 
@@ -71,9 +75,11 @@ export default function MembershipSplash(props: Props) {
 
       <div className="membership-splash__info-wrapper">
         <div className="membership-splash__info">
-          {__(
-            "Creating a revolutionary video platform for everyone is something we're proud to be doing, but it isn't something that can happen without support. If you believe in Odysee's mission, please consider becoming a Premium member. As a Premium member, you'll be helping us build the best platform in the universe and we'll give you some cool perks!"
-          )}
+          <h1 className="balance-text">
+            {__(
+              "Creating a revolutionary video platform for everyone is something we're proud to be doing, but it isn't something that can happen without support. If you believe in Odysee's mission, please consider becoming a Premium member. As a Premium member, you'll be helping us build the best platform in the universe and we'll give you some cool perks!"
+            )}
+          </h1>
         </div>
 
         <div className="membership-splash__info">
