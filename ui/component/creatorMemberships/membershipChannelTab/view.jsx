@@ -16,23 +16,23 @@ const isDev = stripeEnvironment === 'test';
 const perkDescriptions = [
   {
     perkName: 'exclusiveAccess',
-    perkDescription: 'You have exclusive access to members-only content',
+    perkDescription: 'Members-only content',
   },
   {
     perkName: 'earlyAccess',
-    perkDescription: 'You have early access to this creators content',
+    perkDescription: 'Early access content',
   },
   {
     perkName: 'badge',
-    perkDescription: 'You have a generic badge showing you are a supporter of this creator',
+    perkDescription: 'Member Badge',
   },
   {
     perkName: 'emojis',
-    perkDescription: 'You have access to custom members-only emojis offered by the creator',
+    perkDescription: 'Members-only emojis',
   },
   {
     perkName: 'custom-badge',
-    perkDescription: 'You can choose a custom badge showing you are an MVP supporter',
+    perkDescription: 'MVP member badge',
   },
 ];
 
@@ -86,7 +86,7 @@ export default function MembershipChannelTab(props: Props) {
   const membershipisActive = Membership.auto_renew;
 
   const supportingPeriodString =
-    membershipisActive ? 'You have been supporting %channel_name% for %membership_duration%'
+    membershipisActive ? 'You\'ve been supporting %channel_name% for %membership_duration%'
     : 'You supported %channel_name% for %membership_duration%';
 
   return (
@@ -102,7 +102,7 @@ export default function MembershipChannelTab(props: Props) {
                 membership_duration: timeAgo,
               })}
             </h1>
-            <h1 className="join-membership-support-time__header">{__('I am sure they appreciate it!')}</h1>
+            <h1 className="join-membership-support-time__header">{__('I\'m sure they appreciate it!')}</h1>
           </>
         }
         body={

@@ -9,23 +9,23 @@ import { getChannelFromClaim } from 'util/claim';
 const perkDescriptions = [
   {
     perkName: 'exclusiveAccess',
-    perkDescription: 'You will exclusive access to members-only content',
+    perkDescription: 'Members-only content',
   },
   {
     perkName: 'earlyAccess',
-    perkDescription: 'You will get early access to this creators content',
+    perkDescription: 'Early access content',
   },
   {
     perkName: 'badge',
-    perkDescription: 'You will get a generic badge showing you are a supporter of this creator',
+    perkDescription: 'Member Badge',
   },
   {
     perkName: 'emojis',
-    perkDescription: 'You will get access to custom members-only emojis offered by the creator',
+    perkDescription: 'Members-only emojis',
   },
   {
     perkName: 'custom-badge',
-    perkDescription: 'You can choose a custom badge showing you are an MVP supporter',
+    perkDescription: 'MVP member badge',
   },
 ];
 
@@ -41,6 +41,18 @@ let membershipTiers = [
     description: 'You are a true fan and are helping in a big way!',
     monthlyContributionInUSD: 10,
     perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
+  },
+  {
+    displayName: 'Community MVP',
+    description: 'Where would this creator be without you? You are a true legend!',
+    monthlyContributionInUSD: 20,
+    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
+  },
+  {
+    displayName: 'Community MVP',
+    description: 'Where would this creator be without you? You are a true legend!',
+    monthlyContributionInUSD: 20,
+    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
   },
   {
     displayName: 'Community MVP',
@@ -115,6 +127,21 @@ export default function PreviewPage(props: Props) {
     tierDiv.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const showAllTiers = function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    const seeMoreButton = e.currentTarget;
+    seeMoreButton.style.display = 'none';
+
+    const membershipTierDivs = document.getElementsByClassName('membership-join__body');
+    for (const tierDiv of membershipTierDivs) {
+      tierDiv.style.display = 'flex';
+    }
+
+    const lastTier = membershipTierDivs[membershipTierDivs.length - 1];
+    lastTier.scrollIntoView({ behavior: 'smooth' });
+  };
+
   React.useEffect(() => {
     setTimeout(function(){
       const tiers = document.getElementsByClassName('tierInfo');
@@ -179,13 +206,13 @@ export default function PreviewPage(props: Props) {
                   </div>
 
                   <div className="tier-show-more__button" style={{ display: 'none' }} onClick={(e) => showMore(e)}>
-                    <h1>SHOW MORE!!</h1>
+                    <h1 style={{ marginTop: '14px' }} >SHOW MORE</h1>
                   </div>
                 </div>
               );
           })}
 
-          <h1 style={{ margin: '0 auto' }}>See More</h1>
+          <h1 style={{ margin: '0 auto' }} onClick={(e) => showAllTiers(e)}>See More</h1>
         </>
       ) : hasSavedCard === false ? (
         <div className="help help__no-card">

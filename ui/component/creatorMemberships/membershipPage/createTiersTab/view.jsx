@@ -31,26 +31,25 @@ let membershipTiers = [
 const perkDescriptions = [
   {
     perkName: 'exclusiveAccess',
-    perkDescription: 'You will exclusive access to members-only content',
+    perkDescription: 'Members-only content',
   },
   {
     perkName: 'earlyAccess',
-    perkDescription: 'You will get early access to this creators content',
+    perkDescription: 'Early access content',
   },
   {
     perkName: 'badge',
-    perkDescription: 'You will get a generic badge showing you are a supporter of this creator',
+    perkDescription: 'Member Badge',
   },
   {
     perkName: 'emojis',
-    perkDescription: 'You will get access to custom members-only emojis offered by the creator',
+    perkDescription: 'Members-only emojis',
   },
   {
     perkName: 'custom-badge',
-    perkDescription: 'You can choose a custom badge showing you are an MVP supporter',
+    perkDescription: 'MVP member badge',
   },
 ];
-
 type Props = {
   openModal: (string, {}) => void,
   doToast: ({ message: string }) => void,
