@@ -39,7 +39,7 @@ export default function MembershipSplash(props: Props) {
   const earlyAcessInfo = (
     <div className="membership-splash__info-content">
       <Icon icon={ICONS.EARLY_ACCESS} />
-      <h1 className="balance-text">{__('Exclusive and early ass to features')}</h1>
+      <h1 className="balance-text">{__('Exclusive and early access to features')}</h1>
     </div>
   );
   const badgeInfo = (

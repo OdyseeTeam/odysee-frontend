@@ -152,9 +152,7 @@
         align-items: center;
         justify-content: center;
 
-        h1 {
-          width: 172px;
-        }
+
       }
     }
     @media (max-width: $breakpoint-small) {
@@ -162,10 +160,6 @@
       .membership-splash__info {
         flex-basis: 100%;
         margin-bottom: var(--spacing-xxs);
-
-        h1 {
-          width: 300px;
-        }
       }
 
       // "creating a revolutionary platform.." copy
@@ -176,8 +170,9 @@
 
     .membership-splash__info:nth-child(1) {
       // padding: var(--spacing-l);
+      padding: 3%;
+
       h1 {
-        padding: 3%;
         font-size: 1vw;
         @media (min-width: $breakpoint-xlarge) {
           font-size: 1vw;
@@ -216,6 +211,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      font-size: 2.6rem;
       font-size: 2.6vw;
       font-weight: 900;
       img {
@@ -270,6 +266,12 @@
       }
       @media (max-width: $breakpoint-small) {
         font-size: 0.9rem;
+      }
+
+      width: 156px;
+
+      @media (max-width: $breakpoint-small) {
+        width: 300px;
       }
     }
     display: flex;
@@ -396,8 +398,10 @@
         }
 
         .membership-splash__info:nth-child(1) {
-          padding: var(--spacing-m);
-          font-size: 0.7rem;
+          h1 {
+            padding: var(--spacing-m);
+            font-size: 0.7rem;
+          }
         }
       }
     }
