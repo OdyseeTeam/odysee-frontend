@@ -20,6 +20,18 @@ let membershipTiers = [
   },
   {
     displayName: 'Community MVP',
+    description: 'Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend!' ,
+    monthlyContributionInUSD: 20,
+    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
+  },
+  {
+    displayName: 'Community MVP2',
+    description: 'Where would this creator be without you? You are a true legend!',
+    monthlyContributionInUSD: 20,
+    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
+  },
+  {
+    displayName: 'Community MVP3',
     description: 'Where would this creator be without you? You are a true legend!',
     monthlyContributionInUSD: 20,
     perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
@@ -61,6 +73,7 @@ export default function JoinMembershipCard(props: Props) {
               selectedTier={membershipTiers[membershipIndex]}
               handleConfirm={() => setConfirmationPage(true)}
               tabButtonProps={tabButtonProps}
+              isChannelTab={isChannelTab}
             />
           )
         }

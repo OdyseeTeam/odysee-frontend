@@ -133,7 +133,7 @@
 
 /** JOIN CARD **/
 
-.membership-join__body {
+.membership-join__body, .membership-join-blocks__body {
   text-align: center;
   padding: var(--spacing-s);
   margin-bottom: var(--spacing-m);
@@ -142,8 +142,6 @@
   overflow: scroll;
   display: flex;
   flex-direction: column;
-
-  border: 1px solid white;
   flex-basis: 33%;
 
   @media (max-width: $breakpoint-xsmall) {
@@ -153,13 +151,21 @@
 }
 
 .membership-join-tab {
-  .card__body {
+  .membership-join-blocks__div {
     display: flex;
     flex-wrap: wrap;
     max-width: 72rem;
+  }
+
+
+  .card__body {
     margin: 0 auto;
 
-    .membership-join__body:nth-child(4), .membership-join__body:nth-child(5) {
+    .membership-join-blocks__body {
+      border: 1px solid white;
+    }
+
+    .membership-join-blocks__body:nth-child(4), .membership-join-blocks__body:nth-child(5) {
       display: none;
     }
   }
@@ -484,4 +490,10 @@
 .add-membership__button {
   margin-top: 13px;
   font-size: 18px;
+}
+
+
+/** **/
+.join-membership-card__modal {
+  max-width: 600px !important;
 }
