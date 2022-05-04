@@ -4,11 +4,10 @@ import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
 import useShouldShowAds from 'effects/use-should-show-ads';
-import { isLocalStorageAvailable } from 'util/storage';
 
 const AD_SCRIPT_URL = 'https://widgets.outbrain.com/outbrain.js';
 
-const ENABLE_BANNER_ADS = isLocalStorageAvailable() && localStorage.getItem('enable_banner_ads') === 'true';
+const ENABLE_BANNER_ADS = true;
 
 // ****************************************************************************
 // ****************************************************************************
