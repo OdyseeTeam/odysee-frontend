@@ -133,11 +133,16 @@
 
 /** JOIN CARD **/
 
+.membership-join-block-purchase__button {
+  margin-top: 6px;
+  margin-bottom: 13px;
+}
+
 .membership-join__body, .membership-join-blocks__body {
   text-align: center;
   padding: var(--spacing-s);
   margin-bottom: var(--spacing-m);
-  height: 22rem;
+  //height: 22rem;
   //width: 100%;
   overflow: scroll;
   display: flex;
@@ -163,6 +168,7 @@
 
     .membership-join-blocks__body {
       border: 1px solid white;
+      //transition: height 2s ease; not working
     }
 
     .membership-join-blocks__body:nth-child(4), .membership-join-blocks__body:nth-child(5) {
@@ -171,16 +177,17 @@
   }
 
   .tierInfo {
-    height: 156px;
+    height: 148px;
     overflow: hidden;
+    //transition: height 2s ease; not working
   }
 
 }
 
 .membership-join__plan-header {
-  margin-top: var(--spacing-m);
-  font-size: calc(var(--font-base) + 4px);
+  margin-top: 8px;
   margin-bottom: 3px;
+  font-size: calc(var(--font-base) + 4px);
 }
 
 .membership__plan-perks {
@@ -427,7 +434,7 @@
   .membership-features-confirmation__section {
     margin-top: 5px;
     .confirm__value {
-      max-width: 65%;
+      max-width: 173px;
       margin: 0 auto;
       margin-top: 5px;
       margin-bottom: 23px;
@@ -496,4 +503,11 @@
 /** **/
 .join-membership-card__modal {
   max-width: 600px !important;
+
+  .membership-features-confirmation__section {
+    .confirm__value {
+      max-width: 231px;
+      margin: 0 auto;
+    }
+  }
 }

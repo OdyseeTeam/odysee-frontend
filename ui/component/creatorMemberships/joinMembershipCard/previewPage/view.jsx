@@ -83,6 +83,7 @@ export default function PreviewPage(props: Props) {
     selectedTier,
     tabButtonProps,
     handleConfirm,
+    setMembershipIndex,
     // -- redux --
     canReceiveFiatTips,
     hasSavedCard,
@@ -93,9 +94,6 @@ export default function PreviewPage(props: Props) {
     claim,
     isChannelTab
   } = props;
-
-  console.log('is channel tab');
-  console.log(isChannelTab);
 
   // check if a user is looking at their own memberships
   const contentChannelClaim = getChannelFromClaim(claim);
@@ -117,6 +115,14 @@ export default function PreviewPage(props: Props) {
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
+  function clickSignupButton(e){
+    e.preventDefault();
+    e.stopPropagation();
+    const membershipTier = e.currentTarget.getAttribute('membership-tier-index');
+    setMembershipIndex(membershipTier);
+    handleConfirm();
+  }
+
   function isOverflown(element) {
     return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
   }
@@ -124,9 +130,15 @@ export default function PreviewPage(props: Props) {
   const showMore = function(e) {
     e.preventDefault();
     e.stopPropagation();
+
+
     const showMoreButton = e.currentTarget;
     showMoreButton.style.display = 'none';
-    const tierDiv = showMoreButton.parentNode.querySelector('.tierInfo');
+
+    const parentDiv = showMoreButton.parentNode;
+    parentDiv.style.height = 'auto';
+
+    const tierDiv = parentDiv.querySelector('.tierInfo');
     tierDiv.style.height = 'unset';
     tierDiv.scrollIntoView({ behavior: 'smooth' });
   };
@@ -134,8 +146,9 @@ export default function PreviewPage(props: Props) {
   const showAllTiers = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    const seeMoreButton = e.currentTarget;
-    seeMoreButton.style.display = 'none';
+    const seeAllTiersButton = e.currentTarget;
+
+    seeAllTiersButton.style.display = 'none';
 
     const membershipTierDivs = document.getElementsByClassName('membership-join-blocks__body');
     for (const tierDiv of membershipTierDivs) {
@@ -149,14 +162,13 @@ export default function PreviewPage(props: Props) {
   React.useEffect(() => {
     setTimeout(function(){
       const tiers = document.getElementsByClassName('tierInfo');
-      console.log(tiers);
       for (const tier of tiers) {
         const elementIsOverflown = isOverflown(tier);
-        console.log(elementIsOverflown);
-        console.log(tier);
         const seeMoreButton = tier.parentNode.querySelector('.tier-show-more__button');
-        seeMoreButton.style.display = 'block';
+        if (elementIsOverflown) seeMoreButton.style.display = 'block';
       }
+
+      window.balanceText();
     }, 1000);
   }, []);
 
@@ -166,31 +178,36 @@ export default function PreviewPage(props: Props) {
         <>
           { isChannelTab ? (<>
             <div className="membership-join-blocks__div">
-              {membershipTiers.map(function(membership) {
+              {membershipTiers.map(function(membership, i) {
                 return (
-                  <div className="membership-join-blocks__body">
+                  <div className="membership-join-blocks__body" key={i}>
                     <section className="membership-join__plan-info">
-                      <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
+                      <h1 className="membership-join__plan-header">{membership.displayName}</h1>
                       <Button
-                        className="membership-join-purchase__button"
+                        className="membership-join-block-purchase__button"
                         icon={ICONS.UPGRADE}
                         button="primary"
                         type="submit"
                         disabled={shouldDisablePurchase || checkingOwnMembershipCard}
                         label={__('Signup for $%membership_price% a month', {
-                          membership_price: selectedTier.monthlyContributionInUSD,
+                          membership_price: membership.monthlyContributionInUSD,
                         })}
-                        onClick={handleConfirm}
+                        onClick={(e) => clickSignupButton(e)}
+                        membership-tier-index={i}
                       />
                     </section>
 
                     <div className="tierInfo">
-                      <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
+                      <span className="section__subtitle membership-join__plan-description">
+                        <h1 className="balance-text">
+                          {membership.description}
+                        </h1>
+                      </span>
 
                       <section className="membership__plan-perks">
                         <h1 className="membership-join__plan-header">{__('Perks')}</h1>
                         <ul className="membership-join-perks__list">
-                          {selectedTier.perks.map((tierPerk, i) => (
+                          {membership.perks.map((tierPerk, i) => (
                             <p key={tierPerk}>
                               {perkDescriptions.map(
                                 (globalPerk, i) =>
@@ -202,21 +219,24 @@ export default function PreviewPage(props: Props) {
                           ))}
                         </ul>
                       </section>
-                      <h1>Hello</h1>
-                      <h1>Hello</h1>
-                      <h1>Hello</h1>
-                      <h1>Hello</h1>
-                      <h1>Hello</h1>
-                      <h1>Hello</h1>
-                      <h1>Hello</h1>
+                      {/*<h1>Hello</h1>*/}
+                      {/*<h1>Hello</h1>*/}
+                      {/*<h1>Hello</h1>*/}
+                      {/*<h1>Hello</h1>*/}
+                      {/*<h1>Hello</h1>*/}
+                      {/*<h1>Hello</h1>*/}
+                      {/*<h1>Hello</h1>*/}
                     </div>
 
+                    {/* overflow show rest of tier button */}
                     <div className="tier-show-more__button" style={{ display: 'none' }} onClick={(e) => showMore(e)}>
                       <h1 style={{ marginTop: '14px' }} >SHOW MORE</h1>
                     </div>
                   </div>
                 );
               })}
+
+              {/* show the rest of the tiers button */}
               <h1 style={{ margin: '0 auto' }} onClick={(e) => showAllTiers(e)}>See More</h1>
             </div>
           </>) : (

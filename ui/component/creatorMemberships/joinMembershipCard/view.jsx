@@ -74,6 +74,7 @@ export default function JoinMembershipCard(props: Props) {
               handleConfirm={() => setConfirmationPage(true)}
               tabButtonProps={tabButtonProps}
               isChannelTab={isChannelTab}
+              setMembershipIndex={setMembershipIndex}
             />
           )
         }
