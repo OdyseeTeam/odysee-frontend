@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
@@ -32,9 +32,9 @@ const perkDescriptions = [
 let membershipTiers = [
   {
     displayName: 'Helping Hand',
-    description: "You're doing your part, thank you!",
+    description: '',
     monthlyContributionInUSD: 5,
-    perks: ['exclusiveAccess', 'badge'],
+    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
   },
   {
     displayName: 'Big-Time Supporter',
@@ -92,7 +92,9 @@ export default function PreviewPage(props: Props) {
     doGetCustomerStatus,
     myChannelClaimIds,
     claim,
-    isChannelTab
+    isChannelTab,
+    expandedTabs,
+    setExpandedTabs,
   } = props;
 
   // check if a user is looking at their own memberships
@@ -103,23 +105,26 @@ export default function PreviewPage(props: Props) {
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (hasSavedCard === undefined) {
       doGetCustomerStatus();
     }
   }, [doGetCustomerStatus, hasSavedCard]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (canReceiveFiatTips === undefined) {
       doTipAccountCheckForUri(uri);
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
-  function clickSignupButton(e){
+  function clickSignupButton(e) {
     e.preventDefault();
     e.stopPropagation();
     const membershipTier = e.currentTarget.getAttribute('membership-tier-index');
+    expandedTabs[membershipTier] = true;
+    setExpandedTabs(expandedTabs);
     setMembershipIndex(membershipTier);
+
     handleConfirm();
   }
 
@@ -131,15 +136,13 @@ export default function PreviewPage(props: Props) {
     e.preventDefault();
     e.stopPropagation();
 
+    const membershipTier = e.currentTarget.getAttribute('membership-tier-index');
+    expandedTabs[membershipTier] = true;
+    setExpandedTabs(expandedTabs);
+    setMembershipIndex(membershipTier);
 
     const showMoreButton = e.currentTarget;
-    showMoreButton.style.display = 'none';
-
-    const parentDiv = showMoreButton.parentNode;
-    parentDiv.style.height = 'auto';
-
-    const tierDiv = parentDiv.querySelector('.tierInfo');
-    tierDiv.style.height = 'unset';
+    const tierDiv = showMoreButton.parentNode.querySelector('.tierInfo');
     tierDiv.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -160,12 +163,12 @@ export default function PreviewPage(props: Props) {
   };
 
   React.useEffect(() => {
-    setTimeout(function(){
+    setTimeout(() => {
       const tiers = document.getElementsByClassName('tierInfo');
       for (const tier of tiers) {
         const elementIsOverflown = isOverflown(tier);
         const seeMoreButton = tier.parentNode.querySelector('.tier-show-more__button');
-        if (elementIsOverflown) seeMoreButton.style.display = 'block';
+        if (elementIsOverflown && seeMoreButton) seeMoreButton.style.display = 'block';
       }
 
       window.balanceText();
@@ -180,7 +183,7 @@ export default function PreviewPage(props: Props) {
             <div className="membership-join-blocks__div">
               {membershipTiers.map(function(membership, i) {
                 return (
-                  <div className="membership-join-blocks__body" key={i}>
+                  <div className={classnames('membership-join-blocks__body', { 'expandedBlock': expandedTabs[i] })} key={i}>
                     <section className="membership-join__plan-info">
                       <h1 className="membership-join__plan-header">{membership.displayName}</h1>
                       <Button
@@ -197,41 +200,39 @@ export default function PreviewPage(props: Props) {
                       />
                     </section>
 
-                    <div className="tierInfo">
-                      <span className="section__subtitle membership-join__plan-description">
-                        <h1 className="balance-text">
+                    <div className={classnames('tierInfo', { 'expandedBlock': expandedTabs[i] })}>
+                      {/* membership description */}
+                        <span className="section__subtitle membership-join__plan-description">
+                        <h1 className="balance-text" style={{ lineHeight: '27px' }}>
                           {membership.description}
                         </h1>
                       </span>
 
-                      <section className="membership__plan-perks">
-                        <h1 className="membership-join__plan-header">{__('Perks')}</h1>
-                        <ul className="membership-join-perks__list">
-                          {membership.perks.map((tierPerk, i) => (
-                            <p key={tierPerk}>
-                              {perkDescriptions.map(
-                                (globalPerk, i) =>
-                                  tierPerk === globalPerk.perkName && (
-                                    <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                                  )
-                              )}
-                            </p>
-                          ))}
-                        </ul>
-                      </section>
-                      {/*<h1>Hello</h1>*/}
-                      {/*<h1>Hello</h1>*/}
-                      {/*<h1>Hello</h1>*/}
-                      {/*<h1>Hello</h1>*/}
-                      {/*<h1>Hello</h1>*/}
-                      {/*<h1>Hello</h1>*/}
-                      {/*<h1>Hello</h1>*/}
+                      { membership.perks && membership.perks.length > 0 && (
+                        <section className="membership__plan-perks">
+                          <h1 className="membership-join__plan-header" style={{ marginTop: '17px' }}>{__('Perks')}</h1>
+                          <ul className="membership-join-perks__list">
+                            {membership.perks.map((tierPerk, i) => (
+                              <p key={tierPerk}>
+                                {perkDescriptions.map(
+                                  (globalPerk, i) =>
+                                    tierPerk === globalPerk.perkName && (
+                                      <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                                    )
+                                )}
+                              </p>
+                            ))}
+                          </ul>
+                        </section>
+                      )}
                     </div>
 
                     {/* overflow show rest of tier button */}
-                    <div className="tier-show-more__button" style={{ display: 'none' }} onClick={(e) => showMore(e)}>
-                      <h1 style={{ marginTop: '14px' }} >SHOW MORE</h1>
-                    </div>
+                    { !expandedTabs[i] && (
+                      <div className="tier-show-more__button" membership-tier-index={i} onClick={(e) => showMore(e)}>
+                        <h1 style={{ marginTop: '14px' }} >SHOW MORE</h1>
+                      </div>
+                    )}
                   </div>
                 );
               })}

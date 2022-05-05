@@ -53,6 +53,16 @@ export default function JoinMembershipCard(props: Props) {
 
   const tabButtonProps = { setMembershipIndex, activeTab, setActiveTab };
 
+  let expandedTabsState = {
+    0: false,
+    1: false,
+    2: false,
+    3: false,
+    4: false,
+  };
+
+  const [expandedTabs, setExpandedTabs] = React.useState(expandedTabsState);
+
   return (
     <Form>
       <Card
@@ -75,6 +85,8 @@ export default function JoinMembershipCard(props: Props) {
               tabButtonProps={tabButtonProps}
               isChannelTab={isChannelTab}
               setMembershipIndex={setMembershipIndex}
+              setExpandedTabs={setExpandedTabs}
+              expandedTabs={expandedTabs}
             />
           )
         }

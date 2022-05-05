@@ -27,6 +27,10 @@
   }
 }
 
+.expandedBlock {
+  height: auto !important;
+}
+
 
 .membership_title {
   margin-top: var(--spacing-l);
@@ -138,13 +142,16 @@
   margin-bottom: 13px;
 }
 
+.membership-join__body {
+  overflow: scroll;
+}
+
 .membership-join__body, .membership-join-blocks__body {
   text-align: center;
   padding: var(--spacing-s);
   margin-bottom: var(--spacing-m);
   //height: 22rem;
   //width: 100%;
-  overflow: scroll;
   display: flex;
   flex-direction: column;
   flex-basis: 33%;
@@ -168,6 +175,7 @@
 
     .membership-join-blocks__body {
       border: 1px solid white;
+      padding-bottom: 17px;
       //transition: height 2s ease; not working
     }
 
@@ -177,9 +185,13 @@
   }
 
   .tierInfo {
-    height: 148px;
+    height: 135px;
     overflow: hidden;
     //transition: height 2s ease; not working
+
+    .membership-join__perk-item:last-child {
+      margin-bottom: 0;
+    }
   }
 
 }
