@@ -62,6 +62,7 @@ export default function JoinMembershipCard(props: Props) {
   };
 
   const [expandedTabs, setExpandedTabs] = React.useState(expandedTabsState);
+  const [seeAllTiers, setSeeAllTiers] = React.useState(false);
 
   return (
     <Form>
@@ -87,6 +88,8 @@ export default function JoinMembershipCard(props: Props) {
               setMembershipIndex={setMembershipIndex}
               setExpandedTabs={setExpandedTabs}
               expandedTabs={expandedTabs}
+              setSeeAllTiers={setSeeAllTiers}
+              seeAllTiers={seeAllTiers}
             />
           )
         }

@@ -31,6 +31,14 @@
   height: auto !important;
 }
 
+.forceShowTiers {
+  display: flex !important;
+}
+
+.see-all-tiers__header {
+  margin: 0 auto;
+}
+
 
 .membership_title {
   margin-top: var(--spacing-l);
@@ -167,6 +175,7 @@
     display: flex;
     flex-wrap: wrap;
     max-width: 72rem;
+    justify-content: center;
   }
 
 
@@ -174,7 +183,9 @@
     margin: 0 auto;
 
     .membership-join-blocks__body {
-      border: 1px solid white;
+      border: 1px solid grey;
+      padding-bottom: 17px;
+      border-radius: 4px;
       padding-bottom: 17px;
       //transition: height 2s ease; not working
     }

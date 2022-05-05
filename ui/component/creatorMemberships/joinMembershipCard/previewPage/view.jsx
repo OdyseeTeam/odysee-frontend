@@ -54,12 +54,12 @@ let membershipTiers = [
     monthlyContributionInUSD: 20,
     perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
   },
-  {
-    displayName: 'Community MVP3',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
+  // {
+  //   displayName: 'Community MVP3',
+  //   description: 'Where would this creator be without you? You are a true legend!',
+  //   monthlyContributionInUSD: 20,
+  //   perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
+  // },
 ];
 
 type Props = {
@@ -84,6 +84,11 @@ export default function PreviewPage(props: Props) {
     tabButtonProps,
     handleConfirm,
     setMembershipIndex,
+    isChannelTab,
+    expandedTabs,
+    setExpandedTabs,
+    setSeeAllTiers,
+    seeAllTiers,
     // -- redux --
     canReceiveFiatTips,
     hasSavedCard,
@@ -92,9 +97,6 @@ export default function PreviewPage(props: Props) {
     doGetCustomerStatus,
     myChannelClaimIds,
     claim,
-    isChannelTab,
-    expandedTabs,
-    setExpandedTabs,
   } = props;
 
   // check if a user is looking at their own memberships
@@ -143,23 +145,24 @@ export default function PreviewPage(props: Props) {
 
     const showMoreButton = e.currentTarget;
     const tierDiv = showMoreButton.parentNode.querySelector('.tierInfo');
-    tierDiv.scrollIntoView({ behavior: 'smooth' });
+    console.log(tierDiv);
+
+    setTimeout(function() {
+      tierDiv.scrollIntoView({ behavior: 'smooth' });
+    }, 10);
   };
 
   const showAllTiers = function(e) {
     e.preventDefault();
     e.stopPropagation();
-    const seeAllTiersButton = e.currentTarget;
+    setSeeAllTiers(true);
 
-    seeAllTiersButton.style.display = 'none';
-
-    const membershipTierDivs = document.getElementsByClassName('membership-join-blocks__body');
-    for (const tierDiv of membershipTierDivs) {
-      tierDiv.style.display = 'flex';
-    }
-
-    const lastTier = membershipTierDivs[membershipTierDivs.length - 1];
-    lastTier.scrollIntoView({ behavior: 'smooth' });
+    console.log('running here!');
+    setTimeout(function(){
+      const membershipTierDivs = document.getElementsByClassName('membership-join-blocks__body');
+      const lastTier = membershipTierDivs[membershipTierDivs.length - 1];
+      lastTier.scrollIntoView({ behavior: 'smooth' });
+    }, 10);
   };
 
   React.useEffect(() => {
@@ -183,7 +186,10 @@ export default function PreviewPage(props: Props) {
             <div className="membership-join-blocks__div">
               {membershipTiers.map(function(membership, i) {
                 return (
-                  <div className={classnames('membership-join-blocks__body', { 'expandedBlock': expandedTabs[i] })} key={i}>
+                  <div className={classnames('membership-join-blocks__body', {
+                    'expandedBlock': expandedTabs[i],
+                    'forceShowTiers': seeAllTiers,
+                  })} key={i}>
                     <section className="membership-join__plan-info">
                       <h1 className="membership-join__plan-header">{membership.displayName}</h1>
                       <Button
@@ -236,9 +242,12 @@ export default function PreviewPage(props: Props) {
                   </div>
                 );
               })}
-
-              {/* show the rest of the tiers button */}
-              <h1 style={{ margin: '0 auto' }} onClick={(e) => showAllTiers(e)}>See More</h1>
+              { !seeAllTiers && membershipTiers && membershipTiers.length > 3 && (
+                <>
+                  {/* show the rest of the tiers button */}
+                  <h1 className="see-all-tiers__header" onClick={(e) => showAllTiers(e)}>See More</h1>
+                </>
+              )}
             </div>
           </>) : (
             <>
