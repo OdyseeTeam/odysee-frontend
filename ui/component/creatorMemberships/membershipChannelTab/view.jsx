@@ -8,6 +8,7 @@ import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard'
 import { formatDateToMonthAndDay } from 'util/time';
 import moment from 'moment';
 import { getStripeEnvironment } from 'util/stripe';
+import BalanceText from 'react-balance-text'
 
 let stripeEnvironment = getStripeEnvironment();
 
@@ -110,7 +111,11 @@ export default function MembershipChannelTab(props: Props) {
             <div className="membership__body">
               <h1 className="membership__plan-header">{MembershipDetails.name}</h1>
 
-              <h1 className="membership__plan-description">{MembershipDetails.description}</h1>
+              <h1 className="membership__plan-description">
+                <BalanceText>
+                  {MembershipDetails.description}
+                </BalanceText>
+              </h1>
 
               <div className="membership__plan-perks">
                 <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}

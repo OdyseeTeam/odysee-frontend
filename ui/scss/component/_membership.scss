@@ -208,7 +208,7 @@
   }
 
   .tierInfo {
-    height: 135px;
+    height: 132px;
     overflow: hidden;
     transition: all linear 5s;
 
@@ -230,6 +230,7 @@
   display: flex;
   flex-direction: column;
   //height: 100%;
+  align-items: center;
 
   // Perks header
   .membership-join__plan-header {
@@ -500,6 +501,7 @@
 
   .membership__perk-item {
     color: var(--color-text-subtitle);
+    width: 221px;
   }
 
   .membership__plan-header {
