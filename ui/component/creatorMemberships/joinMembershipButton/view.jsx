@@ -49,11 +49,12 @@ export default function JoinMembershipButton(props: Props) {
 
   // build link to membership tab of user's channel
   let memberPageUrl;
-  if (userIsActiveMember) {
-    const channelPath = formatLbryUrlForWeb(uri);
+  if (userIsActiveMember || isChannelPage) {
+    let channelPath = formatLbryUrlForWeb(uri);
     const urlParams = new URLSearchParams();
     urlParams.set(VIEW, MEMBERSHIP);
-    // $FlowFixMe
+    // if you're on the channel page channelPath comes with a leading / already
+    if (isChannelPage) channelPath = channelPath.substr(1);
     memberPageUrl = `/${channelPath}?${urlParams}`;
   }
 
@@ -77,7 +78,8 @@ export default function JoinMembershipButton(props: Props) {
       icon={ICONS.UPGRADE}
       label={__('Join')}
       title={__('Become A Member')}
-      onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}
+      onClick={!isChannelPage && (() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri }))}
+      navigate={isChannelPage && memberPageUrl}
       style={{
         filter: !creatorHasMemberships ? 'brightness(50%)' : undefined,
       }}
