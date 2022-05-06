@@ -374,23 +374,22 @@
 $BANNER_BORDER: 1px;
 
 .banner-ad {
-  padding: var(--spacing-l) 0 0 0;
-
-  @media (min-width: $breakpoint-medium) {
-    margin: auto;
-    width: 100%;
-    max-width: 768px;
-  }
+  margin-top: var(--spacing-l);
+  background-color: var(--color-ads-background);
+  border: $BANNER_BORDER solid var(--color-border);
+  border-radius: var(--border-radius);
 }
 
 .banner-ad__container {
-  background-color: var(--color-ads-background);
-  border: $BANNER_BORDER solid var(--color-border);
-  border-radius: var(--border-radius) var(--border-radius) 0 var(--border-radius);
-
   padding: var(--spacing-xxs) var(--spacing-m);
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxs) var(--spacing-xxs);
+  }
+
+  @media (min-width: $breakpoint-small) {
+    margin: auto;
+    width: 100%;
+    max-width: 386px;
   }
 }
 
@@ -400,9 +399,8 @@ $BANNER_BORDER: 1px;
   align-items: center;
 
   border-left: $BANNER_BORDER solid var(--color-border);
-  border-bottom: $BANNER_BORDER solid var(--color-border);
-  border-right: $BANNER_BORDER solid var(--color-border);
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  border-top: $BANNER_BORDER solid var(--color-border);
+  border-radius: var(--border-radius) 0 var(--border-radius) 0;
   max-width: 95%;
   float: right;
 
