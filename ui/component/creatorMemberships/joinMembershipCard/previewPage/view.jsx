@@ -263,7 +263,9 @@ export default function PreviewPage(props: Props) {
                 <section className="membership-join__plan-info">
                   <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
                   <span className="section__subtitle membership-join__plan-description">
-                    <BalanceText>{selectedTier.description}</BalanceText>
+                    <h1 style={{ lineHeight: '27px' }}>
+                      <BalanceText>{selectedTier.description}</BalanceText>
+                    </h1>
                   </span>
                 </section>
 
