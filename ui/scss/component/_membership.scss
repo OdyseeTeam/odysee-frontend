@@ -176,6 +176,18 @@
     flex-wrap: wrap;
     max-width: 72rem;
     justify-content: center;
+    margin: 0 auto;
+  }
+
+  .membership-join__plan-description h1 {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+
+  .membership-join__plan-info {
+    .membership-join__plan-header {
+      margin-top: 17px;
+    }
   }
 
 
@@ -187,7 +199,7 @@
       padding-bottom: 17px;
       border-radius: 4px;
       padding-bottom: 17px;
-      //transition: height 2s ease; not working
+      transition: all linear 5s;
     }
 
     .membership-join-blocks__body:nth-child(4), .membership-join-blocks__body:nth-child(5) {
@@ -198,7 +210,7 @@
   .tierInfo {
     height: 135px;
     overflow: hidden;
-    //transition: height 2s ease; not working
+    transition: all linear 5s;
 
     .membership-join__perk-item:last-child {
       margin-bottom: 0;
@@ -218,6 +230,11 @@
   display: flex;
   flex-direction: column;
   //height: 100%;
+
+  // Perks header
+  .membership-join__plan-header {
+    margin-top: 17px;
+  }
 
   ul {
     display: flex;
@@ -256,12 +273,12 @@
 
 /** JOIN CARD ON CHANNEL PAGE **/
 
-.channelPage-wrapper .membership-join,
+.channelPage-wrapper .membership-join-card,
 .membership__body {
   padding: 0px 20rem;
 }
 
-.membership-join,
+.membership-join-card,
 .membership {
   .section__actions {
     display: block;
@@ -423,6 +440,7 @@
 
   .card__header--between, .card__title-section {
     display: block;
+    margin-bottom: 14px;
   }
 
   .card__header--between, .membership-join__tab-buttons, .membership-join-purchase__div {
@@ -523,9 +541,29 @@
 }
 
 
+.join-membership-card__modal {
+  overflow: hidden !important;
+
+  form {
+    height: 100%;
+  }
+
+  .membership-join-card {
+    height: 100%;
+
+    .membership-join__body {
+      width: 78%;
+      margin: 0 auto;
+      max-height: 366px;
+    }
+  }
+}
+
+
 /** **/
 .join-membership-card__modal {
-  max-width: 600px !important;
+  height: 600px;
+  width: 600px;
 
   .membership-features-confirmation__section {
     .confirm__value {

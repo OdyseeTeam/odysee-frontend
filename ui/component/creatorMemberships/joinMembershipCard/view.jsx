@@ -68,7 +68,7 @@ export default function JoinMembershipCard(props: Props) {
     <Form>
       <Card
         title={isChannelTab ? __('Join Membership') : __('Join Creator Membership')}
-        className={isChannelTab ? 'membership-join-tab' : 'membership-join'}
+        className={isChannelTab ? 'membership-join-tab' : 'membership-join-card'}
         subtitle={!isOnConfirmationPage && __("Join this creator's channel for access to exclusive content and perks")}
         body={
           isOnConfirmationPage ? (

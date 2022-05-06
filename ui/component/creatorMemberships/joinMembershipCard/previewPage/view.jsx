@@ -1,10 +1,11 @@
 // @flow
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import classnames from 'classnames';
 import { getChannelFromClaim } from 'util/claim';
+import BalanceText from 'react-balance-text';
 
 const perkDescriptions = [
   {
@@ -144,12 +145,11 @@ export default function PreviewPage(props: Props) {
     setMembershipIndex(membershipTier);
 
     const showMoreButton = e.currentTarget;
-    const tierDiv = showMoreButton.parentNode.querySelector('.tierInfo');
-    console.log(tierDiv);
+    const parentNode = showMoreButton.parentNode;
 
     setTimeout(function() {
-      tierDiv.scrollIntoView({ behavior: 'smooth' });
-    }, 10);
+      parentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 0);
   };
 
   const showAllTiers = function(e) {
@@ -157,12 +157,11 @@ export default function PreviewPage(props: Props) {
     e.stopPropagation();
     setSeeAllTiers(true);
 
-    console.log('running here!');
-    setTimeout(function(){
+    setTimeout(() => {
       const membershipTierDivs = document.getElementsByClassName('membership-join-blocks__body');
       const lastTier = membershipTierDivs[membershipTierDivs.length - 1];
       lastTier.scrollIntoView({ behavior: 'smooth' });
-    }, 10);
+    }, 0);
   };
 
   React.useEffect(() => {
@@ -173,44 +172,44 @@ export default function PreviewPage(props: Props) {
         const seeMoreButton = tier.parentNode.querySelector('.tier-show-more__button');
         if (elementIsOverflown && seeMoreButton) seeMoreButton.style.display = 'block';
       }
-
-      window.balanceText();
-    }, 1000);
+    }, 0);
   }, []);
 
   return (
     <>
       {!shouldDisablePurchase ? (
         <>
-          { isChannelTab ? (<>
-            <div className="membership-join-blocks__div">
-              {membershipTiers.map(function(membership, i) {
-                return (
-                  <div className={classnames('membership-join-blocks__body', {
-                    'expandedBlock': expandedTabs[i],
-                    'forceShowTiers': seeAllTiers,
-                  })} key={i}>
-                    <section className="membership-join__plan-info">
-                      <h1 className="membership-join__plan-header">{membership.displayName}</h1>
-                      <Button
-                        className="membership-join-block-purchase__button"
-                        icon={ICONS.UPGRADE}
-                        button="primary"
-                        type="submit"
-                        disabled={shouldDisablePurchase || checkingOwnMembershipCard}
-                        label={__('Signup for $%membership_price% a month', {
-                          membership_price: membership.monthlyContributionInUSD,
-                        })}
-                        onClick={(e) => clickSignupButton(e)}
-                        membership-tier-index={i}
-                      />
-                    </section>
+          {/** channel tab preview section (blocks) **/}
+          { isChannelTab ? (
+            <>
+              <div className="membership-join-blocks__div">
+                {membershipTiers.map(function(membership, i) {
+                  return (
+                    <div className={classnames('membership-join-blocks__body', {
+                      'expandedBlock': expandedTabs[i],
+                      'forceShowTiers': seeAllTiers,
+                    })} key={i}>
+                      <section className="membership-join__plan-info">
+                        <h1 className="membership-join__plan-header">{membership.displayName}</h1>
+                        <Button
+                          className="membership-join-block-purchase__button"
+                          icon={ICONS.UPGRADE}
+                          button="primary"
+                          type="submit"
+                          disabled={shouldDisablePurchase || checkingOwnMembershipCard}
+                          label={__('Signup for $%membership_price% a month', {
+                            membership_price: membership.monthlyContributionInUSD,
+                          })}
+                          onClick={(e) => clickSignupButton(e)}
+                          membership-tier-index={i}
+                        />
+                      </section>
 
                     <div className={classnames('tierInfo', { 'expandedBlock': expandedTabs[i] })}>
                       {/* membership description */}
                         <span className="section__subtitle membership-join__plan-description">
-                        <h1 className="balance-text" style={{ lineHeight: '27px' }}>
-                          {membership.description}
+                        <h1 style={{ lineHeight: '27px' }}>
+                          <BalanceText>{membership.description}</BalanceText>
                         </h1>
                       </span>
 
@@ -249,7 +248,9 @@ export default function PreviewPage(props: Props) {
                 </>
               )}
             </div>
-          </>) : (
+          </>
+          ) : (
+            // modal preview section
             <>
               <div className="membership-join__tab-buttons">
                 {membershipTiers.map((membershipTier, index) => {
@@ -261,7 +262,9 @@ export default function PreviewPage(props: Props) {
               <div className="membership-join__body">
                 <section className="membership-join__plan-info">
                   <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
-                  <span className="section__subtitle membership-join__plan-description">{selectedTier.description}</span>
+                  <span className="section__subtitle membership-join__plan-description">
+                    <BalanceText>{selectedTier.description}</BalanceText>
+                  </span>
                 </section>
 
                 <section className="membership__plan-perks">
