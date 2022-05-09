@@ -7,24 +7,7 @@ import * as PAGES from 'constants/pages';
 
 export const PAGE_TITLE = {
   // --- Categories ---
-  [PAGES.ARTISTS]: 'Artists',
-  [PAGES.CREATIVE_ARTS]: 'The Arts',
-  [PAGES.DISCOVER]: 'Wild West',
-  [PAGES.EDUCATION]: 'Education',
-  [PAGES.ENLIGHTENMENT]: 'Enlightenment',
-  [PAGES.FEATURED]: 'Featured',
-  [PAGES.FINANCE]: 'Finance 2.0',
-  [PAGES.GAMING]: 'Gaming',
-  [PAGES.GENERAL]: 'Cheese',
-  [PAGES.LAB]: 'Lab',
-  [PAGES.MOVIES]: 'Movies',
-  [PAGES.MUSIC]: 'Music',
-  [PAGES.NEWS]: 'News & Politics',
-  [PAGES.POP_CULTURE]: 'Pop Culture',
-  [PAGES.SPORTS]: 'Sports',
-  [PAGES.TECH]: 'Tech',
-  [PAGES.UNIVERSE]: 'Universe',
-  [PAGES.WILD_WEST]: 'Wild West',
+  // Dynamically populated in 'window.CATEGORY_PAGE_TITLE'.
 
   // --- Everything else in alphabetical order ---
   [PAGES.BUY]: 'Buy or Swap',
@@ -48,6 +31,7 @@ export const PAGE_TITLE = {
   [PAGES.RECEIVE]: 'Your address',
   [PAGES.REPORT]: 'Report an issue or request a feature',
   [PAGES.REPORT_CONTENT]: 'Report content',
+  [PAGES.REPOST_NEW]: 'Repost',
   [PAGES.REWARDS]: 'Rewards',
   [PAGES.REWARDS_VERIFY]: 'Verify to earn Credits',
   [PAGES.SEARCH]: 'Search',

@@ -70,6 +70,7 @@ const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: 
 const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChunkName: "listBlocked" */));
 const ListsPage = lazyImport(() => import('page/lists' /* webpackChunkName: "lists" */));
 const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "lists" */));
+const WatchHistoryPage = lazyImport(() => import('page/watchHistory' /* webpackChunkName: "history" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
 const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
@@ -83,6 +84,7 @@ const PasswordSetPage = lazyImport(() => import('page/passwordSet' /* webpackChu
 const PublishPage = lazyImport(() => import('page/publish' /* webpackChunkName: "publish" */));
 const ReportContentPage = lazyImport(() => import('page/reportContent' /* webpackChunkName: "reportContent" */));
 const ReportPage = lazyImport(() => import('page/report' /* webpackChunkName: "report" */));
+const RepostNew = lazyImport(() => import('page/repost' /* webpackChunkName: "repost" */));
 const RewardsPage = lazyImport(() => import('page/rewards' /* webpackChunkName: "rewards" */));
 const RewardsVerifyPage = lazyImport(() => import('page/rewardsVerify' /* webpackChunkName: "rewardsVerify" */));
 const SearchPage = lazyImport(() => import('page/search' /* webpackChunkName: "search" */));
@@ -139,6 +141,8 @@ type Props = {
   wildWestDisabled: boolean,
   unseenCount: number,
   hideTitleNotificationCount: boolean,
+  hasDefaultChannel: boolean,
+  doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
 type PrivateRouteProps = Props & {
@@ -180,7 +184,11 @@ function AppRouter(props: Props) {
     wildWestDisabled,
     unseenCount,
     hideTitleNotificationCount,
+    hasDefaultChannel,
+    doSetActiveChannel,
   } = props;
+
+  const defaultChannelRef = React.useRef(hasDefaultChannel);
 
   const { entries, listen, action: historyAction } = history;
   const entryIndex = history.index;
@@ -226,8 +234,16 @@ function AppRouter(props: Props) {
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
-      const title = pathname.startsWith('/$/') ? PAGE_TITLE[pathname.substring(3)] : '';
-      return __(title) || (IS_WEB ? SITE_TITLE : 'Odysee');
+      let title = '';
+      if (pathname.startsWith('/$/')) {
+        const name = pathname.substring(3);
+        if (window.CATEGORY_PAGE_TITLE && window.CATEGORY_PAGE_TITLE[name]) {
+          title = window.CATEGORY_PAGE_TITLE[name];
+        } else {
+          title = PAGE_TITLE[name];
+        }
+      }
+      return __(title) || SITE_TITLE || 'Odysee';
     };
 
     if (uri) {
@@ -264,6 +280,20 @@ function AppRouter(props: Props) {
       }
     }
   }, [currentScroll, pathname, search, hash, resetScroll, hasLinkedCommentInUrl, historyAction]);
+
+  React.useEffect(() => {
+    defaultChannelRef.current = hasDefaultChannel;
+  }, [hasDefaultChannel]);
+
+  React.useEffect(() => {
+    return () => {
+      // has a default channel selected, clear the current active channel
+      if (defaultChannelRef.current) {
+        doSetActiveChannel(null, true);
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   // react-router doesn't decode pathanmes before doing the route matching check
   // We have to redirect here because if we redirect on the server, it might get encoded again
@@ -343,6 +373,7 @@ function AppRouter(props: Props) {
         />
         <PrivateRoute {...props} path={`/$/${PAGES.INVITE}`} component={InvitePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNEL_NEW}`} component={ChannelNew} />
+        <PrivateRoute {...props} path={`/$/${PAGES.REPOST_NEW}`} component={RepostNew} />
         <PrivateRoute {...props} path={`/$/${PAGES.UPLOADS}`} component={FileListPublished} />
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_DASHBOARD}`} component={CreatorDashboard} />
         <PrivateRoute {...props} path={`/$/${PAGES.UPLOAD}`} component={PublishPage} />
@@ -352,6 +383,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIBRARY}`} component={LibraryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LISTS}`} component={ListsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.PLAYLISTS}`} component={PlaylistsPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />

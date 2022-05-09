@@ -6,6 +6,7 @@ import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -100,7 +101,6 @@ type Props = {
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
 
-const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
 const IS_IOS = platform.isIOS();
 
 if (!Object.keys(videojs.getPlugins()).includes('eventTracking')) {
@@ -218,7 +218,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const videoJsOptions = {
     preload: 'auto',
-    playbackRates: videoPlaybackRates,
+    playbackRates: VIDEO_PLAYBACK_RATES,
     responsive: true,
     controls: true,
     html5: {
@@ -238,8 +238,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
-    // fixes problem of errant CC button showing up on iOS
-    // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
     controlBar: {
       currentTimeDisplay: !isLivestreamClaim,
       timeDivider: !isLivestreamClaim,

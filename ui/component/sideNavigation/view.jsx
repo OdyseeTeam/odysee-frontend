@@ -87,6 +87,13 @@ const PLAYLISTS: SideNavLink = {
   hideForUnauth: true,
 };
 
+const WATCH_HISTORY: SideNavLink = {
+  title: 'Watch History',
+  link: `/$/${PAGES.WATCH_HISTORY}`,
+  icon: ICONS.WATCH_HISTORY,
+  hideForUnauth: true,
+};
+
 const PREMIUM: SideNavLink = {
   title: 'Premium',
   link: `/$/${PAGES.ODYSEE_MEMBERSHIP}`,
@@ -138,7 +145,7 @@ type Props = {
   user: ?User,
   homepageData: any,
   doClearClaimSearch: () => void,
-  odyseeMembership: string,
+  odyseeMembership: ?string,
   odyseeMembershipByUri: (uri: string) => string,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
 };
@@ -532,6 +539,7 @@ function SideNavigation(props: Props) {
               {!showMicroMenu && getLink(WATCH_LATER)}
               {!showMicroMenu && getLink(FAVORITES)}
               {getLink(PLAYLISTS)}
+              {!showMicroMenu && getLink(WATCH_HISTORY)}
             </ul>
 
             <ul

@@ -4,6 +4,7 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { stopContextMenu } from 'util/context-menu';
+import * as Chapters from './internal/chapters';
 import type { Player } from './internal/videojs';
 import VideoJs from './internal/videojs';
 import analytics from 'analytics';
@@ -71,6 +72,8 @@ type Props = {
   activeLivestreamForChannel: any,
   defaultQuality: ?string,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
+  doSetContentHistoryItem: (uri: string) => void,
+  doClearContentHistoryUri: (uri: string) => void,
 };
 
 /*
@@ -117,6 +120,7 @@ function VideoViewer(props: Props) {
     activeLivestreamForChannel,
     defaultQuality,
     doToast,
+    doSetContentHistoryItem,
   } = props;
 
   const permanentUrl = claim && claim.permanent_url;
@@ -149,6 +153,12 @@ function VideoViewer(props: Props) {
   const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
   const isFirstRender = React.useRef(true);
   const playerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (isPlaying) {
+      doSetContentHistoryItem(claim.permanent_url);
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -432,6 +442,8 @@ function VideoViewer(props: Props) {
     if (position && !isLivestreamClaim) {
       player.currentTime(position);
     }
+
+    Chapters.parseAndLoad(player, claim);
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
