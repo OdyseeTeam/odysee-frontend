@@ -199,8 +199,12 @@
       border-radius: var(--border-radius);
       // padding-bottom: 17px;
       // transition: all linear 5s;
-      height: 316px;
-      max-height: 316px;
+
+
+      //height: 316px;
+      //max-height: 316px;
+
+
       transition: max-height 0.3s;
       background-color: rgba(var(--color-header-background-base), 0.6);
 

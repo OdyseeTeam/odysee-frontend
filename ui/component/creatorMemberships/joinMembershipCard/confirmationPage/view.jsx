@@ -2,6 +2,7 @@
 import React from 'react';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
+import BalanceText from 'react-balance-text';
 
 // const testChannel = {
 //   membership_id: 7,
@@ -62,6 +63,11 @@ export default function ConfirmationPage(props: Props) {
     <div className="confirm__wrapper">
       <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
       <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.displayName} />
+      <ConfirmationSection
+        style={{ maxWidth: '300px', margin: '0 auto', marginBottom: '10px', lineHeight: '27px' }}
+        label={__('Description:')}
+        value={<BalanceText>{selectedTier.description}</BalanceText>}
+      />
       <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
       <ConfirmationSection
         className="membership-features-confirmation__section"
@@ -98,13 +104,14 @@ type GroupProps = {
   className?: string,
   label: string,
   value: string | React$Node,
+  style: any,
 };
 
 const ConfirmationSection = (props: GroupProps) => {
-  const { label, value, className } = props;
+  const { label, value, className, style } = props;
 
   return (
-    <section className={`confirm__section ${className || ''}`}>
+    <section style={style} className={`confirm__section ${className || ''}`}>
       <span className="confirm__label">{label}</span>
       <span className="section__subtitle confirm__value">{value}</span>
     </section>
