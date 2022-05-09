@@ -11,6 +11,8 @@ import { isChannelClaim } from 'util/claim';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { toCompactNotation } from 'util/string';
+import ClaimPreviewProgress from 'component/claimPreviewProgress';
+import Icon from 'component/common/icon';
 import Tooltip from 'component/common/tooltip';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
@@ -33,6 +35,7 @@ import ClaimPreviewHidden from './claim-preview-no-mature';
 import ClaimPreviewNoContent from './claim-preview-no-content';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import CollectionEditButtons from 'component/collectionEditButtons';
+import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 
 const AbandonedChannelPreview = lazyImport(() =>
@@ -56,6 +59,7 @@ type Props = {
   nsfw: boolean,
   placeholder: string,
   type: string,
+  nonClickable?: boolean,
   banState: { blacklisted?: boolean, filtered?: boolean, muted?: boolean, blocked?: boolean },
   hasVisitedUri: boolean,
   blockedUris: Array<string>,
@@ -78,9 +82,10 @@ type Props = {
   hideMenu?: boolean,
   isLivestream?: boolean,
   isLivestreamActive: boolean,
+  livestreamViewerCount: ?number,
   collectionId?: string,
   isCollectionMine: boolean,
-  disableNavigation?: boolean,
+  disableNavigation?: boolean, // DEPRECATED - use 'nonClickable'. Remove this when channel-finder is consolidated (#810)
   mediaDuration?: string,
   date?: any,
   indexInContainer?: number, // The index order of this component within 'containerId'.
@@ -91,6 +96,8 @@ type Props = {
   dragHandleProps?: any,
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
+  inWatchHistory?: boolean,
+  doClearContentHistoryUri: (uri: string) => void,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -116,6 +123,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     history,
     wrapperElement,
     type,
+    nonClickable,
     placeholder,
     // pending
     reflectingProgress,
@@ -143,6 +151,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     // repostUrl,
     isLivestream,
     isLivestreamActive,
+    livestreamViewerCount,
     collectionId,
     isCollectionMine,
     disableNavigation,
@@ -154,6 +163,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     dragHandleProps,
     unavailableUris,
     showMemberBadge,
+    inWatchHistory,
+    doClearContentHistoryUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -285,6 +296,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
 
+  function removeFromHistory(e, uri) {
+    e.stopPropagation();
+    doClearContentHistoryUri(uri);
+  }
+
   useEffect(() => {
     if (isValid && !isResolvingUri && shouldFetch && uri) {
       resolveUri(uri);
@@ -330,7 +346,15 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   let liveProperty = null;
   if (isLivestreamActive === true) {
-    liveProperty = (claim) => <>LIVE</>;
+    if (livestreamViewerCount) {
+      liveProperty = (claim) => (
+        <span className="livestream__viewer-count">
+          {livestreamViewerCount} <Icon icon={ICONS.EYE} />
+        </span>
+      );
+    } else {
+      liveProperty = (claim) => <>LIVE</>;
+    }
   }
 
   return (
@@ -344,11 +368,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
         'claim-preview__wrapper--small': type === 'small',
         'claim-preview__live': isLivestreamActive,
         'claim-preview__active': active,
+        'non-clickable': nonClickable,
       })}
     >
       <>
         {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
-
         <div
           className={classnames('claim-preview', {
             'claim-preview--small': type === 'small' || type === 'tooltip',
@@ -368,7 +392,12 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link>
-              <ChannelThumbnail uri={uri} small={type === 'inline'} showMemberBadge={showMemberBadge} checkMembership={false} />
+              <ChannelThumbnail
+                uri={uri}
+                small={type === 'inline'}
+                showMemberBadge={showMemberBadge}
+                checkMembership={false}
+              />
             </UriIndicator>
           ) : (
             <>
@@ -390,6 +419,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                         <PreviewOverlayProperties uri={uri} small={type === 'small'} properties={liveProperty} />
                       </div>
                     )}
+                    <ClaimPreviewProgress uri={uri} />
                   </FileThumbnail>
                 </NavLink>
               ) : (
@@ -413,7 +443,12 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
                     <UriIndicator focusable={false} uri={uri} link hideAnonymous>
-                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall showMemberBadge={showMemberBadge} checkMembership={false} />
+                      <ChannelThumbnail
+                        uri={signingChannel.permanent_url}
+                        xsmall
+                        showMemberBadge={showMemberBadge}
+                        checkMembership={false}
+                      />
                     </UriIndicator>
                   </div>
                 )}
@@ -460,7 +495,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             )}
           </div>
         </div>
-
+        {inWatchHistory && (
+          <div onClick={(e) => removeFromHistory(e, uri)} className="claim-preview__history-remove">
+            <Icon icon={ICONS.REMOVE} />
+          </div>
+        )}
         {/* Todo: check isLivestreamActive once we have that data consistently everywhere. */}
         {claim && isLivestream && <ClaimPreviewReset uri={uri} />}
 

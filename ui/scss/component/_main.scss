@@ -189,11 +189,6 @@ body {
       margin-top: var(--spacing-xs) !important;
       .claim-preview__wrapper {
         padding: 0 !important;
-        a {
-          .button__content {
-            align-items: unset;
-          }
-        }
         .claim-preview-info {
           margin-top: 2px;
           margin-bottom: -2px;
@@ -339,9 +334,7 @@ body {
 
   .file-page__recommended-collection {
     @extend .file-page__recommended;
-    flex-direction: column;
-    overflow-wrap: break-word;
-    width: 28rem;
+
     @media (max-width: $breakpoint-small) {
       width: unset;
     }
@@ -446,14 +439,11 @@ body {
         }
       }
     }
-
-    .collection-preview__edit-group {
-      //width: 1.5rem;
-    }
   }
 
   .file-page__playlist-collection {
     @extend .file-page__recommended-collection;
+
     .card__first-pane {
       .card__header--between {
         .card__title-section {
@@ -461,6 +451,7 @@ body {
         }
       }
     }
+
     .file-page__playlist-collection__row {
       @extend .file-page__recommended-collection__row;
 
@@ -471,10 +462,6 @@ body {
           }
         }
       }
-    }
-
-    @media (min-width: $breakpoint-small) {
-      width: 32rem;
     }
   }
 
@@ -506,6 +493,25 @@ body {
 
     .file-page__recommended {
       margin-top: 0px !important;
+    }
+  }
+}
+
+.main--video-page {
+  @media (min-width: $breakpoint-medium) {
+    $recommended-width: calc(var(--recommended-content-width) - var(--spacing-l) * 3 - var(--spacing-m) * 2);
+
+    display: grid;
+    grid-template-columns: 1fr $recommended-width;
+    justify-content: space-between;
+    gap: var(--spacing-l);
+
+    .file-page__recommended,
+    .file-page__playlist-collection {
+      margin: 0 !important;
+      height: 100% !important;
+      width: 100% !important;
+      overflow: hidden;
     }
   }
 }
@@ -553,6 +559,10 @@ body {
     flex-direction: column;
     margin-left: auto;
     margin-right: auto;
+  }
+
+  .file-page__video-container {
+    max-height: unset;
   }
 
   .file-page__recommended {
@@ -623,7 +633,7 @@ body {
       .claim-preview__wrapper {
         a {
           .button__content {
-            align-items: unset;
+            // align-items: unset;
           }
         }
       }
@@ -687,6 +697,10 @@ body {
   margin-right: auto;
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
+
+  .section__actions {
+    margin-left: var(--spacing-s);
+  }
 
   @media (max-width: $breakpoint-small) {
     .section__header--actions {
@@ -943,7 +957,7 @@ body {
 
     > :first-child {
       position: fixed;
-      background-color: var(--color-background);
+      // background-color: var(--color-background);
       width: calc(40% - var(--spacing-l));
       margin-top: var(--spacing-xl);
     }
@@ -1009,6 +1023,38 @@ body {
       margin-left: auto;
       padding-bottom: 2px;
       padding-right: 0;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .card__main-actions {
+      margin-top: var(--spacing-s);
+    }
+    .section__actions {
+      margin-top: var(--spacing-m);
+    }
+    .MuiAutocomplete-root {
+      background-color: var(--color-input-bg);
+      border-radius: var(--border-radius);
+      .MuiOutlinedInput-input {
+        font-size: var(--font-body);
+        padding-left: var(--spacing-s);
+        padding-right: var(--spacing-s);
+        height: 22px !important;
+        &::placeholder {
+          color: #ffffff !important;
+          font-size: var(--font-body);
+        }
+        &:focus-visible {
+          box-shadow: unset;
+        }
+      }
+      .Mui-focused {
+        outline: 2px solid var(--color-primary);
+      }
+      .MuiOutlinedInput-notchedOutline {
+        border: none;
+      }
     }
   }
 }
@@ -1116,6 +1162,17 @@ body {
   margin-left: auto;
   margin-right: auto;
   max-width: 32rem;
+
+  fieldset-section {
+    .form-field__avatar_upload {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      .button--alt {
+        margin-left: var(--spacing-s);
+      }
+    }
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.
@@ -1123,6 +1180,39 @@ body {
   .section__actions--no-margin {
     @media (max-width: $breakpoint-small) {
       width: unset; // It was being set to '100%' at the base level.
+    }
+  }
+
+  .claim-preview {
+    .claim-preview__text {
+      overflow: hidden;
+    }
+    .claim-preview-metadata {
+      .claim-tile__info {
+        .media__subtitle {
+          width: calc(100% - 2.1rem);
+          .button {
+            display: inline;
+            @media (max-width: $breakpoint-small) {
+              .button__content {
+                width: 100%;
+                .channel-name {
+                  width: 100%;
+                  p {
+                    width: 99%;
+                    white-space: nowrap;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                  }
+                }
+              }
+            }
+          }
+          span:not(.channel-name) {
+            font-size: var(--font-xsmall);
+          }
+        }
+      }
     }
   }
 }

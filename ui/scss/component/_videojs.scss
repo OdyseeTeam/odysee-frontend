@@ -63,8 +63,7 @@ $control-bar-icon-size: 0.8rem;
   // Load progress color
   .vjs-load-progress,
   .vjs-load-progress div {
-    //background-color: rgba(160, 160, 160, 0.5);
-    background-color: rgba(var(--color-secondary), 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 
   // Progress Bar Background
@@ -114,6 +113,7 @@ $control-bar-icon-size: 0.8rem;
 // Tooltip
 .vjs-mouse-display .vjs-time-tooltip {
   color: white;
+  white-space: nowrap;
 }
 
 // Tooltip
@@ -138,11 +138,6 @@ $control-bar-icon-size: 0.8rem;
     .vjs-control-bar {
       opacity: 0;
       transition: 0.1s;
-    }
-  }
-
-  &.vjs-user-active.vjs-playing {
-    .vjs-control-bar {
     }
   }
 }
@@ -187,8 +182,9 @@ $control-bar-icon-size: 0.8rem;
 .vjs-mouse-display {
   color: white !important;
   background-color: lightgrey !important;
-  width: 8px !important;
-  margin-left: -5px !important;
+  background-color: white !important;
+  // width: 8px !important;
+  // margin-left: -5px !important;
 }
 
 .vjs_video_3_ima-ad-container {
@@ -303,17 +299,27 @@ button.vjs-big-play-button {
 .vjs-custom-control-spacer {
   order: 9 !important;
 }
+.vjs-chapters-button {
+  order: 10 !important;
+}
 .vjs-button--autoplay-next {
   order: 10 !important;
 }
 .vjs-playback-rate {
   order: 11 !important;
 }
-.vjs-chromecast-button {
+.vjs-chromecast-button,
+.vjs-airplay-button {
   order: 12 !important;
 }
 .vjs-quality-selector {
   order: 13 !important;
+  display: flex;
+
+  .vjs-icon-placeholder {
+    word-break: break-word;
+    line-height: 1rem !important;
+  }
 }
 .vjs-button--theater-mode {
   order: 14 !important;
@@ -329,11 +335,18 @@ button.vjs-big-play-button {
   .vjs-time-divider,
   .vjs-button--theater-mode,
   //.vjs-quality-selector,
-  .vjs-chromecast-button, // hopefully we can use chromecast in the future at some point
+  //.vjs-chromecast-button,
   .vjs-button--autoplay-next
   //,.vjs-progress-control
   {
     // hiding progress control for now
     display: none !important;
   }
+}
+
+.vjs-chapter-marker {
+  position: absolute;
+  height: 100%;
+  background-color: var(--color-error);
+  width: 2px;
 }

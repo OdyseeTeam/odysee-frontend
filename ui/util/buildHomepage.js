@@ -2,25 +2,11 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
+import { HOMEPAGE_EXCLUDED_CATEGORIES } from 'constants/homepage_languages';
 import { parseURI } from 'util/lbryURI';
 import moment from 'moment';
 import { toCapitalCase } from 'util/string';
 import { CUSTOM_HOMEPAGE } from 'config';
-
-export type RowDataItem = {
-  title: any,
-  link?: string,
-  help?: any,
-  icon?: string,
-  extra?: any,
-  options?: {
-    channelIds?: Array<string>,
-    pageSize?: number,
-    limitClaimsPerChannel?: number,
-  },
-  route?: string,
-  hideForUnauth?: boolean,
-};
 
 export type HomepageCat = {
   name: string,
@@ -34,14 +20,11 @@ export type HomepageCat = {
   order?: string,
   tags?: Array<string>,
   pinnedUrls?: Array<string>,
+  pinnedClaimIds?: Array<string>, // takes precedence over pinnedUrls
+  excludedChannelIds?: Array<string>,
+  searchLanguages?: Array<string>,
   mixIn?: Array<string>,
 };
-
-// type HomepageData = {
-//   [string]: {
-//     [string]: HomepageCat,
-//   },
-// };
 
 function getLimitPerChannel(size, isChannel) {
   if (isChannel) {
@@ -62,7 +45,7 @@ export function getAllIds(all: any) {
   return Array.from(idsSet);
 }
 
-export const getHomepageRowForCat = (cat: HomepageCat) => {
+export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
   let orderValue;
   switch (cat.order) {
     case 'trending':
@@ -104,21 +87,25 @@ export const getHomepageRowForCat = (cat: HomepageCat) => {
   }
 
   return {
+    id: key,
     link: `/$/${PAGES.DISCOVER}?${urlParams.toString()}`,
     route: cat.name ? `/$/${cat.name}` : undefined,
     icon: cat.icon || '', // some default
     title: cat.label,
     pinnedUrls: cat.pinnedUrls,
+    pinnedClaimIds: cat.pinnedClaimIds,
     options: {
       claimType: cat.claimType || ['stream', 'repost'],
       channelIds: cat.channelIds,
+      excludedChannelIds: cat.excludedChannelIds,
       orderBy: orderValue,
       pageSize: cat.pageSize || undefined,
       limitClaimsPerChannel: limitClaims,
+      searchLanguages: cat.searchLanguages,
       releaseTime: `>${Math.floor(
         moment()
           .subtract(cat.daysOfContent || 30, 'days')
-          .startOf('week')
+          .startOf('hour')
           .unix()
       )}`,
     },
@@ -128,7 +115,7 @@ export const getHomepageRowForCat = (cat: HomepageCat) => {
 export function GetLinksData(
   all: any, // HomepageData type?
   isLargeScreen: boolean,
-  isHomepage?: boolean = false,
+  isHomepage?: boolean,
   authenticated?: boolean,
   showPersonalizedChannels?: boolean,
   showPersonalizedTags?: boolean,
@@ -147,6 +134,7 @@ export function GetLinksData(
 
   if (isHomepage && showPersonalizedChannels && subscribedChannels) {
     const RECENT_FROM_FOLLOWING = {
+      id: 'FOLLOWING',
       title: __('Recent From Following'),
       link: `/$/${PAGES.CHANNELS_FOLLOWING}`,
       icon: ICONS.SUBSCRIBE,
@@ -156,7 +144,7 @@ export function GetLinksData(
           subscribedChannels.length > 20
             ? `>${Math.floor(moment().subtract(9, 'months').startOf('week').unix())}`
             : `>${Math.floor(moment().subtract(1, 'year').startOf('week').unix())}`,
-        pageSize: getPageSize(subscribedChannels.length > 3 ? (subscribedChannels.length > 6 ? 16 : 8) : 4),
+        pageSize: getPageSize(subscribedChannels.length > 3 ? (subscribedChannels.length > 6 ? 12 : 8) : 4),
         streamTypes: null,
         channelIds: subscribedChannels.map((subscription: Subscription) => {
           const { channelClaimId } = parseURI(subscription.uri);
@@ -318,6 +306,7 @@ export function GetLinksData(
       followedTags.forEach((tag: Tag) => {
         const tagName = `#${toCapitalCase(tag.name)}`;
         individualTagDataItems.push({
+          id: tagName,
           title: __('Trending for %tagName%', { tagName: tagName }),
           link: `/$/${PAGES.DISCOVER}?t=${tag.name}`,
           options: {
@@ -349,8 +338,19 @@ export function GetLinksData(
   // **************************************************************************
 
   // TODO: provide better method for exempting from homepage
-  (Object.values(all): any)
-    .filter((row) => !(isHomepage && row.name === 'news'))
-    .map((row) => rowData.push(getHomepageRowForCat(row)));
+  const entries = Object.entries(all);
+  for (let i = 0; i < entries.length; ++i) {
+    const key = entries[i][0];
+    const val = entries[i][1];
+
+    // $FlowFixMe https://github.com/facebook/flow/issues/2221
+    if (isHomepage && HOMEPAGE_EXCLUDED_CATEGORIES.includes(key)) {
+      continue;
+    }
+
+    // $FlowFixMe https://github.com/facebook/flow/issues/2221
+    rowData.push(getHomepageRowForCat(key, val));
+  }
+
   return rowData;
 }

@@ -1,10 +1,10 @@
 // @flow
 import { ENABLE_PREROLL_ADS } from 'config';
 import * as PAGES from 'constants/pages';
-import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { stopContextMenu } from 'util/context-menu';
+import * as Chapters from './internal/chapters';
 import type { Player } from './internal/videojs';
 import VideoJs from './internal/videojs';
 import analytics from 'analytics';
@@ -28,6 +28,7 @@ import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
+import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
@@ -75,6 +76,10 @@ type Props = {
   claimRewards: () => void,
   isLivestreamClaim: boolean,
   activeLivestreamForChannel: any,
+  defaultQuality: ?string,
+  doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
+  doSetContentHistoryItem: (uri: string) => void,
+  doClearContentHistoryUri: (uri: string) => void,
 };
 
 /*
@@ -119,6 +124,9 @@ function VideoViewer(props: Props) {
     isMarkdownOrComment,
     isLivestreamClaim,
     activeLivestreamForChannel,
+    defaultQuality,
+    doToast,
+    doSetContentHistoryItem,
   } = props;
 
   const permanentUrl = claim && claim.permanent_url;
@@ -151,6 +159,12 @@ function VideoViewer(props: Props) {
   const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
   const isFirstRender = React.useRef(true);
   const playerRef = React.useRef(null);
+
+  React.useEffect(() => {
+    if (isPlaying) {
+      doSetContentHistoryItem(claim.permanent_url);
+    }
+  }, [isPlaying]);
 
   useEffect(() => {
     if (isFirstRender.current) {
@@ -301,12 +315,6 @@ function VideoViewer(props: Props) {
   function onDispose(event, player) {
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
-
-    const almostFinished = player.currentTime() / player.duration() >= VIDEO_ALMOST_FINISHED_THRESHOLD;
-
-    if (player.ended() || almostFinished) {
-      clearPosition(permanentUrl);
-    }
   }
 
   function handlePosition(player) {
@@ -398,6 +406,15 @@ function VideoViewer(props: Props) {
     // re-factoring.
     player.on('loadedmetadata', () => restorePlaybackRate(player));
 
+    // Override the "auto" algorithm to post-process the result
+    player.on('loadedmetadata', () => {
+      const vhs = player.tech(true).vhs;
+      if (vhs) {
+        // https://github.com/videojs/http-streaming/issues/749#issuecomment-606972884
+        vhs.selectPlaylist = lastBandwidthSelector;
+      }
+    });
+
     // used for tracking buffering for watchman
     player.on('tracking:buffered', doTrackingBuffered);
 
@@ -431,6 +448,8 @@ function VideoViewer(props: Props) {
     if (position && !isLivestreamClaim) {
       player.currentTime(position);
     }
+
+    Chapters.parseAndLoad(player, claim);
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
@@ -514,6 +533,8 @@ function VideoViewer(props: Props) {
         userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
         isLivestreamClaim={isLivestreamClaim}
         activeLivestreamForChannel={activeLivestreamForChannel}
+        defaultQuality={defaultQuality}
+        doToast={doToast}
       />
     </div>
   );

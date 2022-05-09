@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import { parseURI } from 'util/lbryURI';
+import { getImageProxyUrl } from 'util/thumbnail';
 import classnames from 'classnames';
 import Gerbil from './gerbil.png';
 import FreezeframeWrapper from 'component/fileThumbnail/FreezeframeWrapper';
@@ -17,6 +18,7 @@ type Props = {
   obscure?: boolean,
   small?: boolean,
   xsmall?: boolean,
+  xxsmall?: boolean,
   allowGifs?: boolean,
   claim: ?ChannelClaim,
   doResolveUri: (string) => void,
@@ -24,7 +26,6 @@ type Props = {
   noLazyLoad?: boolean,
   hideStakedIndicator?: boolean,
   hideTooltip?: boolean,
-  noOptimization?: boolean,
   setThumbUploadError: (boolean) => void,
   ThumbUploadError: boolean,
   claimsByUri: { [string]: any },
@@ -44,6 +45,7 @@ function ChannelThumbnail(props: Props) {
     obscure,
     small = false,
     xsmall = false,
+    xxsmall,
     allowGifs = false,
     claim,
     doResolveUri,
@@ -96,8 +98,12 @@ function ChannelThumbnail(props: Props) {
   }, [doResolveUri, shouldResolve, uri]);
 
   if (isGif && !allowGifs) {
+    const url = getImageProxyUrl(channelThumbnail);
     return (
-      <FreezeframeWrapper src={channelThumbnail} className={classnames('channel-thumbnail', className)}>
+      <FreezeframeWrapper
+        src={url}
+        className={classnames('channel-thumbnail', className, { 'channel-thumbnail--xxsmall': xxsmall })}
+      >
         {showMemberBadge && <PremiumBadge {...badgeProps} />}
       </FreezeframeWrapper>
     );
@@ -109,6 +115,7 @@ function ChannelThumbnail(props: Props) {
         [colorClassName]: !showThumb,
         'channel-thumbnail--small': small,
         'channel-thumbnail--xsmall': xsmall,
+        'channel-thumbnail--xxsmall': xxsmall,
         'channel-thumbnail--resolving': isResolving,
       })}
     >
@@ -116,6 +123,8 @@ function ChannelThumbnail(props: Props) {
         alt={__('Channel profile picture')}
         className={!channelThumbnail ? 'channel-thumbnail__default' : 'channel-thumbnail__custom'}
         src={(!thumbLoadError && channelThumbnail) || defaultAvatar}
+        width={xxsmall ? 16 : small || xsmall ? 64 : 160}
+        quality={xxsmall ? 16 : small || xsmall ? 85 : 95}
         loading={noLazyLoad ? undefined : 'lazy'}
         onError={() => {
           if (setThumbUploadError) {

@@ -3,7 +3,7 @@ import { lazyImport } from 'util/lazyImport';
 import { MAIN_CLASS } from 'constants/classnames';
 import { parseURI } from 'util/lbryURI';
 import { useHistory } from 'react-router';
-import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsMediumScreen, useIsMobileLandscape } from 'effects/use-screensize';
 import classnames from 'classnames';
 import Header from 'component/header';
 import React from 'react';
@@ -35,6 +35,7 @@ type Props = {
   noSideNavigation: boolean,
   rightSide?: Node,
   settingsPage?: boolean,
+  renderMode: String,
   videoTheaterMode: boolean,
   isPopoutWindow?: boolean,
 };
@@ -55,6 +56,7 @@ function Page(props: Props) {
     noSideNavigation = false,
     rightSide,
     settingsPage,
+    renderMode,
     videoTheaterMode,
     isPopoutWindow,
   } = props;
@@ -63,8 +65,10 @@ function Page(props: Props) {
     location: { pathname },
   } = useHistory();
 
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const isMediumScreen = useIsMediumScreen();
   const isMobile = useIsMobile();
+  const isLandscapeRotated = useIsMobileLandscape();
   const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
 
   const url = pathname.slice(1).replace(/:/g, '#');
@@ -101,7 +105,7 @@ function Page(props: Props) {
       <div
         className={classnames('main-wrapper__inner', {
           'main-wrapper__inner--filepage': isOnFilePage,
-          'main-wrapper__inner--theater-mode': isOnFilePage && videoTheaterMode && !isMobile,
+          'main-wrapper__inner--theater-mode': isOnFilePage && theaterMode && !isMobile,
           'main-wrapper__inner--auth': authPage,
           'main--popout-chat': isPopoutWindow,
         })}
@@ -130,19 +134,20 @@ function Page(props: Props) {
           <main
             id={'main-content'}
             className={classnames(MAIN_CLASS, className, {
-              'main--full-width hide-ribbon': fullWidthPage,
+              'main--full-width': fullWidthPage,
               'main--auth-page': authPage,
               'main--file-page': filePage,
+              'main--video-page': filePage && !theaterMode && !livestream && !isMarkdown,
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
-              'main--theater-mode': isOnFilePage && videoTheaterMode && !livestream && !isMarkdown && !isMobile,
+              'main--theater-mode': isOnFilePage && theaterMode && !livestream && !isMarkdown && !isMobile,
               'main--livestream': livestream && !chatDisabled,
               'main--popout-chat': isPopoutWindow,
             })}
           >
             {children}
 
-            {!isMobile && (!livestream || !chatDisabled) && rightSide}
+            {(!isMobile || isLandscapeRotated) && (!livestream || !chatDisabled) && rightSide}
           </main>
 
           {!noFooter && (

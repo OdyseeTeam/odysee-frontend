@@ -11,7 +11,7 @@ import * as RENDER_MODES from 'constants/file_render_modes';
 import Button from 'component/button';
 import Nag from 'component/common/nag';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { LayoutRenderContext } from 'page/livestream/view';
+import { LivestreamContext } from 'page/livestream/view';
 import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';
@@ -71,7 +71,8 @@ export default function FileRenderInitiator(props: Props) {
     doFetchChannelLiveStatus,
   } = props;
 
-  const layountRendered = React.useContext(LayoutRenderContext);
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
+  const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
 
   const isMobile = useIsMobile();
 
@@ -104,7 +105,8 @@ export default function FileRenderInitiator(props: Props) {
     history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(pathname)}`);
   }
 
-  useFetchLiveStatus(channelClaimId, doFetchChannelLiveStatus);
+  // in case of a livestream outside of the livestream page component, like embed
+  useFetchLiveStatus(isLivestreamClaim && !livestreamPage ? channelClaimId : undefined, doFetchChannelLiveStatus);
 
   const thumbnail = useThumbnail(claimThumbnail, containerRef);
 
@@ -133,7 +135,8 @@ export default function FileRenderInitiator(props: Props) {
   }, [collectionId, doUriInitiatePlay, isMarkdownPost, isPlayable, parentCommentId, pathname, uri]);
 
   React.useEffect(() => {
-    const videoOnPage = document.querySelector('video');
+    // avoid selecting 'video' anymore -> can cause conflicts with Ad popup videos
+    const videoOnPage = document.querySelector('.vjs-tech');
 
     if (
       (canViewFile || forceAutoplayParam) &&
@@ -162,7 +165,7 @@ export default function FileRenderInitiator(props: Props) {
           ? 'embed__inline-button'
           : classnames('content__cover', {
               'content__cover--disabled': disabled,
-              'content__cover--theater-mode': videoTheaterMode && !isMobile,
+              'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
             })

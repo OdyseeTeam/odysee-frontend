@@ -8,7 +8,6 @@ import {
   selectCurrentUploads,
 } from 'redux/selectors/publish';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
-import { doSetActiveChannel } from 'redux/actions/app';
 import PublishPage from './view';
 
 const select = (state) => ({
@@ -16,6 +15,7 @@ const select = (state) => ({
   uri: makeSelectPublishFormValue('uri')(state),
   isStillEditing: selectIsStillEditing(state),
   myClaimForUri: selectMyClaimForUri(state),
+  myClaimForUriCaseInsensitive: selectMyClaimForUri(state, false),
   currentUploads: selectCurrentUploads(state),
   activeChannelClaim: selectActiveChannelClaim(state),
   incognito: selectIncognito(state),
@@ -25,7 +25,6 @@ const select = (state) => ({
 const perform = (dispatch) => ({
   updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
   prepareEdit: (claim, uri) => dispatch(doPrepareEdit(claim, uri)),
-  setActiveChannel: (claimId) => dispatch(doSetActiveChannel(claimId)),
 });
 
 export default connect(select, perform)(PublishPage);

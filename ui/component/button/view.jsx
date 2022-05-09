@@ -19,6 +19,7 @@ type Props = {
   disabled: ?boolean,
   children: ?Node,
   navigate: ?string,
+  navigateTarget?: string,
   className: ?string,
   description: ?string,
   type: string,
@@ -59,6 +60,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     disabled,
     children,
     navigate,
+    navigateTarget,
     className,
     description,
     button,
@@ -143,11 +145,21 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     </span>
   );
 
+  // check if the link is for odysee.com
+  function isAnOdyseeLink(urlString) {
+    return (
+      urlString && (urlString.indexOf('https://odysee.com') !== -1 || urlString.indexOf('http://odysee.com') !== -1)
+    );
+  }
+
+  // if it's an internal link we won't open a new tab
+  const isAnInternalLink = (href || navigate) && (isAnOdyseeLink(href) || isAnOdyseeLink(navigate));
+
   if (href || (navigate && navigate.startsWith('http'))) {
     // TODO: replace the below with an outbound link tracker for matomo
     return (
       <a
-        target="_blank"
+        target={navigateTarget || (isAnInternalLink ? '' : '_blank')}
         rel="noopener noreferrer"
         href={href || navigate}
         className={combinedClassName}

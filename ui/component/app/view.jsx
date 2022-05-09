@@ -1,6 +1,6 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import React, { useEffect, useRef, useState, useLayoutEffect } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import classnames from 'classnames';
@@ -16,6 +16,7 @@ import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import FileRenderFloating from 'component/fileRenderFloating';
 import { withRouter } from 'react-router';
+import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/common/nag';
 import REWARDS from 'rewards';
@@ -23,7 +24,6 @@ import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
-import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
   useDegradedPerformance,
@@ -64,7 +64,7 @@ type Props = {
   user: ?{ id: string, has_verified_email: boolean, is_reward_approved: boolean },
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string },
-  history: { push: (string) => void },
+  history: { push: (string) => void, location: { pathname: string } },
   fetchChannelListMine: () => void,
   fetchCollectionListMine: () => void,
   signIn: () => void,
@@ -85,12 +85,11 @@ type Props = {
   syncFatalError: boolean,
   activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
-  subscriptions: Array<Subscription>,
-  setActiveChannelIfNotSet: () => void,
+  hasPremiumPlus: ?boolean,
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
-  resolveUris: (Array<string>) => void,
   fetchModAmIList: () => void,
+  homepageFetched: boolean,
 };
 
 function App(props: Props) {
@@ -120,12 +119,11 @@ function App(props: Props) {
     syncFatalError,
     myChannelClaimIds,
     activeChannelClaim,
-    setActiveChannelIfNotSet,
     setIncognito,
     fetchModBlockedList,
-    resolveUris,
-    subscriptions,
+    hasPremiumPlus,
     fetchModAmIList,
+    homepageFetched,
   } = props;
 
   const isMobile = useIsMobile();
@@ -138,15 +136,14 @@ function App(props: Props) {
   const previousRewardApproved = usePrevious(isRewardApproved);
 
   const [localeLangs, setLocaleLangs] = React.useState();
+  const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
   const [showAnalyticsNag, setShowAnalyticsNag] = usePersistedState('analytics-nag', true);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
 
   const { pathname, hash, search } = props.location;
   const [upgradeNagClosed, setUpgradeNagClosed] = useState(false);
-  const [resolvedSubscriptions, setResolvedSubscriptions] = useState(false);
   const [retryingSync, setRetryingSync] = useState(false);
   const [langRenderKey, setLangRenderKey] = useState(0);
-  const [sidebarOpen] = usePersistedState('sidebar', true);
   const [seenSunsestMessage, setSeenSunsetMessage] = usePersistedState('lbrytv-sunset', false);
   const showUpgradeButton =
     (autoUpdateDownloaded || (process.platform === 'linux' && isUpgradeAvailable)) && !upgradeNagClosed;
@@ -156,13 +153,13 @@ function App(props: Props) {
   const rawReferrerParam = urlParams.get('r');
   const fromLbrytvParam = urlParams.get('sunset');
   const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
-  const shouldHideNag = pathname.startsWith(`/$/${PAGES.EMBED}`) || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
+  const embedPath = pathname.startsWith(`/$/${PAGES.EMBED}`);
+  const shouldHideNag = embedPath || pathname.startsWith(`/$/${PAGES.AUTH_VERIFY}`);
   const userId = user && user.id;
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
   const hasActiveChannelClaim = activeChannelClaim !== undefined;
-  const isPersonalized = !IS_WEB || hasVerifiedEmail;
   const renderFiledrop = !isMobile && isAuthenticated;
   const connectionStatus = useConnectionStatus();
 
@@ -219,9 +216,9 @@ function App(props: Props) {
       );
     }
 
-    if (localeLangs) {
+    if (localeLangs && !embedPath && !localeSwitchDismissed && homepageFetched) {
       const noLanguageSet = language === 'en' && languages.length === 1;
-      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} />;
+      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} onFrontPage={pathname === '/'} />;
     }
   }
 
@@ -313,9 +310,7 @@ function App(props: Props) {
   }, [currentModal]);
 
   useEffect(() => {
-    if (hasMyChannels && !hasActiveChannelClaim) {
-      setActiveChannelIfNotSet();
-    } else if (hasNoChannels) {
+    if (hasNoChannels) {
       setIncognito(true);
     }
 
@@ -324,7 +319,7 @@ function App(props: Props) {
       fetchModAmIList();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMyChannels, hasNoChannels, hasActiveChannelClaim, setActiveChannelIfNotSet, setIncognito]);
+  }, [hasMyChannels, hasNoChannels, hasActiveChannelClaim, setIncognito]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -468,17 +463,9 @@ function App(props: Props) {
     }
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
 
-  // batch resolve subscriptions to be used by the sideNavigation component.
-  // add it here so that it only resolves the first time, despite route changes.
-  // useLayoutEffect because it has to be executed before the sideNavigation component requests them
-  useLayoutEffect(() => {
-    if (sidebarOpen && isPersonalized && subscriptions && !resolvedSubscriptions) {
-      setResolvedSubscriptions(true);
-      resolveUris(subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED).map((sub) => sub.uri));
-    }
-  }, [sidebarOpen, isPersonalized, resolvedSubscriptions, subscriptions, resolveUris, setResolvedSubscriptions]);
-
   useDegradedPerformance(setLbryTvApiStatus, user);
+
+  useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
 
   useEffect(() => {
     // When language is changed or translations are fetched, we render.

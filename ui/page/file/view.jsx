@@ -15,8 +15,8 @@ import CollectionContent from 'component/collectionContentSidebar';
 import Button from 'component/button';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
-import { DrawerExpandButton } from 'component/swipeableDrawer/view';
-import { useIsMobile } from 'effects/use-screensize';
+import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -40,14 +40,18 @@ type Props = {
   contentCommentsDisabled: boolean,
   isLivestream: boolean,
   position: number,
+  audioVideoDuration: ?number,
   commentsListTitle: string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   isPlaying?: boolean,
+  claimWasPurchased: boolean,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   clearPosition: (uri: string) => void,
   doClearPlayingUri: () => void,
+  doToggleAppDrawer: () => void,
+  doFileGet: (uri: string) => void,
 };
 
 export default function FilePage(props: Props) {
@@ -68,32 +72,45 @@ export default function FilePage(props: Props) {
     collectionId,
     isLivestream,
     position,
+    audioVideoDuration,
     commentsListTitle,
     settingsByChannelId,
+    claimWasPurchased,
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
     clearPosition,
+    doToggleAppDrawer,
+    doFileGet,
   } = props;
 
   const isMobile = useIsMobile();
-
-  // Auto-open the drawer on Mobile view if there is a linked comment
-  const [showComments, setShowComments] = React.useState(linkedCommentId);
-
+  const isLandscapeRotated = useIsMobileLandscape();
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const videoPlayedEnoughToResetPosition = React.useMemo(() => {
+    // I've never seen 'fileInfo' contain metadata lately, but retaining as historical fallback.
     const durationInSecs =
-      fileInfo && fileInfo.metadata && fileInfo.metadata.video ? fileInfo.metadata.video.duration : 0;
+      audioVideoDuration ||
+      (fileInfo && fileInfo.metadata && fileInfo.metadata.video ? fileInfo.metadata.video.duration : 0);
     const isVideoTooShort = durationInSecs <= 45;
     const almostFinishedPlaying = position / durationInSecs >= VIDEO_ALMOST_FINISHED_THRESHOLD;
 
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
-  }, [fileInfo, position]);
+  }, [audioVideoDuration, fileInfo, position]);
+
+  React.useEffect(() => {
+    if (linkedCommentId && isMobile) {
+      doToggleAppDrawer();
+    }
+    // only on mount, otherwise clicking on a comments timestamp and linking it
+    // would trigger the drawer
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file
@@ -110,6 +127,7 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
+    if (claimWasPurchased && !hasFileInfo) doFileGet(uri);
 
     return () => doSetPrimaryUri(null);
   }, [
@@ -122,6 +140,8 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
+    doFileGet,
+    claimWasPurchased,
   ]);
 
   function renderFilePageLayout() {
@@ -129,7 +149,7 @@ export default function FilePage(props: Props) {
       return (
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
           {/* playables will be rendered and injected by <FileRenderFloating> */}
-          <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+          <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         </div>
       );
     }
@@ -175,7 +195,7 @@ export default function FilePage(props: Props) {
 
     return (
       <>
-        <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+        <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         <FileRenderInline uri={uri} />
         <FileTitleSection uri={uri} />
       </>
@@ -190,7 +210,7 @@ export default function FilePage(props: Props) {
         <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
           <FileTitleSection uri={uri} isNsfwBlocked />
         </div>
-        {!isMarkdown && !videoTheaterMode && <RightSideContent {...rightSideProps} />}
+        {!isMarkdown && !theaterMode && <RightSideContent {...rightSideProps} />}
       </Page>
     );
   }
@@ -225,17 +245,13 @@ export default function FilePage(props: Props) {
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
                 ) : commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('This channel has disabled comments on their page.')} />
-                ) : isMobile ? (
+                ) : isMobile && !isLandscapeRotated ? (
                   <>
-                    <SwipeableDrawer
-                      open={Boolean(showComments)}
-                      toggleDrawer={() => setShowComments(!showComments)}
-                      title={commentsListTitle}
-                    >
+                    <SwipeableDrawer title={commentsListTitle}>
                       <CommentsList {...commentsListProps} />
                     </SwipeableDrawer>
 
-                    <DrawerExpandButton label={commentsListTitle} toggleDrawer={() => setShowComments(!showComments)} />
+                    <DrawerExpandButton label={commentsListTitle} />
                   </>
                 ) : (
                   <CommentsList {...commentsListProps} />
@@ -243,13 +259,13 @@ export default function FilePage(props: Props) {
               </React.Suspense>
             </section>
 
-            {!isMarkdown && videoTheaterMode && <RightSideContent {...rightSideProps} />}
+            {!isMarkdown && theaterMode && <RightSideContent {...rightSideProps} />}
           </div>
         )}
       </div>
 
       {!isMarkdown
-        ? !videoTheaterMode && <RightSideContent {...rightSideProps} />
+        ? !theaterMode && <RightSideContent {...rightSideProps} />
         : !contentCommentsDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>

@@ -4,7 +4,7 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
-import React, { useEffect } from 'react';
+import React from 'react';
 import Button from 'component/button';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
 import classnames from 'classnames';
@@ -13,24 +13,26 @@ import NotificationBubble from 'component/notificationBubble';
 import DebouncedInput from 'component/common/debounced-input';
 import I18nMessage from 'component/i18nMessage';
 import ChannelThumbnail from 'component/channelThumbnail';
-import { useIsMobile, useIsLargeScreen, isTouch } from 'effects/use-screensize';
+import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
+import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS, ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import PremiumBadge from 'component/common/premium-badge';
 
-const touch = isTouch();
+const touch = platform.isTouch();
 
 type SideNavLink = {
   title: string,
+  icon: string,
   link?: string,
   route?: string,
   onClick?: () => any,
-  icon: string,
   extra?: Node,
   hideForUnauth?: boolean,
+  noI18n?: boolean,
 };
 
-const GO_LIVE = {
+const GO_LIVE: SideNavLink = {
   title: 'Go Live',
   link: `/$/${PAGES.LIVESTREAM}`,
   icon: ICONS.VIDEO,
@@ -56,7 +58,7 @@ const RECENT_FROM_FOLLOWING = {
   icon: ICONS.SUBSCRIBE,
 };
 
-const NOTIFICATIONS = {
+const NOTIFICATIONS: SideNavLink = {
   title: 'Notifications',
   link: `/$/${PAGES.NOTIFICATIONS}`,
   icon: ICONS.NOTIFICATION,
@@ -64,18 +66,40 @@ const NOTIFICATIONS = {
   hideForUnauth: true,
 };
 
-const PLAYLISTS = {
+const WATCH_LATER: SideNavLink = {
+  title: 'Watch Later',
+  link: `/$/${PAGES.LIST}/watchlater`,
+  icon: ICONS.TIME,
+  hideForUnauth: true,
+};
+
+const FAVORITES: SideNavLink = {
+  title: 'Favorites',
+  link: `/$/${PAGES.LIST}/favorites`,
+  icon: ICONS.STAR,
+  hideForUnauth: true,
+};
+
+const PLAYLISTS: SideNavLink = {
   title: 'Lists',
   link: `/$/${PAGES.LISTS}`,
   icon: ICONS.STACK,
   hideForUnauth: true,
 };
 
-const PREMIUM = {
+const WATCH_HISTORY: SideNavLink = {
+  title: 'Watch History',
+  link: `/$/${PAGES.WATCH_HISTORY}`,
+  icon: ICONS.WATCH_HISTORY,
+  hideForUnauth: true,
+};
+
+const PREMIUM: SideNavLink = {
   title: 'Premium',
   link: `/$/${PAGES.ODYSEE_MEMBERSHIP}`,
   icon: ICONS.UPGRADE,
   hideForUnauth: true,
+  noI18n: true,
 };
 
 const UNAUTH_LINKS: Array<SideNavLink> = [
@@ -101,12 +125,6 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
   },
 ];
 
-const WILD_WEST = {
-  title: 'Wild West',
-  link: `/$/${PAGES.WILD_WEST}`,
-  icon: ICONS.WILD_WEST,
-};
-
 // ****************************************************************************
 // ****************************************************************************
 
@@ -126,9 +144,8 @@ type Props = {
   doClearPurchasedUriSuccess: () => void,
   user: ?User,
   homepageData: any,
-  wildWestDisabled: boolean,
   doClearClaimSearch: () => void,
-  odyseeMembership: string,
+  odyseeMembership: ?string,
   odyseeMembershipByUri: (uri: string) => string,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
 };
@@ -149,7 +166,6 @@ function SideNavigation(props: Props) {
     homepageData,
     user,
     followedTags,
-    wildWestDisabled,
     doClearClaimSearch,
     odyseeMembership,
     odyseeMembershipByUri,
@@ -158,7 +174,9 @@ function SideNavigation(props: Props) {
 
   const isLargeScreen = useIsLargeScreen();
 
-  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData, isLargeScreen).map(({ pinnedUrls, ...theRest }) => theRest);
+  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData, isLargeScreen).map(
+    ({ pinnedUrls, pinnedClaimIds, ...theRest }) => theRest
+  );
 
   const MOBILE_LINKS: Array<SideNavLink> = [
     {
@@ -284,7 +302,7 @@ function SideNavigation(props: Props) {
   }
 
   function getLink(props: SideNavLink) {
-    const { hideForUnauth, route, link, ...passedProps } = props;
+    const { hideForUnauth, route, link, noI18n, ...passedProps } = props;
     const { title, icon, extra } = passedProps;
 
     if (hideForUnauth && !email) {
@@ -297,8 +315,8 @@ function SideNavigation(props: Props) {
           {...passedProps}
           icon={icon}
           navigate={route || link}
-          label={__(title)}
-          title={__(title)}
+          label={noI18n ? title : __(title)}
+          title={noI18n ? title : __(title)}
           className={classnames('navigation-link', {
             'navigation-link--pulse': icon === ICONS.LIBRARY && pulseLibrary,
             'navigation-link--highlighted': icon === ICONS.NOTIFICATION && unseenCount > 0,
@@ -320,6 +338,10 @@ function SideNavigation(props: Props) {
       } else {
         displayedSubscriptions =
           lastActiveSubs && lastActiveSubs.length > 0 ? lastActiveSubs : subscriptions.slice(0, SIDEBAR_SUBS_DISPLAYED);
+      }
+
+      if (lastActiveSubs === undefined) {
+        return null; // Don't show yet, just wait to save some renders
       }
 
       return (
@@ -421,7 +443,7 @@ function SideNavigation(props: Props) {
     return () => window.removeEventListener('keydown', handleKeydown);
   }, [sidebarOpen, setSidebarOpen, isAbsolute]);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (!window.Optanon) {
       const gdprDiv = document.getElementById('gdprSidebarLink');
       if (gdprDiv) {
@@ -502,8 +524,19 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
-              {getLink(PLAYLISTS)}
               {!odyseeMembership && getLink(PREMIUM)}
+            </ul>
+
+            <ul
+              className={classnames('navigation-links', {
+                'navigation-links--micro': showMicroMenu,
+                'navigation-links--absolute': shouldRenderLargeMenu,
+              })}
+            >
+              {!showMicroMenu && getLink(WATCH_LATER)}
+              {!showMicroMenu && getLink(FAVORITES)}
+              {getLink(PLAYLISTS)}
+              {!showMicroMenu && getLink(WATCH_HISTORY)}
             </ul>
 
             <ul
@@ -514,9 +547,8 @@ function SideNavigation(props: Props) {
             >
               {EXTRA_SIDEBAR_LINKS && (
                 <>
-                  {/* $FlowFixMe -- GetLinksData should fix it's data type */}
+                  {/* $FlowFixMe: GetLinksData type needs an update */}
                   {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
-                  {!wildWestDisabled && getLink(WILD_WEST)}
                 </>
               )}
             </ul>
@@ -546,7 +578,7 @@ function SideNavigation(props: Props) {
 type SubItemProps = {
   subscription: Subscription,
   odyseeMembershipByUri: (uri: string) => string,
-}
+};
 
 function SubscriptionListItem(props: SubItemProps) {
   const { subscription, odyseeMembershipByUri } = props;

@@ -9,6 +9,8 @@ export const selectEmailAlreadyExists = (state) => selectState(state).emailAlrea
 export const selectEmailDoesNotExist = (state) => selectState(state).emailDoesNotExist;
 export const selectResendingVerificationEmail = (state) => selectState(state).resendingVerificationEmail;
 
+export const selectHomepageFetched = (state) => selectState(state).homepageFetched;
+
 export const selectUserEmail = createSelector(selectUser, (user) =>
   user ? user.primary_email || user.latest_claimed_email : null
 );
@@ -104,17 +106,32 @@ export const selectYouTubeImportError = (state) => selectState(state).youtubeCha
 export const selectSetReferrerPending = (state) => selectState(state).referrerSetIsPending;
 export const selectSetReferrerError = (state) => selectState(state).referrerSetError;
 
+// undefined = not fetched
+// '' = no membership
+// '<name>' = membership name
 export const selectOdyseeMembershipName = (state) => selectState(state).odyseeMembershipName;
 
+/**
+ * @param state
+ * @returns {undefined|boolean} 'undefined' if not yet fetched; boolean otherwise.
+ */
 export const selectOdyseeMembershipIsPremiumPlus = (state) => {
-  const odyseeMembershipName = selectState(state).odyseeMembershipName;
-  if (!odyseeMembershipName) return undefined;
-  return selectState(state).odyseeMembershipName === 'Premium+';
+  const name = selectOdyseeMembershipName(state);
+  return name === undefined ? undefined : name === 'Premium+';
 };
 
+/**
+ * @param state
+ * @returns {undefined|boolean} 'undefined' if not yet fetched; boolean otherwise.
+ */
 export const selectHasOdyseeMembership = (state) => {
-  const membershipName = selectOdyseeMembershipName(state);
-  return Boolean(membershipName);
+  // @if process.env.NODE_ENV!='production'
+  const override = window.localStorage.getItem('hasMembershipOverride');
+  if (override) return override === 'true';
+  // @endif
+
+  const name = selectOdyseeMembershipName(state);
+  return name === undefined ? undefined : Boolean(name);
 };
 
 export const selectYouTubeImportVideosComplete = createSelector(selectState, (state) => {
@@ -129,3 +146,5 @@ export const selectYouTubeImportVideosComplete = createSelector(selectState, (st
 export const makeSelectUserPropForProp = (prop) => createSelector(selectUser, (user) => (user ? user[prop] : null));
 
 export const selectUserLocale = (state) => selectState(state).locale;
+
+export const selectUserCountry = createSelector(selectUserLocale, (locale) => locale?.country);

@@ -1,12 +1,11 @@
 // @flow
 import * as OVERLAY from './overlays';
 import * as KEYCODES from 'constants/keycodes';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import isUserTyping from 'util/detect-typing';
 
 const SEEK_STEP_5 = 5;
 const SEEK_STEP = 10; // time to seek in seconds
-
-const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
 
 // check if active (clicked) element is part of video div, used for keyboard shortcuts (volume etc)
 function activeElementIsPartOfVideoElement() {
@@ -37,13 +36,15 @@ function volumeDown(event, playerRef) {
   player.userActive(true);
 }
 
-function seekVideo(stepSize: number, playerRef, containerRef) {
+function seekVideo(stepSize: number, playerRef, containerRef, jumpTo?: boolean) {
   const player = playerRef.current;
   const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
+
   if (!videoNode || !player) return;
+
   const duration = videoNode.duration;
   const currentTime = videoNode.currentTime;
-  const newDuration = currentTime + stepSize;
+  const newDuration = jumpTo ? duration * stepSize : currentTime + stepSize;
   if (newDuration < 0) {
     videoNode.currentTime = 0;
   } else if (newDuration > duration) {
@@ -51,7 +52,7 @@ function seekVideo(stepSize: number, playerRef, containerRef) {
   } else {
     videoNode.currentTime = newDuration;
   }
-  OVERLAY.showSeekedOverlay(player, Math.abs(stepSize), stepSize > 0);
+  OVERLAY.showSeekedOverlay(player, Math.abs(jumpTo ? stepSize * 100 : stepSize), !jumpTo && stepSize > 0, jumpTo);
   player.userActive(true);
 }
 
@@ -82,10 +83,10 @@ function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef) {
   if (!player) return;
   const isSpeedUp = shouldSpeedUp;
   const rate = player.playbackRate();
-  let rateIndex = videoPlaybackRates.findIndex((x) => x === rate);
+  let rateIndex = VIDEO_PLAYBACK_RATES.findIndex((x) => x === rate);
   if (rateIndex >= 0) {
-    rateIndex = isSpeedUp ? Math.min(rateIndex + 1, videoPlaybackRates.length - 1) : Math.max(rateIndex - 1, 0);
-    const nextRate = videoPlaybackRates[rateIndex];
+    rateIndex = isSpeedUp ? Math.min(rateIndex + 1, VIDEO_PLAYBACK_RATES.length - 1) : Math.max(rateIndex - 1, 0);
+    const nextRate = VIDEO_PLAYBACK_RATES[rateIndex];
 
     OVERLAY.showPlaybackRateOverlay(player, nextRate, isSpeedUp);
     player.userActive(true);
@@ -150,6 +151,16 @@ const VideoJsKeyboardShorcuts = ({
     if (e.keyCode === KEYCODES.J) seekVideo(-SEEK_STEP, playerRef, containerRef);
     if (e.keyCode === KEYCODES.RIGHT) seekVideo(SEEK_STEP_5, playerRef, containerRef);
     if (e.keyCode === KEYCODES.LEFT) seekVideo(-SEEK_STEP_5, playerRef, containerRef);
+    if (e.keyCode === KEYCODES.ZERO) seekVideo(0, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.ONE) seekVideo(10 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.TWO) seekVideo(20 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.THREE) seekVideo(30 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.FOUR) seekVideo(40 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.FIVE) seekVideo(50 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.SIX) seekVideo(60 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.SEVEN) seekVideo(70 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.EIGHT) seekVideo(80 / 100, playerRef, containerRef, true);
+    if (e.keyCode === KEYCODES.NINE) seekVideo(90 / 100, playerRef, containerRef, true);
   }
 
   var curried_function = function (playerRef: any, containerRef: any) {

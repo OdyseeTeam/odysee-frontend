@@ -5,28 +5,35 @@ import { useHistory } from 'react-router';
 import RepostCreate from 'component/repostCreate';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import useThrottle from 'effects/use-throttle';
-import classnames from 'classnames';
+
+export const REPOST_PARAMS = {
+  FROM: 'from',
+  TO: 'to',
+  REDIRECT: 'redirect',
+};
 
 type Props = {
+  // --redux--
   balance: number,
-  resolveUri: string => void,
+  resolveUri: (string) => void,
 };
+
 function RepostPage(props: Props) {
   const { balance, resolveUri } = props;
 
-  const REPOST_FROM = 'from';
-  const REPOST_TO = 'to';
-  const REDIRECT = 'redirect';
   const {
     location: { search },
   } = useHistory();
 
-  const urlParams = new URLSearchParams(search);
-  const repostFrom = urlParams.get(REPOST_FROM);
-  const redirectUri = urlParams.get(REDIRECT);
-  const repostTo = urlParams.get(REPOST_TO);
   const [contentUri, setContentUri] = React.useState('');
   const [repostUri, setRepostUri] = React.useState('');
+
+  const urlParams = new URLSearchParams(search);
+  const repostFrom = urlParams.get(REPOST_PARAMS.FROM);
+  const redirectUri = urlParams.get(REPOST_PARAMS.REDIRECT);
+  const repostTo = urlParams.get(REPOST_PARAMS.TO);
+
+  const decodedFrom = repostFrom && decodeURIComponent(repostFrom);
   const throttledContentValue = useThrottle(contentUri, 500);
   const throttledRepostValue = useThrottle(repostUri, 500);
 
@@ -48,18 +55,10 @@ function RepostPage(props: Props) {
     }
   }, [repostTo, resolveUri]);
 
-  const decodedFrom = repostFrom && decodeURIComponent(repostFrom);
   return (
-    <Page
-      noFooter
-      noSideNavigation
-      backout={{
-        title: __('Repost'),
-        backLabel: __('Back'),
-      }}
-    >
+    <Page noFooter noSideNavigation backout={{ title: __('Repost'), backLabel: __('Back') }}>
       {balance === 0 && <YrblWalletEmpty />}
-      <div className={classnames({ 'card--disabled': balance === 0 })}>
+      <div className={balance === 0 ? 'card--disabled' : undefined}>
         <RepostCreate
           uri={decodedFrom}
           name={repostTo}
@@ -68,6 +67,7 @@ function RepostPage(props: Props) {
           contentUri={contentUri}
           setContentUri={setContentUri}
           setRepostUri={setRepostUri}
+          isRepostPage
         />
       </div>
     </Page>

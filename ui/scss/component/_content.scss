@@ -22,6 +22,12 @@
   @media (max-width: $breakpoint-small) {
     max-height: var(--mobile-player-max-height);
   }
+
+  video {
+    @media (max-width: $breakpoint-small) {
+      max-height: var(--mobile-player-max-height);
+    }
+  }
 }
 
 .content__viewer--secondary {
@@ -112,7 +118,7 @@
 
     .vjs-play-control {
       transform: unset !important;
-      display: none !important;
+      display: inline-block !important;
       position: fixed !important;
       top: 12px !important;
       left: calc(50% - 80px) !important;
@@ -125,7 +131,11 @@
       padding: 15px !important;
 
       .vjs-icon-placeholder {
-        font-size: 1.2rem !important;
+        &::before {
+          font-size: 1.8em !important;
+          line-height: 32px !important;
+          background-size: 60%;
+        }
       }
 
       span {
@@ -178,6 +188,10 @@
       .button--uri-indicator {
         display: none;
       }
+    }
+
+    .vjs-time-control {
+      display: none !important;
     }
   }
 }
@@ -322,7 +336,6 @@
     border-radius: 0;
     border: none;
     margin: 0;
-    max-height: var(--mobile-player-max-height);
   }
 }
 

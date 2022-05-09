@@ -58,6 +58,7 @@ type Props = {
   value: any,
   autoFocus?: boolean,
   submitButtonRef?: any,
+  spellCheck?: boolean,
   claimIsMine?: boolean,
   slimInput?: boolean,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
@@ -89,9 +90,10 @@ export default function TextareaWithSuggestions(props: Props) {
     placeholder,
     searchQuery,
     type,
-    value: messageValue,
+    value: messageValue = '',
     autoFocus,
     submitButtonRef,
+    spellCheck,
     claimIsMine,
     slimInput,
     doResolveUris,
@@ -105,7 +107,7 @@ export default function TextareaWithSuggestions(props: Props) {
     handlePreventClick,
   } = props;
 
-  const inputDefaultProps = { className, placeholder, maxLength, type, disabled };
+  const inputDefaultProps = { className, placeholder, maxLength, spellCheck, type, disabled };
 
   const [suggestionValue, setSuggestionValue] = React.useState(undefined);
   const [highlightedSuggestion, setHighlightedSuggestion] = React.useState('');
@@ -272,14 +274,17 @@ export default function TextareaWithSuggestions(props: Props) {
       if (!suggestionValue) return;
 
       const elem = inputRef && inputRef.current;
+      // $FlowFixMe
       const newCursorPos = suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
 
+      // $FlowFixMe
       const contentBegin = messageValue.substring(0, suggestionValue.index);
+      // $FlowFixMe
       const replaceValue = suggestionValue.beforeTerm + selectedValue;
-      const contentEnd =
-        messageValue.length > suggestionValue.lastIndex
-          ? messageValue.substring(suggestionValue.lastIndex, messageValue.length)
-          : ' ';
+      // $FlowFixMe
+      const endTo = messageValue.substring(suggestionValue.lastIndex, messageValue.length);
+      // $FlowFixMe
+      const contentEnd = messageValue.length > suggestionValue.lastIndex ? endTo : ' ';
 
       const newValue = contentBegin + replaceValue + contentEnd;
 

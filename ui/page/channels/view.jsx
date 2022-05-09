@@ -11,6 +11,7 @@ import Yrbl from 'component/yrbl';
 import LbcSymbol from 'component/common/lbc-symbol';
 import * as PAGES from 'constants/pages';
 import HelpLink from 'component/common/help-link';
+import ChannelSelector from 'component/channelSelector';
 import { useHistory } from 'react-router';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 
@@ -54,8 +55,19 @@ export default function ChannelsPage(props: Props) {
 
   return (
     <Page className="channelsPage-wrapper">
+      <h1 className="section__title section__title--margin-bottom">{__('Active channel')}</h1>
+      <span className="section__subtitle ">{__('Select your default active channel')}</span>
+      <ChannelSelector storeSelection />
+
       <div className="card-stack">
         {hasYoutubeChannels && <YoutubeTransferStatus hideChannelLink />}
+
+        <Button
+          button="primary"
+          label={__('Sync YouTube Channel')}
+          icon={ICONS.YOUTUBE}
+          navigate={`/$/${PAGES.YOUTUBE_SYNC}`}
+        />
 
         {channelUrls && Boolean(channelUrls.length) && (
           <ClaimList

@@ -3,7 +3,7 @@ import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, MISSING_THUMB_DEFAULT } from 'conf
 import { formattedEmote, inlineEmote } from 'util/remark-emote';
 import { formattedLinks, inlineLinks } from 'util/remark-lbry';
 import { formattedTimestamp, inlineTimestamp } from 'util/remark-timestamp';
-import { getThumbnailCdnUrl } from 'util/thumbnail';
+import { getThumbnailCdnUrl, getImageProxyUrl } from 'util/thumbnail';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Button from 'component/button';
@@ -37,6 +37,7 @@ type SimpleTextProps = {
 type SimpleLinkProps = {
   href?: string,
   title?: string,
+  embed?: boolean,
   children?: React.Node,
 };
 
@@ -72,7 +73,7 @@ const SimpleText = (props: SimpleTextProps) => {
 // ****************************************************************************
 
 const SimpleLink = (props: SimpleLinkProps) => {
-  const { title, children, href } = props;
+  const { title, children, href, embed } = props;
 
   if (!href) {
     return children || null;
@@ -88,13 +89,13 @@ const SimpleLink = (props: SimpleLinkProps) => {
 
   const [uri, search] = href.split('?');
   const urlParams = new URLSearchParams(search);
-  const embed = urlParams.get('embed');
+  const embedParam = urlParams.get('embed');
 
-  if (embed) {
+  if (embed || embedParam) {
     // Decode this since users might just copy it from the url bar
     const decodedUri = decodeURI(uri);
     return (
-      <div className="embed__inline-button-preview">
+      <div className="embed__inline-button embed__inline-button--preview">
         <pre>{decodedUri}</pre>
       </div>
     );
@@ -198,9 +199,20 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
       // Workaraund of remarkOptions.Fragment
       div: React.Fragment,
       img: (imgProps) => {
+        const isGif = imgProps.src && imgProps.src.endsWith('gif');
+
         const imageCdnUrl =
-          getThumbnailCdnUrl({ thumbnail: imgProps.src, width: 0, height: 0, quality: 85 }) || MISSING_THUMB_DEFAULT;
-        if ((isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isEmote(imgProps.title, imgProps.src)) {
+          (isGif
+            ? getImageProxyUrl(imgProps.src)
+            : getThumbnailCdnUrl({ thumbnail: imgProps.src, width: 0, height: 0, quality: 85 })) ||
+          MISSING_THUMB_DEFAULT;
+        if (noDataStore) {
+          return (
+            <div className="file-viewer file-viewer--document">
+              <img {...imgProps} src={imageCdnUrl} />
+            </div>
+          );
+        } else if ((isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isEmote(imgProps.title, imgProps.src)) {
           return <ZoomableImage {...imgProps} src={imageCdnUrl} />;
         } else {
           return (

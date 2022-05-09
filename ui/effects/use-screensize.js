@@ -1,6 +1,7 @@
 // @flow
 // Widths are taken from "ui/scss/init/vars.scss"
 import React, { useRef } from 'react';
+import { getWindowAngle, isWindowLandscapeForAngle } from 'component/fileRenderFloating/helper-functions';
 const DEFAULT_SCREEN_SIZE = 1080;
 
 export function useWindowSize() {
@@ -51,14 +52,42 @@ export function useIsMobile() {
   return useHasWindowWidthChangedEnough((windowSize) => windowSize < 901);
 }
 
+export function useIsMobileLandscape() {
+  const isMobile = useIsMobile();
+  const isLandscapeScreen = useIsLandscapeScreen();
+  return isMobile && isLandscapeScreen;
+}
+
+export function useIsLandscapeScreen() {
+  const isWindowClient = typeof window === 'object';
+
+  const windowAngle = getWindowAngle();
+  const isLandscape = isWindowLandscapeForAngle(windowAngle);
+  const [landscape, setLandscape] = React.useState<boolean>(isLandscape);
+
+  React.useEffect(() => {
+    function handleResize() {
+      const currAngle = getWindowAngle();
+      const isCurrLandscape = isWindowLandscapeForAngle(currAngle);
+      if (landscape !== isCurrLandscape) {
+        setLandscape(isCurrLandscape);
+      }
+    }
+
+    if (isWindowClient) {
+      window.addEventListener('resize', handleResize);
+
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [isWindowClient, landscape]);
+
+  return landscape;
+}
+
 export function useIsMediumScreen() {
   return useHasWindowWidthChangedEnough((windowSize) => windowSize < 1151);
 }
 
 export function useIsLargeScreen() {
   return useHasWindowWidthChangedEnough((windowSize) => windowSize > 1600);
-}
-
-export function isTouch() {
-  return 'ontouchstart' in window || 'onmsgesturechange' in window;
 }

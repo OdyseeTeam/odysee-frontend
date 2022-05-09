@@ -12,11 +12,11 @@
   --height-badge: 24px;
 
   // Spacing
-  --spacing-xxxs: calc(2rem / 6);
-  --spacing-xxs: calc(2rem / 5);
-  --spacing-xs: calc(2rem / 4);
-  --spacing-s: calc(2rem / 3);
-  --spacing-m: calc(2rem / 2);
+  --spacing-xxxs: calc(2rem / 6); // 0.33
+  --spacing-xxs: calc(2rem / 5); // 0.4
+  --spacing-xs: calc(2rem / 4); // 0.5
+  --spacing-s: calc(2rem / 3); // 0.66
+  --spacing-m: 1rem;
   --spacing-l: 2rem;
   --spacing-xl: 3rem;
   --spacing-xxl: 4rem;
@@ -53,6 +53,7 @@
   --mobile: 600px;
   --side-nav-width: 230px;
   --side-nav-width--micro: 93px;
+  --recommended-content-width: 32rem;
 
   --spacing-main-padding: var(--spacing-xl);
   --floating-viewer-width: 32rem;
@@ -75,9 +76,9 @@
   --header-height-mobile: 56px;
 
   // Inline Player
-  // --inline-player-max-height: calc(100vh - var(--header-height) - var(--spacing-l) * 2);
   --inline-player-max-height: calc(100vh - var(--header-height) - var(--spacing-l) * 4);
-  --mobile-player-max-height: 50vh;
+  --mobile-player-max-height: 70vh;
+  --desktop-portrait-player-max-height: 80vh;
 
   // Card
   --card-radius: var(--border-radius);
@@ -85,7 +86,7 @@
   --card-box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 
   // Modal
-  --modal-width: 550px;
+  --modal-width: 750px;
 
   // Animation :)
   --animation-duration: 0.2s;
@@ -116,7 +117,7 @@
 
 @media (max-width: $breakpoint-small) {
   :root {
-    --font-body: 0.8rem;
+    // --font-body: 0.8rem;
     --body-scrollbar-width: 0px;
   }
 }

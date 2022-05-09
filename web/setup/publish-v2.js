@@ -70,7 +70,7 @@ export function makeResumableUploadRequest(
     const uploader = new tus.Upload(file, {
       ...urlOptions,
       chunkSize: UPLOAD_CHUNK_SIZE_BYTE,
-      retryDelays: [40000, 60000],
+      retryDelays: [122000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
@@ -101,9 +101,9 @@ export function makeResumableUploadRequest(
           // $FlowFixMe - flow's constructor for Error is incorrect.
           new Error(customErr || err, {
             cause: {
-              ...(uploader._fingerprint ? { fingerprint: uploader._fingerprint } : {}),
-              ...(uploader._retryAttempt ? { retryAttempt: uploader._retryAttempt } : {}),
-              ...(uploader._offsetBeforeRetry ? { offsetBeforeRetry: uploader._offsetBeforeRetry } : {}),
+              // ...(uploader._fingerprint ? { fingerprint: uploader._fingerprint } : {}),
+              // ...(uploader._retryAttempt ? { retryAttempt: uploader._retryAttempt } : {}),
+              // ...(uploader._offsetBeforeRetry ? { offsetBeforeRetry: uploader._offsetBeforeRetry } : {}),
               ...(customErr ? { original: errMsg } : {}),
             },
           })

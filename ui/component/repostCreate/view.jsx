@@ -1,9 +1,8 @@
 // @flow
-
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import { MINIMUM_PUBLISH_BID, INVALID_NAME_ERROR } from 'constants/claim';
 import React from 'react';
-import { useHistory } from 'react-router';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
@@ -18,11 +17,13 @@ import HelpLink from 'component/common/help-link';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
 import BidHelpText from 'component/publishBid/bid-help-text';
 import Spinner from 'component/spinner';
+import { REPOST_PARAMS } from 'page/repost/view';
 
 type Props = {
   doToast: ({ message: string }) => void,
   doClearRepostError: () => void,
   doRepost: (StreamRepostOptions) => Promise<*>,
+  doHideModal: () => void,
   title: string,
   claim?: StreamClaim,
   enteredContentClaim?: StreamClaim,
@@ -36,7 +37,6 @@ type Props = {
   setRepostUri: (string) => void,
   setContentUri: (string) => void,
   doCheckPendingClaims: () => void,
-  redirectUri?: string,
   passedRepostAmount: number,
   enteredRepostAmount: number,
   isResolvingPassedRepost: boolean,
@@ -44,14 +44,15 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   fetchingMyChannels: boolean,
   incognito: boolean,
+  isRepostPage?: boolean,
 };
 
 function RepostCreate(props: Props) {
   const {
-    redirectUri,
     doToast,
     doClearRepostError,
     doRepost,
+    doHideModal,
     claim,
     enteredContentClaim,
     balance,
@@ -70,6 +71,7 @@ function RepostCreate(props: Props) {
     activeChannelClaim,
     fetchingMyChannels,
     incognito,
+    isRepostPage,
   } = props;
 
   const defaultName = name || (claim && claim.name) || '';
@@ -83,7 +85,6 @@ function RepostCreate(props: Props) {
   const [enteredContent, setEnteredContentUri] = React.useState(undefined);
   const [contentError, setContentError] = React.useState('');
 
-  const { replace, goBack } = useHistory();
   const resolvingRepost = isResolvingEnteredRepost || isResolvingPassedRepost;
   const repostUrlName = `lbry://${incognito || !activeChannelClaim ? '' : `${activeChannelClaim.name}/`}`;
 
@@ -255,28 +256,6 @@ function RepostCreate(props: Props) {
 
   const repostClaimId = contentClaimId || enteredClaimId;
 
-  const getRedirect = (entered, passed, redirect) => {
-    if (redirect) {
-      return redirect;
-    } else if (entered) {
-      try {
-        const { claimName } = parseURI(entered);
-        return claimName ? `/${claimName}` : '/';
-      } catch (e) {
-        return '/';
-      }
-    } else if (passed) {
-      try {
-        const { claimName } = parseURI(passed);
-        return claimName ? `/${claimName}` : '/';
-      } catch (e) {
-        return '/';
-      }
-    } else {
-      return '/';
-    }
-  };
-
   function handleSubmit() {
     if (enteredRepostName && repostBid && repostClaimId) {
       doRepost({
@@ -292,14 +271,14 @@ function RepostCreate(props: Props) {
           linkText: __('Uploads'),
           linkTarget: '/uploads',
         });
-        replace(getRedirect(contentUri, uri, redirectUri));
+        doHideModal();
       });
     }
   }
 
   function cancelIt() {
     doClearRepostError();
-    goBack();
+    doHideModal();
   }
 
   if (fetchingMyChannels) {
@@ -312,12 +291,25 @@ function RepostCreate(props: Props) {
 
   return (
     <>
-      <ChannelSelector />
-
       <Card
+        title={__('Repost')}
         className="repost-wrapper"
+        subtitle={
+          isRepostPage ? undefined : (
+            <Button
+              button="link"
+              label={__('Open Repost in new tab')}
+              iconRight={ICONS.EXTERNAL}
+              href={`/$/${PAGES.REPOST_NEW}?${REPOST_PARAMS.FROM}=${encodeURIComponent(uri)}&to=${encodeURIComponent(
+                enteredRepostName
+              )}`}
+              navigateTarget="_blank"
+            />
+          )
+        }
         actions={
           <div>
+            <ChannelSelector />
             {uri && (
               <fieldset-section>
                 <ClaimPreview key={uri} uri={uri} actions={''} showNullPlaceholder />

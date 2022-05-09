@@ -16,8 +16,14 @@ import {
   doAnalyticsView,
 } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
-import { savePosition, clearPosition, doPlayUri, doSetPlayingUri } from 'redux/actions/content';
-import { makeSelectContentPositionForUri, makeSelectIsPlayerFloating, selectPlayingUri } from 'redux/selectors/content';
+import {
+  savePosition,
+  clearPosition,
+  doPlayUri,
+  doSetPlayingUri,
+  doSetContentHistoryItem,
+} from 'redux/actions/content';
+import { makeSelectIsPlayerFloating, selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import VideoViewer from './view';
 import { withRouter } from 'react-router';
@@ -25,6 +31,7 @@ import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { doToast } from 'redux/actions/notifications';
 
 const select = (state, props) => {
   const { search } = props.location;
@@ -35,7 +42,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
 
   // TODO: eventually this should be received from DB and not local state (https://github.com/lbryio/lbry-desktop/issues/6796)
-  const position = urlParams.get('t') !== null ? urlParams.get('t') : makeSelectContentPositionForUri(uri)(state);
+  const position = urlParams.get('t') !== null ? urlParams.get('t') : selectContentPositionForUri(state, uri);
   const userId = selectUser(state) && selectUser(state).id;
   const internalFeature = selectUser(state) && selectUser(state).internal_feature;
   const playingUri = selectPlayingUri(state);
@@ -74,6 +81,7 @@ const select = (state, props) => {
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
   };
 };
 
@@ -101,6 +109,8 @@ const perform = (dispatch) => ({
     ),
   doAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
+  doToast: (props) => dispatch(doToast(props)),
+  doSetContentHistoryItem: (uri) => dispatch(doSetContentHistoryItem(uri)),
 });
 
 export default withRouter(connect(select, perform)(VideoViewer));

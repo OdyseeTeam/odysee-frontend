@@ -1,6 +1,7 @@
 export const CONFIRM = 'confirm';
 export const CONFIRM_FILE_REMOVE = 'confirm_file_remove';
 export const CONFIRM_EXTERNAL_RESOURCE = 'confirm_external_resource';
+export const CUSTOMIZE_HOMEPAGE = 'customize_homepage';
 export const INCOMPATIBLE_DAEMON = 'incompatible_daemon';
 export const FILE_TIMEOUT = 'file_timeout';
 export const FILE_SELECTION = 'file_selection';
@@ -19,6 +20,7 @@ export const AFFIRM_PURCHASE = 'affirm_purchase';
 export const CONFIRM_CLAIM_REVOKE = 'confirm_claim_revoke';
 export const SEND_TIP = 'send_tip';
 export const CONFIRM_SEND_TIP = 'confirm_send_tip';
+export const REPOST = 'repost';
 export const SOCIAL_SHARE = 'social_share';
 export const PUBLISH = 'publish';
 export const PUBLISH_PREVIEW = 'publish_preview';

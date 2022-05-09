@@ -8,7 +8,7 @@
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE, CHANNEL_STAKED_LEVEL_LIVESTREAM } from 'config';
+import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
@@ -30,7 +30,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
-import { LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import PublishStreamReleaseDate from 'component/publishStreamReleaseDate';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
@@ -89,7 +89,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
   user: ?User,
-  activeChannelStakedLevel: number,
   isLivestreamClaim: boolean,
   isPostClaim: boolean,
   permanentUrl: ?string,
@@ -97,7 +96,6 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
-  odyseeMembership: string,
 };
 
 function PublishForm(props: Props) {
@@ -131,7 +129,6 @@ function PublishForm(props: Props) {
     activeChannelClaim,
     incognito,
     user,
-    activeChannelStakedLevel,
     isLivestreamClaim,
     isPostClaim,
     permanentUrl,
@@ -139,7 +136,6 @@ function PublishForm(props: Props) {
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
-    odyseeMembership,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -149,13 +145,7 @@ function PublishForm(props: Props) {
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
 
-  const userHasEnoughLBCForStreaming = activeChannelStakedLevel >= CHANNEL_STAKED_LEVEL_LIVESTREAM;
-
-  const enableLivestream =
-    ENABLE_NO_SOURCE_CLAIMS &&
-    user &&
-    !user.odysee_live_disabled &&
-    (userHasEnoughLBCForStreaming || user.odysee_live_enabled || odyseeMembership);
+  const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
 
   // $FlowFixMe
   const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
@@ -218,15 +208,13 @@ function PublishForm(props: Props) {
   const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
   const [livestreamData, setLivestreamData] = React.useState([]);
-  const [signedMessage, setSignedMessage] = React.useState({ signature: undefined, signing_ts: undefined });
-  const signedMessageStr = JSON.stringify(signedMessage);
+
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
   const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
-  const activeChannelClaimStr = activeChannelClaim && JSON.stringify(activeChannelClaim);
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
@@ -263,26 +251,11 @@ function PublishForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  React.useEffect(() => {
-    if (activeChannelClaimStr) {
-      const channelClaim = JSON.parse(activeChannelClaimStr);
-      const message = 'get-claim-id-replays';
-      setSignedMessage({ signature: null, signing_ts: null });
-      // ensure we have a channel
-      if (channelClaim.claim_id) {
-        Lbry.channel_sign({
-          channel_id: channelClaim.claim_id,
-          hexdata: toHex(message),
-        })
-          .then((data) => {
-            setSignedMessage(data);
-          })
-          .catch((error) => {
-            setSignedMessage({ signature: null, signing_ts: null });
-          });
-      }
+  useEffect(() => {
+    if (claimChannelId) {
+      fetchLivestreams(claimChannelId, activeChannelName);
     }
-  }, [activeChannelClaimStr, setSignedMessage]);
+  }, [claimChannelId]);
 
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
@@ -299,29 +272,55 @@ function PublishForm(props: Props) {
   }, [modal]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  function fetchLivestreams(channelId, signature, timestamp) {
+  async function fetchLivestreams(channelId, channelName) {
     setCheckingLivestreams(true);
-    fetch(`${LIVESTREAM_REPLAY_API}/${channelId}?signature=${signature || ''}&signing_ts=${timestamp || ''}`) // claimChannelId
-      .then((res) => res.json())
-      .then((res) => {
-        if (!res || !res.data) {
-          setLivestreamData([]);
-        }
-        setLivestreamData(res.data);
-        setCheckingLivestreams(false);
-      })
-      .catch((e) => {
-        setLivestreamData([]);
-        setCheckingLivestreams(false);
+    let signedMessage;
+    try {
+      await Lbry.channel_sign({
+        channel_id: channelId,
+        hexdata: toHex(channelName || ''),
+      }).then((data) => {
+        signedMessage = data;
       });
-  }
-
-  useEffect(() => {
-    const signedMessage = JSON.parse(signedMessageStr);
-    if (claimChannelId && signedMessage.signature) {
-      fetchLivestreams(claimChannelId, signedMessage.signature, signedMessage.signing_ts);
+    } catch (e) {
+      throw e;
     }
-  }, [claimChannelId, signedMessageStr]);
+    if (signedMessage) {
+      const encodedChannelName = encodeURIComponent(channelName || '');
+      const newEndpointUrl =
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
+        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
+          encodedChannelName || ''
+        }`;
+
+      const responseFromNewApi = await fetch(newEndpointUrl);
+
+      const data = (await responseFromNewApi.json()).data;
+
+      let newData = [];
+      if (data && data.length > 0) {
+        for (const dataItem of data) {
+          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
+            const objectToPush = {
+              data: {
+                fileLocation: dataItem.URL,
+                fileDuration:
+                  dataItem.Status.toLowerCase() === 'inprogress'
+                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
+                    : (dataItem.Duration / 1000000000).toString(),
+                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
+                uploadedAt: dataItem.Created,
+              },
+            };
+            newData.push(objectToPush);
+          }
+        }
+      }
+
+      setLivestreamData(newData);
+      setCheckingLivestreams(false);
+    }
+  }
 
   const isLivestreamMode = mode === PUBLISH_MODES.LIVESTREAM;
   let submitLabel;
@@ -610,7 +609,7 @@ function PublishForm(props: Props) {
         isCheckingLivestreams={isCheckingLivestreams}
         checkLivestreams={fetchLivestreams}
         channelId={claimChannelId}
-        channelSignature={signedMessage}
+        channelName={activeChannelName}
         header={
           <>
             {AVAILABLE_MODES.map((modeName) => (
@@ -637,7 +636,7 @@ function PublishForm(props: Props) {
 
           {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
-          <Card actions={<SelectThumbnail livestreamdData={livestreamData} />} />
+          <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
           <label style={{ marginTop: 'var(--spacing-l)' }}>{__('Tags')}</label>
           <TagsSelect

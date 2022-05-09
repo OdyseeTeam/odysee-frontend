@@ -1,10 +1,18 @@
 // @flow
 import type { Node } from 'react';
-import { getThumbnailCdnUrl } from 'util/thumbnail';
+import {
+  THUMBNAIL_WIDTH,
+  THUMBNAIL_WIDTH_MOBILE,
+  THUMBNAIL_HEIGHT,
+  THUMBNAIL_HEIGHT_MOBILE,
+  THUMBNAIL_QUALITY,
+  MISSING_THUMB_DEFAULT,
+} from 'config';
+import { useIsMobile } from 'effects/use-screensize';
+import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
 import FreezeframeWrapper from './FreezeframeWrapper';
 import Placeholder from './placeholder.png';
-import { MISSING_THUMB_DEFAULT } from 'config';
 import classnames from 'classnames';
 import Thumb from './thumb';
 
@@ -28,6 +36,7 @@ function FileThumbnail(props: Props) {
 
   const hasResolvedClaim = claim !== undefined;
   const isGif = thumbnail && thumbnail.endsWith('gif');
+  const isMobile = useIsMobile();
 
   React.useEffect(() => {
     if (!hasResolvedClaim && uri && !passedThumbnail) {
@@ -36,8 +45,9 @@ function FileThumbnail(props: Props) {
   }, [hasResolvedClaim, uri, doResolveUri, passedThumbnail]);
 
   if (!allowGifs && isGif) {
+    const url = getImageProxyUrl(thumbnail);
     return (
-      <FreezeframeWrapper src={thumbnail} className={classnames('media__thumb', className)}>
+      <FreezeframeWrapper src={url} className={classnames('media__thumb', className)}>
         {children}
       </FreezeframeWrapper>
     );
@@ -48,8 +58,17 @@ function FileThumbnail(props: Props) {
   let url = thumbnail || (hasResolvedClaim ? Placeholder : '');
   // @if TARGET='web'
   // Pass image urls through a compression proxy
-  if (thumbnail && !(isGif && allowGifs)) {
-    url = getThumbnailCdnUrl({ thumbnail });
+  if (thumbnail) {
+    if (isGif) {
+      url = getImageProxyUrl(thumbnail); // Note: the '!allowGifs' case is handled in Freezeframe above.
+    } else {
+      url = getThumbnailCdnUrl({
+        thumbnail,
+        width: isMobile ? THUMBNAIL_WIDTH_MOBILE : THUMBNAIL_WIDTH,
+        height: isMobile ? THUMBNAIL_HEIGHT_MOBILE : THUMBNAIL_HEIGHT,
+        quality: THUMBNAIL_QUALITY,
+      });
+    }
   }
   // @endif
 

@@ -22,12 +22,20 @@ $contentMaxWidth: 60rem;
         stroke: var(--color-text);
       }
 
+      .menu__button {
+        .icon {
+          transition: transform 0.2s;
+        }
+      }
+
       [aria-expanded='true'].menu__button {
         opacity: 1;
-        background-color: var(--color-header-background);
-        border-radius: var(--border-radius);
+        background-color: rgba(var(--color-header-button-base), 0.9);
+        border-radius: 50%;
+        outline: 2px solid var(--color-header-background);
         .icon {
           stroke: var(--color-primary);
+          transform: rotate(-90deg);
         }
       }
     }
@@ -77,6 +85,11 @@ $contentMaxWidth: 60rem;
         .menu__button {
           opacity: 1;
         }
+      }
+
+      .MuiAutocomplete-root {
+        background-color: var(--color-background);
+        border-radius: var(--border-radius);
       }
     }
   }
@@ -232,20 +245,28 @@ $contentMaxWidth: 60rem;
   position: relative;
   font-size: var(--font-small);
   color: var(--color-text);
-  margin-bottom: var(--spacing-s);
+  margin-bottom: var(--spacing-xxs);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
+
+  .channel-name {
+    font-size: unset;
+  }
 
   @media (max-width: $breakpoint-small) {
     margin-bottom: 0;
   }
 }
 
+.notification__claim-title {
+  font-weight: var(--font-weight-bold);
+}
+
 .notification__text {
-  font-size: var(--font-body);
-  color: var(--color-text);
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -255,6 +276,15 @@ $contentMaxWidth: 60rem;
 .notification__text,
 .notification__title {
   flex-shrink: 1;
+}
+
+.notification__text--replies {
+  font-style: italic;
+
+  blockquote {
+    padding-left: var(--spacing-xs);
+    border-left: 2px solid;
+  }
 }
 
 .notification__time {
@@ -318,7 +348,7 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__bubble--small {
-  font-size: var(--font-xsmall);
+  font-size: var(--font-xxsmall);
 }
 
 .notification__bubble--inline {

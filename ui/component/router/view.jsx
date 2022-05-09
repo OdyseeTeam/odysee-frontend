@@ -8,10 +8,11 @@ import { useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { parseURI, isURIValid } from 'util/lbryURI';
-import { SITE_TITLE, WELCOME_VERSION } from 'config';
+import { SITE_TITLE } from 'config';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
 import * as CS from 'constants/claim_search';
+import { buildUnseenCountStr } from 'util/notifications';
 
 import HomePage from 'page/home';
 
@@ -69,6 +70,7 @@ const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: 
 const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChunkName: "listBlocked" */));
 const ListsPage = lazyImport(() => import('page/lists' /* webpackChunkName: "lists" */));
 const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "lists" */));
+const WatchHistoryPage = lazyImport(() => import('page/watchHistory' /* webpackChunkName: "history" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
 const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
@@ -104,7 +106,6 @@ const TagsFollowingManagePage = lazyImport(() =>
 const TagsFollowingPage = lazyImport(() => import('page/tagsFollowing' /* webpackChunkName: "tagsFollowing" */));
 const TopPage = lazyImport(() => import('page/top' /* webpackChunkName: "top" */));
 const UpdatePasswordPage = lazyImport(() => import('page/passwordUpdate' /* webpackChunkName: "passwordUpdate" */));
-const Welcome = lazyImport(() => import('page/welcome' /* webpackChunkName: "welcome" */));
 const YoutubeSyncPage = lazyImport(() => import('page/youtubeSync' /* webpackChunkName: "youtubeSync" */));
 
 // Tell the browser we are handling scroll restoration
@@ -138,6 +139,9 @@ type Props = {
   hasUnclaimedRefereeReward: boolean,
   homepageData: any,
   wildWestDisabled: boolean,
+  unseenCount: number,
+  hideTitleNotificationCount: boolean,
+  hasDefaultChannel: boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -171,14 +175,18 @@ function AppRouter(props: Props) {
     history,
     uri,
     title,
-    welcomeVersion,
     hasNavigated,
     setHasNavigated,
     hasUnclaimedRefereeReward,
     setReferrer,
     homepageData,
     wildWestDisabled,
+    unseenCount,
+    hideTitleNotificationCount,
+    hasDefaultChannel,
   } = props;
+
+  const defaultChannelRef = React.useRef(hasDefaultChannel);
 
   const { entries, listen, action: historyAction } = history;
   const entryIndex = history.index;
@@ -188,9 +196,9 @@ function AppRouter(props: Props) {
   const tagParams = urlParams.get(CS.TAGS_KEY);
   const isLargeScreen = useIsLargeScreen();
 
-  const homeCategoryPages = React.useMemo(() => {
+  const categoryPages = React.useMemo(() => {
     const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
-      (potentialRoute: any) => potentialRoute && potentialRoute.route
+      (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
 
     return dynamicRoutes.map((dynamicRouteProps: RowDataItem) => (
@@ -200,7 +208,7 @@ function AppRouter(props: Props) {
         component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
       />
     ));
-  }, [homepageData, isLargeScreen]);
+  }, [homepageData, isLargeScreen, wildWestDisabled]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -224,8 +232,16 @@ function AppRouter(props: Props) {
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
-      const title = pathname.startsWith('/$/') ? PAGE_TITLE[pathname.substring(3)] : '';
-      return __(title) || (IS_WEB ? SITE_TITLE : 'Odysee');
+      let title = '';
+      if (pathname.startsWith('/$/')) {
+        const name = pathname.substring(3);
+        if (window.CATEGORY_PAGE_TITLE && window.CATEGORY_PAGE_TITLE[name]) {
+          title = window.CATEGORY_PAGE_TITLE[name];
+        } else {
+          title = PAGE_TITLE[name];
+        }
+      }
+      return __(title) || SITE_TITLE || 'Odysee';
     };
 
     if (uri) {
@@ -244,10 +260,10 @@ function AppRouter(props: Props) {
       document.title = getDefaultTitle(pathname);
     }
 
-    // @if TARGET='app'
-    entries[entryIndex].title = document.title;
-    // @endif
-  }, [pathname, entries, entryIndex, title, uri]);
+    if (unseenCount > 0 && !hideTitleNotificationCount) {
+      document.title = `(${buildUnseenCountStr(unseenCount)}) ${document.title}`;
+    }
+  }, [pathname, entries, entryIndex, title, uri, unseenCount]);
 
   useEffect(() => {
     if (!hasLinkedCommentInUrl) {
@@ -263,6 +279,10 @@ function AppRouter(props: Props) {
     }
   }, [currentScroll, pathname, search, hash, resetScroll, hasLinkedCommentInUrl, historyAction]);
 
+  React.useEffect(() => {
+    defaultChannelRef.current = hasDefaultChannel;
+  }, [hasDefaultChannel]);
+
   // react-router doesn't decode pathanmes before doing the route matching check
   // We have to redirect here because if we redirect on the server, it might get encoded again
   // in the browser causing a redirect loop
@@ -274,9 +294,6 @@ function AppRouter(props: Props) {
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
       <Switch>
-        {/* @if TARGET='app' */}
-        {welcomeVersion < WELCOME_VERSION && <Route path="/*" component={Welcome} />}
-        {/* @endif */}
         <Redirect
           from={`/$/${PAGES.DEPRECATED__CHANNELS_FOLLOWING_MANAGE}`}
           to={`/$/${PAGES.CHANNELS_FOLLOWING_DISCOVER}`}
@@ -290,15 +307,13 @@ function AppRouter(props: Props) {
         <Route path={`/`} exact component={HomePage} />
 
         {(!wildWestDisabled || tagParams) && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
-        {!wildWestDisabled && <Route path={`/$/${PAGES.WILD_WEST}`} exact component={DiscoverPage} />}
-        {homeCategoryPages}
+        {categoryPages}
 
         <Route path={`/$/${PAGES.AUTH_SIGNIN}`} exact component={SignInPage} />
         <Route path={`/$/${PAGES.AUTH_PASSWORD_RESET}`} exact component={PasswordResetPage} />
         <Route path={`/$/${PAGES.AUTH_PASSWORD_SET}`} exact component={PasswordSetPage} />
         <Route path={`/$/${PAGES.AUTH}`} exact component={SignUpPage} />
         <Route path={`/$/${PAGES.AUTH}/*`} exact component={SignUpPage} />
-        <Route path={`/$/${PAGES.WELCOME}`} exact component={Welcome} />
 
         <Route path={`/$/${PAGES.HELP}`} exact component={HelpPage} />
         {/* @if TARGET='app' */}
@@ -356,6 +371,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIBRARY}`} component={LibraryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LISTS}`} component={ListsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.PLAYLISTS}`} component={PlaylistsPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />

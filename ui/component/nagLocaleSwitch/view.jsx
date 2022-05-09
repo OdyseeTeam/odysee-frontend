@@ -16,41 +16,59 @@ const LOCALE_OPTIONS = {
 type Props = {
   localeLangs: Array<string>,
   noLanguageSet: boolean,
+  onFrontPage: boolean,
   // redux
   homepageCode: string,
+  userCountry: ?string,
   doSetLanguage: (string) => void,
   doSetHomepage: (string) => void,
   doOpenModal: (string, {}) => void,
 };
 
 export default function NagLocaleSwitch(props: Props) {
-  const { localeLangs, noLanguageSet, homepageCode, doSetLanguage, doSetHomepage, doOpenModal } = props;
+  const {
+    localeLangs,
+    noLanguageSet,
+    onFrontPage,
+    homepageCode,
+    userCountry,
+    doSetLanguage,
+    doSetHomepage,
+    doOpenModal,
+  } = props;
 
   const [localeSwitchDismissed, setLocaleSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
 
   const hasHomepageForLang = localeLangs.some((lang) => getHomepageLanguage(lang));
   const hasHomepageSet = homepageCode !== 'en';
+  const canSwitchHome = hasHomepageForLang && !hasHomepageSet;
+  const canSwitchLang = noLanguageSet;
+  const showHomeSwitch = canSwitchHome && onFrontPage;
+
   const optionToSwitch =
-    (!hasHomepageForLang || hasHomepageSet) && !noLanguageSet
-      ? undefined
-      : !hasHomepageForLang || hasHomepageSet
-      ? LOCALE_OPTIONS.LANG
-      : !noLanguageSet
+    showHomeSwitch && canSwitchLang
+      ? LOCALE_OPTIONS.BOTH
+      : showHomeSwitch
       ? LOCALE_OPTIONS.HOME
-      : LOCALE_OPTIONS.BOTH;
+      : canSwitchLang
+      ? LOCALE_OPTIONS.LANG
+      : undefined;
 
   const [switchOption, setSwitchOption] = React.useState(optionToSwitch);
 
   if (localeSwitchDismissed || !optionToSwitch) return null;
 
-  const message = __(
+  let message = __(
     // If no homepage, only suggest language switch
     optionToSwitch === LOCALE_OPTIONS.LANG
       ? 'There are language translations available for your location! Do you want to switch from English?'
       : optionToSwitch === LOCALE_OPTIONS.BOTH
-      ? 'A homepage and language translations are available for your location! Do you want to switch?'
+      ? 'Homepage and language translations are available for your location! Do you want to switch?'
       : 'A homepage is available for your location! Do you want to switch?'
   );
+  // -- override for specific case due to feedback --
+  if (userCountry === 'CA') message = 'There are translations available in French, do you want to switch from English?';
+  // ------------------------------------------------
 
   function dismissNag() {
     setLocaleSwitchDismissed(true);

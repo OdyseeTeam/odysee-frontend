@@ -5,7 +5,6 @@ import {
   selectClaimIsMine,
   makeSelectClaimIsPending,
   makeSelectReflectingClaimForUri,
-  makeSelectClaimWasPurchased,
   selectTitleForUri,
   selectDateForUri,
 } from 'redux/selectors/claims';
@@ -15,13 +14,14 @@ import { makeSelectCollectionIsMine } from 'redux/selectors/collections';
 import { doResolveUri } from 'redux/actions/claims';
 import { doFileGet } from 'redux/actions/file';
 import { selectBanStateForUri } from 'lbryinc';
-import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
+import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
 import { selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
 import { makeSelectHasVisitedUri } from 'redux/selectors/content';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreview from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
+import { doClearContentHistoryUri } from 'redux/actions/content';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
@@ -45,9 +45,9 @@ const select = (state, props) => {
     hasVisitedUri: props.uri && makeSelectHasVisitedUri(props.uri)(state),
     isSubscribed: props.uri && selectIsSubscribedForUri(state, props.uri),
     streamingUrl: props.uri && makeSelectStreamingUrlForUri(props.uri)(state),
-    wasPurchased: props.uri && makeSelectClaimWasPurchased(props.uri)(state),
     isLivestream,
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
+    livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
     isCollectionMine: makeSelectCollectionIsMine(props.collectionId)(state),
     lang: selectLanguage(state),
   };
@@ -56,6 +56,7 @@ const select = (state, props) => {
 const perform = (dispatch) => ({
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
   getFile: (uri) => dispatch(doFileGet(uri, false)),
+  doClearContentHistoryUri: (uri) => dispatch(doClearContentHistoryUri(uri)),
 });
 
 export default connect(select, perform)(ClaimPreview);

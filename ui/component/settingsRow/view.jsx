@@ -1,5 +1,7 @@
 // @flow
 import React from 'react';
+import Button from 'component/button';
+import * as PAGES from 'constants/pages';
 import classnames from 'classnames';
 
 type Props = {
@@ -19,14 +21,18 @@ export default function SettingsRow(props: Props) {
     <div
       className={classnames('card__main-actions settings-row', {
         'section__actions--between': !multirow,
-        'opacity-30': disabled,
+        'opacity-40': disabled,
         'card--highlightedActive': highlighted,
       })}
     >
       <div className="settings-row__title">
         <span>
           {title}
-          {membersOnly && <span className="settings-row__members-only">{'PREMIUM'}</span>}
+          {membersOnly && (
+            <Button className="settings-row__members-only" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+              {'PREMIUM'}
+            </Button>
+          )}
         </span>
         {subtitle && <p className="settings-row__subtitle">{subtitle}</p>}
       </div>
@@ -34,6 +40,7 @@ export default function SettingsRow(props: Props) {
         className={classnames('settings-row__value', {
           'settings-row__value--multirow': multirow,
           'settings-row__vertical-separator': useVerticalSeparator,
+          'non-clickable': disabled,
         })}
       >
         {children && children}

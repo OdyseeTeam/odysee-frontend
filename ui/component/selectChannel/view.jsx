@@ -4,12 +4,13 @@ import { FormField } from 'component/common/form';
 
 type Props = {
   tiny?: boolean,
-  label: string,
+  label?: string,
+  injected?: ?Array<string>,
+  // --- Redux ---
   myChannelClaims: ?Array<ChannelClaim>,
-  injected: ?Array<string>,
-  activeChannelId: ?string,
-  setActiveChannel: (string) => void,
   fetchingChannels: boolean,
+  activeChannelClaimId: ?string,
+  setActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
 function SelectChannel(props: Props) {
@@ -19,7 +20,7 @@ function SelectChannel(props: Props) {
     label,
     injected = [],
     tiny,
-    activeChannelId,
+    activeChannelClaimId,
     setActiveChannel,
   } = props;
 
@@ -36,7 +37,7 @@ function SelectChannel(props: Props) {
         labelOnLeft={tiny}
         type={tiny ? 'select-tiny' : 'select'}
         onChange={handleChannelChange}
-        value={activeChannelId}
+        value={activeChannelClaimId}
         disabled={fetchingChannels}
       >
         {fetchingChannels ? (

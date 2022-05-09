@@ -1,9 +1,8 @@
 // @flow
 import { DOMAIN, ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import * as PAGES from 'constants/pages';
 import React, { useEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
-import { Redirect, useHistory } from 'react-router-dom';
+import { Redirect } from 'react-router-dom';
 import Spinner from 'component/spinner';
 import ChannelPage from 'page/channel';
 import Page from 'component/page';
@@ -13,6 +12,7 @@ import Yrbl from 'component/yrbl';
 import { formatLbryUrlForWeb } from 'util/url';
 import { parseURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import * as MODALS from 'constants/modal_types';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -28,7 +28,6 @@ type Props = {
   claim: StreamClaim,
   location: UrlLocation,
   blackListedOutpointMap: { [string]: number },
-  title: string,
   claimIsMine: boolean,
   claimIsPending: boolean,
   isLivestream: boolean,
@@ -36,10 +35,12 @@ type Props = {
   collection: Collection,
   collectionUrls: Array<string>,
   isResolvingCollection: boolean,
+  isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
   doResolveUri: (uri: string, returnCached: boolean, resolveReposts: boolean, options: any) => void,
   doBeginPublish: (name: ?string) => void,
   doFetchItemsInCollection: ({ collectionId: string }) => void,
+  doOpenModal: (string, {}) => void,
 };
 
 export default function ShowPage(props: Props) {
@@ -57,13 +58,14 @@ export default function ShowPage(props: Props) {
     collection,
     collectionUrls,
     isResolvingCollection,
+    isAuthenticated,
     geoRestriction,
     doResolveUri,
     doBeginPublish,
     doFetchItemsInCollection,
+    doOpenModal,
   } = props;
 
-  const { push } = useHistory();
   const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get('lc');
@@ -123,16 +125,27 @@ export default function ShowPage(props: Props) {
 
     if (
       (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
-      (claimExists && !claimIsPending && (!canonicalUrl || isMine === undefined))
+      (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)))
     ) {
       doResolveUri(
         uri,
         false,
         true,
-        isMine === undefined ? { include_is_my_output: true, include_purchase_receipt: true } : {}
+        isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );
     }
-  }, [doResolveUri, isResolvingUri, canonicalUrl, uri, claimExists, haventFetchedYet, isMine, claimIsPending, search]);
+  }, [
+    doResolveUri,
+    isResolvingUri,
+    canonicalUrl,
+    uri,
+    claimExists,
+    haventFetchedYet,
+    isMine,
+    claimIsPending,
+    search,
+    isAuthenticated,
+  ]);
 
   // Don't navigate directly to repost urls
   // Always redirect to the actual content
@@ -178,8 +191,8 @@ export default function ShowPage(props: Props) {
                     />
                     <Button
                       button="secondary"
-                      onClick={() => push(`/$/${PAGES.REPOST_NEW}${contentName ? `?to=${contentName}` : ''}`)}
                       label={__('Repost Something')}
+                      onClick={() => doOpenModal(MODALS.REPOST, { contentName })}
                     />
                   </div>
                 )

@@ -1,12 +1,14 @@
 // @flow
+import React, { useRef } from 'react';
+import classnames from 'classnames';
 import { DOMAIN, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
-import React, { useRef } from 'react';
 import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Button from 'component/button';
+import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import useHover from 'effects/use-hover';
 import { useIsMobile } from 'effects/use-screensize';
 import analytics from 'analytics';
@@ -17,6 +19,8 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './livestreamSection';
+
+const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 
 type Props = {
   dynamicRouteProps: RowDataItem,
@@ -52,7 +56,8 @@ function DiscoverPage(props: Props) {
   const buttonRef = useRef();
   const isHovering = useHover(buttonRef);
   const isMobile = useIsMobile();
-  const isWildWest = window.location.pathname === `/$/${PAGES.WILD_WEST}`;
+  const isWildWest = dynamicRouteProps && dynamicRouteProps.id === 'WILD_WEST';
+  const isCategory = Boolean(dynamicRouteProps);
 
   const urlParams = new URLSearchParams(search);
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
@@ -60,14 +65,13 @@ function DiscoverPage(props: Props) {
   const tagsQuery = urlParams.get('t') || null;
   const tags = tagsQuery ? tagsQuery.split(',') : null;
   const repostedClaimIsResolved = repostedUri && repostedClaim;
+  const hideRepostRibbon = isCategory && !isWildWest;
 
-  const discoverIcon = SIMPLE_SITE ? ICONS.WILD_WEST : ICONS.DISCOVER;
-  const discoverLabel = SIMPLE_SITE ? __('Wild West') : __('All Content');
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
   const tag = (tags && tags[0]) || null;
-  const channelIds =
-    (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.channelIds) || undefined;
+  const channelIds = dynamicRouteProps?.options?.channelIds || undefined;
+  const excludedChannelIds = dynamicRouteProps?.options?.excludedChannelIds || undefined;
 
   const isFollowing = followedTags.map(({ name }) => name).includes(tag);
   let label = isFollowing ? __('Following --[button label indicating a channel has been followed]--') : __('Follow');
@@ -76,6 +80,10 @@ function DiscoverPage(props: Props) {
   }
 
   const includeLivestreams = !tagsQuery;
+  const filters = { contentTypes: isCategory && !isWildWest ? CATEGORY_CONTENT_TYPES_FILTER : CS.CONTENT_TYPES };
+
+  // **************************************************************************
+  // **************************************************************************
 
   function getMeta() {
     if (!dynamicRouteProps) {
@@ -113,8 +121,10 @@ function DiscoverPage(props: Props) {
         <LivestreamSection
           tileLayout={repostedUri ? false : tileLayout}
           channelIds={channelIds}
+          excludedChannelIds={excludedChannelIds}
           activeLivestreams={activeLivestreams}
           doFetchActiveLivestreams={doFetchActiveLivestreams}
+          searchLanguages={dynamicRouteProps?.options?.searchLanguages}
           languageSetting={languageSetting}
           searchInLanguage={searchInLanguage}
           langParam={langParam}
@@ -125,9 +135,10 @@ function DiscoverPage(props: Props) {
   }
 
   function getPins(routeProps) {
-    if (routeProps && routeProps.pinnedUrls) {
+    if (routeProps && (routeProps.pinnedUrls || routeProps.pinnedClaimIds)) {
       return {
         urls: routeProps.pinnedUrls,
+        claimIds: routeProps.pinnedClaimIds,
         onlyPinForOrder: CS.ORDER_BY_TRENDING,
       };
     }
@@ -168,47 +179,60 @@ function DiscoverPage(props: Props) {
   } else {
     headerLabel = (
       <span>
-        <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || discoverIcon} size={10} />
-        {(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || discoverLabel}
+        <Icon icon={(dynamicRouteProps && dynamicRouteProps.icon) || ICONS.DISCOVER} size={10} />
+        {(dynamicRouteProps && __(`${dynamicRouteProps.title}`)) || __('All Content')}
       </span>
     );
   }
 
+  let releaseTime = dynamicRouteProps?.options?.releaseTime;
+  if (isWildWest) {
+    // The homepage definition currently does not support 'start-of-week', so
+    // continue to hardcode here for now.
+    releaseTime = `>${Math.floor(moment().subtract(0, 'hour').startOf('week').unix())}`;
+  }
+
   return (
-    <Page noFooter fullWidthPage={tileLayout} className="main__discover">
-      <ClaimListDiscover
-        pins={getPins(dynamicRouteProps)}
-        hideFilters={SIMPLE_SITE ? !(dynamicRouteProps || tags) : undefined}
-        header={repostedUri ? <span /> : undefined}
-        subSection={getSubSection()}
-        tileLayout={repostedUri ? false : tileLayout}
-        defaultOrderBy={SIMPLE_SITE ? (dynamicRouteProps ? undefined : CS.ORDER_BY_TRENDING) : undefined}
-        claimType={claimType ? [claimType] : undefined}
-        headerLabel={headerLabel}
-        tags={tags}
-        hiddenNsfwMessage={<HiddenNsfw type="page" />}
-        repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-        injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
-        // Assume wild west page if no dynamicRouteProps
-        // Not a very good solution, but just doing it for now
-        // until we are sure this page will stay around
-        // TODO: find a better way to determine discover / wild west vs other modes release times
-        // for now including && !tags so that
-        releaseTime={
-          SIMPLE_SITE
-            ? !dynamicRouteProps && !tags && `>${Math.floor(moment().subtract(1, 'day').startOf('week').unix())}`
-            : undefined
-        }
-        feeAmount={SIMPLE_SITE ? !dynamicRouteProps && CS.FEE_AMOUNT_ANY : undefined}
-        channelIds={channelIds}
-        limitClaimsPerChannel={
-          SIMPLE_SITE
-            ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
-            : 3
-        }
-        meta={getMeta()}
-        hasSource
-      />
+    <Page
+      noFooter
+      fullWidthPage={tileLayout}
+      className={classnames('main__discover', { 'hide-ribbon': hideRepostRibbon })}
+    >
+      <ClaimSearchFilterContext.Provider value={filters}>
+        <ClaimListDiscover
+          pins={getPins(dynamicRouteProps)}
+          hideFilters={isWildWest ? true : undefined}
+          header={repostedUri ? <span /> : undefined}
+          subSection={getSubSection()}
+          tileLayout={repostedUri ? false : tileLayout}
+          defaultOrderBy={isWildWest || tags ? CS.ORDER_BY_TRENDING : undefined}
+          claimType={claimType ? [claimType] : undefined}
+          defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined}
+          headerLabel={headerLabel}
+          tags={tags}
+          hiddenNsfwMessage={<HiddenNsfw type="page" />}
+          repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
+          injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
+          // Assume wild west page if no dynamicRouteProps
+          // Not a very good solution, but just doing it for now
+          // until we are sure this page will stay around
+          // TODO: find a better way to determine discover / wild west vs other modes release times
+          // for now including && !tags so that
+          releaseTime={releaseTime || undefined}
+          feeAmount={isWildWest || tags ? CS.FEE_AMOUNT_ANY : undefined}
+          channelIds={channelIds}
+          excludedChannelIds={excludedChannelIds}
+          limitClaimsPerChannel={
+            SIMPLE_SITE
+              ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
+              : 3
+          }
+          meta={getMeta()}
+          hasSource
+          forceShowReposts={dynamicRouteProps}
+          searchLanguages={dynamicRouteProps?.options?.searchLanguages}
+        />
+      </ClaimSearchFilterContext.Provider>
     </Page>
   );
 }

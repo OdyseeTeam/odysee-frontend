@@ -11,7 +11,7 @@ import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doFetchCollectionListMine, doCheckPendingClaims } from 'redux/actions/claims';
-import { selectClaimForUri, selectClaimIsMineForUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
 import { doClearPublish } from 'redux/actions/publish';
@@ -38,6 +38,7 @@ import {
   selectUpgradeTimer,
   selectModal,
   selectAllowAnalytics,
+  selectAppDrawerOpen,
 } from 'redux/selectors/app';
 import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -549,15 +550,13 @@ export function doSignOut() {
         .then(doSignOutCleanup)
         .then(() => {
           // @if TARGET='web'
-          window.persistor.purge();
+          return window.persistor.purge();
           // @endif
         })
-        .then(() => {
-          setTimeout(() => {
-            location.reload();
-          });
+        .catch((err) => {
+          analytics.error(`\`doSignOut\`: ${err.message || err}`);
         })
-        .catch(() => location.reload());
+        .finally(() => location.reload());
     }
   };
 }
@@ -669,6 +668,7 @@ export function doHandleSyncComplete(error, hasNewData, syncId) {
         dispatch(doGetAndPopulatePreferences(syncId));
       }
     } else {
+      // eslint-disable-next-line no-console
       console.error('Error in doHandleSyncComplete', error);
     }
   };
@@ -686,9 +686,9 @@ export function doToggleSplashAnimation() {
   };
 }
 
-export function doSetActiveChannel(claimId) {
+export function doSetActiveChannel(claimId, override) {
   return (dispatch, getState) => {
-    if (claimId) {
+    if (claimId || override) {
       return dispatch({
         type: ACTIONS.SET_ACTIVE_CHANNEL,
         data: {
@@ -696,35 +696,6 @@ export function doSetActiveChannel(claimId) {
         },
       });
     }
-
-    // If no claimId is passed, set the active channel to the one with the highest effective_amount
-    const state = getState();
-    const myChannelClaims = selectMyChannelClaims(state);
-
-    if (!myChannelClaims || !myChannelClaims.length) {
-      return;
-    }
-
-    const myChannelClaimsByEffectiveAmount = myChannelClaims.slice().sort((a, b) => {
-      const effectiveAmountA = (a.meta && Number(a.meta.effective_amount)) || 0;
-      const effectiveAmountB = (b.meta && Number(b.meta.effective_amount)) || 0;
-      if (effectiveAmountA === effectiveAmountB) {
-        return 0;
-      } else if (effectiveAmountA > effectiveAmountB) {
-        return -1;
-      } else {
-        return 1;
-      }
-    });
-
-    const newActiveChannelClaim = myChannelClaimsByEffectiveAmount[0];
-
-    dispatch({
-      type: ACTIONS.SET_ACTIVE_CHANNEL,
-      data: {
-        claimId: newActiveChannelClaim.claim_id,
-      },
-    });
   };
 }
 
@@ -737,14 +708,21 @@ export function doSetIncognito(incognitoEnabled) {
   };
 }
 
-export const doSetMobilePlayerDimensions = ({ height, width }) => ({
-  type: ACTIONS.SET_MOBILE_PLAYER_DIMENSIONS,
-  data: { heightWidth: { height, width } },
-});
-
 export function doSetAdBlockerFound(found) {
   return {
     type: ACTIONS.SET_AD_BLOCKER_FOUND,
     data: found,
+  };
+}
+
+export function doToggleAppDrawer(open) {
+  return (dispatch, getState) => {
+    const state = getState();
+    const isOpen = selectAppDrawerOpen(state);
+
+    dispatch({
+      type: ACTIONS.DRAWER_OPENED,
+      data: !isOpen,
+    });
   };
 }

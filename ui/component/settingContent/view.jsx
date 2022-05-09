@@ -12,6 +12,7 @@ import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
 import MaxPurchasePrice from 'component/maxPurchasePrice';
 import SettingsRow from 'component/settingsRow';
+import SettingDefaultQuality from 'component/settingDefaultQuality';
 
 type Price = {
   currency: string,
@@ -27,18 +28,14 @@ type Props = {
   hideReposts: ?boolean,
   showNsfw: boolean,
   hideScheduledLivestreams: boolean,
-  hideFyp: boolean,
   myChannelUrls: ?Array<string>,
   instantPurchaseEnabled: boolean,
   instantPurchaseMax: Price,
   enablePublishPreview: boolean,
-  hasMembership: ?boolean,
-  personalRecommendations: { gid: string, uris: Array<string> },
   // --- perform ---
   setClientSetting: (string, boolean | string | number) => void,
   clearPlayingUri: () => void,
   openModal: (string) => void,
-  doFetchPersonalRecommendations: () => void,
 };
 
 export default function SettingContent(props: Props) {
@@ -50,26 +47,14 @@ export default function SettingContent(props: Props) {
     hideReposts,
     showNsfw,
     hideScheduledLivestreams,
-    hideFyp,
     myChannelUrls,
     instantPurchaseEnabled,
     instantPurchaseMax,
     enablePublishPreview,
-    hasMembership,
-    personalRecommendations,
     setClientSetting,
     clearPlayingUri,
     openModal,
-    doFetchPersonalRecommendations,
   } = props;
-
-  const fypExists = personalRecommendations && personalRecommendations.uris.length > 0;
-
-  React.useEffect(() => {
-    if (hasMembership) {
-      doFetchPersonalRecommendations();
-    }
-  }, []);
 
   return (
     <>
@@ -135,18 +120,8 @@ export default function SettingContent(props: Props) {
               />
             </SettingsRow>
 
-            <SettingsRow
-              membersOnly
-              title={__('Hide Personal Recommendations')}
-              subtitle={__(HELP.HIDE_FYP)}
-              disabled={!hasMembership || !fypExists}
-            >
-              <FormField
-                type="checkbox"
-                name="hide_fyp"
-                onChange={() => setClientSetting(SETTINGS.HIDE_FYP, !hideFyp)}
-                checked={hideFyp}
-              />
+            <SettingsRow title={__('Default Video Quality')} subtitle={__(HELP.DEFAULT_VIDEO_QUALITY)}>
+              <SettingDefaultQuality />
             </SettingsRow>
 
             {!SIMPLE_SITE && (
@@ -270,4 +245,5 @@ const HELP = {
   MAX_PURCHASE_PRICE: 'This will prevent you from purchasing any content over a certain cost, as a safety measure.',
   ONLY_CONFIRM_OVER_AMOUNT: '', // [feel redundant. Disable for now] "When this option is chosen, LBRY won't ask you to confirm purchases or tips below your chosen amount.",
   PUBLISH_PREVIEW: 'Show preview and confirmation dialog before publishing content.',
+  DEFAULT_VIDEO_QUALITY: 'Set a default quality for video playback. If the default choice is not available, the next lowest will be used when playback starts.',
 };

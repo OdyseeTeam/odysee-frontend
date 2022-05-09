@@ -1,5 +1,10 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectTitleForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectTitleForUri,
+  selectClaimWasPurchasedForUri,
+  selectGeoRestrictionForUri,
+} from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   makeSelectNextUrlForCollectionAndUrl,
@@ -14,14 +19,13 @@ import {
 } from 'redux/selectors/content';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectCostInfoForUri } from 'lbryinc';
-import { doUriInitiatePlay, doSetPlayingUri } from 'redux/actions/content';
+import { doUriInitiatePlay, doSetPlayingUri, doClearPlayingUri } from 'redux/actions/content';
 import { doFetchRecommendedContent } from 'redux/actions/search';
 import { withRouter } from 'react-router';
-import { selectMobilePlayerDimensions } from 'redux/selectors/app';
-import { selectIsActiveLivestreamForUri, selectCommentSocketConnected } from 'redux/selectors/livestream';
-import { doSetMobilePlayerDimensions } from 'redux/actions/app';
+import { selectAppDrawerOpen } from 'redux/selectors/app';
+import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'redux/selectors/livestream';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
-import { isStreamPlaceholderClaim } from 'util/claim';
+import { isStreamPlaceholderClaim, getVideoClaimAspectRatio } from 'util/claim';
 import FileRenderFloating from './view';
 
 const select = (state, props) => {
@@ -47,14 +51,16 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     costInfo: selectCostInfoForUri(state, uri),
-    claimWasPurchased: makeSelectClaimWasPurchased(uri)(state),
+    claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
     nextListUri: collectionId && makeSelectNextUrlForCollectionAndUrl(collectionId, uri)(state),
     previousListUri: collectionId && makeSelectPreviousUrlForCollectionAndUrl(collectionId, uri)(state),
     collectionId,
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
-    mobilePlayerDimensions: selectMobilePlayerDimensions(state),
-    socketConnected: selectCommentSocketConnected(state),
+    videoAspectRatio: getVideoClaimAspectRatio(claim),
+    socketConnection: selectSocketConnectionForId(state, claimId),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    geoRestriction: selectGeoRestrictionForUri(state, uri),
+    appDrawerOpen: selectAppDrawerOpen(state),
   };
 };
 
@@ -62,9 +68,9 @@ const perform = {
   doFetchRecommendedContent,
   doUriInitiatePlay,
   doSetPlayingUri,
-  doSetMobilePlayerDimensions,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
+  doClearPlayingUri,
 };
 
 export default withRouter(connect(select, perform)(FileRenderFloating));

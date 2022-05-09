@@ -124,10 +124,6 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    .card__main-actions {
-      // padding: var(--spacing-s) var(--spacing-xxs) !important;
-    }
-
     .claim-preview--inline {
       align-items: flex-start;
       line-height: 1.3;
@@ -203,12 +199,19 @@
   }
 }
 
+.file-page__video-container {
+  max-height: var(--desktop-portrait-player-max-height);
+}
+
 .file-render {
   width: 100%;
   height: 100%;
   z-index: 1;
   overflow: hidden;
-  max-height: var(--inline-player-max-height);
+
+  @media (max-width: $breakpoint-small) {
+    max-height: var(--mobile-player-max-height);
+  }
 }
 
 .file-render--video {
@@ -242,12 +245,6 @@
   }
 }
 
-.file-render--scheduledLivestream {
-  background-image: url('//spee.ch/odysee-streaming-png:2.png?quality=80&height=960&width=1920');
-  background-size: cover;
-  margin-top: var(--spacing-m);
-}
-
 @keyframes fadeInFromBlack {
   0% {
     opacity: 1;
@@ -266,6 +263,9 @@
 .file-render__img-container {
   width: 100%;
   aspect-ratio: 16 / 9;
+  background-color: var(--color-placeholder-background);
+  // background-color: rgba(25,25,25,0.4);
+  border-radius: var(--border-radius);
 }
 
 .file-render--post-container {
@@ -634,7 +634,20 @@ $control-bar-icon-size: 0.8rem;
       }
     }
 
-    .vjs-chromecast-button {
+    .vjs-chapters-button {
+      .vjs-menu {
+        width: 20em;
+        left: -3em;
+      }
+
+      li {
+        text-align: left;
+        padding: var(--spacing-xxxs) var(--spacing-s);
+      }
+    }
+
+    .vjs-chromecast-button,
+    .vjs-airplay-button {
       .vjs-icon-placeholder {
         $chromecast-icon-size: 21px;
         width: $chromecast-icon-size;
@@ -730,6 +743,8 @@ $control-bar-icon-size: 0.8rem;
     &.skip {
       background-color: rgba(0, 0, 0, 0.5);
     }
+
+    max-height: var(--mobile-player-max-height);
   }
 }
 
@@ -767,6 +782,10 @@ $control-bar-icon-size: 0.8rem;
 }
 
 .video-js.vjs-fullscreen {
+  video {
+    max-height: none !important;
+  }
+
   .vjs-button--theater-mode {
     display: none;
   }
@@ -810,12 +829,6 @@ $control-bar-icon-size: 0.8rem;
 }
 
 .file-render {
-  .video-js {
-    /*display: flex;*/
-    /*align-items: center;*/
-    /*justify-content: center;*/
-  }
-
   .vjs-big-play-button {
     @extend .button--icon;
     @extend .button--play;
@@ -876,8 +889,16 @@ $control-bar-icon-size: 0.8rem;
   }
 }
 
-.file-viewer--ended-embed .vjs-big-play-button {
-  display: none !important; // yes this is dumb, but this was broken and the above CSS was overriding
+.file-viewer--ended-embed {
+  .vjs-big-play-button {
+    display: none !important; // yes this is dumb, but this was broken and the above CSS was overriding
+  }
+
+  .file-viewer__overlay-actions {
+    display: grid;
+    grid-template-columns: repeat(3, auto);
+    grid-gap: 1rem;
+  }
 }
 
 .video-thumbnail-generator {

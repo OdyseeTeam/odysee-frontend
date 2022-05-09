@@ -12,6 +12,8 @@ import {
   selectPendingClaimsById,
   selectClaimIsMine,
   selectIsMyChannelCountOverLimit,
+  selectById,
+  selectMyChannelClaimIds,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -47,7 +49,7 @@ export function doResolveUris(
     });
 
     if (urisToResolve.length === 0) {
-      return;
+      return Promise.resolve();
     }
 
     dispatch({
@@ -138,6 +140,40 @@ export function doResolveUris(
 
       return result;
     });
+  };
+}
+
+/**
+ * Temporary alternative to doResolveUris() due to a batching bug with
+ * Lbry.resolve().
+ *
+ * Note that is a simpler version that DOES NOT handle Collections and Reposts.
+ *
+ * @param claimIds
+ */
+export function doResolveClaimIds(claimIds: Array<string>) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const resolvedIds = Object.keys(selectById(state));
+    const idsToResolve = claimIds.filter((x) => !resolvedIds.includes(x));
+
+    if (idsToResolve.length === 0) {
+      return Promise.resolve();
+    }
+
+    return dispatch(
+      doClaimSearch(
+        {
+          claim_ids: idsToResolve,
+          page: 1,
+          page_size: Math.min(idsToResolve.length, 50),
+          no_totals: true,
+        },
+        {
+          useAutoPagination: idsToResolve.length > 50,
+        }
+      )
+    );
   };
 }
 
@@ -966,25 +1002,34 @@ export function doCollectionPublishUpdate(
 }
 
 export function doCheckPublishNameAvailability(name: string) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
       type: ACTIONS.CHECK_PUBLISH_NAME_STARTED,
     });
 
-    return Lbry.claim_list({ name: name }).then((result) => {
+    const state = getState();
+    const myChannelClaimIds = selectMyChannelClaimIds(state);
+
+    return dispatch(
+      doClaimSearch(
+        {
+          name,
+          channel_ids: myChannelClaimIds,
+          page: 1,
+          page_size: 50,
+          no_totals: true,
+          include_is_my_output: true,
+        },
+        {
+          useAutoPagination: true,
+        }
+      )
+    ).then((result) => {
       dispatch({
         type: ACTIONS.CHECK_PUBLISH_NAME_COMPLETED,
       });
-      if (result.items.length) {
-        dispatch({
-          type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED,
-          data: {
-            result,
-            resolve: false,
-          },
-        });
-      }
-      return !(result && result.items && result.items.length);
+
+      return Object.keys(result).length === 0;
     });
   };
 }

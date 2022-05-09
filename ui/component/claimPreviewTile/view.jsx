@@ -2,8 +2,10 @@
 import React from 'react';
 import classnames from 'classnames';
 import { NavLink, withRouter } from 'react-router-dom';
+import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import FileThumbnail from 'component/fileThumbnail';
 import UriIndicator from 'component/uriIndicator';
+import Icon from 'component/common/icon';
 import TruncatedText from 'component/common/truncated-text';
 import DateTime from 'component/dateTime';
 import LivestreamDateTime from 'component/livestreamDateTime';
@@ -21,6 +23,7 @@ import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import * as ICONS from 'constants/icons';
 import { FYP_ID } from 'constants/urlParams';
 // $FlowFixMe cannot resolve ...
 import PlaceholderTx from 'static/img/placeholderTx.gif';
@@ -42,13 +45,15 @@ type Props = {
   isMature: boolean,
   showMature: boolean,
   showHiddenByUser?: boolean,
+  showNoSourceClaims?: boolean,
+  showUnresolvedClaims?: boolean,
   properties?: (Claim) => void,
   collectionId?: string,
   fypId?: string,
-  showNoSourceClaims?: boolean,
   isLivestream: boolean,
   viewCount: string,
   isLivestreamActive: boolean,
+  livestreamViewerCount: ?number,
   swipeLayout: boolean,
 };
 
@@ -72,8 +77,10 @@ function ClaimPreviewTile(props: Props) {
     showHiddenByUser,
     properties,
     showNoSourceClaims,
+    showUnresolvedClaims,
     isLivestream,
     isLivestreamActive,
+    livestreamViewerCount,
     collectionId,
     fypId,
     mediaDuration,
@@ -83,6 +90,7 @@ function ClaimPreviewTile(props: Props) {
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
   const isStream = claim && claim.value_type === 'stream';
+  const isAbandoned = !isResolvingUri && !claim;
   // $FlowFixMe
   const isPlayable =
     claim &&
@@ -145,7 +153,11 @@ function ClaimPreviewTile(props: Props) {
     shouldHide = true;
   } else {
     shouldHide =
-      banState.blacklisted || banState.filtered || (!showHiddenByUser && (banState.muted || banState.blocked));
+      !placeholder &&
+      (banState.blacklisted ||
+        banState.filtered ||
+        (!showHiddenByUser && (banState.muted || banState.blocked)) ||
+        (isAbandoned && !showUnresolvedClaims));
   }
 
   if (shouldHide || (isLivestream && !showNoSourceClaims)) {
@@ -186,8 +198,16 @@ function ClaimPreviewTile(props: Props) {
   }
 
   let liveProperty = null;
-  if (isLivestream === true) {
-    liveProperty = (claim) => <>LIVE</>;
+  if (isLivestream) {
+    if (isLivestreamActive === true && livestreamViewerCount) {
+      liveProperty = (claim) => (
+        <span className="livestream__viewer-count">
+          {livestreamViewerCount} <Icon icon={ICONS.EYE} />
+        </span>
+      );
+    } else {
+      liveProperty = (claim) => <>LIVE</>;
+    }
   }
 
   return (
@@ -216,10 +236,10 @@ function ClaimPreviewTile(props: Props) {
                 {isStream && <FileDownloadLink focusable={false} uri={canonicalUrl} hideOpenButton />}
               </div>
               {/* @endif */}
-
               <div className="claim-preview__file-property-overlay">
                 <PreviewOverlayProperties uri={uri} properties={liveProperty || properties} />
               </div>
+              <ClaimPreviewProgress uri={uri} />
             </React.Fragment>
           )}
           {isCollection && (

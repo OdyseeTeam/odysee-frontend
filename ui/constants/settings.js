@@ -21,6 +21,7 @@ export const AUTO_DOWNLOAD = 'auto_download';
 export const AUTO_LAUNCH = 'auto_launch';
 export const HIDE_BALANCE = 'hide_balance';
 export const HIDE_SPLASH_ANIMATION = 'hide_splash_animation';
+export const HIDE_TITLE_NOTIFICATION_COUNT = 'hide_title_notification_count';
 export const FLOATING_PLAYER = 'floating_player';
 export const DARK_MODE_TIMES = 'dark_mode_times';
 export const ENABLE_SYNC = 'enable_sync';
@@ -34,13 +35,16 @@ export const TAGS_ACKNOWLEDGED = 'tags_acknowledged';
 export const REWARDS_ACKNOWLEDGED = 'rewards_acknowledged';
 export const SEARCH_IN_LANGUAGE = 'search_in_language';
 export const HOMEPAGE = 'homepage';
+export const HOMEPAGE_ORDER = 'homepage_order';
 export const HIDE_REPOSTS = 'hide_reposts';
 export const HIDE_SCHEDULED_LIVESTREAMS = 'hide_scheduled_livestreams';
-export const HIDE_FYP = 'hide_fyp';
 export const SUPPORT_OPTION = 'support_option';
 export const TILE_LAYOUT = 'tile_layout';
 export const VIDEO_THEATER_MODE = 'video_theater_mode';
 export const VIDEO_PLAYBACK_RATE = 'video_playback_rate';
+export const PREFERRED_CURRENCY = 'preferred_currency';
+export const DEFAULT_VIDEO_QUALITY = 'default_video_quality';
+export const ACTIVE_CHANNEL_CLAIM = 'active_channel_claim';
 
 export const SETTINGS_GRP = {
   APPEARANCE: 'appearance',

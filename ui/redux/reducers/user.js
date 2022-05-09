@@ -30,8 +30,10 @@ const defaultState: UserState = {
   youtubeChannelImportErrorMessage: '',
   referrerSetIsPending: false,
   referrerSetError: '',
+  odyseeMembershipName: undefined,
   odyseeMembershipsPerClaimIds: undefined,
   locale: undefined,
+  homepageFetched: false,
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
@@ -392,6 +394,11 @@ reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
     odyseeMembershipsPerClaimIds: latestData,
   });
 };
+
+reducers[ACTIONS.FETCH_HOMEPAGES_DONE] = (state) =>
+  Object.assign({}, state, {
+    homepageFetched: true,
+  });
 
 export default function userReducer(state: UserState = defaultState, action: any) {
   const handler = reducers[action.type];

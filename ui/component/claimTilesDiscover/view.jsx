@@ -1,10 +1,15 @@
 // @flow
 import type { Node } from 'react';
 import React from 'react';
+import Button from 'component/button';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import I18nMessage from 'component/i18nMessage';
 import useFetchViewCount from 'effects/use-fetch-view-count';
-import useLastVisibleItem from 'effects/use-last-visible-item';
+import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
+import useResolvePins from 'effects/use-resolve-pins';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+
+const SHOW_TIMEOUT_MSG = false;
 
 function urisEqual(prev: ?Array<string>, next: ?Array<string>) {
   if (!prev || !next) {
@@ -25,9 +30,9 @@ function urisEqual(prev: ?Array<string>, next: ?Array<string>) {
 
 type Props = {
   prefixUris?: Array<string>,
-  pinUrls?: Array<string>,
+  pins?: { urls?: Array<string>, claimIds?: Array<string>, onlyPinForOrder?: string },
   uris: Array<string>,
-  injectedItem?: { node: Node, index?: number, replace?: boolean },
+  injectedItem?: ListInjectedItem,
   showNoSourceClaims?: boolean,
   renderProperties?: (Claim) => ?Node,
   fetchViewCount?: boolean,
@@ -46,10 +51,12 @@ type Props = {
   limitClaimsPerChannel?: number,
   hasSource?: boolean,
   hasNoSource?: boolean,
+  forceShowReposts?: boolean, // overrides SETTINGS.HIDE_REPOSTS
   // --- select ---
   location: { search: string },
   claimSearchResults: Array<string>,
   claimsByUri: { [string]: any },
+  claimsById: { [string]: any },
   fetchingClaimSearch: boolean,
   showNsfw: boolean,
   hideReposts: boolean,
@@ -58,6 +65,8 @@ type Props = {
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
   doFetchUserMemberships: (claimIdCsv: string) => void,
+  doResolveClaimIds: (Array<string>) => Promise<any>,
+  doResolveUris: (Array<string>, boolean) => Promise<any>,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -65,11 +74,13 @@ function ClaimTilesDiscover(props: Props) {
     doClaimSearch,
     claimSearchResults,
     claimsByUri,
+    claimsById,
     fetchViewCount,
     fetchingClaimSearch,
     hasNoSource,
+    // forceShowReposts = false,
     renderProperties,
-    pinUrls,
+    pins,
     prefixUris,
     injectedItem,
     showNoSourceClaims,
@@ -77,31 +88,27 @@ function ClaimTilesDiscover(props: Props) {
     pageSize = 8,
     optionsStringified,
     doFetchUserMemberships,
+    doResolveClaimIds,
+    doResolveUris,
   } = props;
 
-  // reference to the claim-grid
-  const sectionRef = React.useRef();
-  // determine the index where the ad should be injected
-  const injectedIndex = useLastVisibleItem(injectedItem, sectionRef);
+  const listRef = React.useRef();
+  const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
+  const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);
 
   const prevUris = React.useRef();
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
+  const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
 
-  const shouldPerformSearch = !fetchingClaimSearch && claimSearchUris.length === 0;
+  const timedOut = claimSearchResults === null;
+  const shouldPerformSearch = !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0;
 
   const uris = (prefixUris || []).concat(claimSearchUris);
   if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
 
-  if (pinUrls && uris && uris.length > 2 && window.location.pathname === '/') {
-    pinUrls.forEach((pin) => {
-      if (uris.indexOf(pin) !== -1) {
-        uris.splice(uris.indexOf(pin), 1);
-      } else {
-        uris.pop();
-      }
-    });
-    uris.splice(2, 0, ...pinUrls);
+  if (window.location.pathname === '/') {
+    injectPinUrls(uris, pins, resolvedPinUris);
   }
 
   if (uris.length > 0 && uris.length < pageSize && shouldPerformSearch) {
@@ -117,14 +124,47 @@ function ClaimTilesDiscover(props: Props) {
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
-  // populate the view counts for the current claim uris
+  function injectPinUrls(uris, pins, resolvedPinUris) {
+    if (!pins || !uris || uris.length <= 2) {
+      return;
+    }
+
+    if (resolvedPinUris) {
+      resolvedPinUris.forEach((pin) => {
+        if (uris.includes(pin)) {
+          uris.splice(uris.indexOf(pin), 1);
+        } else {
+          uris.pop();
+        }
+      });
+
+      uris.splice(2, 0, ...resolvedPinUris);
+    }
+  }
+
+  const getInjectedItem = (index) => {
+    if (injectedItem && injectedItem.node) {
+      if (typeof injectedItem.node === 'function') {
+        return injectedItem.node(index, lastVisibleIndex, pageSize);
+      } else {
+        if (injectedItem.index === undefined || injectedItem.index === null) {
+          return index === lastVisibleIndex ? injectedItem.node : null;
+        } else {
+          return index === injectedItem.index ? injectedItem.node : null;
+        }
+      }
+    }
+
+    return null;
+  };
+
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
   useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
 
-  const shouldFetchUserMemberships = true;
+  useGetUserMemberships(true, uris, claimsByUri, doFetchUserMemberships);
 
-  useGetUserMemberships(shouldFetchUserMemberships, uris, claimsByUri, doFetchUserMemberships);
-
-  // Run `doClaimSearch`
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
@@ -132,25 +172,48 @@ function ClaimTilesDiscover(props: Props) {
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringified]);
 
+  // --------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
+
+  if (timedOut && SHOW_TIMEOUT_MSG) {
+    return (
+      <div className="empty empty--centered">
+        <p>{__('Sorry, your request timed out. Try refreshing in a bit.')}</p>
+        <p>
+          <I18nMessage
+            tokens={{
+              contact_support: (
+                <Button
+                  button="link"
+                  label={__('contact support')}
+                  href="https://odysee.com/@OdyseeHelp:b?view=about"
+                />
+              ),
+            }}
+          >
+            If you continue to have issues, please %contact_support%.
+          </I18nMessage>
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <ul ref={sectionRef} className="claim-grid">
+    <ul ref={listRef} className="claim-grid">
       {finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
-              // if indexes match, inject ad in place of tile (aka replace it)
-              if (injectedIndex === i && injectedItem && injectedItem.replace) {
-                return <React.Fragment key={uri}>{injectedItem.node}</React.Fragment>;
-              }
-
+              const inj = getInjectedItem(i);
               return (
                 <React.Fragment key={uri}>
-                  {injectedIndex === i && injectedItem && injectedItem.node}
-                  {/* inject ad */}
-                  <ClaimPreviewTile
-                    showNoSourceClaims={hasNoSource || showNoSourceClaims}
-                    uri={uri}
-                    properties={renderProperties}
-                  />
+                  {inj && inj}
+                  {(!inj || !injectedItem || !injectedItem.replace) && (
+                    <ClaimPreviewTile
+                      showNoSourceClaims={hasNoSource || showNoSourceClaims}
+                      uri={uri}
+                      properties={renderProperties}
+                    />
+                  )}
                 </React.Fragment>
               );
             } else {

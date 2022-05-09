@@ -4,7 +4,9 @@ import 'videojs-ima'; // loads directly after contrib-ads
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
+import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -21,18 +23,27 @@ import React, { useEffect, useRef, useState } from 'react';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
-import { LIVESTREAM_STREAM_X_PULL, LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN } from 'constants/livestream';
 import { useIsMobile } from 'effects/use-screensize';
+import { platform } from 'util/platform';
+import usePersistedState from 'effects/use-persisted-state';
 
 const canAutoplay = require('./plugins/canAutoplay');
 
 require('@silvermine/videojs-chromecast')(videojs);
+require('@silvermine/videojs-airplay')(videojs);
 
 export type Player = {
+  // -- custom --
+  claimSrcOriginal: ?{ src: string, type: string },
+  claimSrcVhs: ?{ src: string, type: string },
+  isLivestream?: boolean,
+  // -- original --
   controlBar: { addChild: (string, any) => void },
   loadingSpinner: any,
   autoplay: (any) => boolean,
   chromecast: (any) => void,
+  hlsQualitySelector: ?any,
+  tech: (?boolean) => { vhs: ?any },
   currentTime: (?number) => number,
   dispose: () => void,
   duration: () => number,
@@ -50,6 +61,8 @@ export type Player = {
   playbackRate: (?number) => number,
   readyState: () => number,
   requestFullscreen: () => boolean,
+  src: ({ src: string, type: string }) => ?string,
+  currentSrc: () => string,
   userActive: (?boolean) => boolean,
   volume: (?number) => number,
 };
@@ -73,6 +86,7 @@ type Props = {
   startMuted: boolean,
   userId: ?number,
   videoTheaterMode: boolean,
+  defaultQuality: ?string,
   onPlayerReady: (Player, any) => void,
   playNext: () => void,
   playPrevious: () => void,
@@ -85,15 +99,10 @@ type Props = {
   isLivestreamClaim: boolean,
   userClaimId: ?string,
   activeLivestreamForChannel: any,
+  doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
 
-const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
-
-const IS_IOS =
-  (/iPad|iPhone|iPod/.test(navigator.platform) ||
-    // for iOS 13+ , platform is MacIntel, so use this to test
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
-  !window.MSStream;
+const IS_IOS = platform.isIOS();
 
 const IS_ANDROID = videojs.browser.IS_ANDROID;
 const IS_MOBILE = IS_IOS || IS_ANDROID;
@@ -141,6 +150,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     startMuted,
     userId,
     videoTheaterMode,
+    defaultQuality,
     onPlayerReady,
     playNext,
     playPrevious,
@@ -153,21 +163,29 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     userClaimId,
     isLivestreamClaim,
     activeLivestreamForChannel,
+    doToast,
   } = props;
+
+  // used to notify about default quality setting
+  // if already has a quality set, no need to notify
+  const [initialQualityChange, setInitialQualityChange] = usePersistedState(
+    'initial-quality-change',
+    Boolean(defaultQuality)
+  );
 
   const isMobile = useIsMobile();
 
-  // will later store the videojs player
   const playerRef = useRef();
   const containerRef = useRef();
-
   const tapToUnmuteRef = useRef();
   const tapToRetryRef = useRef();
-
   const playerServerRef = useRef();
 
   const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
-  const showQualitySelector = !isLivestreamClaim || (livestreamVideoUrl && livestreamVideoUrl.includes('/transcode/'));
+  const overrideNativeVhs = !platform.isIPhone();
+  const showQualitySelector =
+    (!isLivestreamClaim && overrideNativeVhs) ||
+    (livestreamVideoUrl && (livestreamVideoUrl.includes('/transcode/') || livestreamVideoUrl.includes('cloud.odysee')));
 
   // initiate keyboard shortcuts
   const { curried_function } = keyboardShorcuts({
@@ -204,16 +222,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const videoJsOptions = {
     preload: 'auto',
-    playbackRates: videoPlaybackRates,
+    playbackRates: VIDEO_PLAYBACK_RATES,
     responsive: true,
     controls: true,
     html5: {
       vhs: {
-        overrideNative: !videojs.browser.IS_ANY_SAFARI,
-        allowSeeksWithinUnsafeLiveWindow: true,
+        overrideNative: overrideNativeVhs, // !videojs.browser.IS_ANY_SAFARI,
         enableLowInitialPlaylist: false,
-        handlePartialData: true,
         fastQualityChange: true,
+        useDtsForTimestampOffset: true,
       },
     },
     liveTracker: {
@@ -225,10 +242,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
-    // fixes problem of errant CC button showing up on iOS
-    // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
     controlBar: {
-      subsCapsButton: false,
       currentTimeDisplay: !isLivestreamClaim,
       timeDivider: !isLivestreamClaim,
       durationDisplay: !isLivestreamClaim,
@@ -240,13 +254,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       requestSubtitleFn: (src) => channelName || '',
     },
     bigPlayButton: embedded, // only show big play button if embedded
-    liveui: true,
+    liveui: isLivestreamClaim,
     suppressNotSupportedError: true,
   };
 
   // Initialize video.js
-  function initializeVideoPlayer(el, canAutoplayVideo, player) {
-    if(player) return player;
+  function initializeVideoPlayer(el, canAutoplayVideo) {
     if (!el) return;
 
     const vjs = videojs(el, videoJsOptions, async () => {
@@ -281,7 +294,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // Add quality selector to player
-      if (showQualitySelector) player.hlsQualitySelector({ displayCurrentQuality: true });
+      if (showQualitySelector) {
+        player.hlsQualitySelector({
+          displayCurrentQuality: true,
+          originalHeight: claimValues?.video?.height,
+          defaultQuality,
+          initialQualityChange,
+          setInitialQualityChange,
+          doToast,
+        });
+      }
 
       // Add recsys plugin
       if (shareTelemetry) {
@@ -295,6 +317,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
+      // added back
       // immediately show control bar while video is loading
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
@@ -303,6 +326,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // show waiting spinner as video is loading if can autoplay
       if (canAutoplayVideo === true) {
+        // show waiting spinner as video is loading
         player.addClass('vjs-waiting');
         // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
       } else {
@@ -329,6 +353,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       Chromecast.initialize(player);
+      player.airPlay();
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
@@ -338,116 +363,63 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     return vjs;
   }
 
-  useEffect(() => {
-    if (showQualitySelector) {
-      // Add quality selector to player
-      const player = playerRef.current;
-      if (player) player.hlsQualitySelector({ displayCurrentQuality: true });
-    }
-  }, [showQualitySelector]);
+  // useEffect(() => {
+  //   if (showQualitySelector) {
+  //     // Add quality selector to player
+  //     const player = playerRef.current;
+  //     if (player) player.hlsQualitySelector({ displayCurrentQuality: true });
+  //   }
+  // }, [showQualitySelector]);
 
-  /** instantiate videoJS and dispose of it when done with code **/
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function () {
-      let vjsPlayer;
-      if (1 == 1) {
-        console.log('need to instantiate!');
+      let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
+      canAutoplayVideo = canAutoplayVideo.result === true;
 
-        // test if perms to play video are available
-        let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
-
-        canAutoplayVideo = canAutoplayVideo.result === true;
-
-        const vjsElement = createVideoPlayerDOM(containerRef.current);
-
-        // Initialize Video.js
-        vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo, window.player);
-
-        // Add reference to player to global scope
-        window.player = vjsPlayer;
-
-        // Set reference in component state
-        playerRef.current = vjsPlayer;
-
-        window.addEventListener('keydown', curried_function(playerRef, containerRef));
-      } else {
-        console.log('already have!');
-        vjsPlayer = window.player;
-        console.log(vjsPlayer);
+      const vjsElement = createVideoPlayerDOM(containerRef.current);
+      const vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
+      if (!vjsPlayer) {
+        return;
       }
 
-      // $FlowFixMe
+      // Add reference to player to global scope
+      window.player = vjsPlayer;
+
+      // Set reference in component state
+      playerRef.current = vjsPlayer;
+
+      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+
       const controlBar = document.querySelector('.vjs-control-bar');
-      if (controlBar) controlBar.style.setProperty('opacity', '1', 'important');
+      if (controlBar) {
+        controlBar.style.setProperty('opacity', '1', 'important');
+      }
 
       if (isLivestreamClaim && userClaimId) {
-        // $FlowFixMe
+        vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-
-        // @if process.env.NODE_ENV!='production'
-        videojs.Vhs.xhr.beforeRequest = (options) => {
-          if (!options.headers) options.headers = {};
-          options.headers['X-Pull'] = LIVESTREAM_STREAM_X_PULL;
-          options.uri = options.uri.replace(LIVESTREAM_CDN_DOMAIN, LIVESTREAM_STREAM_DOMAIN);
-          return options;
-        };
-        // @endif
-
-        // const newPoster = livestreamData.ThumbnailURL;
-
-        // pretty sure it's not working
-        // vjsPlayer.poster(newPoster);
-
-        // here specifically because we don't allow rewinds at the moment
-        // $FlowFixMe
-        // vjsPlayer.on('play', function () {
-        //   // $FlowFixMe
-        //   vjsPlayer.liveTracker.seekToLiveEdge();
-        // });
-
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: 'application/x-mpegURL',
-          src: livestreamVideoUrl,
-        });
+        vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
       } else {
-        // $FlowFixMe
+        vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
-        videojs.Vhs.xhr.beforeRequest = (options) => {};
 
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
-
         playerServerRef.current = response.headers.get('x-powered-by');
+        vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
         if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-          console.log('response');
-          console.log(response.url);
-
-          // use m3u8 source
-          // $FlowFixMe
-          vjsPlayer.src({
-            type: 'application/x-mpegURL',
-            src: response.url,
-          });
+          vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
+          vjsPlayer.src(vjsPlayer.claimSrcVhs);
         } else {
-          console.log(sourceType);
-          console.log(source);
-
-          // use original mp4 source
-          // $FlowFixMe
-          vjsPlayer.src({
-            type: sourceType,
-            src: source,
-          });
+          vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
       }
 
-      // load video once source setup
-      // $FlowFixMe
       vjsPlayer.load();
 
+      // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
       if (window.oldSavedDiv) {
         document.querySelector('.video-js-parent').replaceWith(window.oldSavedDiv);
       }
@@ -478,10 +450,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           observer.observe(adsClaimParentDiv);
         }
       }
-
-      // if (!canAutoplayVideo && IS_IOS) {
-      //   // document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle')
-      // }
     })();
 
     // Cleanup
@@ -492,19 +460,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       window.oldSavedDiv = document.querySelector('.video-js-parent');
 
-      // const player = playerRef.current;
-      //
-      // window.player = player;
-      // if (player) {
-      //   try {
-      //     window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
-      //   } catch {}
-      //
-      //   player.pause();
+      const player = playerRef.current;
+      if (player) {
+        try {
+          window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
+        } catch {}
 
-        // player.dispose();
-        // window.player = undefined;
-      // }
+        player.dispose();
+        window.player = undefined;
+      }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
 

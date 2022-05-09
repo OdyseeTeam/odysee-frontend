@@ -27,7 +27,7 @@
   --color-border: rgba(0, 0, 0, 0.2);
   --color-background-base: 231, 231, 231;
   --color-background: rgba(var(--color-background-base), 1);
-  --color-background-overlay: #21252980;
+  --color-background-overlay: rgba(18, 18, 18, 0.9);
   --color-card-background: var(--color-header-background);
   --color-card-background-highlighted: #fff5f5;
 
@@ -69,8 +69,8 @@
   --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
   --color-button-alt-text-hover: var(--color-text);
 
-  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.4);
-  --color-button-toggle-text: rgba(var(--color-text-base), 0.8);
+  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.5);
+  --color-button-toggle-text: rgba(var(--color-text-base), 1);
   --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.9);
   --color-button-toggle-text-hover: var(--color-text);
   --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);

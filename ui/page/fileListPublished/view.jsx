@@ -4,6 +4,7 @@ import * as ICONS from 'constants/icons';
 import React, { useEffect } from 'react';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
+import ClaimPreview from 'component/claimPreview';
 import Page from 'component/page';
 import Paginate from 'component/common/paginate';
 import { PAGE_PARAM, PAGE_SIZE_PARAM } from 'constants/claim';
@@ -72,9 +73,10 @@ function FileListPublished(props: Props) {
     <Page>
       <div className="card-stack">
         <WebUploadList />
-        {!!(urls && urls.length) && (
+        {!!urls && (
           <>
             <ClaimList
+              noEmpty
               header={
                 <span>
                   <Button
@@ -106,7 +108,6 @@ function FileListPublished(props: Props) {
               }
               headerAltControls={
                 <div className="card__actions--inline">
-                  {fetching && <Spinner type="small" />}
                   {!fetching && (
                     <Button
                       button="alt"
@@ -125,8 +126,11 @@ function FileListPublished(props: Props) {
                 </div>
               }
               persistedStorageKey="claim-list-published"
-              uris={urls}
+              uris={fetching ? [] : urls}
+              loading={fetching}
             />
+            {fetching &&
+              new Array(Number(pageSize)).fill(1).map((x, i) => <ClaimPreview key={i} placeholder="loading" />)}
             <Paginate totalPages={urlTotal > 0 ? Math.ceil(urlTotal / Number(pageSize)) : 1} />
           </>
         )}
@@ -136,17 +140,23 @@ function FileListPublished(props: Props) {
           {!fetching ? (
             <section className="main--empty">
               <Yrbl
-                title={__('No uploads')}
-                subtitle={__("You haven't uploaded anything yet. This is where you can find them when you do!")}
+                title={filterBy === FILTER_REPOSTS ? __('No Reposts') : __('No uploads')}
+                subtitle={
+                  filterBy === FILTER_REPOSTS
+                    ? __("You haven't reposted anything yet.")
+                    : __("You haven't uploaded anything yet. This is where you can find them when you do!")
+                }
                 actions={
-                  <div className="section__actions">
-                    <Button
-                      button="primary"
-                      navigate={`/$/${PAGES.UPLOAD}`}
-                      label={__('Upload Something New')}
-                      onClick={() => clearPublish()}
-                    />
-                  </div>
+                  filterBy !== FILTER_REPOSTS && (
+                    <div className="section__actions">
+                      <Button
+                        button="primary"
+                        navigate={`/$/${PAGES.UPLOAD}`}
+                        label={__('Upload Something New')}
+                        onClick={() => clearPublish()}
+                      />
+                    </div>
+                  )
                 }
               />
             </section>

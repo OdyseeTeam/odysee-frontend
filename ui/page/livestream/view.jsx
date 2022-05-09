@@ -20,14 +20,16 @@ type Props = {
   claim: StreamClaim,
   isAuthenticated: boolean,
   uri: string,
-  socketConnected: boolean,
+  socketConnection: { connected: ?boolean },
+  isStreamPlaying: boolean,
   doSetPrimaryUri: (uri: ?string) => void,
-  doCommentSocketConnect: (string, string, string) => void,
+  doCommentSocketConnect: (uri: string, channelName: string, claimId: string) => void,
+  doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   doUserSetReferrer: (string) => void,
 };
 
-export const LayoutRenderContext = React.createContext<any>();
+export const LivestreamContext = React.createContext<any>();
 
 export default function LivestreamPage(props: Props) {
   const {
@@ -38,14 +40,18 @@ export default function LivestreamPage(props: Props) {
     claim,
     isAuthenticated,
     uri,
-    socketConnected,
+    socketConnection,
+    isStreamPlaying,
     doSetPrimaryUri,
     doCommentSocketConnect,
+    doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
     doUserSetReferrer,
   } = props;
 
   const isMobile = useIsMobile();
+
+  const streamPlayingRef = React.useRef();
 
   const [activeStreamUri, setActiveStreamUri] = React.useState(false);
   const [showLivestream, setShowLivestream] = React.useState(false);
@@ -59,12 +65,11 @@ export default function LivestreamPage(props: Props) {
   const isCurrentClaimLive = isChannelBroadcasting && activeLivestreamForChannel.claimId === claimId;
   const livestreamChannelId = channelClaimId || '';
 
-  // $FlowFixMe
-  const release = moment.unix(claim.value.release_time);
+  const releaseTime: moment = moment.unix(claim?.value?.release_time || 0);
   const stringifiedClaim = JSON.stringify(claim);
 
   React.useEffect(() => {
-    // TODO: This should not be needed one we unify the livestream player (?)
+    // TODO: This should not be needed once we unify the livestream player (?)
     analytics.playerLoadedEvent('livestream', false);
   }, []);
 
@@ -74,24 +79,39 @@ export default function LivestreamPage(props: Props) {
   // On livestream page, only connect, fileRenderFloating will handle disconnect.
   // (either by leaving page with floating player off, or by closing the player)
   React.useEffect(() => {
-    if (!claim || socketConnected) return;
-
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
-    if (claimId && channelName) {
+    if (claimId && channelName && !socketConnection?.connected) {
       doCommentSocketConnect(uri, channelName, claimId);
     }
-
-    // only listen to socketConnected on initial mount
+    // willAutoplay mount only
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelUrl, claim, doCommentSocketConnect, uri]);
+  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri]);
+
+  React.useEffect(() => {
+    // use for unmount case without triggering render
+    streamPlayingRef.current = isStreamPlaying;
+  }, [isStreamPlaying]);
+
+  React.useEffect(() => {
+    return () => {
+      if (!streamPlayingRef.current) {
+        const { claim_id: claimId, signing_channel: channelClaim } = claim;
+        const channelName = channelClaim && formatLbryChannelName(channelUrl);
+
+        if (claimId && channelName) doCommentSocketDisconnect(claimId, channelName);
+      }
+    };
+    // only on unmount -> leave page
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const claimReleaseStartingSoonStatic = () =>
-    release.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'));
+    releaseTime.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'));
 
   const claimReleaseStartedRecentlyStatic = () =>
-    release.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment());
+    releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment());
 
   // Find out current channels status + active live claim every 30 seconds (or 15 if not live)
   const fasterPoll = !isCurrentClaimLive && (claimReleaseStartingSoonStatic() || claimReleaseStartedRecentlyStatic());
@@ -105,14 +125,14 @@ export default function LivestreamPage(props: Props) {
   React.useEffect(() => {
     if (!isInitialized) return;
 
-    const claimReleaseInFuture = () => release.isAfter();
-    const claimReleaseInPast = () => release.isBefore();
+    const claimReleaseInFuture = () => releaseTime.isAfter();
+    const claimReleaseInPast = () => releaseTime.isBefore();
 
     const claimReleaseStartingSoon = () =>
-      release.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'));
+      releaseTime.isBetween(moment(), moment().add(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'));
 
     const claimReleaseStartedRecently = () =>
-      release.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment());
+      releaseTime.isBetween(moment().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), moment());
 
     const checkShowLivestream = () =>
       isChannelBroadcasting &&
@@ -141,7 +161,7 @@ export default function LivestreamPage(props: Props) {
     }
 
     return () => clearInterval(intervalId);
-  }, [chatDisabled, isChannelBroadcasting, release, isCurrentClaimLive, isInitialized]);
+  }, [chatDisabled, isChannelBroadcasting, releaseTime, isCurrentClaimLive, isInitialized]);
 
   React.useEffect(() => {
     if (uri && stringifiedClaim) {
@@ -177,17 +197,17 @@ export default function LivestreamPage(props: Props) {
       }
     >
       {isInitialized && (
-        <LayoutRenderContext.Provider value={layountRendered}>
+        <LivestreamContext.Provider value={{ livestreamPage: true, layountRendered }}>
           <LivestreamLayout
             uri={uri}
             hideComments={hideComments}
-            release={release}
+            releaseTimeMs={releaseTime.unix() * 1000}
             isCurrentClaimLive={isCurrentClaimLive}
             showLivestream={showLivestream}
             showScheduledInfo={showScheduledInfo}
             activeStreamUri={activeStreamUri}
           />
-        </LayoutRenderContext.Provider>
+        </LivestreamContext.Provider>
       )}
     </Page>
   );

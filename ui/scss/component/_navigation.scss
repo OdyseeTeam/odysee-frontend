@@ -89,6 +89,10 @@
   ul {
     padding-bottom: var(--spacing-s);
   }
+
+  ul:empty {
+    display: none;
+  }
 }
 
 .navigation-touch {
@@ -129,7 +133,7 @@
   transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
 
   .navigation-inner-container {
-    ul:nth-child(3) {
+    ul:nth-child(4) {
       border-bottom: unset;
     }
   }
@@ -230,6 +234,10 @@
         width: 0.75rem;
         margin-left: 0;
       }
+    }
+
+    .comment__badge {
+      margin-left: var(--spacing-xxs);
     }
   }
 

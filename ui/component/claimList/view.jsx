@@ -7,7 +7,7 @@ import ClaimPreview from 'component/claimPreview';
 import Spinner from 'component/spinner';
 import { FormField } from 'component/common/form';
 import usePersistedState from 'effects/use-persisted-state';
-import useLastVisibleItem from 'effects/use-last-visible-item';
+import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 
@@ -41,7 +41,7 @@ type Props = {
   renderActions?: (Claim) => ?Node,
   renderProperties?: (Claim) => ?Node,
   includeSupportAction?: boolean,
-  injectedItem?: { node: Node, index?: number, replace?: boolean },
+  injectedItem?: ListInjectedItem,
   timedOutMessage?: Node,
   tileLayout?: boolean,
   searchInLanguage: boolean,
@@ -52,14 +52,15 @@ type Props = {
   fypId?: string,
   showNoSourceClaims?: boolean,
   onClick?: (e: any, claim?: ?Claim, index?: number) => void,
+  noEmpty?: boolean,
   maxClaimRender?: number,
-  excludeUris?: Array<string>,
   loadedCallback?: (number) => void,
   swipeLayout: boolean,
   showEdit?: boolean,
   droppableProvided?: any,
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
+  inWatchHistory?: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -92,21 +93,23 @@ export default function ClaimList(props: Props) {
     fypId,
     showNoSourceClaims,
     onClick,
+    noEmpty,
     maxClaimRender,
-    excludeUris = [],
     loadedCallback,
     swipeLayout = false,
     showEdit,
     droppableProvided,
     unavailableUris,
     showMemberBadge,
+    inWatchHistory,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
 
   // Resolve the index for injectedItem, if provided; else injectedIndex will be 'undefined'.
   const listRef = React.useRef();
-  const injectedIndex = useLastVisibleItem(injectedItem, listRef);
+  const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
+  const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);
 
   // Exclude prefix uris in these results variables. We don't want to show
   // anything if the search failed or timed out.
@@ -114,14 +117,14 @@ export default function ClaimList(props: Props) {
   const urisLength = (uris && uris.length) || 0;
 
   let tileUris = (prefixUris || []).concat(uris || []);
-  tileUris = tileUris.filter((uri) => !excludeUris.includes(uri));
+
   if (prefixUris && prefixUris.length) tileUris.splice(prefixUris.length * -1, prefixUris.length);
 
   const totalLength = tileUris.length;
 
   if (maxClaimRender) tileUris = tileUris.slice(0, maxClaimRender);
 
-  let sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
+  const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
 
   React.useEffect(() => {
     if (typeof loadedCallback === 'function') loadedCallback(totalLength);
@@ -201,13 +204,23 @@ export default function ClaimList(props: Props) {
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
       unavailableUris={unavailableUris}
       showMemberBadge={showMemberBadge}
+      inWatchHistory={inWatchHistory}
     />
   );
 
   const getInjectedItem = (index) => {
-    if (injectedItem && injectedItem.node && injectedIndex === index) {
-      return injectedItem.node;
+    if (injectedItem && injectedItem.node) {
+      if (typeof injectedItem.node === 'function') {
+        return injectedItem.node(index, lastVisibleIndex, pageSize);
+      } else {
+        if (injectedItem.index === undefined || injectedItem.index === null) {
+          return index === lastVisibleIndex ? injectedItem.node : null;
+        } else {
+          return index === injectedItem.index ? injectedItem.node : null;
+        }
+      }
     }
+
     return null;
   };
 
@@ -221,6 +234,7 @@ export default function ClaimList(props: Props) {
               <ClaimPreviewTile
                 uri={uri}
                 showHiddenByUser={showHiddenByUser}
+                showUnresolvedClaims={showUnresolvedClaims}
                 properties={renderProperties}
                 collectionId={collectionId}
                 fypId={fypId}
@@ -229,7 +243,9 @@ export default function ClaimList(props: Props) {
               />
             </React.Fragment>
           ))}
-        {!timedOut && urisLength === 0 && !loading && <div className="empty main--empty">{empty || noResultMsg}</div>}
+        {!timedOut && urisLength === 0 && !loading && !noEmpty && (
+          <div className="empty main--empty">{empty || noResultMsg}</div>
+        )}
         {timedOut && timedOutMessage && <div className="empty main--empty">{timedOutMessage}</div>}
       </section>
       {loading && useLoadingSpinner && (
@@ -324,7 +340,9 @@ export default function ClaimList(props: Props) {
         </ul>
       )}
 
-      {!timedOut && urisLength === 0 && !loading && <div className="empty empty--centered">{empty || noResultMsg}</div>}
+      {!timedOut && urisLength === 0 && !loading && !noEmpty && (
+        <div className="empty empty--centered">{empty || noResultMsg}</div>
+      )}
       {!loading && timedOut && timedOutMessage && <div className="empty empty--centered">{timedOutMessage}</div>}
       {loading && useLoadingSpinner && (
         <div className="spinnerArea--centered">
