@@ -12,7 +12,6 @@ import { addRegistration, removeRegistration, hasRegistration } from '$web/src/p
 import { browserData } from '$web/src/ua';
 import { isPushSupported } from '$web/src/push-notifications/push-supported';
 // $FlowFixMe
-isPushSupported = false;
 
 let messaging = null;
 let pushSystem = null;
