@@ -29,6 +29,7 @@
 
 .expandedBlock {
   height: auto !important;
+  max-height: 616px !important;
 }
 
 .forceShowTiers {
@@ -38,7 +39,6 @@
 .see-all-tiers__header {
   margin: 0 auto;
 }
-
 
 .membership_title {
   margin-top: var(--spacing-l);
@@ -154,15 +154,14 @@
   overflow: scroll;
 }
 
-.membership-join__body, .membership-join-blocks__body {
+.membership-join__body,
+.membership-join-blocks__body {
   text-align: center;
   padding: var(--spacing-s);
-  margin-bottom: var(--spacing-m);
-  //height: 22rem;
   //width: 100%;
   display: flex;
   flex-direction: column;
-  flex-basis: 33%;
+  flex-basis: 32%;
 
   @media (max-width: $breakpoint-xsmall) {
     flex-basis: 66%;
@@ -173,10 +172,10 @@
 .membership-join-tab {
   .membership-join-blocks__div {
     display: flex;
-    flex-wrap: wrap;
-    max-width: 72rem;
+    flex-flow: wrap;
     justify-content: center;
-    margin: 0 auto;
+    justify-content: space-around;
+    gap: 30px 0px;
   }
 
   .membership-join__plan-description h1 {
@@ -190,19 +189,30 @@
     }
   }
 
-
   .card__body {
     margin: 0 auto;
 
     .membership-join-blocks__body {
-      border: 1px solid grey;
-      padding-bottom: 17px;
-      border-radius: 4px;
-      padding-bottom: 17px;
-      transition: all linear 5s;
+      // border: 1px solid grey;
+      padding-bottom: var(--spacing-l);
+      border-radius: var(--border-radius);
+      // padding-bottom: 17px;
+      // transition: all linear 5s;
+      height: 310px;
+      max-height: 310px;
+      transition: max-height 1s;
+      background-color: rgba(var(--color-header-background-base), 0.6);
+
+      &:hover {
+        .tier-show-more__button {
+          color: var(--color-primary);
+          cursor: pointer;
+        }
+      }
     }
 
-    .membership-join-blocks__body:nth-child(4), .membership-join-blocks__body:nth-child(5) {
+    .membership-join-blocks__body:nth-child(4),
+    .membership-join-blocks__body:nth-child(5) {
       display: none;
     }
   }
@@ -216,7 +226,6 @@
       margin-bottom: 0;
     }
   }
-
 }
 
 .membership-join__plan-header {
@@ -439,12 +448,15 @@
 .membership-join-tab {
   min-height: 600px;
 
-  .card__header--between, .card__title-section {
+  .card__header--between,
+  .card__title-section {
     display: block;
     margin-bottom: 14px;
   }
 
-  .card__header--between, .membership-join__tab-buttons, .membership-join-purchase__div {
+  .card__header--between,
+  .membership-join__tab-buttons,
+  .membership-join-purchase__div {
     text-align: center;
   }
 
@@ -520,7 +532,8 @@
   margin-bottom: 18px;
 }
 
-.edit-div, .membership-tier__div {
+.edit-div,
+.membership-tier__div {
   // this accounts for the header when scrolling
   scroll-margin-top: 83px;
 }
@@ -542,7 +555,6 @@
   font-size: 18px;
 }
 
-
 .join-membership-card__modal {
   overflow: hidden !important;
 
@@ -560,7 +572,6 @@
     }
   }
 }
-
 
 /** **/
 .join-membership-card__modal {
