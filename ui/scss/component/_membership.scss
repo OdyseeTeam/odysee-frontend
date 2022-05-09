@@ -198,8 +198,8 @@
       border-radius: var(--border-radius);
       // padding-bottom: 17px;
       // transition: all linear 5s;
-      height: 310px;
-      max-height: 310px;
+      height: 316px;
+      max-height: 316px;
       transition: max-height 1s;
       background-color: rgba(var(--color-header-background-base), 0.6);
 
@@ -250,6 +250,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+    list-style: none;
 
     > div {
       height: 100%;
@@ -265,6 +266,14 @@
         }
       }
     }
+  }
+
+  li:before {
+    content: '\2605';
+    color: yellow;
+    display: inline-block;
+    margin-left: -1.3em;
+    width: 1.3em;
   }
 
   ul,
