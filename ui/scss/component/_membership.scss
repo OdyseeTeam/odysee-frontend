@@ -29,7 +29,7 @@
 
 .expandedBlock {
   height: auto !important;
-  max-height: 616px !important;
+  max-height: 1000px !important;
 }
 
 .forceShowTiers {
@@ -163,8 +163,9 @@
   flex-direction: column;
   flex-basis: 32%;
 
-  @media (max-width: $breakpoint-xsmall) {
+  @media (max-width: 1000px) {
     flex-basis: 66%;
+    margin: 0 227px;
     //width: var(--file-list-thumbnail-width) !important;
   }
 }
@@ -200,13 +201,13 @@
       // transition: all linear 5s;
       height: 316px;
       max-height: 316px;
-      transition: max-height 1s;
+      transition: max-height 0.3s;
       background-color: rgba(var(--color-header-background-base), 0.6);
 
       &:hover {
-        background: rgba(var(--color-header-background-base), 0.9);
+        //background: rgba(var(--color-header-background-base), 0.9);
         .tier-show-more__button {
-          color: var(--color-primary);
+          //color: var(--color-primary);
           cursor: pointer;
         }
       }

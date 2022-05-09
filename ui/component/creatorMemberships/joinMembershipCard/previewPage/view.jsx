@@ -149,7 +149,7 @@ export default function PreviewPage(props: Props) {
 
     setTimeout(function() {
       parentNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }, 0);
+    }, 250);
   };
 
   const showAllTiers = function(e) {
