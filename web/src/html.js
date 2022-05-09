@@ -9,7 +9,7 @@ const {
   SITE_NAME,
   SITE_TITLE,
   URL,
-} = require('../../config.floss.js');
+} = require('../../config.js');
 
 const {
   generateDirectUrl,
@@ -119,7 +119,6 @@ function buildOgMetadata(overrideOptions = {}) {
   return head;
 }
 
-// @if process.env.FLOSS!='true'
 function addPWA() {
   let head = '';
   head += '<link rel="manifest" href="/public/pwa/manifest.json"/>';
@@ -130,7 +129,6 @@ function addPWA() {
       });
     </script>`;
   return head;
-  // @endif
 }
 
 function addFavicon() {
@@ -141,12 +139,7 @@ function addFavicon() {
 
 function buildHead() {
   var head;
-  // @if process.env.FLOSS!='true'
   head = BEGIN_STR + addFavicon() + addPWA() + buildOgMetadata() + FINAL_STR;
-  // @endif
-  // @if process.env.FLOSS
-  head = BEGIN_STR + addFavicon() + buildOgMetadata() + FINAL_STR;
-  // @endif
   return head;
 }
 

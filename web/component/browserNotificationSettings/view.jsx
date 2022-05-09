@@ -2,10 +2,8 @@
 import * as React from 'react';
 import SettingsRow from 'component/settingsRow';
 import { FormField } from 'component/common/form';
-// @if process.env.FLOSS!='true'
 import useBrowserNotifications from '$web/component/browserNotificationSettings/use-browser-notifications';
 import { BrowserNotificationHints, BrowserNotificationsBlocked } from '$web/component/browserNotificationHints';
-// @endif
 
 const BrowserNotificationSettings = () => {
   const { pushSupported, pushEnabled, pushPermission, pushToggle, pushErrorModal } = useBrowserNotifications();
@@ -16,7 +14,6 @@ const BrowserNotificationSettings = () => {
   const renderBlocked = () => (pushBlocked ? <BrowserNotificationsBlocked /> : null);
 
   return (
-    // @if process.env.FLOSS!='true'
     <>
       <SettingsRow
         title={__('Browser Notifications')}
@@ -35,7 +32,6 @@ const BrowserNotificationSettings = () => {
       {renderBlocked()}
       {pushErrorModal()}
     </>
-    // @endif
   );
 };
 
