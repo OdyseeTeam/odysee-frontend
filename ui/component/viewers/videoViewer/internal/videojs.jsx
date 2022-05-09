@@ -339,7 +339,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       addVolumeMouseWheelListener(
         el,
-        () => console.log(player),
+        () => null,
         () => null
       );
     });
