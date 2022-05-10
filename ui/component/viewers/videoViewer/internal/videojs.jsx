@@ -377,17 +377,22 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
       canAutoplayVideo = canAutoplayVideo.result === true;
 
-      const vjsElement = createVideoPlayerDOM(containerRef.current);
-      const vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
-      if (!vjsPlayer) {
-        return;
+      let vjsPlayer;
+      if(!window.player){
+        const vjsElement = createVideoPlayerDOM(containerRef.current);
+        vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
+        if (!vjsPlayer) {
+          return;
+        }
+
+        // Add reference to player to global scope
+        window.player = vjsPlayer;
+      } else {
+        vjsPlayer = window.player
       }
 
-      // Add reference to player to global scope
-      window.player = vjsPlayer;
-
       // Set reference in component state
-      playerRef.current = vjsPlayer;
+      playerRef.current = window.player;
 
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
 
@@ -418,6 +423,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       vjsPlayer.load();
+
+      if(autoplay){
+        vjsPlayer.play()
+        vjsPlayer.userActive(true);
+        // document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      }
 
       // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
       if (window.oldSavedDiv) {
@@ -454,20 +465,26 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
+      window.player.addClass('vjs-waiting');
+
+      window.player.currentTime(0);
+
       window.removeEventListener('keydown', curried_function);
 
-      window.player.pause();
+      // window.player.pause();
 
       window.oldSavedDiv = document.querySelector('.video-js-parent');
 
+      document.querySelector('.vjs-icon-placeholder').style.display = 'none';
+
       const player = playerRef.current;
       if (player) {
-        try {
-          window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
-        } catch {}
+        // try {
+        //   window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
+        // } catch {}
 
-        player.dispose();
-        window.player = undefined;
+        // player.dispose();
+        // window.player = undefined;
       }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
