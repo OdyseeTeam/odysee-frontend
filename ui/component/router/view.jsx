@@ -265,7 +265,7 @@ function AppRouter(props: Props) {
     if (unseenCount > 0 && !hideTitleNotificationCount) {
       document.title = `(${buildUnseenCountStr(unseenCount)}) ${document.title}`;
     }
-  }, [pathname, entries, entryIndex, title, uri, unseenCount]);
+  }, [pathname, entries, entryIndex, title, uri, unseenCount, hideTitleNotificationCount]);
 
   useEffect(() => {
     if (!hasLinkedCommentInUrl) {
@@ -286,12 +286,17 @@ function AppRouter(props: Props) {
   }, [hasDefaultChannel]);
 
   React.useEffect(() => {
-    return () => {
-      // has a default channel selected, clear the current active channel
-      if (defaultChannelRef.current) {
-        doSetActiveChannel(null, true);
-      }
-    };
+    // has a default channel selected, clear the current active channel
+    if (
+      defaultChannelRef.current &&
+      pathname !== `/$/${PAGES.UPLOAD}` &&
+      !pathname.includes(`/$/${PAGES.LIST}/`) &&
+      pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` &&
+      pathname !== `/$/${PAGES.LIVESTREAM}`
+    ) {
+      doSetActiveChannel(null, true);
+    }
+    // only on pathname change
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
