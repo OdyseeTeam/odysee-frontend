@@ -36,6 +36,7 @@ const select = (state, props) => {
 
   return {
     topLevelComments: threadComment ? [threadComment] : selectTopLevelCommentsForUri(state, uri),
+    threadComment,
     allCommentIds: selectCommentIdsForUri(state, uri),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
     topLevelTotalPages: makeSelectTopLevelTotalPagesForUri(uri)(state),

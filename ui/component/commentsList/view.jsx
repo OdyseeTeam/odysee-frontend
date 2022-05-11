@@ -49,6 +49,7 @@ type Props = {
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   commentsAreExpanded?: boolean,
   threadCommentId: ?string,
+  threadComment: ?Comment,
   notInDrawer?: boolean,
   threadCommentLastAncestor: string,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
@@ -80,6 +81,7 @@ export default function CommentList(props: Props) {
     settingsByChannelId,
     commentsAreExpanded,
     threadCommentId,
+    threadComment,
     notInDrawer,
     threadCommentLastAncestor,
     fetchTopLevelComments,
@@ -315,7 +317,7 @@ export default function CommentList(props: Props) {
 
           <CommentCreate uri={uri} />
 
-          {threadCommentId && (
+          {threadComment && (
             <span className="comment__actions comment__thread-link">
               <Button
                 button="link"
