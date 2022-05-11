@@ -17,7 +17,6 @@ import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
 import { doClearPublish } from 'redux/actions/publish';
 import { Lbryio } from 'lbryinc';
 import { doToast, doError, doNotificationList } from 'redux/actions/notifications';
-import pushNotifications from '$web/src/push-notifications';
 
 import Native from 'native';
 import {
@@ -518,35 +517,8 @@ export function doAnaltyicsPurchaseEvent(fileInfo) {
   };
 }
 
-/*
-reconnect()
-function reconnect() {
-  return (getState) => {
-    const state = getState();
-    const user = selectUser(state);
-
-    if (window.cordova && user) {
-      pushNotifications.reconnect(user.id);
-      pushNotifications.validate(user.id);
-    }
-  }
-}
-*/
-
 export function doSignIn() {
   return (dispatch, getState) => {
-    const state = getState();
-    const user = selectUser(state);
-
-    if (pushNotifications.supported && user) {
-      pushNotifications.reconnect(user.id);
-      pushNotifications.validate(user.id);
-    }
-    if (window.cordova && user) {
-      pushNotifications.reconnect(user.id);
-      pushNotifications.validate(user.id);
-    }
-
     dispatch(doNotificationSocketConnect(true));
     dispatch(doNotificationList(null, false));
     dispatch(doCheckPendingClaims());
@@ -558,12 +530,7 @@ export function doSignIn() {
 
 export function doSignOut() {
   return async (dispatch, getState) => {
-    const state = getState();
-    const user = selectUser(state);
     try {
-      if (pushNotifications.supported && user) {
-        await pushNotifications.disconnect(user.id);
-      }
     } finally {
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)

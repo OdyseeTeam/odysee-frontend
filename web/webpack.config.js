@@ -3,7 +3,6 @@ const path = require('path');
 const fs = require('fs');
 const merge = require('webpack-merge');
 const baseConfig = require('../webpack.base.config.js');
-const serviceWorkerConfig = require('./webpack.sw.config.js');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const { DefinePlugin, ProvidePlugin } = require('webpack');
@@ -189,4 +188,4 @@ const webConfig = {
   plugins,
 };
 
-module.exports = [merge(baseConfig, webConfig), serviceWorkerConfig];
+module.exports = [merge(baseConfig, webConfig)];

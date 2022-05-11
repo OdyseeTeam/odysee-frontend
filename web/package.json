@@ -27,7 +27,6 @@
   "dependencies": {
     "@koa/router": "^8.0.2",
     "cross-env": "^6.0.3",
-    "firebase": "^9.1.1",
     "koa": "^2.11.0",
     "koa-logger": "^3.2.1",
     "koa-send": "^5.0.0",

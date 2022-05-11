@@ -6,7 +6,6 @@ import Button from 'component/button';
 import useHover from 'effects/use-hover';
 import { useIsMobile } from 'effects/use-screensize';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
-import useBrowserNotifications from '$web/component/browserNotificationSettings/use-browser-notifications';
 
 type SubscriptionArgs = {
   channelName: string,
@@ -58,8 +57,6 @@ export default function SubscribeButton(props: Props) {
     } catch (e) {}
   }
   const claimName = channelName && '@' + channelName;
-
-  const { pushSupported, pushEnabled, pushRequest, pushErrorModal } = useBrowserNotifications();
 
   const subscriptionHandler = isSubscribed ? doChannelUnsubscribe : doChannelSubscribe;
 
@@ -152,13 +149,8 @@ export default function SubscribeButton(props: Props) {
                   { channel: claimName }
                 ),
               });
-
-              if (!newNotificationsDisabled && pushSupported && !pushEnabled) {
-                pushRequest();
-              }
             }}
           />
-          {pushErrorModal()}
         </>
       )}
     </div>

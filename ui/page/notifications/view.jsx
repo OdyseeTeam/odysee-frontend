@@ -11,7 +11,7 @@ import Yrbl from 'component/yrbl';
 import * as NOTIFICATIONS from 'constants/notifications';
 import useFetched from 'effects/use-fetched';
 import { RULE } from 'constants/notifications';
-import BrowserNotificationBanner from '$web/component/browserNotificationBanner';
+// import BrowserNotificationBanner from '$web/component/browserNotificationBanner';
 
 type Props = {
   notifications: Array<Notification>,
@@ -114,8 +114,6 @@ export default function NotificationsPage(props: Props) {
 
   return (
     <Page className="notification-page">
-      <BrowserNotificationBanner />
-
       {ready && (
         <div className="claim-list__header">
           <h1 className="card__title">{__('Notifications')}</h1>
