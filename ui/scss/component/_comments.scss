@@ -34,6 +34,11 @@ $thumbnailWidthSmall: 2rem;
   overflow-wrap: anywhere;
 }
 
+.comment__list .card__first-pane > .button {
+  margin-left: 3px;
+  height: calc(var(--height-button) - 3px);
+}
+
 .comment__sort {
   margin-right: var(--spacing-s);
   display: inline-block;
@@ -132,6 +137,11 @@ $thumbnailWidthSmall: 2rem;
       background-color: var(--color-link) !important;
     }
   }
+}
+
+.comment__thread-link {
+  font-size: var(--font-xsmall);
+  flex-direction: column;
 }
 
 .comment--reply {

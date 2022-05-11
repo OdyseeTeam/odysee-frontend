@@ -1,5 +1,5 @@
 // @flow
-import { COMMENT_PAGE_SIZE_TOP_LEVEL, SORT_BY } from 'constants/comment';
+import { COMMENT_PAGE_SIZE_TOP_LEVEL, SORT_BY, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { ENABLE_COMMENT_REACTIONS } from 'config';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import { getCommentsListTitle } from 'util/comments';
@@ -16,6 +16,7 @@ import React, { useEffect } from 'react';
 import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import { useHistory } from 'react-router-dom';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
 
@@ -47,6 +48,9 @@ type Props = {
   activeChannelId: ?string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   commentsAreExpanded?: boolean,
+  threadCommentId: ?string,
+  notInDrawer?: boolean,
+  threadCommentLastAncestor: string,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
@@ -75,6 +79,9 @@ export default function CommentList(props: Props) {
     activeChannelId,
     settingsByChannelId,
     commentsAreExpanded,
+    threadCommentId,
+    notInDrawer,
+    threadCommentLastAncestor,
     fetchTopLevelComments,
     fetchComment,
     fetchReacts,
@@ -82,6 +89,11 @@ export default function CommentList(props: Props) {
     claimsByUri,
     doFetchUserMemberships,
   } = props;
+
+  const {
+    push,
+    location: { pathname, search },
+  } = useHistory();
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen();
@@ -125,10 +137,15 @@ export default function CommentList(props: Props) {
     setPage(1);
   }, [claimId, resetComments]);
 
+  function refreshComments() {
+    // Invalidate existing comments
+    setPage(0);
+  }
+
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
-      setPage(0); // Invalidate existing comments
+      refreshComments();
     }
   }
 
@@ -147,8 +164,12 @@ export default function CommentList(props: Props) {
   // Fetch top-level comments
   useEffect(() => {
     if (page !== 0) {
-      if (page === 1 && linkedCommentId) {
-        fetchComment(linkedCommentId);
+      if (page === 1) {
+        if (threadCommentId) {
+          fetchComment(threadCommentId);
+        } else if (linkedCommentId) {
+          fetchComment(linkedCommentId);
+        }
       }
 
       fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort);
@@ -157,7 +178,13 @@ export default function CommentList(props: Props) {
     // no need to listen for uri change, claimId change will trigger page which
     // will handle this
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchComment, fetchTopLevelComments, linkedCommentId, page, sort]);
+  }, [fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId]);
+
+  React.useEffect(() => {
+    if (threadCommentId) {
+      refreshComments();
+    }
+  }, [threadCommentId]);
 
   // Fetch reacts
   useEffect(() => {
@@ -194,7 +221,7 @@ export default function CommentList(props: Props) {
 
   // Scroll to linked-comment
   useEffect(() => {
-    if (linkedCommentId) {
+    if (linkedCommentId || threadCommentId) {
       window.pendingLinkedCommentScroll = true;
     } else {
       delete window.pendingLinkedCommentScroll;
@@ -262,25 +289,60 @@ export default function CommentList(props: Props) {
     topLevelTotalPages,
   ]);
 
-  const commentProps = { isTopLevel: true, threadDepth: 3, uri, claimIsMine, linkedCommentId };
+  const commentProps = {
+    isTopLevel: true,
+    uri,
+    claimIsMine,
+    linkedCommentId,
+    threadCommentId,
+  };
   const actionButtonsProps = {
     totalComments,
     sort,
     changeSort,
     setPage,
-    handleRefresh: () => setPage(0),
+    handleRefresh: refreshComments,
   };
 
   return (
     <Card
-      className="card--enable-overflow"
-      title={!isMobile && title}
+      className="card--enable-overflow comment__list"
+      title={(!isMobile || notInDrawer) && title}
       titleActions={<CommentActionButtons {...actionButtonsProps} />}
       actions={
         <>
-          {isMobile && <CommentActionButtons {...actionButtonsProps} />}
+          {isMobile && !notInDrawer && <CommentActionButtons {...actionButtonsProps} />}
 
           <CommentCreate uri={uri} />
+
+          {threadCommentId && (
+            <span className="comment__actions comment__thread-link">
+              <Button
+                button="link"
+                label={__('View all comments')}
+                icon={ICONS.ARROW_LEFT}
+                iconSize={12}
+                onClick={() => {
+                  const urlParams = new URLSearchParams(search);
+                  urlParams.delete(THREAD_COMMENT_QUERY_PARAM);
+                  push(`${pathname}?${urlParams.toString()}`);
+                }}
+              />
+              {threadCommentLastAncestor && (
+                <Button
+                  button="link"
+                  label={__('Return to parent comment')}
+                  icon={ICONS.ARROW_LEFT}
+                  iconSize={12}
+                  onClick={() => {
+                    const urlParams = new URLSearchParams(search);
+                    urlParams.set(THREAD_COMMENT_QUERY_PARAM, threadCommentLastAncestor);
+                    push(`${pathname}?${urlParams.toString()}`);
+                  }}
+                />
+              )}
+            </span>
+          )}
 
           {channelSettings && channelSettings.comments_enabled && !isFetchingComments && !totalComments && (
             <Empty padded text={__('That was pretty deep. What do you think?')} />
@@ -294,7 +356,7 @@ export default function CommentList(props: Props) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments && <CommentElements comments={pinnedComments} {...commentProps} />}
+                {pinnedComments && !threadCommentId && <CommentElements comments={pinnedComments} {...commentProps} />}
                 <CommentElements comments={topLevelComments} {...commentProps} />
               </>
             )}
@@ -331,7 +393,7 @@ export default function CommentList(props: Props) {
             </div>
           )}
 
-          {(isFetchingComments || (hasDefaultExpansion && moreBelow)) && (
+          {(threadCommentId ? !readyToDisplayComments : isFetchingComments || (hasDefaultExpansion && moreBelow)) && (
             <div className="main--empty" ref={spinnerRef}>
               <Spinner type="small" />
             </div>

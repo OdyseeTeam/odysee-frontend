@@ -3,7 +3,12 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as KEYCODES from 'constants/keycodes';
 import { COMMENT_HIGHLIGHTED } from 'constants/classnames';
-import { SORT_BY, COMMENT_PAGE_SIZE_REPLIES } from 'constants/comment';
+import {
+  SORT_BY,
+  COMMENT_PAGE_SIZE_REPLIES,
+  LINKED_COMMENT_QUERY_PARAM,
+  THREAD_COMMENT_QUERY_PARAM,
+} from 'constants/comment';
 import { FF_MAX_CHARS_IN_COMMENT } from 'constants/form-field';
 import { SITE_NAME, SIMPLE_SITE, ENABLE_COMMENT_REACTIONS } from 'config';
 import React, { useEffect, useState } from 'react';
@@ -48,12 +53,12 @@ type Props = {
   totalReplyPages: number,
   commentModBlock: (string) => void,
   linkedCommentId?: string,
+  threadCommentId?: string,
   linkedCommentAncestors: { [string]: Array<string> },
   hasChannels: boolean,
   commentingEnabled: boolean,
   doToast: ({ message: string }) => void,
   isTopLevel?: boolean,
-  threadDepth: number,
   hideActions?: boolean,
   othersReacts: ?{
     like: number,
@@ -69,6 +74,7 @@ type Props = {
   selectOdyseeMembershipForUri: string,
   fetchedReplies: Array<Comment>,
   repliesFetching: boolean,
+  threadLevel?: number,
 };
 
 const LENGTH_TO_COLLAPSE = 300;
@@ -85,12 +91,12 @@ function CommentView(props: Props) {
     fetchReplies,
     totalReplyPages,
     linkedCommentId,
+    threadCommentId,
     linkedCommentAncestors,
     commentingEnabled,
     hasChannels,
     doToast,
     isTopLevel,
-    threadDepth,
     hideActions,
     othersReacts,
     playingUri,
@@ -101,6 +107,7 @@ function CommentView(props: Props) {
     selectOdyseeMembershipForUri,
     fetchedReplies,
     repliesFetching,
+    threadLevel = 0,
   } = props;
 
   const {
@@ -123,18 +130,23 @@ function CommentView(props: Props) {
 
   const isMobile = useIsMobile();
 
+  // Mobile: 0, 1, 2 -> new thread....., so each 3 comments, desktop to 5
+  const openNewThread = threadLevel > 0 && (isMobile ? threadLevel % 2 === 0 : threadLevel % 5 === 0);
+
   const {
     push,
     replace,
     location: { pathname, search },
   } = useHistory();
 
+  const urlParams = new URLSearchParams(search);
   const isLinkedComment = linkedCommentId && linkedCommentId === commentId;
+  const isThreadComment = threadCommentId && threadCommentId === commentId;
   const isInLinkedCommentChain =
     linkedCommentId &&
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
-  const showRepliesOnMount = isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
+  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -151,6 +163,7 @@ function CommentView(props: Props) {
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
+  const isExpandable = editedMessage.length >= LENGTH_TO_COLLAPSE;
 
   let channelOwnerOfContent;
   try {
@@ -213,9 +226,8 @@ function CommentView(props: Props) {
   }
 
   function handleTimeClick() {
-    const urlParams = new URLSearchParams(search);
-    urlParams.delete('lc');
-    urlParams.append('lc', commentId);
+    urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
+    urlParams.append(LINKED_COMMENT_QUERY_PARAM, commentId);
     replace(`${pathname}?${urlParams.toString()}`);
   }
 
@@ -232,18 +244,19 @@ function CommentView(props: Props) {
         if (elem) {
           // $FlowFixMe
           elem.scrollTo({
-            top:
-              node.getBoundingClientRect().top +
-              // $FlowFixMe
-              (mobileChatElem && drawerElem ? drawerElem.getBoundingClientRect().top * -1 : elem.scrollY) -
-              ROUGH_HEADER_HEIGHT,
+            top: threadCommentId
+              ? node.getBoundingClientRect().bottom
+              : node.getBoundingClientRect().top +
+                // $FlowFixMe
+                (mobileChatElem && drawerElem ? drawerElem.getBoundingClientRect().top * -1 : elem.scrollY) -
+                ROUGH_HEADER_HEIGHT,
             left: 0,
-            behavior: 'smooth',
+            behavior: threadCommentId ? undefined : 'smooth',
           });
         }
       }
     },
-    [isMobile]
+    [isMobile, threadCommentId]
   );
 
   return (
@@ -274,7 +287,7 @@ function CommentView(props: Props) {
       </div>
 
       <div
-        ref={isLinkedComment ? linkedCommentRef : undefined}
+        ref={isLinkedComment || isThreadComment ? linkedCommentRef : undefined}
         className={classnames('comment__content', {
           [COMMENT_HIGHLIGHTED]: isLinkedComment,
           'comment--slimed': slimedToDeath && !displayDeadComment,
@@ -370,8 +383,8 @@ function CommentView(props: Props) {
                     <div className="sticker__comment">
                       <OptimizedImage src={stickerFromMessage.url} waitLoad loading="lazy" />
                     </div>
-                  ) : editedMessage.length >= LENGTH_TO_COLLAPSE ? (
-                    <Expandable>
+                  ) : isExpandable ? (
+                    <Expandable beginCollapsed>
                       <MarkdownPreview
                         content={message}
                         promptLinks
@@ -393,16 +406,14 @@ function CommentView(props: Props) {
 
                 {!hideActions && (
                   <div className="comment__actions">
-                    {threadDepth !== 0 && (
-                      <Button
-                        requiresAuth={IS_WEB}
-                        label={commentingEnabled ? __('Reply') : __('Log in to reply')}
-                        className="comment__action"
-                        onClick={handleCommentReply}
-                        icon={ICONS.REPLY}
-                        iconSize={isMobile && 12}
-                      />
-                    )}
+                    <Button
+                      requiresAuth={IS_WEB}
+                      label={commentingEnabled ? __('Reply') : __('Log in to reply')}
+                      className="comment__action"
+                      onClick={handleCommentReply}
+                      icon={ICONS.REPLY}
+                      iconSize={isMobile && 12}
+                    />
                     {ENABLE_COMMENT_REACTIONS && <CommentReactions uri={uri} commentId={commentId} />}
                   </div>
                 )}
@@ -415,21 +426,34 @@ function CommentView(props: Props) {
                   numDirectReplies > 0 && (
                     <div className="comment__actions">
                       {!showReplies ? (
-                        <Button
-                          label={
-                            numDirectReplies < 2
-                              ? __('Show reply')
-                              : __('Show %count% replies', { count: numDirectReplies })
-                          }
-                          button="link"
-                          onClick={() => {
-                            setShowReplies(true);
-                            if (page === 0) {
-                              setPage(1);
+                        openNewThread ? (
+                          <Button
+                            label={__('Continue Thread')}
+                            button="link"
+                            onClick={() => {
+                              urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
+                              window.pendingLinkedCommentScroll = true;
+                              push(`${pathname}?${urlParams.toString()}`);
+                            }}
+                            iconRight={ICONS.ARROW_RIGHT}
+                          />
+                        ) : (
+                          <Button
+                            label={
+                              numDirectReplies < 2
+                                ? __('Show reply')
+                                : __('Show %count% replies', { count: numDirectReplies })
                             }
-                          }}
-                          iconRight={ICONS.DOWN}
-                        />
+                            button="link"
+                            onClick={() => {
+                              setShowReplies(true);
+                              if (page === 0) {
+                                setPage(1);
+                              }
+                            }}
+                            icon={ICONS.DOWN}
+                          />
+                        )
                       ) : (
                         <Button
                           label={__('Hide replies')}
@@ -464,10 +488,11 @@ function CommentView(props: Props) {
 
         {showReplies && (
           <CommentsReplies
-            threadDepth={threadDepth - 1}
+            threadLevel={threadLevel}
             uri={uri}
             parentId={commentId}
             linkedCommentId={linkedCommentId}
+            threadCommentId={threadCommentId}
             numDirectReplies={numDirectReplies}
             onShowMore={() => setPage(page + 1)}
             hasMore={page < totalReplyPages}

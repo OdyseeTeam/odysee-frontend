@@ -12,7 +12,7 @@ import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { doToast } from 'redux/actions/notifications';
 import { doClearPlayingUri } from 'redux/actions/content';
 import {
-  selectLinkedCommentAncestors,
+  selectFetchedCommentAncestors,
   selectOthersReactsForComment,
   makeSelectTotalReplyPagesForParentId,
   selectIsFetchingCommentsForParentId,
@@ -42,7 +42,7 @@ const select = (state, props) => {
     hasChannels: selectHasChannels(state),
     playingUri: selectPlayingUri(state),
     stakedLevel: selectStakedLevelForChannelUri(state, channel_url),
-    linkedCommentAncestors: selectLinkedCommentAncestors(state),
+    linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     selectOdyseeMembershipForUri: channel_url && selectOdyseeMembershipForUri(state, channel_url),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),

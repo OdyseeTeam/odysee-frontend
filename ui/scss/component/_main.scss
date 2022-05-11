@@ -239,13 +239,13 @@ body {
         padding: 0;
         .card__first-pane {
           .card__main-actions {
-            .button--alt:last-of-type {
+            .button--alt[aria-label='Refresh'] {
               top: -1px;
               float: right;
               margin-right: 0;
             }
             .comment__sort {
-              .button--alt:last-of-type {
+              .button--alt[aria-label='Refresh'] {
                 top: unset;
                 float: unset;
                 margin-right: unset;

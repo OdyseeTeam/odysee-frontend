@@ -6,7 +6,7 @@ import React from 'react';
 type Props = {
   uri: string,
   linkedCommentId?: string,
-  threadDepth: number,
+  threadCommentId?: string,
   numDirectReplies: number, // Total replies for parentId as reported by 'comment[replies]'. Includes blocked items.
   hasMore: boolean,
   supportDisabled: boolean,
@@ -14,6 +14,7 @@ type Props = {
   // redux
   fetchedReplies: Array<Comment>,
   claimIsMine: boolean,
+  threadLevel: number,
 };
 
 export default function CommentsReplies(props: Props) {
@@ -22,11 +23,12 @@ export default function CommentsReplies(props: Props) {
     fetchedReplies,
     claimIsMine,
     linkedCommentId,
-    threadDepth,
+    threadCommentId,
     numDirectReplies,
     hasMore,
     supportDisabled,
     onShowMore,
+    threadLevel,
   } = props;
 
   return !numDirectReplies ? null : (
@@ -35,12 +37,13 @@ export default function CommentsReplies(props: Props) {
         {fetchedReplies.map((comment) => (
           <Comment
             key={comment.comment_id}
-            threadDepth={threadDepth}
             uri={uri}
             comment={comment}
             claimIsMine={claimIsMine}
             linkedCommentId={linkedCommentId}
+            threadCommentId={threadCommentId}
             supportDisabled={supportDisabled}
+            threadLevel={threadLevel + 1}
           />
         ))}
       </ul>
