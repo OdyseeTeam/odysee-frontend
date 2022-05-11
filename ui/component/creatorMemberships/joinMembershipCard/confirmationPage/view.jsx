@@ -61,7 +61,7 @@ export default function ConfirmationPage(props: Props) {
 
   return (
     <div className="confirm__wrapper">
-      <div className="confirmation-section__div" style={{ overflow: 'scroll', maxHeight: '461px' }}>
+      <div className="confirmation-section__div" style={{ overflow: 'auto', maxHeight: '461px' }}>
         <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
         <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.displayName} />
         <ConfirmationSection

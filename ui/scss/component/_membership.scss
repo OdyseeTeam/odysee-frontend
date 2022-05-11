@@ -151,7 +151,7 @@
 }
 
 .membership-join__body {
-  overflow: scroll;
+  overflow: auto;
 }
 
 .membership-join__body,
@@ -345,7 +345,7 @@
         ul {
           padding: var(--spacing-s);
           max-height: 15rem;
-          overflow: scroll;
+          overflow: auto;
         }
 
         .membership-join__perk-item {
@@ -604,4 +604,8 @@
       margin: 0 auto;
     }
   }
+}
+
+svg.icon--Upgrade {
+  margin-top: 2px;
 }
