@@ -31,6 +31,7 @@ import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
 import PremiumBadge from 'component/common/premium-badge';
+import Spinner from 'component/spinner';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
 
@@ -66,6 +67,8 @@ type Props = {
   setQuickReply: (any) => void,
   quickReply: any,
   selectOdyseeMembershipForUri: string,
+  fetchedReplies: Array<Comment>,
+  repliesFetching: boolean,
 };
 
 const LENGTH_TO_COLLAPSE = 300;
@@ -96,6 +99,8 @@ function CommentView(props: Props) {
     setQuickReply,
     quickReply,
     selectOdyseeMembershipForUri,
+    fetchedReplies,
+    repliesFetching,
   } = props;
 
   const {
@@ -250,6 +255,24 @@ function CommentView(props: Props) {
       })}
       id={commentId}
     >
+      <div className="comment__thumbnail-wrapper">
+        {authorUri ? (
+          <ChannelThumbnail
+            uri={authorUri}
+            obscure={channelIsBlocked}
+            xsmall
+            className="comment__author-thumbnail"
+            checkMembership={false}
+          />
+        ) : (
+          <ChannelThumbnail xsmall className="comment__author-thumbnail" checkMembership={false} />
+        )}
+
+        {numDirectReplies > 0 && showReplies && (
+          <Button className="comment__threadline" aria-label="Hide Replies" onClick={() => setShowReplies(false)} />
+        )}
+      </div>
+
       <div
         ref={isLinkedComment ? linkedCommentRef : undefined}
         className={classnames('comment__content', {
@@ -257,20 +280,6 @@ function CommentView(props: Props) {
           'comment--slimed': slimedToDeath && !displayDeadComment,
         })}
       >
-        <div className="comment__thumbnail-wrapper">
-          {authorUri ? (
-            <ChannelThumbnail
-              uri={authorUri}
-              obscure={channelIsBlocked}
-              xsmall
-              className="comment__author-thumbnail"
-              checkMembership={false}
-            />
-          ) : (
-            <ChannelThumbnail xsmall className="comment__author-thumbnail" checkMembership={false} />
-          )}
-        </div>
-
         <div className="comment__body-container">
           <div className="comment__meta">
             <div className="comment__meta-information">
@@ -398,35 +407,39 @@ function CommentView(props: Props) {
                   </div>
                 )}
 
-                {numDirectReplies > 0 && !showReplies && (
-                  <div className="comment__actions">
-                    <Button
-                      label={
-                        numDirectReplies < 2
-                          ? __('Show reply')
-                          : __('Show %count% replies', { count: numDirectReplies })
-                      }
-                      button="link"
-                      onClick={() => {
-                        setShowReplies(true);
-                        if (page === 0) {
-                          setPage(1);
-                        }
-                      }}
-                      icon={ICONS.DOWN}
-                    />
-                  </div>
-                )}
-
-                {numDirectReplies > 0 && showReplies && (
-                  <div className="comment__actions">
-                    <Button
-                      label={__('Hide replies')}
-                      button="link"
-                      onClick={() => setShowReplies(false)}
-                      icon={ICONS.UP}
-                    />
-                  </div>
+                {repliesFetching && (!fetchedReplies || fetchedReplies.length === 0) ? (
+                  <span className="comment__actions comment__replies-loading">
+                    <Spinner text={numDirectReplies > 1 ? __('Loading Replies') : __('Loading Reply')} type="small" />
+                  </span>
+                ) : (
+                  numDirectReplies > 0 && (
+                    <div className="comment__actions">
+                      {!showReplies ? (
+                        <Button
+                          label={
+                            numDirectReplies < 2
+                              ? __('Show reply')
+                              : __('Show %count% replies', { count: numDirectReplies })
+                          }
+                          button="link"
+                          onClick={() => {
+                            setShowReplies(true);
+                            if (page === 0) {
+                              setPage(1);
+                            }
+                          }}
+                          iconRight={ICONS.DOWN}
+                        />
+                      ) : (
+                        <Button
+                          label={__('Hide replies')}
+                          button="link"
+                          onClick={() => setShowReplies(false)}
+                          iconRight={ICONS.UP}
+                        />
+                      )}
+                    </div>
+                  )
                 )}
 
                 {isReplying && (
@@ -448,19 +461,19 @@ function CommentView(props: Props) {
             )}
           </div>
         </div>
-      </div>
 
-      {showReplies && (
-        <CommentsReplies
-          threadDepth={threadDepth - 1}
-          uri={uri}
-          parentId={commentId}
-          linkedCommentId={linkedCommentId}
-          numDirectReplies={numDirectReplies}
-          onShowMore={() => setPage(page + 1)}
-          hasMore={page < totalReplyPages}
-        />
-      )}
+        {showReplies && (
+          <CommentsReplies
+            threadDepth={threadDepth - 1}
+            uri={uri}
+            parentId={commentId}
+            linkedCommentId={linkedCommentId}
+            numDirectReplies={numDirectReplies}
+            onShowMore={() => setPage(page + 1)}
+            hasMore={page < totalReplyPages}
+          />
+        )}
+      </div>
     </li>
   );
 }
