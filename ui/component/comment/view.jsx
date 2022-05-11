@@ -131,7 +131,7 @@ function CommentView(props: Props) {
   const isMobile = useIsMobile();
 
   // Mobile: 0, 1, 2 -> new thread....., so each 3 comments, desktop to 5
-  const openNewThread = threadLevel > 0 && (isMobile ? threadLevel % 2 === 0 : threadLevel % 5 === 0);
+  const openNewThread = threadLevel > 0 && (isMobile ? threadLevel % 2 === 0 : threadLevel % 10 === 0);
 
   const {
     push,
@@ -229,6 +229,12 @@ function CommentView(props: Props) {
     urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
     urlParams.append(LINKED_COMMENT_QUERY_PARAM, commentId);
     replace(`${pathname}?${urlParams.toString()}`);
+  }
+
+  function handleOpenNewThread() {
+    urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
+    window.pendingLinkedCommentScroll = true;
+    push(`${pathname}?${urlParams.toString()}`);
   }
 
   const linkedCommentRef = React.useCallback(
@@ -430,11 +436,7 @@ function CommentView(props: Props) {
                           <Button
                             label={__('Continue Thread')}
                             button="link"
-                            onClick={() => {
-                              urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
-                              window.pendingLinkedCommentScroll = true;
-                              push(`${pathname}?${urlParams.toString()}`);
-                            }}
+                            onClick={handleOpenNewThread}
                             iconRight={ICONS.ARROW_RIGHT}
                           />
                         ) : (
@@ -472,7 +474,11 @@ function CommentView(props: Props) {
                     uri={uri}
                     parentId={commentId}
                     onDoneReplying={() => {
-                      setShowReplies(true);
+                      if (openNewThread) {
+                        handleOpenNewThread();
+                      } else {
+                        setShowReplies(true);
+                      }
                       setReplying(false);
                     }}
                     onCancelReplying={() => {

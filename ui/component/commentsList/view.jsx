@@ -344,9 +344,11 @@ export default function CommentList(props: Props) {
             </span>
           )}
 
-          {channelSettings && channelSettings.comments_enabled && !isFetchingComments && !totalComments && (
-            <Empty padded text={__('That was pretty deep. What do you think?')} />
-          )}
+          {channelSettings &&
+            channelSettings.comments_enabled &&
+            !isFetchingComments &&
+            !totalComments &&
+            !threadCommentId && <Empty padded text={__('That was pretty deep. What do you think?')} />}
 
           <ul
             ref={commentListRef}
