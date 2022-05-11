@@ -229,7 +229,7 @@ export default function CommentList(props: Props) {
       delete window.pendingLinkedCommentScroll;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [threadCommentId]);
 
   // Infinite scroll
   useEffect(() => {

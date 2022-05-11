@@ -129,6 +129,7 @@ function CommentView(props: Props) {
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
 
   const isMobile = useIsMobile();
+  const ROUGH_HEADER_HEIGHT = isMobile ? 56 : 60; // @see: --header-height
 
   // Mobile: 0, 1, 2 -> new thread....., so each 3 comments, desktop to 5
   const openNewThread = threadLevel > 0 && (isMobile ? threadLevel % 2 === 0 : threadLevel % 10 === 0);
@@ -237,33 +238,44 @@ function CommentView(props: Props) {
     push(`${pathname}?${urlParams.toString()}`);
   }
 
+  // -- scroll handlers --
+
+  const [commentRefNode, setCommentRefNode] = React.useState();
+
+  React.useEffect(() => {
+    if (commentRefNode && threadCommentId) {
+      window.scrollTo({ top: commentRefNode.getBoundingClientRect().top - ROUGH_HEADER_HEIGHT });
+    }
+  }, [ROUGH_HEADER_HEIGHT, commentRefNode, threadCommentId]);
+
   const linkedCommentRef = React.useCallback(
     (node) => {
       if (node !== null && window.pendingLinkedCommentScroll) {
-        const ROUGH_HEADER_HEIGHT = 125; // @see: --header-height
         delete window.pendingLinkedCommentScroll;
 
         const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
         const drawerElem = document.querySelector('.MuiDrawer-root');
         const elem = (isMobile && mobileChatElem) || window;
+        if (threadCommentId) setCommentRefNode(node);
 
         if (elem) {
           // $FlowFixMe
           elem.scrollTo({
-            top: threadCommentId
-              ? node.getBoundingClientRect().bottom
-              : node.getBoundingClientRect().top +
-                // $FlowFixMe
-                (mobileChatElem && drawerElem ? drawerElem.getBoundingClientRect().top * -1 : elem.scrollY) -
-                ROUGH_HEADER_HEIGHT,
+            top:
+              node.getBoundingClientRect().top +
+              // $FlowFixMe
+              (mobileChatElem && drawerElem ? drawerElem.getBoundingClientRect().top * -1 : elem.scrollY) -
+              ROUGH_HEADER_HEIGHT,
             left: 0,
-            behavior: threadCommentId ? undefined : 'smooth',
+            behavior: 'smooth',
           });
         }
       }
     },
     [isMobile, threadCommentId]
   );
+
+  // --------------------
 
   return (
     <li
@@ -453,7 +465,7 @@ function CommentView(props: Props) {
                                 setPage(1);
                               }
                             }}
-                            icon={ICONS.DOWN}
+                            iconRight={ICONS.DOWN}
                           />
                         )
                       ) : (
