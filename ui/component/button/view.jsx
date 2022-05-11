@@ -19,6 +19,7 @@ type Props = {
   disabled: ?boolean,
   children: ?Node,
   navigate: ?string,
+  navigateTarget?: string,
   className: ?string,
   description: ?string,
   type: string,
@@ -59,6 +60,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     disabled,
     children,
     navigate,
+    navigateTarget,
     className,
     description,
     button,
@@ -179,7 +181,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     }
     return (
       <a
-        target={isAnInternalLink ? '' : '_blank'}
+        target={navigateTarget || (isAnInternalLink ? '' : '_blank')}
         rel="noopener noreferrer"
         href={href || navigate}
         className={combinedClassName}

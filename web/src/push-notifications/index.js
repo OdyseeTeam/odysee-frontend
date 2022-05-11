@@ -10,13 +10,14 @@ import { getMessaging, getToken, deleteToken } from 'firebase/messaging';
 import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
 import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
 import { browserData } from '$web/src/ua';
-import { isPushSupported } from '$web/src/push-notifications/push-supported';
-
+// import { isPushSupported } from '$web/src/push-notifications/push-supported';
+const isPushSupported = false;
 let messaging = null;
 let pushSystem = null;
 
 (async () => {
-  const supported = await isPushSupported();
+  // const supported = await isPushSupported();
+  const supported = isPushSupported;
   if (supported) {
     const app = initializeApp(firebaseConfig);
     messaging = getMessaging(app);

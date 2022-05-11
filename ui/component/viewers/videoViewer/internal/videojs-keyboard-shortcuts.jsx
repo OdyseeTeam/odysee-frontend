@@ -1,12 +1,11 @@
 // @flow
 import * as OVERLAY from './overlays';
 import * as KEYCODES from 'constants/keycodes';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import isUserTyping from 'util/detect-typing';
 
 const SEEK_STEP_5 = 5;
 const SEEK_STEP = 10; // time to seek in seconds
-
-const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
 
 // check if active (clicked) element is part of video div, used for keyboard shortcuts (volume etc)
 function activeElementIsPartOfVideoElement() {
@@ -60,11 +59,20 @@ function seekVideo(stepSize: number, playerRef, containerRef, jumpTo?: boolean) 
 function toggleFullscreen(playerRef) {
   const player = playerRef.current;
   if (!player) return;
+  if (window.cordova) {
+    if (!window.odysee.fullscreen) {
+      window.odysee.functions.requestFullscreen();
+    } else {
+      window.odysee.functions.exitFullscreen();
+    }
+  }
+  /*
   if (!player.isFullscreen()) {
     player.requestFullscreen();
   } else {
     player.exitFullscreen();
   }
+  */
 }
 
 function toggleMute(containerRef) {
@@ -84,10 +92,10 @@ function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef) {
   if (!player) return;
   const isSpeedUp = shouldSpeedUp;
   const rate = player.playbackRate();
-  let rateIndex = videoPlaybackRates.findIndex((x) => x === rate);
+  let rateIndex = VIDEO_PLAYBACK_RATES.findIndex((x) => x === rate);
   if (rateIndex >= 0) {
-    rateIndex = isSpeedUp ? Math.min(rateIndex + 1, videoPlaybackRates.length - 1) : Math.max(rateIndex - 1, 0);
-    const nextRate = videoPlaybackRates[rateIndex];
+    rateIndex = isSpeedUp ? Math.min(rateIndex + 1, VIDEO_PLAYBACK_RATES.length - 1) : Math.max(rateIndex - 1, 0);
+    const nextRate = VIDEO_PLAYBACK_RATES[rateIndex];
 
     OVERLAY.showPlaybackRateOverlay(player, nextRate, isSpeedUp);
     player.userActive(true);

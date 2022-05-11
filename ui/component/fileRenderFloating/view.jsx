@@ -71,12 +71,13 @@ type Props = {
   doSetPlayingUri: ({ uri?: ?string }) => void,
   isCurrentClaimLive?: boolean,
   videoAspectRatio: number,
-  socketConnected: boolean,
+  socketConnection: { connected: ?boolean },
   isLivestreamClaim: boolean,
   geoRestriction: ?GeoRestriction,
   appDrawerOpen: boolean,
   doCommentSocketConnect: (string, string, string) => void,
   doCommentSocketDisconnect: (string, string) => void,
+  doClearPlayingUri: () => void,
 };
 
 export default function FileRenderFloating(props: Props) {
@@ -97,7 +98,7 @@ export default function FileRenderFloating(props: Props) {
     claimWasPurchased,
     nextListUri,
     previousListUri,
-    socketConnected,
+    socketConnection,
     isLivestreamClaim,
     doFetchRecommendedContent,
     doUriInitiatePlay,
@@ -108,6 +109,7 @@ export default function FileRenderFloating(props: Props) {
     appDrawerOpen,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
+    doClearPlayingUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -139,6 +141,7 @@ export default function FileRenderFloating(props: Props) {
     y: window.innerHeight - 400,
   });
   const relativePosRef = React.useRef({ x: 0, y: 0 });
+  const noPlayerHeight = fileViewerRect?.height === 0;
 
   const navigateUrl =
     (playingPrimaryUri || playingUrl || '') + (collectionId ? generateListSearchUrlParams(collectionId) : '');
@@ -234,20 +237,31 @@ export default function FileRenderFloating(props: Props) {
 
     // Only connect if not yet connected, so for example clicked on an embed instead of accessing
     // from the Livestream page
-    if (!socketConnected) doCommentSocketConnect(uri, channelName, claimId);
+    if (!socketConnection?.connected) {
+      doCommentSocketConnect(uri, channelName, claimId);
+    }
 
     // This will be used to disconnect for every case, since this is the main player component
-    return () => doCommentSocketDisconnect(claimId, channelName);
-
-    // only listen to socketConnected on initial mount
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [channelUrl, claimId, doCommentSocketConnect, doCommentSocketDisconnect, isCurrentClaimLive, uri]);
+    return () => {
+      if (socketConnection?.connected) {
+        doCommentSocketDisconnect(claimId, channelName);
+      }
+    };
+  }, [
+    channelUrl,
+    claimId,
+    doCommentSocketConnect,
+    doCommentSocketDisconnect,
+    isCurrentClaimLive,
+    socketConnection,
+    uri,
+  ]);
 
   React.useEffect(() => {
-    if (playingPrimaryUri || playingUrl) {
+    if (playingPrimaryUri || playingUrl || noPlayerHeight) {
       handleResize();
     }
-  }, [handleResize, playingPrimaryUri, theaterMode, playingUrl]);
+  }, [handleResize, playingPrimaryUri, theaterMode, playingUrl, noPlayerHeight]);
 
   // Listen to main-window resizing and adjust the floating player position accordingly:
   React.useEffect(() => {
@@ -308,6 +322,12 @@ export default function FileRenderFloating(props: Props) {
       }
     };
   }, [playingUrl]);
+
+  React.useEffect(() => {
+    if (!primaryUri && !floatingPlayerEnabled && playingUrl && !playingUriSource) {
+      doClearPlayingUri();
+    }
+  }, [doClearPlayingUri, floatingPlayerEnabled, playingUriSource, playingUrl, primaryUri]);
 
   if (
     geoRestriction ||
@@ -595,7 +615,8 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     <Global
       styles={{
         [`.${PRIMARY_PLAYER_WRAPPER_CLASS}`]: {
-          height: !theaterMode && mainFilePlaying ? `${heightResult} !important` : undefined,
+          height:
+            !theaterMode && mainFilePlaying && fileViewerRect?.height > 0 ? `${heightResult} !important` : undefined,
           opacity: !theaterMode && mainFilePlaying ? '0 !important' : undefined,
         },
 

@@ -6,6 +6,7 @@ import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
 import '@silvermine/videojs-airplay/dist/silvermine-videojs-airplay.css';
 import * as ICONS from 'constants/icons';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import * as OVERLAY from './overlays';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -24,6 +25,7 @@ import recsys from './plugins/videojs-recsys/plugin';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
+import usePersistedState from 'effects/use-persisted-state';
 
 const canAutoplay = require('./plugins/canAutoplay');
 
@@ -70,6 +72,8 @@ type Props = {
   autoplay: boolean,
   autoplaySetting: boolean,
   claimId: ?string,
+  title: ?string,
+  channelName: ?string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -81,6 +85,7 @@ type Props = {
   startMuted: boolean,
   userId: ?number,
   videoTheaterMode: boolean,
+  defaultQuality: ?string,
   onPlayerReady: (Player, any) => void,
   playNext: () => void,
   playPrevious: () => void,
@@ -93,9 +98,9 @@ type Props = {
   isLivestreamClaim: boolean,
   userClaimId: ?string,
   activeLivestreamForChannel: any,
+  doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
 
-const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
 const IS_IOS = platform.isIOS();
 
 if (!Object.keys(videojs.getPlugins()).includes('eventTracking')) {
@@ -128,6 +133,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplay,
     autoplaySetting,
     claimId,
+    channelName,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -139,6 +145,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     startMuted,
     userId,
     videoTheaterMode,
+    defaultQuality,
     onPlayerReady,
     playNext,
     playPrevious,
@@ -151,22 +158,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     userClaimId,
     isLivestreamClaim,
     activeLivestreamForChannel,
+    doToast,
   } = props;
+
+  // used to notify about default quality setting
+  // if already has a quality set, no need to notify
+  const [initialQualityChange, setInitialQualityChange] = usePersistedState(
+    'initial-quality-change',
+    Boolean(defaultQuality)
+  );
 
   const isMobile = useIsMobile();
 
-  // will later store the videojs player
   const playerRef = useRef();
   const containerRef = useRef();
-
   const tapToUnmuteRef = useRef();
   const tapToRetryRef = useRef();
-
   const playerServerRef = useRef();
 
   const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
+  const overrideNativeVhs = !platform.isIPhone();
   const showQualitySelector =
-    !isLivestreamClaim ||
+    (!isLivestreamClaim && overrideNativeVhs) ||
     (livestreamVideoUrl && (livestreamVideoUrl.includes('/transcode/') || livestreamVideoUrl.includes('cloud.odysee')));
 
   // initiate keyboard shortcuts
@@ -204,12 +217,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
   const videoJsOptions = {
     preload: 'auto',
-    playbackRates: videoPlaybackRates,
+    playbackRates: VIDEO_PLAYBACK_RATES,
     responsive: true,
     controls: true,
     html5: {
-      hls: {
-        overrideNative: !videojs.browser.IS_ANY_SAFARI,
+      vhs: {
+        overrideNative: overrideNativeVhs, // !videojs.browser.IS_ANY_SAFARI,
         enableLowInitialPlaylist: false,
         fastQualityChange: true,
         useDtsForTimestampOffset: true,
@@ -224,8 +237,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
-    // fixes problem of errant CC button showing up on iOS
-    // the true fix here is to fix the m3u8 file, see: https://github.com/lbryio/lbry-desktop/pull/6315
     controlBar: {
       currentTimeDisplay: !isLivestreamClaim,
       timeDivider: !isLivestreamClaim,
@@ -274,6 +285,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.hlsQualitySelector({
           displayCurrentQuality: true,
           originalHeight: claimValues?.video?.height,
+          defaultQuality,
+          initialQualityChange,
+          setInitialQualityChange,
+          doToast,
         });
       }
 
@@ -358,12 +373,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (isLivestreamClaim && userClaimId) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-
-        // $FlowFixMe
-        vjsPlayer.src({
-          type: 'application/x-mpegURL',
-          src: livestreamVideoUrl,
-        });
+        vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
+        if (window.cordova) {
+          let payload = {
+            uri: livestreamVideoUrl,
+            claim: claimValues,
+            fileType: 'application/x-mpegURL',
+            channel: channelName,
+          };
+          if (!payload.claim.stream_type) payload.claim.stream_type = 'video';
+          window.odysee.chromecast.setMediaPayload(payload);
+        }
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
@@ -374,19 +394,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
         if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-          // use m3u8 source
-          // $FlowFixMe
-          vjsPlayer.src({
-            type: 'application/x-mpegURL',
-            src: response.url,
-          });
+          vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
+          vjsPlayer.src(vjsPlayer.claimSrcVhs);
+          if (window.cordova) {
+            let payload = {
+              uri: response.url,
+              claim: claimValues,
+              fileType: 'application/x-mpegURL',
+              channel: channelName,
+            };
+            window.odysee.chromecast.setMediaPayload(payload);
+          }
         } else {
-          // use original mp4 source
-          // $FlowFixMe
-          vjsPlayer.src({
-            type: sourceType,
-            src: source,
-          });
+          vjsPlayer.src(source);
+          if (window.cordova) {
+            let payload = {
+              uri: source,
+              claim: claimValues,
+              fileType: sourceType,
+              channel: channelName,
+            };
+            window.odysee.chromecast.setMediaPayload(payload);
+          }
         }
       }
 

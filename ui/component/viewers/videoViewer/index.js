@@ -16,7 +16,13 @@ import {
   doAnalyticsView,
 } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
-import { savePosition, clearPosition, doPlayUri, doSetPlayingUri } from 'redux/actions/content';
+import {
+  savePosition,
+  clearPosition,
+  doPlayUri,
+  doSetPlayingUri,
+  doSetContentHistoryItem,
+} from 'redux/actions/content';
 import { makeSelectIsPlayerFloating, selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import VideoViewer from './view';
@@ -25,6 +31,7 @@ import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { doToast } from 'redux/actions/notifications';
 
 const select = (state, props) => {
   const { search } = props.location;
@@ -74,6 +81,7 @@ const select = (state, props) => {
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
   };
 };
 
@@ -101,6 +109,8 @@ const perform = (dispatch) => ({
     ),
   doAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
+  doToast: (props) => dispatch(doToast(props)),
+  doSetContentHistoryItem: (uri) => dispatch(doSetContentHistoryItem(uri)),
 });
 
 export default withRouter(connect(select, perform)(VideoViewer));

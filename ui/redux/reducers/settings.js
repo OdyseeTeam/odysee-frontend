@@ -37,6 +37,7 @@ const defaultState = {
     [SETTINGS.TAGS_ACKNOWLEDGED]: false,
     [SETTINGS.ENABLE_SYNC]: IS_WEB,
     [SETTINGS.ENABLE_PUBLISH_PREVIEW]: true,
+    [SETTINGS.ACTIVE_CHANNEL_CLAIM]: undefined,
 
     // UI
     [SETTINGS.LANGUAGE]: null,
@@ -76,6 +77,7 @@ const defaultState = {
     [SETTINGS.AUTO_DOWNLOAD]: true,
     [SETTINGS.HIDE_REPOSTS]: false,
     [SETTINGS.HIDE_SCHEDULED_LIVESTREAMS]: false,
+    [SETTINGS.DEFAULT_VIDEO_QUALITY]: null,
 
     // OS
     [SETTINGS.AUTO_LAUNCH]: true,

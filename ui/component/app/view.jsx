@@ -16,7 +16,7 @@ import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import FileRenderFloating from 'component/fileRenderFloating';
 import { withRouter } from 'react-router';
-import useAdOutbrain from 'effects/use-ad-outbrain';
+// import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/common/nag';
 import REWARDS from 'rewards';
@@ -85,8 +85,7 @@ type Props = {
   syncFatalError: boolean,
   activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
-  hasPremiumPlus: ?boolean,
-  setActiveChannelIfNotSet: () => void,
+  // hasPremiumPlus: ?boolean,
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
@@ -120,10 +119,9 @@ function App(props: Props) {
     syncFatalError,
     myChannelClaimIds,
     activeChannelClaim,
-    setActiveChannelIfNotSet,
     setIncognito,
     fetchModBlockedList,
-    hasPremiumPlus,
+    // hasPremiumPlus,
     fetchModAmIList,
     homepageFetched,
   } = props;
@@ -312,9 +310,7 @@ function App(props: Props) {
   }, [currentModal]);
 
   useEffect(() => {
-    if (hasMyChannels && !hasActiveChannelClaim) {
-      setActiveChannelIfNotSet();
-    } else if (hasNoChannels) {
+    if (hasNoChannels) {
       setIncognito(true);
     }
 
@@ -323,7 +319,7 @@ function App(props: Props) {
       fetchModAmIList();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMyChannels, hasNoChannels, hasActiveChannelClaim, setActiveChannelIfNotSet, setIncognito]);
+  }, [hasMyChannels, hasNoChannels, hasActiveChannelClaim, setIncognito]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -473,7 +469,7 @@ function App(props: Props) {
 
   useDegradedPerformance(setLbryTvApiStatus, user);
 
-  useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
+  // useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
 
   useEffect(() => {
     // When language is changed or translations are fetched, we render.

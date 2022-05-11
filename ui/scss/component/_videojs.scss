@@ -63,8 +63,7 @@ $control-bar-icon-size: 0.8rem;
   // Load progress color
   .vjs-load-progress,
   .vjs-load-progress div {
-    //background-color: rgba(160, 160, 160, 0.5);
-    background-color: rgba(var(--color-secondary), 0.5);
+    background-color: rgba(255, 255, 255, 0.3);
   }
 
   // Progress Bar Background
@@ -114,6 +113,7 @@ $control-bar-icon-size: 0.8rem;
 // Tooltip
 .vjs-mouse-display .vjs-time-tooltip {
   color: white;
+  white-space: nowrap;
 }
 
 // Tooltip
@@ -299,17 +299,36 @@ button.vjs-big-play-button {
 .vjs-custom-control-spacer {
   order: 9 !important;
 }
+.vjs-chapters-button {
+  order: 10 !important;
+}
 .vjs-button--autoplay-next {
   order: 10 !important;
 }
 .vjs-playback-rate {
   order: 11 !important;
 }
-.vjs-quality-selector {
+.vjs-chromecast-button,
+.vjs-airplay-button {
   order: 12 !important;
 }
 .vjs-chromecast-button {
   order: 13 !important;
+  display: flex;
+
+  .vjs-icon-placeholder {
+    word-break: break-word;
+    line-height: 1rem !important;
+  }
+}
+.vjs-quality-selector {
+  order: 13 !important;
+  display: flex;
+
+  .vjs-icon-placeholder {
+    word-break: break-word;
+    line-height: 1rem !important;
+  }
 }
 .vjs-button--theater-mode {
   order: 14 !important;
@@ -331,4 +350,11 @@ button.vjs-big-play-button {
     // hiding progress control for now
     display: none !important;
   }
+}
+
+.vjs-chapter-marker {
+  position: absolute;
+  height: 100%;
+  background-color: var(--color-error);
+  width: 2px;
 }

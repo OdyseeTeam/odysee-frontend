@@ -694,6 +694,10 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
+  .section__actions {
+    margin-left: var(--spacing-s);
+  }
+
   @media (max-width: $breakpoint-small) {
     .section__header--actions {
       .section__actions--inline:last-of-type {
@@ -1154,6 +1158,17 @@ body {
   margin-left: auto;
   margin-right: auto;
   max-width: 32rem;
+
+  fieldset-section {
+    .form-field__avatar_upload {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      .button--alt {
+        margin-left: var(--spacing-s);
+      }
+    }
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.

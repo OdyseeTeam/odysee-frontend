@@ -24,9 +24,15 @@
     margin: 0 4px;
   }
 
+  @media (max-width: $breakpoint-small) {
+    &::after {
+      margin: 0 2px;
+    }
+  }
   @media (min-width: $breakpoint-large) {
     &::after {
-      margin: 0 2.5px;
+      content: unset;
+      margin: 0 2.2px;
     }
 
     font-size: var(--font-xsmall);
