@@ -61,30 +61,32 @@ export default function ConfirmationPage(props: Props) {
 
   return (
     <div className="confirm__wrapper">
-      <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
-      <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.displayName} />
-      <ConfirmationSection
-        style={{ maxWidth: '300px', margin: '0 auto', marginBottom: '10px', lineHeight: '27px' }}
-        label={__('Description:')}
-        value={<BalanceText>{selectedTier.description}</BalanceText>}
-      />
-      <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
-      <ConfirmationSection
-        className="membership-features-confirmation__section"
-        label={__('Features and Perks:')}
-        value={
-          <ul className="membership-join-perks__list">
-            {selectedTier.perks.map((tierPerk, i) =>
-              perkDescriptions.map(
-                (globalPerk, i) =>
-                  tierPerk === globalPerk.perkName && (
-                    <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                  )
-              )
-            )}
-          </ul>
-        }
-      />
+      <div className="confirmation-section__div" style={{ overflow: 'scroll', maxHeight: '461px' }}>
+        <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
+        <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.displayName} />
+        <ConfirmationSection
+          style={{ maxWidth: '300px', margin: '10px auto', lineHeight: '27px' }}
+          label={__('Description:')}
+          value={<BalanceText>{selectedTier.description}</BalanceText>}
+        />
+        <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
+        <ConfirmationSection
+          className="membership-features-confirmation__section"
+          label={__('Features and Perks:')}
+          value={
+            <ul className="membership-join-perks__list">
+              {selectedTier.perks.map((tierPerk, i) =>
+                perkDescriptions.map(
+                  (globalPerk, i) =>
+                    tierPerk === globalPerk.perkName && (
+                      <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
+                    )
+                )
+              )}
+            </ul>
+          }
+        />
+      </div>
 
       {fetchStarted ? (
         <div className="membership-join__spinner">

@@ -170,6 +170,7 @@
   }
 }
 
+/** MEMBERSHIP TAB SECTION **/
 .membership-join-tab {
   .membership-join-blocks__div {
     display: flex;
@@ -192,6 +193,10 @@
 
   .card__body {
     margin: 0 auto;
+
+    .see-all-tiers__header {
+      cursor: pointer;
+    }
 
     .membership-join-blocks__body {
       // border: 1px solid grey;
@@ -528,7 +533,7 @@
 
   .membership__perk-item {
     color: var(--color-text-subtitle);
-    width: 221px;
+    width: 173px;
   }
 
   .membership__plan-header {

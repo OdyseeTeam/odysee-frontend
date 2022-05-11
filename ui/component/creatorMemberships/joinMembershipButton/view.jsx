@@ -60,6 +60,8 @@ export default function JoinMembershipButton(props: Props) {
 
   // link to membership tab of channel
   if (userIsActiveMember) {
+
+
     return (
       <Button
         button="alt"
@@ -78,6 +80,7 @@ export default function JoinMembershipButton(props: Props) {
       icon={ICONS.UPGRADE}
       label={__('Join')}
       title={__('Become A Member')}
+      // if on channel page, navigate to proper tab, otherwise open join modal
       onClick={!isChannelPage && (() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri }))}
       navigate={isChannelPage && memberPageUrl}
       style={{
