@@ -170,7 +170,7 @@ function HomePage(props: Props) {
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}
-        loading={loading}
+        loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
     );
 

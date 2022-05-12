@@ -67,6 +67,8 @@ type Props = {
   doFetchUserMemberships: (claimIdCsv: string) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
+  loading: boolean,
+  hasPremiumPlus: ?boolean,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -90,6 +92,8 @@ function ClaimTilesDiscover(props: Props) {
     doFetchUserMemberships,
     doResolveClaimIds,
     doResolveUris,
+    loading,
+    hasPremiumPlus,
   } = props;
 
   const listRef = React.useRef();
@@ -143,7 +147,7 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   const getInjectedItem = (index) => {
-    if (injectedItem && injectedItem.node) {
+    if (!hasPremiumPlus && injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
         return injectedItem.node(index, lastVisibleIndex, pageSize);
       } else {
@@ -199,15 +203,15 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   /* NEKO MARK */
-  console.log('finalUris.length: ', finalUris);
+  // console.log('finalUris.length: ', finalUris);
 
   return (
     <ul ref={listRef} className="claim-grid">
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
-              // const inj = getInjectedItem(i);
-              const inj = null;
+              const inj = getInjectedItem(i);
+              // const inj = null;
               return (
                 <React.Fragment key={uri}>
                   {inj && inj}
@@ -227,7 +231,7 @@ function ClaimTilesDiscover(props: Props) {
         : new Array(pageSize)
             .fill(1)
             .map((x, i) => (
-              <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder />
+              <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
             ))}
     </ul>
   );

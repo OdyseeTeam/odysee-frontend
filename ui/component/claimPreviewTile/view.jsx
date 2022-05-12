@@ -56,6 +56,7 @@ type Props = {
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
   isHidden: boolean,
+  pulse: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -88,6 +89,7 @@ function ClaimPreviewTile(props: Props) {
     viewCount,
     swipeLayout = false,
     isHidden,
+    pulse,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -177,6 +179,7 @@ function ClaimPreviewTile(props: Props) {
       <li
         className={classnames('placeholder claim-preview--tile', {
           'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
+          pulse: pulse,
         })}
       >
         <div className="media__thumb">
@@ -213,6 +216,8 @@ function ClaimPreviewTile(props: Props) {
       liveProperty = (claim) => <>LIVE</>;
     }
   }
+
+  /* NEKO MARK */
 
   return (
     <li
