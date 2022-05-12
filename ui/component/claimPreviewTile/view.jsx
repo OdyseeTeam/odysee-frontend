@@ -162,7 +162,7 @@ function ClaimPreviewTile(props: Props) {
         banState.filtered ||
         (!showHiddenByUser && (banState.muted || banState.blocked)) ||
         (isAbandoned && !showUnresolvedClaims));
-    if (shouldHide) isHidden(props.uri);
+    if (isHidden && shouldHide) isHidden(props.uri);
   }
 
   if (shouldHide || (isLivestream && !showNoSourceClaims)) {

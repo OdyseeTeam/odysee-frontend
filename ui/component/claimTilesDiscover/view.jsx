@@ -68,7 +68,6 @@ type Props = {
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
   loading: boolean,
-  hasPremiumPlus: ?boolean,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -93,7 +92,6 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
     loading,
-    hasPremiumPlus,
   } = props;
 
   const listRef = React.useRef();
@@ -208,7 +206,6 @@ function ClaimTilesDiscover(props: Props) {
         ? finalUris.map((uri, i) => {
             if (uri) {
               const inj = getInjectedItem(i);
-              // const inj = null;
               if (inj) {
                 return <React.Fragment key={uri}>{inj}</React.Fragment>;
               } else {

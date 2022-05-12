@@ -230,22 +230,30 @@ export default function ClaimList(props: Props) {
     <>
       <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
         {urisLength > 0 &&
-          tileUris.map((uri, index) => (
-            <React.Fragment key={uri}>
-              {getInjectedItem(index)}
-              <ClaimPreviewTile
-                uri={uri}
-                showHiddenByUser={showHiddenByUser}
-                showUnresolvedClaims={showUnresolvedClaims}
-                properties={renderProperties}
-                collectionId={collectionId}
-                fypId={fypId}
-                showNoSourceClaims={showNoSourceClaims}
-                swipeLayout={swipeLayout}
-                isHidden={setHidden}
-              />
-            </React.Fragment>
-          ))}
+          tileUris.map((uri, index) => {
+            if (uri) {
+              const inj = getInjectedItem(index);
+              if (inj) {
+                return <React.Fragment key={uri}>{inj}</React.Fragment>;
+              } else {
+                return (
+                  <React.Fragment key={uri}>
+                    <ClaimPreviewTile
+                      uri={uri}
+                      showHiddenByUser={showHiddenByUser}
+                      showUnresolvedClaims={showUnresolvedClaims}
+                      properties={renderProperties}
+                      collectionId={collectionId}
+                      fypId={fypId}
+                      showNoSourceClaims={showNoSourceClaims}
+                      swipeLayout={swipeLayout}
+                      isHidden={setHidden}
+                    />
+                  </React.Fragment>
+                );
+              }
+            }
+          })}
         {!timedOut && urisLength === 0 && !loading && !noEmpty && (
           <div className="empty main--empty">{empty || noResultMsg}</div>
         )}
