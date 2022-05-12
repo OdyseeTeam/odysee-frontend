@@ -265,6 +265,7 @@ function CommentView(props: Props) {
         if (elem) {
           // $FlowFixMe
           elem.scrollTo({
+            // $FlowFixMe
             top: node.getBoundingClientRect().top + (mobileChatElem ? 0 : elem.scrollY) - ROUGH_HEADER_HEIGHT,
             left: 0,
             behavior: 'smooth',
