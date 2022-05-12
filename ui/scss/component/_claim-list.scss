@@ -1382,13 +1382,11 @@ $claim-preview-progress-bar-height: 5px;
 .claim-preview__live {
   margin-bottom: 0 !important;
   .claim-preview__file-property-overlay {
-    opacity: 1; // The original 0.7 is not visible over bright thumbnails
+    opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);
     background-color: var(--color-live);
     .claim-preview__overlay-properties {
-      margin-bottom: -2px;
       color: white;
-      font-weight: var(--font-weight-bold);
     }
   }
 
