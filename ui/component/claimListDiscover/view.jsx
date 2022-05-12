@@ -44,6 +44,7 @@ type Props = {
   showHiddenByUser?: boolean,
   showNoSourceClaims?: boolean,
   tileLayout: boolean,
+  tileCollapsed: boolean,
   searchLanguages?: Array<string>,
   ignoreSearchInLanguage?: boolean, // Negate the redux setting where it doesn't make sense.
 
@@ -163,6 +164,7 @@ function ClaimListDiscover(props: Props) {
     prefixUris,
     pins,
     tileLayout,
+    tileCollapsed,
     hideFilters = false,
     claimIds,
     maxPages,
@@ -737,6 +739,8 @@ function ClaimListDiscover(props: Props) {
             </div>
           )}
         </div>
+      ) : tileCollapsed ? (
+        <div></div>
       ) : (
         <div>
           {showHeader && (

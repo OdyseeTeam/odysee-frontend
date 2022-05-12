@@ -147,7 +147,7 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   const getInjectedItem = (index) => {
-    if (!hasPremiumPlus && injectedItem && injectedItem.node) {
+    if (injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
         return injectedItem.node(index, lastVisibleIndex, pageSize);
       } else {
