@@ -61,6 +61,7 @@ type Props = {
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
+  setHidden: string,
 };
 
 export default function ClaimList(props: Props) {
@@ -102,6 +103,7 @@ export default function ClaimList(props: Props) {
     unavailableUris,
     showMemberBadge,
     inWatchHistory,
+    setHidden,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -159,22 +161,6 @@ export default function ClaimList(props: Props) {
     throw new Error('claimList: "injectedItem.replace" is not implemented yet');
   }
   // @endif
-
-  /* NEKO MARK */
-  function setHidden(hiddenUri) {
-    let newArray = hiddenArray;
-    if (newArray.indexOf(hiddenUri) === -1) {
-      newArray.push(hiddenUri);
-      setHiddenArray(newArray);
-    }
-  }
-  function getHidden() {
-    let hidden = hiddenArray.length;
-    for (let uri of hiddenArray) {
-      if (tileUris.indexOf(uri) > columns * rows) hidden--;
-    }
-    return hidden;
-  }
 
   useEffect(() => {
     const handleScroll = debounce((e) => {

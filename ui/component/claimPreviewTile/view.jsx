@@ -55,7 +55,7 @@ type Props = {
   isLivestreamActive: boolean,
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
-  isHidden: boolean,
+  isHidden: (string) => void,
   pulse: boolean,
 };
 
@@ -163,7 +163,6 @@ function ClaimPreviewTile(props: Props) {
         (!showHiddenByUser && (banState.muted || banState.blocked)) ||
         (isAbandoned && !showUnresolvedClaims));
     if (shouldHide) isHidden(props.uri);
-    if (shouldHide) console.log('Yo, shouldHide');
   }
 
   if (shouldHide || (isLivestream && !showNoSourceClaims)) {

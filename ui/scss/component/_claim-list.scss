@@ -938,6 +938,15 @@
     }
   }
 
+  .comment__badge {
+    display: inherit;
+
+    .icon {
+      margin-bottom: -1px;
+      padding-bottom: 4px;
+    }
+  }
+
   &:hover {
     cursor: pointer;
 
@@ -1371,6 +1380,7 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__live {
+  margin-bottom: 0 !important;
   .claim-preview__file-property-overlay {
     opacity: 1; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);

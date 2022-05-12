@@ -225,7 +225,9 @@ function ClaimTilesDiscover(props: Props) {
                 </React.Fragment>
               );
             } else {
-              return <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder />;
+              return (
+                <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+              );
             }
           })
         : new Array(pageSize)

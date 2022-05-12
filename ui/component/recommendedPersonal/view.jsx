@@ -1,5 +1,5 @@
 // @flow
-import React from 'react';
+import React, { useState } from 'react';
 import Button from 'component/button';
 import ClaimList from 'component/claimList';
 import ClaimPreviewTile from 'component/claimPreviewTile';
@@ -45,6 +45,23 @@ export default function RecommendedPersonal(props: Props) {
   const count = personalRecommendations.uris.length;
   const countCollapsed = getSuitablePageSizeForScreen(12, isLargeScreen, isMediumScreen);
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : 36;
+  const [hiddenArray, setHiddenArray] = useState([]);
+
+  /* NEKO MARK */
+  function setHidden(hiddenUri) {
+    let newArray = hiddenArray;
+    if (newArray.indexOf(hiddenUri) === -1) {
+      newArray.push(hiddenUri);
+      setHiddenArray(newArray);
+    }
+  }
+  function getHidden() {
+    let hidden = hiddenArray.length;
+    for (let uri of hiddenArray) {
+      if (personalRecommendations.uris.indexOf(uri) > finalCount) hidden--;
+    }
+    return hidden;
+  }
 
   // **************************************************************************
   // Effects
@@ -147,8 +164,9 @@ export default function RecommendedPersonal(props: Props) {
 
       <ClaimList
         tileLayout
-        uris={personalRecommendations.uris.slice(0, finalCount)}
+        uris={personalRecommendations.uris.slice(0, finalCount + getHidden())}
         fypId={personalRecommendations.gid}
+        setHidden={setHidden}
       />
 
       {view !== VIEW.ALL_VISIBLE && (
