@@ -105,10 +105,30 @@
   border-bottom: unset;
 
   .ads__claim-text {
-    margin: var(--spacing-s) 0 0 0;
+    margin: var(--spacing-xs) 0 0 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
+
+    .ads__title {
+      color: var(--color-text);
+    }
+
+    .ads__subtitle {
+      margin-top: var(--spacing-s);
+      color: rgba(var(--color-text-base), 0.6);
+      font-weight: var(--font-weight-bold);
+      line-height: 1rem;
+      font-size: var(--font-xsmall);
+
+      .icon {
+        color: var(--color-text);
+        width: 2.1rem;
+        height: 2.1rem;
+        float: left;
+        margin-right: var(--spacing-s);
+      }
+    }
   }
 
   .ad__container {
@@ -119,10 +139,25 @@
     max-width: 100%;
   }
 
-  &:hover {
-    .ad__container {
-      box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 0.1) inset;
-    }
+  #close-btn {
+    left: unset !important;
+    right: 0 !important;
+    border: none !important;
+    border-radius: 0 var(--border-radius) 0 var(--border-radius) !important;
+    background-color: var(--color-primary) !important;
+    display: none !important;
+  }
+
+  .visible {
+    display: none !important;
+    position: absolute !important;
+    top: 0px !important;
+    z-index: 99 !important;
+    width: 3rem !important;
+    height: 3rem !important;
+    background-color: var(--color-primary) !important;
+    border-radius: 0 var(--border-radius) 0 var(--border-radius) !important;
+    background-size: 60% !important;
   }
 }
 
