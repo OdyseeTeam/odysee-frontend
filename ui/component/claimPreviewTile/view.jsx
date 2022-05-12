@@ -216,8 +216,6 @@ function ClaimPreviewTile(props: Props) {
     }
   }
 
-  /* NEKO MARK */
-
   return (
     <li
       onClick={handleClick}

@@ -47,7 +47,6 @@ export default function RecommendedPersonal(props: Props) {
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : 36;
   const [hiddenArray, setHiddenArray] = useState([]);
 
-  /* NEKO MARK */
   function setHidden(hiddenUri) {
     let newArray = hiddenArray;
     if (newArray.indexOf(hiddenUri) === -1) {

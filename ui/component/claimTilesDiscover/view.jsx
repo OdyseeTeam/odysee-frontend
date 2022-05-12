@@ -202,9 +202,6 @@ function ClaimTilesDiscover(props: Props) {
     );
   }
 
-  /* NEKO MARK */
-  // console.log('finalUris.length: ', finalUris);
-
   return (
     <ul ref={listRef} className="claim-grid">
       {!loading && finalUris && finalUris.length

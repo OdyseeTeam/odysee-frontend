@@ -155,7 +155,6 @@ function HomePage(props: Props) {
       </ul>
     );
 
-    /* NEKO MARK */
     const claimTiles = (
       <ClaimTilesDiscover
         {...options}
