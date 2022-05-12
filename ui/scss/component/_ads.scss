@@ -37,6 +37,8 @@
     video {
       width: 100% !important;
       height: 100% !important;
+      border-radius: var(--border-radius) !important;
+      border: 1px solid rgba(var(--color-primary-dynamic), 0.1);
     }
 
     @media (max-width: $breakpoint-small) {
@@ -91,6 +93,12 @@
       // be changes in the near future which the end result won't have this
       // issue, just hide it for now.
       display: none !important;
+    }
+  }
+
+  &:hover {
+    video {
+      border: 1px solid rgba(var(--color-primary-dynamic), 1);
     }
   }
 }
