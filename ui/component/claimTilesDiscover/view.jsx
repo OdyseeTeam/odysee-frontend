@@ -209,18 +209,19 @@ function ClaimTilesDiscover(props: Props) {
             if (uri) {
               const inj = getInjectedItem(i);
               // const inj = null;
-              return (
-                <React.Fragment key={uri}>
-                  {inj && inj}
-                  {(!inj || !injectedItem || !injectedItem.replace) && (
+              if (inj) {
+                return <React.Fragment key={uri}>{inj}</React.Fragment>;
+              } else {
+                return (
+                  <React.Fragment key={uri}>
                     <ClaimPreviewTile
                       showNoSourceClaims={hasNoSource || showNoSourceClaims}
                       uri={uri}
                       properties={renderProperties}
                     />
-                  )}
-                </React.Fragment>
-              );
+                  </React.Fragment>
+                );
+              }
             } else {
               return (
                 <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
