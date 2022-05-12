@@ -9,6 +9,7 @@ import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
+import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
 import { history } from 'ui/store';
 
 const recsysEndpoint = RECSYS_ENDPOINT;
@@ -101,28 +102,25 @@ const recsys = {
       const state = window.store.getState();
       const user = selectUser(state);
       const userId = user ? user.id : null;
+
+      // Make a stub entry that will be filled out on page load
+      recsys.entries[claimId] = {
+        uuid: uuid || Uuidv4(),
+        claimId: claimId,
+        recClickedVideoIdx: [],
+        pageLoadedAt: Date.now(),
+        events: [],
+        incognito: !(user && user.has_verified_email),
+        isFollowing: selectIsSubscribedForClaimId(state, claimId),
+      };
+
       if (parentUuid) {
-        // Make a stub entry that will be filled out on page load
-        recsys.entries[claimId] = {
-          uuid: uuid || Uuidv4(),
-          parentUuid: parentUuid,
-          uid: userId || null, // selectUser
-          claimId: claimId,
-          recClickedVideoIdx: [],
-          pageLoadedAt: Date.now(),
-          events: [],
-        };
+        recsys.entries[claimId].uid = userId || null;
+        recsys.entries[claimId].parentUuid = parentUuid;
       } else {
-        recsys.entries[claimId] = {
-          uuid: uuid || Uuidv4(),
-          uid: userId, // selectUser
-          claimId: claimId,
-          pageLoadedAt: Date.now(),
-          recsysId: null,
-          recClaimIds: [],
-          recClickedVideoIdx: [],
-          events: [],
-        };
+        recsys.entries[claimId].uid = userId;
+        recsys.entries[claimId].recsysId = null;
+        recsys.entries[claimId].recClaimIds = [];
       }
     }
     recsys.log('createRecsysEntry', claimId);
