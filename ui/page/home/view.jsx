@@ -72,7 +72,7 @@ function HomePage(props: Props) {
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
-  const [loaded, setLoaded] = useState(0);
+  const [loaded, setLoaded] = useState(false);
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,

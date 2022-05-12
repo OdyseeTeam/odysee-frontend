@@ -161,7 +161,6 @@
     border: none !important;
     border-radius: 0 var(--border-radius) 0 var(--border-radius) !important;
     background-color: var(--color-primary) !important;
-    display: none !important;
   }
 
   .visible {
@@ -187,10 +186,6 @@
   .ad__container {
     // width:100%;
     width: var(--file-list-thumbnail-width);
-
-    #close-btn {
-      display: none !important;
-    }
   }
 
   .ads__claim-text {
