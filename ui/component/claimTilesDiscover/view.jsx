@@ -198,12 +198,16 @@ function ClaimTilesDiscover(props: Props) {
     );
   }
 
+  /* NEKO MARK */
+  console.log('finalUris.length: ', finalUris);
+
   return (
     <ul ref={listRef} className="claim-grid">
       {finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
-              const inj = getInjectedItem(i);
+              // const inj = getInjectedItem(i);
+              const inj = null;
               return (
                 <React.Fragment key={uri}>
                   {inj && inj}
@@ -236,6 +240,7 @@ export default React.memo<Props>(ClaimTilesDiscover, areEqual);
 
 function trace(key, value) {
   // @if process.env.DEBUG_TILE_RENDER
+
   // $FlowFixMe "cannot coerce certain types".
   console.log(`[claimTilesDiscover] ${key}: ${value}`); // eslint-disable-line no-console
   // @endif

@@ -160,6 +160,22 @@ export default function ClaimList(props: Props) {
   }
   // @endif
 
+  /* NEKO MARK */
+  function setHidden(hiddenUri) {
+    let newArray = hiddenArray;
+    if (newArray.indexOf(hiddenUri) === -1) {
+      newArray.push(hiddenUri);
+      setHiddenArray(newArray);
+    }
+  }
+  function getHidden() {
+    let hidden = hiddenArray.length;
+    for (let uri of hiddenArray) {
+      if (tileUris.indexOf(uri) > columns * rows) hidden--;
+    }
+    return hidden;
+  }
+
   useEffect(() => {
     const handleScroll = debounce((e) => {
       if (page && pageSize && onScrollBottom) {
@@ -240,6 +256,7 @@ export default function ClaimList(props: Props) {
                 fypId={fypId}
                 showNoSourceClaims={showNoSourceClaims}
                 swipeLayout={swipeLayout}
+                isHidden={setHidden}
               />
             </React.Fragment>
           ))}

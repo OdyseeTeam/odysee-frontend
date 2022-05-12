@@ -55,6 +55,7 @@ type Props = {
   isLivestreamActive: boolean,
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
+  isHidden: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -86,6 +87,7 @@ function ClaimPreviewTile(props: Props) {
     mediaDuration,
     viewCount,
     swipeLayout = false,
+    isHidden,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -158,6 +160,8 @@ function ClaimPreviewTile(props: Props) {
         banState.filtered ||
         (!showHiddenByUser && (banState.muted || banState.blocked)) ||
         (isAbandoned && !showUnresolvedClaims));
+    if (shouldHide) isHidden(props.uri);
+    if (shouldHide) console.log('Yo, shouldHide');
   }
 
   if (shouldHide || (isLivestream && !showNoSourceClaims)) {
