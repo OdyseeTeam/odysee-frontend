@@ -75,6 +75,7 @@ type Props = {
   fetchedReplies: Array<Comment>,
   repliesFetching: boolean,
   threadLevel?: number,
+  threadDepthLevel?: number,
 };
 
 const LENGTH_TO_COLLAPSE = 300;
@@ -108,6 +109,7 @@ function CommentView(props: Props) {
     fetchedReplies,
     repliesFetching,
     threadLevel = 0,
+    threadDepthLevel = 0,
   } = props;
 
   const {
@@ -131,14 +133,16 @@ function CommentView(props: Props) {
   const isMobile = useIsMobile();
   const ROUGH_HEADER_HEIGHT = isMobile ? 56 : 60; // @see: --header-height
 
-  // Mobile: 0, 1, 2 -> new thread....., so each 3 comments, desktop to 5
-  const openNewThread = threadLevel > 0 && (isMobile ? threadLevel % 2 === 0 : threadLevel % 10 === 0);
+  const lastThreadLevel = threadDepthLevel - 1;
+  // Mobile: 0, 1, 2 -> new thread....., so each 3 comments
+  const openNewThread = threadLevel > 0 && threadLevel % lastThreadLevel === 0;
 
   const {
     push,
     replace,
-    location: { pathname, search },
+    location: { pathname, search, state },
   } = useHistory();
+  const { forceExpandReplies } = state || {};
 
   const urlParams = new URLSearchParams(search);
   const isLinkedComment = linkedCommentId && linkedCommentId === commentId;
@@ -147,7 +151,9 @@ function CommentView(props: Props) {
     linkedCommentId &&
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
-  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
+  const isInThreadCommentChain = forceExpandReplies && threadLevel < lastThreadLevel;
+  const showRepliesOnMount =
+    isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES || isInThreadCommentChain;
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -272,7 +278,7 @@ function CommentView(props: Props) {
         }
       }
     },
-    [isMobile, threadCommentId]
+    [ROUGH_HEADER_HEIGHT, isMobile, threadCommentId]
   );
 
   // --------------------
@@ -514,6 +520,7 @@ function CommentView(props: Props) {
             numDirectReplies={numDirectReplies}
             onShowMore={() => setPage(page + 1)}
             hasMore={page < totalReplyPages}
+            threadDepthLevel={threadDepthLevel}
           />
         )}
       </div>

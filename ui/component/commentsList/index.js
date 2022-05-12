@@ -18,7 +18,7 @@ import {
   selectSettingsByChannelId,
   selectPinnedCommentsForUri,
   selectCommentForCommentId,
-  selectFetchedCommentAncestors,
+  selectCommentAncestorsForId,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -32,7 +32,6 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const activeChannelClaim = selectActiveChannelClaim(state);
   const threadComment = selectCommentForCommentId(state, threadCommentId);
-  const threadCommentAncestors = selectFetchedCommentAncestors(state)[threadCommentId];
 
   return {
     topLevelComments: threadComment ? [threadComment] : selectTopLevelCommentsForUri(state, uri),
@@ -53,7 +52,7 @@ const select = (state, props) => {
     othersReactsById: selectOthersReacts(state),
     activeChannelId: activeChannelClaim && activeChannelClaim.claim_id,
     claimsByUri: selectClaimsByUri(state),
-    threadCommentLastAncestor: threadCommentAncestors && threadCommentAncestors[threadCommentAncestors.length - 1],
+    threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
   };
 };
 

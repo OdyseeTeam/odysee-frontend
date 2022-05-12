@@ -187,6 +187,12 @@ export const selectRepliesByParentId = createSelector(selectState, selectComment
 
 export const selectFetchedCommentAncestors = (state: State) => selectState(state).fetchedCommentAncestors;
 
+export const selectCommentAncestorsForId = createSelector(
+  (state, commentId) => commentId,
+  selectFetchedCommentAncestors,
+  (commentId, fetchedAncestors) => fetchedAncestors && fetchedAncestors[commentId]
+);
+
 export const selectCommentIdsForUri = (state: State, uri: string) => {
   const claimId = selectClaimIdForUri(state, uri);
   const commentIdsByClaimId = selectCommentIdsByClaimId(state);

@@ -148,9 +148,14 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
-.comment__thread-link {
+.comment__thread-links {
   font-size: var(--font-xsmall);
   flex-direction: column;
+  margin-bottom: var(--spacing-m);
+
+  .button {
+    padding: var(--spacing-xxs) 0px;
+  }
 }
 
 .comment--reply {

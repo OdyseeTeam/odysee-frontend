@@ -1,5 +1,10 @@
 // @flow
-import { COMMENT_PAGE_SIZE_TOP_LEVEL, SORT_BY, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+import {
+  COMMENT_PAGE_SIZE_TOP_LEVEL,
+  SORT_BY,
+  LINKED_COMMENT_QUERY_PARAM,
+  THREAD_COMMENT_QUERY_PARAM,
+} from 'constants/comment';
 import { ENABLE_COMMENT_REACTIONS } from 'config';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 import { getCommentsListTitle } from 'util/comments';
@@ -51,7 +56,7 @@ type Props = {
   threadCommentId: ?string,
   threadComment: ?Comment,
   notInDrawer?: boolean,
-  threadCommentLastAncestor: string,
+  threadCommentAncestors: Array<string>,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
@@ -83,7 +88,7 @@ export default function CommentList(props: Props) {
     threadCommentId,
     threadComment,
     notInDrawer,
-    threadCommentLastAncestor,
+    threadCommentAncestors,
     fetchTopLevelComments,
     fetchComment,
     fetchReacts,
@@ -91,11 +96,6 @@ export default function CommentList(props: Props) {
     claimsByUri,
     doFetchUserMemberships,
   } = props;
-
-  const {
-    push,
-    location: { pathname, search },
-  } = useHistory();
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen();
@@ -113,6 +113,16 @@ export default function CommentList(props: Props) {
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const moreBelow = page < topLevelTotalPages;
   const title = getCommentsListTitle(totalComments);
+  const threadDepthLevel = isMobile ? 3 : 10;
+  let threadCommentParent;
+  if (threadCommentAncestors) {
+    threadCommentAncestors.some((ancestor, index) => {
+      if (index >= threadDepthLevel - 1) return true;
+
+      threadCommentParent = ancestor;
+    });
+  }
+  const threadTopLevelComment = threadCommentAncestors && threadCommentAncestors[threadCommentAncestors.length - 1];
 
   // Display comments immediately if not fetching reactions
   // If not, wait to show comments until reactions are fetched
@@ -297,6 +307,7 @@ export default function CommentList(props: Props) {
     claimIsMine,
     linkedCommentId,
     threadCommentId,
+    threadDepthLevel,
   };
   const actionButtonsProps = {
     totalComments,
@@ -318,30 +329,17 @@ export default function CommentList(props: Props) {
           <CommentCreate uri={uri} />
 
           {threadComment && (
-            <span className="comment__actions comment__thread-link">
-              <Button
-                button="link"
-                label={__('View all comments')}
-                icon={ICONS.ARROW_LEFT}
-                iconSize={12}
-                onClick={() => {
-                  const urlParams = new URLSearchParams(search);
-                  urlParams.delete(THREAD_COMMENT_QUERY_PARAM);
-                  push(`${pathname}?${urlParams.toString()}`);
-                }}
-              />
-              {threadCommentLastAncestor && (
-                <Button
-                  button="link"
-                  label={__('Return to parent comment')}
-                  icon={ICONS.ARROW_LEFT}
-                  iconSize={12}
-                  onClick={() => {
-                    const urlParams = new URLSearchParams(search);
-                    urlParams.set(THREAD_COMMENT_QUERY_PARAM, threadCommentLastAncestor);
-                    push(`${pathname}?${urlParams.toString()}`);
-                  }}
+            <span className="comment__actions comment__thread-links">
+              {threadTopLevelComment && (
+                <ThreadLinkButton
+                  label={__('View all comments')}
+                  threadCommentParent={threadTopLevelComment}
+                  isViewAll
                 />
+              )}
+
+              {threadCommentParent && (
+                <ThreadLinkButton label={__('Show parent comments')} threadCommentParent={threadCommentParent} />
               )}
             </span>
           )}
@@ -466,6 +464,48 @@ const SortButton = (sortButtonProps: SortButtonProps) => {
       button="alt"
       iconSize={18}
       onClick={() => changeSort(sortOption)}
+    />
+  );
+};
+
+type ThreadLinkProps = {
+  label: string,
+  isViewAll?: boolean,
+  threadCommentParent: string,
+};
+
+const ThreadLinkButton = (props: ThreadLinkProps) => {
+  const { label, isViewAll, threadCommentParent } = props;
+
+  const {
+    push,
+    location: { pathname, search },
+  } = useHistory();
+
+  return (
+    <Button
+      button="link"
+      label={label}
+      icon={ICONS.ARROW_LEFT}
+      iconSize={12}
+      onClick={() => {
+        const urlParams = new URLSearchParams(search);
+
+        if (!isViewAll) {
+          urlParams.set(THREAD_COMMENT_QUERY_PARAM, threadCommentParent);
+        } else {
+          urlParams.delete(THREAD_COMMENT_QUERY_PARAM);
+          // links the top-level comment when going back to all comments, for easy locating
+          // in the middle of big comment sections
+          urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentParent);
+        }
+
+        push({
+          pathname,
+          search: urlParams.toString(),
+          state: !isViewAll ? { forceExpandReplies: true } : undefined,
+        });
+      }}
     />
   );
 };

@@ -11,6 +11,7 @@ type Props = {
   numDirectReplies: number, // Total replies for parentId as reported by 'comment[replies]'. Includes blocked items.
   hasMore: boolean,
   supportDisabled: boolean,
+  threadDepthLevel?: number,
   onShowMore?: () => void,
   // redux
   fetchedReplies: Array<Comment>,
@@ -29,6 +30,7 @@ export default function CommentsReplies(props: Props) {
     numDirectReplies,
     hasMore,
     supportDisabled,
+    threadDepthLevel,
     onShowMore,
     threadLevel,
     isFetching,
@@ -47,6 +49,7 @@ export default function CommentsReplies(props: Props) {
             threadCommentId={threadCommentId}
             supportDisabled={supportDisabled}
             threadLevel={threadLevel + 1}
+            threadDepthLevel={threadDepthLevel}
           />
         ))}
       </ul>
