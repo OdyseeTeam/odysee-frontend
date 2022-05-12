@@ -155,6 +155,7 @@ function HomePage(props: Props) {
       </ul>
     );
 
+    /* NEKO MARK */
     const claimTiles = (
       <ClaimTilesDiscover
         {...options}
@@ -169,6 +170,7 @@ function HomePage(props: Props) {
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}
+        loading={loading}
       />
     );
 
