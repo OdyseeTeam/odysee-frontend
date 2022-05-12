@@ -56,7 +56,8 @@ type Props = {
   threadCommentId: ?string,
   threadComment: ?Comment,
   notInDrawer?: boolean,
-  threadCommentAncestors: Array<string>,
+  threadCommentAncestors: ?Array<string>,
+  linkedCommentAncestors: ?Array<string>,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
@@ -89,6 +90,7 @@ export default function CommentList(props: Props) {
     threadComment,
     notInDrawer,
     threadCommentAncestors,
+    linkedCommentAncestors,
     fetchTopLevelComments,
     fetchComment,
     fetchReacts,
@@ -96,6 +98,13 @@ export default function CommentList(props: Props) {
     claimsByUri,
     doFetchUserMemberships,
   } = props;
+
+  const threadRedirect = React.useRef(false);
+
+  const {
+    push,
+    location: { pathname, search },
+  } = useHistory();
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen();
@@ -160,6 +169,25 @@ export default function CommentList(props: Props) {
       refreshComments();
     }
   }
+
+  // If a linked comment is deep within a thread, redirect to it's own thread page
+  // based on the set depthLevel (mobile/desktop)
+  React.useEffect(() => {
+    if (
+      !threadCommentId &&
+      linkedCommentId &&
+      linkedCommentAncestors &&
+      linkedCommentAncestors.length > threadDepthLevel - 1 &&
+      !threadRedirect.current
+    ) {
+      const urlParams = new URLSearchParams(search);
+      urlParams.set(THREAD_COMMENT_QUERY_PARAM, linkedCommentId);
+
+      push({ pathname, search: urlParams.toString() });
+      // to do it only once
+      threadRedirect.current = true;
+    }
+  }, [linkedCommentAncestors, linkedCommentId, pathname, push, search, threadCommentId, threadDepthLevel]);
 
   // Force comments reset
   useEffect(() => {
@@ -239,7 +267,7 @@ export default function CommentList(props: Props) {
       delete window.pendingLinkedCommentScroll;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [threadCommentId]);
+  }, []);
 
   // Infinite scroll
   useEffect(() => {
@@ -328,18 +356,21 @@ export default function CommentList(props: Props) {
 
           <CommentCreate uri={uri} />
 
-          {threadComment && (
+          {threadCommentId && threadComment && (
             <span className="comment__actions comment__thread-links">
-              {threadTopLevelComment && (
-                <ThreadLinkButton
-                  label={__('View all comments')}
-                  threadCommentParent={threadTopLevelComment}
-                  isViewAll
-                />
-              )}
+              <ThreadLinkButton
+                label={__('View all comments')}
+                threadCommentParent={threadTopLevelComment || threadCommentId}
+                threadCommentId={threadCommentId}
+                isViewAll
+              />
 
               {threadCommentParent && (
-                <ThreadLinkButton label={__('Show parent comments')} threadCommentParent={threadCommentParent} />
+                <ThreadLinkButton
+                  label={__('Show parent comments')}
+                  threadCommentParent={threadCommentParent}
+                  threadCommentId={threadCommentId}
+                />
               )}
             </span>
           )}
@@ -472,10 +503,11 @@ type ThreadLinkProps = {
   label: string,
   isViewAll?: boolean,
   threadCommentParent: string,
+  threadCommentId: string,
 };
 
 const ThreadLinkButton = (props: ThreadLinkProps) => {
-  const { label, isViewAll, threadCommentParent } = props;
+  const { label, isViewAll, threadCommentParent, threadCommentId } = props;
 
   const {
     push,
@@ -493,12 +525,15 @@ const ThreadLinkButton = (props: ThreadLinkProps) => {
 
         if (!isViewAll) {
           urlParams.set(THREAD_COMMENT_QUERY_PARAM, threadCommentParent);
+          // on moving back, link the current thread comment so that it auto-expands into the correct conversation
+          urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentId);
         } else {
           urlParams.delete(THREAD_COMMENT_QUERY_PARAM);
           // links the top-level comment when going back to all comments, for easy locating
           // in the middle of big comment sections
           urlParams.set(LINKED_COMMENT_QUERY_PARAM, threadCommentParent);
         }
+        window.pendingLinkedCommentScroll = true;
 
         push({
           pathname,

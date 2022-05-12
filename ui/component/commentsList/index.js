@@ -27,7 +27,7 @@ import { doFetchUserMemberships } from 'redux/actions/user';
 import CommentsList from './view';
 
 const select = (state, props) => {
-  const { uri, threadCommentId } = props;
+  const { uri, threadCommentId, linkedCommentId } = props;
 
   const claim = selectClaimForUri(state, uri);
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -53,6 +53,7 @@ const select = (state, props) => {
     activeChannelId: activeChannelClaim && activeChannelClaim.claim_id,
     claimsByUri: selectClaimsByUri(state),
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
+    linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
   };
 };
 

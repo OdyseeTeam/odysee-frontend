@@ -140,9 +140,8 @@ function CommentView(props: Props) {
   const {
     push,
     replace,
-    location: { pathname, search, state },
+    location: { pathname, search },
   } = useHistory();
-  const { forceExpandReplies } = state || {};
 
   const urlParams = new URLSearchParams(search);
   const isLinkedComment = linkedCommentId && linkedCommentId === commentId;
@@ -151,9 +150,7 @@ function CommentView(props: Props) {
     linkedCommentId &&
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
-  const isInThreadCommentChain = forceExpandReplies && threadLevel < lastThreadLevel;
-  const showRepliesOnMount =
-    isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES || isInThreadCommentChain;
+  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -240,29 +237,22 @@ function CommentView(props: Props) {
 
   function handleOpenNewThread() {
     urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
-    window.pendingLinkedCommentScroll = true;
     push(`${pathname}?${urlParams.toString()}`);
   }
 
   // -- scroll handlers --
 
-  const [commentRefNode, setCommentRefNode] = React.useState();
-
-  React.useEffect(() => {
-    if (commentRefNode && threadCommentId) {
-      window.scrollTo({ top: commentRefNode.getBoundingClientRect().top - ROUGH_HEADER_HEIGHT });
-    }
-  }, [ROUGH_HEADER_HEIGHT, commentRefNode, threadCommentId]);
-
   const linkedCommentRef = React.useCallback(
     (node) => {
-      if (node !== null && window.pendingLinkedCommentScroll) {
-        delete window.pendingLinkedCommentScroll;
+      if (
+        node !== null &&
+        (window.pendingLinkedCommentScroll || isThreadComment || (isLinkedComment && window.pendingLinkedCommentScroll))
+      ) {
+        if (window.pendingLinkedCommentScroll) delete window.pendingLinkedCommentScroll;
 
-        const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
+        const mobileChatElem = !isThreadComment && document.querySelector('.MuiPaper-root .card--enable-overflow');
         const drawerElem = document.querySelector('.MuiDrawer-root');
         const elem = (isMobile && mobileChatElem) || window;
-        if (threadCommentId) setCommentRefNode(node);
 
         if (elem) {
           // $FlowFixMe
@@ -278,7 +268,7 @@ function CommentView(props: Props) {
         }
       }
     },
-    [ROUGH_HEADER_HEIGHT, isMobile, threadCommentId]
+    [ROUGH_HEADER_HEIGHT, isLinkedComment, isMobile, isThreadComment]
   );
 
   // --------------------
