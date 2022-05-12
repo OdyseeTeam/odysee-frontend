@@ -55,21 +55,20 @@ export default function CommentsReplies(props: Props) {
       </ul>
 
       {fetchedReplies.length > 0 &&
+        hasMore &&
         (isFetching ? (
           <span className="comment__actions--nested comment__replies-loading--more">
             <Spinner text={__('Loading')} type="small" />
           </span>
         ) : (
-          hasMore && (
-            <div className="comment__actions--nested">
-              <Button
-                button="link"
-                label={__('Show more')}
-                onClick={() => onShowMore && onShowMore()}
-                className="button--uri-indicator"
-              />
-            </div>
-          )
+          <div className="comment__actions--nested">
+            <Button
+              button="link"
+              label={__('Show more')}
+              onClick={() => onShowMore && onShowMore()}
+              className="button--uri-indicator"
+            />
+          </div>
         ))}
     </div>
   );

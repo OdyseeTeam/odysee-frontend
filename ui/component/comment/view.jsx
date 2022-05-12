@@ -230,17 +230,25 @@ function CommentView(props: Props) {
   }
 
   function handleTimeClick() {
-    urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
-    urlParams.append(LINKED_COMMENT_QUERY_PARAM, commentId);
+    urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
     replace(`${pathname}?${urlParams.toString()}`);
   }
 
   function handleOpenNewThread() {
+    urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
     urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
     push(`${pathname}?${urlParams.toString()}`);
   }
 
   // -- scroll handlers --
+
+  const [commentRefNode, setCommentRefNode] = React.useState();
+
+  React.useEffect(() => {
+    if (commentRefNode && threadCommentId) {
+      window.scrollTo({ top: commentRefNode.getBoundingClientRect().top - ROUGH_HEADER_HEIGHT });
+    }
+  }, [ROUGH_HEADER_HEIGHT, commentRefNode, threadCommentId]);
 
   const linkedCommentRef = React.useCallback(
     (node) => {
@@ -249,26 +257,22 @@ function CommentView(props: Props) {
         (window.pendingLinkedCommentScroll || isThreadComment || (isLinkedComment && window.pendingLinkedCommentScroll))
       ) {
         if (window.pendingLinkedCommentScroll) delete window.pendingLinkedCommentScroll;
+        if (isThreadComment && !linkedCommentId) setCommentRefNode(node);
 
-        const mobileChatElem = !isThreadComment && document.querySelector('.MuiPaper-root .card--enable-overflow');
-        const drawerElem = document.querySelector('.MuiDrawer-root');
+        const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
         const elem = (isMobile && mobileChatElem) || window;
 
         if (elem) {
           // $FlowFixMe
           elem.scrollTo({
-            top:
-              node.getBoundingClientRect().top +
-              // $FlowFixMe
-              (mobileChatElem && drawerElem ? drawerElem.getBoundingClientRect().top * -1 : elem.scrollY) -
-              ROUGH_HEADER_HEIGHT,
+            top: node.getBoundingClientRect().top + (mobileChatElem ? 0 : elem.scrollY) - ROUGH_HEADER_HEIGHT,
             left: 0,
             behavior: 'smooth',
           });
         }
       }
     },
-    [ROUGH_HEADER_HEIGHT, isLinkedComment, isMobile, isThreadComment]
+    [ROUGH_HEADER_HEIGHT, isLinkedComment, isMobile, isThreadComment, linkedCommentId]
   );
 
   // --------------------
