@@ -48,7 +48,7 @@ export function makeResumableUploadRequest(
       reject(new Error('Publish: v2 does not support remote_url'));
     }
 
-    const { uploadUrl, guid, claim_id, ...sdkParams } = params;
+    const { uploadUrl, guid, ...sdkParams } = params;
 
     const jsonPayload = JSON.stringify({
       jsonrpc: '2.0',
