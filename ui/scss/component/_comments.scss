@@ -139,6 +139,15 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
+.comment__replies-loading--more {
+  align-items: flex-start;
+  transform: translate(var(--spacing-xs));
+
+  .spinner {
+    margin: 0px;
+  }
+}
+
 .comment__thread-link {
   font-size: var(--font-xsmall);
   flex-direction: column;

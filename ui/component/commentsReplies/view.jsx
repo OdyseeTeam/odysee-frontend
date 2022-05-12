@@ -2,6 +2,7 @@
 import Button from 'component/button';
 import Comment from 'component/comment';
 import React from 'react';
+import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
@@ -15,6 +16,7 @@ type Props = {
   fetchedReplies: Array<Comment>,
   claimIsMine: boolean,
   threadLevel: number,
+  isFetching: boolean,
 };
 
 export default function CommentsReplies(props: Props) {
@@ -29,6 +31,7 @@ export default function CommentsReplies(props: Props) {
     supportDisabled,
     onShowMore,
     threadLevel,
+    isFetching,
   } = props;
 
   return !numDirectReplies ? null : (
@@ -48,16 +51,23 @@ export default function CommentsReplies(props: Props) {
         ))}
       </ul>
 
-      {fetchedReplies && hasMore && (
-        <div className="comment__actions--nested">
-          <Button
-            button="link"
-            label={__('Show more')}
-            onClick={() => onShowMore && onShowMore()}
-            className="button--uri-indicator"
-          />
-        </div>
-      )}
+      {fetchedReplies.length > 0 &&
+        (isFetching ? (
+          <span className="comment__actions--nested comment__replies-loading--more">
+            <Spinner text={__('Loading')} type="small" />
+          </span>
+        ) : (
+          hasMore && (
+            <div className="comment__actions--nested">
+              <Button
+                button="link"
+                label={__('Show more')}
+                onClick={() => onShowMore && onShowMore()}
+                className="button--uri-indicator"
+              />
+            </div>
+          )
+        ))}
     </div>
   );
 }
