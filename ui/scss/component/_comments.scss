@@ -192,6 +192,11 @@ $thumbnailWidthSmall: 2rem;
   &:hover {
     border-left: 4px solid var(--color-comment-threadline);
     background-color: transparent !important;
+    padding-right: calc(var(--spacing-m) - 3px);
+
+    @media (max-width: $breakpoint-small) {
+      left: calc(50% - 3px);
+    }
   }
 }
 
