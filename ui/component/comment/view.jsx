@@ -292,7 +292,7 @@ function CommentView(props: Props) {
       <div
         ref={isLinkedComment || isThreadComment ? linkedCommentRef : undefined}
         className={classnames('comment__content', {
-          [COMMENT_HIGHLIGHTED]: isLinkedComment,
+          [COMMENT_HIGHLIGHTED]: isLinkedComment || (isThreadComment && !linkedCommentId),
           'comment--slimed': slimedToDeath && !displayDeadComment,
         })}
       >
