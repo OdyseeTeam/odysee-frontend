@@ -536,11 +536,7 @@ const ThreadLinkButton = (props: ThreadLinkProps) => {
         }
         window.pendingLinkedCommentScroll = true;
 
-        push({
-          pathname,
-          search: urlParams.toString(),
-          state: !isViewAll ? { forceExpandReplies: true } : undefined,
-        });
+        push({ pathname, search: urlParams.toString() });
       }}
     />
   );

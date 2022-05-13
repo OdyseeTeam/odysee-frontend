@@ -238,7 +238,7 @@ function CommentView(props: Props) {
   function handleOpenNewThread() {
     urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
     urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
-    push(`${pathname}?${urlParams.toString()}`);
+    push({ pathname, search: urlParams.toString() });
   }
 
   // -- scroll handlers --
@@ -247,7 +247,11 @@ function CommentView(props: Props) {
 
   React.useEffect(() => {
     if (commentRefNode && threadCommentId) {
-      window.scrollTo({ top: commentRefNode.getBoundingClientRect().top - ROUGH_HEADER_HEIGHT });
+      window.scrollTo({
+        top: commentRefNode.getBoundingClientRect().top - ROUGH_HEADER_HEIGHT,
+        left: 0,
+        behavior: 'smooth',
+      });
     }
   }, [ROUGH_HEADER_HEIGHT, commentRefNode, threadCommentId]);
 
@@ -267,7 +271,7 @@ function CommentView(props: Props) {
         const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
         const elem = (isMobile && mobileChatElem) || window;
 
-        if (elem) {
+        if (elem && !isThreadComment) {
           // $FlowFixMe
           elem.scrollTo({
             // $FlowFixMe
