@@ -194,7 +194,7 @@ const recsys = {
    * Player closed. Check to see if primaryUri = playingUri
    * if so, send the Entry.
    */
-  onPlayerDispose: function (claimId, isEmbedded) {
+  onNavigateAway: function (claimId, isEmbedded) {
     if (window && window.store) {
       const state = window.store.getState();
       const playingUri = selectPlayingUri(state);

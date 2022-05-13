@@ -66,7 +66,7 @@ class RecsysPlugin extends Component {
     player.on('seeked', (event) => this.onSeeked(event));
 
     // Event trigger to send recsys event
-    player.on('dispose', (event) => this.onDispose(event));
+    player.on('navigateAway', (event) => this.onNavigateAway(event));
   }
 
   onPlay(event) {
@@ -143,11 +143,11 @@ class RecsysPlugin extends Component {
     }
   }
 
-  onDispose(event) {
+  onNavigateAway(event) {
     // Some browsers don't send onEnded event when closing player/browser, force it here
     const recsysEvent = newRecsysPlayerEvent(PlayerEvent.event.stop, this.player.currentTime());
     RecSys.onRecsysPlayerEvent(this.options_.videoId, recsysEvent);
-    RecSys.onPlayerDispose(this.options_.videoId, this.options_.embedded);
+    RecSys.onNavigateAway(this.options_.videoId, this.options_.embedded);
   }
 
   log(...args) {

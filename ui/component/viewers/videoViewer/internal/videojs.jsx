@@ -378,7 +378,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       canAutoplayVideo = canAutoplayVideo.result === true;
 
       let vjsPlayer;
-      if(!window.player){
+      if (!window.player) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
         vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
         if (!vjsPlayer) {
@@ -388,7 +388,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // Add reference to player to global scope
         window.player = vjsPlayer;
       } else {
-        vjsPlayer = window.player
+        vjsPlayer = window.player;
       }
 
       // Set reference in component state
@@ -479,12 +479,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       const player = playerRef.current;
       if (player) {
-        // try {
-        //   window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
-        // } catch {}
+        try {
+          window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
+        } catch {}
 
-        // player.dispose();
-        // window.player = undefined;
+        player.trigger('navigateAway');
       }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
