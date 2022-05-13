@@ -240,12 +240,8 @@ function CommentView(props: Props) {
     push({ pathname, search: urlParams.toString() });
   }
 
-  // -- scroll handlers --
-
   const linkedCommentRef = React.useCallback(
     (node) => {
-      // hasRepliesFetched helps to scroll when replies are open, otherwise you have to scroll down to see
-      // the full conversation
       if (node !== null && window.pendingLinkedCommentScroll) {
         delete window.pendingLinkedCommentScroll;
 
@@ -265,8 +261,6 @@ function CommentView(props: Props) {
     },
     [ROUGH_HEADER_HEIGHT, isMobile]
   );
-
-  // --------------------
 
   return (
     <li
