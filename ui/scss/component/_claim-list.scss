@@ -447,6 +447,29 @@
   }
 }
 
+.claim-preview--premium-plus {
+  .media__thumb {
+    background-color: #283263;
+    background-image: url('https://odysee.com/public/img/astronaut_n_friends.png');
+    background-size: 100%;
+  }
+
+  .icon {
+    color: var(--color-text);
+    width: 2.1rem;
+    height: 2.1rem;
+    float: left;
+    margin-right: var(--spacing-s);
+  }
+
+  .channel-name {
+    font-weight: var(--font-weight-bold);
+    &:hover {
+      color: var(--color-text);
+    }
+  }
+}
+
 .claim-preview__empty {
   display: flex;
   align-items: center;

@@ -3,7 +3,7 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import React, { useState } from 'react';
+import React from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -72,7 +72,6 @@ function HomePage(props: Props) {
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
-  const [loaded, setLoaded] = useState(false);
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
@@ -171,6 +170,7 @@ function HomePage(props: Props) {
         }
         forceShowReposts={id !== 'FOLLOWING'}
         loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
+        adBlockerFound={adBlockerFound}
       />
     );
 
@@ -228,10 +228,6 @@ function HomePage(props: Props) {
     doFetchActiveLivestreams();
   }, []);
 
-  React.useEffect(() => {
-    console.log('loaded: ', loaded);
-  }, [loaded]);
-
   return (
     <Page className="homePage-wrapper" fullWidthPage>
       <Meme meme={homepageMeme} />
@@ -244,7 +240,7 @@ function HomePage(props: Props) {
               tileLayout
               liveUris={getLivestreamUris(activeLivestreams, channelIds)}
               limitClaimsPerChannel={2}
-              setLoaded={setLoaded}
+              // setLoaded={setLoaded}
             />
           )}
         </>
