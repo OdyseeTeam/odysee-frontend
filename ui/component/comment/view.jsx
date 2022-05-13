@@ -151,7 +151,6 @@ function CommentView(props: Props) {
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
   const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
-  const hasRepliesFetched = numDirectReplies > 0 && fetchedReplies && fetchedReplies.length > 0;
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -236,42 +235,24 @@ function CommentView(props: Props) {
   }
 
   function handleOpenNewThread() {
-    urlParams.delete(LINKED_COMMENT_QUERY_PARAM);
+    urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
     urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
     push({ pathname, search: urlParams.toString() });
   }
 
   // -- scroll handlers --
 
-  const [commentRefNode, setCommentRefNode] = React.useState();
-
-  React.useEffect(() => {
-    if (commentRefNode && threadCommentId) {
-      window.scrollTo({
-        top: commentRefNode.getBoundingClientRect().top - ROUGH_HEADER_HEIGHT,
-        left: 0,
-        behavior: 'smooth',
-      });
-    }
-  }, [ROUGH_HEADER_HEIGHT, commentRefNode, threadCommentId]);
-
   const linkedCommentRef = React.useCallback(
     (node) => {
       // hasRepliesFetched helps to scroll when replies are open, otherwise you have to scroll down to see
       // the full conversation
-      if (
-        node !== null &&
-        (window.pendingLinkedCommentScroll ||
-          (isThreadComment && !linkedCommentId && hasRepliesFetched) ||
-          (isLinkedComment && window.pendingLinkedCommentScroll))
-      ) {
-        if (window.pendingLinkedCommentScroll) delete window.pendingLinkedCommentScroll;
-        if (isThreadComment) setCommentRefNode(node);
+      if (node !== null && window.pendingLinkedCommentScroll) {
+        delete window.pendingLinkedCommentScroll;
 
         const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
         const elem = (isMobile && mobileChatElem) || window;
 
-        if (elem && !isThreadComment) {
+        if (elem) {
           // $FlowFixMe
           elem.scrollTo({
             // $FlowFixMe
@@ -282,7 +263,7 @@ function CommentView(props: Props) {
         }
       }
     },
-    [ROUGH_HEADER_HEIGHT, hasRepliesFetched, isLinkedComment, isMobile, isThreadComment, linkedCommentId]
+    [ROUGH_HEADER_HEIGHT, isMobile]
   );
 
   // --------------------
