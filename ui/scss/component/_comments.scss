@@ -258,6 +258,9 @@ $thumbnailWidthSmall: 2rem;
 }
 
 .comment__meta-information {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
   height: 100%;
   width: calc(100% - var(--spacing-m) - var(--spacing-s));
 
@@ -267,30 +270,11 @@ $thumbnailWidthSmall: 2rem;
     &:hover {
       color: rgba(var(--color-secondary-dynamic), 1);
     }
-
-    @media (max-width: $breakpoint-small) {
-      p {
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        overflow: hidden;
-      }
-    }
   }
 
   .comment__badge svg {
     height: 1.4rem;
     width: 1.4rem;
-  }
-
-  @media (min-width: $breakpoint-small) {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  @media (max-width: $breakpoint-small) {
-    display: grid;
-    grid-template-columns: minmax(4rem, auto) 1fr;
   }
 }
 
