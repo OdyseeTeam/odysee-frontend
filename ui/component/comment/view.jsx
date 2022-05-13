@@ -151,6 +151,7 @@ function CommentView(props: Props) {
     linkedCommentAncestors[linkedCommentId] &&
     linkedCommentAncestors[linkedCommentId].includes(commentId);
   const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || AUTO_EXPAND_ALL_REPLIES;
+  const hasRepliesFetched = numDirectReplies > 0 && fetchedReplies && fetchedReplies.length > 0;
 
   const [isReplying, setReplying] = React.useState(false);
   const [isEditing, setEditing] = useState(false);
@@ -252,12 +253,16 @@ function CommentView(props: Props) {
 
   const linkedCommentRef = React.useCallback(
     (node) => {
+      // hasRepliesFetched helps to scroll when replies are open, otherwise you have to scroll down to see
+      // the full conversation
       if (
         node !== null &&
-        (window.pendingLinkedCommentScroll || isThreadComment || (isLinkedComment && window.pendingLinkedCommentScroll))
+        (window.pendingLinkedCommentScroll ||
+          (isThreadComment && !linkedCommentId && hasRepliesFetched) ||
+          (isLinkedComment && window.pendingLinkedCommentScroll))
       ) {
         if (window.pendingLinkedCommentScroll) delete window.pendingLinkedCommentScroll;
-        if (isThreadComment && !linkedCommentId) setCommentRefNode(node);
+        if (isThreadComment) setCommentRefNode(node);
 
         const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
         const elem = (isMobile && mobileChatElem) || window;
@@ -273,7 +278,7 @@ function CommentView(props: Props) {
         }
       }
     },
-    [ROUGH_HEADER_HEIGHT, isLinkedComment, isMobile, isThreadComment, linkedCommentId]
+    [ROUGH_HEADER_HEIGHT, hasRepliesFetched, isLinkedComment, isMobile, isThreadComment, linkedCommentId]
   );
 
   // --------------------

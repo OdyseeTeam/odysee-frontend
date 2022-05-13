@@ -207,7 +207,8 @@ export default function CommentList(props: Props) {
       if (page === 1) {
         if (threadCommentId) {
           fetchComment(threadCommentId);
-        } else if (linkedCommentId) {
+        }
+        if (linkedCommentId) {
           fetchComment(linkedCommentId);
         }
       }
