@@ -68,6 +68,7 @@ type Props = {
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
   loading: boolean,
+  hasPremiumPlus: ?boolean,
 };
 
 function ClaimTilesDiscover(props: Props) {
@@ -92,6 +93,7 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
     loading,
+    hasPremiumPlus,
   } = props;
 
   const listRef = React.useRef();
@@ -145,7 +147,7 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   const getInjectedItem = (index) => {
-    if (injectedItem && injectedItem.node) {
+    if (!hasPremiumPlus && injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
         return injectedItem.node(index, lastVisibleIndex, pageSize);
       } else {
