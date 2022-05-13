@@ -28,6 +28,7 @@ const select = (state) => ({
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   hasMembership: selectHasOdyseeMembership(state),
+  currentTheme: selectClientSetting(state, SETTINGS.THEME),
 });
 
 const perform = (dispatch) => ({

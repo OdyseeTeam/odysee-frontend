@@ -46,6 +46,7 @@ type Props = {
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   hasMembership: ?boolean,
+  currentTheme: string,
 };
 
 function HomePage(props: Props) {
@@ -64,6 +65,7 @@ function HomePage(props: Props) {
     homepageOrder,
     doOpenModal,
     hasMembership,
+    currentTheme,
   } = props;
 
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
@@ -212,8 +214,8 @@ function HomePage(props: Props) {
                 label={__('View More')}
               />
             )}
-            {isMobileScreen && <AdsBanner />}
-            {!isMobileScreen && (index === 0 || index % 2 === 0) && <AdsBanner />}
+            {isMobileScreen && <AdsBanner key={`${currentTheme}:${title}`} />}
+            {!isMobileScreen && (index === 0 || index % 2 === 0) && <AdsBanner key={`${currentTheme}:${title}`} />}
           </>
         )}
       </div>
