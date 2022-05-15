@@ -8,18 +8,22 @@ import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { YRBL_SAD_IMG_URL } from 'config';
 import Tooltip from 'component/common/tooltip';
+import Paginate from 'component/common/paginate';
 
 export const PAGE_VIEW_QUERY = 'view';
 
 type Props = {
   history: Array<any>,
+  pageCount: number,
   doClearContentHistoryAll: () => void,
 };
 
 export default function WatchHistoryPage(props: Props) {
   const { history, doClearContentHistoryAll } = props;
   const [unavailableUris] = React.useState([]);
-  const watchHistory = [];
+  // const watchHistory = [];
+  const { watchHistory = [], pageCount = 20 } = props;
+
   for (let entry of history) {
     if (entry.uri.indexOf('@') !== -1) {
       watchHistory.push(entry.uri);
@@ -53,7 +57,12 @@ export default function WatchHistoryPage(props: Props) {
             )}
           </div>
         </div>
-        {watchHistory.length > 0 && <ClaimList uris={watchHistory} unavailableUris={unavailableUris} inWatchHistory />}
+        {watchHistory.length > 0 && (
+          <>
+            <ClaimList uris={watchHistory} unavailableUris={unavailableUris} inWatchHistory />
+            <Paginate totalPages={4} />
+          </>
+        )}
         {watchHistory.length === 0 && (
           <div style={{ textAlign: 'center' }}>
             <img src={YRBL_SAD_IMG_URL} />
