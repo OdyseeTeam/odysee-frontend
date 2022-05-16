@@ -150,13 +150,7 @@ const onPlayerReady = (player, options) => {
  */
 function mobileUi(options) {
   if (videojs.browser.IS_ANDROID || videojs.browser.IS_IOS) {
-<<<<<<< HEAD
     this.ready(() => onPlayerReady(this, videojs.mergeOptions(defaults, options)));
-=======
-    this.ready(() => {
-      onPlayerReady(this, videojs.mergeOptions(defaults, options));
-    });
->>>>>>> b64369fd8 (finish mobile functionality)
   }
 }
 

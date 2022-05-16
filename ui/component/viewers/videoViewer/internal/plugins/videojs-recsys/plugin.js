@@ -162,8 +162,7 @@ class RecsysPlugin extends Component {
     // Some browsers don't send onEnded event when closing player/browser, force it here
     const recsysEvent = newRecsysPlayerEvent(PlayerEvent.event.stop, this.player.currentTime());
     RecSys.onRecsysPlayerEvent(this.options_.videoId, recsysEvent);
-    RecSys.onNavigateAway(this.options_.videoId, this.options_.embedded);
-    // RecSys.onPlayerDispose(this.options_.videoId, this.options_.embedded, this.watchedDuration.total);
+    RecSys.onNavigateAway(this.options_.videoId, this.options_.embedded, this.watchedDuration.total);
   }
 
   log(...args) {
