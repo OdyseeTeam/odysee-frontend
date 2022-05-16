@@ -56,7 +56,7 @@ type Props = {
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
   isHidden: (string) => void,
-  pulse: boolean,
+  pulse?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
