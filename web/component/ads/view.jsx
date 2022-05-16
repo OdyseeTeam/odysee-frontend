@@ -35,6 +35,7 @@ type Props = {
   userHasPremiumPlus: boolean,
   className?: string,
   doSetAdBlockerFound: (boolean) => void,
+  userCountry: string,
 };
 
 function removeIfExists(querySelector) {
@@ -43,7 +44,7 @@ function removeIfExists(querySelector) {
 }
 
 function Ads(props: Props) {
-  const { type = 'video', tileLayout, small, userHasPremiumPlus, className, doSetAdBlockerFound } = props;
+  const { type = 'video', tileLayout, small, userHasPremiumPlus, className, doSetAdBlockerFound, userCountry } = props;
 
   const [shouldShowAds, setShouldShowAds] = React.useState(resolveAdVisibility());
   const mobileAds = platform.isAndroid() || platform.isIOS();
@@ -52,10 +53,13 @@ function Ads(props: Props) {
   const isInEu = localStorage.getItem('gdprRequired') === 'true';
   const adConfig = isInEu ? AD_CONFIGS.EU : mobileAds ? AD_CONFIGS.MOBILE : AD_CONFIGS.DEFAULT;
 
+  // only show ads for US viewers because they're the only ones being filled
+  const userIsInUS = userCountry === 'US';
+
   function resolveAdVisibility() {
     // 'ad_blocker_detected' will be undefined at startup. Wait until we are
     // sure it is not blocked (i.e. === false) before showing the component.
-    return ad_blocker_detected === false && SHOW_ADS && !userHasPremiumPlus;
+    return ad_blocker_detected === false && SHOW_ADS && !userHasPremiumPlus && userIsInUS;
   }
 
   useEffect(() => {
