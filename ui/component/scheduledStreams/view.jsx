@@ -21,7 +21,6 @@ type Props = {
   // --- perform ---
   setClientSetting: (string, boolean | string | number, boolean) => void,
   doShowSnackBar: (string) => void,
-  setLoaded: (boolean) => void,
 };
 
 /* NEKO MARK */
@@ -35,7 +34,6 @@ const ScheduledStreams = (props: Props) => {
     doShowSnackBar,
     onLoad,
     showHideSetting = true,
-    setLoaded,
   } = props;
 
   const isMobileScreen = useIsMobile();
@@ -57,7 +55,6 @@ const ScheduledStreams = (props: Props) => {
   const loadedCallback = (total) => {
     setTotalUpcomingLivestreams(total);
     if (typeof onLoad === 'function') onLoad(total);
-    if (setLoaded) setLoaded(true);
   };
 
   const hideScheduledStreams = () => {
