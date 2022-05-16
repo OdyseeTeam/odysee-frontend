@@ -8,9 +8,6 @@ import useFetchViewCount from 'effects/use-fetch-view-count';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
-import * as ICONS from 'constants/icons';
-import Icon from 'component/common/icon';
-import * as PAGES from 'constants/pages';
 
 const SHOW_TIMEOUT_MSG = false;
 
@@ -98,7 +95,6 @@ function ClaimTilesDiscover(props: Props) {
     doResolveUris,
     loading,
     hasPremiumPlus,
-    adBlockerFound,
   } = props;
 
   const listRef = React.useRef();
@@ -167,30 +163,6 @@ function ClaimTilesDiscover(props: Props) {
     return null;
   };
 
-  const PremiumPlus = () => {
-    return (
-      <li className="card claim-preview--tile claim-preview--premium-plus">
-        <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
-          <div className="media__thumb" />
-          <div className="claim-tile__header">
-            <h2 className="claim-tile__title">Odysee Premium+</h2>
-          </div>
-          <div>
-            <div className="claim-tile__info">
-              <Icon icon={ICONS.UPGRADE} />
-              <div className="claim-tile__about">
-                <div className="channel-name">{__('Get Odysee Premium+')}</div>
-                <div className="claim-tile__about--counts">
-                  <span className="date_time">{__('Now')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </a>
-      </li>
-    );
-  };
-
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
@@ -237,13 +209,7 @@ function ClaimTilesDiscover(props: Props) {
         ? finalUris.map((uri, i) => {
             if (uri) {
               const inj = getInjectedItem(i);
-              if (inj && adBlockerFound && !hasPremiumPlus) {
-                return (
-                  <React.Fragment key={uri}>
-                    <PremiumPlus />
-                  </React.Fragment>
-                );
-              } else if (inj) {
+              if (inj) {
                 return <React.Fragment key={uri}>{inj}</React.Fragment>;
               } else {
                 return (

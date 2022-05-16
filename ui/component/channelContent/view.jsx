@@ -2,6 +2,7 @@
 import { SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import React, { Fragment } from 'react';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
@@ -41,6 +42,8 @@ type Props = {
   doFetchChannelLiveStatus: (string) => void,
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
+  adBlockerFound: ?boolean,
+  hasPremiumPlus: ?boolean,
 };
 
 function ChannelContent(props: Props) {
@@ -62,6 +65,8 @@ function ChannelContent(props: Props) {
     doFetchChannelLiveStatus,
     activeLivestreamForChannel,
     activeLivestreamInitialized,
+    adBlockerFound,
+    hasPremiumPlus,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
@@ -97,6 +102,30 @@ function ChannelContent(props: Props) {
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus);
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
+
+  const PremiumPlus = () => {
+    return (
+      <li className="card claim-preview--tile claim-preview--premium-plus">
+        <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+          <div className="media__thumb" />
+          <div className="claim-tile__header">
+            <h2 className="claim-tile__title">Odysee Premium+</h2>
+          </div>
+          <div>
+            <div className="claim-tile__info">
+              <Icon icon={ICONS.UPGRADE} />
+              <div className="claim-tile__about">
+                <div className="channel-name">{__('Get Odysee Premium+')}</div>
+                <div className="claim-tile__about--counts">
+                  <span className="date_time">{__('Now')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </li>
+    );
+  };
 
   return (
     <Fragment>
@@ -159,7 +188,10 @@ function ChannelContent(props: Props) {
           defaultOrderBy={CS.ORDER_BY_NEW}
           pageSize={dynamicPageSize}
           infiniteScroll={defaultInfiniteScroll}
-          injectedItem={{ node: <Ads type="video" tileLayout={tileLayout} small /> }}
+          injectedItem={{
+            // node: <Ads type="video" tileLayout={tileLayout} small />
+            node: adBlockerFound && !hasPremiumPlus ? <PremiumPlus /> : <Ads small type="video" tileLayout />,
+          }}
           meta={
             showFilters && (
               <Form onSubmit={() => {}} className="wunderbar--inline">

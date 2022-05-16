@@ -10,9 +10,6 @@ import usePersistedState from 'effects/use-persisted-state';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
-import * as ICONS from 'constants/icons';
-import Icon from 'component/common/icon';
-import * as PAGES from 'constants/pages';
 
 const Draggable = React.lazy(() =>
   // $FlowFixMe
@@ -110,7 +107,6 @@ export default function ClaimList(props: Props) {
     inWatchHistory,
     onHidden,
     hasPremiumPlus,
-    adBlockerFound,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -162,12 +158,6 @@ export default function ClaimList(props: Props) {
     // https://github.com/lbryio/lbry-redux/blob/master/src/redux/actions/publish.js#L74-L79
     return claim.name.length === 24 && !claim.name.includes(' ') && claim.value.author === 'Spee.ch';
   }, []);
-
-  // @if process.env.NODE_ENV!='production'
-  if (injectedItem && injectedItem.replace) {
-    throw new Error('claimList: "injectedItem.replace" is not implemented yet');
-  }
-  // @endif
 
   useEffect(() => {
     const handleScroll = debounce((e) => {
@@ -233,30 +223,6 @@ export default function ClaimList(props: Props) {
     return null;
   };
 
-  const PremiumPlus = () => {
-    return (
-      <li className="card claim-preview--tile claim-preview--premium-plus">
-        <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
-          <div className="media__thumb" />
-          <div className="claim-tile__header">
-            <h2 className="claim-tile__title">Odysee Premium+</h2>
-          </div>
-          <div>
-            <div className="claim-tile__info">
-              <Icon icon={ICONS.UPGRADE} />
-              <div className="claim-tile__about">
-                <div className="channel-name">{__('Get Odysee Premium+')}</div>
-                <div className="claim-tile__about--counts">
-                  <span className="date_time">{__('Now')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </a>
-      </li>
-    );
-  };
-
   return tileLayout && !header ? (
     <>
       <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
@@ -264,13 +230,7 @@ export default function ClaimList(props: Props) {
           tileUris.map((uri, index) => {
             if (uri) {
               const inj = getInjectedItem(index);
-              if (inj && adBlockerFound && !hasPremiumPlus) {
-                return (
-                  <React.Fragment key={uri}>
-                    <PremiumPlus />
-                  </React.Fragment>
-                );
-              } else if (inj) {
+              if (inj) {
                 return <React.Fragment key={uri}>{inj}</React.Fragment>;
               } else {
                 return (

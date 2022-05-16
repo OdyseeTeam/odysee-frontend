@@ -46,6 +46,7 @@ type Props = {
   homepageOrder: HomepageOrder,
   doOpenModal: (id: string, ?{}) => void,
   hasMembership: ?boolean,
+  hasPremiumPlus: ?boolean,
 };
 
 function HomePage(props: Props) {
@@ -65,6 +66,7 @@ function HomePage(props: Props) {
     homepageOrder,
     doOpenModal,
     hasMembership,
+    hasPremiumPlus,
   } = props;
 
   const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannels && subscribedChannels.length > 0;
@@ -155,6 +157,30 @@ function HomePage(props: Props) {
       </ul>
     );
 
+    const PremiumPlus = () => {
+      return (
+        <li className="card claim-preview--tile claim-preview--premium-plus">
+          <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+            <div className="media__thumb" />
+            <div className="claim-tile__header">
+              <h2 className="claim-tile__title">Odysee Premium+</h2>
+            </div>
+            <div>
+              <div className="claim-tile__info">
+                <Icon icon={ICONS.UPGRADE} />
+                <div className="claim-tile__about">
+                  <div className="channel-name">{__('Get Odysee Premium+')}</div>
+                  <div className="claim-tile__about--counts">
+                    <span className="date_time">{__('Now')}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </li>
+      );
+    };
+
     const claimTiles = (
       <ClaimTilesDiscover
         {...options}
@@ -164,8 +190,8 @@ function HomePage(props: Props) {
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         injectedItem={
           index === 0 && {
-            node: <Ads small type="video" tileLayout />,
-            replace: adBlockerFound === false && isLargeScreen,
+            // node: <Ads small type="video" tileLayout />
+            node: adBlockerFound && !hasPremiumPlus ? <PremiumPlus /> : <Ads small type="video" tileLayout />,
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}
