@@ -397,7 +397,7 @@
 
     flex-shrink: 0;
     margin-right: var(--spacing-s);
-    box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 0.1) inset;
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.1) inset;
   }
 
   .media__thumb-placeholder-text {
@@ -413,7 +413,7 @@
   // show watch later button and duration divs when hovered
   &:hover {
     .media__thumb {
-      box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+      box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
     }
     .claim-preview__title {
       color: var(--color-link);
@@ -974,7 +974,7 @@
     cursor: pointer;
 
     .media__thumb {
-      box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+      box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
       background-size: 108%;
     }
 
@@ -997,7 +997,7 @@
         color: var(--color-primary);
       }
       .media__thumb {
-        box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+        box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
       }
     }
   }
@@ -1381,7 +1381,7 @@ $claim-preview-progress-bar-height: 5px;
   }
 
   .media__thumb {
-    box-shadow: 0px 0px 0px 1px rgba(var(--color-primary-dynamic), 1) inset;
+    box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
   }
 
   .claim-preview:not(.claim-preview--collection-mine):before {
