@@ -263,5 +263,6 @@
     "LBRYFirstUrlTemplate": "https://github.com/lbryio/lbry-first/releases/download/vLBRYFIRSTVER/lbry-first_OSNAME_amd64.zip",
     "LBRYFirstDir": "static/lbry-first",
     "LBRYFirstFileName": "lbry-first"
-  }
+  },
+  "packageManager": "yarn@3.2.1"
 }
