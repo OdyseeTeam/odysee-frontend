@@ -55,7 +55,7 @@ type Props = {
   isLivestreamActive: boolean,
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
-  isHidden: (string) => void,
+  isHidden?: (string) => void,
   pulse?: boolean,
 };
 
