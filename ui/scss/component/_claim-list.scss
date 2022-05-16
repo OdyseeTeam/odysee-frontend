@@ -1364,7 +1364,7 @@ $claim-preview-progress-bar-height: 5px;
       margin-bottom: -4px;
       margin-left: 4px;
       margin-right: var(--spacing-xxs);
-      text-overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     &:hover {

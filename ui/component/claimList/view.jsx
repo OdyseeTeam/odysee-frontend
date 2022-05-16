@@ -64,7 +64,7 @@ type Props = {
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
-  setHidden: string,
+  onHidden: string,
   hasPremiumPlus: ?boolean,
   adBlockerFound: boolean,
 };
@@ -108,7 +108,7 @@ export default function ClaimList(props: Props) {
     unavailableUris,
     showMemberBadge,
     inWatchHistory,
-    setHidden,
+    onHidden,
     hasPremiumPlus,
     adBlockerFound,
   } = props;
@@ -284,7 +284,7 @@ export default function ClaimList(props: Props) {
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
                       swipeLayout={swipeLayout}
-                      isHidden={setHidden}
+                      isHidden={onHidden}
                     />
                   </React.Fragment>
                 );

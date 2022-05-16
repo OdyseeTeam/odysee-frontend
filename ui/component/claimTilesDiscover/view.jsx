@@ -55,6 +55,7 @@ type Props = {
   hasSource?: boolean,
   hasNoSource?: boolean,
   forceShowReposts?: boolean, // overrides SETTINGS.HIDE_REPOSTS
+  loading: boolean,
   // --- select ---
   location: { search: string },
   claimSearchResults: Array<string>,
@@ -64,15 +65,14 @@ type Props = {
   showNsfw: boolean,
   hideReposts: boolean,
   optionsStringified: string,
+  hasPremiumPlus: ?boolean,
+  adBlockerFound: boolean,
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
   doFetchUserMemberships: (claimIdCsv: string) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
-  loading: boolean,
-  hasPremiumPlus: ?boolean,
-  adBlockerFound: boolean,
 };
 
 function ClaimTilesDiscover(props: Props) {

@@ -47,7 +47,7 @@ export default function RecommendedPersonal(props: Props) {
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : 36;
   const [hiddenArray, setHiddenArray] = useState([]);
 
-  function setHidden(hiddenUri) {
+  function onClaimHidden(hiddenUri) {
     let newArray = hiddenArray;
     if (newArray.indexOf(hiddenUri) === -1) {
       newArray.push(hiddenUri);
@@ -165,7 +165,7 @@ export default function RecommendedPersonal(props: Props) {
         tileLayout
         uris={personalRecommendations.uris.slice(0, finalCount + getHidden())}
         fypId={personalRecommendations.gid}
-        setHidden={setHidden}
+        onHidden={onClaimHidden}
       />
 
       {view !== VIEW.ALL_VISIBLE && (

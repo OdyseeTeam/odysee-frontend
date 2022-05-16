@@ -55,7 +55,7 @@ type Props = {
   isLivestreamActive: boolean,
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
-  isHidden?: (string) => void,
+  onHidden?: (string) => void,
   pulse?: boolean,
 };
 
@@ -88,7 +88,7 @@ function ClaimPreviewTile(props: Props) {
     mediaDuration,
     viewCount,
     swipeLayout = false,
-    isHidden,
+    onHidden,
     pulse,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
@@ -162,7 +162,7 @@ function ClaimPreviewTile(props: Props) {
         banState.filtered ||
         (!showHiddenByUser && (banState.muted || banState.blocked)) ||
         (isAbandoned && !showUnresolvedClaims));
-    if (isHidden && shouldHide) isHidden(props.uri);
+    if (onHidden && shouldHide) onHidden(props.uri);
   }
 
   if (shouldHide || (isLivestream && !showNoSourceClaims)) {
