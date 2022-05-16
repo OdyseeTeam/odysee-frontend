@@ -109,48 +109,48 @@ const VideoJsEvents = ({
   // as the listener to update static texts.
 
   function resolveCtrlText(e) {
-    // const player = playerRef.current;
-    // if (player) {
-    //   const ctrlBar = player.getChild('controlBar');
-    //   switch (e.type) {
-    //     case 'play':
-    //       setLabel(ctrlBar, 'PlayToggle', __('Pause (space)'));
-    //       break;
-    //     case 'pause':
-    //       setLabel(ctrlBar, 'PlayToggle', __('Play (space)'));
-    //       break;
-    //     case 'volumechange':
-    //       ctrlBar
-    //         .getChild('VolumePanel')
-    //         .getChild('MuteToggle')
-    //         .controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
-    //       break;
-    //     case 'fullscreenchange':
-    //       setLabel(
-    //         ctrlBar,
-    //         'FullscreenToggle',
-    //         player.isFullscreen() ? __('Exit Fullscreen (f)') : __('Fullscreen (f)')
-    //       );
-    //       break;
-    //     case 'loadstart':
-    //       // --- Do everything ---
-    //       setLabel(ctrlBar, 'PlaybackRateMenuButton', __('Playback Rate (<, >)'));
-    //       setLabel(ctrlBar, 'QualityButton', __('Quality'));
-    //       setLabel(ctrlBar, 'PlayNextButton', __('Play Next (SHIFT+N)'));
-    //       setLabel(ctrlBar, 'PlayPreviousButton', __('Play Previous (SHIFT+P)'));
-    //       setLabel(ctrlBar, 'TheaterModeButton', videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
-    //       setLabel(ctrlBar, 'AutoplayNextButton', autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off'));
-    //
-    //       resolveCtrlText({ type: 'play' });
-    //       resolveCtrlText({ type: 'pause' });
-    //       resolveCtrlText({ type: 'volumechange' });
-    //       resolveCtrlText({ type: 'fullscreenchange' });
-    //       break;
-    //     default:
-    //       if (isDev) throw Error('Unexpected: ' + e.type);
-    //       break;
-    //   }
-    // }
+    const player = playerRef.current;
+    if (player) {
+      const ctrlBar = player.getChild('controlBar');
+      switch (e.type) {
+        case 'play':
+          setLabel(ctrlBar, 'PlayToggle', __('Pause (space)'));
+          break;
+        case 'pause':
+          setLabel(ctrlBar, 'PlayToggle', __('Play (space)'));
+          break;
+        case 'volumechange':
+          ctrlBar
+            .getChild('VolumePanel')
+            .getChild('MuteToggle')
+            .controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
+          break;
+        case 'fullscreenchange':
+          setLabel(
+            ctrlBar,
+            'FullscreenToggle',
+            player.isFullscreen() ? __('Exit Fullscreen (f)') : __('Fullscreen (f)')
+          );
+          break;
+        case 'loadstart':
+          // --- Do everything ---
+          setLabel(ctrlBar, 'PlaybackRateMenuButton', __('Playback Rate (<, >)'));
+          setLabel(ctrlBar, 'QualityButton', __('Quality'));
+          setLabel(ctrlBar, 'PlayNextButton', __('Play Next (SHIFT+N)'));
+          setLabel(ctrlBar, 'PlayPreviousButton', __('Play Previous (SHIFT+P)'));
+          setLabel(ctrlBar, 'TheaterModeButton', videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
+          setLabel(ctrlBar, 'AutoplayNextButton', autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off'));
+
+          resolveCtrlText({ type: 'play' });
+          resolveCtrlText({ type: 'pause' });
+          resolveCtrlText({ type: 'volumechange' });
+          resolveCtrlText({ type: 'fullscreenchange' });
+          break;
+        default:
+          if (isDev) throw Error('Unexpected: ' + e.type);
+          break;
+      }
+    }
   }
 
   function onInitialPlay() {
@@ -197,11 +197,11 @@ const VideoJsEvents = ({
   useEffect(() => {
     const player = playerRef.current;
     if (player) {
-      // const controlBar = player.getChild('controlBar');
-      // const theaterButton = controlBar.getChild('TheaterModeButton');
-      // if (theaterButton) {
-      //   theaterButton.controlText(videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
-      // }
+      const controlBar = player.getChild('controlBar');
+      const theaterButton = controlBar.getChild('TheaterModeButton');
+      if (theaterButton) {
+        theaterButton.controlText(videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
+      }
     }
   }, [videoTheaterMode]);
 
@@ -263,15 +263,15 @@ const VideoJsEvents = ({
     if (player) {
       const touchOverlay = player.getChild('TouchOverlay');
       const controlBar = player.getChild('controlBar') || touchOverlay.getChild('controlBar');
-      // const autoplayButton = controlBar.getChild('AutoplayNextButton');
+      const autoplayButton = controlBar.getChild('AutoplayNextButton');
 
-      // if (autoplayButton) {
-      //   const title = autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off');
-      //
-      //   autoplayButton.controlText(title);
-      //   autoplayButton.setAttribute('aria-label', title);
-      //   autoplayButton.setAttribute('aria-checked', autoplaySetting);
-      // }
+      if (autoplayButton) {
+        const title = autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off');
+
+        autoplayButton.controlText(title);
+        autoplayButton.setAttribute('aria-label', title);
+        autoplayButton.setAttribute('aria-checked', autoplaySetting);
+      }
     }
   }, [autoplaySetting]);
 
