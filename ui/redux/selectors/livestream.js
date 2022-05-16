@@ -1,7 +1,7 @@
 // @flow
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectMyClaims, selectPendingClaims } from 'redux/selectors/claims';
+import { selectMyClaims, selectPendingClaims, selectClaimForUri } from 'redux/selectors/claims';
 
 type State = { livestream: any };
 
@@ -66,7 +66,7 @@ export const selectIsActiveLivestreamForUri = createCachedSelector(
 
     const activeLivestreamValues = Object.values(activeLivestreams);
     // $FlowFixMe - unable to resolve claimUri
-    return activeLivestreamValues.some((v) => v.claimUri === uri);
+    return activeLivestreamValues.some((v) => v?.claimUri === uri);
   }
 )((state, uri) => String(uri));
 
@@ -80,7 +80,7 @@ export const selectActiveLivestreamForClaimId = createCachedSelector(
 
     const activeLivestreamValues = Object.values(activeLivestreams);
     // $FlowFixMe - https://github.com/facebook/flow/issues/2221
-    return activeLivestreamValues.find((v) => v.claimId === claimId) || null;
+    return activeLivestreamValues.find((v) => v?.claimId === claimId) || null;
   }
 )((state, claimId) => String(claimId));
 
@@ -91,6 +91,12 @@ export const selectActiveLivestreamForChannel = createCachedSelector(
     if (!channelId || !activeLivestreams) {
       return null;
     }
-    return activeLivestreams[channelId] || null;
+    return activeLivestreams[channelId];
   }
+)((state, channelId) => String(channelId));
+
+export const selectActiveLiveClaimForChannel = createCachedSelector(
+  (state) => state,
+  selectActiveLivestreamForChannel,
+  (state, activeLivestream) => activeLivestream && selectClaimForUri(state, activeLivestream.claimUri)
 )((state, channelId) => String(channelId));

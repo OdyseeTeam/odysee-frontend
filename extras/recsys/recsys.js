@@ -9,6 +9,7 @@ import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
+import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
 import { history } from 'ui/store';
 
 const recsysEndpoint = RECSYS_ENDPOINT;
@@ -101,28 +102,25 @@ const recsys = {
       const state = window.store.getState();
       const user = selectUser(state);
       const userId = user ? user.id : null;
+
+      // Make a stub entry that will be filled out on page load
+      recsys.entries[claimId] = {
+        uuid: uuid || Uuidv4(),
+        claimId: claimId,
+        recClickedVideoIdx: [],
+        pageLoadedAt: Date.now(),
+        events: [],
+        incognito: !(user && user.has_verified_email),
+        isFollowing: selectIsSubscribedForClaimId(state, claimId),
+      };
+
       if (parentUuid) {
-        // Make a stub entry that will be filled out on page load
-        recsys.entries[claimId] = {
-          uuid: uuid || Uuidv4(),
-          parentUuid: parentUuid,
-          uid: userId || null, // selectUser
-          claimId: claimId,
-          recClickedVideoIdx: [],
-          pageLoadedAt: Date.now(),
-          events: [],
-        };
+        recsys.entries[claimId].uid = userId || null;
+        recsys.entries[claimId].parentUuid = parentUuid;
       } else {
-        recsys.entries[claimId] = {
-          uuid: uuid || Uuidv4(),
-          uid: userId, // selectUser
-          claimId: claimId,
-          pageLoadedAt: Date.now(),
-          recsysId: null,
-          recClaimIds: [],
-          recClickedVideoIdx: [],
-          events: [],
-        };
+        recsys.entries[claimId].uid = userId;
+        recsys.entries[claimId].recsysId = null;
+        recsys.entries[claimId].recClaimIds = [];
       }
     }
     recsys.log('createRecsysEntry', claimId);
@@ -138,7 +136,8 @@ const recsys = {
       IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data);
 
     if (recsys.entries[claimId] && shareTelemetry) {
-      const data = JSON.stringify(recsys.entries[claimId]);
+      const { events, ...entryData } = recsys.entries[claimId];
+      const data = JSON.stringify(entryData);
 
       if (!isTentative) {
         delete recsys.entries[claimId];
@@ -184,6 +183,7 @@ const recsys = {
     recsys.entries[claimId].events.push(event);
     recsys.log('onRecsysPlayerEvent', claimId);
   },
+
   log: function (callName, claimId) {
     if (recsys.debug) {
       console.log(`Call: ***${callName}***, ClaimId: ${claimId}, Recsys Entries`, Object.assign({}, recsys.entries));
@@ -194,7 +194,7 @@ const recsys = {
    * Player closed. Check to see if primaryUri = playingUri
    * if so, send the Entry.
    */
-  onNavigateAway: function (claimId, isEmbedded) {
+  onNavigateAway: function (claimId, isEmbedded, totalPlayingTime) {
     if (window && window.store) {
       const state = window.store.getState();
       const playingUri = selectPlayingUri(state);
@@ -204,6 +204,7 @@ const recsys = {
         if (isEmbedded) {
           recsys.entries[claimId]['isEmbed'] = true;
         }
+        recsys.entries[claimId]['totalPlayTime'] = totalPlayingTime;
         recsys.sendRecsysEntry(claimId);
       }
     }

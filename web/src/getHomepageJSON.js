@@ -4,14 +4,22 @@ const memo = {};
 if (!memo.homepageData) {
   try {
     memo.homepageData = require('../../custom/homepages/v2');
-    memo.meme = require('../../custom/homepages/meme');
   } catch (err) {
     console.log('getHomepageJSON:', err);
   }
 }
 
 const getHomepageJsonV1 = () => {
-  return memo.homepageData || {};
+  if (!memo.homepageData) {
+    return {};
+  }
+
+  const v1 = {};
+  const homepageKeys = Object.keys(memo.homepageData);
+  homepageKeys.forEach((hp) => {
+    v1[hp] = memo.homepageData[hp].categories;
+  });
+  return v1;
 };
 
 const getHomepageJsonV2 = () => {
@@ -21,18 +29,9 @@ const getHomepageJsonV2 = () => {
 
   const v2 = {};
   const homepageKeys = Object.keys(memo.homepageData);
-
   homepageKeys.forEach((hp) => {
-    v2[hp] = {
-      categories: memo.homepageData[hp],
-    };
+    v2[hp] = memo.homepageData[hp];
   });
-
-  if (memo.meme && v2['en']) {
-    // Only supporting English memes for now, but one-per-homepage is possible.
-    v2['en'].meme = memo.meme;
-  }
-
   return v2;
 };
 

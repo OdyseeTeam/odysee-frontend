@@ -63,6 +63,8 @@ function DiscoverPage(props: Props) {
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const claimType = urlParams.get('claim_type');
   const tagsQuery = urlParams.get('t') || null;
+  const freshnessParam = urlParams.get(CS.FRESH_KEY);
+  const orderParam = urlParams.get(CS.ORDER_BY_KEY);
   const tags = tagsQuery ? tagsQuery.split(',') : null;
   const repostedClaimIsResolved = repostedUri && repostedClaim;
   const hideRepostRibbon = isCategory && !isWildWest;
@@ -185,11 +187,18 @@ function DiscoverPage(props: Props) {
     );
   }
 
-  let releaseTime = dynamicRouteProps?.options?.releaseTime;
+  const categoryReleaseTime = dynamicRouteProps?.options?.releaseTime;
+  let releaseTime;
+
   if (isWildWest) {
     // The homepage definition currently does not support 'start-of-week', so
     // continue to hardcode here for now.
     releaseTime = `>${Math.floor(moment().subtract(0, 'hour').startOf('week').unix())}`;
+  } else if (categoryReleaseTime) {
+    const hasFreshnessOverride = orderParam === CS.ORDER_BY_TOP && freshnessParam !== null;
+    if (!hasFreshnessOverride) {
+      releaseTime = categoryReleaseTime;
+    }
   }
 
   return (
@@ -213,9 +222,6 @@ function DiscoverPage(props: Props) {
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
           injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
-          // Assume wild west page if no dynamicRouteProps
-          // Not a very good solution, but just doing it for now
-          // until we are sure this page will stay around
           // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
           releaseTime={releaseTime || undefined}

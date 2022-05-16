@@ -255,6 +255,7 @@ function PublishForm(props: Props) {
     if (claimChannelId) {
       fetchLivestreams(claimChannelId, activeChannelName);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimChannelId]);
 
   useEffect(() => {
@@ -265,9 +266,11 @@ function PublishForm(props: Props) {
 
   useEffect(() => {
     if (!modal) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         setPreviewing(false);
       }, 250);
+
+      return () => clearTimeout(timer);
     }
   }, [modal]);
 
@@ -352,6 +355,7 @@ function PublishForm(props: Props) {
     if (publishing || publishSuccess) {
       clearPublish();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clearPublish]);
 
   useEffect(() => {
@@ -466,6 +470,7 @@ function PublishForm(props: Props) {
     const newParams = new URLSearchParams();
     newParams.set(TYPE_PARAM, mode.toLowerCase());
     replace({ search: newParams.toString() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, _uploadType]);
 
   // @if TARGET='web'
@@ -589,7 +594,7 @@ function PublishForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack uploadPage-wraper">
-      <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} />
+      <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} />
 
       <PublishFile
         inEditMode={inEditMode}
