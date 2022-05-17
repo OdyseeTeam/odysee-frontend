@@ -1,7 +1,7 @@
 // @flow
 import { MAIN_CLASS } from 'constants/classnames';
 import type { Node } from 'react';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import classnames from 'classnames';
 import ClaimPreview from 'component/claimPreview';
 import Spinner from 'component/spinner';
@@ -110,6 +110,7 @@ export default function ClaimList(props: Props) {
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
+  const [uriBuffer, setUriBuffer] = useState([]);
 
   // Resolve the index for injectedItem, if provided; else injectedIndex will be 'undefined'.
   const listRef = React.useRef();
@@ -228,13 +229,17 @@ export default function ClaimList(props: Props) {
       <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
-            if (uri) {
-              const inj = getInjectedItem(index);
-              if (inj) {
-                return <React.Fragment key={uri}>{inj}</React.Fragment>;
-              } else {
+            if (index < tileUris.length - uriBuffer.length) {
+              if (uri) {
+                const inj = getInjectedItem(index);
+                if (inj) {
+                  if (uriBuffer.indexOf(index) === -1) {
+                    setUriBuffer([index]);
+                  }
+                }
                 return (
                   <React.Fragment key={uri}>
+                    {inj && inj}
                     <ClaimPreviewTile
                       uri={uri}
                       showHiddenByUser={showHiddenByUser}

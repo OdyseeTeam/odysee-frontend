@@ -109,7 +109,7 @@ function ChannelContent(props: Props) {
         <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
           <div className="media__thumb" />
           <div className="claim-tile__header">
-            <h2 className="claim-tile__title">Odysee Premium+</h2>
+            <h2 className="claim-tile__title">{__('No ads and access to exclusive features!')}</h2>
           </div>
           <div>
             <div className="claim-tile__info">

@@ -149,6 +149,7 @@ function Ads(props: Props) {
             {__('Ad')}
             <br />
             {__('Hate these?')}
+            {/* __('No ads, a custom badge and access to exclusive features, try Odysee Premium!') */}
           </div>
           <div className="ads__subtitle">
             <Icon icon={ICONS.UPGRADE} />

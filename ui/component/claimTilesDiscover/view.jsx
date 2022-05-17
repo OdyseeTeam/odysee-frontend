@@ -1,6 +1,6 @@
 // @flow
 import type { Node } from 'react';
-import React from 'react';
+import React, { useState } from 'react';
 import Button from 'component/button';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
@@ -105,6 +105,7 @@ function ClaimTilesDiscover(props: Props) {
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
   const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
+  const [uriBuffer, setUriBuffer] = useState([]);
 
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch = !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0;
@@ -207,13 +208,17 @@ function ClaimTilesDiscover(props: Props) {
     <ul ref={listRef} className="claim-grid">
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
-            if (uri) {
-              const inj = getInjectedItem(i);
-              if (inj) {
-                return <React.Fragment key={uri}>{inj}</React.Fragment>;
-              } else {
+            if (i < finalUris.length - uriBuffer.length) {
+              if (uri) {
+                const inj = getInjectedItem(i);
+                if (inj) {
+                  if (uriBuffer.indexOf(i) === -1) {
+                    setUriBuffer([i]);
+                  }
+                }
                 return (
                   <React.Fragment key={uri}>
+                    {inj && inj}
                     <ClaimPreviewTile
                       showNoSourceClaims={hasNoSource || showNoSourceClaims}
                       uri={uri}
@@ -221,11 +226,11 @@ function ClaimTilesDiscover(props: Props) {
                     />
                   </React.Fragment>
                 );
+              } else {
+                return (
+                  <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+                );
               }
-            } else {
-              return (
-                <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
-              );
             }
           })
         : new Array(pageSize)
