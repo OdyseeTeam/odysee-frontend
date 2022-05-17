@@ -1,21 +1,10 @@
 /* eslint-disable no-console */
 // @flow
 import React from 'react';
-import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
-import { useHistory } from 'react-router';
-import { FormField } from 'component/common/form';
 import moment from 'moment';
-import { URL } from '../../../../../config';
-import ChannelSelector from 'component/channelSelector';
 import { formatLbryUrlForWeb } from 'util/url';
-import CopyableText from 'component/copyableText';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
 import { getThumbnailFromClaim } from 'util/claim';
-
-let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   openModal: (string, {}) => void,
@@ -44,7 +33,8 @@ function MyPledgesTab(props: Props) {
 
   React.useEffect(() => {
     if (myActiveMemberships) {
-      const claimIds = myActiveMemberships.map((membership) => membership.Membership.channel_id);
+
+      const claimIds = myActiveMemberships.map((membership) => membership.MembershipDetails.channel_id);
 
       doResolveClaimIds(claimIds).then(() => setResolved(true));
     }
@@ -54,7 +44,7 @@ function MyPledgesTab(props: Props) {
     if (myActiveMemberships && resolved) {
       const allPledges = myActiveMemberships.map((membership) => {
         const pledgeData = {};
-        const fullClaim = claimsById[membership.Membership.channel_id];
+        const fullClaim = claimsById[membership.MembershipDetails.channel_id];
 
         if (fullClaim?.short_url) {
           pledgeData.url = formatLbryUrlForWeb(fullClaim.short_url);
@@ -63,6 +53,11 @@ function MyPledgesTab(props: Props) {
         pledgeData.currency = membership.Subscription.plan.currency.toUpperCase();
         pledgeData.supportAmount = membership.Subscription.plan.amount; // in cents or 1/100th EUR
         pledgeData.period = membership.Subscription.plan.interval;
+
+        const startDate = membership.Subscription.current_period_start * 1000;
+        const endDate = membership.Subscription.current_period_end * 1000;
+        const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
+        pledgeData.timeAgo = amountOfMonths === 1 ? '1 Month' : amountOfMonths + ' Months';
 
         return pledgeData;
       });
@@ -74,51 +69,53 @@ function MyPledgesTab(props: Props) {
   return (
     <>
       {pledges?.length > 0 && (
-        <table className="table table--transactions">
-          <thead>
-            <tr>
-              <th className="date-header">Channel You're Supporting</th>
-              <th className="channelName-header">Membership Tier</th>
-              <th className="channelName-header">Total Supporting Time</th>
-              <th className="location-header">Support Amount</th>
-              <th className="amount-header">Details</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              {myActiveMemberships?.map((membership, i) => {
-                return (
-                  <>
-                    <td>
-                      <Button button="link" navigate={pledges[i].url + '?view=membership'}>
-                        <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
+        <div className="table__wrapper">
+          <table className="table table--transactions">
+            <thead>
+              <tr>
+                <th className="date-header">Channel You're Supporting</th>
+                <th className="channelName-header">Membership Tier</th>
+                <th className="channelName-header">Total Supporting Time</th>
+                <th className="location-header">Support Amount</th>
+                <th className="amount-header">Details</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {myActiveMemberships?.map((membership, i) => {
+                  return (
+                    <>
+                      <td>
+                        <Button button="link" navigate={pledges[i].url + '?view=membership'}>
+                          <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
+                          <span dir="auto" className="button__label">
+                            {membership.Membership.channel_name}
+                          </span>
+                        </Button>
+                      </td>
+                      <td>{membership.MembershipDetails.name}</td>
+                      {/* TODO: add moment logic here to calculate number of months */}
+                      <td>{pledges[i].timeAgo}</td>
+                      <td>
+                        ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
+                        {capitalizeFirstLetter(pledges[i].period)}
+                      </td>
+                      <td>
                         <span dir="auto" className="button__label">
-                          {membership.Membership.channel_name}
+                          <Button
+                            button="primary"
+                            label={__('See Details')}
+                            navigate={pledges[i].url + '?view=membership'}
+                          />
                         </span>
-                      </Button>
-                    </td>
-                    <td>{membership.MembershipDetails.name}</td>
-                    {/* TODO: add moment logic here to calculate number of months */}
-                    <td>2 Months</td>
-                    <td>
-                      ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
-                      {capitalizeFirstLetter(pledges[i].period)}
-                    </td>
-                    <td>
-                      <span dir="auto" className="button__label">
-                        <Button
-                          button="primary"
-                          label={__('See Details')}
-                          navigate={pledges[i].url + '?view=membership'}
-                        />
-                      </span>
-                    </td>
-                  </>
-                );
-              })}
-            </tr>
-          </tbody>
-        </table>
+                      </td>
+                    </>
+                  );
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
       )}
 
       {myActiveMemberships?.length === 0 && (
