@@ -237,6 +237,10 @@
       margin-bottom: 0;
     }
   }
+
+  .can-create-your-own-memberships__div {
+    line-height: 28px;
+  }
 }
 
 .membership-join__plan-header {
@@ -478,6 +482,7 @@
   .membership-join__tab-buttons,
   .membership-join-purchase__div {
     text-align: center;
+    margin-top: 22px;
   }
 
   .membership-join__body {

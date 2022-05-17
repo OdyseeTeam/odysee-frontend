@@ -76,6 +76,7 @@ type Props = {
   doGetCustomerStatus: () => void,
   myChannelClaimIds: ?Array<string>,
   claim: StreamClaim,
+  channelIsMine: boolean,
 };
 
 export default function PreviewPage(props: Props) {
@@ -98,6 +99,7 @@ export default function PreviewPage(props: Props) {
     doGetCustomerStatus,
     myChannelClaimIds,
     claim,
+    channelIsMine,
   } = props;
 
   // check if a user is looking at their own memberships
@@ -174,6 +176,13 @@ export default function PreviewPage(props: Props) {
       }
     }, 0);
   }, []);
+
+  let hasntCreatedChannelsText;
+  if (channelIsMine) {
+    hasntCreatedChannelsText = 'Unfortunately you haven\'t activated your memberships functionality yet, but you can do so now at the link below';
+  } else {
+    hasntCreatedChannelsText = 'Unfortunately, this creator hasn\'t activated their membership functionality yet, but you can create your own memberships with the link below';
+  }
 
   return (
     <>
@@ -295,9 +304,9 @@ export default function PreviewPage(props: Props) {
         </div>
       ) : (
         <div className="can-create-your-own-memberships__div">
-          {__(
-          "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers and have your own memberships by following this link"
-          )}
+          <BalanceText>
+            {__(hasntCreatedChannelsText)}
+          </BalanceText>
         </div>
       )}
 
