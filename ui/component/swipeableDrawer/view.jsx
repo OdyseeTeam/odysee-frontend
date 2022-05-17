@@ -44,9 +44,6 @@ export default function SwipeableDrawer(props: Props) {
   const [playerHeight, setPlayerHeight] = React.useState(getMaxLandscapeHeight());
 
   function handleTouchMove(e) {
-    e.preventDefault();
-    e.stopPropagation();
-
     const touchPosY = e.touches[0].clientY;
     touchPos.current = touchPosY;
     const draggingBelowHeader = touchPosY > HEADER_HEIGHT_MOBILE;
