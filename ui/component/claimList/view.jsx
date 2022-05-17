@@ -208,6 +208,19 @@ export default function ClaimList(props: Props) {
     />
   );
 
+  React.useEffect(() => {
+    tileUris.forEach((uri, index) => {
+      if (uri) {
+        const inj = getInjectedItem(index);
+        if (inj) {
+          if (uriBuffer.indexOf(index) === -1) {
+            setUriBuffer([index]);
+          }
+        }
+      }
+    });
+  }, [tileUris, injectedItem, lastVisibleIndex, pageSize]);
+
   const getInjectedItem = (index) => {
     if (!hasPremiumPlus && injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
@@ -231,11 +244,6 @@ export default function ClaimList(props: Props) {
           tileUris.map((uri, index) => {
             if (uri) {
               const inj = getInjectedItem(index);
-              if (inj) {
-                if (uriBuffer.indexOf(index) === -1) {
-                  setUriBuffer([index]);
-                }
-              }
               return (
                 <React.Fragment key={uri}>
                   {inj && inj}
