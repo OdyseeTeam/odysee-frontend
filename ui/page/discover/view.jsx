@@ -229,7 +229,12 @@ function DiscoverPage(props: Props) {
           injectedItem={
             !isWildWest && {
               // node: <Ads small type="video" tileLayout={tileLayout} />
-              node: adBlockerFound && !hasPremiumPlus ? <PremiumPlusTile /> : <Ads small type="video" tileLayout />,
+              node:
+                adBlockerFound && !hasPremiumPlus ? (
+                  <PremiumPlusTile tileLayout={tileLayout} />
+                ) : (
+                  <Ads small type="video" tileLayout />
+                ),
             }
           }
           // TODO: find a better way to determine discover / wild west vs other modes release times

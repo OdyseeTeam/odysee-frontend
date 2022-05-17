@@ -11,7 +11,6 @@ type Props = {
 const PremiumPlusTile = (props: Props) => {
   const { tileLayout } = props;
 
-  console.log('tileLayout: ', tileLayout);
   const title = __('No ads and access to exclusive features!');
   const channel = __('Get Odysee Premium+');
   const time = __('Now');

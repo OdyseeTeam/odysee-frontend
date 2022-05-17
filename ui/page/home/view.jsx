@@ -168,7 +168,12 @@ function HomePage(props: Props) {
         injectedItem={
           index === 0 && {
             // node: <Ads small type="video" tileLayout />
-            node: adBlockerFound && !hasPremiumPlus ? <PremiumPlusTile /> : <Ads small type="video" tileLayout />,
+            node:
+              adBlockerFound && !hasPremiumPlus ? (
+                <PremiumPlusTile tileLayout />
+              ) : (
+                <Ads small type="video" tileLayout />
+              ),
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}
