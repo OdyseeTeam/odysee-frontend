@@ -35,6 +35,8 @@ type Props = {
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
   doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
+  adBlockerFound: ?boolean,
+  hasPremiumPlus: ?boolean,
 };
 
 function DiscoverPage(props: Props) {
@@ -51,6 +53,8 @@ function DiscoverPage(props: Props) {
     activeLivestreams,
     doFetchActiveLivestreams,
     dynamicRouteProps,
+    adBlockerFound,
+    hasPremiumPlus,
   } = props;
 
   const buttonRef = useRef();
@@ -83,6 +87,30 @@ function DiscoverPage(props: Props) {
 
   const includeLivestreams = !tagsQuery;
   const filters = { contentTypes: isCategory && !isWildWest ? CATEGORY_CONTENT_TYPES_FILTER : CS.CONTENT_TYPES };
+
+  const PremiumPlus = () => {
+    return (
+      <li className="card claim-preview--tile claim-preview--premium-plus">
+        <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+          <div className="media__thumb" />
+          <div className="claim-tile__header">
+            <h2 className="claim-tile__title">{__('No ads and access to exclusive features!')}</h2>
+          </div>
+          <div>
+            <div className="claim-tile__info">
+              <Icon icon={ICONS.UPGRADE} />
+              <div className="claim-tile__about">
+                <div className="channel-name">{__('Get Odysee Premium+')}</div>
+                <div className="claim-tile__about--counts">
+                  <span className="date_time">{__('Now')}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </a>
+      </li>
+    );
+  };
 
   // **************************************************************************
   // **************************************************************************
@@ -221,7 +249,12 @@ function DiscoverPage(props: Props) {
           tags={tags}
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
-          injectedItem={!isWildWest && { node: <Ads small type="video" tileLayout={tileLayout} /> }}
+          injectedItem={
+            !isWildWest && {
+              // node: <Ads small type="video" tileLayout={tileLayout} />
+              node: adBlockerFound && !hasPremiumPlus ? <PremiumPlus /> : <Ads small type="video" tileLayout />,
+            }
+          }
           // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
           releaseTime={releaseTime || undefined}

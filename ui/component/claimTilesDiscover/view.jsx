@@ -208,29 +208,29 @@ function ClaimTilesDiscover(props: Props) {
     <ul ref={listRef} className="claim-grid">
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
-            if (i < finalUris.length - uriBuffer.length || finalUris.length - 1 === uriBuffer[0]) {
-              if (uri) {
-                const inj = getInjectedItem(i);
-                if (inj) {
-                  if (uriBuffer.indexOf(i) === -1) {
-                    setUriBuffer([i]);
-                  }
+            if (uri) {
+              const inj = getInjectedItem(i);
+              if (inj) {
+                if (uriBuffer.indexOf(i) === -1) {
+                  setUriBuffer([i]);
                 }
-                return (
-                  <React.Fragment key={uri}>
-                    {inj && inj}
+              }
+              return (
+                <React.Fragment key={uri}>
+                  {inj && inj}
+                  {i < finalUris.length - uriBuffer.length && (
                     <ClaimPreviewTile
                       showNoSourceClaims={hasNoSource || showNoSourceClaims}
                       uri={uri}
                       properties={renderProperties}
                     />
-                  </React.Fragment>
-                );
-              } else {
-                return (
-                  <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
-                );
-              }
+                  )}
+                </React.Fragment>
+              );
+            } else {
+              return (
+                <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+              );
             }
           })
         : new Array(pageSize)

@@ -229,17 +229,17 @@ export default function ClaimList(props: Props) {
       <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
-            if (index < tileUris.length - uriBuffer.length || tileUris.length - 1 === uriBuffer[0]) {
-              if (uri) {
-                const inj = getInjectedItem(index);
-                if (inj) {
-                  if (uriBuffer.indexOf(index) === -1) {
-                    setUriBuffer([index]);
-                  }
+            if (uri) {
+              const inj = getInjectedItem(index);
+              if (inj) {
+                if (uriBuffer.indexOf(index) === -1) {
+                  setUriBuffer([index]);
                 }
-                return (
-                  <React.Fragment key={uri}>
-                    {inj && inj}
+              }
+              return (
+                <React.Fragment key={uri}>
+                  {inj && inj}
+                  {index < tileUris.length - uriBuffer.length && (
                     <ClaimPreviewTile
                       uri={uri}
                       showHiddenByUser={showHiddenByUser}
@@ -251,9 +251,9 @@ export default function ClaimList(props: Props) {
                       swipeLayout={swipeLayout}
                       isHidden={onHidden}
                     />
-                  </React.Fragment>
-                );
-              }
+                  )}
+                </React.Fragment>
+              );
             }
           })}
         {!timedOut && urisLength === 0 && !loading && !noEmpty && (
