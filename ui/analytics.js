@@ -75,6 +75,7 @@ type Analytics = {
       userId: string,
       playerPoweredBy: string,
       readyState: number,
+      isLivestream: boolean,
     }
   ) => Promise<any>,
   adsFetchedEvent: () => void,
@@ -154,11 +155,11 @@ async function sendAndResetWatchmanData() {
     protocol = 'hls';
     // get bandwidth if it exists from the texttrack (so it's accurate if user changes quality)
     // $FlowFixMe
-    bitrateAsBitsPerSecond = videoPlayer.vhs?.playlists?.media?.().attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = videoPlayer.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH;
   } else if (isLivestream) {
     protocol = 'lvs';
     // $FlowFixMe
-    bitrateAsBitsPerSecond = videoPlayer.vhs?.playlists?.media?.().attributes?.BANDWIDTH;
+    bitrateAsBitsPerSecond = videoPlayer.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH;
   } else {
     protocol = 'stb';
   }
