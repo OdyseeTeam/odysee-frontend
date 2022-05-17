@@ -117,6 +117,9 @@ function PublishFile(props: Props) {
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
   });
 
+  const bitRate = getBitrate(size, duration);
+  const bitRateIsOverMax = bitRate > MAX_BITRATE;
+
   const fileSelectorModes = [
     { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
     { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
@@ -212,6 +215,10 @@ function PublishFile(props: Props) {
     updatePublishForm({ optimize: finalOptimizeState });
   }, [currentFile, filePath, isVid, ffmpegAvail, userOptimize, updatePublishForm]);
 
+  useEffect(() => {
+    setOverMaxBitrate(bitRateIsOverMax);
+  }, [bitRateIsOverMax]);
+
   function updateFileInfo(duration, size, isvid) {
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
   }
@@ -264,18 +271,11 @@ function PublishFile(props: Props) {
       );
     }
     // @endif
-    let bitRate = getBitrate(size, duration);
-    let overMaxBitrate = bitRate > MAX_BITRATE;
-    if (overMaxBitrate) {
-      setOverMaxBitrate(true);
-    } else {
-      setOverMaxBitrate(false);
-    }
 
     if (isVid && duration && bitRate > RECOMMENDED_BITRATE) {
       return (
         <p className="help--warning">
-          {overMaxBitrate
+          {bitRateIsOverMax
             ? __(
                 'Your video has a bitrate over ~12 Mbps and cannot be processed at this time. We suggest transcoding to provide viewers the best experience.'
               )
