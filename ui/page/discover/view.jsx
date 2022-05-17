@@ -19,6 +19,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './livestreamSection';
+import PremiumPlusTile from 'component/premiumPlusTile';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 
@@ -87,30 +88,6 @@ function DiscoverPage(props: Props) {
 
   const includeLivestreams = !tagsQuery;
   const filters = { contentTypes: isCategory && !isWildWest ? CATEGORY_CONTENT_TYPES_FILTER : CS.CONTENT_TYPES };
-
-  const PremiumPlus = () => {
-    return (
-      <li className="card claim-preview--tile claim-preview--premium-plus">
-        <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
-          <div className="media__thumb" />
-          <div className="claim-tile__header">
-            <h2 className="claim-tile__title">{__('No ads and access to exclusive features!')}</h2>
-          </div>
-          <div>
-            <div className="claim-tile__info">
-              <Icon icon={ICONS.UPGRADE} />
-              <div className="claim-tile__about">
-                <div className="channel-name">{__('Get Odysee Premium+')}</div>
-                <div className="claim-tile__about--counts">
-                  <span className="date_time">{__('Now')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </a>
-      </li>
-    );
-  };
 
   // **************************************************************************
   // **************************************************************************
@@ -252,7 +229,7 @@ function DiscoverPage(props: Props) {
           injectedItem={
             !isWildWest && {
               // node: <Ads small type="video" tileLayout={tileLayout} />
-              node: adBlockerFound && !hasPremiumPlus ? <PremiumPlus /> : <Ads small type="video" tileLayout />,
+              node: adBlockerFound && !hasPremiumPlus ? <PremiumPlusTile /> : <Ads small type="video" tileLayout />,
             }
           }
           // TODO: find a better way to determine discover / wild west vs other modes release times

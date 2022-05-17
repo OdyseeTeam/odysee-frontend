@@ -20,6 +20,7 @@ import { splitBySeparator } from 'util/lbryURI';
 import classnames from 'classnames';
 import Ads from 'web/component/ads';
 import Meme from 'web/component/meme';
+import PremiumPlusTile from 'component/premiumPlusTile';
 
 const FYP_SECTION: RowDataItem = {
   id: 'FYP',
@@ -157,30 +158,6 @@ function HomePage(props: Props) {
       </ul>
     );
 
-    const PremiumPlus = () => {
-      return (
-        <li className="card claim-preview--tile claim-preview--premium-plus">
-          <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
-            <div className="media__thumb" />
-            <div className="claim-tile__header">
-              <h2 className="claim-tile__title">{__('No ads and access to exclusive features!')}</h2>
-            </div>
-            <div>
-              <div className="claim-tile__info">
-                <Icon icon={ICONS.UPGRADE} />
-                <div className="claim-tile__about">
-                  <div className="channel-name">{__('Get Odysee Premium+')}</div>
-                  <div className="claim-tile__about--counts">
-                    <span className="date_time">{__('Now')}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </a>
-        </li>
-      );
-    };
-
     const claimTiles = (
       <ClaimTilesDiscover
         {...options}
@@ -191,7 +168,7 @@ function HomePage(props: Props) {
         injectedItem={
           index === 0 && {
             // node: <Ads small type="video" tileLayout />
-            node: adBlockerFound && !hasPremiumPlus ? <PremiumPlus /> : <Ads small type="video" tileLayout />,
+            node: adBlockerFound && !hasPremiumPlus ? <PremiumPlusTile /> : <Ads small type="video" tileLayout />,
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}

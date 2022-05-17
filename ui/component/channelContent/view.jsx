@@ -2,7 +2,6 @@
 import { SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import React, { Fragment } from 'react';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
@@ -16,6 +15,7 @@ import ScheduledStreams from 'component/scheduledStreams';
 import { SearchResults } from './internal/searchResults';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import { useIsLargeScreen } from 'effects/use-screensize';
+import PremiumPlusTile from 'component/premiumPlusTile';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -103,30 +103,6 @@ function ChannelContent(props: Props) {
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
-  const PremiumPlus = () => {
-    return (
-      <li className="card claim-preview--tile claim-preview--premium-plus">
-        <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
-          <div className="media__thumb" />
-          <div className="claim-tile__header">
-            <h2 className="claim-tile__title">{__('No ads and access to exclusive features!')}</h2>
-          </div>
-          <div>
-            <div className="claim-tile__info">
-              <Icon icon={ICONS.UPGRADE} />
-              <div className="claim-tile__about">
-                <div className="channel-name">{__('Get Odysee Premium+')}</div>
-                <div className="claim-tile__about--counts">
-                  <span className="date_time">{__('Now')}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </a>
-      </li>
-    );
-  };
-
   return (
     <Fragment>
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
@@ -190,7 +166,12 @@ function ChannelContent(props: Props) {
           infiniteScroll={defaultInfiniteScroll}
           injectedItem={{
             // node: <Ads type="video" tileLayout={tileLayout} small />
-            node: adBlockerFound && !hasPremiumPlus ? <PremiumPlus /> : <Ads small type="video" tileLayout />,
+            node:
+              adBlockerFound && !hasPremiumPlus ? (
+                <PremiumPlusTile tileLayout={tileLayout} />
+              ) : (
+                <Ads small type="video" tileLayout />
+              ),
           }}
           meta={
             showFilters && (
