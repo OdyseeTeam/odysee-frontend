@@ -111,6 +111,24 @@
   }
 }
 
+.claim-list {
+  .ads__claim-item--tile {
+    background-color: var(--color-ads-background);
+    margin-left: unset;
+    margin-bottom: var(--spacing-xxs);
+    width: 100%;
+    padding: var(--spacing-m);
+    flex: 1;
+    flex-direction: row;
+
+    .ad__container {
+      width: calc(var(--file-list-thumbnail-width) * 1.2);
+      // margin-left: var(--spacing-s);
+      margin-right: var(--spacing-s);
+    }
+  }
+}
+
 .ads__claim-item--tile {
   @extend .card;
   @extend .claim-preview--tile;
