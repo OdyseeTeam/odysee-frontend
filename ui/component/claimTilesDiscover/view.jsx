@@ -208,7 +208,7 @@ function ClaimTilesDiscover(props: Props) {
     <ul ref={listRef} className="claim-grid">
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
-            if (i < finalUris.length - uriBuffer.length) {
+            if (i < finalUris.length - uriBuffer.length || finalUris.length - 1 === uriBuffer[0]) {
               if (uri) {
                 const inj = getInjectedItem(i);
                 if (inj) {

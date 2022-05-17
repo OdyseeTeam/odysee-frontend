@@ -229,7 +229,7 @@ export default function ClaimList(props: Props) {
       <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
-            if (index < tileUris.length - uriBuffer.length) {
+            if (index < tileUris.length - uriBuffer.length || tileUris.length - 1 === uriBuffer[0]) {
               if (uri) {
                 const inj = getInjectedItem(index);
                 if (inj) {
