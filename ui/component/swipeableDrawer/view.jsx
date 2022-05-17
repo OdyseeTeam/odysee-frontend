@@ -106,7 +106,7 @@ export default function SwipeableDrawer(props: Props) {
         );
 
         setTimeout(() => {
-          root.style.height = `calc(100vh - ${positionToStop}px)`;
+          root.style.height = `calc(100% - ${positionToStop}px)`;
         }, TRANSITION_MS);
 
         if (backdrop) {
@@ -209,7 +209,7 @@ export default function SwipeableDrawer(props: Props) {
         if (!isFullscreenDrawer || openStateChanged) {
           node.setAttribute(
             'style',
-            `transform: translateY(${HEADER_HEIGHT_MOBILE + playerHeight}px); height: calc(100vh - ${
+            `transform: translateY(${HEADER_HEIGHT_MOBILE + playerHeight}px); height: calc(100% - ${
               HEADER_HEIGHT_MOBILE + playerHeight
             }px);`
           );
@@ -267,7 +267,7 @@ const DrawerGlobalStyles = (props: GlobalStylesProps) => {
       styles={{
         '.main-wrapper__inner--filepage': {
           overflow: open ? 'hidden' : 'unset',
-          maxHeight: open ? '100vh' : 'unset',
+          maxHeight: open ? '100%' : 'unset',
         },
       }}
     />
