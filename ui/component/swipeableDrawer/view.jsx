@@ -118,11 +118,12 @@ export default function SwipeableDrawer(props: Props) {
         }
 
         // Pause video if drawer made fullscreen (above the player)
-        const videoParent = document.querySelector('.video-js');
+        const playerElement = document.querySelector('.content__viewer--inline');
+        const videoParent = playerElement && playerElement.querySelector('.video-js');
         const isLivestream = videoParent && videoParent.classList.contains('livestreamPlayer');
         const videoNode = videoParent && videoParent.querySelector('.vjs-tech');
         // $FlowFixMe
-        const isPlaying = !videoNode.paused;
+        const isPlaying = videoNode && !videoNode.paused;
 
         if (videoNode && !isLivestream && isPlaying && drawerMovedFullscreen) {
           // $FlowFixMe
