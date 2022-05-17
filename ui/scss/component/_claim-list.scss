@@ -1403,7 +1403,7 @@ $claim-preview-progress-bar-height: 5px;
 }
 
 .claim-preview__live {
-  margin-bottom: 0 !important;
+  // margin-bottom: 0 !important;
   .claim-preview__file-property-overlay {
     opacity: 0.9; // The original 0.7 is not visible over bright thumbnails
     color: var(--color-white-alt);
