@@ -257,7 +257,7 @@ export default function ClaimList(props: Props) {
                       fypId={fypId}
                       showNoSourceClaims={showNoSourceClaims}
                       swipeLayout={swipeLayout}
-                      isHidden={onHidden}
+                      onHidden={onHidden}
                     />
                   )}
                 </React.Fragment>

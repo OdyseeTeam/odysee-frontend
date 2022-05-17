@@ -7,7 +7,6 @@ import {
   selectClaimsByUri,
   selectById,
 } from 'redux/selectors/claims';
-import { selectOdyseeMembershipIsPremiumPlus } from 'redux/selectors/user';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import * as SETTINGS from 'constants/settings';
@@ -43,7 +42,6 @@ const select = (state, props) => {
     claimsByUri: selectClaimsByUri(state),
     claimsById: selectById(state),
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
-    hasPremiumPlus: selectOdyseeMembershipIsPremiumPlus(state),
     showNsfw,
     hideReposts,
     // Don't use the query from 'createNormalizedClaimSearchKey(options)' since that doesn't include page & release_time

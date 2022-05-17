@@ -248,7 +248,6 @@ function HomePage(props: Props) {
               tileLayout
               liveUris={getLivestreamUris(activeLivestreams, channelIds)}
               limitClaimsPerChannel={2}
-              // setLoaded={setLoaded}
             />
           )}
         </>
