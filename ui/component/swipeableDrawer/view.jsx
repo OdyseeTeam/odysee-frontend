@@ -189,6 +189,17 @@ export default function SwipeableDrawer(props: Props) {
     }
   }, [open]);
 
+  React.useEffect(() => {
+    return () => {
+      if (openPrev.current) {
+        handleCloseDrawer();
+      }
+    };
+
+    // close drawer on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const drawerElemRef = React.useCallback(
     (node) => {
       if (node) {
