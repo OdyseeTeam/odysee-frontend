@@ -346,6 +346,12 @@
 // Neko Patch
 // ****************************************************************************
 
+.ad__container {
+  div {
+    max-width: unset !important;
+  }
+}
+
 #av-container #av-inner #gui::before {
   background: unset !important;
   #timeline #timeline-progress {

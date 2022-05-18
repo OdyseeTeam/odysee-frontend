@@ -62,7 +62,6 @@ type Props = {
   showNsfw: boolean,
   hideReposts: boolean,
   optionsStringified: string,
-  adBlockerFound: boolean,
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,

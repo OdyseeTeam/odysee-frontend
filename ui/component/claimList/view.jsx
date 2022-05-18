@@ -62,8 +62,6 @@ type Props = {
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
   onHidden: string,
-  hasPremiumPlus: ?boolean,
-  adBlockerFound: boolean,
 };
 
 export default function ClaimList(props: Props) {
@@ -106,7 +104,6 @@ export default function ClaimList(props: Props) {
     showMemberBadge,
     inWatchHistory,
     onHidden,
-    hasPremiumPlus,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
@@ -222,7 +219,7 @@ export default function ClaimList(props: Props) {
   }, [tileUris, injectedItem, lastVisibleIndex, pageSize]);
 
   const getInjectedItem = (index) => {
-    if (!hasPremiumPlus && injectedItem && injectedItem.node) {
+    if (injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
         return injectedItem.node(index, lastVisibleIndex, pageSize);
       } else {
