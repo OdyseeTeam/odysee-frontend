@@ -227,14 +227,13 @@ function DiscoverPage(props: Props) {
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
           repostedClaimId={repostedClaim ? repostedClaim.claim_id : null}
           injectedItem={
-            !isWildWest && {
-              // node: <Ads small type="video" tileLayout={tileLayout} />
-              node:
-                adBlockerFound && !hasPremiumPlus ? (
-                  <PremiumPlusTile tileLayout={tileLayout} />
-                ) : (
-                  <Ads small type="video" tileLayout />
-                ),
+            !isWildWest &&
+            !hasPremiumPlus && {
+              node: adBlockerFound ? (
+                <PremiumPlusTile tileLayout={tileLayout} />
+              ) : (
+                <Ads small type="video" tileLayout />
+              ),
             }
           }
           // TODO: find a better way to determine discover / wild west vs other modes release times

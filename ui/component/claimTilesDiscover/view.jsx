@@ -62,7 +62,6 @@ type Props = {
   showNsfw: boolean,
   hideReposts: boolean,
   optionsStringified: string,
-  hasPremiumPlus: ?boolean,
   adBlockerFound: boolean,
   // --- perform ---
   doClaimSearch: ({}) => void,
@@ -94,7 +93,6 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
     loading,
-    hasPremiumPlus,
   } = props;
 
   const listRef = React.useRef();
@@ -149,7 +147,7 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   const getInjectedItem = (index) => {
-    if (!hasPremiumPlus && injectedItem && injectedItem.node) {
+    if (injectedItem && injectedItem.node) {
       if (typeof injectedItem.node === 'function') {
         return injectedItem.node(index, lastVisibleIndex, pageSize);
       } else {
@@ -226,7 +224,7 @@ function ClaimTilesDiscover(props: Props) {
               return (
                 <React.Fragment key={uri}>
                   {inj && inj}
-                  {i < finalUris.length - uriBuffer.length && (
+                  {(i < finalUris.length - uriBuffer.length || i < pageSize - uriBuffer.length) && (
                     <ClaimPreviewTile
                       showNoSourceClaims={hasNoSource || showNoSourceClaims}
                       uri={uri}

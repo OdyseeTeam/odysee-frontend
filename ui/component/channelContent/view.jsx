@@ -164,15 +164,15 @@ function ChannelContent(props: Props) {
           defaultOrderBy={CS.ORDER_BY_NEW}
           pageSize={dynamicPageSize}
           infiniteScroll={defaultInfiniteScroll}
-          injectedItem={{
-            // node: <Ads type="video" tileLayout={tileLayout} small />
-            node:
-              adBlockerFound && !hasPremiumPlus ? (
+          injectedItem={
+            !hasPremiumPlus && {
+              node: adBlockerFound ? (
                 <PremiumPlusTile tileLayout={tileLayout} />
               ) : (
                 <Ads small type="video" tileLayout />
               ),
-          }}
+            }
+          }
           meta={
             showFilters && (
               <Form onSubmit={() => {}} className="wunderbar--inline">

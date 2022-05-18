@@ -166,14 +166,9 @@ function HomePage(props: Props) {
         prefixUris={getLivestreamUris(activeLivestreams, options.channelIds)}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         injectedItem={
-          index === 0 && {
-            // node: <Ads small type="video" tileLayout />
-            node:
-              adBlockerFound && !hasPremiumPlus ? (
-                <PremiumPlusTile tileLayout />
-              ) : (
-                <Ads small type="video" tileLayout />
-              ),
+          index === 0 &&
+          !hasPremiumPlus && {
+            node: adBlockerFound ? <PremiumPlusTile tileLayout /> : <Ads small type="video" tileLayout />,
           }
         }
         forceShowReposts={id !== 'FOLLOWING'}
