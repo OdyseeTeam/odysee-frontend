@@ -34,6 +34,7 @@ type Props = {
   tileLayout?: boolean,
   small?: boolean,
   className?: string,
+  noFallback?: boolean,
   // --- redux ---
   claim: Claim,
   isMature: boolean,
@@ -48,7 +49,16 @@ function removeIfExists(querySelector) {
 }
 
 function Ads(props: Props) {
-  const { type = 'video', tileLayout, small, userHasPremiumPlus, userCountry, className, doSetAdBlockerFound } = props;
+  const {
+    type = 'video',
+    tileLayout,
+    small,
+    userHasPremiumPlus,
+    userCountry,
+    className,
+    noFallback,
+    doSetAdBlockerFound,
+  } = props;
 
   const [shouldShowAds, setShouldShowAds] = React.useState(resolveAdVisibility());
   const mobileAds = platform.isAndroid() || platform.isIOS();
@@ -162,7 +172,7 @@ function Ads(props: Props) {
           </div>
         </div>
       );
-    } else {
+    } else if (!noFallback) {
       return <PremiumPlusTile tileLayout={tileLayout} />;
     }
   }
