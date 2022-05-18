@@ -33,7 +33,7 @@ type Props = {
   defaultSort?: boolean,
   onScrollBottom?: (any) => void,
   page?: number,
-  pageSize: number,
+  pageSize?: number,
   // If using the default header, this is a unique ID needed to persist the state of the filter setting
   persistedStorageKey?: string,
   showHiddenByUser: boolean,
@@ -244,7 +244,8 @@ export default function ClaimList(props: Props) {
               return (
                 <React.Fragment key={uri}>
                   {inj && inj}
-                  {(index < tileUris.length - uriBuffer.length || index < pageSize - uriBuffer.length) && (
+                  {(index < tileUris.length - uriBuffer.length ||
+                    (pageSize && index < pageSize - uriBuffer.length)) && (
                     <ClaimPreviewTile
                       uri={uri}
                       showHiddenByUser={showHiddenByUser}
