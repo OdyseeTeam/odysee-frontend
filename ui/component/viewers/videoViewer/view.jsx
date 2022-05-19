@@ -274,6 +274,7 @@ function VideoViewer(props: Props) {
     videoNode,
   ]);
 
+  // functionality to run on video end
   React.useEffect(() => {
     if (!ended) return;
 
@@ -286,6 +287,7 @@ function VideoViewer(props: Props) {
 
     if (embedded) {
       setIsEndedEmbed(true);
+      // show autoplay div
     } else if (!collectionId && autoplayNext) {
       setShowAutoplayCountdown(true);
     } else if (collectionId) {
@@ -293,6 +295,13 @@ function VideoViewer(props: Props) {
     }
 
     clearPosition(uri);
+
+
+    console.log('running 2');
+    if(IS_IOS && !autoplayNext){
+      console.log('running here!');
+      document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
+    }
   }, [adUrl, autoplayNext, clearPosition, collectionId, embedded, ended, setAdUrl, uri]);
 
   // MORE ON PLAY STUFF
@@ -417,6 +426,13 @@ function VideoViewer(props: Props) {
 
     // used for tracking buffering for watchman
     player.on('tracking:buffered', doTrackingBuffered);
+    // player.on('ended', () => {
+    //   console.log('autoplay ended!', autoplayNext);
+    //   console.log('local', localAutoplayNext);
+    //   if (IS_IOS && !autoplayNext) {
+    //     document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
+    //   }
+    // });
 
     player.on('ended', () => setEnded(true));
     player.on('play', onPlay);

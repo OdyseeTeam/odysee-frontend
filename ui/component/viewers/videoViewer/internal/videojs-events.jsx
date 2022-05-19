@@ -141,10 +141,10 @@ const VideoJsEvents = ({
           setLabel(ctrlBar, 'TheaterModeButton', videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
           setLabel(ctrlBar, 'AutoplayNextButton', autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off'));
 
-          resolveCtrlText({ type: 'play' });
-          resolveCtrlText({ type: 'pause' });
-          resolveCtrlText({ type: 'volumechange' });
-          resolveCtrlText({ type: 'fullscreenchange' });
+          // resolveCtrlText({ type: 'play' });
+          // resolveCtrlText({ type: 'pause' });
+          // resolveCtrlText({ type: 'volumechange' });
+          // resolveCtrlText({ type: 'fullscreenchange' });
           break;
         default:
           if (isDev) throw Error('Unexpected: ' + e.type);

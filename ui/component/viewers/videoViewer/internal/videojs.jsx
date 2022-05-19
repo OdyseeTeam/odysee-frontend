@@ -422,13 +422,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
-      if(autoplay){
-        vjsPlayer.play()
+      // vjsPlayer.on('ended', () => {
+      //   console.log('autoplay ended!', autoplaySetting);
+      //   if (IS_IOS && autoplaySetting) {
+      //     document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
+      //   }
+      // });
+
+      if (autoplay) {
+        vjsPlayer.play();
         vjsPlayer.userActive(true);
         // document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
       }
 
-      // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
       if (window.oldSavedDiv) {
         document.querySelector('.video-js-parent').replaceWith(window.oldSavedDiv);
       }
