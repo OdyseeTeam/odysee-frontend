@@ -2,10 +2,14 @@ import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
 import { doFetchActiveLivestreams } from 'redux/actions/livestream';
-import { selectAdBlockerFound } from 'redux/selectors/app';
 import { selectActiveLivestreams, selectFetchingActiveLivestreams } from 'redux/selectors/livestream';
 import { selectFollowedTags } from 'redux/selectors/tags';
-import { selectHasOdyseeMembership, selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
+import {
+  selectOdyseeMembershipIsPremiumPlus,
+  selectHasOdyseeMembership,
+  selectHomepageFetched,
+  selectUserVerifiedEmail,
+} from 'redux/selectors/user';
 import { selectSubscriptions } from 'redux/selectors/subscriptions';
 import {
   selectShowMatureContent,
@@ -27,9 +31,9 @@ const select = (state) => ({
   activeLivestreams: selectActiveLivestreams(state),
   fetchingActiveLivestreams: selectFetchingActiveLivestreams(state),
   hideScheduledLivestreams: selectClientSetting(state, SETTINGS.HIDE_SCHEDULED_LIVESTREAMS),
-  adBlockerFound: selectAdBlockerFound(state),
   homepageOrder: selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER),
   hasMembership: selectHasOdyseeMembership(state),
+  hasPremiumPlus: selectOdyseeMembershipIsPremiumPlus(state),
 });
 
 const perform = (dispatch) => ({

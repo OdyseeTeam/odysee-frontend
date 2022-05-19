@@ -15,8 +15,8 @@ import AutoplayCountdown from 'component/autoplayCountdown';
 import usePrevious from 'effects/use-previous';
 import FileViewerEmbeddedEnded from 'web/component/fileViewerEmbeddedEnded';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
-import { addTheaterModeButton } from './internal/theater-mode';
-import { addAutoplayNextButton } from './internal/autoplay-next';
+import useAutoplayNext from './internal/effects/use-autoplay-next';
+import useTheaterMode from './internal/effects/use-theater-mode';
 import { addPlayNextButton } from './internal/play-next';
 import { addPlayPreviousButton } from './internal/play-previous';
 import { useGetAds } from 'effects/use-get-ads';
@@ -160,6 +160,9 @@ function VideoViewer(props: Props) {
   const isFirstRender = React.useRef(true);
   const playerRef = React.useRef(null);
 
+  const addAutoplayNextButton = useAutoplayNext(playerRef, autoplayNext);
+  const addTheaterModeButton = useTheaterMode(playerRef, videoTheaterMode);
+
   React.useEffect(() => {
     if (isPlaying) {
       doSetContentHistoryItem(claim.permanent_url);
@@ -206,16 +209,6 @@ function VideoViewer(props: Props) {
       videoPlaybackRate: videoPlaybackRate,
     };
   }, [embedded, videoPlaybackRate]);
-
-  // TODO: analytics functionality
-  function doTrackingBuffered(e: Event, data: any) {
-    if (!isLivestreamClaim) {
-      fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-        data.playerPoweredBy = response.headers.get('x-powered-by');
-        doAnalyticsBuffer(uri, data);
-      });
-    }
-  }
 
   const doPlay = useCallback(
     (playUri) => {
@@ -424,16 +417,6 @@ function VideoViewer(props: Props) {
       }
     });
 
-    // used for tracking buffering for watchman
-    player.on('tracking:buffered', doTrackingBuffered);
-    // player.on('ended', () => {
-    //   console.log('autoplay ended!', autoplayNext);
-    //   console.log('local', localAutoplayNext);
-    //   if (IS_IOS && !autoplayNext) {
-    //     document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
-    //   }
-    // });
-
     player.on('ended', () => setEnded(true));
     player.on('play', onPlay);
     player.on('pause', (event) => onPause(event, player));
@@ -528,7 +511,6 @@ function VideoViewer(props: Props) {
         startMuted={autoplayIfEmbedded}
         toggleVideoTheaterMode={toggleVideoTheaterMode}
         autoplay={!embedded || autoplayIfEmbedded}
-        autoplaySetting={localAutoplayNext}
         claimId={claimId}
         title={claim && ((claim.value && claim.value.title) || claim.name)}
         channelName={channelName}
@@ -537,12 +519,12 @@ function VideoViewer(props: Props) {
         internalFeatureEnabled={internalFeature}
         shareTelemetry={shareTelemetry}
         replay={replay}
-        videoTheaterMode={videoTheaterMode}
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
         claimValues={claim.value}
         doAnalyticsView={doAnalyticsView}
+        doAnalyticsBuffer={doAnalyticsBuffer}
         claimRewards={claimRewards}
         uri={uri}
         clearPosition={clearPosition}
