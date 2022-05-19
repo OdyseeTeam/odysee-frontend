@@ -62,7 +62,6 @@ function Ads(props: Props) {
 
   const [shouldShowAds, setShouldShowAds] = React.useState(resolveAdVisibility());
   const mobileAds = platform.isAndroid() || platform.isIOS();
-  const userIsInUS = userCountry === 'US';
 
   // this is populated from app based on location
   const isInEu = localStorage.getItem('gdprRequired') === 'true';
@@ -71,7 +70,7 @@ function Ads(props: Props) {
   function resolveAdVisibility() {
     // 'ad_blocker_detected' will be undefined at startup. Wait until we are
     // sure it is not blocked (i.e. === false) before showing the component.
-    return ad_blocker_detected === false && SHOW_ADS && !userHasPremiumPlus && userCountry !== 'US';
+    return ad_blocker_detected === false && SHOW_ADS && !userHasPremiumPlus && userCountry === 'US';
   }
 
   useEffect(() => {
@@ -92,6 +91,7 @@ function Ads(props: Props) {
         })
         .finally(() => {
           if (mounted) {
+            console.log('XX: ', resolveAdVisibility());
             setShouldShowAds(resolveAdVisibility());
           }
         });
@@ -145,7 +145,7 @@ function Ads(props: Props) {
   );
 
   if (type === 'video') {
-    if (shouldShowAds && userIsInUS) {
+    if (shouldShowAds) {
       return (
         <div
           className={classnames('ads ads__claim-item', className, {
