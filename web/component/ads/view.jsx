@@ -62,6 +62,7 @@ function Ads(props: Props) {
 
   const [shouldShowAds, setShouldShowAds] = React.useState(resolveAdVisibility());
   const mobileAds = platform.isAndroid() || platform.isIOS();
+  const userIsInUS = userCountry === 'US';
 
   // this is populated from app based on location
   const isInEu = localStorage.getItem('gdprRequired') === 'true';
@@ -144,7 +145,7 @@ function Ads(props: Props) {
   );
 
   if (type === 'video') {
-    if (shouldShowAds) {
+    if (shouldShowAds && userIsInUS) {
       return (
         <div
           className={classnames('ads ads__claim-item', className, {
