@@ -91,7 +91,6 @@ function Ads(props: Props) {
         })
         .finally(() => {
           if (mounted) {
-            console.log('XX: ', resolveAdVisibility());
             setShouldShowAds(resolveAdVisibility());
           }
         });
