@@ -102,6 +102,10 @@ export default function ShowPage(props: Props) {
         blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
     );
 
+  const shouldResolveUri =
+    (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
+    (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)));
+
   useEffect(() => {
     if (!canonicalUrl && isNewestPath) {
       doResolveUri(uri);
@@ -159,10 +163,7 @@ export default function ShowPage(props: Props) {
   }, [canonicalUrl, pathname, hash, search]);
 
   useEffect(() => {
-    if (
-      (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
-      (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)))
-    ) {
+    if (shouldResolveUri) {
       doResolveUri(
         uri,
         false,
@@ -170,17 +171,7 @@ export default function ShowPage(props: Props) {
         isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );
     }
-  }, [
-    doResolveUri,
-    isResolvingUri,
-    canonicalUrl,
-    uri,
-    claimExists,
-    haventFetchedYet,
-    isMine,
-    claimIsPending,
-    isAuthenticated,
-  ]);
+  }, [shouldResolveUri, doResolveUri, uri, isMine, isAuthenticated]);
 
   // Wait for latest claim fetch
   if (isNewestPath && latestClaimUrl === undefined) {
@@ -217,6 +208,7 @@ export default function ShowPage(props: Props) {
     return (
       <Page>
         {(haventFetchedYet ||
+          shouldResolveUri || // covers the initial mount case where we haven't run doResolveUri, so 'isResolvingUri' is not true yet.
           isResolvingUri ||
           isResolvingCollection || // added for collection
           (isCollection && !urlForCollectionZero)) && ( // added for collection - make sure we accept urls = []
@@ -225,7 +217,7 @@ export default function ShowPage(props: Props) {
           </div>
         )}
 
-        {!isResolvingUri && !isSubscribed && (
+        {!isResolvingUri && !isSubscribed && !shouldResolveUri && (
           <div className="main--empty">
             <Yrbl
               title={isChannel ? __('Channel Not Found') : __('No Content Found')}
