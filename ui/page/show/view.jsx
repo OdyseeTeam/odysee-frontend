@@ -156,7 +156,9 @@ export default function ShowPage(props: Props) {
         history.replaceState(history.state, '', windowHref.substring(0, windowHref.length - 1));
       }
     }
+  }, [canonicalUrl, pathname, hash, search]);
 
+  useEffect(() => {
     if (
       (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
       (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)))
@@ -168,7 +170,6 @@ export default function ShowPage(props: Props) {
         isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     doResolveUri,
     isResolvingUri,
@@ -178,7 +179,6 @@ export default function ShowPage(props: Props) {
     haventFetchedYet,
     isMine,
     claimIsPending,
-    search,
     isAuthenticated,
   ]);
 
