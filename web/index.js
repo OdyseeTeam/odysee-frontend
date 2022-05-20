@@ -28,10 +28,11 @@ app.use(cacheControlMiddleware);
 app.use(redirectMiddleware);
 app.use(iframeDestroyerMiddleware);
 
-// Check if the request url matches any assets inside of /dist
 app.use(
   serve(DIST_ROOT, {
-    maxage: 3600000, // set a cache time of one hour, helpful for mobile dev
+    // Set a cache time of one hour for mobile development.
+    // The default (or if undefined) is 0, no cache.
+    maxage: process.env.NODE_ENV !== 'production' ? 3600000 : 0,
   })
 );
 
