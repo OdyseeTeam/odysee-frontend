@@ -171,6 +171,7 @@ function HomePage(props: Props) {
         }
         */
         forceShowReposts={id !== 'FOLLOWING'}
+        loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
     );
 

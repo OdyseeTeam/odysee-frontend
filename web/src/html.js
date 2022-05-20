@@ -14,12 +14,12 @@ const {
 const {
   generateDirectUrl,
   generateEmbedUrl,
-  generateStreamUrl,
   getParameterByName,
   getThumbnailCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
 } = require('../../ui/util/web');
+const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { getJsBundleId } = require('../bundle-id.js');
 const { lbryProxy: Lbry } = require('../lbry');
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
@@ -152,7 +152,7 @@ function buildBasicOgMetadata() {
 // Metadata used for urls that need claim information
 // Also has option to override defaults
 //
-function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
+async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
   const { claimName } = parseURI(uri);
   const { meta, value, signing_channel } = claim;
@@ -182,7 +182,7 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   let imageThumbnail;
 
   if (fee <= 0 && mediaType && mediaType.startsWith('image/')) {
-    imageThumbnail = generateStreamUrl(claim.name, claim.claim_id);
+    imageThumbnail = await fetchStreamUrl(claim.name, claim.claim_id);
   }
 
   const claimThumbnail =
@@ -218,7 +218,7 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   head += `<meta name="description" content="${cleanDescription}"/>`;
 
   if (tags && tags.length > 0) {
-    head += `<meta name="keywords" content="${tags.toString()}"/>`;
+    head += `<meta name="keywords" content="${escapeHtmlProperty(tags.toString())}"/>`;
   }
 
   head += `<meta name="twitter:image" content="${claimThumbnail}"/>`;
@@ -393,7 +393,7 @@ async function getHtml(ctx) {
       const inviteChannel = requestPath.slice(invitePath.length);
       const inviteChannelUrl = normalizeClaimUrl(inviteChannel);
       const claim = await resolveClaimOrRedirect(ctx, inviteChannelUrl);
-      const invitePageMetadata = buildClaimOgMetadata(inviteChannelUrl, claim, {
+      const invitePageMetadata = await buildClaimOgMetadata(inviteChannelUrl, claim, {
         title: `Join ${claim.name} on ${SITE_NAME}`,
         description: `Join ${claim.name} on ${SITE_NAME}, a content wonderland owned by everyone (and no one).`,
       });
@@ -415,7 +415,7 @@ async function getHtml(ctx) {
     const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
     if (claim) {
-      const ogMetadata = buildClaimOgMetadata(claimUri, claim);
+      const ogMetadata = await buildClaimOgMetadata(claimUri, claim);
       const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }
@@ -439,7 +439,7 @@ async function getHtml(ctx) {
     const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
 
     if (claim) {
-      const ogMetadata = buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
+      const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
       const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }

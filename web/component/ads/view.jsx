@@ -4,8 +4,11 @@ import * as PAGES from 'constants/pages';
 import React, { useEffect } from 'react';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
+import PremiumPlusTile from 'component/premiumPlusTile';
 import classnames from 'classnames';
 import { platform } from 'util/platform';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
 
 // prettier-ignore
 const AD_CONFIGS = Object.freeze({
@@ -29,11 +32,14 @@ let ad_blocker_detected;
 type Props = {
   type: string,
   tileLayout?: boolean,
-  small: boolean,
+  small?: boolean,
+  className?: string,
+  noFallback?: boolean,
+  // --- redux ---
   claim: Claim,
   isMature: boolean,
   userHasPremiumPlus: boolean,
-  className?: string,
+  userCountry: string,
   doSetAdBlockerFound: (boolean) => void,
 };
 
@@ -43,7 +49,16 @@ function removeIfExists(querySelector) {
 }
 
 function Ads(props: Props) {
-  const { type = 'video', tileLayout, small, userHasPremiumPlus, className, doSetAdBlockerFound } = props;
+  const {
+    type = 'video',
+    tileLayout,
+    small,
+    userHasPremiumPlus,
+    userCountry,
+    className,
+    noFallback,
+    doSetAdBlockerFound,
+  } = props;
 
   const [shouldShowAds, setShouldShowAds] = React.useState(resolveAdVisibility());
   const mobileAds = platform.isAndroid() || platform.isIOS();
@@ -55,7 +70,7 @@ function Ads(props: Props) {
   function resolveAdVisibility() {
     // 'ad_blocker_detected' will be undefined at startup. Wait until we are
     // sure it is not blocked (i.e. === false) before showing the component.
-    return ad_blocker_detected === false && SHOW_ADS && !userHasPremiumPlus;
+    return ad_blocker_detected === false && SHOW_ADS && !userHasPremiumPlus && userCountry === 'US';
   }
 
   useEffect(() => {
@@ -124,30 +139,42 @@ function Ads(props: Props) {
         ),
       }}
     >
-      Hate these? %sign_up_for_premium% for an ad free experience.
+      %sign_up_for_premium% for an ad free experience.
     </I18nMessage>
   );
 
-  if (shouldShowAds && type === 'video') {
-    return (
-      <div
-        className={classnames('ads ads__claim-item', className, {
-          'ads__claim-item--tile': tileLayout,
-        })}
-      >
-        <div className="ad__container">
-          <div id={adConfig.tag} />
-        </div>
+  if (type === 'video') {
+    if (shouldShowAds) {
+      return (
         <div
-          className={classnames('ads__claim-text', {
-            'ads__claim-text--small': small,
+          className={classnames('ads ads__claim-item', className, {
+            'ads__claim-item--tile': tileLayout,
           })}
         >
-          <div>Ad</div>
-          <p>{adsSignInDriver}</p>
+          <div className="ad__container">
+            <div id={adConfig.tag} />
+          </div>
+          <div
+            className={classnames('ads__claim-text', {
+              'ads__claim-text--small': small,
+            })}
+          >
+            <div className="ads__title">
+              {__('Ad')}
+              <br />
+              {__('Hate these?')}
+              {/* __('No ads, a custom badge and access to exclusive features, try Odysee Premium!') */}
+            </div>
+            <div className="ads__subtitle">
+              <Icon icon={ICONS.UPGRADE} />
+              {adsSignInDriver}
+            </div>
+          </div>
         </div>
-      </div>
-    );
+      );
+    } else if (!noFallback) {
+      return <PremiumPlusTile tileLayout={tileLayout} />;
+    }
   }
 
   return null;

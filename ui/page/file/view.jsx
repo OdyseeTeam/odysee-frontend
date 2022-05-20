@@ -33,6 +33,7 @@ type Props = {
   obscureNsfw: boolean,
   isMature: boolean,
   linkedCommentId?: string,
+  threadCommentId?: string,
   hasCollectionById?: boolean,
   collectionId: string,
   videoTheaterMode: boolean,
@@ -64,6 +65,7 @@ export default function FilePage(props: Props) {
     isMature,
     costInfo,
     linkedCommentId,
+    threadCommentId,
     videoTheaterMode,
 
     claimIsMine,
@@ -104,7 +106,7 @@ export default function FilePage(props: Props) {
   }, [audioVideoDuration, fileInfo, position]);
 
   React.useEffect(() => {
-    if (linkedCommentId && isMobile) {
+    if ((linkedCommentId || threadCommentId) && isMobile) {
       doToggleAppDrawer();
     }
     // only on mount, otherwise clicking on a comments timestamp and linking it
@@ -154,7 +156,7 @@ export default function FilePage(props: Props) {
       );
     }
 
-    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode)) {
+    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode) && !isMature) {
       return (
         <>
           <FileTitleSection uri={uri} />
@@ -214,7 +216,7 @@ export default function FilePage(props: Props) {
     );
   }
 
-  const commentsListProps = { uri, linkedCommentId };
+  const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const emptyMsgProps = { padded: !isMobile };
 
   return (
@@ -253,7 +255,7 @@ export default function FilePage(props: Props) {
                     <DrawerExpandButton label={commentsListTitle} />
                   </>
                 ) : (
-                  <CommentsList {...commentsListProps} />
+                  <CommentsList {...commentsListProps} notInDrawer />
                 )}
               </React.Suspense>
             </section>
@@ -268,7 +270,7 @@ export default function FilePage(props: Props) {
         : !contentCommentsDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
-                <CommentsList uri={uri} linkedCommentId={linkedCommentId} commentsAreExpanded />
+                <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />
               </React.Suspense>
             </div>
           )}
