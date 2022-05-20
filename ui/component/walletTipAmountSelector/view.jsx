@@ -233,6 +233,14 @@ function WalletTipAmountSelector(props: Props) {
   let fiatIconToUse = ICONS.FINANCE;
   if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
 
+  function openExternal(uri) {
+    if (window.odysee.build.apkUpdater) {
+      window.odysee.functions.history.push(uri);
+    } else {
+      window.open('https://odysee.com' + uri, '_system', 'location=yes');
+    }
+  }
+
   return (
     <>
       <div className="section">
@@ -316,7 +324,11 @@ function WalletTipAmountSelector(props: Props) {
         (!hasCardSaved
           ? getHelpMessage(
               <>
-                <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+                <Button
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                  label={__('Add a Card')}
+                  button="link"
+                />
                 {' ' + __('To Tip Creators')}
               </>,
               'add-a-card-help-message'

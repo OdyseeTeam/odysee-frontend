@@ -471,6 +471,14 @@ const OdyseeMembershipPage = (props: Props) => {
     </div>
   );
 
+  function openExternal(uri) {
+    if (window.odysee.build.apkUpdater) {
+      window.odysee.functions.history.push(uri);
+    } else {
+      window.open('https://odysee.com' + uri, '_system', 'location=yes');
+    }
+  }
+
   return (
     <>
       <Page className="premium-wrapper">
@@ -681,7 +689,8 @@ const OdyseeMembershipPage = (props: Props) => {
                   button="primary"
                   label={__('Add a Card')}
                   icon={ICONS.SETTINGS}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}?returnTo=premium`}
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}?returnTo=premium`}
                   className="membership_button"
                   style={{ maxWidth: '151px' }}
                 />

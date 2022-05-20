@@ -35,6 +35,14 @@ export default function SettingAccount(props: Props) {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  function openExternal(uri) {
+    if (window.odysee.build.apkUpdater) {
+      window.odysee.functions.history.push(uri);
+    } else {
+      window.open('https://odysee.com' + uri, '_system', 'location=yes');
+    }
+  }
+
   return (
     <>
       <div className="card__title-section">
@@ -71,7 +79,8 @@ export default function SettingAccount(props: Props) {
                   button="inverse"
                   label={__('Manage')}
                   icon={ICONS.ARROW_RIGHT}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
                 />
               </SettingsRow>
             )}
@@ -87,7 +96,8 @@ export default function SettingAccount(props: Props) {
                   button="inverse"
                   label={__('Manage')}
                   icon={ICONS.ARROW_RIGHT}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
                 />
               </SettingsRow>
             )}
