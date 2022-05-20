@@ -39,7 +39,7 @@ export default function SettingAccount(props: Props) {
     if (window.odysee.build.apkUpdater) {
       window.odysee.functions.history.push(uri);
     } else {
-      window.open('https://odysee.com' + uri, '_system', 'location=yes');
+      window.odysee.functions.initBrowser(uri, 'external');
     }
   }
 
