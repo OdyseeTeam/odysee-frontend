@@ -213,7 +213,7 @@ export default function ShowPage(props: Props) {
           isResolvingCollection || // added for collection
           (isCollection && !urlForCollectionZero)) && ( // added for collection - make sure we accept urls = []
           <div className="main--empty">
-            <Spinner delayed />
+            <Spinner />
           </div>
         )}
 
