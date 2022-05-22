@@ -6,6 +6,8 @@ import isUserTyping from 'util/detect-typing';
 
 const SEEK_STEP_5 = 5;
 const SEEK_STEP = 10; // time to seek in seconds
+const VOLUME_CHANGE_ON_SCROLL = 0.05;
+const PRECISE_VOLUME_CHANGE_ON_SCROLL = 0.01;
 
 // check if active (clicked) element is part of video div, used for keyboard shortcuts (volume etc)
 function activeElementIsPartOfVideoElement() {
@@ -14,24 +16,24 @@ function activeElementIsPartOfVideoElement() {
   return videoElementParent.contains(activeElement);
 }
 
-function volumeUp(event, playerRef, checkIsActive = true) {
+function volumeUp(event, playerRef, checkIsActive = true, amount = 0.05) {
   // dont run if video element is not active element (otherwise runs when scrolling using keypad)
   const videoElementIsActive = activeElementIsPartOfVideoElement();
   const player = playerRef.current;
   if (!player || (checkIsActive && !videoElementIsActive)) return;
   event.preventDefault();
-  player.volume(player.volume() + 0.05);
+  player.volume(player.volume() + amount);
   OVERLAY.showVolumeverlay(player, Math.round(player.volume() * 100));
   player.userActive(true);
 }
 
-function volumeDown(event, playerRef, checkIsActive = true) {
+function volumeDown(event, playerRef, checkIsActive = true, amount = 0.05) {
   // dont run if video element is not active element (otherwise runs when scrolling using keypad)
   const videoElementIsActive = activeElementIsPartOfVideoElement();
   const player = playerRef.current;
   if (!player || (checkIsActive && !videoElementIsActive)) return;
   event.preventDefault();
-  player.volume(player.volume() - 0.05);
+  player.volume(player.volume() - amount);
   OVERLAY.showVolumeverlay(player, Math.round(player.volume() * 100));
   player.userActive(true);
 }
@@ -172,11 +174,12 @@ const VideoJsShorcuts = ({
     event.preventDefault();
 
     const delta = event.deltaY;
+    const volumeChangeAmount = event.shiftKey ? PRECISE_VOLUME_CHANGE_ON_SCROLL : VOLUME_CHANGE_ON_SCROLL;
 
     if (delta > 0) {
-      volumeDown(event, playerRef, false);
+      volumeDown(event, playerRef, false, volumeChangeAmount);
     } else if (delta < 0) {
-      volumeUp(event, playerRef, false);
+      volumeUp(event, playerRef, false, volumeChangeAmount);
     }
   }
 
