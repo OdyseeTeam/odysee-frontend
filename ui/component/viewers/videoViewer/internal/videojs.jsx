@@ -15,7 +15,7 @@ import events from './videojs-events';
 import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
-import keyboardShorcuts from './videojs-keyboard-shortcuts';
+import keyboardShorcuts from './videojs-shortcuts';
 import LbryVolumeBarClass from './lbry-volume-bar';
 import Chromecast from './chromecast';
 import playerjs from 'player.js';
@@ -177,12 +177,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const tapToRetryRef = useRef();
   const playerServerRef = useRef();
 
+  const keyDownHandlerRef = useRef();
+  const scrollHandlerRef = useRef();
+
   const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIPhone();
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
-  const { curried_function } = keyboardShorcuts({
+  const { createKeyDownShortcutsHandler, createScrollShortcutsHandler } = keyboardShorcuts({
     isMobile,
     isLivestreamClaim,
     toggleVideoTheaterMode,
@@ -370,7 +373,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
-      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+      const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
+      const scrollHandler = createScrollShortcutsHandler(playerRef, containerRef);
+      window.addEventListener('keydown', keyDownHandler);
+      containerRef.current.addEventListener('wheel', scrollHandler);
+
+      keyDownHandlerRef.current = keyDownHandler;
+      scrollHandlerRef.current = scrollHandler;
 
       const controlBar = document.querySelector('.vjs-control-bar');
       if (controlBar) {
@@ -441,7 +450,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
-      window.removeEventListener('keydown', curried_function);
+      window.removeEventListener('keydown', keyDownHandlerRef.current);
+      containerRef.current.removeEventListener('wheel', scrollHandlerRef.current);
 
       const player = playerRef.current;
       if (player) {
