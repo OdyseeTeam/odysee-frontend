@@ -26,7 +26,6 @@ import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import usePersistedState from 'effects/use-persisted-state';
-import addVolumeMouseWheelListener from './volume-mousewheel-listener';
 
 const canAutoplay = require('./plugins/canAutoplay');
 
@@ -337,12 +336,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       Chromecast.initialize(player);
       player.airPlay();
-
-      addVolumeMouseWheelListener(
-        el,
-        () => null,
-        () => null
-      );
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)

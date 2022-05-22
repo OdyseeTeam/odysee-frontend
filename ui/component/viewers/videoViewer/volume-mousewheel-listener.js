@@ -3,9 +3,9 @@ export default function addVolumeMouseWheelListener($videoElement, onVolumeUp, o
     event.preventDefault();
 
     if (event.deltaY > 0) {
-      onVolumeUp();
-    } else if (event.deltaY < 0) {
       onVolumeDown();
+    } else if (event.deltaY < 0) {
+      onVolumeUp();
     }
   });
 }
