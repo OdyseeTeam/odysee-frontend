@@ -29,11 +29,13 @@ import debounce from 'util/debounce';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import addVolumeMouseWheelListener from './volume-mousewheel-listener';
 import RecSys from 'recsys';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
+const VOLUME_CHANGE_ON_SCROLL_AMOUNT = 0.05;
 
 type Props = {
   position: number,
@@ -432,6 +434,22 @@ function VideoViewer(props: Props) {
     }
 
     Chapters.parseAndLoad(player, claim);
+
+    addVolumeMouseWheelListener(
+      videoNode,
+      () => {
+        const newVolume = player.volume() + VOLUME_CHANGE_ON_SCROLL_AMOUNT;
+        updateVolumeState(newVolume, false);
+        player.muted(false);
+        player.volume(newVolume);
+      },
+      () => {
+        const newVolume = player.volume() - VOLUME_CHANGE_ON_SCROLL_AMOUNT;
+        updateVolumeState(newVolume, false);
+        player.muted(false);
+        player.volume(newVolume);
+      }
+    );
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
