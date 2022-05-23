@@ -61,7 +61,7 @@ type Props = {
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
-  onHiddenFYP: (string) => void,
+  onHidden: (string) => void,
 };
 
 export default function ClaimList(props: Props) {
@@ -103,16 +103,11 @@ export default function ClaimList(props: Props) {
     unavailableUris,
     showMemberBadge,
     inWatchHistory,
-    onHiddenFYP,
+    onHidden,
   } = props;
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const [uriBuffer, setUriBuffer] = useState([]);
-
-  function onHidden(uri) {
-    if (onHiddenFYP) onHiddenFYP(uri);
-    console.log(uri);
-  }
 
   // Resolve the index for injectedItem, if provided; else injectedIndex will be 'undefined'.
   const listRef = React.useRef();
@@ -217,7 +212,6 @@ export default function ClaimList(props: Props) {
       if (uri) {
         const inj = getInjectedItem(index);
         if (inj) {
-          console.log('XXXXXXXXXXXxx');
           if (uriBuffer.indexOf(index) === -1) {
             setUriBuffer([index]);
           }
