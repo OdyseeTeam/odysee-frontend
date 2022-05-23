@@ -19,7 +19,7 @@ import LangFilterIndicator from 'component/langFilterIndicator';
 import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import useResolvePins from 'effects/use-resolve-pins';
-import { useIsMediumScreen, useIsLargeScreen } from 'effects/use-screensize';
+import { useIsLargeScreen } from 'effects/use-screensize';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
@@ -145,7 +145,6 @@ function ClaimListDiscover(props: Props) {
     header,
     name,
     claimType,
-    // pageSize,
     defaultClaimType,
     streamType,
     defaultStreamType,
@@ -201,7 +200,6 @@ function ClaimListDiscover(props: Props) {
   const [page, setPage] = React.useState(1);
   const [forceRefresh, setForceRefresh] = React.useState();
   const isLargeScreen = useIsLargeScreen();
-  const isMediumScreen = useIsMediumScreen();
   const [orderParamEntry, setOrderParamEntry] = usePersistedState(`entry-${location.pathname}`, CS.ORDER_BY_TRENDING);
   const [orderParamUser, setOrderParamUser] = usePersistedState(`orderUser-${location.pathname}`, CS.ORDER_BY_TRENDING);
   const followed = (followedTags && followedTags.map((t) => t.name)) || [];
@@ -264,17 +262,9 @@ function ClaimListDiscover(props: Props) {
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
-  // const originalPageSize = pageSize || CS.PAGE_SIZE;
   const originalPageSize = 12;
-  // const dynamicPageSize = isLargeScreen ? Math.ceil(originalPageSize * (3 / 2)) : originalPageSize;
-  // const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : originalPageSize;
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const historyAction = history.action;
-
-  console.log('isMediumScreen: ', isMediumScreen);
-  console.log('isLargeScreen: ', isLargeScreen);
-  console.log('originalPageSize: ', originalPageSize);
-  console.log('dynamicPageSize: ', dynamicPageSize);
 
   let orderParam = orderBy || urlParams.get(CS.ORDER_BY_KEY) || defaultOrderBy || orderParamEntry;
 
