@@ -691,6 +691,7 @@ function ClaimListDiscover(props: Props) {
     />
   );
 
+  console.log('tttttttttttt');
   return (
     <React.Fragment>
       {headerLabel && <label className="claim-list__header-label">{headerLabel}</label>}

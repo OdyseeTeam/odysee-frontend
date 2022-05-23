@@ -212,6 +212,7 @@ export default function ClaimList(props: Props) {
       if (uri) {
         const inj = getInjectedItem(index);
         if (inj) {
+          console.log('XXXXXXXXXXXxx');
           if (uriBuffer.indexOf(index) === -1) {
             setUriBuffer([index]);
           }
