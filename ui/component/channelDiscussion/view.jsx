@@ -24,6 +24,8 @@ function ChannelDiscussion(props: Props) {
     return <Empty text={__('This channel has disabled comments on their page.')} />;
   }
 
+  console.log('test');
+
   return (
     <section className="section">
       <React.Suspense fallback={null}>

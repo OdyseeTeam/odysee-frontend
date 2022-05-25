@@ -304,7 +304,10 @@ function ClaimMenuList(props: Props) {
   return (
     <Menu>
       <MenuButton
-        className={classnames('menu__button', { 'claim__menu-button': !inline, 'claim__menu-button--inline': inline })}
+        className={classnames('menu__button menu__button-fix', {
+          'claim__menu-button': !inline,
+          'claim__menu-button--inline': inline,
+        })}
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
@@ -312,6 +315,7 @@ function ClaimMenuList(props: Props) {
       >
         <Icon size={20} icon={ICONS.MORE_VERTICAL} />
       </MenuButton>
+
       <MenuList className="menu__list">
         {/* FYP */}
         {fypId && (

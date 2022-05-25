@@ -406,6 +406,10 @@ $actions-z-index: 2;
   }
 }
 
+.channel__primary-info-fix {
+  margin-right: 100px;
+}
+
 .channel__title {
   display: flex;
   margin-right: var(--spacing-s);

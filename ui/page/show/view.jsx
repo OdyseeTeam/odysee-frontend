@@ -18,8 +18,10 @@ import * as MODALS from 'constants/modal_types';
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
 );
-const FilePage = lazyImport(() => import('page/file' /* webpackChunkName: "filePage" */));
-const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
+import FilePage from 'page/file';
+// const FilePage = lazyImport(() => import('page/file' /* webpackChunkName: "filePage" */));
+import LivestreamPage from 'page/livestream';
+// const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
 const isDev = false;
 
 type Props = {
@@ -81,6 +83,8 @@ export default function ShowPage(props: Props) {
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
+  // console.log('show - linkedCommentId: ', linkedCommentId)
+  // console.log('show - threadCommentId: ', threadCommentId)
 
   const signingChannel = claim && claim.signing_channel;
   const canonicalUrl = claim && claim.canonical_url;
@@ -101,6 +105,10 @@ export default function ShowPage(props: Props) {
       (signingChannel && blackListedOutpointMap[`${signingChannel.txid}:${signingChannel.nout}`]) ||
         blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
     );
+
+  const shouldResolveUri =
+    (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
+    (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)));
 
   useEffect(() => {
     if (!canonicalUrl && isNewestPath) {
@@ -156,11 +164,10 @@ export default function ShowPage(props: Props) {
         history.replaceState(history.state, '', windowHref.substring(0, windowHref.length - 1));
       }
     }
+  }, [canonicalUrl, pathname, hash, search]);
 
-    if (
-      (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
-      (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)))
-    ) {
+  useEffect(() => {
+    if (shouldResolveUri) {
       doResolveUri(
         uri,
         false,
@@ -168,19 +175,7 @@ export default function ShowPage(props: Props) {
         isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    doResolveUri,
-    isResolvingUri,
-    canonicalUrl,
-    uri,
-    claimExists,
-    haventFetchedYet,
-    isMine,
-    claimIsPending,
-    search,
-    isAuthenticated,
-  ]);
+  }, [shouldResolveUri, doResolveUri, uri, isMine, isAuthenticated]);
 
   // Wait for latest claim fetch
   if (isNewestPath && latestClaimUrl === undefined) {
@@ -217,15 +212,16 @@ export default function ShowPage(props: Props) {
     return (
       <Page>
         {(haventFetchedYet ||
+          shouldResolveUri || // covers the initial mount case where we haven't run doResolveUri, so 'isResolvingUri' is not true yet.
           isResolvingUri ||
           isResolvingCollection || // added for collection
           (isCollection && !urlForCollectionZero)) && ( // added for collection - make sure we accept urls = []
           <div className="main--empty">
-            <Spinner delayed />
+            <Spinner />
           </div>
         )}
 
-        {!isResolvingUri && !isSubscribed && (
+        {!isResolvingUri && !isSubscribed && !shouldResolveUri && (
           <div className="main--empty">
             <Yrbl
               title={isChannel ? __('Channel Not Found') : __('No Content Found')}
@@ -260,6 +256,19 @@ export default function ShowPage(props: Props) {
     );
   }
 
+  if (geoRestriction && !claimIsMine) {
+    return (
+      <div className="main--empty">
+        <Yrbl
+          title={__(isChannel ? 'Channel unavailable' : 'Content unavailable')}
+          subtitle={__(geoRestriction.message || '')}
+          type="sad"
+          alwaysShow
+        />
+      </div>
+    );
+  }
+
   if (claim.name.length && claim.name[0] === '@') {
     return <ChannelPage uri={uri} location={location} />;
   }
@@ -279,14 +288,6 @@ export default function ShowPage(props: Props) {
           }
         />
       </Page>
-    );
-  }
-
-  if (geoRestriction) {
-    return (
-      <div className="main--empty">
-        <Yrbl title={__('Content unavailable')} subtitle={__(geoRestriction.message || '')} type="sad" alwaysShow />
-      </div>
     );
   }
 

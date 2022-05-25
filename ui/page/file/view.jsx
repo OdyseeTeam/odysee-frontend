@@ -17,6 +17,7 @@ import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
+// import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -117,10 +118,6 @@ export default function FilePage(props: Props) {
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file
     // this could probably be refactored into more direct components now
-    if (collectionId) {
-      clearPosition(uri);
-    }
-
     if (fileInfo && videoPlayedEnoughToResetPosition) {
       clearPosition(uri);
     }

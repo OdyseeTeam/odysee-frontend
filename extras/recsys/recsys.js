@@ -1,15 +1,18 @@
+// @flow
 import { RECSYS_ENDPOINT } from 'config';
 import { selectUser } from 'redux/selectors/user';
 import { makeSelectRecommendedRecsysIdForClaimId } from 'redux/selectors/search';
 import { v4 as Uuidv4 } from 'uuid';
 import { parseURI } from 'util/lbryURI';
 import { getAuthToken } from 'util/saved-passwords';
+import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
 import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
+// $FlowFixMe: cannot resolve..
 import { history } from 'ui/store';
 
 const recsysEndpoint = RECSYS_ENDPOINT;
@@ -28,31 +31,30 @@ const getClaimIdsFromUris = (uris) => {
     : [];
 };
 
-const recsys = {
+const recsys: Recsys = {
   entries: {},
   debug: false,
+
   /**
    * Provides for creating, updating, and sending Clickstream data object Entries.
    * Entries are Created either when recommendedContent loads, or when recommendedContent is clicked.
    * If recommended content is clicked, An Entry with parentUuid is created.
    * On page load, find an empty entry with your claimId, or create a new entry and record to it.
-   * The entry will be populated with the following:
-   *  - parentUuid // optional
-   *  - Uuid
-   *  - claimId
-   *  - recommendedClaims [] // optionally empty
-   *  - playerEvents [] // optionally empty
-   *  - recommendedClaimsIndexClicked [] // optionally empty
-   *  - UserId
-   *  - pageLoadedAt
-   *  - isEmbed
-   *  - pageExitedAt
-   *  - autoplay
-   *  - recsysId // optional
    */
 
   /**
-   * Function: onClickedRecommended()
+   * Saves existing entries to persistence storage (in this case, Redux).
+   */
+  saveEntries: function () {
+    if (window && window.store) {
+      window.store.dispatch({
+        type: ACTIONS.SET_RECSYS_ENTRIES,
+        data: recsys.entries,
+      });
+    }
+  },
+
+  /**
    * Called when RecommendedContent was clicked.
    * Adds index of clicked recommendation to parent entry
    * Adds new Entry with parentUuid for destination page
@@ -61,20 +63,23 @@ const recsys = {
    */
   onClickedRecommended: function (parentClaimId, newClaimId) {
     const parentEntry = recsys.entries[parentClaimId] ? recsys.entries[parentClaimId] : null;
-    const parentUuid = parentEntry['uuid'];
-    const parentRecommendedClaims = parentEntry['recClaimIds'] || [];
-    const parentClickedIndexes = parentEntry['recClickedVideoIdx'] || [];
+    const parentUuid = parentEntry ? parentEntry['uuid'] : '';
+    const parentRecommendedClaims = parentEntry ? parentEntry['recClaimIds'] : [];
+    const parentClickedIndexes = parentEntry ? parentEntry['recClickedVideoIdx'] : [];
     const indexClicked = parentRecommendedClaims.indexOf(newClaimId);
 
     if (parentUuid) {
       recsys.createRecsysEntry(newClaimId, parentUuid);
     }
+
     parentClickedIndexes.push(indexClicked);
-    recsys.log('onClickedRecommended', { parentClaimId, newClaimId });
+    // recsys.log('onClickedRecommended', { parentClaimId, newClaimId });
+    recsys.log('onClickedRecommended', newClaimId);
   },
 
   /**
-   * Page was loaded. Get or Create entry and populate it with default data, plus recommended content, recsysId, etc.
+   * Page was loaded. Get or Create entry and populate it with default data,
+   * plus recommended content, recsysId, etc.
    * Called from recommendedContent component
    */
   onRecsLoaded: function (claimId, uris, uuid = '') {
@@ -86,6 +91,13 @@ const recsys = {
       const claimIds = getClaimIdsFromUris(uris);
       recsys.entries[claimId]['recsysId'] = makeSelectRecommendedRecsysIdForClaimId(claimId)(state) || recsysId;
       recsys.entries[claimId]['pageLoadedAt'] = Date.now();
+
+      // It is possible that `claimIds` include `null | undefined` entries
+      // instead of all being strings. I don't know if we should filter it,
+      // or change the `recClaimIds` definition. Leaving as is for now since
+      // any changes could affect existing recsys data set.
+      // -----------
+      // $FlowFixMe:
       recsys.entries[claimId]['recClaimIds'] = claimIds;
     }
     recsys.log('onRecsLoaded', claimId);
@@ -104,6 +116,7 @@ const recsys = {
       const userId = user ? user.id : null;
 
       // Make a stub entry that will be filled out on page load
+      // $FlowIgnore: not everything is defined since this is a stub
       recsys.entries[claimId] = {
         uuid: uuid || Uuidv4(),
         claimId: claimId,
@@ -115,13 +128,18 @@ const recsys = {
       };
 
       if (parentUuid) {
+        // $FlowFixMe: 'uid' should be a number, not null.
         recsys.entries[claimId].uid = userId || null;
         recsys.entries[claimId].parentUuid = parentUuid;
       } else {
+        // $FlowFixMe: 'uid' should be a number, not null.
         recsys.entries[claimId].uid = userId;
+        // $FlowFixMe: 'recsysId' should be a number, not null.
         recsys.entries[claimId].recsysId = null;
         recsys.entries[claimId].recClaimIds = [];
       }
+
+      recsys.saveEntries();
     }
     recsys.log('createRecsysEntry', claimId);
   },
@@ -129,7 +147,7 @@ const recsys = {
   /**
    * Send event for claimId
    * @param claimId
-   * @param isTentative
+   * @param isTentative Visibility change rather than tab closed.
    */
   sendRecsysEntry: function (claimId, isTentative) {
     const shareTelemetry =
@@ -139,10 +157,6 @@ const recsys = {
       const { events, ...entryData } = recsys.entries[claimId];
       const data = JSON.stringify(entryData);
 
-      if (!isTentative) {
-        delete recsys.entries[claimId];
-      }
-
       return fetch(recsysEndpoint, {
         method: 'POST',
         headers: {
@@ -150,11 +164,34 @@ const recsys = {
           'Content-Type': 'application/json',
         },
         body: data,
-      }).catch((err) => {
-        console.log('RECSYS: failed to send entry', err);
-      });
+      })
+        .then(() => {
+          if (!isTentative) {
+            delete recsys.entries[claimId];
+            recsys.saveEntries();
+          }
+        })
+        .catch((err) => {
+          console.log('RECSYS: failed to send entry', err);
+        });
     }
     recsys.log('sendRecsysEntry', claimId);
+  },
+
+  sendEntries: function (entries, isResumedSend) {
+    if (entries) {
+      if (Object.keys(recsys.entries).length !== 0) {
+        // Typically called on startup only.
+        console.warn('RECSYS: sendEntries() called on non-empty state. Data will be overwritten.');
+      }
+
+      recsys.entries = entries;
+    }
+
+    Object.keys(recsys.entries).forEach((claimId) => {
+      recsys.entries[claimId].isResumedSend = isResumedSend;
+      recsys.sendRecsysEntry(claimId, false); // Send and delete.
+    });
   },
 
   /**
@@ -249,7 +286,7 @@ const recsys = {
       const state = window.store.getState();
       const playingUri = selectPlayingUri(state);
       const actualPlayingUri = playingUri && playingUri.uri;
-      const claim = makeSelectClaimForUri(actualPlayingUri)(state);
+      const claim = makeSelectClaimForUri(actualPlayingUri || '')(state);
       const playingClaimId = claim ? claim.claim_id : null;
       // const primaryUri = selectPrimaryUri(state);
       const floatingPlayer = selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
@@ -258,6 +295,7 @@ const recsys = {
         const shouldSkip = recsys.entries[claimId].parentUuid && !recsys.entries[claimId].recClaimIds;
         if (!shouldSkip && ((claimId !== playingClaimId && floatingPlayer) || !floatingPlayer)) {
           recsys.entries[claimId]['pageExitedAt'] = Date.now();
+          recsys.saveEntries();
           // recsys.sendRecsysEntry(claimId); breaks pop out = off, not helping with browser close.
         }
         recsys.log('OnNavigate', claimId);
@@ -265,13 +303,6 @@ const recsys = {
     }
   },
 };
-// @if TARGET='web'
-document.addEventListener('visibilitychange', function logData() {
-  if (document.visibilityState === 'hidden') {
-    Object.keys(recsys.entries).map((claimId) => recsys.sendRecsysEntry(claimId, true));
-  }
-});
-// @endif
 
 history.listen(() => {
   recsys.onNavigate();

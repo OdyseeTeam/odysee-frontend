@@ -97,7 +97,6 @@ type Props = {
   doAnalyticsBuffer: (string, any) => void,
   uri: string,
   claimValues: any,
-  clearPosition: (string) => void,
   isLivestreamClaim: boolean,
   userClaimId: ?string,
   activeLivestreamForChannel: any,
@@ -155,7 +154,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     doAnalyticsBuffer,
     claimRewards,
     uri,
-    clearPosition,
     userClaimId,
     isLivestreamClaim,
     activeLivestreamForChannel,
@@ -209,7 +207,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claimRewards,
     uri,
     playerServerRef,
-    clearPosition,
     isLivestreamClaim,
   });
 

@@ -35,8 +35,8 @@ const select = (state, props) => {
 
   return {
     channelId: getChannelIdFromClaim(claim),
-    linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
-    threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
+    // linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
+    // threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     costInfo: selectCostInfoForUri(state, uri),
     obscureNsfw: !selectShowMatureContent(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
