@@ -275,16 +275,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       player.reloadSourceOnError({ errorInterval: 10 });
 
       // Initialize mobile UI.
-      player.mobileUi();
+      player.mobileUi({
+        fullscreen: {
+          enterOnRotate: false,
+        },
+      });
 
       player.i18n();
-
-      if (!embedded) {
-        window.player.bigPlayButton && window.player.bigPlayButton.hide();
-      } else {
-        const bigPlayButton = document.querySelector('.vjs-big-play-button');
-        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
-      }
 
       // Add quality selector to player
       if (showQualitySelector) {
@@ -310,19 +307,16 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // set playsinline for mobile
       player.children_[0].setAttribute('playsinline', '');
 
-      if (canAutoplayVideo === true) {
-        // show waiting spinner as video is loading
-        player.addClass('vjs-waiting');
-        // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
-      } else {
-        // $FlowFixMe
-        document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
-      }
+      // immediately show control bar while video is loading
+      // $FlowFixMe
+      document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      // $FlowFixMe
+      document.querySelector('.vjs-control-bar').style.setProperty('display', 'flex');
 
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
-      onPlayerReady(player, videoNode);
+      onPlayerReady(player, videoNode, canAutoplayVideo, autoplay);
       adapter.ready();
 
       // sometimes video doesnt start properly, this addresses the edge case
@@ -358,23 +352,30 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     (async function () {
       let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
       canAutoplayVideo = canAutoplayVideo.result === true;
+      console.log('can autoplay video', canAutoplayVideo);
 
       let vjsPlayer;
-      if (1 == 1) {
+      console.log(window.oldSavedDiv);
+      if (!window.oldSavedDiv) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
         vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
         if (!vjsPlayer) {
           return;
         }
 
-        console.log('running 3');
-
         // Add reference to player to global scope
         window.player = vjsPlayer;
+        console.log('creating a new video');
       } else {
-
-        console.log('running 4');
         vjsPlayer = window.player;
+        console.log('using old player');
+      }
+
+      if (!embedded) {
+        window.player.bigPlayButton && window.player.bigPlayButton.hide();
+      } else {
+        const bigPlayButton = document.querySelector('.vjs-big-play-button');
+        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
       }
 
       // Set reference in component state
@@ -408,12 +409,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
 
           // disable thumbnails on mobile for now
-          if (!IS_MOBILE) {
-            vjsPlayer.vttThumbnails({
-              src: thumbnailPath,
-              showTimestamp: true,
-            });
-          }
+          // if (!IS_MOBILE) {
+          //   vjsPlayer.vttThumbnails({
+          //     src: thumbnailPath,
+          //     showTimestamp: true,
+          //   });
+          // }
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
@@ -421,15 +422,29 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
-      if (autoplay) {
-        vjsPlayer.play();
-        vjsPlayer.userActive(true);
-        // document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
-      }
+      // if (autoplay) {
+      //   if (canAutoplayVideo) {
+      //     vjsPlayer.play();
+      //     vjsPlayer.userActive(true);
+      //   } else {
+      //     console.log('muting and running!');
+      //     vjsPlayer.muted(true);
+      //     vjsPlayer.play();
+      //     document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
+      //     document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+      //   }
+      //   // document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
+      // }
 
       if (window.oldSavedDiv) {
-        document.querySelector('.video-js-parent').replaceWith(window.oldSavedDiv);
+        console.log('replacing video');
+        document.querySelector('.video-js-parent').append(window.oldSavedDiv);
       }
+
+      let canAutoplayVideo1 = await canAutoplay.video({ timeout: 2000, inline: true });
+      canAutoplayVideo1 = canAutoplayVideo1.result === true;
+
+      console.log('can autoplay 2', canAutoplayVideo1);
 
       // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
       if (IS_IOS) {
@@ -461,7 +476,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
-      window.removeEventListener('keydown', curried_function);
+      // window.removeEventListener('keydown', curried_function);
 
       const player = playerRef.current;
       if (player) {
@@ -472,7 +487,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // player.dispose();
         // window.player = undefined;
 
-        // window.oldSavedDiv = document.querySelector('.video-js-parent');
+        window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
+
+        window.oldSavedVideo = document.querySelector('video.vjs-tech');
+
+        // document.querySelector('video.vjs-tech').remove();
+
+        // console.log('disposing video!');
+        // console.log(document.querySelector('.vjs_video_3'));
       }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
