@@ -101,6 +101,8 @@ type Props = {
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
+const VIDEOJS_CONTROL_BAR_CLASS = 'ControlBar';
+const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
 
 const IS_IOS = platform.isIOS();
 
@@ -179,7 +181,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const playerServerRef = useRef();
 
   const keyDownHandlerRef = useRef();
-  const scrollHandlerRef = useRef();
+  const videoScrollHandlerRef = useRef();
+  const volumePanelScrollHandlerRef = useRef();
 
   const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIPhone();
@@ -188,7 +191,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     (livestreamVideoUrl && (livestreamVideoUrl.includes('/transcode/') || livestreamVideoUrl.includes('cloud.odysee')));
 
   // initiate keyboard shortcuts
-  const { createKeyDownShortcutsHandler, createScrollShortcutsHandler } = keyboardShorcuts({
+  const {
+    createKeyDownShortcutsHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
+  } = keyboardShorcuts({
     isMobile,
     isLivestreamClaim,
     toggleVideoTheaterMode,
@@ -374,13 +381,21 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
+      const volumePanel = playerRef.current
+        .getChild(VIDEOJS_CONTROL_BAR_CLASS)
+        .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
+        .el();
+
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
-      const scrollHandler = createScrollShortcutsHandler(playerRef, containerRef);
+      const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
+      const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanel, playerRef, containerRef);
       window.addEventListener('keydown', keyDownHandler);
-      containerRef.current.addEventListener('wheel', scrollHandler);
+      containerRef.current.addEventListener('wheel', videoScrollHandler);
+      volumePanel.addEventListener('wheel', volumePanelHandler);
 
       keyDownHandlerRef.current = keyDownHandler;
-      scrollHandlerRef.current = scrollHandler;
+      videoScrollHandlerRef.current = videoScrollHandler;
+      volumePanelScrollHandlerRef.current = volumePanelHandler;
 
       const controlBar = document.querySelector('.vjs-control-bar');
       if (controlBar) {
@@ -440,8 +455,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
+      const volumePanel = playerRef.current
+        .getChild(VIDEOJS_CONTROL_BAR_CLASS)
+        .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
+        .el();
+
       window.removeEventListener('keydown', keyDownHandlerRef.current);
-      containerRef.current.removeEventListener('wheel', scrollHandlerRef.current);
+      containerRef.current.removeEventListener('wheel', videoScrollHandlerRef.current);
+      volumePanel.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
 
       const player = playerRef.current;
       if (player) {

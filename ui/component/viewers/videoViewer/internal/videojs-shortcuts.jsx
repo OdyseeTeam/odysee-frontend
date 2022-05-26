@@ -165,38 +165,64 @@ const VideoJsShorcuts = ({
     if (e.keyCode === KEYCODES.NINE) seekVideo(90 / 100, playerRef, containerRef, true);
   }
 
-  function handleScrollWheel(event, playerRef, containerRef) {
+  const handleVideoScrollWheel = (event, playerRef, containerRef) => {
+    // Handle precise volume control when scrolling over the video player while holding down the "SHIFT"-key
     const player = playerRef.current;
     const videoNode = containerRef.current && containerRef.current.querySelector('video');
 
-    if (!videoNode || !player || isUserTyping()) return;
+    if (!videoNode || !player || isUserTyping() || !event.shiftKey) return;
 
     event.preventDefault();
 
     const delta = event.deltaY;
-    const volumeChangeAmount = event.shiftKey ? PRECISE_VOLUME_CHANGE_ON_SCROLL : VOLUME_CHANGE_ON_SCROLL;
 
     if (delta > 0) {
-      volumeDown(event, playerRef, false, volumeChangeAmount);
+      volumeDown(event, playerRef, false, PRECISE_VOLUME_CHANGE_ON_SCROLL);
     } else if (delta < 0) {
-      volumeUp(event, playerRef, false, volumeChangeAmount);
+      volumeUp(event, playerRef, false, PRECISE_VOLUME_CHANGE_ON_SCROLL);
     }
-  }
+  };
+
+  const handleVolumeBarScrollWheel = (event, volumeElement, playerRef, containerRef) => {
+    // Handle generic and precise volume control when scrolling over the volume bar
+    const player = playerRef.current;
+    const videoNode = containerRef.current && containerRef.current.querySelector('video');
+
+    if (!volumeElement || !player || !videoNode || isUserTyping()) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const delta = event.deltaY;
+    const changeAmount = event.shiftKey ? PRECISE_VOLUME_CHANGE_ON_SCROLL : VOLUME_CHANGE_ON_SCROLL;
+
+    if (delta > 0) {
+      volumeDown(event, playerRef, false, changeAmount);
+    } else if (delta < 0) {
+      volumeUp(event, playerRef, false, changeAmount);
+    }
+  };
 
   const createKeyDownShortcutsHandler = function (playerRef: any, containerRef: any) {
     return function curried_func(e: any) {
       handleKeyDown(e, playerRef, containerRef);
     };
   };
-  const createScrollShortcutsHandler = function (playerRef: any, containerRef: any) {
+  const createVideoScrollShortcutsHandler = function (playerRef: any, containerRef: any) {
     return function curried_func(e: any) {
-      handleScrollWheel(e, playerRef, containerRef);
+      handleVideoScrollWheel(e, playerRef, containerRef);
+    };
+  };
+  const createVolumePanelScrollShortcutsHandler = function (volumeElement: any, playerRef: any, containerRef: any) {
+    return function curried_func(e: any) {
+      handleVolumeBarScrollWheel(e, volumeElement, playerRef, containerRef);
     };
   };
 
   return {
     createKeyDownShortcutsHandler,
-    createScrollShortcutsHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
   };
 };
 
