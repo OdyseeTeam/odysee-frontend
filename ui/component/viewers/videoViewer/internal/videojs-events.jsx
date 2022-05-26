@@ -228,9 +228,10 @@ const VideoJsEvents = ({
     player.on('playing', function () {
       // $FlowFixMe
       const bigPlayButton = document.querySelector('.vjs-big-play-button');
-      if(bigPlayButton){
+      if (bigPlayButton) {
         bigPlayButton.style.setProperty('display', 'none', 'important');
       }
+      player.userActive(true);
     });
     // player.on('ended', onEnded);
 

@@ -313,10 +313,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowFixMe
       document.querySelector('.vjs-control-bar').style.setProperty('display', 'flex');
 
-      // I think this is a callback function
-      const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
-
-      onPlayerReady(player, videoNode, canAutoplayVideo, autoplay);
       adapter.ready();
 
       // sometimes video doesnt start properly, this addresses the edge case
@@ -380,6 +376,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
       }
 
+      // I think this is a callback function
+      const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
+
+      // add theatre and autoplay next button
+      onPlayerReady(vjsPlayer, videoNode, canAutoplayVideo, autoplay);
+
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
@@ -410,6 +412,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const trimmedPath = response.url.substring(0, response.url.lastIndexOf('/'));
           const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
 
+          // TODO: have to fix thumbnail plugin
           // disable thumbnails on mobile for now
           // if (!IS_MOBILE) {
           //   vjsPlayer.vttThumbnails({
@@ -424,45 +427,24 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
-      let canAutoplayVideo1 = await canAutoplay.video({ timeout: 2000, inline: true });
-      canAutoplayVideo1 = canAutoplayVideo1.result === true;
-
-      console.log('can autoplay', canAutoplayVideo1);
-
-      if(autoplay){
-        var promise = vjsPlayer.play();
+      // allow tap to unmute if no perms on iOS
+      if (autoplay){
+        const promise = vjsPlayer.play();
 
         if (promise !== undefined) {
-          promise.then(_ => {
-            // Autoplay started!
-          }).catch(error => {
-            console.log('autoplay failed!');
-            // Autoplay not allowed!
-            // Mute video and try to play again
-            vjsPlayer.muted(true);
-            vjsPlayer.play();
-            document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
-            document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+          promise.then(_ => {}).catch(error => {
+            const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
-
-            // Show something in the UI that the video is muted
+            if (noPermissionError && IS_IOS) {
+              // autoplay not allowed, mute video, play and show 'tap to unmute' button
+              vjsPlayer.muted(true);
+              vjsPlayer.play();
+              document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
+              document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+            }
           });
         }
       }
-
-      // if (autoplay) {
-      //   if (canAutoplayVideo) {
-      //     vjsPlayer.play();
-      //     vjsPlayer.userActive(true);
-      //   } else {
-      //     console.log('muting and running!');
-      //     vjsPlayer.muted(true);
-      //     vjsPlayer.play();
-      //     document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
-      //     document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
-      //   }
-      //   // document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
-      // }
 
       if (window.oldSavedDiv) {
         console.log('replacing video');
@@ -509,6 +491,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // player.dispose();
         // window.player = undefined;
+
+        const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next')
+        const theatreModeButton = document.querySelector('.vjs-button--theater-mode')
+
+        if (autoplayNextButton) autoplayNextButton.remove();
+        if (theatreModeButton) theatreModeButton.remove();
+
+        window.player.currentTime(0);
 
         window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
 
