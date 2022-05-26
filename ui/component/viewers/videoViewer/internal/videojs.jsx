@@ -414,18 +414,25 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
           // TODO: have to fix thumbnail plugin
           // disable thumbnails on mobile for now
-          // if (!IS_MOBILE) {
-          //   vjsPlayer.vttThumbnails({
-          //     src: thumbnailPath,
-          //     showTimestamp: true,
-          //   });
-          // }
+          if (!IS_MOBILE) {
+            vjsPlayer.vttThumbnails({
+              src: thumbnailPath,
+              showTimestamp: true,
+            });
+          }
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
       }
 
       vjsPlayer.load();
+
+      // document.querySelector('.vjs-control-bar').style.display = 'block';
+
+      if (window.oldSavedDiv) {
+        console.log('replacing video');
+        document.querySelector('.video-js-parent').append(window.oldSavedDiv);
+      }
 
       // allow tap to unmute if no perms on iOS
       if (autoplay){
@@ -444,11 +451,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             }
           });
         }
-      }
-
-      if (window.oldSavedDiv) {
-        console.log('replacing video');
-        document.querySelector('.video-js-parent').append(window.oldSavedDiv);
       }
 
       // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
@@ -499,6 +501,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (theatreModeButton) theatreModeButton.remove();
 
         window.player.currentTime(0);
+
+        document.querySelector('video.vjs-tech').style.top = '0px';
+        window.player.userActive(false);
+
+        const controlBar =  document.querySelector('.vjs-control-bar');
+        if(controlBar) controlBar.style.display = 'none';
+
 
         window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
 

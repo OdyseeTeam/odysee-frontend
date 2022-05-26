@@ -226,6 +226,9 @@ const VideoJsEvents = ({
       }, 1000 * 3); // wait 3 seconds to hit control bar
     });
     player.on('playing', function () {
+      const controlBar = document.querySelector('.vjs-control-bar')
+      if(controlBar) controlBar.style.display = 'flex';
+
       // $FlowFixMe
       const bigPlayButton = document.querySelector('.vjs-big-play-button');
       if (bigPlayButton) {
