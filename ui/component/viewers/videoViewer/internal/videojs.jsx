@@ -424,6 +424,32 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
+      let canAutoplayVideo1 = await canAutoplay.video({ timeout: 2000, inline: true });
+      canAutoplayVideo1 = canAutoplayVideo1.result === true;
+
+      console.log('can autoplay', canAutoplayVideo1);
+
+      if(autoplay){
+        var promise = vjsPlayer.play();
+
+        if (promise !== undefined) {
+          promise.then(_ => {
+            // Autoplay started!
+          }).catch(error => {
+            console.log('autoplay failed!');
+            // Autoplay not allowed!
+            // Mute video and try to play again
+            vjsPlayer.muted(true);
+            vjsPlayer.play();
+            document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
+            document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+
+
+            // Show something in the UI that the video is muted
+          });
+        }
+      }
+
       // if (autoplay) {
       //   if (canAutoplayVideo) {
       //     vjsPlayer.play();

@@ -373,3 +373,9 @@ button.vjs-big-play-button {
   background-color: var(--color-error);
   width: 2px;
 }
+
+.content__viewer--floating {
+  .video-js--tap-to-unmute {
+    display: none;
+  }
+}
