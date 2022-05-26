@@ -368,38 +368,38 @@ function VideoViewer(props: Props) {
     const shouldPlay = !embedded || autoplayIfEmbedded;
     // https://blog.videojs.com/autoplay-best-practices-with-video-js/#Programmatic-Autoplay-and-Success-Failure-Detection
     if (shouldPlay) {
-      const playPromise = player.play();
-
-      // if playing the video errors out for some reason
-      Promise.race([playPromise]).catch((error) => {
-        const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
-
-        if (noPermissionError && IS_IOS) {
-          // if player is paused, show the overlay with play button
-          // $FlowFixMe
-          if (player.paused()) {
-            // $FlowFixMe
-            player.removeClass('vjs-waiting');
-            // $FlowFixMe
-            document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
-            // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
-          }
-
-          // centerPlayButton();
-
-          // to turn muted autoplay on
-          if (player.autoplay() && !player.muted()) {
-            (async function(){
-              player.muted(true);
-              player.play();
-              console.log('running here!');
-              document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
-              document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
-            })()
-          }
-        }
-        setIsPlaying(false);
-      });
+      // const playPromise = player.play();
+      //
+      // // if playing the video errors out for some reason
+      // Promise.race([playPromise]).catch((error) => {
+      //   const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+      //
+      //   if (noPermissionError && IS_IOS) {
+      //     // if player is paused, show the overlay with play button
+      //     // $FlowFixMe
+      //     if (player.paused()) {
+      //       // $FlowFixMe
+      //       player.removeClass('vjs-waiting');
+      //       // $FlowFixMe
+      //       document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
+      //       // document.querySelector('.vjs-big-play-button').style.setProperty('display', 'block', 'important');
+      //     }
+      //
+      //     // centerPlayButton();
+      //
+      //     // to turn muted autoplay on
+      //     if (player.autoplay() && !player.muted()) {
+      //       (async function(){
+      //         player.muted(true);
+      //         player.play();
+      //         console.log('running here!');
+      //         document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
+      //         document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+      //       })()
+      //     }
+      //   }
+      //   setIsPlaying(false);
+      // });
     }
 
     // PR: #5535

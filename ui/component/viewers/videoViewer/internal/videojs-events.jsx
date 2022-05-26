@@ -227,7 +227,10 @@ const VideoJsEvents = ({
     });
     player.on('playing', function () {
       // $FlowFixMe
-      document.querySelector('.vjs-big-play-button').style.setProperty('display', 'none', 'important');
+      const bigPlayButton = document.querySelector('.vjs-big-play-button');
+      if(bigPlayButton){
+        bigPlayButton.style.setProperty('display', 'none', 'important');
+      }
     });
     // player.on('ended', onEnded);
 

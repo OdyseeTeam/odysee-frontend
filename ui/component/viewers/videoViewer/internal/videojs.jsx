@@ -325,6 +325,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (videoDiv) {
           videoDiv.click();
         }
+        const coverImage = document.querySelector('.content__cover--theater-mode');
+        if(coverImage) coverImage.click();
         window.player.userActive(true);
       }
 
@@ -441,11 +443,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         document.querySelector('.video-js-parent').append(window.oldSavedDiv);
       }
 
-      let canAutoplayVideo1 = await canAutoplay.video({ timeout: 2000, inline: true });
-      canAutoplayVideo1 = canAutoplayVideo1.result === true;
-
-      console.log('can autoplay 2', canAutoplayVideo1);
-
       // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
       if (IS_IOS) {
         // ads video player
@@ -489,7 +486,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
 
-        window.oldSavedVideo = document.querySelector('video.vjs-tech');
+        // window.oldSavedVideo = document.querySelector('video.vjs-tech');
 
         // document.querySelector('video.vjs-tech').remove();
 
