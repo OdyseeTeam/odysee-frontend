@@ -15,6 +15,9 @@ import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
+import { platform } from 'util/platform';
+
+const IS_MOBILE = platform.isMobile();
 
 type HeaderMenuButtonProps = {
   myChannelClaimIds: ?Array<string>,
@@ -100,6 +103,8 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             <HeaderMenuLink useMui page={PAGES.INVITE} icon={ICONS.INVITE} name={__('Invites')} />
             <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
             <ChannelSelector storeSelection isHeaderMenu />
+
+            {IS_MOBILE && <HeaderMenuLink useMui page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />}
 
             <MuiMenuItem onClick={signOut}>
               <div className="menu__link" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
