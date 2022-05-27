@@ -770,6 +770,25 @@ img {
     }
   }
 
+  .tags__input-wrapper {
+    background: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+  }
+
+  .card--tags {
+    .icon__wrapper {
+      margin-right: var(--spacing-s) !important;
+    }
+    .card__subtitle {
+      margin-top: 5px;
+    }
+    .card__main-actions {
+      padding-top: 0;
+      border-top: unset;
+    }
+  }
+
   .card--additional-options {
     .card__main-actions {
       //padding-top:var(--spacing-s);
