@@ -831,6 +831,7 @@ img {
     }
     .card__main-actions {
       padding-top: 0;
+      margin-top: 0;
     }
 
     .MuiAutocomplete-root {
@@ -842,6 +843,16 @@ img {
         box-shadow: 0 0 0 2px var(--color-border) inset;
         &:focus-visible {
           box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+      }
+
+      @media (max-width: $breakpoint-small) {
+        .MuiFormControl-root {
+          border-radius: var(--border-radius);
+          box-shadow: 0 0 0 2px var(--color-border) inset;
+        }
+        textarea {
+          box-shadow: unset;
         }
       }
     }
@@ -857,6 +868,17 @@ img {
     button {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-border);
+    }
+
+    @media (max-width: $breakpoint-small) {
+      .thumbnail-picker__preview {
+        width: 100%;
+        height: unset;
+        aspect-ratio: 16 / 9;
+      }
+      .column__item:last-of-type {
+        margin-bottom: 0;
+      }
     }
   }
 
@@ -878,6 +900,19 @@ img {
 
     .tag {
       background-color: var(--color-header-button);
+    }
+
+    @media (max-width: $breakpoint-small) {
+      /*
+      .card__title-section{
+        span, div{
+          float:left;
+        }        
+      }
+      */
+      .card__subtitle {
+        font-size: var(--font-small);
+      }
     }
   }
 
