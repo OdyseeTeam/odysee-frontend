@@ -462,7 +462,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       window.removeEventListener('keydown', keyDownHandlerRef.current);
       containerRef.current.removeEventListener('wheel', videoScrollHandlerRef.current);
-      volumePanel.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
+
+      if (volumePanel.current) {
+        volumePanel.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
+      }
 
       const player = playerRef.current;
       if (player) {
