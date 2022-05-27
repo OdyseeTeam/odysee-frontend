@@ -480,8 +480,7 @@ img {
   background-color: #fef1f6;
   color: var(--color-black);
   font-weight: bold;
-
-  .button {
+  help .button {
     color: #fa6165;
   }
 }
@@ -791,6 +790,7 @@ img {
   .help {
     opacity: 0.8;
     margin-bottom: var(--spacing-l);
+    color: var(--color-text);
   }
 
   .card--file {
