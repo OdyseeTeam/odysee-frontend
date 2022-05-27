@@ -63,7 +63,7 @@ function PublishFile(props: Props) {
     uri,
     mode,
     name,
-    title,
+    // title,
     balance,
     filePath,
     fileMimeType,
@@ -108,6 +108,7 @@ function PublishFile(props: Props) {
   const sizeInMB = Number(size) / 1000000;
   const secondsToProcess = sizeInMB / PROCESSING_MB_PER_SECOND;
   const ffmpegAvail = ffmpegStatus.available;
+  const [title, setTitle] = useState('');
   const [oversized, setOversized] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
   const [currentFileType, setCurrentFileType] = useState(null);
@@ -379,6 +380,7 @@ function PublishFile(props: Props) {
 
   function handleTitleChange(event) {
     const title = event.target.value;
+    console.log('Update title: ', title);
     // Update title
     updatePublishForm({ title });
   }
@@ -472,6 +474,7 @@ function PublishFile(props: Props) {
     };
     // Strip off extention and replace invalid characters
     let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+    autofillTitle(file);
 
     if (!isStillEditing) {
       publishFormParams.name = parseName(fileName);
@@ -480,6 +483,15 @@ function PublishFile(props: Props) {
     // File path is not supported on web for security reasons so we use the name instead.
     setCurrentFile(file.path || file.name);
     updatePublishForm(publishFormParams);
+  }
+
+  function autofillTitle(file) {
+    // let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+    let fileName = (file && file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || name || '';
+    if (!title) setTitle(fileName);
+    console.log('file change: ', fileName);
+    console.log('Title: ', title);
+    console.log('Name: ', name);
   }
 
   const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
