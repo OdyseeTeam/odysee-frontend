@@ -723,6 +723,17 @@ img {
 }
 
 .uploadPage-wrapper {
+  transition: width 0.4s;
+  @media (min-width: $breakpoint-small) {
+    width: 80% !important;
+  }
+  @media (min-width: $breakpoint-medium) {
+    width: 70% !important;
+  }
+  @media (min-width: $breakpoint-large) {
+    width: 60% !important;
+  }
+
   label {
     font-size: var(--font-body);
   }
