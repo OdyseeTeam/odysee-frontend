@@ -723,6 +723,44 @@ img {
 }
 
 .uploadPage-wrapper {
+  label {
+    font-size: var(--font-body);
+  }
+
+  .card--publish-section {
+    background: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+
+    fieldset-section {
+      padding: var(--spacing-s);
+    }
+
+    .publish-row {
+      border-bottom: 1px solid var(--color-border);
+      .form-field__help {
+        padding: var(--spacing-s);
+        padding-top: 0;
+      }
+    }
+
+    .form-field-date-picker {
+      padding: var(--spacing-s);
+      margin-bottom: 0;
+    }
+  }
+
+  .card--additional-options {
+    .card__main-actions {
+      //padding-top:var(--spacing-s);
+      padding-top: 0;
+    }
+    .section__actions {
+      padding: var(--spacing-s);
+      margin-top: 0;
+    }
+  }
+
+  /*
   &.card-stack {
     .card:not(:last-of-type) {
       margin-bottom: var(--spacing-l) !important;
@@ -730,12 +768,14 @@ img {
   }
 
   .card__main-actions {
-    padding-top: var(--spacing-l);
+    // padding-top: var(--spacing-l);
+    padding-top: 0;
   }
 
-  label {
-    font-size: var(--font-medium);
+  fieldset-section.radio{
+    margin-top:var(--spacing-xxs);
   }
+  
 
   .button--close {
     &:hover {
@@ -811,6 +851,8 @@ img {
       }
     }
   }
+  
+  */
 
   @media (max-width: $breakpoint-small) {
     .MuiTextField-root {

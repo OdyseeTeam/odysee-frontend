@@ -17,6 +17,7 @@ function PublishPrice(props: Props) {
     <>
       <label>{__('Price')}</label>
       <Card
+        className="card--publish-section"
         actions={
           <React.Fragment>
             <FormField
