@@ -787,6 +787,12 @@ img {
     padding: var(--spacing-s);
   }
 
+  .card--thumbnail {
+    background: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+  }
+
   .card--tags {
     .icon__wrapper {
       margin-right: var(--spacing-s) !important;
