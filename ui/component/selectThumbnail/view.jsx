@@ -140,7 +140,6 @@ function SelectThumbnail(props: Props) {
                   <FormField
                     type="text"
                     name="content_thumbnail"
-                    label="URL"
                     placeholder="https://images.fbi.gov/alien"
                     value={thumbnail}
                     disabled={formDisabled}

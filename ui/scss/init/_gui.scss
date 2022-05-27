@@ -808,11 +808,19 @@ img {
     }
   }
 
+  .card__title-disabled {
+    opacity: 0.3;
+  }
+
   .card--description {
     label {
       font-size: var(--font-large);
       font-weight: var(--font-weight-bold);
     }
+    .card__main-actions {
+      padding-top: 0;
+    }
+
     .MuiAutocomplete-root {
       background: rgba(var(--color-header-background-base), 0.4);
       border-radius: var(--border-radius);
