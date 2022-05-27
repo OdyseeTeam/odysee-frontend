@@ -25,7 +25,7 @@ function PublishPage(props: Props) {
   }
 
   return (
-    <Page noFooter>
+    <Page className="uploadPage-wrapper" noFooter>
       {balance === 0 && <YrblWalletEmpty />}
       {balance !== 0 && fetchingChannels ? (
         <div className="main--empty">
