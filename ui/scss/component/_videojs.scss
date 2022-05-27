@@ -376,6 +376,6 @@ button.vjs-big-play-button {
 
 .content__viewer--floating {
   .video-js--tap-to-unmute {
-    display: none;
+    visibility: hidden !important;
   }
 }

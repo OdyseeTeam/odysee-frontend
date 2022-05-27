@@ -496,6 +496,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next')
         const theatreModeButton = document.querySelector('.vjs-button--theater-mode')
+        const playPauseButton = document.querySelector('.vjs-play-control')
+        if (playPauseButton) playPauseButton.style.display = 'none';
 
         if (autoplayNextButton) autoplayNextButton.remove();
         if (theatreModeButton) theatreModeButton.remove();
