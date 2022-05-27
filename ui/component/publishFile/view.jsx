@@ -380,8 +380,7 @@ function PublishFile(props: Props) {
 
   function handleTitleChange(event) {
     const title = event.target.value;
-    console.log('Update title: ', title);
-    // Update title
+    setTitle(title);
     updatePublishForm({ title });
   }
 
