@@ -787,15 +787,16 @@ img {
     padding: var(--spacing-s);
   }
 
+  .help {
+    opacity: 0.8;
+    margin-bottom: var(--spacing-l);
+  }
+
   .card--file {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
 
-    .help {
-      opacity: 0.8;
-      margin-bottom: var(--spacing-l);
-    }
     input {
       box-shadow: 0 0 0 2px var(--color-border) inset;
       &:focus-visible {
