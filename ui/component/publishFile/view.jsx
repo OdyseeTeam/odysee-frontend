@@ -507,16 +507,6 @@ function PublishFile(props: Props) {
       subtitle={subtitle || (isStillEditing && __('You are currently editing your upload.'))}
       actions={
         <React.Fragment>
-          <PublishName uri={uri} />
-          <FormField
-            type="text"
-            name="content_title"
-            label={__('Title')}
-            placeholder={__('Descriptive titles work best')}
-            disabled={disabled}
-            value={title}
-            onChange={handleTitleChange}
-          />
           {/* Decide whether to show file upload or replay selector */}
           {/* @if TARGET='web' */}
           <>
@@ -658,6 +648,18 @@ function PublishFile(props: Props) {
               </div>
             )}
           </>
+          <FormField
+            type="text"
+            name="content_title"
+            label={__('Title')}
+            placeholder={__('Descriptive titles work best')}
+            disabled={disabled}
+            value={title}
+            onChange={handleTitleChange}
+            className="fieldset-group"
+          />
+          <PublishName uri={uri} />
+
           {/* @endif */}
           {/* @if TARGET='app' */}
           {showFileUpload && (
