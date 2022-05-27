@@ -731,8 +731,19 @@ img {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
 
+    .card__main-actions {
+      padding: 0;
+    }
+
     fieldset-section {
       padding: var(--spacing-s);
+    }
+    fieldset-section.radio {
+      margin-top: 0;
+      padding-bottom: 0;
+    }
+    fieldset-section.radio:last-of-type {
+      padding-bottom: var(--spacing-s);
     }
 
     .publish-row {

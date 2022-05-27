@@ -15,7 +15,7 @@ function PublishPrice(props: Props) {
 
   return (
     <>
-      <label>{__('Price')}</label>
+      <h2 className="card__title">{__('Price')}</h2>
       <Card
         className="card--publish-section"
         actions={

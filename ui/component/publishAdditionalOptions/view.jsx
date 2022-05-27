@@ -115,7 +115,7 @@ function PublishAdditionalOptions(props: Props) {
 
   return (
     <>
-      <label>{__('Additional Options')}</label>
+      <h2 className="card__title">{__('Additional Options')}</h2>
       <Card
         className="card--enable-overflow card--publish-section card--additional-options"
         actions={
