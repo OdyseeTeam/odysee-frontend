@@ -150,6 +150,11 @@ function PublishFile(props: Props) {
     }
   }, [currentFileType, mode, isStillEditing, updatePublishForm]);
 
+  // Reset title when form gets cleared
+  useEffect(() => {
+    setTitle('');
+  }, [filePath]);
+
   // Initialize default file source state for each mode.
   useEffect(() => {
     setShowSourceSelector(false);
