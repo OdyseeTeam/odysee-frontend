@@ -746,6 +746,16 @@ img {
       padding-bottom: var(--spacing-s);
     }
 
+    fieldset-group {
+      margin-top: 0;
+      fieldset-section {
+        padding-right: 0;
+      }
+      .input--currency-select {
+        padding-left: 2px;
+      }
+    }
+
     .publish-row {
       border-bottom: 1px solid var(--color-border);
       .form-field__help {
