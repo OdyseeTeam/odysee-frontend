@@ -723,9 +723,6 @@ img {
 }
 
 .uploadPage-wrapper {
-  //width: 50%;
-  // margin-left:var(--spacing-xxl) !important;
-
   &.card-stack {
     .card:not(:last-of-type) {
       margin-bottom: var(--spacing-l) !important;

@@ -20,7 +20,6 @@ import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publishDescription';
 import PublishPrice from 'component/publishPrice';
 import PublishFile from 'component/publishFile';
-import PublishBid from 'component/publishBid';
 import PublishAdditionalOptions from 'component/publishAdditionalOptions';
 import PublishFormErrors from 'component/publishFormErrors';
 import SelectThumbnail from 'component/selectThumbnail';
@@ -671,7 +670,6 @@ function PublishForm(props: Props) {
             tagsChosen={tags}
           />
 
-          <PublishBid disabled={isStillEditing || formDisabled} />
           {!isLivestreamMode && <PublishPrice disabled={formDisabled} />}
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />

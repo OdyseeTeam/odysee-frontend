@@ -489,9 +489,6 @@ function PublishFile(props: Props) {
     // let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
     let fileName = (file && file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || name || '';
     if (!title) setTitle(fileName);
-    console.log('file change: ', fileName);
-    console.log('Title: ', title);
-    console.log('Name: ', name);
   }
 
   const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;

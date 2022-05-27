@@ -9,6 +9,7 @@ import LicenseType from './license-type';
 import Card from 'component/common/card';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { sortLanguageMap } from 'util/default-languages';
+import PublishBid from 'component/publishBid';
 
 // @if TARGET='app'
 // import ErrorText from 'component/common/error-text';
@@ -39,6 +40,7 @@ function PublishAdditionalOptions(props: Props) {
     licenseUrl,
     updatePublishForm,
     showSchedulingOptions,
+    disabled,
     // user,
     // useLBRYUploader,
     // needsYTAuth,
@@ -117,9 +119,11 @@ function PublishAdditionalOptions(props: Props) {
       actions={
         <React.Fragment>
           {!hideSection && (
-            <div className={classnames({ 'card--disabled': !name })}>
-              {/* @if TARGET='app' */}
-              {/* {showLbryFirstCheckbox && (
+            <>
+              <PublishBid disabled={disabled} />
+              <div className={classnames({ 'card--disabled': !name })}>
+                {/* @if TARGET='app' */}
+                {/* {showLbryFirstCheckbox && (
                 <div className="section">
                   <>
                     <FormField
@@ -152,43 +156,44 @@ function PublishAdditionalOptions(props: Props) {
                   </>
                 </div>
               )} */}
-              {/* @endif */}
-              <div className="section">
-                {!showSchedulingOptions && <PublishReleaseDate />}
+                {/* @endif */}
+                <div className="section">
+                  {!showSchedulingOptions && <PublishReleaseDate />}
 
-                <FormField
-                  label={__('Language')}
-                  type="select"
-                  name="content_language"
-                  value={language}
-                  onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
-                >
-                  {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
-                    <option key={langKey} value={langKey}>
-                      {langName}
-                    </option>
-                  ))}
-                </FormField>
+                  <FormField
+                    label={__('Language')}
+                    type="select"
+                    name="content_language"
+                    value={language}
+                    onChange={(event) => updatePublishForm({ languages: [event.target.value] })}
+                  >
+                    {sortLanguageMap(SUPPORTED_LANGUAGES).map(([langKey, langName]) => (
+                      <option key={langKey} value={langKey}>
+                        {langName}
+                      </option>
+                    ))}
+                  </FormField>
 
-                <LicenseType
-                  licenseType={licenseType}
-                  otherLicenseDescription={otherLicenseDescription}
-                  licenseUrl={licenseUrl}
-                  handleLicenseChange={(newLicenseType, newLicenseUrl) =>
-                    updatePublishForm({
-                      licenseType: newLicenseType,
-                      licenseUrl: newLicenseUrl,
-                    })
-                  }
-                  handleLicenseDescriptionChange={(event) =>
-                    updatePublishForm({
-                      otherLicenseDescription: event.target.value,
-                    })
-                  }
-                  handleLicenseUrlChange={(event) => updatePublishForm({ licenseUrl: event.target.value })}
-                />
+                  <LicenseType
+                    licenseType={licenseType}
+                    otherLicenseDescription={otherLicenseDescription}
+                    licenseUrl={licenseUrl}
+                    handleLicenseChange={(newLicenseType, newLicenseUrl) =>
+                      updatePublishForm({
+                        licenseType: newLicenseType,
+                        licenseUrl: newLicenseUrl,
+                      })
+                    }
+                    handleLicenseDescriptionChange={(event) =>
+                      updatePublishForm({
+                        otherLicenseDescription: event.target.value,
+                      })
+                    }
+                    handleLicenseUrlChange={(event) => updatePublishForm({ licenseUrl: event.target.value })}
+                  />
+                </div>
               </div>
-            </div>
+            </>
           )}
 
           <div className="section__actions">
