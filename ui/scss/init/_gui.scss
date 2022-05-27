@@ -958,6 +958,12 @@ img {
         }
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      button {
+        margin-bottom: 0;
+      }
+    }
   }
 
   /*
