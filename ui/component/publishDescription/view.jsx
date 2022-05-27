@@ -21,6 +21,7 @@ function PublishDescription(props: Props) {
 
   return (
     <Card
+      className="card--description"
       actions={
         <FormField
           type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}
@@ -31,7 +32,7 @@ function PublishDescription(props: Props) {
           )}
           value={description}
           disabled={disabled}
-          onChange={value =>
+          onChange={(value) =>
             updatePublishForm({ description: !SIMPLE_SITE && advancedEditor ? value : value.target.value })
           }
           quickActionLabel={!SIMPLE_SITE && (advancedEditor ? __('Simple Editor') : __('Advanced Editor'))}

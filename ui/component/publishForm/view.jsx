@@ -634,11 +634,11 @@ function PublishForm(props: Props) {
         }
       />
 
+      {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
-
-          {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
           <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 

@@ -787,6 +787,22 @@ img {
     padding: var(--spacing-s);
   }
 
+  .card--description {
+    label {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+    }
+    .MuiAutocomplete-root {
+      background: rgba(var(--color-header-background-base), 0.4);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-s);
+
+      textarea {
+        background-color: var(--color-input-bg-secondary);
+      }
+    }
+  }
+
   .card--thumbnail {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
