@@ -152,7 +152,6 @@ function SelectThumbnail(props: Props) {
                 <>
                   <FileSelector
                     currentPath={thumbnailPath}
-                    label={__('Thumbnail')}
                     placeholder={__('Choose an enticing thumbnail')}
                     accept={accept}
                     onFileChosen={(file) =>

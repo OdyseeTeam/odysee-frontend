@@ -787,6 +787,27 @@ img {
     padding: var(--spacing-s);
   }
 
+  .card--file {
+    background: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+
+    .help {
+      opacity: 0.8;
+      margin-bottom: var(--spacing-l);
+    }
+    input {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      &:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+    button {
+      border-width: 2px 2px 2px 0;
+      border-color: var(--color-border);
+    }
+  }
+
   .card--description {
     label {
       font-size: var(--font-large);
@@ -798,7 +819,10 @@ img {
       padding: var(--spacing-s);
 
       textarea {
-        background-color: var(--color-input-bg-secondary);
+        box-shadow: 0 0 0 2px var(--color-border) inset;
+        &:focus-visible {
+          box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
       }
     }
   }
@@ -807,9 +831,20 @@ img {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
+    input {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+    }
+    button {
+      border-width: 2px 2px 2px 0;
+      border-color: var(--color-border);
+    }
   }
 
   .card--tags {
+    input {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+    }
+
     .icon__wrapper {
       margin-right: var(--spacing-s) !important;
     }
@@ -819,6 +854,10 @@ img {
     .card__main-actions {
       padding-top: 0;
       border-top: unset;
+    }
+
+    .tag {
+      background-color: var(--color-header-button);
     }
   }
 
@@ -830,6 +869,27 @@ img {
     .section__actions {
       padding: var(--spacing-s);
       margin-top: 0;
+    }
+    input,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      &:focus-visible {
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+    .react-datetime-picker {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      input {
+        box-shadow: unset;
+      }
+      .react-datetime-picker__inputGroup__amPm {
+        margin-top: 4px;
+        height: calc(100% - 8px);
+        box-shadow: unset;
+        &:focus-visible {
+          box-shadow: 0 0 0 2px var(--color-primary) inset;
+        }
+      }
     }
   }
 
