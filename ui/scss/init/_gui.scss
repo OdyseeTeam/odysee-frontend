@@ -749,6 +749,7 @@ img {
     fieldset-section {
       padding: var(--spacing-s);
     }
+
     fieldset-section.radio {
       margin-top: 0;
       padding-bottom: 0;
@@ -867,6 +868,18 @@ img {
 
     .tag {
       background-color: var(--color-header-button);
+    }
+  }
+
+  .card--price {
+    .input--currency-select {
+      label {
+        margin-left: 0 !important;
+      }
+    }
+    .form-field--price-amount,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
     }
   }
 

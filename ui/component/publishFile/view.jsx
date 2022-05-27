@@ -152,7 +152,7 @@ function PublishFile(props: Props) {
 
   // Reset title when form gets cleared
   useEffect(() => {
-    setTitle('');
+    if (!filePath) setTitle('');
   }, [filePath]);
 
   // Initialize default file source state for each mode.
@@ -449,6 +449,10 @@ function PublishFile(props: Props) {
       updateFileInfo(0, file.size, isVideo);
     }
 
+    // Strip off extention and replace invalid characters
+    let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
+    autofillTitle(file);
+
     if (isTextPost) {
       // Create reader
       const reader = new FileReader();
@@ -476,9 +480,6 @@ function PublishFile(props: Props) {
       // File.path will be undefined from web due to browser security, so it will default to the File Object.
       filePath: file.path || file,
     };
-    // Strip off extention and replace invalid characters
-    let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
-    autofillTitle(file);
 
     if (!isStillEditing) {
       publishFormParams.name = parseName(fileName);
@@ -490,7 +491,6 @@ function PublishFile(props: Props) {
   }
 
   function autofillTitle(file) {
-    // let fileName = name || (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
     let fileName = (file && file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || name || '';
     if (!title) setTitle(fileName);
   }

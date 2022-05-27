@@ -17,7 +17,7 @@ function PublishPrice(props: Props) {
     <>
       <h2 className="card__title">{__('Price')}</h2>
       <Card
-        className="card--publish-section"
+        className="card--publish-section card--price"
         actions={
           <React.Fragment>
             <FormField
