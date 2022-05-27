@@ -737,6 +737,13 @@ img {
     font-size: var(--font-body);
   }
 
+  .form-field__prefix {
+    box-shadow: unset !important;
+    border-width: 2px 2px 2px 0 !important;
+    border-color: var(--color-border) !important;
+    background-color: var(--color-border) !important;
+  }
+
   .card--publish-section {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
@@ -807,6 +814,9 @@ img {
     button {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-border);
+    }
+    label {
+      margin-left: 0 !important;
     }
   }
 
