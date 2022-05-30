@@ -252,10 +252,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   };
 
   // Initialize video.js
-  function initializeVideoPlayer(el, canAutoplayVideo) {
-    if (!el) return;
+  function initializeVideoPlayer(domElement) {
+    if (!domElement) return;
 
-    const vjs = videojs(el, videoJsOptions, async () => {
+    const vjs = videojs(domElement, videoJsOptions, async () => {
       const player = playerRef.current;
       const adapter = new playerjs.VideoJSAdapter(player);
 
@@ -313,8 +313,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       adapter.ready();
 
-      // sometimes video doesnt start properly, this addresses the edge case
       if (autoplay) {
+        // sometimes video doesnt start properly, this addresses the edge case
         const videoDiv = window.player.children_[0];
         if (videoDiv) {
           videoDiv.click();
@@ -353,7 +353,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       console.log(window.oldSavedDiv);
       const vjsParent = document.querySelector('.video-js-parent');
 
-      if (!window.oldSavedDiv || !vjsParent) {
+      const canUseOldPlayer = window.oldSavedDiv && vjsParent;
+
+      // initialize videojs if it hasn't been done yet
+      if (!canUseOldPlayer) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
         vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
         if (!vjsPlayer) {
@@ -379,7 +382,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
       // add theatre and autoplay next button
-      onPlayerReady(vjsPlayer, videoNode, canAutoplayVideo, autoplay);
+      onPlayerReady(vjsPlayer, videoNode, canAutoplayVideo, autoplay, canUseOldPlayer);
 
       // Set reference in component state
       playerRef.current = vjsPlayer;
@@ -501,10 +504,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next');
         const theatreModeButton = document.querySelector('.vjs-button--theater-mode');
         const playPauseButton = document.querySelector('.vjs-play-control');
+        const chaptersButton = document.querySelector('.vjs-chapters-button');
 
         if (playPauseButton) playPauseButton.style.display = 'none';
         if (autoplayNextButton) autoplayNextButton.remove();
         if (theatreModeButton) theatreModeButton.remove();
+        if (chaptersButton) chaptersButton.remove();
 
         // this solves an issue with portrait videos
         const videoDiv = document.querySelector('video.vjs-tech');
