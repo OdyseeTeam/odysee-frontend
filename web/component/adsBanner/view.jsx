@@ -35,6 +35,7 @@ const adsSignInDriver = (
 let gReferenceCounter = 0;
 
 type Props = {
+  isAdBlockerFound: ?boolean,
   userHasPremiumPlus: boolean,
   userCountry: string,
   currentTheme: string,
@@ -42,8 +43,8 @@ type Props = {
 };
 
 export default function AdsBanner(props: Props) {
-  const { userHasPremiumPlus, userCountry, currentTheme, doSetAdBlockerFound } = props;
-  const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, doSetAdBlockerFound);
+  const { isAdBlockerFound, userHasPremiumPlus, userCountry, currentTheme, doSetAdBlockerFound } = props;
+  const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, isAdBlockerFound, doSetAdBlockerFound);
 
   React.useEffect(() => {
     if (shouldShowAds) {
@@ -85,7 +86,7 @@ export default function AdsBanner(props: Props) {
       <div
         className="banner-ad__container OUTBRAIN"
         data-ob-contenturl="DROP_PERMALINK_HERE"
-        data-widget-id={AD_CONFIG.AR_60}
+        data-widget-id={AD_CONFIG.AR_18}
         data-ob-installation-key="ADNIMKAJDGAG4GAO6AGG6H5KP"
         data-dark-mode={currentTheme === 'dark' ? 'true' : 'false'}
       />
