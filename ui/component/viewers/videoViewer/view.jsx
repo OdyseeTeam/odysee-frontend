@@ -310,7 +310,7 @@ function VideoViewer(props: Props) {
     analytics.videoIsPlaying(false, player);
   }
 
-  function onNavigateAway(event, player) {
+  function onPlayerClosed(event, player) {
     handlePosition(player);
     analytics.videoIsPlaying(false, player);
   }
@@ -378,7 +378,7 @@ function VideoViewer(props: Props) {
     player.on('ended', () => setEnded(true));
     player.on('play', onPlay);
     player.on('pause', (event) => onPause(event, player));
-    player.on('navigateAway', (event) => onNavigateAway(event, player));
+    player.on('playerClosed', (event) => onPlayerClosed(event, player));
 
     player.on('error', () => {
       const error = player.error();

@@ -495,36 +495,27 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
         } catch {}
 
-        // player.dispose();
-        // window.player = undefined;
+        window.player.currentTime(0);
+        window.player.userActive(false);
 
         const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next');
         const theatreModeButton = document.querySelector('.vjs-button--theater-mode');
         const playPauseButton = document.querySelector('.vjs-play-control');
-        if (playPauseButton) playPauseButton.style.display = 'none';
 
+        if (playPauseButton) playPauseButton.style.display = 'none';
         if (autoplayNextButton) autoplayNextButton.remove();
         if (theatreModeButton) theatreModeButton.remove();
-
-        window.player.currentTime(0);
 
         // this solves an issue with portrait videos
         const videoDiv = document.querySelector('video.vjs-tech');
         if (videoDiv) videoDiv.style.top = '0px';
-
-        window.player.userActive(false);
 
         const controlBar =  document.querySelector('.vjs-control-bar');
         if (controlBar) controlBar.style.display = 'none';
 
         window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
 
-        // window.oldSavedVideo = document.querySelector('video.vjs-tech');
-
-        // document.querySelector('video.vjs-tech').remove();
-
-        // console.log('disposing video!');
-        // console.log(document.querySelector('.vjs_video_3'));
+        window.player.trigger('playerClosed');
       }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);

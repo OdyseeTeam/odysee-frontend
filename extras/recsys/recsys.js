@@ -231,7 +231,7 @@ const recsys: Recsys = {
    * Player closed. Check to see if primaryUri = playingUri
    * if so, send the Entry.
    */
-  onNavigateAway: function (claimId, isEmbedded, totalPlayingTime) {
+  onPlayerDispose: function (claimId, isEmbedded, totalPlayingTime) {
     if (window && window.store) {
       const state = window.store.getState();
       const playingUri = selectPlayingUri(state);
