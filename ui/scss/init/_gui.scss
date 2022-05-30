@@ -741,6 +741,10 @@ img {
       button {
         width: 100%;
         .claim-preview__title {
+          // flex: 1;
+          text-align: left;
+        }
+        .comment__badge {
           flex: 1;
           text-align: left;
         }
@@ -1102,7 +1106,7 @@ img {
 [data-reach-menu-popover] {
   @media (max-width: $breakpoint-small) {
     width: calc(100% - var(--spacing-xs) * 2);
-    max-width: unset !important;
+    max-width: calc(100% - var(--spacing-xs) * 2);
   }
 }
 
