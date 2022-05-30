@@ -734,6 +734,23 @@ img {
     width: 60% !important;
   }
 
+  @media (max-width: $breakpoint-small) {
+    .channel__selector {
+      margin-top: var(--spacing-m);
+      margin-bottom: var(--spacing-l);
+      button {
+        width: 100%;
+        .claim-preview__title {
+          flex: 1;
+          text-align: left;
+        }
+        .icon--ChevronDown {
+          margin-left: auto;
+        }
+      }
+    }
+  }
+
   .card__title-section {
     width: 100%;
     div:first-of-type:not(.card__subtitle) {
@@ -742,7 +759,6 @@ img {
     h2 {
       width: 100%;
       div:first-of-type {
-        // width:unset !important;
         div {
           width: unset !important;
           float: right;
@@ -754,6 +770,9 @@ img {
   .card__header--between {
     margin-bottom: var(--spacing-xl);
     border-bottom: 1px solid var(--color-border);
+    @media (max-width: $breakpoint-small) {
+      margin-bottom: var(--spacing-l);
+    }
   }
 
   .card__title {
@@ -965,6 +984,12 @@ img {
     select {
       box-shadow: 0 0 0 2px var(--color-border) inset;
     }
+
+    @media (max-width: $breakpoint-small) {
+      .card__main-actions {
+        margin-top: 0;
+      }
+    }
   }
 
   .card--additional-options {
@@ -1002,6 +1027,7 @@ img {
       button {
         margin-bottom: 0;
       }
+      border-top: unset;
     }
   }
 
@@ -1044,100 +1070,6 @@ img {
     }
   }
 
-  /*
-  &.card-stack {
-    .card:not(:last-of-type) {
-      margin-bottom: var(--spacing-l) !important;
-    }
-  }
-
-  .card__main-actions {
-    // padding-top: var(--spacing-l);
-    padding-top: 0;
-  }
-
-  fieldset-section.radio{
-    margin-top:var(--spacing-xxs);
-  }
-  
-
-  .button--close {
-    &:hover {
-      color: var(--color-primary);
-      background-color: unset;
-    }
-  }
-
-  .icon__wrapper--Tag {
-    margin-right: var(--spacing-s) !important;
-    width: 1rem !important;
-    height: 1rem !important;
-  }
-
-  .card:not(:first-of-type) {
-    .card__main-actions:not(:first-of-type) {
-      border-top: unset;
-    }
-    .card__subtitle {
-      margin-top: 0 !important;
-    }
-  }
-
-  .card:nth-last-child(2) {
-    .card__main-actions {
-      padding-top: var(--spacing-xxxs);
-      fieldset-section:not(:first-child) {
-        margin-top: var(--spacing-s);
-      }
-      .fieldset-group--smushed {
-        fieldset-section {
-          margin-top: 0;
-          label {
-            margin-left: 0;
-          }
-          .input--currency-select {
-            margin-left: 2px !important;
-          }
-        }
-      }
-      @media (max-width: $breakpoint-small) {
-        margin-top: var(--spacing-xxxs);
-      }
-    }
-  }
-
-  .help {
-    color: var(--color-text);
-  }
-
-  .form-field__two-column {
-    display: flex;
-    justify-content: space-between;
-  }
-
-  .comment__char-count-mde {
-    min-width: 40px;
-    text-align: center;
-    margin-bottom: var(--spacing-xxxs);
-    padding-left: 4px;
-    padding-right: 4px;
-    padding-top: 5px;
-    border-radius: var(--border-radius);
-    height: var(--height-input-slim);
-  }
-
-  .section__actions {
-    .button {
-      .button__content {
-        .button__label {
-          margin-top: 0;
-        }
-      }
-    }
-  }
-  
-  */
-
   @media (max-width: $breakpoint-small) {
     .MuiTextField-root {
       background-color: var(--color-header-background);
@@ -1161,6 +1093,13 @@ img {
         }
       }
     }
+  }
+}
+
+[data-reach-menu-popover] {
+  @media (max-width: $breakpoint-small) {
+    width: calc(100% - var(--spacing-xs) * 2);
+    max-width: unset !important;
   }
 }
 
