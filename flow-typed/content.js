@@ -15,6 +15,8 @@ declare type ContentState = {
   // It can/should be '?Array<string>` instead -- set it to null, then clients
   // can cast it to a boolean. That, or rename the variable to `shuffle` if you
   // don't care about the URLs.
+  lastViewedAnnouncement: ?string, // undefined = not seen in wallet.
+  recsysEntries: { [ClaimId]: RecsysEntry }, // Persistent shadow copy. The main one resides in RecSys.
 };
 
 declare type WatchHistory = {

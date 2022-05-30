@@ -14,7 +14,6 @@ import useKonamiListener from 'util/enhanced-layout';
 import Yrbl from 'component/yrbl';
 import FileRenderFloating from 'component/fileRenderFloating';
 import { withRouter } from 'react-router';
-import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
 import Nag from 'component/common/nag';
 import REWARDS from 'rewards';
@@ -74,6 +73,7 @@ type Props = {
   balance: ?number,
   syncIsLocked: boolean,
   syncError: ?string,
+  prefsReady: boolean,
   rewards: Array<Reward>,
   setReferrer: (string, boolean) => void,
   isAuthenticated: boolean,
@@ -82,11 +82,14 @@ type Props = {
   syncFatalError: boolean,
   activeChannelClaim: ?ChannelClaim,
   myChannelClaimIds: ?Array<string>,
-  hasPremiumPlus: ?boolean,
   setIncognito: (boolean) => void,
   fetchModBlockedList: () => void,
   fetchModAmIList: () => void,
   homepageFetched: boolean,
+  defaultChannelClaim: ?any,
+  doOpenAnnouncements: () => void,
+  doSetLastViewedAnnouncement: (hash: string) => void,
+  doSetDefaultChannel: (claimId: string) => void,
 };
 
 function App(props: Props) {
@@ -103,6 +106,7 @@ function App(props: Props) {
     history,
     syncError,
     syncIsLocked,
+    prefsReady,
     language,
     languages,
     setLanguage,
@@ -116,9 +120,12 @@ function App(props: Props) {
     activeChannelClaim,
     setIncognito,
     fetchModBlockedList,
-    hasPremiumPlus,
     fetchModAmIList,
     homepageFetched,
+    defaultChannelClaim,
+    doOpenAnnouncements,
+    doSetLastViewedAnnouncement,
+    doSetDefaultChannel,
   } = props;
 
   const isMobile = useIsMobile();
@@ -150,7 +157,6 @@ function App(props: Props) {
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const hasActiveChannelClaim = activeChannelClaim !== undefined;
   const renderFiledrop = !isMobile && isAuthenticated;
   const connectionStatus = useConnectionStatus();
 
@@ -335,7 +341,13 @@ function App(props: Props) {
       fetchModAmIList();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMyChannels, hasNoChannels, hasActiveChannelClaim, setIncognito]);
+  }, [hasMyChannels, hasNoChannels, setIncognito]);
+
+  useEffect(() => {
+    if (hasMyChannels && activeChannelClaim && !defaultChannelClaim && prefsReady) {
+      doSetDefaultChannel(activeChannelClaim.claim_id);
+    }
+  }, [activeChannelClaim, defaultChannelClaim, doSetDefaultChannel, hasMyChannels, prefsReady]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -438,7 +450,7 @@ function App(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps, (one time after locale is fetched)
   }, [locale]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (locale) {
       const countryCode = locale.country;
       const langs = getLanguagesForCountry(countryCode) || [];
@@ -471,6 +483,19 @@ function App(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncError, pathname, isAuthenticated]);
 
+  useEffect(() => {
+    if (prefsReady) {
+      doOpenAnnouncements();
+    }
+  }, [prefsReady]);
+
+  useEffect(() => {
+    window.clearLastViewedAnnouncement = () => {
+      console.log('Clearing history. Please wait ...');
+      doSetLastViewedAnnouncement('');
+    };
+  }, []);
+
   // Keep this at the end to ensure initial setup effects are run first
   useEffect(() => {
     if (!hasSignedIn && hasVerifiedEmail) {
@@ -480,8 +505,6 @@ function App(props: Props) {
   }, [hasVerifiedEmail, signIn, hasSignedIn]);
 
   useDegradedPerformance(setLbryTvApiStatus, user);
-
-  useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
 
   useEffect(() => {
     // When language is changed or translations are fetched, we render.

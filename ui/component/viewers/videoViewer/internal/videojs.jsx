@@ -77,7 +77,7 @@ type Props = {
   autoplay: boolean,
   claimId: ?string,
   title: ?string,
-  channelName: ?string,
+  channelTitle: string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -98,7 +98,6 @@ type Props = {
   doAnalyticsBuffer: (string, any) => void,
   uri: string,
   claimValues: any,
-  clearPosition: (string) => void,
   isLivestreamClaim: boolean,
   userClaimId: ?string,
   activeLivestreamForChannel: any,
@@ -136,7 +135,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplay,
     claimId,
     title,
-    channelName,
+    channelTitle,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -157,7 +156,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     doAnalyticsBuffer,
     claimRewards,
     uri,
-    clearPosition,
     userClaimId,
     isLivestreamClaim,
     activeLivestreamForChannel,
@@ -211,8 +209,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claimRewards,
     uri,
     playerServerRef,
-    clearPosition,
     isLivestreamClaim,
+    channelTitle,
   });
 
   const videoJsOptions = {
@@ -246,7 +244,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     techOrder: ['chromecast', 'html5'],
     chromecast: {
       requestTitleFn: (src) => title || '',
-      requestSubtitleFn: (src) => channelName || '',
+      requestSubtitleFn: (src) => channelTitle || '',
     },
     bigPlayButton: embedded, // only show big play button if embedded
     liveui: isLivestreamClaim,

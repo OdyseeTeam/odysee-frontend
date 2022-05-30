@@ -117,10 +117,6 @@ export default function FilePage(props: Props) {
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file
     // this could probably be refactored into more direct components now
-    if (collectionId) {
-      clearPosition(uri);
-    }
-
     if (fileInfo && videoPlayedEnoughToResetPosition) {
       clearPosition(uri);
     }
@@ -156,7 +152,7 @@ export default function FilePage(props: Props) {
       );
     }
 
-    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode)) {
+    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode) && !isMature) {
       return (
         <>
           <FileTitleSection uri={uri} />

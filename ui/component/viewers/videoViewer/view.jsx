@@ -30,6 +30,7 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
+import RecSys from 'recsys';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
@@ -130,7 +131,8 @@ function VideoViewer(props: Props) {
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
-  const channelName = claim && claim.signing_channel && claim.signing_channel.name;
+  const channelTitle =
+    (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
   const {
@@ -176,6 +178,7 @@ function VideoViewer(props: Props) {
 
   useInterval(
     () => {
+      RecSys.saveEntries();
       if (playerRef.current && isPlaying && !isLivestreamClaim) {
         handlePosition(playerRef.current);
       }
@@ -230,7 +233,6 @@ function VideoViewer(props: Props) {
     if (playNextUrl) {
       if (permanentUrl !== nextRecommendedUri) {
         if (nextRecommendedUri) {
-          if (collectionId) clearPosition(permanentUrl);
           doPlay(nextRecommendedUri);
         }
       } else {
@@ -252,7 +254,6 @@ function VideoViewer(props: Props) {
     setEnded(false);
     setPlayNextUrl(true);
   }, [
-    clearPosition,
     collectionId,
     doNavigate,
     doPlay,
@@ -470,7 +471,7 @@ function VideoViewer(props: Props) {
         autoplay={!embedded || autoplayIfEmbedded}
         claimId={claimId}
         title={claim && ((claim.value && claim.value.title) || claim.name)}
-        channelName={channelName}
+        channelTitle={channelTitle}
         userId={userId}
         allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
         internalFeatureEnabled={internalFeature}
@@ -484,7 +485,6 @@ function VideoViewer(props: Props) {
         doAnalyticsBuffer={doAnalyticsBuffer}
         claimRewards={claimRewards}
         uri={uri}
-        clearPosition={clearPosition}
         userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
         isLivestreamClaim={isLivestreamClaim}
         activeLivestreamForChannel={activeLivestreamForChannel}

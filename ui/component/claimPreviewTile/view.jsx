@@ -35,11 +35,13 @@ type Props = {
   mediaDuration?: string,
   resolveUri: (string) => void,
   isResolvingUri: boolean,
+  claimIsMine: boolean,
   history: { push: (string) => void },
   thumbnail: string,
   title: string,
   placeholder: boolean,
   banState: { blacklisted?: boolean, filtered?: boolean, muted?: boolean, blocked?: boolean },
+  geoRestriction: ?GeoRestriction,
   getFile: (string) => void,
   streamingUrl: string,
   isMature: boolean,
@@ -66,12 +68,14 @@ function ClaimPreviewTile(props: Props) {
     uri,
     date,
     isResolvingUri,
+    claimIsMine,
     thumbnail,
     title,
     resolveUri,
     claim,
     placeholder,
     banState,
+    geoRestriction,
     getFile,
     streamingUrl,
     isMature,
@@ -134,20 +138,10 @@ function ClaimPreviewTile(props: Props) {
   const channelUri = !isChannel ? signingChannel && signingChannel.permanent_url : claim && claim.permanent_url;
   const channelTitle = signingChannel && ((signingChannel.value && signingChannel.value.title) || signingChannel.name);
 
-  // Aria-label value for claim preview
-  let ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
+  const isChannelPage = window.location.pathname.startsWith('/@');
+  const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
 
-  function handleClick(e) {
-    if (navigateUrl) {
-      history.push(navigateUrl);
-    }
-  }
-
-  React.useEffect(() => {
-    if (isValid && !isResolvingUri && shouldFetch && uri) {
-      resolveUri(uri);
-    }
-  }, [isValid, isResolvingUri, uri, resolveUri, shouldFetch]);
+  const ariaLabelData = isChannel ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
 
   let shouldHide = false;
 
@@ -155,23 +149,54 @@ function ClaimPreviewTile(props: Props) {
     // Unfortunately needed until this is resolved
     // https://github.com/lbryio/lbry-sdk/issues/2785
     shouldHide = true;
-  } else {
-    shouldHide =
-      !placeholder &&
-      (banState.blacklisted ||
-        banState.filtered ||
-        (!showHiddenByUser && (banState.muted || banState.blocked)) ||
-        (isAbandoned && !showUnresolvedClaims));
-    if (onHidden && shouldHide) onHidden(props.uri);
   }
 
-  if (shouldHide || (isLivestream && !showNoSourceClaims)) {
+  if (!shouldHide && geoRestriction && !claimIsMine) {
+    shouldHide = true;
+  }
+
+  if (!shouldHide && !placeholder) {
+    shouldHide =
+      banState.blacklisted ||
+      banState.filtered ||
+      (!showHiddenByUser && (banState.muted || banState.blocked)) ||
+      (isAbandoned && !showUnresolvedClaims);
+  }
+
+  if (!shouldHide) {
+    shouldHide = isLivestream && !showNoSourceClaims;
+  }
+
+  // **************************************************************************
+  // **************************************************************************
+
+  function handleClick(e) {
+    if (navigateUrl) {
+      history.push(navigateUrl);
+    }
+  }
+
+  // **************************************************************************
+  // **************************************************************************
+
+  React.useEffect(() => {
+    if (isValid && !isResolvingUri && shouldFetch && uri) {
+      resolveUri(uri);
+    }
+  }, [isValid, isResolvingUri, uri, resolveUri, shouldFetch]);
+
+  React.useEffect(() => {
+    if (onHidden && shouldHide) {
+      onHidden(props.uri);
+    }
+  }, [shouldHide, onHidden, props.uri]);
+
+  // **************************************************************************
+  // **************************************************************************
+
+  if (shouldHide) {
     return null;
   }
-
-  const isChannelPage = window.location.pathname.startsWith('/@');
-
-  const shouldShowViewCount = !(!viewCount || (claim && claim.repost_url) || isLivestream || !isChannelPage);
 
   if (placeholder || (!claim && isResolvingUri)) {
     return (

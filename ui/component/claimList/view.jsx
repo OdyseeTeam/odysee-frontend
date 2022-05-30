@@ -61,7 +61,7 @@ type Props = {
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
-  onHidden: string,
+  onHidden: (string) => void,
 };
 
 export default function ClaimList(props: Props) {
@@ -309,7 +309,8 @@ export default function ClaimList(props: Props) {
         </React.Fragment>
       )}
 
-      {urisLength > 0 && (
+      {/* the droppable element needs to be rendered even if empty otherwise logs error on console */}
+      {(urisLength > 0 || droppableProvided) && (
         <ul
           className={classnames('ul--no-style', {
             card: !(tileLayout || swipeLayout || type === 'small'),

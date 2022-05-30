@@ -6,6 +6,7 @@ import Page from 'component/page';
 import Spinner from 'component/spinner';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
+import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
@@ -18,16 +19,14 @@ import I18nMessage from 'component/i18nMessage';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
 
-let stripeEnvironment = getStripeEnvironment();
-
+const stripeEnvironment = getStripeEnvironment();
 const isDev = process.env.NODE_ENV !== 'production';
 
-let log = (input) => {};
-if (isDev) log = console.log;
-
-// odysee channel information since the memberships are only for Odysee
-const odyseeChannelId = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
-const odyseeChannelName = '@odysee';
+function log(...args) {
+  // @if process.env.LOG_MEMBERSHIP='true'
+  console.log(args);
+  // @endif
+}
 
 type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
@@ -178,8 +177,9 @@ const OdyseeMembershipPage = (props: Props) => {
           'list',
           {
             environment: stripeEnvironment,
-            channel_id: odyseeChannelId,
-            channel_name: odyseeChannelName,
+            // Using @odysee's channel info as memberships are only for @odysee.
+            channel_id: ODYSEE_CHANNEL.ID,
+            channel_name: ODYSEE_CHANNEL.NAME,
           },
           'post'
         );

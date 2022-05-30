@@ -1,21 +1,26 @@
 import { hot } from 'react-hot-loader/root';
 import { connect } from 'react-redux';
-import { selectGetSyncErrorMessage, selectSyncFatalError, selectSyncIsLocked } from 'redux/selectors/sync';
-import { doUserSetReferrer } from 'redux/actions/user';
 import {
-  selectOdyseeMembershipIsPremiumPlus,
-  selectUser,
-  selectUserLocale,
-  selectUserVerifiedEmail,
-  selectHomepageFetched,
-} from 'redux/selectors/user';
+  selectGetSyncErrorMessage,
+  selectPrefsReady,
+  selectSyncFatalError,
+  selectSyncIsLocked,
+} from 'redux/selectors/sync';
+import { doUserSetReferrer } from 'redux/actions/user';
+import { doSetLastViewedAnnouncement } from 'redux/actions/content';
+import { selectUser, selectUserLocale, selectUserVerifiedEmail, selectHomepageFetched } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { doFetchChannelListMine, doFetchCollectionListMine } from 'redux/actions/claims';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
-import { selectLanguage, selectLoadedLanguages, selectThemePath } from 'redux/selectors/settings';
+import {
+  selectLanguage,
+  selectLoadedLanguages,
+  selectThemePath,
+  selectDefaultChannelClaim,
+} from 'redux/selectors/settings';
 import { selectModal, selectActiveChannelClaim, selectIsReloadRequired } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
-import { doSetLanguage } from 'redux/actions/settings';
+import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
@@ -28,6 +33,7 @@ const select = (state) => ({
   language: selectLanguage(state),
   languages: selectLoadedLanguages(state),
   isReloadRequired: selectIsReloadRequired(state),
+  prefsReady: selectPrefsReady(state),
   syncError: selectGetSyncErrorMessage(state),
   syncIsLocked: selectSyncIsLocked(state),
   uploadCount: selectUploadCount(state),
@@ -37,8 +43,8 @@ const select = (state) => ({
   syncFatalError: selectSyncFatalError(state),
   activeChannelClaim: selectActiveChannelClaim(state),
   myChannelClaimIds: selectMyChannelClaimIds(state),
-  hasPremiumPlus: selectOdyseeMembershipIsPremiumPlus(state),
   homepageFetched: selectHomepageFetched(state),
+  defaultChannelClaim: selectDefaultChannelClaim(state),
 });
 
 const perform = {
@@ -51,6 +57,9 @@ const perform = {
   setIncognito: doSetIncognito,
   fetchModBlockedList: doFetchModBlockedList,
   fetchModAmIList: doFetchCommentModAmIList,
+  doOpenAnnouncements,
+  doSetLastViewedAnnouncement,
+  doSetDefaultChannel,
 };
 
 export default hot(connect(select, perform)(App));

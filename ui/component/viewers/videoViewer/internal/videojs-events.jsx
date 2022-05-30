@@ -19,6 +19,7 @@ const VideoJsEvents = ({
   claimId,
   userId,
   claimValues,
+  channelTitle,
   embedded,
   uri,
   doAnalyticsView,
@@ -35,8 +36,8 @@ const VideoJsEvents = ({
   claimId: ?string,
   userId: ?number,
   claimValues: any,
+  channelTitle: string,
   embedded: boolean,
-  clearPosition: (string) => void,
   uri: string,
   doAnalyticsView: (string, number) => any,
   doAnalyticsBuffer: (string, any) => void,
@@ -110,6 +111,7 @@ const VideoJsEvents = ({
 
   function onInitialPlay() {
     const player = playerRef.current;
+    updateMediaSession();
 
     const bigPlayButton = document.querySelector('.vjs-big-play-button');
     if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none');
@@ -196,6 +198,27 @@ const VideoJsEvents = ({
       default:
         if (isDev) throw new Error('showTapButton: unexpected ref');
         break;
+    }
+  }
+
+  function updateMediaSession() {
+    if ('mediaSession' in navigator) {
+      const player = playerRef.current;
+      // $FlowFixMe
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: claimValues.title,
+        artist: channelTitle,
+        artwork: [{ src: claimValues.thumbnail.url }],
+      });
+
+      // $FlowFixMe
+      navigator.mediaSession.setActionHandler('seekbackward', function () {
+        player.currentTime(Math.max(0, player.currentTime() - 10));
+      });
+      // $FlowFixMe
+      navigator.mediaSession.setActionHandler('seekforward', function () {
+        player.currentTime(Math.max(0, player.currentTime() + 10));
+      });
     }
   }
 

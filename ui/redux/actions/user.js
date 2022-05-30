@@ -4,7 +4,7 @@ import { doFetchChannelListMine } from 'redux/actions/claims';
 import { isURIValid, normalizeURI } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
 import { getStripeEnvironment } from 'util/stripe';
-
+import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as ACTIONS from 'constants/action_types';
 import { doFetchGeoBlockedList } from 'redux/actions/blocked';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
@@ -15,13 +15,12 @@ import rewards from 'rewards';
 import { Lbryio } from 'lbryinc';
 import { DOMAIN, LOCALE_API } from 'config';
 import { getDefaultLanguage } from 'util/default-languages';
-const AUTH_IN_PROGRESS = 'authInProgress';
+import { LocalStorage, LS } from 'util/storage';
+
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
 const stripeEnvironment = getStripeEnvironment();
-
-const ODYSEE_CHANNEL_ID = '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8';
 
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
@@ -92,9 +91,9 @@ function checkAuthBusy() {
       if (!IS_WEB || !sessionStorageAvailable) {
         return resolve();
       }
-      const inProgress = window.sessionStorage.getItem(AUTH_IN_PROGRESS);
+      const inProgress = LocalStorage.getItem(LS.AUTH_IN_PROGRESS);
       if (!inProgress) {
-        window.sessionStorage.setItem(AUTH_IN_PROGRESS, 'true');
+        LocalStorage.setItem(LS.AUTH_IN_PROGRESS, 'true');
         return resolve();
       } else {
         if (Date.now() - time < AUTH_WAIT_TIMEOUT) {
@@ -115,41 +114,44 @@ function checkAuthBusy() {
  */
 export function doCheckUserOdyseeMemberships(user) {
   return async (dispatch) => {
-    // get memberships for a given user
-    // TODO: in the future, can we specify this just to @odysee?
-
-    const response = await Lbryio.call(
-      'membership',
-      'mine',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    );
-
-    let savedMemberships = [];
     let highestMembershipRanking;
 
-    // TODO: this will work for now, but it should be adjusted
-    // TODO: to check if it's active, or if it's cancelled if it's still valid past current date
-    // loop through all memberships and save the @odysee ones
-    // maybe in the future we can only hit @odysee in the API call
-    for (const membership of response) {
-      if (membership.MembershipDetails && membership.MembershipDetails.channel_name === '@odysee') {
-        savedMemberships.push(membership.MembershipDetails.name);
-      }
-    }
+    if (user.odysee_member) {
+      // get memberships for a given user
+      // TODO: in the future, can we specify this just to @odysee?
 
-    // determine highest ranking membership based on returned data
-    // note: this is from an odd state in the API where a user can be both premium/Premium + at the same time
-    // I expect this can change once upgrade/downgrade is implemented
-    if (savedMemberships.length > 0) {
-      // if premium plus is a membership, return that, otherwise it's only premium
-      const premiumPlusExists = savedMemberships.includes('Premium+');
-      if (premiumPlusExists) {
-        highestMembershipRanking = 'Premium+';
-      } else {
-        highestMembershipRanking = 'Premium';
+      const response = await Lbryio.call(
+        'membership',
+        'mine',
+        {
+          environment: stripeEnvironment,
+        },
+        'post'
+      );
+
+      let savedMemberships = [];
+
+      // TODO: this will work for now, but it should be adjusted
+      // TODO: to check if it's active, or if it's cancelled if it's still valid past current date
+      // loop through all memberships and save the @odysee ones
+      // maybe in the future we can only hit @odysee in the API call
+      for (const membership of response) {
+        if (membership.MembershipDetails && membership.MembershipDetails.channel_name === '@odysee') {
+          savedMemberships.push(membership.MembershipDetails.name);
+        }
+      }
+
+      // determine highest ranking membership based on returned data
+      // note: this is from an odd state in the API where a user can be both premium/Premium + at the same time
+      // I expect this can change once upgrade/downgrade is implemented
+      if (savedMemberships.length > 0) {
+        // if premium plus is a membership, return that, otherwise it's only premium
+        const premiumPlusExists = savedMemberships.includes('Premium+');
+        if (premiumPlusExists) {
+          highestMembershipRanking = 'Premium+';
+        } else {
+          highestMembershipRanking = 'Premium';
+        }
       }
     }
 
@@ -176,17 +178,14 @@ export function doAuthenticate(
         return Lbryio.authenticate(DOMAIN, getDefaultLanguage());
       })
       .then((user) => {
-        if (sessionStorageAvailable) window.sessionStorage.removeItem(AUTH_IN_PROGRESS);
+        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
         Lbryio.getAuthToken().then((token) => {
           dispatch({
             type: ACTIONS.AUTHENTICATION_SUCCESS,
             data: { user, accessToken: token },
           });
 
-          // if user is an Odysee member, get the membership details
-          if (user.odysee_member) {
-            dispatch(doCheckUserOdyseeMemberships(user));
-          }
+          dispatch(doCheckUserOdyseeMemberships(user));
 
           if (shareUsageData) {
             dispatch(doRewardList());
@@ -200,7 +199,7 @@ export function doAuthenticate(
         });
       })
       .catch((error) => {
-        if (sessionStorageAvailable) window.sessionStorage.removeItem(AUTH_IN_PROGRESS);
+        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
 
         dispatch({
           type: ACTIONS.AUTHENTICATION_FAILURE,
@@ -219,11 +218,7 @@ export function doUserFetch() {
 
       Lbryio.getCurrentUser()
         .then((user) => {
-          // get user membership status
-          if (user.odysee_member) {
-            dispatch(doCheckUserOdyseeMemberships(user));
-          }
-
+          dispatch(doCheckUserOdyseeMemberships(user));
           dispatch({
             type: ACTIONS.USER_FETCH_SUCCESS,
             data: { user },
@@ -244,14 +239,10 @@ export function doUserCheckEmailVerified() {
   // This will happen in the background so we don't need loading booleans
   return (dispatch) => {
     Lbryio.getCurrentUser().then((user) => {
+      dispatch(doCheckUserOdyseeMemberships(user));
+
       if (user.has_verified_email) {
-        // check premium membership
-        if (user.odysee_member) {
-          dispatch(doCheckUserOdyseeMemberships(user));
-        }
-
         dispatch(doRewardList());
-
         dispatch({
           type: ACTIONS.USER_FETCH_SUCCESS,
           data: { user },
@@ -912,7 +903,7 @@ export function doFetchUserMemberships(claimIdCsv) {
 
     // check if users have odysee memberships (premium/premium+)
     const response = await Lbryio.call('membership', 'check', {
-      channel_id: ODYSEE_CHANNEL_ID,
+      channel_id: ODYSEE_CHANNEL.ID,
       claim_ids: claimIdCsv,
       environment: stripeEnvironment,
     });

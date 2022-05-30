@@ -3,6 +3,7 @@ import { SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
+import GeoRestrictionInfo from 'component/geoRestictionInfo';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
@@ -102,6 +103,8 @@ function ChannelContent(props: Props) {
 
   return (
     <Fragment>
+      <GeoRestrictionInfo uri={uri} />
+
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
         <HiddenNsfwClaims uri={uri} />
       )}
@@ -163,7 +166,13 @@ function ChannelContent(props: Props) {
           infiniteScroll={defaultInfiniteScroll}
           injectedItem={
             !hasPremiumPlus && {
-              node: <Ads small type="video" tileLayout />,
+              node: (index, lastVisibleIndex, pageSize) => {
+                if (pageSize && index < pageSize) {
+                  return index === lastVisibleIndex ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                } else {
+                  return index % (pageSize * 2) === 0 ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                }
+              },
             }
           }
           meta={
