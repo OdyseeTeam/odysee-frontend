@@ -412,13 +412,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const trimmedPath = response.url.substring(0, response.url.lastIndexOf('/'));
           const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
 
-          // TODO: have to fix thumbnail plugin
-          // disable thumbnails on mobile for now
+          // progress bar hover thumbnails
           if (!IS_MOBILE) {
-            vjsPlayer.vttThumbnails({
-              src: thumbnailPath,
-              showTimestamp: true,
-            });
+            // if src is a function, it's already been initialized
+            if (typeof vjsPlayer.vttThumbnails.src === 'function') {
+              vjsPlayer.vttThumbnails.src(thumbnailPath);
+            } else {
+              // otherwise, initialize plugin
+              vjsPlayer.vttThumbnails({
+                src: thumbnailPath,
+                showTimestamp: true,
+              });
+            }
           }
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
