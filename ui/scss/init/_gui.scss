@@ -993,6 +993,7 @@ img {
   }
 
   .card--additional-options {
+    margin-bottom: var(--spacing-l) !important;
     .card__main-actions {
       //padding-top:var(--spacing-s);
       padding-top: 0;
