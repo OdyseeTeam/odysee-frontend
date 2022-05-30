@@ -425,6 +425,7 @@ img {
 
 .error__text {
   color: var(--color-text-error);
+  margin-left: 2px;
 }
 
 .help--error {
@@ -733,6 +734,12 @@ img {
     width: 60% !important;
   }
 
+  .card__first-pane {
+    .card__main-actions {
+      padding-top: var(--spacing-xxl);
+    }
+  }
+
   label {
     font-size: var(--font-body);
   }
@@ -983,6 +990,18 @@ img {
           box-shadow: 0 0 0 2px var(--color-primary) inset;
         }
       }
+    }
+  }
+
+  .EasyMDEContainer {
+    .editor-toolbar,
+    .CodeMirror-wrap {
+      border-width: 2px !important;
+    }
+
+    .editor-statusbar {
+      padding: 0;
+      padding-top: var(--spacing-s);
     }
   }
 
