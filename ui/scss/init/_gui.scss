@@ -873,7 +873,8 @@ img {
     }
     button {
       border-width: 2px 2px 2px 0;
-      border-color: var(--color-border);
+      border-color: var(--color-primary);
+      background-color: var(--color-primary) !important;
     }
     label {
       margin-left: 0 !important;
@@ -925,9 +926,10 @@ img {
     input {
       box-shadow: 0 0 0 2px var(--color-border) inset;
     }
-    button {
+    .button--secondary {
       border-width: 2px 2px 2px 0;
-      border-color: var(--color-border);
+      border-color: var(--color-primary);
+      background-color: var(--color-primary) !important;
     }
 
     @media (max-width: $breakpoint-small) {
