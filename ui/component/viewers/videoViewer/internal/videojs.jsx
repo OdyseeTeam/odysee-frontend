@@ -348,11 +348,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     (async function () {
       let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
       canAutoplayVideo = canAutoplayVideo.result === true;
-      console.log('can autoplay video', canAutoplayVideo);
 
       let vjsPlayer;
       console.log(window.oldSavedDiv);
-      if (!window.oldSavedDiv) {
+      const vjsParent = document.querySelector('.video-js-parent');
+
+      if (!window.oldSavedDiv || !vjsParent) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
         vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
         if (!vjsPlayer) {
@@ -432,7 +433,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // document.querySelector('.vjs-control-bar').style.display = 'block';
 
-      if (window.oldSavedDiv) {
+      if (window.oldSavedDiv && vjsParent) {
         console.log('replacing video');
         document.querySelector('.video-js-parent').append(window.oldSavedDiv);
       }
@@ -507,7 +508,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         window.player.currentTime(0);
 
-        document.querySelector('video.vjs-tech').style.top = '0px';
+        // this solves an issue with portrait videos
+        const videoDiv = document.querySelector('video.vjs-tech');
+        if (videoDiv) videoDiv.style.top = '0px';
+
         window.player.userActive(false);
 
         const controlBar =  document.querySelector('.vjs-control-bar');
