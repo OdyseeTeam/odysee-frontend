@@ -510,8 +510,8 @@ function PublishFile(props: Props) {
           {inProgress && (
             <div>
               <Button
-                button="close"
-                label={__('New --[clears Publish Form]--')}
+                button="alt"
+                label={__('Clear --[clears Publish Form]--')}
                 icon={ICONS.REFRESH}
                 onClick={doClearPublish}
               />
