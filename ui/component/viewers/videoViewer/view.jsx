@@ -29,16 +29,13 @@ import debounce from 'util/debounce';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import { platform } from 'util/platform';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 
-const IS_IOS =
-  (/iPad|iPhone|iPod/.test(navigator.platform) ||
-    // for iOS 13+ , platform is MacIntel, so use this to test
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) &&
-  !window.MSStream;
+const IS_IOS = platform.isIOS();
 
 type Props = {
   position: number,
@@ -289,10 +286,8 @@ function VideoViewer(props: Props) {
 
     clearPosition(uri);
 
-
-    console.log('running 2');
-    if(IS_IOS && !autoplayNext){
-      console.log('running here!');
+    if (IS_IOS && !autoplayNext) {
+      // show play button on ios if video is paused with no autoplay on
       document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
     }
   }, [adUrl, autoplayNext, clearPosition, collectionId, embedded, ended, setAdUrl, uri]);

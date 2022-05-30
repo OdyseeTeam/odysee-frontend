@@ -47,7 +47,7 @@ function addTheaterModeButton(player: Player, toggleVideoTheaterMode: () => void
     },
   });
 
-  if(controlBar) controlBar.addChild(theaterMode);
+  if (controlBar) controlBar.addChild(theaterMode);
 }
 
 // ****************************************************************************

@@ -56,7 +56,6 @@ function addAutoplayNextButton(player: Player, toggleAutoplayNext: () => void, a
   );
 
   if (controlBar) controlBar.addChild(autoplayButton);
-
 }
 
 // ****************************************************************************

@@ -217,8 +217,8 @@ const VideoJsEvents = ({
     // used for tracking buffering for watchman
     player.on('tracking:buffered', doTrackingBuffered);
 
-    player.on('loadstart', function(){
-      const playPauseButton = document.querySelector('.vjs-play-control')
+    player.on('loadstart', function() {
+      const playPauseButton = document.querySelector('.vjs-play-control');
       if (playPauseButton) playPauseButton.style.display = 'block';
 
       // $FlowFixMe
@@ -226,12 +226,12 @@ const VideoJsEvents = ({
       if (bigPlayButton) {
         bigPlayButton.style.setProperty('display', 'none', 'important');
       }
-    })
+    });
 
-    player.on('play', function(){
-      const controlBar = document.querySelector('.vjs-control-bar')
-      if(controlBar) controlBar.style.display = 'flex';
-    })
+    player.on('play', function() {
+      const controlBar = document.querySelector('.vjs-control-bar');
+      if (controlBar) controlBar.style.display = 'flex';
+    });
 
     // hide forcing control bar show
     player.on('canplaythrough', function () {

@@ -322,7 +322,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           videoDiv.click();
         }
         const coverImage = document.querySelector('.content__cover--theater-mode');
-        if(coverImage) coverImage.click();
+        if (coverImage) coverImage.click();
         window.player.userActive(true);
       }
 
@@ -440,7 +440,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // allow tap to unmute if no perms on iOS
-      if (autoplay){
+      if (autoplay) {
         const promise = vjsPlayer.play();
 
         if (promise !== undefined) {
@@ -499,9 +499,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // player.dispose();
         // window.player = undefined;
 
-        const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next')
-        const theatreModeButton = document.querySelector('.vjs-button--theater-mode')
-        const playPauseButton = document.querySelector('.vjs-play-control')
+        const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next');
+        const theatreModeButton = document.querySelector('.vjs-button--theater-mode');
+        const playPauseButton = document.querySelector('.vjs-play-control');
         if (playPauseButton) playPauseButton.style.display = 'none';
 
         if (autoplayNextButton) autoplayNextButton.remove();
@@ -513,8 +513,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.userActive(false);
 
         const controlBar =  document.querySelector('.vjs-control-bar');
-        if(controlBar) controlBar.style.display = 'none';
-
+        if (controlBar) controlBar.style.display = 'none';
 
         window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
 
