@@ -55,7 +55,7 @@ function addAutoplayNextButton(player: Player, toggleAutoplayNext: () => void, a
     autoplayNext
   );
 
-  if (controlBar){
+  if (controlBar) {
     const existingAutoplayButton = controlBar.getChild('AutoplayNextButton');
     if (existingAutoplayButton) controlBar.removeChild('AutoplayNextButton');
     controlBar.addChild(autoplayButton);

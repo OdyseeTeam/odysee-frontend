@@ -22,7 +22,7 @@ export function addPlayPreviousButton(player: Player, playPreviousURI: () => voi
   });
 
   const existingPlayNextButton = controlBar.getChild('PlayPreviousButton');
-  if(existingPlayNextButton) controlBar.removeChild('PlayPreviousButton');
+  if (existingPlayNextButton) controlBar.removeChild('PlayPreviousButton');
 
   controlBar.addChild(playPrevious, {}, 0);
 }

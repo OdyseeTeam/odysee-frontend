@@ -504,8 +504,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         const playPauseButton = document.querySelector('.vjs-play-control');
         if (playPauseButton) playPauseButton.style.display = 'none';
 
-        const chaptersButton = document.querySelector('.vjs-chapters-button');
-        // if (chaptersButton) chaptersButton.remove();
+        window.player?.controlBar?.getChild('ChaptersButton')?.hide();
 
         // this solves an issue with portrait videos
         const videoDiv = document.querySelector('video.vjs-tech');
