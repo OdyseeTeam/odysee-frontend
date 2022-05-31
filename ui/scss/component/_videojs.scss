@@ -38,11 +38,15 @@ $control-bar-icon-size: 0.8rem;
     position: absolute;
     display: block;
     align-items: center;
-    width: calc(100% - var(--spacing-s) * 2);
+    width: calc(100% - var(--spacing-m) * 2);
     height: 1rem;
     bottom: 90%;
-    margin: 1px var(--spacing-s) !important;
-    box-sizing: border-box;
+    margin: 1px var(--spacing-m) !important;
+
+    @media (max-width: $breakpoint-small) {
+      width: calc(100% - var(--spacing-s) * 2);
+      margin: 1px var(--spacing-s) !important;
+    }
 
     .vjs-vtt-thumbnail-display {
       margin-top: -122px;
