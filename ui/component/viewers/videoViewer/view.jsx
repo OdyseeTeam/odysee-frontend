@@ -361,7 +361,6 @@ function VideoViewer(props: Props) {
     }
 
     const vjsParent = document.querySelector('.video-js-parent');
-
     const canUseOldPlayer = window.oldSavedDiv && vjsParent;
 
     if (!canUseOldPlayer) {

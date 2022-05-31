@@ -21,5 +21,8 @@ export function addPlayNextButton(player: Player, playNextURI: () => void) {
     },
   });
 
+  const existingPlayNextButton = controlBar.getChild('PlayNextButton');
+  if(existingPlayNextButton) controlBar.removeChild('PlayNextButton');
+
   controlBar.addChild(playNext, {}, 1);
 }

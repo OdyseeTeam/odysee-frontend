@@ -47,7 +47,11 @@ function addTheaterModeButton(player: Player, toggleVideoTheaterMode: () => void
     },
   });
 
-  if (controlBar) controlBar.addChild(theaterMode);
+  if (controlBar) {
+    const existingTheatreModeButton = controlBar.getChild('TheaterModeButton');
+    if (existingTheatreModeButton) controlBar.removeChild('TheaterModeButton');
+    controlBar.addChild(theaterMode);
+  }
 }
 
 // ****************************************************************************

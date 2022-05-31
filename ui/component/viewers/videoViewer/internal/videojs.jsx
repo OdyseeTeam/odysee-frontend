@@ -501,15 +501,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.currentTime(0);
         window.player.userActive(false);
 
-        const autoplayNextButton = document.querySelector('.vjs-button--autoplay-next');
-        const theatreModeButton = document.querySelector('.vjs-button--theater-mode');
         const playPauseButton = document.querySelector('.vjs-play-control');
-        const chaptersButton = document.querySelector('.vjs-chapters-button');
-
         if (playPauseButton) playPauseButton.style.display = 'none';
-        if (autoplayNextButton) autoplayNextButton.remove();
-        if (theatreModeButton) theatreModeButton.remove();
-        if (chaptersButton) chaptersButton.remove();
+
+        const chaptersButton = document.querySelector('.vjs-chapters-button');
+        // if (chaptersButton) chaptersButton.remove();
 
         // this solves an issue with portrait videos
         const videoDiv = document.querySelector('video.vjs-tech');
