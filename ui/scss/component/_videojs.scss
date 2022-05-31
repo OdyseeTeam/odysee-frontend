@@ -202,10 +202,12 @@ $control-bar-icon-size: 0.8rem;
   }
 
   .vjs-menu-title {
+    color: var(--color-text);
     background-color: var(--color-header-background);
   }
 
   .vjs-menu-item {
+    color: var(--color-text);
     margin: 2px;
     margin-left: var(--spacing-s);
     margin-right: var(--spacing-s);
@@ -216,6 +218,7 @@ $control-bar-icon-size: 0.8rem;
       margin-bottom: var(--spacing-xxs);
     }
     &:hover {
+      color: var(--color-primary-contrast);
       background-color: var(--color-primary);
       border-radius: var(--border-radius);
     }
