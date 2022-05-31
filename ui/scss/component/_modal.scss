@@ -74,8 +74,15 @@
     .claim__menu-button {
       right: var(--spacing-xxs) !important;
     }
-    &:hover {
-      // background-color: unset;
+  }
+
+  .repost-wrapper {
+    .claim-preview__wrapper {
+      padding-top: var(--spacing-m);
+      border: 2px solid var(--color-border);
+      .claim-preview__actions {
+        margin-top: unset;
+      }
     }
   }
 
