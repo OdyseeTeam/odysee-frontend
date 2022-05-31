@@ -8,6 +8,7 @@ import useFetchViewCount from 'effects/use-fetch-view-count';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import { getInjectedItem } from 'util/list-injected-item';
 
 const SHOW_TIMEOUT_MSG = false;
 
@@ -145,22 +146,6 @@ function ClaimTilesDiscover(props: Props) {
     }
   }
 
-  const getInjectedItem = (index) => {
-    if (injectedItem && injectedItem.node) {
-      if (typeof injectedItem.node === 'function') {
-        return injectedItem.node(index, lastVisibleIndex, pageSize);
-      } else {
-        if (injectedItem.index === undefined || injectedItem.index === null) {
-          return index === lastVisibleIndex ? injectedItem.node : null;
-        } else {
-          return index === injectedItem.index ? injectedItem.node : null;
-        }
-      }
-    }
-
-    return null;
-  };
-
   // --------------------------------------------------------------------------
   // --------------------------------------------------------------------------
 
@@ -206,7 +191,7 @@ function ClaimTilesDiscover(props: Props) {
       {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
-              const inj = getInjectedItem(i);
+              const inj = getInjectedItem(i, pageSize, injectedItem, lastVisibleIndex);
               if (inj) {
                 if (!uriBuffer.current.includes(i)) {
                   uriBuffer.current.push(i);

@@ -9,6 +9,7 @@ import { FormField } from 'component/common/form';
 import usePersistedState from 'effects/use-persisted-state';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import debounce from 'util/debounce';
+import { getInjectedItem } from 'util/list-injected-item';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 
 const Draggable = React.lazy(() =>
@@ -207,29 +208,13 @@ export default function ClaimList(props: Props) {
     />
   );
 
-  const getInjectedItem = (index) => {
-    if (injectedItem && injectedItem.node) {
-      if (typeof injectedItem.node === 'function') {
-        return injectedItem.node(index, lastVisibleIndex, pageSize);
-      } else {
-        if (injectedItem.index === undefined || injectedItem.index === null) {
-          return index === lastVisibleIndex ? injectedItem.node : null;
-        } else {
-          return index === injectedItem.index ? injectedItem.node : null;
-        }
-      }
-    }
-
-    return null;
-  };
-
   return tileLayout && !header ? (
     <>
       <section ref={listRef} className={classnames('claim-grid', { 'swipe-list': swipeLayout })}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
             if (uri) {
-              const inj = getInjectedItem(index);
+              const inj = getInjectedItem(index, pageSize, injectedItem, lastVisibleIndex);
               if (inj) {
                 if (!uriBuffer.current.includes(index)) {
                   uriBuffer.current.push(index);
@@ -346,7 +331,7 @@ export default function ClaimList(props: Props) {
           ) : (
             sortedUris.map((uri, index) => (
               <React.Fragment key={uri}>
-                {getInjectedItem(index)}
+                {getInjectedItem(index, pageSize, injectedItem, lastVisibleIndex)}
                 {getClaimPreview(uri, index)}
               </React.Fragment>
             ))
