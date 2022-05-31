@@ -363,6 +363,12 @@ $BANNER_BORDER: 1px;
   border-radius: var(--border-radius);
 }
 
+.banner-ad--list-item {
+  width: 100%;
+  margin-top: var(--spacing-s);
+  margin-bottom: var(--spacing-xl);
+}
+
 .banner-ad__container {
   min-height: 250px;
 

@@ -25,6 +25,7 @@ const select = (state, props) => {
     languageSetting: selectLanguage(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
     hasPremiumPlus: selectOdyseeMembershipIsPremiumPlus(state),
+    currentTheme: selectClientSetting(state, SETTINGS.THEME),
   };
 };
 

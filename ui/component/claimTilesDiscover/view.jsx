@@ -194,7 +194,7 @@ function ClaimTilesDiscover(props: Props) {
               const inj = getInjectedItem(i, pageSize, injectedItem, lastVisibleIndex);
               if (inj) {
                 if (!uriBuffer.current.includes(i)) {
-                  uriBuffer.current.push(i);
+                  // uriBuffer.current.push(i);
                 }
               }
               return (

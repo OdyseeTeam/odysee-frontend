@@ -19,6 +19,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './livestreamSection';
+import AdsBanner from 'web/component/adsBanner';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 
@@ -36,6 +37,7 @@ type Props = {
   activeLivestreams: ?LivestreamInfo,
   doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
   hasPremiumPlus: boolean,
+  currentTheme: string,
 };
 
 function DiscoverPage(props: Props) {
@@ -53,6 +55,7 @@ function DiscoverPage(props: Props) {
     doFetchActiveLivestreams,
     dynamicRouteProps,
     hasPremiumPlus,
+    currentTheme,
   } = props;
 
   const buttonRef = useRef();
@@ -226,12 +229,9 @@ function DiscoverPage(props: Props) {
           injectedItem={
             !isWildWest &&
             !hasPremiumPlus && {
+              disableCountCompensation: true,
               node: (index, lastVisibleIndex, pageSize) => {
-                if (pageSize && index < pageSize) {
-                  return index === lastVisibleIndex ? <Ads small type="video" tileLayout={tileLayout} /> : null;
-                } else {
-                  return index % (pageSize * 2) === 0 ? <Ads small type="video" tileLayout={tileLayout} /> : null;
-                }
+                return index % (pageSize * 2) === 0 ? <AdsBanner isListItem key={`${currentTheme}:${index}`} /> : null;
               },
             }
           }

@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
@@ -35,6 +36,8 @@ const adsSignInDriver = (
 let gReferenceCounter = 0;
 
 type Props = {
+  isListItem?: boolean,
+  // --- Redux ---
   isAdBlockerFound: ?boolean,
   userHasPremiumPlus: boolean,
   userCountry: string,
@@ -43,7 +46,7 @@ type Props = {
 };
 
 export default function AdsBanner(props: Props) {
-  const { isAdBlockerFound, userHasPremiumPlus, userCountry, currentTheme, doSetAdBlockerFound } = props;
+  const { isListItem, isAdBlockerFound, userHasPremiumPlus, userCountry, currentTheme, doSetAdBlockerFound } = props;
   const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, isAdBlockerFound, doSetAdBlockerFound);
 
   React.useEffect(() => {
@@ -78,7 +81,7 @@ export default function AdsBanner(props: Props) {
   }
 
   return (
-    <div className="banner-ad">
+    <div className={classnames('banner-ad', { 'banner-ad--list-item': isListItem })} >
       <div className="banner-ad__driver">
         <div className="banner-ad__driver-label">Ad</div>
         <div className="banner-ad__driver-value">{adsSignInDriver}</div>
