@@ -291,6 +291,7 @@ function ClaimMenuList(props: Props) {
     () =>
       function (event) {
         event.preventDefault();
+        return true;
       };
     copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
   }
@@ -433,7 +434,7 @@ function ClaimMenuList(props: Props) {
 
         {shouldShow && (
           <>
-            {!isChannelPage && (
+            {window.odysee.build.apkUpdater && !isChannelPage && (
               <>
                 <MenuItem className="comment__menu-option" onSelect={handleSupport}>
                   <div className="menu__link">

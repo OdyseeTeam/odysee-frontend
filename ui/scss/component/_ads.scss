@@ -15,11 +15,16 @@
   }
 }
 
+.avp-p-wrapper {
+  // Hide by default, so that any stray floater won't be visible.
+  // We'll enable it only within our designated container (see below).
+  display: none;
+}
+
 // Inline Video Ads
 // The default is coded for list-layout;
 // --tile and other modifiers adjust accordingly.
 .ads__claim-item {
-  border-bottom: 1px solid var(--color-border);
   margin-top: var(--spacing-m);
   margin-bottom: var(--spacing-m);
   padding: var(--spacing-m);
@@ -61,47 +66,29 @@
       width: $width;
     }
 
-    div[style*='transform-origin: left bottom'],
-    div[style*='transform-origin: right bottom'] {
-      // [Floating ad]
-      // Hide for now since can't get it to work in a consistent manner between:
-      //   - EU and non-EU version
-      //   - issues in Firefox
-      //   - floater not taking browser zoom levels into account (close button off screen).
-      //   - many more...
-      display: none !important;
+    .avp-p-wrapper {
+      // Only enable this within our container.
+      display: block;
     }
 
-    #aniBox {
-      transition: unset !important;
-    }
-
-    #aniBox[style*='height: 1px'] {
+    .avp-p-wrapper.av-floating {
       display: none;
     }
 
     #aniBox,
     #av-container {
-      width: 100% !important;
-      height: unset !important;
-      aspect-ratio: 16 / 9 !important;
       border-radius: var(--border-radius);
     }
 
     .avp-p-wrapper > div {
-      border-radius: var(--border-radius) !important; // Needed for EU only
-    }
-
-    #av-container #av-inner #gui #close-btn {
-      // The current version started displaying the close button on video ads.
-      // It closes the video but leaves the container behind. Since there will
-      // be changes in the near future which the end result won't have this
-      // issue, just hide it for now.
-      display: none !important;
+      border-radius: var(--border-radius);
     }
   }
 
   &:hover {
+    .ads__title {
+      color: var(--color-primary);
+    }
     .ad__container {
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
     }
@@ -150,13 +137,13 @@
 
     .ads__subtitle {
       margin-top: var(--spacing-s);
-      color: rgba(var(--color-text-base), 0.6);
+      color: rgba(var(--color-text-base), 0.6) !important;
       font-weight: var(--font-weight-bold);
       line-height: 1rem;
       font-size: var(--font-xsmall);
 
       .icon {
-        color: var(--color-text);
+        color: var(--color-text) !important;
         width: 2.1rem;
         height: 2.1rem;
         float: left;
@@ -211,7 +198,9 @@
     padding-left: var(--spacing-s);
 
     .ads__title {
-      color: white;
+      color: var(--color-text);
+      font-size: var(--font-small);
+      font-weight: var(--font-weight-bold);
     }
   }
 
@@ -235,8 +224,36 @@
 }
 
 .ads__claim-text--small {
-  font-size: var(--font-small);
+  //  font-size: var(--font-small);
+  color: var(--color-text);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-body);
+  width: 100%;
 
+  .ads__title {
+    margin-bottom: var(--spacing-s);
+  }
+
+  .ads__subtitle {
+    color: rgba(var(--color-text-base), 0.6) !important;
+    font-size: var(--font-xsmall);
+    .icon {
+      color: var(--color-text) !important;
+      width: 2.1rem;
+      height: 2.1rem;
+      margin-right: var(--spacing-s);
+      float: left;
+    }
+  }
+  a {
+    display: block;
+    span {
+      display: unset;
+    }
+  }
+  span::after {
+    white-space: pre; /* or pre-wrap */
+  }
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-xsmall);
   }
@@ -319,6 +336,7 @@
   height: 27px !important;
 }
 
+/*
 .ob-widget-footer {
   position: absolute !important;
   right: 32px;
@@ -339,6 +357,7 @@
     display: none !important;
   }
 }
+*/
 
 .ob-widget-items-container {
   padding-left: var(--spacing-xs);
@@ -365,4 +384,82 @@
 
 #av-container #av-inner #gui #timeline #timeline-progress {
   background: var(--color-primary) !important;
+}
+
+// ****************************************************************************
+// Banner
+// ****************************************************************************
+
+$BANNER_BORDER: 1px;
+
+.banner-ad {
+  margin-top: var(--spacing-l);
+  background-color: var(--color-ads-background);
+  border: $BANNER_BORDER solid var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+.banner-ad__container {
+  min-height: 250px;
+
+  padding: var(--spacing-xxs) var(--spacing-m);
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-xxs) var(--spacing-xxs);
+  }
+
+  @media (min-width: $breakpoint-small) {
+    margin: auto;
+    width: 100%;
+  }
+
+  @media (min-width: $breakpoint-xlarge) {
+    max-width: calc(#{$breakpoint-xlarge} * 3 / 4);
+  }
+}
+
+.banner-ad__driver {
+  display: flex;
+  flex-direction: row;
+  max-width: 50%;
+
+  border-left: $BANNER_BORDER solid var(--color-border);
+  border-bottom: $BANNER_BORDER solid var(--color-border);
+  border-radius: 0 var(--border-radius) 0 var(--border-radius);
+  float: right;
+
+  font-size: var(--font-xsmall);
+  @media (max-width: $breakpoint-small) {
+    font-size: var(--font-xxsmall);
+  }
+
+  > * {
+    padding: 0 var(--spacing-xxxs);
+  }
+}
+
+.banner-ad__driver-label {
+  color: var(--color-text-subtitle);
+}
+
+.banner-ad__driver-value {
+  color: var(--color-text-subtitle);
+  border-left: $BANNER_BORDER solid var(--color-border);
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  @supports (-webkit-line-clamp: 3) {
+    white-space: initial;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    line-height: 1.2;
+    padding: calc(var(--spacing-xxxs) / 2) var(--spacing-xxxs);
+  }
 }

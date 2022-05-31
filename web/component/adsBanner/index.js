@@ -1,20 +1,20 @@
 import { connect } from 'react-redux';
+import * as SETTINGS from 'constants/settings';
 import { doSetAdBlockerFound } from 'redux/actions/app';
 import { selectAdBlockerFound } from 'redux/selectors/app';
-import { makeSelectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectOdyseeMembershipIsPremiumPlus, selectUserCountry } from 'redux/selectors/user';
-import Ads from './view';
+import AdsBanner from './view';
 
 const select = (state, props) => ({
-  claim: makeSelectClaimForUri(props.uri)(state),
-  isMature: selectClaimIsNsfwForUri(state, props.uri),
   isAdBlockerFound: selectAdBlockerFound(state),
   userHasPremiumPlus: selectOdyseeMembershipIsPremiumPlus(state),
   userCountry: selectUserCountry(state),
+  currentTheme: selectClientSetting(state, SETTINGS.THEME),
 });
 
 const perform = {
   doSetAdBlockerFound,
 };
 
-export default connect(select, perform)(Ads);
+export default connect(select, perform)(AdsBanner);

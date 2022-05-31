@@ -3,6 +3,7 @@ import { SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
+import GeoRestrictionInfo from 'component/geoRestictionInfo';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
@@ -100,6 +101,8 @@ function ChannelContent(props: Props) {
 
   return (
     <Fragment>
+      <GeoRestrictionInfo uri={uri} />
+
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
         <HiddenNsfwClaims uri={uri} />
       )}

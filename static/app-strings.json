@@ -1681,7 +1681,6 @@
   "Open Chromecast menu": "Open Chromecast menu",
   "Auto": "Auto",
   "Auto --[Video quality. Short form]--": "Auto",
-  "Auto %quality% --[Video quality popup. Long form.]--": "Auto %quality%",
   "Orig (%quality%) --[Video quality popup. Short form.]--": "Orig (%quality%)",
   "Original (%quality%) --[Video quality popup. Long form.]--": "Original (%quality%)",
   "Original --[Video quality button. Abbreviate to fit space.]--": "Original",
@@ -2275,5 +2274,7 @@
   "Watch History": "Watch History",
   "Currently, your watch history is only saved locally.": "Currently, your watch history is only saved locally.",
   "Clear History": "Clear History",
+  "Reset homepage to defaults?": "Reset homepage to defaults?",
+  "Homepage restored to default.": "Homepage restored to default.",
   "--end--": "--end--"
 }

@@ -76,7 +76,8 @@ type Props = {
   autoplay: boolean,
   claimId: ?string,
   title: ?string,
-  channelName: ?string,
+  channelName: string,
+  channelTitle: string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -134,6 +135,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     claimId,
     // title,
     channelName,
+    channelTitle,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -208,6 +210,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     uri,
     playerServerRef,
     isLivestreamClaim,
+    channelTitle,
   });
 
   const videoJsOptions = {
