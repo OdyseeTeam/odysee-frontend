@@ -291,7 +291,6 @@ function ClaimMenuList(props: Props) {
     () =>
       function (event) {
         event.preventDefault();
-        return true;
       };
     copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
   }
