@@ -152,7 +152,8 @@
     }
 
     .button-toggle {
-      background-color: rgba(var(--color-header-button-base), 0.4) !important;
+      // background-color: rgba(var(--color-header-button-base), 0.4) !important;
+      background-color: var(--color-header-background) !important;
       &:hover {
         background-color: rgba(var(--color-header-button-base), 0.9) !important;
       }
@@ -161,10 +162,12 @@
     .button-toggle--active,
     .channel__list-item,
     .button--secondary {
-      background-color: rgba(var(--color-header-button-base), 0.9) !important;
+      // background-color: rgba(var(--color-header-button-base), 0.9) !important;
+      box-shadow: 0 0 0 2px var(--color-border) inset;
     }
     .channel__list-item {
       &:hover {
+        box-shadow: unset;
         background-color: var(--color-primary);
         color: var(--color-primary-contrast);
       }
