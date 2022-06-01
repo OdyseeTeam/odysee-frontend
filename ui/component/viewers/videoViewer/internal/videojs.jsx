@@ -307,9 +307,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // immediately show control bar while video is loading
       // $FlowFixMe
-      document.querySelector('.vjs-control-bar').style.setProperty('opacity', '1', 'important');
-      // $FlowFixMe
-      document.querySelector('.vjs-control-bar').style.setProperty('display', 'flex');
+      player.controlBar?.show();
 
       adapter.ready();
 
@@ -374,14 +372,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
-        const bigPlayButton = document.querySelector('.vjs-big-play-button');
-        if (bigPlayButton) bigPlayButton.style.setProperty('display', 'block', 'important');
+       vjsPlayer.bigPlayButton?.show();
       }
 
       // I think this is a callback function
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
-      // add theatre and autoplay next button
+      // add theatre and autoplay next button and initiate player events
       onPlayerReady(vjsPlayer, videoNode, canAutoplayVideo, autoplay, canUseOldPlayer);
 
       // Set reference in component state
@@ -389,11 +386,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
 
-      const controlBar = document.querySelector('.vjs-control-bar');
-      if (controlBar) {
-        controlBar.style.setProperty('opacity', '1', 'important');
-      }
+      // todo: es-lint is confused by this syntax
+      // eslint-disable-next-line no-unused-expressions
+      vjsPlayer.controlBar?.show();
 
+      let transcodedContent, contentUrl;
+      // TODO: pull this function into videojs-functions
+      // determine which source to use and load it
       if (isLivestreamClaim && userClaimId) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
@@ -411,24 +410,30 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
-          const trimmedPath = response.url.substring(0, response.url.lastIndexOf('/'));
-          const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
-
-          // progress bar hover thumbnails
-          if (!IS_MOBILE) {
-            // if src is a function, it's already been initialized
-            if (typeof vjsPlayer.vttThumbnails.src === 'function') {
-              vjsPlayer.vttThumbnails.src(thumbnailPath);
-            } else {
-              // otherwise, initialize plugin
-              vjsPlayer.vttThumbnails({
-                src: thumbnailPath,
-                showTimestamp: true,
-              });
-            }
-          }
+          transcodedContent = true;
+          contentUrl = response.url;
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
+        }
+      }
+
+      // initialize hover thumbnails
+      if (transcodedContent) {
+        const trimmedPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
+        const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
+
+        // progress bar hover thumbnails
+        if (!IS_MOBILE) {
+          // if src is a function, it's already been initialized
+          if (typeof vjsPlayer.vttThumbnails.src === 'function') {
+            vjsPlayer.vttThumbnails.src(thumbnailPath);
+          } else {
+            // otherwise, initialize plugin
+            vjsPlayer.vttThumbnails({
+              src: thumbnailPath,
+              showTimestamp: true,
+            });
+          }
         }
       }
 
@@ -436,7 +441,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // document.querySelector('.vjs-control-bar').style.display = 'block';
 
-      if (window.oldSavedDiv && vjsParent) {
+      if (canUseOldPlayer) {
         console.log('replacing video');
         document.querySelector('.video-js-parent').append(window.oldSavedDiv);
       }
@@ -490,7 +495,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
-      // window.removeEventListener('keydown', curried_function);
+      window.removeEventListener('keydown', curried_function);
 
       const player = playerRef.current;
       if (player) {
@@ -501,19 +506,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.currentTime(0);
         window.player.userActive(false);
 
-        const playPauseButton = document.querySelector('.vjs-play-control');
-        if (playPauseButton) playPauseButton.style.display = 'none';
+        window.player.controlBar?.playToggle?.hide();
 
         window.player?.controlBar?.getChild('ChaptersButton')?.hide();
 
         // this solves an issue with portrait videos
-        const videoDiv = document.querySelector('video.vjs-tech');
+        const videoDiv = window.player?.tech_?.el(); // video element
         if (videoDiv) videoDiv.style.top = '0px';
 
-        const controlBar =  document.querySelector('.vjs-control-bar');
-        if (controlBar) controlBar.style.display = 'none';
+        window.player?.controlBar?.hide();
 
-        window.oldSavedDiv = document.querySelector('video.vjs-tech')?.parentNode;
+        window.oldSavedDiv = window.player.el();
 
         window.player.trigger('playerClosed');
       }

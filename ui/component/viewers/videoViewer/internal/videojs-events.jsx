@@ -113,8 +113,7 @@ const VideoJsEvents = ({
     const player = playerRef.current;
     updateMediaSession();
 
-    const bigPlayButton = document.querySelector('.vjs-big-play-button');
-    if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none');
+    player.bigPlayButton?.hide();
 
     if (player && (player.muted() || player.volume() === 0)) {
       // The css starts as "hidden". We make it visible here without
@@ -241,19 +240,13 @@ const VideoJsEvents = ({
     player.on('tracking:buffered', doTrackingBuffered);
 
     player.on('loadstart', function() {
-      const playPauseButton = document.querySelector('.vjs-play-control');
-      if (playPauseButton) playPauseButton.style.display = 'block';
+      player.controlBar?.playToggle?.show();
 
-      // $FlowFixMe
-      const bigPlayButton = document.querySelector('.vjs-big-play-button');
-      if (bigPlayButton) {
-        bigPlayButton.style.setProperty('display', 'none', 'important');
-      }
+      player.bigPlayButton?.hide();
     });
 
     player.on('play', function() {
-      const controlBar = document.querySelector('.vjs-control-bar');
-      if (controlBar) controlBar.style.display = 'flex';
+      player.controlBar?.show();
     });
 
     // hide forcing control bar show
