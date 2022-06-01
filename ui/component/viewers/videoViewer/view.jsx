@@ -164,6 +164,7 @@ function VideoViewer(props: Props) {
 
   React.useEffect(() => {
     if (isPlaying) {
+      // save the updated watch time
       doSetContentHistoryItem(claim.permanent_url);
     }
   }, [isPlaying]);
@@ -345,6 +346,7 @@ function VideoViewer(props: Props) {
       player.playbackRate(videoPlaybackRate);
       if (!isMarkdownOrComment) {
         addTheaterModeButton(player, toggleVideoTheaterMode);
+        // if part of a playlist
         if (collectionId) {
           addPlayNextButton(player, doPlayNext);
           addPlayPreviousButton(player, doPlayPrevious);
@@ -359,53 +361,72 @@ function VideoViewer(props: Props) {
         }
       }
     }
+    // PR: #5535
+    // Move the restoration to a later `loadedmetadata` phase to counter the
+    // delay from the header-fetch. This is a temp change until the next
+    // re-factoring.
+    const restorePlaybackRateEvent = () => restorePlaybackRate(player);
 
-    const vjsParent = document.querySelector('.video-js-parent');
-    const canUseOldPlayer = window.oldSavedDiv && vjsParent;
+    // Override the "auto" algorithm to post-process the result
+    const overrideAutoAlgorithm = () => {
+      const vhs = player.tech(true).vhs;
+      if (vhs) {
+        // https://github.com/videojs/http-streaming/issues/749#issuecomment-606972884
+        vhs.selectPlaylist = lastBandwidthSelector;
+      }
+    };
 
-    if (!canUseOldPlayer) {
-      // PR: #5535
-      // Move the restoration to a later `loadedmetadata` phase to counter the
-      // delay from the header-fetch. This is a temp change until the next
-      // re-factoring.
-      player.on('loadedmetadata', () => restorePlaybackRate(player));
+    const onPauseEvent = event => onPause(event, player);
+    const onPlayerClosedEvent = event => onPlayerClosed(event, player);
+    const onVolumeChange = () => {
+      if (player) {
+        updateVolumeState(player.volume(), player.muted());
+      }
+    };
+    const onPlayerEnded = () => setEnded(true);
+    const onError = () => {
+      const error = player.error();
+      if (error) {
+        analytics.sentryError('Video.js error', error);
+      }
+    };
+    const onRateChange = () => {
+      const HAVE_NOTHING = 0; // https://docs.videojs.com/player#readyState
+      if (player && player.readyState() !== HAVE_NOTHING) {
+        // The playbackRate occasionally resets to 1, typically when loading a fresh video or when 'src' changes.
+        // Videojs says it's a browser quirk (https://github.com/videojs/video.js/issues/2516).
+        // [x] Don't update 'videoPlaybackRate' in this scenario.
+        // [ ] Ideally, the controlBar should be hidden to prevent users from changing the rate while loading.
+        setVideoPlaybackRate(player.playbackRate());
+      }
+    };
 
-      // Override the "auto" algorithm to post-process the result
-      player.on('loadedmetadata', () => {
-        const vhs = player.tech(true).vhs;
-        if (vhs) {
-          // https://github.com/videojs/http-streaming/issues/749#issuecomment-606972884
-          vhs.selectPlaylist = lastBandwidthSelector;
-        }
-      });
+    // load events onto player
+    player.on('play', onPlay);
+    player.on('pause', onPauseEvent);
+    player.on('playerClosed', onPlayerClosedEvent);
+    player.on('ended', onPlayerEnded);
+    player.on('error', onError);
+    player.on('volumechange', onVolumeChange);
+    player.on('ratechange', onRateChange);
+    player.on('loadedmetadata', overrideAutoAlgorithm);
+    player.on('loadedmetadata', restorePlaybackRateEvent);
 
-      player.on('ended', () => setEnded(true));
-      player.on('play', onPlay);
-      player.on('pause', (event) => onPause(event, player));
-      player.on('playerClosed', (event) => onPlayerClosed(event, player));
+    const cancelOldEvents = () => {
+      player.off('play', onPlay);
+      player.off('pause', onPauseEvent);
+      player.off('playerClosed', onPlayerClosedEvent);
+      player.off('ended', onPlayerEnded);
+      player.off('error', onError);
+      player.off('volumechange', onVolumeChange);
+      player.off('ratechange', onRateChange);
+      player.off('loadedmetadata', overrideAutoAlgorithm);
+      player.off('loadedmetadata', restorePlaybackRateEvent);
+      player.off('playerClosed', cancelOldEvents);
+    };
 
-      player.on('error', () => {
-        const error = player.error();
-        if (error) {
-          analytics.sentryError('Video.js error', error);
-        }
-      });
-      player.on('volumechange', () => {
-        if (player) {
-          updateVolumeState(player.volume(), player.muted());
-        }
-      });
-      player.on('ratechange', () => {
-        const HAVE_NOTHING = 0; // https://docs.videojs.com/player#readyState
-        if (player && player.readyState() !== HAVE_NOTHING) {
-          // The playbackRate occasionally resets to 1, typically when loading a fresh video or when 'src' changes.
-          // Videojs says it's a browser quirk (https://github.com/videojs/video.js/issues/2516).
-          // [x] Don't update 'videoPlaybackRate' in this scenario.
-          // [ ] Ideally, the controlBar should be hidden to prevent users from changing the rate while loading.
-          setVideoPlaybackRate(player.playbackRate());
-        }
-      });
-    }
+    // turn off old events to prevent duplicate runs
+    player.on('playerClosed', cancelOldEvents);
 
     if (position && !isLivestreamClaim) {
       player.currentTime(position);
