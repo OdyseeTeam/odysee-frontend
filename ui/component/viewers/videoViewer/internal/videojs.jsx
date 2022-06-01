@@ -450,6 +450,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (autoplay) {
         const promise = vjsPlayer.play();
 
+        const videoDiv = window.player.children_[0];
+        if (videoDiv) {
+          videoDiv.click();
+        }
+        const coverImage = document.querySelector('.content__cover--theater-mode');
+        if (coverImage) coverImage.click();
+        window.player.userActive(true);
+
         if (promise !== undefined) {
           promise.then(_ => {}).catch(error => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
@@ -506,7 +514,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.currentTime(0);
         window.player.userActive(false);
 
-        window.player.controlBar?.playToggle?.hide();
+        if(IS_IOS){
+          window.player.controlBar?.playToggle?.hide();
+        }
 
         window.player?.controlBar?.getChild('ChaptersButton')?.hide();
 
@@ -514,7 +524,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         const videoDiv = window.player?.tech_?.el(); // video element
         if (videoDiv) videoDiv.style.top = '0px';
 
-        window.player?.controlBar?.hide();
+        // window.player?.controlBar?.hide();
+
+        window.player.controlBar.el().style.setProperty('display', 'flex', 'important');
 
         window.oldSavedDiv = window.player.el();
 

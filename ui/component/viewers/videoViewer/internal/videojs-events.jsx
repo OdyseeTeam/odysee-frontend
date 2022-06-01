@@ -241,7 +241,8 @@ const VideoJsEvents = ({
 
     player.on('loadstart', function() {
       player.bigPlayButton?.hide();
-      player.controlBar?.hide();
+      // player.controlBar?.hide();
+      window.player.controlBar.el().style.setProperty('display', 'flex', 'important');
     });
 
     player.on('play', function() {
@@ -254,6 +255,9 @@ const VideoJsEvents = ({
       const controlBar = player.controlBar.el();
       controlBar.style.display = 'flex';
       controlBar.style.opacity = '1';
+      player.userActive(true);
+
+      window.player.controlBar.el().style.setProperty('display', 'flex', 'important');
 
       setTimeout(function () {
         // $FlowFixMe
@@ -263,7 +267,8 @@ const VideoJsEvents = ({
     });
     player.on('playing', function () {
       player.userActive(true);
-      player.controlBar?.playToggle?.hide();
+      player.controlBar?.playToggle?.show();
+      player.controlBar.el().style.visibility = 'visible';
     });
     // player.on('ended', onEnded);
 
