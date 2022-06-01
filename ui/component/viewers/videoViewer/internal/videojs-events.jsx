@@ -241,34 +241,12 @@ const VideoJsEvents = ({
 
     player.on('loadstart', function() {
       player.bigPlayButton?.hide();
-      // player.controlBar?.hide();
-      window.player.controlBar.el().style.setProperty('display', 'flex', 'important');
-    });
-
-    player.on('play', function() {
-      // player.controlBar?.show();
-    });
-
-    // hide forcing control bar show
-    player.on('canplaythrough', function () {
-      player.controlBar.show();
-      const controlBar = player.controlBar.el();
-      controlBar.style.display = 'flex';
-      controlBar.style.opacity = '1';
-      player.userActive(true);
-
-      window.player.controlBar.el().style.setProperty('display', 'flex', 'important');
-
-      setTimeout(function () {
-        // $FlowFixMe
-        player.controlBar?.el()?.style.removeProperty('opacity');
-      }, 1000 * 3); // wait 3 seconds to hit control bar
-
     });
     player.on('playing', function () {
-      player.userActive(true);
-      player.controlBar?.playToggle?.show();
-      player.controlBar.el().style.visibility = 'visible';
+      setTimeout(function () {
+        console.log('removing control bar');
+        window.player.controlBar.el().classList.remove('vjs-transitioning-video');
+      }, 1000 * 2); // wait 3 seconds to hit control bar
     });
     // player.on('ended', onEnded);
 

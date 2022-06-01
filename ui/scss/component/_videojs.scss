@@ -380,3 +380,9 @@ button.vjs-big-play-button {
     visibility: hidden !important;
   }
 }
+
+.vjs-transitioning-video {
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
+}
