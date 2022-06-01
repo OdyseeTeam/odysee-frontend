@@ -86,7 +86,7 @@ export default function AdsBanner(props: Props) {
       <div
         className="banner-ad__container OUTBRAIN"
         data-ob-contenturl="DROP_PERMALINK_HERE"
-        data-widget-id={AD_CONFIG.AR_18}
+        data-widget-id={AD_CONFIG.AR_60}
         data-ob-installation-key="ADNIMKAJDGAG4GAO6AGG6H5KP"
         data-dark-mode={currentTheme === 'dark' ? 'true' : 'false'}
       />
