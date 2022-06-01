@@ -427,6 +427,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
+      vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
+
       // document.querySelector('.vjs-control-bar').style.display = 'block';
 
       if (canUseOldPlayer) {
