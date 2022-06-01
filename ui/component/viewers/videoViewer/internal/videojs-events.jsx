@@ -240,25 +240,30 @@ const VideoJsEvents = ({
     player.on('tracking:buffered', doTrackingBuffered);
 
     player.on('loadstart', function() {
-      player.controlBar?.playToggle?.show();
-
       player.bigPlayButton?.hide();
+      player.controlBar?.hide();
     });
 
     player.on('play', function() {
-      player.controlBar?.show();
+      // player.controlBar?.show();
     });
 
     // hide forcing control bar show
     player.on('canplaythrough', function () {
+      player.controlBar.show();
+      const controlBar = player.controlBar.el();
+      controlBar.style.display = 'flex';
+      controlBar.style.opacity = '1';
+
       setTimeout(function () {
         // $FlowFixMe
-        const vjsControlBar = document.querySelector('.vjs-control-bar');
-        if (vjsControlBar) vjsControlBar.style.removeProperty('opacity');
+        player.controlBar?.el()?.style.removeProperty('opacity');
       }, 1000 * 3); // wait 3 seconds to hit control bar
+
     });
     player.on('playing', function () {
       player.userActive(true);
+      player.controlBar?.playToggle?.hide();
     });
     // player.on('ended', onEnded);
 
