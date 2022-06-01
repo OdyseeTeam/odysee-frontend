@@ -56,16 +56,18 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
 
       {notificationsEnabled && <NotificationHeaderButton />}
 
-      <Menu>
-        <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
-          <Button
-            className="header__navigationItem--icon"
-            onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}
-          >
-            <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
-          </Button>
-        </Tooltip>
-      </Menu>
+      {authenticated && (
+        <Menu>
+          <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
+            <Button
+              className="header__navigationItem--icon"
+              onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}
+            >
+              <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
+            </Button>
+          </Tooltip>
+        </Menu>
+      )}
     </div>
   );
 }
