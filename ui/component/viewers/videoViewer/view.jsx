@@ -290,7 +290,8 @@ function VideoViewer(props: Props) {
 
     if (IS_IOS && !autoplayNext) {
       // show play button on ios if video is paused with no autoplay on
-      document.querySelector('.vjs-touch-overlay').classList.add('show-play-toggle');
+      // $FlowFixMe
+      document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle'); // eslint-disable-line no-unused-expressions
     }
   }, [adUrl, autoplayNext, clearPosition, collectionId, embedded, ended, setAdUrl, uri]);
 

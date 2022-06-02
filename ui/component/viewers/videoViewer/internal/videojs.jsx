@@ -344,7 +344,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
-        vjsPlayer = initializeVideoPlayer(vjsElement, canAutoplayVideo);
+        vjsPlayer = initializeVideoPlayer(vjsElement);
         if (!vjsPlayer) {
           return;
         }
@@ -378,7 +378,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // eslint-disable-next-line no-unused-expressions
       vjsPlayer.controlBar?.show();
 
-      let transcodedContent, contentUrl;
+      let contentUrl;
       // TODO: pull this function into videojs-functions
       // determine which source to use and load it
       if (isLivestreamClaim && userClaimId) {
@@ -398,7 +398,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
-          transcodedContent = true;
           contentUrl = response.url;
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
@@ -406,7 +405,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // initialize hover thumbnails
-      if (transcodedContent) {
+      if (contentUrl) {
         const trimmedPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
         const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
 
@@ -428,8 +427,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       vjsPlayer.load();
 
       vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
-
-      // document.querySelector('.vjs-control-bar').style.display = 'block';
 
       if (canUseOldPlayer) {
         console.log('replacing video');
@@ -499,7 +496,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.userActive(false);
         window.player.pause();
 
-        if(IS_IOS){
+        if (IS_IOS) {
           window.player.controlBar?.playToggle?.hide();
         }
 
