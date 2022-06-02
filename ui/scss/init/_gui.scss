@@ -568,7 +568,7 @@ img {
   font-weight: bold;
   line-height: 1;
   font-size: 1rem;
-  margin-bottom: var(--spacing-m);
+  // margin-bottom: var(--spacing-m);
 
   > .button {
     white-space: initial;
@@ -576,7 +576,11 @@ img {
 
   @media (min-width: $breakpoint-small) {
     font-size: 1.2rem;
-    margin-bottom: var(--spacing-l);
+    // margin-bottom: var(--spacing-l);
+  }
+  @media (min-width: $breakpoint-medium) {
+    margin-top: var(--spacing-s);
+    margin-bottom: -3.7rem;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -722,7 +726,7 @@ img {
   }
 }
 
-.uploadPage-wraper {
+.uploadPage-wrapper {
   &.card-stack {
     .card:not(:last-of-type) {
       margin-bottom: var(--spacing-l) !important;
@@ -1346,4 +1350,43 @@ select:focus-visible,
 input:focus-visible:not(.wunderbar__input),
 textarea:focus-visible {
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+}
+
+input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
+  background-color: var(--color-text);
+}
+
+#onetrust-consent-sdk #onetrust-banner-sdk {
+  background-color: var(--color-header-background);
+  backdrop-filter: blur(4px);
+
+  #onetrust-policy-title,
+  #onetrust-policy-text,
+  .ot-dpd-title,
+  .ot-dpd-desc {
+    color: var(--color-text);
+
+    .ot-link-btn {
+      color: var(--color-primary);
+    }
+  }
+
+  #onetrust-button-group {
+    button {
+      border: 0px solid transparent;
+      border-radius: var(--border-radius);
+      &:hover {
+        opacity: 1;
+      }
+    }
+    #onetrust-accept-btn-handler,
+    #onetrust-reject-all-handler {
+      background-color: var(--color-primary);
+    }
+
+    #onetrust-pc-btn-handler {
+      background-color: var(--color-header-button);
+      color: var(--color-text);
+    }
+  }
 }

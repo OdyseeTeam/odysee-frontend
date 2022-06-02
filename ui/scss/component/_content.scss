@@ -132,7 +132,7 @@
 
       .vjs-icon-placeholder {
         &::before {
-          font-size: 1.8em !important;
+          font-size: 2.2em !important;
           line-height: 32px !important;
           background-size: 60%;
         }
@@ -171,13 +171,17 @@
       }
     }
 
-    .vjs-progress-control {
-      top: 32px;
-      .vjs-slider {
-        margin: 0 !important;
-        div,
-        span {
-          height: 2px !important;
+    .video-js {
+      .vjs-progress-control.vjs-control {
+        top: 38px;
+        margin: unset !important;
+        max-width: 100%;
+        .vjs-slider {
+          margin: 0 !important;
+          div,
+          span {
+            height: 2px !important;
+          }
         }
       }
     }

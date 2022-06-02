@@ -238,6 +238,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       timeDivider: !isLivestreamClaim,
       durationDisplay: !isLivestreamClaim,
       remainingTimeDisplay: !isLivestreamClaim,
+      subsCapsButton: !IS_IOS,
     },
     techOrder: ['chromecast', 'html5'],
     chromecast: {

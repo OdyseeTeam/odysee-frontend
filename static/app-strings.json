@@ -1072,7 +1072,9 @@
   "Boost": "Boost",
   "Boost transaction successful.": "Boost transaction successful.",
   "Boost transaction failed.": "Boost transaction failed.",
-  "Tip successfully sent. I'm sure they appreciate it!": "Tip successfully sent. I'm sure they appreciate it!",
+  "Credits successfully sent.": "Credits successfully sent.",
+  "Tip successfully sent.": "Tip successfully sent.",
+  "I'm sure they appreciate it!": "I'm sure they appreciate it!",
   "Tip transaction failed.": "Tip transaction failed.",
   "Add a Card": "Add a Card",
   "To Tip Creators": "To Tip Creators",
@@ -1681,7 +1683,6 @@
   "Open Chromecast menu": "Open Chromecast menu",
   "Auto": "Auto",
   "Auto --[Video quality. Short form]--": "Auto",
-  "Auto %quality% --[Video quality popup. Long form.]--": "Auto %quality%",
   "Orig (%quality%) --[Video quality popup. Short form.]--": "Orig (%quality%)",
   "Original (%quality%) --[Video quality popup. Long form.]--": "Original (%quality%)",
   "Original --[Video quality button. Abbreviate to fit space.]--": "Original",
@@ -2277,5 +2278,7 @@
   "Clear History": "Clear History",
   "Reset homepage to defaults?": "Reset homepage to defaults?",
   "Homepage restored to default.": "Homepage restored to default.",
+  "The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry.": "The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry.",
+  "The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry. Note that due to current limitations, we are unable to re-link the tip sent to a new comment.": "The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry. Note that due to current limitations, we are unable to re-link the tip sent to a new comment.",
   "--end--": "--end--"
 }

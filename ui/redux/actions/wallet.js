@@ -1,6 +1,9 @@
 import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
+import * as ERRORS from 'constants/errors';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
+import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
 import {
   selectBalance,
@@ -290,9 +293,8 @@ export function doSendDraftTransaction(address, amount) {
         });
         dispatch(
           doToast({
-            message: __("Tip successfully sent. I'm sure they appreciate it!"),
-            subMessage: `${amount} LBC`,
-            linkText: __('History'),
+            message: __('Credits successfully sent.'),
+            linkText: `${amount} LBC`,
             linkTarget: '/wallet',
           })
         );
@@ -315,13 +317,27 @@ export function doSendDraftTransaction(address, amount) {
         type: ACTIONS.SEND_TRANSACTION_FAILED,
         data: { error: error.message },
       });
-      dispatch(
-        doToast({
-          message: __('Transaction failed'),
-          subMessage: resolveApiMessage(error?.message),
-          isError: true,
-        })
-      );
+
+      const errMsg = typeof error === 'object' ? error.message : error;
+      if (errMsg.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
+        dispatch(
+          doOpenModal(MODALS.CONFIRM, {
+            title: __('Transaction failed'),
+            body:
+              'The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry.',
+            onConfirm: (closeModal) => closeModal(),
+            hideCancel: true,
+          })
+        );
+      } else {
+        dispatch(
+          doToast({
+            message: __('Transaction failed'),
+            subMessage: resolveApiMessage(error?.message),
+            isError: true,
+          })
+        );
+      }
     };
 
     Lbry.wallet_send({
@@ -345,7 +361,7 @@ export function doSetDraftTransactionAddress(address) {
   };
 }
 
-export function doSendTip(params, isSupport, successCallback, errorCallback, shouldNotify = true) {
+export function doSendTip(params, isSupport, successCallback, errorCallback, shouldNotify = true, purpose = '') {
   return (dispatch, getState) => {
     const state = getState();
     const balance = selectBalance(state);
@@ -368,11 +384,9 @@ export function doSendTip(params, isSupport, successCallback, errorCallback, sho
       if (shouldNotify) {
         dispatch(
           doToast({
-            message: shouldSupport
-              ? __('Boost transaction successful.')
-              : __("Tip successfully sent. I'm sure they appreciate it!"),
-            subMessage: `${params.amount} LBC`,
-            linkText: __('History'),
+            message: shouldSupport ? __('Boost transaction successful.') : __('Tip successfully sent.'),
+            subMessage: __("I'm sure they appreciate it!"),
+            linkText: `${params.amount} LBC`,
             linkTarget: '/wallet',
           })
         );
@@ -395,18 +409,32 @@ export function doSendTip(params, isSupport, successCallback, errorCallback, sho
       const baseMsg = isSupport ? __('Boost transaction failed.') : __('Tip transaction failed.');
       const errMsg = typeof err === 'object' ? err.message : err;
 
-      // For now, spew to console for persistence until the Status Log component is ready.
-      // eslint-disable-next-line no-console
-      console.log(`${baseMsg}\n • ${errMsg}`);
+      if (errMsg.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
+        let msg;
 
-      dispatch(
-        doToast({
-          message: baseMsg,
-          subMessage: errMsg,
-          isError: true,
-          duration: 'long',
-        })
-      );
+        switch (purpose) {
+          case 'comment':
+            msg = __(
+              'The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry. Note that due to current limitations, we are unable to re-link the tip sent to a new comment.'
+            );
+            break;
+
+          default:
+            msg = __(
+              'The transaction timed out, but may have been completed. Please wait a few minutes, then check your wallet transactions before attempting to retry.'
+            );
+            break;
+        }
+
+        dispatch(
+          doOpenModal(MODALS.CONFIRM, {
+            title: baseMsg,
+            body: msg,
+            onConfirm: (closeModal) => closeModal(),
+            hideCancel: true,
+          })
+        );
+      }
 
       dispatch({
         type: ACTIONS.SUPPORT_TRANSACTION_FAILED,
@@ -417,7 +445,7 @@ export function doSendTip(params, isSupport, successCallback, errorCallback, sho
       });
 
       if (errorCallback) {
-        errorCallback();
+        errorCallback(err);
       }
     };
 
@@ -750,8 +778,10 @@ export const doSendCashTip = (
 
       dispatch(
         doToast({
-          message: __("Tip successfully sent. I'm sure they appreciate it!"),
-          subMessage: `${fiatSymbol}${tipParams.tipAmount} ⇒ ${tipParams.tipChannelName}`,
+          message: __('Tip successfully sent.'),
+          subMessage: __("I'm sure they appreciate it!"),
+          linkText: `${fiatSymbol}${tipParams.tipAmount} ⇒ ${tipParams.tipChannelName}`,
+          linkTarget: '/wallet',
         })
       );
 
