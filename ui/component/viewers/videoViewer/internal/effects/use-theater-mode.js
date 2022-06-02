@@ -62,7 +62,7 @@ export default function useTheaterMode(playerRef: any, videoTheaterMode: boolean
   React.useEffect(() => {
     const player = playerRef.current;
     if (player) {
-      const controlBar = player.getChild('controlBar');
+      const controlBar = player.controlBar;
       const theaterButton = controlBar.getChild('TheaterModeButton');
       if (theaterButton) {
         theaterButton.controlText(videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));

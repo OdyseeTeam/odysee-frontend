@@ -29,8 +29,6 @@ import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import usePersistedState from 'effects/use-persisted-state';
 
-const canAutoplay = require('./plugins/canAutoplay');
-
 require('@silvermine/videojs-chromecast')(videojs);
 require('@silvermine/videojs-airplay')(videojs);
 
@@ -332,9 +330,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {
     (async function () {
-      let canAutoplayVideo = await canAutoplay.video({ timeout: 2000, inline: true });
-      canAutoplayVideo = canAutoplayVideo.result === true;
-
       let vjsPlayer;
       console.log(window.oldSavedDiv);
       const vjsParent = document.querySelector('.video-js-parent');
@@ -367,7 +362,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const videoNode = containerRef.current && containerRef.current.querySelector('video, audio');
 
       // add theatre and autoplay next button and initiate player events
-      onPlayerReady(vjsPlayer, videoNode, canAutoplayVideo, autoplay, canUseOldPlayer);
+      onPlayerReady(vjsPlayer, videoNode);
 
       // Set reference in component state
       playerRef.current = vjsPlayer;
@@ -430,7 +425,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       if (canUseOldPlayer) {
         console.log('replacing video');
-        document.querySelector('.video-js-parent').append(window.oldSavedDiv);
+        document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
       }
 
       // allow tap to unmute if no perms on iOS
@@ -447,8 +442,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
               // autoplay not allowed, mute video, play and show 'tap to unmute' button
               vjsPlayer.muted(true);
               vjsPlayer.play();
-              document.querySelector('.video-js--tap-to-unmute').style.setProperty('visibility', 'visible');
-              document.querySelector('.video-js--tap-to-unmute').style.setProperty('display', 'inline', 'important');
+              document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
+              document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('display', 'inline', 'important');
             }
           });
         }

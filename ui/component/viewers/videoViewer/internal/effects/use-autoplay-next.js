@@ -41,7 +41,7 @@ class AutoplayNextButton extends videojs.getComponent('Button') {
 }
 
 function addAutoplayNextButton(player: Player, toggleAutoplayNext: () => void, autoplayNext: boolean) {
-  const controlBar = player.getChild('controlBar');
+  const controlBar = player.controlBar;
 
   const autoplayButton = new AutoplayNextButton(
     player,
