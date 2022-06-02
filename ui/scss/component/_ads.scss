@@ -431,9 +431,6 @@
       padding-left: 0 !important;
       padding-right: 0 !important;
       .ob-dynamic-rec-container {
-        @media (max-width: 360px) {
-          background-color: #ff0000 !important;
-        }
         .ob-rec-image-container {
           box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.3);
           border-radius: var(--border-radius);
