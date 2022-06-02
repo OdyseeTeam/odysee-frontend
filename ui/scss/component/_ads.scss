@@ -361,6 +361,15 @@
     width: 100%;
     height: 27px;
     border: unset;
+    @media (max-width: $breakpoint-small) {
+      height: 25px;
+      .banner-ad__driver-label {
+        padding-top: 5px !important;
+      }
+      .button__label {
+        padding-top: 3px !important;
+      }
+    }
     .banner-ad__driver-label {
       background-color: var(--color-primary);
       border-radius: 0 0 0 var(--border-radius);
