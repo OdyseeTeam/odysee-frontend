@@ -6,7 +6,7 @@ import classnames from 'classnames';
 import Button from 'component/button';
 import RatioBar from 'component/ratioBar';
 import { formatNumberWithCommas } from 'util/number';
-// import NudgeFloating from 'component/nudgeFloating';
+import NudgeFloating from 'component/nudgeFloating';
 // import Tooltip from 'component/common/tooltip';
 
 const LIVE_REACTION_FETCH_MS = 1000 * 45;
@@ -30,8 +30,8 @@ export default function FileReactions(props: Props) {
   const {
     uri,
     claimId,
-    // channelTitle,
-    // isCollection,
+    channelTitle,
+    isCollection,
     myReaction,
     likeCount,
     dislikeCount,
@@ -97,12 +97,12 @@ export default function FileReactions(props: Props) {
 
   return (
     <>
-      {/* {channelTitle && !isCollection && ( */}
-      {/*  <NudgeFloating */}
-      {/*    name="nudge:support-acknowledge" */}
-      {/*    text={__('Let %channel% know you enjoyed this!', { channel: channelTitle })} */}
-      {/*  /> */}
-      {/* )} */}
+       {channelTitle && !isCollection && (
+        <NudgeFloating
+          name="nudge:support-acknowledge"
+          text={__('Let %channel% know you enjoyed this!', { channel: channelTitle })}
+        />
+       )}
 
       <div className={'ratio-wrapper'}>
         <Button
