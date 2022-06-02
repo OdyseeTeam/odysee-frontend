@@ -397,6 +397,9 @@
 
   .banner-ad__container {
     padding: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    max-width: unset !important;
     background-color: unset !important;
     .ob-widget-items-container {
       padding-left: 0 !important;
