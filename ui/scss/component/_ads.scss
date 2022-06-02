@@ -411,6 +411,7 @@
           font-size: var(--font-small) !important;
           color: var(--color-text) !important;
           font-weight: 600 !important;
+          margin-top: 0 !important;
         }
         .ob-rec-source {
           &:after {
@@ -420,6 +421,9 @@
           &:hover {
             color: var(--color-text);
           }
+        }
+        .ob-sub-units {
+          margin-top: var(--spacing-xs);
         }
         &:hover {
           .ob-rec-image-container {

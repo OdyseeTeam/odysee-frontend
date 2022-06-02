@@ -7,7 +7,6 @@ import useShouldShowAds from 'effects/use-should-show-ads';
 import { useIsMobile } from 'effects/use-screensize';
 
 const AD_SCRIPT_URL = 'https://widgets.outbrain.com/outbrain.js';
-const isMobile = useIsMobile();
 
 const AD_CONFIG = {
   AR_18: 'AR_18', // 5 tiles.
@@ -47,6 +46,7 @@ type Props = {
 export default function AdsBanner(props: Props) {
   const { isAdBlockerFound, userHasPremiumPlus, userCountry, currentTheme, doSetAdBlockerFound } = props;
   const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, isAdBlockerFound, doSetAdBlockerFound);
+  const isMobile = useIsMobile();
 
   React.useEffect(() => {
     if (shouldShowAds) {
