@@ -4,8 +4,10 @@ import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
 import useShouldShowAds from 'effects/use-should-show-ads';
+import { useIsMobile } from 'effects/use-screensize';
 
 const AD_SCRIPT_URL = 'https://widgets.outbrain.com/outbrain.js';
+const isMobile = useIsMobile();
 
 const AD_CONFIG = {
   AR_18: 'AR_18', // 5 tiles.
@@ -86,7 +88,7 @@ export default function AdsBanner(props: Props) {
       <div
         className="banner-ad__container OUTBRAIN"
         data-ob-contenturl="DROP_PERMALINK_HERE"
-        data-widget-id={AD_CONFIG.AR_60}
+        data-widget-id={!isMobile ? AD_CONFIG.AR_60 : AD_CONFIG.AR_18}
         data-ob-installation-key="ADNIMKAJDGAG4GAO6AGG6H5KP"
         data-dark-mode={currentTheme === 'dark' ? 'true' : 'false'}
       />
