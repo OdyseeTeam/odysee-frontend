@@ -420,10 +420,20 @@
     margin-right: 0 !important;
     max-width: unset !important;
     background-color: unset !important;
+    .ob-grid-header-text {
+      display: none;
+    }
+    .ob-widget-header {
+      margin: 0;
+      margin-top: var(--spacing-s);
+    }
     .ob-widget-items-container {
       padding-left: 0 !important;
       padding-right: 0 !important;
       .ob-dynamic-rec-container {
+        @media (max-width: 360px) {
+          background-color: #ff0000 !important;
+        }
         .ob-rec-image-container {
           box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 0.3);
           border-radius: var(--border-radius);
@@ -434,7 +444,12 @@
           font-weight: 600 !important;
           margin-top: 0 !important;
         }
+        .ob-rec-description {
+          color: rgba(var(--color-text-base), 0.6) !important;
+        }
         .ob-rec-source {
+          color: rgba(var(--color-text-base), 0.6) !important;
+
           &:after {
             color: var(--color-primary);
             font-weight: bold;
