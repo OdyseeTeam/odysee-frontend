@@ -522,7 +522,7 @@ function PublishFile(props: Props) {
       subtitle={subtitle || (isStillEditing && __('You are currently editing your upload.'))}
       actions={
         <>
-          <h2 className="card__title">{__('File')}</h2>
+          {/* <h2 className="card__title">{__('File')}</h2> */}
           <div className="card--file">
             <React.Fragment>
               {/* Decide whether to show file upload or replay selector */}
