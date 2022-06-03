@@ -349,7 +349,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       if (!embedded) {
-        window.player.bigPlayButton && window.player.bigPlayButton.hide();
+        vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
        vjsPlayer.bigPlayButton?.show();
       }
