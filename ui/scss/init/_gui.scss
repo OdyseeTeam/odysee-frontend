@@ -884,6 +884,9 @@ img {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-primary);
       background-color: var(--color-primary) !important;
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
       .button__label {
         color: var(--color-primary-contrast) !important;
       }
@@ -942,6 +945,9 @@ img {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-primary);
       background-color: var(--color-primary) !important;
+      .icon {
+        stroke: var(--color-primary-contrast) !important;
+      }
       .button__label {
         color: var(--color-primary-contrast) !important;
       }
