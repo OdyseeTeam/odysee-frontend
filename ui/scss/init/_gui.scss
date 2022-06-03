@@ -884,6 +884,9 @@ img {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-primary);
       background-color: var(--color-primary) !important;
+      .button__label {
+        color: var(--color-primary-contrast) !important;
+      }
     }
     label {
       margin-left: 0 !important;
@@ -939,6 +942,9 @@ img {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-primary);
       background-color: var(--color-primary) !important;
+      .button__label {
+        color: var(--color-primary-contrast) !important;
+      }
     }
 
     @media (max-width: $breakpoint-small) {

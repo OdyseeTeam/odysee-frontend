@@ -490,7 +490,7 @@ function PublishFile(props: Props) {
 
   function autofillTitle(file) {
     const newTitle = (file && file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || name || '';
-    updatePublishForm({ title: newTitle });
+    if (!title) updatePublishForm({ title: newTitle });
   }
 
   const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
