@@ -83,18 +83,17 @@ function PublishName(props: Props) {
           onBlur={() => setBlurred(true)}
         />
       </fieldset-group>
-      {false && (
-        <div className="form-field__help">
-          <NameHelpText
-            uri={uri}
-            isStillEditing={isStillEditing}
-            myClaimForUri={myClaimForUri}
-            myClaimForUriCaseInsensitive={myClaimForUriCaseInsensitive}
-            currentUploads={currentUploads}
-            onEditMyClaim={editExistingClaim}
-          />
-        </div>
-      )}
+
+      <div className="form-field__help">
+        <NameHelpText
+          uri={uri}
+          isStillEditing={isStillEditing}
+          myClaimForUri={myClaimForUri}
+          myClaimForUriCaseInsensitive={myClaimForUriCaseInsensitive}
+          currentUploads={currentUploads}
+          onEditMyClaim={editExistingClaim}
+        />
+      </div>
     </>
   );
 }

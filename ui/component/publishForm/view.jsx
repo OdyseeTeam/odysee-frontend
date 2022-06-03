@@ -696,7 +696,7 @@ function PublishForm(props: Props) {
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
-            <PublishFormErrors mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
+            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
           ) : (
             <I18nMessage
               tokens={{

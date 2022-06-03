@@ -880,7 +880,7 @@ img {
         box-shadow: 0 0 0 2px var(--color-primary) inset;
       }
     }
-    button {
+    .button--secondary {
       border-width: 2px 2px 2px 0;
       border-color: var(--color-primary);
       background-color: var(--color-primary) !important;
@@ -1005,6 +1005,11 @@ img {
 
   .card--additional-options {
     margin-bottom: var(--spacing-l) !important;
+    .card {
+      fieldset-section {
+        padding-bottom: 0;
+      }
+    }
     .card__main-actions {
       //padding-top:var(--spacing-s);
       padding-top: 0;
@@ -1037,6 +1042,11 @@ img {
 
     .form-field__help {
       margin-bottom: 0;
+    }
+    fieldset {
+      .form-field__help {
+        margin-top: 0;
+      }
     }
 
     fieldset-section {
