@@ -330,7 +330,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   useEffect(() => {
     (async function () {
       let vjsPlayer;
-      console.log(window.oldSavedDiv);
       const vjsParent = document.querySelector('.video-js-parent');
 
       const canUseOldPlayer = window.oldSavedDiv && vjsParent;
@@ -345,12 +344,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // Add reference to player to global scope
         window.player = vjsPlayer;
-        console.log('creating a new video');
       } else {
         vjsPlayer = window.player;
-        console.log('using old player');
       }
-
 
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
@@ -423,10 +419,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.load();
 
-      vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
-
       if (canUseOldPlayer) {
-        console.log('replacing video');
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
       }
 
@@ -437,18 +430,20 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.userActive(true);
 
         if (promise !== undefined) {
-          promise.then(_ => {}).catch(error => {
+          promise.then(_ => {
+            vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
+          }).catch(error => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
-            if(noPermissionError){
-              if(IS_IOS){
+            if (noPermissionError) {
+              if (IS_IOS) {
                 // autoplay not allowed, mute video, play and show 'tap to unmute' button
                 vjsPlayer.muted(true);
                 vjsPlayer.play();
                 document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
                 document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('display', 'inline', 'important');
               } else {
-                player.bigPlayButton.show();
+                vjsPlayer.bigPlayButton.show();
                 // player.bigPlayButton.el().style.setProperty('display', 'block', 'important');
               }
             };

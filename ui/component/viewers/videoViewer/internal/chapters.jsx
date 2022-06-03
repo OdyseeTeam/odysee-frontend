@@ -156,7 +156,7 @@ function load(player: any, timestampData: TimestampData, duration: number) {
   });
 }
 
-function deleteHoverInformation(player){
+function deleteHoverInformation(player) {
   try {
     const timeTooltip = player
       .getChild('controlBar')
@@ -166,7 +166,6 @@ function deleteHoverInformation(player){
       .getChild('timeTooltip');
 
     delete timeTooltip.update;
-
   } catch {}
 }
 

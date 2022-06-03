@@ -221,7 +221,7 @@ const VideoJsEvents = ({
     }
   }
 
-  function removeControlBar(){
+  function removeControlBar() {
     setTimeout(function () {
       console.log('removing control bar');
       window.player.controlBar.el().classList.remove('vjs-transitioning-video');
@@ -247,11 +247,13 @@ const VideoJsEvents = ({
     player.on('tracking:buffered', doTrackingBuffered);
 
     player.on('loadstart', function() {
-      player.bigPlayButton?.hide();
+      if (embedded) {
+        player.bigPlayButton?.show();
+      }
     });
 
-    player.on('playing', removeControlBar)
-    player.on('playerClosed', ()=> {
+    player.on('playing', removeControlBar);
+    player.on('playerClosed', () => {
       player.off('play', onInitialPlay);
       player.off('volumechange', onVolumeChange);
       player.off('error', onError);
@@ -262,7 +264,6 @@ const VideoJsEvents = ({
       player.off('playing', removeControlBar);
     });
     // player.on('ended', onEnded);
-
 
     if (isLivestreamClaim && player) {
       player.liveTracker.on('liveedgechange', async () => {
