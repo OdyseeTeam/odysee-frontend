@@ -221,6 +221,13 @@ const VideoJsEvents = ({
     }
   }
 
+  function removeControlBar(){
+    setTimeout(function () {
+      console.log('removing control bar');
+      window.player.controlBar.el().classList.remove('vjs-transitioning-video');
+    }, 1000 * 2); // wait 3 seconds to hit control bar
+  }
+
   useEffect(() => {
     const player = playerRef.current;
     if (replay && player) {
@@ -242,13 +249,20 @@ const VideoJsEvents = ({
     player.on('loadstart', function() {
       player.bigPlayButton?.hide();
     });
-    player.on('playing', function () {
-      setTimeout(function () {
-        console.log('removing control bar');
-        window.player.controlBar.el().classList.remove('vjs-transitioning-video');
-      }, 1000 * 2); // wait 3 seconds to hit control bar
+
+    player.on('playing', removeControlBar)
+    player.on('playerClosed', ()=> {
+      player.off('play', onInitialPlay);
+      player.off('volumechange', onVolumeChange);
+      player.off('error', onError);
+      // custom tracking plugin, event used for watchman data, and marking view/getting rewards
+      player.off('tracking:firstplay', doTrackingFirstPlay);
+      // used for tracking buffering for watchman
+      player.off('tracking:buffered', doTrackingBuffered);
+      player.off('playing', removeControlBar);
     });
     // player.on('ended', onEnded);
+
 
     if (isLivestreamClaim && player) {
       player.liveTracker.on('liveedgechange', async () => {

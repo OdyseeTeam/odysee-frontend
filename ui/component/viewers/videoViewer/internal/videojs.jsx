@@ -263,8 +263,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // runAds(internalFeatureEnabled, allowPreRoll, player, embedded);
 
-      initializeEvents();
-
       // Replace volume bar with custom LBRY volume bar
       LbryVolumeBarClass.replaceExisting(player);
 
@@ -353,6 +351,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         console.log('using old player');
       }
 
+
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
@@ -367,6 +366,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // Set reference in component state
       playerRef.current = vjsPlayer;
+
+      initializeEvents();
 
       window.addEventListener('keydown', curried_function(playerRef, containerRef));
 
