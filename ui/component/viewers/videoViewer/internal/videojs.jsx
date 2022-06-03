@@ -482,6 +482,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     return () => {
       window.removeEventListener('keydown', curried_function);
 
+      const chapterMarkers = document.getElementsByClassName('vjs-chapter-marker');
+      while (chapterMarkers.length > 0) {
+        chapterMarkers[0].parentNode.removeChild(chapterMarkers[0]);
+      }
+
       const player = playerRef.current;
       if (player) {
         try {
