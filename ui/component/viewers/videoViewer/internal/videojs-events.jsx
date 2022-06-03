@@ -223,9 +223,9 @@ const VideoJsEvents = ({
 
   function removeControlBar() {
     setTimeout(function () {
-      console.log('removing control bar');
       window.player.controlBar.el().classList.remove('vjs-transitioning-video');
-    }, 1000 * 2); // wait 3 seconds to hit control bar
+      window.player.controlBar.show();
+    }, 1000 * 2); // wait 2 seconds to hide control bar
   }
 
   useEffect(() => {
