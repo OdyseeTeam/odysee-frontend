@@ -316,7 +316,7 @@ $control-bar-icon-size: 0.8rem;
 
 // TODO: make sure there's no bad side effects of this
 button.vjs-big-play-button {
-  display: none !important;
+  display: none;
 }
 
 .vjs-big-play-centered {

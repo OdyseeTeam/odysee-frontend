@@ -430,7 +430,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // allow tap to unmute if no perms on iOS
-      if (autoplay) {
+      if (autoplay && !embedded) {
         const promise = vjsPlayer.play();
 
         window.player.userActive(true);
@@ -439,13 +439,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           promise.then(_ => {}).catch(error => {
             const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
-            if (noPermissionError && IS_IOS) {
-              // autoplay not allowed, mute video, play and show 'tap to unmute' button
-              vjsPlayer.muted(true);
-              vjsPlayer.play();
-              document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
-              document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('display', 'inline', 'important');
-            }
+            if(noPermissionError){
+              if(IS_IOS){
+                // autoplay not allowed, mute video, play and show 'tap to unmute' button
+                vjsPlayer.muted(true);
+                vjsPlayer.play();
+                document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
+                document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('display', 'inline', 'important');
+              } else {
+                player.bigPlayButton.show();
+                // player.bigPlayButton.el().style.setProperty('display', 'block', 'important');
+              }
+            };
           });
         }
       }
