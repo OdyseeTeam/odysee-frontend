@@ -707,7 +707,7 @@ $control-bar-icon-size-mobile: 30px;
       }
     }
 
-    .vjs-chapters-button {
+    div.vjs-chapters-button {
       .vjs-menu {
         width: 20em;
         left: -3em;
@@ -717,6 +717,14 @@ $control-bar-icon-size-mobile: 30px;
         text-align: left;
         padding: var(--spacing-xxxs) var(--spacing-s);
       }
+      button {
+        // font-size:inherit;
+        // line-height:10px;
+      }
+    }
+    button.vjs-chapters-button {
+      display: block;
+      margin-top: -0px;
     }
 
     .vjs-chromecast-button,
