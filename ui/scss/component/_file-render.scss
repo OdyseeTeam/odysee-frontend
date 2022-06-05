@@ -622,6 +622,7 @@ $control-bar-icon-size-mobile: 30px;
 
   // control-bar: menu, button and icon
   .vjs-control-bar {
+    // margin-bottom:-4px;
     .vjs-menu-button {
       font-size: $control-bar-font-size;
       line-height: $control-bar-height;
