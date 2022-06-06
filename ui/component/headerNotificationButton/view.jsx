@@ -112,9 +112,11 @@ export default function NotificationHeaderButton(props: Props) {
 
         <MenuList className="menu__list--header menu__list--notifications">
           <div className="menu__list--notifications-header" />
-          {list.map((notification) => {
-            return menuEntry(notification);
-          })}
+          <div className="menu__list--notifications-list">
+            {list.map((notification) => {
+              return menuEntry(notification);
+            })}
+          </div>
           <a onClick={handleMenuClick}>
             <div className="menu__list--notifications-more">{__('View all')}</div>
           </a>

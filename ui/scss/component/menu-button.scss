@@ -202,83 +202,84 @@ reach-portal {
     backdrop-filter: blur(4px) !important;
   }
 
-  .menu__list--notification {
-    width: 440px;
-    padding: var(--spacing-s);
-    display: flex;
-    background-color: rgba(var(--color-header-button-base), 0.95);
-    // background-color: rgba(var(--color-header-background-base), 0.6);
-    // margin-left:var(--spacing-s);
-    border-bottom: 1px solid var(--color-header-background);
+  .menu__list--notifications-list {
+    .menu__list--notification {
+      width: 440px;
+      padding: var(--spacing-s);
+      display: flex;
+      background-color: rgba(var(--color-header-button-base), 0.95);
+      border-top: 1px solid var(--color-header-background);
 
-    .notification__icon {
-      margin-top: 0;
-      margin-left: 0;
-    }
-    .menu__list--notification-channel-unread {
-      border: 2px solid var(--color-primary);
-    }
-
-    .menu__list--notification-info {
-      overflow: hidden;
-      .menu__list--notification-type {
-        width: 100%;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        color: rgba(var(--color-text-base), 0.6);
-        font-size: var(--font-xsmall);
+      .notification__icon {
+        margin-top: 0;
+        margin-left: 0;
+      }
+      .menu__list--notification-channel-unread {
+        border: 2px solid var(--color-primary);
       }
 
-      .menu__list--notification-title {
-        color: var(--color-text);
-        flex-grow: 1;
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-        margin-bottom: -4px;
-        &.blockquote {
-          margin: 2px 0;
-          border-left: 2px solid var(--color-text);
-          padding-left: var(--spacing-xs);
-        }
-      }
-      .date_time {
-        color: rgba(var(--color-text-base), 0.6);
-      }
-      span {
-        color: var(--color-primary);
-        display: inline-block;
-        font-size: var(--font-xxsmall);
-        margin-right: var(--spacing-xs);
-      }
-    }
-
-    &:hover {
-      cursor: pointer;
-      background-color: rgba(var(--color-header-background-base), 0.95);
       .menu__list--notification-info {
+        overflow: hidden;
+        .menu__list--notification-type {
+          width: 100%;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          color: rgba(var(--color-text-base), 0.6);
+          font-size: var(--font-xsmall);
+        }
+
         .menu__list--notification-title {
+          color: var(--color-text);
+          flex-grow: 1;
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          margin-bottom: -4px;
+          &.blockquote {
+            margin: 2px 0;
+            border-left: 2px solid var(--color-text);
+            padding-left: var(--spacing-xs);
+          }
+        }
+        .date_time {
+          color: rgba(var(--color-text-base), 0.6);
+        }
+        span {
           color: var(--color-primary);
+          display: inline-block;
+          font-size: var(--font-xxsmall);
+          margin-right: var(--spacing-xs);
+        }
+      }
+
+      &:hover {
+        cursor: pointer;
+        background-color: rgba(var(--color-header-background-base), 1);
+        .menu__list--notification-info {
+          .menu__list--notification-title {
+            color: var(--color-primary);
+          }
         }
       }
     }
-  }
 
-  .menu__list--notification-unread {
-    border-left: 2px solid var(--color-primary);
+    .menu__list--notification-unread {
+      border-left: 2px solid var(--color-primary);
+    }
   }
 
   .menu__list--notifications-more {
     color: var(--color-text);
-    background-color: rgba(var(--color-header-background-base), 0.95);
+    background-color: rgba(var(--color-header-background-base), 1);
     padding: var(--spacing-s) var(--spacing-xs);
     text-align: center;
+    border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
 
     &:hover {
       cursor: pointer;
       color: var(--color-primary);
-      background-color: rgba(var(--color-header-background-base), 1);
+      // background-color: rgba(var(--color-header-background-base), 1);
     }
   }
 }
