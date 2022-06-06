@@ -190,6 +190,69 @@ reach-portal {
   @extend .menu__list;
 }
 
+.menu__list--notifications {
+  padding: 0;
+  backdrop-filter: blur(7px) !important;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+  border-top: unset !important;
+  top: var(--header-height) !important;
+
+  .menu__list--notifications-header {
+    height: var(--spacing-xs);
+    background-color: rgba(var(--color-header-background-base), 1);
+  }
+
+  .menu__list--notification {
+    width: 440px;
+    padding: var(--spacing-s);
+    display: flex;
+    background-color: rgba(var(--color-header-background-base), 0.6);
+    // margin-left:var(--spacing-s);
+
+    .menu__list--notification-channel {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      margin-right: var(--spacing-s);
+    }
+
+    .menu__list--notification-info {
+      overflow: hidden;
+      .menu__list--notification-type {
+        width: 100%;
+        color: rgba(var(--color-text-base), 0.6);
+        font-size: var(--font-xsmall);
+      }
+
+      .menu__list--notification-title {
+        color: var(--color-text);
+        flex-grow: 1;
+      }
+    }
+
+    &:hover {
+      cursor: pointer;
+      background-color: rgba(var(--color-header-background-base), 1);
+      .menu__list--notification-info {
+        .menu__list--notification-title {
+          color: var(--color-primary);
+        }
+      }
+    }
+  }
+
+  .menu__list--notifications-more {
+    color: var(--color-text);
+    // font-weight:var(--font-weight-bold);
+    padding: var(--spacing-s) var(--spacing-xs);
+
+    background-color: rgba(var(--color-header-background-base), 1);
+    &:hover {
+      color: var(--color-primary);
+    }
+  }
+}
+
 .MuiMenuItem-root {
   margin-left: 0px !important;
   font-size: var(--font-small) !important;
