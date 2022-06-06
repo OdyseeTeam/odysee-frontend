@@ -234,6 +234,16 @@ reach-portal {
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
+        margin-bottom: -4px;
+      }
+      .date_time {
+        color: rgba(var(--color-text-base), 0.6);
+      }
+      span {
+        color: var(--color-primary);
+        display: inline-block;
+        font-size: var(--font-xxsmall);
+        margin-right: var(--spacing-xs);
       }
     }
 

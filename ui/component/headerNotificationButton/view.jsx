@@ -13,6 +13,7 @@ import React from 'react';
 import Tooltip from 'component/common/tooltip';
 import { formatLbryUrlForWeb } from 'util/url';
 import Notification from 'component/notification';
+import DateTime from 'component/dateTime';
 
 type Props = {
   notifications: Array<Notification>,
@@ -58,11 +59,7 @@ export default function NotificationHeaderButton(props: Props) {
             key={notification.id}
           >
             <img
-              className={
-                notification.is_read
-                  ? 'menu__list--notification-channel'
-                  : 'menu__list--notification-channel menu__list--notification-channel-unread'
-              }
+              className="menu__list--notification-channel"
               src={notification.notification_parameters.dynamic.channel_thumbnail}
             />
             <div className="menu__list--notification-info">
@@ -70,6 +67,8 @@ export default function NotificationHeaderButton(props: Props) {
               <div className="menu__list--notification-title">
                 {notification.notification_parameters.dynamic.claim_title}
               </div>
+              {!notification.is_read && <span>•</span>}
+              <DateTime timeAgo date={notification.active_at} />
             </div>
           </div>
         </a>
