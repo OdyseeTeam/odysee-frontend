@@ -43,8 +43,6 @@ export default function NotificationHeaderButton(props: Props) {
   function handleNotificationClick(notification) {
     if (!notification.is_read) readNotification(notification.id);
     let notificationLink = formatLbryUrlForWeb(notification.notification_parameters.device.target);
-    // let urlParams = new URLSearchParams();
-    // notificationLink += `?${urlParams.toString()}`;
     if (notification.notification_parameters.dynamic.hash) {
       notificationLink += '?lc=' + notification.notification_parameters.dynamic.hash + '&view=discussion';
     }
@@ -118,7 +116,7 @@ export default function NotificationHeaderButton(props: Props) {
             return menuEntry(notification);
           })}
           <a onClick={handleMenuClick}>
-            <div className="menu__list--notifications-more">Show all</div>
+            <div className="menu__list--notifications-more">{__('View all')}</div>
           </a>
         </MenuList>
       </Menu>
