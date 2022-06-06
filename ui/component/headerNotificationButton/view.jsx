@@ -19,17 +19,18 @@ type Props = {
   notifications: Array<Notification>,
   unseenCount: number,
   user: ?User,
+  authenticated: boolean,
   readNotification: (string) => void,
   doSeeAllNotifications: () => void,
 };
 
 export default function NotificationHeaderButton(props: Props) {
-  const { notifications, unseenCount, user, readNotification, doSeeAllNotifications } = props;
+  const { notifications, unseenCount, user, authenticated, readNotification, doSeeAllNotifications } = props;
   const list = notifications.slice(0, 5);
   console.log('notifications: ', list);
 
   const { push } = useHistory();
-  const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
+  const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
 
   function handleMenuClick() {
     if (unseenCount > 0) doSeeAllNotifications();
@@ -37,6 +38,8 @@ export default function NotificationHeaderButton(props: Props) {
   }
 
   if (!notificationsEnabled) return null;
+
+  console.log('notificationsEnabled: ', user);
 
   function handleNotificationClick(notification) {
     if (!notification.is_read) readNotification(notification.id);
@@ -74,23 +77,25 @@ export default function NotificationHeaderButton(props: Props) {
   }
 
   return (
-    <Menu>
-      <Tooltip title={__('Notifications')}>
-        <MenuButton className="header__navigationItem--icon">
-          <Icon size={18} icon={ICONS.NOTIFICATION} aria-hidden />
-          <NotificationBubble />
-        </MenuButton>
-      </Tooltip>
+    notificationsEnabled && (
+      <Menu>
+        <Tooltip title={__('Notifications')}>
+          <MenuButton className="header__navigationItem--icon">
+            <Icon size={18} icon={ICONS.NOTIFICATION} aria-hidden />
+            <NotificationBubble />
+          </MenuButton>
+        </Tooltip>
 
-      <MenuList className="menu__list--header menu__list--notifications">
-        <div className="menu__list--notifications-header" />
-        {list.map((notification) => {
-          return menuEntry(notification);
-        })}
-        <a onClick={handleMenuClick}>
-          <div className="menu__list--notifications-more">Show all</div>
-        </a>
-      </MenuList>
-    </Menu>
+        <MenuList className="menu__list--header menu__list--notifications">
+          <div className="menu__list--notifications-header" />
+          {list.map((notification) => {
+            return menuEntry(notification);
+          })}
+          <a onClick={handleMenuClick}>
+            <div className="menu__list--notifications-more">Show all</div>
+          </a>
+        </MenuList>
+      </Menu>
+    )
   );
 }
