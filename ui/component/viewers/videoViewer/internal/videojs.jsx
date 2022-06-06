@@ -229,7 +229,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       liveTolerance: 10,
     },
     inactivityTimeout: 2000,
-    autoplay: autoplay,
     muted: startMuted,
     poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
@@ -350,9 +349,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       } else {
         vjsPlayer = window.player;
       }
-
-      // fixes the issue where firefox will autoplay old video before this one is ready
-      vjsPlayer.pause();
 
       if (!embedded) {
         vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
