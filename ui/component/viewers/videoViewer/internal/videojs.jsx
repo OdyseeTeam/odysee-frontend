@@ -178,6 +178,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const tapToUnmuteRef = useRef();
   const tapToRetryRef = useRef();
   const playerServerRef = useRef();
+  const volumePanelRef = useRef();
 
   const keyDownHandlerRef = useRef();
   const videoScrollHandlerRef = useRef();
@@ -380,17 +381,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
-      const volumePanel = playerRef.current
+      // volume control div, used for changing volume when scrolled over
+      volumePanelRef.current = playerRef.current
         .getChild(VIDEOJS_CONTROL_BAR_CLASS)
         .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
         .el();
 
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
       const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
-      const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanel, playerRef, containerRef);
+      const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanelRef, playerRef, containerRef);
       window.addEventListener('keydown', keyDownHandler);
-      containerRef.current.addEventListener('wheel', videoScrollHandler);
-      volumePanel.addEventListener('wheel', volumePanelHandler);
+      const containerDiv = containerRef.current;
+      containerDiv && containerDiv.addEventListener('wheel', videoScrollHandler);
+      if (volumePanelRef.current) volumePanelRef.current.addEventListener('wheel', volumePanelHandler);
 
       keyDownHandlerRef.current = keyDownHandler;
       videoScrollHandlerRef.current = videoScrollHandler;
@@ -465,16 +468,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
-      const volumePanel = playerRef.current
-        .getChild(VIDEOJS_CONTROL_BAR_CLASS)
-        .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
-        .el();
-
       window.removeEventListener('keydown', keyDownHandlerRef.current);
-      containerRef.current.removeEventListener('wheel', videoScrollHandlerRef.current);
+      const containerDiv = containerRef.current;
+      // $FlowFixMe
+      containerDiv && containerDiv.removeEventListener('wheel', videoScrollHandlerRef.current);
 
-      if (volumePanel.current) {
-        volumePanel.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
+      if (volumePanelRef.current) {
+        volumePanelRef.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
       }
 
       const player = playerRef.current;
