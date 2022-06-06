@@ -14,6 +14,7 @@ import Tooltip from 'component/common/tooltip';
 import { formatLbryUrlForWeb } from 'util/url';
 import Notification from 'component/notification';
 import DateTime from 'component/dateTime';
+import ChannelThumbnail from 'component/channelThumbnail';
 
 type Props = {
   notifications: Array<Notification>,
@@ -39,14 +40,34 @@ export default function NotificationHeaderButton(props: Props) {
 
   if (!notificationsEnabled) return null;
 
-  console.log('notificationsEnabled: ', user);
-
   function handleNotificationClick(notification) {
     if (!notification.is_read) readNotification(notification.id);
-    push(formatLbryUrlForWeb(notification.notification_parameters.device.target));
+    let notificationLink = formatLbryUrlForWeb(notification.notification_parameters.device.target);
+    // let urlParams = new URLSearchParams();
+    // notificationLink += `?${urlParams.toString()}`;
+    if (notification.notification_parameters.dynamic.hash) {
+      notificationLink += '?lc=' + notification.notification_parameters.dynamic.hash + '&view=discussion';
+    }
+    push(notificationLink);
   }
 
   function menuEntry(notification) {
+    console.log(notification);
+    let channelIcon = '';
+    let type = '';
+    let title = '';
+    switch (notification.type) {
+      case 'new_content':
+        channelIcon = notification.notification_parameters.dynamic.channel_thumbnail;
+        type = notification.notification_parameters.device.title;
+        title = notification.notification_parameters.dynamic.claim_title;
+        break;
+      case 'comments':
+        channelIcon = notification.notification_parameters.dynamic.comment_author_thumbnail;
+        type = notification.notification_parameters.device.title;
+        title = notification.notification_parameters.device.text;
+        break;
+    }
     return (
       <>
         <a onClick={() => handleNotificationClick(notification)}>
@@ -58,14 +79,19 @@ export default function NotificationHeaderButton(props: Props) {
             }
             key={notification.id}
           >
-            <img
-              className="menu__list--notification-channel"
-              src={notification.notification_parameters.dynamic.channel_thumbnail}
-            />
+            <div className="notification__icon">
+              <ChannelThumbnail small thumbnailPreview={channelIcon} />
+            </div>
             <div className="menu__list--notification-info">
-              <div className="menu__list--notification-type">{notification.notification_parameters.device.title}</div>
-              <div className="menu__list--notification-title">
-                {notification.notification_parameters.dynamic.claim_title}
+              <div className="menu__list--notification-type">{type}</div>
+              <div
+                className={
+                  notification.type === 'comments'
+                    ? 'menu__list--notification-title blockquote'
+                    : 'menu__list--notification-title'
+                }
+              >
+                {title}
               </div>
               {!notification.is_read && <span>•</span>}
               <DateTime timeAgo date={notification.active_at} />
