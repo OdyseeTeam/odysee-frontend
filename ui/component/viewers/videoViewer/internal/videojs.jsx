@@ -351,6 +351,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer = window.player;
       }
 
+      // fixes the issue where firefox will autoplay old video before this one is ready
+      vjsPlayer.pause();
+
       if (!embedded) {
         vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
