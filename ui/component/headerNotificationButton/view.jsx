@@ -46,39 +46,35 @@ export default function NotificationHeaderButton(props: Props) {
   */
 
   function menuEntry(notification) {
-    if (
-      notification &&
-      notification.notification_parameters &&
-      notification.notification_parameters.dynamic &&
-      notification.notification_parameters.dynamic.claim_title
-    ) {
-      switch (notification.type) {
-        case 'new_content':
-          return (
-            <>
-              <a onClick={() => push(formatLbryUrlForWeb(notification.notification_parameters.device.target))}>
-                <div className="menu__list--notification" key={notification.id}>
-                  <img
-                    className="menu__list--notification-channel"
-                    src={notification.notification_parameters.dynamic.channel_thumbnail}
-                  />
-                  <div className="menu__list--notification-info">
-                    <div className="menu__list--notification-type">
-                      {notification.notification_parameters.device.title}
-                    </div>
-                    <div className="menu__list--notification-title">
-                      {notification.notification_parameters.dynamic.claim_title}
-                    </div>
-                  </div>
-                </div>
-              </a>
-              <hr classNames="menu__separator" />
-            </>
-          );
-        case 'livestream':
-          break;
-      }
-    }
+    return (
+      <>
+        <a onClick={() => push(formatLbryUrlForWeb(notification.notification_parameters.device.target))}>
+          <div
+            className={
+              notification.is_read
+                ? 'menu__list--notification'
+                : 'menu__list--notification menu__list--notification-unread'
+            }
+            key={notification.id}
+          >
+            <img
+              className={
+                notification.is_read
+                  ? 'menu__list--notification-channel'
+                  : 'menu__list--notification-channel menu__list--notification-channel-unread'
+              }
+              src={notification.notification_parameters.dynamic.channel_thumbnail}
+            />
+            <div className="menu__list--notification-info">
+              <div className="menu__list--notification-type">{notification.notification_parameters.device.title}</div>
+              <div className="menu__list--notification-title">
+                {notification.notification_parameters.dynamic.claim_title}
+              </div>
+            </div>
+          </div>
+        </a>
+      </>
+    );
   }
 
   return (
@@ -95,7 +91,7 @@ export default function NotificationHeaderButton(props: Props) {
         {list.map((notification) => {
           return menuEntry(notification);
         })}
-        <a href={`/$/${PAGES.NOTIFICATIONS}`} onClick={handleMenuClick}>
+        <a onClick={handleMenuClick}>
           <div className="menu__list--notifications-more">Show all</div>
         </a>
       </MenuList>
