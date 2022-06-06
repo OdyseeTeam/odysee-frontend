@@ -15,9 +15,6 @@ import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
-import { platform } from 'util/platform';
-
-const IS_MOBILE = platform.isMobile();
 
 type HeaderMenuButtonProps = {
   myChannelClaimIds: ?Array<string>,
@@ -91,6 +88,9 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
         )}
         {authenticated ? (
           <MuiMenu {...menuProps}>
+            <ChannelSelector storeSelection isHeaderMenu />
+
+            <hr className="menu__separator" />
             <HeaderMenuLink useMui page={PAGES.UPLOADS} icon={ICONS.PUBLISH} name={__('Uploads')} />
             <HeaderMenuLink useMui page={PAGES.CHANNELS} icon={ICONS.CHANNEL} name={__('Channels')} />
             <HeaderMenuLink
@@ -99,13 +99,17 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
               icon={ICONS.ANALYTICS}
               name={__('Creator Analytics')}
             />
+
+            <hr className="menu__separator" />
             <HeaderMenuLink useMui page={PAGES.REWARDS} icon={ICONS.REWARDS} name={__('Rewards')} />
             <HeaderMenuLink useMui page={PAGES.INVITE} icon={ICONS.INVITE} name={__('Invites')} />
             <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
-            <ChannelSelector storeSelection isHeaderMenu />
 
-            {IS_MOBILE && <HeaderMenuLink useMui page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />}
+            <hr className="menu__separator" />
+            <HeaderMenuLink useMui page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
+            <HeaderMenuLink useMui page={PAGES.HELP} icon={ICONS.HELP} name={__('Help')} />
 
+            <hr className="menu__separator" />
             <MuiMenuItem onClick={signOut}>
               <div className="menu__link" style={{ flexDirection: 'column', alignItems: 'flex-start' }}>
                 <div className="menu__link-label">

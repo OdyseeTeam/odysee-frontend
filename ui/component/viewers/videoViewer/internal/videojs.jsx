@@ -15,7 +15,7 @@ import events from './videojs-events';
 import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
-import keyboardShorcuts from './videojs-keyboard-shortcuts';
+import keyboardShorcuts from './videojs-shortcuts';
 import LbryVolumeBarClass from './lbry-volume-bar';
 import Chromecast from './chromecast';
 import playerjs from 'player.js';
@@ -101,6 +101,8 @@ type Props = {
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
+const VIDEOJS_CONTROL_BAR_CLASS = 'ControlBar';
+const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
 
 const IS_IOS = platform.isIOS();
 const IS_MOBILE = platform.isMobile();
@@ -174,13 +176,22 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const tapToUnmuteRef = useRef();
   const tapToRetryRef = useRef();
   const playerServerRef = useRef();
+  const volumePanelRef = useRef();
+
+  const keyDownHandlerRef = useRef();
+  const videoScrollHandlerRef = useRef();
+  const volumePanelScrollHandlerRef = useRef();
 
   const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIPhone();
   const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
-  const { curried_function } = keyboardShorcuts({
+  const {
+    createKeyDownShortcutsHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
+  } = keyboardShorcuts({
     isMobile,
     isLivestreamClaim,
     toggleVideoTheaterMode,
@@ -353,7 +364,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!embedded) {
         vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
-       vjsPlayer.bigPlayButton?.show();
+        vjsPlayer.bigPlayButton?.show();
       }
 
       // I think this is a callback function
@@ -367,7 +378,23 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       initializeEvents();
 
-      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+      // volume control div, used for changing volume when scrolled over
+      volumePanelRef.current = playerRef.current
+        .getChild(VIDEOJS_CONTROL_BAR_CLASS)
+        .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
+        .el();
+
+      const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
+      const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
+      const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanelRef, playerRef, containerRef);
+      window.addEventListener('keydown', keyDownHandler);
+      const containerDiv = containerRef.current;
+      containerDiv && containerDiv.addEventListener('wheel', videoScrollHandler);
+      if (volumePanelRef.current) volumePanelRef.current.addEventListener('wheel', volumePanelHandler);
+
+      keyDownHandlerRef.current = keyDownHandler;
+      videoScrollHandlerRef.current = videoScrollHandler;
+      volumePanelScrollHandlerRef.current = volumePanelHandler;
 
       // todo: es-lint is confused by this syntax
       // eslint-disable-next-line no-unused-expressions
@@ -432,24 +459,28 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.userActive(true);
 
         if (promise !== undefined) {
-          promise.then(_ => {
-            vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
-          }).catch(error => {
-            const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
+          promise
+            .then((_) => {
+              vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
+            })
+            .catch((error) => {
+              const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
 
-            if (noPermissionError) {
-              if (IS_IOS) {
-                // autoplay not allowed, mute video, play and show 'tap to unmute' button
-                vjsPlayer.muted(true);
-                vjsPlayer.play();
-                document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
-                document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('display', 'inline', 'important');
-              } else {
-                vjsPlayer.bigPlayButton.show();
-                // player.bigPlayButton.el().style.setProperty('display', 'block', 'important');
+              if (noPermissionError) {
+                if (IS_IOS) {
+                  // autoplay not allowed, mute video, play and show 'tap to unmute' button
+                  vjsPlayer.muted(true);
+                  vjsPlayer.play();
+                  document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
+                  document
+                    .querySelector('.video-js--tap-to-unmute')
+                    ?.style.setProperty('display', 'inline', 'important');
+                } else {
+                  vjsPlayer.bigPlayButton.show();
+                  // player.bigPlayButton.el().style.setProperty('display', 'block', 'important');
+                }
               }
-            };
-          });
+            });
         }
       }
 
@@ -483,7 +514,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
-      window.removeEventListener('keydown', curried_function);
+      window.removeEventListener('keydown', keyDownHandlerRef.current);
+      const containerDiv = containerRef.current;
+      // $FlowFixMe
+      containerDiv && containerDiv.removeEventListener('wheel', videoScrollHandlerRef.current);
+
+      if (volumePanelRef.current) {
+        volumePanelRef.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
+      }
 
       const chapterMarkers = document.getElementsByClassName('vjs-chapter-marker');
       while (chapterMarkers.length > 0) {
