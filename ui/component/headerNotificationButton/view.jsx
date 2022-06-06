@@ -19,11 +19,12 @@ type Props = {
   notifications: Array<Notification>,
   unseenCount: number,
   user: ?User,
+  readNotification: (string) => void,
   doSeeAllNotifications: () => void,
 };
 
 export default function NotificationHeaderButton(props: Props) {
-  const { notifications, unseenCount, user, doSeeAllNotifications } = props;
+  const { notifications, unseenCount, user, readNotification, doSeeAllNotifications } = props;
   const list = notifications.slice(0, 5);
   console.log('notifications: ', list);
 
@@ -37,19 +38,15 @@ export default function NotificationHeaderButton(props: Props) {
 
   if (!notificationsEnabled) return null;
 
-  /*
-  <Tooltip title={__('Notifications')}>
-    <Button onClick={handleMenuClick} className="header__navigationItem--icon">
-      <Icon size={18} icon={ICONS.NOTIFICATION} aria-hidden />
-      <NotificationBubble />
-    </Button>
-  </Tooltip>
-  */
+  function handleNotificationClick(notification) {
+    if (!notification.is_read) readNotification(notification.id);
+    push(formatLbryUrlForWeb(notification.notification_parameters.device.target));
+  }
 
   function menuEntry(notification) {
     return (
       <>
-        <a onClick={() => push(formatLbryUrlForWeb(notification.notification_parameters.device.target))}>
+        <a onClick={() => handleNotificationClick(notification)}>
           <div
             className={
               notification.is_read

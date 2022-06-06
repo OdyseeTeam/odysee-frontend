@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectNotifications, selectUnseenNotificationCount } from 'redux/selectors/notifications';
-import { doSeeAllNotifications } from 'redux/actions/notifications';
+import { doReadNotifications, doSeeAllNotifications } from 'redux/actions/notifications';
 import { selectUser } from 'redux/selectors/user';
 import NotificationHeaderButton from './view';
 
@@ -10,6 +10,13 @@ const select = (state) => ({
   user: selectUser(state),
 });
 
-export default connect(select, {
-  doSeeAllNotifications,
-})(NotificationHeaderButton);
+const perform = (dispatch, ownProps) => ({
+  readNotification: (id) => {
+    console.log('ownProps: ', id);
+    dispatch(doReadNotifications(id));
+  },
+  doSeeAllNotifications: doSeeAllNotifications,
+  // deleteNotification: () => dispatch(doDeleteNotification(ownProps.notification.id)),
+});
+
+export default connect(select, perform)(NotificationHeaderButton);
