@@ -106,11 +106,13 @@ const onPlayerReady = (player, options) => {
     }
   };
 
-  if (videojs.browser.IS_IOS) {
-    window.addEventListener('orientationchange', rotationHandler);
-  } else {
-    // addEventListener('orientationchange') is not a user interaction on Android
-    screen.orientation.onchange = rotationHandler;
+  if (player.options.enterOnRotate) {
+    if (videojs.browser.IS_IOS) {
+      window.addEventListener('orientationchange', rotationHandler);
+    } else {
+      // addEventListener('orientationchange') is not a user interaction on Android
+      screen.orientation.onchange = rotationHandler;
+    }
   }
 
   player.on('ended', (_) => {
