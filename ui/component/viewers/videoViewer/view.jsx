@@ -350,12 +350,14 @@ function VideoViewer(props: Props) {
         // if part of a playlist
 
         // remove old play next/previous buttons if they exist
-        const controlBar = player.getChild('controlBar');
-        const existingPlayNextButton = controlBar.getChild('PlayNextButton');
-        if (existingPlayNextButton) controlBar.removeChild('PlayNextButton');
+        const controlBar = player.controlBar;
+        if (controlBar) {
+          const existingPlayNextButton = controlBar.getChild('PlayNextButton');
+          if (existingPlayNextButton) controlBar.removeChild('PlayNextButton');
 
-        const existingPlayPreviousButton = controlBar.getChild('PlayPreviousButton');
-        if (existingPlayPreviousButton) controlBar.removeChild('PlayPreviousButton');
+          const existingPlayPreviousButton = controlBar.getChild('PlayPreviousButton');
+          if (existingPlayPreviousButton) controlBar.removeChild('PlayPreviousButton');
+        }
 
         if (collectionId) {
           addPlayNextButton(player, doPlayNext);

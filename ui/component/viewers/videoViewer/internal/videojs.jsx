@@ -274,6 +274,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         fullscreen: {
           enterOnRotate: false,
         },
+        touchControls: {
+          seekSeconds: 10,
+        },
       });
 
       player.i18n();
