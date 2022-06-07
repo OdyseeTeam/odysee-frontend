@@ -226,6 +226,7 @@ reach-portal {
       display: flex;
       background-color: rgba(var(--color-header-button-base), 0.95);
       border-top: 1px solid var(--color-header-background);
+      transition: border-left 0.4s;
 
       .notification__icon {
         margin-top: 0;
@@ -240,26 +241,50 @@ reach-portal {
 
       .menu__list--notification-info {
         overflow: hidden;
+        width: 100%;
         .menu__list--notification-type {
           width: 100%;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
           color: rgba(var(--color-text-base), 0.6);
           font-size: var(--font-xsmall);
+
+          .notification__claim-title {
+            width: 100%;
+            color: rgba(var(--color-text-base), 0.6);
+            font-size: var(--font-xsmall);
+            font-weight: 400;
+            // display: inline-block;
+          }
+
+          .button__content {
+            display: flex;
+            margin: 0;
+            .channel-name {
+              margin: 0;
+              color: rgba(var(--color-text-base), 0.6);
+              font-size: var(--font-xsmall);
+              font-weight: 400;
+            }
+          }
         }
 
         .menu__list--notification-title {
           color: var(--color-text);
           flex-grow: 1;
-          overflow: hidden;
-          white-space: nowrap;
-          text-overflow: ellipsis;
           margin-bottom: -3px;
-          &.blockquote {
-            margin: 2px 0;
-            border-left: 2px solid var(--color-text);
-            padding-left: var(--spacing-xs);
+          width: 100%;
+          .notification__text {
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: block;
+            blockquote {
+              width: 100%;
+              overflow: hidden;
+              white-space: nowrap;
+              text-overflow: ellipsis;
+              display: block;
+            }
           }
         }
         .date_time {
@@ -278,7 +303,9 @@ reach-portal {
         background-color: rgba(var(--color-header-background-base), 1);
         .menu__list--notification-info {
           .menu__list--notification-title {
-            color: var(--color-primary);
+            .notification__text {
+              color: var(--color-primary);
+            }
           }
         }
       }

@@ -18,6 +18,11 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import { Menu as MuiMenu } from '@mui/material';
 import Button from 'component/button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
+import { RULE } from 'constants/notifications';
+import UriIndicator from 'component/uriIndicator';
+import { generateNotificationTitle } from '../notification/helpers/title';
+import { generateNotificationText } from '../notification/helpers/text';
+import { parseURI } from 'util/lbryURI';
 
 type Props = {
   notifications: Array<Notification>,
@@ -40,7 +45,6 @@ export default function NotificationHeaderButton(props: Props) {
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 5);
-  console.log('List: ', list);
 
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
@@ -75,6 +79,12 @@ export default function NotificationHeaderButton(props: Props) {
     }
   };
 
+  const creatorIcon = (channelUrl, channelThumbnail) => (
+    <UriIndicator uri={channelUrl} link showAtSign channelInfo={{ uri: channelUrl, name: '' }}>
+      <ChannelThumbnail small thumbnailPreview={channelThumbnail} uri={channelThumbnail ? undefined : channelUrl} />
+    </UriIndicator>
+  );
+
   function handleMenuClick() {
     if (unseenCount > 0) doSeeAllNotifications();
     push(`/$/${PAGES.NOTIFICATIONS}`);
@@ -87,18 +97,67 @@ export default function NotificationHeaderButton(props: Props) {
   if (!notificationsEnabled) return null;
 
   function handleNotificationClick(notification) {
-    if (!notification.is_read) {
-      seeNotification([notification.id]);
-      readNotification([notification.id]);
+    const { id, notification_parameters, is_read } = notification;
+
+    if (!is_read) {
+      seeNotification([id]);
+      readNotification([id]);
     }
-    let notificationLink = formatLbryUrlForWeb(notification.notification_parameters.device.target);
-    if (notification.notification_parameters.dynamic.hash) {
-      notificationLink += '?lc=' + notification.notification_parameters.dynamic.hash + '&view=discussion';
+    let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
+    if (notification_parameters.dynamic.hash) {
+      notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
     }
     push(notificationLink);
   }
 
   function menuEntry(notification) {
+    const { id, active_at, notification_rule, notification_parameters, is_read, type } = notification;
+
+    let channelUrl;
+    let icon;
+    switch (notification_rule) {
+      case RULE.CREATOR_SUBSCRIBER:
+        icon = <Icon icon={ICONS.SUBSCRIBE} sectionIcon />;
+        break;
+      case RULE.COMMENT:
+      case RULE.CREATOR_COMMENT:
+        channelUrl = notification_parameters.dynamic.comment_author;
+        icon = creatorIcon(channelUrl, notification_parameters?.dynamic?.comment_author_thumbnail);
+        break;
+      case RULE.COMMENT_REPLY:
+        channelUrl = notification_parameters.dynamic.reply_author;
+        icon = creatorIcon(channelUrl, notification_parameters?.dynamic?.comment_author_thumbnail);
+        break;
+      case RULE.NEW_CONTENT:
+        channelUrl = notification_parameters.dynamic.channel_url;
+        icon = creatorIcon(channelUrl, notification_parameters?.dynamic?.channel_thumbnail);
+        break;
+      case RULE.NEW_LIVESTREAM:
+        channelUrl = notification_parameters.dynamic.channel_url;
+        icon = creatorIcon(channelUrl, notification_parameters?.dynamic?.channel_thumbnail);
+        break;
+      case RULE.WEEKLY_WATCH_REMINDER:
+      case RULE.DAILY_WATCH_AVAILABLE:
+      case RULE.DAILY_WATCH_REMIND:
+      case RULE.MISSED_OUT:
+      case RULE.REWARDS_APPROVAL_PROMPT:
+        icon = <Icon icon={ICONS.LBC} sectionIcon />;
+        break;
+      case RULE.FIAT_TIP:
+        icon = <Icon icon={ICONS.FINANCE} sectionIcon />;
+        break;
+      default:
+        icon = <Icon icon={ICONS.NOTIFICATION} sectionIcon />;
+    }
+
+    let channelName;
+    if (channelUrl) {
+      try {
+        ({ claimName: channelName } = parseURI(channelUrl));
+      } catch (e) {}
+    }
+
+    /*
     let channelIcon = '';
     let type = '';
     let title = '';
@@ -118,34 +177,41 @@ export default function NotificationHeaderButton(props: Props) {
         type = notification.notification_parameters.device.title;
         title = notification.notification_parameters.device.text;
         break;
+      case 'default':
+        channelIcon = 'LBC';
+        type = notification.notification_parameters.device.title;
+        title = notification.notification_parameters.device.text;
+        break;
     }
+    */
+
     return (
       <>
-        <a onClick={() => handleNotificationClick(notification)} title={title}>
+        <a onClick={() => handleNotificationClick(notification)}>
           <div
             className={
-              notification.is_read
-                ? 'menu__list--notification'
-                : 'menu__list--notification menu__list--notification-unread'
+              is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'
             }
-            key={notification.id}
+            key={id}
           >
             <div className="notification__icon">
-              <ChannelThumbnail small thumbnailPreview={channelIcon} />
+              {icon}
+              {/* <ChannelThumbnail small thumbnailPreview={channelIcon} /> */}
             </div>
             <div className="menu__list--notification-info">
-              <div className="menu__list--notification-type">{type}</div>
+              <div className="menu__list--notification-type">
+                {generateNotificationTitle(notification_rule, notification_parameters, channelName)}
+              </div>
               <div
                 className={
-                  notification.type === 'comments'
-                    ? 'menu__list--notification-title blockquote'
-                    : 'menu__list--notification-title'
+                  type === 'comments' ? 'menu__list--notification-title blockquote' : 'menu__list--notification-title'
                 }
               >
-                {title}
+                {generateNotificationText(notification_rule, notification_parameters)}
+                {/* title */}
               </div>
-              {!notification.is_read && <span>•</span>}
-              <DateTime timeAgo date={notification.active_at} />
+              {!is_read && <span>•</span>}
+              <DateTime timeAgo date={active_at} />
             </div>
           </div>
         </a>

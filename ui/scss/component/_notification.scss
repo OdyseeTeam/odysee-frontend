@@ -284,6 +284,7 @@ $contentMaxWidth: 60rem;
   blockquote {
     padding-left: var(--spacing-xs);
     border-left: 2px solid;
+    color: var(--color-text) !important;
   }
 }
 
