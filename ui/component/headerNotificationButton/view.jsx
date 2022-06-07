@@ -17,6 +17,7 @@ import DateTime from 'component/dateTime';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { Menu as MuiMenu } from '@mui/material';
 import Button from 'component/button';
+import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 type Props = {
   notifications: Array<Notification>,
@@ -39,12 +40,13 @@ export default function NotificationHeaderButton(props: Props) {
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 5);
-  console.log('notifications: ', list);
+  // console.log('notifications: ', list);
 
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
 
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(!anchorEl ? event.currentTarget : null);
   const handleClose = () => setAnchorEl(null);
@@ -61,6 +63,16 @@ export default function NotificationHeaderButton(props: Props) {
     className: 'menu__list--header menu__list--notifications',
     sx: { 'z-index': 2 },
     PaperProps: { className: 'MuiMenu-list--paper' },
+    disableScrollLock: true,
+  };
+
+  const handleClickAway = () => {
+    if (!clicked) {
+      setClicked(true);
+    } else {
+      setAnchorEl(null);
+      setClicked(false);
+    }
   };
 
   function handleMenuClick() {
@@ -83,7 +95,7 @@ export default function NotificationHeaderButton(props: Props) {
   }
 
   function menuEntry(notification) {
-    console.log(notification);
+    // console.log(notification);
     let channelIcon = '';
     let type = '';
     let title = '';
@@ -143,18 +155,20 @@ export default function NotificationHeaderButton(props: Props) {
           </Button>
         </Tooltip>
 
-        <MuiMenu {...menuProps}>
-          {/* <MenuList className="menu__list--header menu__list--notifications"> */}
-          <div className="menu__list--notifications-header" />
-          <div className="menu__list--notifications-list">
-            {list.map((notification) => {
-              return menuEntry(notification);
-            })}
-          </div>
-          <a onClick={handleMenuClick}>
-            <div className="menu__list--notifications-more">{__('View all')}</div>
-          </a>
-        </MuiMenu>
+        <ClickAwayListener onClickAway={handleClickAway}>
+          <MuiMenu {...menuProps}>
+            {/* <MenuList className="menu__list--header menu__list--notifications"> */}
+            <div className="menu__list--notifications-header" />
+            <div className="menu__list--notifications-list">
+              {list.map((notification) => {
+                return menuEntry(notification);
+              })}
+            </div>
+            <a onClick={handleMenuClick}>
+              <div className="menu__list--notifications-more">{__('View all')}</div>
+            </a>
+          </MuiMenu>
+        </ClickAwayListener>
         {/* </MenuList> */}
       </>
     )

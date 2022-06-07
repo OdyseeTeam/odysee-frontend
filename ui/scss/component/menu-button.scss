@@ -156,9 +156,10 @@ reach-portal {
   }
 
   .MuiPaper-root {
-    top: calc(var(--header-height) - 11px) !important;
+    top: calc(var(--header-height) - 10px) !important;
+    transition: none !important;
     @media (max-width: $breakpoint-small) {
-      top: calc(var(--header-height-mobile) - 11px) !important;
+      top: calc(var(--header-height-mobile) - 10px) !important;
     }
   }
 
@@ -191,14 +192,17 @@ reach-portal {
 }
 
 .menu__list--notifications {
-  padding: 0;
-
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
-  background-color: unset !important;
+  // padding: 0;
 
   .MuiMenu-list {
     padding: 0;
     backdrop-filter: blur(4px) !important;
+
+    background-color: unset !important;
+  }
+  .MuiMenu-list--paper {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+    background-color: unset !important;
   }
 
   .menu__list--notifications-header {
@@ -208,9 +212,10 @@ reach-portal {
   }
 
   .menu__list--notifications-list {
-    overflow-y: auto;
-    max-height: 500px;
+    overflow: hidden !important;
+    // max-height: 500px;
     .menu__list--notification {
+      overflow: hidden !important;
       width: 440px;
       padding: var(--spacing-s);
       display: flex;
