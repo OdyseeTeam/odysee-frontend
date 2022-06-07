@@ -364,6 +364,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         }
       }
 
+      window.playerClosed = false;
+
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
@@ -555,6 +557,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         try {
           window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
         } catch {}
+
+        window.playerClosed = true;
 
         window.player.currentTime(0);
         window.player.userActive(false);

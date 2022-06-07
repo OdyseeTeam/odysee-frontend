@@ -240,6 +240,8 @@ export function doPlayUri(
 }
 
 export function savePosition(uri: string, position: number) {
+  if (window.playerClosed) return;
+
   return (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
     const claim = makeSelectClaimForUri(uri)(state);
