@@ -44,7 +44,11 @@ export type Player = {
   hlsQualitySelector: ?any,
   i18n: (any) => void,
   // -- base videojs --
-  controlBar: { addChild: (string, any) => void },
+  controlBar: {
+    addChild: (string | any, ?any, ?number) => void,
+    getChild: (string) => void,
+    removeChild: (string) => void,
+  },
   loadingSpinner: any,
   autoplay: (any) => boolean,
   tech: (?boolean) => { vhs: ?any },
@@ -58,6 +62,7 @@ export type Player = {
   isFullscreen: () => boolean,
   muted: (?boolean) => boolean,
   on: (string, (any) => void) => void,
+  off: (string, (any) => void) => void,
   one: (string, (any) => void) => void,
   play: () => Promise<any>,
   playbackRate: (?number) => number,
@@ -101,7 +106,6 @@ type Props = {
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
-const VIDEOJS_CONTROL_BAR_CLASS = 'ControlBar';
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
 
 const IS_IOS = platform.isIOS();
@@ -350,7 +354,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       const isLivestream = isLivestreamClaim && userClaimId;
       // make an additional check and reinstantiate if switching between player types
       // switching between types on iOS causes issues and this is a faster solution
-      if (vjsParent && window.player){
+      if (vjsParent && window.player) {
         const oldVideoType = window.player.isLivestream ? 'livestream' : 'video';
         if (oldVideoType === 'livestream' && !isLivestream) canUseOldPlayer = false;
         if (oldVideoType === 'video' && isLivestream) canUseOldPlayer = false;
@@ -373,6 +377,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (!embedded) {
         vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
       } else {
+        // $FlowIssue
         vjsPlayer.bigPlayButton?.show();
       }
 
@@ -388,6 +393,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       initializeEvents();
 
       // volume control div, used for changing volume when scrolled over
+      // $FlowIssue
       volumePanelRef.current = playerRef.current?.controlBar?.getChild(VIDEOJS_VOLUME_PANEL_CLASS)?.el();
 
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
@@ -402,8 +408,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       videoScrollHandlerRef.current = videoScrollHandler;
       volumePanelScrollHandlerRef.current = volumePanelHandler;
 
-      // todo: es-lint is confused by this syntax
-      // eslint-disable-next-line no-unused-expressions
+      // $FlowIssue
       vjsPlayer.controlBar?.show();
 
       let contentUrl;
@@ -455,6 +460,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       vjsPlayer.load();
 
       if (canUseOldPlayer) {
+        // $FlowIssue
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
       }
 
@@ -467,7 +473,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         if (promise !== undefined) {
           promise
             .then((_) => {
-              vjsPlayer.controlBar.el().classList.add('vjs-transitioning-video');
+              // $FlowIssue
+              vjsPlayer?.controlBar.el().classList.add('vjs-transitioning-video');
             })
             .catch((error) => {
               const noPermissionError = typeof error === 'object' && error.name && error.name === 'NotAllowedError';
@@ -475,15 +482,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
               if (noPermissionError) {
                 if (IS_IOS) {
                   // autoplay not allowed, mute video, play and show 'tap to unmute' button
-                  vjsPlayer.muted(true);
-                  vjsPlayer.play();
+                  // $FlowIssue
+                  vjsPlayer?.muted(true);
+                  // $FlowIssue
+                  vjsPlayer?.play();
+                  // $FlowIssue
                   document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
+                  // $FlowIssue
                   document
                     .querySelector('.video-js--tap-to-unmute')
                     ?.style.setProperty('display', 'inline', 'important');
                 } else {
-                  vjsPlayer.bigPlayButton.show();
-                  // player.bigPlayButton.el().style.setProperty('display', 'block', 'important');
+                  // $FlowIssue
+                  vjsPlayer?.bigPlayButton?.show();
                 }
               }
             });
@@ -531,7 +542,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       const chapterMarkers = document.getElementsByClassName('vjs-chapter-marker');
       while (chapterMarkers.length > 0) {
-        chapterMarkers[0].parentNode.removeChild(chapterMarkers[0]);
+        // $FlowIssue
+        chapterMarkers[0].parentNode?.removeChild(chapterMarkers[0]);
       }
 
       const player = playerRef.current;
@@ -545,12 +557,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.pause();
 
         if (IS_IOS) {
+          // $FlowIssue
           window.player.controlBar?.playToggle?.hide();
         }
 
+        // $FlowIssue
         window.player?.controlBar?.getChild('ChaptersButton')?.hide();
 
         // this solves an issue with portrait videos
+        // $FlowIssue
         const videoDiv = window.player?.tech_?.el(); // video element
         if (videoDiv) videoDiv.style.top = '0px';
 

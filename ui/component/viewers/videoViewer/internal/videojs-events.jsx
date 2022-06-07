@@ -113,6 +113,7 @@ const VideoJsEvents = ({
     const player = playerRef.current;
     updateMediaSession();
 
+    // $FlowIssue
     player.bigPlayButton?.hide();
 
     if (player && (player.muted() || player.volume() === 0)) {
@@ -246,8 +247,9 @@ const VideoJsEvents = ({
     // used for tracking buffering for watchman
     player.on('tracking:buffered', doTrackingBuffered);
 
-    player.on('loadstart', function() {
+    player.on('loadstart', function () {
       if (embedded) {
+        // $FlowIssue
         player.bigPlayButton?.show();
       }
     });
