@@ -40,7 +40,6 @@ export default function NotificationHeaderButton(props: Props) {
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 5);
-  // console.log('notifications: ', list);
 
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
@@ -99,7 +98,6 @@ export default function NotificationHeaderButton(props: Props) {
   }
 
   function menuEntry(notification) {
-    // console.log(notification);
     let channelIcon = '';
     let type = '';
     let title = '';
@@ -161,7 +159,6 @@ export default function NotificationHeaderButton(props: Props) {
 
         <ClickAwayListener onClickAway={handleClickAway}>
           <MuiMenu {...menuProps}>
-            {/* <MenuList className="menu__list--header menu__list--notifications"> */}
             <div className="menu__list--notifications-header" />
             <div className="menu__list--notifications-list">
               {list.map((notification) => {
@@ -173,7 +170,6 @@ export default function NotificationHeaderButton(props: Props) {
             </a>
           </MuiMenu>
         </ClickAwayListener>
-        {/* </MenuList> */}
       </>
     )
   );
