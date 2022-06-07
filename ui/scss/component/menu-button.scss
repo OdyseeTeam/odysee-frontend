@@ -211,9 +211,14 @@ reach-portal {
     backdrop-filter: blur(4px) !important;
   }
 
+  a:nth-child(1) {
+    .menu__list--notification {
+      border-top: 1px solid rgba(var(--color-header-button-base), 0.95);
+    }
+  }
+
   .menu__list--notifications-list {
     overflow: hidden !important;
-    // max-height: 500px;
     .menu__list--notification {
       overflow: hidden !important;
       width: 440px;
