@@ -356,8 +356,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // switching between types on iOS causes issues and this is a faster solution
       if (vjsParent && window.player) {
         const oldVideoType = window.player.isLivestream ? 'livestream' : 'video';
-        if (oldVideoType === 'livestream' && !isLivestream) canUseOldPlayer = false;
-        if (oldVideoType === 'video' && isLivestream) canUseOldPlayer = false;
+        const switchFromLivestreamToVideo = oldVideoType === 'livestream' && !isLivestream;
+        const switchFromVideoToLivestream = oldVideoType === 'video' && isLivestream;
+        if (switchFromLivestreamToVideo || switchFromVideoToLivestream) {
+          canUseOldPlayer = false;
+          window.player.dispose();
+        }
       }
 
       // initialize videojs if it hasn't been done yet
