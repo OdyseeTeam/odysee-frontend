@@ -260,6 +260,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     suppressNotSupportedError: true,
   };
 
+  // TODO: would be nice to pull this out into functions file
   // Initialize video.js
   function initializeVideoPlayer(domElement) {
     if (!domElement) return;
@@ -345,7 +346,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       let vjsPlayer;
       const vjsParent = document.querySelector('.video-js-parent');
 
-      const canUseOldPlayer = window.oldSavedDiv && vjsParent;
+      let canUseOldPlayer = window.oldSavedDiv && vjsParent;
+      const isLivestream = isLivestreamClaim && userClaimId;
+      // make an additional check and reinstantiate if switching between player types
+      // switching between types on iOS causes issues and this is a faster solution
+      if (vjsParent && window.player){
+        const oldVideoType = window.player.isLivestream ? 'livestream' : 'video';
+        if (oldVideoType === 'livestream' && !isLivestream) canUseOldPlayer = false;
+        if (oldVideoType === 'video' && isLivestream) canUseOldPlayer = false;
+      }
 
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
@@ -400,7 +409,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       let contentUrl;
       // TODO: pull this function into videojs-functions
       // determine which source to use and load it
-      if (isLivestreamClaim && userClaimId) {
+      if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
         vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
