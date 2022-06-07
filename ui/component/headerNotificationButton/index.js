@@ -12,7 +12,7 @@ const select = (state) => ({
 });
 
 const perform = (dispatch, ownProps) => ({
-  readNotification: (id) => dispatch(doReadNotifications(id)),
+  readNotification: ([id]) => dispatch(doReadNotifications([id])),
   seeNotification: (id) => dispatch(doSeeNotifications(id)),
   doSeeAllNotifications: doSeeAllNotifications,
   // deleteNotification: () => dispatch(doDeleteNotification(ownProps.notification.id)),

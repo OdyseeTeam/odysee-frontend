@@ -24,8 +24,8 @@ type Props = {
   unseenCount: number,
   user: ?User,
   authenticated: boolean,
-  // readNotification: (string) => void,
-  seeNotification: (Array<string>) => void,
+  readNotification: (Array<number>) => void,
+  seeNotification: (Array<number>) => void,
   doSeeAllNotifications: () => void,
 };
 
@@ -35,7 +35,7 @@ export default function NotificationHeaderButton(props: Props) {
     unseenCount,
     user,
     authenticated,
-    // readNotification,
+    readNotification,
     seeNotification,
     doSeeAllNotifications,
   } = props;
@@ -89,7 +89,7 @@ export default function NotificationHeaderButton(props: Props) {
   function handleNotificationClick(notification) {
     if (!notification.is_read) {
       seeNotification([notification.id]);
-      // readNotification(notification.id);
+      readNotification([notification.id]);
     }
     let notificationLink = formatLbryUrlForWeb(notification.notification_parameters.device.target);
     if (notification.notification_parameters.dynamic.hash) {
@@ -117,7 +117,7 @@ export default function NotificationHeaderButton(props: Props) {
     }
     return (
       <>
-        <a onClick={() => handleNotificationClick(notification)}>
+        <a onClick={() => handleNotificationClick(notification)} title={title}>
           <div
             className={
               notification.is_read
