@@ -192,9 +192,14 @@ reach-portal {
 
 .menu__list--notifications {
   padding: 0;
-  backdrop-filter: blur(4px) !important;
+
   border-radius: 0 0 var(--border-radius) var(--border-radius);
   background-color: unset !important;
+
+  .MuiMenu-list {
+    padding: 0;
+    backdrop-filter: blur(4px) !important;
+  }
 
   .menu__list--notifications-header {
     height: var(--spacing-xs);
@@ -203,6 +208,8 @@ reach-portal {
   }
 
   .menu__list--notifications-list {
+    overflow-y: auto;
+    max-height: 500px;
     .menu__list--notification {
       width: 440px;
       padding: var(--spacing-s);
@@ -213,6 +220,9 @@ reach-portal {
       .notification__icon {
         margin-top: 0;
         margin-left: 0;
+        .channel-thumbnail--small {
+          margin-right: var(--spacing-s);
+        }
       }
       .menu__list--notification-channel-unread {
         border: 2px solid var(--color-primary);

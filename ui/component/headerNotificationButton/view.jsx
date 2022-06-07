@@ -6,7 +6,7 @@ import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 // import Button from 'component/button';
-import { Menu, MenuList, MenuButton } from '@reach/menu-button';
+// import { Menu, MenuList, MenuButton } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
 import React from 'react';
@@ -15,23 +15,53 @@ import { formatLbryUrlForWeb } from 'util/url';
 import Notification from 'component/notification';
 import DateTime from 'component/dateTime';
 import ChannelThumbnail from 'component/channelThumbnail';
+import { Menu as MuiMenu } from '@mui/material';
+import Button from 'component/button';
 
 type Props = {
   notifications: Array<Notification>,
   unseenCount: number,
   user: ?User,
   authenticated: boolean,
-  readNotification: (string) => void,
+  // readNotification: (string) => void,
+  seeNotification: (Array<string>) => void,
   doSeeAllNotifications: () => void,
 };
 
 export default function NotificationHeaderButton(props: Props) {
-  const { notifications, unseenCount, user, authenticated, readNotification, doSeeAllNotifications } = props;
+  const {
+    notifications,
+    unseenCount,
+    user,
+    authenticated,
+    // readNotification,
+    seeNotification,
+    doSeeAllNotifications,
+  } = props;
   const list = notifications.slice(0, 5);
   console.log('notifications: ', list);
 
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleClick = (event) => setAnchorEl(!anchorEl ? event.currentTarget : null);
+  const handleClose = () => setAnchorEl(null);
+
+  const menuProps = {
+    id: 'notification-menu',
+    anchorEl,
+    open,
+    onClose: handleClose,
+    MenuListProps: {
+      'aria-labelledby': 'basic-button',
+      sx: { padding: 'var(--spacing-xs)' },
+    },
+    className: 'menu__list--header menu__list--notifications',
+    sx: { 'z-index': 2 },
+    PaperProps: { className: 'MuiMenu-list--paper' },
+  };
 
   function handleMenuClick() {
     if (unseenCount > 0) doSeeAllNotifications();
@@ -41,7 +71,10 @@ export default function NotificationHeaderButton(props: Props) {
   if (!notificationsEnabled) return null;
 
   function handleNotificationClick(notification) {
-    if (!notification.is_read) readNotification(notification.id);
+    if (!notification.is_read) {
+      seeNotification([notification.id]);
+      // readNotification(notification.id);
+    }
     let notificationLink = formatLbryUrlForWeb(notification.notification_parameters.device.target);
     if (notification.notification_parameters.dynamic.hash) {
       notificationLink += '?lc=' + notification.notification_parameters.dynamic.hash + '&view=discussion';
@@ -102,15 +135,16 @@ export default function NotificationHeaderButton(props: Props) {
 
   return (
     notificationsEnabled && (
-      <Menu>
+      <>
         <Tooltip title={__('Notifications')}>
-          <MenuButton className="header__navigationItem--icon">
+          <Button className="header__navigationItem--icon" onClick={handleClick}>
             <Icon size={18} icon={ICONS.NOTIFICATION} aria-hidden />
             <NotificationBubble />
-          </MenuButton>
+          </Button>
         </Tooltip>
 
-        <MenuList className="menu__list--header menu__list--notifications">
+        <MuiMenu {...menuProps}>
+          {/* <MenuList className="menu__list--header menu__list--notifications"> */}
           <div className="menu__list--notifications-header" />
           <div className="menu__list--notifications-list">
             {list.map((notification) => {
@@ -120,8 +154,9 @@ export default function NotificationHeaderButton(props: Props) {
           <a onClick={handleMenuClick}>
             <div className="menu__list--notifications-more">{__('View all')}</div>
           </a>
-        </MenuList>
-      </Menu>
+        </MuiMenu>
+        {/* </MenuList> */}
+      </>
     )
   );
 }
