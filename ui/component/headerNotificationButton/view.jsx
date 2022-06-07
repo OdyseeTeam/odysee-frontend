@@ -40,6 +40,7 @@ export default function NotificationHeaderButton(props: Props) {
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 5);
+  console.log('List: ', list);
 
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
@@ -108,6 +109,11 @@ export default function NotificationHeaderButton(props: Props) {
         title = notification.notification_parameters.dynamic.claim_title;
         break;
       case 'comments':
+        channelIcon = notification.notification_parameters.dynamic.comment_author_thumbnail;
+        type = notification.notification_parameters.device.title;
+        title = notification.notification_parameters.device.text;
+        break;
+      case 'comment_replies':
         channelIcon = notification.notification_parameters.dynamic.comment_author_thumbnail;
         type = notification.notification_parameters.device.title;
         title = notification.notification_parameters.device.text;
