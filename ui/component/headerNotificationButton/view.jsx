@@ -68,7 +68,7 @@ export default function NotificationHeaderButton(props: Props) {
 
   const handleClickAway = () => {
     if (!clicked) {
-      setClicked(true);
+      if (open) setClicked(true);
     } else {
       setAnchorEl(null);
       setClicked(false);
@@ -79,6 +79,10 @@ export default function NotificationHeaderButton(props: Props) {
     if (unseenCount > 0) doSeeAllNotifications();
     push(`/$/${PAGES.NOTIFICATIONS}`);
   }
+
+  React.useEffect(() => {
+    if (!open) setClicked(false);
+  }, [open]);
 
   if (!notificationsEnabled) return null;
 

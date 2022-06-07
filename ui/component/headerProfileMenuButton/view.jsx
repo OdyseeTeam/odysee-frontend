@@ -41,12 +41,16 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
 
   const handleClickAway = () => {
     if (!clicked) {
-      setClicked(true);
+      if (open) setClicked(true);
     } else {
       setAnchorEl(null);
       setClicked(false);
     }
   };
+
+  React.useEffect(() => {
+    if (!open) setClicked(false);
+  }, [open]);
 
   const menuProps = {
     id: 'basic-menu',
