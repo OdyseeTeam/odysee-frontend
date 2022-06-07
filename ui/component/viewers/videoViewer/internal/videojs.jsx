@@ -379,10 +379,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       initializeEvents();
 
       // volume control div, used for changing volume when scrolled over
-      volumePanelRef.current = playerRef.current
-        .getChild(VIDEOJS_CONTROL_BAR_CLASS)
-        .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
-        .el();
+      volumePanelRef.current = playerRef.current?.controlBar?.getChild(VIDEOJS_VOLUME_PANEL_CLASS)?.el();
 
       const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
       const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
