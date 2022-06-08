@@ -192,8 +192,6 @@ reach-portal {
 }
 
 .menu__list--notifications {
-  // padding: 0;
-
   .MuiMenu-list {
     padding: 0;
     backdrop-filter: blur(4px) !important;
@@ -243,6 +241,9 @@ reach-portal {
         overflow: hidden;
         width: 100%;
         .menu__list--notification-type {
+          display: flex;
+          flex-flow: wrap;
+          gap: var(--spacing-xxxs);
           width: 100%;
           color: rgba(var(--color-text-base), 0.6);
           font-size: var(--font-xsmall);
@@ -252,7 +253,12 @@ reach-portal {
             color: rgba(var(--color-text-base), 0.6);
             font-size: var(--font-xsmall);
             font-weight: 400;
-            // display: inline-block;
+            flex: 1;
+
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            display: block;
           }
 
           .button__content {
@@ -264,6 +270,10 @@ reach-portal {
               font-size: var(--font-xsmall);
               font-weight: 400;
             }
+          }
+
+          span {
+            margin-right: 0;
           }
         }
 
@@ -284,6 +294,7 @@ reach-portal {
               white-space: nowrap;
               text-overflow: ellipsis;
               display: block;
+              padding-right: 0;
             }
           }
         }
@@ -294,7 +305,7 @@ reach-portal {
           color: var(--color-primary);
           display: inline-block;
           font-size: var(--font-xxsmall);
-          margin-right: var(--spacing-xs);
+          margin-right: var(--spacing-xxxs);
         }
       }
 
@@ -305,6 +316,9 @@ reach-portal {
           .menu__list--notification-title {
             .notification__text {
               color: var(--color-primary);
+              blockquote {
+                color: var(--color-primary) !important;
+              }
             }
           }
         }
@@ -326,7 +340,6 @@ reach-portal {
     &:hover {
       cursor: pointer;
       color: var(--color-primary);
-      // background-color: rgba(var(--color-header-background-base), 1);
     }
   }
 }
@@ -340,8 +353,6 @@ reach-portal {
 .menu__link {
   display: flex;
   align-items: center;
-  // padding: var(--spacing-s);
-  // padding-right: var(--spacing-l);
   padding: var(--spacing-xs) var(--spacing-s) var(--spacing-xs) var(--spacing-s);
   height: var(--button-height);
   color: var(--color-text);
