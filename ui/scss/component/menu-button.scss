@@ -218,6 +218,7 @@ reach-portal {
   .menu__list--notifications-list {
     overflow: hidden !important;
     .menu__list--notification {
+      position: relative;
       overflow: hidden !important;
       width: 440px;
       padding: var(--spacing-s);
@@ -344,11 +345,31 @@ reach-portal {
             }
           }
         }
+        .delete-notification {
+          opacity: 1;
+        }
       }
     }
 
     .menu__list--notification-unread {
       border-left: 2px solid var(--color-primary);
+    }
+
+    .delete-notification {
+      position: absolute;
+      top: var(--spacing-xs);
+      right: var(--spacing-xxs);
+      opacity: 0;
+      .icon__wrapper {
+        width: 20px;
+        height: 20px;
+        padding: 0;
+        background-color: rgba(var(--color-header-button-base), 0.95);
+        svg {
+          width: 12px;
+          height: 12px;
+        }
+      }
     }
   }
 

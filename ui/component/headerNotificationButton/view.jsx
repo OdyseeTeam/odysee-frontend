@@ -28,7 +28,8 @@ type Props = {
   user: ?User,
   authenticated: boolean,
   readNotification: (Array<number>) => void,
-  seeNotification: (Array<number>) => void,
+  seeNotification: (number) => void,
+  deleteNotification: (number) => void,
   doSeeAllNotifications: () => void,
 };
 
@@ -40,6 +41,7 @@ export default function NotificationHeaderButton(props: Props) {
     authenticated,
     readNotification,
     seeNotification,
+    deleteNotification,
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 5);
@@ -88,6 +90,11 @@ export default function NotificationHeaderButton(props: Props) {
     push(`/$/${PAGES.NOTIFICATIONS}`);
   }
 
+  function handleNotificationDelete(e, id) {
+    e.stopPropagation();
+    deleteNotification(id);
+  }
+
   React.useEffect(() => {
     if (!open) setClicked(false);
   }, [open]);
@@ -98,7 +105,7 @@ export default function NotificationHeaderButton(props: Props) {
     const { id, notification_parameters, is_read } = notification;
 
     if (!is_read) {
-      seeNotification([id]);
+      seeNotification(id);
       readNotification([id]);
     }
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
@@ -178,6 +185,9 @@ export default function NotificationHeaderButton(props: Props) {
               </div>
               {!is_read && <span>•</span>}
               <DateTime timeAgo date={active_at} />
+            </div>
+            <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
+              <Icon icon={ICONS.DELETE} sectionIcon />
             </div>
           </div>
         </a>
