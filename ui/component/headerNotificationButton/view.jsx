@@ -5,8 +5,6 @@ import { ENABLE_UI_NOTIFICATIONS } from 'config';
 import { useHistory } from 'react-router';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-// import Button from 'component/button';
-// import { Menu, MenuList, MenuButton } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
 import React from 'react';
@@ -157,34 +155,6 @@ export default function NotificationHeaderButton(props: Props) {
       } catch (e) {}
     }
 
-    /*
-    let channelIcon = '';
-    let type = '';
-    let title = '';
-    switch (notification.type) {
-      case 'new_content':
-        channelIcon = notification.notification_parameters.dynamic.channel_thumbnail;
-        type = notification.notification_parameters.device.title;
-        title = notification.notification_parameters.dynamic.claim_title;
-        break;
-      case 'comments':
-        channelIcon = notification.notification_parameters.dynamic.comment_author_thumbnail;
-        type = notification.notification_parameters.device.title;
-        title = notification.notification_parameters.device.text;
-        break;
-      case 'comment_replies':
-        channelIcon = notification.notification_parameters.dynamic.comment_author_thumbnail;
-        type = notification.notification_parameters.device.title;
-        title = notification.notification_parameters.device.text;
-        break;
-      case 'default':
-        channelIcon = 'LBC';
-        type = notification.notification_parameters.device.title;
-        title = notification.notification_parameters.device.text;
-        break;
-    }
-    */
-
     return (
       <>
         <a onClick={() => handleNotificationClick(notification)}>
@@ -194,10 +164,7 @@ export default function NotificationHeaderButton(props: Props) {
             }
             key={id}
           >
-            <div className="notification__icon">
-              {icon}
-              {/* <ChannelThumbnail small thumbnailPreview={channelIcon} /> */}
-            </div>
+            <div className="notification__icon">{icon}</div>
             <div className="menu__list--notification-info">
               <div className="menu__list--notification-type">
                 {generateNotificationTitle(notification_rule, notification_parameters, channelName)}
@@ -208,7 +175,6 @@ export default function NotificationHeaderButton(props: Props) {
                 }
               >
                 {generateNotificationText(notification_rule, notification_parameters)}
-                {/* title */}
               </div>
               {!is_read && <span>•</span>}
               <DateTime timeAgo date={active_at} />
