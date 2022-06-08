@@ -380,6 +380,20 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer = window.player;
       }
 
+      // Add recsys plugin
+      if (shareTelemetry) {
+        vjsPlayer.recsys.options_ = {
+          videoId: claimId,
+          userId: userId,
+          embedded: embedded,
+        };
+
+        vjsPlayer.recsys.lastTimeUpdate = null;
+        vjsPlayer.recsys.currentTimeUpdate = null;
+        vjsPlayer.recsys.inPause = false;
+        vjsPlayer.recsys.watchedDuration = { total: 0, lastTimestamp: -1 };
+      }
+
       if (!embedded) {
         vjsPlayer.bigPlayButton && window.player.bigPlayButton.hide();
       } else {

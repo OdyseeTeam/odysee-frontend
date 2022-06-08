@@ -318,7 +318,7 @@ function VideoViewer(props: Props) {
   }
 
   function handlePosition(player) {
-    if (!isLivestreamClaim) savePosition(uri, player.currentTime());
+    if (!isLivestreamClaim && !window.playerClosed) savePosition(uri, player.currentTime());
   }
 
   function restorePlaybackRate(player) {
@@ -388,8 +388,8 @@ function VideoViewer(props: Props) {
       }
     };
 
-    const onPauseEvent = event => onPause(event, player);
-    const onPlayerClosedEvent = event => onPlayerClosed(event, player);
+    const onPauseEvent = (event) => onPause(event, player);
+    const onPlayerClosedEvent = (event) => onPlayerClosed(event, player);
     const onVolumeChange = () => {
       if (player) {
         updateVolumeState(player.volume(), player.muted());
