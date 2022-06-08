@@ -365,6 +365,8 @@ reach-portal {
         height: 20px;
         padding: 0;
         background-color: rgba(var(--color-header-button-base), 0.95);
+        outline: 4px solid rgba(var(--color-header-background-base), 1);
+
         svg {
           width: 12px;
           height: 12px;
