@@ -598,6 +598,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.oldSavedDiv = window.player.el();
 
         window.player.trigger('playerClosed');
+
+        window.player.claimSrcVhs = null;
       }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);
