@@ -212,7 +212,16 @@ export default function NotificationHeaderButton(props: Props) {
               {list.map((notification) => {
                 return menuEntry(notification);
               })}
+              {list.length === 0 && (
+                <div className="menu__list--notification-empty">
+                  <div className="menu__list--notification-empty-title">{__('No notifications')}</div>
+                  <div className="menu__list--notification-empty-text">
+                    {__("You don't have any notifications yet, but they will be here when you do!")}
+                  </div>
+                </div>
+              )}
             </div>
+
             <a onClick={handleMenuClick}>
               <div className="menu__list--notifications-more">{__('View all')}</div>
             </a>

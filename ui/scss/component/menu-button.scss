@@ -355,6 +355,26 @@ reach-portal {
       border-left: 2px solid var(--color-primary);
     }
 
+    .menu__list--notification-empty {
+      display: block;
+      word-wrap: break-word;
+      white-space: normal;
+      width: 440px;
+      padding: var(--spacing-m) var(--spacing-s);
+      background-color: rgba(var(--color-header-button-base), 0.95);
+      color: var(--color-text);
+      text-align: center;
+      .menu__list--notification-empty-title {
+        font-weight: bold;
+        font-size: var(--font-body);
+      }
+      .menu__list--notification-empty-text {
+        color: rgba(var(--color-text-base), 0.6);
+        font-size: var(--font-xsmall);
+        font-weight: 400;
+      }
+    }
+
     .delete-notification {
       position: absolute;
       top: var(--spacing-xs);
