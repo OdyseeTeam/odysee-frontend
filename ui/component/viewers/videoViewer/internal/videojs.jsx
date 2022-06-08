@@ -431,6 +431,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowIssue
       vjsPlayer.controlBar?.show();
 
+      vjsPlayer.poster(poster);
+
       let contentUrl;
       // TODO: pull this function into videojs-functions
       // determine which source to use and load it

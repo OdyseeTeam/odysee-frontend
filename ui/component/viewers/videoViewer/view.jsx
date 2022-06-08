@@ -357,6 +357,9 @@ function VideoViewer(props: Props) {
 
           const existingPlayPreviousButton = controlBar.getChild('PlayPreviousButton');
           if (existingPlayPreviousButton) controlBar.removeChild('PlayPreviousButton');
+
+          const existingAutoplayButton = controlBar.getChild('AutoplayNextButton');
+          if (existingAutoplayButton) controlBar.removeChild('AutoplayNextButton');
         }
 
         if (collectionId) {
