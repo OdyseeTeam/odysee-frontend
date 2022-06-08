@@ -28,7 +28,7 @@ type Props = {
   user: ?User,
   authenticated: boolean,
   readNotification: (Array<number>) => void,
-  seeNotification: (number) => void,
+  seeNotification: (Array<number>) => void,
   deleteNotification: (number) => void,
   doSeeAllNotifications: () => void,
 };
@@ -105,7 +105,7 @@ export default function NotificationHeaderButton(props: Props) {
     const { id, notification_parameters, is_read } = notification;
 
     if (!is_read) {
-      seeNotification(id);
+      seeNotification([id]);
       readNotification([id]);
     }
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
