@@ -370,6 +370,12 @@ reach-portal {
           height: 12px;
         }
       }
+      &:hover {
+        .icon__wrapper {
+          background-color: var(--color-primary);
+          color: var(--color-primary-contrast);
+        }
+      }
     }
   }
 
