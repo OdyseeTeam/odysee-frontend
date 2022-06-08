@@ -229,8 +229,16 @@ reach-portal {
       .notification__icon {
         margin-top: 0;
         margin-left: 0;
-        .channel-thumbnail--small {
+        .channel-thumbnail {
           margin-right: var(--spacing-s);
+          width: 3rem;
+          height: 3rem;
+          img,
+          canvas {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+          }
         }
       }
       .menu__list--notification-channel-unread {
@@ -274,6 +282,14 @@ reach-portal {
 
           span {
             margin-right: 0;
+            .credit-amount {
+              color: rgba(var(--color-text-base), 0.6);
+              font-size: var(--font-xsmall);
+              font-weight: 400;
+              svg {
+                margin-bottom: 0;
+              }
+            }
           }
         }
 
@@ -306,6 +322,12 @@ reach-portal {
           display: inline-block;
           font-size: var(--font-xxsmall);
           margin-right: var(--spacing-xxxs);
+        }
+        .sticker__comment {
+          margin-left: 0;
+          padding: var(--spacing-xxs);
+          padding-left: 0;
+          height: 50px;
         }
       }
 
