@@ -459,6 +459,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         }
       }
 
+      // bugfix thumbnails showing up if new video doesn't have them
+      if (typeof vjsPlayer.vttThumbnails.detach === 'function') {
+        vjsPlayer.vttThumbnails.detach();
+      }
+
       // initialize hover thumbnails
       if (contentUrl) {
         const trimmedPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
