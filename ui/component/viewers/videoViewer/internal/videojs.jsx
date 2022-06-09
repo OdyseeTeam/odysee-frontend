@@ -581,6 +581,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         window.playerClosed = true;
 
+        window.player.switchedFromDefaultQuality = false;
+
         window.player.currentTime(0);
         window.player.userActive(false);
         window.player.pause();

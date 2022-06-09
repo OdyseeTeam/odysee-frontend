@@ -279,9 +279,11 @@ class HlsQualitySelectorPlugin {
     const currentTime = this.player.currentTime();
     const isAlreadyPlaying = !this.player.paused();
     this.player.src(mode === 'vhs' ? this.player.claimSrcVhs : this.player.claimSrcOriginal);
-    window.switchingSource = true;
     this.player.load();
     this.player.currentTime(currentTime);
+
+    // fixes a bug where when reusing vjs instance the player doesn't play
+    // when it should and the control bar is hidden when changing quality
     if (isAlreadyPlaying) {
       this.player.play();
     } else {
