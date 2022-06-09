@@ -63,6 +63,10 @@ class SettingsStripeCard extends React.Component<Props, State> {
   componentDidMount() {
     let that = this;
 
+    that.setState({
+      cardNameValue: '',
+    });
+
     const { preferredCurrency, locale } = this.props;
 
     // use preferredCurrency if it's set on client, otherwise use USD, unless in Europe then use EUR
@@ -264,6 +268,11 @@ class SettingsStripeCard extends React.Component<Props, State> {
           function submitForm(event) {
             event.preventDefault();
 
+            const cardUserName = document.querySelector('#card-name').value;
+            if (!cardUserName) {
+              return (document.querySelector('.sr-field-error').innerHTML = 'Please enter the name on the card');
+            }
+
             // if client secret wasn't loaded properly
             if (!clientSecret) {
               var displayErrorText = 'There was an error in generating your payment method. Please contact a developer';
@@ -409,9 +418,29 @@ class SettingsStripeCard extends React.Component<Props, State> {
       setPreferredCurrency(value);
     }
 
+    function onChangeCardName(event) {
+      const { value } = event.target;
+
+      const numberOrSpecialCharacter = /[0-9`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
+
+      if (!numberOrSpecialCharacter.test(value)) {
+        that.setState({
+          cardNameValue: value,
+        });
+      }
+    }
+
     const { scriptFailedToLoad, openModal } = this.props;
 
-    const { currentFlowStage, pageTitle, userCardDetails, paymentMethodId, preferredCurrency, cardName } = this.state;
+    const {
+      currentFlowStage,
+      pageTitle,
+      userCardDetails,
+      paymentMethodId,
+      preferredCurrency,
+      cardName,
+      cardNameValue,
+    } = this.state;
 
     return (
       <Page noFooter noSideNavigation className="card-stack" backout={{ title: __(pageTitle), backLabel: __('Back') }}>
@@ -435,8 +464,8 @@ class SettingsStripeCard extends React.Component<Props, State> {
             <div className="sr-main">
               <div className="">
                 <div className="sr-form-row">
-                  <label className="payment-details" style={{ display: 'block' }}>Name On Card</label>
-                  <input type="text" id="card-name" style={{ width: '284px', boxShadow: 'unset' }} />
+                  <label className="payment-details">Name On Card</label>
+                  <input type="text" id="card-name" onChange={onChangeCardName} value={cardNameValue} />
                 </div>
                 <div className="sr-form-row">
                   <label className="payment-details">Card Details</label>

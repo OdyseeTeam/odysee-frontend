@@ -427,3 +427,14 @@ pre {
 .getting-card-status__div .card__header--between {
   justify-content: center;
 }
+
+#card-name {
+  width: 284px;
+  box-shadow: unset;
+  color: #32325d;
+  background-color: white;
+}
+
+.payment-details {
+  display: block;
+}
