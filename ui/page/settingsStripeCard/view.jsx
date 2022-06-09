@@ -257,8 +257,6 @@ class SettingsStripeCard extends React.Component<Props, State> {
           });
 
           card.on('ready', function () {
-            // focus on the card input
-            // card.focus();
             // focus on the name input
             document.querySelector('#card-name').focus();
           });
@@ -270,7 +268,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
 
             const cardUserName = document.querySelector('#card-name').value;
             if (!cardUserName) {
-              return (document.querySelector('.sr-field-error').innerHTML = 'Please enter the name on the card');
+              return (document.querySelector('.sr-field-error').innerHTML = __('Please enter the name on the card'));
             }
 
             // if client secret wasn't loaded properly
