@@ -1,10 +1,12 @@
+const Mime = require('mime-types');
 const moment = require('moment');
 const removeMd = require('remove-markdown');
 
 // TODO: fix relative path for server
+const { fetchStreamUrl } = require('../fetchStreamUrl');
 const { parseURI } = require('../lbryURI');
 const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.js');
-const { generateDirectUrl, generateEmbedUrl, getThumbnailCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
+const { generateEmbedUrl, getThumbnailCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
 
 // ****************************************************************************
 // Utils
@@ -75,7 +77,7 @@ const Generate = {
 // buildGoogleVideoMetadata
 // ****************************************************************************
 
-function buildGoogleVideoMetadata(uri, claim) {
+async function buildGoogleVideoMetadata(uri, claim) {
   const { claimName } = parseURI(uri);
   const { meta, value } = claim;
   const media = value && value.video;
@@ -97,6 +99,10 @@ function buildGoogleVideoMetadata(uri, claim) {
 
   const claimThumbnail = escapeHtmlProperty(thumbnail) || getThumbnailCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
 
+  const fileExt = value.source && value.source.media_type && '.' + Mime.extension(value.source.media_type);
+  const claimStreamUrl =
+    (await fetchStreamUrl(claim.name, claim.claim_id)).replace('/v4/', '/v3/') + (fileExt || '.mp4'); // v3 = mp4 always, v4 may redirect to m3u8;
+
   // https://developers.google.com/search/docs/data-types/video
   const googleVideoMetadata = {
     // --- Must ---
@@ -108,8 +114,8 @@ function buildGoogleVideoMetadata(uri, claim) {
     uploadDate: `${new Date(releaseTime * 1000).toISOString()}`,
     // --- Recommended ---
     duration: mediaDuration ? moment.duration(mediaDuration * 1000).toISOString() : undefined,
-    url: generateDirectUrl(claim.name, claim.claim_id),
-    contentUrl: generateDirectUrl(claim.name, claim.claim_id),
+    url: lbryToOdyseeUrl(claim),
+    contentUrl: claimStreamUrl,
     embedUrl: generateEmbedUrl(claim.name, claim.claim_id),
     // --- Misc ---
     author: Generate.author(claim),
