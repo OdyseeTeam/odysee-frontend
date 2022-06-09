@@ -6,6 +6,16 @@ const { parseURI } = require('../lbryURI');
 const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.js');
 const { generateDirectUrl, generateEmbedUrl, getThumbnailCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
 
+// ****************************************************************************
+// Utils
+// ****************************************************************************
+
+function lbryToOdyseeUrl(claim) {
+  if (claim.canonical_url) {
+    return `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
+  }
+}
+
 function truncateDescription(description, maxChars = 200) {
   // Get list of single-codepoint strings
   const chars = [...description];
@@ -14,6 +24,52 @@ function truncateDescription(description, maxChars = 200) {
   // Format truncated string
   return chars.length > maxChars ? truncated + '...' : truncated;
 }
+
+// ****************************************************************************
+// ****************************************************************************
+
+const Generate = {
+  author: (claim) => {
+    const channelName = claim?.signing_channel?.value?.title || claim?.signing_channel?.name;
+    const channelUrl = lbryToOdyseeUrl(claim.signing_channel);
+    if (channelName && channelUrl) {
+      return { '@type': 'Person', name: channelName, url: channelUrl };
+    }
+  },
+
+  height: (claim) => {
+    return claim?.value?.video?.height;
+  },
+
+  keywords: (claim) => {
+    const tags = claim?.value?.tags;
+    if (tags) {
+      // Some claims, probably created from cli, have a crazy amount of tags.
+      // Limit that to 10.
+      return tags.slice(0, 10).join(',');
+    }
+  },
+
+  potentialAction: (claim) => {
+    // https://developers.google.com/search/docs/advanced/structured-data/video?hl=en#seek
+    if ((claim?.value?.video || claim?.value?.audio) && claim.canonical_url) {
+      return {
+        '@type': 'SeekToAction',
+        target: `${lbryToOdyseeUrl(claim)}?t={seek_to_second_number}`,
+        'startOffset-input': 'required name=seek_to_second_number',
+      };
+    }
+  },
+
+  thumbnail: (url) => {
+    // We don't have 'width' and 'height' from the claim :(
+    return { '@type': 'ImageObject', url };
+  },
+
+  width: (claim) => {
+    return claim?.value?.video?.width;
+  },
+};
 
 // ****************************************************************************
 // buildGoogleVideoMetadata
@@ -52,8 +108,16 @@ function buildGoogleVideoMetadata(uri, claim) {
     uploadDate: `${new Date(releaseTime * 1000).toISOString()}`,
     // --- Recommended ---
     duration: mediaDuration ? moment.duration(mediaDuration * 1000).toISOString() : undefined,
+    url: generateDirectUrl(claim.name, claim.claim_id),
     contentUrl: generateDirectUrl(claim.name, claim.claim_id),
     embedUrl: generateEmbedUrl(claim.name, claim.claim_id),
+    // --- Misc ---
+    author: Generate.author(claim),
+    thumbnail: Generate.thumbnail(claimThumbnail),
+    keywords: Generate.keywords(claim),
+    width: Generate.width(claim),
+    height: Generate.height(claim),
+    potentialAction: Generate.potentialAction(claim),
   };
 
   if (
