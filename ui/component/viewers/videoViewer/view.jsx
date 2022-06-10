@@ -416,6 +416,13 @@ function VideoViewer(props: Props) {
       }
     };
 
+    const moveToPosition = () => {
+      // update current time based on previous position
+      if (position && !isLivestreamClaim) {
+        player.currentTime(position);
+      }
+    };
+
     // load events onto player
     player.on('play', onPlay);
     player.on('pause', onPauseEvent);
@@ -426,6 +433,7 @@ function VideoViewer(props: Props) {
     player.on('ratechange', onRateChange);
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
+    player.on('loadedmetadata', moveToPosition);
 
     const cancelOldEvents = () => {
       player.off('play', onPlay);
@@ -438,14 +446,11 @@ function VideoViewer(props: Props) {
       player.off('loadedmetadata', overrideAutoAlgorithm);
       player.off('loadedmetadata', restorePlaybackRateEvent);
       player.off('playerClosed', cancelOldEvents);
+      player.off('loadedmetadata', moveToPosition);
     };
 
     // turn off old events to prevent duplicate runs
     player.on('playerClosed', cancelOldEvents);
-
-    if (position && !isLivestreamClaim) {
-      player.currentTime(position);
-    }
 
     Chapters.parseAndLoad(player, claim);
 
