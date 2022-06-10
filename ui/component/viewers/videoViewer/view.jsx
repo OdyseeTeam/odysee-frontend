@@ -232,11 +232,16 @@ function VideoViewer(props: Props) {
   useEffect(() => {
     if (!doNavigate) return;
 
-    const shouldPlayNextUrl = playNextUrl && permanentUrl !== nextRecommendedUri;
-    const shouldPlayPreviousUrl = previousListUri && permanentUrl !== previousListUri;
+    const shouldPlayNextUrl = playNextUrl && nextRecommendedUri && permanentUrl !== nextRecommendedUri;
+    const shouldPlayPreviousUrl = !playNextUrl && previousListUri && permanentUrl !== previousListUri;
 
+    // play next video if someone hits Next button
     if (shouldPlayNextUrl) {
       doPlay(nextRecommendedUri);
+      // rewind if video is over 5 seconds and they hit the back button
+    } else if (videoNode && videoNode.currentTime > 5) {
+      videoNode.currentTime = 0;
+      // move to previous video when they hit back button if behind 5 seconds
     } else if (shouldPlayPreviousUrl) {
       doPlay(previousListUri);
     } else {
