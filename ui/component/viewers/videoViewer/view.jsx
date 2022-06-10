@@ -213,6 +213,7 @@ function VideoViewer(props: Props) {
 
   const doPlay = useCallback(
     (playUri) => {
+      if (!playUri) return;
       setDoNavigate(false);
       if (!isFloating) {
         const navigateUrl = formatLbryUrlForWeb(playUri);
