@@ -279,9 +279,10 @@ function VideoViewer(props: Props) {
 
     if (embedded) {
       setIsEndedEmbed(true);
-      // show autoplay div
+      // show autoplay countdown div if not playlist
     } else if (!collectionId && autoplayNext) {
       setShowAutoplayCountdown(true);
+      // if a playlist, navigate to next item
     } else if (collectionId) {
       setDoNavigate(true);
     }
@@ -314,6 +315,7 @@ function VideoViewer(props: Props) {
 
   function onPlayerClosed(event, player) {
     handlePosition(player);
+    window.playerClosed = true;
     analytics.videoIsPlaying(false, player);
   }
 
@@ -340,6 +342,7 @@ function VideoViewer(props: Props) {
   };
 
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
+    // add buttons and initialize some settings for the player
     if (!embedded) {
       setVideoNode(videoNode);
       player.muted(muted);
@@ -433,7 +436,7 @@ function VideoViewer(props: Props) {
     player.on('ratechange', onRateChange);
     player.on('loadedmetadata', overrideAutoAlgorithm);
     player.on('loadedmetadata', restorePlaybackRateEvent);
-    player.on('loadedmetadata', moveToPosition);
+    player.one('loadedmetadata', moveToPosition);
 
     const cancelOldEvents = () => {
       player.off('play', onPlay);
