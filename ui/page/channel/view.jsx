@@ -229,7 +229,7 @@ function ChannelPage(props: Props) {
             />
           )}
           {!channelIsBlackListed && <ShareButton uri={uri} />}
-          {window.odysee.build.apkUpdater && !(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
+          {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
           <Button
             button="alt"
