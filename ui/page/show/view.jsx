@@ -40,6 +40,7 @@ type Props = {
   isResolvingCollection: boolean,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
+  homepageFetched: boolean,
   latestContentPath?: boolean,
   liveContentPath?: boolean,
   latestClaimUrl: ?string,
@@ -68,6 +69,7 @@ export default function ShowPage(props: Props) {
     isResolvingCollection,
     isAuthenticated,
     geoRestriction,
+    homepageFetched,
     latestContentPath,
     liveContentPath,
     latestClaimUrl,
@@ -209,6 +211,9 @@ export default function ShowPage(props: Props) {
   }
 
   if (!claim || !claim.name) {
+    const maybeIsCategoryPage = pathname.startsWith('/$/');
+    const waitingForCategory = maybeIsCategoryPage && !homepageFetched;
+
     return (
       <Page>
         {(haventFetchedYet ||
@@ -221,7 +226,7 @@ export default function ShowPage(props: Props) {
           </div>
         )}
 
-        {!isResolvingUri && !isSubscribed && !shouldResolveUri && (
+        {!isResolvingUri && !isSubscribed && !shouldResolveUri && !waitingForCategory && (
           <div className="main--empty">
             <Yrbl
               title={isChannel ? __('Channel Not Found') : __('No Content Found')}

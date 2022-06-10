@@ -116,9 +116,8 @@ export default function FileActions(props: Props) {
       {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
 
       <div className="media__actions-app">
-        {window.odysee.build.apkUpdater && (
-          <ClaimSupportButton uri={uri} fileAction />
-        )}
+        {/* NEKO */}
+        <ClaimSupportButton uri={uri} fileAction />
 
         <ClaimCollectionAddButton uri={uri} fileAction />
 

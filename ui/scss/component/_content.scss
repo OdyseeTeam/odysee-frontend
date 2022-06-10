@@ -122,6 +122,16 @@
       border-radius: 50% !important;
       opacity: 1 !important;
       pointer-events: unset !important;
+      padding: 15px !important;
+
+      .vjs-icon-placeholder {
+        &::before {
+          font-size: 2.2em !important;
+          line-height: 32px !important;
+          background-size: 60%;
+        }
+      }
+
       span {
         position: absolute;
         top: 0;

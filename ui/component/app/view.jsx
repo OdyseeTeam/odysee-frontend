@@ -22,6 +22,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
+import AdsSticky from 'web/component/adsSticky';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
   useDegradedPerformance,
@@ -454,7 +455,8 @@ function App(props: Props) {
         // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps, (one time after locale is fetched)
+    // (one time after locale is fetched)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
   useEffect(() => {
@@ -567,6 +569,8 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
+
+          <AdsSticky uri={uri} />
         </React.Fragment>
       )}
     </div>
