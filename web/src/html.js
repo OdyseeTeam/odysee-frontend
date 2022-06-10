@@ -364,7 +364,7 @@ async function getHtml(ctx) {
 
     if (claim) {
       const ogMetadata = await buildClaimOgMetadata(claimUri, claim);
-      const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
+      const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }
 
@@ -388,7 +388,7 @@ async function getHtml(ctx) {
 
     if (claim) {
       const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
-      const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
+      const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }
   }
