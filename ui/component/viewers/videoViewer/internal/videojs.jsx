@@ -364,8 +364,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         }
       }
 
-      window.playerClosed = false;
-
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
         const vjsElement = createVideoPlayerDOM(containerRef.current);
@@ -581,7 +579,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         window.player.switchedFromDefaultQuality = false;
 
-        window.player.currentTime(0);
         window.player.userActive(false);
         window.player.pause();
 
@@ -603,6 +600,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.oldSavedDiv = window.player.el();
 
         window.player.trigger('playerClosed');
+
+        window.player.currentTime(0);
 
         window.player.claimSrcVhs = null;
       }

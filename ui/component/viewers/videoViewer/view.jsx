@@ -315,12 +315,11 @@ function VideoViewer(props: Props) {
 
   function onPlayerClosed(event, player) {
     handlePosition(player);
-    window.playerClosed = true;
     analytics.videoIsPlaying(false, player);
   }
 
   function handlePosition(player) {
-    if (!isLivestreamClaim && !window.playerClosed) savePosition(uri, player.currentTime());
+    if (!isLivestreamClaim) savePosition(uri, player.currentTime());
   }
 
   function restorePlaybackRate(player) {
