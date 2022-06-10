@@ -231,27 +231,18 @@ function VideoViewer(props: Props) {
   useEffect(() => {
     if (!doNavigate) return;
 
-    if (playNextUrl) {
-      if (permanentUrl !== nextRecommendedUri) {
-        if (nextRecommendedUri) {
-          doPlay(nextRecommendedUri);
-        }
-      } else {
-        setReplay(true);
-      }
-    } else {
-      if (videoNode) {
-        const currentTime = videoNode.currentTime;
+    const shouldPlayNextUrl = playNextUrl && permanentUrl !== nextRecommendedUri;
+    const shouldPlayPreviousUrl = previousListUri && permanentUrl !== previousListUri;
 
-        if (currentTime <= 5) {
-          if (previousListUri && permanentUrl !== previousListUri) doPlay(previousListUri);
-        } else {
-          videoNode.currentTime = 0;
-        }
-        setDoNavigate(false);
-      }
+    if (shouldPlayNextUrl) {
+      doPlay(nextRecommendedUri);
+    } else if (shouldPlayPreviousUrl) {
+      doPlay(previousListUri);
+    } else {
+      setReplay(true);
     }
-    if (!ended) setDoNavigate(false);
+
+    setDoNavigate(false);
     setEnded(false);
     setPlayNextUrl(true);
   }, [
