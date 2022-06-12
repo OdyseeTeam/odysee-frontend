@@ -723,7 +723,7 @@ export function CommentCreate(props: Props) {
                 <>
                   <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
-                  {window.odysee.build.apkUpdater && stripeEnvironment && (
+                  {!window.odysee.build.googlePlay && stripeEnvironment && (
                     <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIconToUse} tab={TAB_FIAT} />
                   )}
                 </>

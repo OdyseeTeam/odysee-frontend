@@ -44,7 +44,7 @@ const WalletBalance = (props: Props) => {
   }, [transactions]);
 
   function openExternal(uri) {
-    if (window.odysee.build.apkUpdater) {
+    if (!window.odysee.build.googlePlay) {
       window.odysee.functions.history.push(uri);
     } else {
       window.odysee.functions.initBrowser(uri, 'external');

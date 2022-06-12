@@ -378,7 +378,7 @@ export default function WalletSendTip(props: Props) {
                     label={__('Earn Rewards')}
                     navigate={`/$/${PAGES.REWARDS}`}
                   />
-                  {window.odysee.build.apkUpdater && (
+                  {!window.odysee.build.googlePlay && (
                     <Button
                       icon={ICONS.BUY}
                       button="secondary"
