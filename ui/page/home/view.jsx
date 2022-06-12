@@ -1,9 +1,12 @@
 // @flow
+import React from 'react';
+import classnames from 'classnames';
+
+import { getSortedRowData } from './helper';
+import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
-import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import React from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
 import ClaimTilesDiscover from 'component/claimTilesDiscover';
@@ -12,21 +15,15 @@ import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
-import { useIsLargeScreen } from 'effects/use-screensize';
+import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
-import classnames from 'classnames';
 // import Ads from 'web/component/ads';
 import Meme from 'web/component/meme';
 
-const FYP_SECTION: RowDataItem = {
-  id: 'FYP',
-  title: 'Recommended',
-  icon: ICONS.GLOBE,
-  link: `/$/${PAGES.FYP}`,
-};
+const CATEGORY_LIVESTREAM_LIMIT = 3;
 
 type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
 
@@ -71,7 +68,7 @@ function HomePage(props: Props) {
   const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isLargeScreen = useIsLargeScreen();
-  const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+  const subscriptionChannelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
 
   const rowData: Array<RowDataItem> = GetLinksData(
     homepageData,
@@ -86,34 +83,7 @@ function HomePage(props: Props) {
     showNsfw
   );
 
-  let sortedRowData: Array<RowDataItem> = [];
-  if (homepageOrder.active && authenticated) {
-    homepageOrder.active.forEach((key) => {
-      const dataIndex = rowData.findIndex((data) => data.id === key);
-      if (dataIndex !== -1) {
-        sortedRowData.push(rowData[dataIndex]);
-        rowData.splice(dataIndex, 1);
-      } else if (key === 'FYP') {
-        sortedRowData.push(FYP_SECTION);
-      }
-    });
-
-    if (homepageOrder.hidden) {
-      rowData.forEach((data: RowDataItem) => {
-        // $FlowIssue: null 'hidden' already avoided outside anonymous function.
-        if (!homepageOrder.hidden.includes(data.id)) {
-          sortedRowData.push(data);
-        }
-      });
-    }
-  } else {
-    rowData.forEach((key) => {
-      sortedRowData.push(key);
-      if (key.id === 'FOLLOWING' && hasMembership) {
-        sortedRowData.push(FYP_SECTION);
-      }
-    });
-  }
+  const sortedRowData: Array<RowDataItem> = getSortedRowData(authenticated, hasMembership, homepageOrder, rowData);
 
   type SectionHeaderProps = {
     title: string,
@@ -160,7 +130,10 @@ function HomePage(props: Props) {
         {...options}
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
         hasSource
-        prefixUris={getLivestreamUris(activeLivestreams, options.channelIds)}
+        prefixUris={getLivestreamUris(activeLivestreams, options.channelIds).slice(
+          0,
+          id === 'FOLLOWING' ? undefined : CATEGORY_LIVESTREAM_LIMIT
+        )}
         pins={{ urls: pinUrls, claimIds: pinnedClaimIds }}
         /*
         injectedItem={
@@ -171,6 +144,7 @@ function HomePage(props: Props) {
         }
         */
         forceShowReposts={id !== 'FOLLOWING'}
+        loading={id === 'FOLLOWING' ? fetchingActiveLivestreams : false}
       />
     );
 
@@ -218,6 +192,12 @@ function HomePage(props: Props) {
                 label={__('View More')}
               />
             )}
+            {
+              // isMobileScreen && <AdsBanner key={`${currentTheme}:${title}`} />
+            }
+            {
+              // !isMobileScreen && (index === 0 || index % 2 === 0) && <AdsBanner key={`${currentTheme}:${title}`} />
+            }
           </>
         )}
       </div>
@@ -234,11 +214,11 @@ function HomePage(props: Props) {
 
       {!fetchingActiveLivestreams && (
         <>
-          {authenticated && channelIds.length > 0 && !hideScheduledLivestreams && (
+          {authenticated && subscriptionChannelIds.length > 0 && !hideScheduledLivestreams && (
             <ScheduledStreams
-              channelIds={channelIds}
+              channelIds={subscriptionChannelIds}
               tileLayout
-              liveUris={getLivestreamUris(activeLivestreams, channelIds)}
+              liveUris={getLivestreamUris(activeLivestreams, subscriptionChannelIds)}
               limitClaimsPerChannel={2}
             />
           )}

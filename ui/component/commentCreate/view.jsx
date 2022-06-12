@@ -72,7 +72,14 @@ type Props = {
     preferredCurrency: string,
     (any) => void
   ) => string,
-  doSendTip: (params: {}, isSupport: boolean, successCb: (any) => void, errorCb: (any) => void, boolean) => void,
+  doSendTip: (
+    params: {},
+    isSupport: boolean,
+    successCb: (any) => void,
+    errorCb: (any) => void,
+    boolean,
+    string
+  ) => void,
   doOpenModal: (id: string, any) => void,
   preferredCurrency: string,
   myChannelClaimIds: ?Array<string>,
@@ -304,8 +311,10 @@ export function CommentCreate(props: Props) {
           }, 1500);
 
           doToast({
-            message: __("Tip successfully sent. I'm sure they appreciate it!"),
-            subMessage: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
+            message: __('Tip successfully sent.'),
+            subMessage: __("I'm sure they appreciate it!"),
+            linkText: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
+            linkTarget: '/wallet',
           });
 
           setSuccessTip({ txid, tipAmount });
@@ -314,7 +323,8 @@ export function CommentCreate(props: Props) {
           // reset the frontend so people can send a new comment
           setSubmitting(false);
         },
-        false
+        false,
+        'comment'
       );
     } else {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
@@ -713,7 +723,7 @@ export function CommentCreate(props: Props) {
                 <>
                   <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
-                  {stripeEnvironment && (
+                  {window.odysee.build.apkUpdater && stripeEnvironment && (
                     <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIconToUse} tab={TAB_FIAT} />
                   )}
                 </>

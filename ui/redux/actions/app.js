@@ -44,8 +44,9 @@ import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doSetPrefsReady, doPreferenceGet, doPopulateSharedUserState, syncInvalidated } from 'redux/actions/sync';
 import { doAuthenticate } from 'redux/actions/user';
 import { lbrySettings as config, version as appVersion } from 'package.json';
-import analytics, { SHARE_INTERNAL } from 'analytics';
+import analytics from 'analytics';
 import { doSignOutCleanup } from 'util/saved-passwords';
+import { LocalStorage, LS } from 'util/storage';
 import { doNotificationSocketConnect } from 'redux/actions/websocket';
 import { stringifyServerParam, shouldSetSetting } from 'util/sync-settings';
 
@@ -347,7 +348,7 @@ export function doDaemonReady() {
     const state = getState();
 
     // TODO: call doFetchDaemonSettings, then get usage data, and call doAuthenticate once they are loaded into the store
-    const shareUsageData = IS_WEB || window.localStorage.getItem(SHARE_INTERNAL) === 'true';
+    const shareUsageData = IS_WEB || LocalStorage.getItem(LS.SHARE_INTERNAL) === 'true';
 
     dispatch(
       doAuthenticate(
@@ -479,22 +480,24 @@ export function doAnalyticsView(uri, timeToStart) {
 
 export function doAnalyticsBuffer(uri, bufferData) {
   return (dispatch, getState) => {
+    const isLivestream = bufferData.isLivestream;
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const user = selectUser(state);
     const {
       value: { video, audio, source },
     } = claim;
-    const timeAtBuffer = parseInt(bufferData.currentTime * 1000);
+    const timeAtBuffer = isLivestream ? 0 : parseInt(bufferData.currentTime * 1000);
     const bufferDuration = parseInt(bufferData.secondsToLoad * 1000);
-    const fileDurationInSeconds = (video && video.duration) || (audio && audio.duration);
-    const fileSize = source.size; // size in bytes
-    const fileSizeInBits = fileSize * 8;
-    const bitRate = parseInt(fileSizeInBits / fileDurationInSeconds);
+    const fileDurationInSeconds = isLivestream ? 0 : (video && video.duration) || (audio && audio.duration);
+    const fileSize = isLivestream ? 0 : source.size; // size in bytes
+    const fileSizeInBits = isLivestream ? '0' : fileSize * 8;
+    const bitRate = isLivestream ? bufferData.bitrateAsBitsPerSecond : parseInt(fileSizeInBits / fileDurationInSeconds);
     const userId = user && user.id.toString();
     // if there's a logged in user, send buffer event data to watchman
     if (userId) {
       analytics.videoBufferEvent(claim, {
+        isLivestream,
         timeAtBuffer,
         bufferDuration,
         bitRate,

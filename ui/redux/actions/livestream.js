@@ -1,5 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
 import { doClaimSearch } from 'redux/actions/claims';
 import {
   LiveStatus,
@@ -9,12 +10,7 @@ import {
   filterUpcomingLiveStreamClaims,
 } from 'util/livestream';
 import moment from 'moment';
-import { isLocalStorageAvailable } from 'util/storage';
 import { isEmpty } from 'util/object';
-
-const localStorageAvailable = isLocalStorageAvailable();
-
-const FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS = 5 * 60 * 1000;
 
 export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
   dispatch({
@@ -119,20 +115,11 @@ const findActiveStreams = async (
 };
 
 export const doFetchChannelLiveStatus = (channelId: string) => async (dispatch: Dispatch) => {
-  const statusForId = `channel-live-status`;
-  const localStatus = localStorageAvailable && window.localStorage.getItem(statusForId);
-
   try {
     const { channelStatus, channelData } = await fetchLiveChannel(channelId);
-    // store live state locally, and force 2 non-live statuses before returninig NOT LIVE. This allows for the stream to finish before disposing player.
-    if (localStatus === LiveStatus.LIVE && channelStatus === LiveStatus.NOT_LIVE) {
-      localStorageAvailable && window.localStorage.removeItem(statusForId);
-      return;
-    }
 
-    if (channelStatus === LiveStatus.NOT_LIVE && !localStatus) {
+    if (channelStatus === LiveStatus.NOT_LIVE) {
       dispatch({ type: ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS, data: { channelId } });
-      localStorageAvailable && window.localStorage.removeItem(statusForId);
       return;
     }
 
@@ -148,11 +135,8 @@ export const doFetchChannelLiveStatus = (channelId: string) => async (dispatch: 
       channelData[channelId].claimUri = liveClaim.stream.canonical_url;
       dispatch({ type: ACTIONS.ADD_CHANNEL_TO_ACTIVE_LIVESTREAMS, data: { ...channelData } });
     }
-
-    localStorageAvailable && window.localStorage.setItem(statusForId, channelStatus);
   } catch (err) {
     dispatch({ type: ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS, data: { channelId } });
-    localStorageAvailable && window.localStorage.removeItem(statusForId);
   }
 };
 

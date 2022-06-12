@@ -2,7 +2,7 @@
 import { CUSTOM_HOMEPAGE, SIMPLE_SITE, SITE_NAME } from 'config';
 import { parseURI } from 'util/lbryURI';
 import * as CS from 'constants/claim_search';
-import COMMUNITY_CHANNELS from 'constants/community_channels';
+import { COMMUNITY_CHANNELS } from 'constants/channels';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import ClaimListDiscover from 'component/claimListDiscover';
@@ -58,7 +58,9 @@ function UserChannelFollowIntro(props: Props) {
           if (claimName) channelSubscribe(claimName, channelUri);
         });
       };
-      setTimeout(delayedChannelSubscribe, 1000);
+      const timer = setTimeout(delayedChannelSubscribe, 1000);
+
+      return () => clearTimeout(timer);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [prefsReady]);

@@ -1134,3 +1134,27 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
     checkTxoList();
   }, 30000);
 };
+
+export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const searchOptions = {
+    limit_claims_per_channel: 1,
+    channel: uri,
+    no_totals: true,
+    order_by: ['release_time'],
+    page: 1,
+    has_source: true,
+    stream_types: isEmbed ? ['audio', 'video'] : undefined,
+  };
+
+  return dispatch(doClaimSearch(searchOptions))
+    .then((results) =>
+      dispatch({
+        type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE,
+        data: { uri, results },
+      })
+    )
+    .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
+};

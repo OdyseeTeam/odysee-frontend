@@ -1,15 +1,22 @@
 // @flow
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import React from 'react';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
 import EmbedTextArea from 'component/embedTextArea';
 import Spinner from 'component/spinner';
-import { generateDownloadUrl } from 'util/web';
+import { generateDownloadUrl, generateNewestUrl } from 'util/web';
 import { useIsMobile } from 'effects/use-screensize';
 import { FormField } from 'component/common/form';
 import { hmsToSeconds, secondsToHms } from 'util/time';
-import { generateLbryContentUrl, generateLbryWebUrl, generateEncodedLbryURL, generateShareUrl } from 'util/url';
+import {
+  generateLbryContentUrl,
+  generateLbryWebUrl,
+  generateEncodedLbryURL,
+  generateShareUrl,
+  generateRssUrl,
+} from 'util/url';
 import { URL, TWITTER_ACCOUNT, SHARE_DOMAIN_URL } from 'config';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
@@ -29,6 +36,8 @@ type Props = {
   position: number,
   collectionId?: number,
   doFetchInviteStatus: (boolean) => void,
+  disableDownloadButton: boolean,
+  isMature: boolean,
 };
 
 function SocialShare(props: Props) {
@@ -42,6 +51,8 @@ function SocialShare(props: Props) {
     position,
     collectionId,
     doFetchInviteStatus,
+    disableDownloadButton,
+    isMature,
   } = props;
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
@@ -77,6 +88,7 @@ function SocialShare(props: Props) {
   const rewardsApproved = user && user.is_reward_approved;
   const lbryUrl: string = generateLbryContentUrl(canonicalUrl, permanentUrl);
   const lbryWebUrl: string = generateLbryWebUrl(lbryUrl);
+  const rssUrl = isChannel && generateRssUrl(SHARE_DOMAIN, claim);
   const includedCollectionId = collectionId && includeCollectionId ? collectionId : null;
   const encodedLbryURL: string = generateEncodedLbryURL(
     SHARE_DOMAIN,
@@ -191,7 +203,7 @@ function SocialShare(props: Props) {
           title={__('Share on Facebook')}
           href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
         />
-        {webShareable && !isCollection && !isChannel && (
+        {webShareable && !isCollection && (
           <Button
             className="share"
             iconSize={24}
@@ -220,18 +232,33 @@ function SocialShare(props: Props) {
           <Button icon={ICONS.SHARE} button="primary" label={__('Share via...')} onClick={handleWebShareClick} />
         </div>
       )}
-      {showEmbed && (
-        <EmbedTextArea
-          label={__('Embedded')}
-          claim={claim}
-          includeStartTime={includeStartTime}
-          startTime={startTimeSeconds}
-          referralCode={referralCode}
-        />
-      )}
+      {showEmbed &&
+        (!isChannel ? (
+          <EmbedTextArea
+            label={__('Embedded')}
+            claim={claim}
+            includeStartTime={includeStartTime}
+            startTime={startTimeSeconds}
+            referralCode={referralCode}
+          />
+        ) : (
+          <>
+            <EmbedTextArea label={__('Embedded Latest Video Content')} claim={claim} newestType={PAGES.LATEST} />
+            <EmbedTextArea label={__('Embedded Current Livestream')} claim={claim} newestType={PAGES.LIVE_NOW} />
+          </>
+        ))}
       {showClaimLinks && (
         <div className="section">
-          {Boolean(isStream) && <CopyableText label={__('Download Link')} copyable={downloadUrl} />}
+          {Boolean(isStream) && !disableDownloadButton && !isMature && (
+            <CopyableText label={__('Download Link')} copyable={downloadUrl} />
+          )}
+          {Boolean(rssUrl) && <CopyableText label={__('RSS Url')} copyable={rssUrl} />}
+          {Boolean(isChannel) && (
+            <>
+              <CopyableText label={__('Latest Content Link')} copyable={generateNewestUrl(name, PAGES.LATEST)} />
+              <CopyableText label={__('Current Livestream Link')} copyable={generateNewestUrl(name, PAGES.LIVE_NOW)} />
+            </>
+          )}
         </div>
       )}
     </React.Fragment>

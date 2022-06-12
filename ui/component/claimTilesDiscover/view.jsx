@@ -1,6 +1,6 @@
 // @flow
 import type { Node } from 'react';
-import React from 'react';
+import React, { useRef } from 'react';
 import Button from 'component/button';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import I18nMessage from 'component/i18nMessage';
@@ -52,6 +52,7 @@ type Props = {
   hasSource?: boolean,
   hasNoSource?: boolean,
   forceShowReposts?: boolean, // overrides SETTINGS.HIDE_REPOSTS
+  loading: boolean,
   // --- select ---
   location: { search: string },
   claimSearchResults: Array<string>,
@@ -90,6 +91,7 @@ function ClaimTilesDiscover(props: Props) {
     doFetchUserMemberships,
     doResolveClaimIds,
     doResolveUris,
+    loading,
   } = props;
 
   const listRef = React.useRef();
@@ -100,6 +102,7 @@ function ClaimTilesDiscover(props: Props) {
   const claimSearchUris = claimSearchResults || [];
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
   const resolvedPinUris = useResolvePins({ pins, claimsById, doResolveClaimIds, doResolveUris });
+  const uriBuffer = useRef([]);
 
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch = !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0;
@@ -194,14 +197,19 @@ function ClaimTilesDiscover(props: Props) {
 
   return (
     <ul ref={listRef} className="claim-grid">
-      {finalUris && finalUris.length
+      {!loading && finalUris && finalUris.length
         ? finalUris.map((uri, i) => {
             if (uri) {
               const inj = getInjectedItem(i);
+              if (inj) {
+                if (!uriBuffer.current.includes(i)) {
+                  uriBuffer.current.push(i);
+                }
+              }
               return (
                 <React.Fragment key={uri}>
                   {inj && inj}
-                  {(!inj || !injectedItem || !injectedItem.replace) && (
+                  {(i < finalUris.length - uriBuffer.current.length || i < pageSize - uriBuffer.current.length) && (
                     <ClaimPreviewTile
                       showNoSourceClaims={hasNoSource || showNoSourceClaims}
                       uri={uri}
@@ -211,13 +219,15 @@ function ClaimTilesDiscover(props: Props) {
                 </React.Fragment>
               );
             } else {
-              return <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder />;
+              return (
+                <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
+              );
             }
           })
         : new Array(pageSize)
             .fill(1)
             .map((x, i) => (
-              <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder />
+              <ClaimPreviewTile showNoSourceClaims={hasNoSource || showNoSourceClaims} key={i} placeholder pulse />
             ))}
     </ul>
   );
@@ -230,6 +240,7 @@ export default React.memo<Props>(ClaimTilesDiscover, areEqual);
 
 function trace(key, value) {
   // @if process.env.DEBUG_TILE_RENDER
+
   // $FlowFixMe "cannot coerce certain types".
   console.log(`[claimTilesDiscover] ${key}: ${value}`); // eslint-disable-line no-console
   // @endif

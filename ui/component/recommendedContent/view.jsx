@@ -80,9 +80,9 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
 
   /*
   const InjectedAd =
-    injectAds && !blacklistTriggered
+    injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: <Ads small type="video" className="ads__claim-item--recommended" />,
+          node: <Ads small type="video" filePage className="ads__claim-item--recommended" noFallback />,
           index: isMobile ? 0 : 3,
         }
       : null;

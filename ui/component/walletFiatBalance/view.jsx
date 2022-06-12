@@ -39,6 +39,14 @@ const WalletBalance = () => {
     })();
   }, [stripeEnvironment]);
 
+  function openExternal(uri) {
+    if (window.odysee.build.apkUpdater) {
+      window.odysee.functions.history.push(uri);
+    } else {
+      window.odysee.functions.initBrowser(uri, 'external');
+    }
+  }
+
   return (
     <>
       {
@@ -73,13 +81,15 @@ const WalletBalance = () => {
                   button="secondary"
                   label={__('Bank Accounts')}
                   icon={ICONS.SETTINGS}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+                  onclick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
                 />
                 <Button
                   button="secondary"
                   label={__('Payment Methods')}
                   icon={ICONS.SETTINGS}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
                 />
               </div>
             </>

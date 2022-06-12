@@ -15,8 +15,8 @@ import AutoplayCountdown from 'component/autoplayCountdown';
 import usePrevious from 'effects/use-previous';
 import FileViewerEmbeddedEnded from 'web/component/fileViewerEmbeddedEnded';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
-import { addTheaterModeButton } from './internal/theater-mode';
-import { addAutoplayNextButton } from './internal/autoplay-next';
+import useAutoplayNext from './internal/effects/use-autoplay-next';
+import useTheaterMode from './internal/effects/use-theater-mode';
 import { addPlayNextButton } from './internal/play-next';
 import { addPlayPreviousButton } from './internal/play-previous';
 import { useGetAds } from 'effects/use-get-ads';
@@ -29,6 +29,7 @@ import debounce from 'util/debounce';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import RecSys from 'recsys';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
@@ -63,6 +64,7 @@ type Props = {
   doPlayUri: (string, string) => void,
   collectionId: string,
   nextRecommendedUri: string,
+  channelName: string,
   previousListUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
@@ -121,13 +123,15 @@ function VideoViewer(props: Props) {
     defaultQuality,
     doToast,
     doSetContentHistoryItem,
+    channelName,
   } = props;
 
   const permanentUrl = claim && claim.permanent_url;
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
   const claimId = claim && claim.claim_id;
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
-  const channelName = claim && claim.signing_channel && claim.signing_channel.name;
+  const channelTitle =
+    (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = contentType.includes('audio');
   const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
   const {
@@ -154,6 +158,9 @@ function VideoViewer(props: Props) {
   const isFirstRender = React.useRef(true);
   const playerRef = React.useRef(null);
 
+  const addAutoplayNextButton = useAutoplayNext(playerRef, autoplayNext);
+  const addTheaterModeButton = useTheaterMode(playerRef, videoTheaterMode);
+
   React.useEffect(() => {
     if (isPlaying) {
       doSetContentHistoryItem(claim.permanent_url);
@@ -170,6 +177,7 @@ function VideoViewer(props: Props) {
 
   useInterval(
     () => {
+      RecSys.saveEntries();
       if (playerRef.current && isPlaying && !isLivestreamClaim) {
         handlePosition(playerRef.current);
       }
@@ -201,16 +209,6 @@ function VideoViewer(props: Props) {
     };
   }, [embedded, videoPlaybackRate]);
 
-  // TODO: analytics functionality
-  function doTrackingBuffered(e: Event, data: any) {
-    if (!isLivestreamClaim) {
-      fetch(source, { method: 'HEAD', cache: 'no-store' }).then((response) => {
-        data.playerPoweredBy = response.headers.get('x-powered-by');
-        doAnalyticsBuffer(uri, data);
-      });
-    }
-  }
-
   const doPlay = useCallback(
     (playUri) => {
       setDoNavigate(false);
@@ -234,7 +232,6 @@ function VideoViewer(props: Props) {
     if (playNextUrl) {
       if (permanentUrl !== nextRecommendedUri) {
         if (nextRecommendedUri) {
-          if (collectionId) clearPosition(permanentUrl);
           doPlay(nextRecommendedUri);
         }
       } else {
@@ -256,7 +253,6 @@ function VideoViewer(props: Props) {
     setEnded(false);
     setPlayNextUrl(true);
   }, [
-    clearPosition,
     collectionId,
     doNavigate,
     doPlay,
@@ -409,9 +405,6 @@ function VideoViewer(props: Props) {
       }
     });
 
-    // used for tracking buffering for watchman
-    player.on('tracking:buffered', doTrackingBuffered);
-
     player.on('ended', () => setEnded(true));
     player.on('play', onPlay);
     player.on('pause', (event) => onPause(event, player));
@@ -506,24 +499,22 @@ function VideoViewer(props: Props) {
         startMuted={autoplayIfEmbedded}
         toggleVideoTheaterMode={toggleVideoTheaterMode}
         autoplay={!embedded || autoplayIfEmbedded}
-        autoplaySetting={localAutoplayNext}
         claimId={claimId}
         title={claim && ((claim.value && claim.value.title) || claim.name)}
-        channelName={channelName}
+        channelTitle={channelTitle}
         userId={userId}
         allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
         internalFeatureEnabled={internalFeature}
         shareTelemetry={shareTelemetry}
         replay={replay}
-        videoTheaterMode={videoTheaterMode}
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
         claimValues={claim.value}
         doAnalyticsView={doAnalyticsView}
+        doAnalyticsBuffer={doAnalyticsBuffer}
         claimRewards={claimRewards}
         uri={uri}
-        clearPosition={clearPosition}
         userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
         isLivestreamClaim={isLivestreamClaim}
         activeLivestreamForChannel={activeLivestreamForChannel}

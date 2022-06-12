@@ -35,6 +35,14 @@ export default function SettingAccount(props: Props) {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  function openExternal(uri) {
+    if (window.odysee.build.apkUpdater) {
+      window.odysee.functions.history.push(uri);
+    } else {
+      window.odysee.functions.initBrowser(uri, 'external');
+    }
+  }
+
   return (
     <>
       <div className="card__title-section">
@@ -62,7 +70,7 @@ export default function SettingAccount(props: Props) {
             {/* @endif */}
 
             {/* @if TARGET='web' */}
-            {user && getStripeEnvironment() && (
+            {window.odysee.build.apkUpdater && user && getStripeEnvironment() && (
               <SettingsRow
                 title={__('Bank Accounts')}
                 subtitle={__('Connect a bank account to receive tips and compensation in your local currency.')}
@@ -71,14 +79,15 @@ export default function SettingAccount(props: Props) {
                   button="inverse"
                   label={__('Manage')}
                   icon={ICONS.ARROW_RIGHT}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
                 />
               </SettingsRow>
             )}
             {/* @endif */}
 
             {/* @if TARGET='web' */}
-            {isAuthenticated && getStripeEnvironment() && (
+            {window.odysee.build.apkUpdater && isAuthenticated && getStripeEnvironment() && (
               <SettingsRow
                 title={__('Payment Methods')}
                 subtitle={__('Add a credit card to tip creators in their local currency.')}
@@ -87,7 +96,8 @@ export default function SettingAccount(props: Props) {
                   button="inverse"
                   label={__('Manage')}
                   icon={ICONS.ARROW_RIGHT}
-                  navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
                 />
               </SettingsRow>
             )}

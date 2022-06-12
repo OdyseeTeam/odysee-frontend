@@ -297,7 +297,6 @@ export default function WalletSendTip(props: Props) {
             {/* short explainer under the button */}
             <div className="section__subtitle">
               {explainerText}{' '}
-              {/* {activeTab === TAB_FIAT && !hasCardSaved && <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add A Card')} button="link" />} */}
               <Button
                 label={__('Learn more')}
                 button="link"
@@ -379,12 +378,14 @@ export default function WalletSendTip(props: Props) {
                     label={__('Earn Rewards')}
                     navigate={`/$/${PAGES.REWARDS}`}
                   />
-                  <Button
-                    icon={ICONS.BUY}
-                    button="secondary"
-                    label={__('Buy/Swap Credits')}
-                    navigate={`/$/${PAGES.BUY}`}
-                  />
+                  {window.odysee.build.apkUpdater && (
+                    <Button
+                      icon={ICONS.BUY}
+                      button="secondary"
+                      label={__('Buy/Swap Credits')}
+                      navigate={`/$/${PAGES.BUY}`}
+                    />
+                  )}
                 </div>
               }
             />

@@ -238,18 +238,16 @@ body {
       .card {
         padding: 0;
         .card__first-pane {
-          .card__main-actions {
-            .button--alt:last-of-type {
-              top: -1px;
-              float: right;
-              margin-right: 0;
-            }
-            .comment__sort {
-              .button--alt:last-of-type {
-                top: unset;
-                float: unset;
-                margin-right: unset;
-              }
+          .button--alt[aria-label='Refresh'] {
+            top: -1px;
+            float: right;
+            margin-right: 0;
+          }
+          .comment__sort {
+            .button--alt[aria-label='Refresh'] {
+              top: unset;
+              float: unset;
+              margin-right: unset;
             }
           }
         }
@@ -742,6 +740,39 @@ body {
 
     .card__main-actions {
       border-top: unset;
+    }
+
+    input,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      &:hover {
+        background-color: var(--color-input-toggle-bg-hover);
+      }
+      &:focus-visible {
+        background-color: var(--color-input-toggle-bg-hover) !important;
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+
+    .checkbox,
+    .radio {
+      label {
+        &::before {
+          top: unset;
+          border: unset;
+          box-shadow: 0 0 0 2px var(--color-border) inset;
+        }
+        &::after {
+          top: 6px;
+        }
+      }
+    }
+    .checkbox {
+      label {
+        &::after {
+          top: 8px !important;
+        }
+      }
     }
   }
 

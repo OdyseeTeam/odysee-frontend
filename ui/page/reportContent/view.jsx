@@ -10,7 +10,6 @@ export default function ReportContentPage(props: any) {
       className="main--report-content"
       backout={{
         backoutLabel: __('Done'),
-        title: __('Report content'),
       }}
     >
       <ReportContent />

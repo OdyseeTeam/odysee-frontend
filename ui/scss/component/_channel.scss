@@ -3,13 +3,6 @@ $metadata-z-index: 1;
 $actions-z-index: 2;
 
 .channelPage-wrapper {
-  .comment__badge {
-    .icon {
-      width: 70%;
-      margin-right: 10%;
-    }
-  }
-
   .button-group {
     .button__content {
       .icon {
@@ -404,6 +397,10 @@ $actions-z-index: 2;
     padding-left: var(--spacing-m);
     margin-top: calc(var(--channel-thumbnail-width) + var(--spacing-l));
   }
+}
+
+.channel__primary-info-fix {
+  margin-right: 100px;
 }
 
 .channel__title {
@@ -831,6 +828,12 @@ $actions-z-index: 2;
       .claim-preview__actions {
         margin-top: var(--spacing-s) !important;
       }
+    }
+  }
+  @media (max-width: $breakpoint-small) {
+    padding: var(--spacing-s);
+    .yrbl__wrap {
+      margin-top: var(--spacing-l);
     }
   }
 }

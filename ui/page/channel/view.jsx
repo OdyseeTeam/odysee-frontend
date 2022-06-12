@@ -231,12 +231,18 @@ function ChannelPage(props: Props) {
           {!channelIsBlackListed && <ShareButton uri={uri} />}
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
+          <Button
+            button="alt"
+            label={__('Report')}
+            icon={ICONS.REPORT}
+            navigate={`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`}
+          />
           {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
           <ClaimMenuList uri={claim.permanent_url} inline isChannelPage />
         </div>
         {cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} />}
         {cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} />}
-        <div className="channel__primary-info">
+        <div className="channel__primary-info channel__primary-info-fix">
           <ChannelThumbnail
             className="channel__thumbnail--channel-page"
             uri={uri}

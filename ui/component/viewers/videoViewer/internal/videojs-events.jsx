@@ -10,27 +10,20 @@ const TAP = {
   RETRY: 'RETRY',
 };
 
-const setLabel = (controlBar, childName, label) => {
-  const c = controlBar.getChild(childName);
-  if (c) {
-    c.controlText(label);
-  }
-};
-
 const VideoJsEvents = ({
   tapToUnmuteRef,
   tapToRetryRef,
   setReload,
-  videoTheaterMode,
   playerRef,
-  autoplaySetting,
   replay,
   claimId,
   userId,
   claimValues,
+  channelTitle,
   embedded,
   uri,
   doAnalyticsView,
+  doAnalyticsBuffer,
   claimRewards,
   playerServerRef,
   isLivestreamClaim,
@@ -38,27 +31,37 @@ const VideoJsEvents = ({
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
   setReload: any, // react hook
-  videoTheaterMode: any, // dispatch function
   playerRef: any, // DOM element
-  autoplaySetting: boolean,
   replay: boolean,
   claimId: ?string,
   userId: ?number,
   claimValues: any,
+  channelTitle: string,
   embedded: boolean,
-  clearPosition: (string) => void,
   uri: string,
   doAnalyticsView: (string, number) => any,
+  doAnalyticsBuffer: (string, any) => void,
   claimRewards: () => void,
   playerServerRef: any,
   isLivestreamClaim: boolean,
 }) => {
+  function doTrackingBuffered(e: Event, data: any) {
+    const playerPoweredBy = isLivestreamClaim ? 'lvs' : playerServerRef.current;
+
+    data.playPoweredBy = playerPoweredBy;
+    data.isLivestream = isLivestreamClaim;
+    // $FlowFixMe
+    data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH;
+    doAnalyticsBuffer(uri, data);
+  }
   /**
    * Analytics functionality that is run on first video start
    * @param e - event from videojs (from the plugin?)
    * @param data - only has secondsToLoad property
    */
   function doTrackingFirstPlay(e: Event, data: any) {
+    const playerPoweredBy = isLivestreamClaim ? 'lvs' : playerServerRef.current;
+
     // how long until the video starts
     let timeToStartVideo = data.secondsToLoad;
 
@@ -74,10 +77,6 @@ const VideoJsEvents = ({
         bitrateAsBitsPerSecond = Math.round(contentInBits / durationInSeconds);
       }
 
-      // figure out what server the video is served from and then run start analytic event
-      // server string such as 'eu-p6'
-      const playerPoweredBy = playerServerRef.current;
-
       // populates data for watchman, sends prom and matomo event
       analytics.videoStartEvent(
         claimId,
@@ -86,7 +85,21 @@ const VideoJsEvents = ({
         userId,
         uri,
         this, // pass the player
-        bitrateAsBitsPerSecond
+        bitrateAsBitsPerSecond,
+        isLivestreamClaim
+      );
+    } else {
+      // populates data for watchman, sends prom and matomo event
+      analytics.videoStartEvent(
+        claimId,
+        0,
+        playerPoweredBy,
+        userId,
+        uri,
+        this, // pass the player
+        // $FlowFixMe
+        this.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH,
+        isLivestreamClaim
       );
     }
 
@@ -96,65 +109,9 @@ const VideoJsEvents = ({
     });
   }
 
-  // Override the player's control text. We override to:
-  // 1. Add keyboard shortcut to the tool-tip.
-  // 2. Override videojs' i18n and use our own (don't want to have 2 systems).
-  //
-  // Notes:
-  // - For dynamic controls (e.g. play/pause), those unfortunately need to be
-  // updated again at their event-listener level (that's just the way videojs
-  // updates the text), hence the need to listen to 'play', 'pause' and 'volumechange'
-  // on top of just 'loadstart'.
-  // - videojs changes the MuteToggle text at 'loadstart', so this was chosen
-  // as the listener to update static texts.
-
-  function resolveCtrlText(e) {
-    const player = playerRef.current;
-    if (player) {
-      const ctrlBar = player.getChild('controlBar');
-      switch (e.type) {
-        case 'play':
-          setLabel(ctrlBar, 'PlayToggle', __('Pause (space)'));
-          break;
-        case 'pause':
-          setLabel(ctrlBar, 'PlayToggle', __('Play (space)'));
-          break;
-        case 'volumechange':
-          ctrlBar
-            .getChild('VolumePanel')
-            .getChild('MuteToggle')
-            .controlText(player.muted() || player.volume() === 0 ? __('Unmute (m)') : __('Mute (m)'));
-          break;
-        case 'fullscreenchange':
-          setLabel(
-            ctrlBar,
-            'FullscreenToggle',
-            player.isFullscreen() ? __('Exit Fullscreen (f)') : __('Fullscreen (f)')
-          );
-          break;
-        case 'loadstart':
-          // --- Do everything ---
-          setLabel(ctrlBar, 'PlaybackRateMenuButton', __('Playback Rate (<, >)'));
-          setLabel(ctrlBar, 'QualityButton', __('Quality'));
-          setLabel(ctrlBar, 'PlayNextButton', __('Play Next (SHIFT+N)'));
-          setLabel(ctrlBar, 'PlayPreviousButton', __('Play Previous (SHIFT+P)'));
-          setLabel(ctrlBar, 'TheaterModeButton', videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
-          setLabel(ctrlBar, 'AutoplayNextButton', autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off'));
-
-          resolveCtrlText({ type: 'play' });
-          resolveCtrlText({ type: 'pause' });
-          resolveCtrlText({ type: 'volumechange' });
-          resolveCtrlText({ type: 'fullscreenchange' });
-          break;
-        default:
-          if (isDev) throw Error('Unexpected: ' + e.type);
-          break;
-      }
-    }
-  }
-
   function onInitialPlay() {
     const player = playerRef.current;
+    updateMediaSession();
 
     const bigPlayButton = document.querySelector('.vjs-big-play-button');
     if (bigPlayButton) bigPlayButton.style.setProperty('display', 'none');
@@ -193,17 +150,6 @@ const VideoJsEvents = ({
   //     showTapButton(TAP.NONE);
   //   }
   // }, [adUrl]);
-
-  useEffect(() => {
-    const player = playerRef.current;
-    if (player) {
-      const controlBar = player.getChild('controlBar');
-      const theaterButton = controlBar.getChild('TheaterModeButton');
-      if (theaterButton) {
-        theaterButton.controlText(videoTheaterMode ? __('Default Mode (t)') : __('Theater Mode (t)'));
-      }
-    }
-  }, [videoTheaterMode]);
 
   // when user clicks 'Unmute' button, turn audio on and hide unmute button
   function unmuteAndHideHint() {
@@ -255,22 +201,26 @@ const VideoJsEvents = ({
     }
   }
 
-  useEffect(() => {
-    const player = playerRef.current;
-    if (player) {
-      const touchOverlay = player.getChild('TouchOverlay');
-      const controlBar = player.getChild('controlBar') || touchOverlay.getChild('controlBar');
-      const autoplayButton = controlBar.getChild('AutoplayNextButton');
+  function updateMediaSession() {
+    if ('mediaSession' in navigator) {
+      const player = playerRef.current;
+      // $FlowFixMe
+      navigator.mediaSession.metadata = new window.MediaMetadata({
+        title: claimValues.title,
+        artist: channelTitle,
+        artwork: claimValues?.thumbnail?.url ? [{ src: claimValues.thumbnail.url }] : undefined,
+      });
 
-      if (autoplayButton) {
-        const title = autoplaySetting ? __('Autoplay Next On') : __('Autoplay Next Off');
-
-        autoplayButton.controlText(title);
-        autoplayButton.setAttribute('aria-label', title);
-        autoplayButton.setAttribute('aria-checked', autoplaySetting);
-      }
+      // $FlowFixMe
+      navigator.mediaSession.setActionHandler('seekbackward', function () {
+        player.currentTime(Math.max(0, player.currentTime() - 10));
+      });
+      // $FlowFixMe
+      navigator.mediaSession.setActionHandler('seekforward', function () {
+        player.currentTime(Math.max(0, player.currentTime() + 10));
+      });
     }
-  }, [autoplaySetting]);
+  }
 
   useEffect(() => {
     const player = playerRef.current;
@@ -281,17 +231,15 @@ const VideoJsEvents = ({
 
   function initializeEvents() {
     const player = playerRef.current;
-    // Add various event listeners to player
+
     player.one('play', onInitialPlay);
-    player.on('play', resolveCtrlText);
-    player.on('pause', resolveCtrlText);
-    player.on('loadstart', resolveCtrlText);
-    player.on('fullscreenchange', resolveCtrlText);
-    player.on('volumechange', resolveCtrlText);
     player.on('volumechange', onVolumeChange);
     player.on('error', onError);
     // custom tracking plugin, event used for watchman data, and marking view/getting rewards
     player.on('tracking:firstplay', doTrackingFirstPlay);
+    // used for tracking buffering for watchman
+    player.on('tracking:buffered', doTrackingBuffered);
+
     // hide forcing control bar show
     player.on('canplaythrough', function () {
       setTimeout(function () {
@@ -316,7 +264,6 @@ const VideoJsEvents = ({
         setTimeout(() => {
           // Do not jump ahead if user has paused the player
           if (player.paused()) return;
-
           player.liveTracker.seekToLiveEdge();
         }, 5 * 1000);
       });

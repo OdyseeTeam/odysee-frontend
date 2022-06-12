@@ -1,6 +1,7 @@
 // @flow
 import 'videojs-contrib-ads'; // must be loaded in this order
 import 'videojs-ima'; // loads directly after contrib-ads
+import 'videojs-vtt-thumbnails';
 import 'video.js/dist/alt/video-js-cdn.min.css';
 import './plugins/videojs-mobile-ui/plugin';
 import '@silvermine/videojs-chromecast/dist/silvermine-videojs-chromecast.css';
@@ -14,12 +15,13 @@ import events from './videojs-events';
 import eventTracking from 'videojs-event-tracking';
 import functions from './videojs-functions';
 import hlsQualitySelector from './plugins/videojs-hls-quality-selector/plugin';
-import keyboardShorcuts from './videojs-keyboard-shortcuts';
+import keyboardShorcuts from './videojs-shortcuts';
 import LbryVolumeBarClass from './lbry-volume-bar';
 // import Chromecast from './chromecast';
 import playerjs from 'player.js';
 import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
+import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
@@ -36,12 +38,16 @@ export type Player = {
   claimSrcOriginal: ?{ src: string, type: string },
   claimSrcVhs: ?{ src: string, type: string },
   isLivestream?: boolean,
-  // -- original --
+  // -- plugins ---
+  mobileUi: (any) => void,
+  chromecast: (any) => void,
+  overlay: (any) => void,
+  hlsQualitySelector: ?any,
+  i18n: (any) => void,
+  // -- base videojs --
   controlBar: { addChild: (string, any) => void },
   loadingSpinner: any,
   autoplay: (any) => boolean,
-  chromecast: (any) => void,
-  hlsQualitySelector: ?any,
   tech: (?boolean) => { vhs: ?any },
   currentTime: (?number) => number,
   dispose: () => void,
@@ -51,11 +57,9 @@ export type Player = {
   exitFullscreen: () => boolean,
   getChild: (string) => any,
   isFullscreen: () => boolean,
-  mobileUi: (any) => void,
   muted: (?boolean) => boolean,
   on: (string, (any) => void) => void,
   one: (string, (any) => void) => void,
-  overlay: (any) => void,
   play: () => Promise<any>,
   playbackRate: (?number) => number,
   readyState: () => number,
@@ -70,10 +74,10 @@ type Props = {
   adUrl: ?string,
   allowPreRoll: ?boolean,
   autoplay: boolean,
-  autoplaySetting: boolean,
   claimId: ?string,
   title: ?string,
-  channelName: ?string,
+  channelName: string,
+  channelTitle: string,
   embedded: boolean,
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
@@ -84,7 +88,6 @@ type Props = {
   sourceType: string,
   startMuted: boolean,
   userId: ?number,
-  videoTheaterMode: boolean,
   defaultQuality: ?string,
   onPlayerReady: (Player, any) => void,
   playNext: () => void,
@@ -92,32 +95,32 @@ type Props = {
   toggleVideoTheaterMode: () => void,
   claimRewards: () => void,
   doAnalyticsView: (string, number) => void,
+  doAnalyticsBuffer: (string, any) => void,
   uri: string,
   claimValues: any,
-  clearPosition: (string) => void,
   isLivestreamClaim: boolean,
   userClaimId: ?string,
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
 };
+const VIDEOJS_CONTROL_BAR_CLASS = 'ControlBar';
+const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
 
 const IS_IOS = platform.isIOS();
 
-if (!Object.keys(videojs.getPlugins()).includes('eventTracking')) {
-  videojs.registerPlugin('eventTracking', eventTracking);
-}
+const PLUGIN_MAP = {
+  eventTracking: eventTracking,
+  hlsQualitySelector: hlsQualitySelector,
+  qualityLevels: qualityLevels,
+  recsys: recsys,
+  i18n: i18n,
+};
 
-if (!Object.keys(videojs.getPlugins()).includes('hlsQualitySelector')) {
-  videojs.registerPlugin('hlsQualitySelector', hlsQualitySelector);
-}
-
-if (!Object.keys(videojs.getPlugins()).includes('qualityLevels')) {
-  videojs.registerPlugin('qualityLevels', qualityLevels);
-}
-
-if (!Object.keys(videojs.getPlugins()).includes('recsys')) {
-  videojs.registerPlugin('recsys', recsys);
-}
+Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
+  if (!Object.keys(videojs.getPlugins()).includes(pluginName)) {
+    videojs.registerPlugin(pluginName, plugin);
+  }
+});
 
 // ****************************************************************************
 // VideoJs
@@ -131,9 +134,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     // adUrl, // TODO: this ad functionality isn't used, can be pulled out
     // allowPreRoll,
     autoplay,
-    autoplaySetting,
     claimId,
     channelName,
+    channelTitle,
     embedded,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
@@ -144,7 +147,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     sourceType,
     startMuted,
     userId,
-    videoTheaterMode,
     defaultQuality,
     onPlayerReady,
     playNext,
@@ -152,9 +154,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     toggleVideoTheaterMode,
     claimValues,
     doAnalyticsView,
+    doAnalyticsBuffer,
     claimRewards,
     uri,
-    clearPosition,
     userClaimId,
     isLivestreamClaim,
     activeLivestreamForChannel,
@@ -175,15 +177,22 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   const tapToUnmuteRef = useRef();
   const tapToRetryRef = useRef();
   const playerServerRef = useRef();
+  const volumePanelRef = useRef();
+
+  const keyDownHandlerRef = useRef();
+  const videoScrollHandlerRef = useRef();
+  const volumePanelScrollHandlerRef = useRef();
 
   const { url: livestreamVideoUrl } = activeLivestreamForChannel || {};
   const overrideNativeVhs = !platform.isIPhone();
-  const showQualitySelector =
-    (!isLivestreamClaim && overrideNativeVhs) ||
-    (livestreamVideoUrl && (livestreamVideoUrl.includes('/transcode/') || livestreamVideoUrl.includes('cloud.odysee')));
+  const showQualitySelector = (!isLivestreamClaim && overrideNativeVhs) || livestreamVideoUrl;
 
   // initiate keyboard shortcuts
-  const { curried_function } = keyboardShorcuts({
+  const {
+    createKeyDownShortcutsHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
+  } = keyboardShorcuts({
     isMobile,
     isLivestreamClaim,
     toggleVideoTheaterMode,
@@ -199,20 +208,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     tapToUnmuteRef,
     tapToRetryRef,
     setReload,
-    videoTheaterMode,
     playerRef,
-    autoplaySetting,
     replay,
     claimValues,
     userId,
     claimId,
     embedded,
     doAnalyticsView,
+    doAnalyticsBuffer,
     claimRewards,
     uri,
     playerServerRef,
-    clearPosition,
     isLivestreamClaim,
+    channelTitle,
   });
 
   const videoJsOptions = {
@@ -242,6 +250,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       timeDivider: !isLivestreamClaim,
       durationDisplay: !isLivestreamClaim,
       remainingTimeDisplay: !isLivestreamClaim,
+      subsCapsButton: !IS_IOS,
     },
     techOrder: ['html5'],
     bigPlayButton: embedded, // only show big play button if embedded
@@ -272,6 +281,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // Initialize mobile UI.
       player.mobileUi();
+
+      player.i18n();
 
       if (!embedded) {
         window.player.bigPlayButton && window.player.bigPlayButton.hide();
@@ -363,7 +374,23 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // Set reference in component state
       playerRef.current = vjsPlayer;
 
-      window.addEventListener('keydown', curried_function(playerRef, containerRef));
+      // volume control div, used for changing volume when scrolled over
+      volumePanelRef.current = playerRef.current
+        .getChild(VIDEOJS_CONTROL_BAR_CLASS)
+        .getChild(VIDEOJS_VOLUME_PANEL_CLASS)
+        .el();
+
+      const keyDownHandler = createKeyDownShortcutsHandler(playerRef, containerRef);
+      const videoScrollHandler = createVideoScrollShortcutsHandler(playerRef, containerRef);
+      const volumePanelHandler = createVolumePanelScrollShortcutsHandler(volumePanelRef, playerRef, containerRef);
+      window.addEventListener('keydown', keyDownHandler);
+      const containerDiv = containerRef.current;
+      containerDiv && containerDiv.addEventListener('wheel', videoScrollHandler);
+      if (volumePanelRef.current) volumePanelRef.current.addEventListener('wheel', volumePanelHandler);
+
+      keyDownHandlerRef.current = keyDownHandler;
+      videoScrollHandlerRef.current = videoScrollHandler;
+      volumePanelScrollHandlerRef.current = volumePanelHandler;
 
       const controlBar = document.querySelector('.vjs-control-bar');
       if (controlBar) {
@@ -451,7 +478,14 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
     // Cleanup
     return () => {
-      window.removeEventListener('keydown', curried_function);
+      window.removeEventListener('keydown', keyDownHandlerRef.current);
+      const containerDiv = containerRef.current;
+      // $FlowFixMe
+      containerDiv && containerDiv.removeEventListener('wheel', videoScrollHandlerRef.current);
+
+      if (volumePanelRef.current) {
+        volumePanelRef.current.removeEventListener('wheel', volumePanelScrollHandlerRef.current);
+      }
 
       const player = playerRef.current;
       if (player) {

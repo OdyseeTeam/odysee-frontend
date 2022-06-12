@@ -16,17 +16,11 @@ import { buildUnseenCountStr } from 'util/notifications';
 
 import HomePage from 'page/home';
 
-// @if TARGET='app'
-const BackupPage = lazyImport(() => import('page/backup' /* webpackChunkName: "backup" */));
-// @endif
-
-// @if TARGET='web'
 const Code2257Page = lazyImport(() => import('web/page/code2257' /* webpackChunkName: "code2257" */));
 const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy' /* webpackChunkName: "privacypolicy" */));
 const TOSPage = lazyImport(() => import('web/page/tos' /* webpackChunkName: "tos" */));
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
-// @endif
 
 const SignInPage = lazyImport(() => import('page/signIn' /* webpackChunkName: "signIn" */));
 const SignInWalletPasswordPage = lazyImport(() =>
@@ -132,7 +126,6 @@ type Props = {
   },
   uri: string,
   title: string,
-  welcomeVersion: number,
   hasNavigated: boolean,
   setHasNavigated: () => void,
   setReferrer: (?string) => void,
@@ -143,6 +136,7 @@ type Props = {
   hideTitleNotificationCount: boolean,
   hasDefaultChannel: boolean,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
+  embedLatestPath: ?boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -186,6 +180,7 @@ function AppRouter(props: Props) {
     hideTitleNotificationCount,
     hasDefaultChannel,
     doSetActiveChannel,
+    embedLatestPath,
   } = props;
 
   const defaultChannelRef = React.useRef(hasDefaultChannel);
@@ -333,16 +328,13 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.AUTH}/*`} exact component={SignUpPage} />
 
         <Route path={`/$/${PAGES.HELP}`} exact component={HelpPage} />
-        {/* @if TARGET='app' */}
-        <Route path={`/$/${PAGES.BACKUP}`} exact component={BackupPage} />
-        {/* @endif */}
-        {/* @if TARGET='web' */}
+
         <Route path={`/$/${PAGES.CODE_2257}`} exact component={Code2257Page} />
         <Route path={`/$/${PAGES.PRIVACY_POLICY}`} exact component={PrivacyPolicyPage} />
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
-        {/* @endif */}
+
         <Route path={`/$/${PAGES.AUTH_VERIFY}`} exact component={SignInVerifyPage} />
         <Route path={`/$/${PAGES.SEARCH}`} exact component={SearchPage} />
         <Route path={`/$/${PAGES.TOP}`} exact component={TopPage} />
@@ -407,12 +399,18 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
-        <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
+        <Route
+          path={`/$/${PAGES.EMBED}/:claimName`}
+          exact
+          component={embedLatestPath ? () => <EmbedWrapperPage uri={uri} /> : EmbedWrapperPage}
+        />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
-        <Route path="/:claimName" exact component={ShowPage} />
-        <Route path="/:claimName/:streamName" exact component={ShowPage} />
+        <Route path={`/$/${PAGES.LATEST}/:channelName`} exact render={() => <ShowPage uri={uri} latestContentPath />} />
+        <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact render={() => <ShowPage uri={uri} liveContentPath />} />
+        <Route path="/:claimName" exact render={() => <ShowPage uri={uri} />} />
+        <Route path="/:claimName/:streamName" exact render={() => <ShowPage uri={uri} />} />
         <Route path="/*" component={FourOhFourPage} />
       </Switch>
     </React.Suspense>
