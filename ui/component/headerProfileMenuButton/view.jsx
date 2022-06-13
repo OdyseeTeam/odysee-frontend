@@ -4,6 +4,7 @@ import 'scss/component/_header.scss';
 // $FlowFixMe
 import { Global } from '@emotion/react';
 
+import { Menu, MenuList, MenuButton } from '@reach/menu-button';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -16,8 +17,15 @@ import Skeleton from '@mui/material/Skeleton';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Tooltip from 'component/common/tooltip';
+import NotificationHeaderButton from 'component/headerNotificationButton';
+import { ENABLE_UI_NOTIFICATIONS } from 'config';
 
 type HeaderMenuButtonProps = {
+  currentTheme: string,
+  automaticDarkModeEnabled: boolean,
+  handleThemeToggle: (boolean, string) => void,
+
   myChannelClaimIds: ?Array<string>,
   activeChannelClaim: ?ChannelClaim,
   authenticated: boolean,
@@ -26,7 +34,21 @@ type HeaderMenuButtonProps = {
 };
 
 export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
-  const { myChannelClaimIds, activeChannelClaim, authenticated, email, signOut } = props;
+  const {
+    // Theme
+    currentTheme,
+    automaticDarkModeEnabled,
+    handleThemeToggle,
+
+    // User
+    myChannelClaimIds,
+    activeChannelClaim,
+    authenticated,
+    email,
+    signOut,
+  } = props;
+
+  const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
@@ -38,6 +60,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
   const noActiveChannel = activeChannelUrl === null;
   const pendingChannelFetch = !noActiveChannel && myChannelClaimIds === undefined;
+  const uploadProps = { requiresAuth: !authenticated };
 
   const handleClickAway = () => {
     if (!clicked) {
@@ -81,6 +104,20 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
       )}
 
       <div className="header__buttons">
+        {authenticated && (
+          <Menu>
+            <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
+              <Button
+                className="header__navigationItem--icon"
+                onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}
+              >
+                <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
+              </Button>
+            </Tooltip>
+          </Menu>
+        )}
+        {notificationsEnabled && <NotificationHeaderButton />}
+
         {pendingChannelFetch ? (
           <Skeleton variant="circular" animation="wave" className="header__navigationItem--iconSkeleton" />
         ) : (
@@ -96,7 +133,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             })}
           >
             {activeChannelUrl ? (
-              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad showMemberBadge />
+              <ChannelThumbnail uri={activeChannelUrl} hideTooltip small noLazyLoad />
             ) : (
               <Icon size={18} icon={ICONS.ACCOUNT} aria-hidden />
             )}
@@ -115,6 +152,13 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
                 page={PAGES.CREATOR_DASHBOARD}
                 icon={ICONS.ANALYTICS}
                 name={__('Creator Analytics')}
+              />
+              <HeaderMenuLink
+                useMui
+                {...uploadProps}
+                page={PAGES.YOUTUBE_SYNC}
+                icon={ICONS.YOUTUBE}
+                name={__('Sync YouTube Channel')}
               />
 
               <hr className="menu__separator" />
