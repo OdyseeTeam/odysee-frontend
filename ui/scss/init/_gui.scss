@@ -1690,8 +1690,26 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     background-size: contain;
     background-repeat: no-repeat;
 
+    @media (max-width: $breakpoint-medium) {
+      margin-left: 30px;
+      margin-right: 10px;
+    }
+
     @media (max-width: $breakpoint-small) {
       display: none;
+    }
+  }
+
+  @media (max-width: $breakpoint-medium) {
+    #onetrust-policy {
+      margin-right: 60px;
+    }
+
+    #onetrust-button-group-parent {
+      margin-top: 0;
+      #onetrust-button-group {
+        margin-right: 10px !important;
+      }
     }
   }
 
