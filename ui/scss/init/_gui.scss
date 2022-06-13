@@ -1689,6 +1689,10 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     background-image: url('/public/img/cookie.svg');
     background-size: contain;
     background-repeat: no-repeat;
+
+    @media (max-width: $breakpoint-small) {
+      display: none;
+    }
   }
 
   #onetrust-policy-title,
