@@ -403,6 +403,12 @@ class SettingsStripeCard extends React.Component<Props, State> {
 
     const { setPreferredCurrency } = this.props;
 
+    function clearErrorMessage() {
+      const errorElement = document.querySelector('.sr-field-error');
+
+      errorElement.innerHTML = '';
+    }
+
     // when user changes currency in selector
     function onCurrencyChange(event) {
       const { value } = event.target;
@@ -419,9 +425,17 @@ class SettingsStripeCard extends React.Component<Props, State> {
     function onChangeCardName(event) {
       const { value } = event.target;
 
-      const numberOrSpecialCharacter = /[0-9`!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?~]/;
+      const numberOrSpecialCharacter = /[0-9!@#$%^&*()_+=[\]{};:"\\|,<>?~]/;
 
-      if (!numberOrSpecialCharacter.test(value)) {
+      const errorElement = document.querySelector('.sr-field-error');
+
+      if (numberOrSpecialCharacter.test(value)) {
+        errorElement.innerHTML = __('Special characters and numbers are not allowed');
+      } else if (value.length > 48) {
+        errorElement.innerHTML = __('Name must be less than 48 characters long');
+      } else {
+        errorElement.innerHTML = '';
+
         that.setState({
           cardNameValue: value,
         });
@@ -451,7 +465,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
 
         {/* initial markup to show while getting information */}
         {currentFlowStage === 'loading' && (
-          <div className="headerCard getting-card-status__div">
+          <div className="getting-card-status">
             <Card title={__('Connect your card with Odysee')} subtitle={__('Getting your card connection status...')} />
           </div>
         )}
@@ -462,11 +476,17 @@ class SettingsStripeCard extends React.Component<Props, State> {
             <div className="sr-main">
               <div className="">
                 <div className="sr-form-row">
-                  <label className="payment-details">Name On Card</label>
-                  <input type="text" id="card-name" onChange={onChangeCardName} value={cardNameValue} />
+                  <label className="payment-details">{__('Name on card')}</label>
+                  <input
+                    type="text"
+                    id="card-name"
+                    onChange={onChangeCardName}
+                    value={cardNameValue}
+                    onBlur={clearErrorMessage}
+                  />
                 </div>
                 <div className="sr-form-row">
-                  <label className="payment-details">Card Details</label>
+                  <label className="payment-details">{__('Card details')}</label>
                   <div className="sr-input sr-element sr-card-element" id="card-element" />
                 </div>
                 <div className="sr-field-error" id="card-errors" role="alert" />

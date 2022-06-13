@@ -424,7 +424,8 @@ pre {
   margin: 0 auto;
 }
 
-.getting-card-status__div .card__header--between {
+// center loading div
+.getting-card-status .card__header--between {
   justify-content: center;
 }
 
@@ -437,4 +438,8 @@ pre {
 
 .payment-details {
   display: block;
+}
+
+.sr-field-error {
+  color: var(--color-text-error);
 }
