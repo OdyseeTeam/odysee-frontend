@@ -365,9 +365,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
   //   }
   // }, [showQualitySelector]);
 
+  /*
   useEffect(() => {
     Chromecast.updateTitles(title, channelTitle);
   }, [title, channelTitle]);
+  */
 
   // This lifecycle hook is only called once (on mount), or when `isAudio` or `source` changes.
   useEffect(() => {

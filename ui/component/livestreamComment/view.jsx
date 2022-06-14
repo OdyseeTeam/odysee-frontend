@@ -77,7 +77,7 @@ export default function LivestreamComment(props: Props) {
 
   function onClickCordova(e) {
     if (e) {
-      let link = e.substr(e.indexOf('odysee.com/') + 10, e.length);
+      let link = parseURI(e).path;
       window.odysee.functions.history.push(link);
     }
   }
