@@ -374,25 +374,113 @@ export default function FileRenderFloating(props: Props) {
   }
 
   return (
-    <Draggable
-      onDrag={!isMobile ? handleDragMove : undefined}
-      onStart={!isMobile ? handleDragStart : undefined}
-      onStop={!isMobile ? handleDragStop : undefined}
-      defaultPosition={position}
-      position={isFloating ? position : { x: 0, y: 0 }}
-      bounds="parent"
-      disabled={noFloatingPlayer}
-      handle={!isMobile ? '.draggable' : ''}
-      cancel=".button"
-    >
+    !isMobile && (
+      <Draggable
+        onDrag={handleDragMove}
+        onStart={handleDragStart}
+        onStop={handleDragStop}
+        defaultPosition={position}
+        position={isFloating ? position : { x: 0, y: 0 }}
+        bounds="parent"
+        disabled={noFloatingPlayer}
+        handle={'.draggable'}
+        cancel=".button"
+      >
+        <div
+          className={classnames([CONTENT_VIEWER_CLASS], {
+            [FLOATING_PLAYER_CLASS]: isFloating,
+            'content__viewer--inline': !isFloating,
+            'content__viewer--secondary': isComment,
+            'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isCurrentClaimLive && !isMobile,
+            'content__viewer--disable-click': wasDragging,
+            'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
+          })}
+          style={
+            !isFloating && fileViewerRect
+              ? {
+                  width: fileViewerRect.width,
+                  height: appDrawerOpen ? `${getMaxLandscapeHeight()}px` : fileViewerRect.height,
+                  left: fileViewerRect.x,
+                  top:
+                    isMobile && !playingUriSource
+                      ? HEADER_HEIGHT_MOBILE
+                      : fileViewerRect.windowOffset + fileViewerRect.top - HEADER_HEIGHT,
+                }
+              : {}
+          }
+        >
+          {uri && videoAspectRatio && fileViewerRect ? (
+            <PlayerGlobalStyles
+              videoAspectRatio={videoAspectRatio}
+              theaterMode={theaterMode}
+              appDrawerOpen={appDrawerOpen && !isLandscapeRotated && !isTabletLandscape}
+              initialPlayerHeight={initialPlayerHeight}
+              isFloating={isFloating}
+              fileViewerRect={fileViewerRect}
+              mainFilePlaying={mainFilePlaying}
+              isLandscapeRotated={isLandscapeRotated}
+              isTabletLandscape={isTabletLandscape}
+            />
+          ) : null}
+
+          <div className={classnames('content__wrapper', { 'content__wrapper--floating': isFloating })}>
+            {isFloating && (
+              <Button
+                title={__('Close')}
+                onClick={() => doSetPlayingUri({ uri: null })}
+                icon={ICONS.REMOVE}
+                button="primary"
+                className="content__floating-close"
+              />
+            )}
+
+            {isReadyToPlay ? (
+              <FileRender className={classnames({ draggable: !isMobile })} uri={uri} />
+            ) : collectionId && !canViewFile ? (
+              <div className="content__loading">
+                <AutoplayCountdown
+                  nextRecommendedUri={nextListUri}
+                  doNavigate={() => setDoNavigate(true)}
+                  doReplay={() => doUriInitiatePlay({ uri, collectionId }, false, isFloating)}
+                  doPrevious={() => {
+                    setPlayNext(false);
+                    setDoNavigate(true);
+                  }}
+                  onCanceled={() => setCountdownCanceled(true)}
+                  skipPaid
+                />
+              </div>
+            ) : (
+              <LoadingScreen status={__('Loading')} />
+            )}
+
+            {isFloating && (
+              <div className={classnames('content__info', { draggable: !isMobile })}>
+                <div className="claim-preview__title" title={title || uri}>
+                  <Button
+                    label={title || uri}
+                    navigate={navigateUrl}
+                    button="link"
+                    className="content__floating-link"
+                  />
+                </div>
+
+                <UriIndicator link uri={uri} />
+              </div>
+            )}
+          </div>
+        </div>
+      </Draggable>
+    ),
+    isMobile && (
       <div
         className={classnames([CONTENT_VIEWER_CLASS], {
           [FLOATING_PLAYER_CLASS]: isFloating,
           'content__viewer--inline': !isFloating,
           'content__viewer--secondary': isComment,
-          'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isCurrentClaimLive && !isMobile,
+          // 'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isCurrentClaimLive && !isMobile,
           'content__viewer--disable-click': wasDragging,
-          'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
+          'content__viewer--mobile': !isLandscapeRotated && !playingUriSource,
         })}
         style={
           !isFloating && fileViewerRect
@@ -464,7 +552,7 @@ export default function FileRenderFloating(props: Props) {
           )}
         </div>
       </div>
-    </Draggable>
+    )
   );
 }
 
