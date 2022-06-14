@@ -46,9 +46,11 @@ class HlsQualitySelectorPlugin {
 
     // Listen for source changes
     this.player.on('loadedmetadata', (e) => {
+      const { qualityToSet, switchedFromDefaultQuality, claimSrcVhs } = this.player;
+
       // if there was a quality option selected to default to, set it using the setQuality function
       // as if it was being clicked on, on loadedmetadata
-      if (this.player.qualityToSet && !this.player.switchedFromDefaultQuality) {
+      if (qualityToSet && !switchedFromDefaultQuality && claimSrcVhs) {
         this.setQuality(this.player.qualityToSet);
 
         // Add this attribute to the video player so later it can be checked and avoid switching again
@@ -277,9 +279,24 @@ class HlsQualitySelectorPlugin {
 
   swapSrcTo(mode = QUALITY_OPTIONS.ORIGINAL) {
     const currentTime = this.player.currentTime();
+    const isAlreadyPlaying = !this.player.paused();
     this.player.src(mode === 'vhs' ? this.player.claimSrcVhs : this.player.claimSrcOriginal);
+
+    // run this when new source is loaded
+    this.player.one('loadstart', () => {
+      // fixes a bug where when reusing vjs instance the player doesn't play
+      // when it should and the control bar is hidden when changing quality
+      this.player.currentTime(currentTime);
+      if (isAlreadyPlaying) {
+        this.player.play();
+      } else {
+        // show control bar
+        this.player.addClass('vjs-has-started');
+        this.player.addClass('vjs-playing');
+        this.player.addClass('vjs-paused');
+      }
+    });
     this.player.load();
-    this.player.currentTime(currentTime);
 
     console.assert(mode === 'vhs' || mode === QUALITY_OPTIONS.ORIGINAL, 'Unexpected input');
   }
