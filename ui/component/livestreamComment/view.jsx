@@ -75,6 +75,13 @@ export default function LivestreamComment(props: Props) {
     return myChannelIds ? myChannelIds.includes(channelId) : false;
   }
 
+  function onClickCordova(e) {
+    if (e) {
+      let link = e.substr(e.indexOf('odysee.com/') + 10, e.length);
+      window.odysee.functions.history.push(link);
+    }
+  }
+
   // For every new <LivestreamComment /> component that is rendered on mobile view,
   // keep the scroll at the bottom (newest)
   React.useEffect(() => {
@@ -105,7 +112,7 @@ export default function LivestreamComment(props: Props) {
           <Button
             className={classnames('button--uri-indicator comment__author', { 'comment__author--creator': isStreamer })}
             target="_blank"
-            navigate={authorUri}
+            onClick={() => onClickCordova(authorUri)}
           >
             {claimName}
           </Button>
