@@ -30,7 +30,7 @@ import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import usePersistedState from 'effects/use-persisted-state';
 
-const canAutoplay = require('./plugins/canAutoplay');
+const canAutoplayVideo = require('./plugins/canAutoplay');
 
 // require('@neko/videojs-chromecast')(videojs);
 
@@ -456,7 +456,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       // $FlowIssue
       vjsPlayer.controlBar?.show();
 
-      vjsPlayer.poster(poster);
+      // vjsPlayer.poster(poster);
 
       let contentUrl;
       // TODO: pull this function into videojs-functions

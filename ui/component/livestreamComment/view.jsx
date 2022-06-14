@@ -18,6 +18,7 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import PremiumBadge from 'component/common/premium-badge';
+import { formatLbryUrlForWeb } from 'util/url';
 
 type Props = {
   comment: Comment,
@@ -77,8 +78,7 @@ export default function LivestreamComment(props: Props) {
 
   function onClickCordova(e) {
     if (e) {
-      let link = parseURI(e).path;
-      window.odysee.functions.history.push(link);
+      window.odysee.functions.history.push(formatLbryUrlForWeb(e));
     }
   }
 
