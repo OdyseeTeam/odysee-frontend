@@ -373,7 +373,6 @@ export default function FileRenderFloating(props: Props) {
     }
   }
 
-  console.log('isMobile: ', isMobile);
   return (
     <Draggable
       onDrag={handleDragMove}
