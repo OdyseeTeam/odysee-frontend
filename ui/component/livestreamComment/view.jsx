@@ -18,6 +18,7 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import PremiumBadge from 'component/common/premium-badge';
+import { formatLbryUrlForWeb } from 'util/url';
 
 type Props = {
   comment: Comment,
@@ -75,6 +76,12 @@ export default function LivestreamComment(props: Props) {
     return myChannelIds ? myChannelIds.includes(channelId) : false;
   }
 
+  function onClickCordova(e) {
+    if (e) {
+      window.odysee.functions.history.push(formatLbryUrlForWeb(e));
+    }
+  }
+
   // For every new <LivestreamComment /> component that is rendered on mobile view,
   // keep the scroll at the bottom (newest)
   React.useEffect(() => {
@@ -105,7 +112,7 @@ export default function LivestreamComment(props: Props) {
           <Button
             className={classnames('button--uri-indicator comment__author', { 'comment__author--creator': isStreamer })}
             target="_blank"
-            navigate={authorUri}
+            onClick={() => onClickCordova(authorUri)}
           >
             {claimName}
           </Button>

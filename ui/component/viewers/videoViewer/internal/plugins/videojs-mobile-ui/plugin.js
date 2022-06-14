@@ -22,7 +22,6 @@ const defaults = {
 
 const screen = window.screen;
 
-/*
 const angle = () => {
   // iOS
   if (typeof window.orientation === 'number') {
@@ -35,7 +34,6 @@ const angle = () => {
   videojs.log('angle unknown');
   return 0;
 };
-*/
 
 // Cross-compatibility for Video.js 5 and 6.
 const registerPlugin = videojs.registerPlugin || videojs.plugin;
@@ -83,6 +81,40 @@ const onPlayerReady = (player, options) => {
   controlBar.removeChild('PlayToggle'); // Use Overlay's instead.
 
   let locked = false;
+
+  const rotationHandler = () => {
+    const currentAngle = angle();
+
+    if (currentAngle === 90 || currentAngle === 270 || currentAngle === -90) {
+      if (player.paused() === false) {
+        player.requestFullscreen();
+        if (options.fullscreen.lockOnRotate && screen.orientation && screen.orientation.lock) {
+          screen.orientation
+            .lock('landscape')
+            .then(() => {
+              locked = true;
+            })
+            .catch(() => {
+              videojs.log('orientation lock not allowed');
+            });
+        }
+      }
+    }
+    if (currentAngle === 0 || currentAngle === 180) {
+      if (player.isFullscreen()) {
+        player.exitFullscreen();
+      }
+    }
+  };
+
+  if (player.options.enterOnRotate) {
+    if (videojs.browser.IS_IOS) {
+      window.addEventListener('orientationchange', rotationHandler);
+    } else {
+      // addEventListener('orientationchange') is not a user interaction on Android
+      screen.orientation.onchange = rotationHandler;
+    }
+  }
 
   player.on('ended', (_) => {
     if (locked === true) {

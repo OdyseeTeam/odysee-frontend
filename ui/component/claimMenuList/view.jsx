@@ -433,7 +433,7 @@ function ClaimMenuList(props: Props) {
 
         {shouldShow && (
           <>
-            {!window.odysee.build.googlePlay && !isChannelPage && (
+            {window.odysee && !window.odysee.build.googlePlay && !isChannelPage && (
               <>
                 <MenuItem className="comment__menu-option" onSelect={handleSupport}>
                   <div className="menu__link">

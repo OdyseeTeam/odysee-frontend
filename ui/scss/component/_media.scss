@@ -193,12 +193,19 @@
     flex-wrap: wrap;
     margin-right: calc(var(--spacing-xxxs) * -1) !important;
     margin-bottom: unset !important;
-    align-items: stretch;
+    // align-items: stretch;
 
     .button {
       flex: 1 1 auto;
-      width: 32%;
+      // width: 32%;
       padding: unset;
+    }
+
+    .button--file-action--menu {
+      .icon {
+        margin-left: var(--spacing-s);
+        margin-right: var(--spacing-s);
+      }
     }
 
     .button--file-action:last-child {

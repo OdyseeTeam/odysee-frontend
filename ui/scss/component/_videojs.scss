@@ -205,6 +205,16 @@ $control-bar-popup-font-size: 0.8rem;
   opacity: 1;
 }
 
+.vjs-lock-showing {
+  @media (max-width: $breakpoint-small) {
+    width: 8em !important;
+    // overflow-y:scroll;
+    .vjs-menu-content {
+      max-height: 176px !important;
+    }
+  }
+}
+
 [dir] .vjs-menu-button-popup .vjs-menu .vjs-menu-content {
   //background-color: rgba(43, 51, 63);
   background-color: rgba(var(--color-header-button-base), 0.9);
@@ -238,6 +248,18 @@ $control-bar-popup-font-size: 0.8rem;
       color: var(--color-primary-contrast);
       background-color: var(--color-primary);
       border-radius: var(--border-radius);
+    }
+
+    @media (max-width: $breakpoint-small) {
+      padding: 0.1em 0;
+      margin-left: var(--spacing-xxs);
+      margin-right: var(--spacing-xxs);
+      &:first-child {
+        margin-top: var(--spacing-xxs);
+      }
+      &:last-child {
+        margin-bottom: var(--spacing-xxs);
+      }
     }
   }
   .vjs-selected {
@@ -331,7 +353,7 @@ $control-bar-popup-font-size: 0.8rem;
 
 // TODO: make sure there's no bad side effects of this
 button.vjs-big-play-button {
-  display: none !important;
+  display: none;
 }
 
 .vjs-big-play-centered {
@@ -463,4 +485,17 @@ button.vjs-big-play-button {
   height: 100%;
   background-color: var(--color-error);
   width: 2px;
+}
+
+// don't show Tap To Unmute button on mobile miniplayer
+.content__viewer--floating.content__viewer--mobile {
+  .video-js--tap-to-unmute {
+    visibility: hidden !important;
+  }
+}
+
+.vjs-transitioning-video {
+  opacity: 1 !important;
+  display: flex !important;
+  visibility: visible !important;
 }
