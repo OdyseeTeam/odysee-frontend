@@ -242,8 +242,8 @@
   align-items: center;
 
   @media (min-width: $breakpoint-small) {
-    width: 15rem;
-    min-width: 15rem;
+    width: 16rem;
+    min-width: 16rem;
   }
 }
 
@@ -321,7 +321,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    margin: 0;
+    // margin: 0;
     width: calc(var(--header-height-mobile) - var(--spacing-m));
     height: calc(var(--header-height-mobile) - var(--spacing-m));
   }
