@@ -290,3 +290,21 @@ td {
     }
   }
 }
+
+.table--playlists {
+  .table-column__playlist {
+    min-width: 15rem;
+  }
+
+  .table-column__visibility {
+    text-align: center;
+  }
+
+  .table-column__video-count {
+    text-align: center;
+  }
+
+  .table-column__update-at {
+    text-align: right;
+  }
+}

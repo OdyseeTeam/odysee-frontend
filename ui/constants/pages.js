@@ -90,6 +90,7 @@ exports.LIVESTREAM = 'livestream';
 exports.LIVESTREAM_CURRENT = 'live';
 exports.GENERAL = 'general';
 exports.LIST = 'list';
+exports.PLAYLIST = 'playlist';
 exports.ODYSEE_MEMBERSHIP = 'membership';
 exports.POPOUT = 'popout';
 exports.LATEST = 'latest';

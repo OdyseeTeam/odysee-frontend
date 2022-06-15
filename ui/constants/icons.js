@@ -208,3 +208,6 @@ export const SUBMIT = 'Submit';
 export const FILTERED_BY_LANG = 'FilteredByLang';
 export const EURO = 'Euro';
 export const SPORTS = 'Sports';
+export const PLAYLIST = 'Playlist';
+export const PLAYLIST_ADD = 'PlaylistAdd';
+export const PLAYLIST_FILLED = 'PlaylistFilled';

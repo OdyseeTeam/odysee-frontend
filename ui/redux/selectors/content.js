@@ -23,11 +23,28 @@ type State = { claims: any, content: ContentState, user: UserState };
 export const selectState = (state: State) => state.content || {};
 
 export const selectPlayingUri = (state: State) => selectState(state).playingUri;
+export const selectPlayingCollection = (state: State) => selectPlayingUri(state).collection;
 export const selectPrimaryUri = (state: State) => selectState(state).primaryUri;
-export const selectListLoop = (state: State) => selectState(state).loopList;
-export const selectListShuffle = (state: State) => selectState(state).shuffleList;
 export const selectLastViewedAnnouncement = (state: State) => selectState(state).lastViewedAnnouncement;
 export const selectRecsysEntries = (state: State) => selectState(state).recsysEntries;
+
+export const selectPlayingCollectionIfPlayingForId = (state: State, id: string) => {
+  const playingCollection = selectPlayingCollection(state);
+  return playingCollection.collectionId === id && playingCollection;
+};
+export const selectIsCollectionPlayingForId = (state: State, id: string) =>
+  Boolean(selectPlayingCollectionIfPlayingForId(state, id));
+
+export const selectListShuffleForId = (state: State, id: string) => {
+  const playingCollection = selectPlayingCollectionIfPlayingForId(state, id);
+  return playingCollection && playingCollection.shuffle;
+};
+export const selectListIsShuffledForId = (state: State, id: string) => Boolean(selectListShuffleForId(state, id));
+
+export const selectListIsLoopedForId = (state: State, id: string) => {
+  const playingCollection = selectPlayingCollectionIfPlayingForId(state, id);
+  return Boolean(playingCollection && playingCollection.loop);
+};
 
 export const makeSelectIsPlaying = (uri: string) =>
   createSelector(selectPrimaryUri, (primaryUri) => primaryUri === uri);
@@ -45,14 +62,23 @@ export const makeSelectIsPlayerFloating = (location: UrlLocation) =>
     const { pathname, search } = location;
     const hasSecondarySource = Boolean(playingUri.source);
     const isComment = playingUri.source === 'comment';
+    const isQueue = playingUri.source === 'queue';
     const isInlineSecondaryPlayer =
       hasSecondarySource && playingUri.uri !== primaryUri && pathname === playingUri.pathname;
 
-    if (isComment && isInlineSecondaryPlayer && search && search !== '?view=discussion') return true;
+    if (
+      (isQueue && primaryUri !== playingUri.uri) ||
+      (isComment && isInlineSecondaryPlayer && search && search !== '?view=discussion')
+    ) {
+      return true;
+    }
 
     if (
+      (isQueue && primaryUri === playingUri.uri) ||
       isInlineSecondaryPlayer ||
-      (hasSecondarySource && !isComment ? playingUri.primaryUri === primaryUri : playingUri.uri === primaryUri)
+      (hasSecondarySource && !isComment && primaryUri
+        ? playingUri.primaryUri === primaryUri
+        : playingUri.uri === primaryUri)
     ) {
       return false;
     }

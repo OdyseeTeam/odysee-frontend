@@ -11,12 +11,12 @@ import {
 } from 'redux/selectors/claims';
 
 import {
-  makeSelectCollectionForId,
-  makeSelectUrlsForCollectionId,
-  makeSelectIsResolvingCollectionForId,
-  makeSelectCollectionIsMine,
-  makeSelectCountForCollectionId,
-  makeSelectEditedCollectionForId,
+  selectCollectionForId,
+  selectUrlsForCollectionId,
+  selectIsResolvingCollectionForId,
+  selectCollectionIsMine,
+  selectCountForCollectionId,
+  selectEditedCollectionForId,
 } from 'redux/selectors/collections';
 
 import { getThumbnailFromClaim } from 'util/claim';
@@ -34,16 +34,16 @@ const select = (state, props) => {
   return {
     collectionId,
     claim,
-    collection: makeSelectCollectionForId(collectionId)(state),
-    collectionUrls: makeSelectUrlsForCollectionId(collectionId)(state),
-    collectionCount: makeSelectCountForCollectionId(collectionId)(state),
-    isResolvingCollection: makeSelectIsResolvingCollectionForId(collectionId)(state),
+    collection: selectCollectionForId(state, collectionId),
+    collectionUrls: selectUrlsForCollectionId(state, collectionId),
+    collectionCount: selectCountForCollectionId(state, collectionId),
+    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
     title: selectTitleForUri(state, uri),
     thumbnail: getThumbnailFromClaim(claim),
     isMyClaim: selectClaimIsMine(state, claim), // or collection is mine?
-    isMyCollection: makeSelectCollectionIsMine(collectionId)(state),
+    isMyCollection: selectCollectionIsMine(state, collectionId),
     claimIsPending: makeSelectClaimIsPending(uri)(state),
-    collectionHasEdits: Boolean(makeSelectEditedCollectionForId(collectionId)(state)),
+    collectionHasEdits: Boolean(selectEditedCollectionForId(state, collectionId)),
     uri,
     user: selectUser(state),
     channel: uri && makeSelectChannelForClaimUri(uri)(state),

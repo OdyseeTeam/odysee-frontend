@@ -27,7 +27,7 @@ export default function usePlayNext(
           state: { collectionId, forceAutoplay: true, hideFloatingPlayer: true },
         });
       } else {
-        doUriInitiatePlay({ uri: playUri, collectionId }, true, isFloating);
+        doUriInitiatePlay({ uri: playUri, collection: { collectionId } }, true, isFloating);
       }
 
       resetState();

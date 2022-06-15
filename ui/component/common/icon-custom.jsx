@@ -2500,6 +2500,7 @@ export const icons = {
       strokeLinejoin="round"
       stroke="currentColor"
       fill="none"
+      style={{ overflow: 'visible' }}
     >
       <g transform="matrix(1,0,0,1,0,0)">
         <path d="M1.500 12.000 A10.500 10.500 0 1 0 22.500 12.000 A10.500 10.500 0 1 0 1.500 12.000 Z" />
@@ -2668,25 +2669,55 @@ export const icons = {
       <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
     </g>
   ),
-  [ICONS.REPEAT]: buildIcon(
-    <g>
-      <polyline points="17 1 21 5 17 9" />
-      <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-      <polyline points="7 23 3 19 7 15" />
-      <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-    </g>
-  ),
-  [ICONS.SHUFFLE]: buildIcon(
-    <g>
-      <polyline points="16 3 21 3 21 8" />
-      <line x1="4" y1="20" x2="21" y2="3" />
-      <polyline points="21 16 21 21 16 21" />
-      <line x1="15" y1="15" x2="21" y2="21" />
-      <line x1="4" y1="4" x2="9" y2="9" />
-    </g>
-  ),
+  [ICONS.REPEAT]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width={size}
+        height={size}
+        fill="none"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke={color}
+        {...otherProps}
+      >
+        <polyline stroke={color} points="17 1 21 5 17 9" />
+        <path stroke={color} d="M3 11V9a4 4 0 0 1 4-4h14" />
+        <polyline stroke={color} points="7 23 3 19 7 15" />
+        <path stroke={color} d="M21 13v2a4 4 0 0 1-4 4H3" />
+      </svg>
+    );
+  },
+  [ICONS.SHUFFLE]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        width={size}
+        height={size}
+        fill="none"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke={color}
+        {...otherProps}
+      >
+        <polyline stroke={color} points="16 3 21 3 21 8" />
+        <line stroke={color} x1="4" y1="20" x2="21" y2="3" />
+        <polyline stroke={color} points="21 16 21 21 16 21" />
+        <line stroke={color} x1="15" y1="15" x2="21" y2="21" />
+        <line stroke={color} x1="4" y1="4" x2="9" y2="9" />
+      </svg>
+    );
+  },
   [ICONS.HOLD_PHONE]: buildIcon(
-    <g>
+    <svg>
       <path d="M12 17.491L1.5 17.491" />
       <path d="M8,19.241H8a.25.25,0,0,1,.25.25h0a.25.25,0,0,1-.25.25H8a.25.25,0,0,1-.25-.25h0a.25.25,0,0,1,.25-.25" />
       <path d="M12.5,21.491h-9a2,2,0,0,1-2-2v-17a2,2,0,0,1,2-2h9a2,2,0,0,1,2,2V13.265" />
@@ -2694,7 +2725,7 @@ export const icons = {
       <path d="M16.5,14.868l-3.727-2.987a1.331,1.331,0,0,0-1.883,1.883l3.61,4.079V20.4c0,1.206,1.724,3.111,1.724,3.111" />
       <path d="M5.750 5.741 A2.250 2.250 0 1 0 10.250 5.741 A2.250 2.250 0 1 0 5.750 5.741 Z" />
       <path d="M12.11,11.524a4.628,4.628,0,0,0-8.61.967" />
-    </g>
+    </svg>
   ),
   [ICONS.LIFE]: buildIcon(
     <g>
@@ -3302,4 +3333,74 @@ export const icons = {
       <path d="M0.6,11.8c0-6,5-11,11-11 M9.6,7.2v9.5l6.9-4.7L9.6,7.2z M-2.1,9.5l2.9,2.9l3.2-2.7 M11.4,23.2 v-0.9 M5.6,21.5L6,20.6 M2.1,16.4l-0.8,0.4 M17,20.8l0.5,0.8 M20.9,16.7l0.8,0.5 M23.1,11l-0.9,0.1 M21,5.2l-0.7,0.5 M16.2,1.2 L15.8,2" />
     </svg>
   ),
+  [ICONS.PLAYLIST]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width={size}
+        height={size}
+        fill={color}
+        style={{ overflow: 'visible', stroke: color }}
+        {...otherProps}
+      >
+        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: 'none' }} />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} />
+          <path
+            d="M3.75,7.64V3.86a.36.36,0,0,1,.55-.31L7.57,5.44a.36.36,0,0,1,0,.62L4.3,8A.36.36,0,0,1,3.75,7.64Z"
+            style={{ fill: 'none' }}
+          />
+        </g>
+      </svg>
+    );
+  },
+  [ICONS.PLAYLIST_ADD]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width={size}
+        height={size}
+        fill={color}
+        style={{ overflow: 'visible' }}
+        {...otherProps}
+      >
+        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: 'none', stroke: color }} />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none', stroke: color }} />
+          <line x1="5.75" y1="3" x2="5.75" y2="8.5" />
+          <line x1="3" y1="5.75" x2="8.5" y2="5.75" />
+        </g>
+      </svg>
+    );
+  },
+  [ICONS.PLAYLIST_FILLED]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width={size}
+        height={size}
+        fill={color}
+        style={{ overflow: 'visible' }}
+        {...otherProps}
+      >
+        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: color }} />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} />
+          <path
+            d="M3.75,7.64V3.86a.36.36,0,0,1,.55-.31L7.57,5.44a.36.36,0,0,1,0,.62L4.3,8A.36.36,0,0,1,3.75,7.64Z"
+            style={{ stroke: 'var(--color-header-background)', strokeWidth: 1.2 }}
+          />
+        </g>
+      </svg>
+    );
+  },
 };
