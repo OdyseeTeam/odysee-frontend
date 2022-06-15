@@ -63,7 +63,7 @@ type Props = {
   homepageData?: { [string]: HomepageCat },
   shareTelemetry: boolean,
   isFloating: boolean,
-  doPlayUri: (string, string) => void,
+  doPlayUri: (params: { uri: string, collection: { collectionId: string } }) => void,
   collectionId: string,
   nextRecommendedUri: string,
   previousListUri: string,
@@ -221,7 +221,7 @@ function VideoViewer(props: Props) {
           state: { collectionId, forceAutoplay: true, hideFloatingPlayer: true },
         });
       } else {
-        doPlayUri(playUri, collectionId);
+        doPlayUri({ uri: playUri, collection: { collectionId } });
       }
     },
     [collectionId, doPlayUri, isFloating, push]
@@ -417,7 +417,7 @@ function VideoViewer(props: Props) {
 
     const moveToPosition = () => {
       // update current time based on previous position
-      if (position && !isLivestreamClaim) {
+      if (position && position < player.currentTime() - 100 && !isLivestreamClaim) {
         player.currentTime(position);
       }
     };

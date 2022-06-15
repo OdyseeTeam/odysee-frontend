@@ -11,9 +11,9 @@ import {
   selectCreatingCollection,
 } from 'redux/selectors/claims';
 import {
-  makeSelectCollectionForId,
-  makeSelectUrlsForCollectionId,
-  makeSelectClaimIdsForCollectionId,
+  selectCollectionForId,
+  selectUrlsForCollectionId,
+  selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 import { doCollectionPublish, doCollectionPublishUpdate } from 'redux/actions/claims';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -39,9 +39,9 @@ const select = (state, props) => ({
   balance: selectBalance(state),
   activeChannelClaim: selectActiveChannelClaim(state),
   incognito: selectIncognito(state),
-  collection: makeSelectCollectionForId(props.collectionId)(state),
-  collectionUrls: makeSelectUrlsForCollectionId(props.collectionId)(state),
-  collectionClaimIds: makeSelectClaimIdsForCollectionId(props.collectionId)(state),
+  collection: selectCollectionForId(state, props.collectionId),
+  collectionUrls: selectUrlsForCollectionId(state, props.collectionId),
+  collectionClaimIds: selectClaimIdsForCollectionId(state, props.collectionId),
 });
 
 const perform = (dispatch, ownProps) => ({

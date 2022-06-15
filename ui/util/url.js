@@ -182,3 +182,5 @@ export function generateGoogleCacheUrl(search, path) {
     }
   }
 }
+
+export const getPathForPage = (page) => `/$/${page}/`;
