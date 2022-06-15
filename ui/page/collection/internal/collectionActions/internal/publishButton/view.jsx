@@ -10,12 +10,15 @@ type Props = {
   // redux
   collectionHasEdits: boolean,
   claimIsPending: boolean,
+  collectionLength: number,
 };
 
 function CollectionPublishButton(props: Props) {
-  const { uri, collectionHasEdits, claimIsPending } = props;
+  const { uri, collectionHasEdits, claimIsPending, collectionLength } = props;
 
   const { push } = useHistory();
+
+  if (collectionLength === 0) return null;
 
   return (
     <FileActionButton
