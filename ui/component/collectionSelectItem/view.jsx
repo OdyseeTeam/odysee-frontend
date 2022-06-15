@@ -25,13 +25,10 @@ function CollectionSelectItem(props: Props) {
   let icon;
   switch (category) {
     case 'builtin':
-      icon =
-        (id === COLLECTIONS_CONSTS.WATCH_LATER_ID && ICONS.TIME) ||
-        (id === COLLECTIONS_CONSTS.FAVORITES_ID && ICONS.STAR) ||
-        ICONS.STACK;
+      icon = COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST;
       break;
     case 'published':
-      icon = ICONS.STACK;
+      icon = ICONS.PLAYLIST;
       break;
     default:
       // 'unpublished'

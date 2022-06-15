@@ -12,7 +12,8 @@ import {
   makeSelectUriIsStreamable,
   selectDownloadingByOutpoint,
 } from 'redux/selectors/file_info';
-import { makeSelectUrlsForCollectionId } from 'redux/selectors/collections';
+import { selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
 import Lbry from 'lbry';
@@ -21,7 +22,12 @@ import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri, Lbryio } from 'lbryinc';
 import { selectClientSetting, selectosNotificationsEnabled, selectDaemonSettings } from 'redux/selectors/settings';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
-import { selectRecsysEntries } from 'redux/selectors/content';
+import {
+  selectRecsysEntries,
+  selectPlayingUri,
+  selectListIsShuffledForId,
+  selectListIsLoopedForId,
+} from 'redux/selectors/content';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
 
@@ -108,25 +114,25 @@ export function doSetPrimaryUri(uri: ?string) {
   };
 }
 
-export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null }));
+export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null, collection: {} }));
 
 export function doSetPlayingUri({
   uri,
   source,
   pathname,
   commentId,
-  collectionId,
+  collection,
 }: {
   uri: ?string,
   source?: string,
   commentId?: string,
   pathname?: string,
-  collectionId?: ?string,
+  collection: PlayingCollection,
 }) {
   return (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.SET_PLAYING_URI,
-      data: { uri, source, pathname, commentId, collectionId },
+      data: { uri, source, pathname, commentId, collection },
     });
   };
 }
@@ -158,13 +164,24 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
     if (!uri) return;
 
     const state = getState();
+    const playingUri = selectPlayingUri(state);
     const isLive = selectIsActiveLivestreamForUri(state, uri);
+    const isAuthenticated = selectUserVerifiedEmail(state);
+    const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
 
     if (!isFloating && !source) dispatch(doSetPrimaryUri(uri));
 
-    if (isPlayable) dispatch(doSetPlayingUri(playingOptions));
+    if (isPlayable) {
+      dispatch(
+        doSetPlayingUri({
+          ...playingUri,
+          ...playingOptions,
+          collection: playingOptions.collection ? { ...playingUri.collection, ...playingOptions.collection } : {},
+        })
+      );
+    }
 
-    if (!isLive) dispatch(doPlayUri(uri, false, true, (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo))));
+    if (!isLive) dispatch(doPlayUri(uri, false, true, playCb));
   };
 }
 
@@ -322,60 +339,63 @@ export const doRecommendationClicked = (claimId: string, index: number) => (disp
   }
 };
 
-export function doToggleLoopList(collectionId: string, loop: boolean, hideToast: boolean) {
-  return (dispatch: Dispatch) => {
-    dispatch({
-      type: ACTIONS.TOGGLE_LOOP_LIST,
-      data: { collectionId, loop },
-    });
-    if (!hideToast) {
-      dispatch(
-        doToast({
-          message: loop ? __('Loop is on.') : __('Loop is off.'),
-        })
-      );
+export const doToggleLoopList = (params: { collectionId: string, hideToast?: boolean }) => (
+  dispatch: Dispatch,
+  getState: () => any
+) => {
+  const { collectionId, hideToast } = params;
+  const state = getState();
+  const playingUri = selectPlayingUri(state);
+  const { collection: playingCollection } = playingUri;
+  const loopOn = selectListIsLoopedForId(state, collectionId);
+
+  dispatch(doSetPlayingUri({ ...playingUri, collection: { ...playingCollection, collectionId, loop: !loopOn } }));
+
+  if (!hideToast) {
+    return dispatch(doToast({ message: !loopOn ? __('Loop is on.') : __('Loop is off.') }));
+  }
+};
+
+export const doToggleShuffleList = (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => (
+  dispatch: Dispatch,
+  getState: () => any
+) => {
+  const { currentUri, collectionId, hideToast } = params;
+  const state = getState();
+  const playingUri = selectPlayingUri(state);
+  const { collection: playingCollection } = playingUri;
+  // const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+  const listIsShuffledForId = selectListIsShuffledForId(state, collectionId);
+
+  if (!listIsShuffledForId) {
+    const urls = selectUrlsForCollectionId(state, collectionId);
+
+    let newUrls = urls
+      .map((item) => ({ item, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ item }) => item);
+
+    // the currently playing URI should be first in list or else
+    // can get in strange position where it might be in the middle or last
+    // and the shuffled list ends before scrolling through all entries
+    if (currentUri) {
+      newUrls.splice(newUrls.indexOf(currentUri), 1);
+      newUrls.splice(0, 0, currentUri);
     }
-  };
-}
 
-export function doToggleShuffleList(currentUri: string, collectionId: string, shuffle: boolean, hideToast: boolean) {
-  return (dispatch: Dispatch, getState: () => any) => {
-    if (shuffle) {
-      const state = getState();
-      const urls = makeSelectUrlsForCollectionId(collectionId)(state);
+    dispatch(
+      doSetPlayingUri({ ...playingUri, collection: { ...playingCollection, collectionId, shuffle: { newUrls } } })
+    );
+  } else {
+    dispatch(
+      doSetPlayingUri({ ...playingUri, collection: { ...playingCollection, collectionId, shuffle: undefined } })
+    );
+  }
 
-      let newUrls = urls
-        .map((item) => ({ item, sort: Math.random() }))
-        .sort((a, b) => a.sort - b.sort)
-        .map(({ item }) => item);
-
-      // the currently playing URI should be first in list or else
-      // can get in strange position where it might be in the middle or last
-      // and the shuffled list ends before scrolling through all entries
-      if (currentUri && currentUri !== '') {
-        newUrls.splice(newUrls.indexOf(currentUri), 1);
-        newUrls.splice(0, 0, currentUri);
-      }
-
-      dispatch({
-        type: ACTIONS.TOGGLE_SHUFFLE_LIST,
-        data: { collectionId, newUrls },
-      });
-    } else {
-      dispatch({
-        type: ACTIONS.TOGGLE_SHUFFLE_LIST,
-        data: { collectionId, newUrls: false },
-      });
-    }
-    if (!hideToast) {
-      dispatch(
-        doToast({
-          message: shuffle ? __('Shuffle is on.') : __('Shuffle is off.'),
-        })
-      );
-    }
-  };
-}
+  if (!hideToast) {
+    return dispatch(doToast({ message: !listIsShuffledForId ? __('Shuffle is on.') : __('Shuffle is off.') }));
+  }
+};
 
 export function doSetLastViewedAnnouncement(hash: string) {
   return (dispatch: Dispatch) => {

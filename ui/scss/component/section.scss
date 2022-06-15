@@ -125,6 +125,21 @@
   font-size: var(--font-body);
 }
 
+.section__subtitle--small {
+  @extend .card__subtitle;
+  margin: 0px;
+  font-size: var(--font-xsmall);
+}
+
+.center-self {
+  align-self: center;
+}
+
+.align-center {
+  display: flex;
+  align-items: center;
+}
+
 .section__divider {
   display: flex;
   align-items: center;

@@ -61,6 +61,9 @@ type Props = {
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
+  smallThumbnail?: boolean,
+  showIndexes?: boolean,
+  playItemsOnClick?: boolean,
   onHidden: (string) => void,
 };
 
@@ -103,6 +106,9 @@ export default function ClaimList(props: Props) {
     unavailableUris,
     showMemberBadge,
     inWatchHistory,
+    smallThumbnail,
+    showIndexes,
+    playItemsOnClick,
     onHidden,
   } = props;
 
@@ -201,9 +207,13 @@ export default function ClaimList(props: Props) {
       swipeLayout={swipeLayout}
       showEdit={showEdit}
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
+      wrapperElement={draggableProvided ? 'div' : undefined}
       unavailableUris={unavailableUris}
       showMemberBadge={showMemberBadge}
       inWatchHistory={inWatchHistory}
+      smallThumbnail={smallThumbnail}
+      showIndexes={showIndexes}
+      playItemsOnClick={playItemsOnClick}
     />
   );
 
@@ -269,11 +279,7 @@ export default function ClaimList(props: Props) {
       )}
     </>
   ) : (
-    <section
-      className={classnames('claim-list', {
-        'claim-list--small': type === 'small',
-      })}
-    >
+    <section className={classnames('claim-list', { 'claim-list--no-margin': showIndexes })}>
       {header !== false && (
         <React.Fragment>
           {header && (

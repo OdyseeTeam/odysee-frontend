@@ -16,15 +16,16 @@ type Props = {
   addCollection: (string, Array<string>, string) => void,
   closeModal: () => void,
   uri: string,
+  onlyCreate?: boolean,
 };
 
 const ClaimCollectionAdd = (props: Props) => {
-  const { builtin, published, unpublished, addCollection, claim, closeModal, uri } = props;
+  const { builtin, published, unpublished, addCollection, claim, closeModal, onlyCreate } = props;
   const buttonref: ElementRef<any> = React.useRef();
   const permanentUrl = claim && claim.permanent_url;
   const isChannel = claim && claim.value_type === 'channel';
 
-  const [addNewCollection, setAddNewCollection] = React.useState(false);
+  const [addNewCollection, setAddNewCollection] = React.useState(Boolean(onlyCreate));
   const [newCollectionName, setNewCollectionName] = React.useState('');
 
   // TODO: when other collection types added, filter list in context
@@ -43,7 +44,7 @@ const ClaimCollectionAdd = (props: Props) => {
   function handleAddCollection() {
     addCollection(newCollectionName, [permanentUrl], isChannel ? 'collection' : 'playlist');
     setNewCollectionName('');
-    setAddNewCollection(false);
+    if (!onlyCreate) setAddNewCollection(false);
   }
 
   function altEnterListener(e: SyntheticKeyboardEvent<*>) {
@@ -63,45 +64,41 @@ const ClaimCollectionAdd = (props: Props) => {
 
   function handleClearNew() {
     setNewCollectionName('');
-    setAddNewCollection(false);
+    if (!onlyCreate) setAddNewCollection(false);
   }
 
   return (
     <Card
-      title={__('Add To...')}
+      title={onlyCreate ? undefined : __('Add To...')}
       actions={
         <div className="card__body">
-          {uri && (
-            <fieldset-section>
-              <div className={'card__body-scrollable'}>
-                {(Object.values(builtin): any)
+          <fieldset-section>
+            <div className={'card__body-scrollable'}>
+              {(Object.values(builtin): any)
+                // $FlowFixMe
+                .filter((list) => (isChannel ? list.type === 'collection' : list.type === 'playlist'))
+                .map((l) => {
+                  const { id } = l;
+                  return <CollectionSelectItem collectionId={id} uri={permanentUrl} key={id} category={'builtin'} />;
+                })}
+              {unpublished &&
+                (Object.values(unpublished): any)
                   // $FlowFixMe
                   .filter((list) => (isChannel ? list.type === 'collection' : list.type === 'playlist'))
                   .map((l) => {
                     const { id } = l;
-                    return <CollectionSelectItem collectionId={id} uri={permanentUrl} key={id} category={'builtin'} />;
-                  })}
-                {unpublished &&
-                  (Object.values(unpublished): any)
-                    // $FlowFixMe
-                    .filter((list) => (isChannel ? list.type === 'collection' : list.type === 'playlist'))
-                    .map((l) => {
-                      const { id } = l;
-                      return (
-                        <CollectionSelectItem collectionId={id} uri={permanentUrl} key={id} category={'unpublished'} />
-                      );
-                    })}
-                {published &&
-                  (Object.values(published): any).map((l) => {
-                    // $FlowFixMe
-                    const { id } = l;
                     return (
-                      <CollectionSelectItem collectionId={id} uri={permanentUrl} key={id} category={'published'} />
+                      <CollectionSelectItem collectionId={id} uri={permanentUrl} key={id} category={'unpublished'} />
                     );
                   })}
-              </div>
-            </fieldset-section>
-          )}
+              {published &&
+                (Object.values(published): any).map((l) => {
+                  // $FlowFixMe
+                  const { id } = l;
+                  return <CollectionSelectItem collectionId={id} uri={permanentUrl} key={id} category={'published'} />;
+                })}
+            </div>
+          </fieldset-section>
           <fieldset-section>
             {addNewCollection && (
               <FormField
@@ -109,7 +106,7 @@ const ClaimCollectionAdd = (props: Props) => {
                 type="text"
                 name="new_collection"
                 value={newCollectionName}
-                label={__('New List Title')}
+                label={__('New Playlist Title')}
                 onFocus={onTextareaFocus}
                 onBlur={onTextareaBlur}
                 inputButton={
@@ -134,7 +131,7 @@ const ClaimCollectionAdd = (props: Props) => {
               />
             )}
             {!addNewCollection && (
-              <Button button={'link'} label={__('New List')} onClick={() => setAddNewCollection(true)} />
+              <Button button={'link'} label={__('New Playlist')} onClick={() => setAddNewCollection(true)} />
             )}
           </fieldset-section>
           <div className="card__actions">

@@ -25,18 +25,19 @@ import useGetThumbnail from 'effects/use-get-thumbnail';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
-import FileDownloadLink from 'component/fileDownloadLink';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
+import FileAddToQueueLink from 'component/fileAddToQueueLink';
 import PublishPending from 'component/publishPending';
 import ClaimMenuList from 'component/claimMenuList';
 import ClaimPreviewReset from 'component/claimPreviewReset';
-import ClaimPreviewLoading from './claim-preview-loading';
-import ClaimPreviewHidden from './claim-preview-no-mature';
-import ClaimPreviewNoContent from './claim-preview-no-content';
+import ClaimPreviewLoading from 'component/common/claim-preview-loading';
+import ClaimPreviewHidden from './internal/claim-preview-no-mature';
+import ClaimPreviewNoContent from './internal/claim-preview-no-content';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
+import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -98,7 +99,11 @@ type Props = {
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
   inWatchHistory?: boolean,
+  smallThumbnail?: boolean,
+  showIndexes?: boolean,
+  playItemsOnClick?: boolean,
   doClearContentHistoryUri: (uri: string) => void,
+  doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -166,7 +171,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     unavailableUris,
     showMemberBadge,
     inWatchHistory,
+    smallThumbnail,
+    showIndexes,
+    playItemsOnClick,
     doClearContentHistoryUri,
+    doUriInitiatePlay,
   } = props;
 
   const isMobile = useIsMobile();
@@ -182,7 +191,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   if (isMyCollection && claim === null && unavailableUris) unavailableUris.push(uri);
 
   const shouldHideActions = hideActions || isMyCollection || type === 'small' || type === 'tooltip';
-  const canonicalUrl = claim && claim.canonical_url;
   const channelSubscribers = React.useMemo(() => {
     if (channelSubCount === undefined) {
       return <span />;
@@ -244,16 +252,26 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   }
 
   const handleNavLinkClick = (e) => {
-    if (onClick) {
-      onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
+    if (playItemsOnClick) {
+      e.preventDefault();
+      e.stopPropagation();
+      doUriInitiatePlay(
+        { uri, collection: { collectionId }, source: collectionId === 'queue' ? collectionId : undefined },
+        true,
+        true
+      );
+    } else {
+      if (onClick) {
+        onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
+      }
+      e.stopPropagation();
     }
-    e.stopPropagation();
   };
 
   const navLinkProps = {
     to: {
-      pathname: navigateUrl,
-      search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
+      pathname: playItemsOnClick ? undefined : navigateUrl,
+      search: playItemsOnClick ? undefined : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
     },
     onClick: handleNavLinkClick,
     onAuxClick: handleNavLinkClick,
@@ -332,7 +350,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   }
 
   if (placeholder === 'loading' || (uri && !claim && isResolvingUri)) {
-    return <ClaimPreviewLoading isChannel={isChannelUri} type={type} />;
+    return (
+      <ClaimPreviewLoading
+        isChannel={isChannelUri}
+        type={type}
+        WrapperElement={WrapperElement}
+        xsmall={smallThumbnail}
+      />
+    );
   }
 
   if (claim && showNullPlaceholder && shouldHide && nsfw && obscureNsfw) {
@@ -394,6 +419,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     >
       <>
         {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
+
         <div
           className={classnames('claim-preview', {
             'claim-preview--small': type === 'small' || type === 'tooltip',
@@ -403,10 +429,16 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             'claim-preview--channel': isChannelUri,
             'claim-preview--visited': !isChannelUri && !claimIsMine && hasVisitedUri,
             'claim-preview--pending': pending,
-            'claim-preview--collection-mine': isMyCollection && showEdit,
+            'claim-preview--collection-editing': isMyCollection && showEdit,
             'swipe-list__item': swipeLayout,
           })}
         >
+          {showIndexes && (
+            <span className="section__subtitle--small center-self" style={{ marginRight: 'var(--spacing-s)' }}>
+              {indexInContainer + 1}
+            </span>
+          )}
+
           {isMyCollection && showEdit && (
             <CollectionEditButtons uri={uri} collectionId={listId} dragHandleProps={dragHandleProps} />
           )}
@@ -424,22 +456,24 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             <>
               {!pending ? (
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
-                  <FileThumbnail thumbnail={thumbnailUrl}>
-                    <div className="claim-preview__hover-actions">
-                      {isPlayable && <FileWatchLaterLink focusable={false} uri={repostedContentUri} />}
-                    </div>
-                    {/* @if TARGET='app' */}
-                    <div className="claim-preview__hover-actions">
-                      {claim && !isCollection && (
-                        <FileDownloadLink focusable={false} uri={canonicalUrl} hideOpenButton hideDownloadStatus />
-                      )}
-                    </div>
-                    {/* @endif */}
-                    {(!isLivestream || isLivestreamActive) && (
-                      <div className="claim-preview__file-property-overlay">
-                        <PreviewOverlayProperties uri={uri} small={type === 'small'} properties={liveProperty} />
+                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail}>
+                    {isPlayable && !smallThumbnail && (
+                      <div className="claim-preview__hover-actions-grid">
+                        <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
+                        <FileAddToQueueLink focusable={false} uri={repostedContentUri} />
                       </div>
                     )}
+                    {(!isLivestream || isLivestreamActive) && (
+                      <div className="claim-preview__file-property-overlay">
+                        <PreviewOverlayProperties
+                          uri={uri}
+                          small={type === 'small'}
+                          xsmall={smallThumbnail}
+                          properties={liveProperty}
+                        />
+                      </div>
+                    )}
+                    {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
                     <ClaimPreviewProgress uri={uri} />
                   </FileThumbnail>
                 </NavLink>

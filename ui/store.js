@@ -182,7 +182,6 @@ const sharedStateFilters = {
   sharing_3P: { source: 'app', property: 'allowAnalytics' },
   builtinCollections: { source: 'collections', property: 'builtin' },
   editedCollections: { source: 'collections', property: 'edited' },
-  // savedCollections: { source: 'collections', property: 'saved' },
   unpublishedCollections: { source: 'collections', property: 'unpublished' },
   lastViewedAnnouncement: { source: 'content', property: 'lastViewedAnnouncement' },
 };

@@ -17,9 +17,9 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
-import FileDownloadLink from 'component/fileDownloadLink';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
+import FileAddToQueueLink from 'component/fileAddToQueueLink';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
@@ -254,32 +254,30 @@ function ClaimPreviewTile(props: Props) {
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout>
           {!isChannel && (
             <React.Fragment>
-              <div className="claim-preview__hover-actions">
-                {isPlayable && <FileWatchLaterLink focusable={false} uri={repostedContentUri} />}
-              </div>
-              {fypId && (
-                <div className="claim-preview__hover-actions">
-                  {isStream && <FileHideRecommendation focusable={false} uri={repostedContentUri} />}
+              {((fypId && isStream) || isPlayable) && (
+                <div className="claim-preview__hover-actions-grid">
+                  {fypId && isStream && (
+                    <div className="claim-preview__hover-actions">
+                      <FileHideRecommendation focusable={false} uri={repostedContentUri} />
+                    </div>
+                  )}
+
+                  {isPlayable && (
+                    <>
+                      <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
+                      <FileAddToQueueLink focusable={false} uri={repostedContentUri} />
+                    </>
+                  )}
                 </div>
               )}
-              {/* @if TARGET='app' */}
-              <div className="claim-preview__hover-actions">
-                {isStream && <FileDownloadLink focusable={false} uri={canonicalUrl} hideOpenButton />}
-              </div>
-              {/* @endif */}
+
               <div className="claim-preview__file-property-overlay">
                 <PreviewOverlayProperties uri={uri} properties={liveProperty || properties} />
               </div>
               <ClaimPreviewProgress uri={uri} />
             </React.Fragment>
           )}
-          {isCollection && (
-            <React.Fragment>
-              <div className="claim-preview__collection-wrapper">
-                <CollectionPreviewOverlay collectionId={listId} uri={uri} />
-              </div>
-            </React.Fragment>
-          )}
+          {isCollection && <CollectionPreviewOverlay collectionId={listId} />}
         </FileThumbnail>
       </NavLink>
       <div className="claim-tile__header">

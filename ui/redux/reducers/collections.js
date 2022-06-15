@@ -3,25 +3,21 @@ import { handleActions } from 'util/redux-utils';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
 
-const getTimestamp = () => {
-  return Math.floor(Date.now() / 1000);
-};
-
 const defaultState: CollectionState = {
   builtin: {
     watchlater: {
       items: [],
       id: COLS.WATCH_LATER_ID,
-      name: 'Watch Later',
-      updatedAt: getTimestamp(),
+      name: COLS.WATCH_LATER_NAME,
+      updatedAt: Date.now(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
       items: [],
       id: COLS.FAVORITES_ID,
-      name: 'Favorites',
+      name: COLS.FAVORITES_NAME,
       type: COLS.COL_TYPE_PLAYLIST,
-      updatedAt: getTimestamp(),
+      updatedAt: Date.now(),
     },
   },
   resolved: {},
@@ -32,6 +28,13 @@ const defaultState: CollectionState = {
   saved: [],
   isResolvingCollectionById: {},
   error: null,
+  queue: {
+    items: [],
+    id: COLS.QUEUE_ID,
+    name: COLS.QUEUE_NAME,
+    type: COLS.COL_TYPE_PLAYLIST,
+    updatedAt: Date.now(),
+  },
 };
 
 const collectionsReducer = handleActions(
@@ -43,7 +46,7 @@ const collectionsReducer = handleActions(
         id: params.id,
         name: params.name,
         items: [],
-        updatedAt: getTimestamp(),
+        updatedAt: Date.now(),
         type: params.type,
       };
 
@@ -123,29 +126,18 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
-      const { id, collectionKey, collection } = action.data;
+      const { collectionKey, collection } = action.data;
+      const { id } = collection;
 
-      if (COLS.BUILTIN_LISTS.includes(id)) {
-        const { builtin: lists } = state;
-        return {
-          ...state,
-          [collectionKey]: { ...lists, [id]: collection },
-          lastUsedCollection: id,
-        };
+      if (id === COLS.QUEUE_ID) {
+        return { ...state, queue: collection };
       }
 
-      if (collectionKey === 'edited') {
-        const { edited: lists } = state;
-        return {
-          ...state,
-          edited: { ...lists, [id]: collection },
-          lastUsedCollection: id,
-        };
-      }
-      const { unpublished: lists } = state;
+      const { [collectionKey]: lists } = state;
+
       return {
         ...state,
-        unpublished: { ...lists, [id]: collection },
+        [collectionKey]: { ...lists, [id]: collection },
         lastUsedCollection: id,
       };
     },

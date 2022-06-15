@@ -5,17 +5,14 @@ import Lbry from 'lbry';
 import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
 import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
 import {
-  makeSelectCollectionForId,
-  // makeSelectPublishedCollectionForId, // for "save" or "copy" action
-  makeSelectPublishedCollectionForId,
-  makeSelectUnpublishedCollectionForId,
-  makeSelectEditedCollectionForId,
+  selectCollectionForId,
+  // selectPublishedCollectionForId, // for "save" or "copy" action
+  selectPublishedCollectionForId,
+  selectUnpublishedCollectionForId,
+  selectEditedCollectionForId,
+  selectHasItemsInQueue,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
-
-const getTimestamp = () => {
-  return Math.floor(Date.now() / 1000);
-};
 
 const FETCH_BATCH_SIZE = 50;
 
@@ -31,7 +28,7 @@ export const doLocalCollectionCreate = (
       entry: {
         id: uuid(), // start with a uuid, this becomes a claimId after publish
         name: name,
-        updatedAt: getTimestamp(),
+        updatedAt: Date.now(),
         items: collectionItems || [],
         sourceId: sourceId,
         type: type,
@@ -211,7 +208,7 @@ export const doFetchItemsInCollections = (
     if (collectionItems) {
       const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
 
-      const editedCollection = makeSelectEditedCollectionForId(collectionId)(stateAfterClaimSearch);
+      const editedCollection = selectEditedCollectionForId(stateAfterClaimSearch, collectionId);
       const { name, timestamp, value } = claim || {};
       const { title } = value;
       const valueTypes = new Set();
@@ -333,18 +330,23 @@ export const doFetchItemsInCollection = (options: { collectionId: string, pageSi
   return doFetchItemsInCollections(newOptions, cb);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
   const state = getState();
-  const collection: Collection = makeSelectCollectionForId(collectionId)(state);
+  const collection: Collection = selectCollectionForId(state, collectionId);
 
-  if (!collection) return dispatch({ type: ACTIONS.COLLECTION_ERROR, data: { message: 'collection does not exist' } });
+  if (!collection) {
+    return dispatch({
+      type: ACTIONS.COLLECTION_ERROR,
+      data: { message: 'collection does not exist' },
+    });
+  }
 
-  const editedCollection: Collection = makeSelectEditedCollectionForId(collectionId)(state);
-  const unpublishedCollection: Collection = makeSelectUnpublishedCollectionForId(collectionId)(state);
-  const publishedCollection: Collection = makeSelectPublishedCollectionForId(collectionId)(state); // needs to be published only
+  const editedCollection: Collection = selectEditedCollectionForId(state, collectionId);
+  const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
+  const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
 
   const { uris, order, remove, type } = params;
 
@@ -361,6 +363,9 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       // Pushes (adds to the end) the passed uris to the current list items
       uris.forEach((url) => newItems.push(url));
     }
+  } else if (remove) {
+    // no uris and remove === true: clear the list
+    newItems = [];
   }
 
   // Passed an ordering to change: (doesn't need the uris here since
@@ -372,26 +377,38 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
   // Delete 'edited' if newItems are the same as publishedItems
   if (editedCollection && newItems && publishedCollection.items.join(',') === newItems.join(',')) {
-    dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id: collectionId, collectionKey: 'edited' } });
-  } else {
-    dispatch({
-      type: ACTIONS.COLLECTION_EDIT,
-      data: {
-        id: collectionId,
-        collectionKey:
-          ((editedCollection || publishedCollection) && 'edited') ||
-          (COLS.BUILTIN_LISTS.includes(collectionId) && 'builtin') ||
-          (unpublishedCollection && 'unpublished'),
-        collection: {
-          items: newItems,
-          id: collectionId,
-          name: params.name || collection.name,
-          updatedAt: getTimestamp(),
-          type: collectionType,
-        },
-      },
+    return dispatch({
+      type: ACTIONS.COLLECTION_DELETE,
+      data: { id: collectionId, collectionKey: 'edited' },
     });
   }
 
-  return true;
+  const collectionKey =
+    (collectionId === COLS.QUEUE_ID && COLS.QUEUE_ID) ||
+    ((editedCollection || publishedCollection) && COLS.COL_KEY_EDITED) ||
+    (COLS.BUILTIN_PLAYLISTS.includes(collectionId) && COLS.COL_KEY_BUILTIN) ||
+    (unpublishedCollection && COLS.COL_KEY_UNPUBLISHED);
+
+  return dispatch({
+    type: ACTIONS.COLLECTION_EDIT,
+    data: {
+      collectionKey,
+      collection: {
+        items: newItems,
+        id: collectionId,
+        name: params.name || collection.name,
+        updatedAt: Date.now(),
+        type: collectionType,
+      },
+    },
+  });
+};
+
+export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const hasItemsInQueue = selectHasItemsInQueue(state);
+
+  if (hasItemsInQueue) {
+    return dispatch(doCollectionEdit(COLS.QUEUE_ID, { remove: true, type: 'playlist' }));
+  }
 };

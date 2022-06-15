@@ -1,28 +1,30 @@
 import { connect } from 'react-redux';
-import { makeSelectNameForCollectionId } from 'redux/selectors/collections';
+import {
+  selectNameForCollectionId,
+  selectIsCollectionBuiltInForId,
+  selectPublishedCollectionNotEditedForId,
+} from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
-import { selectListShuffle } from 'redux/selectors/content';
-import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
+import { selectListShuffleForId } from 'redux/selectors/content';
+import { doToggleShuffleList } from 'redux/actions/content';
 import CollectionMenuList from './view';
 
 const select = (state, props) => {
   const collectionId = props.collectionId;
-  const shuffleList = selectListShuffle(state);
-  const shuffle = shuffleList && shuffleList.collectionId === collectionId && shuffleList.newUrls;
-  const playNextUri = shuffle && shuffle[0];
+  const shuffleList = selectListShuffleForId(state, collectionId);
+  const playNextUri = shuffleList && shuffleList.newUrls[0];
 
   return {
-    collectionName: makeSelectNameForCollectionId(props.collectionId)(state),
+    collectionName: selectNameForCollectionId(state, props.collectionId),
     playNextUri,
+    isBuiltin: selectIsCollectionBuiltInForId(state, props.collectionId),
+    publishedNotEdited: selectPublishedCollectionNotEditedForId(state, props.collectionId),
   };
 };
 
 const perform = (dispatch) => ({
   doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  doToggleShuffleList: (collectionId) => {
-    dispatch(doToggleLoopList(collectionId, false, true));
-    dispatch(doToggleShuffleList(undefined, collectionId, true, true));
-  },
+  doToggleShuffleList: (params) => dispatch(doToggleShuffleList(params)),
 });
 
 export default connect(select, perform)(CollectionMenuList);

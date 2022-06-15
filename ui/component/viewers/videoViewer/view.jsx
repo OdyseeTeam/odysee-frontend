@@ -64,7 +64,7 @@ type Props = {
   homepageData?: { [string]: HomepageCat },
   shareTelemetry: boolean,
   isFloating: boolean,
-  doPlayUri: (string, string) => void,
+  doPlayUri: (params: { uri: string, collection: { collectionId: string } }) => void,
   collectionId: string,
   nextRecommendedUri: string,
   previousListUri: string,
@@ -223,7 +223,7 @@ function VideoViewer(props: Props) {
           state: { collectionId, forceAutoplay: true, hideFloatingPlayer: true },
         });
       } else {
-        doPlayUri(playUri, collectionId);
+        doPlayUri({ uri: playUri, collection: { collectionId } });
       }
     },
     [collectionId, doPlayUri, isFloating, push]

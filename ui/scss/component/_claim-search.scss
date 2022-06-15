@@ -6,6 +6,28 @@
   }
 }
 
+.claim-search__wrapper--wrap {
+  display: flex;
+  flex-wrap: wrap;
+
+  @media (max-width: $breakpoint-small) {
+    .wunderbar--inline {
+      margin-top: 0px;
+      margin-bottom: var(--spacing-xxs);
+    }
+  }
+
+  @media (max-width: $breakpoint-xxsmall) {
+    margin-top: var(--spacing-s);
+  }
+
+  @media (min-width: $breakpoint-xxsmall) {
+    & > *:not(:last-child) {
+      margin-right: var(--spacing-s);
+    }
+  }
+}
+
 .claim-search__menus {
   display: flex;
   flex-direction: column;

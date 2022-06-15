@@ -3,6 +3,7 @@ import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
+import classnames from 'classnames';
 
 type Props = {
   collectionIndex?: number,
@@ -20,16 +21,6 @@ export default function CollectionButtons(props: Props) {
   const lastCollectionIndex = collectionUris ? collectionUris.length - 1 : 0;
   const collectionIndex = Number(foundIndex);
 
-  const orderButton = (className: string, title: string, icon: string, disabled: boolean, handleClick?: () => void) => (
-    <Button
-      className={`button-collection-manage ${className}`}
-      icon={icon}
-      title={title}
-      disabled={disabled}
-      onClick={() => handleClick && handleClick()}
-    />
-  );
-
   return (
     <div
       className="collection-preview__edit-buttons"
@@ -45,23 +36,35 @@ export default function CollectionButtons(props: Props) {
       </div>
 
       <div className="collection-preview__edit-group">
-        {orderButton('', __('Move Top'), ICONS.UP_TOP, collectionIndex === 0, () =>
-          editCollection({ order: { from: collectionIndex, to: 0 } })
-        )}
+        <OrderButton
+          title={__('Move Top')}
+          icon={ICONS.UP_TOP}
+          disabled={collectionIndex === 0}
+          onClick={() => editCollection({ order: { from: collectionIndex, to: 0 } })}
+        />
 
-        {orderButton('', __('Move Bottom'), ICONS.DOWN_BOTTOM, collectionIndex === lastCollectionIndex, () =>
-          editCollection({ order: { from: collectionIndex, to: lastCollectionIndex } })
-        )}
+        <OrderButton
+          title={__('Move Bottom')}
+          icon={ICONS.DOWN_BOTTOM}
+          disabled={collectionIndex === lastCollectionIndex}
+          onClick={() => editCollection({ order: { from: collectionIndex, to: lastCollectionIndex } })}
+        />
       </div>
 
       <div className="collection-preview__edit-group">
-        {orderButton('', __('Move Up'), ICONS.UP, collectionIndex === 0, () =>
-          editCollection({ order: { from: collectionIndex, to: collectionIndex - 1 } })
-        )}
+        <OrderButton
+          title={__('Move Up')}
+          icon={ICONS.UP}
+          disabled={collectionIndex === 0}
+          onClick={() => editCollection({ order: { from: collectionIndex, to: collectionIndex - 1 } })}
+        />
 
-        {orderButton('', __('Move Down'), ICONS.DOWN, collectionIndex === lastCollectionIndex, () =>
-          editCollection({ order: { from: collectionIndex, to: collectionIndex + 1 } })
-        )}
+        <OrderButton
+          title={__('Move Down')}
+          icon={ICONS.DOWN}
+          disabled={collectionIndex === lastCollectionIndex}
+          onClick={() => editCollection({ order: { from: collectionIndex, to: collectionIndex + 1 } })}
+        />
       </div>
 
       {!confirmDelete ? (
@@ -82,11 +85,24 @@ export default function CollectionButtons(props: Props) {
             onClick={() => setConfirmDelete(false)}
           />
 
-          {orderButton('button-collection-delete-confirm bottom-right', __('Remove'), ICONS.DELETE, false, () =>
-            editCollection({ uris: [uri], remove: true })
-          )}
+          <OrderButton
+            className="button-collection-delete-confirm bottom-right"
+            title={__('Remove')}
+            icon={ICONS.DELETE}
+            onClick={() => editCollection({ uris: [uri], remove: true })}
+          />
         </div>
       )}
     </div>
   );
 }
+
+type ButtonProps = {
+  className?: string,
+};
+
+const OrderButton = (props: ButtonProps) => {
+  const { className, ...buttonProps } = props;
+
+  return <Button className={classnames('button-collection-manage', className)} {...buttonProps} />;
+};

@@ -99,9 +99,17 @@ export function getChannelIdFromClaim(claim: ?Claim) {
   }
 }
 
+export const getNameFromClaim = (claim: ?Claim) => claim && claim.name;
+
 export function getChannelNameFromClaim(claim: ?Claim) {
   const channelFromClaim = getChannelFromClaim(claim);
-  return channelFromClaim && channelFromClaim.name;
+  return getNameFromClaim(channelFromClaim);
+}
+
+export function getChannelTitleFromClaim(claim: ?Claim) {
+  const channelFromClaim = getChannelFromClaim(claim);
+  const value = getClaimMetadata(channelFromClaim);
+  return value && value.title;
 }
 
 export function getChannelFromClaim(claim: ?Claim) {
@@ -131,8 +139,13 @@ export function getClaimVideoInfo(claim: ?Claim) {
 }
 
 export function getVideoClaimAspectRatio(claim: ?Claim) {
-  const { width, height } = getClaimVideoInfo(claim) || {};
-  return width && height ? height / width : undefined;
+  const { width: claimWidth, height: claimHeight } = getClaimVideoInfo(claim) || {};
+
+  // some might not have these values, so default to 16:9
+  const width = claimWidth || 1920;
+  const height = claimHeight || 1080;
+
+  return height / width;
 }
 
 export const isStreamPlaceholderClaim = (claim: ?StreamClaim) => {
@@ -143,3 +156,6 @@ export const getThumbnailFromClaim = (claim: ?Claim) => {
   const thumbnail = claim && claim.value && claim.value.thumbnail;
   return thumbnail && thumbnail.url ? thumbnail.url.trim().replace(/^http:\/\//i, 'https://') : undefined;
 };
+
+export const getClaimMeta = (claim: ?Claim) => claim && claim.meta;
+export const getClaimRepostedAmount = (claim: ?Claim) => getClaimMeta(claim)?.reposted;

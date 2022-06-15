@@ -5,18 +5,20 @@ import * as React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 import Page from 'component/page';
+import * as ICONS from 'constants/icons';
+import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import FileTitleSection from 'component/fileTitleSection';
 import FileRenderInitiator from 'component/fileRenderInitiator';
 import FileRenderInline from 'component/fileRenderInline';
 import FileRenderDownload from 'component/fileRenderDownload';
 import RecommendedContent from 'component/recommendedContent';
-import CollectionContent from 'component/collectionContentSidebar';
+import PlaylistCard from 'component/playlistCard';
 import Button from 'component/button';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
+import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -53,6 +55,7 @@ type Props = {
   doClearPlayingUri: () => void,
   doToggleAppDrawer: () => void,
   doFileGet: (uri: string) => void,
+  doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
 };
 
 export default function FilePage(props: Props) {
@@ -84,9 +87,11 @@ export default function FilePage(props: Props) {
     clearPosition,
     doToggleAppDrawer,
     doFileGet,
+    doSetMainPlayerDimension,
   } = props;
 
   const isMobile = useIsMobile();
+  const isMediumScreen = useIsMediumScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
@@ -142,10 +147,20 @@ export default function FilePage(props: Props) {
     claimWasPurchased,
   ]);
 
+  const playerRef = React.useCallback(
+    (node) => {
+      if (node) {
+        const rect = node.getBoundingClientRect();
+        doSetMainPlayerDimension({ height: rect.height, width: rect.width });
+      }
+    },
+    [doSetMainPlayerDimension]
+  );
+
   function renderFilePageLayout() {
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
       return (
-        <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+        <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
           {/* playables will be rendered and injected by <FileRenderFloating> */}
           <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         </div>
@@ -200,7 +215,7 @@ export default function FilePage(props: Props) {
     );
   }
 
-  const rightSideProps = { hasCollectionById, collectionId, uri };
+  const rightSideProps = { hasCollectionById, collectionId, uri, isMediumScreen };
 
   if (obscureNsfw && isMature) {
     return (
@@ -238,6 +253,8 @@ export default function FilePage(props: Props) {
 
               {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
 
+              {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+
               <React.Suspense fallback={null}>
                 {contentCommentsDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
@@ -245,11 +262,11 @@ export default function FilePage(props: Props) {
                   <Empty {...emptyMsgProps} text={__('This channel has disabled comments on their page.')} />
                 ) : isMobile && !isLandscapeRotated ? (
                   <>
-                    <SwipeableDrawer title={commentsListTitle}>
+                    <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
                       <CommentsList {...commentsListProps} />
                     </SwipeableDrawer>
 
-                    <DrawerExpandButton label={commentsListTitle} />
+                    <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
                   </>
                 ) : (
                   <CommentsList {...commentsListProps} notInDrawer />
@@ -257,7 +274,7 @@ export default function FilePage(props: Props) {
               </React.Suspense>
             </section>
 
-            {!isMarkdown && theaterMode && <RightSideContent {...rightSideProps} />}
+            {theaterMode && <RightSideContent {...rightSideProps} />}
           </div>
         )}
       </div>
@@ -279,10 +296,20 @@ type RightSideProps = {
   hasCollectionById?: boolean,
   collectionId?: string,
   uri: string,
+  isMediumScreen: boolean,
 };
 
 const RightSideContent = (rightSideProps: RightSideProps) => {
-  const { hasCollectionById, collectionId, uri } = rightSideProps;
+  const { hasCollectionById, collectionId, uri, isMediumScreen } = rightSideProps;
 
-  return hasCollectionById ? <CollectionContent id={collectionId} uri={uri} /> : <RecommendedContent uri={uri} />;
+  const isMobile = useIsMobile();
+
+  return (
+    <div className="card-stack--spacing-m">
+      {hasCollectionById && !isMediumScreen && (
+        <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />
+      )}
+      <RecommendedContent uri={uri} />
+    </div>
+  );
 };

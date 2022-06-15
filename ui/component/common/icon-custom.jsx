@@ -2500,6 +2500,7 @@ export const icons = {
       strokeLinejoin="round"
       stroke="currentColor"
       fill="none"
+      style={{ overflow: 'visible' }}
     >
       <g transform="matrix(1,0,0,1,0,0)">
         <path d="M1.500 12.000 A10.500 10.500 0 1 0 22.500 12.000 A10.500 10.500 0 1 0 1.500 12.000 Z" />
@@ -3302,4 +3303,74 @@ export const icons = {
       <path d="M0.6,11.8c0-6,5-11,11-11 M9.6,7.2v9.5l6.9-4.7L9.6,7.2z M-2.1,9.5l2.9,2.9l3.2-2.7 M11.4,23.2 v-0.9 M5.6,21.5L6,20.6 M2.1,16.4l-0.8,0.4 M17,20.8l0.5,0.8 M20.9,16.7l0.8,0.5 M23.1,11l-0.9,0.1 M21,5.2l-0.7,0.5 M16.2,1.2 L15.8,2" />
     </svg>
   ),
+  [ICONS.PLAYLIST]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width={size}
+        height={size}
+        fill={color}
+        style={{ overflow: 'visible' }}
+        {...otherProps}
+      >
+        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: 'none' }} />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} />
+          <path
+            d="M3.75,7.64V3.86a.36.36,0,0,1,.55-.31L7.57,5.44a.36.36,0,0,1,0,.62L4.3,8A.36.36,0,0,1,3.75,7.64Z"
+            style={{ fill: 'none' }}
+          />
+        </g>
+      </svg>
+    );
+  },
+  [ICONS.PLAYLIST_ADD]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width={size}
+        height={size}
+        fill={color}
+        style={{ overflow: 'visible' }}
+        {...otherProps}
+      >
+        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: 'none', stroke: color }} />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none', stroke: color }} />
+          <line x1="5.75" y1="3" x2="5.75" y2="8.5" />
+          <line x1="3" y1="5.75" x2="8.5" y2="5.75" />
+        </g>
+      </svg>
+    );
+  },
+  [ICONS.PLAYLIST_FILLED]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 48 48"
+        width={size}
+        height={size}
+        fill={color}
+        style={{ overflow: 'visible' }}
+        {...otherProps}
+      >
+        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: color }} />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} />
+          <path
+            d="M3.75,7.64V3.86a.36.36,0,0,1,.55-.31L7.57,5.44a.36.36,0,0,1,0,.62L4.3,8A.36.36,0,0,1,3.75,7.64Z"
+            style={{ stroke: 'var(--color-header-background)', strokeWidth: 1.2 }}
+          />
+        </g>
+      </svg>
+    );
+  },
 };

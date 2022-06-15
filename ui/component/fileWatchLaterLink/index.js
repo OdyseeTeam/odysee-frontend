@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { doCollectionEdit } from 'redux/actions/collections';
-import { makeSelectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
+import { selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileWatchLaterLink from './view';
 import { doToast } from 'redux/actions/notifications';
@@ -9,7 +9,7 @@ const select = (state, props) => {
   const { uri } = props;
 
   return {
-    hasClaimInWatchLater: makeSelectCollectionForIdHasClaimUrl(COLLECTIONS_CONSTS.WATCH_LATER_ID, uri)(state),
+    hasClaimInWatchLater: selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.WATCH_LATER_ID, uri),
   };
 };
 

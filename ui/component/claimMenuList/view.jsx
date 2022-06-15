@@ -67,7 +67,7 @@ type Props = {
   playNextUri: string,
   resolvedList: boolean,
   fetchCollectionItems: (string) => void,
-  doToggleShuffleList: (string) => void,
+  doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
   lastUsedCollection: ?Collection,
   hasClaimInLastUsedCollection: boolean,
   lastUsedCollectionIsNotBuiltin: boolean,
@@ -142,7 +142,7 @@ function ClaimMenuList(props: Props) {
 
   React.useEffect(() => {
     if (doShuffle && resolvedList) {
-      doToggleShuffleList(collectionId);
+      doToggleShuffleList({ collectionId });
       if (playNextUri) {
         const navigateUrl = formatLbryUrlForWeb(playNextUri);
         push({
@@ -303,10 +303,10 @@ function ClaimMenuList(props: Props) {
           {/* COLLECTION OPERATIONS */}
           {collectionId && isCollectionClaim ? (
             <>
-              <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.LIST}/${collectionId}`)}>
-                <a className="menu__link" href={`/$/${PAGES.LIST}/${collectionId}`}>
+              <MenuItem className="comment__menu-option" onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}`)}>
+                <a className="menu__link" href={`/$/${PAGES.PLAYLIST}/${collectionId}`}>
                   <Icon aria-hidden icon={ICONS.VIEW} />
-                  {__('View List')}
+                  {__('View Playlist')}
                 </a>
               </MenuItem>
               <MenuItem
@@ -325,11 +325,11 @@ function ClaimMenuList(props: Props) {
                 <>
                   <MenuItem
                     className="comment__menu-option"
-                    onSelect={() => push(`/$/${PAGES.LIST}/${collectionId}?view=edit`)}
+                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
                   >
                     <div className="menu__link">
                       <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
-                      {editedCollection ? __('Publish') : __('Edit List')}
+                      {editedCollection ? __('Publish') : __('Edit Playlist')}
                     </div>
                   </MenuItem>
                   <MenuItem
@@ -338,7 +338,7 @@ function ClaimMenuList(props: Props) {
                   >
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.DELETE} />
-                      {__('Delete List')}
+                      {__('Delete Playlist')}
                     </div>
                   </MenuItem>
                 </>
@@ -374,8 +374,8 @@ function ClaimMenuList(props: Props) {
                   onSelect={() => openModal(MODALS.COLLECTION_ADD, { uri, type: 'playlist' })}
                 >
                   <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.STACK} />
-                    {__('Add to Lists')}
+                    <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />
+                    {__('Add to Playlist')}
                   </div>
                 </MenuItem>
                 {lastUsedCollection && lastUsedCollectionIsNotBuiltin && (

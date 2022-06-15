@@ -1,21 +1,21 @@
 // @flow
 import 'scss/component/_swipeable-drawer.scss';
 
-// $FlowFixMe
+// $FlowFixMe;
 import { Global } from '@emotion/react';
 // $FlowFixMe
 import { grey } from '@mui/material/colors';
 
 import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
 import { PRIMARY_PLAYER_WRAPPER_CLASS, PRIMARY_IMAGE_WRAPPER_CLASS } from 'page/file/view';
-import { getMaxLandscapeHeight } from 'component/fileRenderFloating/helper-functions';
+import { getMaxLandscapeHeight } from 'util/window';
 import Drawer from '@mui/material/Drawer';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
+import * as DRAWERS from 'constants/drawer_types';
 import Button from 'component/button';
 import classnames from 'classnames';
 
-const DRAWER_PULLER_HEIGHT = 42;
 const TRANSITION_MS = 225;
 const TRANSITION_STR = `${TRANSITION_MS}ms cubic-bezier(0, 0, 0.2, 1) 0ms`;
 
@@ -24,6 +24,7 @@ type Props = {
   title: any,
   hasSubtitle?: boolean,
   actions?: any,
+  type: string,
   // -- redux --
   open: boolean,
   theme: string,
@@ -31,7 +32,9 @@ type Props = {
 };
 
 export default function SwipeableDrawer(props: Props) {
-  const { title, hasSubtitle, children, open, theme, actions, toggleDrawer } = props;
+  const { title, hasSubtitle, children, type, open, theme, actions, toggleDrawer } = props;
+
+  const pullerHeight = type === DRAWERS.PLAYLIST ? 100 : 42;
 
   const drawerRoot = React.useRef();
   const backdropRef = React.useRef();
@@ -234,10 +237,10 @@ export default function SwipeableDrawer(props: Props) {
         disableEnforceFocus
         ModalProps={{ keepMounted: true, sx: { zIndex: '2' } }}
         BackdropProps={{ ref: backdropRef, open, sx: { backgroundColor: 'black' } }}
-        PaperProps={{ ref: paperRef, sx: { height: `calc(100% - ${DRAWER_PULLER_HEIGHT}px)` } }}
+        PaperProps={{ ref: paperRef, sx: { height: `calc(100% - ${pullerHeight}px)` } }}
       >
         {open && (
-          <div className="swipeable-drawer__header" style={{ top: -DRAWER_PULLER_HEIGHT }}>
+          <div className="swipeable-drawer__header" style={{ top: -pullerHeight, height: pullerHeight }}>
             <Puller theme={theme} />
             <HeaderContents
               title={title}
