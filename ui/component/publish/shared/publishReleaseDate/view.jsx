@@ -34,7 +34,7 @@ const PublishReleaseDate = (props: Props) => {
     useMaxDate = true,
   } = props;
   const maxDate = useMaxDate ? new Date() : undefined;
-  const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : new Date());
+  const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : undefined);
 
   const isNew = releaseTime === undefined;
   const isEdit = !isNew || allowDefault === false;
