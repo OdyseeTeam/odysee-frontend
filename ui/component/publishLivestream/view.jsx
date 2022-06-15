@@ -52,13 +52,13 @@ type Props = {
   channelId: string,
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
-  setOverMaxBitrate: (boolean) => void,
+  // setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
 };
 
-function postArticle(props: Props) {
+function PublishLivestream(props: Props) {
   const {
     uri,
     mode,
@@ -90,7 +90,7 @@ function postArticle(props: Props) {
     channelName,
     isCheckingLivestreams,
     setWaitForFile,
-    setOverMaxBitrate,
+    // setOverMaxBitrate,
     fileSource,
     changeFileSource,
     inEditMode,
@@ -118,8 +118,8 @@ function postArticle(props: Props) {
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
   });
 
-  // const bitRate = getBitrate(size, duration);
-  // const bitRateIsOverMax = bitRate > MAX_BITRATE;
+  const bitRate = getBitrate(size, duration);
+  const bitRateIsOverMax = bitRate > MAX_BITRATE;
 
   const fileSelectorModes = [
     { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
@@ -140,10 +140,33 @@ function postArticle(props: Props) {
 
   // Reset filePath if publish mode changed
   useEffect(() => {
-    if (currentFileType !== 'text/markdown' && !isStillEditing) {
-      updatePublishForm({ filePath: '' });
+    updatePublishForm({ filePath: '' });
+  }, [currentFileType, mode, isStillEditing, updatePublishForm]);
+
+  // Reset title when form gets cleared
+
+  useEffect(() => {
+    updatePublishForm({ title: title });
+  }, [filePath]);
+
+  // Initialize default file source state for each mode.
+  useEffect(() => {
+    setShowSourceSelector(false);
+    switch (mode) {
+      case PUBLISH_MODES.LIVESTREAM:
+        if (inEditMode) {
+          changeFileSource(SOURCE_SELECT);
+          setShowSourceSelector(true);
+        } else {
+          changeFileSource(SOURCE_NONE);
+        }
+        break;
+      case PUBLISH_MODES.FILE:
+        if (hasLivestreamData) setShowSourceSelector(true);
+        changeFileSource(SOURCE_UPLOAD);
+        break;
     }
-  }, [currentFileType, isStillEditing, updatePublishForm]);
+  }, [mode, hasLivestreamData]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const normalizeUrlForProtocol = (url) => {
     if (url.startsWith('https://')) {
@@ -170,7 +193,7 @@ function postArticle(props: Props) {
     if (!filePath || filePath === '') {
       setCurrentFile('');
       setOversized(false);
-      setOverMaxBitrate(false);
+      // setOverMaxBitrate(false);
       updateFileInfo(0, 0, false);
     } else if (typeof filePath !== 'string') {
       // Update currentFile file
@@ -200,6 +223,16 @@ function postArticle(props: Props) {
 
   function handlePaginateReplays(page) {
     setCurrentPage(page);
+  }
+
+  function getBitrate(size, duration) {
+    const s = Number(size);
+    const d = Number(duration);
+    if (s && d) {
+      return (s * 8) / d;
+    } else {
+      return 0;
+    }
   }
 
   function getTimeForMB(s) {
@@ -610,52 +643,6 @@ function postArticle(props: Props) {
               <PublishName uri={uri} />
 
               {/* @endif */}
-              {/* @if TARGET='app' */}
-              {showFileUpload && (
-                <FileSelector
-                  label={__('File')}
-                  disabled={disabled}
-                  currentPath={currentFile}
-                  onFileChosen={handleFileChange}
-                  // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-                  placeholder={__('Select file to upload')}
-                />
-              )}
-              {showFileUpload && (
-                <FormField
-                  type="checkbox"
-                  checked={userOptimize}
-                  disabled={!optimizeAvail}
-                  onChange={() => setUserOptimize(!userOptimize)}
-                  label={__('Optimize and transcode video')}
-                  name="optimize"
-                />
-              )}
-              {showFileUpload && !ffmpegAvail && (
-                <p className="help">
-                  <I18nMessage
-                    tokens={{
-                      settings_link: <Button button="link" navigate="/$/settings" label={__('Settings')} />,
-                    }}
-                  >
-                    FFmpeg not configured. More in %settings_link%.
-                  </I18nMessage>
-                </p>
-              )}
-              {showFileUpload && Boolean(size) && ffmpegAvail && optimize && isVid && (
-                <p className="help">
-                  <I18nMessage
-                    tokens={{
-                      size: Math.ceil(sizeInMB),
-                      processTime: getTimeForMB(sizeInMB),
-                      units: getUnitsForMB(sizeInMB),
-                    }}
-                  >
-                    Transcoding this %size% MB file should take under %processTime% %units%.
-                  </I18nMessage>
-                </p>
-              )}
-              {/* @endif */}
               {isPublishPost && (
                 <PostEditor
                   label={__('Post --[noun, markdown post tab button]--')}
@@ -674,4 +661,4 @@ function postArticle(props: Props) {
   );
 }
 
-export default postArticle;
+export default PublishLivestream;

@@ -19,7 +19,7 @@ import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publishDescription';
 import PublishPrice from 'component/publishPrice';
-import PostArticle from 'component/postArticle';
+import PublishPost from 'component/publishPost';
 import PublishAdditionalOptions from 'component/publishAdditionalOptions';
 import PublishFormErrors from 'component/publishFormErrors';
 import SelectThumbnail from 'component/selectThumbnail';
@@ -215,13 +215,6 @@ function PostForm(props: Props) {
     : formValidLessFile;
 
   const [previewing, setPreviewing] = React.useState(false);
-
-  useEffect(() => {
-    if (claimChannelId) {
-      fetchLivestreams(claimChannelId, activeChannelName);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimChannelId]);
 
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
@@ -508,7 +501,7 @@ function PostForm(props: Props) {
     <div className="card-stack">
       <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} />
 
-      <PostArticle
+      <PublishPost
         inEditMode={inEditMode}
         // fileSource={fileSource}
         // changeFileSource={changeFileSource}

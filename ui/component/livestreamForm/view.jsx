@@ -19,7 +19,7 @@ import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publishDescription';
 import PublishPrice from 'component/publishPrice';
-import PublishFile from 'component/publishFile';
+import PublishLivestream from 'component/publishLivestream';
 import PublishAdditionalOptions from 'component/publishAdditionalOptions';
 import PublishFormErrors from 'component/publishFormErrors';
 import SelectThumbnail from 'component/selectThumbnail';
@@ -164,12 +164,9 @@ function LivestreamForm(props: Props) {
     }
   });
 
-  const MODE_TO_I18N_STR = {
-    [PUBLISH_MODES.LIVESTREAM]: 'Livestream --[noun, livestream tab button]--',
-  };
-
   const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
   const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
+  console.log('mode: ', mode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
   let customSubtitle;
@@ -510,14 +507,14 @@ function LivestreamForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} />
+      {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
 
-      <PublishFile
+      <PublishLivestream
         inEditMode={inEditMode}
         fileSource={fileSource}
         changeFileSource={changeFileSource}
         uri={permanentUrl}
-        // mode={mode}
+        mode={mode}
         fileMimeType={fileMimeType}
         disabled={disabled || publishing}
         inProgress={isInProgress}
