@@ -4,12 +4,13 @@ import { doCollectionEdit, doFetchItemsInCollection } from 'redux/actions/collec
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
-  makeSelectCollectionForId,
-  makeSelectCollectionForIdHasClaimUrl,
-  makeSelectCollectionIsMine,
-  makeSelectEditedCollectionForId,
-  makeSelectUrlsForCollectionId,
+  selectCollectionForId,
+  selectCollectionForIdHasClaimUrl,
+  selectCollectionIsMine,
+  selectEditedCollectionForId,
+  selectUrlsForCollectionId,
   selectLastUsedCollection,
+  selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -31,8 +32,8 @@ import { doToast } from 'redux/actions/notifications';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectListShuffle } from 'redux/selectors/content';
-import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
+import { selectListShuffleForId } from 'redux/selectors/content';
+import { doToggleShuffleList } from 'redux/actions/content';
 import ClaimPreview from './view';
 import fs from 'fs';
 
@@ -44,11 +45,10 @@ const select = (state, props) => {
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
   const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
-  const shuffleList = selectListShuffle(state);
-  const shuffle = shuffleList && shuffleList.collectionId === collectionId && shuffleList.newUrls;
-  const playNextUri = shuffle && shuffle[0];
+  const collectionShuffle = selectListShuffleForId(state, collectionId);
+  const playNextUri = collectionShuffle && collectionShuffle.newUrls[0];
   const lastUsedCollectionId = selectLastUsedCollection(state);
-  const lastUsedCollection = makeSelectCollectionForId(lastUsedCollectionId)(state);
+  const lastUsedCollection = lastUsedCollectionId && selectCollectionForId(state, lastUsedCollectionId);
 
   return {
     claim,
@@ -57,34 +57,30 @@ const select = (state, props) => {
     contentSigningChannel,
     contentChannelUri,
     claimIsMine: selectClaimIsMine(state, claim),
-    hasClaimInWatchLater: makeSelectCollectionForIdHasClaimUrl(
+    hasClaimInWatchLater: selectCollectionForIdHasClaimUrl(
+      state,
       COLLECTIONS_CONSTS.WATCH_LATER_ID,
       contentPermanentUri
-    )(state),
-    hasClaimInFavorites: makeSelectCollectionForIdHasClaimUrl(
-      COLLECTIONS_CONSTS.FAVORITES_ID,
-      contentPermanentUri
-    )(state),
+    ),
+    hasClaimInFavorites: selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.FAVORITES_ID, contentPermanentUri),
     channelIsMuted: makeSelectChannelIsMuted(contentChannelUri)(state),
     channelIsBlocked: makeSelectChannelIsBlocked(contentChannelUri)(state),
     fileInfo: makeSelectFileInfoForUri(contentPermanentUri)(state),
     isSubscribed: selectIsSubscribedForUri(state, contentChannelUri),
     channelIsAdminBlocked: makeSelectChannelIsAdminBlocked(props.uri)(state),
     isAdmin: selectHasAdminChannel(state),
-    claimInCollection: makeSelectCollectionForIdHasClaimUrl(collectionId, contentPermanentUri)(state),
-    isMyCollection: makeSelectCollectionIsMine(collectionId)(state),
-    editedCollection: makeSelectEditedCollectionForId(collectionId)(state),
+    claimInCollection: selectCollectionForIdHasClaimUrl(state, collectionId, contentPermanentUri),
+    isMyCollection: selectCollectionIsMine(state, collectionId),
+    editedCollection: selectEditedCollectionForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-    resolvedList: makeSelectUrlsForCollectionId(collectionId)(state),
+    resolvedList: selectUrlsForCollectionId(state, collectionId),
     playNextUri,
     lastUsedCollection,
-    hasClaimInLastUsedCollection: makeSelectCollectionForIdHasClaimUrl(
-      lastUsedCollectionId,
-      contentPermanentUri
-    )(state),
+    hasClaimInLastUsedCollection: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
     lastUsedCollectionIsNotBuiltin:
       lastUsedCollectionId !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
       lastUsedCollectionId !== COLLECTIONS_CONSTS.FAVORITES_ID,
+    collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
 };
 
@@ -103,10 +99,7 @@ const perform = (dispatch) => ({
   doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
   doCollectionEdit: (collection, props) => dispatch(doCollectionEdit(collection, props)),
   fetchCollectionItems: (collectionId) => dispatch(doFetchItemsInCollection({ collectionId })),
-  doToggleShuffleList: (collectionId) => {
-    dispatch(doToggleLoopList(collectionId, false, true));
-    dispatch(doToggleShuffleList(undefined, collectionId, true, true));
-  },
+  doToggleShuffleList: (params) => dispatch(doToggleShuffleList(params)),
   doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
 });
 

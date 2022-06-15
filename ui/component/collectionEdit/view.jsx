@@ -334,7 +334,7 @@ function CollectionForm(props: Props) {
                         type="text"
                         name="channel_title2"
                         label={__('Title')}
-                        placeholder={__('My Awesome List')}
+                        placeholder={__('My Awesome Playlist')}
                         value={params.title}
                         onChange={(e) => setParams({ ...params, title: e.target.value })}
                       />

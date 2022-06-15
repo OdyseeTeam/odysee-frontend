@@ -24,9 +24,9 @@ function ModalRemoveCollection(props: Props) {
   const [confirmName, setConfirmName] = useState('');
 
   return (
-    <Modal isOpen contentLabel={__('Confirm List Unpublish')} type="card" onAborted={closeModal}>
+    <Modal isOpen contentLabel={__('Confirm Playlist Unpublish')} type="card" onAborted={closeModal}>
       <Card
-        title={__('Delete List')}
+        title={__('Delete Playlist')}
         body={
           uri ? (
             <React.Fragment>

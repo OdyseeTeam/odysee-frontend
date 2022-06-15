@@ -5,7 +5,7 @@ import {
   makeSelectClaimForClaimId,
 } from 'redux/selectors/claims';
 import { doCollectionDelete } from 'redux/actions/collections';
-import { makeSelectNameForCollectionId } from 'redux/selectors/collections';
+import { selectNameForCollectionId } from 'redux/selectors/collections';
 import { doHideModal } from 'redux/actions/app';
 import ModalRemoveCollection from './view';
 
@@ -17,7 +17,7 @@ const select = (state, props) => {
     uri,
     claimIsMine: selectClaimIsMineForUri(state, uri),
     isAbandoning: makeSelectIsAbandoningClaimForUri(uri)(state),
-    collectionName: makeSelectNameForCollectionId(props.collectionId)(state),
+    collectionName: selectNameForCollectionId(state, props.collectionId),
   };
 };
 

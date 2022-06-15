@@ -39,19 +39,18 @@ function FileWatchLaterLink(props: Props) {
   const label = !hasClaimInWatchLater ? __('Watch Later') : __('Remove');
 
   return (
-    <Button
-      ref={buttonRef}
-      requiresAuth={IS_WEB}
-      title={title}
-      label={label}
-      className="button--file-action"
-      icon={
-        (hasClaimInWatchLater && (isHovering ? ICONS.REMOVE : ICONS.COMPLETED)) ||
-        (isHovering ? ICONS.COMPLETED : ICONS.TIME)
-      }
-      onClick={(e) => handleWatchLater(e)}
-      tabIndex={focusable ? 0 : -1}
-    />
+    <div className="claim-preview__hover-actions second-item">
+      <Button
+        ref={buttonRef}
+        requiresAuth
+        title={title}
+        label={label}
+        className="button--file-action"
+        icon={(hasClaimInWatchLater && (isHovering ? ICONS.REMOVE : ICONS.COMPLETED)) || ICONS.TIME}
+        onClick={(e) => handleWatchLater(e)}
+        tabIndex={focusable ? 0 : -1}
+      />
+    </div>
   );
 }
 
