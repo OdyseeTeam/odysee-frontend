@@ -37,7 +37,7 @@ type Props = {
   playingItemIndex: number,
   collectionLength: number,
   bodyOpen?: boolean,
-  playItemsOnClick?: boolean,
+  disableClickNavigation?: boolean,
   useDrawer?: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
@@ -118,7 +118,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     playingItemIndex,
     collectionLength,
     enableCardBody,
-    playItemsOnClick,
+    disableClickNavigation,
     titleOnly,
     bodyOnly,
     showEdit,
@@ -215,7 +215,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                     droppableProvided={DroppableProvided}
                     smallThumbnail
                     showIndexes
-                    playItemsOnClick={playItemsOnClick}
+                    playItemsOnClick
+                    disableClickNavigation={disableClickNavigation}
                     doDisablePlayerDrag={doDisablePlayerDrag}
                   />
                 )}

@@ -135,12 +135,6 @@ export const selectIsMyCollectioPublishedForId = createSelector(
   (id, myPublished) => Boolean(myPublished[id])
 );
 
-export const selectPublishedCollectionHasEditsForId = createSelector(
-  selectIsMyCollectioPublishedForId,
-  selectCollectionHasEditsForId,
-  (isPublished, hasEdits) => isPublished && hasEdits
-);
-
 export const selectPublishedCollectionNotEditedForId = createSelector(
   selectIsMyCollectioPublishedForId,
   selectCollectionHasEditsForId,

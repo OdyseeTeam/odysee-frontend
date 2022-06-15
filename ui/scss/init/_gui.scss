@@ -1291,7 +1291,7 @@ img {
   }
 }
 
-.playlists-page__wrapper {
+.playlists-page-wrapper {
   .card-stack:first-of-type {
     .card {
       margin-bottom: var(--spacing-l);
@@ -1327,6 +1327,10 @@ img {
             }
           }
         }
+      }
+
+      .claim-preview-info {
+        color: var(--color-text);
       }
     }
   }

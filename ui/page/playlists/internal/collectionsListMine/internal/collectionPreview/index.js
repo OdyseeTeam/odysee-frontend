@@ -8,7 +8,6 @@ import {
   selectFirstItemUrlForCollection,
   selectUpdatedAtForCollectionId,
   selectPublishedCollectionClaimForId,
-  selectPublishedCollectionHasEditsForId,
   selectIsCollectionBuiltInForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
@@ -34,7 +33,6 @@ const select = (state, props) => {
     hasClaim: Boolean(claim),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
-    hasEdits: selectPublishedCollectionHasEditsForId(state, props.collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, props.collectionId),
   };
 };

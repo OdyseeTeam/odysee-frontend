@@ -14,7 +14,6 @@
 }
 
 .media__thumb--small {
-  @extend .media__thumb;
   width: calc(var(--file-list-thumbnail-width) / 1.5) !important;
 
   .claim-preview__file-property-overlay {
@@ -324,11 +323,6 @@
       }
     }
   }
-}
-
-.media__actions--between {
-  @extend .media__actions;
-  justify-content: space-between;
 }
 
 .media__details {

@@ -103,7 +103,12 @@ function ChannelThumbnail(props: Props) {
       url && (
         <FreezeframeWrapper
           src={url}
-          className={classnames('channel-thumbnail', className, { 'channel-thumbnail--xxsmall': xxsmall })}
+          className={classnames('channel-thumbnail', className, {
+            'channel-thumbnail--small': small,
+            'channel-thumbnail--xsmall': xsmall,
+            'channel-thumbnail--xxsmall': xxsmall,
+            'channel-thumbnail--resolving': isResolving,
+          })}
         >
           {showMemberBadge ? <PremiumBadge {...badgeProps} /> : null}
         </FreezeframeWrapper>

@@ -65,6 +65,7 @@ type Props = {
   smallThumbnail?: boolean,
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
+  disableClickNavigation?: boolean,
   onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
 };
@@ -111,6 +112,7 @@ export default function ClaimList(props: Props) {
     smallThumbnail,
     showIndexes,
     playItemsOnClick,
+    disableClickNavigation,
     onHidden,
     doDisablePlayerDrag,
   } = props;
@@ -219,6 +221,7 @@ export default function ClaimList(props: Props) {
       smallThumbnail={smallThumbnail}
       showIndexes={showIndexes}
       playItemsOnClick={playItemsOnClick}
+      disableClickNavigation={disableClickNavigation}
       doDisablePlayerDrag={doDisablePlayerDrag}
     />
   );

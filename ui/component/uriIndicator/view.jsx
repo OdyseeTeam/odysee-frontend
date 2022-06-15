@@ -25,6 +25,7 @@ type Props = {
   isResolvingUri: boolean,
   odyseeMembership: string,
   comment?: boolean,
+  showHiddenAsAnonymous?: boolean,
   resolveUri: (string) => void,
 };
 
@@ -97,9 +98,10 @@ class UriIndicator extends React.PureComponent<Props> {
       odyseeMembership,
       comment,
       showMemberBadge = true,
+      showHiddenAsAnonymous,
     } = this.props;
 
-    if (!channelInfo && !claim) {
+    if (!channelInfo && !claim && !showHiddenAsAnonymous) {
       return (
         <span className={classnames('empty', className)}>
           {uri === null ? '---' : isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
@@ -109,7 +111,7 @@ class UriIndicator extends React.PureComponent<Props> {
 
     const data = this.resolveState(channelInfo, claim, link);
 
-    if (data.isAnonymous) {
+    if (data.isAnonymous || (!channelInfo && !claim && showHiddenAsAnonymous)) {
       if (hideAnonymous) {
         return null;
       }

@@ -33,7 +33,7 @@ function CollectionActions(props: Props) {
   const isMobile = useIsMobile();
 
   return (
-    <div className={classnames('media__actions--between', { stretch: isMobile })}>
+    <div className={classnames('media__actions justify-space-between', { stretch: isMobile })}>
       <SectionElement>
         <PlayButton collectionId={collectionId} />
         <ShuffleButton collectionId={collectionId} />

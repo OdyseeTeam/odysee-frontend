@@ -125,14 +125,12 @@
   font-size: var(--font-body);
 }
 
-.section__subtitle--small {
-  @extend .card__subtitle;
-  margin: 0px;
-  font-size: var(--font-xsmall);
-}
-
 .center-self {
   align-self: center;
+}
+
+.justify-space-between {
+  justify-content: space-between;
 }
 
 .align-center {

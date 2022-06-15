@@ -102,6 +102,7 @@ type Props = {
   smallThumbnail?: boolean,
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
+  disableClickNavigation?: boolean,
   doClearContentHistoryUri: (uri: string) => void,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
@@ -175,6 +176,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     smallThumbnail,
     showIndexes,
     playItemsOnClick,
+    disableClickNavigation,
     doClearContentHistoryUri,
     doUriInitiatePlay,
     doDisablePlayerDrag,
@@ -254,26 +256,28 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   }
 
   const handleNavLinkClick = (e) => {
-    if (playItemsOnClick) {
-      e.preventDefault();
-      e.stopPropagation();
+    if (playItemsOnClick && claim) {
       doUriInitiatePlay(
-        { uri, collection: { collectionId }, source: collectionId === 'queue' ? collectionId : undefined },
+        {
+          uri: claim.canonical_url || uri,
+          collection: { collectionId },
+          source: collectionId === 'queue' ? collectionId : undefined,
+        },
         true,
         true
       );
-    } else {
-      if (onClick) {
-        onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
-      }
-      e.stopPropagation();
     }
+    if (onClick) {
+      onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
+    }
+    e.stopPropagation();
   };
 
   const navLinkProps = {
     to: {
-      pathname: playItemsOnClick ? undefined : navigateUrl,
-      search: playItemsOnClick ? undefined : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
+      pathname: disableClickNavigation ? undefined : navigateUrl,
+      search: disableClickNavigation ? undefined : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
+      state: { hideFloatingPlayer: playItemsOnClick && !disableClickNavigation ? true : undefined },
     },
     onClick: handleNavLinkClick,
     onAuxClick: handleNavLinkClick,
@@ -321,11 +325,24 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       onClick(e, claim, indexInContainer);
     }
 
-    if (claim && !pending && !disableNavigation) {
+    if (claim && !pending && !disableNavigation && !disableClickNavigation) {
       history.push({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
+        state: { hideFloatingPlayer: playItemsOnClick && !disableClickNavigation ? true : undefined },
       });
+    }
+
+    if (playItemsOnClick && claim) {
+      doUriInitiatePlay(
+        {
+          uri: claim.canonical_url || uri,
+          collection: { collectionId },
+          source: collectionId === 'queue' ? collectionId : undefined,
+        },
+        true,
+        true
+      );
     }
   }
 
@@ -436,7 +453,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           })}
         >
           {showIndexes && (
-            <span className="section__subtitle--small claim-preview__list-index">{indexInContainer + 1}</span>
+            <span className="card__subtitle card__subtitle--small-no-margin claim-preview__list-index">
+              {indexInContainer + 1}
+            </span>
           )}
 
           {isMyCollection && showEdit && (

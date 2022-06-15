@@ -4,7 +4,7 @@ import Page from 'component/page';
 import CollectionsListMine from './internal/collectionsListMine';
 
 const PlaylistsPage = () => (
-  <Page className="playlists-page__wrapper">
+  <Page className="playlists-page-wrapper">
     <CollectionsListMine />
   </Page>
 );

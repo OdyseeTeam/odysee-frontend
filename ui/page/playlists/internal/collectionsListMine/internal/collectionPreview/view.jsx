@@ -105,7 +105,7 @@ function CollectionPreview(props: Props) {
                 <I18nMessage
                   tokens={{
                     playlist_channel: (
-                      <UriIndicator focusable={false} uri={channel && channel.permanent_url} link>
+                      <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
                         <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
                       </UriIndicator>
                     ),

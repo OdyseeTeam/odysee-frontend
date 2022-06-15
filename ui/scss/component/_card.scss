@@ -536,6 +536,11 @@
   font-size: var(--font-xsmall);
 }
 
+.card__subtitle--small-no-margin {
+  margin: 0px;
+  font-size: var(--font-xsmall);
+}
+
 .card__body {
   padding: var(--spacing-m);
   padding-left: 0px;
