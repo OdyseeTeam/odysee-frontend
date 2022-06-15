@@ -1,7 +1,6 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-import usePersistedState from 'effects/use-persisted-state';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import PublishReleaseDate from 'component/publishReleaseDate';
@@ -47,7 +46,8 @@ function PublishAdditionalOptions(props: Props) {
     // accessToken,
     // fetchAccessToken,
   } = props;
-  const [hideSection, setHideSection] = usePersistedState('publish-advanced-options', true);
+  // const [hideSection, setHideSection] = usePersistedState('publish-advanced-options', true);
+  const [hideSection, setHideSection] = React.useState(disabled);
   //   const [hasLaunchedLbryFirst, setHasLaunchedLbryFirst] = React.useState(false);
   //   const [ytError, setYtError] = React.useState(false);
   //   const isLBRYFirstUser = user && user.lbry_first_approved;
