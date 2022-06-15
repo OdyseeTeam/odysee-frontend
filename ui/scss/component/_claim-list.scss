@@ -574,15 +574,6 @@
   }
 }
 
-.claim-preview--collection-editing {
-  padding-left: 9rem;
-  position: relative;
-
-  @media (max-width: $breakpoint-small) {
-    padding-left: 6.5rem;
-  }
-}
-
 .claim-preview--pending {
   opacity: 0.6;
   .claim-tile__info {
@@ -716,6 +707,11 @@
 
 .claim-preview-info {
   align-items: flex-start;
+
+  a,
+  .claim-preview__title {
+    max-width: 100%;
+  }
 }
 
 .claim-preview-info {
@@ -1299,6 +1295,14 @@ $claim-preview-progress-bar-height: 5px;
 
 .claim-preview__repost-icon {
   margin-bottom: -1px; // Offset it slightly because it doesn't look aligned next to all lowercase text + the @ from a channel
+}
+
+.claim-preview__list-index {
+  @extend .center-self;
+  width: 15px;
+  position: absolute;
+  transform: translateX(-23px);
+  text-align: end;
 }
 
 .claim-preview__hover-actions-grid {

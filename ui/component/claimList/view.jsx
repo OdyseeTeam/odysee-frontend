@@ -10,6 +10,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import { useIsMobile } from 'effects/use-screensize';
 
 const Draggable = React.lazy(() =>
   // $FlowFixMe
@@ -65,6 +66,7 @@ type Props = {
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
   onHidden: (string) => void,
+  doDisablePlayerDrag?: (disable: boolean) => void,
 };
 
 export default function ClaimList(props: Props) {
@@ -110,7 +112,10 @@ export default function ClaimList(props: Props) {
     showIndexes,
     playItemsOnClick,
     onHidden,
+    doDisablePlayerDrag,
   } = props;
+
+  const isMobile = useIsMobile();
 
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const uriBuffer = React.useRef([]);
@@ -214,6 +219,7 @@ export default function ClaimList(props: Props) {
       smallThumbnail={smallThumbnail}
       showIndexes={showIndexes}
       playItemsOnClick={playItemsOnClick}
+      doDisablePlayerDrag={doDisablePlayerDrag}
     />
   );
 
@@ -332,9 +338,30 @@ export default function ClaimList(props: Props) {
                         transform = transform.replace(/\(.+,/, '(0,');
                       }
 
+                      // doDisablePlayerDrag is a function brought by fileRenderFloating if is floating
+                      const isDraggingFromFloatingPlayer = draggableSnapshot.isDragging && doDisablePlayerDrag;
+                      const isDraggingFromMobile = draggableSnapshot.isDragging && isMobile;
+                      const topForDrawer = Number(
+                        // $FlowFixMe
+                        document.documentElement?.style?.getPropertyValue('--content-height') || 0
+                      );
+                      const playerInfo = isDraggingFromFloatingPlayer && document.querySelector('.content__info');
+                      const playerElem = isDraggingFromFloatingPlayer && document.querySelector('.content__viewer');
+                      const playerTransform = playerElem && playerElem.style.transform;
+                      const playerTop =
+                        playerTransform &&
+                        playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'));
+
                       const style = {
                         ...draggableProvided.draggableProps.style,
                         transform,
+                        top: isDraggingFromFloatingPlayer
+                          ? draggableProvided.draggableProps.style.top - playerInfo?.offsetTop - Number(playerTop)
+                          : isDraggingFromMobile
+                          ? draggableProvided.draggableProps.style.top - topForDrawer
+                          : draggableProvided.draggableProps.style.top,
+                        left: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.left,
+                        right: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.right,
                       };
 
                       return (

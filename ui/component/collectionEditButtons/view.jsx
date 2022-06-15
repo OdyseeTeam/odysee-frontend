@@ -11,10 +11,18 @@ type Props = {
   dragHandleProps?: any,
   uri: string,
   editCollection: (CollectionEditParams) => void,
+  doDisablePlayerDrag?: (disable: boolean) => void,
 };
 
 export default function CollectionButtons(props: Props) {
-  const { collectionIndex: foundIndex, collectionUris, dragHandleProps, uri, editCollection } = props;
+  const {
+    collectionIndex: foundIndex,
+    collectionUris,
+    dragHandleProps,
+    uri,
+    editCollection,
+    doDisablePlayerDrag,
+  } = props;
 
   const [confirmDelete, setConfirmDelete] = React.useState(false);
 
@@ -30,7 +38,11 @@ export default function CollectionButtons(props: Props) {
       }}
     >
       <div className="collection-preview__edit-group" {...dragHandleProps}>
-        <div className="button-collection-manage button-collection-drag top-left bottom-left">
+        <div
+          className="button-collection-manage button-collection-drag top-left bottom-left"
+          onMouseEnter={doDisablePlayerDrag ? () => doDisablePlayerDrag(true) : undefined}
+          onMouseLeave={doDisablePlayerDrag ? () => doDisablePlayerDrag(false) : undefined}
+        >
           <Icon icon={ICONS.DRAG} title={__('Drag')} size={20} />
         </div>
       </div>

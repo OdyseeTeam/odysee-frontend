@@ -748,12 +748,6 @@
     }
   }
 
-  .playlist-card-actions {
-    .button {
-      transform: translateX(-1rem);
-    }
-  }
-
   .card__body {
     background-color: rgba(var(--color-header-background-base), 0.9);
     max-height: 100%;
@@ -764,6 +758,10 @@
 
   .claim-preview__wrapper {
     padding: var(--spacing-xxs) var(--spacing-s) !important;
+
+    .claim-preview--small {
+      margin-left: 15px;
+    }
 
     .claim-preview__title {
       width: unset !important;

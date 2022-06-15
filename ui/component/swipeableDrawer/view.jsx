@@ -46,6 +46,8 @@ export default function SwipeableDrawer(props: Props) {
 
   const [playerHeight, setPlayerHeight] = React.useState(getMaxLandscapeHeight());
 
+  const contentHeight = HEADER_HEIGHT_MOBILE + playerHeight;
+
   function handleTouchMove(e) {
     const touchPosY = e.touches[0].clientY;
     touchPos.current = touchPosY;
@@ -65,7 +67,7 @@ export default function SwipeableDrawer(props: Props) {
       const backdrop = backdropRef.current;
       if (backdrop) {
         const isDraggingAboveVideo = touchPosY < playerHeight + HEADER_HEIGHT_MOBILE;
-        let backdropTop = HEADER_HEIGHT_MOBILE + playerHeight;
+        let backdropTop = contentHeight;
         // $FlowFixMe
         let backdropHeight = document.documentElement.getBoundingClientRect().height - backdropTop;
         let opacity = ((touchPosY - HEADER_HEIGHT_MOBILE) / backdropHeight) * -1 + 1;
@@ -97,8 +99,10 @@ export default function SwipeableDrawer(props: Props) {
       const backdrop = backdropRef.current;
 
       if (draggedBeforeCloseLimit) {
-        const minDrawerHeight = HEADER_HEIGHT_MOBILE + playerHeight;
+        const minDrawerHeight = contentHeight;
         const positionToStop = drawerMovedFullscreen ? HEADER_HEIGHT_MOBILE : minDrawerHeight;
+        // $FlowFixMe
+        document.documentElement?.style?.setProperty('--content-height', String(positionToStop));
 
         if (paperRef.current) {
           paperRef.current.setAttribute('style', `transform: none !important; transition: transform ${TRANSITION_STR}`);
@@ -213,17 +217,17 @@ export default function SwipeableDrawer(props: Props) {
         if (!isFullscreenDrawer || openStateChanged) {
           node.setAttribute(
             'style',
-            `transform: translateY(${HEADER_HEIGHT_MOBILE + playerHeight}px); height: calc(100% - ${
-              HEADER_HEIGHT_MOBILE + playerHeight
-            }px);`
+            `transform: translateY(${contentHeight}px); height: calc(100% - ${contentHeight}px);`
           );
+          // $FlowFixMe
+          document.documentElement?.style?.setProperty('--content-height', String(contentHeight));
         }
 
         drawerRoot.current = node;
         openPrev.current = open;
       }
     },
-    [open, playerHeight]
+    [contentHeight, open]
   );
 
   return (

@@ -104,6 +104,7 @@ type Props = {
   playItemsOnClick?: boolean,
   doClearContentHistoryUri: (uri: string) => void,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
+  doDisablePlayerDrag?: (disable: boolean) => void,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -176,6 +177,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     playItemsOnClick,
     doClearContentHistoryUri,
     doUriInitiatePlay,
+    doDisablePlayerDrag,
   } = props;
 
   const isMobile = useIsMobile();
@@ -434,13 +436,16 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           })}
         >
           {showIndexes && (
-            <span className="section__subtitle--small center-self" style={{ marginRight: 'var(--spacing-s)' }}>
-              {indexInContainer + 1}
-            </span>
+            <span className="section__subtitle--small claim-preview__list-index">{indexInContainer + 1}</span>
           )}
 
           {isMyCollection && showEdit && (
-            <CollectionEditButtons uri={uri} collectionId={listId} dragHandleProps={dragHandleProps} />
+            <CollectionEditButtons
+              uri={uri}
+              collectionId={listId}
+              dragHandleProps={dragHandleProps}
+              doDisablePlayerDrag={doDisablePlayerDrag}
+            />
           )}
 
           {isChannelUri && claim ? (

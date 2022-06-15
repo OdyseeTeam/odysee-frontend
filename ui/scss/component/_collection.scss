@@ -72,13 +72,11 @@
 }
 
 .collection-preview__edit-buttons {
-  position: absolute;
   left: 0;
   top: calc(var(--spacing-m) * -1);
   bottom: calc(var(--spacing-m) * -1);
   padding-left: 0;
-  padding-top: var(--spacing-m);
-  padding-bottom: var(--spacing-m);
+  margin-right: var(--spacing-s);
 
   display: grid;
   grid-template-columns: 1fr 1fr 1fr 1fr;

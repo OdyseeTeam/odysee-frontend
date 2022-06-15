@@ -42,6 +42,7 @@ type Props = {
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
   enableCardBody?: () => void,
+  doDisablePlayerDrag?: (disable: boolean) => void,
 };
 
 export default function PlaylistCard(props: Props) {
@@ -57,7 +58,7 @@ export default function PlaylistCard(props: Props) {
         <DrawerExpandButton
           fixed
           icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST}
-          label={__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
+          label={__('Now playing: %playlist_name%', { playlist_name: collectionName })}
           type={DRAWERS.PLAYLIST}
         />
 
@@ -122,6 +123,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     bodyOnly,
     showEdit,
     setShowEdit,
+    doDisablePlayerDrag,
     ...cardProps
   } = props;
 
@@ -214,6 +216,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                     smallThumbnail
                     showIndexes
                     playItemsOnClick={playItemsOnClick}
+                    doDisablePlayerDrag={doDisablePlayerDrag}
                   />
                 )}
               </Lazy.Droppable>
