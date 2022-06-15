@@ -22,6 +22,7 @@ export const PAGE_TITLE = {
   [PAGES.HELP]: 'Help',
   [PAGES.INVITE]: 'Invite',
   [PAGES.LIBRARY]: 'Purchases',
+  [PAGES.LISTS]: 'Playlists',
   [PAGES.PLAYLISTS]: 'Playlists',
   [PAGES.LIVESTREAM]: 'Go Live on Odysee',
   [PAGES.LIVESTREAM_CURRENT]: 'Live (Experimental)',

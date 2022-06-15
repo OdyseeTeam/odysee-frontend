@@ -12,7 +12,6 @@ import { useIsMobile } from 'effects/use-screensize';
 import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
 import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
-import Placeholder from './internal/placeholder.png';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 
@@ -74,7 +73,7 @@ function FileThumbnail(props: Props) {
 
   const fallback = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
 
-  let url = thumbnail || (hasResolvedClaim ? Placeholder : '');
+  let url = thumbnail || (hasResolvedClaim ? MISSING_THUMB_DEFAULT : '');
   // Pass image urls through a compression proxy
   if (thumbnail) {
     if (isGif) {
