@@ -18,6 +18,7 @@ import ClaimList from 'component/claimList';
 import usePersistedState from 'effects/use-persisted-state';
 import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import classnames from 'classnames';
 
 type Props = {
   hasChannels: boolean,
@@ -173,8 +174,42 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
+  const [tab, setTab] = React.useState('Setup');
+
+  const HeaderMenu = () => {
+    return (
+      <>
+        <Button
+          key={'Setup'}
+          // icon={modeName}
+          iconSize={18}
+          label={'Setup'}
+          button="alt"
+          onClick={() => {
+            // $FlowFixMe
+            setTab('Setup');
+          }}
+          className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
+        />
+        <Button
+          key={'Publish'}
+          // icon={modeName}
+          iconSize={18}
+          label={'Publish'}
+          button="alt"
+          onClick={() => {
+            // $FlowFixMe
+            setTab('Publish');
+          }}
+          className={classnames('button-toggle', { 'button-toggle--active': tab === 'Publish' })}
+        />
+      </>
+    );
+  };
+
   return (
     <Page>
+      <HeaderMenu />
       {/* channel selector */}
       {!fetchingChannels && (
         <>
@@ -225,6 +260,7 @@ export default function LivestreamSetupPage(props: Props) {
 
           {!fetchingChannels && channelId && (
             <>
+              <h1>hhh</h1>
               <Card
                 titleActions={
                   <Button
@@ -320,9 +356,7 @@ export default function LivestreamSetupPage(props: Props) {
                     <div className="section__actions">
                       <Button
                         button="primary"
-                        onClick={() =>
-                          doNewLivestream(`/$/${PAGES.UPLOAD}?type=${PUBLISH_MODES.LIVESTREAM.toLowerCase()}`)
-                        }
+                        onClick={() => doNewLivestream(`/$/${PAGES.LIVESTREAM_CREATE}`)}
                         label={__('Create A Livestream')}
                       />
                       <Button

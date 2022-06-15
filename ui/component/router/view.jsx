@@ -69,6 +69,9 @@ const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* we
 const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
 );
+const LivestreamCreatePage = lazyImport(() =>
+  import('page/livestreamCreate' /* webpackChunkName: "livestreamCreate" */)
+);
 const OdyseeMembershipPage = lazyImport(() =>
   import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
 );
@@ -388,6 +391,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNELS}`} component={ChannelsPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CREATE}`} component={LivestreamCreatePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />

@@ -89,6 +89,7 @@ exports.NOTIFICATIONS = 'notifications';
 exports.YOUTUBE_SYNC = 'youtube';
 exports.LIVESTREAM = 'livestream';
 exports.LIVESTREAM_CURRENT = 'live';
+exports.LIVESTREAM_CREATE = 'livestream/create';
 exports.GENERAL = 'general';
 exports.LIST = 'list';
 exports.ODYSEE_MEMBERSHIP = 'membership';
