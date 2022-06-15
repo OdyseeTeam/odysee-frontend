@@ -259,7 +259,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     if (playItemsOnClick && claim) {
       doUriInitiatePlay(
         {
-          uri: claim.canonical_url || uri,
+          uri: claim?.canonical_url || uri,
           collection: { collectionId },
           source: collectionId === 'queue' ? collectionId : undefined,
         },
@@ -336,7 +336,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     if (playItemsOnClick && claim) {
       doUriInitiatePlay(
         {
-          uri: claim.canonical_url || uri,
+          uri: claim?.canonical_url || uri,
           collection: { collectionId },
           source: collectionId === 'queue' ? collectionId : undefined,
         },

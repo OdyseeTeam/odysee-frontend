@@ -10,6 +10,7 @@ import {
   selectChannelNameForId,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
+import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
 
@@ -42,29 +43,25 @@ export const selectHasCollections = createSelector(
   (unpublished, publishedIds) => Boolean(unpublished.length > 0 || publishedIds.length > 0)
 );
 
-export const selectEditedCollectionForId = createSelector(
-  (state, id) => id,
-  selectMyEditedCollections,
-  (id, eLists) => eLists[id]
-);
+export const selectEditedCollectionForId = (state: State, id: string) => {
+  const editedCollections = selectMyEditedCollections(state);
+  return editedCollections[id];
+};
 
-export const selectCollectionHasEditsForId = createSelector(
-  (state, id) => id,
-  selectMyEditedCollections,
-  (id, eLists) => Boolean(eLists[id])
-);
+export const selectCollectionHasEditsForId = (state: State, id: string) => {
+  const editedCollection = selectEditedCollectionForId(state, id);
+  return Boolean(editedCollection);
+};
 
-export const selectPendingCollectionForId = createSelector(
-  (state, id) => id,
-  selectPendingCollections,
-  (id, pending) => pending[id]
-);
+export const selectPendingCollectionForId = (state: State, id: string) => {
+  const pendingCollections = selectPendingCollections(state);
+  return pendingCollections[id];
+};
 
-export const selectPublishedCollectionForId = createSelector(
-  (state, id) => id,
-  selectResolvedCollections,
-  (id, rLists) => rLists[id]
-);
+export const selectPublishedCollectionForId = (state: State, id: string) => {
+  const publishedCollections = selectResolvedCollections(state);
+  return publishedCollections[id];
+};
 
 export const selectPublishedCollectionClaimForId = (state: any, id: string) => {
   const publishedCollection = selectPublishedCollectionForId(state, id);
@@ -88,11 +85,10 @@ export const selectPublishedCollectionChannelNameForId = (state: any, id: string
   return null;
 };
 
-export const selectUnpublishedCollectionForId = createSelector(
-  (state, id) => id,
-  selectMyUnpublishedCollections,
-  (id, rLists) => rLists[id]
-);
+export const selectUnpublishedCollectionForId = (state: State, id: string) => {
+  const unpublishedCollections = selectMyUnpublishedCollections(state);
+  return unpublishedCollections[id];
+};
 
 export const selectCollectionIsMine = createSelector(
   (state, id) => id,
@@ -144,11 +140,10 @@ export const selectCollectionValuesListForKey = createSelector(
   }
 );
 
-export const selectIsMyCollectioPublishedForId = createSelector(
-  (state, id) => id,
-  selectMyPublishedCollections,
-  (id, myPublished) => Boolean(myPublished[id])
-);
+export const selectIsMyCollectioPublishedForId = (state: State, id: string) => {
+  const publishedCollection = selectMyPublishedCollections(state);
+  return Boolean(publishedCollection[id]);
+};
 
 export const selectPublishedCollectionNotEditedForId = createSelector(
   selectIsMyCollectioPublishedForId,
@@ -178,17 +173,15 @@ export const selectMyPublishedPlaylistCollections = createSelector(selectMyPubli
   return myCollections;
 });
 
-export const selectMyPublishedCollectionForId = createSelector(
-  (state, id) => id,
-  selectMyPublishedCollections,
-  (id, myPublishedCollections) => myPublishedCollections[id]
-);
+export const selectMyPublishedCollectionForId = (state: State, id: string) => {
+  const myPublishedCollections = selectMyPublishedCollections(state);
+  return myPublishedCollections[id];
+};
 
-export const selectIsResolvingCollectionForId = createSelector(
-  (state, id) => id,
-  selectIsResolvingCollectionById,
-  (id, resolvingById) => resolvingById[id]
-);
+export const selectIsResolvingCollectionForId = (state: State, id: string) => {
+  const resolvingById = selectIsResolvingCollectionById(state);
+  return resolvingById[id];
+};
 
 export const selectCollectionForId = createSelector(
   (state, id) => id,
@@ -204,11 +197,10 @@ export const selectCollectionForId = createSelector(
   }
 );
 
-export const selectIsCollectionBuiltInForId = createSelector(
-  (state, id) => id,
-  selectBuiltinCollections,
-  (id, builtin) => Boolean(builtin[id])
-);
+export const selectIsCollectionBuiltInForId = (state: State, id: string) => {
+  const builtin = selectBuiltinCollections(state);
+  return builtin[id];
+};
 
 export const selectClaimInCollectionsForUrl = createSelector(
   (state, url) => url,
@@ -232,11 +224,10 @@ export const selectCollectionForIdHasClaimUrl = createSelector(
   (url, collection) => collection && collection.items.includes(url)
 );
 
-export const selectUrlsForCollectionId = createSelector(
-  (state, id) => id,
-  selectCollectionForId,
-  (id, collection) => collection && collection.items
-);
+export const selectUrlsForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  return collection && collection.items;
+};
 
 export const selectFirstItemUrlForCollection = createSelector(
   selectUrlsForCollectionId,
@@ -246,15 +237,14 @@ export const selectFirstItemUrlForCollection = createSelector(
 export const selectCollectionLengthForId = createSelector(selectUrlsForCollectionId, (urls) => urls?.length || 0);
 
 export const selectAreBuiltinCollectionsEmpty = (state: State) => {
-  let length = 0;
-
-  COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.forEach((collectionKey) => {
+  const notEmpty = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.some((collectionKey) => {
     if (collectionKey !== COLLECTIONS_CONSTS.QUEUE_ID) {
-      length += selectCollectionLengthForId(state, collectionKey);
+      const length = selectCollectionLengthForId(state, collectionKey);
+      return length > 0;
     }
   });
 
-  return length === 0;
+  return !notEmpty;
 };
 
 export const selectClaimIdsForCollectionId = createSelector(selectCollectionForId, (collection) => {
@@ -349,7 +339,7 @@ export const selectNameForCollectionId = createSelector(
   (collection) => (collection && collection.name) || ''
 );
 
-export const selectUpdatedAtForCollectionId = createSelector(
+export const selectUpdatedAtForCollectionId = createCachedSelector(
   selectCollectionForId,
   selectUserCreationDate,
   (collection, userCreatedAt) => {
@@ -364,7 +354,7 @@ export const selectUpdatedAtForCollectionId = createSelector(
 
     return collectionUpdatedAt || '';
   }
-);
+)((state, id) => String(id));
 
 export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) => {
   if (collection) {
@@ -372,7 +362,7 @@ export const selectCountForCollectionId = createSelector(selectCollectionForId, 
       return collection.itemCount;
     }
     let itemCount = 0;
-    collection.items.map((item) => {
+    collection.items.forEach((item) => {
       if (item) {
         itemCount += 1;
       }
