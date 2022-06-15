@@ -5,7 +5,7 @@ import { doUpdatePublishForm, doClearPublish } from 'redux/actions/publish';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import { doToast } from 'redux/actions/notifications';
 import { selectFfmpegStatus } from 'redux/selectors/settings';
-import UploadPage from './view';
+import PostPage from './view';
 
 const select = (state, props) => ({
   name: makeSelectPublishFormValue('name')(state),
@@ -29,4 +29,4 @@ const perform = {
   doToast,
 };
 
-export default connect(select, perform)(UploadPage);
+export default connect(select, perform)(PostPage);

@@ -7,7 +7,7 @@ import {
   selectTakeOverAmount,
 } from 'redux/selectors/publish';
 import { doUpdatePublishForm, doPrepareEdit } from 'redux/actions/publish';
-import PublishPage from './view';
+import UploadPage from './view';
 
 const select = (state) => ({
   name: makeSelectPublishFormValue('name')(state),
@@ -24,4 +24,4 @@ const perform = (dispatch) => ({
   prepareEdit: (claim, uri) => dispatch(doPrepareEdit(claim, uri)),
 });
 
-export default connect(select, perform)(PublishPage);
+export default connect(select, perform)(UploadPage);

@@ -40,6 +40,7 @@ exports.DEPRECATED__DOWNLOADED = 'downloaded';
 exports.DEPRECATED__PUBLISH = 'publish';
 exports.DEPRECATED__PUBLISHED = 'published';
 exports.UPLOAD = 'upload';
+exports.POST = 'post';
 exports.UPLOADS = 'uploads';
 exports.GET_CREDITS = 'getcredits';
 exports.REPORT = 'report';

@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import PublishForm from 'component/publishForm';
+import UploadForm from 'component/uploadForm';
 import Page from 'component/page';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import Spinner from 'component/spinner';
@@ -10,7 +10,7 @@ type Props = {
   fetchingChannels: boolean,
 };
 
-function PublishPage(props: Props) {
+function UploadPage(props: Props) {
   const { balance, fetchingChannels } = props;
 
   function scrollToTop() {
@@ -32,10 +32,10 @@ function PublishPage(props: Props) {
           <Spinner />
         </div>
       ) : (
-        <PublishForm scrollToTop={scrollToTop} disabled={balance === 0} />
+        <UploadForm scrollToTop={scrollToTop} disabled={balance === 0} />
       )}
     </Page>
   );
 }
 
-export default PublishPage;
+export default UploadPage;

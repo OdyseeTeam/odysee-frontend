@@ -28,7 +28,7 @@ import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/se
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectUser } from 'redux/selectors/user';
-import PublishForm from './view';
+import UploadForm from './view';
 
 const select = (state) => {
   const myClaimForUri = selectMyClaimForUri(state);
@@ -73,4 +73,4 @@ const perform = (dispatch) => ({
   claimInitialRewards: () => dispatch(doClaimInitialRewards()),
 });
 
-export default connect(select, perform)(PublishForm);
+export default connect(select, perform)(UploadForm);

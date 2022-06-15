@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { makeSelectPublishFormValue, selectIsStillEditing } from 'redux/selectors/publish';
-import PublishPage from './view';
+import UploadPage from './view';
 
 const select = (state) => ({
   bid: makeSelectPublishFormValue('bid')(state),
@@ -14,4 +14,4 @@ const select = (state) => ({
   isStillEditing: selectIsStillEditing(state),
 });
 
-export default connect(select, null)(PublishPage);
+export default connect(select, null)(UploadPage);

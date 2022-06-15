@@ -97,7 +97,7 @@ type Props = {
   hasClaimedInitialRewards: boolean,
 };
 
-function PublishForm(props: Props) {
+function UploadForm(props: Props) {
   // Detect upload type from query in URL
   const {
     thumbnail,
@@ -718,4 +718,4 @@ function PublishForm(props: Props) {
   );
 }
 
-export default PublishForm;
+export default UploadForm;

@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectFetchingMyChannels } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectUnclaimedRewardValue } from 'redux/selectors/rewards';
-import PublishPage from './view';
+import PostPage from './view';
 
 const select = (state) => ({
   balance: selectBalance(state),
@@ -10,4 +10,4 @@ const select = (state) => ({
   fetchingChannels: selectFetchingMyChannels(state),
 });
 
-export default connect(select, null)(PublishPage);
+export default connect(select, null)(PostPage);
