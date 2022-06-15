@@ -46,7 +46,6 @@ function PublishAdditionalOptions(props: Props) {
     // accessToken,
     // fetchAccessToken,
   } = props;
-  // const [hideSection, setHideSection] = usePersistedState('publish-advanced-options', true);
   const [hideSection, setHideSection] = React.useState(disabled);
   //   const [hasLaunchedLbryFirst, setHasLaunchedLbryFirst] = React.useState(false);
   //   const [ytError, setYtError] = React.useState(false);
@@ -56,6 +55,10 @@ function PublishAdditionalOptions(props: Props) {
   function toggleHideSection() {
     setHideSection(!hideSection);
   }
+
+  React.useEffect(() => {
+    if (disabled) setHideSection(disabled);
+  }, [disabled]);
 
   //   @if TARGET='app'
   //   function signup() {
