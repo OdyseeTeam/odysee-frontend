@@ -110,7 +110,7 @@ export default function NotificationHeaderButton(props: Props) {
       readNotification([id]);
     }
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
-    if (notification_parameters.dynamic.hash) {
+    if (notification_parameters.dynamic?.hash) {
       notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
     }
     push(notificationLink);
@@ -119,7 +119,7 @@ export default function NotificationHeaderButton(props: Props) {
   function getWebUri(notification) {
     const { notification_parameters } = notification;
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
-    if (notification_parameters.dynamic.hash) {
+    if (notification_parameters.dynamic?.hash) {
       notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
     }
     return notificationLink;
