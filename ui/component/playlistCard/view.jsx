@@ -192,7 +192,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 Private %lock_icon%
               </I18nMessage>
             ) : (
-              <UriIndicator link uri={publishedCollectionName} />
+              <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
             )}
 
             {` - ${playingItemIndex}/${collectionLength}`}

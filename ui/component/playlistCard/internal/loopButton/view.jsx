@@ -19,7 +19,6 @@ const LoopButton = (props: Props) => {
       className="button--alt-no-style button-toggle"
       title={__('Loop')}
       icon={ICONS.REPEAT}
-      iconSize={18}
       iconColor={loop ? 'blue' : undefined}
       onClick={() => doToggleLoopList({ collectionId: id })}
     />

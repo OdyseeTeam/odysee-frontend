@@ -64,7 +64,14 @@ function FileThumbnail(props: Props) {
 
     return (
       url && (
-        <FreezeframeWrapper small={small} src={url} className={classnames('media__thumb', className)}>
+        <FreezeframeWrapper
+          small={small}
+          src={url}
+          className={classnames('media__thumb', className, {
+            'media__thumb--resolving': !hasResolvedClaim,
+            'media__thumb--small': small,
+          })}
+        >
           {children}
         </FreezeframeWrapper>
       )

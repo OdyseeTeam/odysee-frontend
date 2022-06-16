@@ -20,7 +20,6 @@ const ShuffleButton = (props: Props) => {
       className="button--alt-no-style button-toggle"
       title={__('Shuffle')}
       icon={ICONS.SHUFFLE}
-      iconSize={18}
       iconColor={shuffle ? 'blue' : undefined}
       onClick={() => doToggleShuffleList({ currentUri: url, collectionId: id })}
     />

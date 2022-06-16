@@ -9,6 +9,7 @@ import {
   selectPublishedCollectionChannelNameForId,
   selectIndexForUrlInCollection,
   selectCollectionLengthForId,
+  selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit } from 'redux/actions/collections';
@@ -30,6 +31,7 @@ const select = (state, props) => {
     publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
     playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
     collectionLength: selectCollectionLengthForId(state, collectionId),
+    collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
 };
 

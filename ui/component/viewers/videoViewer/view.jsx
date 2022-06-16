@@ -419,7 +419,7 @@ function VideoViewer(props: Props) {
 
     const moveToPosition = () => {
       // update current time based on previous position
-      if (position && !isLivestreamClaim) {
+      if (position && position < player.currentTime() - 100 && !isLivestreamClaim) {
         player.currentTime(position);
       }
     };

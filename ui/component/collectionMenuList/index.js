@@ -3,6 +3,7 @@ import {
   selectNameForCollectionId,
   selectIsCollectionBuiltInForId,
   selectPublishedCollectionNotEditedForId,
+  selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
 import { selectListShuffleForId } from 'redux/selectors/content';
@@ -15,10 +16,11 @@ const select = (state, props) => {
   const playNextUri = shuffleList && shuffleList.newUrls[0];
 
   return {
-    collectionName: selectNameForCollectionId(state, props.collectionId),
+    collectionName: selectNameForCollectionId(state, collectionId),
     playNextUri,
-    isBuiltin: selectIsCollectionBuiltInForId(state, props.collectionId),
-    publishedNotEdited: selectPublishedCollectionNotEditedForId(state, props.collectionId),
+    isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
+    publishedNotEdited: selectPublishedCollectionNotEditedForId(state, collectionId),
+    collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
 };
 

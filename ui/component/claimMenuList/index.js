@@ -10,6 +10,7 @@ import {
   selectEditedCollectionForId,
   selectUrlsForCollectionId,
   selectLastUsedCollection,
+  selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -79,6 +80,7 @@ const select = (state, props) => {
     lastUsedCollectionIsNotBuiltin:
       lastUsedCollectionId !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
       lastUsedCollectionId !== COLLECTIONS_CONSTS.FAVORITES_ID,
+    collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
 };
 

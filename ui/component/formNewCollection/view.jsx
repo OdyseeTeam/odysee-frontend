@@ -31,9 +31,14 @@ function FormNewCollection(props: Props) {
 
   function handleAddCollection() {
     let newCollectionId = '';
-    doLocalCollectionCreate({ name: newCollectionName.current, items: [uri], type: 'playlist' }, (id) => {
-      newCollectionId = id;
-    });
+
+    doLocalCollectionCreate(
+      { name: newCollectionName.current, items: onlyCreate ? [] : [uri], type: 'playlist' },
+      (id) => {
+        newCollectionId = id;
+      }
+    );
+
     closeForm(newCollectionName.current, newCollectionId);
   }
 

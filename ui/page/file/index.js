@@ -9,7 +9,7 @@ import {
   selectClaimWasPurchasedForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
-import { selectCollectionForId } from 'redux/selectors/collections';
+import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as SETTINGS from 'constants/settings';
@@ -30,8 +30,12 @@ const select = (state, props) => {
 
   const urlParams = new URLSearchParams(search);
   const playingUri = selectPlayingUri(state);
+  const collectionParam = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+  const claimInPlayingCollection = selectCollectionForIdHasClaimUrl(state, playingUri.collection.collectionId, uri);
   const collectionId =
-    playingUri.uri === uri ? playingUri.collection.collectionId : urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+    playingUri.uri === uri || (!collectionParam && claimInPlayingCollection)
+      ? playingUri.collection.collectionId
+      : urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const claim = selectClaimForUri(state, uri);
 
   return {

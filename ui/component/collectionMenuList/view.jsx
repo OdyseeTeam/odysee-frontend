@@ -18,6 +18,7 @@ type Props = {
   doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
   isBuiltin: boolean,
   publishedNotEdited: boolean,
+  collectionEmpty: boolean,
 };
 
 function CollectionMenuList(props: Props) {
@@ -30,6 +31,7 @@ function CollectionMenuList(props: Props) {
     doToggleShuffleList,
     isBuiltin,
     publishedNotEdited,
+    collectionEmpty,
   } = props;
   const [doShuffle, setDoShuffle] = React.useState(false);
 
@@ -68,30 +70,34 @@ function CollectionMenuList(props: Props) {
                 {__('Open')}
               </a>
             </MenuItem>
-            <MenuItem
-              className="comment__menu-option"
-              onSelect={() => {
-                doToggleShuffleList({ collectionId });
-                setDoShuffle(true);
-              }}
-            >
-              <div className="menu__link">
-                <Icon aria-hidden icon={ICONS.SHUFFLE} />
-                {__('Shuffle Play')}
-              </div>
-            </MenuItem>
+            {!collectionEmpty && (
+              <MenuItem
+                className="comment__menu-option"
+                onSelect={() => {
+                  doToggleShuffleList({ collectionId });
+                  setDoShuffle(true);
+                }}
+              >
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.SHUFFLE} />
+                  {__('Shuffle Play')}
+                </div>
+              </MenuItem>
+            )}
 
             {!isBuiltin && (
               <>
-                <MenuItem
-                  className="comment__menu-option"
-                  onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
-                >
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.PUBLISH} />
-                    {publishedNotEdited ? __('Edit') : __('Publish')}
-                  </div>
-                </MenuItem>
+                {!collectionEmpty && (
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
+                  >
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.PUBLISH} />
+                      {publishedNotEdited ? __('Edit') : __('Publish')}
+                    </div>
+                  </MenuItem>
+                )}
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}

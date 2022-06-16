@@ -25,18 +25,30 @@ type Props = {
   showEdit: boolean,
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
+  collectionEmpty: boolean,
 };
 
 function CollectionActions(props: Props) {
-  const { uri, claimId, isMyCollection, collectionId, showInfo, setShowInfo, isBuiltin, showEdit, setShowEdit } = props;
+  const {
+    uri,
+    claimId,
+    isMyCollection,
+    collectionId,
+    showInfo,
+    setShowInfo,
+    isBuiltin,
+    showEdit,
+    setShowEdit,
+    collectionEmpty,
+  } = props;
 
   const isMobile = useIsMobile();
 
   return (
     <div className={classnames('media__actions justify-space-between', { stretch: isMobile })}>
       <SectionElement>
-        <PlayButton collectionId={collectionId} />
-        <ShuffleButton collectionId={collectionId} />
+        {!collectionEmpty && <PlayButton collectionId={collectionId} />}
+        {!collectionEmpty && <ShuffleButton collectionId={collectionId} />}
 
         {!isBuiltin && (
           <>
@@ -71,7 +83,7 @@ function CollectionActions(props: Props) {
           />
         )}
 
-        {isMyCollection && (
+        {!collectionEmpty && isMyCollection && (
           <Button
             title={__('Edit')}
             className={classnames('button-toggle', { 'button-toggle--active': showEdit })}

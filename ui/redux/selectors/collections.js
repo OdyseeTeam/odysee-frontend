@@ -8,6 +8,7 @@ import {
   selectClaimForUri,
   selectClaimForClaimId,
   selectChannelNameForId,
+  selectPermanentUrlForUri,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
@@ -219,7 +220,7 @@ export const selectClaimInCollectionsForUrl = createSelector(
 );
 
 export const selectCollectionForIdHasClaimUrl = createSelector(
-  (state, id, url) => url,
+  (state, id, url) => selectPermanentUrlForUri(state, url),
   selectCollectionForId,
   (url, collection) => collection && collection.items.includes(url)
 );
@@ -234,7 +235,15 @@ export const selectFirstItemUrlForCollection = createSelector(
   (collectionItemUrls) => collectionItemUrls?.length > 0 && collectionItemUrls[0]
 );
 
-export const selectCollectionLengthForId = createSelector(selectUrlsForCollectionId, (urls) => urls?.length || 0);
+export const selectCollectionLengthForId = (state: State, id: string) => {
+  const urls = selectUrlsForCollectionId(state, id);
+  return urls?.length || 0;
+};
+
+export const selectCollectionIsEmptyForId = (state: State, id: string) => {
+  const length = selectCollectionLengthForId(state, id);
+  return length === 0;
+};
 
 export const selectAreBuiltinCollectionsEmpty = (state: State) => {
   const notEmpty = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.some((collectionKey) => {
@@ -282,7 +291,7 @@ export const selectIndexForUrlInCollection = createSelector(
   }
 );
 
-export const selectPreviousUrlForCollectionAndUrl = createSelector(
+export const selectPreviousUrlForCollectionAndUrl = createCachedSelector(
   (state, url, id) => id,
   (state) => selectPlayingCollection(state),
   (state, url, id) => selectIndexForUrlInCollection(state, url, id),
@@ -306,11 +315,11 @@ export const selectPreviousUrlForCollectionAndUrl = createSelector(
       return null;
     }
   }
-);
+)((state, url, id) => `${String(url)}:${String(id)}`);
 
-export const selectNextUrlForCollectionAndUrl = createSelector(
+export const selectNextUrlForCollectionAndUrl = createCachedSelector(
   (state, url, id) => id,
-  (state) => selectPlayingCollection,
+  (state) => selectPlayingCollection(state),
   (state, url, id) => selectIndexForUrlInCollection(state, url, id),
   (state, url, id) => selectUrlsForCollectionId(state, id),
   (id, playingCollection, index, urls) => {
@@ -332,7 +341,7 @@ export const selectNextUrlForCollectionAndUrl = createSelector(
       return null;
     }
   }
-);
+)((state, url, id) => `${String(url)}:${String(id)}`);
 
 export const selectNameForCollectionId = createSelector(
   selectCollectionForId,

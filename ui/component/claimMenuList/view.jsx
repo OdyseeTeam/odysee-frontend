@@ -73,6 +73,7 @@ type Props = {
   hasClaimInLastUsedCollection: boolean,
   lastUsedCollectionIsNotBuiltin: boolean,
   doRemovePersonalRecommendation: (uri: string) => void,
+  collectionEmpty: boolean,
 };
 
 function ClaimMenuList(props: Props) {
@@ -119,6 +120,7 @@ function ClaimMenuList(props: Props) {
     hasClaimInLastUsedCollection,
     lastUsedCollectionIsNotBuiltin,
     doRemovePersonalRecommendation,
+    collectionEmpty,
   } = props;
   const [doShuffle, setDoShuffle] = React.useState(false);
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
@@ -316,29 +318,33 @@ function ClaimMenuList(props: Props) {
                   {__('View Playlist')}
                 </a>
               </MenuItem>
-              <MenuItem
-                className="comment__menu-option"
-                onSelect={() => {
-                  if (!resolvedList) fetchItems();
-                  setDoShuffle(true);
-                }}
-              >
-                <div className="menu__link">
-                  <Icon aria-hidden icon={ICONS.SHUFFLE} />
-                  {__('Shuffle Play')}
-                </div>
-              </MenuItem>
+              {!collectionEmpty && (
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={() => {
+                    if (!resolvedList) fetchItems();
+                    setDoShuffle(true);
+                  }}
+                >
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.SHUFFLE} />
+                    {__('Shuffle Play')}
+                  </div>
+                </MenuItem>
+              )}
               {isMyCollection && (
                 <>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
-                  >
-                    <div className="menu__link">
-                      <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
-                      {editedCollection ? __('Publish') : __('Edit Playlist')}
-                    </div>
-                  </MenuItem>
+                  {!collectionEmpty && (
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
+                    >
+                      <div className="menu__link">
+                        <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
+                        {editedCollection ? __('Publish') : __('Edit Playlist')}
+                      </div>
+                    </MenuItem>
+                  )}
                   <MenuItem
                     className="comment__menu-option"
                     onSelect={() => openModal(MODALS.COLLECTION_DELETE, { collectionId })}

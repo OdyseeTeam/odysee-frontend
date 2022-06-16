@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import { selectCollectionIsMine } from 'redux/selectors/collections';
+import { selectCollectionIsMine, selectCollectionIsEmptyForId } from 'redux/selectors/collections';
 import CollectionActions from './view';
 
 const select = (state, props) => {
@@ -11,6 +11,7 @@ const select = (state, props) => {
   return {
     claimId,
     isMyCollection: selectCollectionIsMine(state, collectionId),
+    collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
 };
 
