@@ -128,7 +128,6 @@ function PostForm(props: Props) {
     activeChannelClaim,
     incognito,
     user,
-    isLivestreamClaim,
     isPostClaim,
     permanentUrl,
     remoteUrl,
@@ -144,21 +143,7 @@ function PostForm(props: Props) {
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
 
-  const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
-
   const mode = PUBLISH_MODES.POST;
-
-  const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
-  // const [mode, setMode] = React.useState(_uploadType || defaultPublishMode);
-  const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
-
-  let customSubtitle;
-
-  if (isPostClaim) {
-    customSubtitle = __('Edit your post');
-  } else {
-    customSubtitle = __('POSTPAGE Craft an epic post clearly explaining... whatever.');
-  }
 
   const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
   const [showSchedulingOptions, setShowSchedulingOptions] = useState(false);
@@ -170,7 +155,6 @@ function PostForm(props: Props) {
   const [fileEdited, setFileEdited] = React.useState(false);
   const [prevFileText, setPrevFileText] = React.useState('');
 
-  const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
   const [livestreamData, setLivestreamData] = React.useState([]);
 
@@ -190,29 +174,12 @@ function PostForm(props: Props) {
     (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
-  const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
-
-  const waitingForFile = waitForFile && !remoteUrl && !filePath;
-  // If they are editing, they don't need a new file chosen
-  const formValidLessFile =
-    name &&
-    isNameValid(name) &&
-    title &&
-    !overMaxBitrate &&
-    bid &&
-    thumbnail &&
-    !bidError &&
-    !emptyPostError &&
-    !(thumbnailError && !thumbnailUploaded) &&
-    !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
   const formValid = isOverwritingExistingClaim
     ? false
-    : editingURI && !filePath // if we're editing we don't need a file
-    ? isStillEditing && formValidLessFile && !waitingForFile
-    : formValidLessFile;
+    : editingURI
 
   const [previewing, setPreviewing] = React.useState(false);
 
@@ -231,57 +198,6 @@ function PostForm(props: Props) {
       return () => clearTimeout(timer);
     }
   }, [modal]);
-
-  // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  async function fetchLivestreams(channelId, channelName) {
-    setCheckingLivestreams(true);
-    let signedMessage;
-    try {
-      await Lbry.channel_sign({
-        channel_id: channelId,
-        hexdata: toHex(channelName || ''),
-      }).then((data) => {
-        signedMessage = data;
-      });
-    } catch (e) {
-      throw e;
-    }
-    if (signedMessage) {
-      const encodedChannelName = encodeURIComponent(channelName || '');
-      const newEndpointUrl =
-        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
-          encodedChannelName || ''
-        }`;
-
-      const responseFromNewApi = await fetch(newEndpointUrl);
-
-      const data = (await responseFromNewApi.json()).data;
-
-      let newData = [];
-      if (data && data.length > 0) {
-        for (const dataItem of data) {
-          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
-            const objectToPush = {
-              data: {
-                fileLocation: dataItem.URL,
-                fileDuration:
-                  dataItem.Status.toLowerCase() === 'inprogress'
-                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
-                    : (dataItem.Duration / 1000000000).toString(),
-                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
-                uploadedAt: dataItem.Created,
-              },
-            };
-            newData.push(objectToPush);
-          }
-        }
-      }
-
-      setLivestreamData(newData);
-      setCheckingLivestreams(false);
-    }
-  }
 
   const isLivestreamMode = mode === PUBLISH_MODES.LIVESTREAM;
   let submitLabel;
@@ -407,57 +323,6 @@ function PostForm(props: Props) {
   }
   // @endif
 
-  // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  async function fetchLivestreams(channelId, channelName) {
-    setCheckingLivestreams(true);
-    let signedMessage;
-    try {
-      await Lbry.channel_sign({
-        channel_id: channelId,
-        hexdata: toHex(channelName || ''),
-      }).then((data) => {
-        signedMessage = data;
-      });
-    } catch (e) {
-      throw e;
-    }
-    if (signedMessage) {
-      const encodedChannelName = encodeURIComponent(channelName || '');
-      const newEndpointUrl =
-        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
-          encodedChannelName || ''
-        }`;
-
-      const responseFromNewApi = await fetch(newEndpointUrl);
-
-      const data = (await responseFromNewApi.json()).data;
-
-      let newData = [];
-      if (data && data.length > 0) {
-        for (const dataItem of data) {
-          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
-            const objectToPush = {
-              data: {
-                fileLocation: dataItem.URL,
-                fileDuration:
-                  dataItem.Status.toLowerCase() === 'inprogress'
-                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
-                    : (dataItem.Duration / 1000000000).toString(),
-                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
-                uploadedAt: dataItem.Created,
-              },
-            };
-            newData.push(objectToPush);
-          }
-        }
-      }
-
-      setLivestreamData(newData);
-      setCheckingLivestreams(false);
-    }
-  }
-
   async function handlePublish() {
     let outputFile = filePath;
     let runPublish = false;
@@ -530,21 +395,12 @@ function PostForm(props: Props) {
 
       <PublishPost
         inEditMode={inEditMode}
-        // fileSource={fileSource}
-        // changeFileSource={changeFileSource}
         uri={permanentUrl}
         mode={mode}
         fileMimeType={fileMimeType}
         disabled={disabled || publishing}
         inProgress={isInProgress}
-        // setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
-        livestreamData={livestreamData}
-        // subtitle={customSubtitle}
-        setWaitForFile={setWaitForFile}
-        setOverMaxBitrate={setOverMaxBitrate}
-        isCheckingLivestreams={isCheckingLivestreams}
-        checkLivestreams={fetchLivestreams}
         channelId={claimChannelId}
         channelName={activeChannelName}
       />
@@ -609,7 +465,7 @@ function PostForm(props: Props) {
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
-            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
+            <PublishFormErrors title={title} mode={mode} />
           ) : (
             <I18nMessage
               tokens={{
