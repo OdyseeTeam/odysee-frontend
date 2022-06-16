@@ -8,16 +8,14 @@
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
-import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
 import ChannelSelect from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
-import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
@@ -28,15 +26,7 @@ import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
-import { toHex } from 'util/hex';
-import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
-import { SOURCE_NONE } from 'constants/publish_sources';
-
-// @if TARGET='app'
-import fs from 'fs';
-import tempy from 'tempy';
-// @endif
 
 type Props = {
   disabled: boolean,
@@ -155,11 +145,7 @@ function PostForm(props: Props) {
   const [fileEdited, setFileEdited] = React.useState(false);
   const [prevFileText, setPrevFileText] = React.useState('');
 
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
-  const [livestreamData, setLivestreamData] = React.useState([]);
-
   const TAGS_LIMIT = 5;
-  // const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
   const formDisabled = emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
@@ -177,9 +163,7 @@ function PostForm(props: Props) {
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
-  const formValid = isOverwritingExistingClaim
-    ? false
-    : editingURI
+  const formValid = isOverwritingExistingClaim ? false : editingURI;
 
   const [previewing, setPreviewing] = React.useState(false);
 
@@ -199,7 +183,6 @@ function PostForm(props: Props) {
     }
   }, [modal]);
 
-  const isLivestreamMode = mode === PUBLISH_MODES.LIVESTREAM;
   let submitLabel;
 
   if (isClaimingInitialRewards) {
@@ -207,8 +190,6 @@ function PostForm(props: Props) {
   } else if (publishing) {
     if (isStillEditing) {
       submitLabel = __('Saving...');
-    } else if (isLivestreamMode) {
-      submitLabel = __('Creating...');
     } else {
       submitLabel = __('Uploading...');
     }
@@ -217,8 +198,6 @@ function PostForm(props: Props) {
   } else {
     if (isStillEditing) {
       submitLabel = __('Save');
-    } else if (isLivestreamMode) {
-      submitLabel = __('Create');
     } else {
       submitLabel = __('Upload');
     }
@@ -301,7 +280,7 @@ function PostForm(props: Props) {
     } else if (activeChannelName) {
       updatePublishForm({ channel: activeChannelName });
     }
-  }, [activeChannelName, incognito, updatePublishForm, isLivestreamMode]);
+  }, [activeChannelName, incognito, updatePublishForm]);
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -334,13 +313,7 @@ function PostForm(props: Props) {
       // If user modified content on the text editor or editing name has changed:
       // Save changes and update file path
       if (fileEdited || nameEdited) {
-        // @if TARGET='app'
-        outputFile = await saveFileChanges();
-        // @endif
-
-        // @if TARGET='web'
         outputFile = createWebFile();
-        // @endif
 
         // New content stored locally and is not empty
         if (outputFile) {
@@ -351,10 +324,6 @@ function PostForm(props: Props) {
         // Only metadata has changed.
         runPublish = true;
       }
-    }
-    // Publish file
-    if (mode === PUBLISH_MODES.FILE || isLivestreamMode) {
-      runPublish = true;
     }
 
     if (runPublish) {
@@ -372,7 +341,6 @@ function PostForm(props: Props) {
     if (autoSwitchMode && editingURI && myClaimForUri) {
       // Change publish mode to "post" if editing content type is markdown
       if (fileMimeType === 'text/markdown' && mode !== PUBLISH_MODES.POST) {
-        // setMode(PUBLISH_MODES.POST);
         // Prevent forced mode
         setAutoSwitchMode(false);
       }
@@ -391,7 +359,7 @@ function PostForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} />
+      <ChannelSelect disabled={disabled} autoSet channelToSet={claimChannelId} />
 
       <PublishPost
         inEditMode={inEditMode}
@@ -409,7 +377,7 @@ function PostForm(props: Props) {
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
-          <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+          <Card actions={<SelectThumbnail />} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
@@ -441,7 +409,7 @@ function PostForm(props: Props) {
             tagsChosen={tags}
           />
 
-          {!isLivestreamMode && <PublishPrice disabled={formDisabled} />}
+          <PublishPrice disabled={formDisabled} />
 
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>
