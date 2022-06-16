@@ -9,6 +9,7 @@
  */
 
 import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import * as ICONS from 'constants/icons';
 import React, { useEffect, useState } from 'react';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
@@ -36,6 +37,7 @@ import { SOURCE_NONE } from 'constants/publish_sources';
 // @if TARGET='app'
 import fs from 'fs';
 import tempy from 'tempy';
+import { Icon } from '@mui/material';
 // @endif
 
 type Props = {
@@ -164,6 +166,7 @@ function LivestreamForm(props: Props) {
 
   const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
   const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
+  const [publishMode, setPublishMode] = React.useState('New');
   console.log('mode: ', mode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
@@ -405,6 +408,7 @@ function LivestreamForm(props: Props) {
     }
   }, [activeChannelName, incognito, updatePublishForm, isLivestreamMode]);
 
+  /*
   // set mode based on urlParams 'type'
   useEffect(() => {
     if (enableLivestream) {
@@ -414,6 +418,7 @@ function LivestreamForm(props: Props) {
     }
     return;
   }, [_uploadType, enableLivestream, defaultPublishMode]);
+  */
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -485,17 +490,45 @@ function LivestreamForm(props: Props) {
   return (
     <div className="card-stack">
       {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
+      <Card>
+        <div className="card--file">
+          <Button
+            key={'New'}
+            icon={ICONS.LIVESTREAM}
+            iconSize={18}
+            label={'New Livestream'}
+            button="alt"
+            onClick={() => {
+              // $FlowFixMe
+              setPublishMode('New');
+            }}
+            className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
+          />
+          <Button
+            key={'Replay'}
+            icon={ICONS.MENU}
+            iconSize={18}
+            label={'Choose Replay'}
+            button="alt"
+            onClick={() => {
+              // $FlowFixMe
+              setPublishMode('Replay');
+            }}
+            className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
+          />
+        </div>
+      </Card>
 
       <PublishLivestream
         inEditMode={inEditMode}
         fileSource={fileSource}
         changeFileSource={changeFileSource}
         uri={permanentUrl}
-        mode={mode}
+        mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
         fileMimeType={fileMimeType}
         disabled={disabled || publishing}
         inProgress={isInProgress}
-        // setPublishMode={setMode}
+        setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
         livestreamData={livestreamData}
         // subtitle={customSubtitle}

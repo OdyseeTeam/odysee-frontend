@@ -188,7 +188,7 @@ export default function LivestreamSetupPage(props: Props) {
           key={'Setup'}
           // icon={modeName}
           iconSize={18}
-          label={'Setup'}
+          label={'Local Setup'}
           button="alt"
           onClick={() => {
             // $FlowFixMe
@@ -499,8 +499,8 @@ export default function LivestreamSetupPage(props: Props) {
           )}
         </>
       )}
-      {tab === 'Publish' && <LivestreamForm mode={PUBLISH_MODES.LIVESTREAM} />}
-      {tab === 'Replays' && <LivestreamForm mode={PUBLISH_MODES.FILE} />}
+      {tab === 'Publish' && <LivestreamForm />}
+      {/* tab === 'Replays' && <LivestreamForm mode={PUBLISH_MODES.FILE} /> */}
     </Page>
   );
 }
