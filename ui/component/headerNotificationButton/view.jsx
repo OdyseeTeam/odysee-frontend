@@ -228,9 +228,9 @@ export default function NotificationHeaderButton(props: Props) {
               )}
             </div>
 
-            <a onClick={handleMenuClick}>
+            <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
               <div className="menu__list--notifications-more">{__('View all')}</div>
-            </a>
+            </NavLink>
           </MuiMenu>
         </ClickAwayListener>
       </>
