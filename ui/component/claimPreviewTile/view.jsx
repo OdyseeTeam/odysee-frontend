@@ -19,7 +19,7 @@ import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
-import FileAddToQueueLink from 'component/fileAddToQueueLink';
+import ButtonAddToQueue from 'component/buttonAddToQueue';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
@@ -265,7 +265,7 @@ function ClaimPreviewTile(props: Props) {
                   {isPlayable && (
                     <>
                       <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
-                      <FileAddToQueueLink focusable={false} uri={repostedContentUri} />
+                      <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
                     </>
                   )}
                 </div>

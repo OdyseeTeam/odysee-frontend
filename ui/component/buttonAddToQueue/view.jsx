@@ -3,10 +3,13 @@ import * as ICONS from 'constants/icons';
 import React from 'react';
 import Button from 'component/button';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { MenuItem } from '@reach/menu-button';
+import Icon from 'component/common/icon';
 
 type Props = {
   uri: string,
   focusable: boolean,
+  menuItem?: boolean,
   // -- redux --
   hasClaimInQueue: boolean,
   hasPlayingUriInQueue: boolean,
@@ -18,10 +21,11 @@ type Props = {
   doSetPlayingUri: (props: any) => void,
 };
 
-function FileAddToQueueLink(props: Props) {
+function ButtonAddToQueue(props: Props) {
   const {
     uri,
     focusable = true,
+    menuItem,
     hasClaimInQueue,
     hasPlayingUriInQueue,
     playingUri,
@@ -33,7 +37,8 @@ function FileAddToQueueLink(props: Props) {
   } = props;
 
   function handleQueue(e) {
-    e.preventDefault();
+    if (e) e.preventDefault();
+
     doToast({ message: hasClaimInQueue ? __('Item removed from Queue') : __('Item added to Queue') });
     doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
       uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [playingUrl, uri] : [uri],
@@ -60,6 +65,17 @@ function FileAddToQueueLink(props: Props) {
   // label that is shown after hover
   const label = !hasClaimInQueue ? __('Add to Queue') : __('In Queue');
 
+  if (menuItem) {
+    return (
+      <MenuItem className="comment__menu-option" onSelect={handleQueue}>
+        <div className="menu__link">
+          <Icon aria-hidden icon={hasClaimInQueue ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST} />
+          {hasClaimInQueue ? __('In Queue') : __('Add to Queue')}
+        </div>
+      </MenuItem>
+    );
+  }
+
   return (
     <div className="claim-preview__hover-actions third-item">
       <Button
@@ -74,4 +90,4 @@ function FileAddToQueueLink(props: Props) {
   );
 }
 
-export default FileAddToQueueLink;
+export default ButtonAddToQueue;

@@ -17,6 +17,7 @@ import {
 } from 'util/url';
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
+import ButtonAddToQueue from 'component/buttonAddToQueue';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 const PAGE_VIEW_QUERY = 'view';
@@ -54,7 +55,7 @@ type Props = {
   collectionId: string,
   isMyCollection: boolean,
   fypId?: string,
-  doToast: ({ message: string, isError?: boolean }) => void,
+  doToast: ({ message: string, isError?: boolean, linkText?: string, linkTarget?: string }) => void,
   claimIsMine: boolean,
   fileInfo: FileListItem,
   prepareEdit: ({}, string, {}) => void,
@@ -172,12 +173,18 @@ function ClaimMenuList(props: Props) {
     // $FlowFixMe
     (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
-  function handleAdd(source, name, collectionId) {
+  function handleAdd(claimIsInPlaylist, name, collectionId) {
     doToast({
-      message: source ? __('Item removed from %name%', { name }) : __('Item added to %name%', { name }),
+      message: claimIsInPlaylist ? __('Item removed from %name%', { name }) : __('Item added to %name%', { name }),
+      linkText: __('View All'),
+      linkTarget: `/list/${collectionId}`,
     });
     if (contentClaim) {
-      doCollectionEdit(collectionId, { uris: [contentClaim.permanent_url], remove: source, type: 'playlist' });
+      doCollectionEdit(collectionId, {
+        uris: [contentClaim.permanent_url],
+        remove: claimIsInPlaylist,
+        type: 'playlist',
+      });
     }
   }
 
@@ -348,6 +355,9 @@ function ClaimMenuList(props: Props) {
             shouldShow &&
             isPlayable && (
               <>
+                {/* QUEUE */}
+                {contentClaim && <ButtonAddToQueue uri={contentClaim.permanent_url} menuItem />}
+
                 {/* WATCH LATER */}
                 <MenuItem
                   className="comment__menu-option"

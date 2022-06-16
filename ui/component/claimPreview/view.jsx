@@ -26,7 +26,7 @@ import ClaimPreviewTitle from 'component/claimPreviewTitle';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
-import FileAddToQueueLink from 'component/fileAddToQueueLink';
+import ButtonAddToQueue from 'component/buttonAddToQueue';
 import PublishPending from 'component/publishPending';
 import ClaimMenuList from 'component/claimMenuList';
 import ClaimPreviewReset from 'component/claimPreviewReset';
@@ -484,7 +484,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     {isPlayable && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
                         <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
-                        <FileAddToQueueLink focusable={false} uri={repostedContentUri} />
+                        <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
                       </div>
                     )}
                     {(!isLivestream || isLivestreamActive) && (

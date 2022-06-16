@@ -3,7 +3,7 @@ import { doCollectionEdit } from 'redux/actions/collections';
 import { selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
-import FileAddToQueueLink from './view';
+import ButtonAddToQueue from './view';
 import { doToast } from 'redux/actions/notifications';
 import { doUriInitiatePlay, doSetPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
@@ -31,4 +31,4 @@ const perform = {
   doSetPlayingUri,
 };
 
-export default connect(select, perform)(FileAddToQueueLink);
+export default connect(select, perform)(ButtonAddToQueue);
