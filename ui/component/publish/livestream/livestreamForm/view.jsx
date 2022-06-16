@@ -150,9 +150,7 @@ function LivestreamForm(props: Props) {
   const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
     // $FlowFixMe
     if (inEditMode) {
-      if (isPostClaim) {
-        return mode === PUBLISH_MODES.POST;
-      } else if (isLivestreamClaim) {
+      if (isLivestreamClaim) {
         return mode === PUBLISH_MODES.LIVESTREAM && enableLivestream;
       } else {
         return mode === PUBLISH_MODES.FILE;
@@ -168,27 +166,6 @@ function LivestreamForm(props: Props) {
   const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
   console.log('mode: ', mode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
-
-  let customSubtitle;
-  if (mode === PUBLISH_MODES.LIVESTREAM || isLivestreamClaim) {
-    if (isLivestreamClaim) {
-      customSubtitle = __('Update your livestream');
-    } else {
-      customSubtitle = __('Prepare an upcoming livestream');
-    }
-  } else if (mode === PUBLISH_MODES.POST || isPostClaim) {
-    if (isPostClaim) {
-      customSubtitle = __('Edit your post');
-    } else {
-      customSubtitle = __('Craft an epic post clearly explaining... whatever.');
-    }
-  } else {
-    if (editingURI) {
-      customSubtitle = __('Update your content');
-    } else {
-      customSubtitle = __('Upload that unlabeled video or cassette you found behind the TV in 1991');
-    }
-  }
 
   const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
 

@@ -500,6 +500,7 @@ export default function LivestreamSetupPage(props: Props) {
         </>
       )}
       {tab === 'Publish' && <LivestreamForm />}
+      {tab === 'Replays' && <h1>dsf</h1>}
     </Page>
   );
 }
