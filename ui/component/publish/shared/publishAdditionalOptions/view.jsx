@@ -4,12 +4,12 @@ import classnames from 'classnames';
 import usePersistedState from 'effects/use-persisted-state';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
-import PublishReleaseDate from 'component/publishReleaseDate';
+import PublishReleaseDate from '../publishReleaseDate';
 import LicenseType from './license-type';
 import Card from 'component/common/card';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { sortLanguageMap } from 'util/default-languages';
-import PublishBid from 'component/publishBid';
+import PublishBid from '../publishBid';
 
 // @if TARGET='app'
 // import ErrorText from 'component/common/error-text';

@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import PostForm from 'component/postForm';
+import PostForm from 'component/publish/post/postForm';
 import Page from 'component/page';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import Spinner from 'component/spinner';

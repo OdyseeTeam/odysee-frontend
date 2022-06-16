@@ -13,7 +13,7 @@ import Spinner from 'component/spinner';
 import I18nMessage from 'component/i18nMessage';
 import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import PublishName from 'component/publishName';
+import PublishName from 'component/publish/shared/publishName';
 import CopyableText from 'component/copyableText';
 import Empty from 'component/common/empty';
 import moment from 'moment';

@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import LivestreamForm from 'component/livestreamForm';
+import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Page from 'component/page';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import Spinner from 'component/spinner';

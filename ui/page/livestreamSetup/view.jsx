@@ -19,7 +19,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
-import LivestreamForm from 'component/livestreamForm';
+import LivestreamForm from 'component/publish/livestream/livestreamForm';
 
 type Props = {
   hasChannels: boolean,
@@ -499,8 +499,8 @@ export default function LivestreamSetupPage(props: Props) {
           )}
         </>
       )}
-      {tab === 'Publish' && <LivestreamForm />}
-      {tab === 'Replays' && <h1>dsf</h1>}
+      {tab === 'Publish' && <LivestreamForm mode={PUBLISH_MODES.LIVESTREAM} />}
+      {tab === 'Replays' && <LivestreamForm mode={PUBLISH_MODES.FILE} />}
     </Page>
   );
 }

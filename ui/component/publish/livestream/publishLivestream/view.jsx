@@ -13,7 +13,7 @@ import Spinner from 'component/spinner';
 import I18nMessage from 'component/i18nMessage';
 import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
-import PublishName from 'component/publishName';
+import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
 import Empty from 'component/common/empty';
 import moment from 'moment';
@@ -474,6 +474,7 @@ function PublishLivestream(props: Props) {
   const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
   const isPublishPost = mode === PUBLISH_MODES.POST;
 
+  console.log('dsfds');
   return (
     <Card
       className={classnames({

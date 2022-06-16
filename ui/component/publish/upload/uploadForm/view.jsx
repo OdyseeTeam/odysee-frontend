@@ -17,11 +17,12 @@ import Button from 'component/button';
 import ChannelSelect from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
-import PublishDescription from 'component/publishDescription';
-import PublishPrice from 'component/publishPrice';
-import PublishFile from 'component/publishFile';
-import PublishAdditionalOptions from 'component/publishAdditionalOptions';
-import PublishFormErrors from 'component/publishFormErrors';
+import PublishDescription from 'component/publish/shared/publishDescription';
+import PublishPrice from 'component/publish/shared/publishPrice';
+import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
+import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
+import PublishFile from 'component/publish/upload/publishFile';
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -30,7 +31,6 @@ import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
-import PublishStreamReleaseDate from 'component/publishStreamReleaseDate';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 // @if TARGET='app'
