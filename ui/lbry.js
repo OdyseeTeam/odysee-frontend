@@ -1,14 +1,16 @@
 // @flow
+import analytics from 'analytics';
+import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
 import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
+import fetchWithTimeout from 'util/fetch';
 
 require('proxy-polyfill');
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
-//
+const ERR_LOG_METHOD_WHITELIST = ['support_create'];
+
 // Basic LBRY sdk connection config
 // Offers a proxy to call LBRY sdk methods
-
-//
 const Lbry = {
   isConnected: false,
   connectPromise: null,
@@ -177,21 +179,82 @@ const Lbry = {
     }),
 };
 
-function checkAndParse(response: Response, method: string) {
-  if (!response.ok) {
+const ApiFailureMgr = {
+  MAX_FAILED_ATTEMPTS: 5,
+  MAX_FAILED_GAP_MS: 500,
+  BLOCKED_DURATION_MS: 60000,
+  METHODS_TO_LOG: ['claim_search'], // Can check all, but narrow do claim_search only for now.
+
+  failureTimestamps: {}, // { [key: string]: Array<timestamps: number> }
+
+  logFailure: function (method: string, params: ?{}, timestamp: number) {
+    if (this.isListedMethod(method)) {
+      const key = this.getKey(method, params);
+      const ts = this.failureTimestamps[key] || [];
+      ts.push(timestamp);
+      this.failureTimestamps[key] = ts;
+    }
+  },
+
+  logSuccess: function (method: string, params: ?{}) {
+    if (this.isListedMethod(method)) {
+      const key = this.getKey(method, params);
+      delete this.failureTimestamps[key];
+    }
+  },
+
+  isFailingAndShouldDrop: function (method: string, params: ?{}) {
+    if (this.isListedMethod(method)) {
+      const key = this.getKey(method, params);
+      const fts = this.failureTimestamps[key];
+      if (fts && fts.length > this.MAX_FAILED_ATTEMPTS) {
+        const ts2 = fts[fts.length - 1];
+        const ts1 = fts[fts.length - this.MAX_FAILED_ATTEMPTS];
+        const successivelyFailed = ts2 - ts1 < this.MAX_FAILED_GAP_MS;
+        return successivelyFailed && Date.now() - ts2 < this.BLOCKED_DURATION_MS;
+      }
+    }
+    return false;
+  },
+
+  getKey: function (method: string, params: ?{}) {
+    return method + '/' + JSON.stringify(params || {});
+  },
+
+  isListedMethod: function (method: string) {
+    return this.METHODS_TO_LOG.includes(method);
+  },
+};
+
+/**
+ * Returns a customized error message for known scenarios.
+ */
+function resolveFetchErrorMsg(method: string, response: Response | string) {
+  if (typeof response === 'object') {
     // prettier-ignore
     switch (response.status) {
       case 504: // Gateway timeout
       case 524: // Cloudflare: a timeout occurred
         switch (method) {
           case 'publish':
-            throw Error(__('[Publish]: Your action timed out, but may have been completed. Refresh and check your Uploads or Wallet page to confirm after a few minutes.'));
+            return __('[Publish]: Your action timed out, but may have been completed. Refresh and check your Uploads or Wallet page to confirm after a few minutes.');
           default:
-            throw Error(`${method}: ${response.statusText} (${response.status})`);
+            return `${method}: ${response.statusText} (${response.status})`;
         }
       default:
-        throw Error(`${method}: ${response.statusText} (${response.status})`);
+        return `${method}: ${response.statusText} (${response.status})`;
     }
+  } else if (response === FETCH_TIMEOUT) {
+    return `${method}: ${SDK_FETCH_TIMEOUT}`; // Don't translate as clients will do a string match.
+  } else {
+    return `${method}: fetch failed.`;
+  }
+}
+
+function checkAndParse(response: Response, method: string) {
+  if (!response.ok) {
+    const errMsg = resolveFetchErrorMsg(method, response);
+    throw Error(errMsg);
   }
 
   if (response.status >= 200 && response.status < 300) {
@@ -236,17 +299,38 @@ export function apiCall(method: string, params: ?{}, resolve: Function, reject: 
     }),
   };
 
+  if (ApiFailureMgr.isFailingAndShouldDrop(method, params)) {
+    return Promise.reject('Dropped due to successive failures.');
+  }
+
   const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
     ? Lbry.alternateConnectionString
     : Lbry.daemonConnectionString;
 
-  return fetch(connectionString + '?m=' + method, options)
+  const SDK_FETCH_TIMEOUT_MS = 60000;
+  return fetchWithTimeout(SDK_FETCH_TIMEOUT_MS, fetch(connectionString + '?m=' + method, options))
     .then((response) => checkAndParse(response, method))
     .then((response) => {
       const error = response.error || (response.result && response.result.error);
-      return error ? reject(error) : resolve(response.result);
+      if (error) {
+        ApiFailureMgr.logFailure(method, params, counter);
+        return reject(error);
+      } else {
+        ApiFailureMgr.logSuccess(method);
+        return resolve(response.result);
+      }
     })
-    .catch(reject);
+    .catch((err) => {
+      ApiFailureMgr.logFailure(method, params, counter);
+      if (err?.message === FETCH_TIMEOUT) {
+        if (ERR_LOG_METHOD_WHITELIST.includes(method)) {
+          analytics.error(`${method}: timed out after ${SDK_FETCH_TIMEOUT_MS / 1000}s`);
+        }
+        reject(resolveFetchErrorMsg(method, FETCH_TIMEOUT));
+      } else {
+        reject(err);
+      }
+    });
 }
 
 function daemonCallWithResult(

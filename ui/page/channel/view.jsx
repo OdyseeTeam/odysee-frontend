@@ -28,6 +28,7 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
+import PremiumBadge from 'component/common/premium-badge';
 import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
 import MembershipChannelTab from 'component/creatorMemberships/membershipChannelTab';
 
@@ -63,6 +64,7 @@ type Props = {
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
   lang: string,
+  odyseeMembership: string,
 };
 
 function ChannelPage(props: Props) {
@@ -83,6 +85,7 @@ function ChannelPage(props: Props) {
     mutedChannels,
     unpublishedCollections,
     lang,
+    odyseeMembership,
   } = props;
 
   const {
@@ -274,7 +277,6 @@ function ChannelPage(props: Props) {
             className="channel__thumbnail--channel-page"
             uri={uri}
             allowGifs
-            showMemberBadge
             isChannel
             hideStakedIndicator
           />
@@ -282,6 +284,7 @@ function ChannelPage(props: Props) {
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
+            <PremiumBadge membership={odyseeMembership} />
           </h1>
           <div className="channel__meta">
             <Tooltip title={formattedSubCount} followCursor placement="top">
@@ -340,7 +343,6 @@ function ChannelPage(props: Props) {
             <Tab>{__('Membership')}</Tab>
             <Tab disabled={editing}>{__('Community')}</Tab>
           </TabList>
-
           <TabPanels>
             <TabPanel>
               {currentView === PAGE.CONTENT && (
@@ -367,13 +369,11 @@ function ChannelPage(props: Props) {
             <TabPanel>
               <ChannelAbout uri={uri} />
             </TabPanel>
-
             <TabPanel>
               {currentView === PAGE.MEMBERSHIP && (
                 <MembershipChannelTab uri={uri} testMembership={membershipTiers[2]} />
               )}
             </TabPanel>
-
             <TabPanel>
               {(showDiscussion || currentView === PAGE.DISCUSSION) && <ChannelDiscussion uri={uri} />}
             </TabPanel>

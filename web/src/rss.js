@@ -1,4 +1,4 @@
-const { generateStreamUrl } = require('../../ui/util/web');
+const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { lbryProxy: Lbry } = require('../lbry');
 const { URL, SITE_NAME, PROXY_URL } = require('../../config.js');
 const Mime = require('mime-types');
@@ -62,37 +62,54 @@ function encodeWithSpecialCharEncode(string) {
   return encodeURIComponent(string).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
 }
 
-const generateEnclosureForClaimContent = (claim) => {
+/**
+ * Returns an array of stream-url promise results corresponding to the same
+ * order as the given 'claims' array, or null if there is an error.
+ *
+ * Clients must check the promise 'status' for each entry, as some could be a
+ * failed fetch (i.e. 'rejected').
+ *
+ * @param claims Array of freaking claims.
+ * @returns {Array<{status, value}> | null}
+ */
+async function fetchStreamUrls(claims) {
+  return Promise.allSettled(claims.map((c) => fetchStreamUrl(c.name, c.claim_id)))
+    .then((results) => results)
+    .catch(() => null);
+}
+
+async function generateEnclosureForClaimContent(claim, streamUrl) {
   const value = claim.value;
   if (!value || !value.stream_type) {
     return undefined;
   }
+
   const fileExt = value.source && value.source.media_type && '.' + Mime.extension(value.source.media_type);
 
   switch (value.stream_type) {
     case 'video':
       return {
-        url: generateStreamUrl(claim.name, claim.claim_id) + (fileExt || '.mp4'),
+        url: streamUrl.replace('/v4/', '/v3/') + (fileExt || '.mp4'), // v3 = mp4 always, v4 may redirect to m3u8
         type: (value.source && value.source.media_type) || 'video/mp4',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
 
     case 'audio':
       return {
-        url: generateStreamUrl(claim.name, claim.claim_id) + ((fileExt === '.mpga' ? '.mp3' : fileExt) || '.mp3'),
+        url: streamUrl + ((fileExt === '.mpga' ? '.mp3' : fileExt) || '.mp3'),
         type: (value.source && value.source.media_type) || 'audio/mpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'image':
       return {
-        url: generateStreamUrl(claim.name, claim.claim_id) + (fileExt || '.jpeg'),
+        url: streamUrl + (fileExt || '.jpeg'),
         type: (value.source && value.source.media_type) || 'image/jpeg',
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
     case 'document':
     case 'software':
       return {
-        url: generateStreamUrl(claim.name, claim.claim_id),
+        url: streamUrl,
         type: (value.source && value.source.media_type) || undefined,
         size: (value.source && value.source.size) || 0, // Per spec, 0 is a valid fallback.
       };
@@ -100,7 +117,7 @@ const generateEnclosureForClaimContent = (claim) => {
     default:
       return undefined;
   }
-};
+}
 
 const getLanguageValue = (claim) => {
   const {
@@ -174,7 +191,7 @@ const getItunesCategory = (claim) => {
       // "Note: Although you can specify more than one category and subcategory
       // in your RSS feed, Apple Podcasts only recognizes the first category and
       // subcategory."
-      // --> The only parse the first found tag.
+      // --> They only parse the first found tag.
       return itunesCategory.replace('&', '&amp;');
     }
   }
@@ -215,7 +232,7 @@ const getFormattedDescription = (claim) => replaceLineFeeds(claim.value.descript
 // Generate
 // ****************************************************************************
 
-function generateFeed(feedLink, channelClaim, claimsInChannel) {
+async function generateFeed(feedLink, channelClaim, claimsInChannel) {
   // --- Channel ---
   let channelTitle = (channelClaim.value && channelClaim.value.title) || channelClaim.name;
   let channelURL = URL + '/' + channelClaim.canonical_url.replace('lbry://', '').replace(/#/g, ':');
@@ -244,8 +261,12 @@ function generateFeed(feedLink, channelClaim, claimsInChannel) {
     ],
   });
 
+  // --- Parallel pre-fetch of stream url ---
+  const streamUrls = await fetchStreamUrls(claimsInChannel);
+
   // --- Content ---
-  claimsInChannel.forEach((c) => {
+  for (let i = 0; i < claimsInChannel.length; ++i) {
+    const c = claimsInChannel[i];
     const title = (c.value && c.value.title) || c.name;
     const thumbnailUrl = (c.value && c.value.thumbnail && c.value.thumbnail.url) || '';
     const thumbnailHtml = thumbnailUrl
@@ -257,6 +278,9 @@ function generateFeed(feedLink, channelClaim, claimsInChannel) {
     const date =
       c.value && c.value.release_time ? c.value.release_time * 1000 : c.meta && c.meta.creation_timestamp * 1000;
 
+    const claimStreamUrl = streamUrls ? streamUrls[i] : '';
+    const streamUrl = claimStreamUrl.status === 'fulfilled' ? claimStreamUrl.value : '';
+
     feed.item({
       title: title,
       description: description,
@@ -264,7 +288,7 @@ function generateFeed(feedLink, channelClaim, claimsInChannel) {
       guid: undefined, // defaults to 'url'
       author: undefined, // defaults feed author property
       date: new Date(date),
-      enclosure: generateEnclosureForClaimContent(c),
+      enclosure: await generateEnclosureForClaimContent(c, streamUrl),
       custom_elements: [
         { 'itunes:title': title },
         { 'itunes:author': channelTitle },
@@ -273,7 +297,7 @@ function generateFeed(feedLink, channelClaim, claimsInChannel) {
         generateItunesExplicitElement(c),
       ],
     });
-  });
+  }
 
   return feed;
 }
@@ -289,7 +313,7 @@ async function getRss(ctx) {
   }
 
   const latestClaimsInChannel = await getClaimsFromChannel(channelClaim.claim_id, NUM_ENTRIES);
-  const feed = generateFeed(`${URL}${ctx.request.url}`, channelClaim, latestClaimsInChannel);
+  const feed = await generateFeed(`${URL}${ctx.request.url}`, channelClaim, latestClaimsInChannel);
   return feed.xml();
 }
 

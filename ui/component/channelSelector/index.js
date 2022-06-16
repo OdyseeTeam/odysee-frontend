@@ -3,22 +3,29 @@ import { selectMyChannelClaims, selectClaimsByUri, selectOdyseeMembershipForUri 
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { doFetchOdyseeMembershipsById } from 'redux/actions/memberships';
+import { doSetDefaultChannel } from 'redux/actions/settings';
+import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 import ChannelSelector from './view';
 
 const select = (state, props) => {
+  const { storeSelection } = props;
   const activeChannelClaim = selectActiveChannelClaim(state);
+  const defaultChannelClaim = selectDefaultChannelClaim(state);
 
   return {
     channels: selectMyChannelClaims(state),
-    activeChannelClaim,
+    activeChannelClaim: storeSelection ? defaultChannelClaim : activeChannelClaim,
     incognito: selectIncognito(state),
     odyseeMembershipByUri: (uri) => selectOdyseeMembershipForUri(state, uri),
     claimsByUri: selectClaimsByUri(state),
   };
 };
 
-export default connect(select, {
+const perform = {
   doSetActiveChannel,
   doSetIncognito,
   doFetchOdyseeMembershipsById,
-})(ChannelSelector);
+  doSetDefaultChannel,
+};
+
+export default connect(select, perform)(ChannelSelector);

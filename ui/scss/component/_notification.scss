@@ -86,6 +86,11 @@ $contentMaxWidth: 60rem;
           opacity: 1;
         }
       }
+
+      .MuiAutocomplete-root {
+        background-color: var(--color-background);
+        border-radius: var(--border-radius);
+      }
     }
   }
 
@@ -238,9 +243,9 @@ $contentMaxWidth: 60rem;
 
 .notification__title {
   position: relative;
-  font-size: var(--font-small);
-  color: var(--color-text);
-  margin-bottom: var(--spacing-xxs);
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  // margin-bottom: var(--spacing-xxs);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -260,8 +265,8 @@ $contentMaxWidth: 60rem;
 }
 
 .notification__text {
-  font-size: var(--font-xsmall);
-  color: var(--color-text-subtitle);
+  font-size: var(--font-small);
+  color: var(--color-text);
   display: -webkit-box;
   -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
@@ -279,6 +284,7 @@ $contentMaxWidth: 60rem;
   blockquote {
     padding-left: var(--spacing-xs);
     border-left: 2px solid;
+    color: var(--color-text) !important;
   }
 }
 

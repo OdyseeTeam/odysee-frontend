@@ -7,6 +7,8 @@ import Spinner from 'component/spinner';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 
+// TODO: don't use both of these, not sure which is betterm
+import { ODYSEE_CHANNEL } from 'constants/channels';
 // odysee channel information since the memberships are only for Odysee
 import { ODYSEE_CHANNEL_ID, ODYSEE_CHANNEL_NAME } from 'constants/odysee';
 
@@ -22,12 +24,14 @@ import I18nMessage from 'component/i18nMessage';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
 
-let stripeEnvironment = getStripeEnvironment();
+const stripeEnvironment = getStripeEnvironment();
+const isDev = process.env.NODE_ENV !== 'production';
 
-const isDev = stripeEnvironment === 'test';
-
-let log = (input) => {};
-if (isDev) log = console.log;
+function log(...args) {
+  // @if process.env.LOG_MEMBERSHIP='true'
+  console.log(args);
+  // @endif
+}
 
 type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
@@ -135,8 +139,9 @@ const OdyseeMembershipPage = (props: Props) => {
           'list',
           {
             environment: stripeEnvironment,
-            channel_id: ODYSEE_CHANNEL_ID,
-            channel_name: ODYSEE_CHANNEL_NAME,
+            // Using @odysee's channel info as memberships are only for @odysee.
+            channel_id: ODYSEE_CHANNEL.ID,
+            channel_name: ODYSEE_CHANNEL.NAME,
           },
           'post'
         );

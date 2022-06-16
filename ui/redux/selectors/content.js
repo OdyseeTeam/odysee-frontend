@@ -18,7 +18,7 @@ import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/c
 const RECENT_HISTORY_AMOUNT = 10;
 const HISTORY_ITEMS_PER_PAGE = 50;
 
-type State = { claims: any, content: any, user: UserState };
+type State = { claims: any, content: ContentState, user: UserState };
 
 export const selectState = (state: State) => state.content || {};
 
@@ -26,12 +26,17 @@ export const selectPlayingUri = (state: State) => selectState(state).playingUri;
 export const selectPrimaryUri = (state: State) => selectState(state).primaryUri;
 export const selectListLoop = (state: State) => selectState(state).loopList;
 export const selectListShuffle = (state: State) => selectState(state).shuffleList;
+export const selectLastViewedAnnouncement = (state: State) => selectState(state).lastViewedAnnouncement;
+export const selectRecsysEntries = (state: State) => selectState(state).recsysEntries;
 
 export const makeSelectIsPlaying = (uri: string) =>
   createSelector(selectPrimaryUri, (primaryUri) => primaryUri === uri);
 
-export const makeSelectIsUriCurrentlyPlaying = (uri: string) =>
-  createSelector(selectPlayingUri, (playingUri) => playingUri.uri === uri);
+export const selectIsUriCurrentlyPlaying = createSelector(
+  (state, uri) => uri,
+  selectPlayingUri,
+  (uri, playingUri) => Boolean(playingUri.uri === uri)
+);
 
 export const makeSelectIsPlayerFloating = (location: UrlLocation) =>
   createSelector(selectPrimaryUri, selectPlayingUri, (primaryUri, playingUri) => {
@@ -66,7 +71,7 @@ export const selectContentPositionForUri = (state: State, uri: string) => {
   return null;
 };
 
-export const selectHistory = createSelector(selectState, (state) => state.history || []);
+export const selectHistory = (state: State) => selectState(state).history || [];
 
 export const selectHistoryPageCount = createSelector(selectHistory, (history) =>
   Math.ceil(history.length / HISTORY_ITEMS_PER_PAGE)
@@ -87,6 +92,16 @@ export const makeSelectHasVisitedUri = (uri: string) =>
 
 export const selectRecentHistory = createSelector(selectHistory, (history) => {
   return history.slice(0, RECENT_HISTORY_AMOUNT);
+});
+
+export const selectWatchHistoryUris = createSelector(selectHistory, (history) => {
+  const uris = [];
+  for (let entry of history) {
+    if (entry.uri.indexOf('@') !== -1) {
+      uris.push(entry.uri);
+    }
+  }
+  return uris;
 });
 
 export const selectShouldObscurePreviewForUri = (state: State, uri: string) => {

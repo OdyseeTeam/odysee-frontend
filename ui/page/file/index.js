@@ -6,10 +6,12 @@ import {
   makeSelectTagInClaimOrChannelForUri,
   selectIsStreamPlaceholderForUri,
   selectClaimForUri,
+  selectClaimWasPurchasedForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { makeSelectCollectionForId } from 'redux/selectors/collections';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri, doFetchCostInfoForUri } from 'lbryinc';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
@@ -18,6 +20,7 @@ import { selectCommentsListTitleForUri, selectSettingsByChannelId } from 'redux/
 import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { doToggleAppDrawer } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
+import { doFileGet } from 'redux/actions/file';
 
 import FilePage from './view';
 
@@ -31,7 +34,8 @@ const select = (state, props) => {
 
   return {
     channelId: getChannelIdFromClaim(claim),
-    linkedCommentId: urlParams.get('lc'),
+    linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
+    threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     costInfo: selectCostInfoForUri(state, uri),
     obscureNsfw: !selectShowMatureContent(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
@@ -46,6 +50,7 @@ const select = (state, props) => {
     position: selectContentPositionForUri(state, uri),
     audioVideoDuration: claim?.value?.video?.duration || claim?.value?.audio?.duration,
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
+    claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
   };
 };
 
@@ -55,6 +60,7 @@ const perform = {
   doSetPrimaryUri,
   clearPosition,
   doToggleAppDrawer,
+  doFileGet,
 };
 
 export default withRouter(connect(select, perform)(FilePage));

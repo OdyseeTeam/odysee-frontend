@@ -80,7 +80,7 @@ class StripeAccountConnection extends React.Component<Props, State> {
                     </div>
                     <div className="section__actions">
                       <a href={stripeConnectionUrl}>
-                        <Button button="secondary" label={__('Connect your bank account')} icon={ICONS.FINANCE} />
+                        <Button button="primary" label={__('Connect your bank account')} icon={ICONS.FINANCE} />
                       </a>
                     </div>
                   </div>
@@ -127,7 +127,7 @@ class StripeAccountConnection extends React.Component<Props, State> {
                       </div>
                       <div className="section__actions">
                         <a href={stripeConnectionUrl}>
-                          <Button button="secondary" label={__('Connect your bank account')} icon={ICONS.FINANCE} />
+                          <Button button="primary" label={__('Connect your bank account')} icon={ICONS.FINANCE} />
                         </a>
                       </div>
                     </div>

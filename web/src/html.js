@@ -10,25 +10,23 @@ const {
   SITE_TITLE,
   URL,
 } = require('../../config.js');
-
 const {
-  generateDirectUrl,
   generateEmbedUrl,
-  generateStreamUrl,
   getParameterByName,
   getThumbnailCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
 } = require('../../ui/util/web');
+const { fetchStreamUrl } = require('./fetchStreamUrl');
 const { getJsBundleId } = require('../bundle-id.js');
 const { lbryProxy: Lbry } = require('../lbry');
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
 const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
 const fs = require('fs');
-const moment = require('moment');
 const PAGES = require('../../ui/constants/pages');
 const path = require('path');
 const removeMd = require('remove-markdown');
+const { buildGoogleVideoMetadata } = require('./metadata/googleVideo');
 
 const jsBundleId = getJsBundleId();
 Lbry.setDaemonConnectionString(PROXY_URL);
@@ -151,7 +149,7 @@ function buildBasicOgMetadata() {
 // Metadata used for urls that need claim information
 // Also has option to override defaults
 //
-function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
+async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
   const { claimName } = parseURI(uri);
   const { meta, value, signing_channel } = claim;
@@ -181,7 +179,7 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   let imageThumbnail;
 
   if (fee <= 0 && mediaType && mediaType.startsWith('image/')) {
-    imageThumbnail = generateStreamUrl(claim.name, claim.claim_id);
+    imageThumbnail = await fetchStreamUrl(claim.name, claim.claim_id);
   }
 
   const claimThumbnail =
@@ -217,7 +215,7 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   head += `<meta name="description" content="${cleanDescription}"/>`;
 
   if (tags && tags.length > 0) {
-    head += `<meta name="keywords" content="${tags.toString()}"/>`;
+    head += `<meta name="keywords" content="${escapeHtmlProperty(tags.toString())}"/>`;
   }
 
   head += `<meta name="twitter:image" content="${claimThumbnail}"/>`;
@@ -269,56 +267,6 @@ function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   }
 
   return head;
-}
-
-function buildGoogleVideoMetadata(uri, claim) {
-  const { claimName } = parseURI(uri);
-  const { meta, value } = claim;
-  const media = value && value.video;
-  const source = value && value.source;
-  let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
-  const mediaType = source && source.media_type;
-  const mediaDuration = media && media.duration;
-  const claimTitle = escapeHtmlProperty((value && value.title) || claimName);
-  const releaseTime = (value && value.release_time) || (meta && meta.creation_timestamp) || 0;
-
-  const claimDescription =
-    value && value.description && value.description.length > 0
-      ? escapeHtmlProperty(truncateDescription(value.description))
-      : `View ${claimTitle} on ${SITE_NAME}`;
-
-  if (!mediaType || !mediaType.startsWith('video/')) {
-    return '';
-  }
-
-  const claimThumbnail = escapeHtmlProperty(thumbnail) || getThumbnailCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
-
-  // https://developers.google.com/search/docs/data-types/video
-  const googleVideoMetadata = {
-    // --- Must ---
-    '@context': 'https://schema.org',
-    '@type': 'VideoObject',
-    name: `${claimTitle}`,
-    description: `${removeMd(claimDescription)}`,
-    thumbnailUrl: `${claimThumbnail}`,
-    uploadDate: `${new Date(releaseTime * 1000).toISOString()}`,
-    // --- Recommended ---
-    duration: mediaDuration ? moment.duration(mediaDuration * 1000).toISOString() : undefined,
-    contentUrl: generateDirectUrl(claim.name, claim.claim_id),
-    embedUrl: generateEmbedUrl(claim.name, claim.claim_id),
-  };
-
-  if (
-    !googleVideoMetadata.description.replace(/\s/g, '').length ||
-    googleVideoMetadata.thumbnailUrl.startsWith('data:image') ||
-    !googleVideoMetadata.thumbnailUrl.startsWith('http')
-  ) {
-    return '';
-  }
-
-  return (
-    '<script type="application/ld+json">\n' + JSON.stringify(googleVideoMetadata, null, '  ') + '\n' + '</script>\n'
-  );
 }
 
 function buildSearchPageHead(html, requestPath, queryStr) {
@@ -392,7 +340,7 @@ async function getHtml(ctx) {
       const inviteChannel = requestPath.slice(invitePath.length);
       const inviteChannelUrl = normalizeClaimUrl(inviteChannel);
       const claim = await resolveClaimOrRedirect(ctx, inviteChannelUrl);
-      const invitePageMetadata = buildClaimOgMetadata(inviteChannelUrl, claim, {
+      const invitePageMetadata = await buildClaimOgMetadata(inviteChannelUrl, claim, {
         title: `Join ${claim.name} on ${SITE_NAME}`,
         description: `Join ${claim.name} on ${SITE_NAME}, a content wonderland owned by everyone (and no one).`,
       });
@@ -414,8 +362,8 @@ async function getHtml(ctx) {
     const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
     if (claim) {
-      const ogMetadata = buildClaimOgMetadata(claimUri, claim);
-      const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
+      const ogMetadata = await buildClaimOgMetadata(claimUri, claim);
+      const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }
 
@@ -432,14 +380,22 @@ async function getHtml(ctx) {
   }
 
   if (!requestPath.includes('$')) {
-    const parsedUri = parseURI(normalizeClaimUrl(requestPath.slice(1)));
-    const claimUri = buildURI({ ...parsedUri, startTime: undefined });
+    let parsedUri, claimUri;
+
+    try {
+      parsedUri = parseURI(normalizeClaimUrl(requestPath.slice(1)));
+      claimUri = buildURI({ ...parsedUri, startTime: undefined });
+    } catch (err) {
+      ctx.status = 404;
+      return err.message;
+    }
+
     const claim = await resolveClaimOrRedirect(ctx, claimUri);
     const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
 
     if (claim) {
-      const ogMetadata = buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
-      const googleVideoMetadata = buildGoogleVideoMetadata(claimUri, claim);
+      const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {}, referrerQuery);
+      const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
       return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
     }
   }

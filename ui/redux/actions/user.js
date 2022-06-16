@@ -3,6 +3,8 @@ import { selectClaimForUri } from 'redux/selectors/claims';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { isURIValid, normalizeURI } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
+import { getStripeEnvironment } from 'util/stripe';
+import { ODYSEE_CHANNEL } from 'constants/channels';
 
 import * as ACTIONS from 'constants/action_types';
 import { doFetchGeoBlockedList } from 'redux/actions/blocked';
@@ -14,12 +16,16 @@ import rewards from 'rewards';
 import { Lbryio } from 'lbryinc';
 import { DOMAIN, LOCALE_API } from 'config';
 import { getDefaultLanguage } from 'util/default-languages';
+import { LocalStorage, LS } from 'util/storage';
+
 import { doCheckUserOdyseeMemberships, doMembershipMine } from 'redux/actions/memberships';
 
 const AUTH_IN_PROGRESS = 'authInProgress';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
+const stripeEnvironment = getStripeEnvironment();
+
 
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
@@ -90,9 +96,9 @@ function checkAuthBusy() {
       if (!IS_WEB || !sessionStorageAvailable) {
         return resolve();
       }
-      const inProgress = window.sessionStorage.getItem(AUTH_IN_PROGRESS);
+      const inProgress = LocalStorage.getItem(LS.AUTH_IN_PROGRESS);
       if (!inProgress) {
-        window.sessionStorage.setItem(AUTH_IN_PROGRESS, 'true');
+        LocalStorage.setItem(LS.AUTH_IN_PROGRESS, 'true');
         return resolve();
       } else {
         if (Date.now() - time < AUTH_WAIT_TIMEOUT) {
@@ -121,7 +127,7 @@ export function doAuthenticate(
         return Lbryio.authenticate(DOMAIN, getDefaultLanguage());
       })
       .then((user) => {
-        if (sessionStorageAvailable) window.sessionStorage.removeItem(AUTH_IN_PROGRESS);
+        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
         Lbryio.getAuthToken().then((token) => {
           dispatch({
             type: ACTIONS.AUTHENTICATION_SUCCESS,
@@ -146,7 +152,7 @@ export function doAuthenticate(
         });
       })
       .catch((error) => {
-        if (sessionStorageAvailable) window.sessionStorage.removeItem(AUTH_IN_PROGRESS);
+        LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
 
         dispatch({
           type: ACTIONS.AUTHENTICATION_FAILURE,
@@ -199,7 +205,6 @@ export function doUserCheckEmailVerified() {
         dispatch(doMembershipMine(user));
 
         dispatch(doRewardList());
-
         dispatch({
           type: ACTIONS.USER_FETCH_SUCCESS,
           data: { user },

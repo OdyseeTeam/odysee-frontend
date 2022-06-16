@@ -238,18 +238,16 @@ body {
       .card {
         padding: 0;
         .card__first-pane {
-          .card__main-actions {
-            .button--alt:last-of-type {
-              top: -1px;
-              float: right;
-              margin-right: 0;
-            }
-            .comment__sort {
-              .button--alt:last-of-type {
-                top: unset;
-                float: unset;
-                margin-right: unset;
-              }
+          .button--alt[aria-label='Refresh'] {
+            top: -1px;
+            float: right;
+            margin-right: 0;
+          }
+          .comment__sort {
+            .button--alt[aria-label='Refresh'] {
+              top: unset;
+              float: unset;
+              margin-right: unset;
             }
           }
         }
@@ -594,7 +592,10 @@ body {
     max-width: var(--page-max-width--filepage);
     position: relative;
     display: grid;
-    grid-template-columns: 1fr minmax(0, var(--livestream-comments-width));
+
+    $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
+    grid-template-columns: minmax($file-min-width, 0) 1fr;
+
     justify-content: space-between;
     justify-items: end;
     gap: var(--spacing-m);
@@ -698,6 +699,10 @@ body {
   margin-top: var(--spacing-m);
   padding: 0 var(--spacing-m);
 
+  .section__actions {
+    margin-left: var(--spacing-s);
+  }
+
   @media (max-width: $breakpoint-small) {
     .section__header--actions {
       .section__actions--inline:last-of-type {
@@ -742,6 +747,39 @@ body {
 
     .card__main-actions {
       border-top: unset;
+    }
+
+    input,
+    select {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+      &:hover {
+        background-color: var(--color-input-toggle-bg-hover);
+      }
+      &:focus-visible {
+        background-color: var(--color-input-toggle-bg-hover) !important;
+        box-shadow: 0 0 0 2px var(--color-primary) inset;
+      }
+    }
+
+    .checkbox,
+    .radio {
+      label {
+        &::before {
+          top: unset;
+          border: unset;
+          box-shadow: 0 0 0 2px var(--color-border) inset;
+        }
+        &::after {
+          top: 6px;
+        }
+      }
+    }
+    .checkbox {
+      label {
+        &::after {
+          top: 8px !important;
+        }
+      }
     }
   }
 
@@ -1021,6 +1059,38 @@ body {
       padding-right: 0;
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .card__main-actions {
+      margin-top: var(--spacing-s);
+    }
+    .section__actions {
+      margin-top: var(--spacing-m);
+    }
+    .MuiAutocomplete-root {
+      background-color: var(--color-input-bg);
+      border-radius: var(--border-radius);
+      .MuiOutlinedInput-input {
+        font-size: var(--font-body);
+        padding-left: var(--spacing-s);
+        padding-right: var(--spacing-s);
+        height: 22px !important;
+        &::placeholder {
+          color: #ffffff !important;
+          font-size: var(--font-body);
+        }
+        &:focus-visible {
+          box-shadow: unset;
+        }
+      }
+      .Mui-focused {
+        outline: 2px solid var(--color-primary);
+      }
+      .MuiOutlinedInput-notchedOutline {
+        border: none;
+      }
+    }
+  }
 }
 
 .main--empty {
@@ -1126,6 +1196,17 @@ body {
   margin-left: auto;
   margin-right: auto;
   max-width: 32rem;
+
+  fieldset-section {
+    .form-field__avatar_upload {
+      display: flex;
+      flex-flow: row;
+      align-items: center;
+      .button--alt {
+        margin-left: var(--spacing-s);
+      }
+    }
+  }
 }
 
 // Temp hacks until 'section__actions--no-margin' is generic again.

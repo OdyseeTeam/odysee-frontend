@@ -7,19 +7,26 @@ const defaultState: LivestreamState = {
   fetchingById: {},
   viewersById: {},
   fetchingActiveLivestreams: 'pending',
-  activeLivestreams: null,
+  activeLivestreams: {},
   activeLivestreamsLastFetchedDate: 0,
   activeLivestreamsLastFetchedOptions: {},
+  activeLivestreamsLastFetchedFailCount: 0,
   activeLivestreamInitialized: false,
-  commentSocketConnected: false,
+  socketConnectionById: {},
 };
 
+/**
+ * Update state.viewersById with the latest data
+ * @param {object} activeLivestreams - streams with fetched data
+ * @param {object} originalState - streams with only their view counts
+ * @returns {*} - updated viewersById object if active streams passed, otherwise return old data
+ */
 function updateViewersById(activeLivestreams, originalState) {
   if (activeLivestreams) {
     const viewersById = Object.assign({}, originalState);
     Object.values(activeLivestreams).forEach((data) => {
       // $FlowFixMe: mixed
-      if (data.claimId && data.viewCount) {
+      if (data && data.claimId && data.viewCount) {
         // $FlowFixMe: mixed
         viewersById[data.claimId] = data.viewCount;
       }
@@ -62,8 +69,15 @@ export default handleActions(
     [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_STARTED]: (state: LivestreamState) => {
       return { ...state, fetchingActiveLivestreams: true };
     },
-    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAILED]: (state: LivestreamState) => {
-      return { ...state, fetchingActiveLivestreams: false };
+    [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAILED]: (state: LivestreamState, action: any) => {
+      const { activeLivestreamsLastFetchedDate, activeLivestreamsLastFetchedOptions } = action.data;
+      return {
+        ...state,
+        fetchingActiveLivestreams: false,
+        activeLivestreamsLastFetchedDate,
+        activeLivestreamsLastFetchedOptions,
+        activeLivestreamsLastFetchedFailCount: state.activeLivestreamsLastFetchedFailCount + 1,
+      };
     },
     [ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED]: (state: LivestreamState, action: any) => {
       const { activeLivestreams, activeLivestreamsLastFetchedDate, activeLivestreamsLastFetchedOptions } = action.data;
@@ -73,6 +87,7 @@ export default handleActions(
         activeLivestreams,
         activeLivestreamsLastFetchedDate,
         activeLivestreamsLastFetchedOptions,
+        activeLivestreamsLastFetchedFailCount: 0,
         viewersById: updateViewersById(activeLivestreams, state.viewersById),
       };
     },
@@ -86,14 +101,18 @@ export default handleActions(
       };
     },
     [ACTIONS.REMOVE_CHANNEL_FROM_ACTIVE_LIVESTREAMS]: (state: LivestreamState, action: any) => {
-      const activeLivestreams = state.activeLivestreams;
-      if (activeLivestreams) delete activeLivestreams[action.data.channelId];
-      return { ...state, activeLivestreams: Object.assign({}, activeLivestreams), activeLivestreamInitialized: true };
+      const activeLivestreams = Object.assign({}, state.activeLivestreams);
+      activeLivestreams[action.data.channelId] = null;
+      return { ...state, activeLivestreams, activeLivestreamInitialized: true };
     },
-    [ACTIONS.COMMENT_SOCKET_CONNECTED]: (state: CommentsState, action: any) => ({
-      ...state,
-      commentSocketConnected: action.data.connected,
-    }),
+    [ACTIONS.SOCKET_CONNECTED_BY_ID]: (state: LivestreamState, action: any) => {
+      const { connected, sub_category, id: claimId } = action.data;
+
+      const socketConnectionById = Object.assign({}, state.socketConnectionById);
+      socketConnectionById[claimId] = { connected, sub_category };
+
+      return { ...state, socketConnectionById };
+    },
   },
   defaultState
 );

@@ -31,9 +31,10 @@ type Props = {
   streamingUrl: ?string,
   disableDownloadButton: boolean,
   doOpenModal: (id: string, { uri: string, claimIsMine?: boolean, isSupport?: boolean }) => void,
-  doEditForChannel: (claim: Claim, uri: string) => void,
+  doPrepareEdit: (claim: Claim, uri: string) => void,
   doToast: (data: { message: string }) => void,
   doDownloadUri: (uri: string) => void,
+  isMature: boolean,
 };
 
 export default function FileActions(props: Props) {
@@ -49,9 +50,10 @@ export default function FileActions(props: Props) {
     streamingUrl,
     disableDownloadButton,
     doOpenModal,
-    doEditForChannel,
+    doPrepareEdit,
     doToast,
     doDownloadUri,
+    isMature,
   } = props;
 
   const {
@@ -150,7 +152,7 @@ export default function FileActions(props: Props) {
                 icon={ICONS.EDIT}
                 label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
                 navigate={`/$/${PAGES.UPLOAD}`}
-                onClick={() => doEditForChannel(claim, editUri)}
+                onClick={() => doPrepareEdit(claim, editUri)}
               />
             </div>
           </Tooltip>
@@ -197,7 +199,7 @@ export default function FileActions(props: Props) {
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() => {
-                        doEditForChannel(claim, editUri);
+                        doPrepareEdit(claim, editUri);
                         push(`/$/${PAGES.UPLOAD}`);
                       }}
                     >
@@ -221,7 +223,7 @@ export default function FileActions(props: Props) {
               </>
             )}
 
-            {!isLivestreamClaim && !disableDownloadButton && (
+            {!isLivestreamClaim && !disableDownloadButton && !isMature && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />

@@ -16,17 +16,11 @@ import { buildUnseenCountStr } from 'util/notifications';
 
 import HomePage from 'page/home';
 
-// @if TARGET='app'
-const BackupPage = lazyImport(() => import('page/backup' /* webpackChunkName: "backup" */));
-// @endif
-
-// @if TARGET='web'
 const Code2257Page = lazyImport(() => import('web/page/code2257' /* webpackChunkName: "code2257" */));
 const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy' /* webpackChunkName: "privacypolicy" */));
 const TOSPage = lazyImport(() => import('web/page/tos' /* webpackChunkName: "tos" */));
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
-// @endif
 
 const SignInPage = lazyImport(() => import('page/signIn' /* webpackChunkName: "signIn" */));
 const SignInWalletPasswordPage = lazyImport(() =>
@@ -70,6 +64,7 @@ const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: 
 const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChunkName: "listBlocked" */));
 const ListsPage = lazyImport(() => import('page/lists' /* webpackChunkName: "lists" */));
 const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "lists" */));
+const WatchHistoryPage = lazyImport(() => import('page/watchHistory' /* webpackChunkName: "history" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
 const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
@@ -89,6 +84,7 @@ const PasswordSetPage = lazyImport(() => import('page/passwordSet' /* webpackChu
 const PublishPage = lazyImport(() => import('page/publish' /* webpackChunkName: "publish" */));
 const ReportContentPage = lazyImport(() => import('page/reportContent' /* webpackChunkName: "reportContent" */));
 const ReportPage = lazyImport(() => import('page/report' /* webpackChunkName: "report" */));
+const RepostNew = lazyImport(() => import('page/repost' /* webpackChunkName: "repost" */));
 const RewardsPage = lazyImport(() => import('page/rewards' /* webpackChunkName: "rewards" */));
 const RewardsVerifyPage = lazyImport(() => import('page/rewardsVerify' /* webpackChunkName: "rewardsVerify" */));
 const SearchPage = lazyImport(() => import('page/search' /* webpackChunkName: "search" */));
@@ -136,7 +132,6 @@ type Props = {
   },
   uri: string,
   title: string,
-  welcomeVersion: number,
   hasNavigated: boolean,
   setHasNavigated: () => void,
   setReferrer: (?string) => void,
@@ -145,6 +140,9 @@ type Props = {
   wildWestDisabled: boolean,
   unseenCount: number,
   hideTitleNotificationCount: boolean,
+  hasDefaultChannel: boolean,
+  doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
+  embedLatestPath: ?boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -187,7 +185,12 @@ function AppRouter(props: Props) {
     wildWestDisabled,
     unseenCount,
     hideTitleNotificationCount,
+    hasDefaultChannel,
+    doSetActiveChannel,
+    embedLatestPath,
   } = props;
+
+  const defaultChannelRef = React.useRef(hasDefaultChannel);
 
   const { entries, listen, action: historyAction } = history;
   const entryIndex = history.index;
@@ -197,21 +200,19 @@ function AppRouter(props: Props) {
   const tagParams = urlParams.get(CS.TAGS_KEY);
   const isLargeScreen = useIsLargeScreen();
 
-  const homeCategoryPages = React.useMemo(() => {
+  const categoryPages = React.useMemo(() => {
     const dynamicRoutes = GetLinksData(homepageData, isLargeScreen).filter(
-      (potentialRoute: any) => potentialRoute && potentialRoute.route
+      (x: any) => x && x.route && (x.id !== 'WILD_WEST' || !wildWestDisabled)
     );
 
     return dynamicRoutes.map((dynamicRouteProps: RowDataItem) => (
       <Route
         key={dynamicRouteProps.route}
         path={dynamicRouteProps.route}
-        component={(routerProps) => (
-          <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} hideRepostRibbon />
-        )}
+        component={(routerProps) => <DiscoverPage {...routerProps} dynamicRouteProps={dynamicRouteProps} />}
       />
     ));
-  }, [homepageData, isLargeScreen]);
+  }, [homepageData, isLargeScreen, wildWestDisabled]);
 
   // For people arriving at settings page from deeplinks, know whether they can "go back"
   useEffect(() => {
@@ -235,8 +236,16 @@ function AppRouter(props: Props) {
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
-      const title = pathname.startsWith('/$/') ? PAGE_TITLE[pathname.substring(3)] : '';
-      return __(title) || (IS_WEB ? SITE_TITLE : 'Odysee');
+      let title = '';
+      if (pathname.startsWith('/$/')) {
+        const name = pathname.substring(3);
+        if (window.CATEGORY_PAGE_TITLE && window.CATEGORY_PAGE_TITLE[name]) {
+          title = window.CATEGORY_PAGE_TITLE[name];
+        } else {
+          title = PAGE_TITLE[name];
+        }
+      }
+      return __(title) || SITE_TITLE || 'Odysee';
     };
 
     if (uri) {
@@ -258,7 +267,7 @@ function AppRouter(props: Props) {
     if (unseenCount > 0 && !hideTitleNotificationCount) {
       document.title = `(${buildUnseenCountStr(unseenCount)}) ${document.title}`;
     }
-  }, [pathname, entries, entryIndex, title, uri, unseenCount]);
+  }, [pathname, entries, entryIndex, title, uri, unseenCount, hideTitleNotificationCount]);
 
   useEffect(() => {
     if (!hasLinkedCommentInUrl) {
@@ -273,6 +282,25 @@ function AppRouter(props: Props) {
       }
     }
   }, [currentScroll, pathname, search, hash, resetScroll, hasLinkedCommentInUrl, historyAction]);
+
+  React.useEffect(() => {
+    defaultChannelRef.current = hasDefaultChannel;
+  }, [hasDefaultChannel]);
+
+  React.useEffect(() => {
+    // has a default channel selected, clear the current active channel
+    if (
+      defaultChannelRef.current &&
+      pathname !== `/$/${PAGES.UPLOAD}` &&
+      !pathname.includes(`/$/${PAGES.LIST}/`) &&
+      pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` &&
+      pathname !== `/$/${PAGES.LIVESTREAM}`
+    ) {
+      doSetActiveChannel(null, true);
+    }
+    // only on pathname change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
 
   // react-router doesn't decode pathanmes before doing the route matching check
   // We have to redirect here because if we redirect on the server, it might get encoded again
@@ -298,8 +326,7 @@ function AppRouter(props: Props) {
         <Route path={`/`} exact component={HomePage} />
 
         {(!wildWestDisabled || tagParams) && <Route path={`/$/${PAGES.DISCOVER}`} exact component={DiscoverPage} />}
-        {!wildWestDisabled && <Route path={`/$/${PAGES.WILD_WEST}`} exact component={DiscoverPage} />}
-        {homeCategoryPages}
+        {categoryPages}
 
         <Route path={`/$/${PAGES.AUTH_SIGNIN}`} exact component={SignInPage} />
         <Route path={`/$/${PAGES.AUTH_PASSWORD_RESET}`} exact component={PasswordResetPage} />
@@ -308,16 +335,13 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.AUTH}/*`} exact component={SignUpPage} />
 
         <Route path={`/$/${PAGES.HELP}`} exact component={HelpPage} />
-        {/* @if TARGET='app' */}
-        <Route path={`/$/${PAGES.BACKUP}`} exact component={BackupPage} />
-        {/* @endif */}
-        {/* @if TARGET='web' */}
+
         <Route path={`/$/${PAGES.CODE_2257}`} exact component={Code2257Page} />
         <Route path={`/$/${PAGES.PRIVACY_POLICY}`} exact component={PrivacyPolicyPage} />
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
-        {/* @endif */}
+
         <Route path={`/$/${PAGES.AUTH_VERIFY}`} exact component={SignInVerifyPage} />
         <Route path={`/$/${PAGES.SEARCH}`} exact component={SearchPage} />
         <Route path={`/$/${PAGES.TOP}`} exact component={TopPage} />
@@ -353,6 +377,7 @@ function AppRouter(props: Props) {
         />
         <PrivateRoute {...props} path={`/$/${PAGES.INVITE}`} component={InvitePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNEL_NEW}`} component={ChannelNew} />
+        <PrivateRoute {...props} path={`/$/${PAGES.REPOST_NEW}`} component={RepostNew} />
         <PrivateRoute {...props} path={`/$/${PAGES.UPLOADS}`} component={FileListPublished} />
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_DASHBOARD}`} component={CreatorDashboard} />
         <PrivateRoute {...props} path={`/$/${PAGES.UPLOAD}`} component={PublishPage} />
@@ -362,6 +387,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.LIBRARY}`} component={LibraryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LISTS}`} component={ListsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.PLAYLISTS}`} component={PlaylistsPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_BLOCKED_MUTED}`} component={ListBlockedPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />
@@ -381,14 +407,19 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
-        <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
+        <Route
+          path={`/$/${PAGES.EMBED}/:claimName`}
+          exact
+          component={embedLatestPath ? () => <EmbedWrapperPage uri={uri} /> : EmbedWrapperPage}
+        />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
-        <Route path="/:claimName/membership_history" exact component={CreatorMembershipPage} />
-        <Route path="/:claimName" exact component={ShowPage} />
-        <Route path="/:claimName/:streamName" exact component={ShowPage} />
-
+        <Route path={`/$/${PAGES.LATEST}/:channelName`} exact render={() => <ShowPage uri={uri} latestContentPath />} />
+        <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact render={() => <ShowPage uri={uri} liveContentPath />} />
+        <Route path="/:claimName/membership_history" exact render={() => <ShowPage uri={uri} />} />
+        <Route path="/:claimName" exact render={() => <ShowPage uri={uri} />} />
+        <Route path="/:claimName/:streamName" exact render={() => <ShowPage uri={uri} />} />
         <Route path="/*" component={FourOhFourPage} />
       </Switch>
     </React.Suspense>

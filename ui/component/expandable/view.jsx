@@ -8,11 +8,12 @@ const COLLAPSED_HEIGHT = 120;
 
 type Props = {
   children: React$Node | Array<React$Node>,
+  beginCollapsed?: boolean,
   forceExpand?: boolean,
 };
 
 export default function Expandable(props: Props) {
-  const { children, forceExpand } = props;
+  const { children, beginCollapsed, forceExpand } = props;
 
   const [expanded, setExpanded] = useState(false);
   const [rect, setRect] = useState();
@@ -42,10 +43,8 @@ export default function Expandable(props: Props) {
 
   return (
     <div ref={ref}>
-      {forceExpand === undefined ? (
-        rect && rect.height > COLLAPSED_HEIGHT
-      ) : forceExpand ? (
-        <div className="expandable__wrapper" ref={ref}>
+      {(rect && rect.height > COLLAPSED_HEIGHT) || beginCollapsed ? (
+        <div ref={ref}>
           <div
             className={classnames({
               'expandable--open': expanded,

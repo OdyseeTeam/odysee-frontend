@@ -1,13 +1,18 @@
 // @flow
 import { doToast } from 'redux/actions/notifications';
 
+export function dispatchToast(
+  dispatch: Dispatch,
+  message: string,
+  subMessage: string = '',
+  duration: 'default' | 'long' = 'default',
+  isError: boolean = true
+) {
+  return dispatch(doToast({ message, subMessage: subMessage || undefined, duration: duration, isError }));
+}
+
 export function doFailedSignatureToast(dispatch: Dispatch, channelName: string) {
-  dispatch(
-    doToast({
-      message: __('Unable to verify signature for %channel%.', { channel: channelName }),
-      isError: true,
-    })
-  );
+  return dispatchToast(dispatch, __('Unable to verify signature.'), channelName);
 }
 
 export function devToast(dispatch: Dispatch, msg: string) {

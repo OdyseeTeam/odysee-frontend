@@ -12,8 +12,8 @@ const select = (state) => ({
   email: selectUserEmail(state),
 });
 
-const perform = (dispatch) => ({
-  signOut: () => dispatch(doSignOut()),
-});
+const perform = {
+  signOut: doSignOut,
+};
 
 export default connect(select, perform)(HeaderProfileMenuButton);

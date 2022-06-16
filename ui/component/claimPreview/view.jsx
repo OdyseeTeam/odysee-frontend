@@ -62,6 +62,7 @@ type Props = {
   type: string,
   nonClickable?: boolean,
   banState: { blacklisted?: boolean, filtered?: boolean, muted?: boolean, blocked?: boolean },
+  geoRestriction: ?GeoRestriction,
   hasVisitedUri: boolean,
   blockedUris: Array<string>,
   actions: boolean | Node | string | number,
@@ -97,6 +98,8 @@ type Props = {
   dragHandleProps?: any,
   unavailableUris?: Array<string>,
   showMemberBadge?: boolean,
+  inWatchHistory?: boolean,
+  doClearContentHistoryUri: (uri: string) => void,
 };
 
 const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
@@ -144,6 +147,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     onClick,
     actions,
     banState,
+    geoRestriction,
     includeSupportAction,
     renderActions,
     hideMenu = false,
@@ -162,6 +166,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     dragHandleProps,
     unavailableUris,
     showMemberBadge,
+    inWatchHistory,
+    doClearContentHistoryUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -212,6 +218,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       ? claim.permanent_url || claim.canonical_url
       : undefined;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
+  const isPublishSuggestion = placeholder === 'publish' && !claim && uri.startsWith('lbry://@'); // See commit a43d9150.
 
   // Get channel title ( use name as fallback )
   let channelTitle = null;
@@ -224,10 +231,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
 
-  // Aria-label value for claim preview
-  let ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
+  const ariaLabelData = isChannelUri ? title : formatClaimPreviewTitle(title, channelTitle, date, mediaDuration);
 
-  let navigateUrl = formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/');
+  const navigateUrl = formatLbryUrlForWeb((claim && claim.canonical_url) || uri || '/');
   let navigateSearch = new URLSearchParams();
   if (listId) {
     navigateSearch.set(COLLECTIONS_CONSTS.COLLECTION_ID, listId);
@@ -270,11 +276,22 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     shouldHide = true;
   }
 
+  if (!shouldHide && isPublishSuggestion) {
+    shouldHide = true;
+  }
+
+  if (!shouldHide && !claimIsMine && geoRestriction) {
+    shouldHide = true;
+  }
+
   if (!shouldHide && customShouldHide && claim) {
     if (customShouldHide(claim)) {
       shouldHide = true;
     }
   }
+
+  // **************************************************************************
+  // **************************************************************************
 
   // Weird placement warning
   // Make sure this happens after we figure out if this claim needs to be hidden
@@ -293,14 +310,26 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
 
+  function removeFromHistory(e, uri) {
+    e.stopPropagation();
+    doClearContentHistoryUri(uri);
+  }
+
   useEffect(() => {
     if (isValid && !isResolvingUri && shouldFetch && uri) {
       resolveUri(uri);
     }
   }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri]);
 
+  // **************************************************************************
+  // **************************************************************************
+
   if ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS)) {
     return null;
+  }
+
+  if (geoRestriction && !claimIsMine) {
+    return null; // Ignore 'showNullPlaceholder'
   }
 
   if (placeholder === 'loading' || (uri && !claim && isResolvingUri)) {
@@ -332,8 +361,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       </React.Suspense>
     );
   }
-  if (placeholder === 'publish' && !claim && uri.startsWith('lbry://@')) {
-    return null;
+
+  if (isPublishSuggestion) {
+    return null; // Ignore 'showNullPlaceholder'
   }
 
   let liveProperty = null;
@@ -365,7 +395,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     >
       <>
         {!hideRepostLabel && <ClaimRepostAuthor uri={uri} />}
-
         <div
           className={classnames('claim-preview', {
             'claim-preview--small': type === 'small' || type === 'tooltip',
@@ -493,7 +522,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             )}
           </div>
         </div>
-
+        {inWatchHistory && (
+          <div onClick={(e) => removeFromHistory(e, uri)} className="claim-preview__history-remove">
+            <Icon icon={ICONS.REMOVE} />
+          </div>
+        )}
         {/* Todo: check isLivestreamActive once we have that data consistently everywhere. */}
         {claim && isLivestream && <ClaimPreviewReset uri={uri} />}
 

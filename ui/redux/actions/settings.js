@@ -3,6 +3,7 @@ import { doWalletReconnect } from 'redux/actions/wallet';
 import * as SETTINGS from 'constants/settings';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
 import * as ACTIONS from 'constants/action_types';
+import * as MODALS from 'constants/modal_types';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import { doToast } from 'redux/actions/notifications';
 import analytics from 'analytics';
@@ -10,7 +11,7 @@ import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { launcher } from 'util/autoLaunch';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doSyncLoop, doSyncUnsubscribe, doSetSyncLock } from 'redux/actions/sync';
-import { doAlertWaitingForSync, doGetAndPopulatePreferences } from 'redux/actions/app';
+import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 'redux/actions/app';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
 import { getDefaultLanguage } from 'util/default-languages';
@@ -308,30 +309,47 @@ export function doFetchLanguage(language) {
   };
 }
 
+function populateCategoryTitles(categories) {
+  if (categories) {
+    window.CATEGORY_PAGE_TITLE = {};
+    Object.values(categories).forEach((x) => {
+      window.CATEGORY_PAGE_TITLE[x.name] = x.label;
+    });
+  }
+}
+
+function loadBuiltInHomepageData(dispatch) {
+  const homepages = require('homepages');
+  if (homepages) {
+    const v2 = {};
+    const homepageKeys = Object.keys(homepages);
+    homepageKeys.forEach((hp) => {
+      v2[hp] = homepages[hp];
+    });
+
+    window.homepages = v2;
+    populateCategoryTitles(window.homepages?.en?.categories);
+    dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
+  }
+}
+
+export function doOpenAnnouncements() {
+  return (dispatch) => {
+    // There is a weird useEffect in modalRouter that closes all modals on
+    // initial mount. Not sure what scenario that covers, so just delay a bit
+    // until it is mounted.
+    setTimeout(() => {
+      dispatch(doOpenModal(MODALS.ANNOUNCEMENTS, { isAutoInvoked: true }));
+    }, 1000);
+  };
+}
+
 export function doFetchHomepages() {
   return (dispatch) => {
-    // -- Use this env flag to use local homepage data. Otherwise, it will grab from `/$/api/content/v*/get`.
+    // -- Use this env flag to use local homepage data and meme (faster).
+    // -- Otherwise, it will grab from `/$/api/content/v*/get`.
     // @if USE_LOCAL_HOMEPAGE_DATA='true'
-    const homepages = require('homepages');
-    if (homepages) {
-      const v2 = {};
-      const homepageKeys = Object.keys(homepages);
-
-      homepageKeys.forEach((hp) => {
-        v2[hp] = {
-          categories: homepages[hp],
-        };
-      });
-
-      const meme = require('memes');
-      if (meme && v2['en']) {
-        v2['en'].meme = meme;
-      }
-
-      window.homepages = v2;
-      dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
-      return;
-    }
+    loadBuiltInHomepageData(dispatch);
     // @endif
 
     fetch('https://odysee.com/$/api/content/v2/get')
@@ -339,6 +357,7 @@ export function doFetchHomepages() {
       .then((json) => {
         if (json?.status === 'success' && json?.data) {
           window.homepages = json.data;
+          populateCategoryTitles(window.homepages?.en?.categories);
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_DONE });
         } else {
           dispatch({ type: ACTIONS.FETCH_HOMEPAGES_FAILED });
@@ -493,3 +512,9 @@ export function toggleAutoplayNext() {
     );
   };
 }
+
+export const doSetDefaultVideoQuality = (value) => (dispatch) =>
+  dispatch(doSetClientSetting(SETTINGS.DEFAULT_VIDEO_QUALITY, value, true));
+
+export const doSetDefaultChannel = (claimId) => (dispatch) =>
+  dispatch(doSetClientSetting(SETTINGS.ACTIVE_CHANNEL_CLAIM, claimId, true));

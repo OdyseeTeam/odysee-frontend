@@ -42,7 +42,7 @@ declare type PerChannelSettings = {
 
 // todo: relate individual comments to their commentId
 declare type CommentsState = {
-  commentsByUri: { [string]: string },
+  commentsByUri: { [string]: string }, // URI -> claimId (TODO: remove)
   superChatsByUri: { [string]: { totalAmount: number, comments: Array<Comment> } },
   byId: { [string]: Array<string> }, // ClaimID -> list of fetched comment IDs.
   totalCommentsById: {}, // ClaimId -> ultimate total (including replies) in commentron.
@@ -51,8 +51,8 @@ declare type CommentsState = {
   topLevelCommentsById: { [string]: Array<string> }, // ClaimID -> list of fetched top level comments.
   topLevelTotalPagesById: { [string]: number }, // ClaimID -> total number of top-level pages in commentron. Based on COMMENT_PAGE_SIZE_TOP_LEVEL.
   topLevelTotalCommentsById: { [string]: number }, // ClaimID -> total top level comments in commentron.
-  commentById: { [string]: Comment },
-  linkedCommentAncestors: { [string]: Array<string> }, // {"linkedCommentId": ["parentId", "grandParentId", ...]}
+  commentById: { [string]: Comment }, // commentId -> Comment
+  fetchedCommentAncestors: { [string]: Array<string> }, // {"fetchedCommentId": ["parentId", "grandParentId", ...]}
   pinnedCommentsById: {}, // ClaimId -> array of pinned comment IDs
   isLoading: boolean,
   isLoadingById: boolean,
@@ -81,6 +81,7 @@ declare type CommentsState = {
   settingsByChannelId: { [string]: PerChannelSettings }, // ChannelID -> settings
   fetchingSettings: boolean,
   fetchingBlockedWords: boolean,
+  myCommentedChannelIdsById: { [string]: Array<string> }, // [content-claim-id] -> array of own channels IDs that have commented before.
 };
 
 // Authorization parameters for calls requiring user authentication

@@ -16,6 +16,7 @@ import {
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
+import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 
 type State = { claims: any, user: UserState };
 
@@ -34,6 +35,17 @@ export const selectCreatingChannel = (state: State) => selectState(state).creati
 export const selectCreateChannelError = (state: State) => selectState(state).createChannelError;
 export const selectRepostLoading = (state: State) => selectState(state).repostLoading;
 export const selectRepostError = (state: State) => selectState(state).repostError;
+export const selectLatestByUri = (state: State) => selectState(state).latestByUri;
+
+export const selectLatestClaimForUri = createSelector(
+  (state, uri) => uri,
+  selectLatestByUri,
+  (uri, latestByUri) => {
+    const latestClaim = latestByUri[uri];
+    // $FlowFixMe
+    return latestClaim && Object.values(latestClaim)[0].stream;
+  }
+);
 
 export const selectClaimsByUri = createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   const claims = {};
@@ -94,7 +106,10 @@ export const selectClaimIdForUri = (state: State, uri: string) => selectClaimIds
 
 export const selectReflectingById = (state: State) => selectState(state).reflectingById;
 
+// OBSOLETE: use selectClaimForClaimId instead
 export const makeSelectClaimForClaimId = (claimId: string) => createSelector(selectClaimsById, (byId) => byId[claimId]);
+
+export const selectClaimForClaimId = (state: State, claimId: string) => selectClaimsById(state)[claimId];
 
 export const selectClaimForUri = createCachedSelector(
   selectClaimIdsByUri,
@@ -297,10 +312,9 @@ export const makeSelectMyPurchasesForPage = (query: ?string, page: number = 1) =
     }
   );
 
-export const makeSelectClaimWasPurchased = (uri: string) =>
-  createSelector(makeSelectClaimForUri(uri), (claim) => {
-    return claim && claim.purchase_receipt !== undefined;
-  });
+export const selectClaimWasPurchasedForUri = createSelector(selectClaimForUri, (claim) =>
+  Boolean(claim?.purchase_receipt !== undefined)
+);
 
 export const selectAllFetchingChannelClaims = createSelector(selectState, (state) => state.fetchingChannelClaims || {});
 
@@ -865,34 +879,6 @@ export const selectGeoRestrictionForUri = createCachedSelector(
   selectGeoBlockLists,
   selectUserLocale,
   (claim, geoBlockLists, locale: LocaleInfo) => {
-    if (locale && geoBlockLists && claim) {
-      const claimId: ?string = claim.claim_id;
-      const channelId: ?string = getChannelIdFromClaim(claim);
-
-      let geoConfig: ?GeoConfig;
-
-      // --- livestreams
-      if (isStreamPlaceholderClaim(claim) && geoBlockLists.livestreams) {
-        geoConfig = geoBlockLists.livestreams[channelId] || geoBlockLists.livestreams[claimId];
-      }
-      // --- videos (a.k.a everything else)
-      else if (geoBlockLists.videos) {
-        geoConfig = geoBlockLists.videos[channelId] || geoBlockLists.videos[claimId];
-      }
-
-      if (geoConfig) {
-        const specials = geoConfig.specials || [];
-        const countries = geoConfig.countries || [];
-        const continents = geoConfig.continents || [];
-
-        return (
-          specials.find((x: GeoRestriction) => x.id === 'EU-ONLY' && locale.is_eu_member) ||
-          countries.find((x: GeoRestriction) => x.id === locale.country) ||
-          continents.find((x: GeoRestriction) => x.id === locale.continent)
-        );
-      }
-    }
-
-    return null;
+    return getGeoRestrictionForClaim(claim, locale, geoBlockLists);
   }
 )((state, uri) => String(uri));

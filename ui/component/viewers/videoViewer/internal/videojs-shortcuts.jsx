@@ -1,12 +1,13 @@
 // @flow
 import * as OVERLAY from './overlays';
 import * as KEYCODES from 'constants/keycodes';
+import { VIDEO_PLAYBACK_RATES } from 'constants/player';
 import isUserTyping from 'util/detect-typing';
 
 const SEEK_STEP_5 = 5;
 const SEEK_STEP = 10; // time to seek in seconds
-
-const videoPlaybackRates = [0.25, 0.5, 0.75, 1, 1.1, 1.25, 1.5, 1.75, 2];
+const VOLUME_STEP = 0.05;
+const VOLUME_STEP_FINE = 0.01;
 
 // check if active (clicked) element is part of video div, used for keyboard shortcuts (volume etc)
 function activeElementIsPartOfVideoElement() {
@@ -15,24 +16,24 @@ function activeElementIsPartOfVideoElement() {
   return videoElementParent.contains(activeElement);
 }
 
-function volumeUp(event, playerRef) {
+function volumeUp(event, playerRef, checkIsActive = true, amount = VOLUME_STEP) {
   // dont run if video element is not active element (otherwise runs when scrolling using keypad)
   const videoElementIsActive = activeElementIsPartOfVideoElement();
   const player = playerRef.current;
-  if (!player || !videoElementIsActive) return;
+  if (!player || (checkIsActive && !videoElementIsActive)) return;
   event.preventDefault();
-  player.volume(player.volume() + 0.05);
+  player.volume(player.volume() + amount);
   OVERLAY.showVolumeverlay(player, Math.round(player.volume() * 100));
   player.userActive(true);
 }
 
-function volumeDown(event, playerRef) {
+function volumeDown(event, playerRef, checkIsActive = true, amount = VOLUME_STEP) {
   // dont run if video element is not active element (otherwise runs when scrolling using keypad)
   const videoElementIsActive = activeElementIsPartOfVideoElement();
   const player = playerRef.current;
-  if (!player || !videoElementIsActive) return;
+  if (!player || (checkIsActive && !videoElementIsActive)) return;
   event.preventDefault();
-  player.volume(player.volume() - 0.05);
+  player.volume(player.volume() - amount);
   OVERLAY.showVolumeverlay(player, Math.round(player.volume() * 100));
   player.userActive(true);
 }
@@ -84,10 +85,10 @@ function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef) {
   if (!player) return;
   const isSpeedUp = shouldSpeedUp;
   const rate = player.playbackRate();
-  let rateIndex = videoPlaybackRates.findIndex((x) => x === rate);
+  let rateIndex = VIDEO_PLAYBACK_RATES.findIndex((x) => x === rate);
   if (rateIndex >= 0) {
-    rateIndex = isSpeedUp ? Math.min(rateIndex + 1, videoPlaybackRates.length - 1) : Math.max(rateIndex - 1, 0);
-    const nextRate = videoPlaybackRates[rateIndex];
+    rateIndex = isSpeedUp ? Math.min(rateIndex + 1, VIDEO_PLAYBACK_RATES.length - 1) : Math.max(rateIndex - 1, 0);
+    const nextRate = VIDEO_PLAYBACK_RATES[rateIndex];
 
     OVERLAY.showPlaybackRateOverlay(player, nextRate, isSpeedUp);
     player.userActive(true);
@@ -95,7 +96,7 @@ function changePlaybackSpeed(shouldSpeedUp: boolean, playerRef) {
   }
 }
 
-const VideoJsKeyboardShorcuts = ({
+const VideoJsShorcuts = ({
   playNext,
   playPrevious,
   toggleVideoTheaterMode,
@@ -164,15 +165,64 @@ const VideoJsKeyboardShorcuts = ({
     if (e.keyCode === KEYCODES.NINE) seekVideo(90 / 100, playerRef, containerRef, true);
   }
 
-  var curried_function = function (playerRef: any, containerRef: any) {
+  const handleVideoScrollWheel = (event, playerRef, containerRef) => {
+    const player = playerRef.current;
+    const videoNode = containerRef.current && containerRef.current.querySelector('video');
+
+    // SHIFT key required. Scrolling the page will be the priority.
+    if (!videoNode || !player || isUserTyping() || !event.shiftKey) return;
+
+    event.preventDefault();
+
+    const delta = event.deltaY;
+
+    if (delta > 0) {
+      volumeDown(event, playerRef, false, VOLUME_STEP_FINE);
+    } else if (delta < 0) {
+      volumeUp(event, playerRef, false, VOLUME_STEP_FINE);
+    }
+  };
+
+  const handleVolumeBarScrollWheel = (event, volumeElement, playerRef, containerRef) => {
+    const player = playerRef.current;
+    const videoNode = containerRef.current && containerRef.current.querySelector('video');
+
+    if (!volumeElement || !player || !videoNode || isUserTyping()) return;
+
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    const delta = event.deltaY;
+    const changeAmount = event.shiftKey ? VOLUME_STEP_FINE : VOLUME_STEP;
+
+    if (delta > 0) {
+      volumeDown(event, playerRef, false, changeAmount);
+    } else if (delta < 0) {
+      volumeUp(event, playerRef, false, changeAmount);
+    }
+  };
+
+  const createKeyDownShortcutsHandler = function (playerRef: any, containerRef: any) {
     return function curried_func(e: any) {
       handleKeyDown(e, playerRef, containerRef);
     };
   };
+  const createVideoScrollShortcutsHandler = function (playerRef: any, containerRef: any) {
+    return function curried_func(e: any) {
+      handleVideoScrollWheel(e, playerRef, containerRef);
+    };
+  };
+  const createVolumePanelScrollShortcutsHandler = function (volumeElement: any, playerRef: any, containerRef: any) {
+    return function curried_func(e: any) {
+      handleVolumeBarScrollWheel(e, volumeElement, playerRef, containerRef);
+    };
+  };
 
   return {
-    curried_function,
+    createKeyDownShortcutsHandler,
+    createVideoScrollShortcutsHandler,
+    createVolumePanelScrollShortcutsHandler,
   };
 };
 
-export default VideoJsKeyboardShorcuts;
+export default VideoJsShorcuts;

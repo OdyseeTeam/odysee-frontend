@@ -44,6 +44,7 @@ import 'scss/all.scss';
 // @if TARGET='web'
 // These overrides can't live in web/ because they need to use the same instance of `Lbry`
 import apiPublishCallViaWeb from 'web/setup/publish';
+import { doSendPastRecsysEntries } from 'redux/actions/content';
 
 // Sentry error logging setup
 // Will only work if you have a SENTRY_AUTH_TOKEN env
@@ -232,6 +233,7 @@ function AppWrapper() {
   useEffect(() => {
     if (persistDone) {
       app.store.dispatch(doToggle3PAnalytics(null, true));
+      app.store.dispatch(doSendPastRecsysEntries());
     }
   }, [persistDone]);
 
@@ -239,7 +241,7 @@ function AppWrapper() {
     if (readyToLaunch && persistDone) {
       app.store.dispatch(doDaemonReady());
 
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (DEFAULT_LANGUAGE) {
           app.store.dispatch(doFetchLanguage(DEFAULT_LANGUAGE));
         }
@@ -251,6 +253,8 @@ function AppWrapper() {
       }, 25);
 
       analytics.startupEvent(Date.now());
+
+      return () => clearTimeout(timer);
     }
   }, [readyToLaunch, persistDone]);
 

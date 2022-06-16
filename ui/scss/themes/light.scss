@@ -69,8 +69,8 @@
   --color-button-alt-bg-hover: rgba(var(--color-header-background-base), 0.5);
   --color-button-alt-text-hover: var(--color-text);
 
-  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.4);
-  --color-button-toggle-text: rgba(var(--color-text-base), 0.8);
+  --color-button-toggle-bg: rgba(var(--color-header-background-base), 0.5);
+  --color-button-toggle-text: rgba(var(--color-text-base), 1);
   --color-button-toggle-bg-hover: rgba(var(--color-header-background-base), 0.9);
   --color-button-toggle-text-hover: var(--color-text);
   --color-button-toggle-bg-active: rgba(var(--color-header-background-base), 1);
@@ -88,6 +88,7 @@
   --color-input-label: var(--color-text);
   --color-input-placeholder: #212529;
   --color-input-bg: var(--color-header-background);
+  --color-input-bg-secondary: #ffffff;
   --color-input-bg-selected: var(--color-primary);
   --color-input-border: var(--color-border);
   --color-input-toggle: var(--color-secondary);

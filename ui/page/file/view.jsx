@@ -33,6 +33,7 @@ type Props = {
   obscureNsfw: boolean,
   isMature: boolean,
   linkedCommentId?: string,
+  threadCommentId?: string,
   hasCollectionById?: boolean,
   collectionId: string,
   videoTheaterMode: boolean,
@@ -44,12 +45,14 @@ type Props = {
   commentsListTitle: string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   isPlaying?: boolean,
+  claimWasPurchased: boolean,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   clearPosition: (uri: string) => void,
   doClearPlayingUri: () => void,
   doToggleAppDrawer: () => void,
+  doFileGet: (uri: string) => void,
 };
 
 export default function FilePage(props: Props) {
@@ -62,6 +65,7 @@ export default function FilePage(props: Props) {
     isMature,
     costInfo,
     linkedCommentId,
+    threadCommentId,
     videoTheaterMode,
 
     claimIsMine,
@@ -73,16 +77,18 @@ export default function FilePage(props: Props) {
     audioVideoDuration,
     commentsListTitle,
     settingsByChannelId,
+    claimWasPurchased,
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
     clearPosition,
     doToggleAppDrawer,
+    doFileGet,
   } = props;
 
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
-
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
   const cost = costInfo ? costInfo.cost : null;
@@ -100,7 +106,7 @@ export default function FilePage(props: Props) {
   }, [audioVideoDuration, fileInfo, position]);
 
   React.useEffect(() => {
-    if (linkedCommentId && isMobile) {
+    if ((linkedCommentId || threadCommentId) && isMobile) {
       doToggleAppDrawer();
     }
     // only on mount, otherwise clicking on a comments timestamp and linking it
@@ -111,10 +117,6 @@ export default function FilePage(props: Props) {
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file
     // this could probably be refactored into more direct components now
-    if (collectionId) {
-      clearPosition(uri);
-    }
-
     if (fileInfo && videoPlayedEnoughToResetPosition) {
       clearPosition(uri);
     }
@@ -123,6 +125,7 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
+    if (claimWasPurchased && !hasFileInfo) doFileGet(uri);
 
     return () => doSetPrimaryUri(null);
   }, [
@@ -135,6 +138,8 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
+    doFileGet,
+    claimWasPurchased,
   ]);
 
   function renderFilePageLayout() {
@@ -142,12 +147,12 @@ export default function FilePage(props: Props) {
       return (
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
           {/* playables will be rendered and injected by <FileRenderFloating> */}
-          <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+          <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         </div>
       );
     }
 
-    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode)) {
+    if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode) && !isMature) {
       return (
         <>
           <FileTitleSection uri={uri} />
@@ -188,7 +193,7 @@ export default function FilePage(props: Props) {
 
     return (
       <>
-        <FileRenderInitiator uri={uri} videoTheaterMode={videoTheaterMode} />
+        <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         <FileRenderInline uri={uri} />
         <FileTitleSection uri={uri} />
       </>
@@ -203,12 +208,12 @@ export default function FilePage(props: Props) {
         <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
           <FileTitleSection uri={uri} isNsfwBlocked />
         </div>
-        {!isMarkdown && !videoTheaterMode && <RightSideContent {...rightSideProps} />}
+        {!isMarkdown && !theaterMode && <RightSideContent {...rightSideProps} />}
       </Page>
     );
   }
 
-  const commentsListProps = { uri, linkedCommentId };
+  const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const emptyMsgProps = { padded: !isMobile };
 
   return (
@@ -247,22 +252,22 @@ export default function FilePage(props: Props) {
                     <DrawerExpandButton label={commentsListTitle} />
                   </>
                 ) : (
-                  <CommentsList {...commentsListProps} />
+                  <CommentsList {...commentsListProps} notInDrawer />
                 )}
               </React.Suspense>
             </section>
 
-            {!isMarkdown && videoTheaterMode && <RightSideContent {...rightSideProps} />}
+            {!isMarkdown && theaterMode && <RightSideContent {...rightSideProps} />}
           </div>
         )}
       </div>
 
       {!isMarkdown
-        ? !videoTheaterMode && <RightSideContent {...rightSideProps} />
+        ? !theaterMode && <RightSideContent {...rightSideProps} />
         : !contentCommentsDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
-                <CommentsList uri={uri} linkedCommentId={linkedCommentId} commentsAreExpanded />
+                <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />
               </React.Suspense>
             </div>
           )}

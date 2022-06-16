@@ -48,27 +48,26 @@ function getInitialList(listId, savedOrder, homepageSections) {
   const savedHiddenOrder = savedOrder.hidden || [];
   const sectionKeys = Object.keys(homepageSections);
 
-  if (sectionKeys.includes('NEWS') && !savedHiddenOrder.includes('NEWS') && !savedActiveOrder.includes('NEWS')) {
-    savedHiddenOrder.push('NEWS');
-  }
+  // From the saved entries, trim those that no longer exists in the latest (or different) Homepage.
+  let activeOrder: Array<string> = savedActiveOrder.filter((x) => sectionKeys.includes(x));
+  let hiddenOrder: Array<string> = savedHiddenOrder.filter((x) => sectionKeys.includes(x));
 
-  if (listId === 'ACTIVE') {
-    // Start with saved order, excluding obsolete items (i.e. category removed or not available in non-English)
-    const finalOrder = savedActiveOrder.filter((x) => sectionKeys.includes(x));
-
-    // Add new items (e.g. new categories)
-    sectionKeys.forEach((x) => {
-      if (!finalOrder.includes(x)) {
-        finalOrder.push(x);
+  // Add any new categories found into 'active' ...
+  sectionKeys.forEach((key: string) => {
+    if (!activeOrder.includes(key) && !hiddenOrder.includes(key)) {
+      if (homepageSections[key].hideByDefault) {
+        // ... unless it is a 'hideByDefault' category.
+        hiddenOrder.push(key);
+      } else {
+        activeOrder.push(key);
       }
-    });
+    }
+  });
 
-    // Exclude items that were moved to Hidden
-    return finalOrder.filter((x) => !savedHiddenOrder.includes(x));
-  } else {
-    console.assert(listId === 'HIDDEN', `Unhandled listId: ${listId}`);
-    return savedHiddenOrder.filter((x) => sectionKeys.includes(x));
-  }
+  // Final check to exclude items that were previously moved to Hidden.
+  activeOrder = activeOrder.filter((x) => !hiddenOrder.includes(x));
+
+  return listId === 'ACTIVE' ? activeOrder : hiddenOrder;
 }
 
 // ****************************************************************************

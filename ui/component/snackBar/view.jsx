@@ -9,33 +9,56 @@ import LbcMessage from 'component/common/lbc-message';
 type Props = {
   removeSnack: (any) => void,
   snack: ?ToastParams,
+  snackCount: number,
 };
 
-class SnackBar extends React.PureComponent<Props> {
+type State = {
+  isHovering: boolean,
+};
+
+class SnackBar extends React.PureComponent<Props, State> {
   constructor(props: Props) {
     super(props);
-    this.hideTimeout = null;
+    this.state = { isHovering: false };
+    this.intervalId = null;
+
+    (this: any).handleMouseEnter = this.handleMouseEnter.bind(this);
+    (this: any).handleMouseLeave = this.handleMouseLeave.bind(this);
   }
 
-  hideTimeout: ?TimeoutID;
+  intervalId: ?IntervalID;
+
+  handleMouseEnter() {
+    this.setState({ isHovering: true });
+  }
+
+  handleMouseLeave() {
+    this.setState({ isHovering: false });
+  }
 
   render() {
-    const { snack, removeSnack } = this.props;
+    const { snack, snackCount, removeSnack } = this.props;
+    const { isHovering } = this.state;
 
     if (!snack) {
-      this.hideTimeout = null; // should be unmounting anyway, but be safe?
+      clearInterval(this.intervalId);
+      this.intervalId = null; // should be unmounting anyway, but be safe?
       return null;
     }
 
     const { message, subMessage, duration, linkText, linkTarget, linkPath, isError } = snack;
 
-    if (this.hideTimeout === null) {
-      this.hideTimeout = setTimeout(
+    if (this.intervalId) {
+      // TODO: render should be pure
+      clearInterval(this.intervalId);
+    }
+
+    if (!isHovering) {
+      this.intervalId = setInterval(
         () => {
-          this.hideTimeout = null;
           removeSnack();
         },
-        duration === 'long' ? 15000 : 5000
+        duration === 'long' ? 10000 : 5000
       );
     }
 
@@ -43,7 +66,11 @@ class SnackBar extends React.PureComponent<Props> {
       <div
         className={classnames('snack-bar', {
           'snack-bar--error': isError,
+          'snack-bar--stacked-error': snackCount > 1 && isError,
+          'snack-bar--stacked-non-error': snackCount > 1 && !isError,
         })}
+        onMouseEnter={this.handleMouseEnter}
+        onMouseLeave={this.handleMouseLeave}
       >
         <div className="snack-bar__message">
           <Icon icon={isError ? ICONS.ALERT : ICONS.COMPLETED} size={18} />

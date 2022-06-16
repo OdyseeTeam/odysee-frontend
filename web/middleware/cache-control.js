@@ -10,6 +10,7 @@ const STATIC_ASSET_PATHS = [
   '/public/font/v1/700i.woff',
   '/public/favicon.png', // LBRY icon
   '/public/favicon-spaceman.png',
+  '/public/img/astronaut_n_friends.png',
   '/public/img/busy.gif',
   '/public/img/fileRenderPlaceholder.png',
   '/public/img/gerbil-happy.png',
@@ -19,6 +20,7 @@ const STATIC_ASSET_PATHS = [
   '/public/img/thumbnail-broken.png',
   '/public/img/thumbnail-missing.png',
   '/public/img/total-background.png',
+  '/public/img/cookie.svg',
 ];
 
 async function redirectMiddleware(ctx, next) {

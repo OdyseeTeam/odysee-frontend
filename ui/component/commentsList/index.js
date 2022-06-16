@@ -17,6 +17,8 @@ import {
   selectCommentIdsForUri,
   selectSettingsByChannelId,
   selectPinnedCommentsForUri,
+  selectCommentForCommentId,
+  selectCommentAncestorsForId,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -26,14 +28,16 @@ import { doFetchOdyseeMembershipsById, doFetchChannelMembershipsByIds } from 're
 import CommentsList from './view';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, threadCommentId, linkedCommentId } = props;
 
   const claim = selectClaimForUri(state, uri);
   const activeChannelClaim = selectActiveChannelClaim(state);
+  const threadComment = selectCommentForCommentId(state, threadCommentId);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   return {
-    topLevelComments: selectTopLevelCommentsForUri(state, uri),
+    topLevelComments: threadComment ? [threadComment] : selectTopLevelCommentsForUri(state, uri),
+    threadComment,
     allCommentIds: selectCommentIdsForUri(state, uri),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
     topLevelTotalPages: makeSelectTopLevelTotalPagesForUri(uri)(state),
@@ -50,6 +54,8 @@ const select = (state, props) => {
     othersReactsById: selectOthersReacts(state),
     activeChannelId,
     claimsByUri: selectClaimsByUri(state),
+    threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
+    linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
     didFetchById: claim && didFetchById(state, getChannelIdFromClaim(claim)),
   };
 };

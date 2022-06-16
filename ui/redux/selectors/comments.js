@@ -1,9 +1,10 @@
 // @flow
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectMutedChannels } from 'redux/selectors/blocked';
+import { selectGeoBlockLists, selectMutedChannels } from 'redux/selectors/blocked';
 import { selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMentionSearchResults, selectMentionQuery } from 'redux/selectors/search';
+import { selectUserLocale } from 'redux/selectors/user';
 import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
 import {
   selectClaimsById,
@@ -15,6 +16,7 @@ import {
 import { isClaimNsfw, getChannelFromClaim } from 'util/claim';
 import { selectSubscriptionUris } from 'redux/selectors/subscriptions';
 import { getCommentsListTitle } from 'util/comments';
+import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 
 type State = { claims: any, comments: CommentsState, user: UserState };
 
@@ -162,8 +164,11 @@ export const selectTopLevelCommentsByClaimId = createSelector(
   }
 );
 
-export const makeSelectCommentForCommentId = (commentId: string) =>
-  createSelector(selectCommentsById, (comments) => comments[commentId]);
+export const selectCommentForCommentId = createSelector(
+  (state, commentId) => commentId,
+  selectCommentsById,
+  (commentId, comments) => comments[commentId]
+);
 
 export const selectRepliesByParentId = createSelector(selectState, selectCommentsById, (state, byId) => {
   const byParentId = state.repliesByParentId || {};
@@ -182,7 +187,13 @@ export const selectRepliesByParentId = createSelector(selectState, selectComment
   return comments;
 });
 
-export const selectLinkedCommentAncestors = (state: State) => selectState(state).linkedCommentAncestors;
+export const selectFetchedCommentAncestors = (state: State) => selectState(state).fetchedCommentAncestors;
+
+export const selectCommentAncestorsForId = createSelector(
+  (state, commentId) => commentId,
+  selectFetchedCommentAncestors,
+  (commentId, fetchedAncestors) => fetchedAncestors && fetchedAncestors[commentId]
+);
 
 export const selectCommentIdsForUri = (state: State, uri: string) => {
   const claimId = selectClaimIdForUri(state, uri);
@@ -199,6 +210,8 @@ const filterCommentsDepOnList = {
   blacklistedMap: selectBlacklistedOutpointMap,
   filteredMap: selectFilteredOutpointMap,
   showMatureContent: selectShowMatureContent,
+  geoBlockList: selectGeoBlockLists,
+  locale: selectUserLocale,
 };
 
 const filterCommentsPropKeys = Object.keys(filterCommentsDepOnList);
@@ -283,6 +296,8 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
     blacklistedMap,
     filteredMap,
     showMatureContent,
+    geoBlockList,
+    locale,
   } = filterProps;
 
   return comments
@@ -326,6 +341,13 @@ const filterComments = (comments: Array<Comment>, claimId?: string, filterInputs
             if (personalBlockList.includes(comment.channel_url)) {
               return false;
             }
+          }
+        }
+
+        if (channelClaim) {
+          const geoRestriction: ?GeoRestriction = getGeoRestrictionForClaim(channelClaim, locale, geoBlockList);
+          if (geoRestriction) {
+            return false;
           }
         }
 
@@ -472,3 +494,14 @@ export const selectChannelMentionData = createCachedSelector(
     };
   }
 )((state, uri, maxCount) => `${String(uri)}:${maxCount}`);
+
+/**
+ * Returns the list of your channel IDs that have commented on the given claim.
+ *
+ * @param state
+ * @param claimId
+ * @returns {null | undefined | Array<string>} 'undefined' = "not fetched for this ID"; 'null' = "no claim";
+ */
+export const selectMyCommentedChannelIdsForId = (state: State, claimId: string) => {
+  return claimId ? selectState(state).myCommentedChannelIdsById[claimId] : null;
+};

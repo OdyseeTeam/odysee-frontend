@@ -131,6 +131,8 @@
   flex: 1;
   height: var(--header-height);
   padding: var(--spacing-s) var(--spacing-m);
+  margin-right: var(--body-scrollbar-width);
+  width: unset;
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xs);
@@ -469,7 +471,46 @@
 }
 
 .ReactModal__Overlay {
+  .ReactModal__Content {
+    transform: scale(0);
+    transition: transform 0.2s;
+  }
   .button--close {
     margin: 0;
+    @media (max-width: $breakpoint-small) {
+      width: var(--height-input);
+      height: var(--height-input);
+      margin: var(--spacing-s);
+      background: var(--color-primary);
+      .button__content {
+        align-items: center;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.ReactModal__Overlay--after-open {
+  .ReactModal__Content {
+    transform: scale(1);
+    transition: transform 0.4s;
+  }
+}
+
+.channel__selector {
+  width: 100%;
+  .menu__link {
+    width: 100% !important;
+    .claim-preview__title {
+      text-align: left;
+    }
+    .comment__badge {
+      flex: 1;
+      text-align: left;
+    }
+    .icon--ChevronDown {
+      margin-left: auto;
+      margin-right: 0;
+    }
   }
 }

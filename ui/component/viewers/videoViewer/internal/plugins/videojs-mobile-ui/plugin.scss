@@ -12,6 +12,15 @@
   }
 }
 
+.embed__wrapper {
+  .vjs-touch-overlay {
+    max-height: 100% !important;
+  }
+  div {
+    border-radius: unset;
+  }
+}
+
 .video-js {
   // This class is added to the video.js element by the plugin by default.
   &.vjs-has-started .vjs-touch-overlay {

@@ -61,6 +61,7 @@ type State = {
   isCheckingNameForPublish: boolean,
   checkingPending: boolean,
   checkingReflecting: boolean,
+  latestByUri: { [string]: any },
 };
 
 const reducers = {};
@@ -109,6 +110,7 @@ const defaultState = {
   isCheckingNameForPublish: false,
   checkingPending: false,
   checkingReflecting: false,
+  latestByUri: {},
 };
 
 // ****************************************************************************
@@ -210,6 +212,7 @@ function handleClaimAction(state: State, action: any): State {
     // $FlowFixMe
     const { claimsInChannel, stream, channel: channelFromResolve, collection } = resolveResponse;
     const channel = channelFromResolve || (stream && stream.signing_channel);
+    const repostSrcChannel = stream && stream.reposted_claim ? stream.reposted_claim.signing_channel : null;
 
     if (stream) {
       if (pendingById[stream.claim_id]) {
@@ -253,6 +256,12 @@ function handleClaimAction(state: State, action: any): State {
       updateIfValueChanged(state.claimsByUri, byUriDelta, channel.canonical_url, channel.claim_id);
       newResolvingUrls.delete(channel.canonical_url);
       newResolvingUrls.delete(channel.permanent_url);
+    }
+
+    if (repostSrcChannel && repostSrcChannel.claim_id) {
+      updateIfClaimChanged(state.byId, byIdDelta, repostSrcChannel.claim_id, repostSrcChannel);
+      updateIfValueChanged(state.claimsByUri, byUriDelta, repostSrcChannel.permanent_url, repostSrcChannel.claim_id);
+      updateIfValueChanged(state.claimsByUri, byUriDelta, repostSrcChannel.canonical_url, repostSrcChannel.claim_id);
     }
 
     if (collection) {
@@ -927,6 +936,17 @@ reducers[ACTIONS.PURCHASE_LIST_STARTED] = (state: State): State => {
     fetchingMyPurchases: true,
     fetchingMyPurchasesError: null,
   };
+};
+
+reducers[ACTIONS.FETCH_LATEST_FOR_CHANNEL_DONE] = (state: State, action: any): State => {
+  const { uri, results } = action.data;
+  const latestByUri = Object.assign({}, state.latestByUri);
+  latestByUri[uri] = results;
+
+  return Object.assign({}, state, {
+    ...state,
+    latestByUri,
+  });
 };
 
 reducers[ACTIONS.PURCHASE_LIST_COMPLETED] = (state: State, action: any): State => {

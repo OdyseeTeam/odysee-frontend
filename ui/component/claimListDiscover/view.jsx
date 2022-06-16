@@ -1,5 +1,5 @@
 // @flow
-import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import type { Node } from 'react';
 import * as CS from 'constants/claim_search';
 import React from 'react';
@@ -44,7 +44,8 @@ type Props = {
   showHiddenByUser?: boolean,
   showNoSourceClaims?: boolean,
   tileLayout: boolean,
-  ignoreSearchInLanguage?: boolean,
+  searchLanguages?: Array<string>,
+  ignoreSearchInLanguage?: boolean, // Negate the redux setting where it doesn't make sense.
 
   orderBy?: Array<string>, // Trending, New, Top
   defaultOrderBy?: string,
@@ -70,6 +71,7 @@ type Props = {
   limitClaimsPerChannel?: number,
 
   channelIds?: Array<string>,
+  excludedChannelIds?: Array<string>,
   claimIds?: Array<string>,
   subscribedChannels: Array<Subscription>,
 
@@ -127,6 +129,7 @@ function ClaimListDiscover(props: Props) {
     meta,
     subSection,
     channelIds,
+    excludedChannelIds,
     showNsfw,
     hideReposts,
     fetchViewCount,
@@ -142,10 +145,9 @@ function ClaimListDiscover(props: Props) {
     header,
     name,
     claimType,
-    // pageSize,
     defaultClaimType,
     streamType,
-    defaultStreamType = SIMPLE_SITE ? [CS.FILE_VIDEO, CS.FILE_AUDIO] : undefined, // add param for DEFAULT_STREAM_TYPE
+    defaultStreamType,
     freshness,
     defaultFreshness = CS.FRESH_WEEK,
     renderProperties,
@@ -165,6 +167,7 @@ function ClaimListDiscover(props: Props) {
     maxPages,
     forceShowReposts = false,
     languageSetting,
+    searchLanguages,
     searchInLanguage,
     ignoreSearchInLanguage,
     limitClaimsPerChannel,
@@ -210,10 +213,11 @@ function ClaimListDiscover(props: Props) {
   const mutedAndBlockedChannelIds = Array.from(
     new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
   );
+  const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
 
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
-  const searchInSelectedLangOnly = searchInLanguage && !ignoreSearchInLanguage;
-  const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLangOnly, langParam);
+  const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
+  const languageParams = resolveLangForClaimSearch(languageSetting, searchInSelectedLang, searchLanguages, langParam);
 
   let claimTypeParam = claimType || defaultClaimType || null;
   let streamTypeParam = streamType || defaultStreamType || null;
@@ -257,11 +261,10 @@ function ClaimListDiscover(props: Props) {
   const durationParam = urlParams.get(CS.DURATION_KEY) || null;
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
+  const excludedIdsParam = excludedChannelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
-  // const originalPageSize = pageSize || CS.PAGE_SIZE;
   const originalPageSize = 12;
-  // const dynamicPageSize = isLargeScreen ? Math.ceil(originalPageSize * (3 / 2)) : originalPageSize;
-  const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : originalPageSize;
+  const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const historyAction = history.action;
 
   let orderParam = orderBy || urlParams.get(CS.ORDER_BY_KEY) || defaultOrderBy || orderParamEntry;
@@ -344,6 +347,10 @@ function ClaimListDiscover(props: Props) {
 
   if (channelIdsParam) {
     options.channel_ids = channelIdsParam;
+  }
+
+  if (excludedIdsParam) {
+    options.not_channel_ids = (options.not_channel_ids || []).concat(excludedIdsParam);
   }
 
   if (tagsParam) {
@@ -647,6 +654,14 @@ function ClaimListDiscover(props: Props) {
     return uris;
   }
 
+  function onHidden(uri) {
+    if (hiddenBuffer.indexOf(uri) === -1) {
+      let newBuffer = hiddenBuffer;
+      newBuffer.push(uri);
+      setHiddenBuffer(newBuffer);
+    }
+  }
+
   // **************************************************************************
   // **************************************************************************
 
@@ -694,7 +709,7 @@ function ClaimListDiscover(props: Props) {
             <div className="section__header--actions">
               <div className="section__actions">
                 {headerToUse}
-                {searchInSelectedLangOnly && <LangFilterIndicator />}
+                {searchInSelectedLang && <LangFilterIndicator />}
               </div>
               {meta && <div className="section__actions--no-margin">{meta}</div>}
             </div>
@@ -719,11 +734,12 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
+            onHidden={onHidden}
           />
           {loading && useSkeletonScreen && (
             <div className="claim-grid">
               {new Array(dynamicPageSize).fill(1).map((x, i) => (
-                <ClaimPreviewTile key={i} placeholder="loading" />
+                <ClaimPreviewTile key={i} placeholder="loading" pulse />
               ))}
             </div>
           )}
@@ -734,7 +750,7 @@ function ClaimListDiscover(props: Props) {
             <div className="section__header--actions">
               <div className="section__actions">
                 {headerToUse}
-                {searchInSelectedLangOnly && <LangFilterIndicator />}
+                {searchInSelectedLang && <LangFilterIndicator />}
               </div>
               {meta && <div className="section__actions--no-margin">{meta}</div>}
             </div>
@@ -759,6 +775,7 @@ function ClaimListDiscover(props: Props) {
             maxClaimRender={maxClaimRender}
             loadedCallback={loadedCallback}
             swipeLayout={swipeLayout}
+            onHidden={onHidden}
           />
           {loading &&
             useSkeletonScreen &&

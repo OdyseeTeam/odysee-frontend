@@ -1,5 +1,6 @@
 // @flow
 import { DOMAIN, ENABLE_NO_SOURCE_CLAIMS } from 'config';
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import React, { useEffect } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { Redirect } from 'react-router-dom';
@@ -37,7 +38,13 @@ type Props = {
   isResolvingCollection: boolean,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
-  doResolveUri: (uri: string, returnCached: boolean, resolveReposts: boolean, options: any) => void,
+  homepageFetched: boolean,
+  latestContentPath?: boolean,
+  liveContentPath?: boolean,
+  latestClaimUrl: ?string,
+  fetchLatestClaimForChannel: (uri: string) => void,
+  fetchChannelLiveStatus: (channelId: string) => void,
+  doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
   doFetchItemsInCollection: ({ collectionId: string }) => void,
   doOpenModal: (string, {}) => void,
@@ -60,6 +67,12 @@ export default function ShowPage(props: Props) {
     isResolvingCollection,
     isAuthenticated,
     geoRestriction,
+    homepageFetched,
+    latestContentPath,
+    liveContentPath,
+    latestClaimUrl,
+    fetchLatestClaimForChannel,
+    fetchChannelLiveStatus,
     doResolveUri,
     doBeginPublish,
     doFetchItemsInCollection,
@@ -68,13 +81,16 @@ export default function ShowPage(props: Props) {
 
   const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
-  const linkedCommentId = urlParams.get('lc');
+  const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
+  const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
 
   const signingChannel = claim && claim.signing_channel;
   const canonicalUrl = claim && claim.canonical_url;
   const claimExists = claim !== null && claim !== undefined;
   const haventFetchedYet = claim === undefined;
   const isMine = claim && claim.is_my_output;
+  const claimId = claim && claim.claim_id;
+  const isNewestPath = latestContentPath || liveContentPath;
 
   const { contentName, isChannel } = parseURI(uri); // deprecated contentName - use streamName and channelName
   const isCollection = claim && claim.value_type === 'collection';
@@ -87,6 +103,30 @@ export default function ShowPage(props: Props) {
       (signingChannel && blackListedOutpointMap[`${signingChannel.txid}:${signingChannel.nout}`]) ||
         blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
     );
+
+  const shouldResolveUri =
+    (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
+    (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)));
+
+  useEffect(() => {
+    if (!canonicalUrl && isNewestPath) {
+      doResolveUri(uri);
+    }
+    // only for mount on a latest content page
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (!latestClaimUrl && liveContentPath && claimId) {
+      fetchChannelLiveStatus(claimId);
+    }
+  }, [claimId, fetchChannelLiveStatus, latestClaimUrl, liveContentPath]);
+
+  useEffect(() => {
+    if (!latestClaimUrl && latestContentPath && canonicalUrl) {
+      fetchLatestClaimForChannel(canonicalUrl);
+    }
+  }, [canonicalUrl, fetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
 
   // changed this from 'isCollection' to resolve strangers' collections.
   useEffect(() => {
@@ -122,11 +162,10 @@ export default function ShowPage(props: Props) {
         history.replaceState(history.state, '', windowHref.substring(0, windowHref.length - 1));
       }
     }
+  }, [canonicalUrl, pathname, hash, search]);
 
-    if (
-      (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
-      (claimExists && !claimIsPending && (!canonicalUrl || (isMine === undefined && isAuthenticated)))
-    ) {
+  useEffect(() => {
+    if (shouldResolveUri) {
       doResolveUri(
         uri,
         false,
@@ -134,22 +173,26 @@ export default function ShowPage(props: Props) {
         isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );
     }
-  }, [
-    doResolveUri,
-    isResolvingUri,
-    canonicalUrl,
-    uri,
-    claimExists,
-    haventFetchedYet,
-    isMine,
-    claimIsPending,
-    search,
-    isAuthenticated,
-  ]);
+  }, [shouldResolveUri, doResolveUri, uri, isMine, isAuthenticated]);
+
+  // Wait for latest claim fetch
+  if (isNewestPath && latestClaimUrl === undefined) {
+    return (
+      <div className="main--empty">
+        <Spinner delayed />
+      </div>
+    );
+  }
+
+  if (isNewestPath && latestClaimUrl) {
+    const params = urlParams.toString() !== '' ? `?${urlParams.toString()}` : '';
+    return <Redirect to={`${formatLbryUrlForWeb(latestClaimUrl)}${params}`} />;
+  }
 
   // Don't navigate directly to repost urls
   // Always redirect to the actual content
-  if (claim && claim.repost_url === uri) {
+  // Also redirect to channel page (uri) when on a non-existing latest path (live or content)
+  if (claim && (claim.repost_url === uri || (isNewestPath && latestClaimUrl === null))) {
     const newUrl = formatLbryUrlForWeb(canonicalUrl);
     return <Redirect to={newUrl} />;
   }
@@ -164,18 +207,22 @@ export default function ShowPage(props: Props) {
   }
 
   if (!claim || !claim.name) {
+    const maybeIsCategoryPage = pathname.startsWith('/$/');
+    const waitingForCategory = maybeIsCategoryPage && !homepageFetched;
+
     return (
       <Page>
         {(haventFetchedYet ||
+          shouldResolveUri || // covers the initial mount case where we haven't run doResolveUri, so 'isResolvingUri' is not true yet.
           isResolvingUri ||
           isResolvingCollection || // added for collection
           (isCollection && !urlForCollectionZero)) && ( // added for collection - make sure we accept urls = []
           <div className="main--empty">
-            <Spinner delayed />
+            <Spinner />
           </div>
         )}
 
-        {!isResolvingUri && !isSubscribed && (
+        {!isResolvingUri && !isSubscribed && !shouldResolveUri && !waitingForCategory && (
           <div className="main--empty">
             <Yrbl
               title={isChannel ? __('Channel Not Found') : __('No Content Found')}
@@ -210,6 +257,19 @@ export default function ShowPage(props: Props) {
     );
   }
 
+  if (geoRestriction && !claimIsMine) {
+    return (
+      <div className="main--empty">
+        <Yrbl
+          title={__(isChannel ? 'Channel unavailable' : 'Content unavailable')}
+          subtitle={__(geoRestriction.message || '')}
+          type="sad"
+          alwaysShow
+        />
+      </div>
+    );
+  }
+
   if (claim.name.length && claim.name[0] === '@') {
     return <ChannelPage uri={uri} location={location} />;
   }
@@ -232,14 +292,6 @@ export default function ShowPage(props: Props) {
     );
   }
 
-  if (geoRestriction) {
-    return (
-      <div className="main--empty">
-        <Yrbl title={__('Content unavailable')} subtitle={__(geoRestriction.message || '')} type="sad" alwaysShow />
-      </div>
-    );
-  }
-
   if (showLiveStream) {
     return (
       <React.Suspense fallback={null}>
@@ -250,7 +302,12 @@ export default function ShowPage(props: Props) {
 
   return (
     <React.Suspense fallback={null}>
-      <FilePage uri={uri} collectionId={collectionId} linkedCommentId={linkedCommentId} />
+      <FilePage
+        uri={uri}
+        collectionId={collectionId}
+        linkedCommentId={linkedCommentId}
+        threadCommentId={threadCommentId}
+      />
     </React.Suspense>
   );
 }

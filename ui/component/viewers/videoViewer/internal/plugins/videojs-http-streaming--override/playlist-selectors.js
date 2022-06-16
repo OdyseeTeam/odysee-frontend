@@ -205,18 +205,9 @@ export const lastBandwidthSelector = function() {
   const hlsQualitySelector = player.hlsQualitySelector;
   const originalHeight = hlsQualitySelector.config.originalHeight;
 
-  if (originalHeight && hlsQualitySelector) {
-    if (hlsQualitySelector.getCurrentQuality() === 'auto') {
-      if (selectedBandwidth.attributes.RESOLUTION.height === originalHeight) {
-        if (player.claimSrcOriginal && player.currentSrc() !== player.claimSrcOriginal?.src) {
-          setTimeout(() => {
-            const currentTime = player.currentTime();
-            player.src(player.claimSrcOriginal);
-            player.currentTime(currentTime);
-          });
-        }
-      }
-    }
+  if (hlsQualitySelector?.getCurrentQuality() === 'auto') {
+    const qualityLabel = selectedBandwidth.attributes.RESOLUTION.height + 'p';
+    hlsQualitySelector._qualityButton.menuButton_.$('.vjs-icon-placeholder').innerHTML = `<span>${__('Auto --[Video quality. Short form]--')}<span>${qualityLabel}</span></span>`;
   }
 
   return selectedBandwidth;

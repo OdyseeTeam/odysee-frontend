@@ -6,8 +6,8 @@ import { SORT_BY, BLOCK_LEVEL } from 'constants/comment';
 import Lbry from 'lbry';
 import { resolveApiMessage } from 'util/api-message';
 import { parseURI, buildURI, isURIEqual } from 'util/lbryURI';
-import { devToast, doFailedSignatureToast } from 'util/toast-wrappers';
-import { selectClaimForUri, selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { devToast, dispatchToast, doFailedSignatureToast } from 'util/toast-wrappers';
+import { selectClaimForUri, selectClaimsById, selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doResolveUris, doClaimSearch, doResolveClaimIds } from 'redux/actions/claims';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
 import {
@@ -16,6 +16,7 @@ import {
   selectPendingCommentReacts,
   selectModerationBlockList,
   selectModerationDelegatorsById,
+  selectMyCommentedChannelIdsForId,
 } from 'redux/selectors/comments';
 import { makeSelectNotificationForCommentId } from 'redux/selectors/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -251,6 +252,61 @@ export function doCommentById(commentId: string, toastIfNotFound: boolean = true
   };
 }
 
+export function doFetchMyCommentedChannels(claimId: ?string) {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const myChannelClaims = selectMyChannelClaims(state);
+    const contentClaimId = claimId;
+
+    if (!contentClaimId || !myChannelClaims) {
+      return;
+    }
+
+    return Promise.all(myChannelClaims.map((x) => channelSignName(x.claim_id, x.name))).then((signatures) => {
+      const params = [];
+      const commentedChannelIds = [];
+
+      signatures.forEach((signature, i) => {
+        if (signature !== undefined && signature !== null) {
+          params.push({
+            page: 1,
+            page_size: 1,
+            claim_id: contentClaimId,
+            author_claim_id: myChannelClaims[i].claim_id,
+            requestor_channel_name: myChannelClaims[i].name,
+            requestor_channel_id: myChannelClaims[i].claim_id,
+            signature: signature.signature,
+            signing_ts: signature.signing_ts,
+          });
+        }
+      });
+
+      // $FlowFixMe
+      return Promise.allSettled(params.map((p) => Comments.comment_list(p)))
+        .then((response) => {
+          for (let i = 0; i < response.length; ++i) {
+            if (response[i].status !== 'fulfilled') {
+              // Meaningless if it couldn't confirm history for all own channels.
+              return;
+            }
+
+            if (response[i].value.total_items > 0) {
+              commentedChannelIds.push(params[i].author_claim_id);
+            }
+          }
+
+          dispatch({
+            type: ACTIONS.COMMENT_FETCH_MY_COMMENTED_CHANNELS_COMPLETE,
+            data: { contentClaimId, commentedChannelIds },
+          });
+        })
+        .catch((err) => {
+          console.log({ err });
+        });
+    });
+  };
+}
+
 export function doCommentReset(claimId: string) {
   return (dispatch: Dispatch) => {
     if (!claimId) {
@@ -352,6 +408,78 @@ export function doCommentReactList(commentIds: Array<string>) {
   };
 }
 
+function doFetchAllReactionsForId(commentIds: Array<string>, channelClaims: ?Array<Claim>) {
+  const commentIdsCsv = commentIds.join(',');
+
+  if (!channelClaims || channelClaims.length === 0) {
+    return Promise.reject(null);
+  }
+
+  return Promise.all(channelClaims.map((x) => channelSignName(x.claim_id, x.name)))
+    .then((channelSignatures) => {
+      const params = [];
+      channelSignatures.forEach((sigData, i) => {
+        if (sigData !== undefined && sigData !== null) {
+          params.push({
+            comment_ids: commentIdsCsv,
+            // $FlowFixMe: null 'channelClaims' already handled at the top
+            channel_name: channelClaims[i].name,
+            // $FlowFixMe: null 'channelClaims' already handled at the top
+            channel_id: channelClaims[i].claim_id,
+            signature: sigData.signature,
+            signing_ts: sigData.signing_ts,
+          });
+        }
+      });
+
+      // $FlowFixMe
+      return Promise.allSettled(params.map((p) => Comments.reaction_list(p))).then((response) => {
+        const results = [];
+
+        response.forEach((res, i) => {
+          if (res.status === 'fulfilled') {
+            results.push({
+              myReactions: res.value.my_reactions,
+              // othersReactions: res.value.others_reactions,
+              // commentIds,
+              channelId: params[i].channel_id,
+              channelName: params[i].channel_name,
+            });
+          }
+        });
+
+        return results;
+      });
+    })
+    .catch((error) => {
+      return null;
+    });
+}
+
+async function getReactedChannelNames(commentId: string, myChannelClaims: ?Array<Claim>) {
+  // 1. Fetch reactions for all channels:
+  const reactions = await doFetchAllReactionsForId([commentId], myChannelClaims);
+  if (reactions) {
+    const reactedChannelNames = [];
+
+    // 2. Collect all the channel names that have reacted
+    for (let i = 0; i < reactions.length; ++i) {
+      const r = reactions[i];
+      const myReactions = r.myReactions[commentId];
+      const { creator_like, creators_like, ...basicReactions } = myReactions;
+      const myReactionValues = Object.values(basicReactions);
+
+      if (myReactionValues.includes(1)) {
+        reactedChannelNames.push(r.channelName);
+      }
+    }
+
+    return reactedChannelNames;
+  } else {
+    return null;
+  }
+}
+
 export function doCommentReact(commentId: string, type: string) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -379,8 +507,10 @@ export function doCommentReact(commentId: string, type: string) {
     }
 
     const reactKey = `${commentId}:${activeChannelClaim.claim_id}`;
-    const myReacts = selectMyReactsForComment(state, reactKey) || [];
+    const myReacts = (selectMyReactsForComment(state, reactKey) || []).slice();
     const othersReacts = selectOthersReactsForComment(state, reactKey) || {};
+    let checkIfAlreadyReacted = false;
+    let rejectReaction = false;
 
     const signatureData = await channelSignName(activeChannelClaim.claim_id, activeChannelClaim.name);
     if (!signatureData) {
@@ -404,11 +534,18 @@ export function doCommentReact(commentId: string, type: string) {
       if (Object.keys(exclusiveTypes).includes(type)) {
         params['clear_types'] = exclusiveTypes[type];
         if (myReacts.indexOf(exclusiveTypes[type]) !== -1) {
+          // Mutually-exclusive toggle:
           myReacts.splice(myReacts.indexOf(exclusiveTypes[type]), 1);
+        } else {
+          // It's not a mutually-exclusive toggle, so check if we've already
+          // reacted from another channel. But the verification could take some
+          // time if we have lots of channels, so update the GUI first.
+          checkIfAlreadyReacted = true;
         }
       }
     }
 
+    // --- Update the GUI for immediate feedback ---
     dispatch({
       type: ACTIONS.COMMENT_REACT_STARTED,
       data: commentId + type,
@@ -428,7 +565,31 @@ export function doCommentReact(commentId: string, type: string) {
       },
     });
 
-    Comments.reaction_react(params)
+    // --- Check if already commented from another channel ---
+    if (checkIfAlreadyReacted) {
+      const reactedChannelNames = await getReactedChannelNames(commentId, selectMyChannelClaims(state));
+
+      if (!reactedChannelNames) {
+        // Couldn't determine. Probably best to just stop the operation.
+        dispatch(doToast({ message: __('Unable to react. Please try again later.'), isError: true }));
+        rejectReaction = true;
+      } else if (reactedChannelNames.length) {
+        dispatch(
+          doToast({
+            message: __('Already reacted to this comment from another channel.'),
+            subMessage: reactedChannelNames.join(' • '),
+            duration: 'long',
+            isError: true,
+          })
+        );
+        rejectReaction = true;
+      }
+    }
+
+    new Promise((res, rej) => (rejectReaction ? rej('') : res(true)))
+      .then(() => {
+        return Comments.reaction_react(params);
+      })
       .then((result: ReactionReactResponse) => {
         dispatch({
           type: ACTIONS.COMMENT_REACT_COMPLETED,
@@ -451,33 +612,51 @@ export function doCommentReact(commentId: string, type: string) {
         dispatch({
           type: ACTIONS.COMMENT_REACTION_LIST_COMPLETED,
           data: {
-            myReactions: { [commentId]: myRevertedReactsObj },
-            othersReactions: { [commentId]: othersReacts },
+            myReactions: { [reactKey]: myRevertedReactsObj },
+            othersReactions: { [reactKey]: othersReacts },
           },
         });
       });
   };
 }
 
-/**
- *
- * @param uri
- * @param livestream
- * @param params the CommentSubmitParams needed for CommentCreateParams (not the same as they are dealt differently,
- * like mentionedChannels which is selected after submission)
- * @returns {(function(Dispatch, GetState): Promise<undefined|void|*>)|*}
- */
 export function doCommentCreate(uri: string, livestream: boolean, params: CommentSubmitParams) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const { comment, claim_id, parent_id, txid, payment_intent_id, environment, sticker } = params;
 
     const state = getState();
     const activeChannelClaim = selectActiveChannelClaim(state);
+    const myCommentedChannelIds = selectMyCommentedChannelIdsForId(state, claim_id);
     const mentionedChannels: Array<MentionedChannel> = [];
 
     if (!activeChannelClaim) {
       console.error('Unable to create comment. No activeChannel is set.'); // eslint-disable-line
       return;
+    }
+
+    if (myCommentedChannelIds === undefined) {
+      dispatchToast(
+        dispatch,
+        __('Failed to perform action.'),
+        __('Please wait a while before re-submitting, or try refreshing the page.'),
+        'long'
+      );
+      return;
+    }
+
+    if (myCommentedChannelIds && myCommentedChannelIds.length) {
+      if (!myCommentedChannelIds.includes(activeChannelClaim.claim_id)) {
+        const claimById = selectClaimsById(state);
+        const commentedChannelNames = myCommentedChannelIds.map((id) => claimById[id]?.name);
+
+        dispatchToast(
+          dispatch,
+          __('Commenting from multiple channels is not allowed.'),
+          commentedChannelNames.join(' • '),
+          'long'
+        );
+        return;
+      }
     }
 
     // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/matchAll
@@ -519,19 +698,12 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
 
     dispatch({ type: ACTIONS.COMMENT_CREATE_STARTED });
 
-    let signatureData;
-    if (activeChannelClaim) {
-      try {
-        signatureData = await Lbry.channel_sign({
-          channel_id: activeChannelClaim.claim_id,
-          hexdata: toHex(comment),
-        });
-      } catch (e) {}
+    const notification = parent_id && makeSelectNotificationForCommentId(parent_id)(state);
+    if (notification && !notification.is_seen) {
+      dispatch(doSeeNotifications([notification.id]));
     }
 
-    const notification = parent_id && makeSelectNotificationForCommentId(parent_id)(state);
-    if (notification && !notification.is_seen) dispatch(doSeeNotifications([notification.id]));
-
+    const signatureData = await channelSignData(activeChannelClaim.claim_id, comment);
     if (!signatureData) {
       return dispatch(doToast({ isError: true, message: __('Unable to verify your channel. Please try again.') }));
     }
@@ -564,7 +736,7 @@ export function doCommentCreate(uri: string, livestream: boolean, params: Commen
       })
       .catch((error) => {
         dispatch({ type: ACTIONS.COMMENT_CREATE_FAILED, data: error });
-        dispatch(doToast({ message: resolveApiMessage(error.message), isError: true }));
+        dispatchToast(dispatch, resolveApiMessage(error.message));
         return Promise.reject(error);
       });
   };
@@ -614,12 +786,7 @@ export function doCommentPin(commentId: string, claimId: string, remove: boolean
           type: ACTIONS.COMMENT_PIN_FAILED,
           data: error,
         });
-        dispatch(
-          doToast({
-            message: 'Unable to pin this comment, please try again later.',
-            isError: true,
-          })
-        );
+        dispatchToast(dispatch, __('Unable to pin this comment, please try again later.'));
       });
   };
 }
@@ -628,9 +795,12 @@ export function doCommentPin(commentId: string, claimId: string, remove: boolean
  * Deletes a comment in Commentron.
  *
  * @param commentId The comment ID to delete.
- * @param deleterClaim The channel-claim of the person doing the deletion. Defaults to the active channel if not provided.
+ * @param deleterClaim The channel-claim of the person doing the deletion.
+ *   Defaults to the active channel if not provided.
  * @param deleterIsModOrAdmin Is the deleter a mod or admin for the content?
- * @param creatorClaim The channel-claim for the content where the comment resides. Not required if the deleter owns the comment (i.e. deleting own comment).
+ * @param creatorClaim The channel-claim for the content where the comment
+ *   resides. Not required if the deleter owns the comment (i.e. deleting own
+ *   comment).
  * @returns {function(Dispatch): *}
  */
 export function doCommentAbandon(
@@ -669,6 +839,9 @@ export function doCommentAbandon(
               comment_id: commentId,
             },
           });
+
+          // Update the commented-channels list.
+          dispatch(doFetchMyCommentedChannels(result.claim_id));
         } else {
           dispatch({
             type: ACTIONS.COMMENT_ABANDON_FAILED,
@@ -1015,7 +1188,8 @@ export function doCommentModBlock(
  *
  * @param commenterUri
  * @param offendingCommentId
- * @param blockerId Your specific channel ID to block with, or pass 'undefined' to block it for all of your channels.
+ * @param blockerId Your specific channel ID to block with, or pass 'undefined'
+ *   to block it for all of your channels.
  * @param timeoutSec
  * @returns {function(Dispatch): *}
  */
@@ -1048,7 +1222,8 @@ export function doCommentModBlockAsAdmin(
  * @param commenterUri
  * @param offendingCommentId
  * @param creatorUri
- * @param blockerId Your specific channel ID to block with, or pass 'undefined' to block it for all of your channels.
+ * @param blockerId Your specific channel ID to block with, or pass 'undefined'
+ *   to block it for all of your channels.
  * @param timeoutSec
  * @returns {function(Dispatch): *}
  */

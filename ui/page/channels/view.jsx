@@ -55,14 +55,19 @@ export default function ChannelsPage(props: Props) {
 
   return (
     <Page className="channelsPage-wrapper">
-      {/* TODO: use variabled spacing */}
-      <h1 className="section__title" style={{ marginBottom: '15px' }}>
-        {__('Active channel')}
-      </h1>
-      <ChannelSelector />
+      <h1 className="section__title section__title--margin-bottom">{__('Active channel')}</h1>
+      <span className="section__subtitle ">{__('Select your default active channel')}</span>
+      <ChannelSelector storeSelection />
 
       <div className="card-stack">
         {hasYoutubeChannels && <YoutubeTransferStatus hideChannelLink />}
+
+        <Button
+          button="primary"
+          label={__('Sync YouTube Channel')}
+          icon={ICONS.YOUTUBE}
+          navigate={`/$/${PAGES.YOUTUBE_SYNC}`}
+        />
 
         {channelUrls && Boolean(channelUrls.length) && (
           <ClaimList
@@ -133,17 +138,15 @@ export default function ChannelsPage(props: Props) {
       {!(channelUrls && channelUrls.length) && (
         <React.Fragment>
           {!fetchingChannels ? (
-            <section className="main--empty">
-              <Yrbl
-                title={__('No channels')}
-                subtitle={__("You haven't created a channel yet. All of your beautiful channels will be listed here!")}
-                actions={
-                  <div className="section__actions">
-                    <Button button="primary" label={__('Create Channel')} navigate={`/$/${PAGES.CHANNEL_NEW}`} />
-                  </div>
-                }
-              />
-            </section>
+            <Yrbl
+              title={__('No channels')}
+              subtitle={__("You haven't created a channel yet. All of your beautiful channels will be listed here!")}
+              actions={
+                <div className="section__actions">
+                  <Button button="primary" label={__('Create Channel')} navigate={`/$/${PAGES.CHANNEL_NEW}`} />
+                </div>
+              }
+            />
           ) : (
             <section className="main--empty">
               <Spinner delayed />

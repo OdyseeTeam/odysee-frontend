@@ -3,6 +3,7 @@ import videojs from 'video.js';
 import { version as VERSION } from './package.json';
 import ConcreteButton from './ConcreteButton';
 import ConcreteMenuItem from './ConcreteMenuItem';
+import * as QUALITY_OPTIONS from 'constants/player';
 
 // Default options for the plugin.
 const defaults = {};
@@ -45,6 +46,17 @@ class HlsQualitySelectorPlugin {
 
     // Listen for source changes
     this.player.on('loadedmetadata', (e) => {
+      const { qualityToSet, switchedFromDefaultQuality, claimSrcVhs } = this.player;
+
+      // if there was a quality option selected to default to, set it using the setQuality function
+      // as if it was being clicked on, on loadedmetadata
+      if (qualityToSet && !switchedFromDefaultQuality && claimSrcVhs) {
+        this.setQuality(this.player.qualityToSet);
+
+        // Add this attribute to the video player so later it can be checked and avoid switching again
+        // Since this is only for initial load, based on the default quality setting
+        this.player.switchedFromDefaultQuality = true;
+      }
       this.updatePlugin();
     });
   }
@@ -104,7 +116,7 @@ class HlsQualitySelectorPlugin {
 
       concreteButtonInstance.menuButton_.$('.vjs-icon-placeholder').className += icon;
     } else {
-      this.setButtonInnerText('auto');
+      this.setButtonInnerText(QUALITY_OPTIONS.AUTO);
     }
     concreteButtonInstance.removeClass('vjs-hidden');
   }
@@ -134,10 +146,10 @@ class HlsQualitySelectorPlugin {
   setButtonInnerText(text) {
     let str;
     switch (text) {
-      case 'auto':
-        str = __('Auto --[Video quality. Short form]--');
+      case QUALITY_OPTIONS.AUTO:
+        str = QUALITY_OPTIONS.AUTO;
         break;
-      case 'original':
+      case QUALITY_OPTIONS.ORIGINAL:
         str = this.resolveOriginalQualityLabel(true, false);
         break;
       default:
@@ -163,25 +175,50 @@ class HlsQualitySelectorPlugin {
   /**
    * Executed when a quality level is added from HLS playlist.
    */
-  onAddQualityLevel() {
+  onAddQualityLevel(e, qualityOption) {
     const player = this.player;
+    const defaultQuality = qualityOption || this.config.defaultQuality;
     const qualityList = player.qualityLevels();
     const levels = qualityList.levels_ || [];
-    const levelItems = [];
+
+    let levelItems = [];
+    let nextLowestQualityItem;
+    let nextLowestQualityItemObj;
 
     for (let i = 0; i < levels.length; ++i) {
-      if (
-        !levelItems.filter((_existingItem) => {
-          return _existingItem.item && _existingItem.item.value === levels[i].height;
-        }).length
-      ) {
+      const currentHeight = levels[i].height;
+
+      if (!levelItems.filter((_existingItem) => _existingItem.item?.value === currentHeight).length) {
+        const heightStr = currentHeight + 'p';
+
         const levelItem = this.getQualityMenuItem.call(this, {
-          label: levels[i].height + 'p',
-          value: levels[i].height,
+          label: heightStr,
+          value: currentHeight,
+          selected: defaultQuality ? currentHeight === defaultQuality : undefined,
         });
+
+        // Stop at index 0 since the list starts from max quality
+        const isLiveOriginal = defaultQuality === QUALITY_OPTIONS.ORIGINAL && player.isLivestream && i === 0;
+        const shouldCheckHeight =
+          defaultQuality && !nextLowestQualityItem && (currentHeight <= defaultQuality || isLiveOriginal);
+
+        if (shouldCheckHeight) {
+          nextLowestQualityItem = levelItem;
+          nextLowestQualityItemObj = {
+            label: heightStr,
+            value: currentHeight,
+            selected: true,
+          };
+        }
 
         levelItems.push(levelItem);
       }
+    }
+
+    if (nextLowestQualityItem) {
+      levelItems = levelItems.map((item) =>
+        item === nextLowestQualityItem ? this.getQualityMenuItem.call(this, nextLowestQualityItemObj) : item
+      );
     }
 
     levelItems.sort((current, next) => {
@@ -201,19 +238,29 @@ class HlsQualitySelectorPlugin {
       levelItems.push(
         this.getQualityMenuItem.call(this, {
           label: this.resolveOriginalQualityLabel(false, true),
-          value: 'original',
-          selected: false,
+          value: QUALITY_OPTIONS.ORIGINAL,
+          selected: defaultQuality ? defaultQuality === QUALITY_OPTIONS.ORIGINAL : false,
         })
       );
+      if (defaultQuality === QUALITY_OPTIONS.ORIGINAL && !player.switchedFromDefaultQuality) {
+        this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL);
+      }
     }
 
     levelItems.push(
       this.getQualityMenuItem.call(this, {
-        label: __('Auto --[Video quality. Short form]--'),
-        value: 'auto',
-        selected: true,
+        label: QUALITY_OPTIONS.AUTO,
+        value: QUALITY_OPTIONS.AUTO,
+        selected: !defaultQuality ? true : defaultQuality === QUALITY_OPTIONS.AUTO,
       })
     );
+
+    // initial button inner text based on default quality setting, or next lowest
+    if (!this.player.switchedFromDefaultQuality) {
+      this.setButtonInnerText(
+        nextLowestQualityItemObj ? nextLowestQualityItemObj.label : defaultQuality || QUALITY_OPTIONS.AUTO
+      );
+    }
 
     if (this._qualityButton) {
       this._qualityButton.createItems = function () {
@@ -221,15 +268,37 @@ class HlsQualitySelectorPlugin {
       };
       this._qualityButton.update();
     }
+
+    if (defaultQuality) {
+      this.player.qualityToSet =
+        nextLowestQualityItemObj?.value ||
+        (defaultQuality === QUALITY_OPTIONS.ORIGINAL && QUALITY_OPTIONS.ORIGINAL) ||
+        QUALITY_OPTIONS.AUTO;
+    }
   }
 
-  swapSrcTo(mode = 'original') {
+  swapSrcTo(mode = QUALITY_OPTIONS.ORIGINAL) {
     const currentTime = this.player.currentTime();
+    const isAlreadyPlaying = !this.player.paused();
     this.player.src(mode === 'vhs' ? this.player.claimSrcVhs : this.player.claimSrcOriginal);
-    this.player.load();
-    this.player.currentTime(currentTime);
 
-    console.assert(mode === 'vhs' || mode === 'original', 'Unexpected input');
+    // run this when new source is loaded
+    this.player.one('loadstart', () => {
+      // fixes a bug where when reusing vjs instance the player doesn't play
+      // when it should and the control bar is hidden when changing quality
+      this.player.currentTime(currentTime);
+      if (isAlreadyPlaying) {
+        this.player.play();
+      } else {
+        // show control bar
+        this.player.addClass('vjs-has-started');
+        this.player.addClass('vjs-playing');
+        this.player.addClass('vjs-paused');
+      }
+    });
+    this.player.load();
+
+    console.assert(mode === 'vhs' || mode === QUALITY_OPTIONS.ORIGINAL, 'Unexpected input');
   }
 
   /**
@@ -239,22 +308,39 @@ class HlsQualitySelectorPlugin {
    */
   setQuality(height) {
     const qualityList = this.player.qualityLevels();
+    const { initialQualityChange, setInitialQualityChange, doToast } = this.config;
+
+    if (!initialQualityChange) {
+      doToast({
+        message: __('You can also change your default quality on settings.'),
+        linkText: __('Settings'),
+        linkTarget: '/settings',
+      });
+      setInitialQualityChange(true);
+    }
 
     // Set quality on plugin
     this._currentQuality = height;
 
     if (this.config.displayCurrentQuality) {
-      this.setButtonInnerText(height === 'auto' ? 'auto' : height === 'original' ? 'original' : `${height}p`);
+      this.setButtonInnerText(
+        height === QUALITY_OPTIONS.AUTO
+          ? QUALITY_OPTIONS.AUTO
+          : height === QUALITY_OPTIONS.ORIGINAL
+          ? QUALITY_OPTIONS.ORIGINAL
+          : `${height}p`
+      );
     }
 
     for (let i = 0; i < qualityList.length; ++i) {
       const quality = qualityList[i];
-      quality.enabled = quality.height === height || height === 'auto' || height === 'original';
+      quality.enabled =
+        quality.height === height || height === QUALITY_OPTIONS.AUTO || height === QUALITY_OPTIONS.ORIGINAL;
     }
 
-    if (height === 'original') {
+    if (height === QUALITY_OPTIONS.ORIGINAL) {
       if (this.player.currentSrc() !== this.player.claimSrcOriginal.src) {
-        setTimeout(() => this.swapSrcTo('original'));
+        setTimeout(() => this.swapSrcTo(QUALITY_OPTIONS.ORIGINAL));
       }
     } else {
       if (!this.player.isLivestream && this.player.currentSrc() !== this.player.claimSrcVhs.src) {
@@ -265,7 +351,10 @@ class HlsQualitySelectorPlugin {
           // Until we have "persistent quality" implemented, we need to do this
           // because the VHS internals default to "auto" when initialized,
           // causing a GUI mismatch.
-          setTimeout(() => this.setQuality(height), 1000);
+          setTimeout(() => {
+            this.setQuality(height);
+            this.onAddQualityLevel(undefined, height);
+          }, 1000);
         }
       }
     }
@@ -279,7 +368,7 @@ class HlsQualitySelectorPlugin {
    * @return {string} the currently set quality
    */
   getCurrentQuality() {
-    return this._currentQuality || 'auto';
+    return this._currentQuality || QUALITY_OPTIONS.AUTO;
   }
 }
 

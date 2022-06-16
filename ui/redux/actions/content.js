@@ -5,7 +5,7 @@ import * as MODALS from 'constants/modal_types';
 import { ipcRenderer } from 'electron';
 // @endif
 import { doOpenModal, doAnalyticsView, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
-import { makeSelectClaimForUri, selectClaimIsMineForUri, makeSelectClaimWasPurchased } from 'redux/selectors/claims';
+import { makeSelectClaimForUri, selectClaimIsMineForUri, selectClaimWasPurchasedForUri } from 'redux/selectors/claims';
 import {
   makeSelectFileInfoForUri,
   selectFileInfosByOutpoint,
@@ -16,10 +16,12 @@ import { makeSelectUrlsForCollectionId } from 'redux/selectors/collections';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
 import Lbry from 'lbry';
+import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri, Lbryio } from 'lbryinc';
 import { selectClientSetting, selectosNotificationsEnabled, selectDaemonSettings } from 'redux/selectors/settings';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
+import { selectRecsysEntries } from 'redux/selectors/content';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
 
@@ -179,7 +181,7 @@ export function doPlayUri(
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
     const uriIsStreamable = makeSelectUriIsStreamable(uri)(state);
     const downloadingByOutpoint = selectDownloadingByOutpoint(state);
-    const claimWasPurchased = makeSelectClaimWasPurchased(uri)(state);
+    const claimWasPurchased = selectClaimWasPurchasedForUri(state, uri);
     const alreadyDownloaded = fileInfo && (fileInfo.completed || (fileInfo.blobs_remaining === 0 && uriIsStreamable));
     const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
 
@@ -371,6 +373,42 @@ export function doToggleShuffleList(currentUri: string, collectionId: string, sh
           message: shuffle ? __('Shuffle is on.') : __('Shuffle is off.'),
         })
       );
+    }
+  };
+}
+
+export function doSetLastViewedAnnouncement(hash: string) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT,
+      data: hash,
+    });
+  };
+}
+
+export function doSetRecsysEntries(entries: { [ClaimId]: RecsysEntry }) {
+  return (dispatch: Dispatch) => {
+    dispatch({
+      type: ACTIONS.SET_RECSYS_ENTRIES,
+      data: entries,
+    });
+  };
+}
+
+/**
+ * Sends any lingering recsys entries from the previous session and deletes it.
+ *
+ * Should only be called on startup, before a new cycle of recsys data is
+ * collected.
+ *
+ * @returns {(function(Dispatch, GetState): void)|*}
+ */
+export function doSendPastRecsysEntries() {
+  return (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const entries = selectRecsysEntries(state);
+    if (entries) {
+      RecSys.sendEntries(entries, true);
     }
   };
 }

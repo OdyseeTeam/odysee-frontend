@@ -18,7 +18,7 @@ import { makeSelectPublishFormValue, selectPublishFormValues, selectMyClaimForUr
 import { doError, doToast } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
-import { doOpenModal, doSetIncognito, doSetActiveChannel } from 'redux/actions/app';
+import { doOpenModal } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
 import { IMG_CDN_PUBLISH_URL, IMG_CDN_STATUS_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -97,8 +97,10 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   const channelId = namedChannelClaim ? namedChannelClaim.claim_id : '';
 
   const nowTimeStamp = Number(Math.round(Date.now() / 1000));
+  const { claim_id: claimId } = myClaimForUri || {};
 
   const publishPayload: {
+    claim_id?: string,
     name: ?string,
     bid: string,
     description?: string,
@@ -130,6 +132,10 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     blocking: true,
     preview: false,
   };
+
+  if (claimId) {
+    publishPayload.claim_id = claimId;
+  }
 
   // Temporary solution to keep the same publish flow with the new tags api
   // Eventually we will allow users to enter their own tags on publish
@@ -545,19 +551,6 @@ export const doUploadThumbnail = (
     data.append('upload', 'Upload');
     return doUpload(data);
   }
-};
-
-export const doEditForChannel = (publishData: any, uri: string, fileInfo: FileListItem, fs: any) => (
-  dispatch: Dispatch
-) => {
-  if (publishData.signing_channel) {
-    dispatch(doSetIncognito(false));
-    dispatch(doSetActiveChannel(publishData.signing_channel.claim_id));
-  } else {
-    dispatch(doSetIncognito(true));
-  }
-
-  dispatch(doPrepareEdit(publishData, uri, fileInfo, fs));
 };
 
 export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem, fs: any) => (

@@ -73,9 +73,19 @@ type Props = {
     preferredCurrency: string,
     (any) => void
   ) => string,
-  doSendTip: (params: {}, isSupport: boolean, successCb: (any) => void, errorCb: (any) => void, boolean) => void,
+  doSendTip: (
+    params: {},
+    isSupport: boolean,
+    successCb: (any) => void,
+    errorCb: (any) => void,
+    boolean,
+    string
+  ) => void,
   doOpenModal: (id: string, any) => void,
   preferredCurrency: string,
+  myChannelClaimIds: ?Array<string>,
+  myCommentedChannelIds: ?Array<string>,
+  doFetchMyCommentedChannels: (claimId: ?string) => void,
   doTipAccountCheckForUri: (uri: string) => void,
   activeChannelMembershipName: ?string,
   validUserMembershipForChannel: any,
@@ -116,6 +126,9 @@ export function CommentCreate(props: Props) {
     setQuickReply,
     doOpenModal,
     preferredCurrency,
+    myChannelClaimIds,
+    myCommentedChannelIds,
+    doFetchMyCommentedChannels,
     doTipAccountCheckForUri,
     validUserMembershipForChannel,
   } = props;
@@ -168,7 +181,7 @@ export function CommentCreate(props: Props) {
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
-  const minAmountMet = minAmount === 0 || tipAmount >= minAmount;
+  const minAmountMet = activeTab !== TAB_LBC || minAmount === 0 || tipAmount >= minAmount;
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
 
@@ -315,8 +328,10 @@ export function CommentCreate(props: Props) {
           }, 1500);
 
           doToast({
-            message: __("Tip successfully sent. I'm sure they appreciate it!"),
-            subMessage: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
+            message: __('Tip successfully sent.'),
+            subMessage: __("I'm sure they appreciate it!"),
+            linkText: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
+            linkTarget: '/wallet',
           });
 
           setSuccessTip({ txid, tipAmount });
@@ -325,7 +340,8 @@ export function CommentCreate(props: Props) {
           // reset the frontend so people can send a new comment
           setSubmitting(false);
         },
-        false
+        false,
+        'comment'
       );
     } else {
       const tipParams: TipParams = { tipAmount: Math.round(tipAmount * 100) / 100, tipChannelName, channelClaimId };
@@ -483,6 +499,13 @@ export function CommentCreate(props: Props) {
       window.removeEventListener('keydown', altEnterListener);
     };
   }, [isLivestream]);
+
+  // Determine my channels that have commented
+  React.useEffect(() => {
+    if (myCommentedChannelIds === undefined && claimId && myChannelClaimIds) {
+      doFetchMyCommentedChannels(claimId);
+    }
+  }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
 
   // **************************************************************************
   // Render

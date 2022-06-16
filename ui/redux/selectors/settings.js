@@ -5,6 +5,7 @@ import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
 import { createSelector } from 'reselect';
 import { ENABLE_MATURE } from 'config';
 import { getDefaultHomepageKey, getDefaultLanguage } from 'util/default-languages';
+import { selectClaimWithId } from 'redux/selectors/claims';
 
 const selectState = (state) => state.settings || {};
 
@@ -69,6 +70,30 @@ export const selectHomepageData = (state) => {
   return homepages ? homepages[homepageCode].categories || homepages['en'].categories || {} : {};
 };
 
+export const selectHomepageMeme = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = window.homepages;
+  if (homepages) {
+    const meme = homepages[homepageCode].meme;
+    if (meme && meme.text && meme.url) {
+      return meme;
+    }
+  }
+  return homepages ? homepages['en'].meme || {} : {};
+};
+
+export const selectHomepageAnnouncement = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = window.homepages;
+  if (homepages) {
+    const news = homepages[homepageCode].announcement;
+    if (news) {
+      return news;
+    }
+  }
+  return homepages ? homepages['en'].announcement || '' : '';
+};
+
 export const selectInRegionByCode = (state, code) => {
   const hp = selectClientSetting(state, SETTINGS.HOMEPAGE);
   const lang = selectLanguage(state);
@@ -81,3 +106,8 @@ export const selectWildWestDisabled = (state) => {
 };
 
 export const selectosNotificationsEnabled = (state) => selectClientSetting(state, SETTINGS.OS_NOTIFICATIONS_ENABLED);
+
+export const selectDefaultChannelClaim = createSelector(
+  (state) => selectClaimWithId(state, selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM)),
+  (defaultChannelClaim) => defaultChannelClaim
+);

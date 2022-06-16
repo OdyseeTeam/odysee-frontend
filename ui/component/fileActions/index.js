@@ -4,9 +4,10 @@ import {
   selectClaimForUri,
   selectHasChannels,
   makeSelectTagInClaimOrChannelForUri,
+  selectClaimIsNsfwForUri,
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { doEditForChannel } from 'redux/actions/publish';
+import { doPrepareEdit } from 'redux/actions/publish';
 import { selectCostInfoForUri } from 'lbryinc';
 import { doDownloadUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
@@ -29,13 +30,14 @@ const select = (state, props) => {
     hasChannels: selectHasChannels(state),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     streamingUrl: makeSelectStreamingUrlForUri(uri)(state),
-    disableDownloadButton: makeSelectTagInClaimOrChannelForUri(props.uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state),
+    disableDownloadButton: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state),
+    isMature: selectClaimIsNsfwForUri(state, uri),
   };
 };
 
 const perform = {
   doOpenModal,
-  doEditForChannel,
+  doPrepareEdit,
   doToast,
   doDownloadUri,
 };

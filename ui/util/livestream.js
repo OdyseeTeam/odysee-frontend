@@ -1,10 +1,5 @@
 // @flow
-import {
-  LIVESTREAM_LIVE_API,
-  NEW_LIVESTREAM_LIVE_API,
-  LIVESTREAM_KILL,
-  LIVESTREAM_STARTS_SOON_BUFFER,
-} from 'constants/livestream';
+import { NEW_LIVESTREAM_LIVE_API, LIVESTREAM_KILL, LIVESTREAM_STARTS_SOON_BUFFER } from 'constants/livestream';
 import { toHex } from 'util/hex';
 import Lbry from 'lbry';
 import moment from 'moment';
@@ -34,18 +29,36 @@ type StreamData = {
  *
  * @param activeLivestreams Object obtained from `selectActiveLivestreams`.
  * @param channelIds List of channel IDs to filter the results with.
+ * @param excludedChannelIds
  * @returns {[]|Array<*>}
  */
-export function getLivestreamUris(activeLivestreams: ?LivestreamInfo, channelIds: ?Array<string>) {
+export function getLivestreamUris(
+  activeLivestreams: ?LivestreamInfo,
+  channelIds: ?Array<string>,
+  excludedChannelIds?: Array<string>
+) {
   let values = (activeLivestreams && Object.values(activeLivestreams)) || [];
 
   if (channelIds && channelIds.length > 0) {
     // $FlowFixMe
-    values = values.filter((v) => channelIds.includes(v.creatorId) && Boolean(v.claimUri));
+    values = values.filter((v) => channelIds.includes(v?.creatorId) && Boolean(v?.claimUri));
   } else {
     // $FlowFixMe
-    values = values.filter((v) => Boolean(v.claimUri));
+    values = values.filter((v) => Boolean(v?.claimUri));
   }
+
+  if (excludedChannelIds) {
+    // $FlowFixMe
+    values = values.filter((v) => !excludedChannelIds.includes(v.creatorId));
+  }
+
+  values = values.sort((a, b) => {
+    // $FlowFixMe
+    if (a.viewCount < b.viewCount) return 1;
+    // $FlowFixMe
+    else if (a.viewCount > b.viewCount) return -1;
+    else return 0;
+  });
 
   // $FlowFixMe
   return values.map((v) => v.claimUri);
@@ -72,27 +85,26 @@ export function getTipValues(superChatsByAmount: Array<Comment>) {
   return { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount };
 }
 
-const transformLivestreamData = (data: Array<any>): LivestreamInfo => {
+const transformNewLivestreamData = (data: Array<any>): LivestreamInfo => {
   return data.reduce((acc, curr) => {
-    acc[curr.claimId] = {
-      url: curr.url,
-      type: curr.type,
-      live: curr.live,
-      viewCount: curr.viewCount,
-      creatorId: curr.claimId,
-      startedStreaming: moment(curr.timestamp),
+    acc[curr.ChannelClaimID] = {
+      url: curr.VideoURL,
+      type: 'application/x-mpegurl',
+      live: curr.Live,
+      viewCount: curr.ViewerCount,
+      creatorId: curr.ChannelClaimID,
+      startedStreaming: moment(curr.Start),
     };
     return acc;
   }, {});
 };
 
 export const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
-  const response = await fetch(LIVESTREAM_LIVE_API);
-  const json = await response.json();
+  const newApiResponse = await fetch(`${NEW_LIVESTREAM_LIVE_API}/all`);
+  const newApiData = (await newApiResponse.json()).data;
+  if (!newApiData) throw new Error();
 
-  if (!json.data) throw new Error();
-
-  return transformLivestreamData(json.data);
+  return transformNewLivestreamData(newApiData);
 };
 
 /**
@@ -102,39 +114,19 @@ export const fetchLiveChannels = async (): Promise<LivestreamInfo> => {
  */
 export const fetchLiveChannel = async (channelId: string): Promise<LiveChannelStatus> => {
   const newApiEndpoint = NEW_LIVESTREAM_LIVE_API;
-  const oldApiEndpoint = LIVESTREAM_LIVE_API;
   const newApiResponse = await fetch(`${newApiEndpoint}/is_live?channel_claim_id=${channelId}`);
   const newApiData = (await newApiResponse.json()).data;
-  let isLive = newApiData.Live;
-  let translatedData = [];
-  // transform data to old API standard
-  if (isLive) {
-    translatedData = {
-      url: newApiData.VideoURL,
-      type: 'application/x-mpegurl',
-      viewCount: newApiData.ViewerCount,
-      claimId: newApiData.ChannelClaimID,
-      timestamp: newApiData.Start,
-    };
-  } else {
-    const oldApiResponse = await fetch(`${oldApiEndpoint}/${channelId}`);
-    const oldApiData = (await oldApiResponse.json()).data;
-
-    isLive = oldApiData.live;
-    translatedData = {
-      url: oldApiData.url,
-      type: 'application/x-mpegurl',
-      viewCount: oldApiData.viewCount,
-      claimId: oldApiData.claimId,
-      timestamp: oldApiData.timestamp,
-    };
-  }
+  const isLive = newApiData.Live;
+  const translatedData = transformNewLivestreamData([newApiData]);
 
   try {
     if (isLive === false) {
       return { channelStatus: LiveStatus.NOT_LIVE };
     }
-    return { channelStatus: LiveStatus.LIVE, channelData: transformLivestreamData([translatedData]) };
+    return {
+      channelStatus: LiveStatus.LIVE,
+      channelData: translatedData,
+    };
   } catch {
     return { channelStatus: LiveStatus.UNKNOWN };
   }
@@ -162,14 +154,15 @@ export const killStream = async (channelId: string, channelName: string) => {
   try {
     const streamData = await getStreamData(channelId, channelName);
 
-    fetch(`${LIVESTREAM_KILL}/${channelId}`, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams(streamData),
-    }).then((res) => {
-      if (res.status !== 200) throw new Error('Kill stream API failed.');
-    });
+    const encodedChannelName = encodeURIComponent(channelName);
+
+    const apiData = await fetch(
+      `${LIVESTREAM_KILL}channel_claim_id=${channelId}&channel_name=${encodedChannelName}&signature_ts=${streamData.t}&signature=${streamData.s}`
+    );
+
+    const data = (await apiData.json()).data;
+
+    if (!data) throw new Error('Kill stream API failed.');
   } catch (e) {
     throw e;
   }

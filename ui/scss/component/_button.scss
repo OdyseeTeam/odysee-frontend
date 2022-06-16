@@ -178,8 +178,16 @@ a.button--alt {
     display: block;
     order: 1;
     background-repeat: no-repeat;
-    background-position: center;
+    // background-position: center;
+    background-position: center 12.5px;
+    background-size: 23px;
+    padding: 10px;
+    opacity: 0.8 !important;
+    margin-left: var(--spacing-xs);
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='19' height='19' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' class='feather feather-monitor'%3E%3Crect x='2' y='3' width='20' height='14' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='8' y1='21' x2='16' y2='21'%3E%3C/line%3E%3Cline x1='12' y1='17' x2='12' y2='21'%3E%3C/line%3E%3C/svg%3E");
+    &:hover {
+      opacity: 1 !important;
+    }
   }
 
   &:focus:not(:focus-visible) {
@@ -197,11 +205,16 @@ a.button--alt {
   display: block;
   background-repeat: no-repeat;
   background-position: center;
+  background-size: 23px;
 
   &:focus:not(:focus-visible) {
     display: block;
     background-repeat: no-repeat;
     background-position: center;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    background-size: 26px;
   }
 }
 
@@ -699,10 +712,6 @@ svg + .button__label {
   -ms-user-select: none;
   user-select: none;
 
-  .icon {
-    // margin-bottom:-4px;
-  }
-
   &:hover:not(.button-toggle--active) {
     background-color: var(--color-button-toggle-bg-hover) !important;
     .button__label {
@@ -742,7 +751,10 @@ svg + .button__label {
     width: 100%;
     text-align: center;
     border-radius: var(--border-radius);
-    border: 1px solid var(--color-border);
+    // border: 1px solid var(--color-border);
+    &:not(.button-toggle--active) {
+      border-right: 2px solid var(--color-border) !important;
+    }
 
     &:not(:first-of-type) {
       margin-top: var(--spacing-s);

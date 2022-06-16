@@ -20,7 +20,10 @@ export type HomepageCat = {
   tags?: Array<string>,
   pinnedUrls?: Array<string>,
   pinnedClaimIds?: Array<string>, // takes precedence over pinnedUrls
+  excludedChannelIds?: Array<string>,
+  searchLanguages?: Array<string>,
   mixIn?: Array<string>,
+  hideByDefault?: boolean,
 };
 
 function getLimitPerChannel(size, isChannel) {
@@ -91,12 +94,15 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
     title: cat.label,
     pinnedUrls: cat.pinnedUrls,
     pinnedClaimIds: cat.pinnedClaimIds,
+    hideByDefault: cat.hideByDefault,
     options: {
       claimType: cat.claimType || ['stream', 'repost'],
       channelIds: cat.channelIds,
+      excludedChannelIds: cat.excludedChannelIds,
       orderBy: orderValue,
       pageSize: cat.pageSize || undefined,
       limitClaimsPerChannel: limitClaims,
+      searchLanguages: cat.searchLanguages,
       releaseTime: `>${Math.floor(
         moment()
           .subtract(cat.daysOfContent || 30, 'days')
@@ -110,7 +116,7 @@ export const getHomepageRowForCat = (key: string, cat: HomepageCat) => {
 export function GetLinksData(
   all: any, // HomepageData type?
   isLargeScreen: boolean,
-  isHomepage?: boolean = false,
+  isHomepage?: boolean,
   authenticated?: boolean,
   showPersonalizedChannels?: boolean,
   showPersonalizedTags?: boolean,
@@ -332,13 +338,12 @@ export function GetLinksData(
   // @endif
   // **************************************************************************
 
-  // TODO: provide better method for exempting from homepage
   const entries = Object.entries(all);
   for (let i = 0; i < entries.length; ++i) {
     const key = entries[i][0];
     const val = entries[i][1];
 
-    // $FlowFixMe https://github.com/facebook/flow/issues/2221
+    // $FlowIgnore (https://github.com/facebook/flow/issues/2221)
     rowData.push(getHomepageRowForCat(key, val));
   }
 

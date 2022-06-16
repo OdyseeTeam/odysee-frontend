@@ -15,7 +15,7 @@ import { LivestreamContext } from 'page/livestream/view';
 import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';
-import useThumbnail from 'effects/use-thumbnail';
+import useGetPoster from 'effects/use-get-poster';
 
 type Props = {
   channelClaimId: ?string,
@@ -71,6 +71,7 @@ export default function FileRenderInitiator(props: Props) {
     doFetchChannelLiveStatus,
   } = props;
 
+  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
 
   const isMobile = useIsMobile();
@@ -104,9 +105,10 @@ export default function FileRenderInitiator(props: Props) {
     history.push(`/$/${PAGES.AUTH}?redirect=${encodeURIComponent(pathname)}`);
   }
 
-  useFetchLiveStatus(livestreamPage ? undefined : channelClaimId, doFetchChannelLiveStatus);
+  // in case of a livestream outside of the livestream page component, like embed
+  useFetchLiveStatus(isLivestreamClaim && !livestreamPage ? channelClaimId : undefined, doFetchChannelLiveStatus);
 
-  const thumbnail = useThumbnail(claimThumbnail, containerRef);
+  const thumbnail = useGetPoster(claimThumbnail, containerRef);
 
   function handleClick() {
     if (embedded && !isPlayable) {
@@ -163,7 +165,7 @@ export default function FileRenderInitiator(props: Props) {
           ? 'embed__inline-button'
           : classnames('content__cover', {
               'content__cover--disabled': disabled,
-              'content__cover--theater-mode': videoTheaterMode && !isMobile,
+              'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
             })

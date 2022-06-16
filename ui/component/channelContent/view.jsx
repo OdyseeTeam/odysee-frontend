@@ -3,6 +3,7 @@ import { SIMPLE_SITE } from 'config';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
+import GeoRestrictionInfo from 'component/geoRestictionInfo';
 import HiddenNsfwClaims from 'component/hiddenNsfwClaims';
 import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
@@ -41,6 +42,7 @@ type Props = {
   doFetchChannelLiveStatus: (string) => void,
   activeLivestreamForChannel: any,
   activeLivestreamInitialized: boolean,
+  hasPremiumPlus: boolean,
 };
 
 function ChannelContent(props: Props) {
@@ -62,6 +64,7 @@ function ChannelContent(props: Props) {
     doFetchChannelLiveStatus,
     activeLivestreamForChannel,
     activeLivestreamInitialized,
+    hasPremiumPlus,
   } = props;
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
@@ -94,12 +97,14 @@ function ChannelContent(props: Props) {
   const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
 
-  useFetchLiveStatus(claimId, doFetchChannelLiveStatus);
+  useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
   return (
     <Fragment>
+      <GeoRestrictionInfo uri={uri} />
+
       {!fetching && Boolean(claimsInChannel) && !channelIsBlocked && !channelIsBlackListed && (
         <HiddenNsfwClaims uri={uri} />
       )}
@@ -159,7 +164,17 @@ function ChannelContent(props: Props) {
           defaultOrderBy={CS.ORDER_BY_NEW}
           pageSize={dynamicPageSize}
           infiniteScroll={defaultInfiniteScroll}
-          injectedItem={{ node: <Ads type="video" tileLayout={tileLayout} small /> }}
+          injectedItem={
+            !hasPremiumPlus && {
+              node: (index, lastVisibleIndex, pageSize) => {
+                if (pageSize && index < pageSize) {
+                  return index === lastVisibleIndex ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                } else {
+                  return index % (pageSize * 2) === 0 ? <Ads type="video" tileLayout={tileLayout} small /> : null;
+                }
+              },
+            }
+          }
           meta={
             showFilters && (
               <Form onSubmit={() => {}} className="wunderbar--inline">
