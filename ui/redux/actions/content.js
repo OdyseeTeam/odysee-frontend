@@ -1,18 +1,25 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 // @if TARGET='app'
 import { ipcRenderer } from 'electron';
 // @endif
 import { doOpenModal, doAnalyticsView, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
-import { makeSelectClaimForUri, selectClaimIsMineForUri, selectClaimWasPurchasedForUri } from 'redux/selectors/claims';
+import {
+  makeSelectClaimForUri,
+  selectClaimIsMineForUri,
+  selectClaimWasPurchasedForUri,
+  selectPermanentUrlForUri,
+} from 'redux/selectors/claims';
 import {
   makeSelectFileInfoForUri,
   selectFileInfosByOutpoint,
   makeSelectUriIsStreamable,
   selectDownloadingByOutpoint,
 } from 'redux/selectors/file_info';
-import { selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { selectUrlsForCollectionId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
+import { doCollectionEdit } from 'redux/actions/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
@@ -159,7 +166,7 @@ export function doDownloadUri(uri: string) {
 
 export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) {
   return (dispatch: Dispatch, getState: () => any) => {
-    const { uri, source } = playingOptions;
+    const { uri, source, collection } = playingOptions;
 
     if (!uri) return;
 
@@ -169,16 +176,39 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
     const isAuthenticated = selectUserVerifiedEmail(state);
     const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
 
-    if (!isFloating && !source) dispatch(doSetPrimaryUri(uri));
+    if (!isFloating && (!source || source === COLLECTIONS_CONSTS.QUEUE_ID)) dispatch(doSetPrimaryUri(uri));
 
     if (isPlayable) {
-      dispatch(
-        doSetPlayingUri({
-          ...playingUri,
-          ...playingOptions,
-          collection: playingOptions.collection ? { ...playingUri.collection, ...playingOptions.collection } : {},
-        })
-      );
+      const playingCollection = playingUri.collection;
+
+      if (
+        collection.collectionId !== COLLECTIONS_CONSTS.QUEUE_ID &&
+        playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID
+      ) {
+        // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
+        // until the player is closed or the page is refreshed, and queue is cleared
+        const permanentUrl = selectPermanentUrlForUri(state, uri);
+        const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanentUrl);
+        if (!hasClaimInQueue) {
+          dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [permanentUrl], type: 'playlist' }));
+        }
+
+        dispatch(
+          doSetPlayingUri({
+            ...playingUri,
+            ...playingOptions,
+            collection: { ...playingCollection },
+          })
+        );
+      } else {
+        dispatch(
+          doSetPlayingUri({
+            ...playingUri,
+            ...playingOptions,
+            collection: collection.collectionId ? { ...playingCollection, ...collection } : {},
+          })
+        );
+      }
     }
 
     if (!isLive) dispatch(doPlayUri(uri, false, true, playCb));

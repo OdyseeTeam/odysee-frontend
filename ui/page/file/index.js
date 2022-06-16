@@ -30,7 +30,8 @@ const select = (state, props) => {
 
   const urlParams = new URLSearchParams(search);
   const playingUri = selectPlayingUri(state);
-  const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || playingUri.collection.collectionId;
+  const collectionId =
+    playingUri.uri === uri ? playingUri.collection.collectionId : urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const claim = selectClaimForUri(state, uri);
 
   return {

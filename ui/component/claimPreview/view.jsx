@@ -264,7 +264,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           source: collectionId === 'queue' ? collectionId : undefined,
         },
         true,
-        true
+        disableClickNavigation
       );
     }
     if (onClick) {
@@ -341,7 +341,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
           source: collectionId === 'queue' ? collectionId : undefined,
         },
         true,
-        true
+        disableClickNavigation
       );
     }
   }
