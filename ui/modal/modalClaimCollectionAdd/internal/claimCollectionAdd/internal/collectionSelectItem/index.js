@@ -9,13 +9,13 @@ const select = (state, props) => {
 
   return {
     collection: selectCollectionForId(state, collectionId),
-    hasClaim: selectCollectionForIdHasClaimUrl(state, collectionId, uri),
+    collectionHasClaim: selectCollectionForIdHasClaimUrl(state, collectionId, uri),
     collectionPending: makeSelectClaimIsPending(collectionId)(state),
   };
 };
 
-const perform = (dispatch) => ({
-  editCollection: (id, params) => dispatch(doCollectionEdit(id, params)),
-});
+const perform = {
+  doCollectionEdit,
+};
 
 export default connect(select, perform)(CollectionSelectItem);

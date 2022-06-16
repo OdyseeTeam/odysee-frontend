@@ -31,7 +31,7 @@ type Props = {
   gridHeader?: boolean,
 };
 
-export default function Card(props: Props) {
+function Card(props: Props) {
   const {
     title,
     subtitle,
@@ -180,3 +180,5 @@ const TitleWrapper = (props: TitleProps) => {
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>
   );
 };
+
+export default Card;

@@ -22,7 +22,7 @@ type Props = {
   isFetchingCollections: boolean,
   areBuiltinCollectionsEmpty: boolean,
   hasCollections: boolean,
-  doOpenModal: (id: string, {}) => void,
+  doOpenModal: (id: string) => void,
 };
 
 const LIST_TYPE = Object.freeze({ ALL: 'All', PRIVATE: 'Private', PUBLIC: 'Public' });
@@ -94,7 +94,7 @@ export default function CollectionsListMine(props: Props) {
   }
 
   function handleCreatePlaylist() {
-    doOpenModal(MODALS.COLLECTION_ADD, { onlyCreate: true });
+    doOpenModal(MODALS.COLLECTION_CREATE);
   }
 
   if (areBuiltinCollectionsEmpty && !hasCollections) {

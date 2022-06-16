@@ -129,6 +129,21 @@ export const selectMyPublishedCollections = createSelector(
   }
 );
 
+export const selectCollectionValuesListForKey = createSelector(
+  (state, key) => key,
+  selectBuiltinCollections,
+  selectMyPublishedCollections,
+  selectMyUnpublishedCollections,
+  (key, builtin, published, unpublished) => {
+    const myCollections = { builtin, published, unpublished };
+    const collectionsForKey = myCollections[key];
+    // this is needed so Flow doesn't error saying it is mixed when this list is looped
+    const collectionValues: CollectionList = (Object.values(collectionsForKey): any);
+
+    return collectionValues;
+  }
+);
+
 export const selectIsMyCollectioPublishedForId = createSelector(
   (state, id) => id,
   selectMyPublishedCollections,

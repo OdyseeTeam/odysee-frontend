@@ -581,8 +581,15 @@
 }
 
 .card__body-scrollable {
-  overflow-y: auto;
-  max-height: 30vh;
+  overflow-y: auto !important;
+
+  @media (min-width: $breakpoint-small) {
+    max-height: 30vh;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    max-height: 75vh;
+  }
 }
 
 .card__main-actions {

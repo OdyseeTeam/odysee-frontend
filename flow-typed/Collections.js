@@ -24,6 +24,15 @@ declare type CollectionGroup = {
   [string]: Collection,
 };
 
+declare type CollectionList = Array<Collection>;
+
+declare type CollectionCreateParams = {
+  name: string,
+  items: ?Array<string>,
+  type: string,
+  sourceId?: string, // if copied, claimId of original collection
+};
+
 declare type CollectionEditParams = {
   uris?: Array<string>,
   remove?: boolean,

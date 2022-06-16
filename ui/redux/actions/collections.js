@@ -16,22 +16,22 @@ import * as COLS from 'constants/collections';
 
 const FETCH_BATCH_SIZE = 50;
 
-export const doLocalCollectionCreate = (
-  name: string,
-  collectionItems: Array<string>,
-  type: string,
-  sourceId: string
-) => (dispatch: Dispatch) => {
+export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id: any) => void) => (
+  dispatch: Dispatch
+) => {
+  const { items } = params;
+  const id = uuid();
+
+  if (cb) cb(id);
+
   return dispatch({
     type: ACTIONS.COLLECTION_NEW,
     data: {
       entry: {
-        id: uuid(), // start with a uuid, this becomes a claimId after publish
-        name: name,
+        id: id, // start with a uuid, this becomes a claimId after publish
         updatedAt: Date.now(),
-        items: collectionItems || [],
-        sourceId: sourceId,
-        type: type,
+        items: items || [],
+        ...params,
       },
     },
   });
