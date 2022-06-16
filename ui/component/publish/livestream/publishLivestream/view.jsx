@@ -101,12 +101,12 @@ function PublishLivestream(props: Props) {
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
-  const PROCESSING_MB_PER_SECOND = 0.5;
-  const MINUTES_THRESHOLD = 30;
-  const HOURS_THRESHOLD = MINUTES_THRESHOLD * 60;
+  // const PROCESSING_MB_PER_SECOND = 0.5;
+  // const MINUTES_THRESHOLD = 30;
+  // const HOURS_THRESHOLD = MINUTES_THRESHOLD * 60;
   const MARKDOWN_FILE_EXTENSIONS = ['txt', 'md', 'markdown'];
-  const sizeInMB = Number(size) / 1000000;
-  const secondsToProcess = sizeInMB / PROCESSING_MB_PER_SECOND;
+  // const sizeInMB = Number(size) / 1000000;
+  // const secondsToProcess = sizeInMB / PROCESSING_MB_PER_SECOND;
   const ffmpegAvail = ffmpegStatus.available;
   const [oversized, setOversized] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
@@ -121,11 +121,13 @@ function PublishLivestream(props: Props) {
   const bitRate = getBitrate(size, duration);
   const bitRateIsOverMax = bitRate > MAX_BITRATE;
 
+  /*
   const fileSelectorModes = [
     { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
     { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
     { label: isLivestreamClaim ? __('Edit / Update') : __('None'), actionName: SOURCE_NONE },
   ];
+  */
 
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
@@ -233,6 +235,7 @@ function PublishLivestream(props: Props) {
     }
   }
 
+  /*
   function getTimeForMB(s) {
     if (s < MINUTES_THRESHOLD) {
       return Math.floor(secondsToProcess);
@@ -242,7 +245,9 @@ function PublishLivestream(props: Props) {
       return Math.floor(secondsToProcess / 60 / 60);
     }
   }
+  */
 
+  /*
   function getUnitsForMB(s) {
     if (s < MINUTES_THRESHOLD) {
       if (secondsToProcess > 1) return __('seconds');
@@ -255,6 +260,7 @@ function PublishLivestream(props: Props) {
       return __('hour');
     }
   }
+  */
 
   function getUploadMessage() {
     // @if TARGET='web'
@@ -338,6 +344,7 @@ function PublishLivestream(props: Props) {
     return newName.replace(INVALID_URI_CHARS, '-');
   }
 
+  /*
   function handleFileSource(source) {
     if (source === SOURCE_NONE) {
       // clear files and remotes...
@@ -358,6 +365,7 @@ function PublishLivestream(props: Props) {
     changeFileSource(source);
     setWaitForFile(source !== SOURCE_NONE);
   }
+  */
 
   function handleTitleChange(event) {
     updatePublishForm({ title: event.target.value });
