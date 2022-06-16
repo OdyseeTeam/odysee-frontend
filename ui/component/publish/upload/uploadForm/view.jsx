@@ -23,6 +23,7 @@ import PublishAdditionalOptions from 'component/publish/shared/publishAdditional
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
 import PublishFile from 'component/publish/upload/publishFile';
+
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -174,6 +175,7 @@ function UploadForm(props: Props) {
   const [mode, setMode] = React.useState(_uploadType || defaultPublishMode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
+  /*
   let customSubtitle;
   if (mode === PUBLISH_MODES.LIVESTREAM || isLivestreamClaim) {
     if (isLivestreamClaim) {
@@ -194,6 +196,7 @@ function UploadForm(props: Props) {
       customSubtitle = __('Upload that unlabeled video or cassette you found behind the TV in 1991');
     }
   }
+  */
 
   const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
 
@@ -607,7 +610,7 @@ function UploadForm(props: Props) {
         setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
         livestreamData={livestreamData}
-        subtitle={customSubtitle}
+        // subtitle={customSubtitle}
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
         isCheckingLivestreams={isCheckingLivestreams}

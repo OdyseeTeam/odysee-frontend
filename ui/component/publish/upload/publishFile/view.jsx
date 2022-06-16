@@ -41,7 +41,7 @@ type Props = {
   size: number,
   duration: number,
   isVid: boolean,
-  subtitle: string,
+  // subtitle: string,
   setPublishMode: (string) => void,
   setPrevFileText: (string) => void,
   header: Node,
@@ -84,7 +84,7 @@ function PublishFile(props: Props) {
     header,
     livestreamData,
     isLivestreamClaim,
-    subtitle,
+    // subtitle,
     checkLivestreams,
     channelId,
     channelName,
@@ -121,11 +121,13 @@ function PublishFile(props: Props) {
   const bitRate = getBitrate(size, duration);
   const bitRateIsOverMax = bitRate > MAX_BITRATE;
 
+  /*
   const fileSelectorModes = [
     { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
     { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
     { label: isLivestreamClaim ? __('Edit / Update') : __('None'), actionName: SOURCE_NONE },
   ];
+  */
 
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
@@ -488,23 +490,7 @@ function PublishFile(props: Props) {
       className={classnames({
         'card--disabled': disabled || balance === 0,
       })}
-      title={
-        <div>
-          {header} {/* display mode buttons from parent */}
-          {publishing && <Spinner type={'small'} />}
-          {inProgress && (
-            <div>
-              <Button
-                button="alt"
-                label={__('Clear --[clears Publish Form]--')}
-                icon={ICONS.REFRESH}
-                onClick={doClearPublish}
-              />
-            </div>
-          )}
-        </div>
-      }
-      subtitle={subtitle || (isStillEditing && __('You are currently editing your upload.'))}
+      // subtitle={subtitle || (isStillEditing && __('You are currently editing your upload.'))}
       actions={
         <>
           {/* <h2 className="card__title">{__('File')}</h2> */}
@@ -513,43 +499,6 @@ function PublishFile(props: Props) {
               {/* Decide whether to show file upload or replay selector */}
               {/* @if TARGET='web' */}
               <>
-                {showSourceSelector && (
-                  <fieldset-section>
-                    <div className="section__actions--between section__actions--align-bottom">
-                      <div>
-                        <label>{__('Replay video available')}</label>
-                        <div className="button-group">
-                          {fileSelectorModes.map((fmode) => (
-                            <Button
-                              key={fmode.label}
-                              icon={fmode.icon || undefined}
-                              iconSize={18}
-                              label={fmode.label}
-                              button="alt"
-                              onClick={() => {
-                                // $FlowFixMe
-                                handleFileSource(fmode.actionName);
-                              }}
-                              className={classnames('button-toggle', {
-                                'button-toggle--active': fileSource === fmode.actionName,
-                              })}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      {fileSource === SOURCE_SELECT && (
-                        <Button
-                          button="secondary"
-                          label={__('Check for Replays')}
-                          disabled={isCheckingLivestreams}
-                          icon={ICONS.REFRESH}
-                          onClick={() => checkLivestreams(channelId, channelName)}
-                        />
-                      )}
-                    </div>
-                  </fieldset-section>
-                )}
-
                 {fileSource === SOURCE_UPLOAD && showFileUpload && (
                   <>
                     <FileSelector

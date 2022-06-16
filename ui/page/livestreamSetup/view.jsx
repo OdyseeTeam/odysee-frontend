@@ -208,18 +208,6 @@ export default function LivestreamSetupPage(props: Props) {
           }}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Publish' })}
         />
-        <Button
-          key={'Replays'}
-          // icon={modeName}
-          iconSize={18}
-          label={'Replays'}
-          button="alt"
-          onClick={() => {
-            // $FlowFixMe
-            setTab('Replays');
-          }}
-          className={classnames('button-toggle', { 'button-toggle--active': tab === 'Replays' })}
-        />
       </>
     );
   };
@@ -500,7 +488,6 @@ export default function LivestreamSetupPage(props: Props) {
         </>
       )}
       {tab === 'Publish' && <LivestreamForm />}
-      {/* tab === 'Replays' && <LivestreamForm mode={PUBLISH_MODES.FILE} /> */}
     </Page>
   );
 }

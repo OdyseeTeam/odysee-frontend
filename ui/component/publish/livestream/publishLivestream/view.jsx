@@ -52,7 +52,7 @@ type Props = {
   channelId: string,
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
-  // setOverMaxBitrate: (boolean) => void,
+  setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
@@ -90,7 +90,7 @@ function PublishLivestream(props: Props) {
     channelName,
     isCheckingLivestreams,
     setWaitForFile,
-    // setOverMaxBitrate,
+    setOverMaxBitrate,
     fileSource,
     changeFileSource,
     inEditMode,
@@ -193,7 +193,7 @@ function PublishLivestream(props: Props) {
     if (!filePath || filePath === '') {
       setCurrentFile('');
       setOversized(false);
-      // setOverMaxBitrate(false);
+      setOverMaxBitrate(false);
       updateFileInfo(0, 0, false);
     } else if (typeof filePath !== 'string') {
       // Update currentFile file
@@ -211,11 +211,9 @@ function PublishLivestream(props: Props) {
     updatePublishForm({ optimize: finalOptimizeState });
   }, [currentFile, filePath, isVid, ffmpegAvail, userOptimize, updatePublishForm]);
 
-  /*
   useEffect(() => {
     setOverMaxBitrate(bitRateIsOverMax);
   }, [bitRateIsOverMax]);
-  */
 
   function updateFileInfo(duration, size, isvid) {
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
@@ -488,43 +486,6 @@ function PublishLivestream(props: Props) {
               {/* Decide whether to show file upload or replay selector */}
               {/* @if TARGET='web' */}
               <>
-                {showSourceSelector && (
-                  <fieldset-section>
-                    <div className="section__actions--between section__actions--align-bottom">
-                      <div>
-                        <label>{__('Replay video available')}</label>
-                        <div className="button-group">
-                          {fileSelectorModes.map((fmode) => (
-                            <Button
-                              key={fmode.label}
-                              icon={fmode.icon || undefined}
-                              iconSize={18}
-                              label={fmode.label}
-                              button="alt"
-                              onClick={() => {
-                                // $FlowFixMe
-                                handleFileSource(fmode.actionName);
-                              }}
-                              className={classnames('button-toggle', {
-                                'button-toggle--active': fileSource === fmode.actionName,
-                              })}
-                            />
-                          ))}
-                        </div>
-                      </div>
-                      {fileSource === SOURCE_SELECT && (
-                        <Button
-                          button="secondary"
-                          label={__('Check for Replays')}
-                          disabled={isCheckingLivestreams}
-                          icon={ICONS.REFRESH}
-                          onClick={() => checkLivestreams(channelId, channelName)}
-                        />
-                      )}
-                    </div>
-                  </fieldset-section>
-                )}
-
                 {fileSource === SOURCE_UPLOAD && showFileUpload && (
                   <>
                     <FileSelector

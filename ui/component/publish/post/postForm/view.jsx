@@ -407,29 +407,56 @@ function PostForm(props: Props) {
   }
   // @endif
 
-  // @if TARGET='app'
-  // Save file changes locally ( desktop )
-  function saveFileChanges() {
-    let output;
-    if (!output || output === '') {
-      // Generate a temporary file:
-      output = tempy.file({ name: 'post.md' });
-    } else if (typeof filePath === 'string') {
-      // Use current file
-      output = filePath;
-    }
-    // Create a temporary file and save file changes
-    if (output && output !== '') {
-      // Save file changes
-      return new Promise((resolve, reject) => {
-        fs.writeFile(output, fileText, (error, data) => {
-          // Handle error, cant save changes or create file
-          error ? reject(error) : resolve(output);
-        });
+  // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
+  async function fetchLivestreams(channelId, channelName) {
+    setCheckingLivestreams(true);
+    let signedMessage;
+    try {
+      await Lbry.channel_sign({
+        channel_id: channelId,
+        hexdata: toHex(channelName || ''),
+      }).then((data) => {
+        signedMessage = data;
       });
+    } catch (e) {
+      throw e;
+    }
+    if (signedMessage) {
+      const encodedChannelName = encodeURIComponent(channelName || '');
+      const newEndpointUrl =
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
+        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
+          encodedChannelName || ''
+        }`;
+
+      const responseFromNewApi = await fetch(newEndpointUrl);
+
+      const data = (await responseFromNewApi.json()).data;
+
+      let newData = [];
+      if (data && data.length > 0) {
+        for (const dataItem of data) {
+          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
+            const objectToPush = {
+              data: {
+                fileLocation: dataItem.URL,
+                fileDuration:
+                  dataItem.Status.toLowerCase() === 'inprogress'
+                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
+                    : (dataItem.Duration / 1000000000).toString(),
+                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
+                uploadedAt: dataItem.Created,
+              },
+            };
+            newData.push(objectToPush);
+          }
+        }
+      }
+
+      setLivestreamData(newData);
+      setCheckingLivestreams(false);
     }
   }
-  // @endif
 
   async function handlePublish() {
     let outputFile = filePath;

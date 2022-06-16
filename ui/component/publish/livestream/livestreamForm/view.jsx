@@ -32,7 +32,7 @@ import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
-import { SOURCE_NONE } from 'constants/publish_sources';
+import { SOURCE_NONE, SOURCE_SELECT } from 'constants/publish_sources';
 
 // @if TARGET='app'
 import fs from 'fs';
@@ -131,7 +131,7 @@ function LivestreamForm(props: Props) {
     incognito,
     user,
     isLivestreamClaim,
-    isPostClaim,
+    // isPostClaim,
     permanentUrl,
     remoteUrl,
     isClaimingInitialRewards,
@@ -146,31 +146,13 @@ function LivestreamForm(props: Props) {
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
 
-  const enableLivestream = ENABLE_NO_SOURCE_CLAIMS && user && !user.odysee_live_disabled;
+  const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
+  console.log('livestreamData: ', livestreamData);
 
-  // $FlowFixMe
-  const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
-    // $FlowFixMe
-    if (inEditMode) {
-      if (isLivestreamClaim) {
-        return mode === PUBLISH_MODES.LIVESTREAM && enableLivestream;
-      } else {
-        return mode === PUBLISH_MODES.FILE;
-      }
-    } else if (_uploadType) {
-      return mode === _uploadType && (mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream);
-    } else {
-      return mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream;
-    }
-  });
-
-  const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
   const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
   const [publishMode, setPublishMode] = React.useState('New');
   console.log('mode: ', mode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
-
-  // const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
 
   // Used to check if the url name has changed:
   // A new file needs to be provided
@@ -490,8 +472,8 @@ function LivestreamForm(props: Props) {
   return (
     <div className="card-stack">
       {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
-      <Card>
-        <div className="card--file">
+      <Card className="card--livestream">
+        <div>
           <Button
             key={'New'}
             icon={ICONS.LIVESTREAM}
@@ -514,14 +496,23 @@ function LivestreamForm(props: Props) {
               // $FlowFixMe
               setPublishMode('Replay');
             }}
+            // disabled={!hasLivestreamData}
             className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
           />
         </div>
+        <Button
+          button="primary"
+          label={__('Check for Replays')}
+          disabled={isCheckingLivestreams}
+          icon={ICONS.REFRESH}
+          onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
+        />
       </Card>
 
       <PublishLivestream
         inEditMode={inEditMode}
-        fileSource={fileSource}
+        // fileSource={fileSource}
+        fileSource={publishMode === 'New' ? fileSource : SOURCE_SELECT}
         changeFileSource={changeFileSource}
         uri={permanentUrl}
         mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
@@ -535,7 +526,7 @@ function LivestreamForm(props: Props) {
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
         isCheckingLivestreams={isCheckingLivestreams}
-        checkLivestreams={fetchLivestreams}
+        // checkLivestreams={fetchLivestreams}
         channelId={claimChannelId}
         channelName={activeChannelName}
       />

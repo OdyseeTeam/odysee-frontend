@@ -869,6 +869,26 @@ img {
     color: var(--color-text);
   }
 
+  .card--livestream {
+    background: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-m) !important;
+
+    .card__main-actions {
+      padding-top: 0;
+
+      div {
+        display: inline-block;
+      }
+
+      .button--primary {
+        float: right;
+      }
+    }
+  }
+
   .card--file {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
