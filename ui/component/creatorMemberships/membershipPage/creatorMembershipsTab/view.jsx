@@ -62,7 +62,7 @@ function CreatorMembershipsTab(props: Props) {
 
       <h1 style={{ marginTop: '10px' }}>{__('Total Received: $0')}</h1>
 
-      {/*<h1 style={{ marginTop: '10px' }}>{__('You do not any withdrawable funds')}</h1>*/}
+      {/* <h1 style={{ marginTop: '10px' }}>{__('You do not any withdrawable funds')}</h1> */}
 
       {/* Bank account connection status */}
       <div className="bank-account-information__div" style={{ marginTop: '33px' }}>

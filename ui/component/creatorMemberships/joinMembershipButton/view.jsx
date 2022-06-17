@@ -60,8 +60,6 @@ export default function JoinMembershipButton(props: Props) {
 
   // link to membership tab of channel
   if (userIsActiveMember) {
-
-
     return (
       <Button
         button="alt"

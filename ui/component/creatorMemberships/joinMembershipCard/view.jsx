@@ -20,7 +20,7 @@ let membershipTiers = [
   },
   {
     displayName: 'Community MVP',
-    description: 'Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend!' ,
+    description: 'Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend!',
     monthlyContributionInUSD: 20,
     perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
   },

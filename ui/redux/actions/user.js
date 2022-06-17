@@ -26,7 +26,6 @@ const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
 const stripeEnvironment = getStripeEnvironment();
 
-
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
     dispatch({

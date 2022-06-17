@@ -8,7 +8,7 @@ import JoinMembershipCard from 'component/creatorMemberships/joinMembershipCard'
 import { formatDateToMonthAndDay } from 'util/time';
 import moment from 'moment';
 import { getStripeEnvironment } from 'util/stripe';
-import BalanceText from 'react-balance-text'
+import BalanceText from 'react-balance-text';
 
 let stripeEnvironment = getStripeEnvironment();
 

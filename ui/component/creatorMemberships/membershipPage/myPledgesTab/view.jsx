@@ -33,7 +33,6 @@ function MyPledgesTab(props: Props) {
 
   React.useEffect(() => {
     if (myActiveMemberships) {
-
       const claimIds = myActiveMemberships.map((membership) => membership.MembershipDetails.channel_id);
 
       doResolveClaimIds(claimIds).then(() => setResolved(true));

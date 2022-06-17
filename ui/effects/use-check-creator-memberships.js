@@ -9,7 +9,7 @@ export default function useGetUserMemberships(
   doFetchChannelMembershipsByIds: (string) => void, // fetch membership values and save in redux
   dependency?: any, // dependency to check against
   alreadyClaimIds?: boolean, // if they're already claim ids and don't need to be converted
-  channelId: string,
+  channelId: string
 ) {
   // instantiate variable if it doesn't exist yet
   if (!window.checkedCreatorMemberships) window.checkedCreatorMemberships = {};
