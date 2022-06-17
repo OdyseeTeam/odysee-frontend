@@ -10,6 +10,7 @@ import Card from 'component/common/card';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { sortLanguageMap } from 'util/default-languages';
 import PublishBid from '../publishBid';
+import PublishPrice from 'component/publish/shared/publishPrice';
 
 // @if TARGET='app'
 // import ErrorText from 'component/common/error-text';
@@ -123,45 +124,7 @@ function PublishAdditionalOptions(props: Props) {
           <React.Fragment>
             {!hideSection && (
               <>
-                <div className="publish-row">
-                  <PublishBid disabled={disabled} />
-                </div>
                 <div className={classnames({ 'card--disabled': !name })}>
-                  {/* @if TARGET='app' */}
-                  {/* {showLbryFirstCheckbox && (
-                <div className="section">
-                  <>
-                    <FormField
-                      checked={useLBRYUploader}
-                      type="checkbox"
-                      name="use_lbry_uploader_checkbox"
-                      onChange={event => updatePublishForm({ useLBRYUploader: !useLBRYUploader })}
-                      label={
-                        <React.Fragment>
-                          {__('Automagically upload to your youtube channel.')}{' '}
-                          <Button button="link" href="https://lbry.com/faq/lbry-uploader" label={__('Learn More')} />
-                        </React.Fragment>
-                      }
-                    />
-                    {useLBRYUploader && (
-                      <div className="section__actions">
-                        {needsYTAuth ? (
-                          <Button
-                            button="primary"
-                            onClick={signup}
-                            label={__('Log In With YouTube')}
-                            disabled={false}
-                          />
-                        ) : (
-                          <Button button="alt" onClick={unlink} label={__('Unlink YouTube Channel')} disabled={false} />
-                        )}
-                        {ytError && <ErrorText>{__('There was an error with LBRY first publishing.')}</ErrorText>}
-                      </div>
-                    )}
-                  </>
-                </div>
-              )} */}
-                  {/* @endif */}
                   <div className="section">
                     <div className="publish-row">{!showSchedulingOptions && <PublishReleaseDate />}</div>
 
@@ -201,6 +164,12 @@ function PublishAdditionalOptions(props: Props) {
                       />
                     </div>
                   </div>
+                </div>
+                <div className="publish-row">
+                  <PublishPrice disabled={disabled} />
+                </div>
+                <div className="publish-row">
+                  <PublishBid disabled={disabled} />
                 </div>
               </>
             )}

@@ -1017,24 +1017,6 @@ img {
     }
   }
 
-  .card--price {
-    .input--currency-select {
-      label {
-        margin-left: 0 !important;
-      }
-    }
-    .form-field--price-amount,
-    select {
-      box-shadow: 0 0 0 2px var(--color-border) inset;
-    }
-
-    @media (max-width: $breakpoint-small) {
-      .card__main-actions {
-        margin-top: 0;
-      }
-    }
-  }
-
   .card--additional-options {
     margin-bottom: var(--spacing-l) !important;
     .card {
@@ -1087,9 +1069,9 @@ img {
 
     fieldset-group {
       fieldset-section {
-        width: 50%;
+        // width: 50%;
         &:last-of-type {
-          padding-right: var(--spacing-s);
+          // padding-right: var(--spacing-s);
         }
       }
     }
@@ -1099,6 +1081,41 @@ img {
         margin-bottom: 0;
       }
       border-top: unset;
+    }
+
+    .radio {
+      padding-left: 0;
+      .input--currency-select {
+        label {
+          margin-left: 0 !important;
+        }
+      }
+      .form-field--price-amount,
+      select {
+        box-shadow: 0 0 0 2px var(--color-border) inset;
+      }
+
+      @media (max-width: $breakpoint-small) {
+        .card__main-actions {
+          margin-top: 0;
+        }
+      }
+    }
+
+    .fieldset-group--smushed {
+      fieldset-section {
+        padding-left: 0;
+        padding-right: 0 !important;
+
+        .form-field--price-amount {
+          margin-right: 2px;
+        }
+      }
+      .input--currency-select {
+        label {
+          margin-left: 0;
+        }
+      }
     }
   }
 

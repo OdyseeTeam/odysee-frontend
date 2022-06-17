@@ -15,46 +15,43 @@ function PublishPrice(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{__('Price')}</h2>
-      <Card
-        className="card--publish-section card--price"
-        actions={
-          <React.Fragment>
-            <FormField
-              type="radio"
-              name="content_free"
-              label={__('Free')}
-              checked={contentIsFree}
-              disabled={disabled}
-              onChange={() => updatePublishForm({ contentIsFree: true })}
-            />
+      <fieldset-section>
+        <label>{__('Price')}</label>
+        <React.Fragment>
+          <FormField
+            type="radio"
+            name="content_free"
+            label={__('Free')}
+            checked={contentIsFree}
+            disabled={disabled}
+            onChange={() => updatePublishForm({ contentIsFree: true })}
+          />
 
-            <FormField
-              type="radio"
-              name="content_cost"
-              label={__('Add a price to this file')}
-              checked={!contentIsFree}
-              disabled={disabled}
-              onChange={() => updatePublishForm({ contentIsFree: false })}
+          <FormField
+            type="radio"
+            name="content_cost"
+            label={__('Add a price to this file')}
+            checked={!contentIsFree}
+            disabled={disabled}
+            onChange={() => updatePublishForm({ contentIsFree: false })}
+          />
+          {!contentIsFree && (
+            <FormFieldPrice
+              name="content_cost_amount"
+              min={0}
+              price={fee}
+              onChange={(newFee) => updatePublishForm({ fee: newFee })}
             />
-            {!contentIsFree && (
-              <FormFieldPrice
-                name="content_cost_amount"
-                min={0}
-                price={fee}
-                onChange={(newFee) => updatePublishForm({ fee: newFee })}
-              />
-            )}
-            {fee && fee.currency !== 'LBC' && (
-              <p className="form-field__help">
-                {__(
-                  'All content fees are charged in LBRY Credits. For alternative payment methods, the number of LBRY Credits charged will be adjusted based on the value of LBRY Credits at the time of purchase.'
-                )}
-              </p>
-            )}
-          </React.Fragment>
-        }
-      />
+          )}
+          {fee && fee.currency !== 'LBC' && (
+            <p className="form-field__help">
+              {__(
+                'All content fees are charged in LBRY Credits. For alternative payment methods, the number of LBRY Credits charged will be adjusted based on the value of LBRY Credits at the time of purchase.'
+              )}
+            </p>
+          )}
+        </React.Fragment>
+      </fieldset-section>
     </>
   );
 }
