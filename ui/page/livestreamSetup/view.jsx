@@ -20,6 +20,8 @@ import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
 import LivestreamForm from 'component/publish/livestream/livestreamForm';
+// import { Icon } from '@mui/material';
+import Icon from 'component/common/icon';
 
 type Props = {
   hasChannels: boolean,
@@ -264,14 +266,17 @@ export default function LivestreamSetupPage(props: Props) {
 
   return (
     <Page className="uploadPage-wrapper">
+      <h1 className="page__title">
+        <Icon icon={ICONS.VIDEO} /> <label>Go Live</label>
+      </h1>
       {/* channel selector */}
-      {!fetchingChannels && (
+      {/* !fetchingChannels && (
         <>
           <div className="section__actions--between">
             <ChannelSelector hideAnon />
           </div>
         </>
-      )}
+      ) */}
       <HeaderMenu />
 
       {tab === 'Setup' && (

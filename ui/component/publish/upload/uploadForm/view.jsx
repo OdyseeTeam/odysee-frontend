@@ -33,6 +33,9 @@ import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+
 // @if TARGET='app'
 import fs from 'fs';
 import tempy from 'tempy';
@@ -595,7 +598,11 @@ function UploadForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} />
+      {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
+      <h1 className="page__title">
+        <Icon icon={ICONS.PUBLISH} />
+        <label>Upload a File</label>
+      </h1>
 
       <PublishFile
         inEditMode={inEditMode}

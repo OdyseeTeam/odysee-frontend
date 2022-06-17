@@ -27,6 +27,8 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 
 type Props = {
   disabled: boolean,
@@ -361,7 +363,11 @@ function PostForm(props: Props) {
   // Editing claim uri
   return (
     <div className="card-stack">
-      <ChannelSelect disabled={disabled} autoSet channelToSet={claimChannelId} />
+      <h1 className="page__title">
+        <Icon icon={ICONS.POST} />
+        <label>Post an Article</label>
+      </h1>
+      {/* <ChannelSelect disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
 
       <PublishPost
         inEditMode={inEditMode}
