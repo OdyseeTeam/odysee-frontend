@@ -71,7 +71,10 @@ export default function AdsSticky(props: Props) {
   React.useEffect(() => {
     const container = window[OUTBRAIN_CONTAINER_KEY];
     if (container) {
-      if (!document.getElementsByClassName('close-sticky').length > 0) {
+      if (
+        !document.getElementsByClassName('close-sticky') ||
+        (document.getElementsByClassName('close-sticky') && !document.getElementsByClassName('close-sticky').length > 0)
+      ) {
         const closeButton = window.document.createElement('div');
         closeButton.classList.add('close-sticky');
         closeButton.innerHTML = '✖';
