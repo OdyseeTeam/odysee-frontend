@@ -289,7 +289,7 @@
     stroke: var(--color-text);
   }
 
-  &.active {
+  &.active:not(.header__navigationItem--logo) {
     background-color: var(--color-primary);
     svg {
       stroke: var(--color-primary-contrast);
