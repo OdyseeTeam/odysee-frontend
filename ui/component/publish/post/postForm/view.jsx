@@ -417,8 +417,6 @@ function PostForm(props: Props) {
             tagsChosen={tags}
           />
 
-          <PublishPrice disabled={formDisabled} />
-
           <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
         </div>
       )}

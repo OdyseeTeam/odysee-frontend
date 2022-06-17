@@ -143,12 +143,6 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
           <ClickAwayListener onClickAway={handleClickAway}>
             <MuiMenu {...menuProps}>
               <ChannelSelector storeSelection isHeaderMenu />
-              <HeaderMenuLink
-                useMui
-                // page={parseURI(activeChannelClaim.canonical_url)}
-                icon={ICONS.CHANNEL}
-                name="My channel page"
-              />
 
               <hr className="menu__separator" />
               <HeaderMenuLink useMui page={PAGES.UPLOADS} icon={ICONS.PUBLISH} name={__('Uploads')} />
