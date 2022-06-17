@@ -317,45 +317,41 @@ export default function LivestreamSetupPage(props: Props) {
 
               {!fetchingChannels && channelId && (
                 <>
-                  <Card
-                    titleActions={
-                      <Button
-                        button="close"
-                        icon={showHelp ? ICONS.UP : ICONS.DOWN}
-                        onClick={() => setShowHelp(!showHelp)}
-                      />
-                    }
-                    title={__('Go Live on Odysee')}
-                    subtitle={<>{__(`Expand to learn more about setting up a livestream.`)} </>}
-                    actions={showHelp && helpText}
-                  />
                   {streamKey && totalLivestreamClaims.length > 0 && (
-                    <Card
-                      className="section"
-                      title={__('Your stream key')}
-                      actions={
-                        <>
-                          <CopyableText
-                            primaryButton
-                            name="stream-server"
-                            label={__('Stream server')}
-                            copyable={LIVESTREAM_RTMP_URL}
-                            snackMessage={__('Copied stream server URL.')}
-                          />
-                          <CopyableText
-                            primaryButton
-                            enableInputMask
-                            name="livestream-key"
-                            label={__('Stream key (can be reused)')}
-                            copyable={streamKey}
-                            snackMessage={__('Copied stream key.')}
-                          />
-                        </>
-                      }
-                    />
+                    <>
+                      {/* <h2 className="card__title">{__('Your stream key')}</h2> */}
+                      <Card
+                        className="section card--livestream-key"
+                        actions={
+                          <>
+                            <CopyableText
+                              primaryButton
+                              name="stream-server"
+                              label={__('Stream server')}
+                              copyable={LIVESTREAM_RTMP_URL}
+                              snackMessage={__('Copied stream server URL.')}
+                            />
+                            <CopyableText
+                              primaryButton
+                              enableInputMask
+                              name="livestream-key"
+                              label={__('Stream key (can be reused)')}
+                              copyable={streamKey}
+                              snackMessage={__('Copied stream key.')}
+                            />
+                          </>
+                        }
+                      />
+                    </>
                   )}
 
-                  {totalLivestreamClaims.length > 0 ? (
+                  <Card
+                    className="card--livestream-instructions"
+                    title="Instructions"
+                    // subtitle={<>{__(`Expand to learn more about setting up a livestream.`)} </>}
+                    actions={helpText}
+                  />
+                  {/* totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
                         <div className="section">
@@ -428,7 +424,7 @@ export default function LivestreamSetupPage(props: Props) {
                         </div>
                       }
                     />
-                  )}
+                    ) */}
 
                   {/* Debug Stuff */}
                   {streamKey && false && activeChannelClaim && (

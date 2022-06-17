@@ -759,6 +759,10 @@ img {
     }
   }
 
+  .card {
+    margin-bottom: var(--spacing-xl) !important;
+  }
+
   .card__title-section {
     width: 100%;
     div:first-of-type:not(.card__subtitle) {
@@ -873,7 +877,7 @@ img {
     background: rgba(var(--color-header-background-base), 0.4);
     border-radius: var(--border-radius);
     padding: var(--spacing-s);
-    margin-top: var(--spacing-m);
+    margin-top: var(--spacing-l);
     margin-bottom: var(--spacing-m) !important;
 
     .card__main-actions {
@@ -887,6 +891,36 @@ img {
         float: right;
       }
     }
+  }
+
+  .card--livestream-instructions {
+    margin-top: var(--spacing-m);
+    .card__title-actions-container {
+      button {
+        background-color: var(--color-primary);
+        margin-right: calc(var(--spacing-xs) * -1);
+      }
+    }
+
+    .card__header--between {
+      border-bottom: 0;
+    }
+    .card__main-actions {
+      background: rgba(var(--color-header-background-base), 0.4);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-s);
+      .section__subtitle {
+        color: var(--color-text);
+      }
+    }
+  }
+
+  .card--livestream-key {
+    background: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+    margin-top: var(--spacing-l);
+    margin-bottom: var(--spacing-xl) !important;
   }
 
   .card--file {
