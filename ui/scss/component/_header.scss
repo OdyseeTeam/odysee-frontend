@@ -289,13 +289,6 @@
     stroke: var(--color-text);
   }
 
-  &.active:not(.header__navigationItem--logo) {
-    background-color: var(--color-primary);
-    svg {
-      stroke: var(--color-primary-contrast);
-    }
-  }
-
   &[aria-expanded='true']:not(.header__navigationItem--profilePic) {
     transform: rotate(0deg);
     &:not(.button-rotate) {
@@ -466,6 +459,13 @@
   display: flex;
   justify-content: center;
   width: 100%;
+
+  .button.active {
+    background-color: var(--color-primary);
+    svg {
+      stroke: var(--color-primary-contrast);
+    }
+  }
 }
 
 .header__authTitle {
