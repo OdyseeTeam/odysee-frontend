@@ -953,6 +953,15 @@ img {
     padding: var(--spacing-s);
     margin-top: var(--spacing-l);
     margin-bottom: var(--spacing-xl) !important;
+
+    input {
+      box-shadow: 0 0 0 2px var(--color-border) inset;
+    }
+
+    .button--primary {
+      border: unset;
+      margin-bottom: -2px;
+    }
   }
 
   .card--file {
