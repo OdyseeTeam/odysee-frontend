@@ -54,7 +54,14 @@ export default function AdsSticky(props: Props) {
 
   function closeSticky() {
     const container = document.getElementsByClassName('AR_28')[0];
-    container.parentElement.parentElement.parentElement.remove();
+    if (
+      container &&
+      container.parentElement &&
+      container.parentElement.parentElement &&
+      container.parentElement.parentElement.parentElement
+    ) {
+      container.parentElement.parentElement.parentElement.remove();
+    }
   }
 
   React.useEffect(() => {
