@@ -133,17 +133,27 @@
 }
 
 .livestream__data-row {
+  border-radius: var(--border-radius);
   cursor: pointer;
   .radio {
     cursor: pointer;
   }
+
   &:nth-child(n) {
     &.livestream__data-row--selected {
       background-color: var(--color-button-toggle-bg);
     }
   }
   td {
+    background-color: rgba(var(--color-header-background-base), 0.4);
     padding-right: var(--spacing-m);
+    border-bottom: unset !important;
+    margin-bottom: 2px;
+
+    &:first-child {
+      padding-left: var(--spacing-s);
+      padding-right: 0;
+    }
 
     @media (max-width: $breakpoint-small) {
       padding: var(--spacing-xs);
