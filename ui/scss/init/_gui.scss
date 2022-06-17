@@ -956,7 +956,7 @@ img {
       border-radius: var(--border-radius);
       padding: var(--spacing-s);
       .section__subtitle {
-        color: var(--color-text);
+        color: rgba(var(--color-text-base), 0.8);
       }
     }
   }
