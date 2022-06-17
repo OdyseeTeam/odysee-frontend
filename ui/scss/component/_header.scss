@@ -289,6 +289,13 @@
     stroke: var(--color-text);
   }
 
+  &.active {
+    background-color: var(--color-primary);
+    svg {
+      stroke: var(--color-primary-contrast);
+    }
+  }
+
   &[aria-expanded='true']:not(.header__navigationItem--profilePic) {
     transform: rotate(0deg);
     &:not(.button-rotate) {
