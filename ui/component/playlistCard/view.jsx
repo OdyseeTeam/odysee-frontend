@@ -39,6 +39,7 @@ type Props = {
   bodyOpen?: boolean,
   disableClickNavigation?: boolean,
   useDrawer?: boolean,
+  collectionEmpty: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
   enableCardBody?: () => void,
@@ -124,6 +125,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     showEdit,
     setShowEdit,
     doDisablePlayerDrag,
+    collectionEmpty,
     ...cardProps
   } = props;
 
@@ -164,9 +166,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         )
       }
       titleActions={
-        bodyOnly || titleOnly ? undefined : (
+        bodyOnly || titleOnly || (collectionEmpty && !enableCardBody) ? undefined : (
           <>
-            {isMyCollection && bodyOpen && (
+            {isMyCollection && bodyOpen && !collectionEmpty && (
               <Button
                 title={__('Edit')}
                 className={classnames('button-toggle', { 'button-toggle--active': showEdit })}

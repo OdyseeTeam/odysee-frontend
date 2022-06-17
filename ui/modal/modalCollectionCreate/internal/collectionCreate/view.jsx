@@ -8,7 +8,7 @@ type Props = {
   doToast: (params: { message: string, linkText: string, linkTarget: string }) => void,
 };
 
-const ClaimCollectionAdd = (props: Props) => {
+const CollectionCreate = (props: Props) => {
   const { closeModal, doToast } = props;
 
   function handleClose(newCollectionName: string, newCollectionId: string) {
@@ -23,4 +23,4 @@ const ClaimCollectionAdd = (props: Props) => {
   return <Card singlePane actions={<FormNewCollection closeForm={handleClose} onlyCreate />} />;
 };
 
-export default ClaimCollectionAdd;
+export default CollectionCreate;
