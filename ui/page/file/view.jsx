@@ -53,7 +53,7 @@ type Props = {
   doSetPrimaryUri: (uri: ?string) => void,
   clearPosition: (uri: string) => void,
   doClearPlayingUri: () => void,
-  doToggleAppDrawer: () => void,
+  doToggleAppDrawer: (type: string) => void,
   doFileGet: (uri: string) => void,
   doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
 };
@@ -112,7 +112,7 @@ export default function FilePage(props: Props) {
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
-      doToggleAppDrawer();
+      doToggleAppDrawer(DRAWERS.CHAT);
     }
     // only on mount, otherwise clicking on a comments timestamp and linking it
     // would trigger the drawer

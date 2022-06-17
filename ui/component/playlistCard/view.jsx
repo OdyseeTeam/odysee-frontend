@@ -64,6 +64,7 @@ export default function PlaylistCard(props: Props) {
         />
 
         <SwipeableDrawer
+          startOpen
           type={DRAWERS.PLAYLIST}
           title={
             // returns the card title element

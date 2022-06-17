@@ -14,7 +14,7 @@ const select = (state, props) => {
 };
 
 const perform = {
-  toggleDrawer: doToggleAppDrawer,
+  doToggleAppDrawer,
 };
 
 export default connect(select, perform)(SwipeableDrawer);

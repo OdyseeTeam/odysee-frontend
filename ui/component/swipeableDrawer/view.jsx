@@ -25,14 +25,15 @@ type Props = {
   hasSubtitle?: boolean,
   actions?: any,
   type: string,
+  startOpen?: boolean,
   // -- redux --
   open: boolean,
   theme: string,
-  toggleDrawer: () => void,
+  doToggleAppDrawer: (type: string) => void,
 };
 
 export default function SwipeableDrawer(props: Props) {
-  const { title, hasSubtitle, children, type, open, theme, actions, toggleDrawer } = props;
+  const { title, hasSubtitle, children, type, startOpen, open, theme, actions, doToggleAppDrawer } = props;
 
   const pullerHeight = type === DRAWERS.PLAYLIST ? 100 : 42;
 
@@ -47,6 +48,10 @@ export default function SwipeableDrawer(props: Props) {
   const [playerHeight, setPlayerHeight] = React.useState(getMaxLandscapeHeight());
 
   const contentHeight = HEADER_HEIGHT_MOBILE + playerHeight;
+
+  function toggleDrawer() {
+    doToggleAppDrawer(type);
+  }
 
   function handleTouchMove(e) {
     const touchPosY = e.touches[0].clientY;
@@ -178,6 +183,14 @@ export default function SwipeableDrawer(props: Props) {
 
     const rect = element.getBoundingClientRect();
     setPlayerHeight(rect.height);
+  }, []);
+
+  React.useEffect(() => {
+    if (startOpen && !open) {
+      toggleDrawer();
+    }
+    // on page mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   React.useEffect(() => {
