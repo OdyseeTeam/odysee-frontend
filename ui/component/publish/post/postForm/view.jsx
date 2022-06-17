@@ -70,7 +70,7 @@ type Props = {
   resetThumbnailStatus: () => void,
   amountNeededForTakeover: ?number,
   // Add back type
-  updatePublishForm: (any) => void,
+  updatePostForm: (any) => void,
   checkAvailability: (string) => void,
   ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
@@ -101,7 +101,7 @@ function PostForm(props: Props) {
     bidError,
     uploadThumbnailStatus,
     resetThumbnailStatus,
-    updatePublishForm,
+    updatePostForm,
     filePath,
     fileText,
     publishing,
@@ -125,6 +125,8 @@ function PostForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
   } = props;
+
+  console.log('title: ', title);
 
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
@@ -255,9 +257,9 @@ function PostForm(props: Props) {
     if (uri && isValid && checkAvailability && name) {
       resolveUri(uri);
       checkAvailability(name);
-      updatePublishForm({ uri });
+      updatePostForm({ uri });
     }
-  }, [name, activeChannelName, resolveUri, updatePublishForm, checkAvailability]);
+  }, [name, activeChannelName, resolveUri, updatePostForm, checkAvailability]);
 
   // because publish editingUri is channel_short/claim_long and we don't have that, resolve it.
   useEffect(() => {
@@ -268,19 +270,19 @@ function PostForm(props: Props) {
 
   // set isMarkdownPost in publish form if so, also update isLivestreamPublish
   useEffect(() => {
-    updatePublishForm({
+    updatePostForm({
       isMarkdownPost: mode === PUBLISH_MODES.POST,
       isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
     });
-  }, [mode, updatePublishForm]);
+  }, [mode, updatePostForm]);
 
   useEffect(() => {
     if (incognito) {
-      updatePublishForm({ channel: undefined });
+      updatePostForm({ channel: undefined });
     } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
+      updatePostForm({ channel: activeChannelName });
     }
-  }, [activeChannelName, incognito, updatePublishForm]);
+  }, [activeChannelName, incognito, updatePostForm]);
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -317,7 +319,7 @@ function PostForm(props: Props) {
 
         // New content stored locally and is not empty
         if (outputFile) {
-          updatePublishForm({ filePath: outputFile });
+          updatePostForm({ filePath: outputFile });
           runPublish = true;
         }
       } else {
@@ -400,11 +402,11 @@ function PostForm(props: Props) {
                   validatedTags.push(newTag);
                 }
               });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
+              updatePostForm({ tags: [...tags, ...validatedTags] });
             }}
             onRemove={(clickedTag) => {
               const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
+              updatePostForm({ tags: newTags });
             }}
             tagsChosen={tags}
           />

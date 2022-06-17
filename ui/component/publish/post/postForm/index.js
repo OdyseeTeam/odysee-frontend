@@ -2,14 +2,14 @@ import { connect } from 'react-redux';
 import {
   doResetThumbnailStatus,
   doClearPublish,
-  doUpdatePublishForm,
+  doUpdatePostForm,
   doPrepareEdit,
   doPublishDesktop,
 } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
 import {
   selectTakeOverAmount,
-  selectPublishFormValues,
+  selectPostFormValues,
   selectIsStillEditing,
   makeSelectPublishFormValue,
   selectIsResolvingPublishUris,
@@ -36,7 +36,7 @@ const select = (state) => {
   const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
 
   return {
-    ...selectPublishFormValues(state),
+    ...selectPostFormValues(state),
     user: selectUser(state),
     // The winning claim for a short lbry uri
     amountNeededForTakeover: selectTakeOverAmount(state),
@@ -63,7 +63,7 @@ const select = (state) => {
 };
 
 const perform = (dispatch) => ({
-  updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
+  updatePostForm: (value) => dispatch(doUpdatePostForm(value)),
   clearPublish: () => dispatch(doClearPublish()),
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
   publish: (filePath, preview) => dispatch(doPublishDesktop(filePath, preview)),
