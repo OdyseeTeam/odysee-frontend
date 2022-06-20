@@ -84,6 +84,10 @@
   .button--secondary {
     background-color: var(--color-primary) !important;
     box-shadow: 0 0 0 2px transparent inset !important;
+
+    .icon {
+      stroke: var(--color-primary-contrast) !important;
+    }
   }
 }
 
