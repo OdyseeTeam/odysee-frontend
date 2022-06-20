@@ -46,7 +46,6 @@ export default function NotificationHeaderButton(props: Props) {
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 20);
-
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
 
@@ -117,6 +116,13 @@ export default function NotificationHeaderButton(props: Props) {
     push(notificationLink);
   }
 
+  function handleNotificationHover(notification) {
+    const { id, is_seen } = notification;
+    if (!is_seen) {
+      seeNotification([id]);
+    }
+  }
+
   function getWebUri(notification) {
     const { notification_parameters } = notification;
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
@@ -127,7 +133,7 @@ export default function NotificationHeaderButton(props: Props) {
   }
 
   function menuEntry(notification) {
-    const { id, active_at, notification_rule, notification_parameters, is_read, type } = notification;
+    const { id, active_at, notification_rule, notification_parameters, is_read, is_seen, type } = notification;
 
     let channelUrl;
     let icon;
@@ -174,7 +180,12 @@ export default function NotificationHeaderButton(props: Props) {
     }
 
     return (
-      <NavLink onClick={() => handleNotificationClick(notification)} key={id} to={getWebUri(notification)}>
+      <NavLink
+        onMouseEnter={() => handleNotificationHover(notification)}
+        onClick={() => handleNotificationClick(notification)}
+        key={id}
+        to={getWebUri(notification)}
+      >
         <div
           className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
           key={id}
@@ -191,7 +202,7 @@ export default function NotificationHeaderButton(props: Props) {
             >
               {generateNotificationText(notification_rule, notification_parameters)}
             </div>
-            {!is_read && <span>•</span>}
+            {!is_seen && <span className="dot">•</span>}
             <DateTime timeAgo date={active_at} />
           </div>
           <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
