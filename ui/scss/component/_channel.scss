@@ -255,8 +255,8 @@ $actions-z-index: 2;
 }
 
 .channel-thumbnail--xsmall {
-  height: 2.1rem;
-  width: 2.1rem;
+  height: 2.1rem !important;
+  width: 2.1rem !important;
   margin-right: var(--spacing-xs);
 }
 

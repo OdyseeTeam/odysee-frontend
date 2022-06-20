@@ -1546,10 +1546,10 @@ $claim-preview-progress-bar-height: 5px;
     &.playlist-channel {
       display: grid;
       justify-content: start;
-      justify-items: center;
       height: 100%;
       align-content: center;
       grid-gap: 0.5rem;
+      color: var(--color-text);
 
       .ff-container {
         width: 100%;
@@ -1566,6 +1566,10 @@ $claim-preview-progress-bar-height: 5px;
         }
       }
     }
+  }
+
+  &.visibility-icon {
+    color: var(--color-text);
   }
 }
 
