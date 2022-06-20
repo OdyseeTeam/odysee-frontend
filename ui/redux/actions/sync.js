@@ -12,14 +12,18 @@ import {
 } from 'redux/selectors/sync';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { getSavedPassword, getAuthToken } from 'util/saved-passwords';
+import keycloak from 'util/keycloak';
 import { doHandleSyncComplete } from 'redux/actions/app';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 
 let syncTimer = null;
 const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
-const NO_WALLET_ERROR = 'no wallet found for this user';
-const BAD_PASSWORD_ERROR_NAME = 'InvalidPasswordError';
+const SYNC_ERROR = Object.freeze({
+  AUTH_REQUIRED: 'authentication required',
+  BAD_PASSWORD: 'InvalidPasswordError',
+  NO_WALLET: 'no wallet found for this user',
+});
 
 /**
  * Checks if there is a newer sync session, indicating that fetched data from
@@ -245,8 +249,25 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
         handleCallback(null, data.changed);
       })
       .catch((syncAttemptError) => {
-        const badPasswordError =
-          syncAttemptError && syncAttemptError.data && syncAttemptError.data.name === BAD_PASSWORD_ERROR_NAME;
+        const badPasswordError = syncAttemptError?.data?.name === SYNC_ERROR.BAD_PASSWORD;
+        const noWalletError = syncAttemptError?.message === SYNC_ERROR.NO_WALLET;
+
+        if (syncAttemptError?.message === SYNC_ERROR.AUTH_REQUIRED && keycloak.isTokenExpired()) {
+          // If it was genuinely an authentication problem, go through the rest
+          // of the code. If it is due to token refreshing, fail silently and
+          // and let the next sync fix things.
+          // If this is not good enough, use `keycloak.isTokenExpired(N)` to
+          // check if it will be expiring in N seconds, and delay doGetSync().
+          dispatch({
+            type: ACTIONS.GET_SYNC_COMPLETED,
+            data: {
+              hasSyncedWallet: false,
+              syncHash: null,
+              fatalError: false,
+            },
+          });
+          return;
+        }
 
         if (data.unlockFailed) {
           dispatch({ type: ACTIONS.GET_SYNC_FAILED, data: { error: syncAttemptError } });
@@ -271,8 +292,6 @@ export function doGetSync(passedPassword?: string, callback?: (any, ?boolean) =>
 
           handleCallback(error);
         } else {
-          const noWalletError = syncAttemptError && syncAttemptError.message === NO_WALLET_ERROR;
-
           dispatch({
             type: ACTIONS.GET_SYNC_COMPLETED,
             data: {
