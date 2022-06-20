@@ -20,7 +20,8 @@ export function getFloatingPlayerRect() {
   return elem ? elem.getBoundingClientRect() : null;
 }
 
-export function clampFloatingPlayerToScreen(x: number, y: number) {
+export function clampFloatingPlayerToScreen(params: { x: number, y: number }) {
+  const { x, y } = params;
   const playerRect = getFloatingPlayerRect();
 
   let newX = x;

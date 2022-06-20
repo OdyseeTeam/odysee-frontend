@@ -7,6 +7,7 @@ import type { ElementRef } from 'react';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import * as RENDER_MODES from 'constants/file_render_modes';
+import { DEFAULT_INITIAL_FLOATING_POS } from 'constants/player';
 import React from 'react';
 import Button from 'component/button';
 import classnames from 'classnames';
@@ -152,11 +153,8 @@ export default function FileRenderFloating(props: Props) {
   const [shouldPlayNext, setPlayNext] = React.useState(true);
   const [countdownCanceled, setCountdownCanceled] = React.useState(false);
   const [forceDisable, setForceDisable] = React.useState(false);
-  const [position, setPosition] = usePersistedState('floating-file-viewer:position', {
-    x: -25,
-    y: window.innerHeight - 400,
-  });
-  const relativePosRef = React.useRef({ x: 0, y: 0 });
+  const [position, setPosition] = usePersistedState('floating-file-viewer:position', DEFAULT_INITIAL_FLOATING_POS);
+  const relativePosRef = React.useRef(calculateRelativePos(position.x, position.y));
   const noPlayerHeight = fileViewerRect?.height === 0;
 
   const navigateUrl =
@@ -218,8 +216,11 @@ export default function FileRenderFloating(props: Props) {
 
     const newX = Math.round(relativePosRef.current.x * screenW);
     const newY = Math.round(relativePosRef.current.y * screenH);
+    const clampPosition = clampFloatingPlayerToScreen({ x: newX, y: newY });
 
-    setPosition(clampFloatingPlayerToScreen(newX, newY));
+    if (![clampPosition.x, clampPosition.y].some(isNaN)) {
+      setPosition(clampPosition);
+    }
   }, [setPosition]);
 
   const clampToScreenOnResize = React.useCallback(
@@ -387,7 +388,7 @@ export default function FileRenderFloating(props: Props) {
     let newPos = { x, y };
 
     if (newPos.x !== position.x || newPos.y !== position.y) {
-      newPos = clampFloatingPlayerToScreen(newPos.x, newPos.y);
+      newPos = clampFloatingPlayerToScreen(newPos);
 
       setPosition(newPos);
       relativePosRef.current = calculateRelativePos(newPos.x, newPos.y);
@@ -398,7 +399,7 @@ export default function FileRenderFloating(props: Props) {
     <>
       {(uri && videoAspectRatio) || collectionSidebarId ? (
         <PlayerGlobalStyles
-          videoAspectRatio={videoAspectRatio || 0.5625}
+          videoAspectRatio={videoAspectRatio}
           theaterMode={theaterMode}
           appDrawerOpen={appDrawerOpen && !isLandscapeRotated && !isTabletLandscape}
           initialPlayerHeight={initialPlayerHeight}
