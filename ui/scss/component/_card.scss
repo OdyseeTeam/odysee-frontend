@@ -96,8 +96,8 @@
   @media (max-width: $breakpoint-small) {
     .share {
       .icon {
-        width: 3rem;
-        height: 3rem;
+        width: 3rem !important;
+        height: 3rem !important;
         margin-right: var(--spacing-xs);
         margin-bottom: var(--spacing-xs);
       }
