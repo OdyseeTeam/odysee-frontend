@@ -155,10 +155,6 @@ Lbryio.authenticate = (domain, language) => {
             return user;
           }
 
-          const appId = window.odysee.build.googlePlay
-            ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
-            : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
-
           return new Promise((res, rej) => {
             Lbryio.call(
               'user',
@@ -166,7 +162,7 @@ Lbryio.authenticate = (domain, language) => {
               {
                 auth_token: '',
                 language: language || 'en',
-                app_id: appId,
+                app_id: 'odyseeandroidFDROIDDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V',
               },
               'post'
             )
