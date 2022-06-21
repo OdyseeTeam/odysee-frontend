@@ -36,6 +36,12 @@ declare type SearchState = {
   personalRecommendations: { gid: string, uris: Array<string>, fetched: boolean },
 };
 
+declare type SearchResults = {
+  body: Array<{ name: string, claimId: string}>,
+  poweredBy: string,
+  uuid: string,
+};
+
 declare type SearchSuccess = {
   type: ACTIONS.SEARCH_SUCCESS,
   data: {

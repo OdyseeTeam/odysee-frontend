@@ -81,6 +81,11 @@ const recsys: Recsys = {
    * Page was loaded. Get or Create entry and populate it with default data,
    * plus recommended content, recsysId, etc.
    * Called from recommendedContent component
+   *
+   * @param claimId The ID of the content the recommendations are for.
+   * @param uris The recommended uris for `claimId`.
+   * @param uuid Specific uuid to use (e.g. for FYP); randomly generates one
+   *             otherwise.
    */
   onRecsLoaded: function (claimId, uris, uuid = '') {
     if (window && window.store) {
@@ -107,7 +112,8 @@ const recsys: Recsys = {
    * Creates an Entry with optional parentUuid
    * @param: claimId: string
    * @param: parentUuid: string (optional)
-   * @param: uuid: string Specific uuid to use.
+   * @param uuid Specific uuid to use (e.g. for FYP); randomly generates one
+   *             otherwise.
    */
   createRecsysEntry: function (claimId, parentUuid, uuid = '') {
     if (window && window.store && claimId) {
@@ -154,6 +160,7 @@ const recsys: Recsys = {
       IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data);
 
     if (recsys.entries[claimId] && shareTelemetry) {
+      // Exclude `events` in the submission https://github.com/OdyseeTeam/odysee-frontend/issues/1317
       const { events, ...entryData } = recsys.entries[claimId];
       const data = JSON.stringify(entryData);
 
