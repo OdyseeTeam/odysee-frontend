@@ -15,6 +15,7 @@ const CollectionCreate = (props: Props) => {
     closeModal();
     doToast({
       message: __('Succesfully created "%playlist_name%"', { playlist_name: newCollectionName }),
+      subMessage: __('You can now add content to this playlist using the Save button while viewing content.'),
       linkText: __('View Page'),
       linkTarget: `/playlist/${newCollectionId}`,
     });
