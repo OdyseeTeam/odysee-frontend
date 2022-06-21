@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import ClaimCollectionAdd from './view';
+import CollectionCreate from './view';
 import { selectPermanentUrlForUri } from 'redux/selectors/claims';
 import { doToast } from 'redux/actions/notifications';
 
@@ -16,4 +16,4 @@ const perform = {
   doToast,
 };
 
-export default connect(select, perform)(ClaimCollectionAdd);
+export default connect(select, perform)(CollectionCreate);

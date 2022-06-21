@@ -3,7 +3,7 @@ declare type Collection = {
   items: Array<?string>,
   name: string,
   type: string,
-  createdAt: number,
+  createdAt?: number,
   updatedAt: number,
   totalItems?: number,
   sourceId?: string, // if copied, claimId of original collection
