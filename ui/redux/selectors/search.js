@@ -25,8 +25,7 @@ export const selectState = (state: State): SearchState => state.search;
 export const selectSearchValue: (state: State) => string = (state) => selectState(state).searchQuery;
 export const selectSearchOptions: (state: State) => SearchOptions = (state) => selectState(state).options;
 export const selectIsSearching: (state: State) => boolean = (state) => selectState(state).searching;
-export const selectSearchResultByQuery: (state: State) => { [string]: Array<string> } = (state) =>
-  selectState(state).resultsByQuery;
+export const selectSearchResultByQuery = (state: State) => selectState(state).resultsByQuery;
 export const selectHasReachedMaxResultsLength: (state: State) => { [boolean]: Array<boolean> } = (state) =>
   selectState(state).hasReachedMaxResultsLength;
 export const selectMentionSearchResults: (state: State) => Array<string> = (state) => selectState(state).results;
