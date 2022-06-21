@@ -19,7 +19,7 @@ import {
   selectDownloadingByOutpoint,
 } from 'redux/selectors/file_info';
 import { selectUrlsForCollectionId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
-import { doCollectionEdit } from 'redux/actions/collections';
+import { doCollectionEdit, doClearQueueList } from 'redux/actions/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
@@ -170,48 +170,63 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
 
     if (!uri) return;
 
-    const state = getState();
-    const playingUri = selectPlayingUri(state);
-    const isLive = selectIsActiveLivestreamForUri(state, uri);
-    const isAuthenticated = selectUserVerifiedEmail(state);
-    const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
-
     if (!isFloating && (!source || source === COLLECTIONS_CONSTS.QUEUE_ID)) dispatch(doSetPrimaryUri(uri));
 
     if (isPlayable) {
+      const state = getState();
+      const isLive = selectIsActiveLivestreamForUri(state, uri);
+      const willPlayCollection = Boolean(collection.collectionId);
+      const playingUri = selectPlayingUri(state);
       const playingCollection = playingUri.collection;
-
-      if (
+      const playingOtherThanCurrentQueue =
         collection.collectionId !== COLLECTIONS_CONSTS.QUEUE_ID &&
-        playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID
-      ) {
-        // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
-        // until the player is closed or the page is refreshed, and queue is cleared
-        const permanentUrl = selectPermanentUrlForUri(state, uri);
-        const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanentUrl);
-        if (!hasClaimInQueue) {
-          dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [permanentUrl], type: 'playlist' }));
-        }
+        playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID;
 
-        dispatch(
-          doSetPlayingUri({
-            ...playingUri,
-            ...playingOptions,
-            collection: { ...playingCollection },
-          })
-        );
+      if (playingOtherThanCurrentQueue) {
+        if (willPlayCollection) {
+          // If the current playing uri is from Queue mode and the next is on another playlist,
+          // prompt to close the queue, clear it and play the other playlist
+          dispatch(
+            doOpenModal(MODALS.CONFIRM, {
+              title: __('Close Player'),
+              subtitle: __('Are you sure you want to close the current Queue?'),
+              onConfirm: (closeModal) => {
+                dispatch(doClearQueueList());
+                dispatch(doSetPlayingUri(playingOptions));
+                closeModal();
+              },
+            })
+          );
+        } else {
+          // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
+          // until the player is closed or the page is refreshed, and queue is cleared
+          const permanentUrl = selectPermanentUrlForUri(state, uri);
+          const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanentUrl);
+
+          if (!hasClaimInQueue) {
+            dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [permanentUrl], type: 'playlist' }));
+          }
+          dispatch(doSetPlayingUri({ ...playingUri, ...playingOptions, collection: { ...playingCollection } }));
+        }
       } else {
-        dispatch(
-          doSetPlayingUri({
-            ...playingUri,
-            ...playingOptions,
-            collection: collection.collectionId ? { ...playingCollection, ...collection } : {},
-          })
-        );
+        if (collection.collectionId === playingCollection.collectionId) {
+          // keep current playingCollection data like loop or shuffle if plpaying the same
+          dispatch(
+            doSetPlayingUri({ ...playingUri, ...playingOptions, collection: { ...playingCollection, ...collection } })
+          );
+        } else {
+          dispatch(
+            doSetPlayingUri({ ...playingUri, ...playingOptions, collection: willPlayCollection ? collection : {} })
+          );
+        }
+      }
+
+      if (!isLive) {
+        const isAuthenticated = selectUserVerifiedEmail(state);
+        const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
+        dispatch(doPlayUri(uri, false, true, playCb, willPlayCollection));
       }
     }
-
-    if (!isLive) dispatch(doPlayUri(uri, false, true, playCb, Boolean(collection.collectionId)));
   };
 }
 
