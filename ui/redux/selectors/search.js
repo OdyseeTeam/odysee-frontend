@@ -2,6 +2,7 @@
 import { selectShowMatureContent } from 'redux/selectors/settings';
 import {
   selectClaimsByUri,
+  selectClaimForClaimId,
   makeSelectClaimForUri,
   makeSelectClaimForClaimId,
   selectClaimIsNsfwForUri,
@@ -141,34 +142,30 @@ export const selectRecommendedContentForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
-export const makeSelectRecommendedRecsysIdForClaimId = (claimId: string) =>
-  createSelector(
-    makeSelectClaimForClaimId(claimId),
-    selectShowMatureContent,
-    selectSearchResultByQuery,
-    (claim, matureEnabled, searchUrisByQuery) => {
-      // TODO: DRY this out.
-      let poweredBy;
-      if (claim && claimId) {
-        const isMature = isClaimNsfw(claim);
-        const { title } = claim.value;
-        if (!title) {
-          return;
-        }
+export const selectRecommendedMetaForClaimId = createCachedSelector(
+  selectClaimForClaimId,
+  selectShowMatureContent,
+  selectSearchResultByQuery,
+  (claim, matureEnabled, searchUrisByQuery) => {
+    if (claim && claim?.value?.title && claim.claim_id) {
+      const isMature = isClaimNsfw(claim);
+      const title = claim.value.title;
 
-        const options = getRecommendationSearchOptions(matureEnabled, isMature, claimId);
-        const normalizedSearchQuery = getRecommendationSearchKey(title, options);
+      const options = getRecommendationSearchOptions(matureEnabled, isMature, claim.claim_id);
+      const normalizedSearchQuery = getRecommendationSearchKey(title, options);
 
-        const searchResult = searchUrisByQuery[normalizedSearchQuery];
-        if (searchResult) {
-          poweredBy = searchResult.recsys;
-        } else {
-          return normalizedSearchQuery;
-        }
+      const searchResult = searchUrisByQuery[normalizedSearchQuery];
+      if (searchResult) {
+        return {
+          poweredBy: searchResult.recsys,
+          uuid: searchResult.uuid,
+        };
+      } else {
+        return normalizedSearchQuery;
       }
-      return poweredBy;
     }
-  );
+  }
+)((state, claimId) => String(claimId));
 
 export const makeSelectWinningUriForQuery = (query: string) => {
   const uriFromQuery = `lbry://${query}`;

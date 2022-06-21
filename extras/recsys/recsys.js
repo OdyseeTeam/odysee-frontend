@@ -1,8 +1,7 @@
 // @flow
 import { RECSYS_ENDPOINT } from 'config';
 import { selectUser } from 'redux/selectors/user';
-import { makeSelectRecommendedRecsysIdForClaimId } from 'redux/selectors/search';
-import { v4 as Uuidv4 } from 'uuid';
+import { selectRecommendedMetaForClaimId } from 'redux/selectors/search';
 import { parseURI } from 'util/lbryURI';
 import { getAuthToken } from 'util/saved-passwords';
 import * as ACTIONS from 'constants/action_types';
@@ -16,7 +15,7 @@ import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
 import { history } from 'ui/store';
 
 const recsysEndpoint = RECSYS_ENDPOINT;
-const recsysId = 'lighthouse-v0';
+const DEFAULT_RECSYS_ID = 'lighthouse-v0';
 
 const getClaimIdsFromUris = (uris) => {
   return uris
@@ -84,17 +83,20 @@ const recsys: Recsys = {
    *
    * @param claimId The ID of the content the recommendations are for.
    * @param uris The recommended uris for `claimId`.
-   * @param uuid Specific uuid to use (e.g. for FYP); randomly generates one
-   *             otherwise.
+   * @param uuid Specific uuid to use (e.g. for FYP); uses the recommendation's
+   *             uuid otherwise.
    */
   onRecsLoaded: function (claimId, uris, uuid = '') {
     if (window && window.store) {
       const state = window.store.getState();
+      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId);
+
       if (!recsys.entries[claimId]) {
-        recsys.createRecsysEntry(claimId, null, uuid);
+        recsys.createRecsysEntry(claimId, null, uuid || recommendedMeta.uuid);
       }
+
       const claimIds = getClaimIdsFromUris(uris);
-      recsys.entries[claimId]['recsysId'] = makeSelectRecommendedRecsysIdForClaimId(claimId)(state) || recsysId;
+      recsys.entries[claimId]['recsysId'] = recommendedMeta.poweredBy || DEFAULT_RECSYS_ID;
       recsys.entries[claimId]['pageLoadedAt'] = Date.now();
 
       // It is possible that `claimIds` include `null | undefined` entries
@@ -112,19 +114,20 @@ const recsys: Recsys = {
    * Creates an Entry with optional parentUuid
    * @param: claimId: string
    * @param: parentUuid: string (optional)
-   * @param uuid Specific uuid to use (e.g. for FYP); randomly generates one
-   *             otherwise.
+   * @param uuid Specific uuid to use (e.g. for FYP); uses the recommendation's
+   *             uuid otherwise.
    */
   createRecsysEntry: function (claimId, parentUuid, uuid = '') {
     if (window && window.store && claimId) {
       const state = window.store.getState();
+      const recommendedMeta = selectRecommendedMetaForClaimId(state, claimId);
       const user = selectUser(state);
       const userId = user ? user.id : null;
 
       // Make a stub entry that will be filled out on page load
       // $FlowIgnore: not everything is defined since this is a stub
       recsys.entries[claimId] = {
-        uuid: uuid || Uuidv4(),
+        uuid: uuid || recommendedMeta.uuid,
         claimId: claimId,
         recClickedVideoIdx: [],
         pageLoadedAt: Date.now(),
