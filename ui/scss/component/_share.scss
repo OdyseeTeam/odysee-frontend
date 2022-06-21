@@ -6,6 +6,11 @@
     stroke: none;
   }
 
+  .icon--Minds {
+    background: #242a30;
+    border-radius: 50%;
+  }
+
   &:hover {
     box-shadow: var(--card-box-shadow);
   }

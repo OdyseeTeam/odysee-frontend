@@ -168,6 +168,13 @@ function SocialShare(props: Props) {
         <Button
           className="share"
           iconSize={24}
+          icon={ICONS.MINDS}
+          title={__('Share on Minds')}
+          href={`https://www.minds.com/newsfeed/subscriptions/latest?intentUrl=${encodedLbryURL}`}
+        />
+        <Button
+          className="share"
+          iconSize={24}
           icon={ICONS.TWITTER}
           title={__('Share on Twitter')}
           href={tweetIntent}
