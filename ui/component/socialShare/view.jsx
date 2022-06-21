@@ -192,7 +192,7 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.WHATSAPP}
             title={__('Share on WhatsApp')}
-            href={`https://web.whatsapp.com://send?text=${encodedLbryURL}`}
+            href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
           />
         ) : (
           <Button
