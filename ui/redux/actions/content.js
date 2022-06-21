@@ -26,7 +26,7 @@ import { doPurchaseUri } from 'redux/actions/file';
 import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
-import { selectCostInfoForUri, Lbryio } from 'lbryinc';
+import { selectCostInfoForUri, Lbryio, doFetchCostInfoForUri } from 'lbryinc';
 import { selectClientSetting, selectosNotificationsEnabled, selectDaemonSettings } from 'redux/selectors/settings';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import {
@@ -211,7 +211,7 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
       }
     }
 
-    if (!isLive) dispatch(doPlayUri(uri, false, true, playCb));
+    if (!isLive) dispatch(doPlayUri(uri, false, true, playCb, Boolean(collection.collectionId)));
   };
 }
 
@@ -222,7 +222,7 @@ export function doPlayUri(
   cb?: () => void,
   hideFailModal: boolean = false
 ) {
-  return (dispatch: Dispatch, getState: () => any) => {
+  return async (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
     const isMine = selectClaimIsMineForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
@@ -237,8 +237,11 @@ export function doPlayUri(
     }
 
     const daemonSettings = selectDaemonSettings(state);
-    const costInfo = selectCostInfoForUri(state, uri);
-    const cost = (costInfo && Number(costInfo.cost)) || 0;
+    let costInfo = selectCostInfoForUri(state, uri);
+    if (!costInfo) {
+      costInfo = await dispatch(doFetchCostInfoForUri(uri));
+    }
+    const cost = costInfo && Number(costInfo.cost);
     const saveFile = !IS_WEB && (!uriIsStreamable ? true : daemonSettings.save_files || saveFileOverride || cost > 0);
     const instantPurchaseEnabled = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED);
     const instantPurchaseMax = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX);

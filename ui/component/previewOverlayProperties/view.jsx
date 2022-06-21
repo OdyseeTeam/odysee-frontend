@@ -53,7 +53,10 @@ export default function PreviewOverlayProperties(props: Props) {
       {typeof properties === 'function' ? (
         properties(claim)
       ) : xsmall ? (
-        <VideoDuration uri={uri} />
+        <>
+          <VideoDuration uri={uri} />
+          <FilePrice hideFree uri={uri} />
+        </>
       ) : (
         <>
           {!isStream && <ClaimType uri={uri} small={small} />}

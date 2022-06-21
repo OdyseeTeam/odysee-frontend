@@ -82,6 +82,7 @@ type Props = {
   playingCollection: Collection,
   hasClaimInQueue: boolean,
   mainPlayerDimensions: { height: number, width: number },
+  firstCollectionItemUrl: ?string,
   doCommentSocketConnect: (string, string, string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doClearPlayingUri: () => void,
@@ -120,6 +121,7 @@ export default function FileRenderFloating(props: Props) {
     playingCollection,
     hasClaimInQueue,
     mainPlayerDimensions,
+    firstCollectionItemUrl,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doClearPlayingUri,
@@ -243,7 +245,7 @@ export default function FileRenderFloating(props: Props) {
     isFloating,
     collectionId,
     shouldPlayNext,
-    nextListUri,
+    nextListUri || firstCollectionItemUrl,
     previousListUri,
     doNavigate,
     doUriInitiatePlay,
@@ -473,10 +475,11 @@ export default function FileRenderFloating(props: Props) {
 
               {isReadyToPlay ? (
                 <FileRender className={classnames({ draggable: !isMobile })} uri={uri} />
-              ) : !collectionId && !canViewFile ? (
+              ) : !collectionId || !canViewFile ? (
                 <div className="content__loading">
                   <AutoplayCountdown
-                    nextRecommendedUri={nextListUri}
+                    uri={uri}
+                    nextRecommendedUri={nextListUri || firstCollectionItemUrl}
                     doNavigate={() => setDoNavigate(true)}
                     doReplay={() => doUriInitiatePlay({ uri, collection: { collectionId } }, false, isFloating)}
                     doPrevious={() => {
