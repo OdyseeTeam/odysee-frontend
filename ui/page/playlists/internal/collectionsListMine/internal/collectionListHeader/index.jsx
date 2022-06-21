@@ -13,12 +13,13 @@ type Props = {
   filterType: string,
   isTruncated: boolean,
   sortOption: { key: string, value: string },
+  persistedOption: { key: string, value: string },
   setFilterType: (type: string) => void,
   setSortOption: (params: { key: string, value: string }) => void,
 };
 
 export default function CollectionsListMine(props: Props) {
-  const { filterType, isTruncated, sortOption, setFilterType, setSortOption } = props;
+  const { filterType, isTruncated, sortOption, persistedOption, setFilterType, setSortOption } = props;
 
   const {
     location: { search, pathname },
@@ -27,7 +28,7 @@ export default function CollectionsListMine(props: Props) {
   const [expanded, setExpanded] = React.useState(false);
 
   const urlParams = new URLSearchParams(search);
-  const hasDefaultSort = sortOption.key === COLS.DEFAULT_SORT.key && sortOption.value === COLS.DEFAULT_SORT.value;
+  const hasDefaultSort = sortOption.key === persistedOption.key && sortOption.value === persistedOption.value;
 
   function handleChange(sortObj) {
     // can only have one sorting option at a time
@@ -43,7 +44,7 @@ export default function CollectionsListMine(props: Props) {
   function handleClear() {
     Object.keys(COLS.SORT_VALUES).forEach((k) => urlParams.get(k) && urlParams.delete(k));
 
-    setSortOption(COLS.DEFAULT_SORT);
+    setSortOption(persistedOption);
     const url = urlParams.toString() ? `?${urlParams.toString()}` : pathname;
     history.replaceState(history.state, '', url);
   }

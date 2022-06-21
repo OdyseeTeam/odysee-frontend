@@ -14,6 +14,7 @@ import SectionDivider from 'component/common/section-divider';
 import TableHeader from './internal/table-header';
 import CollectionListHeader from './internal/collectionListHeader/index';
 import Paginate from 'component/common/paginate';
+import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
   publishedCollections: CollectionGroup,
@@ -50,7 +51,8 @@ export default function CollectionsListMine(props: Props) {
 
   const [filterType, setFilterType] = React.useState(COLS.LIST_TYPE.ALL);
   const [searchText, setSearchText] = React.useState('');
-  const [sortOption, setSortOption] = React.useState(defaultSortOption);
+  const [sortOption, setSortOption] = usePersistedState('playlists-sort', defaultSortOption);
+  const persistedOption = React.useRef(sortOption);
 
   const unpublishedCollectionsList = (Object.keys(unpublishedCollections || {}): any);
   const publishedList = (Object.keys(publishedCollections || {}): any);
@@ -91,12 +93,20 @@ export default function CollectionsListMine(props: Props) {
     return result.sort((a, b) => {
       const itemA = unpublishedCollections[a] || publishedCollections[a];
       const itemB = unpublishedCollections[b] || publishedCollections[b];
-      const firstItem = sortOption.value === COLS.SORT_ORDER.ASC ? itemA : itemB;
+      const firstItem =
+        // Timestamps are reversed since newest timestamps will be higher, so show the highest number first
+        [COLS.SORT_KEYS.UPDATED_AT, COLS.SORT_KEYS.CREATED_AT].includes(sortOption.key)
+          ? sortOption.value === COLS.SORT_ORDER.DESC
+            ? itemA
+            : itemB
+          : sortOption.value === COLS.SORT_ORDER.ASC
+          ? itemA
+          : itemB;
       const secondItem = firstItem === itemA ? itemB : itemA;
-      const comparisonObj = {
-        a: sortOption.key === COLS.SORT_KEYS.COUNT ? firstItem.items.length : firstItem[sortOption.key],
-        b: sortOption.key === COLS.SORT_KEYS.COUNT ? secondItem.items.length : secondItem[sortOption.key],
-      };
+      const comparisonObj =
+        sortOption.key === COLS.SORT_KEYS.COUNT
+          ? { a: firstItem.items.length, b: secondItem.items.length }
+          : { a: firstItem[sortOption.key], b: secondItem[sortOption.key] };
 
       if (sortOption.key === COLS.SORT_KEYS.NAME) {
         // $FlowFixMe
@@ -176,6 +186,7 @@ export default function CollectionsListMine(props: Props) {
             // $FlowFixMe
             sortOption={sortOption}
             setSortOption={setSortOption}
+            persistedOption={persistedOption.current}
           />
         </CollectionsListContext.Provider>
 

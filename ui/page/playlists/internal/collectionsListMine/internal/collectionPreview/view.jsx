@@ -118,7 +118,18 @@ function CollectionPreview(props: Props) {
               )}
 
               {collectionCount > 0 && (
-                <Button button="alt" label={__('Play All')} icon={ICONS.PLAY} onClick={() => push(firstItem)} />
+                <Button
+                  button="alt"
+                  label={__('Play All')}
+                  icon={ICONS.PLAY}
+                  onClick={() =>
+                    push({
+                      pathname: firstItem,
+                      search: generateListSearchUrlParams(collectionId),
+                      state: { forceAutoplay: true },
+                    })
+                  }
+                />
               )}
             </div>
 

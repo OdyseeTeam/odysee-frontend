@@ -53,8 +53,14 @@ export const SORT_KEYS = Object.freeze({
 
 export const SORT_VALUES = Object.freeze({
   [SORT_KEYS.NAME]: { str: 'Name', orders: { [SORT_ORDER.ASC]: 'A-Z', [SORT_ORDER.DESC]: 'Z-A' } },
-  [SORT_KEYS.CREATED_AT]: { str: 'Creation Time', orders: { [SORT_ORDER.ASC]: 'Newest', [SORT_ORDER.DESC]: 'Oldest' } },
-  [SORT_KEYS.UPDATED_AT]: { str: 'Updated Time', orders: { [SORT_ORDER.ASC]: 'Newest', [SORT_ORDER.DESC]: 'Oldest' } },
+  [SORT_KEYS.CREATED_AT]: {
+    str: 'Creation Time',
+    orders: { [SORT_ORDER.ASC]: 'Newest First', [SORT_ORDER.DESC]: 'Oldest First' },
+  },
+  [SORT_KEYS.UPDATED_AT]: {
+    str: 'Updated Time',
+    orders: { [SORT_ORDER.ASC]: 'Newest First', [SORT_ORDER.DESC]: 'Oldest First' },
+  },
   [SORT_KEYS.COUNT]: {
     str: 'Video Count',
     orders: { [SORT_ORDER.ASC]: 'Increasing', [SORT_ORDER.DESC]: 'Decreasing' },
