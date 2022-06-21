@@ -172,7 +172,7 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
 
   cmd(queryWithOptions)
     .then((data: SearchResults) => {
-      const { body: result, poweredBy } = data;
+      const { body: result, poweredBy, uuid } = data;
       const uris = processLighthouseResults(result);
 
       if (isSearchingRecommendations) {
@@ -186,7 +186,8 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
               from: from,
               size: size,
               uris,
-              recsys: poweredBy,
+              poweredBy,
+              uuid,
             },
           });
         });
@@ -202,7 +203,8 @@ export const doSearch = (rawQuery: string, searchOptions: SearchOptions) => (
           from: from,
           size: size,
           uris,
-          recsys: poweredBy,
+          poweredBy,
+          uuid,
         },
       });
 
