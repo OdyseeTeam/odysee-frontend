@@ -52,7 +52,10 @@ export default function NotificationHeaderButton(props: Props) {
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => setAnchorEl(!anchorEl ? event.currentTarget : null);
+  const handleClick = (event) => {
+    if (unseenCount > 0) doSeeAllNotifications();
+    setAnchorEl(!anchorEl ? event.currentTarget : null);
+  };
   const handleClose = () => setAnchorEl(null);
 
   const menuProps = {
@@ -116,13 +119,6 @@ export default function NotificationHeaderButton(props: Props) {
     push(notificationLink);
   }
 
-  function handleNotificationHover(notification) {
-    const { id, is_seen } = notification;
-    if (!is_seen) {
-      seeNotification([id]);
-    }
-  }
-
   function getWebUri(notification) {
     const { notification_parameters } = notification;
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
@@ -133,7 +129,7 @@ export default function NotificationHeaderButton(props: Props) {
   }
 
   function menuEntry(notification) {
-    const { id, active_at, notification_rule, notification_parameters, is_read, is_seen, type } = notification;
+    const { id, active_at, notification_rule, notification_parameters, is_read, type } = notification;
 
     let channelUrl;
     let icon;
@@ -180,12 +176,7 @@ export default function NotificationHeaderButton(props: Props) {
     }
 
     return (
-      <NavLink
-        onMouseEnter={() => handleNotificationHover(notification)}
-        onClick={() => handleNotificationClick(notification)}
-        key={id}
-        to={getWebUri(notification)}
-      >
+      <NavLink onClick={() => handleNotificationClick(notification)} key={id} to={getWebUri(notification)}>
         <div
           className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
           key={id}
@@ -202,7 +193,7 @@ export default function NotificationHeaderButton(props: Props) {
             >
               {generateNotificationText(notification_rule, notification_parameters)}
             </div>
-            {!is_seen && <span className="dot">•</span>}
+            {!is_read && <span className="dot">•</span>}
             <DateTime timeAgo date={active_at} />
           </div>
           <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
