@@ -29,6 +29,7 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
     data: {
       entry: {
         id: id, // start with a uuid, this becomes a claimId after publish
+        createdAt: Date.now(),
         updatedAt: Date.now(),
         items: items || [],
         ...params,

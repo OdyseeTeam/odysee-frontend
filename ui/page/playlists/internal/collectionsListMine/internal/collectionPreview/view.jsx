@@ -90,7 +90,7 @@ function CollectionPreview(props: Props) {
             <div className="claim-preview-info playlist-title">
               <NavLink {...navLinkProps}>
                 <h2 className="claim-preview__title align-center">
-                  <TruncatedText text={collectionName} lines={1} style={{ 'margin-right': 'var(--spacing-s)' }} />
+                  <TruncatedText text={collectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
                   {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
                 </h2>
               </NavLink>

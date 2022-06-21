@@ -2,19 +2,18 @@
 import React from 'react';
 import CollectionPreview from './internal/collectionPreview';
 import Button from 'component/button';
-import Icon from 'component/common/icon';
-import * as ICONS from 'constants/icons';
-import * as KEYCODES from 'constants/keycodes';
 import * as MODALS from 'constants/modal_types';
+import * as COLS from 'constants/collections';
 import Yrbl from 'component/yrbl';
 import classnames from 'classnames';
-import { FormField, Form } from 'component/common/form';
 import { useIsMobile } from 'effects/use-screensize';
 import { useHistory } from 'react-router-dom';
 import BuiltinPlaylists from './internal/builtin-playlists';
 import SectionLabel from './internal/label';
 import SectionDivider from 'component/common/section-divider';
 import TableHeader from './internal/table-header';
+import CollectionListHeader from './internal/collectionListHeader/index';
+import Paginate from 'component/common/paginate';
 
 type Props = {
   publishedCollections: CollectionGroup,
@@ -25,8 +24,8 @@ type Props = {
   doOpenModal: (id: string) => void,
 };
 
-const LIST_TYPE = Object.freeze({ ALL: 'All', PRIVATE: 'Private', PUBLIC: 'Public' });
-const PLAYLIST_SHOW_COUNT = Object.freeze({ DEFAULT: 12, MOBILE: 6 });
+// Avoid prop drilling
+export const CollectionsListContext = React.createContext<any>();
 
 export default function CollectionsListMine(props: Props) {
   const {
@@ -40,58 +39,91 @@ export default function CollectionsListMine(props: Props) {
 
   const isMobile = useIsMobile();
 
-  const { push } = useHistory();
+  const {
+    push,
+    location: { search },
+  } = useHistory();
+
+  const urlParams = new URLSearchParams(search);
+  const sortByParam = Object.keys(COLS.SORT_VALUES).find((key) => urlParams.get(key));
+  const defaultSortOption = sortByParam ? { key: sortByParam, value: urlParams.get(sortByParam) } : COLS.DEFAULT_SORT;
+
+  const [filterType, setFilterType] = React.useState(COLS.LIST_TYPE.ALL);
+  const [searchText, setSearchText] = React.useState('');
+  const [sortOption, setSortOption] = React.useState(defaultSortOption);
 
   const unpublishedCollectionsList = (Object.keys(unpublishedCollections || {}): any);
   const publishedList = (Object.keys(publishedCollections || {}): any);
   const collectionsUnresolved = unpublishedCollectionsList.length === 0 && publishedList.length === 0 && hasCollections;
-  const [filterType, setFilterType] = React.useState(LIST_TYPE.ALL);
-  const [searchText, setSearchText] = React.useState('');
-  const playlistShowCount = isMobile ? PLAYLIST_SHOW_COUNT.MOBILE : PLAYLIST_SHOW_COUNT.DEFAULT;
+  const playlistShowCount = isMobile ? COLS.PLAYLIST_SHOW_COUNT.MOBILE : COLS.PLAYLIST_SHOW_COUNT.DEFAULT;
 
-  let collectionsToShow = [];
-  if (filterType === LIST_TYPE.ALL) {
-    collectionsToShow = unpublishedCollectionsList.concat(publishedList);
-  } else if (filterType === LIST_TYPE.PRIVATE) {
-    collectionsToShow = unpublishedCollectionsList;
-  } else if (filterType === LIST_TYPE.PUBLIC) {
-    collectionsToShow = publishedList;
-  }
+  const collectionsToShow =
+    React.useMemo(() => {
+      switch (filterType) {
+        case COLS.LIST_TYPE.ALL:
+          return unpublishedCollectionsList.concat(publishedList);
+        case COLS.LIST_TYPE.PRIVATE:
+          return unpublishedCollectionsList;
+        case COLS.LIST_TYPE.PUBLIC:
+          return publishedList;
+      }
+    }, [filterType, publishedList, unpublishedCollectionsList]) || [];
 
-  let filteredCollections;
-  if (searchText && collectionsToShow) {
-    filteredCollections = collectionsToShow
-      .filter((id) => {
-        return (
-          (unpublishedCollections[id] &&
-            unpublishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())) ||
-          (publishedCollections[id] &&
-            publishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
-        );
-      })
-      .slice(0, playlistShowCount);
-  } else {
-    filteredCollections = collectionsToShow.slice(0, playlistShowCount) || [];
-  }
+  const page = (collectionsToShow.length > playlistShowCount && Number(urlParams.get('page'))) || 1;
+  const firstPageIndex = playlistShowCount * (page - 1);
 
-  const totalLength = collectionsToShow ? collectionsToShow.length : 0;
-  const filteredLength = filteredCollections.length;
-  const isTruncated = totalLength > filteredLength;
-
-  function escapeListener(e: SyntheticKeyboardEvent<*>) {
-    if (e.keyCode === KEYCODES.ESCAPE) {
-      e.preventDefault();
-      setSearchText('');
+  const filteredCollections = React.useMemo(() => {
+    let result = [];
+    if (searchText) {
+      result = collectionsToShow
+        .filter(
+          (id) =>
+            (unpublishedCollections[id] &&
+              unpublishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())) ||
+            (publishedCollections[id] &&
+              publishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
+        )
+        .slice(firstPageIndex, playlistShowCount * (page + 1));
+    } else {
+      result = collectionsToShow.slice(firstPageIndex, playlistShowCount * page) || [];
     }
-  }
 
-  function onTextareaFocus() {
-    window.addEventListener('keydown', escapeListener);
-  }
+    return result.sort((a, b) => {
+      const itemA = unpublishedCollections[a] || publishedCollections[a];
+      const itemB = unpublishedCollections[b] || publishedCollections[b];
+      const firstItem = sortOption.value === COLS.SORT_ORDER.ASC ? itemA : itemB;
+      const secondItem = firstItem === itemA ? itemB : itemA;
+      const comparisonObj = {
+        a: sortOption.key === COLS.SORT_KEYS.COUNT ? firstItem.items.length : firstItem[sortOption.key],
+        b: sortOption.key === COLS.SORT_KEYS.COUNT ? secondItem.items.length : secondItem[sortOption.key],
+      };
 
-  function onTextareaBlur() {
-    window.removeEventListener('keydown', escapeListener);
-  }
+      if (sortOption.key === COLS.SORT_KEYS.NAME) {
+        // $FlowFixMe
+        return comparisonObj.a.localeCompare(comparisonObj.b);
+      }
+
+      if (comparisonObj.a > comparisonObj.b) {
+        return 1;
+      }
+      if (comparisonObj.a < comparisonObj.b) {
+        return -1;
+      }
+      return 0;
+    });
+  }, [
+    collectionsToShow,
+    firstPageIndex,
+    page,
+    playlistShowCount,
+    publishedCollections,
+    searchText,
+    sortOption.key,
+    sortOption.value,
+    unpublishedCollections,
+  ]);
+
+  const totalLength = collectionsToShow.length;
 
   function handleCreatePlaylist() {
     doOpenModal(MODALS.COLLECTION_CREATE);
@@ -104,7 +136,7 @@ export default function CollectionsListMine(props: Props) {
 
         <div className="main--empty">
           <Yrbl
-            type={'happy'}
+            type="happy"
             title={__('You can add videos to your Playlists')}
             subtitle={__('Do you want to find some content to save for later, or create a brand new playlist?')}
             actions={
@@ -128,81 +160,55 @@ export default function CollectionsListMine(props: Props) {
 
         <SectionLabel label={__('Your Playlists')} />
 
-        {/* Playlists: search */}
-        {hasCollections && (
-          <div className="section__header-action-stack">
-            <div className="section__header--actions">
-              <div className="claim-search__menu-group">
-                {Object.values(LIST_TYPE).map((value) => (
-                  <Button
-                    label={__(String(value))}
-                    key={String(value)}
-                    button="alt"
-                    onClick={() => setFilterType(value)}
-                    className={classnames('button-toggle', {
-                      'button-toggle--active': filterType === value,
-                    })}
-                  />
-                ))}
-              </div>
+        <CollectionsListContext.Provider
+          value={{
+            searchText,
+            firstPageIndex,
+            setSearchText,
+            totalLength,
+            filteredCollectionsLength: filteredCollections.length,
+          }}
+        >
+          <CollectionListHeader
+            filterType={filterType}
+            isTruncated={totalLength > filteredCollections.length}
+            setFilterType={setFilterType}
+            // $FlowFixMe
+            sortOption={sortOption}
+            setSortOption={setSortOption}
+          />
+        </CollectionsListContext.Provider>
 
-              <div className="claim-search__wrapper--wrap">
-                <div className="claim-search__menu-group">
-                  <Form onSubmit={() => {}} className="wunderbar--inline">
-                    <Icon icon={ICONS.SEARCH} />
-                    <FormField
-                      name="collection_search"
-                      onFocus={onTextareaFocus}
-                      onBlur={onTextareaBlur}
-                      className="wunderbar__input--inline"
-                      value={searchText}
-                      onChange={(e) => setSearchText(e.target.value)}
-                      type="text"
-                      placeholder={__('Search')}
-                    />
-                  </Form>
-                </div>
-
-                <Button button="primary" label={__('New Playlist')} onClick={handleCreatePlaylist} />
-              </div>
-            </div>
-
-            {isTruncated && (
-              <p className="collection-grid__results-summary">
-                {__('Showing %filtered% results of %total%', { filtered: filteredLength, total: totalLength })}
-                {`${searchText ? ' (' + __('filtered') + ') ' : ' '}`}
-              </p>
-            )}
-          </div>
-        )}
-
-        {/* Playlists: tiles */}
+        {/* Playlists: previews */}
         {hasCollections && !collectionsUnresolved ? (
-          <>
-            {!isMobile && <TableHeader />}
-
+          filteredCollections.length > 0 ? (
             <ul className={classnames('ul--no-style claim-list', { playlists: !isMobile })}>
-              {filteredCollections &&
-                filteredCollections.length > 0 &&
-                filteredCollections.map((key) => <CollectionPreview collectionId={key} key={key} />)}
-              {!filteredCollections.length && <div className="empty main--empty">{__('No matching playlists')}</div>}
+              {!isMobile && <TableHeader />}
+
+              {filteredCollections.map((key) => (
+                <CollectionPreview collectionId={key} key={key} />
+              ))}
+
+              <Paginate totalPages={totalLength / playlistShowCount} />
             </ul>
-          </>
-        ) : !isFetchingCollections && !collectionsUnresolved ? (
-          <div className="main--empty">
-            <Yrbl
-              type={'sad'}
-              title={__('You have no Playlists yet. Better start hoarding!')}
-              actions={
-                <div className="section__actions">
-                  <Button button="primary" label={__('Create a Playlist')} onClick={handleCreatePlaylist} />
-                </div>
-              }
-            />
-          </div>
+          ) : (
+            <div className="empty main--empty">{__('No matching playlists')}</div>
+          )
         ) : (
           <div className="main--empty">
-            <h2 className="main--empty empty">{__('Loading...')}</h2>
+            {!isFetchingCollections && !collectionsUnresolved ? (
+              <Yrbl
+                type="sad"
+                title={__('You have no Playlists yet. Better start hoarding!')}
+                actions={
+                  <div className="section__actions">
+                    <Button button="primary" label={__('Create a Playlist')} onClick={handleCreatePlaylist} />
+                  </div>
+                }
+              />
+            ) : (
+              <h2 className="main--empty empty">{__('Loading...')}</h2>
+            )}
           </div>
         )}
       </div>

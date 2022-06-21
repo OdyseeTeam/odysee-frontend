@@ -35,3 +35,30 @@ export const PLAYLIST_ICONS = {
   [WATCH_LATER_ID]: ICONS.TIME,
   [QUEUE_ID]: ICONS.PLAYLIST,
 };
+
+export const LIST_TYPE = Object.freeze({ ALL: 'All', PRIVATE: 'Private', PUBLIC: 'Public' });
+export const PLAYLIST_SHOW_COUNT = Object.freeze({ DEFAULT: 12, MOBILE: 6 });
+
+export const SORT_ORDER = Object.freeze({
+  ASC: 'asc', // ascending
+  DESC: 'desc', // descending
+});
+
+export const SORT_KEYS = Object.freeze({
+  NAME: 'name',
+  CREATED_AT: 'createdAt',
+  UPDATED_AT: 'updatedAt',
+  COUNT: 'count',
+});
+
+export const SORT_VALUES = Object.freeze({
+  [SORT_KEYS.NAME]: { str: 'Name', orders: { [SORT_ORDER.ASC]: 'A-Z', [SORT_ORDER.DESC]: 'Z-A' } },
+  [SORT_KEYS.CREATED_AT]: { str: 'Creation Time', orders: { [SORT_ORDER.ASC]: 'Newest', [SORT_ORDER.DESC]: 'Oldest' } },
+  [SORT_KEYS.UPDATED_AT]: { str: 'Updated Time', orders: { [SORT_ORDER.ASC]: 'Newest', [SORT_ORDER.DESC]: 'Oldest' } },
+  [SORT_KEYS.COUNT]: {
+    str: 'Video Count',
+    orders: { [SORT_ORDER.ASC]: 'Increasing', [SORT_ORDER.DESC]: 'Decreasing' },
+  },
+});
+
+export const DEFAULT_SORT = { key: 'name', value: SORT_ORDER.ASC };
