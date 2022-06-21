@@ -53,6 +53,7 @@ export default function NotificationHeaderButton(props: Props) {
   const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
+    doSeeAllNotifications();
     if (unseenCount > 0) doSeeAllNotifications();
     setAnchorEl(!anchorEl ? event.currentTarget : null);
   };
@@ -89,7 +90,6 @@ export default function NotificationHeaderButton(props: Props) {
   );
 
   function handleMenuClick() {
-    if (unseenCount > 0) doSeeAllNotifications();
     push(`/$/${PAGES.NOTIFICATIONS}`);
   }
 
