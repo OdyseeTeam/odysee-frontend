@@ -168,16 +168,16 @@ function SocialShare(props: Props) {
         <Button
           className="share"
           iconSize={24}
-          icon={ICONS.MINDS}
-          title={__('Share on Minds')}
-          href={`https://www.minds.com/newsfeed/subscriptions/latest?intentUrl=${encodedLbryURL}`}
+          icon={ICONS.TWITTER}
+          title={__('Share on Twitter')}
+          href={tweetIntent}
         />
         <Button
           className="share"
           iconSize={24}
-          icon={ICONS.TWITTER}
-          title={__('Share on Twitter')}
-          href={tweetIntent}
+          icon={ICONS.FACEBOOK}
+          title={__('Share on Facebook')}
+          href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
         />
         <Button
           className="share"
@@ -186,7 +186,32 @@ function SocialShare(props: Props) {
           title={__('Share on Reddit')}
           href={`https://reddit.com/submit?url=${encodedLbryURL}`}
         />
-        {IOS && (
+        {!isMobile ? (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.WHATSAPP}
+            title={__('Share on WhatsApp')}
+            href={`https://web.whatsapp.com://send?text=${encodedLbryURL}`}
+          />
+        ) : (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.WHATSAPP}
+            title={__('Share on WhatsApp')}
+            href={`whatsapp://send?text=${encodedLbryURL}`}
+          />
+        )}
+        {!IOS ? (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.TELEGRAM}
+            title={__('Share on Telegram')}
+            href={`https://t.me/share/url?url=${encodedLbryURL}`}
+          />
+        ) : (
           // Only ios client supports share urls
           <Button
             className="share"
@@ -199,16 +224,16 @@ function SocialShare(props: Props) {
         <Button
           className="share"
           iconSize={24}
-          icon={ICONS.LINKEDIN}
-          title={__('Share on LinkedIn')}
-          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedLbryURL}`}
+          icon={ICONS.MINDS}
+          title={__('Share on Minds')}
+          href={`https://www.minds.com/newsfeed/subscriptions/latest?intentUrl=${encodedLbryURL}`}
         />
         <Button
           className="share"
           iconSize={24}
-          icon={ICONS.FACEBOOK}
-          title={__('Share on Facebook')}
-          href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
+          icon={ICONS.LINKEDIN}
+          title={__('Share on LinkedIn')}
+          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedLbryURL}`}
         />
         {webShareable && !isCollection && (
           <Button

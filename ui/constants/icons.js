@@ -46,6 +46,7 @@ export const SHARE = 'Share2';
 export const EXTERNAL = 'ExternalLink';
 export const PLAY = 'Play';
 export const PLAY_PREVIOUS = 'Play Previous';
+export const WHATSAPP = 'WhatsApp';
 export const MINDS = 'Minds';
 export const FACEBOOK = 'Facebook';
 export const TWITTER = 'Twitter';
