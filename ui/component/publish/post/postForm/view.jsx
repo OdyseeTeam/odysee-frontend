@@ -169,6 +169,8 @@ function PostForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
+  const isClear = !title && !name && !thumbnail && !disabled;
+
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
       claimInitialRewards();
@@ -365,7 +367,7 @@ function PostForm(props: Props) {
         <Icon icon={ICONS.POST} />
         <label>
           Post an Article
-          <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />
+          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
       {/* <ChannelSelect disabled={disabled} autoSet channelToSet={claimChannelId} /> */}

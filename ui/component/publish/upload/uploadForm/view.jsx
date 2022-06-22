@@ -170,29 +170,6 @@ function UploadForm(props: Props) {
   const mode = PUBLISH_MODES.FILE;
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
-  /*
-  let customSubtitle;
-  if (mode === PUBLISH_MODES.LIVESTREAM || isLivestreamClaim) {
-    if (isLivestreamClaim) {
-      customSubtitle = __('Update your livestream');
-    } else {
-      customSubtitle = __('Prepare an upcoming livestream');
-    }
-  } else if (mode === PUBLISH_MODES.POST || isPostClaim) {
-    if (isPostClaim) {
-      customSubtitle = __('Edit your post');
-    } else {
-      customSubtitle = __('Craft an epic post clearly explaining... whatever.');
-    }
-  } else {
-    if (editingURI) {
-      customSubtitle = __('Update your content');
-    } else {
-      customSubtitle = __('Upload that unlabeled video or cassette you found behind the TV in 1991');
-    }
-  }
-  */
-
   const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
 
   // Used to check if the url name has changed:
@@ -247,6 +224,8 @@ function UploadForm(props: Props) {
     : formValidLessFile;
 
   const [previewing, setPreviewing] = React.useState(false);
+
+  const isClear = !filePath && !title && !name && !thumbnail && !disabled;
 
   useEffect(() => {
     if (claimChannelId) {
@@ -563,7 +542,7 @@ function UploadForm(props: Props) {
         <Icon icon={ICONS.PUBLISH} />
         <label>
           Upload a File
-          <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />
+          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
 

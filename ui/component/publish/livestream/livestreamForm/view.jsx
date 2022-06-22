@@ -91,6 +91,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
+  setClearStatus: (boolean) => void,
 };
 
 function LivestreamForm(props: Props) {
@@ -131,6 +132,7 @@ function LivestreamForm(props: Props) {
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
+    setClearStatus,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -198,6 +200,12 @@ function LivestreamForm(props: Props) {
     : formValidLessFile;
 
   const [previewing, setPreviewing] = React.useState(false);
+
+  const isClear = !title && !name && !thumbnail && !disabled;
+
+  useEffect(() => {
+    setClearStatus(isClear);
+  }, [isClear]);
 
   useEffect(() => {
     if (claimChannelId) {
@@ -436,8 +444,6 @@ function LivestreamForm(props: Props) {
       </div>
     );
   }
-
-  console.log('mode: ', mode);
 
   // Editing claim uri
   return (

@@ -65,6 +65,8 @@ export default function LivestreamSetupPage(props: Props) {
 
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !liveDisabled);
 
+  const [isClear, setIsClear] = React.useState(false);
+
   function createStreamKey() {
     if (!channelId || !channelName || !sigData.signature || !sigData.signing_ts) return null;
     return `${channelId}?d=${toHex(channelName)}&s=${sigData.signature}&t=${sigData.signing_ts}`;
@@ -281,7 +283,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Icon icon={ICONS.VIDEO} />
         <label>
           {__('Go Live')}
-          <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />
+          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
       <HeaderMenu />
@@ -495,7 +497,7 @@ export default function LivestreamSetupPage(props: Props) {
           )}
         </>
       )}
-      {tab === 'Publish' && <LivestreamForm />}
+      {tab === 'Publish' && <LivestreamForm setClearStatus={setIsClear} />}
     </Page>
   );
 }
