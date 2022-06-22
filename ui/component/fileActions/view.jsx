@@ -54,6 +54,7 @@ export default function FileActions(props: Props) {
     doToast,
     doDownloadUri,
     isMature,
+    isAPreorder,
   } = props;
 
   const {
@@ -115,7 +116,7 @@ export default function FileActions(props: Props) {
     <div className="media__actions">
       {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
 
-      <ClaimSupportButton uri={uri} fileAction />
+      { !isAPreorder && <ClaimSupportButton uri={uri} fileAction />}
 
       <ClaimCollectionAddButton uri={uri} fileAction />
 

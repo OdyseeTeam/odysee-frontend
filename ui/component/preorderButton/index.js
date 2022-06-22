@@ -1,11 +1,17 @@
 import { connect } from 'react-redux';
-import { selectTagsForUri } from 'redux/selectors/claims';
+import { selectTagsForUri, selectPreorderTag } from 'redux/selectors/claims';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import ClaimTags from './view';
+import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => ({
   tags: selectTagsForUri(state, props.uri),
   followedTags: selectFollowedTags(state),
+  preorderTag: selectPreorderTag(state, props.uri),
 });
 
-export default connect(select, null)(ClaimTags);
+const perform = {
+  doOpenModal,
+};
+
+export default connect(select, perform)(ClaimTags);

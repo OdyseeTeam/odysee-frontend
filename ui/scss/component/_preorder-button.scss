@@ -7,3 +7,17 @@
     stroke: white;
   }
 }
+
+.preorder-content-modal {
+  max-width: 580px;
+}
+
+section.preorder-content-modal {
+  h2.card__title, .section__subtitle {
+    text-align: center;
+  }
+
+  .button {
+    margin: 0 auto;
+  }
+}
