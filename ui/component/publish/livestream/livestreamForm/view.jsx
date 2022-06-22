@@ -140,7 +140,8 @@ function LivestreamForm(props: Props) {
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
 
-  const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
+  // const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
+  const mode = PUBLISH_MODES.LIVESTREAM;
   const [publishMode, setPublishMode] = React.useState('New');
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
@@ -381,18 +382,6 @@ function LivestreamForm(props: Props) {
     }
   }, [activeChannelName, incognito, updatePublishForm, isLivestreamMode]);
 
-  /*
-  // set mode based on urlParams 'type'
-  useEffect(() => {
-    if (enableLivestream) {
-      setMode(PUBLISH_MODES.LIVESTREAM);
-    } else {
-      setMode(PUBLISH_MODES.FILE);
-    }
-    return;
-  }, [_uploadType, enableLivestream, defaultPublishMode]);
-  */
-
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
     if (!_uploadType) return;
@@ -401,19 +390,6 @@ function LivestreamForm(props: Props) {
     replace({ search: newParams.toString() });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, _uploadType]);
-
-  /*
-  // @if TARGET='web'
-  function createWebFile() {
-    if (fileText) {
-      const fileName = name || title;
-      if (fileName) {
-        return new File([fileText], `${fileName}.md`, { type: 'text/markdown' });
-      }
-    }
-  }
-  // @endif
-  */
 
   async function handlePublish() {
     let outputFile = filePath;
@@ -460,6 +436,8 @@ function LivestreamForm(props: Props) {
       </div>
     );
   }
+
+  console.log('mode: ', mode);
 
   // Editing claim uri
   return (
@@ -512,7 +490,7 @@ function LivestreamForm(props: Props) {
         fileMimeType={fileMimeType}
         disabled={disabled || publishing}
         inProgress={isInProgress}
-        setPublishMode={setMode}
+        // setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
         livestreamData={livestreamData}
         // subtitle={customSubtitle}
@@ -562,9 +540,11 @@ function LivestreamForm(props: Props) {
             tagsChosen={tags}
           />
 
-          {!isLivestreamMode && <PublishPrice disabled={formDisabled} />}
-
-          <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
+          <PublishAdditionalOptions
+            isLivestream={isLivestreamMode}
+            disabled={formDisabled}
+            showSchedulingOptions={showSchedulingOptions}
+          />
         </div>
       )}
       <section>

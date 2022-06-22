@@ -30,6 +30,7 @@ type Props = {
   useLBRYUploader: boolean,
   needsYTAuth: boolean,
   showSchedulingOptions: boolean,
+  isLivestream?: Boolean,
 };
 
 function PublishAdditionalOptions(props: Props) {
@@ -42,6 +43,7 @@ function PublishAdditionalOptions(props: Props) {
     updatePublishForm,
     showSchedulingOptions,
     disabled,
+    isLivestream,
     // user,
     // useLBRYUploader,
     // needsYTAuth,
@@ -165,9 +167,11 @@ function PublishAdditionalOptions(props: Props) {
                     </div>
                   </div>
                 </div>
-                <div className="publish-row">
-                  <PublishPrice disabled={!name} />
-                </div>
+                {!isLivestream && (
+                  <div className="publish-row">
+                    <PublishPrice disabled={!name} />
+                  </div>
+                )}
                 <div className="publish-row">
                   <PublishBid />
                 </div>
