@@ -4,9 +4,10 @@ import {
   selectClaimForUri,
   selectClaimIsMineForUri,
   selectFetchingMyChannels,
+  selectPreorderTag,
 } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
-import { doSendTip, doSendCashTip } from 'redux/actions/wallet';
+import { doSendTip, doSendCashTip, preOrderPurchase } from 'redux/actions/wallet';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
@@ -44,6 +45,7 @@ const select = (state, props) => {
     isPending: selectIsSendingSupport(state),
     title: selectTitleForUri(state, uri),
     preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
+    preorderTag: selectPreorderTag(state, props.uri),
   };
 };
 
@@ -51,6 +53,7 @@ const perform = {
   doHideModal,
   doSendTip,
   doSendCashTip,
+  preOrderPurchase,
 };
 
 export default withRouter(connect(select, perform)(WalletSendTip));

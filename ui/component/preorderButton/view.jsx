@@ -6,10 +6,6 @@ import Tag from 'component/tag';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 
-const SLIM_TAGS = 1;
-const NORMAL_TAGS = 3;
-const LARGE_TAGS = 6;
-
 type Props = {
   tags: Array<string>,
   followedTags: Array<Tag>,

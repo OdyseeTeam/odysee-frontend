@@ -16,6 +16,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 
 import { getStripeEnvironment } from 'util/stripe';
+import { preOrderPurchase } from '../../redux/actions/wallet';
 const stripeEnvironment = getStripeEnvironment();
 
 const TAB_BOOST = 'TabBoost';
@@ -77,27 +78,26 @@ export default function WalletSendTip(props: Props) {
     uri,
     hasSelectedTab,
     doHideModal,
-    doSendCashTip,
+    preOrderPurchase,
     preferredCurrency,
+    preorderTag,
+    doSendCashTip,
   } = props;
 
-  /** WHAT TAB TO SHOW **/
-  // if it's your content, we show boost, otherwise default is LBC
-  const defaultTabToShow = claimIsMine ? TAB_BOOST : TAB_FIAT;
+  React.useEffect(() => {
+    setTipAmount(preorderTag);
+  }, [preorderTag])
 
   // loads the default tab if nothing else is there yet
-  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', defaultTabToShow);
+  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', TAB_FIAT);
   const [activeTab, setActiveTab] = React.useState(persistentTab);
   const [hasSelected, setSelected] = React.useState(false);
 
   /** STATE **/
-  const [tipAmount, setTipAmount] = usePersistedState('comment-support:customTip', 1.0);
+  const [tipAmount, setTipAmount] = React.useState();
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [tipError, setTipError] = React.useState();
   const [disableSubmitButton, setDisableSubmitButton] = React.useState();
-
-  /** CONSTS **/
-  const isSupport = claimIsMine || activeTab === TAB_BOOST;
 
   // text for modal header
   const titleText = "Preorder Your Content"
@@ -121,7 +121,7 @@ export default function WalletSendTip(props: Props) {
     const userParams: UserParams = { activeChannelName, activeChannelId };
 
     // hit backend to send tip
-    doSendCashTip(
+    preOrderPurchase(
       tipParams,
       !activeChannelId || incognito,
       userParams,
@@ -133,29 +133,11 @@ export default function WalletSendTip(props: Props) {
   }
 
   function buildButtonText() {
-    return 'Preorder your content for $14.95';
+    return `Preorder your content for $${tipAmount}`;
   }
-
-  React.useEffect(() => {
-    if (!hasSelected && hasSelectedTab && activeTab !== hasSelectedTab) {
-      setActiveTab(hasSelectedTab);
-      setSelected(true);
-    }
-  }, [activeTab, hasSelected, hasSelectedTab, setActiveTab]);
-
-  React.useEffect(() => {
-    if (!hasSelectedTab && activeTab !== hasSelectedTab) {
-      setPersistentTab(activeTab);
-    }
-  }, [activeTab, hasSelectedTab, setPersistentTab]);
-
-  /** RENDER **/
-  let fiatSymbolToUse = '$';
 
   return (
     <Form onSubmit={handleSubmit}>
-      {/* if there is no LBC balance, show user frontend to get credits */}
-      {/* if there is lbc, the main tip/boost gui with the 3 tabs at the top */}
       <Card
         title={titleText}
         className={'preorder-content-modal'}
@@ -169,85 +151,19 @@ export default function WalletSendTip(props: Props) {
         }
         actions={
           // confirmation modal, allow  user to confirm or cancel transaction
-          isOnConfirmationPage ? (
-            <>
-              <div className="section section--padded card--inline confirm__wrapper">
-                <div className="section">
-                  <div className="confirm__label">{__('To --[the tip recipient]--')}</div>
-                  <div className="confirm__value">{channelName || title}</div>
-                  <div className="confirm__label">{__('From --[the tip sender]--')}</div>
-                  <div className="confirm__value">{(!incognito && activeChannelName) || __('Anonymous')}</div>
-                  <div className="confirm__label">{__('Amount')}</div>
-                  <div className="confirm__value">
-                    {activeTab === TAB_FIAT ? (
-                      <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
-                    ) : (
-                      <LbcSymbol postfix={tipAmount} size={22} />
-                    )}
-                  </div>
-                </div>
-              </div>
-              <div className="section__actions">
-                <Button autoFocus onClick={handleSubmit} button="primary" disabled={isPending} label={__('Confirm')} />
-                <Button button="link" label={__('Cancel')} onClick={() => setConfirmationPage(false)} />
-              </div>
-            </>
-          ) : !((activeTab === TAB_LBC || activeTab === TAB_BOOST) && balance === 0) ? (
-            <>
-              {/*<ChannelSelector />*/}
+          <>
+            {/* send tip/boost button */}
+            <div className="section__actions">
 
-              {/* send tip/boost button */}
-              <div className="section__actions">
-
-                <Button
-                  autoFocus
-                  onClick={handleSubmit}
-                  button="primary"
-                  // label={__('Confirm')}
-                  label={buildButtonText()}
-                />
-
-                {/*<Button*/}
-                {/*  autoFocus*/}
-                {/*  icon={ICONS.FINANCE}*/}
-                {/*  button="primary"*/}
-                {/*  type="submit"*/}
-                {/*  disabled={fetchingChannels || isPending || tipError || !tipAmount || disableSubmitButton}*/}
-                {/*  label={buildButtonText()}*/}
-                {/*/>*/}
-                {fetchingChannels && <span className="help">{__('Loading your channels...')}</span>}
-              </div>
-            </>
-          ) : (
-            // if it's LBC and there is no balance, you can prompt to purchase LBC
-            <Card
-              title={
-                <I18nMessage tokens={{ lbc: <LbcSymbol size={22} /> }}>Supporting content requires %lbc%</I18nMessage>
-              }
-              subtitle={
-                <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>
-                  With %lbc%, you can send tips to your favorite creators, or help boost their content for more people
-                  to see.
-                </I18nMessage>
-              }
-              actions={
-                <div className="section__actions">
-                  <Button
-                    icon={ICONS.REWARDS}
-                    button="primary"
-                    label={__('Earn Rewards')}
-                    navigate={`/$/${PAGES.REWARDS}`}
-                  />
-                  <Button
-                    icon={ICONS.BUY}
-                    button="secondary"
-                    label={__('Buy/Swap Credits')}
-                    navigate={`/$/${PAGES.BUY}`}
-                  />
-                </div>
-              }
-            />
-          )
+              <Button
+                autoFocus
+                onClick={handleSubmit}
+                button="primary"
+                // label={__('Confirm')}
+                label={buildButtonText()}
+              />
+            </div>
+          </>
         }
       />
     </Form>
