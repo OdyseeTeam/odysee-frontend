@@ -114,6 +114,11 @@ export default function LivestreamSetupPage(props: Props) {
     </div>
   );
 
+  function createNewLivestream() {
+    setTab('Publish');
+    doNewLivestream();
+  }
+
   React.useEffect(() => {
     // ensure we have a channel
     if (channelId && channelName) {
@@ -173,7 +178,7 @@ export default function LivestreamSetupPage(props: Props) {
           <Button
             button="primary"
             iconRight={ICONS.ADD}
-            onClick={() => doNewLivestream(`/$/${PAGES.UPLOAD}?type=${PUBLISH_MODES.LIVESTREAM.toLowerCase()}`)}
+            onClick={() => createNewLivestream()}
             label={__('Create or Schedule a New Stream')}
           />
         )}
@@ -410,7 +415,7 @@ export default function LivestreamSetupPage(props: Props) {
                         <div className="section__actions">
                           <Button
                             button="primary"
-                            onClick={() => doNewLivestream(`/$/${PAGES.LIVESTREAM_CREATE}`)}
+                            onClick={() => createNewLivestream()}
                             label={__('Create A Livestream')}
                           />
                           <Button

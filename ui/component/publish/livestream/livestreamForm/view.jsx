@@ -171,7 +171,7 @@ function LivestreamForm(props: Props) {
     (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
     (activeChannelClaim && activeChannelClaim.claim_id);
 
-  const nameEdited = isStillEditing && name !== prevName;
+  // const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
   const waitingForFile = waitForFile && !remoteUrl && !filePath;
@@ -402,6 +402,7 @@ function LivestreamForm(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode, _uploadType]);
 
+  /*
   // @if TARGET='web'
   function createWebFile() {
     if (fileText) {
@@ -412,6 +413,7 @@ function LivestreamForm(props: Props) {
     }
   }
   // @endif
+  */
 
   async function handlePublish() {
     let outputFile = filePath;
@@ -487,7 +489,7 @@ function LivestreamForm(props: Props) {
               // $FlowFixMe
               setPublishMode('Replay');
             }}
-            // disabled={!hasLivestreamData}
+            disabled={!hasLivestreamData}
             className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
           />
         </div>

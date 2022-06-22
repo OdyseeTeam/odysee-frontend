@@ -10,7 +10,7 @@ import {
   makeSelectIsFetchingLivestreams,
 } from 'redux/selectors/livestream';
 import LivestreamSetupPage from './view';
-import { push } from 'connected-react-router';
+// import { push } from 'connected-react-router';
 
 const select = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -30,7 +30,7 @@ const select = (state) => {
 const perform = (dispatch) => ({
   doNewLivestream: (path) => {
     dispatch(doClearPublish());
-    dispatch(push(path));
+    // dispatch(push(path));
   },
   fetchNoSourceClaims: (id) => dispatch(doFetchNoSourceClaims(id)),
 });

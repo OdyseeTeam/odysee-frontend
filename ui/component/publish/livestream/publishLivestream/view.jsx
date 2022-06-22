@@ -1,7 +1,7 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
-import type { Node } from 'react';
-import * as ICONS from 'constants/icons';
+// import type { Node } from 'react';
+// import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import { regexInvalidURI } from 'util/lbryURI';
 import PostEditor from 'component/postEditor';
@@ -10,7 +10,7 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-import I18nMessage from 'component/i18nMessage';
+// import I18nMessage from 'component/i18nMessage';
 import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
@@ -41,10 +41,10 @@ type Props = {
   size: number,
   duration: number,
   isVid: boolean,
-  subtitle: string,
+  // subtitle: string,
   setPublishMode: (string) => void,
   setPrevFileText: (string) => void,
-  header: Node,
+  // header: Node,
   livestreamData: LivestreamReplayData,
   isLivestreamClaim: boolean,
   checkLivestreams: (string, string) => void,
@@ -71,25 +71,25 @@ function PublishLivestream(props: Props) {
     doUpdatePublishForm: updatePublishForm,
     doToast,
     disabled,
-    publishing,
-    inProgress,
-    doClearPublish,
-    optimize,
+    // publishing,
+    // inProgress,
+    // doClearPublish,
+    // boptimize,
     ffmpegStatus = {},
     size,
     duration,
     isVid,
     setPublishMode,
     setPrevFileText,
-    header,
+    // header,
     livestreamData,
     isLivestreamClaim,
-    subtitle,
-    checkLivestreams,
-    channelId,
-    channelName,
+    // subtitle,
+    // checkLivestreams,
+    // channelId,
+    // channelName,
     isCheckingLivestreams,
-    setWaitForFile,
+    // setWaitForFile,
     setOverMaxBitrate,
     fileSource,
     changeFileSource,
@@ -111,7 +111,7 @@ function PublishLivestream(props: Props) {
   const [oversized, setOversized] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
   const [currentFileType, setCurrentFileType] = useState(null);
-  const [optimizeAvail, setOptimizeAvail] = useState(false);
+  // const [optimizeAvail, setOptimizeAvail] = useState(false);
   const [userOptimize, setUserOptimize] = usePersistedState('publish-file-user-optimize', false);
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
     SITE_NAME,
@@ -120,14 +120,6 @@ function PublishLivestream(props: Props) {
 
   const bitRate = getBitrate(size, duration);
   const bitRateIsOverMax = bitRate > MAX_BITRATE;
-
-  /*
-  const fileSelectorModes = [
-    { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
-    { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
-    { label: isLivestreamClaim ? __('Edit / Update') : __('None'), actionName: SOURCE_NONE },
-  ];
-  */
 
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
