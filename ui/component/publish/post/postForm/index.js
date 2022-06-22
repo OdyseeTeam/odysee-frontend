@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import {
   doResetThumbnailStatus,
   doClearPublish,
-  doUpdatePostForm,
+  doUpdatePublishForm,
   doPrepareEdit,
   doPublishDesktop,
 } from 'redux/actions/publish';
@@ -63,7 +63,7 @@ const select = (state) => {
 };
 
 const perform = (dispatch) => ({
-  updatePostForm: (value) => dispatch(doUpdatePostForm(value)),
+  updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
   clearPublish: () => dispatch(doClearPublish()),
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
   publish: (filePath, preview) => dispatch(doPublishDesktop(filePath, preview)),

@@ -85,6 +85,7 @@ const ModalPublishPreview = (props: Props) => {
     isLivestreamClaim,
     remoteFile,
     appLanguage,
+    fileText,
   } = props;
 
   const maxCharsBeforeOverflow = 128;
@@ -160,7 +161,10 @@ const ModalPublishPreview = (props: Props) => {
     }
   } else if (livestream) {
     modalTitle = releasesInFuture ? __('Schedule Livestream') : __('Create Livestream');
+  } else if (fileText) {
+    modalTitle = __('Confirm Post');
   } else {
+    console.log('PRO: ', props);
     modalTitle = __('Confirm Upload');
   }
 

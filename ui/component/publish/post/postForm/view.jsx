@@ -72,7 +72,7 @@ type Props = {
   resetThumbnailStatus: () => void,
   amountNeededForTakeover: ?number,
   // Add back type
-  updatePostForm: (any) => void,
+  updatePublishForm: (any) => void,
   checkAvailability: (string) => void,
   ytSignupPending: boolean,
   modal: { id: string, modalProps: {} },
@@ -80,7 +80,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
   user: ?User,
-  isLivestreamClaim: boolean,
+  // isLivestreamClaim: boolean,
   isPostClaim: boolean,
   permanentUrl: ?string,
   remoteUrl: ?string,
@@ -103,7 +103,7 @@ function PostForm(props: Props) {
     bidError,
     uploadThumbnailStatus,
     resetThumbnailStatus,
-    updatePostForm,
+    updatePublishForm,
     filePath,
     fileText,
     publishing,
@@ -127,8 +127,6 @@ function PostForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
   } = props;
-
-  console.log('title: ', title);
 
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
@@ -167,6 +165,8 @@ function PostForm(props: Props) {
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
+  console.log('isOverwritingExistingClaim: ', isOverwritingExistingClaim);
+  console.log('editingURI: ', editingURI);
   const formValid = isOverwritingExistingClaim ? false : editingURI;
 
   const [previewing, setPreviewing] = React.useState(false);
@@ -203,7 +203,7 @@ function PostForm(props: Props) {
     if (isStillEditing) {
       submitLabel = __('Save');
     } else {
-      submitLabel = __('Upload');
+      submitLabel = __('Post');
     }
   }
 
@@ -259,9 +259,9 @@ function PostForm(props: Props) {
     if (uri && isValid && checkAvailability && name) {
       resolveUri(uri);
       checkAvailability(name);
-      updatePostForm({ uri });
+      updatePublishForm({ uri });
     }
-  }, [name, activeChannelName, resolveUri, updatePostForm, checkAvailability]);
+  }, [name, activeChannelName, resolveUri, updatePublishForm, checkAvailability]);
 
   // because publish editingUri is channel_short/claim_long and we don't have that, resolve it.
   useEffect(() => {
@@ -272,19 +272,19 @@ function PostForm(props: Props) {
 
   // set isMarkdownPost in publish form if so, also update isLivestreamPublish
   useEffect(() => {
-    updatePostForm({
-      isMarkdownPost: mode === PUBLISH_MODES.POST,
-      isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
+    updatePublishForm({
+      isMarkdownPost: true,
+      isLivestreamPublish: false,
     });
-  }, [mode, updatePostForm]);
+  }, [mode, updatePublishForm]);
 
   useEffect(() => {
     if (incognito) {
-      updatePostForm({ channel: undefined });
+      updatePublishForm({ channel: undefined });
     } else if (activeChannelName) {
-      updatePostForm({ channel: activeChannelName });
+      updatePublishForm({ channel: activeChannelName });
     }
-  }, [activeChannelName, incognito, updatePostForm]);
+  }, [activeChannelName, incognito, updatePublishForm]);
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -321,7 +321,7 @@ function PostForm(props: Props) {
 
         // New content stored locally and is not empty
         if (outputFile) {
-          updatePostForm({ filePath: outputFile });
+          updatePublishForm({ filePath: outputFile });
           runPublish = true;
         }
       } else {
@@ -359,6 +359,13 @@ function PostForm(props: Props) {
       </div>
     );
   }
+
+  console.log('isClaimingInitialRewards: ', isClaimingInitialRewards);
+  console.log('formDisabled: ', formDisabled);
+  console.log('formValid: ', formValid);
+  console.log('uploadThumbnailStatus: ', uploadThumbnailStatus);
+  // console.log('ytSignupPending: ', ytSignupPending)
+  console.log('previewing: ', previewing);
 
   // Editing claim uri
   return (
@@ -408,11 +415,11 @@ function PostForm(props: Props) {
                   validatedTags.push(newTag);
                 }
               });
-              updatePostForm({ tags: [...tags, ...validatedTags] });
+              updatePublishForm({ tags: [...tags, ...validatedTags] });
             }}
             onRemove={(clickedTag) => {
               const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePostForm({ tags: newTags });
+              updatePublishForm({ tags: newTags });
             }}
             tagsChosen={tags}
           />
@@ -429,7 +436,7 @@ function PostForm(props: Props) {
             disabled={
               isClaimingInitialRewards ||
               formDisabled ||
-              !formValid ||
+              // !formValid ||
               uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
               ytSignupPending ||
               previewing
