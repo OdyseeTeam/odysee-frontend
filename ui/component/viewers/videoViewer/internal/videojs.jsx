@@ -246,7 +246,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     inactivityTimeout: 2000,
     muted: startMuted,
-    poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     controlBar: {
       currentTimeDisplay: !isLivestreamClaim,
@@ -314,9 +313,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           embedded: embedded,
         });
       }
-
-      // set playsinline for mobile
-      player.children_[0].setAttribute('playsinline', '');
 
       // immediately show control bar while video is loading
       player.userActive(true);
@@ -432,6 +428,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       vjsPlayer.controlBar?.show();
 
       vjsPlayer.poster(poster);
+
+      vjsPlayer.el().childNodes[0].setAttribute('playsinline', '');
 
       let contentUrl;
       // TODO: pull this function into videojs-functions
@@ -604,6 +602,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.trigger('playerClosed');
 
         window.player.currentTime(0);
+
+        // stop streams running in background
+        window.player.loadTech_('html5', null);
 
         window.player.claimSrcVhs = null;
       }
