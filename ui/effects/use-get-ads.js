@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import { VASTClient } from 'vast-client';
+import { VASTClient } from '@dailymotion/vast-client';
 import analytics from 'analytics';
 
 const PRE_ROLL_ADS_PROVIDER = 'https://tag.targeting.unrulymedia.com/rmp/216276/0/vast2?vastfw=vpaid&w=300&h=500&url=';
