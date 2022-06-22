@@ -124,6 +124,7 @@ function LivestreamForm(props: Props) {
     enablePublishPreview,
     activeChannelClaim,
     incognito,
+    description,
     // user,
     // isLivestreamClaim,
     // isPostClaim,
@@ -201,7 +202,7 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const isClear = !title && !name && !thumbnail && !disabled;
+  const isClear = !title && !name && !description && !thumbnail && !disabled;
 
   useEffect(() => {
     setClearStatus(isClear);

@@ -449,7 +449,7 @@ function PublishFile(props: Props) {
       reader.readAsText(file);
       setCurrentFileType('text/markdown');
     } else {
-      setPublishMode(PUBLISH_MODES.FILE);
+      // setPublishMode(PUBLISH_MODES.FILE);
     }
 
     // @if TARGET='web'

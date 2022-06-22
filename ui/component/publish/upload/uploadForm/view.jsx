@@ -112,6 +112,7 @@ function UploadForm(props: Props) {
     title,
     bid,
     bidError,
+    description,
     uploadThumbnailStatus,
     resetThumbnailStatus,
     updatePublishForm,
@@ -225,7 +226,7 @@ function UploadForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const isClear = !filePath && !title && !name && !thumbnail && !disabled;
+  const isClear = !filePath && !title && !name && !description && !thumbnail && !disabled;
 
   useEffect(() => {
     if (claimChannelId) {
@@ -533,7 +534,6 @@ function UploadForm(props: Props) {
     );
   }
 
-  console.log('mode: ', mode);
   // Editing claim uri
   return (
     <div className="card-stack">
