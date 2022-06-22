@@ -181,23 +181,11 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
-  const [tab, setTab] = React.useState('Setup');
+  const [tab, setTab] = React.useState('Publish');
 
   const HeaderMenu = () => {
     return (
       <>
-        <Button
-          key={'Setup'}
-          // icon={modeName}
-          iconSize={18}
-          label={'Local Setup'}
-          button="alt"
-          onClick={() => {
-            // $FlowFixMe
-            setTab('Setup');
-          }}
-          className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
-        />
         <Button
           key={'Publish'}
           // icon={modeName}
@@ -209,6 +197,18 @@ export default function LivestreamSetupPage(props: Props) {
             setTab('Publish');
           }}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Publish' })}
+        />
+        <Button
+          key={'Setup'}
+          // icon={modeName}
+          iconSize={18}
+          label={'Local Setup'}
+          button="alt"
+          onClick={() => {
+            // $FlowFixMe
+            setTab('Setup');
+          }}
+          className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
         />
       </>
     );
@@ -350,13 +350,7 @@ export default function LivestreamSetupPage(props: Props) {
                     </>
                   )}
 
-                  <Card
-                    className="card--livestream-instructions"
-                    title="Instructions"
-                    // subtitle={<>{__(`Expand to learn more about setting up a livestream.`)} </>}
-                    actions={helpText}
-                  />
-                  {/* totalLivestreamClaims.length > 0 ? (
+                  {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
                         <div className="section">
@@ -429,7 +423,13 @@ export default function LivestreamSetupPage(props: Props) {
                         </div>
                       }
                     />
-                    ) */}
+                  )}
+                  <Card
+                    className="card--livestream-instructions"
+                    title="Instructions"
+                    // subtitle={<>{__(`Expand to learn more about setting up a livestream.`)} </>}
+                    actions={helpText}
+                  />
 
                   {/* Debug Stuff */}
                   {streamKey && false && activeChannelClaim && (

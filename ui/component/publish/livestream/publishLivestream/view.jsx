@@ -480,7 +480,6 @@ function PublishLivestream(props: Props) {
   const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
   const isPublishPost = mode === PUBLISH_MODES.POST;
 
-  console.log('livestreamData: ', livestreamData);
   return (
     <Card
       className={classnames({

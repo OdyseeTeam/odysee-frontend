@@ -8,14 +8,14 @@
   File upload is carried out in the background by that function.
  */
 
-import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { SITE_NAME, SIMPLE_SITE } from 'config';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState } from 'react';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-import ChannelSelect from 'component/channelSelector';
+// import ChannelSelect from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
@@ -33,12 +33,6 @@ import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_NONE, SOURCE_SELECT } from 'constants/publish_sources';
-
-// @if TARGET='app'
-import fs from 'fs';
-import tempy from 'tempy';
-import { Icon } from '@mui/material';
-// @endif
 
 type Props = {
   disabled: boolean,
@@ -129,8 +123,8 @@ function LivestreamForm(props: Props) {
     enablePublishPreview,
     activeChannelClaim,
     incognito,
-    user,
-    isLivestreamClaim,
+    // user,
+    // isLivestreamClaim,
     // isPostClaim,
     permanentUrl,
     remoteUrl,
@@ -146,12 +140,8 @@ function LivestreamForm(props: Props) {
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
 
-  const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
-  console.log('livestreamData: ', livestreamData);
-
   const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
   const [publishMode, setPublishMode] = React.useState('New');
-  console.log('mode: ', mode);
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
   // Used to check if the url name has changed:
@@ -164,6 +154,7 @@ function LivestreamForm(props: Props) {
   const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
   const [livestreamData, setLivestreamData] = React.useState([]);
+  const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;

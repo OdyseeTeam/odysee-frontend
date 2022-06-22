@@ -513,6 +513,7 @@ fieldset-group {
 }
 
 .form-field__hint {
+  opacity: 0.8;
   font-size: var(--font-xsmall);
   color: var(--color-input-label);
 }
