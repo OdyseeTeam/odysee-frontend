@@ -841,77 +841,6 @@ export const icons = {
       viewBox: '0 0 60 60',
     }
   ),
-  [ICONS.MINDS]: buildIcon(
-    <g id="bulb" transform="translate(90.000000, 60.000000)">
-      <g id="Group-5" transform="translate(107.000000, 290.000000)">
-        <path d="M24.7524752,43 L22.7722772,72 L24.7524752,43 Z" id="Triangle-3" fill="#656565" />
-        <polygon id="Triangle-3" fill="#656565" points="0 62 25 41 50 82" />
-        <polygon id="Triangle-3" fill="#787778" points="0 0 0 62 25 41" />
-        <polygon id="Triangle-3" fill="#5C5C5C" points="75 41 50 82 100 62" />
-        <polygon id="Triangle-3" fill="#787778" points="100 62 75 41 100 0" />
-        <polygon id="Triangle-3" fill="#4A4A4A" points="0 0 100 0 50 82" />
-      </g>
-      <g id="Group" transform="translate(6.000000, 1.000000)">
-        <polygon id="Triangle-3" fill="#FED12F" points="111 100 217 144 141 205" />
-        <polygon id="Triangle-3" fill="#FED12F" points="191 26 251 88 217 144" />
-        <polygon id="Triangle-3" fill="#FED12F" points="101 289 211 257 201 289" />
-        <polygon id="Triangle-3" fill="#FED12F" points="91 257 141 205 101 289" />
-        <polygon id="Triangle-3" fill="#FED12F" points="51 88 111 26 111 100" />
-        <polygon id="Triangle-3" fill="#FFF3CB" points="141 205 211 257 217 144" />
-        <polygon
-          id="Triangle-3"
-          fill="#FFF3CB"
-          transform="translate(91.982123, 202.376609) rotate(140.000000) translate(-91.982123, -202.376609) "
-          points="56.1185344 168.858891 118.731412 243.589257 127.845712 161.163961"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FFDD63"
-          transform="translate(187.648863, 90.616899) rotate(-53.000000) translate(-187.648863, -90.616899) "
-          points="134.026748 35.0492865 241.270978 54.4058156 162.679178 146.184512"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FFEDAC"
-          transform="translate(112.700659, 170.148822) rotate(-53.000000) translate(-112.700659, -170.148822) "
-          points="57.7008005 126.823779 167.700517 126.574001 101.898239 213.723643"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FFDD63"
-          transform="translate(148.569878, 267.401001) rotate(-53.000000) translate(-148.569878, -267.401001) "
-          points="102.691884 242.40861 193.849867 223.801568 194.447872 311.000435"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FFDD63"
-          transform="translate(214.000000, 200.500000) rotate(-53.000000) translate(-214.000000, -200.500000) "
-          points="167.071649 232.106642 260.928351 168.893358 249.86099 227.318639"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FFDD63"
-          transform="translate(55.981655, 127.407987) rotate(-53.000000) translate(-55.981655, -127.407987) "
-          points="0.981796369 155.102831 84.4562375 99.713142 110.981513 154.853053"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FEE382"
-          transform="translate(254.000000, 138.000000) rotate(-53.000000) translate(-254.000000, -138.000000) "
-          points="226.941031 112.061376 292.12633 105.513342 215.87367 170.486658"
-        />
-        <polygon
-          id="Triangle-3"
-          fill="#FEF1C0"
-          transform="translate(146.320889, 50.144248) rotate(160.000000) translate(-146.320889, -50.144248) "
-          points="96.0784387 57.5512633 196.563339 15.3756208 171.253848 84.9128748"
-        />
-      </g>
-    </g>,
-    {
-      viewBox: '0 0 500 500',
-    }
-  ),
   [ICONS.TWITTER]: buildIcon(
     <g>
       <path
@@ -1030,25 +959,6 @@ export const icons = {
           <stop offset="1" stopColor="white" />
         </linearGradient>
       </defs>
-    </g>,
-    {
-      viewBox: '0 0 60 60',
-    }
-  ),
-  [ICONS.LINKEDIN]: buildIcon(
-    <g>
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M0 30C0 13.4315 13.4315 0 30 0C46.5685 0 60 13.4315 60 30C60 46.5685 46.5685 60 30 60C13.4315 60 0 46.5685 0 30Z"
-        fill="#0077B5"
-      />
-      <path
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M21.6484 18.5283C21.6042 16.5255 20.1721 15 17.8462 15C15.5205 15 14 16.5255 14 18.5283C14 20.4897 15.4756 22.0592 17.7581 22.0592H17.8015C20.1721 22.0592 21.6484 20.4897 21.6484 18.5283ZM21.2007 24.8473H14.4021V45.2744H21.2007V24.8473ZM37.8914 24.3677C42.3652 24.3677 45.7192 27.2878 45.7192 33.5621L45.719 45.2745H38.9207V34.3459C38.9207 31.601 37.9368 29.7278 35.4756 29.7278C33.5974 29.7278 32.4785 30.9906 31.9873 32.2102C31.8074 32.6473 31.7634 33.2563 31.7634 33.8668V45.275H24.9639C24.9639 45.275 25.0535 26.7646 24.9639 24.8479H31.7634V27.7412C32.6658 26.3503 34.2817 24.3677 37.8914 24.3677Z"
-        fill="white"
-      />
     </g>,
     {
       viewBox: '0 0 60 60',

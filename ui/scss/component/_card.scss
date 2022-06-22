@@ -94,12 +94,18 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    .share {
-      .icon {
-        width: 3rem !important;
-        height: 3rem !important;
-        margin-right: var(--spacing-xs);
-        margin-bottom: var(--spacing-xs);
+    .section__actions {
+      .share {
+        .icon {
+          margin-right: var(--spacing-xxs);
+          margin-bottom: var(--spacing-xs);
+        }
+      }
+      &:last-child {
+        margin-right: 0 !important;
+        .icon {
+          margin-right: 0 !important;
+        }
       }
     }
   }

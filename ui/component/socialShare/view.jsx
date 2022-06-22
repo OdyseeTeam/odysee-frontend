@@ -221,20 +221,6 @@ function SocialShare(props: Props) {
             href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
           />
         )}
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.MINDS}
-          title={__('Share on Minds')}
-          href={`https://www.minds.com/newsfeed/subscriptions/latest?intentUrl=${encodedLbryURL}`}
-        />
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.LINKEDIN}
-          title={__('Share on LinkedIn')}
-          href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedLbryURL}`}
-        />
         {webShareable && !isCollection && (
           <Button
             className="share"
