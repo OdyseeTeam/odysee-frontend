@@ -55,7 +55,6 @@ export const selectPostFormValues = createSelector(
   (state) => state.settings,
   selectIsStillEditing,
   (PostState, settingsState, isStillEditing) => {
-    console.log('PostState: ', PostState);
     const { languages, ...formValues } = PostState;
     const language = languages && languages.length && languages[0];
     const { clientSettings } = settingsState;

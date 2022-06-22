@@ -165,8 +165,6 @@ function PostForm(props: Props) {
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
-  console.log('isOverwritingExistingClaim: ', isOverwritingExistingClaim);
-  console.log('editingURI: ', editingURI);
   const formValid = isOverwritingExistingClaim ? false : editingURI;
 
   const [previewing, setPreviewing] = React.useState(false);
@@ -359,13 +357,6 @@ function PostForm(props: Props) {
       </div>
     );
   }
-
-  console.log('isClaimingInitialRewards: ', isClaimingInitialRewards);
-  console.log('formDisabled: ', formDisabled);
-  console.log('formValid: ', formValid);
-  console.log('uploadThumbnailStatus: ', uploadThumbnailStatus);
-  // console.log('ytSignupPending: ', ytSignupPending)
-  console.log('previewing: ', previewing);
 
   // Editing claim uri
   return (

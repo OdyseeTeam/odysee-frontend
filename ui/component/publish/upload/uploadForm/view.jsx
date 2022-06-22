@@ -153,17 +153,9 @@ function UploadForm(props: Props) {
   const AVAILABLE_MODES = Object.values(PUBLISH_MODES).filter((mode) => {
     // $FlowFixMe
     if (inEditMode) {
-      if (isPostClaim) {
-        return mode === PUBLISH_MODES.POST;
-      } else if (isLivestreamClaim) {
-        return mode === PUBLISH_MODES.LIVESTREAM && enableLivestream;
-      } else {
-        return mode === PUBLISH_MODES.FILE;
-      }
+      return mode === PUBLISH_MODES.FILE;
     } else if (_uploadType) {
       return mode === _uploadType && (mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream);
-    } else {
-      return mode !== PUBLISH_MODES.LIVESTREAM || enableLivestream;
     }
   });
 
@@ -174,7 +166,8 @@ function UploadForm(props: Props) {
   };
 
   const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
-  const [mode, setMode] = React.useState(_uploadType || defaultPublishMode);
+  // const [mode, setMode] = React.useState(PUBLISH_MODES.FILE);
+  const mode = PUBLISH_MODES.FILE;
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
   /*
@@ -324,12 +317,12 @@ function UploadForm(props: Props) {
         }
       }
 
-      setLivestreamData(newData);
+      // setLivestreamData(newData);
       setCheckingLivestreams(false);
     }
   }
 
-  const isLivestreamMode = mode === PUBLISH_MODES.LIVESTREAM;
+  const isLivestreamMode = false;
   let submitLabel;
 
   if (isClaimingInitialRewards) {
@@ -431,7 +424,7 @@ function UploadForm(props: Props) {
 
       // Anonymous livestreams aren't supported
       if (isLivestreamMode) {
-        setMode(PUBLISH_MODES.FILE);
+        // setMode(PUBLISH_MODES.FILE);
       }
     } else if (activeChannelName) {
       updatePublishForm({ channel: activeChannelName });
@@ -441,15 +434,16 @@ function UploadForm(props: Props) {
   // set mode based on urlParams 'type'
   useEffect(() => {
     if (!_uploadType) {
-      setMode(defaultPublishMode);
+      // setMode(defaultPublishMode);
       return;
     }
 
     // File publish
     if (_uploadType === PUBLISH_MODES.FILE.toLowerCase()) {
-      setMode(PUBLISH_MODES.FILE);
+      // setMode(PUBLISH_MODES.FILE);
       return;
     }
+    /*
     // Post publish
     if (_uploadType === PUBLISH_MODES.POST.toLowerCase()) {
       setMode(PUBLISH_MODES.POST);
@@ -464,8 +458,9 @@ function UploadForm(props: Props) {
       }
       return;
     }
+    */
 
-    setMode(defaultPublishMode);
+    // setMode(defaultPublishMode);
   }, [_uploadType, enableLivestream, defaultPublishMode]);
 
   // if we have a type urlparam, update it? necessary?
@@ -484,30 +479,6 @@ function UploadForm(props: Props) {
       if (fileName) {
         return new File([fileText], `${fileName}.md`, { type: 'text/markdown' });
       }
-    }
-  }
-  // @endif
-
-  // @if TARGET='app'
-  // Save file changes locally ( desktop )
-  function saveFileChanges() {
-    let output;
-    if (!output || output === '') {
-      // Generate a temporary file:
-      output = tempy.file({ name: 'post.md' });
-    } else if (typeof filePath === 'string') {
-      // Use current file
-      output = filePath;
-    }
-    // Create a temporary file and save file changes
-    if (output && output !== '') {
-      // Save file changes
-      return new Promise((resolve, reject) => {
-        fs.writeFile(output, fileText, (error, data) => {
-          // Handle error, cant save changes or create file
-          error ? reject(error) : resolve(output);
-        });
-      });
     }
   }
   // @endif
@@ -556,18 +527,6 @@ function UploadForm(props: Props) {
     }
   }
 
-  // Update mode on editing
-  useEffect(() => {
-    if (autoSwitchMode && editingURI && myClaimForUri) {
-      // Change publish mode to "post" if editing content type is markdown
-      if (fileMimeType === 'text/markdown' && mode !== PUBLISH_MODES.POST) {
-        setMode(PUBLISH_MODES.POST);
-        // Prevent forced mode
-        setAutoSwitchMode(false);
-      }
-    }
-  }, [autoSwitchMode, editingURI, fileMimeType, myClaimForUri, mode, setMode, setAutoSwitchMode]);
-
   // When accessing to publishing, make sure to reset file input attributes
   // since we can't restore from previous user selection (like we do
   // with other properties such as name, title, etc.) for security reasons.
@@ -595,6 +554,7 @@ function UploadForm(props: Props) {
     );
   }
 
+  console.log('mode: ', mode);
   // Editing claim uri
   return (
     <div className="card-stack">
@@ -613,14 +573,14 @@ function UploadForm(props: Props) {
         fileMimeType={fileMimeType}
         disabled={disabled || publishing}
         inProgress={isInProgress}
-        setPublishMode={setMode}
+        // setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
         livestreamData={livestreamData}
         // subtitle={customSubtitle}
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
-        isCheckingLivestreams={isCheckingLivestreams}
-        checkLivestreams={fetchLivestreams}
+        // isCheckingLivestreams={isCheckingLivestreams}
+        // checkLivestreams={fetchLivestreams}
         channelId={claimChannelId}
         channelName={activeChannelName}
         header={
@@ -634,7 +594,7 @@ function UploadForm(props: Props) {
                 button="alt"
                 onClick={() => {
                   // $FlowFixMe
-                  setMode(modeName);
+                  // setMode(modeName);
                 }}
                 className={classnames('button-toggle', { 'button-toggle--active': mode === modeName })}
               />
