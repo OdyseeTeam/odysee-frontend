@@ -834,6 +834,8 @@ export const preOrderPurchase = (
         })
       );
 
+      window.location.reload();
+
       if (successCallback) successCallback(customerTipResponse);
     })
     .catch((error) => {
