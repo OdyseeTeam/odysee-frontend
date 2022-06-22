@@ -44,6 +44,7 @@ function PublishName(props: Props) {
 
   return (
     <Card
+      className={!name ? 'disabled' : ''}
       actions={
         <FormField
           type="number"
@@ -52,10 +53,9 @@ function PublishName(props: Props) {
           step="any"
           placeholder="0.123"
           className="form-field--price-amount"
-          label={<LbcSymbol postfix={__('Deposit')} size={12} />}
+          label={<LbcSymbol disabled={!name} postfix={__('Deposit')} size={12} />}
           value={bid}
           error={bidError}
-          disabled={!name}
           onChange={(event) => updatePublishForm({ bid: parseFloat(event.target.value) })}
           onWheel={(e) => e.stopPropagation()}
           helper={

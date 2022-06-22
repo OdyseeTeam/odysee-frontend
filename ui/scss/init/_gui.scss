@@ -1109,6 +1109,7 @@ img {
   .card--additional-options {
     margin-bottom: var(--spacing-l) !important;
     .card {
+      margin-bottom: 0 !important;
       fieldset-section {
         padding-bottom: 0;
       }

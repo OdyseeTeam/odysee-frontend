@@ -16,7 +16,7 @@ function PublishPrice(props: Props) {
   return (
     <>
       <fieldset-section>
-        <label>{__('Price')}</label>
+        <label className={disabled ? 'disabled' : ''}>{__('Price')}</label>
         <React.Fragment>
           <FormField
             type="radio"

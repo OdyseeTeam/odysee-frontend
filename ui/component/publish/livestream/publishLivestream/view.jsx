@@ -111,7 +111,7 @@ function PublishLivestream(props: Props) {
   const [oversized, setOversized] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
   const [currentFileType, setCurrentFileType] = useState(null);
-  // const [optimizeAvail, setOptimizeAvail] = useState(false);
+  const [optimizeAvail, setOptimizeAvail] = useState(false);
   const [userOptimize, setUserOptimize] = usePersistedState('publish-file-user-optimize', false);
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
     SITE_NAME,

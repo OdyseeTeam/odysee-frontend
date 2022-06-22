@@ -166,10 +166,10 @@ function PublishAdditionalOptions(props: Props) {
                   </div>
                 </div>
                 <div className="publish-row">
-                  <PublishPrice disabled={disabled} />
+                  <PublishPrice disabled={!name} />
                 </div>
                 <div className="publish-row">
-                  <PublishBid disabled={disabled} />
+                  <PublishBid />
                 </div>
               </>
             )}
