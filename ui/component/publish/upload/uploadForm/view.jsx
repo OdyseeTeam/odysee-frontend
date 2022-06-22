@@ -641,7 +641,7 @@ function UploadForm(props: Props) {
               previewing
             }
           />
-          <Button button="link" onClick={clearPublish} label={__('New --[clears Publish Form]--')} />
+          {/* <Button button="link" onClick={clearPublish} label={__('New --[clears Publish Form]--')} /> */}
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (

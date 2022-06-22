@@ -35,7 +35,7 @@ type Props = {
   publishing: boolean,
   doToast: ({ message: string, isError?: boolean }) => void,
   inProgress: boolean,
-  doClearPublish: () => void,
+  // doClearPublish: () => void,
   ffmpegStatus: any,
   optimize: boolean,
   size: number,
