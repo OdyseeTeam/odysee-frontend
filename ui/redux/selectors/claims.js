@@ -160,6 +160,9 @@ export const selectClaimForUri = createCachedSelector(
 )((state, uri, returnRepost = true) => `${String(uri)}:${returnRepost ? '1' : '0'}`);
 
 export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
+  // This selector assumes that `uri` is never null and is valid. It
+  // cannot differentiate whether the undefined claim is due to being
+  // unresolved or an invalid `uri`. Client beware.
   const claim = selectClaimForUri(state, uri);
   return claim !== undefined;
 };
