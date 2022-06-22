@@ -30,6 +30,7 @@ type Props = {
   pendingClaims: Array<Claim>,
   doNewLivestream: (string) => void,
   fetchNoSourceClaims: (string) => void,
+  clearPublish: () => void,
   myLivestreamClaims: Array<StreamClaim>,
   fetchingLivestreams: boolean,
   channelId: ?string,
@@ -46,6 +47,7 @@ export default function LivestreamSetupPage(props: Props) {
     pendingClaims,
     doNewLivestream,
     fetchNoSourceClaims,
+    clearPublish,
     myLivestreamClaims,
     fetchingLivestreams,
     channelId,
@@ -53,8 +55,10 @@ export default function LivestreamSetupPage(props: Props) {
     user,
   } = props;
 
+  // console.log('props: ', props)
+
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
-  const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
+  // const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
 
   const hasLivestreamClaims = Boolean(myLivestreamClaims.length || pendingClaims.length);
   const { odysee_live_disabled: liveDisabled } = user || {};
@@ -68,8 +72,8 @@ export default function LivestreamSetupPage(props: Props) {
 
   const streamKey = createStreamKey();
 
-  const [fileSource, setFileSource] = useState();
-  const changeFileSource = (state) => setFileSource(state);
+  // const [fileSource, setFileSource] = useState();
+  // const changeFileSource = (state) => setFileSource(state);
   const [livestreamData, setLivestreamData] = React.useState([]);
 
   const pendingLength = pendingClaims.length;
@@ -219,6 +223,7 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
+  /*
   async function fetchLivestreams(channelId, channelName) {
     setCheckingLivestreams(true);
     let signedMessage;
@@ -268,20 +273,17 @@ export default function LivestreamSetupPage(props: Props) {
       setCheckingLivestreams(false);
     }
   }
+  */
 
   return (
     <Page className="uploadPage-wrapper">
       <h1 className="page__title">
-        <Icon icon={ICONS.VIDEO} /> <label>Go Live</label>
+        <Icon icon={ICONS.VIDEO} />
+        <label>
+          {__('Go Live')}
+          <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />
+        </label>
       </h1>
-      {/* channel selector */}
-      {/* !fetchingChannels && (
-        <>
-          <div className="section__actions--between">
-            <ChannelSelector hideAnon />
-          </div>
-        </>
-      ) */}
       <HeaderMenu />
 
       {tab === 'Setup' && (

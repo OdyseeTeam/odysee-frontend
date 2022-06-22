@@ -28,6 +28,7 @@ const select = (state) => {
   };
 };
 const perform = (dispatch) => ({
+  clearPublish: () => dispatch(doClearPublish()),
   doNewLivestream: (path) => {
     dispatch(doClearPublish());
     // dispatch(push(path));

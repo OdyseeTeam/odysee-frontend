@@ -561,7 +561,10 @@ function UploadForm(props: Props) {
       {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
       <h1 className="page__title">
         <Icon icon={ICONS.PUBLISH} />
-        <label>Upload a File</label>
+        <label>
+          Upload a File
+          <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />
+        </label>
       </h1>
 
       <PublishFile

@@ -363,7 +363,10 @@ function PostForm(props: Props) {
     <div className="card-stack">
       <h1 className="page__title">
         <Icon icon={ICONS.POST} />
-        <label>Post an Article</label>
+        <label>
+          Post an Article
+          <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />
+        </label>
       </h1>
       {/* <ChannelSelect disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
 

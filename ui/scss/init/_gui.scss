@@ -780,6 +780,29 @@ img {
       flex: 1;
       border-bottom: 1px solid var(--color-header-background);
     }
+
+    button {
+      height: 36px;
+      margin-top: -6px;
+      float: right;
+      padding-left: var(--spacing-xs);
+      padding-right: var(--spacing-s);
+      .button__content {
+        .button__label {
+          font-size: var(--font-body);
+          margin-left: 0;
+        }
+      }
+      .icon {
+        background-color: unset;
+        width: 2rem;
+        height: 2rem;
+        padding: 8px;
+        padding-left: 0;
+        padding-right: 0;
+        margin: 0;
+      }
+    }
   }
 
   .card {

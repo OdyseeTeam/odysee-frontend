@@ -281,20 +281,16 @@ function LivestreamForm(props: Props) {
   } else if (publishing) {
     if (isStillEditing) {
       submitLabel = __('Saving...');
-    } else if (isLivestreamMode) {
-      submitLabel = __('Creating...');
     } else {
-      submitLabel = __('Uploading...');
+      submitLabel = __('Creating...');
     }
   } else if (previewing) {
     submitLabel = <Spinner type="small" />;
   } else {
     if (isStillEditing) {
       submitLabel = __('Save');
-    } else if (isLivestreamMode) {
-      submitLabel = __('Create');
     } else {
-      submitLabel = __('Upload');
+      submitLabel = __('Create');
     }
   }
 
@@ -321,6 +317,7 @@ function LivestreamForm(props: Props) {
     }
   }, [name, prevName, setPrevName, isStillEditing]);
 
+  /*
   // Check for content changes on the text editor
   useEffect(() => {
     if (!fileEdited && fileText !== prevFileText && fileText !== '') {
@@ -329,6 +326,7 @@ function LivestreamForm(props: Props) {
       setFileEdited(false);
     }
   }, [fileText, prevFileText, fileEdited]);
+  */
 
   // Every time the channel or name changes, resolve the uris to find winning bid amounts
   useEffect(() => {
@@ -361,6 +359,7 @@ function LivestreamForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
+  /*
   // set isMarkdownPost in publish form if so, also update isLivestreamPublish
   useEffect(() => {
     updatePublishForm({
@@ -368,6 +367,7 @@ function LivestreamForm(props: Props) {
       isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
     });
   }, [mode, updatePublishForm]);
+  */
 
   useEffect(() => {
     if (incognito) {
@@ -502,7 +502,7 @@ function LivestreamForm(props: Props) {
         channelName={activeChannelName}
       />
 
-      {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+      <PublishDescription disabled={formDisabled} />
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
