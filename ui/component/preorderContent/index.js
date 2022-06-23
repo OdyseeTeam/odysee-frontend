@@ -1,16 +1,12 @@
 import { connect } from 'react-redux';
 import {
-  selectTitleForUri,
   selectClaimForUri,
-  selectClaimIsMineForUri,
-  selectFetchingMyChannels,
   selectPreorderTag,
 } from 'redux/selectors/claims';
 import { doHideModal } from 'redux/actions/app';
-import { doSendTip, doSendCashTip, preOrderPurchase } from 'redux/actions/wallet';
+import { preOrderPurchase } from 'redux/actions/wallet';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
-import { selectBalance, selectIsSendingSupport } from 'redux/selectors/wallet';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { withRouter } from 'react-router';
 import * as SETTINGS from 'constants/settings';
 import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';

@@ -35,6 +35,7 @@ type Props = {
   doToast: (data: { message: string }) => void,
   doDownloadUri: (uri: string) => void,
   isMature: boolean,
+  isAPreorder: boolean,
 };
 
 export default function FileActions(props: Props) {

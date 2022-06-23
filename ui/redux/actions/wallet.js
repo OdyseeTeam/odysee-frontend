@@ -846,6 +846,6 @@ export const preOrderPurchase = (
         })
       );
 
-      if(failureCallback) failureCallback(error)
+      if (failureCallback) failureCallback(error);
     });
 };

@@ -1,8 +1,6 @@
 // @flow
 import * as React from 'react';
-import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
-import Tag from 'component/tag';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import { Lbryio } from 'lbryinc';
@@ -10,7 +8,11 @@ import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
-
+  preorderTag: string,
+  doOpenModal: (string, {}) => void,
+  claim: StreamClaim,
+  uri: string,
+  claimIsMine: boolean,
 };
 
 export default function PreorderButton(props: Props) {
@@ -32,22 +34,21 @@ export default function PreorderButton(props: Props) {
     );
   }
 
-  async function checkIfAlreadyPurchased(){
+  async function checkIfAlreadyPurchased() {
     try {
       // get card payments customer has made
       let customerTransactionResponse = await getPaymentHistory();
 
       let matchingTransaction = false;
-      for(const transaction of customerTransactionResponse){
-        if(claimId === transaction.source_claim_id){
+      for (const transaction of customerTransactionResponse) {
+        if (claimId === transaction.source_claim_id) {
           matchingTransaction = true;
         }
       }
 
-      if(matchingTransaction){
+      if (matchingTransaction) {
         setHasAlreadyPreordered(true);
       }
-
     } catch (err) {
       console.log(err);
     }
@@ -55,9 +56,8 @@ export default function PreorderButton(props: Props) {
 
   // populate customer payment data
   React.useEffect(() => {
-    checkIfAlreadyPurchased()
+    checkIfAlreadyPurchased();
   }, []);
-
 
   return (
     <>

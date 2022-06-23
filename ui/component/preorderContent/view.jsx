@@ -1,22 +1,12 @@
 // @flow
 import { Form } from 'component/common/form';
-import LbcMessage from 'component/common/lbc-message';
 import { Lbryio } from 'lbryinc';
-import { parseURI } from 'util/lbryURI';
-import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import ChannelSelector from 'component/channelSelector';
-import classnames from 'classnames';
-import I18nMessage from 'component/i18nMessage';
-import LbcSymbol from 'component/common/lbc-symbol';
 import React from 'react';
-import usePersistedState from 'effects/use-persisted-state';
-import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 
 import { getStripeEnvironment } from 'util/stripe';
-import { preOrderPurchase } from '../../redux/actions/wallet';
 const stripeEnvironment = getStripeEnvironment();
 
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
@@ -36,6 +26,9 @@ type Props = {
   doHideModal: () => void,
   setAmount?: (number) => void,
   preferredCurrency: string,
+  preOrderPurchase: () => void,
+  preorderTag: string,
+  checkIfAlreadyPurchased: () => void,
 };
 
 export default function PreorderContent(props: Props) {
@@ -49,13 +42,13 @@ export default function PreorderContent(props: Props) {
     preOrderPurchase,
     preferredCurrency,
     preorderTag,
-    checkIfAlreadyPurchased
+    checkIfAlreadyPurchased,
   } = props;
 
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
     setTipAmount(preorderTag);
-  }, [preorderTag])
+  }, [preorderTag]);
 
   /** STATE **/
   const [tipAmount, setTipAmount] = React.useState();
@@ -63,7 +56,6 @@ export default function PreorderContent(props: Props) {
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
   const [hasCardSaved, setHasSavedCard] = React.useState(true);
-
 
   // check if user has a payment method saved
   React.useEffect(() => {
@@ -87,13 +79,12 @@ export default function PreorderContent(props: Props) {
     });
   }, [setHasSavedCard]);
 
-
   // text for modal header
-  const titleText = "Preorder Your Content"
+  const titleText = 'Preorder Your Content';
 
   // icon to use or explainer text to show per tab
   let explainerText = 'This content is not available yet but you' +
-    ' can pre-order it now so you can access it as soon as it goes live'
+    ' can pre-order it now so you can access it as soon as it goes live';
 
   // when the form button is clicked
   function handleSubmit() {
@@ -104,9 +95,9 @@ export default function PreorderContent(props: Props) {
     };
     const userParams: UserParams = { activeChannelName, activeChannelId };
 
-    async function checkIfFinished(){
+    async function checkIfFinished() {
       await checkIfAlreadyPurchased();
-      doHideModal()
+      doHideModal();
     }
 
     setWaitingForBackend(true);
@@ -120,7 +111,7 @@ export default function PreorderContent(props: Props) {
       stripeEnvironment,
       preferredCurrency,
       checkIfFinished,
-      doHideModal,
+      doHideModal
     );
   }
 

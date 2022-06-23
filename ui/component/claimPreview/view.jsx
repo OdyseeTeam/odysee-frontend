@@ -498,7 +498,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                           />
                         )}
 
-                        {/*{includeSupportAction && <ClaimSupportButton uri={uri} />}*/}
+                         {includeSupportAction && <ClaimSupportButton uri={uri} />}
                       </div>
                     )}
                   </>
