@@ -140,6 +140,10 @@ const PublishReleaseDate = (props: Props) => {
     };
   }, []);
 
+  useEffect(() => {
+    updatePublishForm({ releaseTimeError: error.join(';') });
+  }, [error]);
+
   return (
     <div className="form-field-date-picker">
       <label>{__('Release date')}</label>
