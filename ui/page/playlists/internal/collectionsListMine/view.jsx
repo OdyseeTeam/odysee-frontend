@@ -52,7 +52,7 @@ export default function CollectionsListMine(props: Props) {
   const [filterType, setFilterType] = React.useState(COLS.LIST_TYPE.ALL);
   const [searchText, setSearchText] = React.useState('');
   const [sortOption, setSortOption] = usePersistedState('playlists-sort', defaultSortOption);
-  const persistedOption = React.useRef(sortOption);
+  const [persistedOption, setPersistedOption] = React.useState(sortOption);
 
   const unpublishedCollectionsList = (Object.keys(unpublishedCollections || {}): any);
   const publishedList = (Object.keys(publishedCollections || {}): any);
@@ -186,7 +186,8 @@ export default function CollectionsListMine(props: Props) {
             // $FlowFixMe
             sortOption={sortOption}
             setSortOption={setSortOption}
-            persistedOption={persistedOption.current}
+            persistedOption={persistedOption}
+            setPersistedOption={setPersistedOption}
           />
         </CollectionsListContext.Provider>
 

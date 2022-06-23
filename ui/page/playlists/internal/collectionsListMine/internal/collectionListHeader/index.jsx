@@ -16,10 +16,19 @@ type Props = {
   persistedOption: { key: string, value: string },
   setFilterType: (type: string) => void,
   setSortOption: (params: { key: string, value: string }) => void,
+  setPersistedOption: (params: { key: string, value: string }) => void,
 };
 
 export default function CollectionsListMine(props: Props) {
-  const { filterType, isTruncated, sortOption, persistedOption, setFilterType, setSortOption } = props;
+  const {
+    filterType,
+    isTruncated,
+    sortOption,
+    persistedOption,
+    setFilterType,
+    setSortOption,
+    setPersistedOption,
+  } = props;
 
   const {
     location: { search, pathname },
@@ -123,9 +132,21 @@ export default function CollectionsListMine(props: Props) {
                 </FormField>
               </div>
 
+              {/* Save Sort */}
+              {!hasDefaultSort && (
+                <div className="claim-search__input-container action-button">
+                  <Button
+                    button="alt"
+                    aria-label={__('Save')}
+                    icon={ICONS.COMPLETE}
+                    onClick={() => setPersistedOption(sortOption)}
+                  />
+                </div>
+              )}
+
               {/* Clear Sort */}
               {!hasDefaultSort && (
-                <div className="claim-search__input-container clear-button">
+                <div className="claim-search__input-container action-button">
                   <Button button="alt" aria-label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
                 </div>
               )}
