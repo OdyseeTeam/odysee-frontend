@@ -5,6 +5,7 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { FormField } from 'component/common/form';
+import { ModalClaimCollectionAddContext } from 'modal/modalClaimCollectionAdd/view';
 import Button from 'component/button';
 
 type Props = {
@@ -17,6 +18,8 @@ type Props = {
 
 function FormNewCollection(props: Props) {
   const { uri, onlyCreate, closeForm, doLocalCollectionCreate } = props;
+
+  const { collectionsAdded, setCollectionsAdded } = React.useContext(ModalClaimCollectionAddContext);
 
   const buttonref: ElementRef<any> = React.useRef();
   const newCollectionName = React.useRef('');
@@ -39,6 +42,7 @@ function FormNewCollection(props: Props) {
       }
     );
 
+    setCollectionsAdded([...collectionsAdded, `"${name}"`]);
     closeForm(newCollectionName.current, newCollectionId);
   }
 
