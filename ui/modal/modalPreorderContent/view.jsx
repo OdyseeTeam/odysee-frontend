@@ -16,7 +16,9 @@ type Props = {
 
 class ModalSendTip extends React.PureComponent<Props> {
   render() {
-    const { uri, claimIsMine, isTipOnly, hasSelectedTab, customText, doHideModal, setAmount } = this.props;
+    const { uri, claimIsMine, isTipOnly, hasSelectedTab, customText, doHideModal, setAmount, checkIfAlreadyPurchased } = this.props;
+
+    console.log(checkIfAlreadyPurchased);
 
     return (
       <Modal onAborted={doHideModal} isOpen type="card">
@@ -28,6 +30,7 @@ class ModalSendTip extends React.PureComponent<Props> {
           hasSelectedTab={hasSelectedTab}
           customText={customText}
           setAmount={setAmount}
+          checkIfAlreadyPurchased={checkIfAlreadyPurchased}
         />
       </Modal>
     );

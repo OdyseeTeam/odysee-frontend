@@ -37,35 +37,37 @@ export default function PreorderButton(props: Props) {
     );
   }
 
+  async function checkIfAlreadyPurchased(){
+    try {
+      // get card payments customer has made
+      let customerTransactionResponse = await getPaymentHistory();
+
+      console.log(customerTransactionResponse);
+
+      let matchingTransaction = false;
+      for(const transaction of customerTransactionResponse){
+        console.log(claimId);
+        console.log(transaction.source_claim_id);
+        if(claimId === transaction.source_claim_id){
+          matchingTransaction = true;
+        }
+      }
+
+      if(matchingTransaction){
+        console.log('matching transaction')
+        console.log(matchingTransaction);
+        setHasAlreadyPreordered(true);
+      }
+
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   // populate customer payment data
   React.useEffect(() => {
-    (async function () {
-      try {
-        // get card payments customer has made
-        let customerTransactionResponse = await getPaymentHistory();
-
-        console.log(customerTransactionResponse);
-
-        let matchingTransaction = false;
-        for(const transaction of customerTransactionResponse){
-          console.log(claimId);
-          console.log(transaction.source_claim_id);
-          if(claimId === transaction.source_claim_id){
-            matchingTransaction = true;
-          }
-        }
-
-        if(matchingTransaction){
-          console.log('matching transaction')
-          console.log(matchingTransaction);
-          setHasAlreadyPreordered(true);
-        }
-
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-  }, [claim]);
+    checkIfAlreadyPurchased()
+  }, []);
 
 
   return (
@@ -81,7 +83,7 @@ export default function PreorderButton(props: Props) {
           label={'Preorder now for $' + preorderTag}
           // title={titlePrefix}
           requiresAuth
-          onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, { uri, isSupport: true })}
+          onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, { uri, checkIfAlreadyPurchased })}
         />
       </div>)}
       {preorderTag && hasAlreadyPreordered && (<div>

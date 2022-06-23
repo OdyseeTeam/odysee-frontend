@@ -82,6 +82,7 @@ export default function WalletSendTip(props: Props) {
     preferredCurrency,
     preorderTag,
     doSendCashTip,
+    checkIfAlreadyPurchased
   } = props;
 
   React.useEffect(() => {
@@ -98,6 +99,8 @@ export default function WalletSendTip(props: Props) {
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [tipError, setTipError] = React.useState();
   const [disableSubmitButton, setDisableSubmitButton] = React.useState();
+
+  const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
   // text for modal header
   const titleText = "Preorder Your Content"
@@ -120,6 +123,13 @@ export default function WalletSendTip(props: Props) {
     };
     const userParams: UserParams = { activeChannelName, activeChannelId };
 
+    async function checkIfFinished(){
+      await checkIfAlreadyPurchased();
+      doHideModal()
+    }
+
+    setWaitingForBackend(true);
+
     // hit backend to send tip
     preOrderPurchase(
       tipParams,
@@ -127,9 +137,10 @@ export default function WalletSendTip(props: Props) {
       userParams,
       claimId,
       stripeEnvironment,
-      preferredCurrency
+      preferredCurrency,
+      checkIfFinished,
+      doHideModal,
     );
-    doHideModal();
   }
 
   function buildButtonText() {
@@ -138,7 +149,7 @@ export default function WalletSendTip(props: Props) {
 
   return (
     <Form onSubmit={handleSubmit}>
-      <Card
+      {!waitingForBackend && <Card
         title={titleText}
         className={'preorder-content-modal'}
         subtitle={
@@ -165,7 +176,19 @@ export default function WalletSendTip(props: Props) {
             </div>
           </>
         }
-      />
+      />}
+      {waitingForBackend && <Card
+        title={titleText}
+        className={'preorder-content-modal-loading'}
+        subtitle={
+          <>
+            {/* short explainer under the button */}
+            <div className="section__subtitle">
+              {'Processing your purchase...'}
+            </div>
+          </>
+        }
+      />}
     </Form>
   );
 }

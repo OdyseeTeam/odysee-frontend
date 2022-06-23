@@ -33,3 +33,18 @@ section.preorder-content-modal {
     padding-top: 0px;
   }
 }
+
+
+section.preorder-content-modal-loading {
+  h2.card__title, .section__subtitle {
+    text-align: center;
+  }
+
+  .card__title-section {
+    margin: 0 auto;
+  }
+
+  .section__subtitle {
+    margin-top: 27px;
+  }
+}

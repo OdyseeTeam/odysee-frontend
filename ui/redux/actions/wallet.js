@@ -805,7 +805,8 @@ export const preOrderPurchase = (
   claimId,
   stripeEnvironment,
   preferredCurrency,
-  successCallback
+  successCallback,
+  failureCallback
 ) => (dispatch) => {
   Lbryio.call(
     'customer',
@@ -815,8 +816,6 @@ export const preOrderPurchase = (
       amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
       creator_channel_name: tipParams.tipChannelName, // creator_channel_name
       creator_channel_claim_id: tipParams.channelClaimId,
-      tipper_channel_name: anonymous ? '' : userParams.activeChannelName,
-      tipper_channel_claim_id: anonymous ? '' : userParams.activeChannelId,
       currency: 'USD',
       anonymous: anonymous,
       source_claim_id: claimId,
@@ -834,8 +833,6 @@ export const preOrderPurchase = (
         })
       );
 
-      window.location.reload();
-
       if (successCallback) successCallback(customerTipResponse);
     })
     .catch((error) => {
@@ -846,5 +843,7 @@ export const preOrderPurchase = (
           isError: true,
         })
       );
+
+      if(failureCallback) failureCallback(error)
     });
 };
