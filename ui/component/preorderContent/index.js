@@ -32,18 +32,10 @@ const select = (state, props) => {
   return {
     activeChannelName,
     activeChannelId,
-    balance: selectBalance(state),
     claimId,
     claimType,
     channelClaimId,
     tipChannelName,
-    claimIsMine: selectClaimIsMineForUri(state, uri),
-    fetchingChannels: selectFetchingMyChannels(state),
-    incognito: selectIncognito(state),
-    instantTipEnabled: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED),
-    instantTipMax: selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX),
-    isPending: selectIsSendingSupport(state),
-    title: selectTitleForUri(state, uri),
     preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
     preorderTag: selectPreorderTag(state, props.uri),
   };
@@ -51,8 +43,6 @@ const select = (state, props) => {
 
 const perform = {
   doHideModal,
-  doSendTip,
-  doSendCashTip,
   preOrderPurchase,
 };
 

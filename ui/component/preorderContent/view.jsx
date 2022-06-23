@@ -19,86 +19,46 @@ import { getStripeEnvironment } from 'util/stripe';
 import { preOrderPurchase } from '../../redux/actions/wallet';
 const stripeEnvironment = getStripeEnvironment();
 
-const TAB_BOOST = 'TabBoost';
-const TAB_FIAT = 'TabFiat';
-const TAB_LBC = 'TabLBC';
-
-type SupportParams = { amount: number, claim_id: string, channel_id?: string };
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
 type Props = {
   activeChannelId?: string,
   activeChannelName?: string,
-  balance: number,
   claimId?: string,
   claimType?: string,
   channelClaimId?: string,
   tipChannelName?: string,
   claimIsMine: boolean,
-  fetchingChannels: boolean,
-  incognito: boolean,
-  instantTipEnabled: boolean,
-  instantTipMax: { amount: number, currency: string },
-  isPending: boolean,
   isSupport: boolean,
-  title: string,
-  uri: string,
   isTipOnly?: boolean,
-  hasSelectedTab?: string,
   customText?: string,
   doHideModal: () => void,
-  doSendCashTip: (
-    TipParams,
-    anonymous: boolean,
-    UserParams,
-    claimId: string,
-    stripe: ?string,
-    preferredCurrency: string,
-    ?(any) => void
-  ) => string,
-  doSendTip: (SupportParams, boolean) => void, // function that comes from lbry-redux
   setAmount?: (number) => void,
   preferredCurrency: string,
 };
 
-export default function WalletSendTip(props: Props) {
+export default function PreorderContent(props: Props) {
   const {
     activeChannelId,
     activeChannelName,
-    balance,
     claimId,
     channelClaimId,
     tipChannelName,
-    claimIsMine,
-    fetchingChannels,
-    incognito,
-    isPending,
-    title,
-    uri,
-    hasSelectedTab,
     doHideModal,
     preOrderPurchase,
     preferredCurrency,
     preorderTag,
-    doSendCashTip,
     checkIfAlreadyPurchased
   } = props;
 
+  // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
     setTipAmount(preorderTag);
   }, [preorderTag])
 
-  // loads the default tab if nothing else is there yet
-  const [persistentTab, setPersistentTab] = usePersistedState('send-tip-modal', TAB_FIAT);
-  const [activeTab, setActiveTab] = React.useState(persistentTab);
-  const [hasSelected, setSelected] = React.useState(false);
-
   /** STATE **/
   const [tipAmount, setTipAmount] = React.useState();
-  const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
-  const [tipError, setTipError] = React.useState();
-  const [disableSubmitButton, setDisableSubmitButton] = React.useState();
 
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
@@ -131,11 +91,6 @@ export default function WalletSendTip(props: Props) {
   // text for modal header
   const titleText = "Preorder Your Content"
 
-  let channelName;
-  try {
-    ({ channelName } = parseURI(uri));
-  } catch (e) {}
-
   // icon to use or explainer text to show per tab
   let explainerText = 'This content is not available yet but you' +
     ' can pre-order it now so you can access it as soon as it goes live'
@@ -159,7 +114,7 @@ export default function WalletSendTip(props: Props) {
     // hit backend to send tip
     preOrderPurchase(
       tipParams,
-      !activeChannelId || incognito,
+      !activeChannelId,
       userParams,
       claimId,
       stripeEnvironment,
@@ -187,9 +142,9 @@ export default function WalletSendTip(props: Props) {
           </>
         }
         actions={
-          // confirmation modal, allow  user to confirm or cancel transaction
+          // confirm purchase card
           <>
-            {/* send tip/boost button */}
+            {/*  */}
             <div className="section__actions">
 
               <Button
@@ -211,6 +166,7 @@ export default function WalletSendTip(props: Props) {
           </>
         }
       />}
+      {/* processing payment card */}
       {waitingForBackend && <Card
         title={titleText}
         className={'preorder-content-modal-loading'}

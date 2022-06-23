@@ -10,25 +10,16 @@ import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
-  tags: Array<string>,
-  followedTags: Array<Tag>,
-  type: string,
+
 };
 
 export default function PreorderButton(props: Props) {
-  const { tags, followedTags, type, preorderTag, doOpenModal, uri, claim, claimIsMine } = props;
+  const { preorderTag, doOpenModal, uri, claim, claimIsMine } = props;
 
-  console.log('claim is mine');
-  console.log(claimIsMine);
-
-  console.log(claim);
   const claimId = claim.claim_id;
   const myUpload = claimIsMine;
 
   const [hasAlreadyPreordered, setHasAlreadyPreordered] = React.useState(false);
-
-  console.log(tags, followedTags, type, preorderTag);
-  console.log('here is my preorder tag!');
 
   function getPaymentHistory() {
     return Lbryio.call(
@@ -46,20 +37,14 @@ export default function PreorderButton(props: Props) {
       // get card payments customer has made
       let customerTransactionResponse = await getPaymentHistory();
 
-      console.log(customerTransactionResponse);
-
       let matchingTransaction = false;
       for(const transaction of customerTransactionResponse){
-        console.log(claimId);
-        console.log(transaction.source_claim_id);
         if(claimId === transaction.source_claim_id){
           matchingTransaction = true;
         }
       }
 
       if(matchingTransaction){
-        console.log('matching transaction')
-        console.log(matchingTransaction);
         setHasAlreadyPreordered(true);
       }
 

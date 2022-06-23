@@ -816,6 +816,8 @@ export const preOrderPurchase = (
       amount: Math.round(100 * tipParams.tipAmount), // convert from dollars to cents
       creator_channel_name: tipParams.tipChannelName, // creator_channel_name
       creator_channel_claim_id: tipParams.channelClaimId,
+      tipper_channel_name: userParams.activeChannelName,
+      tipper_channel_claim_id: userParams.activeChannelId,
       currency: 'USD',
       anonymous: anonymous,
       source_claim_id: claimId,
