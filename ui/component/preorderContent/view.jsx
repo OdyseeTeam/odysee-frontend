@@ -15,7 +15,7 @@ type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 type Props = {
   activeChannelId?: string,
   activeChannelName?: string,
-  claimId?: string,
+  claimId: string,
   claimType?: string,
   channelClaimId?: string,
   tipChannelName?: string,
@@ -26,7 +26,16 @@ type Props = {
   doHideModal: () => void,
   setAmount?: (number) => void,
   preferredCurrency: string,
-  preOrderPurchase: () => void,
+  preOrderPurchase: (
+    TipParams,
+    anonymous: boolean,
+    UserParams,
+    claimId: string,
+    stripe: ?string,
+    preferredCurrency: string,
+    ?(any) => Promise<void>,
+    ?(any) => void
+  ) => void,
   preorderTag: string,
   checkIfAlreadyPurchased: () => void,
 };
@@ -47,11 +56,11 @@ export default function PreorderContent(props: Props) {
 
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
-    setTipAmount(preorderTag);
+    setTipAmount(Number(preorderTag));
   }, [preorderTag]);
 
   /** STATE **/
-  const [tipAmount, setTipAmount] = React.useState();
+  const [tipAmount, setTipAmount] = React.useState(0);
 
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
@@ -83,8 +92,8 @@ export default function PreorderContent(props: Props) {
   const titleText = 'Preorder Your Content';
 
   // icon to use or explainer text to show per tab
-  let explainerText = 'This content is not available yet but you' +
-    ' can pre-order it now so you can access it as soon as it goes live';
+  let explainerText =
+    'This content is not available yet but you' + ' can pre-order it now so you can access it as soon as it goes live';
 
   // when the form button is clicked
   function handleSubmit() {
@@ -116,60 +125,61 @@ export default function PreorderContent(props: Props) {
   }
 
   function buildButtonText() {
-    return `Preorder your content for $${tipAmount}`;
+    return `Preorder your content for $${tipAmount.toString()}`;
   }
 
   return (
     <Form onSubmit={handleSubmit}>
-      {!waitingForBackend && <Card
-        title={titleText}
-        className={'preorder-content-modal'}
-        subtitle={
-          <>
-            {/* short explainer under the button */}
-            <div className="section__subtitle">
-              {explainerText}
-            </div>
-          </>
-        }
-        actions={
-          // confirm purchase card
-          <>
-            {/*  */}
-            <div className="section__actions">
+      {!waitingForBackend && (
+        <Card
+          title={titleText}
+          className={'preorder-content-modal'}
+          subtitle={
+            <>
+              {/* short explainer under the button */}
+              <div className="section__subtitle">{explainerText}</div>
+            </>
+          }
+          actions={
+            // confirm purchase card
+            <>
+              {/*  */}
+              <div className="section__actions">
+                <Button
+                  autoFocus
+                  onClick={handleSubmit}
+                  button="primary"
+                  // label={__('Confirm')}
+                  label={buildButtonText()}
+                  disabled={!hasCardSaved}
+                />
 
-              <Button
-                autoFocus
-                onClick={handleSubmit}
-                button="primary"
-                // label={__('Confirm')}
-                label={buildButtonText()}
-                disabled={!hasCardSaved}
-              />
-
-              {!hasCardSaved && (<>
-                <div className="add-card-prompt">
-                  <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-                  {' ' + __('To Preorder Content')}
-                </div>
-              </>)}
-            </div>
-          </>
-        }
-      />}
+                {!hasCardSaved && (
+                  <>
+                    <div className="add-card-prompt">
+                      <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+                      {' ' + __('To Preorder Content')}
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          }
+        />
+      )}
       {/* processing payment card */}
-      {waitingForBackend && <Card
-        title={titleText}
-        className={'preorder-content-modal-loading'}
-        subtitle={
-          <>
-            {/* short explainer under the button */}
-            <div className="section__subtitle">
-              {'Processing your purchase...'}
-            </div>
-          </>
-        }
-      />}
+      {waitingForBackend && (
+        <Card
+          title={titleText}
+          className={'preorder-content-modal-loading'}
+          subtitle={
+            <>
+              {/* short explainer under the button */}
+              <div className="section__subtitle">{'Processing your purchase...'}</div>
+            </>
+          }
+        />
+      )}
     </Form>
   );
 }
