@@ -19,7 +19,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
-import PublishPrice from 'component/publish/shared/publishPrice';
+// import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
@@ -152,7 +152,7 @@ function LivestreamForm(props: Props) {
   // A new file needs to be provided
   const [prevName, setPrevName] = React.useState(false);
   // Used to check if the file has been modified by user
-  const [fileEdited, setFileEdited] = React.useState(false);
+  // const [fileEdited, setFileEdited] = React.useState(false);
   const [prevFileText, setPrevFileText] = React.useState('');
 
   const [waitForFile, setWaitForFile] = useState(false);
@@ -446,6 +446,7 @@ function LivestreamForm(props: Props) {
     );
   }
 
+  console.log('disabled: ', disabled);
   // Editing claim uri
   return (
     <div className="card-stack">

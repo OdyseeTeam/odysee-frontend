@@ -182,7 +182,7 @@ function UploadForm(props: Props) {
 
   const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
-  const [livestreamData, setLivestreamData] = React.useState([]);
+  // const [livestreamData, setLivestreamData] = React.useState([]);
 
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
@@ -296,9 +296,6 @@ function UploadForm(props: Props) {
           }
         }
       }
-
-      // setLivestreamData(newData);
-      setCheckingLivestreams(false);
     }
   }
 
@@ -557,7 +554,7 @@ function UploadForm(props: Props) {
         inProgress={isInProgress}
         // setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
-        livestreamData={livestreamData}
+        // livestreamData={livestreamData}
         // subtitle={customSubtitle}
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
@@ -591,7 +588,7 @@ function UploadForm(props: Props) {
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
-          <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+          <Card actions={<SelectThumbnail />} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}

@@ -1,7 +1,7 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import type { Node } from 'react';
-import * as ICONS from 'constants/icons';
+// import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import { regexInvalidURI } from 'util/lbryURI';
 import PostEditor from 'component/postEditor';
@@ -10,15 +10,15 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-import I18nMessage from 'component/i18nMessage';
+// import I18nMessage from 'component/i18nMessage';
 import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from 'component/publish/shared/publishName';
-import CopyableText from 'component/copyableText';
-import Empty from 'component/common/empty';
-import moment from 'moment';
+// import CopyableText from 'component/copyableText';
+// import Empty from 'component/common/empty';
+// import moment from 'moment';
 import classnames from 'classnames';
-import ReactPaginate from 'react-paginate';
+// import ReactPaginate from 'react-paginate';
 import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
 
 type Props = {
@@ -45,7 +45,7 @@ type Props = {
   setPublishMode: (string) => void,
   setPrevFileText: (string) => void,
   header: Node,
-  livestreamData: LivestreamReplayData,
+  // livestreamData: LivestreamReplayData,
   isLivestreamClaim: boolean,
   checkLivestreams: (string, string) => void,
   channelName: string,
@@ -121,24 +121,9 @@ function PublishFile(props: Props) {
   const bitRate = getBitrate(size, duration);
   const bitRateIsOverMax = bitRate > MAX_BITRATE;
 
-  /*
-  const fileSelectorModes = [
-    { label: __('Upload'), actionName: SOURCE_UPLOAD, icon: ICONS.PUBLISH },
-    { label: __('Choose Replay'), actionName: SOURCE_SELECT, icon: ICONS.MENU },
-    { label: isLivestreamClaim ? __('Edit / Update') : __('None'), actionName: SOURCE_NONE },
-  ];
-  */
-
-  const livestreamDataStr = JSON.stringify(livestreamData);
-  const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
-
-  const [showSourceSelector, setShowSourceSelector] = useState(false);
-  // const [showFileUpdate, setShowFileUpdate] = useState(false);
   const [selectedFileIndex, setSelectedFileIndex] = useState(null);
-  const PAGE_SIZE = 4;
+  // const PAGE_SIZE = 4;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalPages =
-    hasLivestreamData && livestreamData.length > PAGE_SIZE ? Math.ceil(livestreamData.length / PAGE_SIZE) : 1;
 
   // Reset filePath if publish mode changed
   useEffect(() => {
@@ -157,30 +142,6 @@ function PublishFile(props: Props) {
     updatePublishForm({ title: title });
   }, [filePath]);
 
-  // Initialize default file source state for each mode.
-  useEffect(() => {
-    setShowSourceSelector(false);
-    switch (mode) {
-      case PUBLISH_MODES.LIVESTREAM:
-        if (inEditMode) {
-          changeFileSource(SOURCE_SELECT);
-          setShowSourceSelector(true);
-        } else {
-          changeFileSource(SOURCE_NONE);
-        }
-        break;
-      case PUBLISH_MODES.POST:
-        changeFileSource(SOURCE_NONE);
-        break;
-      case PUBLISH_MODES.FILE:
-        if (hasLivestreamData) setShowSourceSelector(true);
-        changeFileSource(SOURCE_UPLOAD);
-        break;
-      default:
-        changeFileSource(SOURCE_UPLOAD);
-    }
-  }, [mode, hasLivestreamData]); // eslint-disable-line react-hooks/exhaustive-deps
-
   const normalizeUrlForProtocol = (url) => {
     if (url.startsWith('https://')) {
       return url;
@@ -189,18 +150,9 @@ function PublishFile(props: Props) {
         return url;
       } else if (url) {
         return `https://${url}`;
-      } else return __('Click Check for Replays to update...');
+      }
     }
   };
-  // update remoteUrl when replay selected
-  useEffect(() => {
-    const livestreamData = JSON.parse(livestreamDataStr);
-    if (selectedFileIndex !== null && livestreamData && livestreamData.length) {
-      updatePublishForm({
-        remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
-      });
-    }
-  }, [selectedFileIndex, updatePublishForm, livestreamDataStr]);
 
   useEffect(() => {
     if (!filePath || filePath === '') {
@@ -230,10 +182,6 @@ function PublishFile(props: Props) {
 
   function updateFileInfo(duration, size, isvid) {
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
-  }
-
-  function handlePaginateReplays(page) {
-    setCurrentPage(page);
   }
 
   function getBitrate(size, duration) {
@@ -316,11 +264,6 @@ function PublishFile(props: Props) {
     }
 
     if (!!isStillEditing && name) {
-      if (isLivestreamClaim) {
-        return (
-          <p className="help">{__('You can upload your own recording or select a replay when your stream is over')}</p>
-        );
-      }
       return (
         <p className="help">
           {__("If you don't choose a file, the file from your existing claim %name% will be used", { name: name })}
@@ -384,6 +327,8 @@ function PublishFile(props: Props) {
       setPublishMode(PUBLISH_MODES.POST);
     }
   }
+
+  console.log('mode: ', mode);
 
   function handleFileChange(file: WebFile, clearName = true) {
     window.URL = window.URL || window.webkitURL;
@@ -496,109 +441,18 @@ function PublishFile(props: Props) {
           {/* <h2 className="card__title">{__('File')}</h2> */}
           <div className="card--file">
             <React.Fragment>
-              {/* Decide whether to show file upload or replay selector */}
-              {/* @if TARGET='web' */}
               <>
-                {fileSource === SOURCE_UPLOAD && showFileUpload && (
-                  <>
-                    <FileSelector
-                      disabled={disabled}
-                      currentPath={currentFile}
-                      onFileChosen={handleFileChange}
-                      // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-                      accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*' : undefined}
-                      placeholder={
-                        SIMPLE_SITE ? __('Select video or audio file to upload') : __('Select a file to upload')
-                      }
-                    />
-                    {getUploadMessage()}
-                  </>
-                )}
-                {fileSource === SOURCE_SELECT && showFileUpload && hasLivestreamData && !isCheckingLivestreams && (
-                  <>
-                    <fieldset-section>
-                      <label>{__('Select Replay')}</label>
-                      <div className="table__wrapper">
-                        <table className="table table--livestream-data">
-                          <tbody>
-                            {livestreamData
-                              .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
-                              .map((item, i) => (
-                                <tr
-                                  onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                  key={item.id}
-                                  className={classnames('livestream__data-row', {
-                                    'livestream__data-row--selected':
-                                      selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i,
-                                  })}
-                                >
-                                  <td>
-                                    <FormField
-                                      type="radio"
-                                      checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
-                                      label={null}
-                                      onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
-                                      className="livestream__data-row-radio"
-                                    />
-                                  </td>
-                                  <td>
-                                    <div className="livestream_thumb_container">
-                                      {item.data.thumbnails.slice(0, 3).map((thumb) => (
-                                        <img key={thumb} className="livestream___thumb" src={thumb} />
-                                      ))}
-                                    </div>
-                                  </td>
-                                  <td>
-                                    {item.data.fileDuration && isNaN(item.data.fileDuration)
-                                      ? item.data.fileDuration
-                                      : `${Math.floor(item.data.fileDuration / 60)} ${
-                                          Math.floor(item.data.fileDuration / 60) > 1 ? __('minutes') : __('minute')
-                                        }`}
-                                    <div className="table__item-label">
-                                      {`${moment(item.data.uploadedAt).from(moment())}`}
-                                    </div>
-                                  </td>
-                                  <td>
-                                    <CopyableText
-                                      primaryButton
-                                      copyable={normalizeUrlForProtocol(item.data.fileLocation)}
-                                      snackMessage={__('Url copied.')}
-                                    />
-                                  </td>
-                                </tr>
-                              ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </fieldset-section>
-                    <fieldset-group class="fieldset-group--smushed fieldgroup--paginate">
-                      <fieldset-section>
-                        <ReactPaginate
-                          pageCount={totalPages}
-                          pageRangeDisplayed={2}
-                          previousLabel="‹"
-                          nextLabel="›"
-                          activeClassName="pagination__item--selected"
-                          pageClassName="pagination__item"
-                          previousClassName="pagination__item pagination__item--previous"
-                          nextClassName="pagination__item pagination__item--next"
-                          breakClassName="pagination__item pagination__item--break"
-                          marginPagesDisplayed={2}
-                          onPageChange={(e) => handlePaginateReplays(e.selected + 1)}
-                          forcePage={currentPage - 1}
-                          initialPage={currentPage - 1}
-                          containerClassName="pagination"
-                        />
-                      </fieldset-section>
-                    </fieldset-group>
-                  </>
-                )}
-                {fileSource === SOURCE_SELECT && showFileUpload && !hasLivestreamData && !isCheckingLivestreams && (
-                  <div className="main--empty empty">
-                    <Empty text={__('No replays found.')} />
-                  </div>
-                )}
-                {fileSource === SOURCE_SELECT && showFileUpload && isCheckingLivestreams && (
+                <FileSelector
+                  disabled={disabled}
+                  currentPath={currentFile}
+                  onFileChosen={handleFileChange}
+                  // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
+                  accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*' : undefined}
+                  placeholder={SIMPLE_SITE ? __('Select video or audio file to upload') : __('Select a file to upload')}
+                />
+                {getUploadMessage()}
+
+                {fileSource === SOURCE_SELECT && showFileUpload && (
                   <div className="main--empty empty">
                     <Spinner small />
                   </div>
@@ -616,53 +470,6 @@ function PublishFile(props: Props) {
               />
               <PublishName uri={uri} />
 
-              {/* @endif */}
-              {/* @if TARGET='app' */}
-              {showFileUpload && (
-                <FileSelector
-                  label={__('File')}
-                  disabled={disabled}
-                  currentPath={currentFile}
-                  onFileChosen={handleFileChange}
-                  // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-                  placeholder={__('Select file to upload')}
-                />
-              )}
-              {showFileUpload && (
-                <FormField
-                  type="checkbox"
-                  checked={userOptimize}
-                  disabled={!optimizeAvail}
-                  onChange={() => setUserOptimize(!userOptimize)}
-                  label={__('Optimize and transcode video')}
-                  name="optimize"
-                />
-              )}
-              {showFileUpload && !ffmpegAvail && (
-                <p className="help">
-                  <I18nMessage
-                    tokens={{
-                      settings_link: <Button button="link" navigate="/$/settings" label={__('Settings')} />,
-                    }}
-                  >
-                    FFmpeg not configured. More in %settings_link%.
-                  </I18nMessage>
-                </p>
-              )}
-              {showFileUpload && Boolean(size) && ffmpegAvail && optimize && isVid && (
-                <p className="help">
-                  <I18nMessage
-                    tokens={{
-                      size: Math.ceil(sizeInMB),
-                      processTime: getTimeForMB(sizeInMB),
-                      units: getUnitsForMB(sizeInMB),
-                    }}
-                  >
-                    Transcoding this %size% MB file should take under %processTime% %units%.
-                  </I18nMessage>
-                </p>
-              )}
-              {/* @endif */}
               {isPublishPost && (
                 <PostEditor
                   label={__('Post --[noun, markdown post tab button]--')}
