@@ -331,34 +331,6 @@ export default function LivestreamSetupPage(props: Props) {
 
               {!fetchingChannels && channelId && (
                 <>
-                  {streamKey && totalLivestreamClaims.length > 0 && (
-                    <>
-                      {/* <h2 className="card__title">{__('Your stream key')}</h2> */}
-                      <Card
-                        className="section card--livestream-key"
-                        actions={
-                          <>
-                            <CopyableText
-                              primaryButton
-                              name="stream-server"
-                              label={__('Stream server')}
-                              copyable={LIVESTREAM_RTMP_URL}
-                              snackMessage={__('Copied stream server URL.')}
-                            />
-                            <CopyableText
-                              primaryButton
-                              enableInputMask
-                              name="livestream-key"
-                              label={__('Stream key (can be reused)')}
-                              copyable={streamKey}
-                              snackMessage={__('Copied stream key.')}
-                            />
-                          </>
-                        }
-                      />
-                    </>
-                  )}
-
                   {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
