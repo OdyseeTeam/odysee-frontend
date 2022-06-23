@@ -351,9 +351,14 @@ export default function ClaimList(props: Props) {
                       const playerInfo = isDraggingFromFloatingPlayer && document.querySelector('.content__info');
                       const playerElem = isDraggingFromFloatingPlayer && document.querySelector('.content__viewer');
                       const playerTransform = playerElem && playerElem.style.transform;
-                      const playerTop =
+                      let playerTop =
                         playerTransform &&
-                        playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'));
+                        Number(
+                          playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
+                        );
+                      if (playerElem && navigator.userAgent.toLowerCase().indexOf('firefox') !== -1) {
+                        playerTop -= playerElem.offsetHeight;
+                      }
 
                       const style = {
                         ...draggableProvided.draggableProps.style,
