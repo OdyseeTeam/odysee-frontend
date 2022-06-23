@@ -149,7 +149,7 @@ export default function PreorderContent(props: Props) {
             // confirm purchase card
             <>
               {/*  */}
-              <div className="section__actions">
+              <div className="handle-submit-area">
                 <Button
                   autoFocus
                   onClick={handleSubmit}
