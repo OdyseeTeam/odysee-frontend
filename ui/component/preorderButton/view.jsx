@@ -16,10 +16,14 @@ type Props = {
 };
 
 export default function PreorderButton(props: Props) {
-  const { tags, followedTags, type, preorderTag, doOpenModal, uri, claim } = props;
+  const { tags, followedTags, type, preorderTag, doOpenModal, uri, claim, claimIsMine } = props;
+
+  console.log('claim is mine');
+  console.log(claimIsMine);
 
   console.log(claim);
   const claimId = claim.claim_id;
+  const myUpload = claimIsMine;
 
   const [hasAlreadyPreordered, setHasAlreadyPreordered] = React.useState(false);
 
@@ -72,7 +76,7 @@ export default function PreorderButton(props: Props) {
 
   return (
     <>
-      {preorderTag && !hasAlreadyPreordered && (<div>
+      {preorderTag && !hasAlreadyPreordered && !myUpload && (<div>
         <Button
           // ref={buttonRef}
           iconColor="red"
@@ -86,7 +90,7 @@ export default function PreorderButton(props: Props) {
           onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, { uri, checkIfAlreadyPurchased })}
         />
       </div>)}
-      {preorderTag && hasAlreadyPreordered && (<div>
+      {preorderTag && hasAlreadyPreordered && !myUpload && (<div>
         <Button
           // ref={buttonRef}
           iconColor="red"
@@ -96,6 +100,17 @@ export default function PreorderButton(props: Props) {
           label={'You have preordered this content'}
           // title={titlePrefix}
           requiresAuth
+        />
+      </div>)}
+      {preorderTag && myUpload && (<div>
+        <Button
+          // ref={buttonRef}
+          iconColor="red"
+          className={'preorder-button'}
+          // largestLabel={isMobile && shrinkOnMobile ? '' : subscriptionLabel}
+          button="primary"
+          label={'You cannot preorder your own content'}
+          // title={titlePrefix}
         />
       </div>)}
     </>
