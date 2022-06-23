@@ -1,5 +1,6 @@
 import 'babel-polyfill';
 import 'unfetch/polyfill';
+import 'url-search-params-polyfill';
 import * as Sentry from '@sentry/browser';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';

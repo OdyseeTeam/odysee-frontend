@@ -79,6 +79,7 @@
     "tempy": "^0.6.0",
     "tus-js-client": "^2.3.0",
     "unfetch": "^4.2.0",
+    "url-search-params-polyfill": "^8.1.1",
     "videojs-contrib-ads": "^6.9.0",
     "videojs-ima": "^1.11.0",
     "videojs-ima-player": "^0.5.6",
