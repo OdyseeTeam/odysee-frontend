@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import 'intersection-observer';
 import 'unfetch/polyfill';
 import 'url-search-params-polyfill';
 import * as Sentry from '@sentry/browser';
