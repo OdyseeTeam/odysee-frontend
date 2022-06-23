@@ -1,4 +1,5 @@
 import 'babel-polyfill';
+import 'unfetch/polyfill';
 import * as Sentry from '@sentry/browser';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
