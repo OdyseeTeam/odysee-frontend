@@ -15,11 +15,7 @@ import { doClearPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
-import {
-  makeSelectFileInfoForUri,
-  selectDownloadingByOutpoint,
-  makeSelectStreamingUrlForUri,
-} from 'redux/selectors/file_info';
+import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { isStreamPlaceholderClaim } from 'util/claim';
 
 type Dispatch = (action: any) => any;
@@ -211,23 +207,6 @@ export function doPurchaseUri(
 
     const state = getState();
     const balance = selectBalance(state);
-    const fileInfo = makeSelectFileInfoForUri(uri)(state);
-    const downloadingByOutpoint = selectDownloadingByOutpoint(state);
-    const alreadyDownloading = fileInfo && !!downloadingByOutpoint[fileInfo.outpoint];
-    const alreadyStreaming = makeSelectStreamingUrlForUri(uri)(state);
-
-    if (!saveFile && (alreadyDownloading || alreadyStreaming)) {
-      dispatch({
-        type: ACTIONS.PURCHASE_URI_FAILED,
-        data: { uri, error: `Already fetching uri: ${uri}` },
-      });
-
-      if (onSuccess) {
-        onSuccess(fileInfo);
-      }
-
-      return;
-    }
 
     const { cost } = costInfo;
     if (parseFloat(cost) > balance) {

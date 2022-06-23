@@ -10,6 +10,7 @@ import {
   selectIndexForUrlInCollection,
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
+  selectCollectionForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit } from 'redux/actions/collections';
@@ -17,13 +18,17 @@ import { doCollectionEdit } from 'redux/actions/collections';
 const select = (state, props) => {
   const { id: collectionId } = props;
 
-  const { uri: playingUri } = selectPlayingUri(state);
-  const { permanent_url: url } = selectClaimForUri(state, playingUri) || {};
+  const {
+    uri: playingUri,
+    collection: { collectionId: playingCollectionId },
+  } = selectPlayingUri(state);
 
-  const playingItemIndex = selectIndexForUrlInCollection(state, url, collectionId, true);
+  const { permanent_url: playingItemUrl } =
+    collectionId === playingCollectionId ? selectClaimForUri(state, playingUri) || {} : {};
+  const playingItemIndex = selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true);
 
   return {
-    url,
+    playingItemUrl,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionName: selectNameForCollectionId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
@@ -32,6 +37,7 @@ const select = (state, props) => {
     playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
     collectionLength: selectCollectionLengthForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
+    hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
   };
 };
 

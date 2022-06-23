@@ -15,6 +15,7 @@ type Props = {
   hasPlayingUriInQueue: boolean,
   playingUri: PlayingUri,
   playingUrl: ?string,
+  playingCollectionUrls: ?Array<string>,
   doToast: (props: { message: string }) => void,
   doCollectionEdit: (id: string, any) => void,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable?: boolean, isFloating?: boolean) => void,
@@ -30,6 +31,7 @@ function ButtonAddToQueue(props: Props) {
     hasPlayingUriInQueue,
     playingUri,
     playingUrl,
+    playingCollectionUrls,
     doToast,
     doCollectionEdit,
     doUriInitiatePlay,
@@ -40,8 +42,10 @@ function ButtonAddToQueue(props: Props) {
     if (e) e.preventDefault();
 
     doToast({ message: hasClaimInQueue ? __('Item removed from Queue') : __('Item added to Queue') });
+
+    const itemsToAdd = playingCollectionUrls || [playingUrl];
     doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
-      uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [playingUrl, uri] : [uri],
+      uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
       remove: hasClaimInQueue,
       type: 'playlist',
     });

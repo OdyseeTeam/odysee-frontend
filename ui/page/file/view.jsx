@@ -8,6 +8,7 @@ import Page from 'component/page';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileTitleSection from 'component/fileTitleSection';
 import FileRenderInitiator from 'component/fileRenderInitiator';
 import FileRenderInline from 'component/fileRenderInline';
@@ -28,6 +29,8 @@ export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
 
 type Props = {
+  playingUrl: ?string,
+  playingCollectionId: ?string,
   costInfo: ?{ includesData: boolean, cost: number },
   fileInfo: FileListItem,
   uri: string,
@@ -37,8 +40,6 @@ type Props = {
   isMature: boolean,
   linkedCommentId?: string,
   threadCommentId?: string,
-  hasCollectionById?: boolean,
-  collectionId: string,
   videoTheaterMode: boolean,
   claimIsMine: boolean,
   contentCommentsDisabled: boolean,
@@ -49,6 +50,8 @@ type Props = {
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
   isPlaying?: boolean,
   claimWasPurchased: boolean,
+  location: { search: string },
+  isFloating: boolean,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
@@ -61,6 +64,8 @@ type Props = {
 
 export default function FilePage(props: Props) {
   const {
+    playingUrl,
+    playingCollectionId,
     uri,
     channelId,
     renderMode,
@@ -74,14 +79,14 @@ export default function FilePage(props: Props) {
 
     claimIsMine,
     contentCommentsDisabled,
-    hasCollectionById,
-    collectionId,
     isLivestream,
     position,
     audioVideoDuration,
     commentsListTitle,
     settingsByChannelId,
     claimWasPurchased,
+    location,
+    isFloating,
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
@@ -90,6 +95,25 @@ export default function FilePage(props: Props) {
     doFileGet,
     doSetMainPlayerDimension,
   } = props;
+
+  const { search } = location;
+  const urlParams = new URLSearchParams(search);
+  const colParam = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+  const initialPlayingCol = React.useRef(playingCollectionId);
+  const initialFloating = React.useRef(isFloating);
+
+  const collectionId = React.useMemo(() => {
+    if (colParam) {
+      const startedPlayingOtherPlaylist = !initialPlayingCol.current !== playingCollectionId && uri === playingUrl;
+      const startedPlayingQueue =
+        startedPlayingOtherPlaylist || (isFloating !== initialFloating.current && uri === playingUrl);
+      return startedPlayingQueue ? playingCollectionId : colParam;
+    } else {
+      // If playing Queue, show it on the sidebar since playing another item will add on to it,
+      // otherwise show nothing
+      return playingCollectionId === COLLECTIONS_CONSTS.QUEUE_ID ? COLLECTIONS_CONSTS.QUEUE_ID : undefined;
+    }
+  }, [colParam, isFloating, playingCollectionId, playingUrl, uri]);
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen() && !isMobile;
@@ -216,7 +240,7 @@ export default function FilePage(props: Props) {
     );
   }
 
-  const rightSideProps = { hasCollectionById, collectionId, uri, isMediumScreen };
+  const rightSideProps = { collectionId, uri, isMediumScreen };
 
   if (obscureNsfw && isMature) {
     return (
@@ -295,22 +319,19 @@ export default function FilePage(props: Props) {
 }
 
 type RightSideProps = {
-  hasCollectionById?: boolean,
-  collectionId?: string,
+  collectionId: ?string,
   uri: string,
   isMediumScreen: boolean,
 };
 
 const RightSideContent = (rightSideProps: RightSideProps) => {
-  const { hasCollectionById, collectionId, uri, isMediumScreen } = rightSideProps;
+  const { collectionId, uri, isMediumScreen } = rightSideProps;
 
   const isMobile = useIsMobile();
 
   return (
     <div className="card-stack--spacing-m">
-      {hasCollectionById && !isMediumScreen && (
-        <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />
-      )}
+      {!isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
       <RecommendedContent uri={uri} />
     </div>
   );

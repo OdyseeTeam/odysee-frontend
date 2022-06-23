@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { doCollectionEdit } from 'redux/actions/collections';
-import { selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
+import { selectCollectionForIdHasClaimUrl, selectUrlsForCollectionId } from 'redux/selectors/collections';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import ButtonAddToQueue from './view';
@@ -12,7 +12,8 @@ const select = (state, props) => {
   const { uri } = props;
 
   const playingUri = selectPlayingUri(state);
-  const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri?.uri) || {};
+  const { collectionId } = playingUri.collection || {};
+  const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
 
   return {
     playingUri,
@@ -21,6 +22,8 @@ const select = (state, props) => {
     hasPlayingUriInQueue: Boolean(
       playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
     ),
+    playingCollectionUrls:
+      collectionId && collectionId !== COLLECTIONS_CONSTS.QUEUE_ID && selectUrlsForCollectionId(state, collectionId),
   };
 };
 
