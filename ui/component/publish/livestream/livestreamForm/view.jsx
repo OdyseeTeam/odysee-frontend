@@ -326,17 +326,6 @@ function LivestreamForm(props: Props) {
     }
   }, [name, prevName, setPrevName, isStillEditing]);
 
-  /*
-  // Check for content changes on the text editor
-  useEffect(() => {
-    if (!fileEdited && fileText !== prevFileText && fileText !== '') {
-      setFileEdited(true);
-    } else if (fileEdited && fileText === prevFileText) {
-      setFileEdited(false);
-    }
-  }, [fileText, prevFileText, fileEdited]);
-  */
-
   // Every time the channel or name changes, resolve the uris to find winning bid amounts
   useEffect(() => {
     // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
@@ -367,16 +356,6 @@ function LivestreamForm(props: Props) {
       resolveUri(editingURI);
     }
   }, [editingURI, resolveUri]);
-
-  /*
-  // set isMarkdownPost in publish form if so, also update isLivestreamPublish
-  useEffect(() => {
-    updatePublishForm({
-      isMarkdownPost: mode === PUBLISH_MODES.POST,
-      isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
-    });
-  }, [mode, updatePublishForm]);
-  */
 
   useEffect(() => {
     if (incognito) {
