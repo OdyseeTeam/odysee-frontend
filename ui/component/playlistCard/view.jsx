@@ -26,8 +26,8 @@ const Lazy = {
 };
 
 type Props = {
-  id: string,
-  url: string,
+  id: ?string,
+  playingItemUrl: string,
   customTitle?: string,
   isMyCollection: boolean,
   collectionUrls: Array<Claim>,
@@ -40,6 +40,7 @@ type Props = {
   disableClickNavigation?: boolean,
   useDrawer?: boolean,
   collectionEmpty: boolean,
+  hasCollectionById: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
   enableCardBody?: () => void,
@@ -47,9 +48,11 @@ type Props = {
 };
 
 export default function PlaylistCard(props: Props) {
-  const { isMyCollection, collectionName, id, useDrawer } = props;
+  const { isMyCollection, collectionName, id = '', useDrawer, hasCollectionById } = props;
 
   const [showEdit, setShowEdit] = React.useState(false);
+
+  if (!hasCollectionById) return null;
 
   const playlistCardProps = { showEdit, setShowEdit, ...props };
 
@@ -111,7 +114,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     collectionUrls,
     collectionName,
     id,
-    url,
+    playingItemUrl,
     customTitle,
     bodyOpen = true,
     isPrivateCollection,
@@ -138,7 +141,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     const { index: from } = source;
     const { index: to } = destination;
 
-    doCollectionEdit(id, { order: { from, to } });
+    doCollectionEdit(id || '', { order: { from, to } });
   }
 
   return (
@@ -152,13 +155,13 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         !bodyOpen || bodyOnly ? undefined : (
           <span className="playlist-card-actions">
             <LoopButton id={id} />
-            <ShuffleButton url={url} id={id} />
+            <ShuffleButton url={playingItemUrl} id={id} />
           </span>
         )
       }
       title={
         bodyOnly ? undefined : (
-          <NavLink to={`/$/${PAGES.PLAYLIST}/${id}`} className="a--styled">
+          <NavLink to={`/$/${PAGES.PLAYLIST}/${id || ''}`} className="a--styled">
             {customTitle || (
               <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
             )}
@@ -210,7 +213,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 {(DroppableProvided) => (
                   <ClaimList
                     type="small"
-                    activeUri={url}
+                    activeUri={playingItemUrl}
                     uris={collectionUrls}
                     collectionId={id}
                     empty={__('Playlist is Empty')}

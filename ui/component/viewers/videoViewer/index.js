@@ -4,7 +4,6 @@ import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import { selectNextUrlForCollectionAndUrl, selectPreviousUrlForCollectionAndUrl } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
 import { savePosition, clearPosition, doUriInitiatePlay, doSetContentHistoryItem } from 'redux/actions/content';
@@ -31,7 +30,7 @@ const select = (state, props) => {
   const userId = selectUser(state) && selectUser(state).id;
   const internalFeature = selectUser(state) && selectUser(state).internal_feature;
   const playingUri = selectPlayingUri(state);
-  const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || playingUri.collection.collectionId;
+  const collectionId = playingUri.collection.collectionId;
   const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
 
   let nextRecommendedUri;
