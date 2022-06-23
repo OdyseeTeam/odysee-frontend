@@ -12,6 +12,7 @@ import { selectBalance } from 'redux/selectors/wallet';
 import { selectCostInfoForUri } from 'lbryinc';
 import { selectShowMatureContent } from 'redux/selectors/settings';
 import * as RENDER_MODES from 'constants/file_render_modes';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import path from 'path';
 import { FORCE_CONTENT_TYPE_PLAYER, FORCE_CONTENT_TYPE_COMIC } from 'constants/claim';
 
@@ -24,6 +25,7 @@ export const selectState = (state: State) => state.content || {};
 
 export const selectPlayingUri = (state: State) => selectState(state).playingUri;
 export const selectPlayingCollection = (state: State) => selectPlayingUri(state).collection;
+export const selectPlayingCollectionId = (state: State) => selectPlayingCollection(state).collectionId;
 export const selectPrimaryUri = (state: State) => selectState(state).primaryUri;
 export const selectLastViewedAnnouncement = (state: State) => selectState(state).lastViewedAnnouncement;
 export const selectRecsysEntries = (state: State) => selectState(state).recsysEntries;
@@ -59,26 +61,26 @@ export const makeSelectIsPlayerFloating = (location: UrlLocation) =>
   createSelector(selectPrimaryUri, selectPlayingUri, (primaryUri, playingUri) => {
     if (!playingUri.uri) return false;
 
-    const { pathname, search } = location;
-    const hasSecondarySource = Boolean(playingUri.source);
-    const isComment = playingUri.source === 'comment';
-    const isQueue = playingUri.source === 'queue';
-    const isInlineSecondaryPlayer =
-      hasSecondarySource && playingUri.uri !== primaryUri && pathname === playingUri.pathname;
+    const { source, uri, primaryUri: playingPrimaryUri, pathname: playingPathName, collection } = playingUri;
 
-    if (
-      (isQueue && primaryUri !== playingUri.uri) ||
-      (isComment && isInlineSecondaryPlayer && search && search !== '?view=discussion')
-    ) {
+    const { pathname, search } = location;
+    const urlParams = new URLSearchParams(search);
+    const discussionPage = urlParams.get('view') === 'discussion';
+    const pageCollectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+
+    const hasSecondarySource = Boolean(source);
+    const isComment = source === 'comment';
+    const isQueue = source === 'queue';
+    const isInlineSecondaryPlayer = hasSecondarySource && uri !== primaryUri && playingPathName === pathname;
+
+    if ((isQueue && primaryUri !== playingUri.uri) || (isComment && isInlineSecondaryPlayer && discussionPage)) {
       return true;
     }
 
     if (
-      (isQueue && primaryUri === playingUri.uri) ||
+      (isQueue && (primaryUri === uri || pageCollectionId !== collection.collectionId)) ||
       isInlineSecondaryPlayer ||
-      (hasSecondarySource && !isComment && primaryUri
-        ? playingUri.primaryUri === primaryUri
-        : playingUri.uri === primaryUri)
+      (hasSecondarySource && !isComment && primaryUri ? playingPrimaryUri === primaryUri : uri === primaryUri)
     ) {
       return false;
     }

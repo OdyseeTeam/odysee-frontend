@@ -19,7 +19,7 @@ import {
   selectDownloadingByOutpoint,
 } from 'redux/selectors/file_info';
 import { selectUrlsForCollectionId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
-import { doCollectionEdit, doClearQueueList } from 'redux/actions/collections';
+import { doCollectionEdit } from 'redux/actions/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
@@ -183,31 +183,18 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
         playingCollection.collectionId === COLLECTIONS_CONSTS.QUEUE_ID;
 
       if (playingOtherThanCurrentQueue) {
-        if (willPlayCollection) {
-          // If the current playing uri is from Queue mode and the next is on another playlist,
-          // prompt to close the queue, clear it and play the other playlist
-          dispatch(
-            doOpenModal(MODALS.CONFIRM, {
-              title: __('Close Player'),
-              subtitle: __('Are you sure you want to close the current Queue?'),
-              onConfirm: (closeModal) => {
-                dispatch(doClearQueueList());
-                dispatch(doSetPlayingUri(playingOptions));
-                closeModal();
-              },
-            })
-          );
-        } else {
-          // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
-          // until the player is closed or the page is refreshed, and queue is cleared
-          const permanentUrl = selectPermanentUrlForUri(state, uri);
-          const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanentUrl);
-
-          if (!hasClaimInQueue) {
-            dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [permanentUrl], type: 'playlist' }));
-          }
-          dispatch(doSetPlayingUri({ ...playingUri, ...playingOptions, collection: { ...playingCollection } }));
+        // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
+        // until the player is closed or the page is refreshed, and queue is cleared
+        const permanentUrl = selectPermanentUrlForUri(state, uri);
+        const itemsToAdd = !willPlayCollection
+          ? [permanentUrl]
+          : selectUrlsForCollectionId(state, collection.collectionId || '').filter(
+              (url) => !selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, url)
+            );
+        if (itemsToAdd) {
+          dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [...itemsToAdd], type: 'playlist' }));
         }
+        dispatch(doSetPlayingUri({ ...playingUri, ...playingOptions, collection: { ...playingCollection } }));
       } else {
         if (collection.collectionId === playingCollection.collectionId) {
           // keep current playingCollection data like loop or shuffle if plpaying the same
