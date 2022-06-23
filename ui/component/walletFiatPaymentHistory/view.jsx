@@ -11,7 +11,7 @@ type Props = {
   transactions: any,
 };
 
-const WalletBalance = (props: Props) => {
+const WalletFiatPaymentHistory = (props: Props) => {
   // receive transactions from parent component
   const { transactions: accountTransactions } = props;
 
@@ -108,4 +108,4 @@ const WalletBalance = (props: Props) => {
   );
 };
 
-export default WalletBalance;
+export default WalletFiatPaymentHistory;
