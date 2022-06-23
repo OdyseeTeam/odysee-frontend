@@ -13,10 +13,11 @@ type Props = {
   claim: StreamClaim,
   uri: string,
   claimIsMine: boolean,
+  preferredCurrency: string,
 };
 
 export default function PreorderButton(props: Props) {
-  const { preorderTag, doOpenModal, uri, claim, claimIsMine } = props;
+  const { preorderTag, doOpenModal, uri, claim, claimIsMine, preferredCurrency } = props;
 
   const claimId = claim.claim_id;
   const myUpload = claimIsMine;
@@ -54,6 +55,13 @@ export default function PreorderButton(props: Props) {
     }
   }
 
+  let fiatIconToUse = ICONS.FINANCE;
+  let fiatSymbolToUse = '$';
+  if (preferredCurrency === 'EUR') {
+    fiatIconToUse = ICONS.EURO;
+    fiatSymbolToUse = '€';
+  }
+
   // populate customer payment data
   React.useEffect(() => {
     checkIfAlreadyPurchased();
@@ -67,9 +75,9 @@ export default function PreorderButton(props: Props) {
           iconColor="red"
           className={'preorder-button'}
           // largestLabel={isMobile && shrinkOnMobile ? '' : subscriptionLabel}
-          icon={ICONS.FINANCE}
+          icon={fiatIconToUse}
           button="primary"
-          label={'Preorder now for $' + preorderTag}
+          label={`Preorder now for ${fiatSymbolToUse}${preorderTag}`}
           // title={titlePrefix}
           requiresAuth
           onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, { uri, checkIfAlreadyPurchased })}

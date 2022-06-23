@@ -124,8 +124,13 @@ export default function PreorderContent(props: Props) {
     );
   }
 
+  let fiatSymbolToUse = '$';
+  if (preferredCurrency === 'EUR') {
+    fiatSymbolToUse = '€';
+  }
+
   function buildButtonText() {
-    return `Preorder your content for $${tipAmount.toString()}`;
+    return `Preorder your content for ${fiatSymbolToUse}${tipAmount.toString()}`;
   }
 
   return (
