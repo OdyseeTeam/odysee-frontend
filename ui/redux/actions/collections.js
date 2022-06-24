@@ -29,8 +29,8 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
     data: {
       entry: {
         id: id, // start with a uuid, this becomes a claimId after publish
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: Date.now() / 1000,
+        updatedAt: Date.now() / 1000,
         items: items || [],
         ...params,
       },
@@ -398,7 +398,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         items: newItems,
         id: collectionId,
         name: params.name || collection.name,
-        updatedAt: Date.now(),
+        updatedAt: Date.now() / 1000,
         type: collectionType,
       },
     },

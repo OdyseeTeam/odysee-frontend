@@ -9,7 +9,7 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
-      updatedAt: Date.now(),
+      updatedAt: Date.now() / 1000,
       type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
@@ -17,7 +17,7 @@ const defaultState: CollectionState = {
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
       type: COLS.COL_TYPE_PLAYLIST,
-      updatedAt: Date.now(),
+      updatedAt: Date.now() / 1000,
     },
   },
   resolved: {},
@@ -33,7 +33,7 @@ const defaultState: CollectionState = {
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
     type: COLS.COL_TYPE_PLAYLIST,
-    updatedAt: Date.now(),
+    updatedAt: Date.now() / 1000,
   },
 };
 
@@ -46,7 +46,7 @@ const collectionsReducer = handleActions(
         id: params.id,
         name: params.name,
         items: [],
-        updatedAt: Date.now(),
+        updatedAt: Date.now() / 1000,
         type: params.type,
       };
 
