@@ -7,7 +7,7 @@ const select = (state, props) => {
   const { uri } = props;
 
   return {
-    hasResolvedClaim: selectHasResolvedClaimForUri(state, uri),
+    hasResolvedClaim: uri ? selectHasResolvedClaimForUri(state, uri) : undefined,
     thumbnailFromClaim: selectThumbnailForUri(state, uri),
   };
 };

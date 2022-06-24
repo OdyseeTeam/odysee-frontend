@@ -16,7 +16,7 @@ import classnames from 'classnames';
 import Thumb from './internal/thumb';
 
 type Props = {
-  uri: string,
+  uri?: string,
   tileLayout?: boolean,
   thumbnail: ?string, // externally sourced image
   children?: Node,
@@ -26,7 +26,7 @@ type Props = {
   small?: boolean,
   forcePlaceholder?: boolean,
   // -- redux --
-  hasResolvedClaim: boolean,
+  hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
   doResolveUri: (uri: string) => void,
 };
@@ -54,7 +54,7 @@ function FileThumbnail(props: Props) {
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
   React.useEffect(() => {
-    if (!hasResolvedClaim && !passedThumbnail) {
+    if (hasResolvedClaim === false && uri && !passedThumbnail) {
       doResolveUri(uri);
     }
   }, [hasResolvedClaim, passedThumbnail, doResolveUri, uri]);
@@ -68,7 +68,7 @@ function FileThumbnail(props: Props) {
           small={small}
           src={url}
           className={classnames('media__thumb', className, {
-            'media__thumb--resolving': !hasResolvedClaim,
+            'media__thumb--resolving': hasResolvedClaim === false,
             'media__thumb--small': small,
           })}
         >
@@ -108,7 +108,7 @@ function FileThumbnail(props: Props) {
   return (
     <div
       className={classnames('media__thumb', className, {
-        'media__thumb--resolving': !hasResolvedClaim,
+        'media__thumb--resolving': hasResolvedClaim === false,
         'media__thumb--small': small,
       })}
     >
