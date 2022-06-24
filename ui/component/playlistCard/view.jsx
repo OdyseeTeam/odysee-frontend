@@ -28,6 +28,7 @@ const Lazy = {
 type Props = {
   id: ?string,
   playingItemUrl: string,
+  playingCurrentPlaylist: boolean,
   customTitle?: string,
   isMyCollection: boolean,
   collectionUrls: Array<Claim>,
@@ -130,6 +131,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     setShowEdit,
     doDisablePlayerDrag,
     collectionEmpty,
+    playingCurrentPlaylist,
     ...cardProps
   } = props;
 
@@ -221,7 +223,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                     droppableProvided={DroppableProvided}
                     smallThumbnail
                     showIndexes
-                    playItemsOnClick
+                    playItemsOnClick={playingCurrentPlaylist}
                     disableClickNavigation={disableClickNavigation}
                     doDisablePlayerDrag={doDisablePlayerDrag}
                   />

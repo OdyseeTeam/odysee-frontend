@@ -23,12 +23,13 @@ const select = (state, props) => {
     collection: { collectionId: playingCollectionId },
   } = selectPlayingUri(state);
 
-  const { permanent_url: playingItemUrl } =
-    collectionId === playingCollectionId ? selectClaimForUri(state, playingUri) || {} : {};
+  const playingCurrentPlaylist = collectionId === playingCollectionId;
+  const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
   const playingItemIndex = selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true);
 
   return {
     playingItemUrl,
+    playingCurrentPlaylist,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionName: selectNameForCollectionId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
