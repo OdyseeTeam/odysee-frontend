@@ -201,7 +201,7 @@ export default function CollectionsListMine(props: Props) {
                 <CollectionPreview collectionId={key} key={key} />
               ))}
 
-              <Paginate totalPages={totalLength / playlistShowCount} />
+              <Paginate totalPages={Math.ceil(totalLength / playlistShowCount)} />
             </ul>
           ) : (
             <div className="empty main--empty">{__('No matching playlists')}</div>
