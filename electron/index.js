@@ -1,7 +1,7 @@
 /* eslint no-console:0 */
 /* eslint space-before-function-paren:0 */
 // Module imports
-import "core-js/stable";
+import 'core-js/stable';
 import SemVer from 'semver';
 import https from 'https';
 import { app, dialog, ipcMain, session, shell } from 'electron';
