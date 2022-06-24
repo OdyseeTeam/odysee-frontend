@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import CollectionAddButton from './view';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import { selectClaimInCollectionsForUrl } from 'redux/selectors/collections';
+import { selectClaimSavedForUrl } from 'redux/selectors/collections';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -12,7 +12,7 @@ const select = (state, props) => {
 
   return {
     streamType,
-    isSaved: permanentUrl && selectClaimInCollectionsForUrl(state, permanentUrl),
+    isSaved: permanentUrl && selectClaimSavedForUrl(state, permanentUrl),
   };
 };
 
