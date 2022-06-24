@@ -5,7 +5,7 @@ import FormNewCollection from 'component/formNewCollection';
 
 type Props = {
   closeModal: () => void,
-  doToast: (params: { message: string, linkText: string, linkTarget: string }) => void,
+  doToast: (params: { message: string }) => void,
 };
 
 const CollectionCreate = (props: Props) => {
@@ -13,15 +13,17 @@ const CollectionCreate = (props: Props) => {
 
   function handleClose(newCollectionName: string, newCollectionId: string) {
     closeModal();
-    doToast({
-      message: __('Succesfully created "%playlist_name%"', { playlist_name: newCollectionName }),
-      subMessage: __('You can now add content to this playlist using the Save button while viewing content.'),
-      linkText: __('View Page'),
-      linkTarget: `/playlist/${newCollectionId}`,
-    });
+    doToast({ message: __('Succesfully created "%playlist_name%"', { playlist_name: newCollectionName }) });
   }
 
-  return <Card singlePane actions={<FormNewCollection closeForm={handleClose} onlyCreate />} />;
+  return (
+    <Card
+      singlePane
+      title={__('Create a Playlist')}
+      subtitle={__('You will be able to add content to this playlist using the Save button while viewing content.')}
+      actions={<FormNewCollection closeForm={handleClose} onlyCreate />}
+    />
+  );
 };
 
 export default CollectionCreate;
