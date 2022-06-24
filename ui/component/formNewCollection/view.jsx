@@ -19,7 +19,7 @@ type Props = {
 function FormNewCollection(props: Props) {
   const { uri, onlyCreate, closeForm, doLocalCollectionCreate } = props;
 
-  const { collectionsAdded, setCollectionsAdded } = React.useContext(ModalClaimCollectionAddContext);
+  const { collectionsAdded, setCollectionsAdded } = React.useContext(ModalClaimCollectionAddContext) || {};
 
   const buttonref: ElementRef<any> = React.useRef();
   const newCollectionName = React.useRef('');
@@ -34,15 +34,13 @@ function FormNewCollection(props: Props) {
 
   function handleAddCollection() {
     let newCollectionId = '';
+    const name = newCollectionName.current;
 
-    doLocalCollectionCreate(
-      { name: newCollectionName.current, items: onlyCreate ? [] : [uri], type: 'playlist' },
-      (id) => {
-        newCollectionId = id;
-      }
-    );
+    doLocalCollectionCreate({ name, items: onlyCreate ? [] : [uri], type: 'playlist' }, (id) => {
+      newCollectionId = id;
+    });
 
-    setCollectionsAdded([...collectionsAdded, `"${name}"`]);
+    if (setCollectionsAdded && collectionsAdded) setCollectionsAdded([...collectionsAdded, `"${name}"`]);
     closeForm(newCollectionName.current, newCollectionId);
   }
 
