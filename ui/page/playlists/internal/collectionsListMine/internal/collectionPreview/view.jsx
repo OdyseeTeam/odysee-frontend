@@ -62,8 +62,7 @@ function CollectionPreview(props: Props) {
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItem =
-    formatLbryUrlForWeb(collectionItemUrls[0] || '/') + (collectionId ? generateListSearchUrlParams(collectionId) : '');
+  const firstItemPath = formatLbryUrlForWeb(collectionItemUrls[0] || '/');
 
   function handleClick(e) {
     if (navigateUrl) {
@@ -124,7 +123,7 @@ function CollectionPreview(props: Props) {
                   icon={ICONS.PLAY}
                   onClick={() =>
                     push({
-                      pathname: firstItem,
+                      pathname: firstItemPath,
                       search: generateListSearchUrlParams(collectionId),
                       state: { forceAutoplay: true },
                     })
