@@ -203,21 +203,27 @@ export const selectIsCollectionBuiltInForId = (state: State, id: string) => {
   return builtin[id];
 };
 
-export const selectClaimInCollectionsForUrl = createSelector(
-  (state, url) => url,
-  selectBuiltinCollections,
-  selectMyPublishedCollections,
-  selectMyUnpublishedCollections,
-  selectMyEditedCollections,
-  selectPendingCollections,
-  selectCurrentQueueList,
-  (url, bLists, myRLists, uLists, eLists, pLists, queue) => {
-    const collections = [bLists, uLists, eLists, myRLists, pLists, queue];
+export const selectClaimSavedForUrl = (state: State, url: string) => {
+  const [bLists, myRLists, uLists, eLists, pLists] = [
+    selectBuiltinCollections(state),
+    selectMyPublishedCollections(state),
+    selectMyUnpublishedCollections(state),
+    selectMyEditedCollections(state),
+    selectPendingCollections(state),
+  ];
+  const collections = [bLists, uLists, eLists, myRLists, pLists];
 
-    // $FlowFixMe
-    return collections.some((list) => Object.values(list).some(({ items }) => items.some((item) => item === url)));
-  }
-);
+  // $FlowFixMe
+  return collections.some((list) => Object.values(list).some(({ items }) => items.some((item) => item === url)));
+};
+
+export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
+  const queue = selectQueueCollection(state);
+  const claimInQueue = queue.items.some((item) => item === url);
+  const claimSaved = selectClaimSavedForUrl(state, url);
+
+  return claimSaved && claimInQueue;
+};
 
 export const selectCollectionForIdHasClaimUrl = createSelector(
   (state, id, url) => selectPermanentUrlForUri(state, url),
