@@ -180,9 +180,22 @@ function SideNavigation(props: Props) {
 
   const MOBILE_LINKS: Array<SideNavLink> = [
     {
+      title: 'Livestream',
+      link: `/$/${PAGES.LIVESTREAM}`,
+      icon: ICONS.VIDEO,
+      hideForUnauth: true,
+    },
+    {
       title: 'Upload',
       link: `/$/${PAGES.UPLOAD}`,
       icon: ICONS.PUBLISH,
+      hideForUnauth: true,
+    },
+    {
+      title: 'Post',
+      link: `/$/${PAGES.POST}`,
+      icon: ICONS.POST,
+      hideForUnauth: true,
     },
     {
       title: 'New Channel',
