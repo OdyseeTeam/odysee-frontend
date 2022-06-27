@@ -969,6 +969,19 @@ img {
         float: right;
       }
     }
+
+    @media (max-width: $breakpoint-small) {
+      .card__main-actions {
+        margin-top: 0;
+        .button--primary {
+          padding: 0 var(--spacing-xs);
+          top: 0;
+          .button__label {
+            display: none;
+          }
+        }
+      }
+    }
   }
 
   .card--livestream-instructions {
