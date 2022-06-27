@@ -21,6 +21,7 @@ import UriIndicator from 'component/uriIndicator';
 import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
+import { NavLink } from 'react-router-dom';
 
 type Props = {
   notifications: Array<Notification>,
@@ -45,14 +46,17 @@ export default function NotificationHeaderButton(props: Props) {
     doSeeAllNotifications,
   } = props;
   const list = notifications.slice(0, 20);
-
   const { push } = useHistory();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => setAnchorEl(!anchorEl ? event.currentTarget : null);
+  const handleClick = (event) => {
+    doSeeAllNotifications();
+    if (unseenCount > 0) doSeeAllNotifications();
+    setAnchorEl(!anchorEl ? event.currentTarget : null);
+  };
   const handleClose = () => setAnchorEl(null);
 
   const menuProps = {
@@ -86,12 +90,12 @@ export default function NotificationHeaderButton(props: Props) {
   );
 
   function handleMenuClick() {
-    if (unseenCount > 0) doSeeAllNotifications();
     push(`/$/${PAGES.NOTIFICATIONS}`);
   }
 
   function handleNotificationDelete(e, id) {
     e.stopPropagation();
+    e.preventDefault();
     deleteNotification(id);
   }
 
@@ -109,10 +113,19 @@ export default function NotificationHeaderButton(props: Props) {
       readNotification([id]);
     }
     let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
-    if (notification_parameters.dynamic.hash) {
+    if (notification_parameters.dynamic?.hash) {
       notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
     }
     push(notificationLink);
+  }
+
+  function getWebUri(notification) {
+    const { notification_parameters } = notification;
+    let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
+    if (notification_parameters.dynamic?.hash) {
+      notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
+    }
+    return notificationLink;
   }
 
   function menuEntry(notification) {
@@ -163,7 +176,7 @@ export default function NotificationHeaderButton(props: Props) {
     }
 
     return (
-      <a onClick={() => handleNotificationClick(notification)} key={id}>
+      <NavLink onClick={() => handleNotificationClick(notification)} key={id} to={getWebUri(notification)}>
         <div
           className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
           key={id}
@@ -180,14 +193,14 @@ export default function NotificationHeaderButton(props: Props) {
             >
               {generateNotificationText(notification_rule, notification_parameters)}
             </div>
-            {!is_read && <span>•</span>}
+            {!is_read && <span className="dot">•</span>}
             <DateTime timeAgo date={active_at} />
           </div>
           <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
             <Icon icon={ICONS.DELETE} sectionIcon />
           </div>
         </div>
-      </a>
+      </NavLink>
     );
   }
 
@@ -218,9 +231,9 @@ export default function NotificationHeaderButton(props: Props) {
               )}
             </div>
 
-            <a onClick={handleMenuClick}>
+            <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
               <div className="menu__list--notifications-more">{__('View all')}</div>
-            </a>
+            </NavLink>
           </MuiMenu>
         </ClickAwayListener>
       </>

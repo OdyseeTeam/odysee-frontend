@@ -552,6 +552,7 @@ function App(props: Props) {
         />
       ) : (
         <React.Fragment>
+          <AdsSticky uri={uri} />
           <Router uri={uri} embedLatestPath={embedLatestPath} />
           <ModalRouter />
 
@@ -569,8 +570,6 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
-
-          <AdsSticky uri={uri} />
         </React.Fragment>
       )}
     </div>
