@@ -1,13 +1,13 @@
 // @flow
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-import * as PUBLISH_MODES from 'constants/publish_types';
+// import * as PUBLISH_MODES from 'constants/publish_types';
 import I18nMessage from 'component/i18nMessage';
-import React, { useState } from 'react';
+import React from 'react';
 import Page from 'component/page';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
-import ChannelSelector from 'component/channelSelector';
+// import ChannelSelector from 'component/channelSelector';
 import Yrbl from 'component/yrbl';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
@@ -15,13 +15,14 @@ import { FormField } from 'component/common/form';
 import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
-import usePersistedState from 'effects/use-persisted-state';
+// import usePersistedState from 'effects/use-persisted-state';
 import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
 import LivestreamForm from 'component/publish/livestream/livestreamForm';
 // import { Icon } from '@mui/material';
 import Icon from 'component/common/icon';
+import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   hasChannels: boolean,
@@ -55,7 +56,7 @@ export default function LivestreamSetupPage(props: Props) {
     user,
   } = props;
 
-  // console.log('props: ', props)
+  const isMobile = useIsMobile();
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
   // const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
@@ -76,7 +77,7 @@ export default function LivestreamSetupPage(props: Props) {
 
   // const [fileSource, setFileSource] = useState();
   // const changeFileSource = (state) => setFileSource(state);
-  const [livestreamData, setLivestreamData] = React.useState([]);
+  // const [livestreamData, setLivestreamData] = React.useState([]);
 
   const pendingLength = pendingClaims.length;
   const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
@@ -122,7 +123,7 @@ export default function LivestreamSetupPage(props: Props) {
 
   function createNewLivestream() {
     setTab('Publish');
-    doNewLivestream();
+    doNewLivestream(`/$/${PAGES.UPLOAD}`);
   }
 
   React.useEffect(() => {
@@ -180,7 +181,7 @@ export default function LivestreamSetupPage(props: Props) {
     return (
       <div className={'w-full flex items-center justify-between'}>
         <span>{title}</span>
-        {!hideBtn && (
+        {!hideBtn && !isMobile && (
           <Button
             button="primary"
             iconRight={ICONS.ADD}
@@ -351,7 +352,7 @@ export default function LivestreamSetupPage(props: Props) {
                               />
                             </div>
                           )}
-                          <div className="section">
+                          <div className="section card--livestream-past">
                             <ClaimList
                               header={
                                 <ListHeader
@@ -419,7 +420,7 @@ export default function LivestreamSetupPage(props: Props) {
                           label={__('Stream server')}
                           copyable={LIVESTREAM_RTMP_URL}
                           snackMessage={__('Copied stream server URL.')}
-                          disabled={true}
+                          disabled={!streamKey || totalLivestreamClaims.length === 0}
                         />
                         <CopyableText
                           primaryButton
