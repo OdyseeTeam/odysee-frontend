@@ -715,6 +715,10 @@ $actions-z-index: 2;
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 
+  .icon--ChevronDown {
+    margin-left: var(--spacing-s);
+  }
+
   @media (max-width: $breakpoint-small) {
     margin-top: -2px !important;
     margin-bottom: var(--spacing-s) !important;
