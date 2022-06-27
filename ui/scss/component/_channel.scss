@@ -714,6 +714,15 @@ $actions-z-index: 2;
     height: var(--height-button);
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: -2px !important;
+    margin-bottom: var(--spacing-s) !important;
+    width: unset !important;
+    button {
+      padding: 0 !important;
+    }
+  }
 }
 
 .channel__list--publish {
