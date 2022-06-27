@@ -537,7 +537,7 @@ function LivestreamForm(props: Props) {
 
           <PublishAdditionalOptions
             isLivestream={isLivestreamMode}
-            disabled={formDisabled}
+            disabled={disabled}
             showSchedulingOptions={showSchedulingOptions}
           />
         </div>
