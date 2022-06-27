@@ -3343,7 +3343,7 @@ export const icons = {
         width={size}
         height={size}
         fill={color}
-        style={{ overflow: 'visible', stroke: color }}
+        style={{ overflow: 'visible' }}
         {...otherProps}
       >
         <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
