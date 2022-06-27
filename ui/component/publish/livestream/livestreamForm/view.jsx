@@ -35,7 +35,6 @@ import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_NONE, SOURCE_SELECT } from 'constants/publish_sources';
 
 type Props = {
-  disabled: boolean,
   tags: Array<Tag>,
   publish: (source?: string | File, ?boolean) => void,
   filePath: string | File,
@@ -117,7 +116,7 @@ function LivestreamForm(props: Props) {
     isStillEditing,
     tags,
     publish,
-    disabled = false,
+    // disabled = false,
     checkAvailability,
     ytSignupPending,
     modal,
@@ -153,7 +152,7 @@ function LivestreamForm(props: Props) {
   const [prevName, setPrevName] = React.useState(false);
   // Used to check if the file has been modified by user
   // const [fileEdited, setFileEdited] = React.useState(false);
-  const [prevFileText, setPrevFileText] = React.useState('');
+  // const [prevFileText, setPrevFileText] = React.useState('');
 
   const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
@@ -202,6 +201,7 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
+  const disabled = !title || !name;
   const isClear = !title && !name && !description && !thumbnail && !disabled;
 
   useEffect(() => {
@@ -425,6 +425,8 @@ function LivestreamForm(props: Props) {
     );
   }
 
+  console.log('disabled: ', disabled);
+
   const isFormIncomplete =
     isClaimingInitialRewards ||
     formDisabled ||
@@ -481,10 +483,10 @@ function LivestreamForm(props: Props) {
         uri={permanentUrl}
         mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
         fileMimeType={fileMimeType}
-        disabled={disabled || publishing}
+        // disabled={disabled || publishing}
         inProgress={isInProgress}
         // setPublishMode={setMode}
-        setPrevFileText={setPrevFileText}
+        // setPrevFileText={setPrevFileText}
         livestreamData={livestreamData}
         // subtitle={customSubtitle}
         setWaitForFile={setWaitForFile}
@@ -495,10 +497,10 @@ function LivestreamForm(props: Props) {
         channelName={activeChannelName}
       />
 
-      <PublishDescription disabled={formDisabled} />
+      <PublishDescription disabled={disabled} />
 
       {!publishing && (
-        <div className={classnames({ 'card--disabled': formDisabled })}>
+        <div className={classnames({ 'card--disabled': disabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
           <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
