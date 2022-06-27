@@ -370,7 +370,6 @@ function PostForm(props: Props) {
           {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
-      {/* <ChannelSelect disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
 
       <PublishPost
         inEditMode={inEditMode}
@@ -438,7 +437,15 @@ function PostForm(props: Props) {
               previewing
             }
           />
-          {/* <Button button="link" onClick={clearPublish} label={__('New --[clears Publish Form]--')} /> */}
+          {
+            <ChannelSelect
+              disabled={disabled}
+              autoSet
+              channelToSet={claimChannelId}
+              isPublishMenu
+              disabled={disabled}
+            />
+          }
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (

@@ -26,8 +26,10 @@ type Props = {
   storeSelection?: boolean,
   doSetDefaultChannel: (claimId: string) => void,
   isHeaderMenu?: boolean,
+  isPublishMenu?: boolean,
   autoSet?: boolean,
   channelToSet?: string,
+  disabled?: boolean,
 };
 
 export default function ChannelSelector(props: Props) {
@@ -43,8 +45,10 @@ export default function ChannelSelector(props: Props) {
     storeSelection,
     doSetDefaultChannel,
     isHeaderMenu,
+    isPublishMenu,
     autoSet,
     channelToSet,
+    disabled,
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
@@ -80,7 +84,11 @@ export default function ChannelSelector(props: Props) {
   }, []);
 
   return (
-    <div className="channel__selector">
+    <div
+      className={classnames('channel__selector', {
+        'channel__selector--publish': isPublishMenu,
+      })}
+    >
       <Menu>
         {isHeaderMenu ? (
           <MenuButton className="menu__link">
@@ -99,6 +107,7 @@ export default function ChannelSelector(props: Props) {
                 isSelected
                 claimsByUri={claimsByUri}
                 doFetchUserMemberships={doFetchUserMemberships}
+                isPublishMenu={isPublishMenu}
               />
             )}
           </MenuButton>
@@ -113,6 +122,7 @@ export default function ChannelSelector(props: Props) {
                   uri={channel.permanent_url}
                   claimsByUri={claimsByUri}
                   doFetchUserMemberships={doFetchUserMemberships}
+                  isPublishMenu={isPublishMenu}
                 />
               </MenuItem>
             ))}
@@ -139,10 +149,11 @@ type ListItemProps = {
   claimsByUri: { [string]: any },
   doFetchUserMemberships: (claimIdCsv: string) => void,
   odyseeMembershipByUri: (uri: string) => string,
+  isPublishMenu?: boolean,
 };
 
 function ChannelListItem(props: ListItemProps) {
-  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, odyseeMembershipByUri } = props;
+  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, odyseeMembershipByUri, isPublishMenu } = props;
 
   const membership = odyseeMembershipByUri(uri);
 
@@ -150,7 +161,13 @@ function ChannelListItem(props: ListItemProps) {
   useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships, [uri]);
 
   return (
-    <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
+    <div
+      className={classnames('channel__list-item', {
+        'channel__list-item--selected': isSelected,
+        'channel__list-item--publish': isPublishMenu,
+      })}
+    >
+      {isPublishMenu && <div className="channel__selector--prefix">as</div>}
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
       <PremiumBadge membership={membership} />

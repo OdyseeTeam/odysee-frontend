@@ -759,6 +759,15 @@ img {
     }
   }
 
+  .card-stack {
+    .section__actions:last-of-type {
+      .button--primary {
+        border-radius: var(--border-radius) 0 0 var(--border-radius);
+        margin-right: 2px;
+      }
+    }
+  }
+
   .page__title {
     display: flex;
     margin-bottom: var(--spacing-l);

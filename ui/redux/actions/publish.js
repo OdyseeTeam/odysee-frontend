@@ -425,12 +425,6 @@ export const doUpdatePublishForm = (publishFormValue: UpdatePublishFormData) => 
     data: { ...publishFormValue },
   });
 
-export const doUpdatePostForm = (postFormValue: UpdatePostFormData) => (dispatch: Dispatch) =>
-  dispatch({
-    type: ACTIONS.UPDATE_POST_FORM,
-    data: { ...postFormValue },
-  });
-
 export const doUploadThumbnail = (
   filePath?: string,
   thumbnailBlob?: File,
