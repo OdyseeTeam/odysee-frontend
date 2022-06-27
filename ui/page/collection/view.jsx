@@ -37,6 +37,7 @@ type Props = {
   collectionUrls: Array<string>,
   collectionCount: number,
   isPrivateCollection: ?boolean,
+  resolvedPrivateCollectionIds: Array<string>,
   isResolvingCollection: ?boolean,
   isMyClaim: boolean,
   isMyCollection: boolean,
@@ -61,6 +62,7 @@ export default function CollectionPage(props: Props) {
     collectionHasEdits,
     claimIsPending,
     isPrivateCollection,
+    resolvedPrivateCollectionIds,
     isResolvingCollection,
     editCollection,
     fetchCollectionItems,
@@ -105,10 +107,10 @@ export default function CollectionPage(props: Props) {
   }, [collectionId, urlsReady, didTryResolve, setDidTryResolve, fetchCollectionItems, collection]);
 
   React.useEffect(() => {
-    if (isPrivateCollection && collectionId) {
+    if (isPrivateCollection && collectionId && !resolvedPrivateCollectionIds.includes(collectionId)) {
       doResolveItemsInCollection(collectionId);
     }
-  }, [isPrivateCollection, collectionId]);
+  }, [isPrivateCollection, collectionId, resolvedPrivateCollectionIds]);
 
   const pending = (
     <div className="help card__title--help">

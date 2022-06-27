@@ -19,6 +19,7 @@ declare type CollectionState = {
   isResolvingCollectionById: { [string]: boolean },
   error?: string | null,
   queue: Collection,
+  unpublishedIdsWithItemsResolved: Array<string>,
 };
 
 declare type CollectionGroup = {

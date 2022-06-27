@@ -12,6 +12,7 @@ import {
   selectCollectionIsEmptyForId,
   selectCollectionForId,
   selectIsResolvingCollectionForId,
+  selectUnpublishedIdsWithItemsResolved,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit, doResolveItemsInCollection } from 'redux/actions/collections';
@@ -35,6 +36,7 @@ const select = (state, props) => {
     collectionName: selectNameForCollectionId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
+    resolvedPrivateCollectionIds: selectUnpublishedIdsWithItemsResolved(state),
     isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
     publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
     playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,

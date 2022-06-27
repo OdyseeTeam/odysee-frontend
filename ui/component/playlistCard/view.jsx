@@ -35,6 +35,7 @@ type Props = {
   collectionUrls: Array<Claim>,
   collectionName: string,
   isPrivateCollection: ?boolean,
+  resolvedPrivateCollectionIds: Array<string>,
   isResolvingCollection: ?boolean,
   publishedCollectionName: string | boolean,
   playingItemIndex: number,
@@ -122,6 +123,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     customTitle,
     bodyOpen = true,
     isPrivateCollection,
+    resolvedPrivateCollectionIds,
     isResolvingCollection,
     publishedCollectionName,
     doCollectionEdit,
@@ -152,10 +154,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   }
 
   React.useEffect(() => {
-    if (isPrivateCollection && id) {
+    if (isPrivateCollection && id && !resolvedPrivateCollectionIds.includes(id)) {
       doResolveItemsInCollection(id);
     }
-  }, [isPrivateCollection, id]);
+  }, [isPrivateCollection, id, resolvedPrivateCollectionIds]);
 
   return (
     <Card

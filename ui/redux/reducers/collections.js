@@ -22,6 +22,7 @@ const defaultState: CollectionState = {
   },
   resolved: {},
   unpublished: {}, // sync
+  unpublishedIdsWithItemsResolved: [], // Not needed once the GUI paginates.
   lastUsedCollection: undefined,
   edited: {},
   pending: {},
@@ -135,10 +136,16 @@ const collectionsReducer = handleActions(
 
       const { [collectionKey]: lists } = state;
 
+      let unpublishedIdsWithItemsResolved;
+      if (state.unpublishedIdsWithItemsResolved.includes(id)) {
+        unpublishedIdsWithItemsResolved = state.unpublishedIdsWithItemsResolved.filter((x) => x !== id);
+      }
+
       return {
         ...state,
         [collectionKey]: { ...lists, [id]: collection },
         lastUsedCollection: id,
+        unpublishedIdsWithItemsResolved: unpublishedIdsWithItemsResolved || state.unpublishedIdsWithItemsResolved,
       };
     },
 
@@ -172,11 +179,12 @@ const collectionsReducer = handleActions(
       };
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
-      const { resolvedCollections, failedCollectionIds, additionalResolvingIdsToClear } = action.data;
+      const { resolvedCollections, failedCollectionIds, resolvedPrivateCollectionIds } = action.data;
       const { pending, edited, isResolvingCollectionById, resolved } = state;
       const newPending = Object.assign({}, pending);
       const newEdited = Object.assign({}, edited);
       const newResolved = Object.assign({}, resolved, resolvedCollections);
+      const unpublishedIdsWithItemsResolved = state.unpublishedIdsWithItemsResolved.slice();
 
       const resolvedIds = Object.keys(resolvedCollections);
       const newResolving = Object.assign({}, isResolvingCollectionById);
@@ -200,9 +208,12 @@ const collectionsReducer = handleActions(
         });
       }
 
-      if (additionalResolvingIdsToClear) {
-        additionalResolvingIdsToClear.forEach((x) => {
+      if (resolvedPrivateCollectionIds) {
+        resolvedPrivateCollectionIds.forEach((x) => {
           delete newResolving[x];
+          if (!unpublishedIdsWithItemsResolved.includes(x)) {
+            unpublishedIdsWithItemsResolved.push(x);
+          }
         });
       }
 
@@ -212,6 +223,7 @@ const collectionsReducer = handleActions(
         resolved: newResolved,
         edited: newEdited,
         isResolvingCollectionById: newResolving,
+        unpublishedIdsWithItemsResolved,
       });
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {

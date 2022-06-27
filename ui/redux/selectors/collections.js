@@ -23,6 +23,8 @@ export const selectSavedCollectionIds = (state: State) => selectState(state).sav
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
 export const selectResolvedCollections = (state: State) => selectState(state).resolved;
 export const selectMyUnpublishedCollections = (state: State) => selectState(state).unpublished;
+export const selectUnpublishedIdsWithItemsResolved = (state: State) =>
+  selectState(state).unpublishedIdsWithItemsResolved;
 export const selectMyEditedCollections = (state: State) => selectState(state).edited;
 export const selectPendingCollections = (state: State) => selectState(state).pending;
 export const selectIsResolvingCollectionById = (state: State) => selectState(state).isResolvingCollectionById;

@@ -386,7 +386,7 @@ export const doResolveItemsInCollection = (collectionId: string) => async (dispa
   dispatch({
     type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
     data: {
-      additionalResolvingIdsToClear: [collectionId],
+      resolvedPrivateCollectionIds: [collectionId],
       // Unpublished collections are not actual claims, so we don't need to
       // update these 2, but would still need to provide something.
       resolvedCollections: {},
