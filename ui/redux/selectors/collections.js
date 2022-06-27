@@ -352,9 +352,10 @@ export const selectUpdatedAtForCollectionId = createCachedSelector(
   selectCollectionForId,
   selectUserCreationDate,
   (collection, userCreatedAt) => {
-    const collectionUpdatedAt = collection.updatedAt;
-    const userCreationDate = moment(new Date(userCreatedAt)).format('MMMM DD YYYY');
-    const collectionUpdatedDate = moment(new Date(collectionUpdatedAt)).format('MMMM DD YYYY');
+    const collectionUpdatedAt = collection.updatedAt * 1000;
+
+    const userCreationDate = moment(userCreatedAt).format('MMMM DD YYYY');
+    const collectionUpdatedDate = moment(collectionUpdatedAt).format('MMMM DD YYYY');
 
     // Collection updated time can't be older than account creation date
     if (moment(collectionUpdatedDate).diff(moment(userCreationDate)) < 0) {
