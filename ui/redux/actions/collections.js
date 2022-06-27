@@ -13,6 +13,7 @@ import {
   selectHasItemsInQueue,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
+import { getCurrentTimeInMs } from 'util/time';
 
 const FETCH_BATCH_SIZE = 50;
 
@@ -24,13 +25,15 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
 
   if (cb) cb(id);
 
+  const currentTimeInMs = getCurrentTimeInMs();
+
   return dispatch({
     type: ACTIONS.COLLECTION_NEW,
     data: {
       entry: {
         id: id, // start with a uuid, this becomes a claimId after publish
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: currentTimeInMs,
+        updatedAt: currentTimeInMs,
         items: items || [],
         ...params,
       },
@@ -398,7 +401,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         items: newItems,
         id: collectionId,
         name: params.name || collection.name,
-        updatedAt: Date.now(),
+        updatedAt: getCurrentTimeInMs(),
         type: collectionType,
       },
     },

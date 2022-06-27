@@ -1,5 +1,6 @@
 // @flow
 import { handleActions } from 'util/redux-utils';
+import { getCurrentTimeInMs } from 'util/time';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
 
@@ -9,7 +10,7 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
-      updatedAt: Date.now(),
+      updatedAt: getCurrentTimeInMs(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
@@ -17,7 +18,7 @@ const defaultState: CollectionState = {
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
       type: COLS.COL_TYPE_PLAYLIST,
-      updatedAt: Date.now(),
+      updatedAt: getCurrentTimeInMs(),
     },
   },
   resolved: {},
@@ -33,7 +34,7 @@ const defaultState: CollectionState = {
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
     type: COLS.COL_TYPE_PLAYLIST,
-    updatedAt: Date.now(),
+    updatedAt: getCurrentTimeInMs(),
   },
 };
 
@@ -46,7 +47,7 @@ const collectionsReducer = handleActions(
         id: params.id,
         name: params.name,
         items: [],
-        updatedAt: Date.now(),
+        updatedAt: getCurrentTimeInMs(),
         type: params.type,
       };
 
