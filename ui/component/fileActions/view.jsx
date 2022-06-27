@@ -17,6 +17,7 @@ import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import { webDownloadClaim } from 'util/downloadClaim';
 import Tooltip from 'component/common/tooltip';
+// import { getRadioUtilityClass } from '@mui/material';
 
 type Props = {
   uri: string,
@@ -28,6 +29,7 @@ type Props = {
   costInfo: ?{ cost: number },
   hasChannels: boolean,
   isLivestreamClaim: boolean,
+  isPostClaim: boolean,
   streamingUrl: ?string,
   disableDownloadButton: boolean,
   doOpenModal: (id: string, { uri: string, claimIsMine?: boolean, isSupport?: boolean }) => void,
@@ -47,6 +49,7 @@ export default function FileActions(props: Props) {
     hasChannels,
     hideRepost,
     isLivestreamClaim,
+    isPostClaim,
     streamingUrl,
     disableDownloadButton,
     doOpenModal,
@@ -111,6 +114,16 @@ export default function FileActions(props: Props) {
     doOpenModal(MODALS.REPOST, { uri });
   }
 
+  function getUri(isLivestreamClaim, isPostClaim) {
+    if (isLivestreamClaim) {
+      return `/$/${PAGES.LIVESTREAM}`;
+    } else if (isPostClaim) {
+      return `/$/${PAGES.POST}`;
+    } else {
+      return `/$/${PAGES.UPLOAD}`;
+    }
+  }
+
   return (
     <div className="media__actions">
       {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
@@ -151,7 +164,7 @@ export default function FileActions(props: Props) {
                 className="button--file-action"
                 icon={ICONS.EDIT}
                 label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
-                navigate={`/$/${PAGES.LIVESTREAM}`}
+                navigate={getUri(isLivestreamClaim, isPostClaim)}
                 onClick={() => doPrepareEdit(claim, editUri)}
               />
             </div>
