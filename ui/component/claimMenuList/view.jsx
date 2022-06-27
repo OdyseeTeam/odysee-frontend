@@ -51,6 +51,7 @@ type Props = {
   hasClaimInWatchLater: boolean,
   hasClaimInFavorites: boolean,
   claimInCollection: boolean,
+  isLivestreamClaim: boolean,
   collectionId: string,
   isMyCollection: boolean,
   fypId?: string,
@@ -99,6 +100,7 @@ function ClaimMenuList(props: Props) {
     hasClaimInFavorites,
     collectionId,
     isMyCollection,
+    isLivestreamClaim,
     fypId,
     doToast,
     claimIsMine,
@@ -221,7 +223,11 @@ function ClaimMenuList(props: Props) {
       }
       const editUri = buildURI(uriObject);
 
-      push(`/$/${PAGES.UPLOAD}`);
+      if (isLivestreamClaim) {
+        push(`/$/${PAGES.LIVESTREAM}`);
+      } else {
+        push(`/$/${PAGES.UPLOAD}`);
+      }
       prepareEdit(claim, editUri, fileInfo);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;

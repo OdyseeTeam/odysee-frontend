@@ -33,6 +33,7 @@ import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectListShuffle } from 'redux/selectors/content';
 import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
+import { isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreview from './view';
 import fs from 'fs';
 
@@ -73,6 +74,7 @@ const select = (state, props) => {
     isAdmin: selectHasAdminChannel(state),
     claimInCollection: makeSelectCollectionForIdHasClaimUrl(collectionId, contentPermanentUri)(state),
     isMyCollection: makeSelectCollectionIsMine(collectionId)(state),
+    isLivestreamClaim: isStreamPlaceholderClaim(claim),
     editedCollection: makeSelectEditedCollectionForId(collectionId)(state),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
     resolvedList: makeSelectUrlsForCollectionId(collectionId)(state),

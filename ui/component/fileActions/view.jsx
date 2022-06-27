@@ -151,7 +151,7 @@ export default function FileActions(props: Props) {
                 className="button--file-action"
                 icon={ICONS.EDIT}
                 label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
-                navigate={`/$/${PAGES.UPLOAD}`}
+                navigate={`/$/${PAGES.LIVESTREAM}`}
                 onClick={() => doPrepareEdit(claim, editUri)}
               />
             </div>
