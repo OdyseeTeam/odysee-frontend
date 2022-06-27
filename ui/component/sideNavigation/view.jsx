@@ -178,7 +178,7 @@ function SideNavigation(props: Props) {
     ({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest
   );
 
-  const MOBILE_LINKS: Array<SideNavLink> = [
+  const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
       title: 'Livestream',
       link: `/$/${PAGES.LIVESTREAM}`,
@@ -197,6 +197,8 @@ function SideNavigation(props: Props) {
       icon: ICONS.POST,
       hideForUnauth: true,
     },
+  ];
+  const MOBILE_LINKS: Array<SideNavLink> = [
     {
       title: 'New Channel',
       link: `/$/${PAGES.CHANNEL_NEW}`,
@@ -566,6 +568,9 @@ function SideNavigation(props: Props) {
               )}
             </ul>
 
+            <ul className="navigation-links--absolute mobile-only">
+              {email && MOBILE_PUBLISH.map((linkProps) => getLink(linkProps))}
+            </ul>
             <ul className="navigation-links--absolute mobile-only">
               {email && MOBILE_LINKS.map((linkProps) => getLink(linkProps))}
               {!email && UNAUTH_LINKS.map((linkProps) => getLink(linkProps))}
