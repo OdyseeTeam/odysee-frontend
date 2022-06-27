@@ -2,7 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
+import { doClaimSearch, doAbandonClaim, doResolveClaimIds } from 'redux/actions/claims';
 import { selectClaimForClaimId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
@@ -11,6 +11,7 @@ import {
   selectUnpublishedCollectionForId,
   selectEditedCollectionForId,
   selectHasItemsInQueue,
+  selectUrlsForCollectionId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 
@@ -333,6 +334,65 @@ export const doFetchItemsInCollection = (options: { collectionId: string, pageSi
   };
   if (pageSize) newOptions.pageSize = pageSize;
   return doFetchItemsInCollections(newOptions, cb);
+};
+
+/**
+ * This is mainly for unpublished collections at the moment, since published
+ * collections would resolve all items in the collection when
+ * `doFetchItemsInCollections` or `doResolveUris` is called.
+ *
+ * TODO: We can save a lot of processing on large collections by making
+ * `doFetchItemsInCollections` and `doResolveUris` not resolve all items
+ * immediately, but let the GUI decide when to resolve through pagination or
+ * infinite scroll (assuming the playlist system can work with just claimId).
+ *
+ * For that, the GUI needs to be updated first to handle pagination, then we
+ * will tweak this to not fetch everything.
+ *
+ * @param collectionId
+ * @returns {(function(Dispatch, GetState): Promise<void>)|*}
+ */
+export const doResolveItemsInCollection = (collectionId: string) => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  const CLAIM_ID_LENGTH = 40;
+
+  if (!collectionUrls || collectionUrls.length === 0) {
+    return;
+  }
+
+  dispatch({
+    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED,
+    data: { ids: [collectionId] },
+  });
+
+  const itemIds = [];
+
+  for (const url of collectionUrls) {
+    // `unpublishedCollections` is saved as urls in the wallet instead of
+    // claimIds like in an actual claim object.
+    // `parseURI` is too expensive for large loops, so will assume the url will
+    // always be in permanent form and just do a simpler parsing.
+    // Even if it fails, the component will just resolve individually (no biggie).
+    const parts = url.split('#');
+    const id = parts[parts.length - 1];
+    if (id && id.length === CLAIM_ID_LENGTH) {
+      itemIds.push(id);
+    }
+  }
+
+  await dispatch(doResolveClaimIds(itemIds));
+
+  dispatch({
+    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
+    data: {
+      additionalResolvingIdsToClear: [collectionId],
+      // Unpublished collections are not actual claims, so we don't need to
+      // update these 2, but would still need to provide something.
+      resolvedCollections: {},
+      failedCollectionIds: [],
+    },
+  });
 };
 
 export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => (

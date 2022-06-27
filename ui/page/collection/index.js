@@ -17,10 +17,16 @@ import {
   selectCollectionIsMine,
   selectCountForCollectionId,
   selectEditedCollectionForId,
+  selectIsCollectionPrivateForId,
 } from 'redux/selectors/collections';
 
 import { getThumbnailFromClaim } from 'util/claim';
-import { doFetchItemsInCollection, doCollectionDelete, doCollectionEdit } from 'redux/actions/collections';
+import {
+  doFetchItemsInCollection,
+  doCollectionDelete,
+  doCollectionEdit,
+  doResolveItemsInCollection,
+} from 'redux/actions/collections';
 import { selectUser } from 'redux/selectors/user';
 
 const select = (state, props) => {
@@ -37,6 +43,7 @@ const select = (state, props) => {
     collection: selectCollectionForId(state, collectionId),
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionCount: selectCountForCollectionId(state, collectionId),
+    isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
     isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
     title: selectTitleForUri(state, uri),
     thumbnail: getThumbnailFromClaim(claim),
@@ -52,6 +59,7 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   fetchCollectionItems: (claimId, cb) => dispatch(doFetchItemsInCollection({ collectionId: claimId }, cb)), // if this collection is not resolved, resolve it
+  doResolveItemsInCollection: (id) => dispatch(doResolveItemsInCollection(id)),
   deleteCollection: (id, colKey) => dispatch(doCollectionDelete(id, colKey)),
   editCollection: (id, params) => dispatch(doCollectionEdit(id, params)),
 });

@@ -16,6 +16,7 @@ import ShuffleButton from './internal/shuffleButton';
 import LoopButton from './internal/loopButton';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import Spinner from 'component/spinner';
 
 // prettier-ignore
 const Lazy = {
@@ -33,7 +34,8 @@ type Props = {
   isMyCollection: boolean,
   collectionUrls: Array<Claim>,
   collectionName: string,
-  isPrivateCollection: boolean,
+  isPrivateCollection: ?boolean,
+  isResolvingCollection: ?boolean,
   publishedCollectionName: string | boolean,
   playingItemIndex: number,
   collectionLength: number,
@@ -44,6 +46,7 @@ type Props = {
   hasCollectionById: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
+  doResolveItemsInCollection: (id: string) => Promise<null>,
   enableCardBody?: () => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
 };
@@ -119,8 +122,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     customTitle,
     bodyOpen = true,
     isPrivateCollection,
+    isResolvingCollection,
     publishedCollectionName,
     doCollectionEdit,
+    doResolveItemsInCollection,
     playingItemIndex,
     collectionLength,
     enableCardBody,
@@ -145,6 +150,12 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
     doCollectionEdit(id || '', { order: { from, to } });
   }
+
+  React.useEffect(() => {
+    if (isPrivateCollection && id) {
+      doResolveItemsInCollection(id);
+    }
+  }, [isPrivateCollection, id]);
 
   return (
     <Card
@@ -210,26 +221,33 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       body={
         !bodyOpen || titleOnly ? undefined : (
           <React.Suspense fallback={null}>
-            <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-              <Lazy.Droppable droppableId="list__ordering">
-                {(DroppableProvided) => (
-                  <ClaimList
-                    type="small"
-                    activeUri={playingItemUrl}
-                    uris={collectionUrls}
-                    collectionId={id}
-                    empty={__('Playlist is Empty')}
-                    showEdit={showEdit}
-                    droppableProvided={DroppableProvided}
-                    smallThumbnail
-                    showIndexes
-                    playItemsOnClick={playingCurrentPlaylist}
-                    disableClickNavigation={disableClickNavigation}
-                    doDisablePlayerDrag={doDisablePlayerDrag}
-                  />
-                )}
-              </Lazy.Droppable>
-            </Lazy.DragDropContext>
+            {isResolvingCollection && (
+              <div className="main--empty">
+                <Spinner type="small" />
+              </div>
+            )}
+            {!isResolvingCollection && (
+              <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+                <Lazy.Droppable droppableId="list__ordering">
+                  {(DroppableProvided) => (
+                    <ClaimList
+                      type="small"
+                      activeUri={playingItemUrl}
+                      uris={collectionUrls}
+                      collectionId={id}
+                      empty={__('Playlist is Empty')}
+                      showEdit={showEdit}
+                      droppableProvided={DroppableProvided}
+                      smallThumbnail
+                      showIndexes
+                      playItemsOnClick={playingCurrentPlaylist}
+                      disableClickNavigation={disableClickNavigation}
+                      doDisablePlayerDrag={doDisablePlayerDrag}
+                    />
+                  )}
+                </Lazy.Droppable>
+              </Lazy.DragDropContext>
+            )}
           </React.Suspense>
         )
       }
