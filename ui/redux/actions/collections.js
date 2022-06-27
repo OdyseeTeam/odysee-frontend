@@ -3,7 +3,7 @@ import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
 import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
-import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   // selectPublishedCollectionForId, // for "save" or "copy" action
@@ -46,7 +46,7 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
   getState: GetState
 ) => {
   const state = getState();
-  const claim = makeSelectClaimForClaimId(id)(state);
+  const claim = selectClaimForClaimId(state, id);
   const collectionDelete = () =>
     dispatch({
       type: ACTIONS.COLLECTION_DELETE,
@@ -113,6 +113,10 @@ export const doFetchItemsInCollections = (
   const collectionIdsToSearch = collectionIds.filter((claimId) => !state.claims.byId[claimId]);
 
   if (collectionIdsToSearch.length) {
+    // TODO: this might fail if there are >50 collections due to the claim_search
+    // limitation. The `useAutoPagination` parameter might slow things down
+    // because it is not parallel, so maybe a `Promise.all` is needed here.
+    // But leaving as-is for now.
     await dispatch(doClaimSearch({ claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 }));
   }
 
@@ -189,7 +193,7 @@ export const doFetchItemsInCollections = (
   const invalidCollectionIds = [];
   const promisedCollectionItemFetches = [];
   collectionIds.forEach((collectionId) => {
-    const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+    const claim = selectClaimForClaimId(stateAfterClaimSearch, collectionId);
     if (!claim) {
       invalidCollectionIds.push(collectionId);
     } else {
@@ -210,7 +214,7 @@ export const doFetchItemsInCollections = (
     const collectionItems: Array<any> = entry.items;
     const collectionId = entry.claimId;
     if (collectionItems) {
-      const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+      const claim = selectClaimForClaimId(stateAfterClaimSearch, collectionId);
 
       const editedCollection = selectEditedCollectionForId(stateAfterClaimSearch, collectionId);
       const { name, timestamp, value } = claim || {};
