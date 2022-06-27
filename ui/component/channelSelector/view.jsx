@@ -87,6 +87,7 @@ export default function ChannelSelector(props: Props) {
     <div
       className={classnames('channel__selector', {
         'channel__selector--publish': isPublishMenu,
+        disabled: disabled,
       })}
     >
       <Menu>
@@ -113,7 +114,11 @@ export default function ChannelSelector(props: Props) {
           </MenuButton>
         )}
 
-        <MenuList className="menu__list channel__list">
+        <MenuList
+          className={classnames('menu__list channel__list', {
+            'channel__list--publish': isPublishMenu,
+          })}
+        >
           {channels &&
             channels.map((channel) => (
               <MenuItem key={channel.permanent_url} onSelect={() => handleChannelSelect(channel)}>
@@ -164,10 +169,9 @@ function ChannelListItem(props: ListItemProps) {
     <div
       className={classnames('channel__list-item', {
         'channel__list-item--selected': isSelected,
-        'channel__list-item--publish': isPublishMenu,
       })}
     >
-      {isPublishMenu && <div className="channel__selector--prefix">as</div>}
+      {isPublishMenu && <div className="channel__selector--prefix">{__('as')}</div>}
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
       <PremiumBadge membership={membership} />

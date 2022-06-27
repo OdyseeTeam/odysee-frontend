@@ -531,10 +531,17 @@ function UploadForm(props: Props) {
     );
   }
 
+  const isFormIncomplete =
+    isClaimingInitialRewards ||
+    formDisabled ||
+    !formValid ||
+    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    ytSignupPending ||
+    previewing;
+
   // Editing claim uri
   return (
     <div className="card-stack">
-      {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
       <h1 className="page__title">
         <Icon icon={ICONS.PUBLISH} />
         <label>
@@ -625,20 +632,8 @@ function UploadForm(props: Props) {
       )}
       <section>
         <div className="section__actions">
-          <Button
-            button="primary"
-            onClick={handlePublish}
-            label={submitLabel}
-            disabled={
-              isClaimingInitialRewards ||
-              formDisabled ||
-              !formValid ||
-              uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-              ytSignupPending ||
-              previewing
-            }
-          />
-          {/* <Button button="link" onClick={clearPublish} label={__('New --[clears Publish Form]--')} /> */}
+          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
+          <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (

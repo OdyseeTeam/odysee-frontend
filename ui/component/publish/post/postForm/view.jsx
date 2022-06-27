@@ -360,6 +360,13 @@ function PostForm(props: Props) {
     );
   }
 
+  const isFormIncomplete =
+    isClaimingInitialRewards ||
+    formDisabled ||
+    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    ytSignupPending ||
+    previewing;
+
   // Editing claim uri
   return (
     <div className="card-stack">
@@ -424,28 +431,8 @@ function PostForm(props: Props) {
       )}
       <section>
         <div className="section__actions">
-          <Button
-            button="primary"
-            onClick={handlePublish}
-            label={submitLabel}
-            disabled={
-              isClaimingInitialRewards ||
-              formDisabled ||
-              // !formValid ||
-              uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-              ytSignupPending ||
-              previewing
-            }
-          />
-          {
-            <ChannelSelect
-              disabled={disabled}
-              autoSet
-              channelToSet={claimChannelId}
-              isPublishMenu
-              disabled={disabled}
-            />
-          }
+          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
+          <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (

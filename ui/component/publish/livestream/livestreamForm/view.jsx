@@ -15,7 +15,7 @@ import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
-// import ChannelSelect from 'component/channelSelector';
+import ChannelSelect from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
 import PublishDescription from 'component/publish/shared/publishDescription';
@@ -425,11 +425,17 @@ function LivestreamForm(props: Props) {
     );
   }
 
-  console.log('disabled: ', disabled);
+  const isFormIncomplete =
+    isClaimingInitialRewards ||
+    formDisabled ||
+    !formValid ||
+    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    ytSignupPending ||
+    previewing;
+
   // Editing claim uri
   return (
     <div className="card-stack">
-      {/* <ChannelSelect hideAnon={isLivestreamMode} disabled={disabled} autoSet channelToSet={claimChannelId} /> */}
       <Card className="card--livestream">
         <div>
           <Button
@@ -536,20 +542,8 @@ function LivestreamForm(props: Props) {
       )}
       <section>
         <div className="section__actions">
-          <Button
-            button="primary"
-            onClick={handlePublish}
-            label={submitLabel}
-            disabled={
-              isClaimingInitialRewards ||
-              formDisabled ||
-              !formValid ||
-              uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-              ytSignupPending ||
-              previewing
-            }
-          />
-          {/* <Button button="link" onClick={clearPublish} label={__('New --[clears Publish Form]--')} /> */}
+          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
+          <ChannelSelect hideAnon disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
         <p className="help">
           {!formDisabled && !formValid ? (
