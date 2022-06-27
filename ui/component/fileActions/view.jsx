@@ -35,6 +35,7 @@ type Props = {
   doToast: (data: { message: string }) => void,
   doDownloadUri: (uri: string) => void,
   isMature: boolean,
+  isAPreorder: boolean,
 };
 
 export default function FileActions(props: Props) {
@@ -54,6 +55,7 @@ export default function FileActions(props: Props) {
     doToast,
     doDownloadUri,
     isMature,
+    isAPreorder,
   } = props;
 
   const {
@@ -115,142 +117,137 @@ export default function FileActions(props: Props) {
     <div className="media__actions">
       {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
 
-      <div className="media__actions-app">
-        {/* NEKO */}
-        <ClaimSupportButton uri={uri} fileAction />
+      {!isAPreorder && <ClaimSupportButton uri={uri} fileAction />}
 
-        <ClaimCollectionAddButton uri={uri} fileAction />
+      <ClaimCollectionAddButton uri={uri} fileAction />
 
-        {!hideRepost && !isMobile && !isLivestreamClaim && (
-          <Tooltip title={__('Repost')} arrow={false}>
-            <Button
-              button="alt"
-              className="button--file-action"
-              icon={ICONS.REPOST}
-              label={
-                claimMeta.reposted > 1
-                  ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted })
-                  : __('Repost')
-              }
-              requiresAuth
-              onClick={handleRepostClick}
-            />
-          </Tooltip>
-        )}
-
-        <Tooltip title={__('Share')} arrow={false}>
+      {!hideRepost && !isMobile && !isLivestreamClaim && (
+        <Tooltip title={__('Repost')} arrow={false}>
           <Button
+            button="alt"
             className="button--file-action"
-            icon={ICONS.SHARE}
-            label={__('Share')}
-            onClick={() => doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId })}
+            icon={ICONS.REPOST}
+            label={
+              claimMeta.reposted > 1 ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted }) : __('Repost')
+            }
+            requiresAuth
+            onClick={handleRepostClick}
           />
         </Tooltip>
+      )}
 
-        {claimIsMine && !isMobile && (
-          <>
-            <Tooltip title={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')} arrow={false}>
-              <div style={{ margin: '0px' }}>
-                <Button
-                  className="button--file-action"
-                  icon={ICONS.EDIT}
-                  label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
-                  navigate={`/$/${PAGES.UPLOAD}`}
-                  onClick={() => doPrepareEdit(claim, editUri)}
-                />
-              </div>
-            </Tooltip>
+      <Tooltip title={__('Share')} arrow={false}>
+        <Button
+          className="button--file-action"
+          icon={ICONS.SHARE}
+          label={__('Share')}
+          onClick={() => doOpenModal(MODALS.SOCIAL_SHARE, { uri, webShareable, collectionId })}
+        />
+      </Tooltip>
 
-            <Tooltip title={__('Remove from your library')} arrow={false}>
+      {claimIsMine && !isMobile && (
+        <>
+          <Tooltip title={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')} arrow={false}>
+            <div style={{ margin: '0px' }}>
               <Button
                 className="button--file-action"
-                icon={ICONS.DELETE}
-                label={__('Delete')}
-                onClick={() => doOpenModal(MODALS.CONFIRM_FILE_REMOVE, { uri })}
+                icon={ICONS.EDIT}
+                label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
+                navigate={`/$/${PAGES.UPLOAD}`}
+                onClick={() => doPrepareEdit(claim, editUri)}
               />
-            </Tooltip>
-          </>
-        )}
+            </div>
+          </Tooltip>
 
-        {(!isLivestreamClaim || !claimIsMine || isMobile) && (
-          <Menu>
-            <MenuButton
-              className="button--file-action--menu"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-              }}
-            >
-              <Icon size={20} icon={ICONS.MORE} />
-            </MenuButton>
+          <Tooltip title={__('Remove from your library')} arrow={false}>
+            <Button
+              className="button--file-action"
+              icon={ICONS.DELETE}
+              label={__('Delete')}
+              onClick={() => doOpenModal(MODALS.CONFIRM_FILE_REMOVE, { uri })}
+            />
+          </Tooltip>
+        </>
+      )}
 
-            <MenuList className="menu__list">
-              {isMobile && (
-                <>
-                  {!hideRepost && !isLivestreamClaim && (
-                    <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
+      {(!isLivestreamClaim || !claimIsMine || isMobile) && (
+        <Menu>
+          <MenuButton
+            className="button--file-action--menu"
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+          >
+            <Icon size={20} icon={ICONS.MORE} />
+          </MenuButton>
+
+          <MenuList className="menu__list">
+            {isMobile && (
+              <>
+                {!hideRepost && !isLivestreamClaim && (
+                  <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.REPOST} />
+                      {claimMeta.reposted > 1
+                        ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted })
+                        : __('Repost')}
+                    </div>
+                  </MenuItem>
+                )}
+
+                {claimIsMine && (
+                  <>
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => {
+                        doPrepareEdit(claim, editUri);
+                        push(`/$/${PAGES.UPLOAD}`);
+                      }}
+                    >
                       <div className="menu__link">
-                        <Icon aria-hidden icon={ICONS.REPOST} />
-                        {claimMeta.reposted > 1
-                          ? __(`%repost_total% Reposts`, { repost_total: claimMeta.reposted })
-                          : __('Repost')}
+                        <Icon aria-hidden icon={ICONS.EDIT} />
+                        {isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
                       </div>
                     </MenuItem>
-                  )}
 
-                  {claimIsMine && (
-                    <>
-                      <MenuItem
-                        className="comment__menu-option"
-                        onSelect={() => {
-                          doPrepareEdit(claim, editUri);
-                          push(`/$/${PAGES.UPLOAD}`);
-                        }}
-                      >
-                        <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.EDIT} />
-                          {isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
-                        </div>
-                      </MenuItem>
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => doOpenModal(MODALS.CONFIRM_FILE_REMOVE, { uri })}
+                    >
+                      <div className="menu__link">
+                        <Icon aria-hidden icon={ICONS.DELETE} />
+                        {__('Delete')}
+                      </div>
+                    </MenuItem>
+                  </>
+                )}
+              </>
+            )}
 
-                      <MenuItem
-                        className="comment__menu-option"
-                        onSelect={() => doOpenModal(MODALS.CONFIRM_FILE_REMOVE, { uri })}
-                      >
-                        <div className="menu__link">
-                          <Icon aria-hidden icon={ICONS.DELETE} />
-                          {__('Delete')}
-                        </div>
-                      </MenuItem>
-                    </>
-                  )}
-                </>
-              )}
+            {!isLivestreamClaim && !disableDownloadButton && !isMature && (
+              <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.DOWNLOAD} />
+                  {__('Download')}
+                </div>
+              </MenuItem>
+            )}
 
-              {!isLivestreamClaim && !disableDownloadButton && !isMature && (
-                <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.DOWNLOAD} />
-                    {__('Download')}
-                  </div>
-                </MenuItem>
-              )}
-
-              {!claimIsMine && (
-                <MenuItem
-                  className="comment__menu-option"
-                  onSelect={() => push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
-                >
-                  <div className="menu__link">
-                    <Icon aria-hidden icon={ICONS.REPORT} />
-                    {__('Report content')}
-                  </div>
-                </MenuItem>
-              )}
-            </MenuList>
-          </Menu>
-        )}
-      </div>
+            {!claimIsMine && (
+              <MenuItem
+                className="comment__menu-option"
+                onSelect={() => push(`/$/${PAGES.REPORT_CONTENT}?claimId=${claimId}`)}
+              >
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.REPORT} />
+                  {__('Report content')}
+                </div>
+              </MenuItem>
+            )}
+          </MenuList>
+        </Menu>
+      )}
     </div>
   );
 }

@@ -1,12 +1,11 @@
-const Mime = require('mime-types');
 const moment = require('moment');
 const removeMd = require('remove-markdown');
 
 // TODO: fix relative path for server
-const { fetchStreamUrl } = require('../fetchStreamUrl');
+const { generateContentUrl } = require('../fetchStreamUrl');
 const { parseURI } = require('../lbryURI');
 const { OG_IMAGE_URL, SITE_NAME, URL } = require('../../../config.js');
-const { generateEmbedUrl, getThumbnailCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
+const { generateEmbedUrl, getThumbnailCardCdnUrl, escapeHtmlProperty } = require('../../../ui/util/web');
 
 // ****************************************************************************
 // Utils
@@ -82,7 +81,7 @@ async function buildGoogleVideoMetadata(uri, claim) {
   const { meta, value } = claim;
   const media = value && value.video;
   const source = value && value.source;
-  let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
+  let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const mediaType = source && source.media_type;
   const mediaDuration = media && media.duration;
   const claimTitle = escapeHtmlProperty((value && value.title) || claimName);
@@ -97,11 +96,10 @@ async function buildGoogleVideoMetadata(uri, claim) {
     return '';
   }
 
-  const claimThumbnail = escapeHtmlProperty(thumbnail) || getThumbnailCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
+  const claimThumbnail =
+    escapeHtmlProperty(thumbnail) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`;
 
-  const fileExt = value.source && value.source.media_type && '.' + Mime.extension(value.source.media_type);
-  const claimStreamUrl =
-    (await fetchStreamUrl(claim.name, claim.claim_id)).replace('/v4/', '/v3/') + (fileExt || '.mp4'); // v3 = mp4 always, v4 may redirect to m3u8;
+  const claimStreamUrl = generateContentUrl(claim);
 
   // https://developers.google.com/search/docs/data-types/video
   const googleVideoMetadata = {

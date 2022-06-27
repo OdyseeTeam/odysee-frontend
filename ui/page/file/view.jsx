@@ -16,6 +16,7 @@ import Button from 'component/button';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import PreorderButton from 'component/preorderButton';
 import { useIsMobile, useIsMobileLandscape } from 'effects/use-screensize';
 // import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 
@@ -224,6 +225,7 @@ export default function FilePage(props: Props) {
         {!isMarkdown && (
           <div className="file-page__secondary-content">
             <section className="file-page__media-actions">
+              <PreorderButton uri={uri} />
               {claimIsMine && isLivestream && (
                 <div className="livestream__creator-message">
                   <h4>{__('Only visible to you')}</h4>

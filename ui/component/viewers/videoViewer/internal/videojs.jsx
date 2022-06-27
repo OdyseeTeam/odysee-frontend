@@ -248,7 +248,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     },
     inactivityTimeout: 2000,
     muted: startMuted,
-    poster: poster, // thumb looks bad in app, and if autoplay, flashing poster is annoying
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     controlBar: {
       currentTimeDisplay: !isLivestreamClaim,
@@ -458,6 +457,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // vjsPlayer.poster(poster);
 
+      vjsPlayer.el().childNodes[0].setAttribute('playsinline', '');
+
       let contentUrl;
       // TODO: pull this function into videojs-functions
       // determine which source to use and load it
@@ -563,46 +564,35 @@ export default React.memo<Props>(function VideoJs(props: Props) {
                   // $FlowIssue
                   vjsPlayer?.muted(true);
                   // $FlowIssue
-                  vjsPlayer?.play();
-                  // $FlowIssue
-                  document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
-                  // $FlowIssue
-                  document
-                    .querySelector('.video-js--tap-to-unmute')
-                    ?.style.setProperty('display', 'inline', 'important');
+                  const mutedPlayPromise = vjsPlayer?.play();
+                  if (mutedPlayPromise !== undefined) {
+                    mutedPlayPromise
+                      .then(() => {
+                        const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
+
+                        // $FlowIssue
+                        tapToUnmuteButton?.style.setProperty('visibility', 'visible');
+                        // $FlowIssue
+                        tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
+                      })
+                      .catch((error) => {
+                        // $FlowFixMe
+                        vjsPlayer?.addClass('vjs-paused');
+                        // $FlowFixMe
+                        vjsPlayer?.addClass('vjs-has-started');
+
+                        // $FlowFixMe
+                        document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
+                        // $FlowFixMe
+                        document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
+                      });
+                  }
                 } else {
                   // $FlowIssue
                   vjsPlayer?.bigPlayButton?.show();
                 }
               }
             });
-        }
-      }
-
-      // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
-      if (IS_IOS) {
-        // ads video player
-        const adsClaimDiv = document.querySelector('.ads__claim-item');
-
-        if (adsClaimDiv) {
-          // hide ad video by default
-          adsClaimDiv.style.display = 'none';
-
-          // ad containing div, we can keep part on page
-          const adsClaimParentDiv = adsClaimDiv.parentNode;
-
-          // watch parent div for when it is on viewport
-          const observer = new IntersectionObserver(function (entries) {
-            // when ad div parent becomes visible by 1px, show the ad video
-            if (entries[0].isIntersecting === true) {
-              adsClaimDiv.style.display = 'block';
-            }
-
-            observer.disconnect();
-          });
-
-          // $FlowFixMe
-          observer.observe(adsClaimParentDiv);
         }
       }
     })();
@@ -655,6 +645,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.trigger('playerClosed');
 
         window.player.currentTime(0);
+
+        // stop streams running in background
+        window.player.loadTech_('html5', null);
 
         window.player.claimSrcVhs = null;
       }

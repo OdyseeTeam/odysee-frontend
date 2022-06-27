@@ -44,12 +44,24 @@ export default function AdsSticky(props: Props) {
   // Global conditions aside, should the Sticky be shown for this path:
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   // Final answer:
-  const shouldLoadSticky = shouldShowAds && inAllowedPath && !gScript && !inIFrame() && !platform.isMobile();
+  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame() && !platform.isMobile();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
     const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return pathIsCategory || isChannelClaim || (isContentClaim && !authenticated);
+    return pathIsCategory || isChannelClaim || (isContentClaim && !authenticated) || pathname === '/';
+  }
+
+  function closeSticky() {
+    const container = document.getElementsByClassName('AR_28')[0];
+    if (
+      container &&
+      container.parentElement &&
+      container.parentElement.parentElement &&
+      container.parentElement.parentElement.parentElement
+    ) {
+      container.parentElement.parentElement.parentElement.remove();
+    }
   }
 
   React.useEffect(() => {
@@ -66,6 +78,14 @@ export default function AdsSticky(props: Props) {
   React.useEffect(() => {
     const container = window[OUTBRAIN_CONTAINER_KEY];
     if (container) {
+      if (document.getElementsByClassName('close-sticky').length < 1) {
+        const closeButton = window.document.createElement('div');
+        closeButton.classList.add('close-sticky');
+        closeButton.innerHTML = '✖';
+        closeButton.onclick = closeSticky;
+        container.appendChild(closeButton);
+      }
+
       container.style.display = inAllowedPath ? '' : 'none';
     }
   }, [inAllowedPath, refresh]);
