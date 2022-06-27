@@ -202,7 +202,7 @@ function LivestreamForm(props: Props) {
   const [previewing, setPreviewing] = React.useState(false);
 
   const disabled = !title || !name;
-  const isClear = !title && !name && !description && !thumbnail && !disabled;
+  const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
     setClearStatus(isClear);
@@ -424,8 +424,6 @@ function LivestreamForm(props: Props) {
       </div>
     );
   }
-
-  console.log('disabled: ', disabled);
 
   const isFormIncomplete =
     isClaimingInitialRewards ||

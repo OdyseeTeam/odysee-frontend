@@ -24,14 +24,7 @@ const perform = (dispatch) => ({
     if (automaticDarkModeEnabled) dispatch(doSetClientSetting(SETTINGS.AUTOMATIC_DARK_MODE_ENABLED, false));
     dispatch(doSetClientSetting(SETTINGS.THEME, currentTheme === 'dark' ? 'light' : 'dark', true));
   },
-  signOut: doSignOut,
-  // doOpenModal: (id, params) => dispatch(doOpenModal(id, params)),
+  signOut: () => dispatch(doSignOut()),
 });
-
-/*
-const perform = {
-  signOut: doSignOut,
-};
-*/
 
 export default connect(select, perform)(HeaderProfileMenuButton);
