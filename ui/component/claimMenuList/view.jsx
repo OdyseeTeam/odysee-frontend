@@ -52,6 +52,7 @@ type Props = {
   hasClaimInFavorites: boolean,
   claimInCollection: boolean,
   isLivestreamClaim: boolean,
+  isPostClaim: boolean,
   collectionId: string,
   isMyCollection: boolean,
   fypId?: string,
@@ -101,6 +102,7 @@ function ClaimMenuList(props: Props) {
     collectionId,
     isMyCollection,
     isLivestreamClaim,
+    isPostClaim,
     fypId,
     doToast,
     claimIsMine,
@@ -225,6 +227,9 @@ function ClaimMenuList(props: Props) {
 
       if (isLivestreamClaim) {
         push(`/$/${PAGES.LIVESTREAM}`);
+      } else if (isPostClaim) {
+        console.log('Edit post');
+        push(`/$/${PAGES.POST}`);
       } else {
         push(`/$/${PAGES.UPLOAD}`);
       }
