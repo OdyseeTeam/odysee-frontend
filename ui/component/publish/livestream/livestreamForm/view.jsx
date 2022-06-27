@@ -81,7 +81,7 @@ type Props = {
   modal: { id: string, modalProps: {} },
   enablePublishPreview: boolean,
   activeChannelClaim: ?ChannelClaim,
-  incognito: boolean,
+  // incognito: boolean,
   user: ?User,
   isLivestreamClaim: boolean,
   isPostClaim: boolean,
@@ -122,7 +122,7 @@ function LivestreamForm(props: Props) {
     modal,
     enablePublishPreview,
     activeChannelClaim,
-    incognito,
+    // incognito,
     description,
     // user,
     // isLivestreamClaim,
@@ -248,7 +248,7 @@ function LivestreamForm(props: Props) {
     if (signedMessage) {
       const encodedChannelName = encodeURIComponent(channelName || '');
       const newEndpointUrl =
-        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
         `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
           encodedChannelName || ''
         }`;
@@ -357,18 +357,15 @@ function LivestreamForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
+  /*
   useEffect(() => {
     if (incognito) {
       updatePublishForm({ channel: undefined });
-
-      // Anonymous livestreams aren't supported
-      if (isLivestreamMode) {
-        // setMode(PUBLISH_MODES.FILE);
-      }
     } else if (activeChannelName) {
       updatePublishForm({ channel: activeChannelName });
     }
   }, [activeChannelName, incognito, updatePublishForm, isLivestreamMode]);
+  */
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {

@@ -9,14 +9,14 @@
  */
 
 import { SITE_NAME, SIMPLE_SITE } from 'config';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
 import ChannelSelect from 'component/channelSelector';
 import classnames from 'classnames';
 import TagsSelect from 'component/tagsSelect';
-import PublishPrice from 'component/publish/shared/publishPrice';
+// import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import SelectThumbnail from 'component/selectThumbnail';
@@ -26,7 +26,6 @@ import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
-import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
@@ -64,6 +63,7 @@ type Props = {
   publishing: boolean,
   publishSuccess: boolean,
   balance: number,
+  releaseTimeError: ?string,
   isStillEditing: boolean,
   clearPublish: () => void,
   resolveUri: (string) => void,
@@ -101,6 +101,7 @@ function PostForm(props: Props) {
     title,
     bid,
     bidError,
+    releaseTimeError,
     uploadThumbnailStatus,
     resetThumbnailStatus,
     updatePublishForm,
@@ -119,10 +120,10 @@ function PostForm(props: Props) {
     enablePublishPreview,
     activeChannelClaim,
     incognito,
-    user,
-    isPostClaim,
+    // user,
+    // isPostClaim,
     permanentUrl,
-    remoteUrl,
+    // remoteUrl,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
@@ -138,7 +139,6 @@ function PostForm(props: Props) {
   const mode = PUBLISH_MODES.POST;
 
   const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
-  const [showSchedulingOptions, setShowSchedulingOptions] = useState(false);
 
   // Used to check if the url name has changed:
   // A new file needs to be provided
@@ -162,10 +162,27 @@ function PostForm(props: Props) {
     (activeChannelClaim && activeChannelClaim.claim_id);
 
   const nameEdited = isStillEditing && name !== prevName;
+  const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
+
+  const formValidLessFile =
+    name &&
+    isNameValid(name) &&
+    title &&
+    bid &&
+    thumbnail &&
+    !bidError &&
+    !releaseTimeError &&
+    !emptyPostError &&
+    !(thumbnailError && !thumbnailUploaded) &&
+    !(uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS);
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
-  const formValid = isOverwritingExistingClaim ? false : editingURI;
+  const formValid = isOverwritingExistingClaim
+    ? false
+    : editingURI && !filePath
+    ? isStillEditing && formValidLessFile
+    : formValidLessFile;
 
   const [previewing, setPreviewing] = React.useState(false);
 
@@ -392,8 +409,6 @@ function PostForm(props: Props) {
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
-          {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
-
           <Card actions={<SelectThumbnail />} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
@@ -426,7 +441,7 @@ function PostForm(props: Props) {
             tagsChosen={tags}
           />
 
-          <PublishAdditionalOptions disabled={formDisabled} showSchedulingOptions={showSchedulingOptions} />
+          <PublishAdditionalOptions disabled={formDisabled} />
         </div>
       )}
       <section>
