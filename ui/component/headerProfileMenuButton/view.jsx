@@ -20,6 +20,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Tooltip from 'component/common/tooltip';
 import NotificationHeaderButton from 'component/headerNotificationButton';
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
+import { useIsMobile } from 'effects/use-screensize';
 
 type HeaderMenuButtonProps = {
   currentTheme: string,
@@ -61,6 +62,8 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   const noActiveChannel = activeChannelUrl === null;
   const pendingChannelFetch = !noActiveChannel && myChannelClaimIds === undefined;
   const uploadProps = { requiresAuth: !authenticated };
+
+  const isMobile = useIsMobile();
 
   const handleClickAway = () => {
     if (!clicked) {
@@ -104,7 +107,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
       )}
 
       <div className="header__buttons">
-        {authenticated && (
+        {authenticated && !isMobile && (
           <Menu>
             <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
               <Button
@@ -116,7 +119,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             </Tooltip>
           </Menu>
         )}
-        {notificationsEnabled && <NotificationHeaderButton />}
+        {notificationsEnabled && !isMobile && <NotificationHeaderButton />}
 
         {pendingChannelFetch ? (
           <Skeleton variant="circular" animation="wave" className="header__navigationItem--iconSkeleton" />
