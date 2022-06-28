@@ -2,7 +2,11 @@ import { connect } from 'react-redux';
 import { selectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
-import { selectNextUrlForCollectionAndUrl, selectPreviousUrlForCollectionAndUrl } from 'redux/selectors/collections';
+import {
+  selectNextUrlForCollectionAndUrl,
+  selectPreviousUrlForCollectionAndUrl,
+  selectIndexForUrlInCollection,
+} from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
@@ -66,6 +70,7 @@ const select = (state, props) => {
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
+    currentPlaylistItemIndex: selectIndexForUrlInCollection(state, uri, collectionId),
   };
 };
 
