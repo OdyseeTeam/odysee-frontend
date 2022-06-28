@@ -30,12 +30,16 @@ const ClaimCollectionAdd = (props: Props) => {
           {builtin.map(({ id }) => (
             <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={COLS.PLAYLIST_ICONS[id]} />
           ))}
-          {unpublished.map(({ id }) => (
-            <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
-          ))}
-          {published.map(({ id }) => (
-            <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
-          ))}
+          {unpublished
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(({ id }) => (
+              <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
+            ))}
+          {published
+            .sort((a, b) => a.name.localeCompare(b.name))
+            .map(({ id }) => (
+              <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
+            ))}
         </ul>
       }
       actions={
