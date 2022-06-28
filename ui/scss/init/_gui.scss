@@ -1310,11 +1310,11 @@ img {
           align-items: center;
 
           @media (max-width: $breakpoint-medium) {
-            grid-template-columns: 1.3fr repeat(3, 1fr);
+            grid-template-columns: 1.3fr repeat(4, 1fr);
           }
 
           @media (min-width: $breakpoint-medium) {
-            grid-template-columns: 1.9fr repeat(3, 1fr);
+            grid-template-columns: 1.9fr repeat(4, 1fr);
           }
 
           .truncated-text {

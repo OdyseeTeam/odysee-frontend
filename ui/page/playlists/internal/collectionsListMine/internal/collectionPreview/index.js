@@ -7,6 +7,7 @@ import {
   selectIsResolvingCollectionForId,
   selectFirstItemUrlForCollection,
   selectUpdatedAtForCollectionId,
+  selectCreatedAtForCollectionId,
   selectPublishedCollectionClaimForId,
   selectIsCollectionBuiltInForId,
 } from 'redux/selectors/collections';
@@ -33,6 +34,7 @@ const select = (state, props) => {
     hasClaim: Boolean(claim),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
+    collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, props.collectionId),
   };
 };

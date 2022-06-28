@@ -15,6 +15,7 @@ import TableHeader from './internal/table-header';
 import CollectionListHeader from './internal/collectionListHeader/index';
 import Paginate from 'component/common/paginate';
 import usePersistedState from 'effects/use-persisted-state';
+import PageItemsLabel from './internal/page-items-label';
 
 type Props = {
   publishedCollections: CollectionGroup,
@@ -72,22 +73,20 @@ export default function CollectionsListMine(props: Props) {
     }, [filterType, publishedList, unpublishedCollectionsList]) || [];
 
   const page = (collectionsToShow.length > playlistShowCount && Number(urlParams.get('page'))) || 1;
-  const firstPageIndex = playlistShowCount * (page - 1);
+  const firstItemIndexForPage = playlistShowCount * (page - 1);
+  const lastItemIndexForPage = playlistShowCount * page;
 
   const filteredCollections = React.useMemo(() => {
-    let result = [];
+    let result = collectionsToShow;
+
     if (searchText) {
-      result = collectionsToShow
-        .filter(
-          (id) =>
-            (unpublishedCollections[id] &&
-              unpublishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())) ||
-            (publishedCollections[id] &&
-              publishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
-        )
-        .slice(firstPageIndex, playlistShowCount * (page + 1));
-    } else {
-      result = collectionsToShow.slice(firstPageIndex, playlistShowCount * page) || [];
+      result = collectionsToShow.filter(
+        (id) =>
+          (unpublishedCollections[id] &&
+            unpublishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())) ||
+          (publishedCollections[id] &&
+            publishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
+      );
     }
 
     return result.sort((a, b) => {
@@ -121,19 +120,15 @@ export default function CollectionsListMine(props: Props) {
       }
       return 0;
     });
-  }, [
-    collectionsToShow,
-    firstPageIndex,
-    page,
-    playlistShowCount,
-    publishedCollections,
-    searchText,
-    sortOption.key,
-    sortOption.value,
-    unpublishedCollections,
-  ]);
+  }, [collectionsToShow, publishedCollections, searchText, sortOption.key, sortOption.value, unpublishedCollections]);
 
   const totalLength = collectionsToShow.length;
+  const filteredCollectionsLength = filteredCollections.length;
+  const totalPages = Math.ceil(filteredCollectionsLength / playlistShowCount);
+  const paginatedCollections = filteredCollections.slice(
+    totalPages >= page ? firstItemIndexForPage : 0,
+    lastItemIndexForPage
+  );
 
   function handleCreatePlaylist() {
     doOpenModal(MODALS.COLLECTION_CREATE);
@@ -173,15 +168,14 @@ export default function CollectionsListMine(props: Props) {
         <CollectionsListContext.Provider
           value={{
             searchText,
-            firstPageIndex,
             setSearchText,
             totalLength,
-            filteredCollectionsLength: filteredCollections.length,
+            filteredCollectionsLength,
           }}
         >
           <CollectionListHeader
             filterType={filterType}
-            isTruncated={totalLength > filteredCollections.length}
+            isTruncated={totalLength > filteredCollectionsLength}
             setFilterType={setFilterType}
             // $FlowFixMe
             sortOption={sortOption}
@@ -193,15 +187,23 @@ export default function CollectionsListMine(props: Props) {
 
         {/* Playlists: previews */}
         {hasCollections && !collectionsUnresolved ? (
-          filteredCollections.length > 0 ? (
+          filteredCollectionsLength > 0 ? (
             <ul className={classnames('ul--no-style claim-list', { playlists: !isMobile })}>
               {!isMobile && <TableHeader />}
 
-              {filteredCollections.map((key) => (
+              {paginatedCollections.map((key) => (
                 <CollectionPreview collectionId={key} key={key} />
               ))}
 
-              <Paginate totalPages={Math.ceil(totalLength / playlistShowCount)} />
+              {totalPages > 1 && (
+                <PageItemsLabel
+                  totalLength={filteredCollectionsLength}
+                  firstItemIndexForPage={firstItemIndexForPage}
+                  paginatedCollectionsLength={paginatedCollections.length}
+                />
+              )}
+
+              <Paginate totalPages={totalPages} />
             </ul>
           ) : (
             <div className="empty main--empty">{__('No matching playlists')}</div>

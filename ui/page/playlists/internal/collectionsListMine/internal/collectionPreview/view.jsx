@@ -34,6 +34,7 @@ type Props = {
   hasClaim: boolean,
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
+  collectionCreatedAt: number,
   hasEdits: boolean,
   isBuiltin: boolean,
 };
@@ -51,6 +52,7 @@ function CollectionPreview(props: Props) {
     firstCollectionItemUrl,
     channel,
     collectionUpdatedAt,
+    collectionCreatedAt,
     hasEdits,
     isBuiltin,
   } = props;
@@ -138,6 +140,10 @@ function CollectionPreview(props: Props) {
               {__(collectionCount === 1 ? '%playlist_item_count% item' : '%playlist_item_count% items', {
                 playlist_item_count: collectionCount,
               })}
+            </div>
+
+            <div className="claim-tile__info date" uri={uri}>
+              <DateTime timeAgo date={collectionCreatedAt} />
             </div>
 
             <div className="claim-tile__info date" uri={uri}>

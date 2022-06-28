@@ -10,6 +10,7 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
+      createdAt: getCurrentTimeInMs(),
       updatedAt: getCurrentTimeInMs(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
@@ -17,8 +18,9 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
-      type: COLS.COL_TYPE_PLAYLIST,
+      createdAt: getCurrentTimeInMs(),
       updatedAt: getCurrentTimeInMs(),
+      type: COLS.COL_TYPE_PLAYLIST,
     },
   },
   resolved: {},
@@ -33,8 +35,9 @@ const defaultState: CollectionState = {
     items: [],
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
-    type: COLS.COL_TYPE_PLAYLIST,
+    createdAt: getCurrentTimeInMs(),
     updatedAt: getCurrentTimeInMs(),
+    type: COLS.COL_TYPE_PLAYLIST,
   },
 };
 
@@ -42,12 +45,15 @@ const collectionsReducer = handleActions(
   {
     [ACTIONS.COLLECTION_NEW]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<string>}
+      const currentTime = getCurrentTimeInMs();
+
       // entry
-      const newListTemplate = {
+      const newListTemplate: Collection = {
         id: params.id,
         name: params.name,
         items: [],
-        updatedAt: getCurrentTimeInMs(),
+        createdAt: currentTime,
+        updatedAt: currentTime,
         type: params.type,
       };
 
@@ -131,14 +137,18 @@ const collectionsReducer = handleActions(
       const { id } = collection;
 
       if (id === COLS.QUEUE_ID) {
-        return { ...state, queue: collection };
+        const { [collectionKey]: currentQueue } = state;
+
+        return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInMs() } };
       }
 
       const { [collectionKey]: lists } = state;
+      const currentCollectionState = lists[id];
+      const newCollection = { ...currentCollectionState, ...collection, updatedAt: getCurrentTimeInMs() };
 
       return {
         ...state,
-        [collectionKey]: { ...lists, [id]: collection },
+        [collectionKey]: { ...lists, [id]: newCollection },
         lastUsedCollection: id,
       };
     },
