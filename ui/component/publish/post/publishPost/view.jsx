@@ -47,6 +47,7 @@ function PublishPost(props: Props) {
               value={title}
               onChange={handleTitleChange}
               className="fieldset-group"
+              autoFocus
             />
             <PublishName uri={uri} />
             <PostEditor
