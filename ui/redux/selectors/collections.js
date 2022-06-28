@@ -354,7 +354,7 @@ export const selectNameForCollectionId = createSelector(
   (collection) => (collection && collection.name) || ''
 );
 
-export const selectUpdatedAtForCollectionId = createCachedSelector(
+export const selectUpdatedAtForCollectionId = createSelector(
   selectCollectionForId,
   selectUserCreationDate,
   (collection, userCreatedAt) => {
@@ -370,7 +370,25 @@ export const selectUpdatedAtForCollectionId = createCachedSelector(
 
     return collectionUpdatedAt || '';
   }
-)((state, id) => String(id));
+);
+
+export const selectCreatedAtForCollectionId = createSelector(
+  selectCollectionForId,
+  selectUserCreationDate,
+  (collection, userCreatedAt) => {
+    const collectionCreatedAt = (collection.createdAt || collection.updatedAt) * 1000;
+
+    const userCreationDate = moment(userCreatedAt).format('MMMM DD YYYY');
+    const collectionCreationDate = moment(collectionCreatedAt).format('MMMM DD YYYY');
+
+    // Collection created time can't be older than account creation date
+    if (moment(collectionCreationDate).diff(moment(userCreationDate)) < 0) {
+      return userCreatedAt;
+    }
+
+    return collectionCreatedAt || '';
+  }
+);
 
 export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) => {
   if (collection) {

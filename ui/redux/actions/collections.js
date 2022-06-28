@@ -401,7 +401,6 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         items: newItems,
         id: collectionId,
         name: params.name || collection.name,
-        updatedAt: getCurrentTimeInMs(),
         type: collectionType,
       },
     },
