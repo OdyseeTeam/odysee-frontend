@@ -119,7 +119,9 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             <hr className="menu__separator" />
             <HeaderMenuLink useMui page={PAGES.REWARDS} icon={ICONS.REWARDS} name={__('Rewards')} />
             <HeaderMenuLink useMui page={PAGES.INVITE} icon={ICONS.INVITE} name={__('Invites')} />
-            <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
+            {!window.odysee.build.googlePlay && (
+              <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
+            )}
 
             <hr className="menu__separator" />
             <HeaderMenuLink useMui page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />

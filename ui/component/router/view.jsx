@@ -395,7 +395,9 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.NOTIFICATIONS}`} component={NotificationsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.AUTH_WALLET_PASSWORD}`} component={SignInWalletPasswordPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_OWN_COMMENTS}`} component={OwnComments} />
-        <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} component={OdyseeMembershipPage} />
+        {!window.odysee.build.googlePlay && (
+          <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} component={OdyseeMembershipPage} />
+        )}
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
