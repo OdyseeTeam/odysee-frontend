@@ -77,6 +77,7 @@ type Props = {
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doClearContentHistoryUri: (uri: string) => void,
+  currentPlaylistItemIndex: ?number,
 };
 
 /*
@@ -124,7 +125,31 @@ function VideoViewer(props: Props) {
     defaultQuality,
     doToast,
     doSetContentHistoryItem,
+    currentPlaylistItemIndex,
   } = props;
+
+  // in case the current playing item is deleted, use the previous state
+  // for "play next"
+  const prevNextItem = React.useRef(nextRecommendedUri);
+  const nextPlaylistItem = React.useMemo(() => {
+    if (currentPlaylistItemIndex !== null) {
+      prevNextItem.current = nextRecommendedUri;
+      return nextRecommendedUri;
+    } else {
+      return prevNextItem.current;
+    }
+  }, [currentPlaylistItemIndex, nextRecommendedUri]);
+
+  // and "play previous" behaviours
+  const prevPreviousItem = React.useRef(previousListUri);
+  const previousPlaylistItem = React.useMemo(() => {
+    if (currentPlaylistItemIndex !== null) {
+      prevPreviousItem.current = previousListUri;
+      return previousListUri;
+    } else {
+      return prevPreviousItem.current;
+    }
+  }, [currentPlaylistItemIndex, previousListUri]);
 
   const permanentUrl = claim && claim.permanent_url;
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
@@ -232,18 +257,18 @@ function VideoViewer(props: Props) {
     if (!doNavigate) return;
 
     // playNextUrl is set (either true or false) when the Next/Previous buttons are clicked
-    const shouldPlayNextUrl = playNextUrl && nextRecommendedUri && permanentUrl !== nextRecommendedUri;
-    const shouldPlayPreviousUrl = !playNextUrl && previousListUri && permanentUrl !== previousListUri;
+    const shouldPlayNextUrl = playNextUrl && nextPlaylistItem && permanentUrl !== nextPlaylistItem;
+    const shouldPlayPreviousUrl = !playNextUrl && previousPlaylistItem && permanentUrl !== previousPlaylistItem;
 
     // play next video if someone hits Next button
     if (shouldPlayNextUrl) {
-      doPlay(nextRecommendedUri);
+      doPlay(nextPlaylistItem);
       // rewind if video is over 5 seconds and they hit the back button
     } else if (videoNode && videoNode.currentTime > 5) {
       videoNode.currentTime = 0;
       // move to previous video when they hit back button if behind 5 seconds
     } else if (shouldPlayPreviousUrl) {
-      doPlay(previousListUri);
+      doPlay(previousPlaylistItem);
     } else {
       setReplay(true);
     }
@@ -256,10 +281,10 @@ function VideoViewer(props: Props) {
     doNavigate,
     doPlay,
     ended,
-    nextRecommendedUri,
+    nextPlaylistItem,
     permanentUrl,
     playNextUrl,
-    previousListUri,
+    previousPlaylistItem,
     videoNode,
   ]);
 
