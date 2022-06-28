@@ -783,9 +783,21 @@
   .card__body {
     background-color: rgba(var(--color-header-background-base), 0.9);
     max-height: 100%;
-    overflow-y: scroll;
+    overflow-y: hidden;
+    display: flex;
     border-bottom-left-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
+
+    .claim-list {
+      max-height: 100%;
+      width: 100%;
+      overflow-y: hidden;
+
+      .ul--no-style {
+        max-height: 100%;
+        overflow-y: scroll !important;
+      }
+    }
   }
 
   .claim-preview__wrapper {

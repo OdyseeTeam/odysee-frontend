@@ -135,6 +135,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     ...cardProps
   } = props;
 
+  const [bodyRef, setBodyRef] = React.useState();
+
   function handleOnDragEnd(result) {
     const { source, destination } = result;
 
@@ -145,6 +147,22 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
     doCollectionEdit(id || '', { order: { from, to } });
   }
+
+  const activeListItemRef = React.useCallback(
+    (node) => {
+      if (node && bodyRef) {
+        // without this, the list would scroll to the top of the item
+        // so make it so it's approximately centered instead
+        const listCenter = bodyRef.offsetHeight / 2;
+
+        bodyRef.scrollTo({
+          top: node.offsetTop - bodyRef.offsetTop - listCenter,
+          behavior: 'smooth',
+        });
+      }
+    },
+    [bodyRef]
+  );
 
   return (
     <Card
@@ -226,6 +244,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                     playItemsOnClick={playingCurrentPlaylist}
                     disableClickNavigation={disableClickNavigation}
                     doDisablePlayerDrag={doDisablePlayerDrag}
+                    activeListItemRef={bodyRef && activeListItemRef}
+                    listRef={(node) => setBodyRef(node)}
                   />
                 )}
               </Lazy.Droppable>
