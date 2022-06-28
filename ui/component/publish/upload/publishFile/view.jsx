@@ -328,8 +328,6 @@ function PublishFile(props: Props) {
     }
   }
 
-  console.log('mode: ', mode);
-
   function handleFileChange(file: WebFile, clearName = true) {
     window.URL = window.URL || window.webkitURL;
     setOversized(false);
