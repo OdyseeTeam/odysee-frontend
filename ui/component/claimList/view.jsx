@@ -66,6 +66,8 @@ type Props = {
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
   disableClickNavigation?: boolean,
+  activeListItemRef?: any,
+  listRef?: any,
   onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
 };
@@ -113,6 +115,8 @@ export default function ClaimList(props: Props) {
     showIndexes,
     playItemsOnClick,
     disableClickNavigation,
+    activeListItemRef,
+    listRef: listRefParam,
     onHidden,
     doDisablePlayerDrag,
   } = props;
@@ -223,6 +227,7 @@ export default function ClaimList(props: Props) {
       playItemsOnClick={playItemsOnClick}
       disableClickNavigation={disableClickNavigation}
       doDisablePlayerDrag={doDisablePlayerDrag}
+      activeListItemRef={activeListItemRef}
     />
   );
 
@@ -241,6 +246,26 @@ export default function ClaimList(props: Props) {
 
     return null;
   };
+
+  const listRefCb = React.useCallback(
+    (node) => {
+      if (node) {
+        if (droppableProvided) droppableProvided.innerRef(node);
+        if (listRefParam) listRefParam(node);
+      }
+    },
+    [droppableProvided, listRefParam]
+  );
+
+  const listItemCb = React.useCallback(
+    ({ node, isActive, draggableProvidedRef }) => {
+      if (node) {
+        if (draggableProvidedRef) draggableProvidedRef(node);
+        if (isActive && activeListItemRef) activeListItemRef(node);
+      }
+    },
+    [activeListItemRef]
+  );
 
   return tileLayout && !header ? (
     <>
@@ -326,7 +351,7 @@ export default function ClaimList(props: Props) {
             'swipe-list': swipeLayout,
           })}
           {...(droppableProvided && droppableProvided.droppableProps)}
-          ref={droppableProvided ? droppableProvided.innerRef : listRef}
+          ref={listRefCb}
         >
           {droppableProvided ? (
             <>
@@ -371,9 +396,16 @@ export default function ClaimList(props: Props) {
                         left: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.left,
                         right: isDraggingFromFloatingPlayer ? undefined : draggableProvided.draggableProps.style.right,
                       };
+                      const isActive = activeUri && uri === activeUri;
 
                       return (
-                        <li ref={draggableProvided.innerRef} {...draggableProvided.draggableProps} style={style}>
+                        <li
+                          ref={(node) =>
+                            listItemCb({ node, isActive, draggableProvidedRef: draggableProvided.innerRef })
+                          }
+                          {...draggableProvided.draggableProps}
+                          style={style}
+                        >
                           {/* https://github.com/atlassian/react-beautiful-dnd/issues/1756 */}
                           <div style={{ display: 'none' }} {...draggableProvided.dragHandleProps} />
                           {getClaimPreview(uri, index, draggableProvided)}
