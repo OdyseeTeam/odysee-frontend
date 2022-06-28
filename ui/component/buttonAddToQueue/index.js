@@ -14,8 +14,10 @@ const select = (state, props) => {
   const playingUri = selectPlayingUri(state);
   const { collectionId } = playingUri.collection || {};
   const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
+  const { canonical_url: canonicalUri } = selectClaimForUri(state, uri) || {};
 
   return {
+    canonicalUri,
     playingUri,
     playingUrl,
     hasClaimInQueue: selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri),

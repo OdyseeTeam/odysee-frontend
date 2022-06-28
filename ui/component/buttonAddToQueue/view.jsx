@@ -11,6 +11,7 @@ type Props = {
   focusable: boolean,
   menuItem?: boolean,
   // -- redux --
+  canonicalUri: ?string,
   hasClaimInQueue: boolean,
   hasPlayingUriInQueue: boolean,
   playingUri: PlayingUri,
@@ -27,6 +28,7 @@ function ButtonAddToQueue(props: Props) {
     uri,
     focusable = true,
     menuItem,
+    canonicalUri,
     hasClaimInQueue,
     hasPlayingUriInQueue,
     playingUri,
@@ -61,7 +63,7 @@ function ButtonAddToQueue(props: Props) {
         if (!hasPlayingUriInQueue) doSetPlayingUri({ ...playingUri, ...paramsToAdd });
       } else {
         // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
-        doUriInitiatePlay({ uri, ...paramsToAdd }, true, true);
+        doUriInitiatePlay({ uri: canonicalUri, ...paramsToAdd }, true, true);
       }
     }
   }
