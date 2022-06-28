@@ -469,7 +469,7 @@ function PublishLivestream(props: Props) {
     if (!title) updatePublishForm({ title: newTitle });
   }
 
-  const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
+  // const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
   const isPublishPost = mode === PUBLISH_MODES.POST;
 
   return (
@@ -477,31 +477,14 @@ function PublishLivestream(props: Props) {
       className={classnames({
         'card--disabled': disabled || balance === 0,
       })}
-      // subtitle={subtitle || (isStillEditing && __('You are currently editing your upload.'))}
       actions={
         <>
-          {/* <h2 className="card__title">{__('File')}</h2> */}
           <div className="card--file">
             <React.Fragment>
               {/* Decide whether to show file upload or replay selector */}
               {/* @if TARGET='web' */}
               <>
-                {fileSource === SOURCE_UPLOAD && showFileUpload && (
-                  <>
-                    <FileSelector
-                      disabled={disabled}
-                      currentPath={currentFile}
-                      onFileChosen={handleFileChange}
-                      // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-                      accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*' : undefined}
-                      placeholder={
-                        SIMPLE_SITE ? __('Select video or audio file to upload') : __('Select a file to upload')
-                      }
-                    />
-                    {getUploadMessage()}
-                  </>
-                )}
-                {fileSource === SOURCE_SELECT && showFileUpload && hasLivestreamData && !isCheckingLivestreams && (
+                {fileSource === SOURCE_SELECT && hasLivestreamData && !isCheckingLivestreams && (
                   <>
                     <fieldset-section>
                       <label>{__('Select Replay')}</label>
@@ -580,12 +563,12 @@ function PublishLivestream(props: Props) {
                     </fieldset-group>
                   </>
                 )}
-                {fileSource === SOURCE_SELECT && showFileUpload && !hasLivestreamData && !isCheckingLivestreams && (
+                {fileSource === SOURCE_SELECT && !hasLivestreamData && !isCheckingLivestreams && (
                   <div className="main--empty empty">
                     <Empty text={__('No replays found.')} />
                   </div>
                 )}
-                {fileSource === SOURCE_SELECT && showFileUpload && isCheckingLivestreams && (
+                {fileSource === SOURCE_SELECT && isCheckingLivestreams && (
                   <div className="main--empty empty">
                     <Spinner small />
                   </div>
@@ -600,6 +583,7 @@ function PublishLivestream(props: Props) {
                 value={title}
                 onChange={handleTitleChange}
                 className="fieldset-group"
+                autoFocus
               />
               <PublishName uri={uri} />
 

@@ -83,12 +83,12 @@ function PublishFile(props: Props) {
     setPrevFileText,
     header,
     livestreamData,
-    isLivestreamClaim,
+    // isLivestreamClaim,
     // subtitle,
-    checkLivestreams,
+    // checkLivestreams,
     channelId,
     channelName,
-    isCheckingLivestreams,
+    // isCheckingLivestreams,
     setWaitForFile,
     setOverMaxBitrate,
     fileSource,
@@ -335,6 +335,8 @@ function PublishFile(props: Props) {
     setOversized(false);
     setOverMaxBitrate(false);
 
+    titleInput.current.input.current.focus();
+
     // select file, start to select a new one, then cancel
     if (!file) {
       if (isStillEditing || !clearName) {
@@ -429,16 +431,15 @@ function PublishFile(props: Props) {
 
   const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
   const isPublishPost = mode === PUBLISH_MODES.POST;
+  const titleInput = React.createRef();
 
   return (
     <Card
       className={classnames({
         'card--disabled': disabled || balance === 0,
       })}
-      // subtitle={subtitle || (isStillEditing && __('You are currently editing your upload.'))}
       actions={
         <>
-          {/* <h2 className="card__title">{__('File')}</h2> */}
           <div className="card--file">
             <React.Fragment>
               <>
@@ -446,12 +447,11 @@ function PublishFile(props: Props) {
                   disabled={disabled}
                   currentPath={currentFile}
                   onFileChosen={handleFileChange}
-                  // https://stackoverflow.com/questions/19107685/safari-input-type-file-accept-video-ignores-mp4-files
-                  // accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*' : undefined}
                   accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*,audio/*,image/*' : undefined}
                   placeholder={
                     SIMPLE_SITE ? __('Select video, audio or image file to upload') : __('Select a file to upload')
                   }
+                  autoFocus
                 />
                 {getUploadMessage()}
 
@@ -470,6 +470,7 @@ function PublishFile(props: Props) {
                 value={title}
                 onChange={handleTitleChange}
                 className="fieldset-group"
+                ref={titleInput}
               />
               <PublishName uri={uri} />
 
