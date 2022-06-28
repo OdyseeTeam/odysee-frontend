@@ -450,7 +450,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-        vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
+        const newlivestreamVideoUrl = livestreamVideoUrl.replace('cloud.odysee.live', 'dev.odysee.live');
+        vjsPlayer.src({ type: 'application/x-mpegURL', src: newlivestreamVideoUrl });
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
