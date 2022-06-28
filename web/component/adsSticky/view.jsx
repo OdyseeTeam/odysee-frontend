@@ -66,12 +66,15 @@ export default function AdsSticky(props: Props) {
 
   React.useEffect(() => {
     if (shouldLoadSticky) {
+      window.googletag = window.googletag || { cmd: [] };
+
       gScript = document.createElement('script');
-      gScript.src = 'https://adncdnend.azureedge.net/adtags/odysee.adn.js';
+      gScript.src = 'https://adncdnend.azureedge.net/adtags/odyseeKp.js';
       gScript.async = true;
       gScript.addEventListener('load', () => setRefresh(Date.now()));
       // $FlowFixMe
-      document.body.appendChild(gScript);
+      document.getElementsByTagName('head')[0].append(gScript); // Adnim wants it here, but I don't think location matters.
+      // document.body.appendChild(gScript);
     }
   }, [shouldLoadSticky]);
 
