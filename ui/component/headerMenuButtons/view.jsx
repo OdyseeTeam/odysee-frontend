@@ -27,6 +27,11 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
 
   return authenticated ? (
     <div className="header__buttons">
+      <Tooltip title={__('Upload a file')}>
+        <Button className="header__navigationItem--icon" navigate={`/$/${PAGES.UPLOAD}`}>
+          <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
+        </Button>
+      </Tooltip>
       {livestreamEnabled && (
         <Tooltip title={__('Go live')}>
           <Button className="header__navigationItem--icon" {...uploadProps} navigate={`/$/${PAGES.LIVESTREAM}`}>
@@ -34,11 +39,6 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
           </Button>
         </Tooltip>
       )}
-      <Tooltip title={__('Upload a file')}>
-        <Button className="header__navigationItem--icon" navigate={`/$/${PAGES.UPLOAD}`}>
-          <Icon size={18} icon={ICONS.PUBLISH} aria-hidden />
-        </Button>
-      </Tooltip>
       <Tooltip title={__('Post an article')}>
         <Button className="header__navigationItem--icon" navigate={`/$/${PAGES.POST}`}>
           <Icon size={18} icon={ICONS.POST} aria-hidden />
