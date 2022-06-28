@@ -186,11 +186,15 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
         // If the current playing uri is from Queue mode and the next isn't, it will continue playing on queue
         // until the player is closed or the page is refreshed, and queue is cleared
         const permanentUrl = selectPermanentUrlForUri(state, uri);
+        const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanentUrl);
         const itemsToAdd = !willPlayCollection
-          ? [permanentUrl]
+          ? hasClaimInQueue
+            ? undefined
+            : [permanentUrl]
           : selectUrlsForCollectionId(state, collection.collectionId || '').filter(
               (url) => !selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, url)
             );
+
         if (itemsToAdd) {
           dispatch(doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, { uris: [...itemsToAdd], type: 'playlist' }));
         }
