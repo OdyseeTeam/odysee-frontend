@@ -33,6 +33,7 @@ import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_NONE, SOURCE_SELECT } from 'constants/publish_sources';
+import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   tags: Array<Tag>,
@@ -134,6 +135,8 @@ function LivestreamForm(props: Props) {
     hasClaimedInitialRewards,
     setClearStatus,
   } = props;
+
+  const isMobile = useIsMobile();
 
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
@@ -462,7 +465,7 @@ function LivestreamForm(props: Props) {
             className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
           />
         </div>
-        <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />
+        {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
         <Button
           button="secondary"
           label={__('Check for Replays')}

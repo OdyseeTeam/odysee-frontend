@@ -803,7 +803,7 @@ $actions-z-index: 2;
   @extend .channel__selector--publish;
   float: right;
   margin-left: var(--spacing-xxs);
-  margin-top: 0;
+  margin-top: 0 !important;
 
   .channel__list-item {
     border-radius: var(--border-radius);

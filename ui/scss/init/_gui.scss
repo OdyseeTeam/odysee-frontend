@@ -970,10 +970,10 @@ img {
       }
     }
 
-    @media (max-width: $breakpoint-small) {
+    @media (max-width: $breakpoint-medium) {
       .card__main-actions {
         margin-top: 0;
-        .button--primary {
+        .button--secondary {
           padding: 0 var(--spacing-xs);
           top: 0;
           .button__label {
