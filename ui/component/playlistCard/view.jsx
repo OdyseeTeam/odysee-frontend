@@ -233,13 +233,13 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       <Global
         styles={{
           '.claim-list__scroll-to-recent': {
-            opacity: !scrolledPastActive ? '0' : '0.9',
+            opacity: !scrolledPastActive ? '0' : '0.9 !important',
             // visibility also needed because it prevents clicking on the button
             // opacity makes it invisible but still clickable
-            visibility: !scrolledPastActive ? 'hidden' : 'visible',
+            visibility: !scrolledPastActive ? 'hidden' : 'visible !important',
 
             '&:hover': {
-              opacity: !scrolledPastActive ? '0' : '1',
+              opacity: !scrolledPastActive ? '0' : '1 !important',
             },
           },
 
