@@ -1630,3 +1630,22 @@ $claim-preview-progress-bar-height: 5px;
     }
   }
 }
+
+.claim-list__scroll-to-recent {
+  margin-bottom: var(--spacing-xxs);
+  position: absolute;
+  right: 50%;
+  transform: translateX(50%);
+  z-index: 1600;
+
+  font-size: var(--font-xsmall);
+  padding: var(--spacing-xxs) var(--spacing-s);
+  bottom: var(--spacing-xxs);
+
+  background-color: var(--color-header-button) !important;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border: 1px solid var(--color-text);
+
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}

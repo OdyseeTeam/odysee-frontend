@@ -518,6 +518,7 @@ export default function FileRenderFloating(props: Props) {
                       customTitle={__('Now playing: --[Which Playlist is currently playing]--') + ' '}
                       disableClickNavigation
                       doDisablePlayerDrag={setForceDisable}
+                      isFloating
                     />
                   )}
                 </div>
