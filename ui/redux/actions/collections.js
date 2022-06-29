@@ -13,7 +13,7 @@ import {
   selectHasItemsInQueue,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
-import { getCurrentTimeInMs } from 'util/time';
+import { getCurrentTimeInSec } from 'util/time';
 import { isPermanentUrl } from 'util/claim';
 
 const FETCH_BATCH_SIZE = 50;
@@ -26,7 +26,7 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
 
   if (cb) cb(id);
 
-  const currentTimeInMs = getCurrentTimeInMs();
+  const currentTimeInMs = getCurrentTimeInSec();
 
   return dispatch({
     type: ACTIONS.COLLECTION_NEW,

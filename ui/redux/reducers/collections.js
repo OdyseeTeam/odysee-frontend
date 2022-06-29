@@ -1,6 +1,6 @@
 // @flow
 import { handleActions } from 'util/redux-utils';
-import { getCurrentTimeInMs } from 'util/time';
+import { getCurrentTimeInSec } from 'util/time';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
 
@@ -10,16 +10,16 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
-      createdAt: getCurrentTimeInMs(),
-      updatedAt: getCurrentTimeInMs(),
+      createdAt: getCurrentTimeInSec(),
+      updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
       items: [],
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
-      createdAt: getCurrentTimeInMs(),
-      updatedAt: getCurrentTimeInMs(),
+      createdAt: getCurrentTimeInSec(),
+      updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
   },
@@ -35,8 +35,8 @@ const defaultState: CollectionState = {
     items: [],
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
-    createdAt: getCurrentTimeInMs(),
-    updatedAt: getCurrentTimeInMs(),
+    createdAt: getCurrentTimeInSec(),
+    updatedAt: getCurrentTimeInSec(),
     type: COLS.COL_TYPE_PLAYLIST,
   },
 };
@@ -45,7 +45,7 @@ const collectionsReducer = handleActions(
   {
     [ACTIONS.COLLECTION_NEW]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<string>}
-      const currentTime = getCurrentTimeInMs();
+      const currentTime = getCurrentTimeInSec();
 
       // entry
       const newListTemplate: Collection = {
@@ -139,12 +139,12 @@ const collectionsReducer = handleActions(
       if (id === COLS.QUEUE_ID) {
         const { [collectionKey]: currentQueue } = state;
 
-        return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInMs() } };
+        return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInSec() } };
       }
 
       const { [collectionKey]: lists } = state;
       const currentCollectionState = lists[id];
-      const newCollection = { ...currentCollectionState, ...collection, updatedAt: getCurrentTimeInMs() };
+      const newCollection = { ...currentCollectionState, ...collection, updatedAt: getCurrentTimeInSec() };
 
       return {
         ...state,

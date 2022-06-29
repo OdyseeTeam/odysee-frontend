@@ -72,4 +72,4 @@ export function getTimeAgoStr(
   return __(str, { duration });
 }
 
-export const getCurrentTimeInMs = () => Math.floor(Date.now() / 1000);
+export const getCurrentTimeInSec = () => Math.floor(Date.now() / 1000);
