@@ -462,8 +462,9 @@ function LivestreamForm(props: Props) {
             className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
           />
         </div>
+        <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />
         <Button
-          button="primary"
+          button="secondary"
           label={__('Check for Replays')}
           disabled={isCheckingLivestreams}
           icon={ICONS.REFRESH}

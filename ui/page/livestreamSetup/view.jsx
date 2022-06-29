@@ -1,13 +1,11 @@
 // @flow
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-// import * as PUBLISH_MODES from 'constants/publish_types';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 import Page from 'component/page';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
-// import ChannelSelector from 'component/channelSelector';
 import Yrbl from 'component/yrbl';
 import Lbry from 'lbry';
 import { toHex } from 'util/hex';
@@ -21,7 +19,6 @@ import classnames from 'classnames';
 import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
-// import ChannelSelector from 'component/channelSelector';
 
 type Props = {
   hasChannels: boolean,
@@ -73,11 +70,6 @@ export default function LivestreamSetupPage(props: Props) {
   }
 
   const streamKey = createStreamKey();
-
-  // const [fileSource, setFileSource] = useState();
-  // const changeFileSource = (state) => setFileSource(state);
-  // const [livestreamData, setLivestreamData] = React.useState([]);
-
   const pendingLength = pendingClaims.length;
   const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
   const helpText = (
@@ -220,7 +212,6 @@ export default function LivestreamSetupPage(props: Props) {
           }}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
         />
-        {/* <ChannelSelector isTabHeader /> */}
       </>
     );
   };
