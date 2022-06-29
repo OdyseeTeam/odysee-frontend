@@ -1,4 +1,8 @@
 // @flow
+
+// $FlowFixMe
+import { Global } from '@emotion/react';
+
 import React from 'react';
 import classnames from 'classnames';
 import ClaimList from 'component/claimList';
@@ -16,6 +20,9 @@ import ShuffleButton from './internal/shuffleButton';
 import LoopButton from './internal/loopButton';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
+import { getMaxLandscapeHeight } from 'util/window';
+import { useIsMobile } from 'effects/use-screensize';
 
 // prettier-ignore
 const Lazy = {
@@ -42,6 +49,7 @@ type Props = {
   useDrawer?: boolean,
   collectionEmpty: boolean,
   hasCollectionById: boolean,
+  isFloating?: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
   enableCardBody?: () => void,
@@ -132,10 +140,16 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doDisablePlayerDrag,
     collectionEmpty,
     playingCurrentPlaylist,
+    isFloating,
     ...cardProps
   } = props;
 
+  const isMobile = useIsMobile();
+
+  const activeItemRef = React.useRef();
+
   const [bodyRef, setBodyRef] = React.useState();
+  const [scrolledPastActive, setScrolledPast] = React.useState();
 
   function handleOnDragEnd(result) {
     const { source, destination } = result;
@@ -151,108 +165,188 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const activeListItemRef = React.useCallback(
     (node) => {
       if (node && bodyRef) {
+        activeItemRef.current = node;
         // without this, the list would scroll to the top of the item
         // so make it so it's approximately centered instead
         const listCenter = bodyRef.offsetHeight / 2;
 
-        bodyRef.scrollTo({
-          top: node.offsetTop - bodyRef.offsetTop - listCenter,
-          behavior: 'smooth',
-        });
+        let topToScroll = node.offsetTop - bodyRef.offsetTop - listCenter;
+        if (playingItemIndex === 1) {
+          topToScroll = 0;
+        } else if (playingItemIndex === collectionLength) {
+          topToScroll = bodyRef.scrollHeight;
+        }
+
+        bodyRef.scrollTo({ top: topToScroll, behavior: 'smooth' });
+
+        setScrolledPast(false);
       }
     },
-    [bodyRef]
+    [bodyRef, collectionLength, playingItemIndex]
   );
 
-  return (
-    <Card
-      {...cardProps}
-      smallTitle
-      slimHeader={!enableCardBody}
-      gridHeader={Boolean(enableCardBody)}
-      singlePane
-      headerActions={
-        !bodyOpen || bodyOnly ? undefined : (
-          <span className="playlist-card-actions">
-            <LoopButton id={id} />
-            <ShuffleButton url={playingItemUrl} id={id} />
-          </span>
-        )
-      }
-      title={
-        bodyOnly ? undefined : (
-          <NavLink to={`/$/${PAGES.PLAYLIST}/${id || ''}`} className="a--styled">
-            {customTitle || (
-              <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
-            )}
-            {collectionName}
-          </NavLink>
-        )
-      }
-      titleActions={
-        bodyOnly || titleOnly || (collectionEmpty && !enableCardBody) ? undefined : (
-          <>
-            {isMyCollection && bodyOpen && !collectionEmpty && (
-              <Button
-                title={__('Edit')}
-                className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                icon={ICONS.EDIT}
-                onClick={() => setShowEdit(!showEdit)}
-              />
-            )}
-            {enableCardBody && (
-              <Button
-                className={classnames('button-toggle')}
-                icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
-                onClick={enableCardBody}
-              />
-            )}
-          </>
-        )
-      }
-      subtitle={
-        bodyOnly ? undefined : (
-          <>
-            {isPrivateCollection ? (
-              <I18nMessage tokens={{ lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} /> }}>
-                Private %lock_icon%
-              </I18nMessage>
-            ) : (
-              <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
-            )}
+  React.useEffect(() => {
+    if (bodyRef) {
+      const handleScroll = () => {
+        const currentActiveItem = activeItemRef.current;
 
-            {` - ${playingItemIndex}/${collectionLength}`}
-          </>
-        )
-      }
-      body={
-        !bodyOpen || titleOnly ? undefined : (
-          <React.Suspense fallback={null}>
-            <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-              <Lazy.Droppable droppableId="list__ordering">
-                {(DroppableProvided) => (
-                  <ClaimList
-                    type="small"
-                    activeUri={playingItemUrl}
-                    uris={collectionUrls}
-                    collectionId={id}
-                    empty={__('Playlist is Empty')}
-                    showEdit={showEdit}
-                    droppableProvided={DroppableProvided}
-                    smallThumbnail
-                    showIndexes
-                    playItemsOnClick={playingCurrentPlaylist}
-                    disableClickNavigation={disableClickNavigation}
-                    doDisablePlayerDrag={doDisablePlayerDrag}
-                    activeListItemRef={bodyRef && activeListItemRef}
-                    listRef={(node) => setBodyRef(node)}
-                  />
-                )}
-              </Lazy.Droppable>
-            </Lazy.DragDropContext>
-          </React.Suspense>
-        )
-      }
-    />
+        if (currentActiveItem) {
+          const { top, height } = currentActiveItem.getBoundingClientRect();
+          const itemTop = currentActiveItem.offsetTop - bodyRef.offsetTop;
+          const itemBottom = itemTop + height;
+
+          let [playerTop, playerInfoTop] = [0, 0];
+          if (isFloating || isMobile) {
+            if (isFloating) {
+              const playerInfo = document.querySelector('.content__info');
+              if (playerInfo) playerInfoTop = playerInfo.offsetTop;
+
+              const playerElem = document.querySelector('.content__viewer');
+              const playerTransform = playerElem && playerElem.style.transform;
+              if (playerTransform) {
+                playerTop = Number(
+                  playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
+                );
+              }
+            }
+
+            if (isMobile) {
+              const contentHeight = HEADER_HEIGHT_MOBILE + getMaxLandscapeHeight();
+              playerTop += contentHeight;
+            }
+          }
+
+          const scrolled =
+            top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight ||
+            itemBottom < bodyRef.scrollTop;
+          setScrolledPast(scrolled);
+        }
+      };
+
+      bodyRef.addEventListener('scroll', handleScroll);
+      return () => bodyRef.removeEventListener('scroll', handleScroll);
+    }
+  }, [bodyRef, isFloating, isMobile]);
+
+  return (
+    <>
+      <Global
+        styles={{
+          '.claim-list__scroll-to-recent': {
+            opacity: !scrolledPastActive ? '0' : '0.9',
+            // visibility also needed because it prevents clicking on the button
+            // opacity makes it invisible but still clickable
+            visibility: !scrolledPastActive ? 'hidden' : 'visible',
+
+            '&:hover': {
+              opacity: !scrolledPastActive ? '0' : '1',
+            },
+          },
+
+          '.playlist-card': {
+            '.claim-list': {
+              'li:last-child': {
+                marginBottom:
+                  scrolledPastActive && playingItemIndex !== collectionLength ? '3rem !important' : undefined,
+              },
+            },
+          },
+        }}
+      />
+
+      <Card
+        {...cardProps}
+        smallTitle
+        slimHeader={!enableCardBody}
+        gridHeader={Boolean(enableCardBody)}
+        singlePane
+        headerActions={
+          !bodyOpen || bodyOnly ? undefined : (
+            <span className="playlist-card-actions">
+              <LoopButton id={id} />
+              <ShuffleButton url={playingItemUrl} id={id} />
+            </span>
+          )
+        }
+        title={
+          bodyOnly ? undefined : (
+            <NavLink to={`/$/${PAGES.PLAYLIST}/${id || ''}`} className="a--styled">
+              {customTitle || (
+                <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
+              )}
+              {collectionName}
+            </NavLink>
+          )
+        }
+        titleActions={
+          bodyOnly || titleOnly || (collectionEmpty && !enableCardBody) ? undefined : (
+            <>
+              {isMyCollection && bodyOpen && !collectionEmpty && (
+                <Button
+                  title={__('Edit')}
+                  className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+                  icon={ICONS.EDIT}
+                  onClick={() => setShowEdit(!showEdit)}
+                />
+              )}
+              {enableCardBody && (
+                <Button
+                  className={classnames('button-toggle')}
+                  icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
+                  onClick={enableCardBody}
+                />
+              )}
+            </>
+          )
+        }
+        subtitle={
+          bodyOnly ? undefined : (
+            <>
+              {isPrivateCollection ? (
+                <I18nMessage
+                  tokens={{ lock_icon: <Icon icon={ICONS.LOCK} style={{ transform: 'translateY(3px)' }} /> }}
+                >
+                  Private %lock_icon%
+                </I18nMessage>
+              ) : (
+                <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+              )}
+
+              {` - ${playingItemIndex}/${collectionLength}`}
+            </>
+          )
+        }
+        body={
+          !bodyOpen || titleOnly ? undefined : (
+            <React.Suspense fallback={null}>
+              <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+                <Lazy.Droppable droppableId="list__ordering">
+                  {(DroppableProvided) => (
+                    <ClaimList
+                      type="small"
+                      activeUri={playingItemUrl}
+                      uris={collectionUrls}
+                      collectionId={id}
+                      empty={__('Playlist is Empty')}
+                      showEdit={showEdit}
+                      droppableProvided={DroppableProvided}
+                      smallThumbnail
+                      showIndexes
+                      playItemsOnClick={playingCurrentPlaylist}
+                      disableClickNavigation={disableClickNavigation}
+                      doDisablePlayerDrag={doDisablePlayerDrag}
+                      setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
+                      setListRef={(node) => setBodyRef(node)}
+                      scrolledPastActive={scrolledPastActive}
+                      restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
+                    />
+                  )}
+                </Lazy.Droppable>
+              </Lazy.DragDropContext>
+            </React.Suspense>
+          )
+        }
+      />
+    </>
   );
 };

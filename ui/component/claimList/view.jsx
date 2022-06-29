@@ -10,6 +10,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import debounce from 'util/debounce';
 import ClaimPreviewTile from 'component/claimPreviewTile';
+import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
 
 const Draggable = React.lazy(() =>
@@ -66,10 +67,11 @@ type Props = {
   showIndexes?: boolean,
   playItemsOnClick?: boolean,
   disableClickNavigation?: boolean,
-  activeListItemRef?: any,
-  listRef?: any,
+  setActiveListItemRef?: any,
+  setListRef?: any,
   onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  restoreScrollPos?: () => void,
 };
 
 export default function ClaimList(props: Props) {
@@ -115,10 +117,11 @@ export default function ClaimList(props: Props) {
     showIndexes,
     playItemsOnClick,
     disableClickNavigation,
-    activeListItemRef,
-    listRef: listRefParam,
+    setActiveListItemRef,
+    setListRef,
     onHidden,
     doDisablePlayerDrag,
+    restoreScrollPos,
   } = props;
 
   const isMobile = useIsMobile();
@@ -126,6 +129,7 @@ export default function ClaimList(props: Props) {
   const [currentSort, setCurrentSort] = usePersistedState(persistedStorageKey, SORT_NEW);
   const uriBuffer = React.useRef([]);
 
+  const currentActiveItem = React.useRef();
   // Resolve the index for injectedItem, if provided; else injectedIndex will be 'undefined'.
   const listRef = React.useRef();
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
@@ -227,7 +231,6 @@ export default function ClaimList(props: Props) {
       playItemsOnClick={playItemsOnClick}
       disableClickNavigation={disableClickNavigation}
       doDisablePlayerDrag={doDisablePlayerDrag}
-      activeListItemRef={activeListItemRef}
     />
   );
 
@@ -251,20 +254,27 @@ export default function ClaimList(props: Props) {
     (node) => {
       if (node) {
         if (droppableProvided) droppableProvided.innerRef(node);
-        if (listRefParam) listRefParam(node);
+        if (setListRef) setListRef(node);
       }
     },
-    [droppableProvided, listRefParam]
+    [droppableProvided, setListRef]
   );
 
   const listItemCb = React.useCallback(
     ({ node, isActive, draggableProvidedRef }) => {
       if (node) {
         if (draggableProvidedRef) draggableProvidedRef(node);
-        if (isActive && activeListItemRef) activeListItemRef(node);
+
+        // currentActiveItem.current !== node prevents re-scrolling during the same render
+        // so it should only auto scroll when the active item switches, the button to scroll is clicked
+        // or the list itself changes (switch between floating player vs file page)
+        if (isActive && setActiveListItemRef && currentActiveItem.current !== node) {
+          setActiveListItemRef(node);
+          currentActiveItem.current = node;
+        }
       }
     },
-    [activeListItemRef]
+    [setActiveListItemRef]
   );
 
   return tileLayout && !header ? (
@@ -426,6 +436,15 @@ export default function ClaimList(props: Props) {
             ))
           )}
         </ul>
+      )}
+
+      {restoreScrollPos && (
+        <Button
+          button="secondary"
+          className="claim-list__scroll-to-recent"
+          label={__('Scroll to Playing')}
+          onClick={restoreScrollPos}
+        />
       )}
 
       {!timedOut && urisLength === 0 && !loading && !noEmpty && (
