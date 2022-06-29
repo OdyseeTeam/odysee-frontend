@@ -72,6 +72,7 @@ type Props = {
   onHidden: (string) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
   restoreScrollPos?: () => void,
+  setHasActive?: (has: boolean) => void,
 };
 
 export default function ClaimList(props: Props) {
@@ -122,6 +123,7 @@ export default function ClaimList(props: Props) {
     onHidden,
     doDisablePlayerDrag,
     restoreScrollPos,
+    setHasActive,
   } = props;
 
   const isMobile = useIsMobile();
@@ -249,6 +251,13 @@ export default function ClaimList(props: Props) {
 
     return null;
   };
+
+  React.useEffect(() => {
+    if (setHasActive) {
+      // used in case the active item is deleted
+      setHasActive(sortedUris.some((uri) => activeUri && uri === activeUri));
+    }
+  }, [activeUri, setHasActive, sortedUris]);
 
   const listRefCb = React.useCallback(
     (node) => {

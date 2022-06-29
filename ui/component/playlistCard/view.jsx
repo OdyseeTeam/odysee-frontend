@@ -149,6 +149,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const activeItemRef = React.useRef();
 
   const [bodyRef, setBodyRef] = React.useState();
+  const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
 
   function handleOnDragEnd(result) {
@@ -233,13 +234,13 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       <Global
         styles={{
           '.claim-list__scroll-to-recent': {
-            opacity: !scrolledPastActive ? '0' : '0.9 !important',
+            opacity: !scrolledPastActive || !hasActive ? '0' : '0.9 !important',
             // visibility also needed because it prevents clicking on the button
             // opacity makes it invisible but still clickable
-            visibility: !scrolledPastActive ? 'hidden' : 'visible !important',
+            visibility: !scrolledPastActive || !hasActive ? 'hidden' : 'visible !important',
 
             '&:hover': {
-              opacity: !scrolledPastActive ? '0' : '1 !important',
+              opacity: !scrolledPastActive || !hasActive ? '0' : '1 !important',
             },
           },
 
@@ -247,7 +248,9 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
             '.claim-list': {
               'li:last-child': {
                 marginBottom:
-                  scrolledPastActive && playingItemIndex !== collectionLength ? '3rem !important' : undefined,
+                  scrolledPastActive && hasActive && playingItemIndex !== collectionLength
+                    ? '3rem !important'
+                    : undefined,
               },
             },
           },
@@ -339,6 +342,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                       setListRef={(node) => setBodyRef(node)}
                       scrolledPastActive={scrolledPastActive}
                       restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
+                      setHasActive={setHasActive}
                     />
                   )}
                 </Lazy.Droppable>
