@@ -290,6 +290,7 @@ function PublishLivestream(props: Props) {
                 autoFocus
               />
               <PublishName uri={uri} />
+              {/* @endif */}
             </React.Fragment>
           </div>
         </>
