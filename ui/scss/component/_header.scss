@@ -44,6 +44,15 @@
         }
       }
     }
+    .header__navigationItem--balance {
+      transition: border-radius 0.4s;
+      @media (max-width: $breakpoint-large) {
+        border-radius: 50%;
+        .button__label {
+          display: none;
+        }
+      }
+    }
   }
 
   .button--link {
