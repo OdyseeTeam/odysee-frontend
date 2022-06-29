@@ -49,7 +49,7 @@ function SelectThumbnail(props: Props) {
   const thumbnailError = publishForm ? props.thumbnailError : props.thumbnailParamError;
 
   const accept = '.png, .jpg, .jpeg, .gif';
-  const manualInput = status === THUMBNAIL_STATUSES.API_DOWN || status === THUMBNAIL_STATUSES.MANUAL;
+  const manualInput = status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const isUrlInput = thumbnail !== ThumbnailMissingImage && thumbnail !== ThumbnailBrokenImage;
 
