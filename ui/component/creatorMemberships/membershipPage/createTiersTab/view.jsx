@@ -62,6 +62,7 @@ function CreateTiersTab(props: Props) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState(membershipTiers);
   const [editTierDescription, setEditTierDescription] = React.useState('');
+  const [pendingTier, setPendingTier] = React.useState(false);
 
   const editMembership = (e, tierIndex, tierDescription) => {
     setEditTierDescription(tierDescription);
@@ -110,14 +111,26 @@ function CreateTiersTab(props: Props) {
     };
 
     setCreatorMemberships([...creatorMemberships, newMembership]);
+
+    // immediately open the editing section
+    setIsEditing(amountOfMembershipsCurrently);
+    setEditTierDescription(newMembership.description);
+    setPendingTier(true);
   };
 
   const handleChange = (event) => {
     setEditTierDescription(event.target.value);
   };
 
-  const cancelEditingMembership = () => {
+  const cancelEditingMembership = (membershipIndex) => {
     setIsEditing(false);
+    // tier was just added, if canceled then 'delete' the tier
+    if (pendingTier) {
+      let membershipsBeforeDeletion = creatorMemberships;
+      const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== membershipIndex);
+      setCreatorMemberships(membershipsAfterDeletion);
+      setPendingTier(false)
+    }
   };
 
   function saveMembership(tierIndex) {
@@ -210,7 +223,7 @@ function CreateTiersTab(props: Props) {
         />
         <div className="section__actions">
           <Button button="primary" label={'Save Tier'} onClick={() => saveMembership(membershipIndex)} />
-          <Button button="link" label={__('Cancel')} onClick={cancelEditingMembership} />
+          <Button button="link" label={__('Cancel')} onClick={() => cancelEditingMembership(membershipIndex)} />
         </div>
       </div>
     );
