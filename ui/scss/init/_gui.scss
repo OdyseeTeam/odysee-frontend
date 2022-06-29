@@ -1328,6 +1328,13 @@ img {
       }
     }
   }
+
+  .yrbl__wrap {
+    .button--primary {
+      border-radius: var(--border-radius) !important;
+      margin-right: var(--spacing-xxs) !important;
+    }
+  }
 }
 
 [data-reach-menu-popover] {
