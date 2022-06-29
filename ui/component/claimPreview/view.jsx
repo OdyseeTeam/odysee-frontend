@@ -55,7 +55,7 @@ type Props = {
   reflectingProgress?: any, // fxme
   resolveUri: (string) => void,
   isResolvingUri: boolean,
-  history: { push: (string | any) => void },
+  history: { push: (string | any) => void, location: { pathname: string, search: string } },
   title: string,
   nsfw: boolean,
   placeholder: string,
@@ -184,6 +184,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   const isMobile = useIsMobile();
 
+  const {
+    location: { pathname, search },
+  } = history;
+
   const isCollection = claim && claim.value_type === 'collection';
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const listId = collectionId || collectionClaimId;
@@ -275,8 +279,8 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   const navLinkProps = {
     to: {
-      pathname: disableClickNavigation ? undefined : navigateUrl,
-      search: disableClickNavigation ? undefined : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
+      pathname: disableClickNavigation ? pathname : navigateUrl,
+      search: disableClickNavigation ? search : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
       state: { hideFloatingPlayer: playItemsOnClick && !disableClickNavigation ? true : undefined },
     },
     onClick: handleNavLinkClick,
