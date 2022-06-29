@@ -15,14 +15,13 @@ import { FormField } from 'component/common/form';
 import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
 import ClaimList from 'component/claimList';
-// import usePersistedState from 'effects/use-persisted-state';
 import { LIVESTREAM_RTMP_URL } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
 import LivestreamForm from 'component/publish/livestream/livestreamForm';
-// import { Icon } from '@mui/material';
 import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
+// import ChannelSelector from 'component/channelSelector';
 
 type Props = {
   hasChannels: boolean,
@@ -194,13 +193,13 @@ export default function LivestreamSetupPage(props: Props) {
   };
 
   const [tab, setTab] = React.useState('Publish');
+  // const collectionChannel = claim && claim.signing_channel ? claim.signing_channel.claim_id : undefined;
 
   const HeaderMenu = () => {
     return (
       <>
         <Button
           key={'Publish'}
-          // icon={modeName}
           iconSize={18}
           label={'Publish'}
           button="alt"
@@ -212,7 +211,6 @@ export default function LivestreamSetupPage(props: Props) {
         />
         <Button
           key={'Setup'}
-          // icon={modeName}
           iconSize={18}
           label={'Local Setup'}
           button="alt"
@@ -222,6 +220,7 @@ export default function LivestreamSetupPage(props: Props) {
           }}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
         />
+        {/* <ChannelSelector isTabHeader /> */}
       </>
     );
   };

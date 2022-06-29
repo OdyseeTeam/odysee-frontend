@@ -27,6 +27,7 @@ type Props = {
   doSetDefaultChannel: (claimId: string) => void,
   isHeaderMenu?: boolean,
   isPublishMenu?: boolean,
+  isTabHeader?: boolean,
   autoSet?: boolean,
   channelToSet?: string,
   disabled?: boolean,
@@ -46,6 +47,7 @@ export default function ChannelSelector(props: Props) {
     doSetDefaultChannel,
     isHeaderMenu,
     isPublishMenu,
+    isTabHeader,
     autoSet,
     channelToSet,
     disabled,
@@ -87,6 +89,7 @@ export default function ChannelSelector(props: Props) {
     <div
       className={classnames('channel__selector', {
         'channel__selector--publish': isPublishMenu,
+        'channel__selector--tabHeader': isTabHeader,
         disabled: disabled,
       })}
     >
@@ -109,6 +112,7 @@ export default function ChannelSelector(props: Props) {
                 claimsByUri={claimsByUri}
                 doFetchUserMemberships={doFetchUserMemberships}
                 isPublishMenu={isPublishMenu}
+                isTabHeader={isTabHeader}
               />
             )}
           </MenuButton>
@@ -117,6 +121,7 @@ export default function ChannelSelector(props: Props) {
         <MenuList
           className={classnames('menu__list channel__list', {
             'channel__list--publish': isPublishMenu,
+            'channel__list--tabHeader': isTabHeader,
           })}
         >
           {channels &&
@@ -128,6 +133,7 @@ export default function ChannelSelector(props: Props) {
                   claimsByUri={claimsByUri}
                   doFetchUserMemberships={doFetchUserMemberships}
                   isPublishMenu={isPublishMenu}
+                  isTabHeader={isTabHeader}
                 />
               </MenuItem>
             ))}
@@ -155,6 +161,7 @@ type ListItemProps = {
   doFetchUserMemberships: (claimIdCsv: string) => void,
   odyseeMembershipByUri: (uri: string) => string,
   isPublishMenu?: boolean,
+  isTabHeader?: boolean,
 };
 
 function ChannelListItem(props: ListItemProps) {

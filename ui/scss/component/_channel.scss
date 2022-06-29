@@ -767,6 +767,15 @@ $actions-z-index: 2;
   }
 }
 
+.channel__selector--tabHeader {
+  @extend .channel__selector--publish;
+  float: right;
+}
+
+.channel__list--tabHeader {
+  @extend .channel__list--publish;
+}
+
 .channel-staked__wrapper {
   display: flex;
   position: absolute;
