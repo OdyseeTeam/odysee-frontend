@@ -172,9 +172,11 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
 
     if (!isFloating && (!source || source === COLLECTIONS_CONSTS.QUEUE_ID)) dispatch(doSetPrimaryUri(uri));
 
+    const state = getState();
+    const isLive = selectIsActiveLivestreamForUri(state, uri);
+    let willPlayCollection;
+
     if (isPlayable) {
-      const state = getState();
-      const isLive = selectIsActiveLivestreamForUri(state, uri);
       const willPlayCollection = Boolean(collection.collectionId);
       const playingUri = selectPlayingUri(state);
       const playingCollection = playingUri.collection;
@@ -211,12 +213,12 @@ export function doUriInitiatePlay(playingOptions: PlayingUri, isPlayable?: boole
           );
         }
       }
+    }
 
-      if (!isLive) {
-        const isAuthenticated = selectUserVerifiedEmail(state);
-        const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
-        dispatch(doPlayUri(uri, false, true, playCb, willPlayCollection));
-      }
+    if (!isLive) {
+      const isAuthenticated = selectUserVerifiedEmail(state);
+      const playCb = isAuthenticated ? (fileInfo) => dispatch(doAnaltyicsPurchaseEvent(fileInfo)) : undefined;
+      dispatch(doPlayUri(uri, false, true, playCb, willPlayCollection));
     }
   };
 }
