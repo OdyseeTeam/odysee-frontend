@@ -195,7 +195,11 @@ function SelectThumbnail(props: Props) {
         </div>
       )}
 
-      {status === THUMBNAIL_STATUSES.IN_PROGRESS && <p>{__('Uploading thumbnail')}...</p>}
+      {status === THUMBNAIL_STATUSES.IN_PROGRESS && (
+        <div className="column card--thumbnail">
+          <p>{__('Uploading thumbnail')}...</p>
+        </div>
+      )}
     </>
   );
 }
