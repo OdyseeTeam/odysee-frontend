@@ -1217,9 +1217,9 @@ img {
 
     fieldset-group {
       fieldset-section {
-        // width: 50%;
+        width: 50%;
         &:last-of-type {
-          // padding-right: var(--spacing-s);
+          padding-right: var(--spacing-s);
         }
       }
     }
