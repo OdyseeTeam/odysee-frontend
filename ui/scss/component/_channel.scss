@@ -688,6 +688,7 @@ $actions-z-index: 2;
   display: inline-block;
   margin-bottom: 0;
   margin-top: -2px;
+  width: unset !important;
   .channel__selector--prefix {
     color: var(--color-text);
     margin-right: var(--spacing-xs);
