@@ -357,15 +357,16 @@ function LivestreamForm(props: Props) {
     }
   }, [editingURI, resolveUri]);
 
-  /*
   useEffect(() => {
-    if (incognito) {
-      updatePublishForm({ channel: undefined });
-    } else if (activeChannelName) {
-      updatePublishForm({ channel: activeChannelName });
-    }
-  }, [activeChannelName, incognito, updatePublishForm, isLivestreamMode]);
-  */
+    updatePublishForm({
+      isMarkdownPost: false,
+      isLivestreamPublish: true,
+    });
+  }, [mode, updatePublishForm]);
+
+  useEffect(() => {
+    updatePublishForm({ channel: activeChannelName });
+  }, [activeChannelName, updatePublishForm, isLivestreamMode]);
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -404,7 +405,7 @@ function LivestreamForm(props: Props) {
     }
   }, [mode, updatePublishForm]);
 
-  // FIle Source Selector State.
+  // File Source Selector State.
   const [fileSource, setFileSource] = useState();
   const changeFileSource = (state) => setFileSource(state);
 
@@ -487,7 +488,7 @@ function LivestreamForm(props: Props) {
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
         isCheckingLivestreams={isCheckingLivestreams}
-        // checkLivestreams={fetchLivestreams}
+        checkLivestreams={fetchLivestreams}
         channelId={claimChannelId}
         channelName={activeChannelName}
       />
