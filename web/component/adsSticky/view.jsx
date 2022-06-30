@@ -2,7 +2,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import useShouldShowAds from 'effects/use-should-show-ads';
-import { platform } from 'util/platform';
 
 // ****************************************************************************
 // AdsSticky
@@ -44,7 +43,7 @@ export default function AdsSticky(props: Props) {
   // Global conditions aside, should the Sticky be shown for this path:
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   // Final answer:
-  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame() && !platform.isMobile();
+  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
