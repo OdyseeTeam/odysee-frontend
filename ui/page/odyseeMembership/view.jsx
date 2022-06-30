@@ -686,15 +686,17 @@ const OdyseeMembershipPage = (props: Props) => {
                   {__('Please save a card as a payment method so you can join Odysee Premium')}
                 </h2>
 
-                <Button
-                  button="primary"
-                  label={__('Add a Card')}
-                  icon={ICONS.SETTINGS}
-                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
-                  // navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}?returnTo=premium`}
-                  className="membership_button"
-                  style={{ maxWidth: '151px' }}
-                />
+                {!window.odysee.build.googlePlay && (
+                  <Button
+                    button="primary"
+                    label={__('Add a Card')}
+                    icon={ICONS.SETTINGS}
+                    onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                    // navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}?returnTo=premium`}
+                    className="membership_button"
+                    style={{ maxWidth: '151px' }}
+                  />
+                )}
               </div>
             )}
 

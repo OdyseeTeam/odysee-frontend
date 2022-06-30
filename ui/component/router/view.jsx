@@ -353,8 +353,12 @@ function AppRouter(props: Props) {
           component={isAuthenticated || !IS_WEB ? ChannelsFollowingPage : DiscoverPage}
         />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_NOTIFICATIONS}`} component={SettingsNotificationsPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} component={SettingsStripeCard} />
-        <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} component={SettingsStripeAccount} />
+        {!window.odysee.build.googlePlay && (
+          <>
+            <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} component={SettingsStripeCard} />
+            <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} component={SettingsStripeAccount} />
+          </>
+        )}
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_UPDATE_PWD}`} component={UpdatePasswordPage} />
         <PrivateRoute
           {...props}
@@ -395,9 +399,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.NOTIFICATIONS}`} component={NotificationsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.AUTH_WALLET_PASSWORD}`} component={SignInWalletPasswordPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_OWN_COMMENTS}`} component={OwnComments} />
-        {!window.odysee.build.googlePlay && (
-          <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} component={OdyseeMembershipPage} />
-        )}
+        <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} component={OdyseeMembershipPage} />
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
