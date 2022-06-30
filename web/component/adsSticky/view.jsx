@@ -31,7 +31,7 @@ export default function AdsSticky(props: Props) {
     isAdBlockerFound,
     userHasPremiumPlus,
     userCountry,
-    homepageData,
+    // homepageData,
     doSetAdBlockerFound,
   } = props;
 
@@ -46,9 +46,10 @@ export default function AdsSticky(props: Props) {
   const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    // $FlowIssue: mixed type
-    const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return pathIsCategory || isChannelClaim || (isContentClaim && !authenticated) || pathname === '/';
+    return true;
+    // // $FlowIssue: mixed type
+    // const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
+    // return pathIsCategory || isChannelClaim || (isContentClaim && !authenticated) || pathname === '/';
   }
 
   React.useEffect(() => {
