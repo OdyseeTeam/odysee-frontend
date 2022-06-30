@@ -503,7 +503,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
         {currentFlowStage === 'cardConfirmed' && (
           <div className="successCard">
             {/* back to membership button */}
-            {shouldShowBackToMembershipButton && !window.odysee.build.googlePlay && (
+            {shouldShowBackToMembershipButton && (
               <Button
                 button="primary"
                 label={__('Back To Odysee Premium')}

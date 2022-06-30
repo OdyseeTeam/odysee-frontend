@@ -527,7 +527,7 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
-              {!odyseeMembership && !window.odysee.build.googlePlay && getLink(PREMIUM)}
+              {!odyseeMembership && getLink(PREMIUM)}
             </ul>
 
             <ul

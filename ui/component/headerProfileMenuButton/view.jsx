@@ -15,7 +15,7 @@ import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
+// import ClickAwayListener from '@mui/material/ClickAwayListener';
 
 type HeaderMenuButtonProps = {
   myChannelClaimIds: ?Array<string>,
@@ -29,7 +29,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   const { myChannelClaimIds, activeChannelClaim, authenticated, email, signOut } = props;
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [clicked, setClicked] = React.useState(false);
+  // const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(!anchorEl ? event.currentTarget : null);
   const handleClose = () => setAnchorEl(null);
@@ -38,19 +38,6 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
   const noActiveChannel = activeChannelUrl === null;
   const pendingChannelFetch = !noActiveChannel && myChannelClaimIds === undefined;
-
-  const handleClickAway = () => {
-    if (!clicked) {
-      if (open) setClicked(true);
-    } else {
-      setAnchorEl(null);
-      setClicked(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (!open) setClicked(false);
-  }, [open]);
 
   const menuProps = {
     id: 'basic-menu',
@@ -119,9 +106,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
             <hr className="menu__separator" />
             <HeaderMenuLink useMui page={PAGES.REWARDS} icon={ICONS.REWARDS} name={__('Rewards')} />
             <HeaderMenuLink useMui page={PAGES.INVITE} icon={ICONS.INVITE} name={__('Invites')} />
-            {!window.odysee.build.googlePlay && (
-              <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
-            )}
+            <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />
 
             <hr className="menu__separator" />
             <HeaderMenuLink useMui page={PAGES.SETTINGS} icon={ICONS.SETTINGS} name={__('Settings')} />
