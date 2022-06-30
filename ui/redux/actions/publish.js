@@ -574,6 +574,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     thumbnail,
     title,
     tags,
+    stream_type,
   } = value;
 
   const publishData: UpdatePublishFormData = {
@@ -615,6 +616,14 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   }
 
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
+  /* Temporary solution for redirects depending on the publish type */
+  if (stream_type === 'document') {
+    dispatch(push(`/$/${PAGES.POST}`));
+  } else if (stream_type === undefined) {
+    dispatch(push(`/$/${PAGES.LIVESTREAM}`));
+  } else {
+    dispatch(push(`/$/${PAGES.UPLOAD}`));
+  }
 };
 
 export const doPublish = (success: Function, fail: Function, preview: Function, payload: any) => (

@@ -123,11 +123,9 @@ function LivestreamForm(props: Props) {
     modal,
     enablePublishPreview,
     activeChannelClaim,
-    // incognito,
     description,
     // user,
     // isLivestreamClaim,
-    // isPostClaim,
     permanentUrl,
     remoteUrl,
     isClaimingInitialRewards,
@@ -145,7 +143,6 @@ function LivestreamForm(props: Props) {
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
 
-  // const [mode, setMode] = React.useState(PUBLISH_MODES.LIVESTREAM);
   const mode = PUBLISH_MODES.LIVESTREAM;
   const [publishMode, setPublishMode] = React.useState('New');
   const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
@@ -153,9 +150,6 @@ function LivestreamForm(props: Props) {
   // Used to check if the url name has changed:
   // A new file needs to be provided
   const [prevName, setPrevName] = React.useState(false);
-  // Used to check if the file has been modified by user
-  // const [fileEdited, setFileEdited] = React.useState(false);
-  // const [prevFileText, setPrevFileText] = React.useState('');
 
   const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
@@ -477,7 +471,6 @@ function LivestreamForm(props: Props) {
 
       <PublishLivestream
         inEditMode={inEditMode}
-        // fileSource={fileSource}
         fileSource={publishMode === 'New' ? fileSource : SOURCE_SELECT}
         changeFileSource={changeFileSource}
         uri={permanentUrl}
@@ -485,10 +478,7 @@ function LivestreamForm(props: Props) {
         fileMimeType={fileMimeType}
         // disabled={disabled || publishing}
         inProgress={isInProgress}
-        // setPublishMode={setMode}
-        // setPrevFileText={setPrevFileText}
         livestreamData={livestreamData}
-        // subtitle={customSubtitle}
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
         isCheckingLivestreams={isCheckingLivestreams}
