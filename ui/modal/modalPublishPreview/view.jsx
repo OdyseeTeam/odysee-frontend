@@ -15,6 +15,7 @@ import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import { NO_FILE } from 'redux/actions/publish';
 import { INTERNAL_TAGS } from 'constants/tags';
+// import { string } from 'prop-types';
 
 type Props = {
   filePath: string | WebFile,
@@ -50,6 +51,7 @@ type Props = {
   isLivestreamClaim: boolean,
   remoteFile: string,
   appLanguage: string,
+  fileText: string,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
