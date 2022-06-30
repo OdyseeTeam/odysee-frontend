@@ -195,8 +195,6 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         }
 
         bodyRef.scrollTo({ top: topToScroll, behavior: 'smooth' });
-
-        setScrolledPast(false);
       }
     },
     [bodyRef, collectionLength, playingItemIndex]
