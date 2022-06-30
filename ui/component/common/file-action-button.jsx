@@ -19,10 +19,10 @@ function FileActionButton(props: Props) {
   if (navigate || requiresAuth || requiresChannel) {
     return (
       <Tooltip title={title} arrow={false} enterDelay={100}>
-        <div style={{ display: 'inline' }}>
+        <div className="button--file-action--tooltip-wrapper">
           <Button
             button={noStyle ? 'alt' : undefined}
-            className={noStyle ? undefined : 'button--file-action'}
+            className={noStyle ? undefined : 'button--file-action button--file-action--tooltip'}
             iconSize={iconSize || 16}
             {...buttonProps}
           />
