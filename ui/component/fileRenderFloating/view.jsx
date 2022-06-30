@@ -148,7 +148,6 @@ export default function FileRenderFloating(props: Props) {
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
   const noFloatingPlayer = !isFloating || !floatingPlayerEnabled || hideFloatingPlayer;
 
-  const [playlistBodyOpen, setPlaylistBody] = React.useState(false);
   const [fileViewerRect, setFileViewerRect] = React.useState();
   const [wasDragging, setWasDragging] = React.useState(false);
   const [doNavigate, setDoNavigate] = React.useState(false);
@@ -513,9 +512,6 @@ export default function FileRenderFloating(props: Props) {
                     <PlaylistCard
                       id={collectionId}
                       uri={uri}
-                      bodyOpen={playlistBodyOpen}
-                      enableCardBody={() => setPlaylistBody(!playlistBodyOpen)}
-                      customTitle={__('Now playing: --[Which Playlist is currently playing]--') + ' '}
                       disableClickNavigation
                       doDisablePlayerDrag={setForceDisable}
                       isFloating

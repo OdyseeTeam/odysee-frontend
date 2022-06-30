@@ -3067,6 +3067,41 @@ export const icons = {
       </g>
     </svg>
   ),
+  [ICONS.PLAYLIST_PLAYBACK]: (props: IconProps) => {
+    const { size = 50, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        {...otherProps}
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="5 0 30 30"
+        width={size}
+        height={size === 30 ? 18 : 30}
+        fill="none"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path style={{ fill: color }} d="M13.9,20.9v-9.7l6.9,4.7L13.9,20.9z M15.1,13.4v5.1l3.7-2.7L15.1,13.4z" />
+        <path
+          style={{ fill: color }}
+          d="M29,16c0,5.3-3.2,9.8-7.7,11.9l0.3,1.4c5.2-2.2,8.8-7.3,8.8-13.3c0-6-3.7-11.1-8.9-13.3l-0.3,1.4C25.8,6.1,29,10.7,29,16z"
+        />
+        <path
+          style={{ fill: color }}
+          d="M26,16c0-3.9-2.2-7.2-5.4-8.9l-0.3,1.4c2.6,1.5,4.3,4.3,4.3,7.5c0,3.2-1.7,5.9-4.3,7.4l0.3,1.4C23.8,23.2,26,19.9,26,16z"
+        />
+        <path
+          style={{ fill: color }}
+          d="M3,16c0-5.3,3.2-9.9,7.8-11.9l-0.3-1.4C5.3,4.9,1.6,10,1.6,16c0,6,3.6,11.1,8.8,13.3l0.3-1.4C6.2,25.8,3,21.3,3,16z"
+        />
+        <path
+          style={{ fill: color }}
+          d="M6,16c0,3.9,2.2,7.2,5.4,8.9l0.3-1.4c-2.6-1.5-4.3-4.3-4.3-7.4c0-3.2,1.8-6,4.4-7.5l-0.3-1.4C8.2,8.8,6,12.1,6,16z"
+        />
+      </svg>
+    );
+  },
   [ICONS.PREMIUM]: (props: CustomProps) => (
     <svg
       {...props}

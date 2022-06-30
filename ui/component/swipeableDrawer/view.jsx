@@ -35,7 +35,7 @@ type Props = {
 export default function SwipeableDrawer(props: Props) {
   const { title, hasSubtitle, children, type, startOpen, open, theme, actions, doToggleAppDrawer } = props;
 
-  const pullerHeight = type === DRAWERS.PLAYLIST ? 100 : 42;
+  const pullerHeight = type === DRAWERS.PLAYLIST ? 110 : 42;
 
   const drawerRoot = React.useRef();
   const backdropRef = React.useRef();
@@ -263,6 +263,7 @@ export default function SwipeableDrawer(props: Props) {
               title={title}
               hasSubtitle={hasSubtitle}
               actions={actions}
+              type={type}
               handleClose={handleCloseDrawer}
               onTouchMove={handleTouchMove}
               onTouchEnd={handleTouchEnd}
@@ -311,11 +312,12 @@ type HeaderProps = {
   title: any,
   hasSubtitle?: boolean,
   actions?: any,
+  type: string,
   handleClose: () => void,
 };
 
 const HeaderContents = (props: HeaderProps) => {
-  const { title, hasSubtitle, actions, handleClose, ...divProps } = props;
+  const { title, hasSubtitle, actions, handleClose, type, ...divProps } = props;
 
   return (
     <div
@@ -329,7 +331,12 @@ const HeaderContents = (props: HeaderProps) => {
       <div className="swipeable-drawer__header-actions">
         {actions}
 
-        <Button icon={ICONS.REMOVE} iconSize={16} onClick={handleClose} />
+        <Button
+          button={type === DRAWERS.PLAYLIST ? 'close' : undefined}
+          icon={ICONS.REMOVE}
+          iconSize={16}
+          onClick={handleClose}
+        />
       </div>
     </div>
   );

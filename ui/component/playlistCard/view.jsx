@@ -13,6 +13,7 @@ import * as DRAWERS from 'constants/drawer_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import { NavLink } from 'react-router-dom';
 import UriIndicator from 'component/uriIndicator';
 import I18nMessage from 'component/i18nMessage';
@@ -36,7 +37,6 @@ type Props = {
   id: ?string,
   playingItemUrl: string,
   playingCurrentPlaylist: boolean,
-  customTitle?: string,
   isMyCollection: boolean,
   collectionUrls: Array<Claim>,
   collectionName: string,
@@ -44,20 +44,22 @@ type Props = {
   publishedCollectionName: string | boolean,
   playingItemIndex: number,
   collectionLength: number,
-  bodyOpen?: boolean,
   disableClickNavigation?: boolean,
   useDrawer?: boolean,
   collectionEmpty: boolean,
   hasCollectionById: boolean,
   isFloating?: boolean,
+  playingCollectionId: ?string,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
-  enableCardBody?: () => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  doClearPlayingCollection: () => void,
+  doOpenModal: (id: string, props: {}) => void,
+  doClearQueueList: () => void,
 };
 
 export default function PlaylistCard(props: Props) {
-  const { isMyCollection, collectionName, id = '', useDrawer, hasCollectionById } = props;
+  const { collectionName, useDrawer, hasCollectionById } = props;
 
   const [showEdit, setShowEdit] = React.useState(false);
 
@@ -70,8 +72,8 @@ export default function PlaylistCard(props: Props) {
       <>
         <DrawerExpandButton
           fixed
-          icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST}
-          label={__('Now playing: %playlist_name%', { playlist_name: collectionName })}
+          icon={ICONS.PLAYLIST_PLAYBACK}
+          label={__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
           type={DRAWERS.PLAYLIST}
         />
 
@@ -86,16 +88,6 @@ export default function PlaylistCard(props: Props) {
               colorHeader={false}
               titleOnly
             />
-          }
-          actions={
-            isMyCollection && (
-              <Button
-                title={__('Edit')}
-                className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                icon={ICONS.EDIT}
-                onClick={() => setShowEdit(!showEdit)}
-              />
-            )
           }
           hasSubtitle
         >
@@ -124,14 +116,11 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     collectionName,
     id,
     playingItemUrl,
-    customTitle,
-    bodyOpen = true,
     isPrivateCollection,
     publishedCollectionName,
     doCollectionEdit,
     playingItemIndex,
     collectionLength,
-    enableCardBody,
     disableClickNavigation,
     titleOnly,
     bodyOnly,
@@ -141,6 +130,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     collectionEmpty,
     playingCurrentPlaylist,
     isFloating,
+    playingCollectionId,
+    doClearPlayingCollection,
+    doOpenModal,
+    doClearQueueList,
     ...cardProps
   } = props;
 
@@ -148,9 +141,32 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
   const activeItemRef = React.useRef();
 
+  const [bodyOpen, setBodyOpen] = React.useState(!isFloating);
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
+
+  function closePlaylist() {
+    if (collectionEmpty) {
+      doClearPlayingCollection();
+      return;
+    }
+
+    const isPlayingQueue = playingCollectionId === COLLECTIONS_CONSTS.QUEUE_ID;
+    const title = isPlayingQueue
+      ? __('Are you sure you want to quit and clear the current Queue?')
+      : __('Are you sure you want to quit the current playlist?');
+
+    doOpenModal(MODALS.CONFIRM, {
+      title: title,
+      subtitle: __('The current video will keep playing.'),
+      onConfirm: (closeModal) => {
+        doClearPlayingCollection();
+        if (isPlayingQueue) doClearQueueList();
+        closeModal();
+      },
+    });
+  }
 
   function handleOnDragEnd(result) {
     const { source, destination } = result;
@@ -260,45 +276,73 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       <Card
         {...cardProps}
         smallTitle
-        slimHeader={!enableCardBody}
-        gridHeader={Boolean(enableCardBody)}
+        slimHeader={!isFloating}
+        gridHeader={!titleOnly}
         singlePane
         headerActions={
           !bodyOpen || bodyOnly ? undefined : (
-            <span className="playlist-card-actions">
-              <LoopButton id={id} />
-              <ShuffleButton url={playingItemUrl} id={id} />
-            </span>
+            <div className="playlist-card-actions">
+              <section>
+                <LoopButton id={id} />
+                <ShuffleButton url={playingItemUrl} id={id} />
+              </section>
+
+              {isMyCollection && !collectionEmpty && (
+                <section>
+                  <Button
+                    title={__('Edit')}
+                    className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+                    icon={ICONS.EDIT}
+                    onClick={() => setShowEdit(!showEdit)}
+                  />
+
+                  {/* TODO:
+                    SAVE BUTTON
+                  */}
+                </section>
+              )}
+            </div>
           )
         }
         title={
           bodyOnly ? undefined : (
-            <NavLink to={`/$/${PAGES.PLAYLIST}/${id || ''}`} className="a--styled">
-              {customTitle || (
-                <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
+            <NavLink
+              to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
+              className={classnames('a--styled', { 'align-end': isFloating })}
+            >
+              {isFloating ? (
+                <>
+                  <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
+                  <span className="text-ellipsis">
+                    {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST} className="icon--margin-right" />
+                  <span className="text-ellipsis">{collectionName}</span>
+                </>
               )}
-              {collectionName}
             </NavLink>
           )
         }
         titleActions={
-          bodyOnly || titleOnly || (collectionEmpty && !enableCardBody) ? undefined : (
+          bodyOnly || titleOnly ? undefined : (
             <>
-              {isMyCollection && bodyOpen && !collectionEmpty && (
+              {!bodyOnly && (
                 <Button
-                  title={__('Edit')}
-                  className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                  icon={ICONS.EDIT}
-                  onClick={() => setShowEdit(!showEdit)}
-                />
-              )}
-              {enableCardBody && (
-                <Button
-                  className={classnames('button-toggle')}
+                  className={classnames('button-toggle', { 'button-toggle--active': !bodyOpen })}
                   icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
-                  onClick={enableCardBody}
+                  onClick={() => setBodyOpen(!bodyOpen)}
                 />
               )}
+
+              <Button
+                title={__('Close Playlist')}
+                className="button-toggle"
+                icon={ICONS.REMOVE}
+                onClick={closePlaylist}
+              />
             </>
           )
         }

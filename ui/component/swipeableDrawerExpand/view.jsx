@@ -35,7 +35,8 @@ function DrawerExpandButton(props: Props) {
       <Button
         className={classnames('swipeable-drawer__expand-button', { fixed })}
         button="primary"
-        icon={fixed ? ICONS.UP : icon}
+        icon={icon || (fixed ? ICONS.UP : undefined)}
+        iconSize={fixed && icon ? 30 : undefined}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();

@@ -514,6 +514,11 @@
 
   .card__title-actions-container {
     justify-self: flex-end;
+    justify-content: center;
+
+    .card__title-actions {
+      display: flex;
+    }
   }
 }
 
@@ -776,7 +781,12 @@
 
     .card__title-section {
       display: unset !important;
-      max-width: 90%;
+      max-width: 80%;
+    }
+
+    &:last-child {
+      border-bottom-left-radius: var(--border-radius);
+      border-bottom-right-radius: var(--border-radius);
     }
   }
 
@@ -814,6 +824,13 @@
     .media__subtitle {
       width: unset !important;
     }
+  }
+
+  .playlist-card-actions {
+    grid-column-start: 1;
+    grid-column-end: end;
+    display: flex;
+    justify-content: space-between;
   }
 }
 

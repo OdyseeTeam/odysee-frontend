@@ -122,6 +122,11 @@ export function doSetPrimaryUri(uri: ?string) {
 }
 
 export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null, collection: {} }));
+export const doClearPlayingCollection = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const playingUri = selectPlayingUri(state);
+  dispatch(doSetPlayingUri({ ...playingUri, collection: {} }));
+};
 
 export function doSetPlayingUri({
   uri,
