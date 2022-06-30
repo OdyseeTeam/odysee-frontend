@@ -27,8 +27,9 @@ function CreatorMembershipsTab(props: Props) {
 
   return (
     <div className="my-membership__div">
-      <h1 style={{ fontSize: '20px', marginTop: '25px', marginBottom: '14px' }}>{__('Membership Page')}</h1>
+      <h1 style={{ fontSize: '21px', marginTop: '25px', marginBottom: '14px' }}>{__('Membership Page')}</h1>
 
+      <h1 style={{ fontSize: '15px', marginBottom: '5px' }}>{__('Select your channel')}</h1>
       <ChannelSelector hideAnon style={{ marginBottom: '17px' }} />
 
       {activeChannelClaim && (

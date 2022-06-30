@@ -614,3 +614,15 @@
 svg.icon--Upgrade {
   margin-top: 2px;
 }
+
+
+.edit-functionality-disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.confirm-account-to-create-tiers-header {
+  font-size: 17px;
+  margin-bottom: 8px;
+  margin-top: 39px;
+}

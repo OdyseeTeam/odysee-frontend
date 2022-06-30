@@ -16,6 +16,8 @@ export default function ModalRemoveCard(props: Props) {
   const { closeModal, setCreatorMemberships, membershipsBeforeDeletion, tierIndex } = props;
 
   function deleteMembership() {
+    // TODO: delete the product and prices here
+
     const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== tierIndex);
     setCreatorMemberships(membershipsAfterDeletion);
     closeModal();
