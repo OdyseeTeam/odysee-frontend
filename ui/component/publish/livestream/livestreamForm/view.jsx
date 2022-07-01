@@ -34,6 +34,7 @@ import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_NONE, SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
+import Tooltip from 'component/common/tooltip';
 
 type Props = {
   tags: Array<Tag>,
@@ -460,13 +461,15 @@ function LivestreamForm(props: Props) {
           />
         </div>
         {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
-        <Button
-          button="secondary"
-          label={__('Check for Replays')}
-          disabled={isCheckingLivestreams}
-          icon={ICONS.REFRESH}
-          onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
-        />
+        <Tooltip title={__('Check for Replays')}>
+          <Button
+            button="secondary"
+            label={__('Check for Replays')}
+            disabled={isCheckingLivestreams}
+            icon={ICONS.REFRESH}
+            onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
+          />
+        </Tooltip>
       </Card>
 
       <PublishLivestream
