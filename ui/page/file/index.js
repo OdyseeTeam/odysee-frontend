@@ -16,9 +16,8 @@ import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/se
 import {
   makeSelectFileRenderModeForUri,
   selectContentPositionForUri,
-  selectPlayingUri,
   selectPlayingCollectionId,
-  makeSelectIsPlayerFloating,
+  selectIsUriCurrentlyPlaying,
 } from 'redux/selectors/content';
 import { selectCommentsListTitleForUri, selectSettingsByChannelId } from 'redux/selectors/comments';
 import { DISABLE_COMMENTS_TAG } from 'constants/tags';
@@ -33,12 +32,10 @@ const select = (state, props) => {
   const { search } = location;
 
   const urlParams = new URLSearchParams(search);
-  const { uri: playingUrl } = selectPlayingUri(state);
   const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
 
   return {
-    playingUrl,
     playingCollectionId,
     channelId: getChannelIdFromClaim(claim),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
@@ -56,7 +53,7 @@ const select = (state, props) => {
     audioVideoDuration: claim?.value?.video?.duration || claim?.value?.audio?.duration,
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
-    isFloating: makeSelectIsPlayerFloating(location)(state),
+    isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
   };
 };
 

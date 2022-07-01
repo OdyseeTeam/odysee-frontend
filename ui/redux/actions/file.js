@@ -6,7 +6,7 @@ import { shell } from 'electron';
 // @endif
 import Lbry from 'lbry';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import { doAbandonClaim, doResolveUri } from 'redux/actions/claims';
+import { doAbandonClaim, doGetClaimFromUriResolve } from 'redux/actions/claims';
 import { batchActions } from 'util/batch-actions';
 
 import { doHideModal } from 'redux/actions/app';
@@ -116,15 +116,7 @@ export function doFileGet(uri: string, saveFile: boolean = true, onSuccess?: (Ge
     const state = getState();
     let claim = selectClaimForUri(state, uri);
     if (!claim) {
-      await dispatch(doResolveUri(uri, true))
-        .then((response) =>
-          Object.values(response).forEach((resolvedClaim) => {
-            if (resolvedClaim) {
-              claim = resolvedClaim;
-            }
-          })
-        )
-        .catch((e) => {});
+      claim = await dispatch(doGetClaimFromUriResolve(uri));
     }
     const isLivestreamClaim = isStreamPlaceholderClaim(claim);
     const { nout, txid } = claim;

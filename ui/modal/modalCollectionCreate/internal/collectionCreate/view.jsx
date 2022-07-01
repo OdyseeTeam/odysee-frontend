@@ -11,7 +11,7 @@ type Props = {
 const CollectionCreate = (props: Props) => {
   const { closeModal, doToast } = props;
 
-  function handleClose(newCollectionName: string, newCollectionId: string) {
+  function handleClose(newCollectionName: string) {
     closeModal();
     doToast({ message: __('Succesfully created "%playlist_name%"', { playlist_name: newCollectionName }) });
   }

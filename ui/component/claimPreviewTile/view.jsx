@@ -59,6 +59,7 @@ type Props = {
   swipeLayout: boolean,
   onHidden?: (string) => void,
   pulse?: boolean,
+  collectionFirstUrl: ?string,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -94,6 +95,7 @@ function ClaimPreviewTile(props: Props) {
     swipeLayout = false,
     onHidden,
     pulse,
+    collectionFirstUrl,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -111,7 +113,7 @@ function ClaimPreviewTile(props: Props) {
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const shouldFetch = claim === undefined;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder) || thumbnail;
-  const canonicalUrl = claim && claim.canonical_url;
+  const canonicalUrl = claim && ((isCollection && collectionFirstUrl) || claim.canonical_url);
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId;
   const navigateUrl =

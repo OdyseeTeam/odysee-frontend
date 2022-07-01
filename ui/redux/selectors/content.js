@@ -6,6 +6,7 @@ import {
   selectClaimIsMineForUri,
   makeSelectContentTypeForUri,
   selectClaimForUri,
+  selectCanonicalUrlForUri,
 } from 'redux/selectors/claims';
 import { makeSelectMediaTypeForUri, makeSelectFileNameForUri } from 'redux/selectors/file_info';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -30,6 +31,8 @@ export const selectPrimaryUri = (state: State) => selectState(state).primaryUri;
 export const selectLastViewedAnnouncement = (state: State) => selectState(state).lastViewedAnnouncement;
 export const selectRecsysEntries = (state: State) => selectState(state).recsysEntries;
 
+export const selectIsPlayingCollectionForId = (state: State, id: string) => selectPlayingCollectionId(state) === id;
+
 export const selectPlayingCollectionIfPlayingForId = (state: State, id: string) => {
   const playingCollection = selectPlayingCollection(state);
   return playingCollection.collectionId === id && playingCollection;
@@ -51,11 +54,13 @@ export const selectListIsLoopedForId = (state: State, id: string) => {
 export const makeSelectIsPlaying = (uri: string) =>
   createSelector(selectPrimaryUri, (primaryUri) => primaryUri === uri);
 
-export const selectIsUriCurrentlyPlaying = createSelector(
-  (state, uri) => uri,
-  selectPlayingUri,
-  (uri, playingUri) => Boolean(playingUri.uri === uri)
-);
+export const selectIsUriCurrentlyPlaying = (state: State, uri: string) => {
+  const { uri: playingUrl } = selectPlayingUri(state);
+  if (!playingUrl) return false;
+
+  const canonicalUrl = selectCanonicalUrlForUri(state, uri);
+  return canonicalUrl === playingUrl;
+};
 
 export const makeSelectIsPlayerFloating = (location: UrlLocation) =>
   createSelector(selectPrimaryUri, selectPlayingUri, (primaryUri, playingUri) => {

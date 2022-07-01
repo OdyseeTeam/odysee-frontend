@@ -14,6 +14,7 @@ import { parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
+import { isPermanentUrl } from 'util/claim';
 
 type State = { collections: CollectionState };
 
@@ -225,15 +226,20 @@ export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
   return claimSaved && claimInQueue;
 };
 
-export const selectCollectionForIdHasClaimUrl = createSelector(
-  (state, id, url) => selectPermanentUrlForUri(state, url),
-  selectCollectionForId,
-  (url, collection) => collection && collection.items.includes(url)
-);
+export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) => {
+  // $FlowFixMe
+  const url = isPermanentUrl(uri) ? uri : selectPermanentUrlForUri(state, uri);
+  const collection = selectCollectionForId(state, id);
+
+  return collection && collection.items.includes(url);
+};
 
 export const selectUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
-  return collection && collection.items;
+  // -- sanitize -- > in case non-urls got added into a collection: only select string types
+  // to avoid general app errors trying to use its uri
+  // (TODO: the non-standard values will still be there, allow to remove, or auto remove)
+  return collection && collection.items.filter((item) => typeof item === 'string');
 };
 
 export const selectFirstItemUrlForCollection = createSelector(

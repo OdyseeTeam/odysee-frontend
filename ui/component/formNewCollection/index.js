@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
 import FormNewCollection from './view';
-import { doLocalCollectionCreate } from 'redux/actions/collections';
+import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 
 const perform = {
-  doLocalCollectionCreate,
+  doPlaylistAddAndAllowPlaying,
 };
 
 export default connect(null, perform)(FormNewCollection);

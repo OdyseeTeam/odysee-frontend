@@ -1,9 +1,8 @@
 import { connect } from 'react-redux';
-import { doCollectionEdit } from 'redux/actions/collections';
 import { selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import FileWatchLaterLink from './view';
-import { doToast } from 'redux/actions/notifications';
+import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -13,9 +12,8 @@ const select = (state, props) => {
   };
 };
 
-const perform = (dispatch) => ({
-  doToast: (props) => dispatch(doToast(props)),
-  doCollectionEdit: (collection, props) => dispatch(doCollectionEdit(collection, props)),
-});
+const perform = {
+  doPlaylistAddAndAllowPlaying,
+};
 
 export default connect(select, perform)(FileWatchLaterLink);

@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
-import { doCollectionEdit, doFetchItemsInCollection } from 'redux/actions/collections';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
@@ -33,7 +33,7 @@ import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscrip
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectListShuffleForId } from 'redux/selectors/content';
-import { doToggleShuffleList } from 'redux/actions/content';
+import { doToggleShuffleList, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import ClaimPreview from './view';
 import fs from 'fs';
 
@@ -97,10 +97,10 @@ const perform = (dispatch) => ({
     dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
   doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
   doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
-  doCollectionEdit: (collection, props) => dispatch(doCollectionEdit(collection, props)),
   fetchCollectionItems: (collectionId) => dispatch(doFetchItemsInCollection({ collectionId })),
   doToggleShuffleList: (params) => dispatch(doToggleShuffleList(params)),
   doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
+  doPlaylistAddAndAllowPlaying: (params) => dispatch(doPlaylistAddAndAllowPlaying(params)),
 });
 
 export default connect(select, perform)(ClaimPreview);

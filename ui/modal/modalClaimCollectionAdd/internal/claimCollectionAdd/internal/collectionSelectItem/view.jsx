@@ -1,7 +1,9 @@
 // @flow
 import React from 'react';
 import { FormField } from 'component/common/form';
-import { ModalClaimCollectionAddContext } from 'modal/modalClaimCollectionAdd/view';
+import { useHistory } from 'react-router';
+import { formatLbryUrlForWeb } from 'util/url';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Icon from 'component/common/icon';
 
 type Props = {
@@ -12,22 +14,38 @@ type Props = {
   collection: Collection,
   collectionHasClaim: boolean,
   collectionPending: Collection,
-  doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void,
+  doPlaylistAddAndAllowPlaying: (params: {
+    uri: string,
+    collectionName: string,
+    collectionId: string,
+    push: (uri: string) => void,
+  }) => void,
 };
 
 function CollectionSelectItem(props: Props) {
-  const { icon, uri, key, collection, collectionHasClaim, collectionPending, doCollectionEdit } = props;
+  const { icon, uri, key, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
   const { name, id } = collection;
 
-  const { collectionsAdded, setCollectionsAdded } = React.useContext(ModalClaimCollectionAddContext);
+  const {
+    push,
+    location: { search },
+  } = useHistory();
 
   function handleChange() {
-    const itemsToNotify = collectionHasClaim
-      ? collectionsAdded.filter((collection) => collection === `"${name}"`)
-      : [...collectionsAdded, `"${name}"`];
+    const urlParams = new URLSearchParams(search);
+    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
 
-    setCollectionsAdded([...itemsToNotify]);
-    doCollectionEdit(id, { uris: [uri], remove: collectionHasClaim });
+    doPlaylistAddAndAllowPlaying({
+      uri,
+      collectionId: id,
+      collectionName: name,
+      push: (pushUri) =>
+        push({
+          pathname: formatLbryUrlForWeb(pushUri),
+          search: urlParams.toString(),
+          state: { collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID, forceAutoplay: true },
+        }),
+    });
   }
 
   return (

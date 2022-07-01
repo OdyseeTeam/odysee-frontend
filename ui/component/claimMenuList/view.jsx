@@ -48,7 +48,6 @@ type Props = {
   doCommentModUnBlock: (string) => void,
   doCommentModBlockAsAdmin: (commenterUri: string, offendingCommentId: ?string, blockerId: ?string) => void,
   doCommentModUnBlockAsAdmin: (string, string) => void,
-  doCollectionEdit: (string, any) => void,
   hasClaimInWatchLater: boolean,
   hasClaimInFavorites: boolean,
   claimInCollection: boolean,
@@ -74,6 +73,12 @@ type Props = {
   lastUsedCollectionIsNotBuiltin: boolean,
   doRemovePersonalRecommendation: (uri: string) => void,
   collectionEmpty: boolean,
+  doPlaylistAddAndAllowPlaying: (params: {
+    uri: string,
+    collectionName: string,
+    collectionId: string,
+    push: (uri: string) => void,
+  }) => void,
 };
 
 function ClaimMenuList(props: Props) {
@@ -96,7 +101,6 @@ function ClaimMenuList(props: Props) {
     doCommentModUnBlock,
     doCommentModBlockAsAdmin,
     doCommentModUnBlockAsAdmin,
-    doCollectionEdit,
     hasClaimInWatchLater,
     hasClaimInFavorites,
     collectionId,
@@ -121,6 +125,7 @@ function ClaimMenuList(props: Props) {
     lastUsedCollectionIsNotBuiltin,
     doRemovePersonalRecommendation,
     collectionEmpty,
+    doPlaylistAddAndAllowPlaying,
   } = props;
   const [doShuffle, setDoShuffle] = React.useState(false);
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
@@ -135,7 +140,11 @@ function ClaimMenuList(props: Props) {
     ? __('Unfollow')
     : __('Follow');
 
-  const { push, replace } = useHistory();
+  const {
+    push,
+    replace,
+    location: { search },
+  } = useHistory();
 
   const fetchItems = React.useCallback(() => {
     if (collectionId) {
@@ -176,16 +185,22 @@ function ClaimMenuList(props: Props) {
     (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
-    doToast({
-      message: claimIsInPlaylist ? __('Item removed from %name%', { name }) : __('Item added to %name%', { name }),
-      linkText: __('View All'),
-      linkTarget: `/list/${collectionId}`,
-    });
-    if (contentClaim) {
-      doCollectionEdit(collectionId, {
-        uris: [contentClaim.permanent_url],
-        remove: claimIsInPlaylist,
-        type: 'playlist',
+    const itemUrl = contentClaim?.canonical_url;
+
+    if (itemUrl) {
+      const urlParams = new URLSearchParams(search);
+      urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, collectionId);
+
+      doPlaylistAddAndAllowPlaying({
+        uri: itemUrl,
+        collectionName: name,
+        collectionId,
+        push: (pushUri) =>
+          push({
+            pathname: formatLbryUrlForWeb(pushUri),
+            search: urlParams.toString(),
+            state: { collectionId, forceAutoplay: true },
+          }),
       });
     }
   }

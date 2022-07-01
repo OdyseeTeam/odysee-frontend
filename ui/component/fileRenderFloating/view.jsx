@@ -162,6 +162,7 @@ export default function FileRenderFloating(props: Props) {
     (playingPrimaryUri || playingUrl || '') + (collectionId ? generateListSearchUrlParams(collectionId) : '');
 
   const isFree = costInfo && costInfo.cost === 0;
+  const isLoading = !costInfo || !streamingUrl;
   const canViewFile = isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
   const isReadyToPlay = isCurrentClaimLive || (isPlayable && streamingUrl);
@@ -347,10 +348,10 @@ export default function FileRenderFloating(props: Props) {
   }, [playingUrl]);
 
   React.useEffect(() => {
-    if (!primaryUri && !floatingPlayerEnabled && playingUrl && !playingUriSource) {
+    if (primaryUri && uri && primaryUri !== uri && !floatingPlayerEnabled && playingUrl) {
       doClearPlayingUri();
     }
-  }, [doClearPlayingUri, floatingPlayerEnabled, playingUriSource, playingUrl, primaryUri]);
+  }, [doClearPlayingUri, floatingPlayerEnabled, playingUrl, primaryUri, uri]);
 
   if (
     geoRestriction ||
@@ -474,23 +475,25 @@ export default function FileRenderFloating(props: Props) {
 
               {isReadyToPlay ? (
                 <FileRender className={classnames({ draggable: !isMobile })} uri={uri} />
-              ) : !collectionId || !canViewFile ? (
-                <div className="content__loading">
-                  <AutoplayCountdown
-                    uri={uri}
-                    nextRecommendedUri={nextListUri || firstCollectionItemUrl}
-                    doNavigate={() => setDoNavigate(true)}
-                    doReplay={() => doUriInitiatePlay({ uri, collection: { collectionId } }, false, isFloating)}
-                    doPrevious={() => {
-                      setPlayNext(false);
-                      setDoNavigate(true);
-                    }}
-                    onCanceled={() => setCountdownCanceled(true)}
-                    skipPaid
-                  />
-                </div>
-              ) : (
+              ) : isLoading ? (
                 <LoadingScreen status={__('Loading')} />
+              ) : (
+                (!collectionId || !canViewFile) && (
+                  <div className="content__loading">
+                    <AutoplayCountdown
+                      uri={uri}
+                      nextRecommendedUri={nextListUri || firstCollectionItemUrl}
+                      doNavigate={() => setDoNavigate(true)}
+                      doReplay={() => doUriInitiatePlay({ uri, collection: { collectionId } }, false, isFloating)}
+                      doPrevious={() => {
+                        setPlayNext(false);
+                        setDoNavigate(true);
+                      }}
+                      onCanceled={() => setCountdownCanceled(true)}
+                      skipPaid
+                    />
+                  </div>
+                )
               )}
 
               {isFloating && (

@@ -89,6 +89,24 @@ export function isChannelClaim(claim: ?Claim, uri?: string) {
   }
 }
 
+export function isCanonicalUrl(uri: string) {
+  let streamName, streamClaimId, channelName, channelClaimId;
+  try {
+    ({ streamName, streamClaimId, channelName, channelClaimId } = parseURI(uri));
+  } catch (error) {}
+
+  return Boolean(streamName && streamClaimId && channelName && channelClaimId);
+}
+
+export function isPermanentUrl(uri: string) {
+  let streamName, streamClaimId, channelName;
+  try {
+    ({ streamName, streamClaimId, channelName } = parseURI(uri));
+  } catch (error) {}
+
+  return Boolean(streamName && streamClaimId && !channelName);
+}
+
 export function getChannelIdFromClaim(claim: ?Claim) {
   if (claim) {
     if (claim.value_type === 'channel') {

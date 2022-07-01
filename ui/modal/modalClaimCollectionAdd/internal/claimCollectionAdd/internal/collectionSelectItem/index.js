@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import { makeSelectClaimIsPending } from 'redux/selectors/claims';
-import { doCollectionEdit } from 'redux/actions/collections';
+import { doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import CollectionSelectItem from './view';
 
 const select = (state, props) => {
@@ -15,7 +15,7 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doCollectionEdit,
+  doPlaylistAddAndAllowPlaying,
 };
 
 export default connect(select, perform)(CollectionSelectItem);

@@ -29,7 +29,6 @@ export const PRIMARY_PLAYER_WRAPPER_CLASS = 'file-page__video-container';
 export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
 
 type Props = {
-  playingUrl: ?string,
   playingCollectionId: ?string,
   costInfo: ?{ includesData: boolean, cost: number },
   fileInfo: FileListItem,
@@ -51,7 +50,7 @@ type Props = {
   isPlaying?: boolean,
   claimWasPurchased: boolean,
   location: { search: string },
-  isFloating: boolean,
+  isUriPlaying: boolean,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
@@ -64,7 +63,6 @@ type Props = {
 
 export default function FilePage(props: Props) {
   const {
-    playingUrl,
     playingCollectionId,
     uri,
     channelId,
@@ -86,7 +84,7 @@ export default function FilePage(props: Props) {
     settingsByChannelId,
     claimWasPurchased,
     location,
-    isFloating,
+    isUriPlaying,
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
@@ -100,20 +98,15 @@ export default function FilePage(props: Props) {
   const urlParams = new URLSearchParams(search);
   const colParam = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const initialPlayingCol = React.useRef(playingCollectionId);
-  const initialFloating = React.useRef(isFloating);
 
   const collectionId = React.useMemo(() => {
-    if (colParam) {
-      const startedPlayingOtherPlaylist = !initialPlayingCol.current !== playingCollectionId && uri === playingUrl;
-      const startedPlayingQueue =
-        startedPlayingOtherPlaylist || (isFloating !== initialFloating.current && uri === playingUrl);
-      return startedPlayingQueue ? playingCollectionId : colParam;
-    } else {
-      // If playing Queue, show it on the sidebar since playing another item will add on to it,
-      // otherwise show nothing
-      return playingCollectionId === COLLECTIONS_CONSTS.QUEUE_ID ? COLLECTIONS_CONSTS.QUEUE_ID : undefined;
-    }
-  }, [colParam, isFloating, playingCollectionId, playingUrl, uri]);
+    const startedPlayingOtherPlaylist =
+      (isUriPlaying || playingCollectionId === null) &&
+      playingCollectionId !== undefined &&
+      !initialPlayingCol.current !== playingCollectionId;
+
+    return startedPlayingOtherPlaylist ? playingCollectionId : colParam;
+  }, [colParam, isUriPlaying, playingCollectionId]);
 
   const isMobile = useIsMobile();
   const isMediumScreen = useIsMediumScreen() && !isMobile;

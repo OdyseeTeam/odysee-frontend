@@ -5,21 +5,30 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { FormField } from 'component/common/form';
-import { ModalClaimCollectionAddContext } from 'modal/modalClaimCollectionAdd/view';
+import { useHistory } from 'react-router';
+import { formatLbryUrlForWeb } from 'util/url';
 import Button from 'component/button';
 
 type Props = {
   uri: string,
   onlyCreate?: boolean,
-  closeForm: (newCollectionName?: string, newCollectionId?: string) => void,
+  closeForm: (newCollectionName?: string) => void,
   // -- redux --
-  doLocalCollectionCreate: (params: CollectionCreateParams, cb: () => void) => void,
+  doPlaylistAddAndAllowPlaying: (params: {
+    uri: string,
+    collectionName: string,
+    createNew: boolean,
+    push: (uri: string) => void,
+  }) => void,
 };
 
 function FormNewCollection(props: Props) {
-  const { uri, onlyCreate, closeForm, doLocalCollectionCreate } = props;
+  const { uri, onlyCreate, closeForm, doPlaylistAddAndAllowPlaying } = props;
 
-  const { collectionsAdded, setCollectionsAdded } = React.useContext(ModalClaimCollectionAddContext) || {};
+  const {
+    push,
+    location: { search },
+  } = useHistory();
 
   const buttonref: ElementRef<any> = React.useRef();
   const newCollectionName = React.useRef('');
@@ -33,15 +42,24 @@ function FormNewCollection(props: Props) {
   }
 
   function handleAddCollection() {
-    let newCollectionId = '';
     const name = newCollectionName.current;
 
-    doLocalCollectionCreate({ name, items: onlyCreate ? [] : [uri], type: 'playlist' }, (id) => {
-      newCollectionId = id;
+    const urlParams = new URLSearchParams(search);
+    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, COLLECTIONS_CONSTS.WATCH_LATER_ID);
+
+    doPlaylistAddAndAllowPlaying({
+      uri,
+      collectionName: name,
+      createNew: true,
+      push: (pushUri) =>
+        push({
+          pathname: formatLbryUrlForWeb(pushUri),
+          search: urlParams.toString(),
+          state: { collectionId: COLLECTIONS_CONSTS.WATCH_LATER_ID, forceAutoplay: true },
+        }),
     });
 
-    if (setCollectionsAdded && collectionsAdded) setCollectionsAdded([...collectionsAdded, `"${name}"`]);
-    closeForm(newCollectionName.current, newCollectionId);
+    closeForm(name);
   }
 
   function altEnterListener(e: SyntheticKeyboardEvent<*>) {

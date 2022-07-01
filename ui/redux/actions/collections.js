@@ -2,8 +2,8 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
-import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
+import { doClaimSearch, doAbandonClaim, doGetClaimFromUriResolve } from 'redux/actions/claims';
+import { makeSelectClaimForClaimId, selectPermanentUrlForUri } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   // selectPublishedCollectionForId, // for "save" or "copy" action
@@ -14,6 +14,7 @@ import {
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { getCurrentTimeInMs } from 'util/time';
+import { isPermanentUrl } from 'util/claim';
 
 const FETCH_BATCH_SIZE = 50;
 
@@ -352,7 +353,28 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
   const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
 
-  const { uris, order, remove, type } = params;
+  const { uris: anyUris, remove, order, type } = params;
+
+  // -- sanitization --
+  // only permanent urls can be added to collections
+  const uris = [];
+
+  if (anyUris) {
+    anyUris.forEach(async (uri) => {
+      if (isPermanentUrl(uri)) return uris.push(uri);
+
+      let url = selectPermanentUrlForUri(state, uri);
+
+      if (!url) {
+        const claim = await dispatch(doGetClaimFromUriResolve(url));
+        if (claim) url = claim.permanent_url;
+      }
+
+      return uris.push(url);
+    });
+  }
+
+  // -------------------
 
   const collectionType = type || collection.type;
   const currentUrls = collection.items ? collection.items.concat() : [];
@@ -365,7 +387,8 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       newItems = currentUrls.filter((url) => url && !uris.includes(url));
     } else {
       // Pushes (adds to the end) the passed uris to the current list items
-      uris.forEach((url) => newItems.push(url));
+      // (only if item not already in currentUrls, avoid duplicates)
+      uris.forEach((url) => !currentUrls.includes(url) && newItems.push(url));
     }
   } else if (remove) {
     // no uris and remove === true: clear the list

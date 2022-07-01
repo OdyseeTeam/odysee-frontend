@@ -46,7 +46,7 @@ class SnackBar extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { message, subMessage, duration, linkText, linkTarget, isError } = snack;
+    const { message, subMessage, duration, linkText, linkTarget, actionText, action, isError } = snack;
 
     if (this.intervalId) {
       // TODO: render should be pure
@@ -93,6 +93,16 @@ class SnackBar extends React.PureComponent<Props, State> {
           // This is a little weird because of `linkTarget` code in `lbry-redux`
           // Any navigation code should happen in the app, and that should be removed from lbry-redux
           <Button navigate={`/$${linkTarget}`} className="snack-bar__action" label={linkText} />
+        )}
+        {actionText && action && (
+          <Button
+            onClick={() => {
+              action();
+              removeSnack();
+            }}
+            className="snack-bar__action"
+            label={actionText}
+          />
         )}
       </div>
     );
