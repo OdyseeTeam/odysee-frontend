@@ -7,6 +7,7 @@ import PublishName from 'component/publish/shared/publishName';
 import classnames from 'classnames';
 
 type Props = {
+  uri: ?string,
   title: ?string,
   balance: number,
   fileMimeType: ?string,

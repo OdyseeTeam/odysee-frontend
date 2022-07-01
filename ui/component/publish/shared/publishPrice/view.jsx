@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { FormField, FormFieldPrice } from 'component/common/form';
-import Card from 'component/common/card';
+// import Card from 'component/common/card';
 
 type Props = {
   contentIsFree: boolean,

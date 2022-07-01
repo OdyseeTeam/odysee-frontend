@@ -1,7 +1,7 @@
 // @flow
 import React, { useState } from 'react';
 import classnames from 'classnames';
-import usePersistedState from 'effects/use-persisted-state';
+// import usePersistedState from 'effects/use-persisted-state';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import PublishReleaseDate from '../publishReleaseDate';
