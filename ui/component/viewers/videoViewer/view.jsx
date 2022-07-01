@@ -30,7 +30,6 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
 import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
-import RecSys from 'recsys';
 
 // const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
 // const PLAY_TIMEOUT_LIMIT = 2000;
@@ -179,7 +178,6 @@ function VideoViewer(props: Props) {
 
   useInterval(
     () => {
-      RecSys.saveEntries();
       if (playerRef.current && isPlaying && !isLivestreamClaim) {
         handlePosition(playerRef.current);
       }
@@ -453,7 +451,8 @@ function VideoViewer(props: Props) {
     // turn off old events to prevent duplicate runs
     player.on('playerClosed', cancelOldEvents);
 
-    Chapters.parseAndLoad(player, claim);
+    // add (or remove) chapters button and time tooltips when video is ready
+    player.one('loadstart', () => Chapters.parseAndLoad(player, claim));
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
@@ -527,6 +526,7 @@ function VideoViewer(props: Props) {
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
+        embeddedInternal={isMarkdownOrComment}
         claimValues={claim.value}
         doAnalyticsView={doAnalyticsView}
         doAnalyticsBuffer={doAnalyticsBuffer}

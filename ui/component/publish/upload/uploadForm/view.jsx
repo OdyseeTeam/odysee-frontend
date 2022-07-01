@@ -10,7 +10,6 @@
 
 import { SITE_NAME, ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
-import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import Button from 'component/button';
@@ -29,17 +28,10 @@ import I18nMessage from 'component/i18nMessage';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
-import { toHex } from 'util/hex';
-import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_NONE } from 'constants/publish_sources';
 
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
-
-// @if TARGET='app'
-import fs from 'fs';
-import tempy from 'tempy';
-// @endif
 
 type Props = {
   disabled: boolean,
@@ -57,6 +49,7 @@ type Props = {
   thumbnailPath: ?string,
   description: ?string,
   language: string,
+  releaseTimeError: ?string,
   nsfw: boolean,
   contentIsFree: boolean,
   fee: {
@@ -91,8 +84,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
   user: ?User,
-  isLivestreamClaim: boolean,
-  // isPostClaim: boolean,
   permanentUrl: ?string,
   remoteUrl: ?string,
   isClaimingInitialRewards: boolean,
@@ -132,8 +123,6 @@ function UploadForm(props: Props) {
     activeChannelClaim,
     incognito,
     user,
-    isLivestreamClaim,
-    // isPostClaim,
     permanentUrl,
     remoteUrl,
     isClaimingInitialRewards,
@@ -166,12 +155,7 @@ function UploadForm(props: Props) {
     [PUBLISH_MODES.LIVESTREAM]: 'Livestream --[noun, livestream tab button]--',
   };
 
-  const defaultPublishMode = isLivestreamClaim ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE;
-  // const [mode, setMode] = React.useState(PUBLISH_MODES.FILE);
   const mode = PUBLISH_MODES.FILE;
-  const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
-
-  const [autoSwitchMode, setAutoSwitchMode] = React.useState(true);
 
   // Used to check if the url name has changed:
   // A new file needs to be provided
@@ -182,7 +166,6 @@ function UploadForm(props: Props) {
 
   const [waitForFile, setWaitForFile] = useState(false);
   const [overMaxBitrate, setOverMaxBitrate] = useState(false);
-  // const [livestreamData, setLivestreamData] = React.useState([]);
 
   const TAGS_LIMIT = 5;
   const fileFormDisabled = mode === PUBLISH_MODES.FILE && !filePath && !remoteUrl;
@@ -229,13 +212,6 @@ function UploadForm(props: Props) {
   const isClear = !filePath && !title && !name && !description && !thumbnail && !disabled;
 
   useEffect(() => {
-    if (claimChannelId) {
-      fetchLivestreams(claimChannelId, activeChannelName);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimChannelId]);
-
-  useEffect(() => {
     if (!hasClaimedInitialRewards) {
       claimInitialRewards();
     }
@@ -251,77 +227,16 @@ function UploadForm(props: Props) {
     }
   }, [modal]);
 
-  // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  async function fetchLivestreams(channelId, channelName) {
-    setCheckingLivestreams(true);
-    let signedMessage;
-    try {
-      await Lbry.channel_sign({
-        channel_id: channelId,
-        hexdata: toHex(channelName || ''),
-      }).then((data) => {
-        signedMessage = data;
-      });
-    } catch (e) {
-      throw e;
-    }
-    if (signedMessage) {
-      const encodedChannelName = encodeURIComponent(channelName || '');
-      const newEndpointUrl =
-        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
-          encodedChannelName || ''
-        }`;
-
-      const responseFromNewApi = await fetch(newEndpointUrl);
-
-      const data = (await responseFromNewApi.json()).data;
-
-      let newData = [];
-      if (data && data.length > 0) {
-        for (const dataItem of data) {
-          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
-            const objectToPush = {
-              data: {
-                fileLocation: dataItem.URL,
-                fileDuration:
-                  dataItem.Status.toLowerCase() === 'inprogress'
-                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
-                    : (dataItem.Duration / 1000000000).toString(),
-                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
-                uploadedAt: dataItem.Created,
-              },
-            };
-            newData.push(objectToPush);
-          }
-        }
-      }
-    }
-  }
-
-  const isLivestreamMode = false;
   let submitLabel;
 
   if (isClaimingInitialRewards) {
     submitLabel = __('Claiming credits...');
   } else if (publishing) {
-    if (isStillEditing) {
-      submitLabel = __('Saving...');
-    } else if (isLivestreamMode) {
-      submitLabel = __('Creating...');
-    } else {
-      submitLabel = __('Uploading...');
-    }
+    submitLabel = __('Creating...');
   } else if (previewing) {
     submitLabel = <Spinner type="small" />;
   } else {
-    if (isStillEditing) {
-      submitLabel = __('Save');
-    } else if (isLivestreamMode) {
-      submitLabel = __('Create');
-    } else {
-      submitLabel = __('Upload');
-    }
+    submitLabel = __('Create');
   }
 
   // if you enter the page and it is stuck in publishing, "stop it."
@@ -398,47 +313,10 @@ function UploadForm(props: Props) {
   useEffect(() => {
     if (incognito) {
       updatePublishForm({ channel: undefined });
-
-      // Anonymous livestreams aren't supported
-      if (isLivestreamMode) {
-        // setMode(PUBLISH_MODES.FILE);
-      }
     } else if (activeChannelName) {
       updatePublishForm({ channel: activeChannelName });
     }
-  }, [activeChannelName, incognito, updatePublishForm, isLivestreamMode]);
-
-  // set mode based on urlParams 'type'
-  useEffect(() => {
-    if (!_uploadType) {
-      // setMode(defaultPublishMode);
-      return;
-    }
-
-    // File publish
-    if (_uploadType === PUBLISH_MODES.FILE.toLowerCase()) {
-      // setMode(PUBLISH_MODES.FILE);
-      return;
-    }
-    /*
-    // Post publish
-    if (_uploadType === PUBLISH_MODES.POST.toLowerCase()) {
-      setMode(PUBLISH_MODES.POST);
-      return;
-    }
-    // LiveStream publish
-    if (_uploadType === PUBLISH_MODES.LIVESTREAM.toLowerCase()) {
-      if (enableLivestream) {
-        setMode(PUBLISH_MODES.LIVESTREAM);
-      } else {
-        setMode(PUBLISH_MODES.FILE);
-      }
-      return;
-    }
-    */
-
-    // setMode(defaultPublishMode);
-  }, [_uploadType, enableLivestream, defaultPublishMode]);
+  }, [activeChannelName, incognito, updatePublishForm]);
 
   // if we have a type urlparam, update it? necessary?
   useEffect(() => {
@@ -471,13 +349,7 @@ function UploadForm(props: Props) {
       // If user modified content on the text editor or editing name has changed:
       // Save changes and update file path
       if (fileEdited || nameEdited) {
-        // @if TARGET='app'
-        outputFile = await saveFileChanges();
-        // @endif
-
-        // @if TARGET='web'
         outputFile = createWebFile();
-        // @endif
 
         // New content stored locally and is not empty
         if (outputFile) {
@@ -490,7 +362,7 @@ function UploadForm(props: Props) {
       }
     }
     // Publish file
-    if (mode === PUBLISH_MODES.FILE || isLivestreamMode) {
+    if (mode === PUBLISH_MODES.FILE) {
       runPublish = true;
     }
 
@@ -519,8 +391,8 @@ function UploadForm(props: Props) {
 
   const [showSchedulingOptions, setShowSchedulingOptions] = useState(false);
   useEffect(() => {
-    setShowSchedulingOptions(isLivestreamMode && fileSource === SOURCE_NONE);
-  }, [isLivestreamMode, fileSource]);
+    setShowSchedulingOptions(fileSource === SOURCE_NONE);
+  }, [fileSource]);
 
   if (publishing) {
     return (
@@ -559,14 +431,9 @@ function UploadForm(props: Props) {
         fileMimeType={fileMimeType}
         disabled={disabled || publishing}
         inProgress={isInProgress}
-        // setPublishMode={setMode}
         setPrevFileText={setPrevFileText}
-        // livestreamData={livestreamData}
-        // subtitle={customSubtitle}
         setWaitForFile={setWaitForFile}
         setOverMaxBitrate={setOverMaxBitrate}
-        // isCheckingLivestreams={isCheckingLivestreams}
-        // checkLivestreams={fetchLivestreams}
         channelId={claimChannelId}
         channelName={activeChannelName}
         header={
