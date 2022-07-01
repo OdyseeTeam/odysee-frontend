@@ -4,7 +4,7 @@ import 'scss/component/_header.scss';
 // $FlowFixMe
 import { Global } from '@emotion/react';
 
-import { Menu, MenuList, MenuButton } from '@reach/menu-button';
+import { Menu } from '@reach/menu-button';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -27,6 +27,7 @@ type HeaderMenuButtonProps = {
   automaticDarkModeEnabled: boolean,
   handleThemeToggle: (boolean, string) => void,
 
+  user: ?User,
   myChannelClaimIds: ?Array<string>,
   activeChannelClaim: ?ChannelClaim,
   authenticated: boolean,
@@ -42,6 +43,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
     handleThemeToggle,
 
     // User
+    user,
     myChannelClaimIds,
     activeChannelClaim,
     authenticated,
