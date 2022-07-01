@@ -450,5 +450,5 @@ export const selectIsCollectionPrivateForId = createSelector(
   selectBuiltinCollections,
   selectMyUnpublishedCollections,
   selectCurrentQueueList,
-  (id, builtinById, unpublishedById, queue) => builtinById[id] || unpublishedById[id] || queue[id]
+  (id, builtinById, unpublishedById, queue) => Boolean(builtinById[id] || unpublishedById[id] || queue[id])
 );
