@@ -456,7 +456,8 @@ function VideoViewer(props: Props) {
     // turn off old events to prevent duplicate runs
     player.on('playerClosed', cancelOldEvents);
 
-    Chapters.parseAndLoad(player, claim);
+    // add (or remove) chapters button and time tooltips when video is ready
+    player.one('loadstart', () => Chapters.parseAndLoad(player, claim));
 
     playerRef.current = player;
   }, playerReadyDependencyList); // eslint-disable-line
@@ -530,6 +531,7 @@ function VideoViewer(props: Props) {
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
+        embeddedInternal={isMarkdownOrComment}
         claimValues={claim.value}
         doAnalyticsView={doAnalyticsView}
         doAnalyticsBuffer={doAnalyticsBuffer}

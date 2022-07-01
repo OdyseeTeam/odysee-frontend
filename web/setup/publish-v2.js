@@ -8,7 +8,7 @@ import { LBRY_WEB_PUBLISH_API_V2 } from 'config';
 
 const RESUMABLE_ENDPOINT = LBRY_WEB_PUBLISH_API_V2;
 const RESUMABLE_ENDPOINT_METHOD = 'publish';
-const UPLOAD_CHUNK_SIZE_BYTE = 10 * 1024 * 1024;
+const UPLOAD_CHUNK_SIZE_BYTE = 25 * 1024 * 1024;
 
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
@@ -70,7 +70,7 @@ export function makeResumableUploadRequest(
     const uploader = new tus.Upload(file, {
       ...urlOptions,
       chunkSize: UPLOAD_CHUNK_SIZE_BYTE,
-      retryDelays: [122000],
+      retryDelays: [8000, 10000, 15000, 20000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
@@ -123,6 +123,9 @@ export function makeResumableUploadRequest(
           xhr.setRequestHeader('Tus-Resumable', '1.0.0');
           xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
           xhr.responseType = 'json';
+          xhr.onloadstart = () => {
+            window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify' }));
+          };
           xhr.onload = () => {
             window.store.dispatch(doUpdateUploadRemove(guid));
             resolve(xhr);

@@ -147,7 +147,7 @@ export default function LivestreamComment(props: Props) {
                   stakedLevel={stakedLevel}
                   disableTimestamps
                   setUserMention={setUserMention}
-                  hasMembership={odyseeMembership}
+                  hasMembership={Boolean(odyseeMembership)}
                 />
               )}
             </div>

@@ -81,7 +81,7 @@ type Props = {
   supportDisabled: boolean,
   setQuickReply: (any) => void,
   quickReply: any,
-  selectOdyseeMembershipForUri: string,
+  commenterMembership: ?string,
   fetchedReplies: Array<Comment>,
   repliesFetching: boolean,
   threadLevel?: number,
@@ -114,7 +114,7 @@ function CommentView(props: Props) {
     supportDisabled,
     setQuickReply,
     quickReply,
-    selectOdyseeMembershipForUri,
+    commenterMembership,
     fetchedReplies,
     repliesFetching,
     threadLevel = 0,
@@ -324,7 +324,7 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
+              <PremiumBadge membership={commenterMembership} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
@@ -403,7 +403,7 @@ function CommentView(props: Props) {
                         promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
-                        hasMembership={selectOdyseeMembershipForUri}
+                        hasMembership={Boolean(commenterMembership)}
                       />
                     </Expandable>
                   ) : (
@@ -412,7 +412,7 @@ function CommentView(props: Props) {
                       promptLinks
                       parentCommentId={commentId}
                       stakedLevel={stakedLevel}
-                      hasMembership={selectOdyseeMembershipForUri}
+                      hasMembership={Boolean(commenterMembership)}
                     />
                   )}
                 </div>
