@@ -14,6 +14,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { NavLink } from 'react-router-dom';
+import Spinner from 'component/spinner';
 import UriIndicator from 'component/uriIndicator';
 import I18nMessage from 'component/i18nMessage';
 import ShuffleButton from './internal/shuffleButton';
@@ -40,7 +41,8 @@ type Props = {
   isMyCollection: boolean,
   collectionUrls: Array<Claim>,
   collectionName: string,
-  isPrivateCollection: boolean,
+  isPrivateCollection: ?boolean,
+  isResolvingCollection: ?boolean,
   publishedCollectionName: string | boolean,
   playingItemIndex: number,
   collectionLength: number,
@@ -54,6 +56,7 @@ type Props = {
   doCollectionEdit: (string, CollectionEditParams) => void,
   enableCardBody?: () => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
+  doFetchItemsInCollection: ({}, ?() => void) => void,
 };
 
 export default function PlaylistCard(props: Props) {
@@ -127,6 +130,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     customTitle,
     bodyOpen = true,
     isPrivateCollection,
+    isResolvingCollection,
     publishedCollectionName,
     doCollectionEdit,
     playingItemIndex,
@@ -141,6 +145,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     collectionEmpty,
     playingCurrentPlaylist,
     isFloating,
+    doFetchItemsInCollection,
     ...cardProps
   } = props;
 
@@ -228,6 +233,12 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       return () => bodyRef.removeEventListener('scroll', handleScroll);
     }
   }, [bodyRef, isFloating, isMobile]);
+
+  React.useEffect(() => {
+    if (isPrivateCollection && id) {
+      doFetchItemsInCollection({ collectionId: id });
+    }
+  }, [isPrivateCollection, id]);
 
   return (
     <>
@@ -322,31 +333,38 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         body={
           !bodyOpen || titleOnly ? undefined : (
             <React.Suspense fallback={null}>
-              <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-                <Lazy.Droppable droppableId="list__ordering">
-                  {(DroppableProvided) => (
-                    <ClaimList
-                      type="small"
-                      activeUri={playingItemUrl}
-                      uris={collectionUrls}
-                      collectionId={id}
-                      empty={__('Playlist is Empty')}
-                      showEdit={showEdit}
-                      droppableProvided={DroppableProvided}
-                      smallThumbnail
-                      showIndexes
-                      playItemsOnClick={playingCurrentPlaylist}
-                      disableClickNavigation={disableClickNavigation}
-                      doDisablePlayerDrag={doDisablePlayerDrag}
-                      setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
-                      setListRef={(node) => setBodyRef(node)}
-                      scrolledPastActive={scrolledPastActive}
-                      restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
-                      setHasActive={setHasActive}
-                    />
-                  )}
-                </Lazy.Droppable>
-              </Lazy.DragDropContext>
+              {isResolvingCollection && (
+                <div className="main--empty">
+                  <Spinner type="small" />
+                </div>
+              )}
+              {!isResolvingCollection && (
+                <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+                  <Lazy.Droppable droppableId="list__ordering">
+                    {(DroppableProvided) => (
+                      <ClaimList
+                        type="small"
+                        activeUri={playingItemUrl}
+                        uris={collectionUrls}
+                        collectionId={id}
+                        empty={__('Playlist is Empty')}
+                        showEdit={showEdit}
+                        droppableProvided={DroppableProvided}
+                        smallThumbnail
+                        showIndexes
+                        playItemsOnClick={playingCurrentPlaylist}
+                        disableClickNavigation={disableClickNavigation}
+                        doDisablePlayerDrag={doDisablePlayerDrag}
+                        setActiveListItemRef={bodyRef ? activeListItemRef : undefined}
+                        setListRef={(node) => setBodyRef(node)}
+                        scrolledPastActive={scrolledPastActive}
+                        restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
+                        setHasActive={setHasActive}
+                      />
+                    )}
+                  </Lazy.Droppable>
+                </Lazy.DragDropContext>
+              )}
             </React.Suspense>
           )
         }

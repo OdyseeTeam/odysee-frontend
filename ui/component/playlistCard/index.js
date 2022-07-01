@@ -11,9 +11,10 @@ import {
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
   selectCollectionForId,
+  selectIsResolvingCollectionForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
-import { doCollectionEdit } from 'redux/actions/collections';
+import { doCollectionEdit, doFetchItemsInCollection } from 'redux/actions/collections';
 
 const select = (state, props) => {
   const { id: collectionId } = props;
@@ -34,6 +35,7 @@ const select = (state, props) => {
     collectionName: selectNameForCollectionId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
+    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
     publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
     playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
     collectionLength: selectCollectionLengthForId(state, collectionId),
@@ -44,6 +46,7 @@ const select = (state, props) => {
 
 const perform = {
   doCollectionEdit,
+  doFetchItemsInCollection,
 };
 
 export default connect(select, perform)(PlaylistCard);

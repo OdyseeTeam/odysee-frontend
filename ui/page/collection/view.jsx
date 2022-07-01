@@ -36,7 +36,8 @@ type Props = {
   collection: Collection,
   collectionUrls: Array<string>,
   collectionCount: number,
-  isResolvingCollection: boolean,
+  isPrivateCollection: ?boolean,
+  isResolvingCollection: ?boolean,
   isMyClaim: boolean,
   isMyCollection: boolean,
   claimIsPending: boolean,
@@ -58,6 +59,7 @@ export default function CollectionPage(props: Props) {
     collectionCount,
     collectionHasEdits,
     claimIsPending,
+    isPrivateCollection,
     isResolvingCollection,
     editCollection,
     fetchCollectionItems,
@@ -91,14 +93,14 @@ export default function CollectionPage(props: Props) {
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
 
-  const urlsReady =
-    collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
+  const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
+  const shouldFetchItems = isPrivateCollection || (!urlsReady && collectionId && !didTryResolve && !collection);
 
   React.useEffect(() => {
-    if (collectionId && !urlsReady && !didTryResolve && !collection) {
+    if (shouldFetchItems) {
       fetchCollectionItems(collectionId, () => setDidTryResolve(true));
     }
-  }, [collectionId, urlsReady, didTryResolve, setDidTryResolve, fetchCollectionItems, collection]);
+  }, [shouldFetchItems, collectionId]);
 
   const pending = (
     <div className="help card__title--help">
@@ -224,21 +226,28 @@ export default function CollectionPage(props: Props) {
         {editing}
         <div className={classnames('section card-stack')}>
           {info}
-          <React.Suspense fallback={null}>
-            <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-              <Lazy.Droppable droppableId="list__ordering">
-                {(DroppableProvided) => (
-                  <ClaimList
-                    uris={collectionUrls}
-                    collectionId={collectionId}
-                    showEdit={showEdit}
-                    droppableProvided={DroppableProvided}
-                    unavailableUris={unavailableUris}
-                  />
-                )}
-              </Lazy.Droppable>
-            </Lazy.DragDropContext>
-          </React.Suspense>
+          {isResolvingCollection && (
+            <div className="main--empty">
+              <Spinner />
+            </div>
+          )}
+          {!isResolvingCollection && (
+            <React.Suspense fallback={null}>
+              <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+                <Lazy.Droppable droppableId="list__ordering">
+                  {(DroppableProvided) => (
+                    <ClaimList
+                      uris={collectionUrls}
+                      collectionId={collectionId}
+                      showEdit={showEdit}
+                      droppableProvided={DroppableProvided}
+                      unavailableUris={unavailableUris}
+                    />
+                  )}
+                </Lazy.Droppable>
+              </Lazy.DragDropContext>
+            </React.Suspense>
+          )}
         </div>
       </Page>
     );
