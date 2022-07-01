@@ -683,10 +683,9 @@ const OdyseeMembershipPage = (props: Props) => {
               <div>
                 <br />
                 <h2 className={'getPaymentCard'}>
-                  (!window.odysee.build.googlePlay ? (
-                  {__('Please save a card as a payment method so you can join Odysee Premium')}) : (
-                  {__('Please visit Odysee.com on your PC to add a payment method so you can join Odysee Premium')}
-                  ))
+                  {!window.odysee.build.googlePlay
+                    ? __('Please save a card as a payment method so you can join Odysee Premium')
+                    : __('Please visit Odysee.com on your PC to add a payment method so you can join Odysee Premium')}
                 </h2>
 
                 {!window.odysee.build.googlePlay && (
