@@ -166,7 +166,6 @@ const ModalPublishPreview = (props: Props) => {
   } else if (fileText) {
     modalTitle = __('Confirm Post');
   } else {
-    console.log('PRO: ', props);
     modalTitle = __('Confirm Upload');
   }
 

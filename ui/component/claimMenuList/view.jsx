@@ -228,7 +228,6 @@ function ClaimMenuList(props: Props) {
       if (isLivestreamClaim) {
         push(`/$/${PAGES.LIVESTREAM}`);
       } else if (isPostClaim) {
-        console.log('Edit post');
         push(`/$/${PAGES.POST}`);
       } else {
         push(`/$/${PAGES.UPLOAD}`);
