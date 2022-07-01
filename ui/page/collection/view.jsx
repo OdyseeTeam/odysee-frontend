@@ -41,6 +41,7 @@ type Props = {
   isMyCollection: boolean,
   claimIsPending: boolean,
   collectionHasEdits: boolean,
+  brokenUrls: ?Array<any>,
   deleteCollection: (string, string) => void,
   editCollection: (string, CollectionEditParams) => void,
   fetchCollectionItems: (string, () => void) => void,
@@ -57,6 +58,7 @@ export default function CollectionPage(props: Props) {
     collectionUrls,
     collectionCount,
     collectionHasEdits,
+    brokenUrls,
     claimIsPending,
     isResolvingCollection,
     editCollection,
@@ -72,7 +74,7 @@ export default function CollectionPage(props: Props) {
   const [didTryResolve, setDidTryResolve] = React.useState(false);
   const [showInfo, setShowInfo] = React.useState(false);
   const [showEdit, setShowEdit] = React.useState(false);
-  const [unavailableUris, setUnavailable] = React.useState([]);
+  const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
   const { name, totalItems } = collection || {};
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);

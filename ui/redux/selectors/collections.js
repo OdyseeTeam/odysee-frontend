@@ -238,8 +238,13 @@ export const selectUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   // -- sanitize -- > in case non-urls got added into a collection: only select string types
   // to avoid general app errors trying to use its uri
-  // (TODO: the non-standard values will still be there, allow to remove, or auto remove)
   return collection && collection.items.filter((item) => typeof item === 'string');
+};
+
+export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  // Allows removing non-standard uris from a collection
+  return collection && collection.items.filter((item) => typeof item !== 'string');
 };
 
 export const selectFirstItemUrlForCollection = createSelector(

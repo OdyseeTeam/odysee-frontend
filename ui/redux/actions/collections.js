@@ -361,7 +361,10 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
   if (anyUris) {
     anyUris.forEach(async (uri) => {
-      if (isPermanentUrl(uri)) return uris.push(uri);
+      // related to selectBrokenUrlsForCollectionId
+      const isDeletingBrokenUris = typeof uri !== 'string';
+
+      if (isPermanentUrl(uri) || isDeletingBrokenUris) return uris.push(uri);
 
       let url = selectPermanentUrlForUri(state, uri);
 
