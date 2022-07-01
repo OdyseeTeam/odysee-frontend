@@ -370,7 +370,6 @@ export class FormField extends React.PureComponent<Props, State> {
         );
       default:
         const inputElementProps = { type, name, maxlength: max, ref: this.input, ...inputProps };
-        console.log('max: ', inputElementProps);
 
         return (
           <FormFieldWrapper {...wrapperProps}>
