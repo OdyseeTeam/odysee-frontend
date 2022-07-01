@@ -357,7 +357,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
   // -- sanitization --
   // only permanent urls can be added to collections
-  const uris = [];
+  let uris = [];
 
   if (anyUris) {
     anyUris.forEach(async (uri) => {
@@ -375,6 +375,8 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
       return uris.push(url);
     });
+  } else {
+    uris = undefined;
   }
 
   // -------------------
@@ -387,7 +389,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   if (uris) {
     if (remove) {
       // Filters (removes) the passed uris from the current list items
-      newItems = currentUrls.filter((url) => url && !uris.includes(url));
+      newItems = currentUrls.filter((url) => url && !uris?.includes(url));
     } else {
       // Pushes (adds to the end) the passed uris to the current list items
       // (only if item not already in currentUrls, avoid duplicates)
