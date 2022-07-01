@@ -9,7 +9,7 @@ type Props = {
   checkIfAlreadyPurchased: () => void,
 };
 
-class ModalSendTip extends React.PureComponent<Props> {
+class ModalPreorderContent extends React.PureComponent<Props> {
   render() {
     const { uri, doHideModal, checkIfAlreadyPurchased } = this.props;
 
@@ -21,4 +21,4 @@ class ModalSendTip extends React.PureComponent<Props> {
   }
 }
 
-export default ModalSendTip;
+export default ModalPreorderContent;

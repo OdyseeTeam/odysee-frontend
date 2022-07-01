@@ -70,14 +70,16 @@ const WalletBalance = (props: Props) => {
 
               <h2 className="section__title--small">{totalCreatorsSupported || 0} Creators Supported</h2>
 
-              <div className="section__actions">
-                <Button
-                  button="secondary"
-                  label={__('Manage Cards')}
-                  icon={ICONS.SETTINGS}
-                  onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
-                />
-              </div>
+              {!window.odysee.build.googlePlay && (
+                <div className="section__actions">
+                  <Button
+                    button="secondary"
+                    label={__('Manage Cards')}
+                    icon={ICONS.SETTINGS}
+                    onClick={() => openExternal(`/$/${PAGES.SETTINGS_STRIPE_CARD}`)}
+                  />
+                </div>
+              )}
             </>
           }
         />
