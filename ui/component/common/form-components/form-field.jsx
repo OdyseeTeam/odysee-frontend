@@ -126,6 +126,7 @@ export class FormField extends React.PureComponent<Props, State> {
       render,
       handleTip,
       handleSubmit,
+      max,
       ...inputProps
     } = this.props;
 
@@ -368,12 +369,28 @@ export class FormField extends React.PureComponent<Props, State> {
           </FormFieldWrapper>
         );
       default:
-        const inputElementProps = { type, name, ref: this.input, ...inputProps };
+        const inputElementProps = { type, name, maxlength: max, ref: this.input, ...inputProps };
+        console.log('max: ', inputElementProps);
 
         return (
           <FormFieldWrapper {...wrapperProps}>
             <fieldset-section>
-              {(label || errorMessage) && <Label {...labelProps} errorMessage={errorMessage} />}
+              {(label || errorMessage) && (
+                <div>
+                  <Label {...labelProps} errorMessage={errorMessage} />
+                  {inputElementProps.maxlength && inputElementProps.value && (
+                    <label
+                      className={
+                        Number(inputElementProps.maxlength) - String(inputElementProps.value).length > 0
+                          ? 'input-max-counter'
+                          : 'input-max-counter-error'
+                      }
+                    >
+                      {Number(inputElementProps.maxlength) - String(inputElementProps.value).length}
+                    </label>
+                  )}
+                </div>
+              )}
 
               {prefix && <label htmlFor={name}>{prefix}</label>}
 
@@ -383,7 +400,9 @@ export class FormField extends React.PureComponent<Props, State> {
                   {inputButton}
                 </input-submit>
               ) : (
-                <input {...inputElementProps} />
+                <>
+                  <input {...inputElementProps} />
+                </>
               )}
             </fieldset-section>
           </FormFieldWrapper>

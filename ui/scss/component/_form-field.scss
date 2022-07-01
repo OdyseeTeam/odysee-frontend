@@ -316,6 +316,18 @@ input-submit {
   @extend input-submit;
 }
 
+.input-max-counter {
+  display: inline;
+  font-size: var(--font-xsmall) !important;
+  float: right;
+  opacity: 0.6;
+}
+
+.input-max-counter-error {
+  @extend .input-max-counter;
+  color: var(--color-text-error);
+}
+
 input-submit {
   align-items: center;
 

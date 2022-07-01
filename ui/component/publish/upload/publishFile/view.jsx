@@ -364,6 +364,7 @@ function PublishFile(props: Props) {
                 value={title}
                 onChange={handleTitleChange}
                 className="fieldset-group"
+                max="200"
                 ref={titleInput}
               />
               <PublishName uri={uri} />

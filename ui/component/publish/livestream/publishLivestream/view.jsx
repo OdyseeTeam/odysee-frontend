@@ -284,6 +284,7 @@ function PublishLivestream(props: Props) {
                 value={title}
                 onChange={handleTitleChange}
                 className="fieldset-group"
+                max="200"
                 autoFocus
               />
               <PublishName uri={uri} />
