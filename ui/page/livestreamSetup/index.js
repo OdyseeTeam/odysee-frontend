@@ -9,6 +9,7 @@ import {
   makeSelectLivestreamsForChannelId,
   makeSelectIsFetchingLivestreams,
 } from 'redux/selectors/livestream';
+import { selectBalance } from 'redux/selectors/wallet';
 import LivestreamSetupPage from './view';
 // import { push } from 'connected-react-router';
 
@@ -25,6 +26,7 @@ const select = (state) => {
     pendingClaims: makeSelectPendingLivestreamsForChannelId(channelId)(state),
     fetchingLivestreams: makeSelectIsFetchingLivestreams(channelId)(state),
     user: selectUser(state),
+    balance: selectBalance(state),
   };
 };
 const perform = (dispatch) => ({

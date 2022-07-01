@@ -91,6 +91,7 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   setClearStatus: (boolean) => void,
+  disabled?: boolean,
 };
 
 function LivestreamForm(props: Props) {
@@ -116,7 +117,7 @@ function LivestreamForm(props: Props) {
     isStillEditing,
     tags,
     publish,
-    // disabled = false,
+    disabled = false,
     checkAvailability,
     ytSignupPending,
     modal,
@@ -124,6 +125,7 @@ function LivestreamForm(props: Props) {
     activeChannelClaim,
     description,
     // user,
+    balance,
     permanentUrl,
     remoteUrl,
     isClaimingInitialRewards,
@@ -196,7 +198,7 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const disabled = !title || !name;
+  // const disabled = !title || !name;
   const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
@@ -428,135 +430,142 @@ function LivestreamForm(props: Props) {
 
   // Editing claim uri
   return (
-    <div className="card-stack">
-      <Card className="card--livestream">
-        <div>
-          <Button
-            key={'New'}
-            icon={ICONS.LIVESTREAM}
-            iconSize={18}
-            label={'New Livestream'}
-            button="alt"
-            onClick={() => {
-              // $FlowFixMe
-              setPublishMode('New');
-            }}
-            className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
-          />
-          <Button
-            key={'Replay'}
-            icon={ICONS.MENU}
-            iconSize={18}
-            label={'Choose Replay'}
-            button="alt"
-            onClick={() => {
-              // $FlowFixMe
-              setPublishMode('Replay');
-            }}
-            disabled={!hasLivestreamData}
-            className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
-          />
-        </div>
-        {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
-        <Tooltip title={__('Check for Replays')}>
-          <Button
-            button="secondary"
-            label={__('Check for Replays')}
-            disabled={isCheckingLivestreams}
-            icon={ICONS.REFRESH}
-            onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
-          />
-        </Tooltip>
-      </Card>
-
-      <PublishLivestream
-        inEditMode={inEditMode}
-        fileSource={publishMode === 'New' ? fileSource : SOURCE_SELECT}
-        changeFileSource={changeFileSource}
-        uri={permanentUrl}
-        mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
-        fileMimeType={fileMimeType}
-        // disabled={disabled || publishing}
-        inProgress={isInProgress}
-        livestreamData={livestreamData}
-        setWaitForFile={setWaitForFile}
-        setOverMaxBitrate={setOverMaxBitrate}
-        isCheckingLivestreams={isCheckingLivestreams}
-        checkLivestreams={fetchLivestreams}
-        channelId={claimChannelId}
-        channelName={activeChannelName}
-      />
-
-      <PublishDescription disabled={disabled} />
-
-      {!publishing && (
-        <div className={classnames({ 'card--disabled': disabled })}>
-          {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
-
-          <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
-
-          <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
-            {__('Tags')}
-          </h2>
-          <TagsSelect
-            suggestMature={!SIMPLE_SITE}
-            disableAutoFocus
-            hideHeader
-            label={__('Selected Tags')}
-            empty={__('No tags added')}
-            limitSelect={TAGS_LIMIT}
-            help={__(
-              "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-            )}
-            placeholder={__('gaming, crypto')}
-            onSelect={(newTags) => {
-              const validatedTags = [];
-              newTags.forEach((newTag) => {
-                if (!tags.some((tag) => tag.name === newTag.name)) {
-                  validatedTags.push(newTag);
-                }
-              });
-              updatePublishForm({ tags: [...tags, ...validatedTags] });
-            }}
-            onRemove={(clickedTag) => {
-              const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-              updatePublishForm({ tags: newTags });
-            }}
-            tagsChosen={tags}
-          />
-
-          <PublishAdditionalOptions
-            isLivestream={isLivestreamMode}
-            disabled={disabled}
-            showSchedulingOptions={showSchedulingOptions}
-          />
-        </div>
-      )}
-      <section>
-        <div className="section__actions">
-          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-          <ChannelSelect hideAnon disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
-        </div>
-        <p className="help">
-          {!formDisabled && !formValid ? (
-            <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
-          ) : (
-            <I18nMessage
-              tokens={{
-                lbry_terms_of_service: (
-                  <Button
-                    button="link"
-                    href="https://odysee.com/$/tos"
-                    label={__('%site_name% Terms of Service', { site_name: SITE_NAME })}
-                  />
-                ),
+    <div className={balance < 0.01 ? 'disabled' : ''}>
+      <div className="card-stack">
+        <Card className="card--livestream">
+          <div>
+            <Button
+              key={'New'}
+              icon={ICONS.LIVESTREAM}
+              iconSize={18}
+              label={'New Livestream'}
+              button="alt"
+              onClick={() => {
+                // $FlowFixMe
+                setPublishMode('New');
               }}
-            >
-              By continuing, you accept the %lbry_terms_of_service%.
-            </I18nMessage>
-          )}
-        </p>
-      </section>
+              className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
+            />
+            <Button
+              key={'Replay'}
+              icon={ICONS.MENU}
+              iconSize={18}
+              label={'Choose Replay'}
+              button="alt"
+              onClick={() => {
+                // $FlowFixMe
+                setPublishMode('Replay');
+              }}
+              disabled={!hasLivestreamData}
+              className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
+            />
+          </div>
+          {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
+          <Tooltip title={__('Check for Replays')}>
+            <Button
+              button="secondary"
+              label={__('Check for Replays')}
+              disabled={isCheckingLivestreams}
+              icon={ICONS.REFRESH}
+              onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
+            />
+          </Tooltip>
+        </Card>
+
+        <PublishLivestream
+          inEditMode={inEditMode}
+          fileSource={publishMode === 'New' ? fileSource : SOURCE_SELECT}
+          changeFileSource={changeFileSource}
+          uri={permanentUrl}
+          mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
+          fileMimeType={fileMimeType}
+          disabled={disabled || publishing}
+          inProgress={isInProgress}
+          livestreamData={livestreamData}
+          setWaitForFile={setWaitForFile}
+          setOverMaxBitrate={setOverMaxBitrate}
+          isCheckingLivestreams={isCheckingLivestreams}
+          checkLivestreams={fetchLivestreams}
+          channelId={claimChannelId}
+          channelName={activeChannelName}
+        />
+
+        <PublishDescription disabled={disabled} />
+
+        {!publishing && (
+          <div className={classnames({ 'card--disabled': disabled })}>
+            {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
+
+            <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+
+            <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
+              {__('Tags')}
+            </h2>
+            <TagsSelect
+              suggestMature={!SIMPLE_SITE}
+              disableAutoFocus
+              hideHeader
+              label={__('Selected Tags')}
+              empty={__('No tags added')}
+              limitSelect={TAGS_LIMIT}
+              help={__(
+                "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
+              )}
+              placeholder={__('gaming, crypto')}
+              onSelect={(newTags) => {
+                const validatedTags = [];
+                newTags.forEach((newTag) => {
+                  if (!tags.some((tag) => tag.name === newTag.name)) {
+                    validatedTags.push(newTag);
+                  }
+                });
+                updatePublishForm({ tags: [...tags, ...validatedTags] });
+              }}
+              onRemove={(clickedTag) => {
+                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                updatePublishForm({ tags: newTags });
+              }}
+              tagsChosen={tags}
+            />
+
+            <PublishAdditionalOptions
+              isLivestream={isLivestreamMode}
+              disabled={disabled}
+              showSchedulingOptions={showSchedulingOptions}
+            />
+          </div>
+        )}
+        <section>
+          <div className="section__actions">
+            <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
+            <ChannelSelect hideAnon disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
+          </div>
+          <p className="help">
+            {!formDisabled && !formValid ? (
+              <PublishFormErrors
+                title={title}
+                mode={mode}
+                waitForFile={waitingForFile}
+                overMaxBitrate={overMaxBitrate}
+              />
+            ) : (
+              <I18nMessage
+                tokens={{
+                  lbry_terms_of_service: (
+                    <Button
+                      button="link"
+                      href="https://odysee.com/$/tos"
+                      label={__('%site_name% Terms of Service', { site_name: SITE_NAME })}
+                    />
+                  ),
+                }}
+              >
+                By continuing, you accept the %lbry_terms_of_service%.
+              </I18nMessage>
+            )}
+          </p>
+        </section>
+      </div>
     </div>
   );
 }

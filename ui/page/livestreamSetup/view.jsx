@@ -19,6 +19,7 @@ import classnames from 'classnames';
 import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Icon from 'component/common/icon';
 import { useIsMobile } from 'effects/use-screensize';
+import YrblWalletEmpty from 'component/yrblWalletEmpty';
 
 type Props = {
   hasChannels: boolean,
@@ -33,6 +34,7 @@ type Props = {
   channelId: ?string,
   channelName: ?string,
   user: ?User,
+  balance: number,
 };
 
 export default function LivestreamSetupPage(props: Props) {
@@ -50,6 +52,7 @@ export default function LivestreamSetupPage(props: Props) {
     channelId,
     channelName,
     user,
+    balance,
   } = props;
 
   const isMobile = useIsMobile();
@@ -185,9 +188,8 @@ export default function LivestreamSetupPage(props: Props) {
   };
 
   const [tab, setTab] = React.useState('Publish');
-  // const collectionChannel = claim && claim.signing_channel ? claim.signing_channel.claim_id : undefined;
 
-  const HeaderMenu = () => {
+  const HeaderMenu = (e) => {
     return (
       <>
         <Button
@@ -199,6 +201,7 @@ export default function LivestreamSetupPage(props: Props) {
             // $FlowFixMe
             setTab('Publish');
           }}
+          disabled={e.disabled}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Publish' })}
         />
         <Button
@@ -210,6 +213,7 @@ export default function LivestreamSetupPage(props: Props) {
             // $FlowFixMe
             setTab('Setup');
           }}
+          disabled={e.disabled}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
         />
       </>
@@ -270,6 +274,12 @@ export default function LivestreamSetupPage(props: Props) {
 
   return (
     <Page className="uploadPage-wrapper">
+      {balance < 0.01 && <YrblWalletEmpty />}
+      {balance >= 0.01 && fetchingChannels && (
+        <div className="main--empty">
+          <Spinner />
+        </div>
+      )}
       <h1 className="page__title">
         <Icon icon={ICONS.VIDEO} />
         <label>
@@ -277,10 +287,10 @@ export default function LivestreamSetupPage(props: Props) {
           {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
-      <HeaderMenu />
+      <HeaderMenu disabled={balance < 0.01} />
 
       {tab === 'Setup' && (
-        <>
+        <div className="disabled">
           {/* livestreaming disabled */}
           {!livestreamEnabled && (
             <div style={{ marginTop: '11px' }}>
@@ -485,9 +495,9 @@ export default function LivestreamSetupPage(props: Props) {
               )}
             </div>
           )}
-        </>
+        </div>
       )}
-      {tab === 'Publish' && <LivestreamForm setClearStatus={setIsClear} />}
+      {tab === 'Publish' && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
     </Page>
   );
 }

@@ -208,7 +208,7 @@ function UploadForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const isClear = !filePath && !title && !name && !description && !thumbnail && !disabled;
+  const isClear = !filePath && !title && !name && !description && !thumbnail;
 
   useEffect(() => {
     if (!hasClaimedInitialRewards) {

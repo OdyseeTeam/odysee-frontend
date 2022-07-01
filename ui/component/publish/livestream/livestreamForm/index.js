@@ -28,6 +28,7 @@ import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/se
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectUser } from 'redux/selectors/user';
+import { selectBalance } from 'redux/selectors/wallet';
 import LivestreamForm from './view';
 
 const select = (state) => {
@@ -59,6 +60,7 @@ const select = (state) => {
     incognito: selectIncognito(state),
     isClaimingInitialRewards: selectIsClaimingInitialRewards(state),
     hasClaimedInitialRewards: selectHasClaimedInitialRewards(state),
+    balance: selectBalance(state),
   };
 };
 

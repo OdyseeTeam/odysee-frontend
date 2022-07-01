@@ -15,13 +15,13 @@ function UploadPage(props: Props) {
 
   return (
     <Page className="uploadPage-wrapper" noFooter>
-      {balance === 0 && <YrblWalletEmpty />}
-      {balance !== 0 && fetchingChannels ? (
+      {balance < 0.01 && <YrblWalletEmpty />}
+      {balance >= 0.01 && fetchingChannels ? (
         <div className="main--empty">
           <Spinner />
         </div>
       ) : (
-        <UploadForm disabled={balance === 0} />
+        <UploadForm disabled={balance < 0.01} />
       )}
     </Page>
   );

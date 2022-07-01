@@ -182,7 +182,7 @@ function PostForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  const isClear = !title && !name && !thumbnail && !disabled;
+  const isClear = !title && !name && !thumbnail;
 
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
