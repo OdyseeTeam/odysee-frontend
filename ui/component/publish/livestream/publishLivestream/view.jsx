@@ -116,18 +116,15 @@ function PublishLivestream(props: Props) {
 
   // Initialize default file source state for each mode.
   useEffect(() => {
-    // setShowSourceSelector(false);
     switch (mode) {
       case PUBLISH_MODES.LIVESTREAM:
         if (inEditMode) {
           changeFileSource(SOURCE_SELECT);
-          // setShowSourceSelector(true);
         } else {
           changeFileSource(SOURCE_NONE);
         }
         break;
       case PUBLISH_MODES.FILE:
-        // if (hasLivestreamData) setShowSourceSelector(true);
         changeFileSource(SOURCE_UPLOAD);
         break;
     }
@@ -158,16 +155,16 @@ function PublishLivestream(props: Props) {
     setCurrentPage(page);
   }
 
+  function handleTitleChange(event) {
+    updatePublishForm({ title: event.target.value });
+  }
+
   /*
   function parseName(newName) {
     let INVALID_URI_CHARS = new RegExp(regexInvalidURI, 'gu');
     return newName.replace(INVALID_URI_CHARS, '-');
   }
   */
-
-  function handleTitleChange(event) {
-    updatePublishForm({ title: event.target.value });
-  }
 
   /*
   function autofillTitle(file) {

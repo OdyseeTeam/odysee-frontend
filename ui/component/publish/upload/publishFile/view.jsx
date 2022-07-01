@@ -1,25 +1,16 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
-import type { Node } from 'react';
-// import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
 import { regexInvalidURI } from 'util/lbryURI';
-import PostEditor from 'component/postEditor';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-// import I18nMessage from 'component/i18nMessage';
-import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from 'component/publish/shared/publishName';
-// import CopyableText from 'component/copyableText';
-// import Empty from 'component/common/empty';
-// import moment from 'moment';
 import classnames from 'classnames';
-// import ReactPaginate from 'react-paginate';
-import { SOURCE_NONE, SOURCE_SELECT, SOURCE_UPLOAD } from 'constants/publish_sources';
+import { SOURCE_SELECT } from 'constants/publish_sources';
 
 type Props = {
   uri: ?string,
@@ -27,35 +18,18 @@ type Props = {
   name: ?string,
   title: ?string,
   filePath: string | WebFile,
-  fileMimeType: ?string,
   isStillEditing: boolean,
   balance: number,
   doUpdatePublishForm: ({}) => void,
   disabled: boolean,
-  // publishing: boolean,
   doToast: ({ message: string, isError?: boolean }) => void,
-  inProgress: boolean,
-  doClearPublish: () => void,
-  ffmpegStatus: any,
-  optimize: boolean,
   size: number,
   duration: number,
   isVid: boolean,
-  // subtitle: string,
   setPublishMode: (string) => void,
-  setPrevFileText: (string) => void,
-  header: Node,
-  // livestreamData: LivestreamReplayData,
-  isLivestreamClaim: boolean,
-  checkLivestreams: (string, string) => void,
-  channelName: string,
-  channelId: string,
-  isCheckingLivestreams: boolean,
-  setWaitForFile: (boolean) => void,
   setOverMaxBitrate: (boolean) => void,
   fileSource: string,
-  changeFileSource: (string) => void,
-  inEditMode: boolean,
+  // inEditMode: boolean,
 };
 
 function PublishFile(props: Props) {
@@ -66,34 +40,19 @@ function PublishFile(props: Props) {
     title,
     balance,
     filePath,
-    fileMimeType,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
     doToast,
     disabled,
-    // publishing,
-    inProgress,
-    doClearPublish,
-    optimize,
-    ffmpegStatus = {},
     size,
     duration,
     isVid,
     setPublishMode,
-    setPrevFileText,
-    header,
-    livestreamData,
-    // isLivestreamClaim,
-    // subtitle,
-    // checkLivestreams,
-    channelId,
-    channelName,
-    // isCheckingLivestreams,
-    setWaitForFile,
+    // setPrevFileText,
+    // setWaitForFile,
     setOverMaxBitrate,
     fileSource,
-    changeFileSource,
-    inEditMode,
+    // inEditMode,
   } = props;
 
   const RECOMMENDED_BITRATE = 8500000;
@@ -101,18 +60,10 @@ function PublishFile(props: Props) {
   const TV_PUBLISH_SIZE_LIMIT_BYTES = WEB_PUBLISH_SIZE_LIMIT_GB * 1073741824;
   const TV_PUBLISH_SIZE_LIMIT_GB_STR = String(WEB_PUBLISH_SIZE_LIMIT_GB);
 
-  const PROCESSING_MB_PER_SECOND = 0.5;
-  const MINUTES_THRESHOLD = 30;
-  const HOURS_THRESHOLD = MINUTES_THRESHOLD * 60;
   const MARKDOWN_FILE_EXTENSIONS = ['txt', 'md', 'markdown'];
-  const sizeInMB = Number(size) / 1000000;
-  const secondsToProcess = sizeInMB / PROCESSING_MB_PER_SECOND;
-  const ffmpegAvail = ffmpegStatus.available;
   const [oversized, setOversized] = useState(false);
   const [currentFile, setCurrentFile] = useState(null);
   const [currentFileType, setCurrentFileType] = useState(null);
-  const [optimizeAvail, setOptimizeAvail] = useState(false);
-  const [userOptimize, setUserOptimize] = usePersistedState('publish-file-user-optimize', false);
   const UPLOAD_SIZE_MESSAGE = __('%SITE_NAME% uploads are limited to %limit% GB.', {
     SITE_NAME,
     limit: TV_PUBLISH_SIZE_LIMIT_GB_STR,
@@ -120,10 +71,6 @@ function PublishFile(props: Props) {
 
   const bitRate = getBitrate(size, duration);
   const bitRateIsOverMax = bitRate > MAX_BITRATE;
-
-  const [selectedFileIndex, setSelectedFileIndex] = useState(null);
-  // const PAGE_SIZE = 4;
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Reset filePath if publish mode changed
   useEffect(() => {
@@ -136,12 +83,11 @@ function PublishFile(props: Props) {
     }
   }, [currentFileType, mode, isStillEditing, updatePublishForm]);
 
-  // Reset title when form gets cleared
-
   useEffect(() => {
     updatePublishForm({ title: title });
   }, [filePath]);
 
+  /*
   const normalizeUrlForProtocol = (url) => {
     if (url.startsWith('https://')) {
       return url;
@@ -153,6 +99,7 @@ function PublishFile(props: Props) {
       }
     }
   };
+  */
 
   useEffect(() => {
     if (!filePath || filePath === '') {
@@ -169,14 +116,6 @@ function PublishFile(props: Props) {
   }, [filePath, currentFile, doToast, updatePublishForm]);
 
   useEffect(() => {
-    const isOptimizeAvail = currentFile && currentFile !== '' && isVid && ffmpegAvail;
-    const finalOptimizeState = isOptimizeAvail && userOptimize;
-
-    setOptimizeAvail(isOptimizeAvail);
-    updatePublishForm({ optimize: finalOptimizeState });
-  }, [currentFile, filePath, isVid, ffmpegAvail, userOptimize, updatePublishForm]);
-
-  useEffect(() => {
     setOverMaxBitrate(bitRateIsOverMax);
   }, [bitRateIsOverMax]);
 
@@ -191,29 +130,6 @@ function PublishFile(props: Props) {
       return (s * 8) / d;
     } else {
       return 0;
-    }
-  }
-
-  function getTimeForMB(s) {
-    if (s < MINUTES_THRESHOLD) {
-      return Math.floor(secondsToProcess);
-    } else if (s >= MINUTES_THRESHOLD && s < HOURS_THRESHOLD) {
-      return Math.floor(secondsToProcess / 60);
-    } else {
-      return Math.floor(secondsToProcess / 60 / 60);
-    }
-  }
-
-  function getUnitsForMB(s) {
-    if (s < MINUTES_THRESHOLD) {
-      if (secondsToProcess > 1) return __('seconds');
-      return __('second');
-    } else if (s >= MINUTES_THRESHOLD && s < HOURS_THRESHOLD) {
-      if (Math.floor(secondsToProcess / 60) > 1) return __('minutes');
-      return __('minute');
-    } else {
-      if (Math.floor(secondsToProcess / 3600) > 1) return __('hours');
-      return __('hour');
     }
   }
 
@@ -294,27 +210,6 @@ function PublishFile(props: Props) {
     return newName.replace(INVALID_URI_CHARS, '-');
   }
 
-  function handleFileSource(source) {
-    if (source === SOURCE_NONE) {
-      // clear files and remotes...
-      // https://github.com/lbryio/lbry-desktop/issues/5855
-      // publish is trying to use one field to share html file blob and string and such
-      // $FlowFixMe
-      handleFileChange(false, false);
-      updatePublishForm({ remoteFileUrl: undefined });
-    } else if (source === SOURCE_UPLOAD) {
-      updatePublishForm({ remoteFileUrl: undefined });
-    } else if (source === SOURCE_SELECT) {
-      // $FlowFixMe
-      handleFileChange(false, false);
-      if (selectedFileIndex !== null) {
-        updatePublishForm({ remoteFileUrl: livestreamData[selectedFileIndex].data.fileLocation });
-      }
-    }
-    changeFileSource(source);
-    setWaitForFile(source !== SOURCE_NONE);
-  }
-
   function handleTitleChange(event) {
     updatePublishForm({ title: event.target.value });
   }
@@ -333,6 +228,7 @@ function PublishFile(props: Props) {
     setOversized(false);
     setOverMaxBitrate(false);
 
+    // $FlowFixMe
     titleInput.current.input.current.focus();
 
     // select file, start to select a new one, then cancel
@@ -427,8 +323,8 @@ function PublishFile(props: Props) {
     if (!title) updatePublishForm({ title: newTitle });
   }
 
-  const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
-  const isPublishPost = mode === PUBLISH_MODES.POST;
+  // const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
+  // const isPublishPost = mode === PUBLISH_MODES.POST;
   const titleInput = React.createRef();
 
   return (
@@ -453,7 +349,7 @@ function PublishFile(props: Props) {
                 />
                 {getUploadMessage()}
 
-                {fileSource === SOURCE_SELECT && showFileUpload && (
+                {fileSource === SOURCE_SELECT && (
                   <div className="main--empty empty">
                     <Spinner small />
                   </div>
@@ -471,17 +367,6 @@ function PublishFile(props: Props) {
                 ref={titleInput}
               />
               <PublishName uri={uri} />
-
-              {isPublishPost && (
-                <PostEditor
-                  label={__('Post --[noun, markdown post tab button]--')}
-                  uri={uri}
-                  disabled={disabled}
-                  fileMimeType={fileMimeType}
-                  setPrevFileText={setPrevFileText}
-                  setCurrentFileType={setCurrentFileType}
-                />
-              )}
             </React.Fragment>
           </div>
         </>
