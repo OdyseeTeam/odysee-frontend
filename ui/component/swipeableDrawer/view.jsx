@@ -47,6 +47,7 @@ export default function SwipeableDrawer(props: Props) {
 
   const [playerHeight, setPlayerHeight] = React.useState(getMaxLandscapeHeight());
 
+  const landscapePlayerHeight = HEADER_HEIGHT_MOBILE + getMaxLandscapeHeight();
   const contentHeight = HEADER_HEIGHT_MOBILE + playerHeight;
 
   function toggleDrawer() {
@@ -230,17 +231,17 @@ export default function SwipeableDrawer(props: Props) {
         if (!isFullscreenDrawer || openStateChanged) {
           node.setAttribute(
             'style',
-            `transform: translateY(${contentHeight}px); height: calc(100% - ${contentHeight}px);`
+            `transform: translateY(${landscapePlayerHeight}px); height: calc(100% - ${landscapePlayerHeight}px);`
           );
           // $FlowFixMe
-          document.documentElement?.style?.setProperty('--content-height', String(contentHeight));
+          document.documentElement?.style?.setProperty('--content-height', String(landscapePlayerHeight));
         }
 
         drawerRoot.current = node;
         openPrev.current = open;
       }
     },
-    [contentHeight, open]
+    [landscapePlayerHeight, open]
   );
 
   return (

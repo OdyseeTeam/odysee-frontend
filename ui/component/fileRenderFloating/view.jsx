@@ -555,6 +555,8 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     isTabletLandscape,
   } = props;
 
+  const justChanged = React.useRef();
+
   const isMobile = useIsMobile();
   const isMobilePlayer = isMobile && !isFloating; // to avoid miniplayer -> file page only
 
@@ -573,13 +575,29 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   // Handles video shrink + center on mobile view
   // direct DOM manipulation due to performance for every scroll
   React.useEffect(() => {
-    if (!isMobilePlayer || !mainFilePlaying || appDrawerOpen || isLandscapeRotated || isTabletLandscape) return;
+    if (!isMobilePlayer || !mainFilePlaying || isLandscapeRotated || isTabletLandscape) return;
 
     const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
-    if (viewer) viewer.style.height = `${heightForViewer}px`;
+    if (viewer) {
+      viewer.style.height = !appDrawerOpen ? `${heightForViewer}px` : undefined;
+
+      if (!appDrawerOpen) {
+        const htmlEl = document.querySelector('html');
+        if (htmlEl) htmlEl.scrollTop = 0;
+      }
+
+      justChanged.current = true;
+    }
+
+    if (appDrawerOpen) return;
 
     function handleScroll() {
       const rootEl = getRootEl();
+
+      if (justChanged.current) {
+        justChanged.current = false;
+        return;
+      }
 
       const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
       const videoNode = document.querySelector('.vjs-tech');
@@ -610,10 +628,6 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
     window.addEventListener('scroll', handleScroll);
 
     return () => {
-      // clear the added styles on unmount
-      const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
-      // $FlowFixMe
-      if (viewer) viewer.style.height = undefined;
       const touchOverlay = document.querySelector('.vjs-touch-overlay');
       if (touchOverlay) touchOverlay.removeAttribute('style');
 
@@ -631,9 +645,12 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
   ]);
 
   React.useEffect(() => {
-    if (appDrawerOpen && videoGreaterThanLandscape && isMobilePlayer) {
+    if (videoGreaterThanLandscape && isMobilePlayer) {
       const videoNode = document.querySelector('.vjs-tech');
-      if (videoNode) videoNode.style.top = `${amountNeededToCenter}px`;
+      if (videoNode) {
+        const top = appDrawerOpen ? amountNeededToCenter : 0;
+        videoNode.style.top = `${top}px`;
+      }
     }
 
     if (isMobile && isFloating) {
