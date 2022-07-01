@@ -13,17 +13,6 @@ type Props = {
 function PostPage(props: Props) {
   const { balance, fetchingChannels } = props;
 
-  function scrollToTop() {
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      // $FlowFixMe
-      mainContent.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }
-  }
-
   return (
     <Page className="uploadPage-wrapper" noFooter>
       {balance === 0 && <YrblWalletEmpty />}
@@ -32,7 +21,7 @@ function PostPage(props: Props) {
           <Spinner />
         </div>
       ) : (
-        <PostForm scrollToTop={scrollToTop} disabled={balance === 0} />
+        <PostForm disabled={balance === 0} />
       )}
     </Page>
   );

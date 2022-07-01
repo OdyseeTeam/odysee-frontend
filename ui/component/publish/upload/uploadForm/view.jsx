@@ -71,7 +71,6 @@ type Props = {
   isStillEditing: boolean,
   clearPublish: () => void,
   resolveUri: (string) => void,
-  scrollToTop: () => void,
   prepareEdit: (claim: any, uri: string) => void,
   resetThumbnailStatus: () => void,
   amountNeededForTakeover: ?number,

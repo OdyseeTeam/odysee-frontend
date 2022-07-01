@@ -13,17 +13,6 @@ type Props = {
 function LivestreamCreatePage(props: Props) {
   const { balance, fetchingChannels } = props;
 
-  function scrollToTop() {
-    const mainContent = document.querySelector('main');
-    if (mainContent) {
-      // $FlowFixMe
-      mainContent.scrollTo({
-        top: 0,
-        behavior: 'smooth',
-      });
-    }
-  }
-
   return (
     <Page className="uploadPage-wrapper" noFooter>
       {balance === 0 && <YrblWalletEmpty />}
@@ -32,7 +21,7 @@ function LivestreamCreatePage(props: Props) {
           <Spinner />
         </div>
       ) : (
-        <LivestreamForm scrollToTop={scrollToTop} disabled={balance === 0} />
+        <LivestreamForm disabled={balance === 0} />
       )}
     </Page>
   );
