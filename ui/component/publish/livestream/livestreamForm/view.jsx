@@ -65,7 +65,7 @@ type Props = {
   licenseType: string,
   otherLicenseDescription: ?string,
   licenseUrl: ?string,
-  useLBRYUploader: ?boolean,
+  // useLBRYUploader: ?boolean,
   publishing: boolean,
   publishSuccess: boolean,
   balance: number,
@@ -351,6 +351,7 @@ function LivestreamForm(props: Props) {
   useEffect(() => {
     if (editingURI) {
       resolveUri(editingURI);
+      setPublishMode('Replay');
     }
   }, [editingURI, resolveUri]);
 
@@ -444,6 +445,7 @@ function LivestreamForm(props: Props) {
                 // $FlowFixMe
                 setPublishMode('New');
               }}
+              disabled={editingURI}
               className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
             />
             <Button

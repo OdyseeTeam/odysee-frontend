@@ -10,13 +10,14 @@ import {
   makeSelectIsFetchingLivestreams,
 } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
+import { selectPublishFormValues } from 'redux/selectors/publish';
 import LivestreamSetupPage from './view';
-// import { push } from 'connected-react-router';
 
 const select = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
   const { claim_id: channelId, name: channelName } = activeChannelClaim || {};
   return {
+    ...selectPublishFormValues(state),
     channelName,
     channelId,
     hasChannels: selectHasChannels(state),
@@ -33,7 +34,6 @@ const perform = (dispatch) => ({
   clearPublish: () => dispatch(doClearPublish()),
   doNewLivestream: (path) => {
     dispatch(doClearPublish());
-    // dispatch(push(path));
   },
   fetchNoSourceClaims: (id) => dispatch(doFetchNoSourceClaims(id)),
 });

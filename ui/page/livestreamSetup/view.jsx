@@ -35,6 +35,7 @@ type Props = {
   channelName: ?string,
   user: ?User,
   balance: number,
+  editingURI: ?string,
 };
 
 export default function LivestreamSetupPage(props: Props) {
@@ -53,6 +54,7 @@ export default function LivestreamSetupPage(props: Props) {
     channelName,
     user,
     balance,
+    editingURI,
   } = props;
 
   const isMobile = useIsMobile();
@@ -213,64 +215,12 @@ export default function LivestreamSetupPage(props: Props) {
             // $FlowFixMe
             setTab('Setup');
           }}
-          disabled={e.disabled}
+          disabled={e.disabled || e.isEditing}
           className={classnames('button-toggle', { 'button-toggle--active': tab === 'Setup' })}
         />
       </>
     );
   };
-
-  /*
-  async function fetchLivestreams(channelId, channelName) {
-    setCheckingLivestreams(true);
-    let signedMessage;
-    try {
-      await Lbry.channel_sign({
-        channel_id: channelId,
-        hexdata: toHex(channelName || ''),
-      }).then((data) => {
-        signedMessage = data;
-      });
-    } catch (e) {
-      throw e;
-    }
-    if (signedMessage) {
-      const encodedChannelName = encodeURIComponent(channelName || '');
-      const newEndpointUrl =
-        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${channelId}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
-          encodedChannelName || ''
-        }`;
-
-      const responseFromNewApi = await fetch(newEndpointUrl);
-
-      const data = (await responseFromNewApi.json()).data;
-
-      let newData = [];
-      if (data && data.length > 0) {
-        for (const dataItem of data) {
-          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
-            const objectToPush = {
-              data: {
-                fileLocation: dataItem.URL,
-                fileDuration:
-                  dataItem.Status.toLowerCase() === 'inprogress'
-                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
-                    : (dataItem.Duration / 1000000000).toString(),
-                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
-                uploadedAt: dataItem.Created,
-              },
-            };
-            newData.push(objectToPush);
-          }
-        }
-      }
-
-      setLivestreamData(newData);
-      setCheckingLivestreams(false);
-    }
-  }
-  */
 
   return (
     <Page className="uploadPage-wrapper">
@@ -287,7 +237,7 @@ export default function LivestreamSetupPage(props: Props) {
           {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
-      <HeaderMenu disabled={balance < 0.01} />
+      <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />
 
       {tab === 'Setup' && (
         <div className="disabled">
