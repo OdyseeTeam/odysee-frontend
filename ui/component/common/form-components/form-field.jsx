@@ -369,7 +369,7 @@ export class FormField extends React.PureComponent<Props, State> {
           </FormFieldWrapper>
         );
       default:
-        const inputElementProps = { type, name, maxlength: max, ref: this.input, ...inputProps };
+        const inputElementProps = { type, name, maxLength: max, ref: this.input, ...inputProps };
 
         return (
           <FormFieldWrapper {...wrapperProps}>
@@ -377,15 +377,15 @@ export class FormField extends React.PureComponent<Props, State> {
               {(label || errorMessage) && (
                 <div>
                   <Label {...labelProps} errorMessage={errorMessage} />
-                  {inputElementProps.maxlength && inputElementProps.value && (
+                  {inputElementProps.maxLength && inputElementProps.value && (
                     <label
                       className={
-                        Number(inputElementProps.maxlength) - String(inputElementProps.value).length > 0
+                        Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0
                           ? 'input-max-counter'
                           : 'input-max-counter-error'
                       }
                     >
-                      {Number(inputElementProps.maxlength) - String(inputElementProps.value).length}
+                      {Number(inputElementProps.maxLength) - String(inputElementProps.value).length}
                     </label>
                   )}
                 </div>
