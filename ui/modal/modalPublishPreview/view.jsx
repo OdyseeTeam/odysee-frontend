@@ -155,7 +155,7 @@ const ModalPublishPreview = (props: Props) => {
 
   let modalTitle;
   let confirmBtnText;
-  updateLabels();
+
   function updateLabels() {
     if (isStillEditing) {
       if (isLivestreamClaim) {
