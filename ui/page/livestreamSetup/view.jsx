@@ -240,7 +240,7 @@ export default function LivestreamSetupPage(props: Props) {
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />
 
       {tab === 'Setup' && (
-        <div className="disabled">
+        <div className={editingURI ? 'disabled' : ''}>
           {/* livestreaming disabled */}
           {!livestreamEnabled && (
             <div style={{ marginTop: '11px' }}>
