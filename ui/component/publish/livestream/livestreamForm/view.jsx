@@ -91,7 +91,8 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   setClearStatus: (boolean) => void,
-  disabled?: boolean,
+  // disabled?: boolean,
+  remoteFileUrl?: string,
 };
 
 function LivestreamForm(props: Props) {
@@ -117,7 +118,7 @@ function LivestreamForm(props: Props) {
     isStillEditing,
     tags,
     publish,
-    disabled = false,
+    // disabled = false,
     checkAvailability,
     ytSignupPending,
     modal,
@@ -132,6 +133,7 @@ function LivestreamForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
     setClearStatus,
+    remoteFileUrl,
   } = props;
 
   const isMobile = useIsMobile();
@@ -152,7 +154,6 @@ function LivestreamForm(props: Props) {
   const [prevName, setPrevName] = React.useState(false);
 
   const [waitForFile, setWaitForFile] = useState(false);
-  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
@@ -180,7 +181,6 @@ function LivestreamForm(props: Props) {
     name &&
     isNameValid(name) &&
     title &&
-    !overMaxBitrate &&
     bid &&
     thumbnail &&
     !bidError &&
@@ -198,7 +198,7 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  // const disabled = !title || !name;
+  const disabled = !title || !name || (publishMode === 'Replay' && !remoteFileUrl);
   const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
@@ -351,7 +351,10 @@ function LivestreamForm(props: Props) {
   useEffect(() => {
     if (editingURI) {
       resolveUri(editingURI);
-      setPublishMode('Replay');
+      setPublishMode('Edit');
+    } else {
+      setPublishMode('New');
+      updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
   }, [editingURI, resolveUri]);
 
@@ -361,6 +364,12 @@ function LivestreamForm(props: Props) {
       isLivestreamPublish: true,
     });
   }, [mode, updatePublishForm]);
+
+  useEffect(() => {
+    if (publishMode === 'New') {
+      updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
+    }
+  }, [publishMode]);
 
   useEffect(() => {
     updatePublishForm({ channel: activeChannelName });
@@ -442,7 +451,6 @@ function LivestreamForm(props: Props) {
               label={'New Livestream'}
               button="alt"
               onClick={() => {
-                // $FlowFixMe
                 setPublishMode('New');
               }}
               disabled={editingURI}
@@ -455,19 +463,31 @@ function LivestreamForm(props: Props) {
               label={'Choose Replay'}
               button="alt"
               onClick={() => {
-                // $FlowFixMe
                 setPublishMode('Replay');
               }}
-              disabled={!hasLivestreamData}
+              disabled={!hasLivestreamData || publishMode === 'Edit'}
               className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
             />
+            {publishMode === 'Edit' && (
+              <Button
+                key={'Edit'}
+                icon={ICONS.EDIT}
+                iconSize={18}
+                label={'Edit / Update'}
+                button="alt"
+                onClick={() => {
+                  setPublishMode('Edit');
+                }}
+                className="button-toggle button-toggle--active"
+              />
+            )}
           </div>
           {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
             <Button
               button="secondary"
               label={__('Check for Replays')}
-              disabled={isCheckingLivestreams}
+              disabled={isCheckingLivestreams || publishMode === 'Edit'}
               icon={ICONS.REFRESH}
               onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
             />
@@ -476,16 +496,15 @@ function LivestreamForm(props: Props) {
 
         <PublishLivestream
           inEditMode={inEditMode}
-          fileSource={publishMode === 'New' ? fileSource : SOURCE_SELECT}
+          fileSource={publishMode === 'New' || publishMode === 'Edit' ? fileSource : SOURCE_SELECT}
           changeFileSource={changeFileSource}
           uri={permanentUrl}
           mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
           fileMimeType={fileMimeType}
-          disabled={disabled || publishing}
+          disabled={publishing}
           inProgress={isInProgress}
           livestreamData={livestreamData}
           setWaitForFile={setWaitForFile}
-          setOverMaxBitrate={setOverMaxBitrate}
           isCheckingLivestreams={isCheckingLivestreams}
           checkLivestreams={fetchLivestreams}
           channelId={claimChannelId}
@@ -544,12 +563,7 @@ function LivestreamForm(props: Props) {
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (
-              <PublishFormErrors
-                title={title}
-                mode={mode}
-                waitForFile={waitingForFile}
-                overMaxBitrate={overMaxBitrate}
-              />
+              <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
             ) : (
               <I18nMessage
                 tokens={{

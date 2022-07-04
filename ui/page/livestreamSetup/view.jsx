@@ -1,6 +1,7 @@
 // @flow
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import { useHistory } from 'react-router';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 import Page from 'component/page';
@@ -58,9 +59,13 @@ export default function LivestreamSetupPage(props: Props) {
   } = props;
 
   const isMobile = useIsMobile();
+  const {
+    location: { search },
+  } = useHistory();
+  const urlParams = new URLSearchParams(search);
+  const urlTab = urlParams.get('t');
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
-  // const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
 
   const hasLivestreamClaims = Boolean(myLivestreamClaims.length || pendingClaims.length);
   const { odysee_live_disabled: liveDisabled } = user || {};
@@ -189,13 +194,19 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
-  const [tab, setTab] = React.useState('Publish');
+  const [tab, setTab] = React.useState(urlTab || 'Publish');
 
   React.useEffect(() => {
     if (editingURI) {
       setTab('Publish');
     }
   }, [editingURI]);
+
+  React.useEffect(() => {
+    if (urlTab) {
+      setTab(urlTab);
+    }
+  }, [urlTab]);
 
   const HeaderMenu = (e) => {
     return (
@@ -226,6 +237,11 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
+  function resetForm() {
+    clearPublish();
+    setTab('Publish');
+  }
+
   return (
     <Page className="uploadPage-wrapper">
       {balance < 0.01 && <YrblWalletEmpty />}
@@ -238,7 +254,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Icon icon={ICONS.VIDEO} />
         <label>
           {__('Go Live')}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />
@@ -289,7 +305,7 @@ export default function LivestreamSetupPage(props: Props) {
                   {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
-                        <div className="section">
+                        <div className="section card--livestream-past">
                           <ClaimList
                             header={__('Your pending livestreams uploads')}
                             uris={pendingClaims.map((claim) => claim.permanent_url)}
