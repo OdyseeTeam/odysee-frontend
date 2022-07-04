@@ -52,7 +52,6 @@ type Props = {
   channelId: string,
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
-  setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
