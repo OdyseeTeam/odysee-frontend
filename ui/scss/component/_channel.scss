@@ -699,6 +699,7 @@ $actions-z-index: 2;
     }
   }
   .ff-container {
+    margin-right: var(--spacing-xs) !important;
     canvas {
       width: 1.4rem !important;
       height: 1.4rem !important;
