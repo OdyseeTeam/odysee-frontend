@@ -191,6 +191,12 @@ export default function LivestreamSetupPage(props: Props) {
 
   const [tab, setTab] = React.useState('Publish');
 
+  React.useEffect(() => {
+    if (editingURI) {
+      setTab('Publish');
+    }
+  }, [editingURI]);
+
   const HeaderMenu = (e) => {
     return (
       <>
