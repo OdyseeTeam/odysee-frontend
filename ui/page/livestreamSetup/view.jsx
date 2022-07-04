@@ -206,7 +206,6 @@ export default function LivestreamSetupPage(props: Props) {
           label={'Publish'}
           button="alt"
           onClick={() => {
-            // $FlowFixMe
             setTab('Publish');
           }}
           disabled={e.disabled}
@@ -218,7 +217,6 @@ export default function LivestreamSetupPage(props: Props) {
           label={'Local Setup'}
           button="alt"
           onClick={() => {
-            // $FlowFixMe
             setTab('Setup');
           }}
           disabled={e.disabled || e.isEditing}
