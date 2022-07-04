@@ -59,13 +59,14 @@ type Props = {
 };
 
 export default function PlaylistCard(props: Props) {
-  const { collectionName, useDrawer, hasCollectionById } = props;
+  const { collectionName, useDrawer, hasCollectionById, playingItemIndex, collectionLength } = props;
 
   const [showEdit, setShowEdit] = React.useState(false);
 
   if (!hasCollectionById) return null;
 
-  const playlistCardProps = { showEdit, setShowEdit, ...props };
+  const currentIndexLabel = ` - ${playingItemIndex}/${collectionLength} `;
+  const playlistCardProps = { showEdit, setShowEdit, currentIndexLabel, ...props };
 
   if (useDrawer) {
     return (
@@ -73,7 +74,9 @@ export default function PlaylistCard(props: Props) {
         <DrawerExpandButton
           fixed
           icon={ICONS.PLAYLIST_PLAYBACK}
-          label={__('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName}
+          label={
+            __('Now playing: --[Which Playlist is currently playing]--') + ' ' + collectionName + currentIndexLabel
+          }
           type={DRAWERS.PLAYLIST}
         />
 
@@ -106,6 +109,7 @@ type PlaylistCardProps = Props & {
   titleOnly?: boolean,
   bodyOnly?: boolean,
   showEdit: boolean,
+  currentIndexLabel: string,
   setShowEdit: (show: boolean) => void,
 };
 
@@ -121,6 +125,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doCollectionEdit,
     playingItemIndex,
     collectionLength,
+    currentIndexLabel,
     disableClickNavigation,
     titleOnly,
     bodyOnly,
@@ -357,7 +362,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
               )}
 
-              {` - ${playingItemIndex}/${collectionLength}`}
+              {currentIndexLabel}
             </>
           )
         }
