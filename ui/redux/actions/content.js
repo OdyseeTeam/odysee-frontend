@@ -309,7 +309,7 @@ export function doPlaylistAddAndAllowPlaying({
     let collectionId = id;
     if (createNew) {
       dispatch(
-        doLocalCollectionCreate({ name: collectionName, items: uri ? [uri] : undefined, type: 'playlist' }, (newId) => {
+        doLocalCollectionCreate({ name: collectionName, items: uri ? [uri] : [], type: 'playlist' }, (newId) => {
           collectionId = newId;
         })
       );
