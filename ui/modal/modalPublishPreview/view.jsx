@@ -157,13 +157,16 @@ const ModalPublishPreview = (props: Props) => {
   const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
 
   React.useEffect(() => {
+    console.log('isLivestreamClaim: ', isLivestreamClaim);
+    console.log('livestream: ', livestream);
+
     if (isStillEditing) {
-      if (isLivestreamClaim) {
+      if (livestream || isLivestreamClaim) {
         setModalTitle(__('Confirm Update'));
       } else {
         setModalTitle(__('Confirm Edit'));
       }
-    } else if (isLivestreamClaim) {
+    } else if (livestream || isLivestreamClaim) {
       setModalTitle(releasesInFuture ? __('Schedule Livestream') : __('Create Livestream'));
     } else if (isMarkdownPost) {
       setModalTitle(__('Confirm Post'));
@@ -174,7 +177,7 @@ const ModalPublishPreview = (props: Props) => {
     if (!publishing) {
       if (isMarkdownPost) {
         setConfirmBtnText(__('Post'));
-      } else if (isLivestreamClaim) {
+      } else if (livestream || isLivestreamClaim) {
         setConfirmBtnText(__('Create'));
       } else {
         setConfirmBtnText(__('Upload'));
@@ -182,7 +185,7 @@ const ModalPublishPreview = (props: Props) => {
     } else {
       if (isMarkdownPost) {
         setConfirmBtnText(__('Saving'));
-      } else if (livestream) {
+      } else if (livestream || isLivestreamClaim) {
         setConfirmBtnText(__('Creating'));
       } else {
         setConfirmBtnText(__('Uploading'));

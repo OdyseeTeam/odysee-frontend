@@ -226,6 +226,7 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
+  console.log('pendingClaims: ', pendingClaims);
   return (
     <Page className="uploadPage-wrapper">
       {balance < 0.01 && <YrblWalletEmpty />}
@@ -289,7 +290,7 @@ export default function LivestreamSetupPage(props: Props) {
                   {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
-                        <div className="section">
+                        <div className="section card--livestream-past">
                           <ClaimList
                             header={__('Your pending livestreams uploads')}
                             uris={pendingClaims.map((claim) => claim.permanent_url)}
