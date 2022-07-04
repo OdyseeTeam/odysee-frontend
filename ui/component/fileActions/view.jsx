@@ -17,7 +17,6 @@ import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import { webDownloadClaim } from 'util/downloadClaim';
 import Tooltip from 'component/common/tooltip';
-// import { getRadioUtilityClass } from '@mui/material';
 
 type Props = {
   uri: string,
