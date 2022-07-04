@@ -457,17 +457,19 @@ function LivestreamForm(props: Props) {
               disabled={!hasLivestreamData || publishMode === 'Edit'}
               className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
             />
-            <Button
-              key={'Edit'}
-              icon={ICONS.EDIT}
-              iconSize={18}
-              label={'Edit / Update'}
-              button="alt"
-              onClick={() => {
-                setPublishMode('Edit');
-              }}
-              className="button-toggle button-toggle--active"
-            />
+            {publishMode === 'Edit' && (
+              <Button
+                key={'Edit'}
+                icon={ICONS.EDIT}
+                iconSize={18}
+                label={'Edit / Update'}
+                button="alt"
+                onClick={() => {
+                  setPublishMode('Edit');
+                }}
+                className="button-toggle button-toggle--active"
+              />
+            )}
           </div>
           {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
           <Tooltip title={__('Check for Replays')}>
