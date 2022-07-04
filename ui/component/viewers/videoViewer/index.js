@@ -37,23 +37,19 @@ const select = (state, props) => {
   const collectionId = playingUri.collection.collectionId;
   const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
 
-  let nextRecommendedUri;
-  let previousListUri;
-  if (collectionId) {
-    nextRecommendedUri = selectNextUrlForCollectionAndUrl(state, uri, collectionId);
-    previousListUri = selectPreviousUrlForCollectionAndUrl(state, uri, collectionId);
-  } else {
-    const recommendedContent = selectRecommendedContentForUri(state, uri);
-    nextRecommendedUri = recommendedContent && recommendedContent[0];
-  }
+  const nextPlaylistUri = collectionId && selectNextUrlForCollectionAndUrl(state, uri, collectionId);
+  const previousPlaylistUri = collectionId && selectPreviousUrlForCollectionAndUrl(state, uri, collectionId);
+  const recomendedContent = selectRecommendedContentForUri(state, uri);
+  const nextRecommendedUri = recomendedContent && recomendedContent[0];
 
   return {
     position,
     userId,
     internalFeature,
     collectionId,
+    nextPlaylistUri,
     nextRecommendedUri,
-    previousListUri,
+    previousListUri: previousPlaylistUri,
     isMarkdownOrComment,
     autoplayIfEmbedded: Boolean(autoplay),
     autoplayNext: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
