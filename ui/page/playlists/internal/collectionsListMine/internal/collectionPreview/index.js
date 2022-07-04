@@ -10,6 +10,7 @@ import {
   selectCreatedAtForCollectionId,
   selectPublishedCollectionClaimForId,
   selectIsCollectionBuiltInForId,
+  selectCollectionHasEditsForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -35,7 +36,8 @@ const select = (state, props) => {
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
-    isBuiltin: selectIsCollectionBuiltInForId(state, props.collectionId),
+    isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
+    hasEdits: selectCollectionHasEditsForId(state, collectionId),
   };
 };
 
