@@ -21,7 +21,6 @@ import { onFullscreenChange } from 'util/full-screen';
 import { generateListSearchUrlParams, formatLbryChannelName } from 'util/url';
 import { useIsMobile, useIsMobileLandscape, useIsLandscapeScreen } from 'effects/use-screensize';
 import debounce from 'util/debounce';
-import { useHistory } from 'react-router';
 import { isURIEqual } from 'util/lbryURI';
 import AutoplayCountdown from 'component/autoplayCountdown';
 import usePlayNext from 'effects/use-play-next';
@@ -137,16 +136,11 @@ export default function FileRenderFloating(props: Props) {
   const initialPlayerHeight = React.useRef();
   const resizedBetweenFloating = React.useRef();
 
-  const {
-    location: { state },
-  } = useHistory();
-  const hideFloatingPlayer = state && state.hideFloatingPlayer;
-
   const { uri: playingUrl, source: playingUriSource, primaryUri: playingPrimaryUri } = playingUri;
 
   const isComment = playingUriSource === 'comment';
   const mainFilePlaying = Boolean(!isFloating && primaryUri && isURIEqual(uri, primaryUri));
-  const noFloatingPlayer = !isFloating || !floatingPlayerEnabled || hideFloatingPlayer;
+  const noFloatingPlayer = !isFloating || !floatingPlayerEnabled;
 
   const [fileViewerRect, setFileViewerRect] = React.useState();
   const [wasDragging, setWasDragging] = React.useState(false);

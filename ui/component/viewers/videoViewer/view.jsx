@@ -252,11 +252,7 @@ function VideoViewer(props: Props) {
         push({
           pathname: navigateUrl,
           search: isNext && !nextPlaylistUri ? undefined : collectionId && generateListSearchUrlParams(collectionId),
-          state: {
-            collectionId: isNext && !nextPlaylistUri ? undefined : collectionId,
-            forceAutoplay: true,
-            hideFloatingPlayer: true,
-          },
+          state: { collectionId: isNext && !nextPlaylistUri ? undefined : collectionId, forceAutoplay: true },
         });
       } else {
         doPlayUri({

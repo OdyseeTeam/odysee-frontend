@@ -24,7 +24,7 @@ export default function usePlayNext(
         push({
           pathname: navigateUrl,
           search: collectionId && generateListSearchUrlParams(collectionId),
-          state: { collectionId, forceAutoplay: true, hideFloatingPlayer: true },
+          state: { collectionId, forceAutoplay: true },
         });
       } else {
         doUriInitiatePlay({ uri: playUri, collection: { collectionId } }, true, isFloating);

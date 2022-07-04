@@ -282,7 +282,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     to: {
       pathname: disableClickNavigation ? pathname : navigateUrl,
       search: disableClickNavigation ? search : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
-      state: { hideFloatingPlayer: playItemsOnClick && !disableClickNavigation ? true : undefined },
     },
     onClick: handleNavLinkClick,
     onAuxClick: handleNavLinkClick,
@@ -334,7 +333,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       history.push({
         pathname: navigateUrl,
         search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
-        state: { hideFloatingPlayer: playItemsOnClick && !disableClickNavigation ? true : undefined },
       });
     }
 
