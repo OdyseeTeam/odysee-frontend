@@ -157,7 +157,7 @@ function AutoplayCountdown(props: Props) {
             <Button
               label={skipPaid ? __('Purchase?') : __('Replay?')}
               button="link"
-              iconRight={skipPaid ? ICONS.WALLET : ICONS.REPLAY}
+              icon={skipPaid ? ICONS.WALLET : ICONS.REPLAY}
               onClick={() => {
                 setTimerCanceled(true);
                 if (skipPaid) {
