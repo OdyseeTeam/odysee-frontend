@@ -456,18 +456,20 @@ function LivestreamForm(props: Props) {
               disabled={editingURI}
               className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
             />
-            <Button
-              key={'Replay'}
-              icon={ICONS.MENU}
-              iconSize={18}
-              label={'Choose Replay'}
-              button="alt"
-              onClick={() => {
-                setPublishMode('Replay');
-              }}
-              disabled={!hasLivestreamData || publishMode === 'Edit'}
-              className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
-            />
+            {((isMobile && publishMode !== 'Edit') || !isMobile) && (
+              <Button
+                key={'Replay'}
+                icon={ICONS.MENU}
+                iconSize={18}
+                label={'Choose Replay'}
+                button="alt"
+                onClick={() => {
+                  setPublishMode('Replay');
+                }}
+                disabled={!hasLivestreamData || publishMode === 'Edit'}
+                className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'Replay' })}
+              />
+            )}
             {publishMode === 'Edit' && (
               <Button
                 key={'Edit'}
@@ -483,15 +485,17 @@ function LivestreamForm(props: Props) {
             )}
           </div>
           {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
-          <Tooltip title={__('Check for Replays')}>
-            <Button
-              button="secondary"
-              label={__('Check for Replays')}
-              disabled={isCheckingLivestreams || publishMode === 'Edit'}
-              icon={ICONS.REFRESH}
-              onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
-            />
-          </Tooltip>
+          {((isMobile && publishMode !== 'Edit') || !isMobile) && (
+            <Tooltip title={__('Check for Replays')}>
+              <Button
+                button="secondary"
+                label={__('Check for Replays')}
+                disabled={isCheckingLivestreams || publishMode === 'Edit'}
+                icon={ICONS.REFRESH}
+                onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
+              />
+            </Tooltip>
+          )}
         </Card>
 
         <PublishLivestream
