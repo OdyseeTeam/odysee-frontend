@@ -9,7 +9,7 @@ import {
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
 import {
   selectTakeOverAmount,
-  selectPostFormValues,
+  selectPublishFormValues,
   selectIsStillEditing,
   makeSelectPublishFormValue,
   selectIsResolvingPublishUris,
@@ -36,7 +36,7 @@ const select = (state) => {
   const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
 
   return {
-    ...selectPostFormValues(state),
+    ...selectPublishFormValues(state),
     user: selectUser(state),
     // The winning claim for a short lbry uri
     amountNeededForTakeover: selectTakeOverAmount(state),

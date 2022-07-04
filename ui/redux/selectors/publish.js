@@ -50,28 +50,6 @@ export const selectPublishFormValues = createSelector(
   }
 );
 
-export const selectPostFormValues = createSelector(
-  selectState,
-  (state) => state.settings,
-  selectIsStillEditing,
-  (PostState, settingsState, isStillEditing) => {
-    const { languages, ...formValues } = PostState;
-    const language = languages && languages.length && languages[0];
-    const { clientSettings } = settingsState;
-    const { language: languageSet } = clientSettings;
-
-    let actualLanguage;
-    // Sets default if editing a claim with a set language
-    if (!language && isStillEditing && languageSet) {
-      actualLanguage = languageSet;
-    } else {
-      actualLanguage = language || languageSet || 'en';
-    }
-
-    return { ...formValues, language: actualLanguage };
-  }
-);
-
 export const makeSelectPublishFormValue = (item) => createSelector(selectState, (state) => state[item]);
 
 export const selectMyClaimForUri = createCachedSelector(
