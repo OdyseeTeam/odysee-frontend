@@ -63,6 +63,7 @@ export default function LivestreamSetupPage(props: Props) {
     location: { search },
   } = useHistory();
   const urlParams = new URLSearchParams(search);
+  const urlTab = urlParams.get('t');
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
 
@@ -193,13 +194,19 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
-  const [tab, setTab] = React.useState(urlParams.get('t') || 'Publish');
+  const [tab, setTab] = React.useState(urlTab || 'Publish');
 
   React.useEffect(() => {
     if (editingURI) {
       setTab('Publish');
     }
   }, [editingURI]);
+
+  React.useEffect(() => {
+    if (urlTab) {
+      setTab(urlTab);
+    }
+  }, [urlTab]);
 
   const HeaderMenu = (e) => {
     return (

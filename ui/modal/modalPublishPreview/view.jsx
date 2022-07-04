@@ -157,9 +157,6 @@ const ModalPublishPreview = (props: Props) => {
   const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
 
   React.useEffect(() => {
-    console.log('isLivestreamClaim: ', isLivestreamClaim);
-    console.log('livestream: ', livestream);
-
     if (isStillEditing) {
       if (livestream || isLivestreamClaim) {
         setModalTitle(__('Confirm Update'));
