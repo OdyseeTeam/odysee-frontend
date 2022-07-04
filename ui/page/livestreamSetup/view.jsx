@@ -237,6 +237,11 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
+  function resetForm() {
+    clearPublish();
+    setTab('Publish');
+  }
+
   return (
     <Page className="uploadPage-wrapper">
       {balance < 0.01 && <YrblWalletEmpty />}
@@ -249,7 +254,7 @@ export default function LivestreamSetupPage(props: Props) {
         <Icon icon={ICONS.VIDEO} />
         <label>
           {__('Go Live')}
-          {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
+          {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>
       <HeaderMenu disabled={balance < 0.01} isEditing={editingURI} />

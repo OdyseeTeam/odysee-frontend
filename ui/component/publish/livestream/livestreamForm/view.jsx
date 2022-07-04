@@ -350,6 +350,8 @@ function LivestreamForm(props: Props) {
     if (editingURI) {
       resolveUri(editingURI);
       setPublishMode('Edit');
+    } else {
+      setPublishMode('New');
     }
   }, [editingURI, resolveUri]);
 
