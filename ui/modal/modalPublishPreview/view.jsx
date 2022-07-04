@@ -50,7 +50,6 @@ type Props = {
   isLivestreamClaim: boolean,
   remoteFile: string,
   appLanguage: string,
-  fileText: string,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
@@ -86,7 +85,6 @@ const ModalPublishPreview = (props: Props) => {
     isLivestreamClaim,
     remoteFile,
     appLanguage,
-    fileText,
   } = props;
 
   const maxCharsBeforeOverflow = 128;
@@ -119,6 +117,7 @@ const ModalPublishPreview = (props: Props) => {
     }
   }, [publishSuccess, publishing, livestream]);
   // @endif
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
@@ -153,39 +152,47 @@ const ModalPublishPreview = (props: Props) => {
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   //   $FlowFixMe add outputs[0] etc to PublishResponse type
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
+
   let modalTitle;
-  if (isStillEditing) {
-    if (livestream) {
-      modalTitle = __('Confirm Update');
+  let confirmBtnText;
+  updateLabels();
+  function updateLabels() {
+    if (isStillEditing) {
+      if (isLivestreamClaim) {
+        modalTitle = __('Confirm Update');
+      } else {
+        modalTitle = __('Confirm Edit');
+      }
+    } else if (isLivestreamClaim) {
+      modalTitle = releasesInFuture ? __('Schedule Livestream') : __('Create Livestream');
+    } else if (isMarkdownPost) {
+      modalTitle = __('Confirm Post');
     } else {
-      modalTitle = __('Confirm Edit');
+      modalTitle = __('Confirm Upload');
     }
-  } else if (livestream) {
-    modalTitle = releasesInFuture ? __('Schedule Livestream') : __('Create Livestream');
-  } else if (fileText) {
-    modalTitle = __('Confirm Post');
-  } else {
-    modalTitle = __('Confirm Upload');
+
+    if (!publishing) {
+      if (isStillEditing) {
+        confirmBtnText = __('Save');
+      } else if (isLivestreamClaim) {
+        confirmBtnText = __('Create');
+      } else {
+        confirmBtnText = __('Upload');
+      }
+    } else {
+      if (isStillEditing) {
+        confirmBtnText = __('Saving');
+      } else if (livestream) {
+        confirmBtnText = __('Creating');
+      } else {
+        confirmBtnText = __('Uploading');
+      }
+    }
   }
 
-  let confirmBtnText;
-  if (!publishing) {
-    if (isStillEditing) {
-      confirmBtnText = __('Save');
-    } else if (livestream) {
-      confirmBtnText = __('Create');
-    } else {
-      confirmBtnText = __('Upload');
-    }
-  } else {
-    if (isStillEditing) {
-      confirmBtnText = __('Saving');
-    } else if (livestream) {
-      confirmBtnText = __('Creating');
-    } else {
-      confirmBtnText = __('Uploading');
-    }
-  }
+  React.useEffect(() => {
+    updateLabels();
+  }, [filePath, isMarkdownPost, isLivestreamClaim]);
 
   const releaseDateText = releasesInFuture ? __('Scheduled for') : __('Release date');
 
