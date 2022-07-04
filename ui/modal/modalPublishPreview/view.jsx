@@ -153,39 +153,39 @@ const ModalPublishPreview = (props: Props) => {
   //   $FlowFixMe add outputs[0] etc to PublishResponse type
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
 
-  let modalTitle;
-  let confirmBtnText;
+  const [modalTitle, setModalTitle] = React.useState('Upload');
+  const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
 
   React.useEffect(() => {
     if (isStillEditing) {
       if (isLivestreamClaim) {
-        modalTitle = __('Confirm Update');
+        setModalTitle(__('Confirm Update'));
       } else {
-        modalTitle = __('Confirm Edit');
+        setModalTitle(__('Confirm Edit'));
       }
     } else if (isLivestreamClaim) {
-      modalTitle = releasesInFuture ? __('Schedule Livestream') : __('Create Livestream');
+      setModalTitle(releasesInFuture ? __('Schedule Livestream') : __('Create Livestream'));
     } else if (isMarkdownPost) {
-      modalTitle = __('Confirm Post');
+      setModalTitle(__('Confirm Post'));
     } else {
-      modalTitle = __('Confirm Upload');
+      setModalTitle(__('Confirm Upload'));
     }
 
     if (!publishing) {
-      if (isStillEditing) {
-        confirmBtnText = __('Save');
+      if (isMarkdownPost) {
+        setConfirmBtnText(__('Post'));
       } else if (isLivestreamClaim) {
-        confirmBtnText = __('Create');
+        setConfirmBtnText(__('Create'));
       } else {
-        confirmBtnText = __('Upload');
+        setConfirmBtnText(__('Upload'));
       }
     } else {
-      if (isStillEditing) {
-        confirmBtnText = __('Saving');
+      if (isMarkdownPost) {
+        setConfirmBtnText(__('Saving'));
       } else if (livestream) {
-        confirmBtnText = __('Creating');
+        setConfirmBtnText(__('Creating'));
       } else {
-        confirmBtnText = __('Uploading');
+        setConfirmBtnText(__('Uploading'));
       }
     }
   }, [filePath, isMarkdownPost, isLivestreamClaim]);
