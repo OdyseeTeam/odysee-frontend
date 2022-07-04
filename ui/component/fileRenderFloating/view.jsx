@@ -579,7 +579,7 @@ const PlayerGlobalStyles = (props: GlobalStylesProps) => {
 
     const viewer = document.querySelector(`.${CONTENT_VIEWER_CLASS}`);
     if (viewer) {
-      viewer.style.height = !appDrawerOpen ? `${heightForViewer}px` : undefined;
+      if (!appDrawerOpen && heightForViewer) viewer.style.height = `${heightForViewer}px`;
 
       if (!appDrawerOpen) {
         const htmlEl = document.querySelector('html');

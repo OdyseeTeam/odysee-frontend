@@ -357,13 +357,16 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
   // -- sanitization --
   // only permanent urls can be added to collections
-  let uris = [];
+  let uris;
 
   if (anyUris) {
+    uris = [];
+
     anyUris.forEach(async (uri) => {
       // related to selectBrokenUrlsForCollectionId
       const isDeletingBrokenUris = typeof uri !== 'string';
 
+      // $FlowFixMe
       if (isPermanentUrl(uri) || isDeletingBrokenUris) return uris.push(uri);
 
       let url = selectPermanentUrlForUri(state, uri);
@@ -373,10 +376,9 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         if (claim) url = claim.permanent_url;
       }
 
+      // $FlowFixMe
       return uris.push(url);
     });
-  } else {
-    uris = undefined;
   }
 
   // -------------------
@@ -389,6 +391,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   if (uris) {
     if (remove) {
       // Filters (removes) the passed uris from the current list items
+      // $FlowFixMe
       newItems = currentUrls.filter((url) => url && !uris?.includes(url));
     } else {
       // Pushes (adds to the end) the passed uris to the current list items
