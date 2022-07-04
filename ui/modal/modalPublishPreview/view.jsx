@@ -50,6 +50,7 @@ type Props = {
   isLivestreamClaim: boolean,
   remoteFile: string,
   appLanguage: string,
+  // isLivestreamPublish?: boolean,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
@@ -85,6 +86,7 @@ const ModalPublishPreview = (props: Props) => {
     isLivestreamClaim,
     remoteFile,
     appLanguage,
+    // isLivestreamPublish,
   } = props;
 
   const maxCharsBeforeOverflow = 128;
@@ -155,7 +157,6 @@ const ModalPublishPreview = (props: Props) => {
 
   const [modalTitle, setModalTitle] = React.useState('Upload');
   const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
-
   React.useEffect(() => {
     if (isStillEditing) {
       if (livestream || isLivestreamClaim) {
@@ -163,8 +164,14 @@ const ModalPublishPreview = (props: Props) => {
       } else {
         setModalTitle(__('Confirm Edit'));
       }
-    } else if (livestream || isLivestreamClaim) {
-      setModalTitle(releasesInFuture ? __('Schedule Livestream') : __('Create Livestream'));
+    } else if (livestream || isLivestreamClaim || remoteFile) {
+      setModalTitle(
+        releasesInFuture
+          ? __('Schedule Livestream')
+          : (!livestream || !isLivestreamClaim) && remoteFile
+          ? __('Publish Replay')
+          : __('Create Livestream')
+      );
     } else if (isMarkdownPost) {
       setModalTitle(__('Confirm Post'));
     } else {
@@ -188,7 +195,7 @@ const ModalPublishPreview = (props: Props) => {
         setConfirmBtnText(__('Uploading'));
       }
     }
-  }, [filePath, isMarkdownPost, isLivestreamClaim]);
+  }, [filePath, isMarkdownPost, isLivestreamClaim, remoteFile]);
 
   const releaseDateText = releasesInFuture ? __('Scheduled for') : __('Release date');
 

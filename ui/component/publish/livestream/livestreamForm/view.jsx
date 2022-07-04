@@ -91,7 +91,8 @@ type Props = {
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
   setClearStatus: (boolean) => void,
-  disabled?: boolean,
+  // disabled?: boolean,
+  remoteFileUrl?: string,
 };
 
 function LivestreamForm(props: Props) {
@@ -117,7 +118,7 @@ function LivestreamForm(props: Props) {
     isStillEditing,
     tags,
     publish,
-    disabled = false,
+    // disabled = false,
     checkAvailability,
     ytSignupPending,
     modal,
@@ -132,6 +133,7 @@ function LivestreamForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
     setClearStatus,
+    remoteFileUrl,
   } = props;
 
   const isMobile = useIsMobile();
@@ -196,7 +198,7 @@ function LivestreamForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
-  // const disabled = !title || !name;
+  const disabled = !title || !name || (publishMode === 'Replay' && !remoteFileUrl);
   const isClear = !title && !name && !description && !thumbnail;
 
   useEffect(() => {
@@ -352,6 +354,7 @@ function LivestreamForm(props: Props) {
       setPublishMode('Edit');
     } else {
       setPublishMode('New');
+      updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
     }
   }, [editingURI, resolveUri]);
 
@@ -361,6 +364,12 @@ function LivestreamForm(props: Props) {
       isLivestreamPublish: true,
     });
   }, [mode, updatePublishForm]);
+
+  useEffect(() => {
+    if (publishMode === 'New') {
+      updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });
+    }
+  }, [publishMode]);
 
   useEffect(() => {
     updatePublishForm({ channel: activeChannelName });
@@ -492,7 +501,7 @@ function LivestreamForm(props: Props) {
           uri={permanentUrl}
           mode={publishMode === 'New' ? PUBLISH_MODES.LIVESTREAM : PUBLISH_MODES.FILE}
           fileMimeType={fileMimeType}
-          disabled={disabled || publishing}
+          disabled={publishing}
           inProgress={isInProgress}
           livestreamData={livestreamData}
           setWaitForFile={setWaitForFile}
