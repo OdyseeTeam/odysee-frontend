@@ -4,7 +4,6 @@ import { selectIsStillEditing, makeSelectPublishFormValue } from 'redux/selector
 import { doUpdatePublishForm, doClearPublish } from 'redux/actions/publish';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import { doToast } from 'redux/actions/notifications';
-import { selectFfmpegStatus } from 'redux/selectors/settings';
 import LivestreamCreatePage from './view';
 
 const select = (state, props) => ({
@@ -16,10 +15,6 @@ const select = (state, props) => ({
   isStillEditing: selectIsStillEditing(state),
   balance: selectBalance(state),
   publishing: makeSelectPublishFormValue('publishing')(state),
-  ffmpegStatus: selectFfmpegStatus(state),
-  size: makeSelectPublishFormValue('fileSize')(state),
-  duration: makeSelectPublishFormValue('fileDur')(state),
-  isVid: makeSelectPublishFormValue('fileVid')(state),
   isLivestreamClaim: selectIsStreamPlaceholderForUri(state, props.uri),
 });
 
