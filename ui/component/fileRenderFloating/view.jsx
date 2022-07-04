@@ -162,7 +162,7 @@ export default function FileRenderFloating(props: Props) {
     (playingPrimaryUri || playingUrl || '') + (collectionId ? generateListSearchUrlParams(collectionId) : '');
 
   const isFree = costInfo && costInfo.cost === 0;
-  const isLoading = !costInfo || !streamingUrl;
+  const isLoading = !costInfo || (!streamingUrl && !costInfo.cost);
   const canViewFile = isFree || claimWasPurchased;
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
   const isReadyToPlay = isCurrentClaimLive || (isPlayable && streamingUrl);
@@ -283,6 +283,7 @@ export default function FileRenderFloating(props: Props) {
   React.useEffect(() => {
     if (playingPrimaryUri || playingUrl || noPlayerHeight || collectionSidebarId) {
       handleResize();
+      setCountdownCanceled(false);
     }
   }, [handleResize, playingPrimaryUri, theaterMode, playingUrl, noPlayerHeight, collectionSidebarId]);
 
