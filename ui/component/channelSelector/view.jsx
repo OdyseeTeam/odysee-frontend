@@ -165,7 +165,7 @@ type ListItemProps = {
 };
 
 function ChannelListItem(props: ListItemProps) {
-  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, odyseeMembershipByUri, isPublishMenu } = props;
+  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, odyseeMembershipByUri } = props;
 
   const membership = odyseeMembershipByUri(uri);
 
@@ -178,7 +178,6 @@ function ChannelListItem(props: ListItemProps) {
         'channel__list-item--selected': isSelected,
       })}
     >
-      {isPublishMenu && <div className="channel__selector--prefix">{__('as')}</div>}
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
       <PremiumBadge membership={membership} />

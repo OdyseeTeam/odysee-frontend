@@ -689,11 +689,6 @@ $actions-z-index: 2;
   margin-bottom: 0;
   margin-top: -2px;
   width: unset !important;
-  .channel__selector--prefix {
-    color: var(--color-text);
-    margin-right: var(--spacing-xs);
-    display: block;
-  }
 
   .channel-thumbnail {
     width: 1.4rem;
@@ -749,11 +744,6 @@ $actions-z-index: 2;
 .channel__list--publish {
   .channel__list-item {
     height: var(--height-button);
-    .channel__selector--prefix {
-      color: var(--color-text);
-      margin-right: var(--spacing-xs);
-      display: none;
-    }
     .channel-thumbnail {
       width: 1.4rem;
       height: 1.4rem;
@@ -789,12 +779,6 @@ $actions-z-index: 2;
       width: 1.4rem;
       height: 1.4rem;
       margin-right: var(--spacing-xs);
-    }
-
-    &.channel__list-item--selected {
-      .channel__selector--prefix {
-        display: block;
-      }
     }
   }
 }
