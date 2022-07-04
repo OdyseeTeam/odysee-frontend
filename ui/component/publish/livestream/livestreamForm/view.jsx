@@ -285,7 +285,7 @@ function LivestreamForm(props: Props) {
   if (isClaimingInitialRewards) {
     submitLabel = __('Claiming credits...');
   } else if (publishing) {
-    if (isStillEditing) {
+    if (isStillEditing || inEditMode) {
       submitLabel = __('Saving...');
     } else {
       submitLabel = __('Creating...');
@@ -293,7 +293,7 @@ function LivestreamForm(props: Props) {
   } else if (previewing) {
     submitLabel = <Spinner type="small" />;
   } else {
-    if (isStillEditing) {
+    if (isStillEditing || inEditMode) {
       submitLabel = __('Save');
     } else {
       submitLabel = __('Create');
