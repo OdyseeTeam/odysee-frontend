@@ -156,7 +156,7 @@ const ModalPublishPreview = (props: Props) => {
   let modalTitle;
   let confirmBtnText;
 
-  function updateLabels() {
+  React.useEffect(() => {
     if (isStillEditing) {
       if (isLivestreamClaim) {
         modalTitle = __('Confirm Update');
@@ -188,10 +188,6 @@ const ModalPublishPreview = (props: Props) => {
         confirmBtnText = __('Uploading');
       }
     }
-  }
-
-  React.useEffect(() => {
-    updateLabels();
   }, [filePath, isMarkdownPost, isLivestreamClaim]);
 
   const releaseDateText = releasesInFuture ? __('Scheduled for') : __('Release date');
