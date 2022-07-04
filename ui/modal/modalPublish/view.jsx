@@ -89,12 +89,10 @@ class ModalPublishSuccess extends React.PureComponent<Props> {
               {livestream && (
                 <Button
                   button="primary"
-                  // label={__('View My Dashboard')}
-                  label={__('View My Publications')}
+                  label={__('View Livestream Settings')}
                   onClick={() => {
                     clearPublish();
-                    // navigate(`/$/${PAGES.LIVESTREAM}`);
-                    navigate(`/$/${PAGES.UPLOADS}`);
+                    navigate(`/$/${PAGES.LIVESTREAM}?t=Setup`);
                     closeModal();
                   }}
                 />

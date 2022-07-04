@@ -1,6 +1,7 @@
 // @flow
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
+import { useHistory } from 'react-router';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 import Page from 'component/page';
@@ -58,9 +59,12 @@ export default function LivestreamSetupPage(props: Props) {
   } = props;
 
   const isMobile = useIsMobile();
+  const {
+    location: { search },
+  } = useHistory();
+  const urlParams = new URLSearchParams(search);
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
-  // const [showHelp, setShowHelp] = usePersistedState('livestream-help-seen', true);
 
   const hasLivestreamClaims = Boolean(myLivestreamClaims.length || pendingClaims.length);
   const { odysee_live_disabled: liveDisabled } = user || {};
@@ -189,7 +193,7 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
-  const [tab, setTab] = React.useState('Publish');
+  const [tab, setTab] = React.useState(urlParams.get('t') || 'Publish');
 
   React.useEffect(() => {
     if (editingURI) {
@@ -226,7 +230,6 @@ export default function LivestreamSetupPage(props: Props) {
     );
   };
 
-  console.log('pendingClaims: ', pendingClaims);
   return (
     <Page className="uploadPage-wrapper">
       {balance < 0.01 && <YrblWalletEmpty />}
