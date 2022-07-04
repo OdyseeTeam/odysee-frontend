@@ -736,7 +736,7 @@ $actions-z-index: 2;
 
   @media (max-width: $breakpoint-small) {
     margin-top: -2px !important;
-    margin-bottom: var(--spacing-s) !important;
+    margin-bottom: 0 !important;
     width: unset !important;
     button {
       padding: 0 !important;
