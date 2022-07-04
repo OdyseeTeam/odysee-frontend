@@ -188,6 +188,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     location: { pathname, search },
   } = history;
 
+  const playlistPreviewItem = unavailableUris !== undefined || showIndexes;
   const isCollection = claim && claim.value_type === 'collection';
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const listId = collectionId || collectionClaimId;
@@ -364,7 +365,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   // **************************************************************************
   // **************************************************************************
 
-  if ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS)) {
+  if (!playlistPreviewItem && ((shouldHide && !showNullPlaceholder) || (isLivestream && !ENABLE_NO_SOURCE_CLAIMS))) {
     return null;
   }
 
@@ -393,8 +394,16 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     );
   }
 
-  if (claim && showNullPlaceholder && shouldHide) {
-    return <ClaimPreviewHidden message={__('This content is hidden')} isChannel={isChannelUri} type={type} />;
+  if ((claim && showNullPlaceholder && shouldHide) || (!claim && playlistPreviewItem)) {
+    return (
+      <ClaimPreviewHidden
+        message={!claim && playlistPreviewItem ? __('Deleted content') : __('This content is hidden')}
+        isChannel={isChannelUri}
+        type={type}
+        uri={uri}
+        collectionId={!claim && playlistPreviewItem && collectionId ? collectionId : undefined}
+      />
+    );
   }
 
   if (!claim && (showNullPlaceholder || empty)) {

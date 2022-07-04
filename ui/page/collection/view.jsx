@@ -236,6 +236,7 @@ export default function CollectionPage(props: Props) {
                     showEdit={showEdit}
                     droppableProvided={DroppableProvided}
                     unavailableUris={unavailableUris}
+                    showNullPlaceholder
                   />
                 )}
               </Lazy.Droppable>

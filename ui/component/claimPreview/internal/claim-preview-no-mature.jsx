@@ -2,20 +2,25 @@
 import classnames from 'classnames';
 import React from 'react';
 import Empty from 'component/common/empty';
+import ButtonRemoveFromCollection from './buttonRemoveFromCollection';
 
 type Props = {
+  uri?: string,
+  collectionId?: ?string,
   isChannel: boolean,
   type: string,
   message: string,
 };
 
 function ClaimPreviewHidden(props: Props) {
-  const { isChannel, type, message } = props;
+  const { uri, collectionId, isChannel, type, message } = props;
+
   return (
     <li
       className={classnames('claim-preview__wrapper', {
         'claim-preview__wrapper--channel': isChannel && type !== 'inline',
         'claim-preview__wrapper--inline': type === 'inline',
+        'claim-preview__wrapper--small': type === 'small',
       })}
     >
       <div
@@ -23,7 +28,14 @@ function ClaimPreviewHidden(props: Props) {
           'claim-preview--large': type === 'large',
         })}
       >
-        <div className="media__thumb" />
+        <div className={classnames('media__thumb', { 'media__thumb--small': type === 'small' })}>
+          {collectionId && (
+            <div className="claim-preview__hover-actions-grid">
+              <ButtonRemoveFromCollection uri={uri} collectionId={collectionId} />
+            </div>
+          )}
+        </div>
+
         <Empty text={message} />
       </div>
     </li>
