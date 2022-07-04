@@ -243,10 +243,15 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         }
       };
 
+      if (bodyOpen) {
+        handleScroll();
+        if (activeItemRef.current) activeListItemRef(activeItemRef.current);
+      }
+
       bodyRef.addEventListener('scroll', handleScroll);
       return () => bodyRef.removeEventListener('scroll', handleScroll);
     }
-  }, [bodyRef, isFloating, isMobile]);
+  }, [activeListItemRef, bodyOpen, bodyRef, isFloating, isMobile]);
 
   return (
     <>
