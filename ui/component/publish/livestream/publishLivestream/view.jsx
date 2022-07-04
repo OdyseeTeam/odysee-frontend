@@ -1,17 +1,8 @@
 // @flow
-// import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
-// import type { Node } from 'react';
-// import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
-// import { regexInvalidURI } from 'util/lbryURI';
-// import PostEditor from 'component/postEditor';
-// import FileSelector from 'component/common/file-selector';
-// import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-// import I18nMessage from 'component/i18nMessage';
-// import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
@@ -27,7 +18,6 @@ type Props = {
   // name: ?string,
   title: ?string,
   filePath: string | WebFile,
-  // fileMimeType: ?string,
   isStillEditing: boolean,
   balance: number,
   doUpdatePublishForm: ({}) => void,
@@ -37,7 +27,6 @@ type Props = {
   inProgress: boolean,
   optimize: boolean,
   livestreamData: LivestreamReplayData,
-  // isLivestreamClaim: boolean,
   checkLivestreams: (string, string) => void,
   channelName: string,
   channelId: string,
@@ -82,7 +71,6 @@ function PublishLivestream(props: Props) {
   }, [mode, isStillEditing, updatePublishForm]);
 
   // Reset title when form gets cleared
-
   useEffect(() => {
     updatePublishForm({ title: title });
   }, [filePath]);
