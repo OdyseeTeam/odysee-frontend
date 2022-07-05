@@ -456,7 +456,7 @@ function LivestreamForm(props: Props) {
               disabled={editingURI}
               className={classnames('button-toggle', { 'button-toggle--active': publishMode === 'New' })}
             />
-            {((isMobile && publishMode !== 'Edit') || !isMobile) && (
+            {publishMode !== 'Edit' && (
               <Button
                 key={'Replay'}
                 icon={ICONS.MENU}
@@ -485,7 +485,7 @@ function LivestreamForm(props: Props) {
             )}
           </div>
           {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
-          {((isMobile && publishMode !== 'Edit') || !isMobile) && (
+          {publishMode !== 'Edit' && (
             <Tooltip title={__('Check for Replays')}>
               <Button
                 button="secondary"
