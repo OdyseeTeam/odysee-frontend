@@ -150,9 +150,9 @@ function UploadForm(props: Props) {
 
   const MODE_TO_I18N_STR = {
     [PUBLISH_MODES.FILE]: SIMPLE_SITE ? 'Video/Audio' : 'File',
-    [PUBLISH_MODES.POST]: 'Post --[noun, markdown post tab button]--',
-    [PUBLISH_MODES.LIVESTREAM]: 'Livestream --[noun, livestream tab button]--',
   };
+
+  const formTitle = !editingURI ? __('Upload a File') : __('Edit Upload');
 
   const mode = PUBLISH_MODES.FILE;
 
@@ -424,7 +424,7 @@ function UploadForm(props: Props) {
       <h1 className="page__title">
         <Icon icon={ICONS.PUBLISH} />
         <label>
-          Upload a File
+          {formTitle}
           {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>

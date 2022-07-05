@@ -79,6 +79,7 @@ export default function LivestreamSetupPage(props: Props) {
     return `${channelId}?d=${toHex(channelName)}&s=${sigData.signature}&t=${sigData.signing_ts}`;
   }
 
+  const formTitle = !editingURI ? __('Go Live') : __('Edit Livestream');
   const streamKey = createStreamKey();
   const pendingLength = pendingClaims.length;
   const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
@@ -253,7 +254,7 @@ export default function LivestreamSetupPage(props: Props) {
       <h1 className="page__title">
         <Icon icon={ICONS.VIDEO} />
         <label>
-          {__('Go Live')}
+          {formTitle}
           {!isClear && <Button onClick={() => resetForm()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>

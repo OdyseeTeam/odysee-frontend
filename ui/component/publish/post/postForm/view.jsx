@@ -182,6 +182,7 @@ function PostForm(props: Props) {
 
   const [previewing, setPreviewing] = React.useState(false);
 
+  const formTitle = !editingURI ? __('Post an Article') : __('Edit Post');
   const isClear = !title && !name && !thumbnail;
 
   useEffect(() => {
@@ -386,7 +387,7 @@ function PostForm(props: Props) {
       <h1 className="page__title">
         <Icon icon={ICONS.POST} />
         <label>
-          Post an Article
+          {formTitle}
           {!isClear && <Button onClick={() => clearPublish()} icon={ICONS.REFRESH} button="primary" label="Clear" />}
         </label>
       </h1>

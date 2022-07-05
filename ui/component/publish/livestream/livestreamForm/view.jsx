@@ -430,6 +430,8 @@ function LivestreamForm(props: Props) {
     );
   }
 
+  console.log('props: ', props);
+
   const isFormIncomplete =
     isClaimingInitialRewards ||
     formDisabled ||
