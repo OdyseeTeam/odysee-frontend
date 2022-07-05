@@ -210,8 +210,6 @@ function UploadForm(props: Props) {
 
   const isClear = !filePath && !title && !name && !description && !thumbnail;
 
-  console.log('props: ', props);
-
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
       claimInitialRewards();
