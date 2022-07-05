@@ -50,7 +50,7 @@ type Props = {
   isLivestreamClaim: boolean,
   remoteFile: string,
   appLanguage: string,
-  fileText: string,
+  // isLivestreamPublish?: boolean,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
@@ -86,7 +86,7 @@ const ModalPublishPreview = (props: Props) => {
     isLivestreamClaim,
     remoteFile,
     appLanguage,
-    fileText,
+    // isLivestreamPublish,
   } = props;
 
   const maxCharsBeforeOverflow = 128;
@@ -119,6 +119,7 @@ const ModalPublishPreview = (props: Props) => {
     }
   }, [publishSuccess, publishing, livestream]);
   // @endif
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
@@ -153,39 +154,48 @@ const ModalPublishPreview = (props: Props) => {
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   //   $FlowFixMe add outputs[0] etc to PublishResponse type
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
-  let modalTitle;
-  if (isStillEditing) {
-    if (livestream) {
-      modalTitle = __('Confirm Update');
-    } else {
-      modalTitle = __('Confirm Edit');
-    }
-  } else if (livestream) {
-    modalTitle = releasesInFuture ? __('Schedule Livestream') : __('Create Livestream');
-  } else if (fileText) {
-    modalTitle = __('Confirm Post');
-  } else {
-    modalTitle = __('Confirm Upload');
-  }
 
-  let confirmBtnText;
-  if (!publishing) {
+  const [modalTitle, setModalTitle] = React.useState('Upload');
+  const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
+  React.useEffect(() => {
     if (isStillEditing) {
-      confirmBtnText = __('Save');
-    } else if (livestream) {
-      confirmBtnText = __('Create');
+      if (livestream || isLivestreamClaim) {
+        setModalTitle(__('Confirm Update'));
+      } else {
+        setModalTitle(__('Confirm Edit'));
+      }
+    } else if (livestream || isLivestreamClaim || remoteFile) {
+      setModalTitle(
+        releasesInFuture
+          ? __('Schedule Livestream')
+          : (!livestream || !isLivestreamClaim) && remoteFile
+          ? __('Publish Replay')
+          : __('Create Livestream')
+      );
+    } else if (isMarkdownPost) {
+      setModalTitle(__('Confirm Post'));
     } else {
-      confirmBtnText = __('Upload');
+      setModalTitle(__('Confirm Upload'));
     }
-  } else {
-    if (isStillEditing) {
-      confirmBtnText = __('Saving');
-    } else if (livestream) {
-      confirmBtnText = __('Creating');
+
+    if (!publishing) {
+      if (isMarkdownPost) {
+        setConfirmBtnText(__('Post'));
+      } else if (livestream || isLivestreamClaim) {
+        setConfirmBtnText(__('Create'));
+      } else {
+        setConfirmBtnText(__('Upload'));
+      }
     } else {
-      confirmBtnText = __('Uploading');
+      if (isMarkdownPost) {
+        setConfirmBtnText(__('Saving'));
+      } else if (livestream || isLivestreamClaim) {
+        setConfirmBtnText(__('Creating'));
+      } else {
+        setConfirmBtnText(__('Uploading'));
+      }
     }
-  }
+  }, [filePath, isMarkdownPost, isLivestreamClaim, remoteFile]);
 
   const releaseDateText = releasesInFuture ? __('Scheduled for') : __('Release date');
 

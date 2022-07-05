@@ -1,17 +1,8 @@
 // @flow
-// import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
-// import type { Node } from 'react';
-// import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
-// import { regexInvalidURI } from 'util/lbryURI';
-// import PostEditor from 'component/postEditor';
-// import FileSelector from 'component/common/file-selector';
-// import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
-// import I18nMessage from 'component/i18nMessage';
-// import usePersistedState from 'effects/use-persisted-state';
 import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from '../../shared/publishName';
 import CopyableText from 'component/copyableText';
@@ -27,7 +18,6 @@ type Props = {
   // name: ?string,
   title: ?string,
   filePath: string | WebFile,
-  // fileMimeType: ?string,
   isStillEditing: boolean,
   balance: number,
   doUpdatePublishForm: ({}) => void,
@@ -35,24 +25,13 @@ type Props = {
   publishing: boolean,
   // doToast: ({ message: string, isError?: boolean }) => void,
   inProgress: boolean,
-  // doClearPublish: () => void,
-  // ffmpegStatus: any,
   optimize: boolean,
-  // size: number,
-  // duration: number,
-  // isVid: boolean,
-  // subtitle: string,
-  // setPublishMode: (string) => void,
-  // setPrevFileText: (string) => void,
-  // header: Node,
   livestreamData: LivestreamReplayData,
-  // isLivestreamClaim: boolean,
   checkLivestreams: (string, string) => void,
   channelName: string,
   channelId: string,
   isCheckingLivestreams: boolean,
   setWaitForFile: (boolean) => void,
-  setOverMaxBitrate: (boolean) => void,
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
@@ -66,28 +45,11 @@ function PublishLivestream(props: Props) {
     title,
     balance,
     filePath,
-    // fileMimeType,
     isStillEditing,
     doUpdatePublishForm: updatePublishForm,
     // doToast,
     disabled,
-    // publishing,
-    // inProgress,
-    // doClearPublish,
-    // boptimize,
-    // ffmpegStatus = {},
-    // size,
-    // duration,
-    // isVid,
-    // setPublishMode,
-    // setPrevFileText,
-    // header,
     livestreamData,
-    // isLivestreamClaim,
-    // subtitle,
-    // checkLivestreams,
-    // channelId,
-    // channelName,
     isCheckingLivestreams,
     fileSource,
     changeFileSource,
@@ -109,7 +71,6 @@ function PublishLivestream(props: Props) {
   }, [mode, isStillEditing, updatePublishForm]);
 
   // Reset title when form gets cleared
-
   useEffect(() => {
     updatePublishForm({ title: title });
   }, [filePath]);

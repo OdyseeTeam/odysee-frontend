@@ -231,11 +231,19 @@ function UploadForm(props: Props) {
   if (isClaimingInitialRewards) {
     submitLabel = __('Claiming credits...');
   } else if (publishing) {
-    submitLabel = __('Creating...');
+    if (isStillEditing || inEditMode) {
+      submitLabel = __('Saving...');
+    } else {
+      submitLabel = __('Creating...');
+    }
   } else if (previewing) {
     submitLabel = <Spinner type="small" />;
   } else {
-    submitLabel = __('Create');
+    if (isStillEditing || inEditMode) {
+      submitLabel = __('Save');
+    } else {
+      submitLabel = __('Create');
+    }
   }
 
   // if you enter the page and it is stuck in publishing, "stop it."

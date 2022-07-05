@@ -5,6 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { isNameValid } from 'util/lbryURI';
 import { FormField } from 'component/common/form';
 import NameHelpText from './name-help-text';
+import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
   name: string,
@@ -36,7 +37,9 @@ function PublishName(props: Props) {
   const [nameError, setNameError] = useState(undefined);
   const [blurred, setBlurred] = React.useState(false);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
-  let prefix = IS_WEB ? `${DOMAIN}/` : 'lbry://';
+  const isMobile = useIsMobile();
+
+  let prefix = IS_WEB ? (isMobile ? '' : `${DOMAIN}/`) : 'lbry://';
   if (activeChannelName && !incognito) {
     prefix += `${activeChannelName}/`;
   }
