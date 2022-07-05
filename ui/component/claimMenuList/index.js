@@ -31,10 +31,8 @@ import { doToast } from 'redux/actions/notifications';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectListShuffle, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectListShuffle } from 'redux/selectors/content';
 import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
-import { isStreamPlaceholderClaim } from 'util/claim';
-import * as RENDER_MODES from 'constants/file_render_modes';
 import ClaimPreview from './view';
 import fs from 'fs';
 
@@ -51,9 +49,6 @@ const select = (state, props) => {
   const playNextUri = shuffle && shuffle[0];
   const lastUsedCollectionId = selectLastUsedCollection(state);
   const lastUsedCollection = makeSelectCollectionForId(lastUsedCollectionId)(state);
-
-  const permanentUrl = (claim && claim.permanent_url) || '';
-  const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
 
   return {
     claim,
@@ -78,8 +73,6 @@ const select = (state, props) => {
     isAdmin: selectHasAdminChannel(state),
     claimInCollection: makeSelectCollectionForIdHasClaimUrl(collectionId, contentPermanentUri)(state),
     isMyCollection: makeSelectCollectionIsMine(collectionId)(state),
-    isLivestreamClaim: isStreamPlaceholderClaim(claim),
-    isPostClaim,
     editedCollection: makeSelectEditedCollectionForId(collectionId)(state),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
     resolvedList: makeSelectUrlsForCollectionId(collectionId)(state),

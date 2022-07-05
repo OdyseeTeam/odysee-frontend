@@ -51,8 +51,6 @@ type Props = {
   hasClaimInWatchLater: boolean,
   hasClaimInFavorites: boolean,
   claimInCollection: boolean,
-  isLivestreamClaim: boolean,
-  isPostClaim: boolean,
   collectionId: string,
   isMyCollection: boolean,
   fypId?: string,
@@ -101,8 +99,6 @@ function ClaimMenuList(props: Props) {
     hasClaimInFavorites,
     collectionId,
     isMyCollection,
-    isLivestreamClaim,
-    isPostClaim,
     fypId,
     doToast,
     claimIsMine,
@@ -224,14 +220,6 @@ function ClaimMenuList(props: Props) {
         uriObject.channelName = signingChannelName;
       }
       const editUri = buildURI(uriObject);
-
-      if (isLivestreamClaim) {
-        push(`/$/${PAGES.LIVESTREAM}`);
-      } else if (isPostClaim) {
-        push(`/$/${PAGES.POST}`);
-      } else {
-        push(`/$/${PAGES.UPLOAD}`);
-      }
       prepareEdit(claim, editUri, fileInfo);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
