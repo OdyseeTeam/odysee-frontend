@@ -5,7 +5,6 @@ import { useHistory } from 'react-router';
 import I18nMessage from 'component/i18nMessage';
 import React from 'react';
 import Page from 'component/page';
-import Spinner from 'component/spinner';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
 import Lbry from 'lbry';
@@ -31,7 +30,6 @@ type Props = {
   fetchNoSourceClaims: (string) => void,
   clearPublish: () => void,
   myLivestreamClaims: Array<StreamClaim>,
-  fetchingLivestreams: boolean,
   channelId: ?string,
   channelName: ?string,
   user: ?User,
@@ -50,7 +48,6 @@ export default function LivestreamSetupPage(props: Props) {
     fetchNoSourceClaims,
     clearPublish,
     myLivestreamClaims,
-    fetchingLivestreams,
     channelId,
     channelName,
     user,
@@ -67,7 +64,6 @@ export default function LivestreamSetupPage(props: Props) {
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
 
-  const hasLivestreamClaims = Boolean(myLivestreamClaims.length || pendingClaims.length);
   const { odysee_live_disabled: liveDisabled } = user || {};
 
   const livestreamEnabled = Boolean(ENABLE_NO_SOURCE_CLAIMS && user && !liveDisabled);
@@ -246,11 +242,6 @@ export default function LivestreamSetupPage(props: Props) {
   return (
     <Page className="uploadPage-wrapper">
       {balance < 0.01 && <YrblWalletEmpty />}
-      {balance >= 0.01 && fetchingChannels && (
-        <div className="main--empty">
-          <Spinner />
-        </div>
-      )}
       <h1 className="page__title">
         <Icon icon={ICONS.VIDEO} />
         <label>
@@ -274,13 +265,6 @@ export default function LivestreamSetupPage(props: Props) {
           {/* show livestreaming frontend */}
           {livestreamEnabled && (
             <div className="card-stack">
-              {/* getting channel data */}
-              {fetchingChannels && (
-                <div className="main--empty">
-                  <Spinner delayed />
-                </div>
-              )}
-
               {/* no channels yet */}
               {!fetchingChannels && !hasChannels && (
                 <Yrbl
@@ -292,13 +276,6 @@ export default function LivestreamSetupPage(props: Props) {
                     </div>
                   }
                 />
-              )}
-
-              {/* getting livestreams */}
-              {fetchingLivestreams && !fetchingChannels && !hasLivestreamClaims && (
-                <div className="main--empty">
-                  <Spinner delayed />
-                </div>
               )}
 
               {!fetchingChannels && channelId && (
@@ -381,7 +358,6 @@ export default function LivestreamSetupPage(props: Props) {
                     className={classnames('section card--livestream-key', {
                       disabled: !streamKey || totalLivestreamClaims.length === 0,
                     })}
-                    // className="section card--livestream-key disabled"
                     actions={
                       <>
                         <CopyableText
@@ -404,12 +380,7 @@ export default function LivestreamSetupPage(props: Props) {
                       </>
                     }
                   />
-                  <Card
-                    className="card--livestream-instructions"
-                    title="Instructions"
-                    // subtitle={<>{__(`Expand to learn more about setting up a livestream.`)} </>}
-                    actions={helpText}
-                  />
+                  <Card className="card--livestream-instructions" title="Instructions" actions={helpText} />
 
                   {/* Debug Stuff */}
                   {streamKey && false && activeChannelClaim && (

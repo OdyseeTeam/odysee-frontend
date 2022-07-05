@@ -210,6 +210,8 @@ function UploadForm(props: Props) {
 
   const isClear = !filePath && !title && !name && !description && !thumbnail;
 
+  console.log('props: ', props);
+
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
       claimInitialRewards();
@@ -312,7 +314,7 @@ function UploadForm(props: Props) {
   // set isMarkdownPost in publish form if so, also update isLivestreamPublish
   useEffect(() => {
     updatePublishForm({
-      isMarkdownPost: mode === PUBLISH_MODES.POST,
+      isMarkdownPost: false,
       isLivestreamPublish: mode === PUBLISH_MODES.LIVESTREAM,
     });
   }, [mode, updatePublishForm]);

@@ -32,7 +32,7 @@ import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import { toHex } from 'util/hex';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
-import { SOURCE_NONE, SOURCE_SELECT } from 'constants/publish_sources';
+import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
 
@@ -416,11 +416,6 @@ function LivestreamForm(props: Props) {
   const [fileSource, setFileSource] = useState();
   const changeFileSource = (state) => setFileSource(state);
 
-  const [showSchedulingOptions, setShowSchedulingOptions] = useState(false);
-  useEffect(() => {
-    setShowSchedulingOptions(isLivestreamMode && fileSource === SOURCE_NONE);
-  }, [isLivestreamMode, fileSource]);
-
   if (publishing) {
     return (
       <div className="main--empty">
@@ -429,8 +424,6 @@ function LivestreamForm(props: Props) {
       </div>
     );
   }
-
-  console.log('props: ', props);
 
   const isFormIncomplete =
     isClaimingInitialRewards ||
@@ -521,7 +514,7 @@ function LivestreamForm(props: Props) {
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
-            {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
+            <Card body={<PublishStreamReleaseDate />} />
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
@@ -555,11 +548,7 @@ function LivestreamForm(props: Props) {
               tagsChosen={tags}
             />
 
-            <PublishAdditionalOptions
-              isLivestream={isLivestreamMode}
-              disabled={disabled}
-              showSchedulingOptions={showSchedulingOptions}
-            />
+            <PublishAdditionalOptions isLivestream={isLivestreamMode} disabled={disabled} showSchedulingOptions />
           </div>
         )}
         <section>
