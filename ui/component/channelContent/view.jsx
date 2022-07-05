@@ -85,6 +85,10 @@ function ChannelContent(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
+  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
+  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
+  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
+
   function handleInputChange(e) {
     const { value } = e.target;
     setSearchQuery(value);
@@ -94,12 +98,7 @@ function ChannelContent(props: Props) {
     setSearchQuery('');
   }, [url]);
 
-  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
-  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
-
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
-
-  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
   return (
     <Fragment>
