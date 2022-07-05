@@ -1,0 +1,99 @@
+.playlist-claim-preview__wrapper {
+  display: table;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+  width: 100%;
+
+  .table-column__thumbnail {
+    display: table-cell;
+    width: calc(var(--file-list-thumbnail-width) * 1.2 + var(--spacing-m));
+    height: 100%;
+    padding-left: var(--spacing-m);
+    vertical-align: middle;
+
+    .collection-preview-overlay__grid {
+      height: calc(100% - 2px) !important;
+      margin: 1px;
+      border-radius: var(--border-radius) 0 0 var(--border-radius);
+      .collection-preview-overlay__grid-item {
+        margin: 4px !important;
+        margin-bottom: 0 !important;
+        transform: unset;
+        .media__thumb {
+          height: 96%;
+        }
+      }
+    }
+    span {
+      font-size: var(--font-small);
+      font-weight: bold;
+    }
+  }
+
+  .table-column__title {
+    display: table-cell;
+    width: calc(46% - (calc(var(--file-list-thumbnail-width) * 1.2) + var(--spacing-m)));
+    height: 100%;
+    vertical-align: middle;
+    padding-left: var(--spacing-m);
+
+    h2 {
+      color: var(--color-text);
+      //display:inline-block;
+      svg,
+      span {
+        display: inline-block;
+      }
+      svg {
+        margin-bottom: 5px;
+        margin-right: var(--spacing-s);
+      }
+    }
+  }
+
+  .table-column__visibility {
+    display: table-cell;
+    width: 14%;
+    height: 100%;
+    vertical-align: middle;
+    span {
+      font-size: var(--font-base) !important;
+    }
+  }
+
+  .table-column__create-at {
+    display: table-cell;
+    width: 14%;
+    vertical-align: middle;
+
+    span {
+      font-size: var(--font-base) !important;
+    }
+  }
+
+  .table-column__update-at {
+    display: table-cell;
+    width: 14%;
+    vertical-align: middle;
+
+    span {
+      font-size: var(--font-base) !important;
+    }
+  }
+
+  .table-column__action {
+    display: table-cell;
+    width: 12%;
+    vertical-align: middle;
+    // background-color:red !important;
+    .button {
+      border: 2px solid var(--color-border);
+    }
+  }
+
+  &:hover {
+    .media__thumb {
+      box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
+    }
+  }
+}

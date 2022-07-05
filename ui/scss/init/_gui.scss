@@ -1298,6 +1298,10 @@ img {
     }
   }
 
+  .ul--no-style li {
+    margin-bottom: var(--spacing-xxs) !important;
+  }
+
   .claim-list {
     &.playlists {
       .claim-preview__text {
@@ -1308,6 +1312,23 @@ img {
           display: grid;
           flex-direction: row;
           align-items: center;
+
+          .claim-preview-info {
+            display: inline-block;
+            .claim-preview__title {
+              width: 40%;
+              margin-left: var(--file-list-thumbnail-width);
+            }
+          }
+          .claim-tile__info {
+            display: inline-block;
+            &.action {
+              width: 10%;
+              .button {
+                border: 2px solid var(--color-border);
+              }
+            }
+          }
 
           @media (max-width: $breakpoint-medium) {
             grid-template-columns: 1.3fr repeat(4, 1fr);

@@ -293,18 +293,33 @@ td {
 
 .table--playlists {
   .table-column__playlist {
-    min-width: 15rem;
+    min-width: 10rem;
+    width: 46%;
   }
 
   .table-column__visibility {
-    text-align: center;
+    text-align: left;
+    width: 14%;
   }
 
-  .table-column__video-count {
-    text-align: center;
+  .table-column__create-at {
+    text-align: left;
+    width: 14%;
   }
 
   .table-column__update-at {
-    text-align: right;
+    text-align: left;
+    width: 14%;
+  }
+
+  .table-column__action {
+    text-align: left;
+    width: 12%;
+  }
+
+  thead {
+    th {
+      border-bottom: unset;
+    }
   }
 }
