@@ -117,16 +117,20 @@ function CollectionPreview(props: Props) {
         )}
       </div>
 
-      <div className="table-column__visibility">
-        <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
-      </div>
+      <div className="table-column__meta" uri={uri}>
+        <div className="table-column__visibility">
+          <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
+        </div>
 
-      <div className="table-column__create-at" uri={uri}>
-        <DateTime timeAgo date={collectionCreatedAt} />
-      </div>
+        <div className="table-column__create-at" uri={uri}>
+          <Icon icon={ICONS.TIME} />
+          <DateTime timeAgo date={collectionCreatedAt} />
+        </div>
 
-      <div className="table-column__update-at" uri={uri}>
-        <DateTime timeAgo date={collectionUpdatedAt} />
+        <div className="table-column__update-at" uri={uri}>
+          <Icon icon={ICONS.EDIT} />
+          <DateTime timeAgo date={collectionUpdatedAt} />
+        </div>
       </div>
 
       <div className="table-column__action">
