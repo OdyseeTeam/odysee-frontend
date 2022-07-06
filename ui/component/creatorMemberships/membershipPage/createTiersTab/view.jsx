@@ -66,25 +66,29 @@ function CreateTiersTab(props: Props) {
 
   const [existingTiers, setExistingTiers] = React.useState([]);
 
+  async function getExistingTiers(){
+    const response = await Lbryio.call(
+      'membership',
+      'list',
+      {
+        environment: stripeEnvironment,
+        channel_name: channelName,
+        channel_id: channelClaimId,
+      },
+      'post'
+    );
+
+    console.log(response);
+
+    setExistingTiers(response);
+    return response;
+  }
+
   // focus name when you create a new tier
   React.useEffect(() => {
     (async function() {
       if (channelClaimId) {
-        const response = await Lbryio.call(
-          'membership',
-          'list',
-          {
-            environment: stripeEnvironment,
-            channel_name: channelName,
-            channel_id: channelClaimId,
-          },
-          'post'
-        );
-
-        console.log(response);
-
-        setExistingTiers(response);
-        return response;
+        getExistingTiers();
       }
     })();
   }, [channelClaimId]);
@@ -191,7 +195,7 @@ function CreateTiersTab(props: Props) {
       perks: selectedPerks,
     };
 
-    const oldObject = copyOfMemberships[tierIndex];
+    const oldObject = existingTiers[tierIndex];
 
     const objectsAreDifferent = JSON.stringify(newObject) !== JSON.stringify(oldObject)
 
@@ -213,7 +217,7 @@ function CreateTiersTab(props: Props) {
       });
       console.log(response);
 
-      // TODO: make the call to the backend here
+      getExistingTiers();
     }
 
     // TODO: better way than setTimeout
@@ -235,7 +239,7 @@ function CreateTiersTab(props: Props) {
     }, 15);
     return (
       <div id="edit-div" className="edit-div" style={{ marginBottom: '45px' }}>
-        <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.displayName} />
+        <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.Membership.name} />
         {/* could be cool to have markdown */}
         {/* <FormField */}
         {/*  type="markdown" */}
@@ -252,25 +256,25 @@ function CreateTiersTab(props: Props) {
         <label htmlFor="tier_name" style={{ marginTop: '15px', marginBottom: '8px' }}>
           Odysee Perks
         </label>
-        {perkDescriptions.map((tierPerk, i) => (
-          <>
-            <FormField
-              type="checkbox"
-              defaultChecked={containsPerk(tierPerk.perkName, tier)}
-              // disabled={!optimizeAvail}
-              // onChange={() => setUserOptimize(!userOptimize)}
-              label={tierPerk.perkDescription}
-              name={tierPerk.perkName}
-            />
-          </>
-        ))}
+        {/*{perkDescriptions.map((tierPerk, i) => (*/}
+        {/*  <>*/}
+        {/*    <FormField*/}
+        {/*      type="checkbox"*/}
+        {/*      defaultChecked={containsPerk(tierPerk.perkName, tier)}*/}
+        {/*      // disabled={!optimizeAvail}*/}
+        {/*      // onChange={() => setUserOptimize(!userOptimize)}*/}
+        {/*      label={tierPerk.perkDescription}*/}
+        {/*      name={tierPerk.perkName}*/}
+        {/*    />*/}
+        {/*  </>*/}
+        {/*))}*/}
         <FormField
           className="form-field--price-amount"
           type="number"
           name="tier_contribution"
           step="1"
           label={__('Monthly Contribution ($/Month)')}
-          defaultValue={tier.monthlyContributionInUSD}
+          defaultValue={tier.Prices[0].unit_amount / 100}
           onChange={(event) => parseFloat(event.target.value)}
         />
         <div className="section__actions">
@@ -303,35 +307,35 @@ function CreateTiersTab(props: Props) {
               {isEditing !== membershipIndex && (
                 <div className="membership-tier__div">
                   <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
-                    {membershipIndex + 1}) Tier Name: {membershipTier.name}
+                    {membershipIndex + 1}) Tier Name: {membershipTier.Membership.name}
                   </div>
-                  <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.description}</h1>
+                  <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.Membership.description}</h1>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                    Monthly Pledge: ${membershipTier.monthlyContributionInUSD}
+                    Monthly Pledge: ${membershipTier.Prices[0].unit_amount / 100}
                   </h1>
-                  {membershipTier.perks.map((tierPerk, i) => (
-                    <>
-                      <p>
-                        {/* list all the perks */}
-                        {perkDescriptions.map((globalPerk, i) => (
-                          <>
-                            {tierPerk === globalPerk.perkName && (
-                              <>
-                                <ul>
-                                  <li>{globalPerk.perkDescription}</li>
-                                </ul>
-                              </>
-                            )}
-                          </>
-                        ))}
-                      </p>
-                    </>
-                  ))}
+                  {/*{membershipTier.perks.map((tierPerk, i) => (*/}
+                  {/*  <>*/}
+                  {/*    <p>*/}
+                  {/*      /!* list all the perks *!/*/}
+                  {/*      {perkDescriptions.map((globalPerk, i) => (*/}
+                  {/*        <>*/}
+                  {/*          {tierPerk === globalPerk.perkName && (*/}
+                  {/*            <>*/}
+                  {/*              <ul>*/}
+                  {/*                <li>{globalPerk.perkDescription}</li>*/}
+                  {/*              </ul>*/}
+                  {/*            </>*/}
+                  {/*          )}*/}
+                  {/*        </>*/}
+                  {/*      ))}*/}
+                  {/*    </p>*/}
+                  {/*  </>*/}
+                  {/*))}*/}
                   <div className="buttons-div" style={{ marginTop: '13px' }}>
                     {/* cancel membership button */}
                     <Button
                       button="alt"
-                      onClick={(e) => editMembership(e, membershipIndex, membershipTier.description)}
+                      onClick={(e) => editMembership(e, membershipIndex, membershipTier.Membership.description)}
                       className="edit-membership-button"
                       label={__('Edit Tier')}
                       icon={ICONS.EDIT}
