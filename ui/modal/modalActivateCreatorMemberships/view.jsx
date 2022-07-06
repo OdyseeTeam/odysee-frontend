@@ -20,7 +20,7 @@ export default function ModalRemoveCard(props: Props) {
 
   const activateMembershipsButton =
     <Button
-      button="secondary"
+      button="primary"
       icon={ICONS.UPGRADE}
       label={__('Activate Memberships')}
       // onClick={deleteMembership}
@@ -45,7 +45,7 @@ export default function ModalRemoveCard(props: Props) {
         title={__('Activate Memberships')}
         subtitle={!bankAccountConfirmed ? needToAddABankAccountText : activateYourMembershipsText}
         actions={
-          <div className="section__actions">
+          <div className="section__actions" style={{ marginTop: '10px' }}>
             {!bankAccountConfirmed ? addBankAccountButton : activateMembershipsButton }
             <Button button="link" label={__('Cancel')} onClick={closeModal} />
           </div>

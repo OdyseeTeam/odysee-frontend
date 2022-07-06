@@ -57,6 +57,7 @@ function CreatorMembershipsTab(props: Props) {
       {/* Dashboard showing income/supporters amount */}
       <h1 style={{ fontSize: '20px', marginTop: '25px' }}>{__('Received Funds')}</h1>
 
+      {/* TODO: replace this with API calls */}
       <h1 style={{ marginTop: '10px' }}>{__('Total Supporters: 0')}</h1>
 
       <h1 style={{ marginTop: '10px' }}>{__('Estimated Monthly Income: $0')}</h1>

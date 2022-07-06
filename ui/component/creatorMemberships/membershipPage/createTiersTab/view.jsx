@@ -7,71 +7,40 @@ import Button from 'component/button';
 import { FormField } from 'component/common/form';
 import moment from 'moment';
 import classnames from 'classnames';
-
+import { membershipTiers, perkDescriptions } from './defaultMembershipTiers'
 import { getStripeEnvironment } from 'util/stripe';
 import { Lbryio } from 'lbryinc';
 const stripeEnvironment = getStripeEnvironment();
 
-async function addTierToStripeAndDatabase(channelName, channelClaimId, name, description, perks) {
+async function addTierToStripeAndDatabase({
+  channelName,
+  channelClaimId,
+  name,
+  description,
+  monthlyCostUSD,
+  currency,
+  perks,
+}) {
   // show the memberships the user is subscribed to
-  await Lbryio.call(
+  const response = await Lbryio.call(
     'membership',
-    'buy',
+    'add',
     {
       environment: stripeEnvironment,
-      channelName,
-      channelClaimId,
+      channel_name: channelName,
+      channel_id: channelClaimId,
       name,
       description,
-      perks, // TODO: yet to be implemented on backend
+      monthly_cost_usd: monthlyCostUSD,
+      currencies: currency,
+      // perks, // TODO: yet to be implemented on backend
     },
     'post'
   );
+
+  return response;
 }
 
-let membershipTiers = [
-  {
-    displayName: 'Helping Hand',
-    description: "You're doing your part, thank you!",
-    monthlyContributionInUSD: 5,
-    perks: ['exclusiveAccess', 'badge'],
-  },
-  {
-    displayName: 'Big-Time Supporter',
-    description: 'You are a true fan and are helping in a big way!',
-    monthlyContributionInUSD: 10,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
-  },
-  {
-    displayName: 'Community MVP',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-];
-
-const perkDescriptions = [
-  {
-    perkName: 'exclusiveAccess',
-    perkDescription: 'Members-only content',
-  },
-  {
-    perkName: 'earlyAccess',
-    perkDescription: 'Early access content',
-  },
-  {
-    perkName: 'badge',
-    perkDescription: 'Member Badge',
-  },
-  {
-    perkName: 'emojis',
-    perkDescription: 'Members-only emojis',
-  },
-  {
-    perkName: 'custom-badge',
-    perkDescription: 'MVP member badge',
-  },
-];
 type Props = {
   openModal: (string, {}) => void,
   doToast: ({ message: string }) => void,
@@ -94,6 +63,36 @@ function CreateTiersTab(props: Props) {
   const [creatorMemberships, setCreatorMemberships] = React.useState(membershipTiers);
   const [editTierDescription, setEditTierDescription] = React.useState('');
   const [pendingTier, setPendingTier] = React.useState(false);
+
+  const [existingTiers, setExistingTiers] = React.useState([]);
+
+  // focus name when you create a new tier
+  React.useEffect(() => {
+    (async function() {
+      if (channelClaimId) {
+        const response = await Lbryio.call(
+          'membership',
+          'list',
+          {
+            environment: stripeEnvironment,
+            channel_name: channelName,
+            channel_id: channelClaimId,
+          },
+          'post'
+        );
+
+        console.log(response);
+
+        setExistingTiers(response);
+        return response;
+      }
+    })();
+  }, [channelClaimId]);
+
+  // focus name when you create a new tier
+  React.useEffect(() => {
+    document.querySelector("input[name='tier_name']")?.focus();
+  }, [pendingTier]);
 
   const editMembership = (e, tierIndex, tierDescription) => {
     setEditTierDescription(tierDescription);
@@ -164,7 +163,8 @@ function CreateTiersTab(props: Props) {
     }
   };
 
-  function saveMembership(tierIndex) {
+  // when someone hits the 'Save' button from the edit functionality
+  async function saveMembership(tierIndex) {
     const copyOfMemberships = creatorMemberships;
 
     // grab the tier name, description, monthly amount and perks
@@ -200,6 +200,18 @@ function CreateTiersTab(props: Props) {
       copyOfMemberships[tierIndex] = newObject;
 
       setCreatorMemberships(copyOfMemberships);
+
+      const response = await addTierToStripeAndDatabase({
+        channelName,
+        channelClaimId,
+        name: newTierName,
+        description: newTierDescription,
+        selectedPerks,
+        monthlyCostUSD: newTierMonthlyContribution,
+        currency: 'usd', // hardcoded for now
+        // perks: selectedPerks,
+      });
+      console.log(response);
 
       // TODO: make the call to the backend here
     }
@@ -282,7 +294,7 @@ function CreateTiersTab(props: Props) {
 
       <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
         {/* list through different tiers */}
-        {creatorMemberships.map((membershipTier, membershipIndex) => (
+        {existingTiers && existingTiers.map((membershipTier, membershipIndex) => (
           <>
             <div className="create-tier__card">
               {/* if the membership tier is marked as editing, show the edit functionality */}
@@ -291,7 +303,7 @@ function CreateTiersTab(props: Props) {
               {isEditing !== membershipIndex && (
                 <div className="membership-tier__div">
                   <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
-                    {membershipIndex + 1}) Tier Name: {membershipTier.displayName}
+                    {membershipIndex + 1}) Tier Name: {membershipTier.name}
                   </div>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.description}</h1>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
@@ -340,7 +352,7 @@ function CreateTiersTab(props: Props) {
         ))}
 
         {/* add membership tier button */}
-        {creatorMemberships.length < 5 && (
+        {existingTiers && existingTiers.length < 5 && (
           <>
             <Button
               button="primary"
