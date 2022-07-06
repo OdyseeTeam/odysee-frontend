@@ -125,6 +125,7 @@ function PostForm(props: Props) {
     hasClaimedInitialRewards,
   } = props;
 
+  console.log('Form: ', props);
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
   const urlParams = new URLSearchParams(location.search);
@@ -378,6 +379,8 @@ function PostForm(props: Props) {
     isClaimingInitialRewards ||
     formDisabled ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    !(uploadThumbnailStatus === THUMBNAIL_STATUSES.MANUAL || uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE) ||
+    thumbnailError ||
     ytSignupPending ||
     previewing;
 
