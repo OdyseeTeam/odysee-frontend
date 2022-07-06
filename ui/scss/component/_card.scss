@@ -775,6 +775,9 @@
   .card__header--slim {
     padding: var(--spacing-xxs);
     padding-top: 0;
+    @media (max-width: $breakpoint-small) {
+      padding: 0;
+    }
   }
   .card__header--between {
     .card__title {
@@ -835,6 +838,13 @@
     grid-column-end: end;
     display: flex;
     justify-content: space-between;
+
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+      section:last-of-type {
+        float: right;
+      }
+    }
   }
 
   .card__subtitle--small {
@@ -863,4 +873,8 @@
   padding-left: 0px;
   padding-top: var(--spacing-xxs);
   max-width: 80%;
+
+  @media (max-width: $breakpoint-small) {
+    max-width: 100%;
+  }
 }
