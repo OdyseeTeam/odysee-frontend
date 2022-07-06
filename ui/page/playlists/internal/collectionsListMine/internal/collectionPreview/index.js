@@ -21,6 +21,15 @@ const select = (state, props) => {
   const claim = selectPublishedCollectionClaimForId(state, collectionId);
   const channel = getChannelFromClaim(claim);
   const collectionUri = uri || (claim && (claim.canonical_url || claim.permanent_url)) || null;
+  let channelTitle = null;
+  if (channel) {
+    const { value, name } = channel;
+    if (value && value.title) {
+      channelTitle = value.title;
+    } else {
+      channelTitle = name;
+    }
+  }
 
   return {
     collectionId,
@@ -32,6 +41,7 @@ const select = (state, props) => {
     isResolvingUri: collectionUri && selectIsUriResolving(state, collectionUri),
     title: collectionUri && selectTitleForUri(state, collectionUri),
     channel,
+    channelTitle,
     hasClaim: Boolean(claim),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),

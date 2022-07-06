@@ -31,6 +31,7 @@ type Props = {
   isResolvingUri: boolean,
   title?: string,
   channel: ?any,
+  channelTitle?: String,
   hasClaim: boolean,
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
@@ -51,6 +52,7 @@ function CollectionPreview(props: Props) {
     hasClaim,
     firstCollectionItemUrl,
     channel,
+    channelTitle,
     collectionUpdatedAt,
     collectionCreatedAt,
     hasEdits,
@@ -103,7 +105,7 @@ function CollectionPreview(props: Props) {
           <div className="claim-preview__overlay-properties--small playlist-channel">
             <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
               <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-              {channel && channel.name}
+              {channelTitle && channelTitle}
             </UriIndicator>
           </div>
         )}
