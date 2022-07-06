@@ -68,6 +68,7 @@ type Props = {
   // useLBRYUploader: ?boolean,
   publishing: boolean,
   publishSuccess: boolean,
+  publishError?: boolean,
   balance: number,
   isStillEditing: boolean,
   clearPublish: () => void,
@@ -114,6 +115,7 @@ function LivestreamForm(props: Props) {
     fileText,
     publishing,
     publishSuccess,
+    publishError,
     clearPublish,
     isStillEditing,
     tags,
@@ -227,6 +229,13 @@ function LivestreamForm(props: Props) {
       return () => clearTimeout(timer);
     }
   }, [modal]);
+
+  useEffect(() => {
+    if (publishError) {
+      setPreviewing(false);
+      updatePublishForm({ publishError: undefined });
+    }
+  }, [publishError]);
 
   // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
   async function fetchLivestreams(channelId, channelName) {

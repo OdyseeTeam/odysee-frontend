@@ -31,8 +31,6 @@ function PublishPost(props: Props) {
     updatePublishForm({ title: event.target.value });
   }
 
-  console.log('Publish: ', props);
-
   return (
     <Card
       className={classnames({

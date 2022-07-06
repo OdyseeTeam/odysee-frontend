@@ -54,6 +54,7 @@ type PublishState = {
   currentUploads: { [key: string]: FileUploadItem },
   isMarkdownPost: boolean,
   isLivestreamPublish: boolean,
+  publishError?: boolean,
 };
 
 const defaultState: PublishState = {
@@ -185,6 +186,9 @@ export const publishReducer = handleActions(
       }
 
       if (!currentUploads[key]) {
+        if (status === 'error' || status === 'conflict') {
+          state.publishError = true;
+        }
         return state;
       }
 

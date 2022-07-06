@@ -306,7 +306,8 @@
 
   background-color: rgba(255, 0, 0, 0.02);
   border-radius: var(--border-radius);
-  border: 2px solid var(--color-text-error);
+  border: 1px solid var(--color-text-error);
+  border-left: 3px solid var(--color-text-error);
   color: var(--color-text-error);
   list-style: none;
   overflow-y: scroll;

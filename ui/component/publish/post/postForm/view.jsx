@@ -62,6 +62,7 @@ type Props = {
   useLBRYUploader: ?boolean,
   publishing: boolean,
   publishSuccess: boolean,
+  publishError: boolean,
   balance: number,
   releaseTimeError: ?string,
   isStillEditing: boolean,
@@ -106,6 +107,7 @@ function PostForm(props: Props) {
     fileText,
     publishing,
     publishSuccess,
+    publishError,
     clearPublish,
     isStillEditing,
     tags,
@@ -124,10 +126,6 @@ function PostForm(props: Props) {
     claimInitialRewards,
     hasClaimedInitialRewards,
   } = props;
-
-  console.log('Form: ', props);
-  console.log('publishSuccess: ', publishSuccess);
-  console.log('publishing: ', publishing);
 
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
@@ -205,6 +203,13 @@ function PostForm(props: Props) {
     }
   }, [modal]);
 
+  useEffect(() => {
+    if (publishError) {
+      setPreviewing(false);
+      updatePublishForm({ publishError: undefined });
+    }
+  }, [publishError]);
+
   let submitLabel;
 
   if (isClaimingInitialRewards) {
@@ -215,7 +220,7 @@ function PostForm(props: Props) {
     } else {
       submitLabel = __('Posting...');
     }
-  } else if (previewing) {
+  } else if (previewing && !publishError) {
     submitLabel = <Spinner type="small" />;
   } else {
     if (isStillEditing || inEditMode) {

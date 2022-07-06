@@ -67,6 +67,7 @@ type Props = {
   useLBRYUploader: ?boolean,
   publishing: boolean,
   publishSuccess: boolean,
+  publishError?: boolean,
   balance: number,
   isStillEditing: boolean,
   clearPublish: () => void,
@@ -110,6 +111,7 @@ function UploadForm(props: Props) {
     fileText,
     publishing,
     publishSuccess,
+    publishError,
     clearPublish,
     isStillEditing,
     tags,
@@ -225,6 +227,13 @@ function UploadForm(props: Props) {
       return () => clearTimeout(timer);
     }
   }, [modal]);
+
+  useEffect(() => {
+    if (publishError) {
+      setPreviewing(false);
+      updatePublishForm({ publishError: undefined });
+    }
+  }, [publishError]);
 
   let submitLabel;
 
