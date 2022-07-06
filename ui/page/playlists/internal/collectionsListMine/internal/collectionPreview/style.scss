@@ -129,7 +129,10 @@
       font-size: var(--font-base) !important;
     }
     .icon {
-      display: none;
+      display: unset;
+      height: var(--font-base) !important;
+      margin-bottom: -2px;
+      margin-right: var(--spacing-xxs);
     }
 
     @media (max-width: $breakpoint-medium) {
@@ -137,12 +140,6 @@
       width: unset;
       span {
         width: 100%;
-      }
-      .icon {
-        display: unset;
-        height: var(--font-base) !important;
-        margin-bottom: -2px;
-        margin-right: var(--spacing-xxs);
       }
     }
   }
@@ -155,18 +152,14 @@
       font-size: var(--font-base) !important;
     }
     .icon {
-      display: none;
+      display: unset;
+      height: var(--font-base) !important;
+      margin-bottom: -2px;
+      margin-right: var(--spacing-xxs);
     }
-
     @media (max-width: $breakpoint-medium) {
       display: block;
       width: unset;
-      .icon {
-        display: unset;
-        height: var(--font-base) !important;
-        margin-bottom: -2px;
-        margin-right: var(--spacing-xxs);
-      }
     }
   }
 
