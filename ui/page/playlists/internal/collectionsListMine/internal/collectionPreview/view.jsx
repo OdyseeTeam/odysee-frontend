@@ -17,7 +17,6 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import Button from 'component/button';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
-import I18nMessage from 'component/i18nMessage';
 import Icon from 'component/common/icon';
 import './style.scss';
 
@@ -102,17 +101,10 @@ function CollectionPreview(props: Props) {
         </NavLink>
         {hasClaim && (
           <div className="claim-preview__overlay-properties--small playlist-channel">
-            <I18nMessage
-              tokens={{
-                playlist_channel: (
-                  <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
-                    <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-                  </UriIndicator>
-                ),
-              }}
-            >
-              Published as: %playlist_channel%
-            </I18nMessage>
+            <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
+              <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
+              {channel && channel.name}
+            </UriIndicator>
           </div>
         )}
       </div>
