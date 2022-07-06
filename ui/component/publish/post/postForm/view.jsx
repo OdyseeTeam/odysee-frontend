@@ -126,6 +126,9 @@ function PostForm(props: Props) {
   } = props;
 
   console.log('Form: ', props);
+  console.log('publishSuccess: ', publishSuccess);
+  console.log('publishing: ', publishing);
+
   const inEditMode = Boolean(editingURI);
   const { replace, location } = useHistory();
   const urlParams = new URLSearchParams(location.search);
