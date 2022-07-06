@@ -1,18 +1,10 @@
 import { connect } from 'react-redux';
-import {
-  doResetThumbnailStatus,
-  doClearPublish,
-  doUpdatePublishForm,
-  doPrepareEdit,
-  doPublishDesktop,
-} from 'redux/actions/publish';
+import { doResetThumbnailStatus, doClearPublish, doUpdatePublishForm, doPublishDesktop } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
 import {
-  selectTakeOverAmount,
   selectPublishFormValues,
   selectIsStillEditing,
   makeSelectPublishFormValue,
-  selectIsResolvingPublishUris,
   selectMyClaimForUri,
 } from 'redux/selectors/publish';
 import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
@@ -39,7 +31,6 @@ const select = (state) => {
     ...selectPublishFormValues(state),
     user: selectUser(state),
     // The winning claim for a short lbry uri
-    amountNeededForTakeover: selectTakeOverAmount(state),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, permanentUrl),
     isPostClaim,
     permanentUrl,
@@ -51,7 +42,6 @@ const select = (state) => {
     filePath: makeSelectPublishFormValue('filePath')(state),
     remoteUrl: makeSelectPublishFormValue('remoteFileUrl')(state),
     publishSuccess: makeSelectPublishFormValue('publishSuccess')(state),
-    isResolvingUri: selectIsResolvingPublishUris(state),
     totalRewardValue: selectUnclaimedRewardValue(state),
     modal: selectModal(state),
     enablePublishPreview: selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW),
@@ -67,7 +57,6 @@ const perform = (dispatch) => ({
   clearPublish: () => dispatch(doClearPublish()),
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
   publish: (filePath, preview) => dispatch(doPublishDesktop(filePath, preview)),
-  prepareEdit: (claim, uri) => dispatch(doPrepareEdit(claim, uri)),
   resetThumbnailStatus: () => dispatch(doResetThumbnailStatus()),
   checkAvailability: (name) => dispatch(doCheckPublishNameAvailability(name)),
   claimInitialRewards: () => dispatch(doClaimInitialRewards()),

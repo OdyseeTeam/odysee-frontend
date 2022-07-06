@@ -58,7 +58,6 @@ type Props = {
   },
   name: ?string,
   nameError: ?string,
-  isResolvingUri: boolean,
   winningBidForClaimUri: number,
   myClaimForUri: ?StreamClaim,
   licenseType: string,
@@ -72,9 +71,7 @@ type Props = {
   isStillEditing: boolean,
   clearPublish: () => void,
   resolveUri: (string) => void,
-  prepareEdit: (claim: any, uri: string) => void,
   resetThumbnailStatus: () => void,
-  amountNeededForTakeover: ?number,
   // Add back type
   updatePublishForm: (any) => void,
   checkAvailability: (string) => void,
