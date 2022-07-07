@@ -1107,6 +1107,7 @@ img {
     padding: var(--spacing-s);
     input {
       box-shadow: 0 0 0 2px var(--color-border) inset;
+      z-index: unset;
     }
     .button--secondary {
       border-width: 2px 2px 2px 0;
