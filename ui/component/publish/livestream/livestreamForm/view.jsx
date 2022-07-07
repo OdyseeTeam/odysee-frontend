@@ -439,6 +439,8 @@ function LivestreamForm(props: Props) {
     ytSignupPending ||
     previewing;
 
+  console.log('props: ', props);
+
   // Editing claim uri
   return (
     <div className={balance < 0.01 ? 'disabled' : ''}>
@@ -520,7 +522,7 @@ function LivestreamForm(props: Props) {
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
-            <Card body={<PublishStreamReleaseDate />} />
+            {publishMode === 'New' && <Card body={<PublishStreamReleaseDate />} />}
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
@@ -554,7 +556,11 @@ function LivestreamForm(props: Props) {
               tagsChosen={tags}
             />
 
-            <PublishAdditionalOptions isLivestream={isLivestreamMode} disabled={disabled} showSchedulingOptions />
+            <PublishAdditionalOptions
+              isLivestream={isLivestreamMode}
+              disabled={disabled}
+              showSchedulingOptions={publishMode === 'New'}
+            />
           </div>
         )}
         <section>
