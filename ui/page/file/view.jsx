@@ -270,9 +270,9 @@ export default function FilePage(props: Props) {
                 </div>
               )}
 
-              {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
-
               {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
+
+              {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
 
               <React.Suspense fallback={null}>
                 {contentCommentsDisabled ? (
