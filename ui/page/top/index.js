@@ -4,8 +4,8 @@ import TopPage from './view';
 import { doClearPublish } from 'redux/actions/publish';
 import { doResolveUris } from 'redux/actions/claims';
 import { doOpenModal } from 'redux/actions/app';
-// import { push } from 'connected-react-router';
-// import * as PAGES from 'constants/pages';
+import { push } from 'connected-react-router';
+import * as PAGES from 'constants/pages';
 
 const select = (state, props) => {
   const { search } = props.location;
@@ -21,7 +21,7 @@ const perform = (dispatch) => ({
   beginPublish: (name) => {
     dispatch(doClearPublish());
     // dispatch(doPrepareEdit({ name }));
-    // dispatch(push(`/$/${PAGES.UPLOAD}`));
+    dispatch(push(`/$/${PAGES.UPLOAD}`));
   },
   doResolveUris: (uris) => dispatch(doResolveUris(uris)),
   doOpenModal: (id, props) => dispatch(doOpenModal(id, props)),
