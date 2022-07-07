@@ -157,45 +157,44 @@ const ModalPublishPreview = (props: Props) => {
 
   const [modalTitle, setModalTitle] = React.useState('Upload');
   const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
-  React.useEffect(() => {
-    if (isStillEditing) {
-      if (livestream || isLivestreamClaim) {
-        setModalTitle(__('Confirm Update'));
-      } else {
-        setModalTitle(__('Confirm Edit'));
-      }
-    } else if (livestream || isLivestreamClaim || remoteFile) {
-      setModalTitle(
-        releasesInFuture
-          ? __('Schedule Livestream')
-          : (!livestream || !isLivestreamClaim) && remoteFile
-          ? __('Publish Replay')
-          : __('Create Livestream')
-      );
-    } else if (isMarkdownPost) {
-      setModalTitle(__('Confirm Post'));
-    } else {
-      setModalTitle(__('Confirm Upload'));
-    }
 
-    if (!publishing) {
-      if (isMarkdownPost) {
-        setConfirmBtnText(__('Post'));
-      } else if (livestream || isLivestreamClaim) {
-        setConfirmBtnText(__('Create'));
-      } else {
-        setConfirmBtnText(__('Upload'));
-      }
+  if (isStillEditing) {
+    if (livestream || isLivestreamClaim) {
+      setModalTitle(__('Confirm Update'));
     } else {
-      if (isMarkdownPost) {
-        setConfirmBtnText(__('Saving'));
-      } else if (livestream || isLivestreamClaim) {
-        setConfirmBtnText(__('Creating'));
-      } else {
-        setConfirmBtnText(__('Uploading'));
-      }
+      setModalTitle(__('Confirm Edit'));
     }
-  }, [filePath, isMarkdownPost, isLivestreamClaim, remoteFile]);
+  } else if (livestream || isLivestreamClaim || remoteFile) {
+    setModalTitle(
+      releasesInFuture
+        ? __('Schedule Livestream')
+        : (!livestream || !isLivestreamClaim) && remoteFile
+        ? __('Publish Replay')
+        : __('Create Livestream')
+    );
+  } else if (isMarkdownPost) {
+    setModalTitle(__('Confirm Post'));
+  } else {
+    setModalTitle(__('Confirm Upload'));
+  }
+
+  if (!publishing) {
+    if (isMarkdownPost) {
+      setConfirmBtnText(__('Post'));
+    } else if (livestream || isLivestreamClaim) {
+      setConfirmBtnText(__('Create'));
+    } else {
+      setConfirmBtnText(__('Upload'));
+    }
+  } else {
+    if (isMarkdownPost) {
+      setConfirmBtnText(__('Saving'));
+    } else if (livestream || isLivestreamClaim) {
+      setConfirmBtnText(__('Creating'));
+    } else {
+      setConfirmBtnText(__('Uploading'));
+    }
+  }
 
   const releaseDateText = releasesInFuture ? __('Scheduled for') : __('Release date');
 
