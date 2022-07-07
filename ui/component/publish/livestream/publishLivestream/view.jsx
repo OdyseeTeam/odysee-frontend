@@ -346,10 +346,16 @@ function PublishLivestream(props: Props) {
   function updateReplayOption(checkbox, value) {
     if (checkbox === 'choose') {
       setChangeReplay(value);
-      if (uploadReplay) setUploadReplay(false);
+      if (uploadReplay) {
+        setUploadReplay(false);
+        updatePublishForm({ filePath: '' });
+      }
     } else {
       setUploadReplay(value);
-      if (changeReplay) setChangeReplay(false);
+      if (changeReplay) {
+        setChangeReplay(false);
+        setSelectedFileIndex(null);
+      }
     }
   }
 
