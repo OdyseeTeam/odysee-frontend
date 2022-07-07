@@ -300,7 +300,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                   <Button
                     title={__('Edit')}
                     className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-                    icon={ICONS.EDIT}
+                    icon={ICONS.ARRANGE}
                     onClick={() => setShowEdit(!showEdit)}
                   />
 
