@@ -155,44 +155,42 @@ const ModalPublishPreview = (props: Props) => {
   //   $FlowFixMe add outputs[0] etc to PublishResponse type
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
 
-  const [modalTitle, setModalTitle] = React.useState('Upload');
-  const [confirmBtnText, setConfirmBtnText] = React.useState('Save');
+  var modalTitle = 'Upload';
+  var confirmBtnText = 'Save';
 
   if (isStillEditing) {
     if (livestream || isLivestreamClaim) {
-      setModalTitle(__('Confirm Update'));
+      modalTitle = __('Confirm Update');
     } else {
-      setModalTitle(__('Confirm Edit'));
+      modalTitle = __('Confirm Edit');
     }
   } else if (livestream || isLivestreamClaim || remoteFile) {
-    setModalTitle(
-      releasesInFuture
-        ? __('Schedule Livestream')
-        : (!livestream || !isLivestreamClaim) && remoteFile
-        ? __('Publish Replay')
-        : __('Create Livestream')
-    );
+    modalTitle = releasesInFuture
+      ? __('Schedule Livestream')
+      : (!livestream || !isLivestreamClaim) && remoteFile
+      ? __('Publish Replay')
+      : __('Create Livestream');
   } else if (isMarkdownPost) {
-    setModalTitle(__('Confirm Post'));
+    modalTitle = __('Confirm Post');
   } else {
-    setModalTitle(__('Confirm Upload'));
+    modalTitle = __('Confirm Upload');
   }
 
   if (!publishing) {
     if (isMarkdownPost) {
-      setConfirmBtnText(__('Post'));
+      confirmBtnText = __('Post');
     } else if (livestream || isLivestreamClaim) {
-      setConfirmBtnText(__('Create'));
+      confirmBtnText = __('Create');
     } else {
-      setConfirmBtnText(__('Upload'));
+      confirmBtnText = __('Upload');
     }
   } else {
     if (isMarkdownPost) {
-      setConfirmBtnText(__('Saving'));
+      confirmBtnText = __('Saving');
     } else if (livestream || isLivestreamClaim) {
-      setConfirmBtnText(__('Creating'));
+      confirmBtnText = __('Creating');
     } else {
-      setConfirmBtnText(__('Uploading'));
+      confirmBtnText = __('Uploading');
     }
   }
 

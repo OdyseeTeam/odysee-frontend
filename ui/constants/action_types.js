@@ -343,7 +343,6 @@ export const SET_VIEW_MODE = 'SET_VIEW_MODE';
 // Publishing
 export const CLEAR_PUBLISH = 'CLEAR_PUBLISH';
 export const UPDATE_PUBLISH_FORM = 'UPDATE_PUBLISH_FORM';
-export const UPDATE_POST_FORM = 'UPDATE_POST_FORM';
 export const PUBLISH_START = 'PUBLISH_START';
 export const PUBLISH_SUCCESS = 'PUBLISH_SUCCESS';
 export const PUBLISH_FAIL = 'PUBLISH_FAIL';
