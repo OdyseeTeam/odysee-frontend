@@ -3,7 +3,7 @@ import { selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/pu
 import { selectFileInfosByOutpoint } from 'redux/selectors/file_info';
 import { doUpdatePublishForm, doResetThumbnailStatus } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
-import UploadPage from './view';
+import SelectThumbnail from './view';
 
 const select = (state) => ({
   ...selectPublishFormValues(state),
@@ -17,4 +17,4 @@ const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
 });
 
-export default connect(select, perform)(UploadPage);
+export default connect(select, perform)(SelectThumbnail);
