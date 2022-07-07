@@ -50,6 +50,7 @@ function PublishPost(props: Props) {
               className="fieldset-group"
               max="200"
               autoFocus
+              autoComplete="off"
             />
             <PublishName uri={uri} />
             <PostEditor

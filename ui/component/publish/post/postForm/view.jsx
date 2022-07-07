@@ -460,16 +460,23 @@ function PostForm(props: Props) {
           ) : (
             <I18nMessage
               tokens={{
-                lbry_terms_of_service: (
+                odysee_terms_of_service: (
                   <Button
                     button="link"
                     href="https://odysee.com/$/tos"
                     label={__('%site_name% Terms of Service', { site_name: SITE_NAME })}
                   />
                 ),
+                odysee_community_guidelines: (
+                  <Button
+                    button="link"
+                    href="https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c"
+                    label={__('community guidelines', { site_name: SITE_NAME })}
+                  />
+                ),
               }}
             >
-              By continuing, you accept the %lbry_terms_of_service%.
+              By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
             </I18nMessage>
           )}
         </p>

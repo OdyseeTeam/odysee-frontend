@@ -1343,6 +1343,12 @@ img {
       margin-right: var(--spacing-xxs) !important;
     }
   }
+
+  .help {
+    .button--link {
+      margin-left: 0;
+    }
+  }
 }
 
 [data-reach-menu-popover] {

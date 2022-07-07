@@ -320,7 +320,7 @@ function PublishLivestream(props: Props) {
     if (!!isStillEditing && name) {
       return (
         <p className="help">
-          {__("If you don't choose a file, the file from your existing claim %name% will be used", { name: name })}
+          {__("If you don't choose a replay, the file from your existing claim %name% will be used", { name: name })}
         </p>
       );
     }

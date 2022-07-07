@@ -134,6 +134,15 @@ function PublishFile(props: Props) {
   }
 
   function getUploadMessage() {
+    /*
+    if(livestreamData){
+      return (
+        <p className="help--error">
+          Livestreams Replay
+        </p>
+      );
+    }
+    */
     // @if TARGET='web'
     if (oversized) {
       return (

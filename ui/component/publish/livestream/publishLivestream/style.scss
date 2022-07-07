@@ -146,4 +146,10 @@
       height: var(--height-input);
     }
   }
+
+  .help {
+    .button--link {
+      margin-left: 0;
+    }
+  }
 }
