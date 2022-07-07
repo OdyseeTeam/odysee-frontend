@@ -3448,4 +3448,29 @@ export const icons = {
       </svg>
     );
   },
+  [ICONS.ARRANGE]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 14 14"
+        width={size}
+        height={size}
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        stroke={color}
+        {...otherProps}
+      >
+        <path
+          strokeWidth="1.5"
+          d="M0.5 1.42857C0.5 0.915736 0.915736 0.5 1.42857 0.5H12.5714C13.0843 0.5 13.5 0.915736 13.5 1.42857V12.5714C13.5 13.0843 13.0843 13.5 12.5714 13.5H1.42857C0.915736 13.5 0.5 13.0843 0.5 12.5714V1.42857Z"
+        />
+        <path d="M8.85715 5.14279L7.00001 3.28564L5.14287 5.14279" />
+        <path d="M8.85715 8.85742L7.00001 10.7146L5.14287 8.85742" />
+        <path d="M7.00002 3.28564V10.7142" />
+      </svg>
+    );
+  },
 };
