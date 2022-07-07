@@ -143,6 +143,7 @@ function LivestreamForm(props: Props) {
   const TYPE_PARAM = 'type';
   const uploadType = urlParams.get(TYPE_PARAM);
   const _uploadType = uploadType && uploadType.toLowerCase();
+  const activeChannelName = activeChannelClaim && activeChannelClaim.name;
 
   const mode = PUBLISH_MODES.LIVESTREAM;
   const [publishMode, setPublishMode] = React.useState('New');
@@ -153,6 +154,8 @@ function LivestreamForm(props: Props) {
   const [prevName, setPrevName] = React.useState(false);
 
   const [waitForFile, setWaitForFile] = useState(false);
+  const [overMaxBitrate, setOverMaxBitrate] = useState(false);
+
   const [livestreamData, setLivestreamData] = React.useState([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
@@ -161,7 +164,6 @@ function LivestreamForm(props: Props) {
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
   const formDisabled = (fileFormDisabled && !editingURI) || emptyPostError || publishing;
   const isInProgress = filePath || editingURI || name || title;
-  const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   // Editing content info
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
@@ -180,6 +182,7 @@ function LivestreamForm(props: Props) {
     name &&
     isNameValid(name) &&
     title &&
+    !overMaxBitrate &&
     bid &&
     thumbnail &&
     !bidError &&
@@ -205,11 +208,11 @@ function LivestreamForm(props: Props) {
   }, [isClear]);
 
   useEffect(() => {
-    if (claimChannelId) {
-      fetchLivestreams(claimChannelId, activeChannelName);
+    if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
+      fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [claimChannelId]);
+  }, [claimChannelId, activeChannelName]);
 
   useEffect(() => {
     if (!hasClaimedInitialRewards) {
@@ -508,6 +511,7 @@ function LivestreamForm(props: Props) {
           inProgress={isInProgress}
           livestreamData={livestreamData}
           setWaitForFile={setWaitForFile}
+          setOverMaxBitrate={setOverMaxBitrate}
           isCheckingLivestreams={isCheckingLivestreams}
           checkLivestreams={fetchLivestreams}
           channelId={claimChannelId}
@@ -566,7 +570,12 @@ function LivestreamForm(props: Props) {
           </div>
           <p className="help">
             {!formDisabled && !formValid ? (
-              <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} />
+              <PublishFormErrors
+                title={title}
+                mode={mode}
+                waitForFile={waitingForFile}
+                overMaxBitrate={overMaxBitrate}
+              />
             ) : (
               <I18nMessage
                 tokens={{

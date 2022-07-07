@@ -104,9 +104,44 @@
   }
 }
 
+.file-upload {
+  margin-top: var(--spacing-m);
+
+  .help {
+    margin-bottom: 0;
+  }
+}
+
 .disabled {
   .table__wrapper {
     height: 98px;
     overflow: hidden;
+  }
+}
+
+.empty {
+  margin: 0;
+  display: unset;
+  .empty__wrap {
+    display: unset;
+    .empty__content {
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius);
+      background-color: var(--color-input-bg);
+      padding: var(--spacing-xxxs);
+      width: 100%;
+      max-width: unset;
+    }
+  }
+
+  .spinner {
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
+    background-color: var(--color-input-bg);
+    width: 100%;
+    max-width: unset;
+    margin: 0;
+    // padding: var(--spacing-m) 0;
+    height: var(--height-input);
   }
 }

@@ -323,8 +323,6 @@ function PublishFile(props: Props) {
     if (!title) updatePublishForm({ title: newTitle });
   }
 
-  // const showFileUpload = mode === PUBLISH_MODES.FILE || PUBLISH_MODES.LIVESTREAM;
-  // const isPublishPost = mode === PUBLISH_MODES.POST;
   const titleInput = React.createRef();
 
   return (

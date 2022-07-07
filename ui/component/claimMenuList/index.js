@@ -37,7 +37,8 @@ import ClaimPreview from './view';
 import fs from 'fs';
 
 const select = (state, props) => {
-  const claim = selectClaimForUri(state, props.uri, false);
+  const { uri } = props;
+  const claim = selectClaimForUri(state, uri, false);
   const collectionId = props.collectionId;
   const repostedClaim = claim && claim.reposted_claim;
   const contentClaim = repostedClaim || claim;

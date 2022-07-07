@@ -13,6 +13,9 @@ const select = (state) => ({
   isStillEditing: selectIsStillEditing(state),
   balance: selectBalance(state),
   publishing: makeSelectPublishFormValue('publishing')(state),
+  size: makeSelectPublishFormValue('fileSize')(state),
+  duration: makeSelectPublishFormValue('fileDur')(state),
+  isVid: makeSelectPublishFormValue('fileVid')(state),
 });
 
 const perform = {

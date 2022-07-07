@@ -274,6 +274,7 @@ const ModalPublishPreview = (props: Props) => {
                   <tbody>
                     {!livestream && !isMarkdownPost && createRow(__('File'), getFilePathName(filePath))}
                     {livestream && remoteFile && createRow(__('Replay'), __('Remote File Selected'))}
+                    {livestream && filePath && createRow(__('Replay'), __('Manual Upload'))}
                     {isOptimizeAvail && createRow(__('Transcode'), optimize ? __('Yes') : __('No'))}
                     {createRow(__('Title'), formattedTitle)}
                     {createRow(__('Description'), descriptionValue)}
