@@ -66,7 +66,7 @@ function PublishLivestream(props: Props) {
   const totalPages =
     hasLivestreamData && livestreamData.length > PAGE_SIZE ? Math.ceil(livestreamData.length / PAGE_SIZE) : 1;
 
-  const replayTitleLabel = !inEditMode ? __('Select Replay') : __('Change Replay');
+  const replayTitleLabel = !inEditMode ? __('Select Replay') : __('Use Replay');
   const [changeReplay, setChangeReplay] = useState(false);
 
   // Reset filePath if publish mode changed
