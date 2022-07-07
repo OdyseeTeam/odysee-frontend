@@ -131,6 +131,7 @@ function CollectionGeneralTab(props: Props) {
                 thumbnailParamError={thumbError}
                 thumbnailParamStatus={thumbStatus}
                 updateThumbnailParams={handleUpdateThumbnail}
+                optional
               />
             </fieldset-section>
 
