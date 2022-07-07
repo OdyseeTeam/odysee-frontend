@@ -56,7 +56,6 @@ function PublishLivestream(props: Props) {
     inEditMode,
   } = props;
 
-  console.log('props: ', props);
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
