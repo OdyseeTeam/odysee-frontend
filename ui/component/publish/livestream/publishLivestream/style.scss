@@ -96,3 +96,17 @@
 .livestream__data-row-spacer {
   height: var(--spacing-xxs);
 }
+
+.checkbox {
+  display: inline-block;
+  label {
+    margin-bottom: -5px;
+  }
+}
+
+.disabled {
+  .table__wrapper {
+    height: 98px;
+    overflow: hidden;
+  }
+}

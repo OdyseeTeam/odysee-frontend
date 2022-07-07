@@ -66,6 +66,9 @@ function PublishLivestream(props: Props) {
   const totalPages =
     hasLivestreamData && livestreamData.length > PAGE_SIZE ? Math.ceil(livestreamData.length / PAGE_SIZE) : 1;
 
+  const replayTitleLabel = !inEditMode ? __('Select Replay') : __('Change Replay');
+  const [changeReplay, setChangeReplay] = useState(false);
+
   // Reset filePath if publish mode changed
   useEffect(() => {
     updatePublishForm({ filePath: '' });
@@ -163,8 +166,22 @@ function PublishLivestream(props: Props) {
               <>
                 {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
                   <>
-                    <label>{__('Select Replay')}</label>
-                    <div className="replay-picker--container">
+                    <label>
+                      {inEditMode && (
+                        <FormField
+                          name="show-replays"
+                          type="checkbox"
+                          checked={changeReplay}
+                          onChange={() => setChangeReplay(!changeReplay)}
+                        />
+                      )}
+                      {replayTitleLabel}
+                    </label>
+                    <div
+                      className={classnames('replay-picker--container', {
+                        disabled: inEditMode && !changeReplay,
+                      })}
+                    >
                       <fieldset-section>
                         <div className="table__wrapper">
                           <table className="table table--livestream-data">
@@ -247,7 +264,7 @@ function PublishLivestream(props: Props) {
                     </div>
                   </>
                 )}
-                {fileSource === SOURCE_SELECT && !hasLivestreamData && !isCheckingLivestreams && (
+                {(fileSource === SOURCE_SELECT || inEditMode) && !hasLivestreamData && !isCheckingLivestreams && (
                   <div className="main--empty empty">
                     <Empty text={__('No replays found.')} />
                   </div>
