@@ -2,7 +2,7 @@
 import React from 'react';
 import Card from 'component/common/card';
 import CollectionActions from '../collectionActions';
-import FileDescription from 'component/fileDescription';
+import ClaimDescription from 'component/claimDescription';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import ClaimAuthor from 'component/claimAuthor';
@@ -51,8 +51,6 @@ const CollectionHeader = (props: Props) => {
     doCollectionEdit,
     doOpenModal,
   } = props;
-
-  const [showInfo, setShowInfo] = React.useState(false);
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const listName = claim ? claim.value.title || claim.name : collection && collection.name;
@@ -120,26 +118,24 @@ const CollectionHeader = (props: Props) => {
               : __('%collectionCount% items', { collectionCount })}
           </span>
 
-          {uri ? <ClaimAuthor uri={uri} /> : <CollectionPrivateIcon />}
+          {uri ? (
+            <>
+              <ClaimDescription uri={uri} />
+              <ClaimAuthor uri={uri} />
+            </>
+          ) : (
+            <CollectionPrivateIcon />
+          )}
         </div>
       }
       body={
         <CollectionActions
           uri={uri}
           collectionId={collectionId}
-          setShowInfo={setShowInfo}
-          showInfo={showInfo}
           isBuiltin={isBuiltin}
           setShowEdit={setShowEdit}
           showEdit={showEdit}
         />
-      }
-      actions={
-        showInfo && uri ? (
-          <div className="section">
-            <FileDescription uri={uri} expandOverride />
-          </div>
-        ) : undefined
       }
     />
   );

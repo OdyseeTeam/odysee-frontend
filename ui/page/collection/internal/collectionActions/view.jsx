@@ -20,8 +20,6 @@ type Props = {
   claimId?: string,
   isMyCollection: boolean,
   collectionId: string,
-  showInfo: boolean,
-  setShowInfo: (boolean) => void,
   showEdit: boolean,
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
@@ -29,18 +27,7 @@ type Props = {
 };
 
 function CollectionActions(props: Props) {
-  const {
-    uri,
-    claimId,
-    isMyCollection,
-    collectionId,
-    showInfo,
-    setShowInfo,
-    isBuiltin,
-    showEdit,
-    setShowEdit,
-    collectionEmpty,
-  } = props;
+  const { uri, claimId, isMyCollection, collectionId, isBuiltin, showEdit, setShowEdit, collectionEmpty } = props;
 
   const isMobile = useIsMobile();
 
@@ -74,15 +61,6 @@ function CollectionActions(props: Props) {
       </SectionElement>
 
       <div className="section">
-        {uri && (
-          <Button
-            title={__('Info')}
-            className={classnames('button-toggle', { 'button-toggle--active': showInfo })}
-            icon={ICONS.MORE}
-            onClick={() => setShowInfo(!showInfo)}
-          />
-        )}
-
         {!collectionEmpty && isMyCollection && (
           <Button
             title={__('Edit')}
