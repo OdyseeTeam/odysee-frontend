@@ -187,9 +187,10 @@ export const publishReducer = handleActions(
 
       if (!currentUploads[key]) {
         if (status === 'error' || status === 'conflict') {
-          state.publishError = true;
+          return { ...state, publishError: true };
+        } else {
+          return state;
         }
-        return state;
       }
 
       if (progress) {
