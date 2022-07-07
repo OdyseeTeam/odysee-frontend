@@ -84,6 +84,7 @@ function PublishName(props: Props) {
           disabled={isStillEditing}
           onChange={handleNameChange}
           onBlur={() => setBlurred(true)}
+          autocomplete="off"
         />
       </fieldset-group>
 

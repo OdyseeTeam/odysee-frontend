@@ -247,6 +247,7 @@ function PublishLivestream(props: Props) {
                 className="fieldset-group"
                 max="200"
                 autoFocus
+                autocomplete="off"
               />
               <PublishName uri={uri} />
               {/* @endif */}
