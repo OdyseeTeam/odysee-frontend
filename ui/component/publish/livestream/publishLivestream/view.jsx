@@ -385,6 +385,7 @@ function PublishLivestream(props: Props) {
                       {inEditMode && (
                         <FormField
                           name="show-replays"
+                          key="show-replays"
                           type="checkbox"
                           checked={changeReplay}
                           onChange={() => updateReplayOption('choose', !changeReplay)}
@@ -405,7 +406,7 @@ function PublishLivestream(props: Props) {
                                 .slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE)
                                 .map((item, i) => (
                                   <>
-                                    <tr className="livestream__data-row-spacer" />
+                                    <tr className="livestream__data-row-spacer" key={item.id + '_spacer'} />
                                     <tr
                                       onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
                                       key={item.id}
@@ -419,6 +420,7 @@ function PublishLivestream(props: Props) {
                                           type="radio"
                                           checked={selectedFileIndex === (currentPage - 1) * PAGE_SIZE + i}
                                           label={null}
+                                          onChange={() => {}}
                                           onClick={() => setSelectedFileIndex((currentPage - 1) * PAGE_SIZE + i)}
                                           className="livestream__data-row-radio"
                                         />
@@ -484,7 +486,8 @@ function PublishLivestream(props: Props) {
                     <label className="disabled">
                       {inEditMode && (
                         <FormField
-                          name="show-replays"
+                          name="show-replays-empty"
+                          key="show-replays"
                           type="checkbox"
                           checked={changeReplay}
                           onChange={() => updateReplayOption('choose', !changeReplay)}
@@ -503,6 +506,7 @@ function PublishLivestream(props: Props) {
                       {inEditMode && (
                         <FormField
                           name="show-replays"
+                          key="show-replays-spin"
                           type="checkbox"
                           checked={changeReplay}
                           onChange={() => updateReplayOption('choose', !changeReplay)}
