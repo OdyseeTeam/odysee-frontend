@@ -91,6 +91,7 @@ type Props = {
   setClearStatus: (boolean) => void,
   // disabled?: boolean,
   remoteFileUrl?: string,
+  urlSource?: string,
 };
 
 function LivestreamForm(props: Props) {
@@ -117,7 +118,6 @@ function LivestreamForm(props: Props) {
     isStillEditing,
     tags,
     publish,
-    // disabled = false,
     checkAvailability,
     ytSignupPending,
     modal,
@@ -133,6 +133,7 @@ function LivestreamForm(props: Props) {
     hasClaimedInitialRewards,
     setClearStatus,
     remoteFileUrl,
+    urlSource,
   } = props;
 
   const isMobile = useIsMobile();
@@ -361,6 +362,8 @@ function LivestreamForm(props: Props) {
     if (editingURI) {
       resolveUri(editingURI);
       setPublishMode('Edit');
+    } else if (urlSource) {
+      setPublishMode(urlSource);
     } else {
       setPublishMode('New');
       updatePublishForm({ isLivestreamPublish: true, remoteFileUrl: undefined });

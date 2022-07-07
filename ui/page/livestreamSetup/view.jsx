@@ -61,6 +61,7 @@ export default function LivestreamSetupPage(props: Props) {
   } = useHistory();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
+  const urlSource = urlParams.get('s');
 
   const [sigData, setSigData] = React.useState({ signature: undefined, signing_ts: undefined });
 
@@ -439,7 +440,9 @@ export default function LivestreamSetupPage(props: Props) {
           )}
         </div>
       )}
-      {tab === 'Publish' && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
+      {tab === 'Publish' && (
+        <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} urlSource={urlSource} />
+      )}
     </Page>
   );
 }

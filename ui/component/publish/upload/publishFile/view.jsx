@@ -1,6 +1,8 @@
 // @flow
 import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
 import React, { useState, useEffect } from 'react';
+import Lbry from 'lbry';
+import { toHex } from 'util/hex';
 import { regexInvalidURI } from 'util/lbryURI';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
@@ -11,6 +13,7 @@ import * as PUBLISH_MODES from 'constants/publish_types';
 import PublishName from 'component/publish/shared/publishName';
 import classnames from 'classnames';
 import { SOURCE_SELECT } from 'constants/publish_sources';
+import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 
 type Props = {
   uri: ?string,
@@ -29,6 +32,8 @@ type Props = {
   setPublishMode: (string) => void,
   setOverMaxBitrate: (boolean) => void,
   fileSource: string,
+  myClaimForUri: ?StreamClaim,
+  activeChannelClaim: ?ChannelClaim,
   // inEditMode: boolean,
 };
 
@@ -52,6 +57,8 @@ function PublishFile(props: Props) {
     // setWaitForFile,
     setOverMaxBitrate,
     fileSource,
+    myClaimForUri,
+    activeChannelClaim,
     // inEditMode,
   } = props;
 
@@ -71,6 +78,15 @@ function PublishFile(props: Props) {
 
   const bitRate = getBitrate(size, duration);
   const bitRateIsOverMax = bitRate > MAX_BITRATE;
+
+  const [livestreamData, setLivestreamData] = React.useState([]);
+  const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
+
+  const claimChannelId =
+    (myClaimForUri && myClaimForUri.signing_channel && myClaimForUri.signing_channel.claim_id) ||
+    (activeChannelClaim && activeChannelClaim.claim_id);
+  const activeChannelName = activeChannelClaim && activeChannelClaim.name;
+  // const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
 
   // Reset filePath if publish mode changed
   useEffect(() => {
@@ -119,6 +135,69 @@ function PublishFile(props: Props) {
     setOverMaxBitrate(bitRateIsOverMax);
   }, [bitRateIsOverMax]);
 
+  async function fetchLivestreams(channelId, channelName) {
+    // setCheckingLivestreams(true);
+    let signedMessage;
+    try {
+      await Lbry.channel_sign({
+        channel_id: channelId,
+        hexdata: toHex(channelName || ''),
+      }).then((data) => {
+        signedMessage = data;
+      });
+    } catch (e) {
+      throw e;
+    }
+    if (signedMessage) {
+      const encodedChannelName = encodeURIComponent(channelName || '');
+      const newEndpointUrl =
+        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
+        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${
+          encodedChannelName || ''
+        }`;
+
+      const responseFromNewApi = await fetch(newEndpointUrl);
+
+      const data = (await responseFromNewApi.json()).data;
+
+      let newData = [];
+      if (data && data.length > 0) {
+        for (const dataItem of data) {
+          if (dataItem.Status.toLowerCase() === 'inprogress' || dataItem.Status.toLowerCase() === 'ready') {
+            const objectToPush = {
+              data: {
+                fileLocation: dataItem.URL,
+                fileDuration:
+                  dataItem.Status.toLowerCase() === 'inprogress'
+                    ? __('Processing...(') + dataItem.PercentComplete + '%)'
+                    : (dataItem.Duration / 1000000000).toString(),
+                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
+                uploadedAt: dataItem.Created,
+              },
+            };
+            newData.push(objectToPush);
+          }
+        }
+      }
+
+      setLivestreamData(newData);
+      // setCheckingLivestreams(false);
+    }
+  }
+
+  useEffect(() => {
+    if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
+      fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
+    }
+  }, [claimChannelId, activeChannelName]);
+
+  useEffect(() => {
+    if (activeChannelClaim && activeChannelClaim.claim_id && activeChannelName) {
+      fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimChannelId, activeChannelName]);
+
   function updateFileInfo(duration, size, isvid) {
     updatePublishForm({ fileDur: duration, fileSize: size, fileVid: isvid });
   }
@@ -133,16 +212,16 @@ function PublishFile(props: Props) {
     }
   }
 
+  function linkReplays() {
+    return (
+      <p className="help--link">
+        {__('Would you like to publish a ')}
+        <Button button="link" label={__('Livestream Replay instead')} navigate="/$/livestream?s=Replay" />?
+      </p>
+    );
+  }
+
   function getUploadMessage() {
-    /*
-    if(livestreamData){
-      return (
-        <p className="help--error">
-          Livestreams Replay
-        </p>
-      );
-    }
-    */
     // @if TARGET='web'
     if (oversized) {
       return (
@@ -355,6 +434,7 @@ function PublishFile(props: Props) {
                   autoFocus
                 />
                 {getUploadMessage()}
+                {hasLivestreamData && linkReplays()}
 
                 {fileSource === SOURCE_SELECT && (
                   <div className="main--empty empty">
@@ -362,18 +442,20 @@ function PublishFile(props: Props) {
                   </div>
                 )}
               </>
-              <FormField
-                type="text"
-                name="content_title"
-                label={__('Title')}
-                placeholder={__('Descriptive titles work best')}
-                disabled={disabled}
-                value={title}
-                onChange={handleTitleChange}
-                className="fieldset-group"
-                max="200"
-                ref={titleInput}
-              />
+              <div className="form-spacer">
+                <FormField
+                  type="text"
+                  name="content_title"
+                  label={__('Title')}
+                  placeholder={__('Descriptive titles work best')}
+                  disabled={disabled}
+                  value={title}
+                  onChange={handleTitleChange}
+                  className="fieldset-group"
+                  max="200"
+                  ref={titleInput}
+                />
+              </div>
               <PublishName uri={uri} />
             </React.Fragment>
           </div>

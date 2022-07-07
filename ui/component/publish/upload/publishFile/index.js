@@ -1,8 +1,9 @@
 import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
-import { selectIsStillEditing, makeSelectPublishFormValue } from 'redux/selectors/publish';
+import { selectIsStillEditing, makeSelectPublishFormValue, selectMyClaimForUri } from 'redux/selectors/publish';
 import { doUpdatePublishForm, doClearPublish } from 'redux/actions/publish';
 // import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doToast } from 'redux/actions/notifications';
 import { selectFfmpegStatus } from 'redux/selectors/settings';
 import UploadPage from './view';
@@ -20,6 +21,8 @@ const select = (state, props) => ({
   size: makeSelectPublishFormValue('fileSize')(state),
   duration: makeSelectPublishFormValue('fileDur')(state),
   isVid: makeSelectPublishFormValue('fileVid')(state),
+  myClaimForUri: selectMyClaimForUri(state),
+  activeChannelClaim: selectActiveChannelClaim(state),
   // isLivestreamClaim: selectIsStreamPlaceholderForUri(state, props.uri),
 });
 
