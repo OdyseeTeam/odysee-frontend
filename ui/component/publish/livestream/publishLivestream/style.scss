@@ -1,6 +1,6 @@
 @import '../../../../scss/init/_breakpoints.scss';
 
-.channel-picker--container {
+.replay-picker--container {
   border-radius: var(--border-radius);
   border: 2px solid var(--color-border);
   background-color: var(--color-input-bg);
@@ -8,6 +8,7 @@
 
   .table__wrapper {
     padding: var(--spacing-xxs);
+    padding-top: 0;
   }
 
   .fieldgroup--paginate {

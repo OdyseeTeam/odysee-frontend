@@ -164,7 +164,7 @@ function PublishLivestream(props: Props) {
                 {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
                   <>
                     <label>{__('Select Replay')}</label>
-                    <div className="channel-picker--container">
+                    <div className="replay-picker--container">
                       <fieldset-section>
                         <div className="table__wrapper">
                           <table className="table table--livestream-data">
