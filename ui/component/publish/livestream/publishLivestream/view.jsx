@@ -146,7 +146,7 @@ function PublishLivestream(props: Props) {
               {/* Decide whether to show file upload or replay selector */}
               {/* @if TARGET='web' */}
               <>
-                {inEditMode && hasLivestreamData && !isCheckingLivestreams && (
+                {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
                   <>
                     <fieldset-section>
                       <label>{__('Select Replay')}</label>
@@ -230,7 +230,7 @@ function PublishLivestream(props: Props) {
                     <Empty text={__('No replays found.')} />
                   </div>
                 )}
-                {inEditMode && isCheckingLivestreams && (
+                {(fileSource === SOURCE_SELECT || inEditMode) && isCheckingLivestreams && (
                   <div className="main--empty empty">
                     <Spinner small />
                   </div>
@@ -247,7 +247,7 @@ function PublishLivestream(props: Props) {
                 className="fieldset-group"
                 max="200"
                 autoFocus
-                autocomplete="off"
+                autoComplete="off"
               />
               <PublishName uri={uri} />
               {/* @endif */}
