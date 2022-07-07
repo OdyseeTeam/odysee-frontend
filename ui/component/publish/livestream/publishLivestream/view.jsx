@@ -56,6 +56,7 @@ function PublishLivestream(props: Props) {
     inEditMode,
   } = props;
 
+  console.log('props: ', props);
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
 
@@ -146,7 +147,7 @@ function PublishLivestream(props: Props) {
               {/* Decide whether to show file upload or replay selector */}
               {/* @if TARGET='web' */}
               <>
-                {fileSource === SOURCE_SELECT && hasLivestreamData && !isCheckingLivestreams && (
+                {inEditMode && hasLivestreamData && !isCheckingLivestreams && (
                   <>
                     <fieldset-section>
                       <label>{__('Select Replay')}</label>
@@ -230,7 +231,7 @@ function PublishLivestream(props: Props) {
                     <Empty text={__('No replays found.')} />
                   </div>
                 )}
-                {fileSource === SOURCE_SELECT && isCheckingLivestreams && (
+                {inEditMode && isCheckingLivestreams && (
                   <div className="main--empty empty">
                     <Spinner small />
                   </div>

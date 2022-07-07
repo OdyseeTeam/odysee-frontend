@@ -439,8 +439,6 @@ function LivestreamForm(props: Props) {
     ytSignupPending ||
     previewing;
 
-  console.log('props: ', props);
-
   // Editing claim uri
   return (
     <div className={balance < 0.01 ? 'disabled' : ''}>
@@ -488,17 +486,15 @@ function LivestreamForm(props: Props) {
             )}
           </div>
           {!isMobile && <ChannelSelect hideAnon autoSet channelToSet={claimChannelId} isTabHeader />}
-          {publishMode !== 'Edit' && (
-            <Tooltip title={__('Check for Replays')}>
-              <Button
-                button="secondary"
-                label={__('Check for Replays')}
-                disabled={isCheckingLivestreams || publishMode === 'Edit'}
-                icon={ICONS.REFRESH}
-                onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
-              />
-            </Tooltip>
-          )}
+          <Tooltip title={__('Check for Replays')}>
+            <Button
+              button="secondary"
+              label={__('Check for Replays')}
+              disabled={isCheckingLivestreams}
+              icon={ICONS.REFRESH}
+              onClick={() => fetchLivestreams(claimChannelId, activeChannelName)}
+            />
+          </Tooltip>
         </Card>
 
         <PublishLivestream
