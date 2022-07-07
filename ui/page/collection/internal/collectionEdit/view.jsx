@@ -126,7 +126,7 @@ function CollectionForm(props: Props) {
     updateParams({ claims: collectionClaimIds });
     doClearCollectionErrors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collectionClaimIdsString, setParams]);
+  }, [collectionClaimIdsString]);
 
   React.useEffect(() => {
     let nameError;
@@ -203,6 +203,7 @@ function CollectionForm(props: Props) {
             {currentView === PAGE.GENERAL && (
               <CollectionGeneralTab
                 uri={uri}
+                collectionId={collectionId}
                 params={params}
                 nameError={nameError}
                 setThumbnailError={setThumbnailError}
