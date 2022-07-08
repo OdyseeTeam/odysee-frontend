@@ -1365,7 +1365,7 @@ img {
           align-items: center;
 
           .claim-preview-info {
-            display: inline-block;
+            display: inline-block !important;
             .claim-preview__title {
               width: 40%;
               margin-left: var(--file-list-thumbnail-width);

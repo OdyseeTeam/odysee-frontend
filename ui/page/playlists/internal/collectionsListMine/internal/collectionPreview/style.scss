@@ -95,6 +95,13 @@
     width: 42%;
     height: 100%;
     vertical-align: middle;
+    .claim-preview-info {
+      display: inline-block;
+      .claim-preview__overlay-properties--small {
+        display: inline-block;
+      }
+    }
+
     @media (max-width: $breakpoint-medium) {
       width: 20%;
     }
@@ -117,6 +124,7 @@
       line-height: 1.5;
     }
     .icon {
+      margin-bottom: -1px;
       height: var(--font-base) !important;
       margin-right: var(--spacing-xxs);
     }
@@ -126,7 +134,8 @@
       width: unset;
     }
     @media (max-width: $breakpoint-xsmall) {
-      height: 3px;
+      height: var(--font-xxsmall);
+      margin-top: -3px;
       .icon {
         margin-bottom: -1px;
         margin-right: 2px;
