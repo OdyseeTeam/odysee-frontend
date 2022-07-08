@@ -83,13 +83,9 @@
       height: 1rem;
       width: calc(100% - var(--spacing-m));
       padding-left: var(--spacing-s);
-      h2 {
-        span {
-          display: -webkit-box;
-        }
-      }
       .icon {
-        display: none;
+        display: inline-block;
+        margin-right: var(--spacing-xxs);
       }
     }
   }
@@ -130,7 +126,6 @@
       width: unset;
     }
     @media (max-width: $breakpoint-xsmall) {
-      // height: var(--font-xxsmall);
       height: 3px;
       .icon {
         margin-bottom: -1px;
