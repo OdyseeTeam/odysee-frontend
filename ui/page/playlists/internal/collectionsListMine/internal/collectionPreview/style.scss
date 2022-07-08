@@ -79,8 +79,15 @@
       width: calc(62% - (calc(var(--file-list-thumbnail-width)) + var(--spacing-m)));
     }
     @media (max-width: $breakpoint-small) {
-      width: calc(62% - (calc(var(--file-list-thumbnail-width)) * 0.8 + var(--spacing-m)));
+      display: block;
+      height: 1rem;
+      width: calc(100% - var(--spacing-m));
       padding-left: var(--spacing-s);
+      h2 {
+        span {
+          display: -webkit-box;
+        }
+      }
       .icon {
         display: none;
       }
@@ -96,9 +103,12 @@
       width: 20%;
     }
     @media (max-width: $breakpoint-xsmall) {
-      .icon {
-        display: none !important;
-      }
+      position: absolute;
+      bottom: var(--spacing-m);
+      display: block;
+      height: calc(var(--font-xsmall) * 3);
+      width: 100%;
+      padding-left: var(--spacing-s);
     }
   }
 
@@ -118,6 +128,19 @@
     @media (max-width: $breakpoint-medium) {
       display: block;
       width: unset;
+    }
+    @media (max-width: $breakpoint-xsmall) {
+      // height: var(--font-xxsmall);
+      height: 3px;
+      .icon {
+        margin-bottom: -1px;
+        margin-right: 2px;
+        height: var(--font-xxxsmall) !important;
+      }
+      span {
+        line-height: var(--font-xxsmall);
+        font-size: var(--font-xxsmall) !important;
+      }
     }
   }
 
@@ -140,6 +163,18 @@
         width: 100%;
       }
     }
+    @media (max-width: $breakpoint-xsmall) {
+      height: var(--font-xxsmall);
+      .icon {
+        margin-bottom: -1px;
+        margin-right: 2px;
+        height: var(--font-xxxsmall) !important;
+      }
+      span {
+        line-height: var(--font-xxsmall);
+        font-size: var(--font-xxsmall) !important;
+      }
+    }
   }
 
   .table-column__update-at {
@@ -158,6 +193,18 @@
       display: block;
       width: unset;
     }
+    @media (max-width: $breakpoint-xsmall) {
+      height: var(--font-xxsmall);
+      .icon {
+        margin-bottom: -1px;
+        margin-right: 2px;
+        height: var(--font-xxxsmall) !important;
+      }
+      span {
+        line-height: var(--font-xxsmall);
+        font-size: var(--font-xxsmall) !important;
+      }
+    }
   }
 
   .table-column__action {
@@ -172,9 +219,15 @@
       width: 18%;
     }
     @media (max-width: $breakpoint-xsmall) {
-      width: 14%;
-      .button__label {
-        display: none;
+      position: relative;
+      width: 0%;
+      .button {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        .button__label {
+          display: none;
+        }
       }
     }
   }
