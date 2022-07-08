@@ -28,6 +28,7 @@ type Props = {
   costInfo: ?{ cost: number },
   hasChannels: boolean,
   isLivestreamClaim: boolean,
+  isPostClaim?: boolean,
   streamingUrl: ?string,
   disableDownloadButton: boolean,
   doOpenModal: (id: string, { uri: string, claimIsMine?: boolean, isSupport?: boolean }) => void,
@@ -48,6 +49,7 @@ export default function FileActions(props: Props) {
     hasChannels,
     hideRepost,
     isLivestreamClaim,
+    isPostClaim,
     streamingUrl,
     disableDownloadButton,
     doOpenModal,
@@ -64,6 +66,8 @@ export default function FileActions(props: Props) {
   } = useHistory();
 
   const isMobile = useIsMobile();
+  claim.isLivestreamClaim = isLivestreamClaim;
+  claim.isPostClaim = isPostClaim;
 
   const [downloadClicked, setDownloadClicked] = React.useState(false);
 

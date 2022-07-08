@@ -539,7 +539,7 @@ export const doUploadThumbnail = (
 export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem, fs: any) => (
   dispatch: Dispatch
 ) => {
-  const { name, amount, value = {} } = claim;
+  const { name, amount, value = {}, isLivestreamClaim, isPostClaim } = claim;
   const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
   const {
     author,
@@ -557,7 +557,6 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
     thumbnail,
     title,
     tags,
-    stream_type,
   } = value;
 
   const publishData: UpdatePublishFormData = {
@@ -599,10 +598,10 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   }
 
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
-  /* Temporary solution for redirects depending on the publish type */
-  if (stream_type === 'document') {
+
+  if (isPostClaim) {
     dispatch(push(`/$/${PAGES.POST}`));
-  } else if (stream_type === undefined) {
+  } else if (isLivestreamClaim) {
     dispatch(push(`/$/${PAGES.LIVESTREAM}`));
   } else {
     dispatch(push(`/$/${PAGES.UPLOAD}`));

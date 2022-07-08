@@ -53,6 +53,8 @@ type Props = {
   claimInCollection: boolean,
   collectionId: string,
   isMyCollection: boolean,
+  isLivestreamClaim?: boolean,
+  isPostClaim?: boolean,
   fypId?: string,
   doToast: ({ message: string, isError?: boolean }) => void,
   claimIsMine: boolean,
@@ -99,6 +101,8 @@ function ClaimMenuList(props: Props) {
     hasClaimInFavorites,
     collectionId,
     isMyCollection,
+    isLivestreamClaim,
+    isPostClaim,
     fypId,
     doToast,
     claimIsMine,
@@ -119,6 +123,7 @@ function ClaimMenuList(props: Props) {
     lastUsedCollectionIsNotBuiltin,
     doRemovePersonalRecommendation,
   } = props;
+
   const [doShuffle, setDoShuffle] = React.useState(false);
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
   const isChannel = !incognitoClaim && !contentSigningChannel;
@@ -220,6 +225,9 @@ function ClaimMenuList(props: Props) {
         uriObject.channelName = signingChannelName;
       }
       const editUri = buildURI(uriObject);
+      claim.isLivestreamClaim = isLivestreamClaim;
+      claim.isPostClaim = isPostClaim;
+
       prepareEdit(claim, editUri, fileInfo);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
