@@ -32,8 +32,9 @@
 
 .claim-search__wrapper--grid {
   display: grid;
-  grid-template-columns: auto auto;
-  grid-row-gap: 1rem;
+  max-width: 100%;
+  grid-template-columns: auto 40px;
+  grid-row-gap: var(--spacing-s);
 }
 
 .claim-search__menus {

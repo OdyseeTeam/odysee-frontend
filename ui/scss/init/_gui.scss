@@ -1313,7 +1313,6 @@ img {
       font-size: var(--font-large);
       font-weight: var(--font-weight-bold);
       padding-left: 10px;
-      // width:auto;
       margin-top: var(--spacing-s);
       flex: 1;
       border-bottom: 1px solid var(--color-header-background);
@@ -1354,7 +1353,7 @@ img {
   }
 
   .claim-list {
-    margin-bottom: var(--spacing-xxl);
+    margin-bottom: var(--spacing-l);
     &.playlists {
       .claim-preview__text {
         justify-content: space-around;
@@ -1417,7 +1416,9 @@ img {
     .section__header--actions {
       @media (max-width: $breakpoint-small) {
         .claim-search__menu-group {
+          margin-right: var(--spacing-s);
           .button-toggle {
+            padding: 0 var(--spacing-s) 0 var(--spacing-s);
             flex: auto;
             .button__content {
               display: flex;
@@ -1533,15 +1534,14 @@ img {
       .claim-search__wrapper--wrap {
         width: 100%;
         .claim-search__menu-group:last-child {
-          display: inline-block;
           width: auto;
-        }
-        .button-toggle--more {
-          float: right;
-          margin-left: var(--spacing-s);
+          margin: 0;
         }
         .button--primary {
           margin-left: auto;
+          .button__label {
+            margin-top: 0;
+          }
         }
       }
     }
