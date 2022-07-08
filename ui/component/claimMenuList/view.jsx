@@ -59,7 +59,7 @@ type Props = {
   doToast: ({ message: string, isError?: boolean }) => void,
   claimIsMine: boolean,
   fileInfo: FileListItem,
-  prepareEdit: ({}, string, {}) => void,
+  prepareEdit: ({}, string, string) => void,
   isSubscribed: boolean,
   doChannelSubscribe: (SubscriptionArgs) => void,
   doChannelUnsubscribe: (SubscriptionArgs) => void,
@@ -138,6 +138,7 @@ function ClaimMenuList(props: Props) {
     : __('Follow');
 
   const { push, replace } = useHistory();
+  const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
 
   const fetchItems = React.useCallback(() => {
     if (collectionId) {
@@ -225,10 +226,8 @@ function ClaimMenuList(props: Props) {
         uriObject.channelName = signingChannelName;
       }
       const editUri = buildURI(uriObject);
-      claim.isLivestreamClaim = isLivestreamClaim;
-      claim.isPostClaim = isPostClaim;
 
-      prepareEdit(claim, editUri, fileInfo);
+      prepareEdit(claim, editUri, claimType);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
       push(`/${channelUrl}?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`);

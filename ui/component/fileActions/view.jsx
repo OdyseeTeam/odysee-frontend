@@ -32,7 +32,7 @@ type Props = {
   streamingUrl: ?string,
   disableDownloadButton: boolean,
   doOpenModal: (id: string, { uri: string, claimIsMine?: boolean, isSupport?: boolean }) => void,
-  doPrepareEdit: (claim: Claim, uri: string) => void,
+  doPrepareEdit: (claim: Claim, uri: string, claimType: string) => void,
   doToast: (data: { message: string }) => void,
   doDownloadUri: (uri: string) => void,
   isMature: boolean,
@@ -66,14 +66,12 @@ export default function FileActions(props: Props) {
   } = useHistory();
 
   const isMobile = useIsMobile();
-  claim.isLivestreamClaim = isLivestreamClaim;
-  claim.isPostClaim = isPostClaim;
-
   const [downloadClicked, setDownloadClicked] = React.useState(false);
 
   const { claim_id: claimId, signing_channel: signingChannel, value, meta: claimMeta } = claim;
   const channelName = signingChannel && signingChannel.name;
   const fileName = value && value.source && value.source.name;
+  const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
 
   const webShareable = costInfo && costInfo.cost === 0 && RENDER_MODES.WEB_SHAREABLE_MODES.includes(renderMode);
   const urlParams = new URLSearchParams(search);
@@ -157,7 +155,7 @@ export default function FileActions(props: Props) {
                 className="button--file-action"
                 icon={ICONS.EDIT}
                 label={isLivestreamClaim ? __('Update or Publish Replay') : __('Edit')}
-                onClick={() => doPrepareEdit(claim, editUri)}
+                onClick={() => doPrepareEdit(claim, editUri, claimType)}
               />
             </div>
           </Tooltip>
@@ -204,7 +202,7 @@ export default function FileActions(props: Props) {
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() => {
-                        doPrepareEdit(claim, editUri);
+                        doPrepareEdit(claim, editUri, claimType);
                         push(`/$/${PAGES.UPLOAD}`);
                       }}
                     >

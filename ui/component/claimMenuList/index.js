@@ -36,7 +36,6 @@ import { doToggleLoopList, doToggleShuffleList } from 'redux/actions/content';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import ClaimPreview from './view';
-import fs from 'fs';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -97,7 +96,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  prepareEdit: (publishData, uri, fileInfo) => dispatch(doPrepareEdit(publishData, uri, fileInfo, fs)),
+  prepareEdit: (publishData, uri, claimType) => dispatch(doPrepareEdit(publishData, uri, claimType)),
   doToast: (props) => dispatch(doToast(props)),
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   doChannelMute: (channelUri) => dispatch(doChannelMute(channelUri)),

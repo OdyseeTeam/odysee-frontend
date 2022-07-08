@@ -41,8 +41,6 @@ declare type GenericClaim = {
   repost_url?: string,
   repost_bid_amount?: string,
   purchase_receipt?: PurchaseReceipt,
-  isLivestreamClaim?: boolean,
-  isPostClaim?: boolean,
   meta: {
     activation_height: number,
     claims_in_channel?: number,
