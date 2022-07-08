@@ -17,8 +17,10 @@
     }
   }
 
-  @media (max-width: $breakpoint-xxsmall) {
-    margin-top: var(--spacing-s);
+  @media (max-width: $breakpoint-small) {
+    &:last-of-type {
+      margin-top: var(--spacing-s);
+    }
   }
 
   @media (min-width: $breakpoint-xxsmall) {

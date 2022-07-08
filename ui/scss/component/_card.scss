@@ -772,6 +772,13 @@
     max-height: 40rem;
   }
 
+  .card__header--slim {
+    padding: var(--spacing-xxs);
+    padding-top: 0;
+    @media (max-width: $breakpoint-small) {
+      padding: 0;
+    }
+  }
   .card__header--between {
     .card__title {
       overflow: hidden;
@@ -831,6 +838,32 @@
     grid-column-end: end;
     display: flex;
     justify-content: space-between;
+
+    @media (max-width: $breakpoint-small) {
+      width: 100%;
+      section:last-of-type {
+        float: right;
+      }
+    }
+  }
+
+  .card__subtitle--small {
+    font-size: var(--font-small);
+    margin-bottom: var(--spacing-xxxs);
+  }
+
+  .button-toggle {
+    border: 2px solid var(--color-border);
+  }
+  section {
+    .button-toggle:nth-child(2) {
+      border-left: 0px solid transparent;
+    }
+  }
+  .card__title-actions {
+    .button-toggle:nth-child(2) {
+      border-left: 0px solid transparent;
+    }
   }
 }
 
@@ -840,4 +873,8 @@
   padding-left: 0px;
   padding-top: var(--spacing-xxs);
   max-width: 80%;
+
+  @media (max-width: $breakpoint-small) {
+    max-width: 100%;
+  }
 }

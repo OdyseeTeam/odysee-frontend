@@ -11,10 +11,10 @@ const PageLabel = (props: Props) => {
   const { label } = props;
 
   return (
-    <label className="claim-list__header-label--playlist-page">
+    <h1 className="claim-list__header-label--playlist-page">
       <Icon icon={ICONS.PLAYLIST} size={10} />
-      {label}
-    </label>
+      <label>{label}</label>
+    </h1>
   );
 };
 

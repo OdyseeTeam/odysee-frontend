@@ -10,7 +10,6 @@ import { useIsMobile } from 'effects/use-screensize';
 import { useHistory } from 'react-router-dom';
 import BuiltinPlaylists from './internal/builtin-playlists';
 import SectionLabel from './internal/label';
-import SectionDivider from 'component/common/section-divider';
 import TableHeader from './internal/table-header';
 import CollectionListHeader from './internal/collectionListHeader/index';
 import Paginate from 'component/common/paginate';
@@ -160,8 +159,6 @@ export default function CollectionsListMine(props: Props) {
     <>
       <div className="claim-grid__wrapper">
         <BuiltinPlaylists />
-
-        <SectionDivider />
 
         <SectionLabel label={__('Your Playlists')} />
 
