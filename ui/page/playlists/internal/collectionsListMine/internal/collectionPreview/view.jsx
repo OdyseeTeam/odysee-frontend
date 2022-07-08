@@ -17,8 +17,8 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
 import Button from 'component/button';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
-import I18nMessage from 'component/i18nMessage';
 import Icon from 'component/common/icon';
+import './style.scss';
 
 type Props = {
   uri: string,
@@ -31,6 +31,7 @@ type Props = {
   isResolvingUri: boolean,
   title?: string,
   channel: ?any,
+  channelTitle?: String,
   hasClaim: boolean,
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
@@ -51,6 +52,7 @@ function CollectionPreview(props: Props) {
     hasClaim,
     firstCollectionItemUrl,
     channel,
+    channelTitle,
     collectionUpdatedAt,
     collectionCreatedAt,
     hasEdits,
@@ -78,79 +80,68 @@ function CollectionPreview(props: Props) {
   };
 
   return (
-    <li role="link" onClick={handleClick} className="li--no-style claim-preview__wrapper">
-      <div className="claim-preview">
+    <li
+      role="link"
+      onClick={handleClick}
+      className="li--no-style claim-preview__wrapper playlist-claim-preview__wrapper"
+    >
+      <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
           <FileThumbnail uri={uri || firstCollectionItemUrl} forcePlaceholder>
             <CollectionItemCount count={collectionCount} hasEdits={hasEdits} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>
         </NavLink>
+      </div>
 
-        <div className="claim-preview__text">
-          <div className="claim-preview-metadata">
-            <div className="claim-preview-info playlist-title">
-              <NavLink {...navLinkProps}>
-                <h2 className="claim-preview__title align-center">
-                  <TruncatedText text={collectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
-                  {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
-                </h2>
-              </NavLink>
-
-              {hasClaim && (
-                <div className="claim-preview__overlay-properties--small playlist-channel">
-                  <I18nMessage
-                    tokens={{
-                      playlist_channel: (
-                        <UriIndicator
-                          focusable={false}
-                          uri={channel && channel.permanent_url}
-                          link
-                          showHiddenAsAnonymous
-                        >
-                          <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-                        </UriIndicator>
-                      ),
-                    }}
-                  >
-                    Published as: %playlist_channel%
-                  </I18nMessage>
-                </div>
-              )}
-
-              {collectionCount > 0 && (
-                <Button
-                  button="alt"
-                  label={__('Play All')}
-                  icon={ICONS.PLAY}
-                  onClick={() =>
-                    push({
-                      pathname: firstItemPath,
-                      search: generateListSearchUrlParams(collectionId),
-                      state: { forceAutoplay: true },
-                    })
-                  }
-                />
-              )}
-            </div>
-
-            <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
-
-            <div className="claim-preview-info">
-              {__(collectionCount === 1 ? '%playlist_item_count% item' : '%playlist_item_count% items', {
-                playlist_item_count: collectionCount,
-              })}
-            </div>
-
-            <div className="claim-tile__info date" uri={uri}>
-              <DateTime timeAgo date={collectionCreatedAt} />
-            </div>
-
-            <div className="claim-tile__info date" uri={uri}>
-              <DateTime timeAgo date={collectionUpdatedAt} />
-            </div>
+      <div className="table-column__title">
+        <NavLink {...navLinkProps}>
+          <h2>
+            {isBuiltin && <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId]} />}
+            <TruncatedText text={collectionName} lines={1} style={{ marginRight: 'var(--spacing-s)' }} />
+          </h2>
+        </NavLink>
+        {hasClaim && (
+          <div className="claim-preview__overlay-properties--small playlist-channel">
+            <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
+              <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
+              {channelTitle && channelTitle}
+            </UriIndicator>
           </div>
+        )}
+      </div>
+
+      <div className="table-column__meta" uri={uri}>
+        <div className="table-column__visibility">
+          <div className="claim-preview-info">{hasClaim ? <CollectionPublicIcon /> : <CollectionPrivateIcon />}</div>
         </div>
+
+        <div className="table-column__create-at" uri={uri}>
+          <Icon icon={ICONS.TIME} />
+          <DateTime timeAgo date={collectionCreatedAt} />
+        </div>
+
+        <div className="table-column__update-at" uri={uri}>
+          <Icon icon={ICONS.EDIT} />
+          <DateTime timeAgo date={collectionUpdatedAt} />
+        </div>
+      </div>
+
+      <div className="table-column__action">
+        {collectionCount > 0 && (
+          <Button
+            button="alt"
+            label={__('Play All')}
+            icon={ICONS.PLAY}
+            onClick={() =>
+              push({
+                pathname: firstItemPath,
+                search: generateListSearchUrlParams(collectionId),
+                state: { forceAutoplay: true },
+              })
+            }
+          />
+        )}
       </div>
 
       <CollectionMenuList collectionId={collectionId} />
