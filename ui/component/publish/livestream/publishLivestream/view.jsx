@@ -44,7 +44,6 @@ type Props = {
   fileSource: string,
   changeFileSource: (string) => void,
   inEditMode: boolean,
-  urlSource?: string,
 };
 
 function PublishLivestream(props: Props) {

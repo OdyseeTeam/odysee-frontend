@@ -525,7 +525,7 @@ function LivestreamForm(props: Props) {
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
-            {publishMode === 'New' && <Card body={<PublishStreamReleaseDate />} />}
+            <Card body={<PublishStreamReleaseDate />} />
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
@@ -562,7 +562,8 @@ function LivestreamForm(props: Props) {
             <PublishAdditionalOptions
               isLivestream={isLivestreamMode}
               disabled={disabled}
-              showSchedulingOptions={publishMode === 'New'}
+              // showSchedulingOptions={publishMode === 'New'}
+              showSchedulingOptions
             />
           </div>
         )}
