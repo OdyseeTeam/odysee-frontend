@@ -30,6 +30,20 @@
       font-size: var(--font-small);
       font-weight: bold;
     }
+
+    .ff-responsive {
+      max-height: 100%;
+
+      .ff-canvas {
+        max-height: 100%;
+        opacity: 1 !important;
+      }
+
+      .ff-image {
+        opacity: 0 !important;
+      }
+    }
+
     @media (max-width: $breakpoint-medium) {
       width: calc(var(--file-list-thumbnail-width) + var(--spacing-m));
     }
@@ -37,6 +51,7 @@
       width: calc(var(--file-list-thumbnail-width) * 0.8 + var(--spacing-m));
       .media__thumb {
         width: calc(var(--file-list-thumbnail-width) * 0.8) !important;
+
         .collection-preview-overlay__grid-item {
           .media__thumb {
             width: unset !important;

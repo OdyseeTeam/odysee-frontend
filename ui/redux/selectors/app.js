@@ -99,10 +99,10 @@ export const selectActiveChannelClaim = createSelector(
   }
 );
 
-export const selectActiveChannelClaimId = createSelector(
-  selectActiveChannelClaim,
-  (activeChannelClaim) => activeChannelClaim?.claim_id
-);
+export const selectActiveChannelClaimId = (state) => {
+  const activeChannelClaim = selectActiveChannelClaim(state);
+  return activeChannelClaim?.claim_id;
+};
 
 export const selectActiveChannelStakedLevel = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);

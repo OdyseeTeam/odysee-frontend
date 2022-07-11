@@ -1,10 +1,10 @@
 // @flow
 import React from 'react';
-import ClaimList from 'component/claimList';
+import CollectionItemsList from 'component/collectionItemsList';
 import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router-dom';
-import CollectionEdit from 'component/collectionEdit';
+import CollectionEdit from './internal/collectionEdit';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import CollectionActions from './internal/collectionActions';
@@ -15,14 +15,6 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import Spinner from 'component/spinner';
-
-// prettier-ignore
-const Lazy = {
-  // $FlowFixMe
-  DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
-  // $FlowFixMe
-  Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
-};
 
 export const PAGE_VIEW_QUERY = 'view';
 export const EDIT_PAGE = 'edit';
@@ -78,17 +70,6 @@ export default function CollectionPage(props: Props) {
 
   const { name, totalItems } = collection || {};
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
-
-  function handleOnDragEnd(result) {
-    const { source, destination } = result;
-
-    if (!destination) return;
-
-    const { index: from } = source;
-    const { index: to } = destination;
-
-    editCollection(collectionId, { order: { from, to } });
-  }
 
   const urlParams = new URLSearchParams(search);
   const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
@@ -209,13 +190,7 @@ export default function CollectionPage(props: Props) {
           simpleTitle: uri ? __('Editing') : __('Publishing'),
         }}
       >
-        <CollectionEdit
-          uri={uri}
-          collectionId={collectionId}
-          onDone={(id) => {
-            replace(`/$/${PAGES.PLAYLIST}/${id}`);
-          }}
-        />
+        <CollectionEdit uri={uri} collectionId={collectionId} onDone={(id) => replace(`/$/${PAGES.PLAYLIST}/${id}`)} />
       </Page>
     );
   }
@@ -226,22 +201,13 @@ export default function CollectionPage(props: Props) {
         {editing}
         <div className={classnames('section card-stack')}>
           {info}
-          <React.Suspense fallback={null}>
-            <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-              <Lazy.Droppable droppableId="list__ordering">
-                {(DroppableProvided) => (
-                  <ClaimList
-                    uris={collectionUrls}
-                    collectionId={collectionId}
-                    showEdit={showEdit}
-                    droppableProvided={DroppableProvided}
-                    unavailableUris={unavailableUris}
-                    showNullPlaceholder
-                  />
-                )}
-              </Lazy.Droppable>
-            </Lazy.DragDropContext>
-          </React.Suspense>
+
+          <CollectionItemsList
+            collectionId={collectionId}
+            showEdit={showEdit}
+            unavailableUris={unavailableUris}
+            showNullPlaceholder
+          />
         </div>
       </Page>
     );
