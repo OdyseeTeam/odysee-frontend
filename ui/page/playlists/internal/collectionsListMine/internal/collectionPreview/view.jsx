@@ -39,6 +39,7 @@ type Props = {
   hasEdits: boolean,
   isBuiltin: boolean,
   thumbnail: ?string,
+  isEmpty: boolean,
 };
 
 function CollectionPreview(props: Props) {
@@ -59,6 +60,7 @@ function CollectionPreview(props: Props) {
     hasEdits,
     isBuiltin,
     thumbnail,
+    isEmpty,
   } = props;
 
   const { push } = useHistory();
@@ -80,6 +82,8 @@ function CollectionPreview(props: Props) {
     to: navigateUrl,
     onClick: (e) => e.stopPropagation(),
   };
+
+  if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID && isEmpty) return null;
 
   return (
     <li

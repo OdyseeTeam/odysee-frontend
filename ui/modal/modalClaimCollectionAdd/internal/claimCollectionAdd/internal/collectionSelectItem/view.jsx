@@ -24,7 +24,7 @@ type Props = {
 
 function CollectionSelectItem(props: Props) {
   const { icon, uri, key, collection, collectionHasClaim, collectionPending, doPlaylistAddAndAllowPlaying } = props;
-  const { name, id } = collection;
+  const { name, id } = collection || {};
 
   const {
     push,

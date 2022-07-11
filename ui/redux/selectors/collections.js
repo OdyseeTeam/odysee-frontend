@@ -157,10 +157,11 @@ export const selectMyPublishedOnlyCollections = createSelector(
 export const selectCollectionValuesListForKey = createSelector(
   (state, key) => key,
   selectBuiltinCollections,
+  selectCurrentQueueList,
   selectMyPublishedCollections,
   selectMyUnpublishedCollections,
-  (key, builtin, published, unpublished) => {
-    const myCollections = { builtin, published, unpublished };
+  (key, builtin, queue, published, unpublished) => {
+    const myCollections = { builtin, queue, published, unpublished };
     const collectionsForKey = myCollections[key];
     // this is needed so Flow doesn't error saying it is mixed when this list is looped
     const collectionValues: CollectionList = (Object.values(collectionsForKey): any);
@@ -254,7 +255,7 @@ export const selectClaimSavedForUrl = (state: State, url: string) => {
   const collections = [bLists, uLists, eLists, myRLists, pLists];
 
   // $FlowFixMe
-  return collections.some((list) => Object.values(list).some(({ items }) => items.some((item) => item === url)));
+  return collections.some((list) => Object.values(list).some(({ items }) => items?.some((item) => item === url)));
 };
 
 export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
