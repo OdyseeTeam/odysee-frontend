@@ -281,6 +281,32 @@ export default function LivestreamSetupPage(props: Props) {
 
               {!fetchingChannels && channelId && (
                 <>
+                  <Card
+                    className={classnames('section card--livestream-key', {
+                      disabled: !streamKey || totalLivestreamClaims.length === 0,
+                    })}
+                    actions={
+                      <>
+                        <CopyableText
+                          primaryButton
+                          enableInputMask={!streamKey || totalLivestreamClaims.length === 0}
+                          name="stream-server"
+                          label={__('Stream server')}
+                          copyable={LIVESTREAM_RTMP_URL}
+                          snackMessage={__('Copied stream server URL.')}
+                          disabled={!streamKey || totalLivestreamClaims.length === 0}
+                        />
+                        <CopyableText
+                          primaryButton
+                          enableInputMask
+                          name="livestream-key"
+                          label={__('Stream key (can be reused)')}
+                          copyable={!streamKey || totalLivestreamClaims.length === 0 ? LIVESTREAM_RTMP_URL : streamKey}
+                          snackMessage={__('Copied stream key.')}
+                        />
+                      </>
+                    }
+                  />
                   {totalLivestreamClaims.length > 0 ? (
                     <>
                       {Boolean(pendingClaims.length) && (
@@ -355,32 +381,6 @@ export default function LivestreamSetupPage(props: Props) {
                       }
                     />
                   )}
-                  <Card
-                    className={classnames('section card--livestream-key', {
-                      disabled: !streamKey || totalLivestreamClaims.length === 0,
-                    })}
-                    actions={
-                      <>
-                        <CopyableText
-                          primaryButton
-                          enableInputMask={!streamKey || totalLivestreamClaims.length === 0}
-                          name="stream-server"
-                          label={__('Stream server')}
-                          copyable={LIVESTREAM_RTMP_URL}
-                          snackMessage={__('Copied stream server URL.')}
-                          disabled={!streamKey || totalLivestreamClaims.length === 0}
-                        />
-                        <CopyableText
-                          primaryButton
-                          enableInputMask
-                          name="livestream-key"
-                          label={__('Stream key (can be reused)')}
-                          copyable={!streamKey || totalLivestreamClaims.length === 0 ? LIVESTREAM_RTMP_URL : streamKey}
-                          snackMessage={__('Copied stream key.')}
-                        />
-                      </>
-                    }
-                  />
                   <Card className="card--livestream-instructions" title="Instructions" actions={helpText} />
 
                   {/* Debug Stuff */}
