@@ -412,7 +412,7 @@ export const selectThumbnailForCollectionId = (state: State, id: string) => {
 export const selectUpdatedAtForCollectionId = createSelector(
   selectCollectionForId,
   selectUserCreationDate,
-  (state, id) => selectMyEditedCollections(state)[id],
+  selectEditedCollectionForId,
   (collection, userCreatedAt, edited) => {
     const collectionUpdatedAt = (edited?.updatedAt || collection.updatedAt) * 1000;
 

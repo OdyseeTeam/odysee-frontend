@@ -7,7 +7,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
-import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
+import { PUBLISH_PAGE, EDIT_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 import Icon from 'component/common/icon';
 import {
   generateShareUrl,
@@ -63,7 +63,7 @@ type Props = {
   doChannelSubscribe: (SubscriptionArgs) => void,
   doChannelUnsubscribe: (SubscriptionArgs) => void,
   isChannelPage: boolean,
-  editedCollection: Collection,
+  hasEdits: Collection,
   isAuthenticated: boolean,
   playNextUri: string,
   resolvedList: boolean,
@@ -117,7 +117,7 @@ function ClaimMenuList(props: Props) {
     doChannelSubscribe,
     doChannelUnsubscribe,
     isChannelPage = false,
-    editedCollection,
+    hasEdits,
     isAuthenticated,
     playNextUri,
     resolvedList,
@@ -360,10 +360,19 @@ function ClaimMenuList(props: Props) {
                     >
                       <div className="menu__link">
                         <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
-                        {editedCollection ? __('Publish') : __('Edit Playlist')}
+                        {hasEdits ? __('Publish') : __('Update')}
                       </div>
                     </MenuItem>
                   )}
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`)}
+                  >
+                    <div className="menu__link">
+                      <Icon aria-hidden icon={ICONS.EDIT} />
+                      {__('Edit')}
+                    </div>
+                  </MenuItem>
                   <MenuItem
                     className="comment__menu-option"
                     onSelect={() => openModal(MODALS.COLLECTION_DELETE, { collectionId })}

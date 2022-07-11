@@ -8,7 +8,7 @@ import Icon from 'component/common/icon';
 import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
-import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
+import { PUBLISH_PAGE, EDIT_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 
 type Props = {
   inline?: boolean,
@@ -94,11 +94,20 @@ function CollectionMenuList(props: Props) {
                     onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}`)}
                   >
                     <div className="menu__link">
-                      <Icon aria-hidden icon={ICONS.PUBLISH} />
-                      {publishedNotEdited ? __('Edit') : __('Publish')}
+                      <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
+                      {publishedNotEdited ? __('Update') : __('Publish')}
                     </div>
                   </MenuItem>
                 )}
+                <MenuItem
+                  className="comment__menu-option"
+                  onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`)}
+                >
+                  <div className="menu__link">
+                    <Icon aria-hidden icon={ICONS.EDIT} />
+                    {__('Edit')}
+                  </div>
+                </MenuItem>
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() => doOpenModal(MODALS.COLLECTION_DELETE, { collectionId })}
