@@ -275,10 +275,10 @@ function CollectionForm(props: Props) {
 
   // every time activechannel or incognito changes, set it.
   React.useEffect(() => {
-    if (activeChannelId) {
-      setParam({ channel_id: activeChannelId });
-    } else if (incognito) {
+    if (incognito) {
       setParam({ channel_id: undefined });
+    } else if (activeChannelId) {
+      setParam({ channel_id: activeChannelId });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeChannelId, incognito]);
@@ -305,7 +305,7 @@ function CollectionForm(props: Props) {
           <TabPanels>
             <TabPanel>
               <div className={'card-stack'}>
-                <ChannelSelector disabled={disabled} autoSet channelToSet={collectionChannel} />
+                <ChannelSelector disabled={disabled} autoSet channelToSet={collectionChannel || activeChannelId} />
                 <Card
                   body={
                     <>
@@ -334,7 +334,7 @@ function CollectionForm(props: Props) {
                         type="text"
                         name="channel_title2"
                         label={__('Title')}
-                        placeholder={__('My Awesome List')}
+                        placeholder={__('My Awesome Playlist')}
                         value={params.title}
                         onChange={(e) => setParams({ ...params, title: e.target.value })}
                       />

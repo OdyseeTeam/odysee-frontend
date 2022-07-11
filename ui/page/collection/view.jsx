@@ -7,7 +7,7 @@ import { useHistory } from 'react-router-dom';
 import CollectionEdit from 'component/collectionEdit';
 import Card from 'component/common/card';
 import Button from 'component/button';
-import CollectionActions from 'component/collectionActions';
+import CollectionActions from './internal/collectionActions';
 import classnames from 'classnames';
 import ClaimAuthor from 'component/claimAuthor';
 import FileDescription from 'component/fileDescription';
@@ -41,6 +41,7 @@ type Props = {
   isMyCollection: boolean,
   claimIsPending: boolean,
   collectionHasEdits: boolean,
+  brokenUrls: ?Array<any>,
   deleteCollection: (string, string) => void,
   editCollection: (string, CollectionEditParams) => void,
   fetchCollectionItems: (string, () => void) => void,
@@ -57,6 +58,7 @@ export default function CollectionPage(props: Props) {
     collectionUrls,
     collectionCount,
     collectionHasEdits,
+    brokenUrls,
     claimIsPending,
     isResolvingCollection,
     editCollection,
@@ -72,10 +74,10 @@ export default function CollectionPage(props: Props) {
   const [didTryResolve, setDidTryResolve] = React.useState(false);
   const [showInfo, setShowInfo] = React.useState(false);
   const [showEdit, setShowEdit] = React.useState(false);
-  const [unavailableUris, setUnavailable] = React.useState([]);
+  const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
   const { name, totalItems } = collection || {};
-  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_LISTS.includes(collectionId);
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
   function handleOnDragEnd(result) {
     const { source, destination } = result;
@@ -151,11 +153,7 @@ export default function CollectionPage(props: Props) {
       title={
         <span>
           <Icon
-            icon={
-              (collectionId === COLLECTIONS_CONSTS.WATCH_LATER_ID && ICONS.TIME) ||
-              (collectionId === COLLECTIONS_CONSTS.FAVORITES_ID && ICONS.STAR) ||
-              ICONS.STACK
-            }
+            icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId] || ICONS.PLAYLIST}
             className="icon--margin-right"
           />
           {isBuiltin ? __(listName) : listName}
@@ -170,7 +168,6 @@ export default function CollectionPage(props: Props) {
           setShowInfo={setShowInfo}
           showInfo={showInfo}
           isBuiltin={isBuiltin}
-          collectionUrls={collectionUrls}
           setShowEdit={setShowEdit}
           showEdit={showEdit}
         />
@@ -216,7 +213,7 @@ export default function CollectionPage(props: Props) {
           uri={uri}
           collectionId={collectionId}
           onDone={(id) => {
-            replace(`/$/${PAGES.LIST}/${id}`);
+            replace(`/$/${PAGES.PLAYLIST}/${id}`);
           }}
         />
       </Page>
@@ -225,7 +222,7 @@ export default function CollectionPage(props: Props) {
 
   if (urlsReady) {
     return (
-      <Page className="playlistPage-wrapper">
+      <Page className="playlists-page-wrapper">
         {editing}
         <div className={classnames('section card-stack')}>
           {info}
@@ -239,6 +236,7 @@ export default function CollectionPage(props: Props) {
                     showEdit={showEdit}
                     droppableProvided={DroppableProvided}
                     unavailableUris={unavailableUris}
+                    showNullPlaceholder
                   />
                 )}
               </Lazy.Droppable>

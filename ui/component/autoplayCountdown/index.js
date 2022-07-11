@@ -3,6 +3,7 @@ import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { withRouter } from 'react-router';
 import AutoplayCountdown from './view';
 import { selectModal } from 'redux/selectors/app';
+import { doOpenModal } from 'redux/actions/app';
 
 /*
   AutoplayCountdown does not fetch it's own next content to play, it relies on <RecommendedContent> being rendered.
@@ -13,4 +14,8 @@ const select = (state, props) => ({
   modal: selectModal(state),
 });
 
-export default withRouter(connect(select, null)(AutoplayCountdown));
+const perform = {
+  doOpenModal,
+};
+
+export default withRouter(connect(select, perform)(AutoplayCountdown));

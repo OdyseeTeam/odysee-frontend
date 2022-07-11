@@ -20,6 +20,7 @@ type Props = {
   properties?: (Claim) => ?Node,
   iconOnly: boolean,
   editedCollection: Collection,
+  xsmall?: boolean,
 };
 
 export default function PreviewOverlayProperties(props: Props) {
@@ -33,6 +34,7 @@ export default function PreviewOverlayProperties(props: Props) {
     claim,
     iconOnly,
     editedCollection,
+    xsmall,
   } = props;
   const isCollection = claim && claim.value_type === 'collection';
   // $FlowFixMe
@@ -50,6 +52,11 @@ export default function PreviewOverlayProperties(props: Props) {
     >
       {typeof properties === 'function' ? (
         properties(claim)
+      ) : xsmall ? (
+        <>
+          <VideoDuration uri={uri} />
+          <FilePrice hideFree uri={uri} />
+        </>
       ) : (
         <>
           {!isStream && <ClaimType uri={uri} small={small} />}

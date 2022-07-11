@@ -1,27 +1,26 @@
 // @flow
 import { handleActions } from 'util/redux-utils';
+import { getCurrentTimeInSec } from 'util/time';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
-
-const getTimestamp = () => {
-  return Math.floor(Date.now() / 1000);
-};
 
 const defaultState: CollectionState = {
   builtin: {
     watchlater: {
       items: [],
       id: COLS.WATCH_LATER_ID,
-      name: 'Watch Later',
-      updatedAt: getTimestamp(),
+      name: COLS.WATCH_LATER_NAME,
+      createdAt: getCurrentTimeInSec(),
+      updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
     favorites: {
       items: [],
       id: COLS.FAVORITES_ID,
-      name: 'Favorites',
+      name: COLS.FAVORITES_NAME,
+      createdAt: getCurrentTimeInSec(),
+      updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPE_PLAYLIST,
-      updatedAt: getTimestamp(),
     },
   },
   resolved: {},
@@ -32,18 +31,29 @@ const defaultState: CollectionState = {
   saved: [],
   isResolvingCollectionById: {},
   error: null,
+  queue: {
+    items: [],
+    id: COLS.QUEUE_ID,
+    name: COLS.QUEUE_NAME,
+    createdAt: getCurrentTimeInSec(),
+    updatedAt: getCurrentTimeInSec(),
+    type: COLS.COL_TYPE_PLAYLIST,
+  },
 };
 
 const collectionsReducer = handleActions(
   {
     [ACTIONS.COLLECTION_NEW]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<string>}
+      const currentTime = getCurrentTimeInSec();
+
       // entry
-      const newListTemplate = {
+      const newListTemplate: Collection = {
         id: params.id,
         name: params.name,
         items: [],
-        updatedAt: getTimestamp(),
+        createdAt: currentTime,
+        updatedAt: currentTime,
         type: params.type,
       };
 
@@ -123,29 +133,22 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
-      const { id, collectionKey, collection } = action.data;
+      const { collectionKey, collection } = action.data;
+      const { id } = collection;
 
-      if (COLS.BUILTIN_LISTS.includes(id)) {
-        const { builtin: lists } = state;
-        return {
-          ...state,
-          [collectionKey]: { ...lists, [id]: collection },
-          lastUsedCollection: id,
-        };
+      if (id === COLS.QUEUE_ID) {
+        const { [collectionKey]: currentQueue } = state;
+
+        return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInSec() } };
       }
 
-      if (collectionKey === 'edited') {
-        const { edited: lists } = state;
-        return {
-          ...state,
-          edited: { ...lists, [id]: collection },
-          lastUsedCollection: id,
-        };
-      }
-      const { unpublished: lists } = state;
+      const { [collectionKey]: lists } = state;
+      const currentCollectionState = lists[id];
+      const newCollection = { ...currentCollectionState, ...collection, updatedAt: getCurrentTimeInSec() };
+
       return {
         ...state,
-        unpublished: { ...lists, [id]: collection },
+        [collectionKey]: { ...lists, [id]: newCollection },
         lastUsedCollection: id,
       };
     },

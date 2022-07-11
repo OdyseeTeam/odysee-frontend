@@ -3,6 +3,7 @@ declare type Collection = {
   items: Array<?string>,
   name: string,
   type: string,
+  createdAt: number,
   updatedAt: number,
   totalItems?: number,
   sourceId?: string, // if copied, claimId of original collection
@@ -17,11 +18,21 @@ declare type CollectionState = {
   saved: Array<string>,
   isResolvingCollectionById: { [string]: boolean },
   error?: string | null,
+  queue: Collection,
 };
 
 declare type CollectionGroup = {
   [string]: Collection,
-}
+};
+
+declare type CollectionList = Array<Collection>;
+
+declare type CollectionCreateParams = {
+  name: string,
+  items: ?Array<string>,
+  type: string,
+  sourceId?: string, // if copied, claimId of original collection
+};
 
 declare type CollectionEditParams = {
   uris?: Array<string>,
@@ -30,4 +41,9 @@ declare type CollectionEditParams = {
   order?: { from: number, to: number },
   type?: string,
   name?: string,
-}
+};
+
+declare type CollectionFetchParams = {
+  collectionId: string,
+  pageSize?: number,
+};

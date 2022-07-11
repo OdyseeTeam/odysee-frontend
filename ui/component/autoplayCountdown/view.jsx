@@ -6,11 +6,13 @@ import I18nMessage from 'component/i18nMessage';
 import { withRouter } from 'react-router';
 import debounce from 'util/debounce';
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 150;
 const CLASSNAME_AUTOPLAY_COUNTDOWN = 'autoplay-countdown';
 
 type Props = {
+  uri?: string,
   history: { push: (string) => void },
   nextRecommendedClaim: ?StreamClaim,
   nextRecommendedUri: string,
@@ -20,10 +22,12 @@ type Props = {
   doReplay: () => void,
   doPrevious: () => void,
   onCanceled: () => void,
+  doOpenModal: (id: string, props: {}) => void,
 };
 
 function AutoplayCountdown(props: Props) {
   const {
+    uri,
     nextRecommendedUri,
     nextRecommendedClaim,
     history: { push },
@@ -33,6 +37,7 @@ function AutoplayCountdown(props: Props) {
     doReplay,
     doPrevious,
     onCanceled,
+    doOpenModal,
   } = props;
   const nextTitle = nextRecommendedClaim && nextRecommendedClaim.value && nextRecommendedClaim.value.title;
 
@@ -152,10 +157,14 @@ function AutoplayCountdown(props: Props) {
             <Button
               label={skipPaid ? __('Purchase?') : __('Replay?')}
               button="link"
-              iconRight={skipPaid ? ICONS.WALLET : ICONS.REPLAY}
+              icon={skipPaid ? ICONS.WALLET : ICONS.REPLAY}
               onClick={() => {
                 setTimerCanceled(true);
-                doReplay();
+                if (skipPaid) {
+                  doOpenModal(MODALS.AFFIRM_PURCHASE, { uri, cancelCb: () => setTimerCanceled(false) });
+                } else {
+                  doReplay();
+                }
               }}
             />
           </div>
