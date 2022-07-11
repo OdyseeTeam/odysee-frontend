@@ -384,13 +384,8 @@ function PublishLivestream(props: Props) {
                         onClick={() => updateReplayOption('keep')}
                       />
                     )}
-                    No Change
+                    {__('Update only')}
                   </label>
-                  <p className="help" style={{ marginTop: 'var(--spacing-xs)' }}>
-                    {__("If you don't choose a replay, the file from your existing claim %name% will be used", {
-                      name: name,
-                    })}
-                  </p>
                 </fieldset-section>
                 {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
                   <>
