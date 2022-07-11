@@ -6,7 +6,6 @@ import ErrorText from 'component/common/error-text';
 import ClaimAbandonButton from 'component/claimAbandonButton';
 import CollectionItemsList from 'component/collectionItemsList';
 import Card from 'component/common/card';
-import LbcSymbol from 'component/common/lbc-symbol';
 import { useHistory } from 'react-router-dom';
 import { isNameValid } from 'util/lbryURI';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
@@ -18,8 +17,18 @@ import * as PAGES from 'constants/pages';
 import * as PUBLISH from 'constants/publish';
 import analytics from 'analytics';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
+import PublishBidTab from 'component/publishBidField';
 
+export const PAGE_TAB_QUERY = `tab`;
 const MAX_TAG_SELECT = 5;
+
+const PAGE = {
+  GENERAL: 'general',
+  ITEMS: 'items',
+  CREDITS: 'credits',
+  TAGS: 'tags',
+  OTHER: 'other',
+};
 
 type Props = {
   uri: string, // collection uri
@@ -60,15 +69,22 @@ function CollectionForm(props: Props) {
     onDone,
   } = props;
 
-  const { replace } = useHistory();
+  const {
+    replace,
+    push,
+    location: { pathname, search },
+  } = useHistory();
 
   const [nameError, setNameError] = React.useState(undefined);
   const [thumbailError, setThumbnailError] = React.useState('');
   const [bidError, setBidError] = React.useState('');
   const [params, setParams] = React.useState({});
+  const [loading, setLoading] = React.useState(false);
 
-  const { name, languages, claims, tags, bid } = params;
+  const { name, languages, claims, tags } = params;
 
+  const urlParams = new URLSearchParams(search);
+  const currentView = urlParams.get(PAGE_TAB_QUERY) || PAGE.GENERAL;
   const isNewCollection = !uri;
   const languageParam = languages || [];
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
@@ -131,9 +147,49 @@ function CollectionForm(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri, hasClaim]);
 
+  function onTabChange(newTabIndex) {
+    let search = '&';
+
+    if (newTabIndex === 0) {
+      search += `${PAGE_TAB_QUERY}=${PAGE.GENERAL}`;
+    } else if (newTabIndex === 1) {
+      search += `${PAGE_TAB_QUERY}=${PAGE.ITEMS}`;
+    } else if (newTabIndex === 2) {
+      search += `${PAGE_TAB_QUERY}=${PAGE.CREDITS}`;
+    } else if (newTabIndex === 3) {
+      search += `${PAGE_TAB_QUERY}=${PAGE.TAGS}`;
+    } else {
+      search += `${PAGE_TAB_QUERY}=${PAGE.OTHER}`;
+    }
+
+    push(`${pathname}?view=edit${search}`);
+  }
+
+  let tabIndex;
+  switch (currentView) {
+    case PAGE.GENERAL:
+      tabIndex = 0;
+      break;
+    case PAGE.ITEMS:
+      tabIndex = 1;
+      break;
+    case PAGE.CREDITS:
+      tabIndex = 2;
+      break;
+    case PAGE.TAGS:
+      tabIndex = 3;
+      break;
+    case PAGE.OTHER:
+      tabIndex = 4;
+      break;
+    default:
+      tabIndex = 0;
+      break;
+  }
+
   return (
     <div className="main--contained publishList-wrapper">
-      <Tabs>
+      <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('General')}</Tab>
           <Tab>{__('Items')}</Tab>
@@ -144,152 +200,157 @@ function CollectionForm(props: Props) {
 
         <TabPanels>
           <TabPanel>
-            <CollectionGeneralTab
-              uri={uri}
-              params={params}
-              nameError={nameError}
-              setThumbnailError={setThumbnailError}
-              updateParams={updateParams}
-            />
+            {currentView === PAGE.GENERAL && (
+              <CollectionGeneralTab
+                uri={uri}
+                params={params}
+                nameError={nameError}
+                setThumbnailError={setThumbnailError}
+                updateParams={updateParams}
+                setLoading={setLoading}
+              />
+            )}
           </TabPanel>
 
           <TabPanel>
-            <CollectionItemsList collectionId={collectionId} empty={__('This list has no items.')} showEdit />
+            {currentView === PAGE.ITEMS && (
+              <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit />
+            )}
           </TabPanel>
 
           <TabPanel>
-            <Card
-              body={
-                <FormField
-                  className="form-field--price-amount"
-                  type="number"
-                  name="content_bid2"
-                  step="any"
-                  label={<LbcSymbol postfix={__('Deposit')} size={14} />}
-                  value={bid}
-                  error={bidError}
-                  min="0.0"
-                  disabled={false}
-                  onChange={(event) =>
-                    handleBidChange(parseFloat(event.target.value), amount, balance, setBidError, updateParams)
-                  }
-                  placeholder={0.1}
-                  helper={__('Increasing your deposit can help your channel be discovered more easily.')}
-                />
-              }
-            />
+            {currentView === PAGE.CREDITS && (
+              <PublishBidTab
+                params={params}
+                bidError={bidError}
+                onChange={(event) =>
+                  handleBidChange(parseFloat(event.target.value), amount, balance, setBidError, updateParams)
+                }
+              />
+            )}
           </TabPanel>
 
           <TabPanel>
-            <Card
-              body={
-                <TagsSearch
-                  suggestMature
-                  disableAutoFocus
-                  limitSelect={MAX_TAG_SELECT}
-                  tagsPassedIn={tags || []}
-                  label={__('Selected Tags')}
-                  onRemove={(clickedTag) => {
-                    // $FlowFixMe
-                    const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                    updateParams({ tags: newTags });
-                  }}
-                  onSelect={(newTags) => {
-                    tags &&
-                      newTags.forEach((newTag) => {
-                        // $FlowFixMe
-                        if (!tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
+            {currentView === PAGE.TAGS && (
+              <Card
+                body={
+                  <TagsSearch
+                    suggestMature
+                    disableAutoFocus
+                    limitSelect={MAX_TAG_SELECT}
+                    tagsPassedIn={tags || []}
+                    label={__('Selected Tags')}
+                    onRemove={(clickedTag) => {
+                      // $FlowFixMe
+                      const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                      updateParams({ tags: newTags });
+                    }}
+                    onSelect={(newTags) => {
+                      tags &&
+                        newTags.forEach((newTag) => {
                           // $FlowFixMe
-                          updateParams({ tags: [...tags, newTag] });
-                        } else {
-                          // If it already exists and the user types it in, remove itit
-                          // $FlowFixMe
-                          updateParams({ tags: tags.filter((tag) => tag.name !== newTag.name) });
-                        }
-                      });
-                  }}
-                />
-              }
-            />
+                          if (!tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
+                            // $FlowFixMe
+                            updateParams({ tags: [...tags, newTag] });
+                          } else {
+                            // If it already exists and the user types it in, remove itit
+                            // $FlowFixMe
+                            updateParams({ tags: tags.filter((tag) => tag.name !== newTag.name) });
+                          }
+                        });
+                    }}
+                  />
+                }
+              />
+            )}
           </TabPanel>
 
           <TabPanel>
-            <Card
-              body={
-                <>
-                  <FormField
-                    name="language_select"
-                    type="select"
-                    label={__('Primary Language')}
-                    onChange={(event) => handleLanguageChange(0, event.target.value, languageParam, setParams, params)}
-                    value={primaryLanguage}
-                    helper={__('Your main content language')}
-                  >
-                    <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
-                      {__('None selected')}
-                    </option>
-                    {Object.keys(SUPPORTED_LANGUAGES).map((language) => (
-                      <option key={language} value={language}>
-                        {SUPPORTED_LANGUAGES[language]}
+            {currentView === PAGE.OTHER && (
+              <Card
+                body={
+                  <>
+                    <FormField
+                      name="language_select"
+                      type="select"
+                      label={__('Primary Language')}
+                      onChange={(event) =>
+                        handleLanguageChange(0, event.target.value, languageParam, setParams, params)
+                      }
+                      value={primaryLanguage}
+                      helper={__('Your main content language')}
+                    >
+                      <option key={'pri-langNone'} value={PUBLISH.LANG_NONE}>
+                        {__('None selected')}
                       </option>
-                    ))}
-                  </FormField>
-                  <FormField
-                    name="language_select2"
-                    type="select"
-                    label={__('Secondary Language')}
-                    onChange={(event) => handleLanguageChange(1, event.target.value, languageParam, setParams, params)}
-                    value={secondaryLanguage}
-                    disabled={!languageParam[0]}
-                    helper={__('Your other content language')}
-                  >
-                    <option key={'sec-langNone'} value={PUBLISH.LANG_NONE}>
-                      {__('None selected')}
-                    </option>
-                    {Object.keys(SUPPORTED_LANGUAGES)
-                      .filter((lang) => lang !== languageParam[0])
-                      .map((language) => (
+                      {Object.keys(SUPPORTED_LANGUAGES).map((language) => (
                         <option key={language} value={language}>
                           {SUPPORTED_LANGUAGES[language]}
                         </option>
                       ))}
-                  </FormField>
-                </>
-              }
-            />
+                    </FormField>
+                    <FormField
+                      name="language_select2"
+                      type="select"
+                      label={__('Secondary Language')}
+                      onChange={(event) =>
+                        handleLanguageChange(1, event.target.value, languageParam, setParams, params)
+                      }
+                      value={secondaryLanguage}
+                      disabled={!languageParam[0]}
+                      helper={__('Your other content language')}
+                    >
+                      <option key={'sec-langNone'} value={PUBLISH.LANG_NONE}>
+                        {__('None selected')}
+                      </option>
+                      {Object.keys(SUPPORTED_LANGUAGES)
+                        .filter((lang) => lang !== languageParam[0])
+                        .map((language) => (
+                          <option key={language} value={language}>
+                            {SUPPORTED_LANGUAGES[language]}
+                          </option>
+                        ))}
+                    </FormField>
+                  </>
+                }
+              />
+            )}
           </TabPanel>
         </TabPanels>
       </Tabs>
 
-      <Card
-        className="card--after-tabs"
-        actions={
-          <>
-            <div className="section__actions">
-              <Button
-                button="primary"
-                disabled={creatingCollection || updatingCollection || Boolean(submitError) || !hasClaims}
-                label={creatingCollection || updatingCollection ? __('Submitting') : __('Submit')}
-                onClick={handleSubmit}
-              />
-              <Button button="link" label={__('Cancel')} onClick={() => onDone(collectionId)} />
-            </div>
-
-            {submitError ? (
-              <ErrorText>{submitError}</ErrorText>
-            ) : (
-              <p className="help">
-                {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
-              </p>
-            )}
-            {!isNewCollection && (
+      {!loading && (
+        <Card
+          className="card--after-tabs"
+          actions={
+            <>
               <div className="section__actions">
-                <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.LIBRARY}`)} />
+                <Button
+                  button="primary"
+                  disabled={creatingCollection || updatingCollection || Boolean(submitError) || !hasClaims}
+                  label={creatingCollection || updatingCollection ? __('Submitting') : __('Submit')}
+                  onClick={handleSubmit}
+                />
+                <Button button="link" label={__('Cancel')} onClick={() => onDone(collectionId)} />
               </div>
-            )}
-          </>
-        }
-      />
+
+              {submitError ? (
+                <ErrorText>{submitError}</ErrorText>
+              ) : (
+                <p className="help">
+                  {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
+                </p>
+              )}
+
+              {!isNewCollection && (
+                <div className="section__actions">
+                  <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.LIBRARY}`)} />
+                </div>
+              )}
+            </>
+          }
+        />
+      )}
     </div>
   );
 }

@@ -7,6 +7,7 @@ import Card from 'component/common/card';
 import SelectThumbnail from 'component/selectThumbnail';
 import { FormField } from 'component/common/form';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
+import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
@@ -14,6 +15,7 @@ type Props = {
   nameError: any,
   setThumbnailError: (error: ?string) => void,
   updateParams: (obj: any) => void,
+  setLoading: (loading: boolean) => void,
   // -- redux --
   collectionChannel: ?ChannelClaim,
   activeChannelClaim: ?ChannelClaim,
@@ -26,6 +28,7 @@ function CollectionGeneralTab(props: Props) {
     nameError,
     setThumbnailError,
     updateParams,
+    setLoading,
     // -- redux --
     collectionChannel,
     activeChannelClaim,
@@ -65,6 +68,18 @@ function CollectionGeneralTab(props: Props) {
 
     setThumbnailError(thumbnailError);
   }, [setThumbnailError, thumbError, thumbStatus]);
+
+  React.useEffect(() => {
+    if (setLoading) setLoading(!activeChannelClaim);
+  }, [activeChannelClaim, setLoading]);
+
+  if (!activeChannelClaim) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="card-stack">
