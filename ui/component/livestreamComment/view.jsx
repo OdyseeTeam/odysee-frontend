@@ -18,6 +18,7 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import PremiumBadge from 'component/premiumBadge';
+// import { string } from 'prop-types';
 
 type Props = {
   comment: Comment,
@@ -31,7 +32,9 @@ type Props = {
   odyseeMembership: string,
   handleDismissPin?: () => void,
   restoreScrollPos?: () => void,
+  handleCommentClick?: (any) => void,
   claimsByUri: { [string]: any },
+  authorTitle: string,
 };
 
 export default function LivestreamComment(props: Props) {
@@ -45,7 +48,9 @@ export default function LivestreamComment(props: Props) {
     isMobile,
     handleDismissPin,
     restoreScrollPos,
+    handleCommentClick,
     odyseeMembership,
+    authorTitle,
   } = props;
 
   const {
@@ -64,7 +69,8 @@ export default function LivestreamComment(props: Props) {
   const [hasUserMention, setUserMention] = React.useState(false);
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
-  const { claimName } = parseURI(authorUri || '');
+  const { claimName: authorName } = parseURI(authorUri || '');
+  const claimName = authorTitle || authorName;
   const stickerUrlFromMessage = getStickerUrl(message);
   const isSticker = Boolean(stickerUrlFromMessage);
   const timePosted = timestamp * 1000;
@@ -91,6 +97,7 @@ export default function LivestreamComment(props: Props) {
         'livestream__comment--mentioned': hasUserMention,
         'livestream__comment--mobile': isMobile,
       })}
+      onClick={() => handleCommentClick(comment)}
     >
       {supportAmount > 0 && (
         <div className="livestreamComment__superchatBanner">

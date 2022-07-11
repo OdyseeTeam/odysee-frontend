@@ -126,13 +126,16 @@
   --color-comment-threadline-hover: var(--color-primary);
 
   // Superchat
-  --color-superchat-text: var(--color-black);
-  --color-superchat: #fcd34d;
-  --color-superchat__light: #fcd34d50;
-  --color-superchat-2: #fde68a;
-  --color-superchat-3: #fef3c7;
-  --color-superchat-3__light: #fef3c750;
-  --color-superchat-4: #fffbeb;
+  --color-hyperchat-text: var(--color-primary-contrast);
+  // --color-hyperchat: #fcd34d;
+  --color-hyperchat: rgba(var(--color-primary-dynamic), 1);
+  --color-hyperchat-light: #fcd34d50;
+  $test: color-mix(in srgb, #34c9eb 20%, white);
+  --color-hyperchat-2: #fde68a;
+
+  --color-hyperchat-3: #fef3c7;
+  --color-hyperchat-3__light: #fef3c750;
+  --color-hyperchat-4: #fffbeb;
 
   // Color
   --color-focus: #8dbff0;

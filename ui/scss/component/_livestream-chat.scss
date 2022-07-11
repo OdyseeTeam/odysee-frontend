@@ -29,8 +29,8 @@ $recent-msg-button__height: 2rem;
   .chat-resize {
     display: none;
     position: absolute;
-    bottom: 1px;
-    right: -8px;
+    bottom: -3px;
+    right: -6px;
     // width:20px;
     // height:20px;
     transform: rotate(135deg);
@@ -750,6 +750,9 @@ $recent-msg-button__height: 2rem;
     display: flex;
     align-items: center;
     flex-wrap: nowrap;
+    .icon {
+      margin-bottom: 0;
+    }
   }
 }
 
@@ -765,28 +768,33 @@ $recent-msg-button__height: 2rem;
   display: flex;
   margin-right: var(--spacing-xs);
   padding: var(--spacing-xxs);
+  padding-top: 0;
   border-radius: var(--border-radius);
+  transition: border 0.4s, background-color 0.4s;
 
   .channel-thumbnail {
-    margin-right: var(--spacing-xs);
+    margin-right: var(--spacing-xxs);
+    margin-top: var(--spacing-xxs);
     @include handleChannelGif(2rem);
 
     @media (max-width: $breakpoint-small) {
-      margin-top: var(--spacing-xxs);
-      margin-right: var(--spacing-xxs);
+      // margin-top: var(--spacing-xxs);
+      // margin-right: var(--spacing-xxs);
       @include handleChannelGif(1.5rem);
     }
   }
-  .button--uri-indicator {
-    &:hover {
-      .channel-name {
-        color: black;
-      }
-    }
+  .channel-name,
+  .credit-amount {
+    color: var(--color-text);
+  }
+
+  .channel-name {
+    max-width: 5rem;
   }
 
   &:first-of-type {
-    background-color: var(--color-superchat);
+    border: 2px solid rgba(mix(#de0050, #ffa236, 100%), 1);
+    background-color: rgba(mix(#de0050, #ffa236, 100%), 0.2);
 
     .channel-name {
       max-width: 8rem;
@@ -794,31 +802,32 @@ $recent-msg-button__height: 2rem;
   }
 
   &:nth-of-type(2) {
-    background-color: var(--color-superchat-2);
+    border: 2px solid rgba(mix(#de0050, #ffa236, 75%), 1);
+    background-color: rgba(mix(#de0050, #ffa236, 75%), 0.2);
   }
   &:nth-of-type(3) {
-    background-color: var(--color-superchat-3);
+    border: 2px solid rgba(mix(#de0050, #ffa236, 50%), 1);
+    background-color: rgba(mix(#de0050, #ffa236, 50%), 0.2);
 
     @media (max-width: $breakpoint-small) {
       background-color: #fff;
     }
   }
-  &:nth-of-type(n + 4) {
-    // background-color: var(--color-superchat-3);
-    background-color: #fff;
+  &:nth-of-type(4) {
+    border: 2px solid rgba(mix(#de0050, #ffa236, 25%), 1);
+    background-color: rgba(mix(#de0050, #ffa236, 25%), 0.2);
 
     @media (max-width: $breakpoint-small) {
       background-color: #fff;
     }
   }
+  &:nth-of-type(n + 5) {
+    background-color: mix(#de0050, #ffa236, 0%);
+    // background-color: #fff;
 
-  .channel-name,
-  .credit-amount {
-    color: var(--color-black);
-  }
-
-  .channel-name {
-    max-width: 5rem;
+    @media (max-width: $breakpoint-small) {
+      background-color: #fff;
+    }
   }
 }
 
@@ -874,7 +883,7 @@ $recent-msg-button__height: 2rem;
 
 .livestreamSuperchat__info--user {
   .empty {
-    color: var(--color-black);
+    color: var(--color-text);
     opacity: 0.9;
   }
 

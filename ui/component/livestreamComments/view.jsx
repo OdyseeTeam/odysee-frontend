@@ -15,6 +15,7 @@ type Props = {
   viewMode: string,
   restoreScrollPos?: () => void,
   setResolvingSuperChats?: (boolean) => void,
+  handleCommentClick?: (string) => void,
   // redux
   fetchingComments: boolean,
   resolvingSuperchats: boolean,
@@ -27,6 +28,7 @@ export default function LivestreamComments(props: Props) {
     isMobile,
     restoreScrollPos,
     setResolvingSuperChats,
+    handleCommentClick,
     fetchingComments,
     resolvingSuperchats,
   } = props;
@@ -90,7 +92,12 @@ export default function LivestreamComments(props: Props) {
     ) : (
       <div className="livestream__comments">
         {comments.map((comment) => (
-          <LivestreamComment {...commentProps} comment={comment} key={comment.comment_id} />
+          <LivestreamComment
+            {...commentProps}
+            comment={comment}
+            key={comment.comment_id}
+            handleCommentClick={handleCommentClick}
+          />
         ))}
       </div>
     );

@@ -85,6 +85,7 @@ type Props = {
   myChannelClaimIds: ?Array<string>,
   myCommentedChannelIds: ?Array<string>,
   doFetchMyCommentedChannels: (claimId: ?string) => void,
+  textInjection?: string,
 };
 
 export function CommentCreate(props: Props) {
@@ -124,6 +125,7 @@ export function CommentCreate(props: Props) {
     myChannelClaimIds,
     myCommentedChannelIds,
     doFetchMyCommentedChannels,
+    textInjection,
   } = props;
 
   const isMobile = useIsMobile();
@@ -508,6 +510,10 @@ export function CommentCreate(props: Props) {
       doFetchMyCommentedChannels(claimId);
     }
   }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
+
+  React.useEffect(() => {
+    console.log('New Injection: ', textInjection);
+  }, [textInjection]);
 
   // **************************************************************************
   // Render

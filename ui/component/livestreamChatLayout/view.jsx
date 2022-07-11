@@ -96,6 +96,7 @@ export default function LivestreamChatLayout(props: Props) {
   const [keyboardOpened, setKeyboardOpened] = React.useState(false);
   const [superchatsAmount, setSuperchatsAmount] = React.useState(false);
   const [chatElement, setChatElement] = React.useState();
+  const [textInjection, setTextInjection] = React.useState('');
 
   let superChatsByChronologicalOrder = [];
   if (superChatsByAmount) superChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
@@ -294,6 +295,10 @@ export default function LivestreamChatLayout(props: Props) {
 
   const toggleProps = { viewMode, onClick: (toggleMode) => toggleClick(toggleMode) };
 
+  function handleCommentClick(comment) {
+    setTextInjection(comment.channel_name);
+  }
+
   return (
     <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
@@ -381,6 +386,7 @@ export default function LivestreamChatLayout(props: Props) {
           comments={commentsToDisplay}
           isMobile={isMobile}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
+          handleCommentClick={handleCommentClick}
         />
 
         {scrolledPastRecent && (
@@ -401,6 +407,7 @@ export default function LivestreamChatLayout(props: Props) {
             uri={uri}
             onDoneReplying={restoreScrollPos}
             onSlimInputClose={!scrolledPastRecent && isMobile ? () => setKeyboardOpened(true) : undefined}
+            textInjection={textInjection}
           />
         </div>
       </div>
