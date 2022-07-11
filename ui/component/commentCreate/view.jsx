@@ -512,7 +512,15 @@ export function CommentCreate(props: Props) {
   }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
 
   React.useEffect(() => {
-    console.log('New Injection: ', textInjection);
+    if (textInjection) {
+      setCommentValue(
+        commentValue === ''
+          ? commentValue + textInjection + ' '
+          : commentValue.substring(commentValue.length - 1) === ' '
+          ? commentValue + textInjection + ' '
+          : commentValue + ' ' + textInjection + ' '
+      );
+    }
   }, [textInjection]);
 
   // **************************************************************************
