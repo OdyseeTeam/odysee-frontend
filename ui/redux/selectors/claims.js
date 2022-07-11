@@ -1,6 +1,6 @@
 // @flow
 import { CHANNEL_CREATION_LIMIT } from 'config';
-import { normalizeURI, parseURI, isURIValid } from 'util/lbryURI';
+import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
@@ -903,4 +903,15 @@ export const selectGeoRestrictionForUri = createCachedSelector(
 export const selectClaimRepostedAmountForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state);
   return getClaimRepostedAmount(claim);
+};
+
+export const selectTakeOverAmountForName = (state: State, name: string) => {
+  if (!name) {
+    return null;
+  }
+
+  const shortUri = buildURI({ streamName: name });
+  const winningClaim = selectClaimForUri(state, shortUri);
+
+  return winningClaim ? winningClaim.meta.effective_amount || winningClaim.amount : null;
 };
