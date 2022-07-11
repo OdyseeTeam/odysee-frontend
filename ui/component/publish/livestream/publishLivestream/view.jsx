@@ -374,7 +374,7 @@ function PublishLivestream(props: Props) {
               <PublishName uri={uri} />
               <>
                 <fieldset-section>
-                  <label>
+                  <label style={{ marginBottom: 'var(--spacing-s)' }}>
                     {inEditMode && (
                       <FormField
                         name="reuse-replay"
