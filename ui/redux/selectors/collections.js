@@ -14,6 +14,7 @@ import { parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
+import { selectCountForCollection } from 'util/collections';
 import { isPermanentUrl } from 'util/claim';
 
 type State = { collections: CollectionState };
@@ -127,6 +128,26 @@ export const selectMyPublishedCollections = createSelector(
   }
 );
 
+export const selectMyPublishedOnlyCollections = createSelector(
+  selectResolvedCollections,
+  selectPendingCollections,
+  selectMyCollectionIds,
+  (resolved, pending, myIds) => {
+    // all resolved in myIds, plus those in pending and edited
+    const myPublishedCollections = fromEntries(
+      Object.entries(pending).concat(
+        Object.entries(resolved).filter(
+          ([key, val]) =>
+            myIds.includes(key) &&
+            // $FlowFixMe
+            !pending[key]
+        )
+      )
+    );
+    return myPublishedCollections;
+  }
+);
+
 export const selectCollectionValuesListForKey = createSelector(
   (state, key) => key,
   selectBuiltinCollections,
@@ -178,6 +199,17 @@ export const selectMyPublishedPlaylistCollections = createSelector(selectMyPubli
 export const selectMyPublishedCollectionForId = (state: State, id: string) => {
   const myPublishedCollections = selectMyPublishedCollections(state);
   return myPublishedCollections[id];
+};
+
+export const selectMyPublishedOnlyCollectionForId = (state: State, id: string) => {
+  const myPublishedCollections = selectMyPublishedOnlyCollections(state);
+  return myPublishedCollections[id];
+};
+
+export const selectMyPublishedCollectionCountForId = (state: State, id: string) => {
+  const publishedCollection = selectMyPublishedOnlyCollectionForId(state, id);
+  const count = selectCountForCollection(publishedCollection);
+  return count;
 };
 
 export const selectIsResolvingCollectionForId = (state: State, id: string) => {
@@ -401,21 +433,9 @@ export const selectCreatedAtForCollectionId = createSelector(
   }
 );
 
-export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) => {
-  if (collection) {
-    if (collection.itemCount !== undefined) {
-      return collection.itemCount;
-    }
-    let itemCount = 0;
-    collection.items.forEach((item) => {
-      if (item) {
-        itemCount += 1;
-      }
-    });
-    return itemCount;
-  }
-  return null;
-});
+export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) =>
+  selectCountForCollection(collection)
+);
 
 export const selectIsCollectionPrivateForId = createSelector(
   (state, id) => id,

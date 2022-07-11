@@ -22,8 +22,8 @@ function CollectionPublishButton(props: Props) {
 
   return (
     <FileActionButton
-      title={uri ? __('Update') : __('Publish')}
-      label={uri ? __('Update') : __('Publish')}
+      title={uri ? __('Publish Updates') : __('Publish')}
+      label={uri ? __('Publish Updates') : __('Publish')}
       onClick={() => push(`?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`)}
       icon={ICONS.PUBLISH}
       iconColor={collectionHasEdits ? 'red' : undefined}
