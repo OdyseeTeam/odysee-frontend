@@ -10,7 +10,7 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
-      createdAt: getCurrentTimeInSec(),
+      createdAt: undefined,
       updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
@@ -18,7 +18,7 @@ const defaultState: CollectionState = {
       items: [],
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
-      createdAt: getCurrentTimeInSec(),
+      createdAt: undefined,
       updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPE_PLAYLIST,
     },
@@ -35,7 +35,6 @@ const defaultState: CollectionState = {
     items: [],
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
-    createdAt: getCurrentTimeInSec(),
     updatedAt: getCurrentTimeInSec(),
     type: COLS.COL_TYPE_PLAYLIST,
   },
@@ -69,16 +68,18 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {
-      const { lastUsedCollection } = state;
+      const { edited: editList, unpublished: unpublishedList, pending: pendingList, lastUsedCollection } = state;
       const { id, collectionKey } = action.data;
-      const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+
+      const collectionsForKey = collectionKey && state[collectionKey];
+      const collectionForId = collectionsForKey && collectionsForKey[id];
       const newEditList = Object.assign({}, editList);
       const newUnpublishedList = Object.assign({}, unpublishedList);
       const isDeletingLastUsedCollection = lastUsedCollection === id;
 
       const newPendingList = Object.assign({}, pendingList);
 
-      if (collectionKey && state[collectionKey] && state[collectionKey][id]) {
+      if (collectionForId) {
         const newList = Object.assign({}, state[collectionKey]);
         delete newList[id];
         return {
@@ -133,8 +134,8 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
-      const { collectionKey, collection } = action.data;
-      const { id } = collection;
+      const { collectionKey, collection, collectionId } = action.data;
+      const id = collection?.id || collectionId;
 
       if (id === COLS.QUEUE_ID) {
         const { [collectionKey]: currentQueue } = state;
@@ -144,7 +145,16 @@ const collectionsReducer = handleActions(
 
       const { [collectionKey]: lists } = state;
       const currentCollectionState = lists[id];
-      const newCollection = { ...currentCollectionState, ...collection, updatedAt: getCurrentTimeInSec() };
+
+      const newCollection = Object.assign({}, currentCollectionState);
+      if (!collection) {
+        Object.keys(newCollection).map((k) => {
+          newCollection[k] = null;
+        });
+      } else {
+        Object.assign(newCollection, collection);
+      }
+      newCollection.updatedAt = getCurrentTimeInSec();
 
       return {
         ...state,

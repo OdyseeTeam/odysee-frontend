@@ -60,16 +60,16 @@ function CollectionActions(props: Props) {
         )}
       </SectionElement>
 
-      <div className="section">
-        {!collectionEmpty && isMyCollection && (
+      {!collectionEmpty && isMyCollection && (
+        <div className="section">
           <Button
-            title={__('Edit')}
+            title={__('Arrange')}
             className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-            icon={ICONS.EDIT}
+            icon={ICONS.ARRANGE}
             onClick={() => setShowEdit(!showEdit)}
           />
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }

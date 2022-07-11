@@ -4,11 +4,13 @@ import CollectionItemsList from 'component/collectionItemsList';
 import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router-dom';
-import CollectionEdit from './internal/collectionEdit';
+import CollectionPublish from './internal/collectionPublish';
+import CollectionPrivateEdit from './internal/collectionPrivateEdit';
 import CollectionHeader from './internal/collectionHeader';
 
 export const PAGE_VIEW_QUERY = 'view';
 export const EDIT_PAGE = 'edit';
+export const PUBLISH_PAGE = 'publish';
 
 type Props = {
   collectionId: string,
@@ -33,7 +35,7 @@ export default function CollectionPage(props: Props) {
 
   const {
     replace,
-    location: { pathname, search },
+    location: { search },
   } = useHistory();
 
   const [didTryResolve, setDidTryResolve] = React.useState(false);
@@ -43,7 +45,9 @@ export default function CollectionPage(props: Props) {
   const { name, totalItems } = collection || {};
 
   const urlParams = new URLSearchParams(search);
+  const publishing = urlParams.get(PAGE_VIEW_QUERY) === PUBLISH_PAGE;
   const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
+  const editPage = editing || publishing;
   const urlsReady =
     collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
 
@@ -69,18 +73,27 @@ export default function CollectionPage(props: Props) {
     );
   }
 
-  if (editing) {
+  if (editPage) {
+    const onDone = (id) => replace(`/$/${PAGES.PLAYLIST}/${id || collectionId}`);
+
     return (
       <Page
         noFooter
-        noSideNavigation={editing}
+        noSideNavigation={editPage}
         backout={{
-          title: __('%action% %collection%', { collection: name, action: uri ? __('Editing') : __('Publishing') }),
-          simpleTitle: uri ? __('Editing') : __('Publishing'),
-          backNavDefault: pathname,
+          title: __('%action% %collection%', {
+            collection: name,
+            action: uri || editing ? __('Editing') : __('Publishing'),
+          }),
+          simpleTitle: uri || editing ? __('Editing') : __('Publishing'),
+          backNavDefault: onDone,
         }}
       >
-        <CollectionEdit uri={uri} collectionId={collectionId} onDone={(id) => replace(`/$/${PAGES.PLAYLIST}/${id}`)} />
+        {editing ? (
+          <CollectionPrivateEdit collectionId={collectionId} />
+        ) : (
+          <CollectionPublish uri={uri} collectionId={collectionId} onDone={onDone} />
+        )}
       </Page>
     );
   }

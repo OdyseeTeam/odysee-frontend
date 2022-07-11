@@ -7,6 +7,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 import Icon from 'component/common/icon';
 import {
   generateShareUrl,
@@ -20,8 +21,6 @@ import { buildURI, parseURI } from 'util/lbryURI';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
-const PAGE_VIEW_QUERY = 'view';
-const EDIT_PAGE = 'edit';
 
 type SubscriptionArgs = {
   channelName: string,
@@ -255,7 +254,7 @@ function ClaimMenuList(props: Props) {
       prepareEdit(claim, editUri, claimType);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
-      push(`/${channelUrl}?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`);
+      push(`/${channelUrl}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}`);
     }
   }
 
@@ -357,7 +356,7 @@ function ClaimMenuList(props: Props) {
                   {!collectionEmpty && (
                     <MenuItem
                       className="comment__menu-option"
-                      onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
+                      onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}`)}
                     >
                       <div className="menu__link">
                         <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />

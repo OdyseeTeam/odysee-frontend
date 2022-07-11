@@ -2,8 +2,12 @@ declare type Collection = {
   id: string,
   items: Array<?string>,
   name: string,
+  description?: string,
+  thumbnail?: {
+    url?: string,
+  },
   type: string,
-  createdAt: number,
+  createdAt?: ?number,
   updatedAt: number,
   totalItems?: number,
   itemCount?: number,
@@ -30,6 +34,10 @@ declare type CollectionList = Array<Collection>;
 
 declare type CollectionCreateParams = {
   name: string,
+  description?: string,
+  thumbnail?: {
+    url?: string,
+  },
   items: ?Array<string>,
   type: string,
   sourceId?: string, // if copied, claimId of original collection
@@ -42,6 +50,10 @@ declare type CollectionEditParams = {
   order?: { from: number, to: number },
   type?: string,
   name?: string,
+  description?: string,
+  thumbnail?: {
+    url?: string,
+  },
 };
 
 declare type CollectionFetchParams = {

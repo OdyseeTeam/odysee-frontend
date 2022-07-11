@@ -1,7 +1,7 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import { useHistory } from 'react-router';
-import { EDIT_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
+import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 import React from 'react';
 import FileActionButton from 'component/common/file-action-button';
 
@@ -24,7 +24,7 @@ function CollectionPublishButton(props: Props) {
     <FileActionButton
       title={uri ? __('Publish Updates') : __('Publish')}
       label={uri ? __('Publish Updates') : __('Publish')}
-      onClick={() => push(`?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`)}
+      onClick={() => push(`?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}`)}
       icon={ICONS.PUBLISH}
       iconColor={collectionHasEdits ? 'red' : undefined}
       iconSize={18}

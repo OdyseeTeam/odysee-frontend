@@ -13,7 +13,6 @@ import {
   selectHasItemsInQueue,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
-import { getCurrentTimeInSec } from 'util/time';
 import { isPermanentUrl } from 'util/claim';
 
 const FETCH_BATCH_SIZE = 50;
@@ -26,15 +25,11 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
 
   if (cb) cb(id);
 
-  const currentTimeInMs = getCurrentTimeInSec();
-
   return dispatch({
     type: ACTIONS.COLLECTION_NEW,
     data: {
       entry: {
         id: id, // start with a uuid, this becomes a claimId after publish
-        createdAt: currentTimeInMs,
-        updatedAt: currentTimeInMs,
         items: items || [],
         ...params,
       },
@@ -215,7 +210,7 @@ export const doFetchItemsInCollections = (
 
       const editedCollection = selectEditedCollectionForId(stateAfterClaimSearch, collectionId);
       const { name, timestamp, value } = claim || {};
-      const { title } = value;
+      const { title, description, thumbnail } = value;
       const valueTypes = new Set();
       const streamTypes = new Set();
 
@@ -245,6 +240,8 @@ export const doFetchItemsInCollections = (
         itemCount: claim.value.claims.length,
         type: isPlaylist ? 'playlist' : 'collection',
         updatedAt: timestamp,
+        description,
+        thumbnail,
       };
 
       if (editedCollection && timestamp > editedCollection['updatedAt']) {
@@ -410,14 +407,6 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentUrls.splice(order.to, 0, movedItem);
   }
 
-  // Delete 'edited' if newItems are the same as publishedItems
-  if (editedCollection && newItems && publishedCollection.items.join(',') === newItems.join(',')) {
-    return dispatch({
-      type: ACTIONS.COLLECTION_DELETE,
-      data: { id: collectionId, collectionKey: 'edited' },
-    });
-  }
-
   const collectionKey =
     (collectionId === COLS.QUEUE_ID && COLS.QUEUE_ID) ||
     ((editedCollection || publishedCollection) && COLS.COL_KEY_EDITED) ||
@@ -431,12 +420,17 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       collection: {
         items: newItems,
         id: collectionId,
-        name: params.name || collection.name,
         type: collectionType,
+        name: params.name || collection.name,
+        description: params.description || collection.description,
+        thumbnail: params.thumbnail || collection.thumbnail,
       },
     },
   });
 };
+
+export const doClearEditsForCollectionid = (collectionId: string) => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.COLLECTION_EDIT, data: { collectionKey: COLS.COL_KEY_EDITED, collectionId } });
 
 export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();

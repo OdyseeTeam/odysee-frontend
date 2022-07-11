@@ -53,7 +53,7 @@ export const selectEditedCollectionForId = (state: State, id: string) => {
 
 export const selectCollectionHasEditsForId = (state: State, id: string) => {
   const editedCollection = selectEditedCollectionForId(state, id);
-  return Boolean(editedCollection);
+  return Boolean(editedCollection && editedCollection.items !== null);
 };
 
 export const selectPendingCollectionForId = (state: State, id: string) => {
@@ -122,7 +122,13 @@ export const selectMyPublishedCollections = createSelector(
     );
     // now add in edited:
     Object.entries(edited).forEach(([id, item]) => {
-      myPublishedCollections[id] = item;
+      // $FlowFixMe
+      if (item.items !== null) {
+        myPublishedCollections[id] = item;
+      } else {
+        // $FlowFixMe
+        myPublishedCollections[id] = { ...myPublishedCollections[id], updatedAt: item.updatedAt };
+      }
     });
     return myPublishedCollections;
   }
@@ -226,7 +232,8 @@ export const selectCollectionForId = createSelector(
   selectPendingCollections,
   selectCurrentQueueList,
   (id, bLists, rLists, uLists, eLists, pLists, queue) => {
-    const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
+    const edited = eLists[id] && eLists[id].items !== null ? eLists[id] : undefined;
+    const collection = bLists[id] || uLists[id] || edited || pLists[id] || rLists[id] || queue[id];
     return collection;
   }
 );
@@ -397,11 +404,17 @@ export const selectNameForCollectionId = createSelector(
   (collection) => (collection && collection.name) || ''
 );
 
+export const selectThumbnailForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  return collection.thumbnail?.url;
+};
+
 export const selectUpdatedAtForCollectionId = createSelector(
   selectCollectionForId,
   selectUserCreationDate,
-  (collection, userCreatedAt) => {
-    const collectionUpdatedAt = collection.updatedAt * 1000;
+  (state, id) => selectMyEditedCollections(state)[id],
+  (collection, userCreatedAt, edited) => {
+    const collectionUpdatedAt = (edited?.updatedAt || collection.updatedAt) * 1000;
 
     const userCreationDate = moment(userCreatedAt).format('MMMM DD YYYY');
     const collectionUpdatedDate = moment(collectionUpdatedAt).format('MMMM DD YYYY');
@@ -415,23 +428,17 @@ export const selectUpdatedAtForCollectionId = createSelector(
   }
 );
 
-export const selectCreatedAtForCollectionId = createSelector(
-  selectCollectionForId,
-  selectUserCreationDate,
-  (collection, userCreatedAt) => {
-    const collectionCreatedAt = (collection.createdAt || collection.updatedAt) * 1000;
+export const selectCreatedAtForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id);
 
-    const userCreationDate = moment(userCreatedAt).format('MMMM DD YYYY');
-    const collectionCreationDate = moment(collectionCreatedAt).format('MMMM DD YYYY');
-
-    // Collection created time can't be older than account creation date
-    if (moment(collectionCreationDate).diff(moment(userCreationDate)) < 0) {
-      return userCreatedAt;
-    }
-
-    return collectionCreatedAt || '';
+  if (isBuiltin) {
+    const userCreatedAt = selectUserCreationDate(state);
+    return userCreatedAt;
   }
-);
+
+  return collection.createdAt * 1000;
+};
 
 export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) =>
   selectCountForCollection(collection)
