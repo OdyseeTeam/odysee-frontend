@@ -75,12 +75,12 @@ function PublishLivestream(props: Props) {
   const [selectedFileIndex, setSelectedFileIndex] = useState(null);
   const PAGE_SIZE = 4;
   const [currentPage, setCurrentPage] = useState(1);
+  const [replaySource, setReplaySource] = useState('keep');
+
   const totalPages =
     hasLivestreamData && livestreamData.length > PAGE_SIZE ? Math.ceil(livestreamData.length / PAGE_SIZE) : 1;
 
   const replayTitleLabel = !inEditMode ? __('Select Replay') : __('Use Replay');
-  const [changeReplay, setChangeReplay] = useState(false);
-  const [uploadReplay, setUploadReplay] = useState(false);
 
   const RECOMMENDED_BITRATE = 8500000;
   const MAX_BITRATE = 16500000;
@@ -133,11 +133,12 @@ function PublishLivestream(props: Props) {
       } else return __('Click Check for Replays to update...');
     }
   };
+
   // update remoteUrl when replay selected
   useEffect(() => {
     const livestreamData = JSON.parse(livestreamDataStr);
     if (selectedFileIndex !== null && livestreamData && livestreamData.length) {
-      if (!uploadReplay) {
+      if (replaySource !== 'upload') {
         updatePublishForm({
           remoteFileUrl: normalizeUrlForProtocol(livestreamData[selectedFileIndex].data.fileLocation),
           isLivestreamPublish: true,
@@ -317,13 +318,6 @@ function PublishLivestream(props: Props) {
       );
     }
 
-    if (!!isStillEditing && name) {
-      return (
-        <p className="help">
-          {__("If you don't choose a replay, the file from your existing claim %name% will be used", { name: name })}
-        </p>
-      );
-    }
     // @if TARGET='web'
     if (!isStillEditing) {
       return (
@@ -343,19 +337,13 @@ function PublishLivestream(props: Props) {
     // @endif
   }
 
-  function updateReplayOption(checkbox, value) {
-    if (checkbox === 'choose') {
-      setChangeReplay(value);
-      if (uploadReplay) {
-        setUploadReplay(false);
-        updatePublishForm({ filePath: '' });
-      }
-    } else {
-      setUploadReplay(value);
-      if (changeReplay) {
-        setChangeReplay(false);
-        setSelectedFileIndex(null);
-      }
+  function updateReplayOption(value) {
+    setReplaySource(value);
+    if (value !== 'choose') {
+      setSelectedFileIndex(null);
+    }
+    if (value !== 'upload') {
+      updatePublishForm({ filePath: '' });
     }
   }
 
@@ -385,6 +373,25 @@ function PublishLivestream(props: Props) {
               />
               <PublishName uri={uri} />
               <>
+                <fieldset-section>
+                  <label>
+                    {inEditMode && (
+                      <FormField
+                        name="reuse-replay"
+                        key="reuse-replay"
+                        type="radio"
+                        checked={replaySource === 'keep'}
+                        onClick={() => updateReplayOption('keep')}
+                      />
+                    )}
+                    No Change
+                  </label>
+                  <p className="help" style={{ marginTop: 'var(--spacing-xs)' }}>
+                    {__("If you don't choose a replay, the file from your existing claim %name% will be used", {
+                      name: name,
+                    })}
+                  </p>
+                </fieldset-section>
                 {(fileSource === SOURCE_SELECT || inEditMode) && hasLivestreamData && !isCheckingLivestreams && (
                   <>
                     <label>
@@ -392,16 +399,16 @@ function PublishLivestream(props: Props) {
                         <FormField
                           name="show-replays"
                           key="show-replays"
-                          type="checkbox"
-                          checked={changeReplay}
-                          onChange={() => updateReplayOption('choose', !changeReplay)}
+                          type="radio"
+                          checked={replaySource === 'choose'}
+                          onClick={() => updateReplayOption('choose')}
                         />
                       )}
                       {replayTitleLabel}
                     </label>
                     <div
                       className={classnames('replay-picker--container', {
-                        disabled: inEditMode && !changeReplay,
+                        disabled: inEditMode && replaySource !== 'choose',
                       })}
                     >
                       <fieldset-section>
@@ -492,11 +499,11 @@ function PublishLivestream(props: Props) {
                     <label className="disabled">
                       {inEditMode && (
                         <FormField
-                          name="show-replays-empty"
+                          name="show-replays"
                           key="show-replays"
-                          type="checkbox"
-                          checked={changeReplay}
-                          onChange={() => updateReplayOption('choose', !changeReplay)}
+                          type="radio"
+                          checked={replaySource === 'choose'}
+                          onClick={() => updateReplayOption('choose')}
                         />
                       )}
                       {replayTitleLabel}
@@ -511,11 +518,12 @@ function PublishLivestream(props: Props) {
                     <label className="disabled">
                       {inEditMode && (
                         <FormField
-                          name="show-replays"
+                          name="replay-source"
+                          value="choose"
                           key="show-replays-spin"
-                          type="checkbox"
-                          checked={changeReplay}
-                          onChange={() => updateReplayOption('choose', !changeReplay)}
+                          type="radio"
+                          checked={replaySource === 'choose'}
+                          onClick={() => updateReplayOption('choose')}
                         />
                       )}
                       {replayTitleLabel}
@@ -530,15 +538,15 @@ function PublishLivestream(props: Props) {
                   <div className="file-upload">
                     <label>
                       <FormField
-                        name="upload-replay"
-                        type="checkbox"
-                        checked={uploadReplay}
-                        onChange={() => updateReplayOption('upload', !uploadReplay)}
+                        name="replay-source"
+                        type="radio"
+                        checked={replaySource === 'upload'}
+                        onClick={() => updateReplayOption('upload')}
                       />
                       Upload Replay
                     </label>
                     <FileSelector
-                      disabled={!uploadReplay}
+                      disabled={replaySource !== 'upload'}
                       currentPath={currentFile}
                       onFileChosen={handleFileChange}
                       accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*' : undefined}

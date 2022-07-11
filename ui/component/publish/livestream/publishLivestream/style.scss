@@ -6,6 +6,7 @@
     border: 2px solid var(--color-border);
     background-color: var(--color-input-bg);
     overflow: hidden;
+    margin-bottom: var(--spacing-l);
 
     .table__wrapper {
       padding: var(--spacing-xxs);
@@ -98,7 +99,7 @@
     height: var(--spacing-xxs);
   }
 
-  .checkbox {
+  .radio {
     display: inline-block;
     label {
       margin-bottom: -5px;
@@ -144,12 +145,6 @@
       margin: 0;
       // padding: var(--spacing-m) 0;
       height: var(--height-input);
-    }
-  }
-
-  .help {
-    .button--link {
-      margin-left: 0;
     }
   }
 }
