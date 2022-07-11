@@ -446,3 +446,6 @@ export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =
     return dispatch(doCollectionEdit(COLS.QUEUE_ID, { remove: true, type: 'playlist' }));
   }
 };
+
+export const doClearCollectionErrors = () => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.CLEAR_COLLECTION_ERRORS });
