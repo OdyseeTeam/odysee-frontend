@@ -12,6 +12,7 @@ import {
   selectClaimWasPurchasedForUri,
   selectPermanentUrlForUri,
   selectCanonicalUrlForUri,
+  selectClaimForUri,
 } from 'redux/selectors/claims';
 import {
   makeSelectFileInfoForUri,
@@ -314,7 +315,30 @@ export function doPlaylistAddAndAllowPlaying({
         })
       );
     } else if (collectionId && uri) {
-      dispatch(doCollectionEdit(collectionId, { uris: [uri], remove, type: 'playlist' }));
+      if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID) {
+        const playingUri = selectPlayingUri(state);
+        const { collectionId: playingCollectionId } = playingUri.collection || {};
+        const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
+
+        // $FlowFixMe
+        const playingCollectionUrls = selectUrlsForCollectionId(state, playingCollectionId);
+        const itemsToAdd = playingCollectionUrls || [playingUrl];
+        const hasPlayingUriInQueue = Boolean(
+          playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
+        );
+        // $FlowFixMe
+        const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
+
+        dispatch(
+          doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
+            uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
+            remove: hasClaimInQueue,
+            type: 'playlist',
+          })
+        );
+      } else {
+        dispatch(doCollectionEdit(collectionId, { uris: [uri], remove, type: 'playlist' }));
+      }
     }
 
     if (!uri && createNew) return;
@@ -344,15 +368,38 @@ export function doPlaylistAddAndAllowPlaying({
       }
     };
 
-    dispatch(
-      doToast({
-        message: __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
-          playlist_name: collectionName,
-        }),
-        actionText: isPlayingCollection || hasItemPlaying || remove ? undefined : __('Start Playing'),
-        action: isPlayingCollection || hasItemPlaying || remove ? undefined : startPlaying,
-      })
-    );
+    if (collectionId === COLLECTIONS_CONSTS.QUEUE_ID) {
+      const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
+      const hasPlayingUriInQueue = Boolean(
+        playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
+      );
+      // $FlowFixMe
+      const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
+      if (!hasClaimInQueue) {
+        const paramsToAdd = {
+          collection: { collectionId: COLLECTIONS_CONSTS.QUEUE_ID },
+          source: COLLECTIONS_CONSTS.QUEUE_ID,
+        };
+
+        if (playingUrl) {
+          // adds the queue collection id to the playingUri data so it can be used and updated by other components
+          if (!hasPlayingUriInQueue) dispatch(doSetPlayingUri({ ...playingUri, ...paramsToAdd }));
+        } else {
+          // There is nothing playing and added a video to queue -> the first item will play on the floating player with the list open
+          dispatch(doUriInitiatePlay({ uri, ...paramsToAdd }, true, true));
+        }
+      }
+    } else {
+      dispatch(
+        doToast({
+          message: __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
+            playlist_name: collectionName,
+          }),
+          actionText: isPlayingCollection || hasItemPlaying || remove ? undefined : __('Start Playing'),
+          action: isPlayingCollection || hasItemPlaying || remove ? undefined : startPlaying,
+        })
+      );
+    }
   };
 }
 
