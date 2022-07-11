@@ -18,17 +18,17 @@ import * as PUBLISH from 'constants/publish';
 import analytics from 'analytics';
 import CollectionGeneralTab from 'component/collectionGeneralTab';
 import PublishBidTab from 'component/publishBidField';
-import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
+import Spinner from 'component/spinner';
 
 export const PAGE_TAB_QUERY = `tab`;
 const MAX_TAG_SELECT = 5;
 
-const PAGE = {
-  GENERAL: 'general',
-  ITEMS: 'items',
-  CREDITS: 'credits',
-  TAGS: 'tags',
-  OTHER: 'other',
+const TAB = {
+  GENERAL: 0,
+  ITEMS: 1,
+  CREDITS: 2,
+  TAGS: 3,
+  OTHER: 4,
 };
 
 type Props = {
@@ -70,22 +70,18 @@ function CollectionForm(props: Props) {
     onDone,
   } = props;
 
-  const {
-    replace,
-    push,
-    location: { pathname, search },
-  } = useHistory();
+  const { replace } = useHistory();
 
   const [nameError, setNameError] = React.useState(undefined);
   const [thumbailError, setThumbnailError] = React.useState('');
   const [bidError, setBidError] = React.useState('');
   const [params, setParams] = React.useState({});
   const [loading, setLoading] = React.useState(false);
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const [showItemsSpinner, setShowItemsSpinner] = React.useState(false);
 
   const { name, languages, claims, tags } = params;
 
-  const urlParams = new URLSearchParams(search);
-  const currentView = urlParams.get(PAGE_TAB_QUERY) || PAGE.GENERAL;
   const isNewCollection = !uri;
   const languageParam = languages || [];
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
@@ -149,43 +145,21 @@ function CollectionForm(props: Props) {
   }, [uri, hasClaim]);
 
   function onTabChange(newTabIndex) {
-    let search = '&';
-
-    if (newTabIndex === 0) {
-      search += `${PAGE_TAB_QUERY}=${PAGE.GENERAL}`;
-    } else if (newTabIndex === 1) {
-      search += `${PAGE_TAB_QUERY}=${PAGE.ITEMS}`;
-    } else if (newTabIndex === 2) {
-      search += `${PAGE_TAB_QUERY}=${PAGE.CREDITS}`;
-    } else if (newTabIndex === 3) {
-      search += `${PAGE_TAB_QUERY}=${PAGE.TAGS}`;
-    } else {
-      search += `${PAGE_TAB_QUERY}=${PAGE.OTHER}`;
+    if (tabIndex !== newTabIndex) {
+      if (newTabIndex === TAB.ITEMS) {
+        setShowItemsSpinner(true);
+        setTimeout(() => {
+          // Wait enough time for the spinner to appear, then switch tabs.
+          setTabIndex(newTabIndex);
+          // We can stop the spinner immediately. If the list takes a long time
+          // to render, the spinner would continue to spin until the
+          // state-change is flushed.
+          setShowItemsSpinner(false);
+        }, 250);
+      } else {
+        setTabIndex(newTabIndex);
+      }
     }
-
-    push(`${pathname}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}${search}`);
-  }
-
-  let tabIndex;
-  switch (currentView) {
-    case PAGE.GENERAL:
-      tabIndex = 0;
-      break;
-    case PAGE.ITEMS:
-      tabIndex = 1;
-      break;
-    case PAGE.CREDITS:
-      tabIndex = 2;
-      break;
-    case PAGE.TAGS:
-      tabIndex = 3;
-      break;
-    case PAGE.OTHER:
-      tabIndex = 4;
-      break;
-    default:
-      tabIndex = 0;
-      break;
   }
 
   return (
@@ -196,12 +170,15 @@ function CollectionForm(props: Props) {
           <Tab>{__('Items')}</Tab>
           <Tab>{__('Credits')}</Tab>
           <Tab>{__('Tags')}</Tab>
-          <Tab>{__('Other')}</Tab>
+          <Tab>
+            {__('Other')}
+            {showItemsSpinner && <Spinner type="small" />}
+          </Tab>
         </TabList>
 
         <TabPanels>
           <TabPanel>
-            {currentView === PAGE.GENERAL && (
+            {tabIndex === TAB.GENERAL && (
               <CollectionGeneralTab
                 uri={uri}
                 params={params}
@@ -214,13 +191,13 @@ function CollectionForm(props: Props) {
           </TabPanel>
 
           <TabPanel>
-            {currentView === PAGE.ITEMS && (
+            {tabIndex === TAB.ITEMS && (
               <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit />
             )}
           </TabPanel>
 
           <TabPanel>
-            {currentView === PAGE.CREDITS && (
+            {tabIndex === TAB.CREDITS && (
               <PublishBidTab
                 params={params}
                 bidError={bidError}
@@ -232,7 +209,7 @@ function CollectionForm(props: Props) {
           </TabPanel>
 
           <TabPanel>
-            {currentView === PAGE.TAGS && (
+            {tabIndex === TAB.TAGS && (
               <Card
                 body={
                   <TagsSearch
@@ -267,7 +244,7 @@ function CollectionForm(props: Props) {
           </TabPanel>
 
           <TabPanel>
-            {currentView === PAGE.OTHER && (
+            {tabIndex === TAB.OTHER && (
               <Card
                 body={
                   <>
