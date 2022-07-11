@@ -16,7 +16,7 @@ type Props = {
   icon?: string,
   className?: string,
   isPageTitle?: boolean,
-  noTitleWrap?: boolean,
+  // noTitleWrap?: boolean,
   isBodyList?: boolean,
   defaultExpand?: boolean,
   nag?: Node,
@@ -38,7 +38,7 @@ export default function Card(props: Props) {
     className,
     isPageTitle = false,
     isBodyList = false,
-    noTitleWrap = false,
+    // noTitleWrap = false,
     smallTitle = false,
     defaultExpand,
     nag,
@@ -67,7 +67,7 @@ export default function Card(props: Props) {
         {(title || subtitle) && (
           <div
             className={classnames('card__header--between', {
-              'card__header--nowrap': noTitleWrap,
+              // 'card__header--nowrap': noTitleWrap,
             })}
           >
             <div

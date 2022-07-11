@@ -1755,3 +1755,8 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     }
   }
 }
+
+audio,
+video {
+  background-color: black;
+}
