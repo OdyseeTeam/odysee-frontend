@@ -34,11 +34,7 @@ function CollectionForm(props: Props) {
     doOpenModal,
   } = props;
 
-  const {
-    goBack,
-    push,
-    location: { pathname },
-  } = useHistory();
+  const { goBack } = useHistory();
 
   const collectionResetPending = React.useRef(false);
 
@@ -60,7 +56,7 @@ function CollectionForm(props: Props) {
 
   function handleSubmit() {
     doCollectionEdit(collectionId, params);
-    push(pathname);
+    goBack();
   }
 
   React.useEffect(() => {
@@ -138,6 +134,8 @@ function CollectionForm(props: Props) {
             )}
 
             {thumbailError && <ErrorText>{thumbailError}</ErrorText>}
+
+            <p className="help">{__('After submitting, all changes will remain private.')}</p>
           </>
         }
       />
