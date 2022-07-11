@@ -111,10 +111,10 @@ export default function CollectionsListMine(props: Props) {
         return comparisonObj.a.localeCompare(comparisonObj.b);
       }
 
-      if (comparisonObj.a > comparisonObj.b) {
+      if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
         return 1;
       }
-      if (comparisonObj.a < comparisonObj.b) {
+      if ((comparisonObj.a || 0) < (comparisonObj.b || 0)) {
         return -1;
       }
       return 0;
