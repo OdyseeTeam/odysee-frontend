@@ -150,7 +150,7 @@ function PublishLivestream(props: Props) {
         });
       }
     }
-  }, [selectedFileIndex, updatePublishForm, livestreamDataStr]);
+  }, [replaySource, selectedFileIndex, updatePublishForm, livestreamDataStr]);
 
   function handlePaginateReplays(page) {
     setCurrentPage(page);
