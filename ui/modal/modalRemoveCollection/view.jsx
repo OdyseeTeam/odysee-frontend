@@ -6,7 +6,6 @@ import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import { useHistory } from 'react-router-dom';
 import { FormField } from 'component/common/form';
-import * as PAGES from 'constants/pages';
 
 type Props = {
   claim: Claim,
@@ -18,7 +17,7 @@ type Props = {
   collectionUrls: Array<string>,
   doHideModal: () => void,
   doCollectionDelete: (string, ?string) => void,
-  doLocalCollectionCreate: (params: CollectionCreateParams, cb: (id: string) => void) => void,
+  doLocalCollectionCreate: (params: CollectionCreateParams) => void,
 };
 
 function ModalRemoveCollection(props: Props) {
@@ -35,7 +34,7 @@ function ModalRemoveCollection(props: Props) {
     doLocalCollectionCreate,
   } = props;
 
-  const { replace, push } = useHistory();
+  const { replace } = useHistory();
 
   const [confirmName, setConfirmName] = useState('');
   const [keepPrivate, setKeepPrivate] = useState('');
@@ -85,7 +84,7 @@ function ModalRemoveCollection(props: Props) {
                       thumbnail: { url: thumbnail_url },
                       type: 'playlist',
                     };
-                    doLocalCollectionCreate(createParams, (id) => push(`/$/${PAGES.PLAYLIST}/${id}`));
+                    doLocalCollectionCreate(createParams);
                   }
                   doHideModal();
                 }}

@@ -51,10 +51,11 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
         collectionKey: colKey,
       },
     });
-  if (claim && !colKey) {
-    // could support "abandon collection claim, but keep private collection" later
+
+  if (claim) {
     return dispatch(doAbandonClaim(claim, collectionDelete));
   }
+
   return collectionDelete();
 };
 
