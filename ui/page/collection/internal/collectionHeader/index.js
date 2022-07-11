@@ -6,9 +6,9 @@ import {
   selectCountForCollectionId,
   selectCollectionHasEditsForId,
   selectMyPublishedCollectionCountForId,
+  selectCollectionIsMine,
 } from 'redux/selectors/collections';
-import { doCollectionDelete, doCollectionEdit } from 'redux/actions/collections';
-import { doOpenModal } from 'redux/actions/app';
+import { doCollectionEdit } from 'redux/actions/collections';
 
 import CollectionHeader from './view';
 
@@ -21,19 +21,17 @@ const select = (state, props) => {
   return {
     collectionId,
     uri,
-    claim,
     collection: selectCollectionForId(state, collectionId),
     collectionCount: selectCountForCollectionId(state, collectionId),
     claimIsPending: makeSelectClaimIsPending(uri)(state),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     publishedCollectionCount: selectMyPublishedCollectionCountForId(state, collectionId),
+    isMyCollection: selectCollectionIsMine(state, collectionId),
   };
 };
 
 const perform = {
-  doCollectionDelete,
   doCollectionEdit,
-  doOpenModal,
 };
 
 export default connect(select, perform)(CollectionHeader);

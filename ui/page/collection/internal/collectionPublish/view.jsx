@@ -16,8 +16,9 @@ import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PAGES from 'constants/pages';
 import * as PUBLISH from 'constants/publish';
 import analytics from 'analytics';
-import CollectionGeneralTab from './internal/collectionGeneralTab';
+import CollectionGeneralTab from 'component/collectionGeneralTab';
 import PublishBidTab from 'component/publishBidField';
+import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 
 export const PAGE_TAB_QUERY = `tab`;
 const MAX_TAG_SELECT = 5;
@@ -162,7 +163,7 @@ function CollectionForm(props: Props) {
       search += `${PAGE_TAB_QUERY}=${PAGE.OTHER}`;
     }
 
-    push(`${pathname}?view=edit${search}`);
+    push(`${pathname}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}${search}`);
   }
 
   let tabIndex;
@@ -203,7 +204,6 @@ function CollectionForm(props: Props) {
             {currentView === PAGE.GENERAL && (
               <CollectionGeneralTab
                 uri={uri}
-                collectionId={collectionId}
                 params={params}
                 nameError={nameError}
                 setThumbnailError={setThumbnailError}

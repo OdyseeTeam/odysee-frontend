@@ -11,6 +11,7 @@ import {
   selectPublishedCollectionClaimForId,
   selectIsCollectionBuiltInForId,
   selectCollectionHasEditsForId,
+  selectThumbnailForCollectionId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -48,6 +49,7 @@ const select = (state, props) => {
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
+    thumbnail: selectThumbnailForCollectionId(state, collectionId),
   };
 };
 

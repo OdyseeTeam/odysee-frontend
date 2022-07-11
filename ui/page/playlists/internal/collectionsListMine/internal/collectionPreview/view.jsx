@@ -38,6 +38,7 @@ type Props = {
   collectionCreatedAt: number,
   hasEdits: boolean,
   isBuiltin: boolean,
+  thumbnail: ?string,
 };
 
 function CollectionPreview(props: Props) {
@@ -57,6 +58,7 @@ function CollectionPreview(props: Props) {
     collectionCreatedAt,
     hasEdits,
     isBuiltin,
+    thumbnail,
   } = props;
 
   const { push } = useHistory();
@@ -87,7 +89,7 @@ function CollectionPreview(props: Props) {
     >
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
-          <FileThumbnail uri={uri || firstCollectionItemUrl} forcePlaceholder>
+          <FileThumbnail uri={uri || firstCollectionItemUrl} thumbnail={thumbnail} forcePlaceholder>
             <CollectionItemCount count={collectionCount} hasEdits={hasEdits} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>

@@ -8,6 +8,7 @@ import Icon from 'component/common/icon';
 import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import { PUBLISH_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 
 type Props = {
   inline?: boolean,
@@ -90,7 +91,7 @@ function CollectionMenuList(props: Props) {
                 {!collectionEmpty && (
                   <MenuItem
                     className="comment__menu-option"
-                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?view=edit`)}
+                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}`)}
                   >
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.PUBLISH} />

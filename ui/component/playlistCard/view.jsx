@@ -279,7 +279,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
               {isMyCollection && !collectionEmpty && (
                 <section>
                   <Button
-                    title={__('Edit')}
+                    title={__('Arrange')}
                     className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
                     icon={ICONS.ARRANGE}
                     onClick={() => setShowEdit(!showEdit)}

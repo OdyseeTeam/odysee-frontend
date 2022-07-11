@@ -11,8 +11,9 @@ import Spinner from 'component/spinner';
 
 type Props = {
   uri: string,
-  params: CollectionPublishParams,
+  params: any,
   nameError: any,
+  isPrivateEdit?: boolean,
   setThumbnailError: (error: ?string) => void,
   updateParams: (obj: any) => void,
   setLoading: (loading: boolean) => void,
@@ -26,6 +27,7 @@ function CollectionGeneralTab(props: Props) {
     uri,
     params,
     nameError,
+    isPrivateEdit,
     setThumbnailError,
     updateParams,
     setLoading,
@@ -34,7 +36,9 @@ function CollectionGeneralTab(props: Props) {
     activeChannelClaim,
   } = props;
 
-  const { name, title, thumbnail_url: thumbnailUrl, description } = params;
+  const { name, description } = params;
+  const thumbnailUrl = params.thumbnail_url || params.thumbnail?.url;
+  const title = params.title || name;
 
   const [thumbStatus, setThumbStatus] = React.useState();
   const [thumbError, setThumbError] = React.useState();
@@ -46,7 +50,8 @@ function CollectionGeneralTab(props: Props) {
     const { thumbnail_url: url, thumbnail_status: status, thumbnail_error: error } = update;
 
     if (url?.length >= 0) {
-      updateParams(url.length === 0 ? { thumbnail_url: undefined } : update);
+      const newParams = url.length === 0 ? { thumbnail_url: undefined } : update;
+      updateParams(isPrivateEdit ? { thumbnail: { url: newParams.thumbnail_url } } : newParams);
       setThumbStatus(undefined);
       setThumbError(undefined);
     } else {
@@ -73,7 +78,7 @@ function CollectionGeneralTab(props: Props) {
     if (setLoading) setLoading(!activeChannelClaim);
   }, [activeChannelClaim, setLoading]);
 
-  if (!activeChannelClaim) {
+  if (!activeChannelClaim && !isPrivateEdit) {
     return (
       <div className="main--empty">
         <Spinner />
@@ -83,38 +88,44 @@ function CollectionGeneralTab(props: Props) {
 
   return (
     <div className="card-stack">
-      <ChannelSelector
-        autoSet
-        channelToSet={collectionChannel || activeChannelId}
-        onChannelSelect={(id) => updateParams({ channel_id: id })}
-      />
+      {!isPrivateEdit && (
+        <ChannelSelector
+          autoSet
+          channelToSet={collectionChannel || activeChannelId}
+          onChannelSelect={(id) => updateParams({ channel_id: id })}
+        />
+      )}
 
       <Card
         body={
           <>
-            <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
-              <fieldset-section>
-                <label htmlFor="collection_name">{__('Name')}</label>
-                <div className="form-field__prefix">{`${DOMAIN}/${activeChannelName}/`}</div>
-              </fieldset-section>
+            {!isPrivateEdit && (
+              <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
+                <fieldset-section>
+                  <label htmlFor="collection_name">{__('Name')}</label>
+                  <div className="form-field__prefix">{`${DOMAIN}/${activeChannelName}/`}</div>
+                </fieldset-section>
 
-              <FormField
-                autoFocus={isNewCollection}
-                type="text"
-                name="collection_name"
-                placeholder={__('MyAwesomeList')}
-                value={name || ''}
-                error={nameError}
-                disabled={!isNewCollection}
-                onChange={(e) => updateParams({ name: e.target.value || '' })}
-              />
-            </fieldset-group>
+                <FormField
+                  autoFocus={isNewCollection}
+                  type="text"
+                  name="collection_name"
+                  placeholder={__('MyAwesomeList')}
+                  value={name || ''}
+                  error={nameError}
+                  disabled={!isNewCollection}
+                  onChange={(e) => updateParams({ name: e.target.value || '' })}
+                />
+              </fieldset-group>
+            )}
 
-            <span className="form-field__help">
-              {isNewCollection
-                ? __("This won't be able to be changed in the future.")
-                : __('This field cannot be changed.')}
-            </span>
+            {!isPrivateEdit && (
+              <span className="form-field__help">
+                {isNewCollection
+                  ? __("This won't be able to be changed in the future.")
+                  : __('This field cannot be changed.')}
+              </span>
+            )}
 
             <FormField
               type="text"
@@ -122,7 +133,9 @@ function CollectionGeneralTab(props: Props) {
               label={__('Title')}
               placeholder={__('My Awesome Playlist')}
               value={title || ''}
-              onChange={(e) => updateParams({ title: e.target.value || '' })}
+              onChange={(e) =>
+                updateParams(isPrivateEdit ? { name: e.target.value || '' } : { title: e.target.value || '' })
+              }
             />
 
             <fieldset-section>

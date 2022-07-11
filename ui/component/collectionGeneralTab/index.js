@@ -5,11 +5,11 @@ import { selectActiveChannelClaim } from 'redux/selectors/app';
 import CollectionGeneralTab from './view';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, isPrivateEdit } = props;
 
   return {
-    collectionChannel: selectChannelForUri(state, uri),
-    activeChannelClaim: selectActiveChannelClaim(state),
+    collectionChannel: !isPrivateEdit && selectChannelForUri(state, uri),
+    activeChannelClaim: !isPrivateEdit && selectActiveChannelClaim(state),
   };
 };
 

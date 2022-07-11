@@ -4,13 +4,13 @@ import ClaimDescription from './view';
 import { getClaimMetadata } from 'util/claim';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, description: descriptionProp } = props;
 
-  const claim = selectClaimForUri(state, uri);
-  const metadata = getClaimMetadata(claim);
+  const claim = !descriptionProp && selectClaimForUri(state, uri);
+  const metadata = claim && getClaimMetadata(claim);
 
   return {
-    description: metadata && metadata.description,
+    description: descriptionProp || (metadata && metadata.description),
   };
 };
 

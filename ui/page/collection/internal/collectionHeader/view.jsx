@@ -1,5 +1,7 @@
 // @flow
 import React from 'react';
+import { useHistory } from 'react-router';
+import { EDIT_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
 import Card from 'component/common/card';
 import CollectionActions from '../collectionActions';
 import ClaimDescription from 'component/claimDescription';
@@ -8,10 +10,8 @@ import Button from 'component/button';
 import ClaimAuthor from 'component/claimAuthor';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
 import Spinner from 'component/spinner';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
-import Tooltip from 'component/common/tooltip';
 
 type Props = {
   collectionId: string,
@@ -21,15 +21,13 @@ type Props = {
   setUnavailable: (uris: Array<string>) => void,
   // -- redux --
   uri: string,
-  claim: Claim,
   collection: Collection,
   collectionCount: number,
   claimIsPending: boolean,
   collectionHasEdits: boolean,
   publishedCollectionCount: ?number,
-  doCollectionDelete: (id: string, colKey: ?string) => void,
+  isMyCollection: boolean,
   doCollectionEdit: (collectionId: string, params: CollectionEditParams) => void,
-  doOpenModal: (id: string, params: {}) => void,
 };
 
 const CollectionHeader = (props: Props) => {
@@ -41,19 +39,18 @@ const CollectionHeader = (props: Props) => {
     setUnavailable,
     // -- redux --
     uri,
-    claim,
     collection,
     collectionCount,
     claimIsPending,
     collectionHasEdits,
     publishedCollectionCount,
-    doCollectionDelete,
+    isMyCollection,
     doCollectionEdit,
-    doOpenModal,
   } = props;
 
+  const { push } = useHistory();
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
-  const listName = claim ? claim.value.title || claim.name : collection && collection.name;
+  const listName = collection?.name;
 
   return (
     <Card
@@ -78,32 +75,22 @@ const CollectionHeader = (props: Props) => {
               setUnavailable([]);
             }}
           />
-        ) : collectionHasEdits ? (
-          <Tooltip title={__('Delete all edits from this published playlist')}>
-            <Button
-              button="close"
-              icon={ICONS.REFRESH}
-              label={__('Clear Updates')}
-              onClick={() =>
-                doOpenModal(MODALS.CONFIRM, {
-                  title: __('Clear Updates'),
-                  subtitle: __(
-                    "Are you sure you want to delete all edits from this published playlist? (You won't be able to undo this action later)"
-                  ),
-                  onConfirm: (closeModal) => {
-                    doCollectionDelete(collectionId, COLLECTIONS_CONSTS.COL_KEY_EDITED);
-                    closeModal();
-                  },
-                })
-              }
-            />
-          </Tooltip>
         ) : claimIsPending ? (
           <div className="help card__title--help">
             <Spinner type="small" />
             {__('Your publish is being confirmed and will be live soon')}
           </div>
-        ) : undefined
+        ) : (
+          isMyCollection && (
+            <Button
+              button="close"
+              title={__('Edit')}
+              className="button-toggle"
+              icon={ICONS.EDIT}
+              onClick={() => push(`?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`)}
+            />
+          )
+        )
       }
       subtitle={
         <div>
@@ -118,14 +105,9 @@ const CollectionHeader = (props: Props) => {
               : __('%collectionCount% items', { collectionCount })}
           </span>
 
-          {uri ? (
-            <>
-              <ClaimDescription uri={uri} />
-              <ClaimAuthor uri={uri} />
-            </>
-          ) : (
-            <CollectionPrivateIcon />
-          )}
+          <ClaimDescription uri={uri} description={collection?.description} />
+
+          {uri ? <ClaimAuthor uri={uri} /> : <CollectionPrivateIcon />}
         </div>
       }
       body={
