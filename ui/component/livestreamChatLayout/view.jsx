@@ -298,35 +298,29 @@ export default function LivestreamChatLayout(props: Props) {
     <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
         <div className="card__header--between livestreamDiscussion__header">
-          <div className="card__title-section--small livestreamDiscussion__title">
-            {__('Live Chat')}
+          <div className="recommended-content__toggles">
+            {/* the superchats in chronological order button */}
+            <ChatContentToggle {...toggleProps} toggleMode={VIEW_MODES.CHAT} label={__('Livestream Chat')} />
 
-            <LivestreamMenu
-              isPopoutWindow={isPopoutWindow}
-              hideChat={() => setChatHidden(true)}
-              setPopoutWindow={(v) => setPopoutWindow(v)}
-              isMobile={isMobile}
+            {/* the button to show superchats listed by most to least support amount */}
+            <ChatContentToggle
+              {...toggleProps}
+              toggleMode={VIEW_MODES.SUPERCHAT}
+              label={
+                <>
+                  <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
+                  <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
+                </>
+              }
             />
           </div>
 
-          {superChatsByChronologicalOrder && (
-            <div className="recommended-content__toggles">
-              {/* the superchats in chronological order button */}
-              <ChatContentToggle {...toggleProps} toggleMode={VIEW_MODES.CHAT} label={__('Chat')} />
-
-              {/* the button to show superchats listed by most to least support amount */}
-              <ChatContentToggle
-                {...toggleProps}
-                toggleMode={VIEW_MODES.SUPERCHAT}
-                label={
-                  <>
-                    <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
-                    <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
-                  </>
-                }
-              />
-            </div>
-          )}
+          <LivestreamMenu
+            isPopoutWindow={isPopoutWindow}
+            hideChat={() => setChatHidden(true)}
+            setPopoutWindow={(v) => setPopoutWindow(v)}
+            isMobile={isMobile}
+          />
         </div>
       )}
 

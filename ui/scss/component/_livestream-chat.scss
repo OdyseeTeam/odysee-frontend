@@ -6,9 +6,10 @@ $recent-msg-button__height: 2rem;
 
 .livestream__chat {
   width: 100%;
-  background-color: rgba(var(--color-header-background-base), 1);
+  // background-color: rgba(var(--color-header-background-base), 1);
   border-radius: var(--border-radius);
   margin-left: var(--spacing-m);
+  border: 2px solid var(--color-border);
 
   .credit-amount {
     font-weight: unset;
@@ -25,23 +26,46 @@ $recent-msg-button__height: 2rem;
     }
   }
 
+  .chat-resize {
+    display: none;
+    position: absolute;
+    bottom: 1px;
+    right: -8px;
+    // width:20px;
+    // height:20px;
+    transform: rotate(135deg);
+
+    div {
+      position: absolute;
+      display: block;
+      background-color: var(--color-border);
+      height: 2px;
+      border-radius: 1px;
+      &:nth-child(1) {
+        top: 0;
+        left: calc(50% - 2px);
+        width: 4px;
+      }
+      &:nth-child(2) {
+        top: 4px;
+        left: calc(50% - 6px);
+        width: 12px;
+      }
+      &:nth-child(3) {
+        top: 8px;
+        left: calc(50% - 10px);
+        width: 20px;
+      }
+    }
+  }
+
   @media (min-width: 1900px) {
     resize: horizontal;
     overflow: hidden;
     max-width: 30vw;
 
-    &::after {
-      pointer-events: none;
-      content: '< >';
-      font-size: 1rem;
-      position: absolute;
-      height: 1.2rem;
-      width: 2rem;
-      text-align: center;
-      bottom: 1px;
-      right: 1px;
-      background-color: var(--color-header-button);
-      color: var(--color-text);
+    .chat-resize {
+      display: block;
     }
   }
 
@@ -57,9 +81,9 @@ $recent-msg-button__height: 2rem;
     right: 0;
     top: 0px;
     bottom: 0;
-    border-top: none;
-    border-bottom: none;
-    border-right: none;
+    // border-top: none;
+    // border-bottom: none;
+    // border-right: none;
 
     .livestream-discussion__title {
       margin-left: 0;
@@ -74,8 +98,6 @@ $recent-msg-button__height: 2rem;
     }
 
     .recommended-content__toggles {
-      margin-right: var(--spacing-xs);
-
       .button-toggle--active {
         &:hover {
           p,
@@ -207,31 +229,28 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestreamDiscussion__header {
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: var(--spacing-s);
-  margin-bottom: 0;
-  align-items: center;
+  // border-bottom: 2px solid var(--color-border);
+  // background-color:var(--color-border);
+  background-color: var(--color-header-background);
 
   .recommended-content__toggles {
+    margin: var(--spacing-xs);
     .button-toggle {
       height: unset;
-      padding: 5px;
-      background-color: var(--color-header-button) !important;
+      padding: var(--spacing-xxxs) var(--spacing-s);
+      border: 2px solid var(--color-border);
       .button__label {
         color: var(--color-text) !important;
-        max-height: 18px;
+        font-size: var(--font-body);
       }
     }
 
     .button-toggle--active {
-      filter: invert(100);
       box-shadow: unset;
       background-color: var(--color-header-button) !important;
+      border: 2px solid transparent;
       span {
         color: var(--color-text) !important;
-      }
-      .icon {
-        filter: invert(100) !important;
       }
       &:hover {
         span {
@@ -243,10 +262,8 @@ $recent-msg-button__height: 2rem;
     .button-toggle:not(.button-toggle--active) {
       color: var(--color-text);
       &:hover {
-        filter: invert(100);
-        .icon {
-          filter: invert(100) !important;
-        }
+        background-color: var(--color-header-button) !important;
+        border: 2px solid transparent;
         span,
         p {
           color: var(--color-text);
@@ -259,14 +276,34 @@ $recent-msg-button__height: 2rem;
     }
   }
 
+  .menu__button {
+    margin-right: var(--spacing-xxs);
+    background-color: var(--color-header-button);
+    padding: 10px;
+    border-radius: 50%;
+    opacity: 1;
+
+    &:hover {
+      background-color: var(--color-primary);
+      .icon {
+        stroke: var(--color-primary-contrast);
+      }
+    }
+    transition: transform 0.4s;
+
+    &[aria-expanded='true'] {
+      transform: rotate(90deg);
+    }
+  }
+
   @media (min-width: $breakpoint-small) {
-    height: $discussion-header__height;
-    padding: 0 var(--spacing-s);
+    // height: $discussion-header__height;
+    // padding: 0 var(--spacing-xxs);
     padding-top: 0;
     padding-right: 0;
 
     .button-toggle:last-of-type {
-      margin-right: var(--spacing-s) !important;
+      // margin-right: var(--spacing-s) !important;
     }
   }
 
@@ -279,11 +316,6 @@ $recent-msg-button__height: 2rem;
   display: flex;
   align-items: center;
   padding: 0;
-
-  .menu__button {
-    margin-left: var(--spacing-xxs);
-    opacity: 1;
-  }
 
   @media (max-width: $breakpoint-small) {
     .menu__button {
@@ -366,6 +398,15 @@ $recent-msg-button__height: 2rem;
   overflow-x: visible;
   padding-top: var(--spacing-s);
   width: 100%;
+  background-color: transparent;
+
+  &::-webkit-scrollbar {
+    width: var(--spacing-xs) !important;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--color-header-background);
+  }
 }
 
 .livestream__comments--mobile {
@@ -396,8 +437,9 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestream__comment-create {
-  padding: var(--spacing-s);
-  border-top: 1px solid var(--color-border);
+  background-color: var(--color-header-background);
+  padding: var(--spacing-xs);
+  // border-top: 1px solid var(--color-border);
   margin-top: auto;
 
   .commentCreate {
@@ -471,6 +513,7 @@ $recent-msg-button__height: 2rem;
 
   .section__actions {
     margin-top: var(--spacing-xs);
+    margin-bottom: var(--spacing-xs);
     .comment-create__min-amount-notice {
       margin-top: -2px;
       margin-bottom: 0;
@@ -500,15 +543,16 @@ $recent-msg-button__height: 2rem;
 .livestream-superchats__wrapper {
   flex-shrink: 0;
   position: relative;
-  overflow-x: scroll;
+  // overflow-x: scroll;
+  overflow: hidden;
   padding: var(--spacing-s) var(--spacing-xs);
-  border-bottom: 1px solid var(--color-border);
+  // border-bottom: 2px solid var(--color-border);
   font-size: var(--font-small);
-  background-color: var(--color-card-background);
-  border-right: var(--spacing-s) solid rgba(var(--color-header-background-base), 0.7);
+  background: linear-gradient(180deg, var(--color-header-background) 0%, transparent 100%);
 
   @media (min-width: $breakpoint-small) {
-    padding: var(--spacing-xs);
+    padding: 0 var(--spacing-xs);
+    // padding-bottom:0;
   }
 }
 
@@ -533,7 +577,7 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestream-comments__top-actions--mobile {
-  width: 100%;
+  width: 100px;
   position: absolute;
   display: grid;
   padding: var(--spacing-xxs);
@@ -566,23 +610,44 @@ $recent-msg-button__height: 2rem;
   display: flex;
   flex-shrink: 0;
   position: relative;
-  padding: var(--spacing-s) var(--spacing-xs);
-  border-bottom: 1px solid var(--color-border);
+  // padding: var(--spacing-s) var(--spacing-xs);
+  // border-bottom: 1px solid var(--color-border);
+
+  margin-top: var(--spacing-xs);
   font-size: var(--font-small);
-  background-color: var(--color-card-background-highlighted);
-  width: 100%;
+  // background-color: var(--color-card-background-highlighted);
+  // width: calc(100% - (var(--spacing-xs) * 2));
+  // border: 2px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: linear-gradient(180deg, var(--color-primary) 0%, transparent 100%);
 
   .livestream__comment {
     width: 100%;
-    padding-top: var(--spacing-xs);
+    // padding-top: var(--spacing-xs);
     max-height: 6rem;
     overflow-y: scroll;
+    .livestreamComment__body {
+      margin-left: 0;
+
+      .comment__author {
+        color: var(--color-primary-contrast);
+      }
+      .comment__pin {
+        font-weight: var(--font-weight-bold);
+        margin: var(--spacing-xs);
+        margin-left: 0;
+      }
+      .date_time {
+        color: var(--color-primary-contrast);
+        opacity: 0.8;
+      }
+    }
   }
 
   .close-button {
-    border-left: 1px solid var(--color-border);
+    border-left: 1px solid var(--color-background);
     padding: 0 calc(var(--spacing-m) - var(--spacing-xs)) 0 var(--spacing-m);
-    color: var(--color-text-subtitle);
+    color: var(--color-primary-contrast);
   }
 
   .comment__pin {
@@ -608,6 +673,7 @@ $recent-msg-button__height: 2rem;
   .date_time {
     color: var(--color-text-subtitle);
     opacity: var(--live-timestamp-opacity);
+    font-size: var(--font-xxsmall) !important;
   }
 
   .channel-name {

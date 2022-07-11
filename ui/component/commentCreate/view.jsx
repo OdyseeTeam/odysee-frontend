@@ -742,6 +742,11 @@ export function CommentCreate(props: Props) {
           <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
         </div>
       )}
+      <div className="chat-resize">
+        <div />
+        <div />
+        <div />
+      </div>
     </Form>
   );
 }

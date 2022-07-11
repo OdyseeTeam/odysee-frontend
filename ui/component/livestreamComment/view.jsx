@@ -100,6 +100,7 @@ export default function LivestreamComment(props: Props) {
 
       <div className="livestreamComment__body">
         {supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
+        <ChannelThumbnail uri={authorUri} xsmall />
 
         <div className="livestreamComment__info">
           <Button
