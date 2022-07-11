@@ -81,7 +81,8 @@ const CollectionHeader = (props: Props) => {
             {__('Your publish is being confirmed and will be live soon')}
           </div>
         ) : (
-          isMyCollection && (
+          isMyCollection &&
+          !isBuiltin && (
             <Button
               button="close"
               title={__('Edit')}

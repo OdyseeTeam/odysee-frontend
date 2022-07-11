@@ -12,6 +12,7 @@ const select = (state, props) => {
     // lists can only use permanent_url
     uri: selectPermanentUrlForUri(state, uri),
     builtin: selectCollectionValuesListForKey(state, COLLECTIONS_CONSTANTS.COL_KEY_BUILTIN),
+    queue: selectCollectionValuesListForKey(state, COLLECTIONS_CONSTANTS.QUEUE_ID),
     published: selectCollectionValuesListForKey(state, COLLECTIONS_CONSTANTS.COL_KEY_PUBLISHED),
     unpublished: selectCollectionValuesListForKey(state, COLLECTIONS_CONSTANTS.COL_KEY_UNPUBLISHED),
   };

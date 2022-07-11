@@ -12,6 +12,7 @@ import {
   selectIsCollectionBuiltInForId,
   selectCollectionHasEditsForId,
   selectThumbnailForCollectionId,
+  selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
@@ -50,6 +51,7 @@ const select = (state, props) => {
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     thumbnail: selectThumbnailForCollectionId(state, collectionId),
+    isEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
 };
 
