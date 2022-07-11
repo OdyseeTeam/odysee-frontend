@@ -6,6 +6,7 @@ declare type Collection = {
   createdAt: number,
   updatedAt: number,
   totalItems?: number,
+  itemCount?: number,
   sourceId?: string, // if copied, claimId of original collection
 };
 
