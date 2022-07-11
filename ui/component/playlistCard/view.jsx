@@ -23,7 +23,7 @@ import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
 import { getMaxLandscapeHeight } from 'util/window';
-import { useIsMobile } from 'effects/use-screensize';
+import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
 
 type Props = {
   id: ?string,
@@ -135,8 +135,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   } = props;
 
   const isMobile = useIsMobile();
+  const isMediumScreen = useIsMediumScreen();
 
   const activeItemRef = React.useRef();
+  const scrollRestorePending = React.useRef();
 
   const [bodyOpen, setBodyOpen] = React.useState(true);
   const [bodyRef, setBodyRef] = React.useState();
@@ -180,10 +182,12 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
           topToScroll = bodyRef.scrollHeight;
         }
 
-        bodyRef.scrollTo({ top: topToScroll, behavior: 'smooth' });
+        bodyRef.scrollTo({ top: topToScroll, behavior: isMediumScreen ? 'instant' : 'smooth' });
+        setScrolledPast(false);
+        scrollRestorePending.current = true;
       }
     },
-    [bodyRef, collectionLength, playingItemIndex]
+    [bodyRef, collectionLength, isMediumScreen, playingItemIndex]
   );
 
   React.useEffect(() => {
@@ -220,7 +224,12 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
           const scrolled =
             top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight ||
             itemBottom < bodyRef.scrollTop;
-          setScrolledPast(scrolled);
+
+          if (!scrollRestorePending.current) {
+            setScrolledPast(scrolled);
+          } else {
+            scrollRestorePending.current = false;
+          }
         }
       };
 
@@ -230,7 +239,11 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       }
 
       bodyRef.addEventListener('scroll', handleScroll);
-      return () => bodyRef.removeEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+      return () => {
+        bodyRef.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleScroll);
+      };
     }
   }, [activeListItemRef, bodyOpen, bodyRef, isFloating, isMobile]);
 
