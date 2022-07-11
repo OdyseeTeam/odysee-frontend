@@ -3,7 +3,7 @@ import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
 import { doClaimSearch, doAbandonClaim, doGetClaimFromUriResolve } from 'redux/actions/claims';
-import { makeSelectClaimForClaimId, selectPermanentUrlForUri } from 'redux/selectors/claims';
+import { selectClaimForClaimId, selectPermanentUrlForUri } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   // selectPublishedCollectionForId, // for "save" or "copy" action
@@ -14,6 +14,7 @@ import {
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { isPermanentUrl } from 'util/claim';
+import { parseClaimIdFromPermanentUrl } from 'util/url';
 
 const FETCH_BATCH_SIZE = 50;
 
@@ -42,7 +43,7 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
   getState: GetState
 ) => {
   const state = getState();
-  const claim = makeSelectClaimForClaimId(id)(state);
+  const claim = selectClaimForClaimId(state, id);
   const collectionDelete = () =>
     dispatch({
       type: ACTIONS.COLLECTION_DELETE,
@@ -83,6 +84,11 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
 //   });
 // };
 
+function isPrivateCollectionId(collectionId: string) {
+  // Private (unpublished) collections uses UUID.
+  return collectionId.includes('-');
+}
+
 export const doFetchItemsInCollections = (
   resolveItemsOptions: {
     collectionIds: Array<string>,
@@ -107,19 +113,33 @@ export const doFetchItemsInCollections = (
 
   if (resolveStartedCallback) resolveStartedCallback();
 
-  const collectionIdsToSearch = collectionIds.filter((claimId) => !state.claims.byId[claimId]);
+  const privateCollectionIds = [];
+  const collectionIdsToSearch = [];
+
+  collectionIds.forEach((id) => {
+    if (isPrivateCollectionId(id)) {
+      privateCollectionIds.push(id);
+    } else if (!state.claims.byId[id]) {
+      collectionIdsToSearch.push(id);
+    }
+  });
 
   if (collectionIdsToSearch.length) {
+    // TODO: this might fail if there are >50 collections due to the claim_search
+    // limitation. The `useAutoPagination` parameter might slow things down
+    // because it is not parallel, so maybe a `Promise.all` is needed here.
+    // But leaving as-is for now.
     await dispatch(doClaimSearch({ claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 }));
   }
 
   const stateAfterClaimSearch = getState();
 
-  async function fetchItemsForCollectionClaim(claim: CollectionClaim, pageSize?: number) {
-    const totalItems = claim.value.claims && claim.value.claims.length;
-    const claimId = claim.claim_id;
-    const itemOrder = claim.value.claims;
-
+  async function fetchItemsForCollectionClaim(
+    collectionId: string,
+    totalItems: number,
+    itemIdsInOrder: Array<string>,
+    pageSize?: number
+  ) {
     const sortResults = (items: Array<Claim>, claimList) => {
       const newItems: Array<Claim> = [];
       claimList.forEach((id) => {
@@ -158,17 +178,17 @@ export const doFetchItemsInCollections = (
 
       for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
         batches[i] = Lbry.claim_search({
-          claim_ids: claim.value.claims.slice(i * batchSize, (i + 1) * batchSize),
+          claim_ids: itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize),
           page: 1,
           page_size: batchSize,
           no_totals: true,
         });
       }
       const itemsInBatches = await Promise.all(batches);
-      const result = mergeBatches(itemsInBatches, itemOrder);
+      const result = mergeBatches(itemsInBatches, itemIdsInOrder);
 
       // $FlowFixMe
-      const itemsById: { claimId: string, items?: ?Array<GenericClaim> } = { claimId: claimId };
+      const itemsById: { claimId: string, items?: ?Array<GenericClaim> } = { claimId: collectionId };
       if (result.items) {
         itemsById.items = result.items;
       } else {
@@ -177,7 +197,7 @@ export const doFetchItemsInCollections = (
       return itemsById;
     } catch (e) {
       return {
-        claimId: claimId,
+        claimId: collectionId,
         items: null,
       };
     }
@@ -185,12 +205,34 @@ export const doFetchItemsInCollections = (
 
   const invalidCollectionIds = [];
   const promisedCollectionItemFetches = [];
+
   collectionIds.forEach((collectionId) => {
-    const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
-    if (!claim) {
-      invalidCollectionIds.push(collectionId);
+    if (isPrivateCollectionId(collectionId)) {
+      const collection = selectCollectionForId(state, collectionId);
+      if (collection?.items.length > 0) {
+        promisedCollectionItemFetches.push(
+          fetchItemsForCollectionClaim(
+            collectionId,
+            collection.items.length,
+            collection.items.map((url) => parseClaimIdFromPermanentUrl(url, 'junk')),
+            pageSize
+          )
+        );
+      }
     } else {
-      promisedCollectionItemFetches.push(fetchItemsForCollectionClaim(claim, pageSize));
+      const claim = selectClaimForClaimId(stateAfterClaimSearch, collectionId);
+      if (!claim) {
+        invalidCollectionIds.push(collectionId);
+      } else {
+        promisedCollectionItemFetches.push(
+          fetchItemsForCollectionClaim(
+            collectionId,
+            claim.value.claims && claim.value.claims.length,
+            claim.value.claims,
+            pageSize
+          )
+        );
+      }
     }
   });
 
@@ -206,8 +248,12 @@ export const doFetchItemsInCollections = (
     // $FlowFixMe
     const collectionItems: Array<any> = entry.items;
     const collectionId = entry.claimId;
-    if (collectionItems) {
-      const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+
+    if (isPrivateCollectionId(collectionId) && collectionItems) {
+      // Nothing to do for now. We are only interested in getting the resolved
+      // data for each item in the private collection.
+    } else if (collectionItems) {
+      const claim = selectClaimForClaimId(stateAfterClaimSearch, collectionId);
 
       const editedCollection = selectEditedCollectionForId(stateAfterClaimSearch, collectionId);
       const { name, timestamp, value } = claim || {};
@@ -280,6 +326,7 @@ export const doFetchItemsInCollections = (
   dispatch({
     type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
     data: {
+      resolvedPrivateCollectionIds: privateCollectionIds,
       resolvedCollections: newCollectionObjectsById,
       failedCollectionIds: invalidCollectionIds,
     },

@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import ClaimList from 'component/claimList';
+import Spinner from 'component/spinner';
 
 // prettier-ignore
 const Lazy = {
@@ -13,12 +14,32 @@ const Lazy = {
 type Props = {
   collectionId: string,
   // -- redux --
+  collection: Collection,
+  isPrivateCollection: boolean,
+  isResolvingCollection: boolean,
   collectionUrls: Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
+  doFetchItemsInCollection: ({}, ?() => void) => void,
 };
 
 const CollectionItemsList = (props: Props) => {
-  const { collectionId, collectionUrls, doCollectionEdit, ...claimListProps } = props;
+  const {
+    collectionId,
+    collection,
+    isPrivateCollection,
+    collectionUrls,
+    isResolvingCollection,
+    doCollectionEdit,
+    doFetchItemsInCollection,
+    ...claimListProps
+  } = props;
+
+  const [didTryResolve, setDidTryResolve] = React.useState();
+
+  const { totalItems } = collection || {};
+
+  const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
+  const shouldFetchItems = isPrivateCollection || (!urlsReady && collectionId && !didTryResolve && !collection);
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
@@ -30,21 +51,34 @@ const CollectionItemsList = (props: Props) => {
 
     doCollectionEdit(collectionId, { order: { from, to } });
   }
+  React.useEffect(() => {
+    if (shouldFetchItems) {
+      doFetchItemsInCollection({ collectionId }, () => setDidTryResolve(true));
+    }
+  }, [collectionId, doFetchItemsInCollection, shouldFetchItems]);
 
   return (
     <React.Suspense fallback={null}>
-      <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-        <Lazy.Droppable droppableId="list__ordering">
-          {(DroppableProvided) => (
-            <ClaimList
-              collectionId={collectionId}
-              uris={collectionUrls}
-              droppableProvided={DroppableProvided}
-              {...claimListProps}
-            />
-          )}
-        </Lazy.Droppable>
-      </Lazy.DragDropContext>
+      {isResolvingCollection && (
+        <div className="main--empty">
+          <Spinner />
+        </div>
+      )}
+
+      {!isResolvingCollection && (
+        <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
+          <Lazy.Droppable droppableId="list__ordering">
+            {(DroppableProvided) => (
+              <ClaimList
+                collectionId={collectionId}
+                uris={collectionUrls}
+                droppableProvided={DroppableProvided}
+                {...claimListProps}
+              />
+            )}
+          </Lazy.Droppable>
+        </Lazy.DragDropContext>
+      )}
     </React.Suspense>
   );
 };
