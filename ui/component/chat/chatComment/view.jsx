@@ -158,7 +158,7 @@ export default function LivestreamComment(props: Props) {
 
       <div className="livestreamComment__menu">
         <Menu>
-          <MenuButton className="menu__button">
+          <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
             <Icon size={18} icon={ICONS.MORE_VERTICAL} />
           </MenuButton>
 
