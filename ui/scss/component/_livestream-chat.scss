@@ -649,6 +649,12 @@ $recent-msg-button__height: 2rem;
         opacity: 0.8;
       }
     }
+    &:hover {
+      background-color: unset;
+      .comment__author {
+        color: var(--color-primary-contrast) !important;
+      }
+    }
   }
 
   .close-button {
