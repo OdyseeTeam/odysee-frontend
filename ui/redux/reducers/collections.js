@@ -137,15 +137,17 @@ const collectionsReducer = handleActions(
       };
     },
 
+    [ACTIONS.QUEUE_EDIT]: (state, action) => {
+      const { collectionKey, collection } = action.data;
+
+      const { [collectionKey]: currentQueue } = state;
+
+      return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInSec() } };
+    },
+
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
       const { collectionKey, collection, collectionId } = action.data;
       const id = collection?.id || collectionId;
-
-      if (id === COLS.QUEUE_ID) {
-        const { [collectionKey]: currentQueue } = state;
-
-        return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInSec() } };
-      }
 
       const { [collectionKey]: lists } = state;
       const currentCollectionState = lists[id];

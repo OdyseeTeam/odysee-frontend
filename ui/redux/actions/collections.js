@@ -449,14 +449,15 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentUrls.splice(order.to, 0, movedItem);
   }
 
+  const isQueue = collectionId === COLS.QUEUE_ID;
   const collectionKey =
-    (collectionId === COLS.QUEUE_ID && COLS.QUEUE_ID) ||
+    (isQueue && COLS.QUEUE_ID) ||
     ((editedCollection || publishedCollection) && COLS.COL_KEY_EDITED) ||
     (COLS.BUILTIN_PLAYLISTS.includes(collectionId) && COLS.COL_KEY_BUILTIN) ||
     (unpublishedCollection && COLS.COL_KEY_UNPUBLISHED);
 
   return dispatch({
-    type: ACTIONS.COLLECTION_EDIT,
+    type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
     data: {
       collectionKey,
       collection: {
