@@ -35,11 +35,12 @@ export default function CollectionPage(props: Props) {
 
   const {
     replace,
-    location: { search },
+    location: { search, state },
   } = useHistory();
+  const { showEdit: pageShowEdit } = state || {};
 
   const [didTryResolve, setDidTryResolve] = React.useState(false);
-  const [showEdit, setShowEdit] = React.useState(false);
+  const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
   const { name, totalItems } = collection || {};

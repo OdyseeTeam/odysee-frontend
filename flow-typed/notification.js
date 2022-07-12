@@ -19,6 +19,8 @@ declare type ToastParams = {
   duration?: 'default' | 'long',
   actionText?: string,
   action?: () => void,
+  secondaryActionText?: string,
+  secondaryAction?: () => void,
 };
 
 declare type Toast = {

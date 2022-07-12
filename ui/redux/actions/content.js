@@ -2,9 +2,11 @@
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import * as PAGES from 'constants/pages';
 // @if TARGET='app'
 import { ipcRenderer } from 'electron';
 // @endif
+import { push } from 'connected-react-router';
 import { doOpenModal, doAnalyticsView, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
 import {
   makeSelectClaimForUri,
@@ -295,7 +297,7 @@ export function doPlaylistAddAndAllowPlaying({
   collectionName,
   collectionId: id,
   createNew,
-  push,
+  push: pushPlay,
 }: {
   uri?: string,
   collectionName: string,
@@ -362,7 +364,7 @@ export function doPlaylistAddAndAllowPlaying({
             { uri: createNew ? uri : firstItemUri, collection: { collectionId } },
             true,
             true,
-            !floatingPlayerEnabled && push ? (url) => push(url) : undefined
+            !floatingPlayerEnabled && pushPlay ? (url) => pushPlay(url) : undefined
           )
         );
       }
@@ -390,13 +392,19 @@ export function doPlaylistAddAndAllowPlaying({
         }
       }
     } else {
+      const handleEdit = () =>
+        // $FlowFixMe
+        dispatch(push({ pathname: `/$/${PAGES.PLAYLIST}/${collectionId}`, state: { showEdit: true } }));
+
       dispatch(
         doToast({
           message: __(remove ? 'Removed from %playlist_name%' : 'Added to %playlist_name%', {
             playlist_name: collectionName,
           }),
-          actionText: isPlayingCollection || hasItemPlaying || remove ? undefined : __('Start Playing'),
-          action: isPlayingCollection || hasItemPlaying || remove ? undefined : startPlaying,
+          actionText: isPlayingCollection || hasItemPlaying || remove ? __('Edit Playlist') : __('Start Playing'),
+          action: isPlayingCollection || hasItemPlaying || remove ? handleEdit : startPlaying,
+          secondaryActionText: isPlayingCollection || hasItemPlaying || remove ? undefined : __('Edit Playlist'),
+          secondaryAction: isPlayingCollection || hasItemPlaying || remove ? undefined : handleEdit,
         })
       );
     }
