@@ -769,7 +769,14 @@ $recent-msg-button__height: 2rem;
   display: flex;
 
   .close-button {
+    border: 2px solid var(--color-border);
+    border-radius: var(--border-radius);
     color: var(--color-text-subtitle);
+    padding: 0 var(--spacing-xs);
+    .button__label,
+    .icon {
+      color: var(--color-text);
+    }
   }
 }
 
@@ -831,8 +838,8 @@ $recent-msg-button__height: 2rem;
     }
   }
   &:nth-of-type(n + 5) {
-    background-color: mix(#de0050, #ffa236, 0%);
-    // background-color: #fff;
+    border: 2px solid rgba(mix(#de0050, #ffa236, 0%), 1);
+    background-color: rgba(mix(#de0050, #ffa236, 0%), 0.2);
 
     @media (max-width: $breakpoint-small) {
       background-color: #fff;

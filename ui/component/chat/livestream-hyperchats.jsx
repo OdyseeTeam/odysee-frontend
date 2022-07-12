@@ -1,4 +1,5 @@
 // @flow
+import type { ElementRef } from 'react';
 import 'scss/component/_livestream-chat.scss';
 
 import { parseSticker, getStickerUrl } from 'util/comments';
@@ -30,10 +31,31 @@ export default function LivestreamHyperchats(props: Props) {
   const stickerSuperChats = superChatsByAmount && superChatsByAmount.filter(({ comment }) => !!parseSticker(comment));
 
   const showMore = superChatTopTen && superChatsByAmount && superChatTopTen.length < superChatsByAmount.length;
+  const elRef: ElementRef<any> = React.useRef();
+
+  const HorizontalScroll = () => {
+    React.useEffect(() => {
+      const el = elRef.current;
+      if (el) {
+        const onWheel = (e) => {
+          if (e.deltaY === 0) return;
+          e.preventDefault();
+          el.scrollTo({
+            left: el.scrollLeft + e.deltaY,
+            // behavior: "smooth"
+          });
+        };
+        el.addEventListener('wheel', onWheel);
+        return () => el.removeEventListener('wheel', onWheel);
+      }
+    }, []);
+    return elRef;
+  };
 
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} superchatsHidden={superchatsHidden}>
       <div
+        ref={HorizontalScroll()}
         className={classnames('livestream-hyperchats__wrapper', {
           'livestream-hyperchats__wrapper--mobile': isMobile,
         })}
