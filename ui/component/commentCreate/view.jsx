@@ -711,7 +711,11 @@ export function CommentCreate(props: Props) {
                 ref={buttonRef}
                 disabled={disabled}
                 label={
-                  isReply
+                  isLivestream
+                    ? isSubmitting
+                      ? __('Sending...')
+                      : __('Send --[button to send chat message]--')
+                    : isReply
                     ? isSubmitting
                       ? __('Replying...')
                       : __('Reply')
