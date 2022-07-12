@@ -21,6 +21,7 @@ import ShuffleButton from './internal/shuffleButton';
 import LoopButton from './internal/loopButton';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
+import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'component/fileRenderFloating/view';
 import { getMaxLandscapeHeight } from 'util/window';
 import { useIsMobile, useIsMediumScreen } from 'effects/use-screensize';
@@ -140,7 +141,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const activeItemRef = React.useRef();
   const scrollRestorePending = React.useRef();
 
-  const [bodyOpen, setBodyOpen] = React.useState(true);
+  const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
+  const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
   const [bodyRef, setBodyRef] = React.useState();
   const [hasActive, setHasActive] = React.useState();
   const [scrolledPastActive, setScrolledPast] = React.useState();
@@ -335,7 +337,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                 <Button
                   className={classnames('button-toggle', { 'button-toggle--active': !bodyOpen })}
                   icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
-                  onClick={() => setBodyOpen(!bodyOpen)}
+                  onClick={() => {
+                    if (isFloating) setFloatingBodyOpen(!floatingBodyOpen);
+                    setBodyOpen(!bodyOpen);
+                  }}
                 />
               )}
 
