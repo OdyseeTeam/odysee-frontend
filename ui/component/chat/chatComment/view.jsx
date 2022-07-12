@@ -37,7 +37,7 @@ type Props = {
   authorTitle: string,
 };
 
-export default function LivestreamComment(props: Props) {
+export default function ChatComment(props: Props) {
   const {
     comment,
     forceUpdate,
@@ -97,7 +97,7 @@ export default function LivestreamComment(props: Props) {
         'livestream__comment--mentioned': hasUserMention,
         'livestream__comment--mobile': isMobile,
       })}
-      onClick={() => handleCommentClick(comment)}
+      onClick={() => handleCommentClick(comment && comment.channel_name)}
     >
       {supportAmount > 0 && (
         <div className="livestreamComment__superchatBanner">
@@ -166,6 +166,7 @@ export default function LivestreamComment(props: Props) {
             uri={uri}
             commentId={commentId}
             authorUri={authorUri}
+            authorName={comment && comment.channel_name}
             commentIsMine={commentIsMine}
             isPinned={isPinned}
             isTopLevel
@@ -173,6 +174,7 @@ export default function LivestreamComment(props: Props) {
             disableRemove={comment.removed}
             isLiveComment
             handleDismissPin={handleDismissPin}
+            setQuickReply={handleCommentClick}
           />
         </Menu>
       </div>

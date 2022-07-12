@@ -43,8 +43,8 @@ export default function LivestreamHyperchats(props: Props) {
           setShowTooltip(false);
           e.preventDefault();
           el.scrollTo({
-            left: el.scrollLeft + e.deltaY,
-            // behavior: "smooth"
+            left: el.scrollLeft + e.deltaY * 2.5,
+            behavior: 'auto',
           });
           setShowTooltip(true);
         };

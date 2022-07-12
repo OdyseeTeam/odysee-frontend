@@ -299,9 +299,8 @@ export default function ChatLayout(props: Props) {
 
   const toggleProps = { viewMode, onClick: (toggleMode) => toggleClick(toggleMode) };
 
-  function handleCommentClick(comment) {
-    console.log('claim: ', props);
-    setTextInjection(comment.channel_name);
+  function handleCommentClick(authorTitle) {
+    setTextInjection(authorTitle);
   }
 
   return (

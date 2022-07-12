@@ -15,6 +15,7 @@ import { useIsMobile } from 'effects/use-screensize';
 type Props = {
   uri: ?string,
   authorUri: string, // full LBRY Channel URI: lbry://@channel#123...
+  authorName: string,
   commentId: string, // sha256 digest identifying the comment
   isTopLevel: boolean,
   isPinned: boolean,
@@ -47,6 +48,7 @@ function CommentMenuList(props: Props) {
     claim,
     claimIsMine,
     authorUri,
+    authorName,
     commentIsMine,
     commentId,
     activeChannelClaim,
@@ -117,7 +119,7 @@ function CommentMenuList(props: Props) {
     function getSubtitle() {
       if (personalPermanentBlockOnly) {
         return {
-          line1: __('Prevent this channel from interacting with you.'),
+          // line1: __('Prevent this channel from interacting with you.'),
           line2: null,
         };
       } else {
@@ -172,8 +174,20 @@ function CommentMenuList(props: Props) {
   }
 
   return (
-    <MenuList className="menu__list">
+    <MenuList className="menu__list" onClick={(e) => e.stopPropagation()}>
       {activeChannelIsCreator && <div className="comment__menu-title">{__('Creator tools')}</div>}
+
+      {isLiveComment && (
+        <>
+          <MenuItem className="comment__menu-option menu__link" onSelect={() => setQuickReply(authorName)}>
+            <span className={'button__content'}>
+              <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />
+              {__('Reply')}
+            </span>
+          </MenuItem>
+          <hr className="menu__separator" />
+        </>
+      )}
 
       {activeChannelIsCreator && isTopLevel && (
         <MenuItem

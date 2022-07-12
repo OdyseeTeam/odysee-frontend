@@ -8,7 +8,7 @@ import {
   selectTitleForUri,
 } from 'redux/selectors/claims';
 
-import LivestreamComment from './view';
+import ChatComment from './view';
 
 const select = (state, props) => {
   const { uri, comment } = props;
@@ -27,4 +27,4 @@ const select = (state, props) => {
 
 const perform = {};
 
-export default connect(select, perform)(LivestreamComment);
+export default connect(select, perform)(ChatComment);
