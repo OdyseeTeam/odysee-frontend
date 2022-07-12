@@ -130,6 +130,8 @@ function VideoViewer(props: Props) {
     currentPlaylistItemIndex,
   } = props;
 
+  const playerEndedDuration = React.useRef();
+
   // in case the current playing item is deleted, use the previous state
   // for "play next"
   const prevNextItem = React.useRef(nextPlaylistUri || (autoplayNext && nextRecommendedUri));
@@ -186,7 +188,6 @@ function VideoViewer(props: Props) {
   const [adUrl, setAdUrl, isFetchingAd] = useGetAds(approvedVideo, adsEnabled);
   /* isLoading was designed to show loading screen on first play press, rather than completely black screen, but
   breaks because some browsers (e.g. Firefox) block autoplay but leave the player.play Promise pending */
-  const [replay, setReplay] = useState(false);
   const [videoNode, setVideoNode] = useState();
   const [localAutoplayNext, setLocalAutoplayNext] = useState(autoplayNext);
   const isFirstRender = React.useRef(true);
@@ -282,7 +283,7 @@ function VideoViewer(props: Props) {
     } else if (shouldPlayPreviousUrl) {
       doPlay(previousPlaylistItem);
     } else {
-      setReplay(true);
+      if (playerElem) playerElem.currentTime(0);
     }
 
     setDoNavigate(false);
@@ -296,6 +297,7 @@ function VideoViewer(props: Props) {
     nextPlaylistItem,
     permanentUrl,
     playNextUrl,
+    playerElem,
     previousPlaylistItem,
     videoNode,
   ]);
@@ -368,7 +370,6 @@ function VideoViewer(props: Props) {
     setIsPlaying(true);
     setShowAutoplayCountdown(false);
     setIsEndedEmbed(false);
-    setReplay(false);
     setDoNavigate(false);
     analytics.videoIsPlaying(true, player);
   }
@@ -407,6 +408,7 @@ function VideoViewer(props: Props) {
   };
 
   const onPlayerReady = useCallback((player: Player, videoNode: any) => {
+    playerEndedDuration.current = false;
     // add buttons and initialize some settings for the player
     if (!embedded) {
       setVideoNode(videoNode);
@@ -463,7 +465,10 @@ function VideoViewer(props: Props) {
         updateVolumeState(player.volume(), player.muted());
       }
     };
-    const onPlayerEnded = () => setEnded(true);
+    const onPlayerEnded = () => {
+      setEnded(true);
+      playerEndedDuration.current = true;
+    };
     const onError = () => {
       const error = player.error();
       if (error) {
@@ -536,7 +541,22 @@ function VideoViewer(props: Props) {
         <AutoplayCountdown
           nextRecommendedUri={nextRecommendedUri}
           doNavigate={() => setDoNavigate(true)}
-          doReplay={() => setReplay(true)}
+          doReplay={() => {
+            if (playerElem) {
+              if (playerEndedDuration.current) {
+                playerElem.play();
+              } else {
+                playerElem.currentTime(0);
+              }
+            }
+            playerEndedDuration.current = false;
+            setEnded(false);
+            setShowAutoplayCountdown(false);
+          }}
+          onCanceled={() => {
+            setEnded(false);
+            setShowAutoplayCountdown(false);
+          }}
         />
       )}
       {isEndedEmbed && <FileViewerEmbeddedEnded uri={uri} />}
@@ -589,7 +609,6 @@ function VideoViewer(props: Props) {
         allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
         internalFeatureEnabled={internalFeature}
         shareTelemetry={shareTelemetry}
-        replay={replay}
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
         embedded={embedded}
