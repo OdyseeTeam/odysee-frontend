@@ -15,6 +15,7 @@ import { INVALID_NAME_ERROR } from 'constants/claim';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import * as PAGES from 'constants/pages';
 import * as PUBLISH from 'constants/publish';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import analytics from 'analytics';
 import CollectionGeneralTab from 'component/collectionGeneralTab';
 import PublishBidTab from 'component/publishBidField';
@@ -82,6 +83,7 @@ function CollectionForm(props: Props) {
 
   const { name, languages, claims, tags } = params;
 
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const isNewCollection = !uri;
   const languageParam = languages || [];
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
@@ -305,15 +307,15 @@ function CollectionForm(props: Props) {
               <div className="section__actions">
                 <Button
                   button="primary"
-                  disabled={creatingCollection || updatingCollection || Boolean(submitError) || !hasClaims}
+                  disabled={isBuiltin || creatingCollection || updatingCollection || Boolean(submitError) || !hasClaims}
                   label={creatingCollection || updatingCollection ? __('Submitting') : __('Submit')}
                   onClick={handleSubmit}
                 />
                 <Button button="link" label={__('Cancel')} onClick={() => onDone(collectionId)} />
               </div>
 
-              {submitError ? (
-                <ErrorText>{submitError}</ErrorText>
+              {submitError || isBuiltin ? (
+                <ErrorText>{submitError || (isBuiltin && __("Can't publish default playlists."))}</ErrorText>
               ) : (
                 <p className="help">
                   {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}

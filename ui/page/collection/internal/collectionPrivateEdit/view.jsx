@@ -5,6 +5,7 @@ import CollectionItemsList from 'component/collectionItemsList';
 import Card from 'component/common/card';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import Tooltip from 'component/common/tooltip';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useHistory } from 'react-router-dom';
@@ -37,6 +38,7 @@ function CollectionForm(props: Props) {
   const { goBack } = useHistory();
 
   const collectionResetPending = React.useRef(false);
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
   const { name, description, thumbnail } = collection || {};
   const initialParams = React.useRef({
@@ -104,7 +106,7 @@ function CollectionForm(props: Props) {
               <Button
                 button="primary"
                 label={__('Submit')}
-                disabled={thumbailError || params === initialParams.current}
+                disabled={isBuiltin || thumbailError || params === initialParams.current}
                 onClick={handleSubmit}
               />
               <Button button="link" label={__('Cancel')} onClick={goBack} />
@@ -133,7 +135,9 @@ function CollectionForm(props: Props) {
               </Tooltip>
             )}
 
-            {thumbailError && <ErrorText>{thumbailError}</ErrorText>}
+            {(thumbailError || isBuiltin) && (
+              <ErrorText>{thumbailError || (isBuiltin && __("Can't edit default playlists."))}</ErrorText>
+            )}
 
             <p className="help">{__('After submitting, all changes will remain private.')}</p>
           </>
