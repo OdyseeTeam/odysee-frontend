@@ -167,9 +167,12 @@ function parseURIModifier(modSeperator, modValue) {
   if (claimId && (claimId.length > claimIdMaxLength || !claimId.match(/^[0-9a-f]+$/))) {
     const hashIndex = claimId.indexOf('#');
 
-    if (hashIndex) {
-      pathHash = claimId.substring(hashIndex, claimId.length);
+    if (hashIndex >= 0) {
+      pathHash = claimId.substring(hashIndex);
       claimId = claimId.substring(0, hashIndex);
+      // As a pre-caution to catch future odd urls coming in,
+      // validate the new claimId length and characters again after stripping off the pathHash
+      [claimId] = parseURIModifier(modSeperator, claimId);
     } else {
       throw new Error(__(`Invalid claim ID %claimId%.`, { claimId }));
     }
