@@ -62,6 +62,15 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
   return (
     <div className="selector-menu">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
+      <div className="emote-categories">
+        {/* NEKO PLACEHOLDERS */}
+        <img src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png" />
+        <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/144/twitter/141/grinning-face_1f600.png" />
+        <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/bear_1f43b.png" />
+        <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/basketball_1f3c0.png" />
+        <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/sparkling-heart_1f496.png" />
+        <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/pirate-flag_1f3f4-200d-2620-fe0f.png" />
+      </div>
 
       <div className="emote-selector__items">
         {EMOTES.map((emote) => {
