@@ -80,7 +80,12 @@ function CreateTiersTab(props: Props) {
 
     console.log(response);
 
-    setExistingTiers(response);
+    if(response === null){
+      setExistingTiers([])
+    } else {
+      setExistingTiers(response);
+    }
+
     return response;
   }
 
@@ -144,12 +149,27 @@ function CreateTiersTab(props: Props) {
       perks: ['exclusiveAccess', 'badge'],
     };
 
-    setCreatorMemberships([...creatorMemberships, newMembership]);
+    if(existingTiers.length === 0){
+      setExistingTiers([{
+        Membership: {
+          name: 'hello',
+          description: 'goodbye'
+        },
+        Prices : [{
+          unit_amount: 500
+        }]
+      }])
 
-    // immediately open the editing section
-    setIsEditing(amountOfMembershipsCurrently);
-    setEditTierDescription(newMembership.description);
-    setPendingTier(true);
+      setIsEditing(0);
+      setPendingTier(true);
+      setEditTierDescription('goodbye');
+    }
+
+    // setCreatorMemberships([...creatorMemberships, newMembership]);
+    //
+    // // immediately open the editing section
+    // setIsEditing(amountOfMembershipsCurrently);
+    // setEditTierDescription(newMembership.description);
   };
 
   const handleChange = (event) => {
