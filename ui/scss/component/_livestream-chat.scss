@@ -355,6 +355,9 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+    .button--secondary {
+      border: 2px solid var(--color-border);
+    }
   }
 
   .commentCreate__stickerPreview {
@@ -512,6 +515,47 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+
+    .tabs {
+      // background:red;
+      animation: emojiPickerAnimation 0.2s ease-in;
+      // height:190px;
+      overflow: hidden;
+      border: unset;
+      transition: height 0.4s;
+      margin-bottom: var(--spacing-xs);
+
+      .tabs__list {
+        padding: 0 !important;
+        // background-color:unset;
+        .tab {
+          background-color: rgba(var(--color-header-button-base), 0.3);
+          border-radius: var(--border-radius) var(--border-radius) 0 0;
+          padding: var(--spacing-xxxs) var(--spacing-s);
+          margin-top: var(--spacing-s);
+          margin-right: 0;
+          opacity: 0.8;
+          &[data-selected] {
+            opacity: 1;
+            background-color: var(--color-header-button);
+          }
+          &:hover {
+            color: var(--color-text);
+            opacity: 1;
+          }
+          &::after {
+            background-color: unset;
+          }
+        }
+      }
+      .selector-menu {
+        background-color: var(--color-header-button);
+        border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
+      }
+      .selector-menu--stickers {
+        background-color: var(--color-header-button);
+      }
+    }
   }
 
   .section {
@@ -545,6 +589,17 @@ $recent-msg-button__height: 2rem;
     .select--slim {
       margin: 0px;
     }
+  }
+}
+
+@keyframes emojiPickerAnimation {
+  from {
+    height: 0px;
+    opacity: 0;
+  }
+  to {
+    height: 200px;
+    opacity: 1;
   }
 }
 

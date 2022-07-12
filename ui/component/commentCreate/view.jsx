@@ -613,13 +613,6 @@ export function CommentCreate(props: Props) {
         activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
       ) : (
         <>
-          {!isMobile && showSelectors.open && (
-            <CommentSelectors
-              {...commentSelectorsProps}
-              closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
-            />
-          )}
-
           <FormField
             autoFocus={isReply}
             charCount={charCount}
@@ -655,6 +648,12 @@ export function CommentCreate(props: Props) {
             value={commentValue}
             uri={uri}
           />
+          {!isMobile && showSelectors.open && (
+            <CommentSelectors
+              {...commentSelectorsProps}
+              closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
+            />
+          )}
         </>
       )}
 
