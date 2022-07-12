@@ -219,9 +219,7 @@ $recent-msg-button__height: 2rem;
     padding-bottom: 0;
   }
   .livestream__comment-create {
-    // padding-bottom: var(--spacing-s);
     padding-bottom: 13.5px;
-    // padding-bottom: 0;
     textarea:focus-visible {
       box-shadow: unset;
     }
@@ -229,8 +227,6 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestreamDiscussion__header {
-  // border-bottom: 2px solid var(--color-border);
-  // background-color:var(--color-border);
   background-color: var(--color-header-background);
 
   .recommended-content__toggles {
@@ -518,7 +514,8 @@ $recent-msg-button__height: 2rem;
 
   .section__actions {
     margin-top: var(--spacing-xs);
-    margin-bottom: var(--spacing-xs);
+    // margin-bottom: var(--spacing-xxxs);
+    margin-bottom: 4px;
     .comment-create__min-amount-notice {
       margin-top: -2px;
       margin-bottom: 0;
