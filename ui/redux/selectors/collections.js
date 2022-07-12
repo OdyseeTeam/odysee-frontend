@@ -53,7 +53,7 @@ export const selectEditedCollectionForId = (state: State, id: string) => {
 
 export const selectCollectionHasEditsForId = (state: State, id: string) => {
   const editedCollection = selectEditedCollectionForId(state, id);
-  return Boolean(editedCollection && editedCollection.id !== null);
+  return Boolean(editedCollection && !editedCollection.editsCleared);
 };
 
 export const selectPendingCollectionForId = (state: State, id: string) => {
@@ -123,7 +123,7 @@ export const selectMyPublishedCollections = createSelector(
     // now add in edited:
     Object.entries(edited).forEach(([id, item]) => {
       // $FlowFixMe
-      if (item.id !== null) {
+      if (!item.editsCleared) {
         myPublishedCollections[id] = item;
       } else {
         // $FlowFixMe
@@ -233,7 +233,7 @@ export const selectCollectionForId = createSelector(
   selectPendingCollections,
   selectCurrentQueueList,
   (id, bLists, rLists, uLists, eLists, pLists, queue) => {
-    const edited = eLists[id] && eLists[id].id !== null ? eLists[id] : undefined;
+    const edited = eLists[id] && !eLists[id].editsCleared ? eLists[id] : undefined;
     const collection = bLists[id] || uLists[id] || edited || pLists[id] || rLists[id] || queue[id];
     return collection;
   }

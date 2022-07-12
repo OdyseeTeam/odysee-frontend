@@ -74,7 +74,7 @@ function ModalRemoveCollection(props: Props) {
                 disabled={uri && collectionName !== confirmName}
                 onClick={() => {
                   if (redirect) replace(redirect);
-                  doCollectionDelete(collectionId, uri ? 'resolved' : undefined);
+                  doCollectionDelete(collectionId, uri ? (keepPrivate ? 'resolved' : 'all') : undefined);
                   if (uri && keepPrivate) {
                     const { name, description, thumbnail_url } = collectionParams;
                     const createParams = {

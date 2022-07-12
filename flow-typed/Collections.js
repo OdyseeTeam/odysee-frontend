@@ -11,6 +11,7 @@ declare type Collection = {
   updatedAt: number,
   totalItems?: number,
   itemCount?: number,
+  editsCleared?: boolean,
   sourceId?: string, // if copied, claimId of original collection
 };
 

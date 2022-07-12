@@ -71,13 +71,13 @@ const collectionsReducer = handleActions(
       const { edited: editList, unpublished: unpublishedList, pending: pendingList, lastUsedCollection } = state;
       const { id, collectionKey } = action.data;
 
-      const collectionsForKey = collectionKey && state[collectionKey];
-      const collectionForId = collectionsForKey && collectionsForKey[id];
       const newEditList = Object.assign({}, editList);
-      const newUnpublishedList = Object.assign({}, unpublishedList);
-      const isDeletingLastUsedCollection = lastUsedCollection === id;
-
       const newPendingList = Object.assign({}, pendingList);
+      const newUnpublishedList = Object.assign({}, unpublishedList);
+
+      const collectionsForKey = state[collectionKey];
+      const collectionForId = collectionsForKey && collectionsForKey[id];
+      const isDeletingLastUsedCollection = lastUsedCollection === id;
 
       if (collectionForId) {
         const newList = Object.assign({}, state[collectionKey]);
@@ -87,6 +87,10 @@ const collectionsReducer = handleActions(
           [collectionKey]: newList,
           lastUsedCollection: isDeletingLastUsedCollection ? undefined : lastUsedCollection,
         };
+      } else if (collectionKey === 'all') {
+        delete newEditList[id];
+        delete newUnpublishedList[id];
+        delete newPendingList[id];
       } else {
         if (newEditList[id]) {
           delete newEditList[id];
@@ -147,12 +151,11 @@ const collectionsReducer = handleActions(
       const currentCollectionState = lists[id];
 
       const newCollection = Object.assign({}, currentCollectionState);
-      if (!collection) {
-        Object.keys(newCollection).map((k) => {
-          newCollection[k] = null;
-        });
-      } else {
+      if (collection) {
         Object.assign(newCollection, collection);
+        if (collectionKey === COLS.COL_KEY_EDITED) delete newCollection.editsCleared;
+      } else if (collectionKey === COLS.COL_KEY_EDITED) {
+        newCollection.editsCleared = true;
       }
       newCollection.updatedAt = getCurrentTimeInSec();
 
