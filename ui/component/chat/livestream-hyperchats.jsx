@@ -32,6 +32,7 @@ export default function LivestreamHyperchats(props: Props) {
 
   const showMore = superChatTopTen && superChatsByAmount && superChatTopTen.length < superChatsByAmount.length;
   const elRef: ElementRef<any> = React.useRef();
+  const [showTooltip, setShowTooltip] = React.useState(true);
 
   const HorizontalScroll = () => {
     React.useEffect(() => {
@@ -39,11 +40,13 @@ export default function LivestreamHyperchats(props: Props) {
       if (el) {
         const onWheel = (e) => {
           if (e.deltaY === 0) return;
+          setShowTooltip(false);
           e.preventDefault();
           el.scrollTo({
             left: el.scrollLeft + e.deltaY,
             // behavior: "smooth"
           });
+          setShowTooltip(true);
         };
         el.addEventListener('wheel', onWheel);
         return () => el.removeEventListener('wheel', onWheel);
@@ -66,8 +69,8 @@ export default function LivestreamHyperchats(props: Props) {
             const isSticker = stickerSuperChats && stickerSuperChats.includes(superChat);
             const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
 
-            return (
-              <Tooltip title={isSticker ? stickerImg : comment} key={comment_id}>
+            return showTooltip ? (
+              <Tooltip disabled title={isSticker ? stickerImg : comment} key={comment_id}>
                 <div
                   className={classnames('livestream-hyperchat', {
                     'livestream-hyperchat--mobile': isMobile,
@@ -97,6 +100,35 @@ export default function LivestreamHyperchats(props: Props) {
                   </div>
                 </div>
               </Tooltip>
+            ) : (
+              <div
+                className={classnames('livestream-hyperchat', {
+                  'livestream-hyperchat--mobile': isMobile,
+                })}
+              >
+                <ChannelThumbnail uri={channel_url} xsmall />
+
+                <div
+                  className={classnames('livestreamHyperchat__info', {
+                    'livestreamHyperchat__info--sticker': isSticker,
+                    'livestreamHyperchat__info--notSticker': stickerSuperChats && !isSticker,
+                  })}
+                >
+                  <div className="livestreamHyperchat__info--user">
+                    <UriIndicator uri={channel_url} link showAtSign />
+
+                    <CreditAmount
+                      hideTitle
+                      size={10}
+                      className="livestreamHyperchat__amount--large"
+                      amount={support_amount}
+                      isFiat={is_fiat}
+                    />
+                  </div>
+
+                  {isSticker && <div className="livestreamHyperchat__info--image">{stickerImg}</div>}
+                </div>
+              </div>
             );
           })}
 

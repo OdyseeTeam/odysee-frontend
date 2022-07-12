@@ -617,19 +617,14 @@ $recent-msg-button__height: 2rem;
   display: flex;
   flex-shrink: 0;
   position: relative;
-  // padding: var(--spacing-s) var(--spacing-xs);
 
   margin-top: var(--spacing-xs);
   font-size: var(--font-small);
-  // background-color: var(--color-card-background-highlighted);
-  // width: calc(100% - (var(--spacing-xs) * 2));
-  // border: 2px solid var(--color-border);
   border-radius: var(--border-radius);
   background: linear-gradient(180deg, var(--color-primary) 0%, transparent 100%);
 
   .livestream__comment {
     width: 100%;
-    // padding-top: var(--spacing-xs);
     max-height: 6rem;
     overflow-y: scroll;
     .livestreamComment__body {
@@ -639,6 +634,7 @@ $recent-msg-button__height: 2rem;
         color: var(--color-primary-contrast);
       }
       .comment__pin {
+        color: var(--color-primary-contrast);
         font-weight: var(--font-weight-bold);
         margin: var(--spacing-xs);
         margin-left: 0;
