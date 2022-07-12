@@ -140,6 +140,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
   const activeItemRef = React.useRef();
   const scrollRestorePending = React.useRef();
+  const listHasActive = React.useRef();
 
   const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
   const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
@@ -235,7 +236,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         }
       };
 
-      if (bodyOpen) {
+      if (bodyOpen && listHasActive.current) {
         handleScroll();
         if (activeItemRef.current) activeListItemRef(activeItemRef.current);
       }
@@ -387,7 +388,10 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
               setListRef={(node) => setBodyRef(node)}
               scrolledPastActive={scrolledPastActive}
               restoreScrollPos={() => activeListItemRef(activeItemRef.current)}
-              setHasActive={setHasActive}
+              setHasActive={(hasActive) => {
+                listHasActive.current = hasActive;
+                setHasActive(hasActive);
+              }}
             />
           )
         }
