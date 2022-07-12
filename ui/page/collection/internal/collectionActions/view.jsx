@@ -44,7 +44,7 @@ function CollectionActions(props: Props) {
                 {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
                 <ClaimSupportButton uri={uri} fileAction />
                 <ClaimRepostButton uri={uri} />
-                <ClaimShareButton uri={uri} fileAction webShareable />
+                <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
               </>
             )}
 
