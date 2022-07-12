@@ -10,7 +10,7 @@ import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 
-const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
+const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -182,7 +182,7 @@ export default function LivestreamPage(props: Props) {
         !hideComments &&
         isInitialized && (
           <React.Suspense fallback={null}>
-            <LivestreamChatLayout uri={uri} setLayountRendered={setLayountRendered} />
+            <ChatLayout uri={uri} setLayountRendered={setLayountRendered} />
           </React.Suspense>
         )
       }

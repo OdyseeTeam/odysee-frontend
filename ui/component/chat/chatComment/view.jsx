@@ -32,7 +32,7 @@ type Props = {
   odyseeMembership: string,
   handleDismissPin?: () => void,
   restoreScrollPos?: () => void,
-  handleCommentClick?: (any) => void,
+  handleCommentClick: (any) => void,
   claimsByUri: { [string]: any },
   authorTitle: string,
 };

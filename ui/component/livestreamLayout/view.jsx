@@ -13,12 +13,12 @@ import LivestreamScheduledInfo from 'component/livestreamScheduledInfo';
 import * as ICONS from 'constants/icons';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import LivestreamMenu from 'component/livestreamChatLayout/livestream-menu';
+import LivestreamMenu from 'component/chat/livestream-menu';
 import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import { getTipValues } from 'util/livestream';
 
-const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
+const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 const VIEW_MODES = {
   CHAT: 'chat',
@@ -122,7 +122,7 @@ export default function LivestreamLayout(props: Props) {
                 />
               }
             >
-              <LivestreamChatLayout
+              <ChatLayout
                 uri={uri}
                 hideHeader
                 superchatsHidden={superchatsHidden}

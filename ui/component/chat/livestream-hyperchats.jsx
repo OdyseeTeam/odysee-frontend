@@ -20,7 +20,7 @@ type Props = {
   toggleSuperChat: () => void,
 };
 
-export default function LivestreamSuperchats(props: Props) {
+export default function LivestreamHyperchats(props: Props) {
   const { superChats: superChatsByAmount, superchatsHidden, isMobile, toggleSuperChat } = props;
 
   const superChatTopTen = React.useMemo(() => {

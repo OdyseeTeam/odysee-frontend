@@ -10,9 +10,9 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import CommentCreate from 'component/commentCreate';
 import CreditAmount from 'component/common/credit-amount';
-import LivestreamComment from 'component/livestreamComment';
-import LivestreamComments from 'component/livestreamComments';
-import LivestreamSuperchats from './livestream-superchats';
+import ChatComment from 'component/chat/chatComment';
+import ChatComments from 'component/chat/chatComments';
+import LivestreamHyperchats from './livestream-hyperchats';
 import LivestreamMenu from './livestream-menu';
 import React from 'react';
 import Yrbl from 'component/yrbl';
@@ -55,7 +55,7 @@ type Props = {
   setLayountRendered: (boolean) => void,
 };
 
-export default function LivestreamChatLayout(props: Props) {
+export default function ChatLayout(props: Props) {
   const {
     claimId,
     comments: commentsByChronologicalOrder,
@@ -345,7 +345,7 @@ export default function LivestreamChatLayout(props: Props) {
           )}
 
           {viewMode === VIEW_MODES.CHAT && superChatsByAmount && (
-            <LivestreamSuperchats
+            <LivestreamHyperchats
               superChats={superChatsByAmount}
               toggleSuperChat={toggleSuperChat}
               superchatsHidden={superchatsHidden}
@@ -358,7 +358,7 @@ export default function LivestreamChatLayout(props: Props) {
             (isMobile ? (
               <Slide direction="left" in={showPinned} mountOnEnter unmountOnExit>
                 <div className="livestream-pinned__wrapper--mobile">
-                  <LivestreamComment
+                  <ChatComment
                     comment={pinnedComment}
                     key={pinnedComment.comment_id}
                     uri={uri}
@@ -371,7 +371,7 @@ export default function LivestreamChatLayout(props: Props) {
             ) : (
               showPinned && (
                 <div className="livestream-pinned__wrapper">
-                  <LivestreamComment comment={pinnedComment} key={pinnedComment.comment_id} uri={uri} />
+                  <ChatComment comment={pinnedComment} key={pinnedComment.comment_id} uri={uri} />
 
                   <Button
                     title={__('Dismiss pinned comment')}
@@ -385,7 +385,7 @@ export default function LivestreamChatLayout(props: Props) {
             ))}
         </div>
 
-        <LivestreamComments
+        <ChatComments
           uri={uri}
           viewMode={viewMode}
           comments={commentsToDisplay}

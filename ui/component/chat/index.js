@@ -10,7 +10,7 @@ import {
 } from 'redux/selectors/comments';
 import { selectThemePath } from 'redux/selectors/settings';
 import { doFetchUserMemberships } from 'redux/actions/user';
-import LivestreamChatLayout from './view';
+import ChatLayout from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -33,4 +33,4 @@ const perform = {
   doFetchUserMemberships,
 };
 
-export default connect(select, perform)(LivestreamChatLayout);
+export default connect(select, perform)(ChatLayout);

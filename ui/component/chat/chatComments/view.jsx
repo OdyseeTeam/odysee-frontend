@@ -2,7 +2,7 @@
 import 'scss/component/_livestream-chat.scss';
 
 import React from 'react';
-import LivestreamComment from 'component/livestreamComment';
+import ChatComment from 'component/chat/chatComment';
 import Spinner from 'component/spinner';
 
 // 30 sec timestamp refresh timer
@@ -21,7 +21,7 @@ type Props = {
   resolvingSuperchats: boolean,
 };
 
-export default function LivestreamComments(props: Props) {
+export default function ChatComments(props: Props) {
   const {
     comments,
     uri,
@@ -80,7 +80,7 @@ export default function LivestreamComments(props: Props) {
           .slice(0)
           .reverse()
           .map((comment) => (
-            <LivestreamComment
+            <ChatComment
               {...commentProps}
               comment={comment}
               key={comment.comment_id}
@@ -92,7 +92,7 @@ export default function LivestreamComments(props: Props) {
     ) : (
       <div className="livestream__comments">
         {comments.map((comment) => (
-          <LivestreamComment
+          <ChatComment
             {...commentProps}
             comment={comment}
             key={comment.comment_id}
