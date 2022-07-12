@@ -251,6 +251,10 @@ export default function LivestreamChatLayout(props: Props) {
     }
   }, [keyboardOpened, restoreScrollPos]);
 
+  React.useEffect(() => {
+    if (textInjection.length) setTextInjection('');
+  }, [textInjection]);
+
   if (!claimId) return null;
 
   if (openedPopoutWindow || chatHidden) {
@@ -296,6 +300,7 @@ export default function LivestreamChatLayout(props: Props) {
   const toggleProps = { viewMode, onClick: (toggleMode) => toggleClick(toggleMode) };
 
   function handleCommentClick(comment) {
+    console.log('claim: ', props);
     setTextInjection(comment.channel_name);
   }
 
