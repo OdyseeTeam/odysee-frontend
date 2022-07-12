@@ -34,11 +34,11 @@ export default function LivestreamHyperchats(props: Props) {
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} superchatsHidden={superchatsHidden}>
       <div
-        className={classnames('livestream-superchats__wrapper', {
-          'livestream-superchats__wrapper--mobile': isMobile,
+        className={classnames('livestream-hyperchats__wrapper', {
+          'livestream-hyperchats__wrapper--mobile': isMobile,
         })}
       >
-        <div className="livestream-superchats">
+        <div className="livestream-hyperchats">
           {superChatTopTen.map((superChat: Comment) => {
             const { comment, comment_id, channel_url, support_amount, is_fiat } = superChat;
             const isSticker = stickerSuperChats && stickerSuperChats.includes(superChat);
@@ -47,31 +47,31 @@ export default function LivestreamHyperchats(props: Props) {
             return (
               <Tooltip title={isSticker ? stickerImg : comment} key={comment_id}>
                 <div
-                  className={classnames('livestream-superchat', {
-                    'livestream-superchat--mobile': isMobile,
+                  className={classnames('livestream-hyperchat', {
+                    'livestream-hyperchat--mobile': isMobile,
                   })}
                 >
                   <ChannelThumbnail uri={channel_url} xsmall />
 
                   <div
-                    className={classnames('livestreamSuperchat__info', {
-                      'livestreamSuperchat__info--sticker': isSticker,
-                      'livestreamSuperchat__info--notSticker': stickerSuperChats && !isSticker,
+                    className={classnames('livestreamHyperchat__info', {
+                      'livestreamHyperchat__info--sticker': isSticker,
+                      'livestreamHyperchat__info--notSticker': stickerSuperChats && !isSticker,
                     })}
                   >
-                    <div className="livestreamSuperchat__info--user">
+                    <div className="livestreamHyperchat__info--user">
                       <UriIndicator uri={channel_url} link showAtSign />
 
                       <CreditAmount
                         hideTitle
                         size={10}
-                        className="livestreamSuperchat__amount--large"
+                        className="livestreamHyperchat__amount--large"
                         amount={support_amount}
                         isFiat={is_fiat}
                       />
                     </div>
 
-                    {isSticker && <div className="livestreamSuperchat__info--image">{stickerImg}</div>}
+                    {isSticker && <div className="livestreamHyperchat__info--image">{stickerImg}</div>}
                   </div>
                 </div>
               </Tooltip>

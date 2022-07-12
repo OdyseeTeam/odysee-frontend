@@ -138,7 +138,7 @@ $recent-msg-button__height: 2rem;
       margin-left: var(--spacing-xs);
     }
 
-    .livestream-superchats__wrapper {
+    .livestream-hyperchats__wrapper {
       padding-left: var(--spacing-xs);
     }
 
@@ -199,7 +199,7 @@ $recent-msg-button__height: 2rem;
     height: 95vh !important;
   }
 
-  .livestream-superchats__wrapper {
+  .livestream-hyperchats__wrapper {
     width: 100%;
   }
 
@@ -545,7 +545,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestream-superchats__wrapper {
+.livestream-hyperchats__wrapper {
   flex-shrink: 0;
   position: relative;
   // overflow-x: scroll;
@@ -561,8 +561,8 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestream-superchats__wrapper--mobile {
-  @extend .livestream-superchats__wrapper;
+.livestream-hyperchats__wrapper--mobile {
+  @extend .livestream-hyperchats__wrapper;
 
   z-index: 9999999;
   width: 100%;
@@ -754,7 +754,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamSuperchat__amount--large {
+.livestreamHyperchat__amount--large {
   .credit-amount {
     display: flex;
     align-items: center;
@@ -765,7 +765,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestream-superchats {
+.livestream-hyperchats {
   display: flex;
 
   .close-button {
@@ -773,7 +773,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestream-superchat {
+.livestream-hyperchat {
   display: flex;
   margin-right: var(--spacing-xs);
   padding: var(--spacing-xxs);
@@ -840,8 +840,8 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestream-superchat--mobile {
-  @extend .livestream-superchat;
+.livestream-hyperchat--mobile {
+  @extend .livestream-hyperchat;
 
   background-color: #fff;
   padding-top: 0;
@@ -855,7 +855,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamSuperchat__info {
+.livestreamHyperchat__info {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -870,7 +870,7 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamSuperchat__info--sticker {
+.livestreamHyperchat__info--sticker {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -878,19 +878,19 @@ $recent-msg-button__height: 2rem;
   width: 8rem;
   height: 3rem;
 
-  .livestreamSuperchat__info--user {
+  .livestreamHyperchat__info--user {
     .channel-name {
       max-width: 5rem;
     }
   }
 
-  .livestreamSuperchat__info--image {
+  .livestreamHyperchat__info--image {
     width: 100%;
     height: 100%;
   }
 }
 
-.livestreamSuperchat__info--user {
+.livestreamHyperchat__info--user {
   .empty {
     color: var(--color-text);
     opacity: 0.9;
@@ -908,10 +908,10 @@ $recent-msg-button__height: 2rem;
   }
 }
 
-.livestreamSuperchat__info--notSticker {
+.livestreamHyperchat__info--notSticker {
   flex-direction: row;
 }
 
-.livestreamSuperchat__amount--large {
+.livestreamHyperchat__amount--large {
   min-width: 2.5rem;
 }
