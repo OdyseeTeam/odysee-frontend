@@ -2,7 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim, doGetClaimFromUriResolve } from 'redux/actions/claims';
+import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
 import { selectClaimForClaimId, selectPermanentUrlForUri } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
@@ -414,13 +414,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       // $FlowFixMe
       if (isPermanentUrl(uri) || isDeletingBrokenUris) return uris.push(uri);
 
-      let url = selectPermanentUrlForUri(state, uri);
-
-      if (!url) {
-        const claim = await dispatch(doGetClaimFromUriResolve(url));
-        if (claim) url = claim.permanent_url;
-      }
-
+      const url = selectPermanentUrlForUri(state, uri);
       // $FlowFixMe
       return uris.push(url);
     });
