@@ -261,7 +261,7 @@ export default function ChatLayout(props: Props) {
     return (
       <div className="card livestream__chat">
         <div className="card__header--between livestreamDiscussion__header">
-          <div className="card__title-section--small livestreamDiscussion__title">{__('Live Chat')}</div>
+          <div className="card__title-section--small livestreamDiscussion__title">{__('Livestream Chat')}</div>
         </div>
 
         <div className="livestreamComments__wrapper">
