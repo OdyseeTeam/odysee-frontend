@@ -136,7 +136,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   } = props;
 
   const isMobile = useIsMobile();
-  const isMediumScreen = useIsMediumScreen();
+  const isMediumScreen = useIsMediumScreen() && !isMobile;
 
   const activeItemRef = React.useRef();
   const scrollRestorePending = React.useRef();
