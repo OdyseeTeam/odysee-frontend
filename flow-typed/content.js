@@ -24,7 +24,7 @@ declare type WatchHistory = {
 declare type PlayingUri = {
   uri?: ?string,
   primaryUri?: string,
-  pathname?: string,
+  location?: { pathname: ?string, search: ?string },
   commentId?: string,
   collection: PlayingCollection,
   source?: string,

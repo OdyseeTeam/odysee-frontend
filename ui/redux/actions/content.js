@@ -154,19 +154,7 @@ export const doClearPlayingCollection = () => (dispatch: Dispatch, getState: Get
   dispatch(doSetPlayingUri({ ...playingUri, collection: { collectionId: null } }));
 };
 
-export function doSetPlayingUri({
-  uri,
-  source,
-  pathname,
-  commentId,
-  collection,
-}: {
-  uri: ?string,
-  source?: string,
-  commentId?: string,
-  pathname?: string,
-  collection: PlayingCollection,
-}) {
+export function doSetPlayingUri({ uri, source, location, commentId, collection }: PlayingUri) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     let url = uri;
@@ -187,7 +175,7 @@ export function doSetPlayingUri({
 
     dispatch({
       type: ACTIONS.SET_PLAYING_URI,
-      data: { uri: url, source, pathname, commentId, collection },
+      data: { uri: url, source, location, commentId, collection },
     });
   };
 }

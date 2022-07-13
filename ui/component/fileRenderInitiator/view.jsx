@@ -120,7 +120,13 @@ export default function FileRenderInitiator(props: Props) {
   // Wrap this in useCallback because we need to use it to the view effect
   // If we don't a new instance will be created for every render and react will think the dependencies have changed, which will add/remove the listener for every render
   const viewFile = React.useCallback(() => {
-    const playingOptions = { uri, collection: { collectionId }, pathname, source: undefined, commentId: undefined };
+    const playingOptions = {
+      uri,
+      collection: { collectionId },
+      location: { pathname, search },
+      source: undefined,
+      commentId: undefined,
+    };
 
     if (parentCommentId) {
       playingOptions.source = 'comment';
@@ -130,7 +136,7 @@ export default function FileRenderInitiator(props: Props) {
     }
 
     doUriInitiatePlay(playingOptions, isPlayable);
-  }, [collectionId, doUriInitiatePlay, isMarkdownPost, isPlayable, parentCommentId, pathname, uri]);
+  }, [collectionId, doUriInitiatePlay, isMarkdownPost, isPlayable, parentCommentId, pathname, search, uri]);
 
   React.useEffect(() => {
     // avoid selecting 'video' anymore -> can cause conflicts with Ad popup videos
