@@ -14,6 +14,7 @@ type Props = {
   params: any,
   nameError: any,
   isPrivateEdit?: boolean,
+  incognito: boolean,
   setThumbnailError: (error: ?string) => void,
   updateParams: (obj: any) => void,
   setLoading: (loading: boolean) => void,
@@ -28,6 +29,7 @@ function CollectionGeneralTab(props: Props) {
     params,
     nameError,
     isPrivateEdit,
+    incognito,
     setThumbnailError,
     updateParams,
     setLoading,
@@ -43,7 +45,7 @@ function CollectionGeneralTab(props: Props) {
   const [thumbStatus, setThumbStatus] = React.useState();
   const [thumbError, setThumbError] = React.useState();
 
-  const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
+  const { name: activeChannelName } = activeChannelClaim || {};
   const isNewCollection = !uri;
 
   function handleUpdateThumbnail(update: { [string]: string }) {
@@ -91,7 +93,7 @@ function CollectionGeneralTab(props: Props) {
       {!isPrivateEdit && (
         <ChannelSelector
           autoSet
-          channelToSet={collectionChannel || activeChannelId}
+          channelToSet={collectionChannel}
           onChannelSelect={(id) => updateParams({ channel_id: id })}
         />
       )}
@@ -103,7 +105,9 @@ function CollectionGeneralTab(props: Props) {
               <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
                 <fieldset-section>
                   <label htmlFor="collection_name">{__('Name')}</label>
-                  <div className="form-field__prefix">{`${DOMAIN}/${activeChannelName}/`}</div>
+                  <div className="form-field__prefix">
+                    {incognito ? `${DOMAIN}/` : `${DOMAIN}/${activeChannelName}/`}
+                  </div>
                 </fieldset-section>
 
                 <FormField
