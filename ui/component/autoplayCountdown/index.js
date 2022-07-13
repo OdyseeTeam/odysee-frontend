@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
-import { makeSelectClaimForUri } from 'redux/selectors/claims';
-import { withRouter } from 'react-router';
+import { makeSelectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
 import AutoplayCountdown from './view';
 import { selectModal } from 'redux/selectors/app';
 import { doOpenModal } from 'redux/actions/app';
@@ -12,10 +11,11 @@ import { doOpenModal } from 'redux/actions/app';
 const select = (state, props) => ({
   nextRecommendedClaim: makeSelectClaimForUri(props.nextRecommendedUri)(state),
   modal: selectModal(state),
+  isMature: selectClaimIsNsfwForUri(state, props.uri),
 });
 
 const perform = {
   doOpenModal,
 };
 
-export default withRouter(connect(select, perform)(AutoplayCountdown));
+export default connect(select, perform)(AutoplayCountdown);

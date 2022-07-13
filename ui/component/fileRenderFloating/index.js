@@ -4,6 +4,7 @@ import {
   selectTitleForUri,
   selectClaimWasPurchasedForUri,
   selectGeoRestrictionForUri,
+  selectClaimIsNsfwForUri,
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
@@ -79,6 +80,7 @@ const select = (state, props) => {
       permanent_url && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanent_url),
     mainPlayerDimensions: selectMainPlayerDimensions(state),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
+    isMature: selectClaimIsNsfwForUri(state, uri),
   };
 };
 

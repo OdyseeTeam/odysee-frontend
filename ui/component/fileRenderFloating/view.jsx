@@ -82,6 +82,7 @@ type Props = {
   hasClaimInQueue: boolean,
   mainPlayerDimensions: { height: number, width: number },
   firstCollectionItemUrl: ?string,
+  isMature: boolean,
   doCommentSocketConnect: (string, string, string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doClearPlayingUri: () => void,
@@ -121,6 +122,7 @@ export default function FileRenderFloating(props: Props) {
     hasClaimInQueue,
     mainPlayerDimensions,
     firstCollectionItemUrl,
+    isMature,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doClearPlayingUri,
@@ -468,24 +470,29 @@ export default function FileRenderFloating(props: Props) {
                 />
               )}
 
-              {isReadyToPlay ? (
+              {isReadyToPlay && !isMature ? (
                 <FileRender className={classnames({ draggable: !isMobile })} uri={uri} />
               ) : isLoading ? (
                 <LoadingScreen status={__('Loading')} />
               ) : (
-                (!collectionId || !canViewFile) && (
+                (!collectionId || !canViewFile || isMature) && (
                   <div className="content__loading">
                     <AutoplayCountdown
                       uri={uri}
                       nextRecommendedUri={nextListUri || firstCollectionItemUrl}
                       doNavigate={() => setDoNavigate(true)}
                       doReplay={() => doUriInitiatePlay({ uri, collection: { collectionId } }, false, isFloating)}
-                      doPrevious={() => {
-                        setPlayNext(false);
-                        setDoNavigate(true);
-                      }}
+                      doPrevious={
+                        !previousListUri
+                          ? undefined
+                          : () => {
+                              setPlayNext(false);
+                              setDoNavigate(true);
+                            }
+                      }
                       onCanceled={() => setCountdownCanceled(true)}
                       skipPaid
+                      skipMature
                     />
                   </div>
                 )

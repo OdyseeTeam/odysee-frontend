@@ -13,11 +13,12 @@ const CLASSNAME_AUTOPLAY_COUNTDOWN = 'autoplay-countdown';
 
 type Props = {
   uri?: string,
-  history: { push: (string) => void },
   nextRecommendedClaim: ?StreamClaim,
   nextRecommendedUri: string,
   modal: { id: string, modalProps: {} },
   skipPaid: boolean,
+  skipMature: boolean,
+  isMature: boolean,
   doNavigate: () => void,
   doReplay: () => void,
   doPrevious: () => void,
@@ -30,9 +31,10 @@ function AutoplayCountdown(props: Props) {
     uri,
     nextRecommendedUri,
     nextRecommendedClaim,
-    history: { push },
     modal,
     skipPaid,
+    skipMature,
+    isMature,
     doNavigate,
     doReplay,
     doPrevious,
@@ -49,6 +51,8 @@ function AutoplayCountdown(props: Props) {
   const [timerPaused, setTimerPaused] = React.useState(false);
   const anyModalPresent = modal !== undefined && modal !== null;
   const isTimerPaused = timerPaused || anyModalPresent;
+  const shouldSkipMature = skipMature && isMature;
+  const skipCurrentVideo = skipPaid || shouldSkipMature;
 
   function isAnyInputFocused() {
     const activeElement = document.activeElement;
@@ -63,7 +67,9 @@ function AutoplayCountdown(props: Props) {
   }
 
   function getMsgPlayingNext() {
-    if (skipPaid) {
+    if (shouldSkipMature) {
+      return __('Skipping mature content in %seconds_left% seconds...', { seconds_left: timer });
+    } else if (skipPaid) {
       return __('Playing next free content in %seconds_left% seconds...', { seconds_left: timer });
     } else {
       return __('Playing in %seconds_left% seconds...', { seconds_left: timer });
@@ -94,7 +100,7 @@ function AutoplayCountdown(props: Props) {
         interval = setInterval(() => {
           const newTime = timer - 1;
           if (newTime === 0) {
-            if (skipPaid) setTimer(countdownTime);
+            if (skipCurrentVideo) setTimer(countdownTime);
             doNavigate();
           } else {
             setTimer(timer - 1);
@@ -105,7 +111,7 @@ function AutoplayCountdown(props: Props) {
     return () => {
       clearInterval(interval);
     };
-  }, [timer, doNavigate, push, timerCanceled, isTimerPaused, nextRecommendedUri, skipPaid]);
+  }, [doNavigate, isTimerPaused, nextRecommendedUri, skipCurrentVideo, timer, timerCanceled]);
 
   if (timerCanceled || !nextRecommendedUri) {
     return null;
@@ -143,7 +149,7 @@ function AutoplayCountdown(props: Props) {
               />
             </div>
           )}
-          {skipPaid && doPrevious && (
+          {skipCurrentVideo && doPrevious && (
             <div>
               <Button
                 label={__('Play Previous')}
@@ -155,9 +161,9 @@ function AutoplayCountdown(props: Props) {
           )}
           <div>
             <Button
-              label={skipPaid ? __('Purchase?') : __('Replay?')}
+              label={shouldSkipMature ? undefined : skipPaid ? __('Purchase?') : __('Replay?')}
               button="link"
-              icon={skipPaid ? ICONS.WALLET : ICONS.REPLAY}
+              icon={shouldSkipMature ? undefined : skipPaid ? ICONS.WALLET : ICONS.REPLAY}
               onClick={() => {
                 setTimerCanceled(true);
                 if (skipPaid) {
