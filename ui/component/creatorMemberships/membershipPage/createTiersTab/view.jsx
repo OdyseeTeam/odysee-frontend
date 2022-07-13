@@ -17,8 +17,8 @@ async function addTierToStripeAndDatabase({
   channelClaimId,
   name,
   description,
-  monthlyCostUSD,
   currency,
+  amount,
   perks,
 }) {
   // show the memberships the user is subscribed to
@@ -31,8 +31,8 @@ async function addTierToStripeAndDatabase({
       channel_id: channelClaimId,
       name,
       description,
-      monthly_cost_usd: monthlyCostUSD,
-      currencies: currency,
+      amount,
+      currency,
       // perks, // TODO: yet to be implemented on backend
     },
     'post'
@@ -60,11 +60,9 @@ function CreateTiersTab(props: Props) {
   console.log(activeChannel);
 
   const [isEditing, setIsEditing] = React.useState(false);
-  const [creatorMemberships, setCreatorMemberships] = React.useState(membershipTiers);
+  const [creatorMemberships, setCreatorMemberships] = React.useState([]);
   const [editTierDescription, setEditTierDescription] = React.useState('');
   const [pendingTier, setPendingTier] = React.useState(false);
-
-  const [existingTiers, setExistingTiers] = React.useState([]);
 
   async function getExistingTiers(){
     const response = await Lbryio.call(
@@ -81,9 +79,9 @@ function CreateTiersTab(props: Props) {
     console.log(response);
 
     if(response === null){
-      setExistingTiers([])
+      setCreatorMemberships([])
     } else {
-      setExistingTiers(response);
+      setCreatorMemberships(response);
     }
 
     return response;
@@ -133,43 +131,22 @@ function CreateTiersTab(props: Props) {
   const addMembership = () => {
     const amountOfMembershipsCurrently = creatorMemberships.length;
 
-    const nextMembershipOrdinal = moment.localeData().ordinal(amountOfMembershipsCurrently + 1);
-
-    let amountOfMembershipsLeft;
-    if (amountOfMembershipsCurrently === 4) {
-      amountOfMembershipsLeft = 'This is the maximum amount you can have';
-    } else {
-      amountOfMembershipsLeft = `You can add ${5 - (amountOfMembershipsCurrently + 1)} more`;
-    }
-
-    const newMembership = {
-      displayName: 'New Membership Tier',
-      description: `Here's your ${nextMembershipOrdinal} added tier. ${amountOfMembershipsLeft}.`,
-      monthlyContributionInUSD: 5,
-      perks: ['exclusiveAccess', 'badge'],
+    const newestMembership = {
+      Membership: {
+        name: 'hello',
+        description: 'goodbye',
+      },
+      Prices: [{
+        StripePrice: {
+          unit_amount: 500,
+        },
+      }],
     };
 
-    if(existingTiers.length === 0){
-      setExistingTiers([{
-        Membership: {
-          name: 'hello',
-          description: 'goodbye'
-        },
-        Prices : [{
-          unit_amount: 500
-        }]
-      }])
-
-      setIsEditing(0);
-      setPendingTier(true);
-      setEditTierDescription('goodbye');
-    }
-
-    // setCreatorMemberships([...creatorMemberships, newMembership]);
-    //
-    // // immediately open the editing section
-    // setIsEditing(amountOfMembershipsCurrently);
-    // setEditTierDescription(newMembership.description);
+    setEditTierDescription(newestMembership.Membership.description);
+    setCreatorMemberships([...creatorMemberships, newestMembership]);
+    setPendingTier(true);
+    setIsEditing(amountOfMembershipsCurrently);
   };
 
   const handleChange = (event) => {
@@ -211,11 +188,12 @@ function CreateTiersTab(props: Props) {
     const newObject = {
       displayName: newTierName,
       description: newTierDescription,
-      monthlyContributionInUSD: Number(newTierMonthlyContribution),
-      perks: selectedPerks,
+      amount: Number(newTierMonthlyContribution) * 100,
+      // monthlyContributionInUSD: Number(newTierMonthlyContribution),
+      // perks: selectedPerks,
     };
 
-    const oldObject = existingTiers[tierIndex];
+    const oldObject = creatorMemberships[tierIndex];
 
     const objectsAreDifferent = JSON.stringify(newObject) !== JSON.stringify(oldObject)
 
@@ -223,15 +201,14 @@ function CreateTiersTab(props: Props) {
     if (objectsAreDifferent) {
       copyOfMemberships[tierIndex] = newObject;
 
-      setCreatorMemberships(copyOfMemberships);
+      // setCreatorMemberships(copyOfMemberships);
 
       const response = await addTierToStripeAndDatabase({
         channelName,
         channelClaimId,
         name: newTierName,
         description: newTierDescription,
-        selectedPerks,
-        monthlyCostUSD: newTierMonthlyContribution,
+        amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
         currency: 'usd', // hardcoded for now
         // perks: selectedPerks,
       });
@@ -241,9 +218,9 @@ function CreateTiersTab(props: Props) {
     }
 
     // TODO: better way than setTimeout
-    setTimeout(function() {
-      document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
-    }, 15);
+    // setTimeout(function() {
+    //   document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
+    // }, 15);
 
     setIsEditing(false);
   }
@@ -294,7 +271,7 @@ function CreateTiersTab(props: Props) {
           name="tier_contribution"
           step="1"
           label={__('Monthly Contribution ($/Month)')}
-          defaultValue={tier.Prices[0].unit_amount / 100}
+          defaultValue={tier.Prices[0].StripePrice.unit_amount / 100}
           onChange={(event) => parseFloat(event.target.value)}
         />
         <div className="section__actions">
@@ -318,7 +295,7 @@ function CreateTiersTab(props: Props) {
 
       <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
         {/* list through different tiers */}
-        {existingTiers && existingTiers.map((membershipTier, membershipIndex) => (
+        {creatorMemberships && creatorMemberships.length > 0 && creatorMemberships.map((membershipTier, membershipIndex) => (
           <>
             <div className="create-tier__card">
               {/* if the membership tier is marked as editing, show the edit functionality */}
@@ -331,7 +308,7 @@ function CreateTiersTab(props: Props) {
                   </div>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.Membership.description}</h1>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                    Monthly Pledge: ${membershipTier.Prices[0].unit_amount / 100}
+                    Monthly Pledge: ${membershipTier.Prices[0].StripePrice.unit_amount / 100}
                   </h1>
                   {/*{membershipTier.perks.map((tierPerk, i) => (*/}
                   {/*  <>*/}
@@ -376,7 +353,7 @@ function CreateTiersTab(props: Props) {
         ))}
 
         {/* add membership tier button */}
-        {existingTiers && existingTiers.length < 5 && (
+        {creatorMemberships && creatorMemberships.length < 5 && (
           <>
             <Button
               button="primary"
@@ -388,7 +365,7 @@ function CreateTiersTab(props: Props) {
           </>
         )}
 
-        {/* additional options checkboxes */}
+        {/** additional options checkboxes **/}
         <div className="show-additional-membership-info__div">
           <h2 className="show-additional-membership-info__header">Additional Info</h2>
           <FormField
