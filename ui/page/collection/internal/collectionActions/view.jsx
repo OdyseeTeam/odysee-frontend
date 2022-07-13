@@ -8,7 +8,7 @@ import ClaimShareButton from 'component/claimShareButton';
 import FileReactions from 'component/fileReactions';
 import classnames from 'classnames';
 import { ENABLE_FILE_REACTIONS } from 'config';
-import ClaimRepostButton from 'component/claimRepostButton';
+// import ClaimRepostButton from 'component/claimRepostButton';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
 import CollectionDeleteButton from './internal/deleteButton';
@@ -43,7 +43,7 @@ function CollectionActions(props: Props) {
               <>
                 {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
                 <ClaimSupportButton uri={uri} fileAction />
-                <ClaimRepostButton uri={uri} />
+                {/* <ClaimRepostButton uri={uri} /> */}
                 <ClaimShareButton uri={uri} collectionId={collectionId} fileAction webShareable />
               </>
             )}
