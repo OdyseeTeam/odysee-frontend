@@ -35,7 +35,7 @@ type Props = {
   hasClaim: boolean,
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
-  collectionCreatedAt: number,
+  collectionCreatedAt: ?number,
   hasEdits: boolean,
   isBuiltin: boolean,
   thumbnail: ?string,
@@ -123,8 +123,12 @@ function CollectionPreview(props: Props) {
         </div>
 
         <div className="table-column__create-at" uri={uri}>
-          <Icon icon={ICONS.TIME} />
-          <DateTime timeAgo date={collectionCreatedAt} />
+          {collectionCreatedAt && (
+            <>
+              <Icon icon={ICONS.TIME} />
+              <DateTime timeAgo date={collectionCreatedAt} />
+            </>
+          )}
         </div>
 
         <div className="table-column__update-at" uri={uri}>

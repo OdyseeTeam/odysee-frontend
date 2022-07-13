@@ -438,7 +438,12 @@ export const selectCreatedAtForCollectionId = (state: State, id: string) => {
     return userCreatedAt;
   }
 
-  return collection.createdAt * 1000;
+  if (collection.createdAt) return collection.createdAt * 1000;
+
+  const publishedClaim = selectPublishedCollectionClaimForId(state, id);
+  if (publishedClaim) return publishedClaim.meta?.creation_timestamp * 1000;
+
+  return null;
 };
 
 export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) =>
