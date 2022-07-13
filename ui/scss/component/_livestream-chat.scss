@@ -239,6 +239,13 @@ $recent-msg-button__height: 2rem;
         color: var(--color-text) !important;
         font-size: var(--font-body);
       }
+      .credit-amount {
+        svg {
+          height: var(--font-body);
+          width: var(--font-body);
+          margin-right: var(--spacing-xxs);
+        }
+      }
     }
 
     .button-toggle--active {
@@ -501,6 +508,7 @@ $recent-msg-button__height: 2rem;
       }
     }
 
+    /*
     .emoteSelector__list {
       background-color: rgba(var(--color-primary-dynamic), 0.02);
       .emoteSelector__listRowItems {
@@ -515,6 +523,7 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+    */
 
     .tabs {
       // background:red;
@@ -551,6 +560,13 @@ $recent-msg-button__height: 2rem;
       .selector-menu {
         background-color: var(--color-header-button);
         border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
+        .button--close {
+          margin-right: calc(var(--spacing-xxs) * -1);
+          background-color: var(--color-header-button);
+          &:hover {
+            background-color: var(--color-primary);
+          }
+        }
       }
       .selector-menu--stickers {
         background-color: var(--color-header-button);
@@ -843,8 +859,8 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchat {
   display: flex;
   margin-right: var(--spacing-xs);
-  padding: var(--spacing-xxs);
-  padding-top: 0;
+  padding: 2px var(--spacing-xxs);
+  // padding-top: 0;
   border-radius: var(--border-radius);
   transition: border 0.4s, background-color 0.4s;
 

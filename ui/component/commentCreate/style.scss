@@ -1,4 +1,4 @@
-@import '../init/breakpoints';
+@import '../../scss/init/breakpoints';
 
 $emote-item-size--small: 2.5rem;
 $emote-item-size--big: 3rem;
@@ -27,41 +27,19 @@ $sticker-item-size: 5rem;
   }
 }
 
-.emote-selector__items {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, $emote-item-size--small);
-  justify-items: center;
-  justify-content: space-evenly;
-
-  button {
-    margin: 0px !important;
-    padding: var(--spacing-xs);
-    height: unset;
-
-    &:first-child {
-      margin-right: 0px;
-    }
-
-    @media (max-width: $breakpoint-small) {
-      &:focus,
-      &:hover {
-        background-color: transparent !important;
-      }
-    }
-
-    @media (min-width: $breakpoint-small) {
-      padding: var(--spacing-s);
-    }
-  }
+// -- STICKERS --
+.selector-menu--stickers {
+  @extend .selector-menu;
+  padding-top: 0px;
 
   @media (min-width: $breakpoint-small) {
-    grid-template-columns: repeat(auto-fit, $emote-item-size--big);
+    border: 0;
   }
 }
 
-.emote-categories {
+.sticker-categories {
   position: absolute;
-  top: 64px;
+  top: 44px;
   left: 2px;
   background: var(--color-header-background);
   border-radius: var(--border-radius);
@@ -78,14 +56,81 @@ $sticker-item-size: 5rem;
   }
 }
 
-// -- STICKERS --
-.selector-menu--stickers {
-  @extend .selector-menu;
-  padding-top: 0px;
+.emote-categories {
+  position: absolute;
+  top: 49px;
+  left: 2px;
+  background: var(--color-header-background);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-xs);
+
+  img,
+  svg {
+    display: block;
+    width: 1.3rem;
+    height: 1.3rem;
+    margin-bottom: var(--spacing-xs);
+    &:last-of-type {
+      margin-bottom: 0;
+    }
+  }
+  // tmp fix
+  svg {
+    margin-bottom: var(--spacing-xs) !important;
+  }
+}
+
+.chatImage-category-title {
+  font-size: var(--font-small);
+  padding-left: var(--spacing-xxs);
+  width: 100%;
+  font-weight: var(--font-weight-bold);
 
   @media (min-width: $breakpoint-small) {
-    border: 0;
+    padding-top: var(--spacing-xs);
   }
+
+  @media (max-width: $breakpoint-small) {
+    font-size: var(--font-xsmall);
+  }
+}
+
+.emote-selector__items {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, $emote-item-size--small);
+  justify-items: center;
+  justify-content: space-evenly;
+
+  button {
+    margin: 0px !important;
+    padding: var(--spacing-xxxs) !important;
+    height: unset;
+
+    &:hover {
+      background-color: var(--color-header-background);
+    }
+
+    &:first-child {
+      margin-right: 0px;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      &:focus,
+      &:hover {
+        background-color: transparent !important;
+      }
+    }
+
+    @media (min-width: $breakpoint-small) {
+      padding: var(--spacing-xxxs);
+    }
+  }
+
+  /*
+  @media (min-width: $breakpoint-small) {
+    grid-template-columns: repeat(auto-fit, $emote-item-size--big);
+  }
+  */
 }
 
 .sticker-selector__items {
@@ -120,26 +165,5 @@ $sticker-item-size: 5rem;
     img {
       margin: 0px;
     }
-  }
-}
-
-.sticker-selector__row-title {
-  font-size: var(--font-small);
-  padding-left: var(--spacing-xxs);
-  width: 100%;
-  text-align: center;
-  position: sticky;
-  top: 0px;
-  background-color: var(--color-tabs-background);
-  border-radius: var(--border-radius);
-  font-weight: 900;
-  z-index: 1;
-
-  @media (min-width: $breakpoint-small) {
-    padding-top: var(--spacing-xs);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    font-size: var(--font-xsmall);
   }
 }
