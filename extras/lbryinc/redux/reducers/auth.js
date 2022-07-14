@@ -2,16 +2,17 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 const defaultState = {
+  authToken: undefined,
   authenticating: false,
 };
 
-reducers[ACTIONS.GENERATE_AUTH_TOKEN_FAILURE] = state =>
+reducers[ACTIONS.GENERATE_AUTH_TOKEN_FAILURE] = (state) =>
   Object.assign({}, state, {
     authToken: null,
     authenticating: false,
   });
 
-reducers[ACTIONS.GENERATE_AUTH_TOKEN_STARTED] = state =>
+reducers[ACTIONS.GENERATE_AUTH_TOKEN_STARTED] = (state) =>
   Object.assign({}, state, {
     authenticating: true,
   });

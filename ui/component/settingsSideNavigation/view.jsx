@@ -7,9 +7,6 @@ import React from 'react';
 import { useHistory } from 'react-router-dom';
 import classnames from 'classnames';
 import Button from 'component/button';
-// @if TARGET='app'
-import { IS_MAC } from 'component/app/view';
-// @endif
 import { useIsMediumScreen } from 'effects/use-screensize';
 
 type SideNavLink = {
@@ -94,15 +91,7 @@ export default function SettingsSideNavigation() {
         'navigation__wrapper--absolute': isAbsolute,
       })}
     >
-      <nav
-        aria-label={'Sidebar'}
-        className={classnames('navigation', {
-          'navigation--micro': microNavigation,
-          // @if TARGET='app'
-          'navigation--mac': IS_MAC,
-          // @endif
-        })}
-      >
+      <nav aria-label="Sidebar" className={classnames('navigation', { 'navigation--micro': microNavigation })}>
         <div>
           <ul className={classnames('navigation-links', { 'navigation-links--micro': !sidebarOpen })}>
             {SIDE_LINKS.map((linkProps) => {
@@ -113,7 +102,7 @@ export default function SettingsSideNavigation() {
                     label={__(linkProps.title)}
                     title={__(linkProps.title)}
                     icon={linkProps.icon}
-                    className={classnames('navigation-link', {})}
+                    className="navigation-link"
                     // $FlowFixMe
                     onClick={getOnClickHandler(linkProps.section)}
                   />
@@ -126,37 +115,29 @@ export default function SettingsSideNavigation() {
       </nav>
 
       {isMediumScreen && sidebarOpen && (
-        <>
-          <nav
-            className={classnames('navigation--absolute', {
-              // @if TARGET='app'
-              'navigation--mac': IS_MAC,
-              // @endif
-            })}
-          >
-            <div>
-              <ul className="navigation-links--absolute">
-                {SIDE_LINKS.map((linkProps) => {
-                  // $FlowFixMe
-                  const { link, route, ...passedProps } = linkProps;
-                  return (
-                    <li key={linkProps.title}>
-                      <Button
-                        {...passedProps}
-                        label={__(linkProps.title)}
-                        title={__(linkProps.title)}
-                        icon={linkProps.icon}
-                        className={classnames('navigation-link', {})}
-                        onClick={getOnClickHandler(linkProps.section)}
-                      />
-                      {linkProps.extra && linkProps.extra}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </nav>
-        </>
+        <nav className="navigation--absolute">
+          <div>
+            <ul className="navigation-links--absolute">
+              {SIDE_LINKS.map((linkProps) => {
+                // $FlowFixMe
+                const { link, route, ...passedProps } = linkProps;
+                return (
+                  <li key={linkProps.title}>
+                    <Button
+                      {...passedProps}
+                      label={__(linkProps.title)}
+                      title={__(linkProps.title)}
+                      icon={linkProps.icon}
+                      className={classnames('navigation-link', {})}
+                      onClick={getOnClickHandler(linkProps.section)}
+                    />
+                    {linkProps.extra && linkProps.extra}
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </nav>
       )}
     </div>
   );

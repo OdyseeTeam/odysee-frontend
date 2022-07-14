@@ -72,6 +72,7 @@ export const selectIdentityVerifyIsPending = (state) => selectState(state).ident
 export const selectIdentityVerifyErrorMessage = (state) => selectState(state).identityVerifyErrorMessage;
 
 export const selectUserVerifiedEmail = createSelector(selectUser, (user) => user && user.has_verified_email);
+export const selectUserIsAuthenticated = createSelector(selectUserVerifiedEmail, (email) => Boolean(email));
 
 export const selectUserIsVerificationCandidate = createSelector(
   selectUser,

@@ -143,3 +143,19 @@ declare type NotificationCategory = {
   name: string,
   types: ?Array<string>,
 };
+
+declare type NotificationSettings = {
+  disabled: {
+    all: boolean,
+  },
+  mention: {
+    from_followers: boolean,
+    from_followed: boolean,
+  },
+};
+
+declare type NotificationSettingsParams = {
+  channel_name: string,
+  channel_id: string,
+  data: NotificationSettings,
+};

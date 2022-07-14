@@ -9,6 +9,7 @@ const defaultState: NotificationState = {
   fetchingNotifications: false,
   toasts: [],
   errors: [],
+  notificationSettings: undefined,
 };
 
 export default handleActions(
@@ -151,6 +152,12 @@ export default handleActions(
       return {
         ...state,
         errors: newErrors,
+      };
+    },
+    [ACTIONS.NOTIFICATION_SETTINGS_FETCHED]: (state, action) => {
+      return {
+        ...state,
+        notificationSettings: action.data.notificationSettings,
       };
     },
   },

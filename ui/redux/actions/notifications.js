@@ -9,6 +9,7 @@ import {
   selectNotificationCategories,
 } from 'redux/selectors/notifications';
 import { doResolveUris } from 'redux/actions/claims';
+import Notifications from 'notifications';
 
 export function doToast(params: ToastParams) {
   if (!params) {
@@ -192,3 +193,18 @@ export function doDeleteNotification(notificationId: number) {
       });
   };
 }
+
+export const doFetchNotificationSettings = () => (dispatch: Dispatch) =>
+  Notifications.settings_get()
+    .then(({ data }) => {
+      const notificationSettings: NotificationSettings = data[0].setting;
+
+      dispatch({
+        type: ACTIONS.NOTIFICATION_SETTINGS_FETCHED,
+        data: { notificationSettings },
+      });
+    })
+    .catch((e) => dispatch({ type: ACTIONS.NOTIFICATION_SETTINGS_FAILED }));
+
+export const doSetNotificationSettings = (params: NotificationSettingsParams) => (dispatch: Dispatch) =>
+  Notifications.settings_set(params);
