@@ -174,25 +174,26 @@
   width: 20px;
   height: 20px;
 
-  .menu__button {
-    background: var(--color-background);
-    border-radius: 50%;
-    padding: 2px;
-    border: 2px solid transparent;
-    transition: transform 0.4s;
-    .icon {
-      width: 16px;
-      height: 16px;
+  @media (min-width: $breakpoint-small) {
+    .menu__button {
+      background: var(--color-background);
+      border-radius: 50%;
+      padding: 2px;
+      border: 2px solid transparent;
+      transition: transform 0.4s;
+      .icon {
+        width: 16px;
+        height: 16px;
+      }
     }
-  }
-
-  [aria-expanded='true'].menu__button {
-    opacity: 1;
-    background-color: rgba(var(--color-header-button-base), 0.9);
-    border: 2px solid var(--color-header-background);
-    transform: rotate(90deg);
-    .icon {
-      stroke: var(--color-primary);
+    [aria-expanded='true'].menu__button {
+      opacity: 1;
+      background-color: rgba(var(--color-header-button-base), 0.9);
+      border: 2px solid var(--color-header-background);
+      transform: rotate(90deg);
+      .icon {
+        stroke: var(--color-primary);
+      }
     }
   }
 }

@@ -2,7 +2,6 @@
 import 'scss/component/_livestream-chat.scss';
 
 // $FlowFixMe
-import { grey } from '@mui/material/colors';
 
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
@@ -39,7 +38,6 @@ type Props = {
   comments: Array<Comment>,
   pinnedComments: Array<Comment>,
   superChats: Array<Comment>,
-  theme: string,
   doCommentList: (
     uri: string,
     parentId: ?string,
@@ -67,7 +65,6 @@ export default function ChatLayout(props: Props) {
     hideHeader,
     superchatsHidden,
     customViewMode,
-    theme,
     setCustomViewMode,
     doCommentList,
     doResolveUris,
@@ -340,7 +337,7 @@ export default function ChatLayout(props: Props) {
           })}
         >
           {isMobile && ((pinnedComment && showPinned) || (superChatsByAmount && !superchatsHidden)) && (
-            <MobileDrawerTopGradient theme={theme} />
+            <div className="livestream__top-gradient" />
           )}
 
           {viewMode === VIEW_MODES.CHAT && superChatsByAmount && (
@@ -434,23 +431,6 @@ const ChatContentToggle = (props: ToggleProps) => {
       className={classnames('button-toggle', { 'button-toggle--active': viewMode === toggleMode })}
       label={label}
       onClick={() => onClick(toggleMode)}
-    />
-  );
-};
-
-type GradientProps = {
-  theme: string,
-};
-
-const MobileDrawerTopGradient = (gradientProps: GradientProps) => {
-  const { theme } = gradientProps;
-
-  return (
-    <div
-      style={{
-        background: `linear-gradient(180deg, ${theme === 'light' ? grey[300] : grey[900]} 0, transparent 65%)`,
-      }}
-      className="livestream__top-gradient"
     />
   );
 };

@@ -8,7 +8,6 @@ import {
   selectSuperChatsForUri,
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
-import { selectThemePath } from 'redux/selectors/settings';
 import { doFetchUserMemberships } from 'redux/actions/user';
 import ChatLayout from './view';
 
@@ -21,7 +20,6 @@ const select = (state, props) => {
     comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
     superChats: selectSuperChatsForUri(state, uri),
-    theme: selectThemePath(state),
     claimsByUri: selectClaimsByUri(state),
   };
 };

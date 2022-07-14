@@ -2,7 +2,6 @@
 import { EMOTES_48px as ODYSEE_EMOTES } from 'constants/emotes';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
-import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import React from 'react';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
@@ -101,17 +100,17 @@ const StickersPanel = (stickersProps: StickersProps) => {
     <div className="selector-menu--stickers">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
 
-      <div className="emote-categories">
-        {/* NEKO PLACEHOLDERS */}
-        <Icon icon={ICONS.TIME} />
-        <img
-          src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-          style={{ borderRadius: '50%' }}
-        />
-        <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
-        <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
-      </div>
-      {/*
+      {/* 
+        NEKO PREPARATION 
+        <div className="emote-categories">        
+          <Icon icon={ICONS.TIME} />
+          <img
+            src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
+            style={{ borderRadius: '50%' }}
+          />
+          <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
+          <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
+        </div>
         <StickerCategory title={__('Recently used')} {...defaultRowProps} />
         <StickerCategory title={__('Member exclusive')} {...defaultRowProps} />
       */}
@@ -129,7 +128,7 @@ type RowProps = {
 };
 
 const EmoteCategory = (rowProps: RowProps) => {
-  const { title, images, handleSelect } = rowProps;
+  const { images, handleSelect } = rowProps;
 
   return (
     <>
@@ -160,13 +159,15 @@ const EmoteCategory = (rowProps: RowProps) => {
 };
 
 const StickerCategory = (rowProps: RowProps) => {
-  const { title, images, handleSelect } = rowProps;
+  const { images, handleSelect } = rowProps;
 
   return (
     <div className="sticker-selector__body-row">
-      <label id={title} className="chatImage-category-title">
-        {title}
-      </label>
+      {/*
+        <label id={title} className="chatImage-category-title">
+          {title}
+        </label>
+      */}
 
       <div className="sticker-selector__items">
         {images &&

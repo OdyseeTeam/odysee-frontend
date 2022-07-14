@@ -18,7 +18,6 @@ const getEmotes = (px: string, multiplier: string) => [
   buildEmote('cry_4', `${px}/cry%204${multiplier}.png`),
   buildEmote('angry_1', `${px}/angry${multiplier}.png`),
   buildEmote('angry_3', `${px}/angry%203${multiplier}.png`),
-
   buildEmote('kiss_1', `${px}/kiss${multiplier}.png`),
   buildEmote('surprised', `${px}/surprised${multiplier}.png`),
   buildEmote('ouch', `${px}/ouch${multiplier}.png`),
@@ -33,7 +32,6 @@ const getEmotes = (px: string, multiplier: string) => [
   buildEmote('sleep', `${px}/Sleep${multiplier}.png`),
   buildEmote('thinking_2', `${px}/thinking${multiplier}.png`),
   buildEmote('peace', `${px}/peace${multiplier}.png`),
-
   buildEmote('no', `${px}/NO${multiplier}.png`),
   buildEmote('block', `${px}/block${multiplier}.png`),
   buildEmote('confirm', `${px}/CONFIRM${multiplier}.png`),
@@ -43,9 +41,7 @@ const getEmotes = (px: string, multiplier: string) => [
   buildEmote('thinking_1', `${px}/thinking${multiplier}-1.png`),
   buildEmote('angry_4', `${px}/angry%204${multiplier}.png`),
   buildEmote('scary', `${px}/scary${multiplier}.png`),
-
   buildEmote('alien', `${px}/Alien${multiplier}.png`),
-
   buildEmote('blind', `${px}/blind${multiplier}.png`),
   buildEmote('bomb', `${px}/bomb${multiplier}.png`),
   buildEmote('brain_chip', `${px}/Brain%20chip${multiplier}.png`),
@@ -58,7 +54,6 @@ const getEmotes = (px: string, multiplier: string) => [
   buildEmote('flat_earth', `${px}/Flat%20earth${multiplier}.png`),
   buildEmote('flying_saucer', `${px}/Flying%20saucer${multiplier}.png`),
   buildEmote('heart_chopper', `${px}/heart%20chopper${multiplier}.png`),
-
   buildEmote('ice_cream', `${px}/ice%20cream${multiplier}.png`),
   buildEmote('idk', `${px}/IDK${multiplier}.png`),
   buildEmote('illuminati_1', `${px}/Illuminati${multiplier}-1.png`),
@@ -73,23 +68,19 @@ const getEmotes = (px: string, multiplier: string) => [
   buildEmote('rainbow_puke_2', `${px}/rainbow%20puke${multiplier}.png`),
   buildEmote('rock', `${px}/ROCK${multiplier}.png`),
   buildEmote('salty', `${px}/salty${multiplier}.png`),
-
   buildEmote('slime_down', `${px}/slime%20down${multiplier}.png`),
   buildEmote('smelly_socks', `${px}/smelly%20socks${multiplier}.png`),
-
   buildEmote('spock', `${px}/SPOCK${multiplier}.png`),
   buildEmote('star', `${px}/Star${multiplier}.png`),
   buildEmote('sunny_day', `${px}/sunny%20day${multiplier}.png`),
   buildEmote('sweet', `${px}/sweet${multiplier}.png`),
-
   buildEmote('thumb_up_2', `${px}/thumb%20up${multiplier}.png`),
   buildEmote('tinfoil_hat', `${px}/tin%20hat${multiplier}.png`),
   buildEmote('troll_king', `${px}/Troll%20king${multiplier}.png`),
   buildEmote('ufo', `${px}/ufo${multiplier}.png`),
   buildEmote('woodoo_doll', `${px}/woodo%20doll${multiplier}.png`),
-
-  buildEmote('space_chad', `${px}/space%20chad${multiplier}.png`),
   buildEmote('hyper_troll', `${px}/HyperTroll${multiplier}.png`),
+  buildEmote('space_chad', `${px}/space%20chad${multiplier}.png`),
   buildEmote('space_doge', `${px}/doge${multiplier}.png`),
   buildEmote('space_green_wojak', `${px}/space%20wojak${multiplier}-1.png`),
   buildEmote('space_julian', `${px}/Space%20Julian${multiplier}.png`),
