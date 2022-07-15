@@ -4,6 +4,9 @@ import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import { Lbryio } from 'lbryinc';
+import { getStripeEnvironment } from 'util/stripe';
+const stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   closeModal: () => void,
@@ -12,15 +15,37 @@ type Props = {
   setCreatorMemberships: () => void,
 };
 
+async function deactivateMembership(membershipId) {
+  // show the memberships the user is subscribed to
+  const response = await Lbryio.call(
+    'membership',
+    'deactivate',
+    {
+      environment: stripeEnvironment,
+      membership_id: membershipId,
+    },
+    'post'
+  );
+
+  return response;
+}
+
 export default function ModalRemoveCard(props: Props) {
-  const { closeModal, setCreatorMemberships, membershipsBeforeDeletion, tierIndex } = props;
+  const { closeModal, setCreatorMemberships, membershipsBeforeDeletion, tierIndex, getExistingTiers } = props;
 
-  function deleteMembership() {
-    // TODO: delete the product and prices here
+  async function deleteMembership() {
+    const selectedMembershipId = membershipsBeforeDeletion[tierIndex].Membership.id;
 
-    const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== tierIndex);
-    setCreatorMemberships(membershipsAfterDeletion);
-    closeModal();
+    try {
+      const response = await deactivateMembership(selectedMembershipId);
+      console.log(response);
+      const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== tierIndex);
+      setCreatorMemberships(membershipsAfterDeletion);
+      closeModal();
+      getExistingTiers();
+    } catch (err) {
+      closeModal();
+    }
   }
 
   return (

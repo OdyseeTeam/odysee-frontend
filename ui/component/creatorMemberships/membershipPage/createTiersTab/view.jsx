@@ -20,6 +20,8 @@ async function addTierToStripeAndDatabase({
   currency,
   amount,
   perks,
+  oldStripePrice,
+  oldMembershipId,
 }) {
   // show the memberships the user is subscribed to
   const response = await Lbryio.call(
@@ -33,7 +35,9 @@ async function addTierToStripeAndDatabase({
       description,
       amount,
       currency,
-      // perks, // TODO: yet to be implemented on backend
+      perks,
+      old_stripe_price: oldStripePrice,
+      membership_id: oldMembershipId,
     },
     'post'
   );
@@ -62,9 +66,12 @@ function CreateTiersTab(props: Props) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState([]);
   const [editTierDescription, setEditTierDescription] = React.useState('');
+
+  // if pending tier is true, when cancel button is hit the membership is not saved
+  // (edited membership just came from the add button)
   const [pendingTier, setPendingTier] = React.useState(false);
 
-  async function getExistingTiers(){
+  async function getExistingTiers() {
     const response = await Lbryio.call(
       'membership',
       'list',
@@ -78,8 +85,8 @@ function CreateTiersTab(props: Props) {
 
     console.log(response);
 
-    if(response === null){
-      setCreatorMemberships([])
+    if (response === null) {
+      setCreatorMemberships([]);
     } else {
       setCreatorMemberships(response);
     }
@@ -104,21 +111,23 @@ function CreateTiersTab(props: Props) {
   const editMembership = (e, tierIndex, tierDescription) => {
     setEditTierDescription(tierDescription);
     setIsEditing(tierIndex);
+    // setPendingTier(true);
   };
 
   const deleteMembership = (tierIndex) => {
     let membershipsBeforeDeletion = creatorMemberships;
 
-    const amountOfMembershipsCurrently = creatorMemberships.length;
-    if (amountOfMembershipsCurrently === 1) {
-      const displayString = __('You must have at least one tier for your membership options');
-      return doToast({ message: displayString, isError: true });
-    }
+    // const amountOfMembershipsCurrently = creatorMemberships.length;
+    // if (amountOfMembershipsCurrently === 1) {
+    //   const displayString = __('You must have at least one tier for your membership options');
+    //   return doToast({ message: displayString, isError: true });
+    // }
 
     openModal(MODALS.CONFIRM_DELETE_MEMBERSHIP, {
       setCreatorMemberships,
       membershipsBeforeDeletion,
       tierIndex,
+      getExistingTiers,
     });
   };
 
@@ -133,14 +142,15 @@ function CreateTiersTab(props: Props) {
 
     const newestMembership = {
       Membership: {
-        name: 'hello',
-        description: 'goodbye',
+        name: 'Example Plan',
+        description: 'You can describe extra perks here',
       },
       Prices: [{
         StripePrice: {
           unit_amount: 500,
         },
       }],
+      saved: false,
     };
 
     setEditTierDescription(newestMembership.Membership.description);
@@ -186,19 +196,40 @@ function CreateTiersTab(props: Props) {
     }
 
     const newObject = {
-      displayName: newTierName,
-      description: newTierDescription,
-      amount: Number(newTierMonthlyContribution) * 100,
+      // displayName: newTierName,
+      // description: newTierDescription,
+      // amount: Number(newTierMonthlyContribution) * 100,
       // monthlyContributionInUSD: Number(newTierMonthlyContribution),
       // perks: selectedPerks,
+      Membership: {
+        name: newTierName,
+        description: newTierDescription,
+      },
+      Prices: [{
+        StripePrice: {
+          unit_amount: Number(newTierMonthlyContribution) * 100,
+        },
+      }],
     };
 
     const oldObject = creatorMemberships[tierIndex];
 
+    console.log('old object');
+    console.log(oldObject);
+
+    let oldStripePrice = oldObject?.Prices;
+    if (oldStripePrice.length) {
+      oldStripePrice = oldStripePrice[0].StripePrice.id;
+    }
+    console.log('old stripe price')
+    console.log(oldStripePrice)
+
+    const oldMembershipId = oldObject?.Membership.id;
+
     const objectsAreDifferent = JSON.stringify(newObject) !== JSON.stringify(oldObject)
 
     // only hit backend if there is a difference between the current state
-    if (objectsAreDifferent) {
+    if (1 == 1) {
       copyOfMemberships[tierIndex] = newObject;
 
       // setCreatorMemberships(copyOfMemberships);
@@ -210,19 +241,23 @@ function CreateTiersTab(props: Props) {
         description: newTierDescription,
         amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
         currency: 'usd', // hardcoded for now
+        perks: '1,2,3',
+        oldStripePrice,
+        oldMembershipId,
         // perks: selectedPerks,
       });
       console.log(response);
 
       getExistingTiers();
+
+      setIsEditing(false);
     }
 
     // TODO: better way than setTimeout
-    // setTimeout(function() {
-    //   document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
-    // }, 15);
+    setTimeout(function() {
+      document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
+    }, 15);
 
-    setIsEditing(false);
   }
 
   const containsPerk = (perk, tier) => {
@@ -297,6 +332,7 @@ function CreateTiersTab(props: Props) {
         {/* list through different tiers */}
         {creatorMemberships && creatorMemberships.length > 0 && creatorMemberships.map((membershipTier, membershipIndex) => (
           <>
+            { console.log(membershipTier) }
             <div className="create-tier__card">
               {/* if the membership tier is marked as editing, show the edit functionality */}
               {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
