@@ -78,6 +78,7 @@ $recent-msg-button__height: 2rem;
     min-width: var(--livestream-comments-width);
     width: var(--livestream-comments-width);
     height: calc(100vh - var(--header-height) - var(--spacing-l));
+    min-height: 626px;
     right: 0;
     top: 0px;
     bottom: 0;
@@ -219,7 +220,8 @@ $recent-msg-button__height: 2rem;
     padding-bottom: 0;
   }
   .livestream__comment-create {
-    padding-bottom: 13.5px;
+    // padding-bottom: 13.5px;
+    padding-bottom: 0 !important;
     textarea:focus-visible {
       box-shadow: unset;
     }
@@ -712,6 +714,10 @@ $recent-msg-button__height: 2rem;
       .comment__author {
         color: var(--color-primary-contrast);
       }
+      .comment__author--creator {
+        background-color: var(--color-background);
+        color: var(--color-text) !important;
+      }
       .comment__pin {
         color: var(--color-primary-contrast);
         font-weight: var(--font-weight-bold);
@@ -742,6 +748,10 @@ $recent-msg-button__height: 2rem;
       background-color: unset;
       .comment__author {
         color: var(--color-primary-contrast) !important;
+      }
+      .comment__author--creator {
+        background-color: var(--color-background);
+        color: var(--color-text) !important;
       }
     }
   }
@@ -878,7 +888,7 @@ $recent-msg-button__height: 2rem;
   // padding-top: 0;
   border-radius: var(--border-radius);
   transition: border 0.4s, background-color 0.4s;
-  border: 2px solid rgba(var(--color-text-base), 0.2);
+  border: 2px solid var(--color-border);
   background-color: rgba(var(--color-text-base), 0.05);
 
   .channel-thumbnail {
