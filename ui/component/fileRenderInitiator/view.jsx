@@ -16,13 +16,14 @@ import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import useGetPoster from 'effects/use-get-poster';
+import { LiveCommentContext } from 'component/livestreamComment/view';
 
 type Props = {
   channelClaimId: ?string,
   isPlaying: boolean,
   fileInfo: FileListItem,
   uri: string,
-  history: { push: (string) => void },
+  history: { push: (params: string | { pathname: string, state: ?{} }) => void },
   location: { search: ?string, pathname: string, href: string, state: { forceAutoplay: boolean } },
   obscurePreview: boolean,
   insufficientCredits: boolean,
@@ -71,6 +72,8 @@ export default function FileRenderInitiator(props: Props) {
     doFetchChannelLiveStatus,
   } = props;
 
+  const { isLiveComment } = React.useContext(LiveCommentContext) || {};
+
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
 
@@ -109,9 +112,9 @@ export default function FileRenderInitiator(props: Props) {
   const thumbnail = useGetPoster(claimThumbnail);
 
   function handleClick() {
-    if (embedded && !isPlayable) {
+    if (isLiveComment || (embedded && !isPlayable)) {
       const formattedUrl = formatLbryUrlForWeb(uri);
-      history.push(formattedUrl);
+      history.push({ pathname: formattedUrl, state: isLiveComment ? { overrideFloating: true } : undefined });
     } else {
       viewFile();
     }
