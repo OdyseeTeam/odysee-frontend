@@ -5,6 +5,7 @@ import * as React from 'react';
 import { isURIValid } from 'util/lbryURI';
 import Button from 'component/button';
 import CommentMenuList from 'component/commentMenuList';
+import ChannelTitle from 'component/channelTitle';
 
 import ClaimLink from 'component/claimLink';
 import { Menu, MenuButton } from '@reach/menu-button';
@@ -95,13 +96,16 @@ function MarkdownLink(props: Props) {
     }
   }
 
+  /*
   function resolveChildren(children) {
     // console.log('porps: ', props)
     for (let child of children) {
       console.log('kid: ', child);
+      child = child + 'll'
     }
     return children;
   }
+  */
 
   // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).
   // Return plain text if no valid url.
@@ -129,7 +133,7 @@ function MarkdownLink(props: Props) {
       element = (
         <Menu>
           <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
-            {resolveChildren(children)}
+            <ChannelTitle uri={decodedUri} fallback={children} isComment />
           </MenuButton>
 
           <CommentMenuList
