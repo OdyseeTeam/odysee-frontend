@@ -282,6 +282,7 @@ $recent-msg-button__height: 2rem;
   }
 
   .menu__button {
+    margin-top: var(--spacing-xs);
     margin-right: var(--spacing-xxs);
     background-color: var(--color-header-button);
     padding: 10px;
