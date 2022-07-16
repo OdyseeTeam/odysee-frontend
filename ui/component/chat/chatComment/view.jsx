@@ -5,7 +5,6 @@ import { getStickerUrl } from 'util/comments';
 import { Menu, MenuButton } from '@reach/menu-button';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
-import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
 import CommentBadge from 'component/common/comment-badge';
@@ -81,6 +80,14 @@ export default function ChatComment(props: Props) {
     return myChannelIds ? myChannelIds.includes(channelId) : false;
   }
 
+  function reduceUriToChannelName(uri: string = '') {
+    try {
+      return uri.substring(uri.indexOf('@'), uri.indexOf('#') + 2).replace('#', ':');
+    } catch {
+      return uri;
+    }
+  }
+
   // For every new <LivestreamComment /> component that is rendered on mobile view,
   // keep the scroll at the bottom (newest)
   React.useEffect(() => {
@@ -97,7 +104,7 @@ export default function ChatComment(props: Props) {
         'livestream__comment--mentioned': hasUserMention,
         'livestream__comment--mobile': isMobile,
       })}
-      onClick={() => handleCommentClick(comment && comment.channel_name)}
+      onClick={() => handleCommentClick(comment && reduceUriToChannelName(comment.channel_url))}
     >
       {supportAmount > 0 && (
         <div className="livestreamComment__superchatBanner">
@@ -110,13 +117,31 @@ export default function ChatComment(props: Props) {
         <ChannelThumbnail uri={authorUri} xsmall />
 
         <div className="livestreamComment__info">
-          <Button
-            className={classnames('button--uri-indicator comment__author', { 'comment__author--creator': isStreamer })}
-            target="_blank"
-            navigate={authorUri}
-          >
-            {claimName}
-          </Button>
+          <Menu>
+            <MenuButton
+              className={classnames('button--uri-indicator comment__author', {
+                'comment__author--creator': isStreamer,
+              })}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {claimName}
+            </MenuButton>
+
+            <CommentMenuList
+              uri={uri}
+              commentId={commentId}
+              authorUri={authorUri}
+              authorName={comment && comment.channel_name}
+              commentIsMine={commentIsMine}
+              isPinned={isPinned}
+              isTopLevel
+              disableEdit
+              disableRemove={comment.removed}
+              isLiveComment
+              handleDismissPin={handleDismissPin}
+              setQuickReply={handleCommentClick}
+            />
+          </Menu>
 
           {isPinned && (
             <span className="comment__pin">
@@ -149,6 +174,7 @@ export default function ChatComment(props: Props) {
                   disableTimestamps
                   setUserMention={setUserMention}
                   hasMembership={Boolean(odyseeMembership)}
+                  isComment
                 />
               )}
             </div>

@@ -333,8 +333,10 @@ $thumbnailWidthSmall: 2rem;
 
 .comment__author--creator {
   padding: 0 3px;
+  height: 18px;
   background-color: var(--color-primary);
   border-radius: var(--border-radius);
+  color: var(--color-primary-contrast) !important;
 
   .button__content {
     color: var(--color-primary-contrast);
@@ -345,6 +347,9 @@ $thumbnailWidthSmall: 2rem;
 
   &.button--uri-indicator {
     color: var(--color-primary-contrast);
+  }
+  &:hover {
+    color: var(--color-primary-contrast) !important;
   }
 }
 
@@ -430,8 +435,8 @@ $thumbnailWidthSmall: 2rem;
 
   &:not(:first-child) {
     margin-top: var(--spacing-xs);
-    padding-top: var(--spacing-xs);
-    border-top: 1px solid var(--color-border);
+    // padding-top: var(--spacing-xs);
+    // border-top: 1px solid var(--color-border);
   }
 
   &:not(:last-child) {
@@ -441,10 +446,13 @@ $thumbnailWidthSmall: 2rem;
 
 .comment__menu-help {
   @extend .help;
-  margin-top: var(--spacing-xs);
-  padding-left: calc(18px + var(--spacing-s));
+  // margin-top: var(--spacing-xxxs);
+  margin-top: 2px;
+  padding-left: calc(16px + var(--spacing-s));
   max-width: 15rem;
   white-space: pre-line;
+  opacity: 0.8;
+  font-size: var(--font-xsmall);
 
   .icon {
     vertical-align: top;

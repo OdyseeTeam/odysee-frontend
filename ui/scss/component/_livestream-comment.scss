@@ -19,7 +19,7 @@
     }
   }
 
-  .comment__author {
+  .comment__author:not(.comment__author--creator) {
     color: rgba(var(--color-text-base), 0.5);
     margin-top: var(--spacing-xxs);
     max-width: unset;
@@ -263,6 +263,11 @@
       .icon {
         flex-shrink: 0;
       }
+    }
+
+    .menu__button {
+      opacity: 1 !important;
+      color: var(--color-secondary);
     }
 
     .comment__badge {

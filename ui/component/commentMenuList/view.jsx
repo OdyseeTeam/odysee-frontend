@@ -177,20 +177,33 @@ function CommentMenuList(props: Props) {
       .then(() => doToast({ message: __('Link copied.') }));
   }
 
+  function reduceUriToChannelName(uri: string) {
+    try {
+      return uri.substring(uri.indexOf('@'), uri.indexOf('#') + 2).replace('#', ':');
+    } catch {
+      return uri;
+    }
+  }
+
   return (
     <MenuList className="menu__list menu__chat-comment" onClick={(e) => e.stopPropagation()}>
+      {isLiveComment && (
+        <div className="comment__menu-target">
+          <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
+          <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
+            {authorTitle || authorName}
+            <Icon icon={ICONS.COPY_LINK} />
+          </NavLink>
+        </div>
+      )}
       {activeChannelIsCreator && <div className="comment__menu-title">{__('Creator tools')}</div>}
 
-      {isLiveComment && (
+      {isLiveComment && setQuickReply && (
         <>
-          <div className="comment__menu-target">
-            <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
-            <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
-              {authorTitle || authorName}
-              <Icon icon={ICONS.COPY_LINK} />
-            </NavLink>
-          </div>
-          <MenuItem className="comment__menu-option menu__link" onSelect={() => setQuickReply(authorName)}>
+          <MenuItem
+            className="comment__menu-option menu__link"
+            onSelect={() => setQuickReply(reduceUriToChannelName(authorUri))}
+          >
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />
               {__('Reply')}
@@ -241,6 +254,7 @@ function CommentMenuList(props: Props) {
       )}
 
       {!disableRemove &&
+        setQuickReply &&
         activeChannelClaim &&
         (activeChannelIsModerator ||
           activeChannelIsAdmin ||

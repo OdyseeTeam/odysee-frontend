@@ -4,7 +4,10 @@ import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import { isURIValid } from 'util/lbryURI';
 import Button from 'component/button';
+import CommentMenuList from 'component/commentMenuList';
+
 import ClaimLink from 'component/claimLink';
+import { Menu, MenuButton } from '@reach/menu-button';
 import { useIsMobile } from 'effects/use-screensize';
 
 type Props = {
@@ -18,6 +21,7 @@ type Props = {
   simpleLinks?: boolean,
   myChannelUrls: ?Array<string>,
   setUserMention?: (boolean) => void,
+  isComment?: boolean,
 };
 
 function MarkdownLink(props: Props) {
@@ -32,6 +36,7 @@ function MarkdownLink(props: Props) {
     simpleLinks = false,
     myChannelUrls,
     setUserMention,
+    isComment,
   } = props;
 
   const isMobile = useIsMobile();
@@ -87,6 +92,11 @@ function MarkdownLink(props: Props) {
     }
   }
 
+  function resolveChildren(children) {
+    console.log('kids: ', children);
+    return children;
+  }
+
   // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).
   // Return plain text if no valid url.
   // Return external link if protocol is http or https.
@@ -109,23 +119,47 @@ function MarkdownLink(props: Props) {
       />
     );
   } else if (!simpleLinks && ((protocol && protocol[0] === 'lbry:' && isURIValid(decodedUri)) || lbryUrlFromLink)) {
-    element = (
-      <ClaimLink
-        uri={lbryUrlFromLink || decodedUri}
-        autoEmbed={embed}
-        parentCommentId={parentCommentId}
-        isMarkdownPost={isMarkdownPost}
-        allowPreview={allowPreview}
-      >
-        {children}
-      </ClaimLink>
-    );
+    if (isComment && setUserMention) {
+      element = (
+        <Menu>
+          <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
+            {resolveChildren(children)}
+          </MenuButton>
+
+          <CommentMenuList
+            uri={lbryUrlFromLink || decodedUri}
+            // commentId={commentId}
+            authorUri={lbryUrlFromLink || decodedUri}
+            // authorName={comment && comment.channel_name}
+            // commentIsMine={commentIsMine}
+            // isPinned={isPinned}
+            // isTopLevel
+            // disableEdit
+            // disableRemove={comment.removed}
+            isLiveComment
+            // handleDismissPin={handleDismissPin}
+            // setQuickReply={handleCommentClick}
+          />
+        </Menu>
+      );
+    } else {
+      element = (
+        <ClaimLink
+          uri={lbryUrlFromLink || decodedUri}
+          autoEmbed={embed}
+          parentCommentId={parentCommentId}
+          isMarkdownPost={isMarkdownPost}
+          allowPreview={allowPreview}
+        >
+          {children}
+        </ClaimLink>
+      );
+    }
   } else if (
     simpleLinks ||
     (protocol && (protocol[0] === 'http:' || protocol[0] === 'https:' || protocol[0] === 'mailto:'))
   ) {
     const isLbryLink = href.startsWith('lbry://');
-
     element = (
       <Button
         button="link"

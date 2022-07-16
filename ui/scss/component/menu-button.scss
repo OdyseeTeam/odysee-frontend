@@ -189,6 +189,9 @@ reach-portal {
 
 .menu__chat-comment {
   padding: 0 0 var(--spacing-xxs) 0;
+  .menu__separator:last-of-type {
+    display: none;
+  }
 }
 
 .menu__list--comments {
