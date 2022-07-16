@@ -349,6 +349,13 @@ export default function ChatLayout(props: Props) {
             />
           )}
 
+          {viewMode === VIEW_MODES.SUPERCHAT && superChatsByAmount && (
+            <div className="livestream-hyperchat-orderOptions">
+              <b>Order by: </b>
+              <label className="active">Date</label> | <label>amount</label>
+            </div>
+          )}
+
           {pinnedComment &&
             viewMode === VIEW_MODES.CHAT &&
             (isMobile ? (

@@ -17,7 +17,7 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
 import PremiumBadge from 'component/premiumBadge';
-// import { string } from 'prop-types';
+import { Lbryio } from 'lbryinc';
 
 type Props = {
   comment: Comment,
@@ -67,6 +67,12 @@ export default function ChatComment(props: Props) {
     timestamp,
   } = comment;
 
+  const [exchangeRate, setExchangeRate] = React.useState(0);
+  React.useEffect(() => {
+    if (!exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
+  }, [exchangeRate]);
+
+  const basedAmount = isFiat && exchangeRate ? supportAmount : supportAmount * exchangeRate;
   const [hasUserMention, setUserMention] = React.useState(false);
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;
@@ -102,7 +108,12 @@ export default function ChatComment(props: Props) {
   return (
     <li
       className={classnames('livestream__comment', {
-        'livestream__comment--superchat': supportAmount > 0,
+        'livestream__comment--superchat': basedAmount,
+        'hyperchat-level1': basedAmount >= 5,
+        'hyperchat-level2': basedAmount >= 10,
+        'hyperchat-level3': basedAmount >= 50,
+        'hyperchat-level4': basedAmount >= 100,
+        'hyperchat-level5': basedAmount >= 500,
         'livestream__comment--sticker': isSticker,
         'livestream__comment--mentioned': hasUserMention,
         'livestream__comment--mobile': isMobile,

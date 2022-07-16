@@ -623,6 +623,7 @@ $recent-msg-button__height: 2rem;
   // border-bottom: 2px solid var(--color-border);
   font-size: var(--font-small);
   background: linear-gradient(180deg, var(--color-header-background) 0%, transparent 100%);
+  margin-bottom: var(--spacing-xs);
 
   @media (min-width: $breakpoint-small) {
     padding: 0 var(--spacing-xs);
@@ -697,7 +698,6 @@ $recent-msg-button__height: 2rem;
   flex-shrink: 0;
   position: relative;
 
-  margin-top: var(--spacing-xs);
   font-size: var(--font-small);
   border-radius: var(--border-radius);
   background: linear-gradient(180deg, var(--color-primary) 0%, transparent 100%);
@@ -878,6 +878,8 @@ $recent-msg-button__height: 2rem;
   // padding-top: 0;
   border-radius: var(--border-radius);
   transition: border 0.4s, background-color 0.4s;
+  border: 2px solid rgba(var(--color-text-base), 0.2);
+  background-color: rgba(var(--color-text-base), 0.05);
 
   .channel-thumbnail {
     margin-right: var(--spacing-xxs);
@@ -899,15 +901,7 @@ $recent-msg-button__height: 2rem;
     max-width: 5rem;
   }
 
-  &:first-of-type {
-    border: 2px solid rgba(mix(#de0050, #ffa236, 100%), 1);
-    background-color: rgba(mix(#de0050, #ffa236, 100%), 0.2);
-
-    .channel-name {
-      max-width: 8rem;
-    }
-  }
-
+  /*
   &:nth-of-type(2) {
     border: 2px solid rgba(mix(#de0050, #ffa236, 75%), 1);
     background-color: rgba(mix(#de0050, #ffa236, 75%), 0.2);
@@ -924,6 +918,16 @@ $recent-msg-button__height: 2rem;
     border: 2px solid rgba(mix(#de0050, #ffa236, 0%), 1);
     background-color: rgba(mix(#de0050, #ffa236, 0%), 0.2);
   }
+  */
+}
+
+.hyperchat-preview-level1 {
+  border: 2px solid rgba(mix(#de0050, #ffa236, 100%), 1);
+  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.2);
+
+  .channel-name {
+    max-width: 8rem;
+  }
 }
 
 .livestream-hyperchat--mobile {
@@ -938,6 +942,14 @@ $recent-msg-button__height: 2rem;
     font-size: var(--font-xxsmall);
     color: var(--color-text-subtitle);
   }
+}
+
+.livestream-hyperchat-orderOptions {
+  padding: 0 var(--spacing-xs);
+  padding-bottom: var(--spacing-xxxs);
+  //border-bottom:1px solid var(--color-header-background);
+  font-size: var(--font-small);
+  background: linear-gradient(180deg, var(--color-header-background) 80%, transparent 100%);
 }
 
 .livestreamHyperchat__info {

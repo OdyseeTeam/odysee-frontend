@@ -13,6 +13,7 @@ import React from 'react';
 import Tooltip from 'component/common/tooltip';
 import UriIndicator from 'component/uriIndicator';
 import Slide from '@mui/material/Slide';
+import { Lbryio } from 'lbryinc';
 
 type Props = {
   superChats: Array<Comment>,
@@ -27,6 +28,11 @@ export default function LivestreamHyperchats(props: Props) {
   const superChatTopTen = React.useMemo(() => {
     return superChatsByAmount ? superChatsByAmount.slice(0, 10) : superChatsByAmount;
   }, [superChatsByAmount]);
+
+  const [exchangeRate, setExchangeRate] = React.useState(0);
+  React.useEffect(() => {
+    if (!exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
+  }, [exchangeRate]);
 
   const stickerSuperChats = superChatsByAmount && superChatsByAmount.filter(({ comment }) => !!parseSticker(comment));
 
@@ -68,12 +74,18 @@ export default function LivestreamHyperchats(props: Props) {
             const { comment, comment_id, channel_url, support_amount, is_fiat } = superChat;
             const isSticker = stickerSuperChats && stickerSuperChats.includes(superChat);
             const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
+            const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * exchangeRate;
 
             return showTooltip ? (
               <Tooltip disabled title={isSticker ? stickerImg : comment} key={comment_id}>
                 <div
                   className={classnames('livestream-hyperchat', {
                     'livestream-hyperchat--mobile': isMobile,
+                    'hyperchat-preview-level1': basedAmount >= 5,
+                    'hyperchat-preview-level2': basedAmount >= 10,
+                    'hyperchat-preview-level3': basedAmount >= 50,
+                    'hyperchat-preview-level4': basedAmount >= 100,
+                    'hyperchat-preview-level5': basedAmount >= 500,
                   })}
                 >
                   <ChannelThumbnail uri={channel_url} xsmall />

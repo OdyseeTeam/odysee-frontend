@@ -11,8 +11,6 @@ type Props = {
 function ChannelTitle(props: Props) {
   const { title, claim, isComment, fallback } = props;
 
-  console.log('dsfdsf: ', props);
-
   if (isComment) {
     if (!title) return fallback;
     else return title;
