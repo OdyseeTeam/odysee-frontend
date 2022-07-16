@@ -1,6 +1,7 @@
 // @flow
 import { EMOTES_48px as ODYSEE_EMOTES } from 'constants/emotes';
 import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import Button from 'component/button';
 import CreditAmount from 'component/common/credit-amount';
 import React from 'react';
@@ -62,24 +63,26 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
   return (
     <div className="selector-menu">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
-      {/*
-        <div className="emote-categories">
-          <Icon icon={ICONS.TIME} />
-          <img
-            src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-            style={{ borderRadius: '50%' }}
-          />
-          <img src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png" />
-          <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/144/twitter/141/grinning-face_1f600.png" />
-          <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/bear_1f43b.png" />
-          <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/basketball_1f3c0.png" />
-          <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/sparkling-heart_1f496.png" />
-          <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/pirate-flag_1f3f4-200d-2620-fe0f.png" />
-        </div>
+      {false && (
+        <>
+          <div className="emote-categories">
+            <Icon icon={ICONS.TIME} />
+            <img
+              src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
+              style={{ borderRadius: '50%' }}
+            />
+            <img src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png" />
+            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/144/twitter/141/grinning-face_1f600.png" />
+            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/bear_1f43b.png" />
+            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/basketball_1f3c0.png" />
+            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/sparkling-heart_1f496.png" />
+            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/pirate-flag_1f3f4-200d-2620-fe0f.png" />
+          </div>
 
-      <EmoteCategory title={__('Recently used')} {...defaultRowProps} />
-      <EmoteCategory title={__('Member exclusive')} {...defaultRowProps} />
-      */}
+          <EmoteCategory title={__('Recently used')} {...defaultRowProps} />
+          <EmoteCategory title={__('Member exclusive')} {...defaultRowProps} />
+        </>
+      )}
       <EmoteCategory title={__('Odysee')} images={ODYSEE_EMOTES} {...defaultRowProps} />
     </div>
   );
@@ -97,23 +100,25 @@ const StickersPanel = (stickersProps: StickersProps) => {
   const defaultRowProps = { handleSelect };
 
   return (
-    <div className="selector-menu--stickers">
+    <div className="selector-menu">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
 
-      {/* 
-        NEKO PREPARATION 
-        <div className="emote-categories">        
-          <Icon icon={ICONS.TIME} />
-          <img
-            src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-            style={{ borderRadius: '50%' }}
-          />
-          <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
-          <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
-        </div>
-        <StickerCategory title={__('Recently used')} {...defaultRowProps} />
-        <StickerCategory title={__('Member exclusive')} {...defaultRowProps} />
-      */}
+      {false && (
+        /* NEKO PREPARATION */
+        <>
+          <div className="emote-categories">
+            <Icon icon={ICONS.TIME} />
+            <img
+              src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
+              style={{ borderRadius: '50%' }}
+            />
+            <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
+            <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
+          </div>
+          <StickerCategory title={__('Recently used')} {...defaultRowProps} />
+          <StickerCategory title={__('Member exclusive')} {...defaultRowProps} />
+        </>
+      )}
 
       <StickerCategory title={__('Free')} images={FREE_GLOBAL_STICKERS} {...defaultRowProps} />
       {!claimIsMine && <StickerCategory title={__('Tips')} images={PAID_GLOBAL_STICKERS} {...defaultRowProps} />}
@@ -162,7 +167,7 @@ const StickerCategory = (rowProps: RowProps) => {
   const { images, handleSelect } = rowProps;
 
   return (
-    <div className="sticker-selector__body-row">
+    <div>
       {/*
         <label id={title} className="chatImage-category-title">
           {title}

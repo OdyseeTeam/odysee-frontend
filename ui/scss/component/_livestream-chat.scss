@@ -536,7 +536,7 @@ $recent-msg-button__height: 2rem;
         .tab {
           background-color: rgba(var(--color-header-button-base), 0.3);
           border-radius: var(--border-radius) var(--border-radius) 0 0;
-          padding: var(--spacing-xxxs) var(--spacing-s);
+          padding: var(--spacing-xxxs) var(--spacing-s) 0 var(--spacing-s);
           margin-top: var(--spacing-s);
           margin-right: 0;
           opacity: 0.8;
@@ -558,14 +558,12 @@ $recent-msg-button__height: 2rem;
         border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
         .button--close {
           margin-right: calc(var(--spacing-xxs) * -1);
+          margin-top: 4px;
           background-color: var(--color-header-button);
           &:hover {
             background-color: var(--color-primary);
           }
         }
-      }
-      .selector-menu--stickers {
-        background-color: var(--color-header-button);
       }
     }
   }

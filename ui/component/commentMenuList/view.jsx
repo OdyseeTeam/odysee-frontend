@@ -11,11 +11,14 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
+import { NavLink } from 'react-router-dom';
+import { formatLbryUrlForWeb } from 'util/url';
 
 type Props = {
   uri: ?string,
   authorUri: string, // full LBRY Channel URI: lbry://@channel#123...
   authorName: string,
+  authorTitle: string,
   commentId: string, // sha256 digest identifying the comment
   isTopLevel: boolean,
   isPinned: boolean,
@@ -49,6 +52,7 @@ function CommentMenuList(props: Props) {
     claimIsMine,
     authorUri,
     authorName,
+    authorTitle,
     commentIsMine,
     commentId,
     activeChannelClaim,
@@ -174,11 +178,18 @@ function CommentMenuList(props: Props) {
   }
 
   return (
-    <MenuList className="menu__list" onClick={(e) => e.stopPropagation()}>
+    <MenuList className="menu__list menu__chat-comment" onClick={(e) => e.stopPropagation()}>
       {activeChannelIsCreator && <div className="comment__menu-title">{__('Creator tools')}</div>}
 
       {isLiveComment && (
         <>
+          <div className="comment__menu-target">
+            <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />
+            <NavLink className="comment__menu-channel" to={formatLbryUrlForWeb(authorUri)}>
+              {authorTitle || authorName}
+              <Icon icon={ICONS.COPY_LINK} />
+            </NavLink>
+          </div>
           <MenuItem className="comment__menu-option menu__link" onSelect={() => setQuickReply(authorName)}>
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />
@@ -278,7 +289,7 @@ function CommentMenuList(props: Props) {
         </MenuItem>
       )}
 
-      {activeChannelClaim && (
+      {activeChannelClaim && !isLiveComment && (
         <div className="comment__menu-active">
           <ChannelThumbnail xsmall noLazyLoad uri={activeChannelClaim.permanent_url} />
           <div className="comment__menu-channel">
