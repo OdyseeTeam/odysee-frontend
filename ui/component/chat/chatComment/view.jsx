@@ -25,7 +25,7 @@ type Props = {
   uri: string,
   // --- redux:
   claim: StreamClaim,
-  myChannelIds: ?Array<string>,
+  // myChannelIds: ?Array<string>,
   stakedLevel: number,
   isMobile?: boolean,
   odyseeMembership: string,
@@ -34,6 +34,7 @@ type Props = {
   handleCommentClick: (any) => void,
   claimsByUri: { [string]: any },
   authorTitle: string,
+  activeChannelClaim?: any,
 };
 
 export default function ChatComment(props: Props) {
@@ -42,7 +43,7 @@ export default function ChatComment(props: Props) {
     forceUpdate,
     uri,
     claim,
-    myChannelIds,
+    // myChannelIds,
     stakedLevel,
     isMobile,
     handleDismissPin,
@@ -50,6 +51,7 @@ export default function ChatComment(props: Props) {
     handleCommentClick,
     odyseeMembership,
     authorTitle,
+    activeChannelClaim,
   } = props;
 
   const {
@@ -77,7 +79,8 @@ export default function ChatComment(props: Props) {
 
   // todo: implement comment_list --mine in SDK so redux can grab with selectCommentIsMine
   function isMyComment(channelId: string) {
-    return myChannelIds ? myChannelIds.includes(channelId) : false;
+    // return myChannelIds ? myChannelIds.includes(channelId) : false;
+    return activeChannelClaim && activeChannelClaim.claim_id === channelId;
   }
 
   function reduceUriToChannelName(uri: string = '') {

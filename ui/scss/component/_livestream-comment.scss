@@ -81,7 +81,7 @@
 }
 
 .livestream__comment--mentioned {
-  background-color: var(--color-card-background-highlighted);
+  background-color: rgba(var(--color-header-background-base), 0.2);
 }
 
 .livestreamComment__info {

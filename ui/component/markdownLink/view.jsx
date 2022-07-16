@@ -19,7 +19,8 @@ type Props = {
   parentCommentId?: string,
   isMarkdownPost?: boolean,
   simpleLinks?: boolean,
-  myChannelUrls: ?Array<string>,
+  // myChannelUrls: ?Array<string>,
+  activeChannelClaim: any,
   setUserMention?: (boolean) => void,
   isComment?: boolean,
 };
@@ -34,9 +35,10 @@ function MarkdownLink(props: Props) {
     parentCommentId,
     isMarkdownPost,
     simpleLinks = false,
-    myChannelUrls,
+    // myChannelUrls,
     setUserMention,
     isComment,
+    activeChannelClaim,
   } = props;
 
   const isMobile = useIsMobile();
@@ -52,8 +54,9 @@ function MarkdownLink(props: Props) {
   const protocolRegex = new RegExp('^(https?|lbry|mailto)+:', 'i');
   const protocol = href ? protocolRegex.exec(href) : null;
   const isMention = href && href.startsWith('lbry://@');
+  // const mentionedMyChannel = isMention && (myChannelUrls ? myChannelUrls.some((url) => url.replace('#', ':') === href) : false);
   const mentionedMyChannel =
-    isMention && (myChannelUrls ? myChannelUrls.some((url) => url.replace('#', ':') === href) : false);
+    isMention && activeChannelClaim && activeChannelClaim.canonical_url.replace('#', ':') === href;
 
   React.useEffect(() => {
     if (mentionedMyChannel && setUserMention) setUserMention(true);
@@ -93,7 +96,10 @@ function MarkdownLink(props: Props) {
   }
 
   function resolveChildren(children) {
-    console.log('kids: ', children);
+    // console.log('porps: ', props)
+    for (let child of children) {
+      console.log('kid: ', child);
+    }
     return children;
   }
 

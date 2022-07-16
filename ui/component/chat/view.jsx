@@ -249,7 +249,7 @@ export default function ChatLayout(props: Props) {
   }, [keyboardOpened, restoreScrollPos]);
 
   React.useEffect(() => {
-    if (textInjection.length) setTextInjection('');
+    if (textInjection && textInjection.length) setTextInjection('');
   }, [textInjection]);
 
   if (!claimId) return null;

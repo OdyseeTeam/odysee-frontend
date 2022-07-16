@@ -91,10 +91,6 @@ function Page(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnFilePage, isMediumScreen]);
 
-  React.useEffect(() => {
-    if (children) console.log('children: ', children);
-  }, [children]);
-
   return (
     <>
       <Wallpaper uri={url} />

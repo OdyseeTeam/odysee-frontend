@@ -334,6 +334,7 @@ $thumbnailWidthSmall: 2rem;
 .comment__author--creator {
   padding: 0 3px;
   height: 18px;
+  margin-top: var(--spacing-s);
   background-color: var(--color-primary);
   border-radius: var(--border-radius);
   color: var(--color-primary-contrast) !important;
