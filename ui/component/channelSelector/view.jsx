@@ -14,7 +14,7 @@ import PremiumBadge from 'component/premiumBadge';
 type Props = {
   selectedChannelUrl: string, // currently selected channel
   channels: ?Array<ChannelClaim>,
-  onChannelSelect: (url: string) => void,
+  onChannelSelect?: (id: ?string) => void,
   hideAnon?: boolean,
   activeChannelClaim: ?ChannelClaim,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
@@ -26,8 +26,11 @@ type Props = {
   storeSelection?: boolean,
   doSetDefaultChannel: (claimId: string) => void,
   isHeaderMenu?: boolean,
+  isPublishMenu?: boolean,
+  isTabHeader?: boolean,
   autoSet?: boolean,
   channelToSet?: string,
+  disabled?: boolean,
 };
 
 export default function ChannelSelector(props: Props) {
@@ -35,6 +38,7 @@ export default function ChannelSelector(props: Props) {
     channels,
     activeChannelClaim,
     doSetActiveChannel,
+    onChannelSelect,
     incognito,
     doSetIncognito,
     odyseeMembershipByUri,
@@ -43,8 +47,11 @@ export default function ChannelSelector(props: Props) {
     storeSelection,
     doSetDefaultChannel,
     isHeaderMenu,
+    isPublishMenu,
+    isTabHeader,
     autoSet,
     channelToSet,
+    disabled,
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
@@ -57,11 +64,14 @@ export default function ChannelSelector(props: Props) {
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
 
   function handleChannelSelect(channelClaim) {
+    const { claim_id: id } = channelClaim;
+
     doSetIncognito(false);
-    doSetActiveChannel(channelClaim.claim_id);
+    doSetActiveChannel(id);
+    if (onChannelSelect) onChannelSelect(id);
 
     if (storeSelection) {
-      doSetDefaultChannel(channelClaim.claim_id);
+      doSetDefaultChannel(id);
     }
   }
 
@@ -80,7 +90,13 @@ export default function ChannelSelector(props: Props) {
   }, []);
 
   return (
-    <div className="channel__selector">
+    <div
+      className={classnames('channel__selector', {
+        'channel__selector--publish': isPublishMenu,
+        'channel__selector--tabHeader': isTabHeader,
+        disabled: disabled,
+      })}
+    >
       <Menu>
         {isHeaderMenu ? (
           <MenuButton className="menu__link">
@@ -99,12 +115,19 @@ export default function ChannelSelector(props: Props) {
                 isSelected
                 claimsByUri={claimsByUri}
                 doFetchUserMemberships={doFetchUserMemberships}
+                isPublishMenu={isPublishMenu}
+                isTabHeader={isTabHeader}
               />
             )}
           </MenuButton>
         )}
 
-        <MenuList className="menu__list channel__list">
+        <MenuList
+          className={classnames('menu__list channel__list', {
+            'channel__list--publish': isPublishMenu,
+            'channel__list--tabHeader': isTabHeader,
+          })}
+        >
           {channels &&
             channels.map((channel) => (
               <MenuItem key={channel.permanent_url} onSelect={() => handleChannelSelect(channel)}>
@@ -113,11 +136,18 @@ export default function ChannelSelector(props: Props) {
                   uri={channel.permanent_url}
                   claimsByUri={claimsByUri}
                   doFetchUserMemberships={doFetchUserMemberships}
+                  isPublishMenu={isPublishMenu}
+                  isTabHeader={isTabHeader}
                 />
               </MenuItem>
             ))}
           {!hideAnon && (
-            <MenuItem onSelect={() => doSetIncognito(true)}>
+            <MenuItem
+              onSelect={() => {
+                doSetIncognito(true);
+                if (onChannelSelect) onChannelSelect(undefined);
+              }}
+            >
               <IncognitoSelector />
             </MenuItem>
           )}
@@ -138,6 +168,9 @@ type ListItemProps = {
   isSelected?: boolean,
   claimsByUri: { [string]: any },
   doFetchUserMemberships: (claimIdCsv: string) => void,
+  odyseeMembershipByUri: (uri: string) => string,
+  isPublishMenu?: boolean,
+  isTabHeader?: boolean,
 };
 
 function ChannelListItem(props: ListItemProps) {
@@ -147,7 +180,11 @@ function ChannelListItem(props: ListItemProps) {
   useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships, [uri]);
 
   return (
-    <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
+    <div
+      className={classnames('channel__list-item', {
+        'channel__list-item--selected': isSelected,
+      })}
+    >
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
       <PremiumBadge uri={uri} />

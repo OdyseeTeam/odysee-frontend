@@ -4,7 +4,7 @@ import isDev from 'electron-is-dev';
 import { ipcRenderer, remote } from 'electron';
 // @endif
 import path from 'path';
-import { MINIMUM_VERSION, URL } from 'config';
+import { MINIMUM_VERSION, IGNORE_MINIMUM_VERSION, URL } from 'config';
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
@@ -290,12 +290,13 @@ export function doMinVersionCheck() {
 
 export function doMinVersionSubscribe() {
   return (dispatch) => {
-    // @if process.env.NODE_ENV='production'
-    dispatch(doMinVersionCheck());
+    if (IGNORE_MINIMUM_VERSION === 'true') {
+      return;
+    }
 
+    dispatch(doMinVersionCheck());
     const CHECK_UPGRADE_INTERVAL_MS = 60 * 60 * 1000;
     setInterval(() => dispatch(doMinVersionCheck()), CHECK_UPGRADE_INTERVAL_MS);
-    // @endif
   };
 }
 
@@ -629,8 +630,10 @@ export function doGetAndPopulatePreferences(syncId /* ?: number */) {
   return (dispatch, getState) => {
     const state = getState();
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
-    const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
+    const hasVerifiedEmail = selectUserVerifiedEmail(state);
     let preferenceKey;
+    // TODO: the logic should match `runPreferences`, but since this function is
+    // only hit as a successful sync callback, it doesn't matter for now.
     // @if TARGET='app'
     preferenceKey = syncEnabled && hasVerifiedEmail ? 'shared' : 'local';
     // @endif
@@ -647,7 +650,6 @@ export function doGetAndPopulatePreferences(syncId /* ?: number */) {
         }
 
         // @if TARGET='app'
-
         const { settings } = savedPreferences.value;
         if (settings) {
           Object.entries(settings).forEach(([key, val]) => {
@@ -748,14 +750,19 @@ export function doSetAdBlockerFound(found) {
   };
 }
 
-export function doToggleAppDrawer(open) {
+export function doToggleAppDrawer(type) {
   return (dispatch, getState) => {
     const state = getState();
-    const isOpen = selectAppDrawerOpen(state);
+    const openDrawer = selectAppDrawerOpen(state);
+    const isOpen = openDrawer && openDrawer === type;
 
-    dispatch({
-      type: ACTIONS.DRAWER_OPENED,
-      data: !isOpen,
-    });
+    if (isOpen) {
+      dispatch({ type: ACTIONS.DRAWER_CLOSED });
+    } else {
+      dispatch({ type: ACTIONS.DRAWER_OPENED, data: type });
+    }
   };
 }
+
+export const doSetMainPlayerDimension = (dimensions) => (dispatch) =>
+  dispatch({ type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS, data: dimensions });

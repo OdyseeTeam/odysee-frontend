@@ -4,6 +4,7 @@ require('dotenv-defaults').config({ silent: false });
 
 const config = {
   MINIMUM_VERSION: process.env.MINIMUM_VERSION,
+  IGNORE_MINIMUM_VERSION: process.env.IGNORE_MINIMUM_VERSION,
   WEBPACK_WEB_PORT: process.env.WEBPACK_WEB_PORT,
   WEBPACK_ELECTRON_PORT: process.env.WEBPACK_ELECTRON_PORT,
   WEB_SERVER_PORT: process.env.WEB_SERVER_PORT,
@@ -92,6 +93,10 @@ const config = {
 
   AD_KEYWORD_BLOCKLIST: process.env.AD_KEYWORD_BLOCKLIST,
   AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION: process.env.AD_KEYWORD_BLOCKLIST_CHECK_DESCRIPTION,
+
+  // FROM COMMAND LINE
+  COMMIT_ID: process.env.COMMIT_ID,
+  NODE_ENV: process.env.NODE_ENV,
 };
 
 config.SDK_API_PATH = `${config.LBRY_WEB_API}/api/v1`;

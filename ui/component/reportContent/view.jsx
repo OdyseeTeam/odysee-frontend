@@ -4,11 +4,13 @@ import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import ClaimPreview from 'component/claimPreview';
+import Comment from 'component/comment';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import ErrorText from 'component/common/error-text';
 import Icon from 'component/common/icon';
 import { COUNTRIES } from 'util/country';
+import { URL } from 'config';
 import { EMAIL_REGEX } from 'constants/email';
 import {
   FF_MAX_CHARS_REPORT_CONTENT_DETAILS,
@@ -57,23 +59,41 @@ const DEFAULT_INPUT_DATA = {
 };
 
 type Props = {
+  // --- urlParams ---
   claimId: string,
+  commentId?: string,
+  // --- redux ---
   claim: StreamClaim,
+  comment?: Comment,
   isReporting: boolean,
   error: string,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
-  doClaimSearch: (any) => void,
+  doClaimSearch: (any) => Promise<any>,
+  doCommentById: (string, boolean) => Promise<any>,
   doReportContent: (string, string) => void,
 };
 
 export default function ReportContent(props: Props) {
-  const { isReporting, error, activeChannelClaim, incognito, claimId, claim, doClaimSearch, doReportContent } = props;
+  const {
+    isReporting,
+    error,
+    activeChannelClaim,
+    incognito,
+    claimId,
+    commentId,
+    claim,
+    comment,
+    doClaimSearch,
+    doCommentById,
+    doReportContent,
+  } = props;
 
   const [input, setInput] = React.useState({ ...DEFAULT_INPUT_DATA });
   const [page, setPage] = React.useState(PAGE_TYPE);
   const [timestampInvalid, setTimestampInvalid] = React.useState(false);
   const [isResolvingClaim, setIsResolvingClaim] = React.useState(false);
+  const [isResolvingComment, setIsResolvingComment] = React.useState(false);
   const { goBack } = useHistory();
 
   // Resolve claim if URL is entered directly or if page is reloaded.
@@ -85,9 +105,21 @@ export default function ReportContent(props: Props) {
         page: 1,
         no_totals: true,
         claim_ids: [claimId],
+      }).finally(() => {
+        setIsResolvingClaim(false);
       });
     }
-  }, [claim, claimId]);
+  }, [claim, claimId, doClaimSearch]);
+
+  // Fetch comment if `commentId` is provided
+  React.useEffect(() => {
+    if (commentId) {
+      setIsResolvingComment(true);
+      doCommentById(commentId, false).finally(() => {
+        setIsResolvingComment(false);
+      });
+    }
+  }, [commentId, doCommentById]);
 
   // On mount, pause player and get the timestamp, if applicable.
   React.useEffect(() => {
@@ -102,17 +134,22 @@ export default function ReportContent(props: Props) {
       const str = (n) => n.toLocaleString('en-US', { minimumIntegerDigits: 2, useGrouping: false });
       updateInput('timestamp', str(h) + ':' + str(m) + ':' + str(s));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  React.useEffect(() => {
-    let timer;
-    if (isResolvingClaim) {
-      timer = setTimeout(() => {
-        setIsResolvingClaim(false);
-      }, 3000);
+  function getCommentUrl(contentClaim, commentId) {
+    if (commentId) {
+      if (contentClaim && contentClaim.canonical_url) {
+        const canonical = contentClaim.canonical_url.replace(/#/g, ':');
+        const commentUrl = `${canonical.replace('lbry://', `${URL}/`)}?lc=${commentId}`;
+        return commentUrl + '\n\n';
+      } else {
+        return commentId + '\n\n';
+      }
+    } else {
+      return '';
     }
-    return () => clearTimeout(timer);
-  }, [isResolvingClaim]);
+  }
 
   function onSubmit() {
     if (!claim) {
@@ -173,8 +210,8 @@ export default function ReportContent(props: Props) {
       default:
         pushParam(params, 'type', input.type);
         pushParam(params, 'category', input.category);
-        pushParam(params, 'additional_details', input.additionalDetails);
-        if (includeTimestamp(claim)) {
+        pushParam(params, 'additional_details', getCommentUrl(claim, commentId) + input.additionalDetails);
+        if (includeTimestamp(claim, commentId)) {
           pushParam(params, 'timestamp', input.timestamp);
         }
         break;
@@ -221,7 +258,7 @@ export default function ReportContent(props: Props) {
             return false;
         }
       default:
-        return (!includeTimestamp(claim) || isTimestampValid(input.timestamp)) && input.additionalDetails;
+        return (!includeTimestamp(claim, commentId) || isTimestampValid(input.timestamp)) && input.additionalDetails;
     }
   }
 
@@ -258,9 +295,11 @@ export default function ReportContent(props: Props) {
     }
   }
 
-  function includeTimestamp(claim: StreamClaim) {
+  function includeTimestamp(claim: StreamClaim, commentId: ?string) {
     return (
-      claim.value_type === 'stream' && (claim.value.stream_type === 'video' || claim.value.stream_type === 'audio')
+      !commentId &&
+      claim.value_type === 'stream' &&
+      (claim.value.stream_type === 'video' || claim.value.stream_type === 'audio')
     );
   }
 
@@ -281,6 +320,7 @@ export default function ReportContent(props: Props) {
                       key={x}
                       label={__(String(x))}
                       checked={x === input.type}
+                      disabled={x === REPORT_API.INFRINGES_MY_RIGHTS && commentId}
                       onChange={() => updateInput('type', x)}
                     />
                   );
@@ -466,7 +506,7 @@ export default function ReportContent(props: Props) {
           default:
             body = (
               <>
-                {includeTimestamp(claim) && (
+                {includeTimestamp(claim, commentId) && (
                   <div className="section">
                     <FormField
                       type="text"
@@ -711,20 +751,54 @@ export default function ReportContent(props: Props) {
   }
 
   function getClaimPreview(claim: StreamClaim) {
-    return (
+    return claim ? (
       <div className="section">
         <ClaimPreview uri={claim.permanent_url} hideMenu hideActions nonClickable type="small" />
       </div>
+    ) : null;
+  }
+
+  function getCommentPreviews(comment: ?Comment) {
+    return comment ? (
+      <div className="section non-clickable">
+        <Comment comment={comment} isTopLevel hideActions hideContextMenu />
+      </div>
+    ) : null;
+  }
+
+  // **************************************************************************
+  // **************************************************************************
+
+  // --- Report comment ---
+  if (commentId) {
+    if (!claimId) {
+      return <Card title={__('Report comment')} subtitle={__("Missing 'claimId' parameter.")} />;
+    } else {
+      return (
+        <Form onSubmit={onSubmit}>
+          <Card
+            title={__('Report comment')}
+            subtitle={getCommentPreviews(comment)}
+            actions={comment ? getActionElem() : isResolvingComment ? <Spinner /> : __('Invalid comment ID')}
+          />
+        </Form>
+      );
+    }
+  }
+
+  // --- Report content ---
+  if (claimId) {
+    return (
+      <Form onSubmit={onSubmit}>
+        <Card
+          title={claim && claim.value_type === 'channel' ? __('Report channel') : __('Report content')}
+          subtitle={getClaimPreview(claim)}
+          actions={claim ? getActionElem() : isResolvingClaim ? <Spinner /> : __('Invalid claim ID')}
+        />
+      </Form>
     );
   }
 
-  return (
-    <Form onSubmit={onSubmit}>
-      <Card
-        title={claim && claim.value_type === 'channel' ? __('Report channel') : __('Report content')}
-        subtitle={claim ? getClaimPreview(claim) : null}
-        actions={claim ? getActionElem() : isResolvingClaim ? <Spinner /> : __('Invalid claim ID')}
-      />
-    </Form>
-  );
+  // --- Invalid ---
+  return <Card title={__('Report content')} subtitle={__('Invalid parameters.')} />;
 }
