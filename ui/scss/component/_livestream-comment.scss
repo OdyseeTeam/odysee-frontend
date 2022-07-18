@@ -288,7 +288,8 @@
   padding-bottom: var(--spacing-xxs);
 
   .markdown-preview {
-    p {
+    p,
+    h1 {
       word-break: break-word;
     }
 
