@@ -72,7 +72,7 @@ export default function ChatComment(props: Props) {
     if (!exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
   }, [exchangeRate]);
 
-  const basedAmount = isFiat && exchangeRate ? supportAmount : supportAmount * exchangeRate;
+  const basedAmount = isFiat && exchangeRate ? supportAmount : supportAmount * 10 * exchangeRate;
   const [hasUserMention, setUserMention] = React.useState(false);
 
   const isStreamer = claim && claim.signing_channel && claim.signing_channel.permanent_url === authorUri;

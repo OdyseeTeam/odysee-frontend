@@ -74,7 +74,7 @@ export default function LivestreamHyperchats(props: Props) {
             const { comment, comment_id, channel_url, support_amount, is_fiat } = superChat;
             const isSticker = stickerSuperChats && stickerSuperChats.includes(superChat);
             const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
-            const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * exchangeRate;
+            const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * 10 * exchangeRate;
 
             return showTooltip ? (
               <Tooltip disabled title={isSticker ? stickerImg : comment} key={comment_id}>
