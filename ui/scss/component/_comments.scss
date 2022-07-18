@@ -582,9 +582,16 @@ $thumbnailWidthSmall: 2rem;
   font-size: var(--font-xsmall);
   margin-top: 0;
   max-width: 10rem;
-  white-space: pre-line;
+  // white-space: pre-line;
+  word-break: break-all;
+  line-clamp: 2;
   margin-right: var(--spacing-s);
   color: var(--color-text);
+
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .comment__menu-target {

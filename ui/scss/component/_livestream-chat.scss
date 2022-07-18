@@ -11,6 +11,10 @@ $recent-msg-button__height: 2rem;
   margin-left: var(--spacing-m);
   // border: 2px solid var(--color-border);
 
+  @media (max-width: $breakpoint-small) {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+  }
+
   .credit-amount {
     font-weight: unset;
   }
@@ -589,6 +593,9 @@ $recent-msg-button__height: 2rem;
 
   @media (max-width: $breakpoint-small) {
     padding: 0px;
+    // margin-left:-6.5px;
+    margin-left: calc(var(--spacing-xxs) * -1);
+    width: calc(100% + (var(--spacing-xxs) * 2));
 
     span,
     select,
@@ -663,10 +670,11 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestream-comments__top-actions--mobile {
-  width: 100%;
+  width: calc(100% + 2px);
   position: absolute;
   display: grid;
-  padding: var(--spacing-xxs);
+  padding: var(--spacing-xxs) 0;
+  margin-left: -8px;
   // padding-right: var(--spacing-m);
   // background-color:red;
 
@@ -674,11 +682,16 @@ $recent-msg-button__height: 2rem;
     margin-top: var(--spacing-xxs);
   }
 
+  .livestream-hyperchats {
+    padding: 0 var(--spacing-xxs);
+  }
+
   .livestream__top-gradient {
-    width: 100%;
+    width: calc(100% + 2px);
     height: 100%;
     position: absolute;
     top: -1px;
+    margin-left: -8px;
 
     &:after {
       position: absolute;
@@ -834,11 +847,13 @@ $recent-msg-button__height: 2rem;
   @extend .livestream-pinned__wrapper;
 
   z-index: 1300;
+  // max-width: calc(100% + 13px);
   max-width: 100%;
   padding: 0;
   padding-left: var(--spacing-xxs);
   border-radius: var(--border-radius);
   // border: 1px solid var(--color-border);
+  // margin-left:-13px;
   margin-bottom: var(--spacing-xs);
 
   .livestream__comment {

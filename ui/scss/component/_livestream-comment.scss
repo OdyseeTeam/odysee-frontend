@@ -59,7 +59,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0;
-  padding-left: var(--spacing-xxxs);
+  // padding-left: var(--spacing-xxxs);
 
   .livestreamComment__menu {
     position: relative;
@@ -86,6 +86,12 @@
 
 .livestreamComment__info {
   overflow: hidden;
+
+  .comment__author {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 
   .comment__badge svg {
     height: 1.3rem;
@@ -250,6 +256,19 @@
   // background-image: linear-gradient(to right, var(--color-primary), rgba(var(--color-primary-dynamic), 0));
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.6), transparent);
   padding: 4px 2px 2px 4px;
+  margin-left: 2px;
+
+  /*
+  &:before {
+    content:'';
+    position:absolute;
+    top:0;
+    height:30px;
+    width:60px;
+    box-shadow: 0 0 0 50px orange;
+    border-radius:0 0 0.5em 0;
+  }
+  */
 
   .superChat {
     background-color: var(--color-header-background);

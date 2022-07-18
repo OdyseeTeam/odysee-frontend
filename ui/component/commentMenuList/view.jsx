@@ -185,6 +185,9 @@ function CommentMenuList(props: Props) {
     }
   }
 
+  console.log('isLiveComment: ', isLiveComment);
+  console.log('setQuickReply: ', setQuickReply);
+
   return (
     <MenuList className="menu__list menu__chat-comment" onClick={(e) => e.stopPropagation()}>
       {isLiveComment && (
