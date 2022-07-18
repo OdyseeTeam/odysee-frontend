@@ -280,7 +280,7 @@ export default function FileRenderFloating(props: Props) {
     if (playingPrimaryUri || playingUrl || noPlayerHeight || collectionSidebarId) {
       setTimeout(function () {
         handleResize();
-      }, 0);
+      }, 0.1);
 
       setCountdownCanceled(false);
     }
