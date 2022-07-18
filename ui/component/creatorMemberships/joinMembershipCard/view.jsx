@@ -75,14 +75,14 @@ export default function JoinMembershipCard(props: Props) {
           isOnConfirmationPage ? (
             <ConfirmationPage
               uri={uri}
-              selectedTier={membershipTiers[membershipIndex]}
+              selectedTier={creatorMemberships[membershipIndex]}
               onCancel={() => setConfirmationPage(false)}
               closeModal={closeModal}
             />
           ) : (
             <PreviewPage
               uri={uri}
-              selectedTier={membershipTiers[membershipIndex]}
+              selectedTier={creatorMemberships[membershipIndex]}
               handleConfirm={() => setConfirmationPage(true)}
               tabButtonProps={tabButtonProps}
               isChannelTab={isChannelTab}

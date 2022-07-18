@@ -4,36 +4,6 @@ import Spinner from 'component/spinner';
 import Button from 'component/button';
 import BalanceText from 'react-balance-text';
 
-// const testChannel = {
-//   membership_id: 7,
-//   channel_id: '0b67b972c8e9a15ebc5fd1f316ad38460767c939',
-//   channel_name: '@test35234',
-//   price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj',
-// };
-
-const perkDescriptions = [
-  {
-    perkName: 'exclusiveAccess',
-    perkDescription: 'Members-only content',
-  },
-  {
-    perkName: 'earlyAccess',
-    perkDescription: 'Early access content',
-  },
-  {
-    perkName: 'badge',
-    perkDescription: 'Member Badge',
-  },
-  {
-    perkName: 'emojis',
-    perkDescription: 'Members-only emojis',
-  },
-  {
-    perkName: 'custom-badge',
-    perkDescription: 'MVP member badge',
-  },
-];
-
 type Props = {
   selectedTier: any, // todo: membership type
   onCancel: () => void,
@@ -50,10 +20,10 @@ export default function ConfirmationPage(props: Props) {
 
   function handleJoinMembership() {
     const testChannelParams = {
-      membership_id: 7, // TODO: this is hardcoded for now
-      channel_id: activeChannelClaim.claim_id,
-      channel_name: activeChannelClaim.name,
-      price_id: 'price_1KlXw8IrsVv9ySuhCFlKEJvj', // TODO: this is hardcoded for now
+      membership_id: selectedTier.Membership.id,
+      channel_id: selectedTier.Membership.channel_id,
+      channel_name: selectedTier.Membership.channel_name,
+      price_id: selectedTier.Prices[0].Price.stripe_price_id,
     };
 
     doMembershipBuy(testChannelParams, closeModal);
@@ -62,26 +32,22 @@ export default function ConfirmationPage(props: Props) {
   return (
     <div className="confirm__wrapper">
       <div className="confirmation-section__div" style={{ overflow: 'auto', maxHeight: '461px' }}>
+        { console.log(selectedTier) }
         <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
-        <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.displayName} />
+        <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.Membership.name} />
         <ConfirmationSection
           style={{ maxWidth: '300px', margin: '10px auto', lineHeight: '27px' }}
           label={__('Description:')}
-          value={<BalanceText>{selectedTier.description}</BalanceText>}
+          value={<BalanceText>{selectedTier.Membership.description}</BalanceText>}
         />
-        <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.monthlyContributionInUSD}`} />
+        <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.Prices[0].Price.amount / 100}`} />
         <ConfirmationSection
           className="membership-features-confirmation__section"
           label={__('Features and Perks:')}
           value={
             <ul className="membership-join-perks__list">
-              {selectedTier.perks.map((tierPerk, i) =>
-                perkDescriptions.map(
-                  (globalPerk, i) =>
-                    tierPerk === globalPerk.perkName && (
-                      <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                    )
-                )
+              {selectedTier.Perks.map((tierPerk, i) =>
+                <li className="section__subtitle membership-join__perk-item">{tierPerk.name}</li>
               )}
             </ul>
           }

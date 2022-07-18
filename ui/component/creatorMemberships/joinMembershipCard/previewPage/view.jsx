@@ -141,9 +141,6 @@ export default function PreviewPage(props: Props) {
   }
 
   useEffect(() => {
-    console.log('channel name, channel claim id');
-    console.log(channelName);
-    console.log(channelId);
     if (channelName && channelId) {
       getExistingTiers();
     }
@@ -285,7 +282,7 @@ export default function PreviewPage(props: Props) {
                   </div>
                 );
               })}
-              { !seeAllTiers && membershipTiers && membershipTiers.length > 3 && (
+              { !seeAllTiers && creatorMemberships && creatorMemberships.length > 3 && (
                 <>
                   {/* show the rest of the tiers button */}
                   <h1 className="see-all-tiers__header" onClick={(e) => showAllTiers(e)}>See More</h1>
@@ -305,7 +302,7 @@ export default function PreviewPage(props: Props) {
 
               <div className="membership-join__body">
                 <section className="membership-join__plan-info">
-                  <h1 className="membership-join__plan-header">{selectedTier.displayName}</h1>
+                  <h1 className="membership-join__plan-header">{selectedTier.name}</h1>
                   <span className="section__subtitle membership-join__plan-description">
                     <h1 style={{ lineHeight: '27px' }}>
                       <BalanceText>{selectedTier.description}</BalanceText>
@@ -316,14 +313,9 @@ export default function PreviewPage(props: Props) {
                 <section className="membership__plan-perks">
                   <h1 className="membership-join__plan-header" style={{ marginBottom: '5px' }}>{__('Perks')}</h1>
                   <ul className="membership-join-perks__list">
-                    {selectedTier.perks.map((tierPerk, i) => (
+                    {selectedTier.Perks.map((tierPerk, i) => (
                       <p key={tierPerk}>
-                        {perkDescriptions.map(
-                          (globalPerk, i) =>
-                            tierPerk === globalPerk.perkName && (
-                              <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                            )
-                        )}
+                        <li className="section__subtitle membership-join__perk-item">{tierPerk.description}</li>
                       </p>
                     ))}
                   </ul>
