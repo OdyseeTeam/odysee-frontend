@@ -206,7 +206,7 @@ function CommentMenuList(props: Props) {
           >
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />
-              {__('Reply')}
+              {__('Reply --[verb, reply to a comment]--')}
             </span>
           </MenuItem>
           <hr className="menu__separator" />
