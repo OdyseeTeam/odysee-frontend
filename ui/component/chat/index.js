@@ -5,7 +5,7 @@ import { selectClaimForUri, selectClaimsByUri } from 'redux/selectors/claims';
 import { doCommentList, doSuperChatList } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
-  selectSuperChatsForUri,
+  selectHyperChatsForUri,
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
 import { doFetchUserMemberships } from 'redux/actions/user';
@@ -19,7 +19,7 @@ const select = (state, props) => {
     claimId: claim && claim.claim_id,
     comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
-    superChats: selectSuperChatsForUri(state, uri),
+    superChats: selectHyperChatsForUri(state, uri),
     claimsByUri: selectClaimsByUri(state),
   };
 };

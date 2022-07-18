@@ -56,7 +56,7 @@ export default function LivestreamLayout(props: Props) {
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
 
-  const [superchatsHidden, setSuperchatsHidden] = React.useState(false);
+  const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
 
   if (!claim || !claim.signing_channel) return null;
@@ -119,8 +119,8 @@ export default function LivestreamLayout(props: Props) {
               actions={
                 <LivestreamMenu
                   noSuperchats={!superChats || superChats.length === 0}
-                  superchatsHidden={superchatsHidden}
-                  toggleSuperchats={() => setSuperchatsHidden(!superchatsHidden)}
+                  hyperchatsHidden={hyperchatsHidden}
+                  toggleSuperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
                   isMobile
                 />
               }
@@ -128,7 +128,7 @@ export default function LivestreamLayout(props: Props) {
               <ChatLayout
                 uri={uri}
                 hideHeader
-                superchatsHidden={superchatsHidden}
+                hyperchatsHidden={hyperchatsHidden}
                 customViewMode={chatViewMode}
                 setCustomViewMode={(mode) => setChatViewMode(mode)}
               />

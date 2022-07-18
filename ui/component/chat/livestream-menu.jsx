@@ -11,7 +11,7 @@ import React from 'react';
 
 type Props = {
   isPopoutWindow?: boolean,
-  superchatsHidden?: boolean,
+  hyperchatsHidden?: boolean,
   noSuperchats?: boolean,
   isMobile?: boolean,
   hideChat?: () => void,
@@ -22,7 +22,7 @@ type Props = {
 export default function LivestreamMenu(props: Props) {
   const {
     isPopoutWindow,
-    superchatsHidden,
+    hyperchatsHidden,
     noSuperchats,
     isMobile,
     hideChat,
@@ -103,8 +103,8 @@ export default function LivestreamMenu(props: Props) {
             !noSuperchats && (
               <MenuItem className="comment__menu-option" onSelect={toggleSuperchats}>
                 <span className="menu__link">
-                  <Icon aria-hidden icon={superchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
-                  {superchatsHidden ? __('Display HyperChats') : __('Dismiss HyperChats')}
+                  <Icon aria-hidden icon={hyperchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
+                  {hyperchatsHidden ? __('Display HyperChats') : __('Dismiss HyperChats')}
                 </span>
               </MenuItem>
             )

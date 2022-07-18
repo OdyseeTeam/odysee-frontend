@@ -30,7 +30,7 @@ type Props = {
   isPopoutWindow?: boolean,
   uri: string,
   hideHeader?: boolean,
-  superchatsHidden?: boolean,
+  hyperchatsHidden?: boolean,
   customViewMode?: string,
   setCustomViewMode?: (any) => void,
   // redux
@@ -63,7 +63,7 @@ export default function ChatLayout(props: Props) {
     superChats: superChatsByAmount,
     uri,
     hideHeader,
-    superchatsHidden,
+    hyperchatsHidden,
     customViewMode,
     setCustomViewMode,
     doCommentList,
@@ -336,7 +336,7 @@ export default function ChatLayout(props: Props) {
             'livestream-comments__top-actions--mobile': isMobile,
           })}
         >
-          {isMobile && ((pinnedComment && showPinned) || (superChatsByAmount && !superchatsHidden)) && (
+          {isMobile && ((pinnedComment && showPinned) || (superChatsByAmount && !hyperchatsHidden)) && (
             <div className="livestream__top-gradient" />
           )}
 
@@ -344,7 +344,7 @@ export default function ChatLayout(props: Props) {
             <LivestreamHyperchats
               superChats={superChatsByAmount}
               toggleSuperChat={toggleSuperChat}
-              superchatsHidden={superchatsHidden}
+              hyperchatsHidden={hyperchatsHidden}
               isMobile={isMobile}
             />
           )}

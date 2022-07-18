@@ -17,13 +17,13 @@ import { Lbryio } from 'lbryinc';
 
 type Props = {
   superChats: Array<Comment>,
-  superchatsHidden?: boolean,
+  hyperchatsHidden?: boolean,
   isMobile?: boolean,
   toggleSuperChat: () => void,
 };
 
 export default function LivestreamHyperchats(props: Props) {
-  const { superChats: superChatsByAmount, superchatsHidden, isMobile, toggleSuperChat } = props;
+  const { superChats: superChatsByAmount, hyperchatsHidden, isMobile, toggleSuperChat } = props;
 
   const superChatTopTen = React.useMemo(() => {
     return superChatsByAmount ? superChatsByAmount.slice(0, 10) : superChatsByAmount;
@@ -62,7 +62,7 @@ export default function LivestreamHyperchats(props: Props) {
   };
 
   return !superChatTopTen ? null : (
-    <Slider isMobile={isMobile} superchatsHidden={superchatsHidden}>
+    <Slider isMobile={isMobile} hyperchatsHidden={hyperchatsHidden}>
       <div
         ref={HorizontalScroll()}
         className={classnames('livestream-hyperchats__wrapper', {
@@ -161,16 +161,16 @@ export default function LivestreamHyperchats(props: Props) {
 }
 
 type SliderProps = {
-  superchatsHidden?: boolean,
+  hyperchatsHidden?: boolean,
   isMobile?: boolean,
   children: any,
 };
 
 const Slider = (sliderProps: SliderProps) => {
-  const { superchatsHidden, isMobile, children } = sliderProps;
+  const { hyperchatsHidden, isMobile, children } = sliderProps;
 
   return isMobile ? (
-    <Slide direction="left" in={!superchatsHidden} mountOnEnter unmountOnExit>
+    <Slide direction="left" in={!hyperchatsHidden} mountOnEnter unmountOnExit>
       {children}
     </Slide>
   ) : (

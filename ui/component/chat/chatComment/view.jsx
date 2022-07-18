@@ -108,7 +108,7 @@ export default function ChatComment(props: Props) {
   return (
     <li
       className={classnames('livestream__comment', {
-        'livestream__comment--superchat': basedAmount,
+        'livestream__comment--hyperchat': basedAmount,
         'hyperchat-level1': basedAmount >= 5,
         'hyperchat-level2': basedAmount >= 10,
         'hyperchat-level3': basedAmount >= 50,
@@ -121,7 +121,7 @@ export default function ChatComment(props: Props) {
       onClick={() => handleCommentClick(comment && reduceUriToChannelName(comment.channel_url))}
     >
       {supportAmount > 0 && (
-        <div className="livestreamComment__superchatBanner">
+        <div className="livestreamComment__hyperchatBanner">
           <CreditAmount isFiat={isFiat} amount={supportAmount} superChat />
         </div>
       )}

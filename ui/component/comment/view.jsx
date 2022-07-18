@@ -275,7 +275,7 @@ function CommentView(props: Props) {
       className={classnames('comment', {
         'comment--top-level': isTopLevel,
         'comment--reply': !isTopLevel,
-        'comment--superchat': supportAmount > 0,
+        'comment--hyperchat': supportAmount > 0,
       })}
       id={commentId}
     >

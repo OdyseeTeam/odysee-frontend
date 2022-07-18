@@ -216,7 +216,7 @@ $recent-msg-button__height: 2rem;
     padding-left: var(--spacing-xxxs);
   }
 
-  .livestream__comment--superchat {
+  .livestream__comment--hyperchat {
     padding-left: 0;
   }
 
@@ -228,6 +228,11 @@ $recent-msg-button__height: 2rem;
     padding-bottom: 0 !important;
     textarea:focus-visible {
       box-shadow: unset;
+    }
+  }
+  .livestreamDiscussion__header {
+    .menu__button {
+      padding: 8px;
     }
   }
 }
@@ -318,7 +323,7 @@ $recent-msg-button__height: 2rem;
   }
 
   @media (max-width: $breakpoint-small) {
-    padding: var(--spacing-xxs);
+    // padding: var(--spacing-xxs);
   }
 }
 

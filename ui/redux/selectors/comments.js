@@ -409,18 +409,18 @@ export const makeSelectUriIsBlockingOrUnBlocking = (uri: string) =>
     return blockingByUri[uri] || unBlockingByUri[uri];
   });
 
-export const selectSuperChatDataForUri = (state: State, uri: string) => {
+export const selectHyperChatDataForUri = (state: State, uri: string) => {
   const byUri = selectSuperchatsByUri(state);
   return byUri[uri];
 };
 
-export const selectSuperChatsForUri = (state: State, uri: string) => {
-  const superChatData = selectSuperChatDataForUri(state, uri);
+export const selectHyperChatsForUri = (state: State, uri: string) => {
+  const superChatData = selectHyperChatDataForUri(state, uri);
   return superChatData ? superChatData.comments : undefined;
 };
 
 export const selectSuperChatTotalAmountForUri = (state: State, uri: string) => {
-  const superChatData = selectSuperChatDataForUri(state, uri);
+  const superChatData = selectHyperChatDataForUri(state, uri);
   return superChatData ? superChatData.totalAmount : 0;
 };
 

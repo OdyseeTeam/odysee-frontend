@@ -100,7 +100,7 @@
   }
 }
 
-.livestream__comment--superchat {
+.livestream__comment--hyperchat {
   // background-color: rgba(var(--color-primary-dynamic), 0.05);
   background-color: rgba(var(--color-text-base), 0.02);
   // box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
@@ -108,7 +108,7 @@
   display: unset;
   padding-left: 0;
 
-  + .livestream__comment--superchat {
+  + .livestream__comment--hyperchat {
     margin-bottom: var(--spacing-xxs);
   }
 
@@ -161,7 +161,7 @@
 .hyperchat-level1 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 0%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 0%), 0.05);
-  .livestreamComment__superchatBanner {
+  .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 0%), transparent);
   }
 }
@@ -169,7 +169,7 @@
 .hyperchat-level2 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 25%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 25%), 0.05);
-  .livestreamComment__superchatBanner {
+  .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 25%), transparent);
   }
 }
@@ -177,7 +177,7 @@
 .hyperchat-level3 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 50%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 50%), 0.05);
-  .livestreamComment__superchatBanner {
+  .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 50%), transparent);
   }
 }
@@ -185,7 +185,7 @@
 .hyperchat-level4 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 75%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 75%), 0.05);
-  .livestreamComment__superchatBanner {
+  .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 75%), transparent);
   }
 }
@@ -193,7 +193,7 @@
 .hyperchat-level5 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 100%) inset;
   background-color: rgba(mix(#de0050, #ffa236, 100%), 0.05);
-  .livestreamComment__superchatBanner {
+  .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 100%), transparent);
   }
 }
@@ -246,7 +246,7 @@
   }
 }
 
-.livestreamComment__superchatBanner {
+.livestreamComment__hyperchatBanner {
   @extend .superChat;
 
   border-radius: 0;
@@ -280,31 +280,6 @@
     svg {
       margin-bottom: -2px;
     }
-  }
-}
-
-// This is just a two small circles that overlap to make it look like
-// the banner and the left border are connected
-.livestreamComment__superchatBanner--corner {
-  height: calc(var(--border-radius) * 2);
-  width: calc(var(--border-radius) * 2);
-  border-radius: 50%;
-  position: absolute;
-  // background-color: var(--color-hyperchat);
-  bottom: 0;
-  left: 0;
-  transform: translateX(0) translateY(50%);
-
-  &::after {
-    content: '';
-    height: calc(var(--border-radius) * 2);
-    width: calc(var(--border-radius) * 2);
-    border-top-left-radius: var(--border-radius);
-    background-color: var(--color-card-background);
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    transform: translateX(25%) translateY(50%);
   }
 }
 
