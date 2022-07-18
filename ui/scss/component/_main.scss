@@ -706,15 +706,15 @@ body {
     padding-bottom: 0;
   }
 
-  @media (max-width: $breakpoint-small) {
-    .livestream__chat--popout {
-      .livestreamComments__wrapper {
-        padding-bottom: 36px;
-        height: calc(100vh - 45px) !important;
-        // height:calc(100% - 100px);
-      }
+  .livestream__chat--popout {
+    .livestreamComments__wrapper {
+      padding-bottom: 36px;
+      height: calc(100vh - 45px) !important;
+      // height:calc(100% - 100px);
     }
+  }
 
+  @media (max-width: $breakpoint-small) {
     .livestream__chat--popout {
       .livestreamComments__wrapper {
         .livestream__comment-create {
@@ -729,9 +729,10 @@ body {
   @media (min-width: $breakpoint-small) {
     .livestream__chat--popout {
       .livestreamComments__wrapper {
+        height: 100vh !important;
         padding-bottom: 0;
         .livestream__comment-create {
-          margin-bottom: var(--spacing-s);
+          padding-bottom: var(--spacing-s);
         }
       }
     }
