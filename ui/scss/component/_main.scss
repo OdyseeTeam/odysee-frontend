@@ -706,21 +706,35 @@ body {
     padding-bottom: 0;
   }
 
-  .livestream__chat--popout {
-    .livestreamComments__wrapper {
-      padding-bottom: 36px;
-      height: calc(100vh - 45px) !important;
-      // height:calc(100% - 100px);
+  @media (max-width: $breakpoint-small) {
+    .livestream__chat--popout {
+      .livestreamComments__wrapper {
+        padding-bottom: 36px;
+        height: calc(100vh - 45px) !important;
+        // height:calc(100% - 100px);
+      }
+    }
+
+    .livestream__chat--popout {
+      .livestreamComments__wrapper {
+        .livestream__comment-create {
+          position: absolute;
+          bottom: 0;
+          height: 36px;
+          padding: 0 var(--spacing-xxs);
+        }
+      }
     }
   }
-
-  .livestream__comment-create {
-    // height: 64.5px;
-    // min-height: 64.5px;
-    position: absolute;
-    bottom: 0;
-    height: 36px;
-    padding: 0 var(--spacing-xxs);
+  @media (min-width: $breakpoint-small) {
+    .livestream__chat--popout {
+      .livestreamComments__wrapper {
+        padding-bottom: 0;
+        .livestream__comment-create {
+          margin-bottom: var(--spacing-s);
+        }
+      }
+    }
   }
 }
 
