@@ -21,6 +21,7 @@ import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import PreorderButton from 'component/preorderButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
+// import { sortedLastIndex } from 'lodash-es';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -147,6 +148,7 @@ export default function FilePage(props: Props) {
     // See https://github.com/lbryio/lbry-desktop/pull/1563 for discussion
     doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
+    console.log('set uri: ', uri);
     doSetPrimaryUri(uri);
     if (claimWasPurchased && !hasFileInfo) doFileGet(uri);
 

@@ -104,7 +104,7 @@
   // background-color: rgba(var(--color-primary-dynamic), 0.05);
   background-color: rgba(var(--color-text-base), 0.02);
   // box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
-  box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.6) inset;
+  box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.4) inset;
   display: unset;
   padding-left: 0;
 
@@ -254,7 +254,7 @@
   position: relative;
   width: 90%;
   // background-image: linear-gradient(to right, var(--color-primary), rgba(var(--color-primary-dynamic), 0));
-  background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.6), transparent);
+  background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
   padding: 4px 2px 2px 4px;
   margin-left: 2px;
 

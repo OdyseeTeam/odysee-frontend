@@ -278,7 +278,10 @@ export default function FileRenderFloating(props: Props) {
 
   React.useEffect(() => {
     if (playingPrimaryUri || playingUrl || noPlayerHeight || collectionSidebarId) {
-      handleResize();
+      setTimeout(function () {
+        handleResize();
+      }, 1);
+
       setCountdownCanceled(false);
     }
   }, [handleResize, playingPrimaryUri, theaterMode, playingUrl, noPlayerHeight, collectionSidebarId]);

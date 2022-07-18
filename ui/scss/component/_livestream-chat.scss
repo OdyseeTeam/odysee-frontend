@@ -330,9 +330,6 @@ $recent-msg-button__height: 2rem;
 .livestreamDiscussion__title {
   display: flex;
   align-items: center;
-  // padding: 0;
-  // background:red;
-  // padding-top:var(--spacing-s);
   padding-left: 20.5px;
   padding-top: 15.5px;
   padding-bottom: 15px;
@@ -708,7 +705,6 @@ $recent-msg-button__height: 2rem;
       right: 0;
       width: 100%;
       z-index: 1;
-      // background:black;
       background: linear-gradient(180deg, var(--mui-background) 80%, transparent 100%);
     }
   }
@@ -722,6 +718,8 @@ $recent-msg-button__height: 2rem;
   font-size: var(--font-small);
   border-radius: var(--border-radius);
   background: linear-gradient(180deg, var(--color-primary) 0%, transparent 100%);
+  padding-bottom: var(--spacing-s) !important;
+  // background-color: var(--color-primary);
 
   .livestream__comment {
     width: 100%;
@@ -752,6 +750,9 @@ $recent-msg-button__height: 2rem;
       .date_time {
         color: var(--color-primary-contrast);
         opacity: 0.8;
+      }
+      .livestreamComment__text {
+        color: var(--color-text);
       }
     }
     .livestreamComment__menu {
