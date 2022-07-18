@@ -71,6 +71,38 @@ function CreateTiersTab(props: Props) {
   // (edited membership just came from the add button)
   const [pendingTier, setPendingTier] = React.useState(false);
 
+  const [membershipPerks, setMembershipParks] = React.useState(false);
+
+  // focus name when you create a new tier
+  React.useEffect(() => {
+    (async function() {
+      getMembershipPerks();
+    })();
+  }, []);
+
+  async function getMembershipPerks() {
+    const response = await Lbryio.call(
+      'membership_perk',
+      'list',
+      {
+        environment: stripeEnvironment,
+        channel_name: channelName,
+        channel_id: channelClaimId,
+      },
+      'post'
+    );
+
+    console.log(response);
+
+    if (response === null) {
+      setMembershipParks([]);
+    } else {
+      setMembershipParks(response);
+    }
+
+    return response;
+  }
+
   async function getExistingTiers() {
     const response = await Lbryio.call(
       'membership',
@@ -187,13 +219,16 @@ function CreateTiersTab(props: Props) {
 
     let selectedPerks = [];
 
-    for (const perkDescription of perkDescriptions) {
+    for (const perk of membershipPerks) {
       // $FlowFixMe
-      const odyseePerkSelected = document.getElementById(perkDescription.perkName)?.checked;
+      const odyseePerkSelected = document.querySelector(`input#perk_${perk.id}.membership_perks`).checked;
+      // const odyseePerkSelected = document.getElementById(perkDescription.perkName)?.checked;
       if (odyseePerkSelected) {
-        selectedPerks.push(perkDescription.perkName);
+        selectedPerks.push(perk.id);
       }
     }
+
+    const selectedPerksAsArray = selectedPerks.toString();
 
     const newObject = {
       // displayName: newTierName,
@@ -210,6 +245,7 @@ function CreateTiersTab(props: Props) {
           unit_amount: Number(newTierMonthlyContribution) * 100,
         },
       }],
+      Perks: [], // TODO: list these dynamically
     };
 
     const oldObject = creatorMemberships[tierIndex];
@@ -241,7 +277,7 @@ function CreateTiersTab(props: Props) {
         description: newTierDescription,
         amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
         currency: 'usd', // hardcoded for now
-        perks: '1,2,3',
+        perks: selectedPerksAsArray,
         oldStripePrice,
         oldMembershipId,
         // perks: selectedPerks,
@@ -260,8 +296,13 @@ function CreateTiersTab(props: Props) {
 
   }
 
-  const containsPerk = (perk, tier) => {
-    return tier.perks.indexOf(perk, tier) > -1;
+  const containsPerk = (perkId, tier) => {
+    let perkIds = [];
+    for (const tierPerk of tier.Perks) {
+      perkIds.push(tierPerk.id);
+    }
+
+    return perkIds.includes(perkId);
   };
 
   function createEditTier(tier, membershipIndex) {
@@ -288,18 +329,17 @@ function CreateTiersTab(props: Props) {
         <label htmlFor="tier_name" style={{ marginTop: '15px', marginBottom: '8px' }}>
           Odysee Perks
         </label>
-        {/*{perkDescriptions.map((tierPerk, i) => (*/}
-        {/*  <>*/}
-        {/*    <FormField*/}
-        {/*      type="checkbox"*/}
-        {/*      defaultChecked={containsPerk(tierPerk.perkName, tier)}*/}
-        {/*      // disabled={!optimizeAvail}*/}
-        {/*      // onChange={() => setUserOptimize(!userOptimize)}*/}
-        {/*      label={tierPerk.perkDescription}*/}
-        {/*      name={tierPerk.perkName}*/}
-        {/*    />*/}
-        {/*  </>*/}
-        {/*))}*/}
+        {membershipPerks.map((tierPerk, i) => (
+          <>
+            <FormField
+              type="checkbox"
+              defaultChecked={containsPerk(tierPerk.id, tier)}
+              label={tierPerk.description}
+              name={'perk_' + tierPerk.id}
+              className="membership_perks"
+            />
+          </>
+        ))}
         <FormField
           className="form-field--price-amount"
           type="number"
@@ -346,24 +386,15 @@ function CreateTiersTab(props: Props) {
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
                     Monthly Pledge: ${membershipTier.Prices[0].StripePrice.unit_amount / 100}
                   </h1>
-                  {/*{membershipTier.perks.map((tierPerk, i) => (*/}
-                  {/*  <>*/}
-                  {/*    <p>*/}
-                  {/*      /!* list all the perks *!/*/}
-                  {/*      {perkDescriptions.map((globalPerk, i) => (*/}
-                  {/*        <>*/}
-                  {/*          {tierPerk === globalPerk.perkName && (*/}
-                  {/*            <>*/}
-                  {/*              <ul>*/}
-                  {/*                <li>{globalPerk.perkDescription}</li>*/}
-                  {/*              </ul>*/}
-                  {/*            </>*/}
-                  {/*          )}*/}
-                  {/*        </>*/}
-                  {/*      ))}*/}
-                  {/*    </p>*/}
-                  {/*  </>*/}
-                  {/*))}*/}
+                  {membershipTier.Perks.map((tierPerk, i) => (
+                    <>
+                      <p>
+                        <ul>
+                          <li>{tierPerk.description}</li>
+                        </ul>
+                      </p>
+                    </>
+                  ))}
                   <div className="buttons-div" style={{ marginTop: '13px' }}>
                     {/* cancel membership button */}
                     <Button
