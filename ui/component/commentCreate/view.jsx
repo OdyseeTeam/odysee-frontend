@@ -558,7 +558,7 @@ export function CommentCreate(props: Props) {
 
         {!isMobile && (
           <div className="section__actions--no-margin">
-            <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth />
+            <Button disabled button="primary" label={__('Send --[button to submit something]--')} requiresAuth />
           </div>
         )}
       </div>
