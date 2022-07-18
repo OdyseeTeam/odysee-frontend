@@ -454,6 +454,11 @@ body {
   }
 }
 
+.file-page__secondary-content {
+  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+    padding-right: calc(var(--spacing-s) + 12px) !important;
+  }
+}
 .card__title-section--body-list {
   display: unset !important;
   // width: 100%;
@@ -609,10 +614,19 @@ body {
 .main--livestream--theater-mode {
   .livestream__chat {
     position: relative;
-    top: unset !important;
+    // top: unset !important;
     top: var(--spacing-m);
     margin-top: var(--spacing-m);
     margin-bottom: var(--spacing-m);
+    margin-right: var(--spacing-s);
+  }
+
+  .livestreamDiscussion__header {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+  }
+
+  .livestream__comment-create {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
   }
 
   .file-page__media-actions {
