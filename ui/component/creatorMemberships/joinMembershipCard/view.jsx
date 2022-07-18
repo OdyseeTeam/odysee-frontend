@@ -63,6 +63,7 @@ export default function JoinMembershipCard(props: Props) {
 
   const [expandedTabs, setExpandedTabs] = React.useState(expandedTabsState);
   const [seeAllTiers, setSeeAllTiers] = React.useState(false);
+  const [creatorMemberships, setCreatorMemberships] = React.useState([]);
 
   return (
     <Form>
@@ -90,6 +91,8 @@ export default function JoinMembershipCard(props: Props) {
               expandedTabs={expandedTabs}
               setSeeAllTiers={setSeeAllTiers}
               seeAllTiers={seeAllTiers}
+              setCreatorMemberships={setCreatorMemberships}
+              creatorMemberships={creatorMemberships}
             />
           )
         }

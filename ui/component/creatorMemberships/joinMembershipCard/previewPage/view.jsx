@@ -6,6 +6,9 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import { getChannelFromClaim } from 'util/claim';
 import BalanceText from 'react-balance-text';
+import { Lbryio } from 'lbryinc';
+import { getStripeEnvironment } from 'util/stripe';
+const stripeEnvironment = getStripeEnvironment();
 
 const perkDescriptions = [
   {
@@ -91,6 +94,8 @@ export default function PreviewPage(props: Props) {
     setExpandedTabs,
     setSeeAllTiers,
     seeAllTiers,
+    setCreatorMemberships,
+    creatorMemberships,
     // -- redux --
     canReceiveFiatTips,
     hasSavedCard,
@@ -100,6 +105,8 @@ export default function PreviewPage(props: Props) {
     myChannelClaimIds,
     claim,
     channelIsMine,
+    channelName,
+    channelId,
   } = props;
 
   // check if a user is looking at their own memberships
@@ -109,6 +116,38 @@ export default function PreviewPage(props: Props) {
 
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
+
+  async function getExistingTiers() {
+    const response = await Lbryio.call(
+      'membership',
+      'list',
+      {
+        environment: stripeEnvironment,
+        channel_name: channelName,
+        channel_id: channelId,
+      },
+      'post'
+    );
+
+    console.log(response);
+
+    if (response === null) {
+      setCreatorMemberships([]);
+    } else {
+      setCreatorMemberships(response);
+    }
+
+    return response;
+  }
+
+  useEffect(() => {
+    console.log('channel name, channel claim id');
+    console.log(channelName);
+    console.log(channelId);
+    if (channelName && channelId) {
+      getExistingTiers();
+    }
+  }, [channelName, channelId]);
 
   useEffect(() => {
     if (hasSavedCard === undefined) {
@@ -192,14 +231,15 @@ export default function PreviewPage(props: Props) {
           { isChannelTab ? (
             <>
               <div className="membership-join-blocks__div">
-                {membershipTiers.map(function(membership, i) {
+                {creatorMemberships && creatorMemberships.map(function(membership, i) {
+                  <>{console.log(membership)}</>
                   return (
                     <div className={classnames('membership-join-blocks__body', {
                       'expandedBlock': expandedTabs[i],
                       'forceShowTiers': seeAllTiers,
                     })} key={i}>
                       <section className="membership-join__plan-info">
-                        <h1 className="membership-join__plan-header">{membership.displayName}</h1>
+                        <h1 className="membership-join__plan-header">{membership.Membership.name}</h1>
                         <Button
                           className="membership-join-block-purchase__button"
                           icon={ICONS.UPGRADE}
@@ -207,7 +247,7 @@ export default function PreviewPage(props: Props) {
                           type="submit"
                           disabled={shouldDisablePurchase || checkingOwnMembershipCard}
                           label={__('Signup for $%membership_price% a month', {
-                            membership_price: membership.monthlyContributionInUSD,
+                            membership_price: membership.Prices[0].Price.amount / 100,
                           })}
                           onClick={(e) => clickSignupButton(e)}
                           membership-tier-index={i}
@@ -218,22 +258,17 @@ export default function PreviewPage(props: Props) {
                       {/* membership description */}
                         <span className="section__subtitle membership-join__plan-description">
                         <h1 style={{ lineHeight: '27px' }}>
-                          <BalanceText>{membership.description}</BalanceText>
+                          <BalanceText>{membership.Membership.description}</BalanceText>
                         </h1>
                       </span>
 
-                      { membership.perks && membership.perks.length > 0 && (
+                      { membership.Perks && membership.Perks.length > 0 && (
                         <section className="membership__plan-perks">
                           <h1 className="membership-join__plan-header" style={{ marginTop: '17px' }}>{__('Perks')}</h1>
                           <ul className="membership-join-perks__list">
-                            {membership.perks.map((tierPerk, i) => (
+                            {membership.Perks.map((tierPerk, i) => (
                               <p key={tierPerk}>
-                                {perkDescriptions.map(
-                                  (globalPerk, i) =>
-                                    tierPerk === globalPerk.perkName && (
-                                      <li className="section__subtitle membership-join__perk-item">{globalPerk.perkDescription}</li>
-                                    )
-                                )}
+                                <li className="section__subtitle membership-join__perk-item">{tierPerk.name}</li>
                               </p>
                             ))}
                           </ul>

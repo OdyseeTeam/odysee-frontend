@@ -2,7 +2,8 @@ import { connect } from 'react-redux';
 import { selectChannelCanReceiveFiatTipsByUri, selectHasSavedCard } from 'redux/selectors/stripe';
 import { selectCreatorHasMembershipsByUri } from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri, doGetCustomerStatus } from 'redux/actions/stripe';
-import { selectMyChannelClaimIds, selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectMyChannelClaimIds, selectClaimForUri, selectClaimIsMine, selectChannelNameForUri, selectChannelIdForUri } from 'redux/selectors/claims';
+
 import PreviewPage from './view';
 
 const select = (state, props) => {
@@ -15,6 +16,8 @@ const select = (state, props) => {
     hasSavedCard: selectHasSavedCard(state),
     creatorHasMemberships: selectCreatorHasMembershipsByUri(state, uri),
     myChannelClaimIds: selectMyChannelClaimIds(state),
+    channelName: selectChannelNameForUri(state, uri),
+    channelId: selectChannelIdForUri(state, uri),
   };
 };
 

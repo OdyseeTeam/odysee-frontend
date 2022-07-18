@@ -293,10 +293,11 @@ function CreateTiersTab(props: Props) {
     setTimeout(function() {
       document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
     }, 15);
-
   }
 
   const containsPerk = (perkId, tier) => {
+    if (!tier.Perks) return false;
+
     let perkIds = [];
     for (const tierPerk of tier.Perks) {
       perkIds.push(tierPerk.id);
@@ -386,7 +387,7 @@ function CreateTiersTab(props: Props) {
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
                     Monthly Pledge: ${membershipTier.Prices[0].StripePrice.unit_amount / 100}
                   </h1>
-                  {membershipTier.Perks.map((tierPerk, i) => (
+                  {membershipTier.Perks && membershipTier.Perks.map((tierPerk, i) => (
                     <>
                       <p>
                         <ul>
