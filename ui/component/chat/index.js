@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimsByUri } from 'redux/selectors/claims';
-import { doCommentList, doSuperChatList } from 'redux/actions/comments';
+import { doCommentList, doHyperChatList } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
   selectHyperChatsForUri,
@@ -26,7 +26,7 @@ const select = (state, props) => {
 
 const perform = {
   doCommentList,
-  doSuperChatList,
+  doHyperChatList,
   doResolveUris,
   doFetchUserMemberships,
 };

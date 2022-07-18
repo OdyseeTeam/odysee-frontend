@@ -47,7 +47,7 @@ type Props = {
     isLivestream: boolean
   ) => void,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
-  doSuperChatList: (uri: string) => void,
+  doHyperChatList: (uri: string) => void,
   claimsByUri: { [string]: any },
   doFetchUserMemberships: (claimIdCsv: string) => void,
   setLayountRendered: (boolean) => void,
@@ -68,7 +68,7 @@ export default function ChatLayout(props: Props) {
     setCustomViewMode,
     doCommentList,
     doResolveUris,
-    doSuperChatList,
+    doHyperChatList,
     doFetchUserMemberships,
     claimsByUri,
     setLayountRendered,
@@ -180,9 +180,9 @@ export default function ChatLayout(props: Props) {
   React.useEffect(() => {
     if (claimId) {
       doCommentList(uri, undefined, 1, 75, undefined, true);
-      doSuperChatList(uri);
+      doHyperChatList(uri);
     }
-  }, [claimId, uri, doCommentList, doSuperChatList]);
+  }, [claimId, uri, doCommentList, doHyperChatList]);
 
   React.useEffect(() => {
     if (isMobile && !didInitialScroll) {

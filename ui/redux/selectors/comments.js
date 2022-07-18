@@ -415,13 +415,13 @@ export const selectHyperChatDataForUri = (state: State, uri: string) => {
 };
 
 export const selectHyperChatsForUri = (state: State, uri: string) => {
-  const superChatData = selectHyperChatDataForUri(state, uri);
-  return superChatData ? superChatData.comments : undefined;
+  const hyperChatData = selectHyperChatDataForUri(state, uri);
+  return hyperChatData ? hyperChatData.comments : undefined;
 };
 
 export const selectSuperChatTotalAmountForUri = (state: State, uri: string) => {
-  const superChatData = selectHyperChatDataForUri(state, uri);
-  return superChatData ? superChatData.totalAmount : 0;
+  const hyperChatData = selectHyperChatDataForUri(state, uri);
+  return hyperChatData ? hyperChatData.totalAmount : 0;
 };
 
 export const selectChannelMentionData = createCachedSelector(

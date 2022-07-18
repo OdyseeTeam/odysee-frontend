@@ -89,6 +89,7 @@ export default function ChatComment(props: Props) {
     return activeChannelClaim && activeChannelClaim.claim_id === channelId;
   }
 
+  /*
   function reduceUriToChannelName(uri: string = '') {
     try {
       return uri.substring(uri.indexOf('@'), uri.indexOf('#') + 2).replace('#', ':');
@@ -96,6 +97,7 @@ export default function ChatComment(props: Props) {
       return uri;
     }
   }
+  */
 
   // For every new <LivestreamComment /> component that is rendered on mobile view,
   // keep the scroll at the bottom (newest)
@@ -118,7 +120,7 @@ export default function ChatComment(props: Props) {
         'livestream__comment--mentioned': hasUserMention,
         'livestream__comment--mobile': isMobile,
       })}
-      onClick={() => handleCommentClick(comment && reduceUriToChannelName(comment.channel_url))}
+      // onClick={() => handleCommentClick(comment && reduceUriToChannelName(comment.channel_url))}
     >
       {supportAmount > 0 && (
         <div className="livestreamComment__hyperchatBanner">
