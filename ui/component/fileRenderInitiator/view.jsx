@@ -17,6 +17,7 @@ import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import useGetPoster from 'effects/use-get-poster';
 import { LiveCommentContext } from 'component/livestreamComment/view';
+import { ExpandableContext } from 'component/common/expandable';
 
 type Props = {
   channelClaimId: ?string,
@@ -73,6 +74,7 @@ export default function FileRenderInitiator(props: Props) {
   } = props;
 
   const { isLiveComment } = React.useContext(LiveCommentContext) || {};
+  const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
@@ -117,6 +119,12 @@ export default function FileRenderInitiator(props: Props) {
       history.push({ pathname: formattedUrl, state: isLiveComment ? { overrideFloating: true } : undefined });
     } else {
       viewFile();
+
+      // In case of inline player where play button is reachable -> set is expanded
+      if (setExpanded && disableExpanded) {
+        setExpanded(true);
+        disableExpanded(true);
+      }
     }
   }
 
