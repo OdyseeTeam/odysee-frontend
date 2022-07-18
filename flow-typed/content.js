@@ -2,10 +2,7 @@
 
 declare type ContentState = {
   primaryUri: ?string,
-  playingUri: {
-    uri?: string,
-    collection: PlayingCollection,
-  },
+  playingUri: PlayingUri,
   positions: { [string]: { [string]: number } }, // claimId: { outpoint: position }
   history: Array<WatchHistory>,
   recommendationId: { [string]: string }, // claimId: recommendationId
