@@ -93,10 +93,15 @@
     white-space: nowrap;
   }
 
-  .comment__badge svg {
-    height: var(--font-body);
-    width: var(--font-body);
-    margin-bottom: -2px;
+  .comment__badge {
+    .icon {
+      height: var(--font-body);
+      width: var(--font-body);
+      margin-bottom: -2px;
+    }
+    .icon--BadgeStreamer {
+      margin-bottom: -4px;
+    }
   }
 }
 
