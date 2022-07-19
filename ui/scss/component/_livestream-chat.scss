@@ -821,7 +821,7 @@ $recent-msg-button__height: 2rem;
   }
   @media (min-width: $breakpoint-small) {
     &:hover {
-      background-color: rgba(var(--color-primary-dynamic), 0.1);
+      // background-color: rgba(var(--color-primary-dynamic), 0.1);
 
       .comment__author {
         color: var(--color-primary);
