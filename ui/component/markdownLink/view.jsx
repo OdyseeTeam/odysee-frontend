@@ -96,17 +96,6 @@ function MarkdownLink(props: Props) {
     }
   }
 
-  /*
-  function resolveChildren(children) {
-    // console.log('porps: ', props)
-    for (let child of children) {
-      console.log('kid: ', child);
-      child = child + 'll'
-    }
-    return children;
-  }
-  */
-
   // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).
   // Return plain text if no valid url.
   // Return external link if protocol is http or https.

@@ -232,19 +232,22 @@ function CommentMenuList(props: Props) {
         </MenuItem>
       )}
 
-      {activeChannelIsCreator && activeChannelClaim && activeChannelClaim.permanent_url !== authorUri && (
-        <MenuItem className="comment__menu-option" onSelect={assignAsModerator}>
-          <div className="menu__link">
-            <Icon aria-hidden icon={ICONS.ADD} />
-            {__('Add as moderator')}
-          </div>
-          <span className="comment__menu-help">
-            {activeChannelClaim
-              ? __('Assign this user to moderate %channel%.', { channel: activeChannelClaim.name })
-              : __('Assign this user to moderate your channel.')}
-          </span>
-        </MenuItem>
-      )}
+      {activeChannelIsCreator &&
+        activeChannelClaim &&
+        activeChannelClaim.permanent_url !== authorUri &&
+        activeChannelClaim.permanent_url.indexOf(authorUri.replace('#', ':')) !== -1 && (
+          <MenuItem className="comment__menu-option" onSelect={assignAsModerator}>
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.ADD} />
+              {__('Add as moderator')}
+            </div>
+            <span className="comment__menu-help">
+              {activeChannelClaim
+                ? __('Assign this user to moderate %channel%.', { channel: activeChannelClaim.name })
+                : __('Assign this user to moderate your channel.')}
+            </span>
+          </MenuItem>
+        )}
 
       {commentIsMine && activeChannelClaim && activeChannelClaim.permanent_url === authorUri && !disableEdit && (
         <MenuItem className="comment__menu-option menu__link" onSelect={handleEditComment}>
