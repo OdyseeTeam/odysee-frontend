@@ -28,16 +28,22 @@ import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png
 import Gerbil from 'component/channelThumbnail/gerbil.png';
 
 const NEKODEV = false; // Temporary flag to hide unfinished progress
-
 const MAX_TAG_SELECT = 5;
 
 type Props = {
+  uri: string,
+  onDone: () => void,
+  disabled: boolean,
+  openModal: (
+    id: string,
+    { onUpdate: (string, boolean) => void, assetName: string, helpText: string, currentValue: string, title: string }
+  ) => void,
+  // --- redux ---
   claim: ChannelClaim,
   title: string,
   amount: number,
   coverUrl: string,
   thumbnailUrl: string,
-  location: { search: string },
   description: string,
   website: string,
   email: string,
@@ -53,13 +59,6 @@ type Props = {
   creatingChannel: boolean,
   clearChannelErrors: () => void,
   claimInitialRewards: () => void,
-  onDone: () => void,
-  openModal: (
-    id: string,
-    { onUpdate: (string, boolean) => void, assetName: string, helpText: string, currentValue: string, title: string }
-  ) => void,
-  uri: string,
-  disabled: boolean,
   isClaimingInitialRewards: boolean,
   hasClaimedInitialRewards: boolean,
 };
@@ -92,26 +91,32 @@ function ChannelForm(props: Props) {
     isClaimingInitialRewards,
     hasClaimedInitialRewards,
   } = props;
+
   const [nameError, setNameError] = React.useState(undefined);
   const [bidError, setBidError] = React.useState('');
   const [isUpload, setIsUpload] = React.useState({ cover: false, thumbnail: false });
   const [coverError, setCoverError] = React.useState(false);
   const [thumbError, setThumbError] = React.useState(false);
+  const [overrideColor, toggleColorOverride] = React.useState(false);
+
   const { claim_id: claimId } = claim || {};
   const [params, setParams]: [any, (any) => void] = React.useState(getChannelParams());
   const { channelName } = parseURI(uri);
   const name = params.name;
   const isNewChannel = !uri;
   const { replace } = useHistory();
+
   const languageParam = params.languages;
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
   const secondaryLanguage = Array.isArray(languageParam) && languageParam.length >= 2 && languageParam[1];
+
   const submitLabel = React.useMemo(() => {
     if (isClaimingInitialRewards) {
       return __('Claiming credits...');
     }
     return creatingChannel || updatingChannel ? __('Submitting...') : __('Submit');
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel]);
+
   const submitDisabled = React.useMemo(() => {
     return (
       isClaimingInitialRewards ||
@@ -121,10 +126,11 @@ function ChannelForm(props: Props) {
       bidError ||
       (isNewChannel && !params.name)
     );
-  }, [isClaimingInitialRewards, creatingChannel, updatingChannel, nameError, bidError, isNewChannel, params.name]);
+  }, [isClaimingInitialRewards, creatingChannel, updatingChannel, bidError, isNewChannel, coverError, params.name]);
 
-  // const channelColor = 'ff0000';
-  const [overrideColor, toggleColorOverride] = React.useState(false);
+  const errorMsg = resolveErrorMsg();
+  const coverSrc = coverError ? ThumbnailBrokenImage : params.coverUrl;
+  const thumbnailPreview = resolveThumbnailPreview();
 
   function getChannelParams() {
     // fill this in with sdk data
@@ -218,7 +224,6 @@ function ChannelForm(props: Props) {
 
   function handleSubmit() {
     if (uri) {
-      console.log('Params A: ', params);
       updateChannel(params).then((success) => {
         if (success) {
           onDone();
@@ -234,13 +239,28 @@ function ChannelForm(props: Props) {
     }
   }
 
-  const LIMIT_ERR_PARTIAL_MSG = 'bad-txns-claimscriptsize-toolarge (code 16)';
-  let errorMsg = updateError || createError;
-  if (errorMsg && errorMsg.includes(LIMIT_ERR_PARTIAL_MSG)) {
-    errorMsg = __('Transaction limit reached. Try reducing the Description length.');
+  function resolveErrorMsg() {
+    const LIMIT_ERR_PARTIAL_MSG = 'bad-txns-claimscriptsize-toolarge (code 16)';
+    let errorMsg = updateError || createError;
+    if (errorMsg && errorMsg.includes(LIMIT_ERR_PARTIAL_MSG)) {
+      errorMsg = __('Transaction limit reached. Try reducing the Description length.');
+    }
+    if ((!isUpload.thumbnail && thumbError) || (!isUpload.cover && coverError)) {
+      errorMsg = __('Invalid %error_type%', {
+        error_type: (thumbError && 'thumbnail') || (coverError && 'cover image'),
+      });
+    }
+    return errorMsg;
   }
-  if ((!isUpload.thumbnail && thumbError) || (!isUpload.cover && coverError)) {
-    errorMsg = __('Invalid %error_type%', { error_type: (thumbError && 'thumbnail') || (coverError && 'cover image') });
+
+  function resolveThumbnailPreview() {
+    if (!params.thumbnailUrl) {
+      return Gerbil;
+    } else if (thumbError) {
+      return ThumbnailBrokenImage;
+    } else {
+      return params.thumbnailUrl;
+    }
   }
 
   React.useEffect(() => {
@@ -264,19 +284,7 @@ function ChannelForm(props: Props) {
     }
   }, [hasClaimedInitialRewards, claimInitialRewards]);
 
-  const coverSrc = coverError ? ThumbnailBrokenImage : params.coverUrl;
-
-  let thumbnailPreview;
-  if (!params.thumbnailUrl) {
-    thumbnailPreview = Gerbil;
-  } else if (thumbError) {
-    thumbnailPreview = ThumbnailBrokenImage;
-  } else {
-    thumbnailPreview = params.thumbnailUrl;
-  }
-
   // TODO clear and bail after submit
-  // <div className={classnames('main--contained', { 'card--disabled': disabled })}></div>
   return (
     <>
       <div className={classnames({ 'card--disabled': disabled })}>

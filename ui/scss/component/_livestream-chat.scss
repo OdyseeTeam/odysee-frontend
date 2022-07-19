@@ -633,10 +633,12 @@ $recent-msg-button__height: 2rem;
   font-size: var(--font-small);
   background: linear-gradient(180deg, var(--color-header-background) 0%, transparent 100%);
   margin-bottom: var(--spacing-xs);
+
   overflow-x: scroll;
+  padding-bottom: var(--spacing-xs) !important;
   &::-webkit-scrollbar {
     width: 0px;
-    height: 0px;
+    height: 4px;
   }
 
   @media (min-width: $breakpoint-small) {

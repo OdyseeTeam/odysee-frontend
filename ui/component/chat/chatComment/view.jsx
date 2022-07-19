@@ -37,6 +37,8 @@ type Props = {
   activeChannelClaim?: any,
 };
 
+export const ChatCommentContext = React.createContext<any>();
+
 export default function ChatComment(props: Props) {
   const {
     comment,

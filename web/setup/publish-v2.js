@@ -6,10 +6,12 @@ import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
 import { generateError } from './publish-error';
 import { LBRY_WEB_PUBLISH_API_V2 } from 'config';
+import { PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL } from 'constants/errors';
 
 const RESUMABLE_ENDPOINT = LBRY_WEB_PUBLISH_API_V2;
 const RESUMABLE_ENDPOINT_METHOD = 'publish';
 const UPLOAD_CHUNK_SIZE_BYTE = 25 * 1024 * 1024;
+const PUBLISH_FETCH_TIMEOUT_MS = 60000;
 
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
@@ -71,7 +73,7 @@ export function makeResumableUploadRequest(
     const uploader = new tus.Upload(file, {
       ...urlOptions,
       chunkSize: UPLOAD_CHUNK_SIZE_BYTE,
-      retryDelays: [8000, 10000, 15000, 20000, 30000],
+      retryDelays: [8000, 15000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
@@ -93,12 +95,14 @@ export function makeResumableUploadRequest(
         let customErr;
         if (status === STATUS_LOCKED || errMsg === 'file currently locked') {
           customErr = 'File is locked. Try resuming after waiting a few minutes';
+        } else if (errMsg.startsWith('tus: failed to upload chunk at offset')) {
+          customErr = 'Error uploading chunk. Click "retry" in the Uploads page to resume upload.';
         }
 
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
         analytics.sentryError(getTusErrorType(errMsg), { onError: err, tusUpload: uploader });
 
-        reject(generateError(customErr || err, params, null, uploader));
+        reject(generateError(customErr || err, params, null, uploader, customErr ? err : null));
       },
       onProgress: (bytesUploaded, bytesTotal) => {
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
@@ -113,6 +117,7 @@ export function makeResumableUploadRequest(
           xhr.setRequestHeader('Content-Type', 'application/json');
           xhr.setRequestHeader('Tus-Resumable', '1.0.0');
           xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
+          xhr.timeout = PUBLISH_FETCH_TIMEOUT_MS;
           xhr.responseType = 'json';
           xhr.onloadstart = () => {
             window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify' }));
@@ -120,6 +125,10 @@ export function makeResumableUploadRequest(
           xhr.onload = () => {
             window.store.dispatch(doUpdateUploadRemove(guid));
             resolve(xhr);
+          };
+          xhr.ontimeout = () => {
+            window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify' }));
+            reject(generateError(PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL, params, xhr, uploader));
           };
           xhr.onerror = () => {
             if (retries > 0 && xhr.status === 0) {

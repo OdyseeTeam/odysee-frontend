@@ -197,7 +197,6 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
             <MarkdownLink
               {...linkProps}
               parentCommentId={parentCommentId}
-              isMarkdownPost={isMarkdownPost}
               simpleLinks={simpleLinks}
               allowPreview={isStakeEnoughForPreview(stakedLevel) || hasMembership}
               setUserMention={setUserMention}

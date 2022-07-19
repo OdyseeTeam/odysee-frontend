@@ -45,16 +45,20 @@ export default function LivestreamHyperchats(props: Props) {
       const el = elRef.current;
       if (el) {
         const onWheel = (e) => {
+          if (e.deltaY === 0 || (el.scrollLeft === 0 && e.deltaY < 0) || el.scrollLeft === el.scrollWidth) return;
           console.log(el);
           console.dir(el);
-          // console.log('scrollWidth: ', el.scrollWidth)
-          // console.log('scrollLeft: ', el.scrollLeft)
-          if (e.deltaY === 0 || (el.scrollLeft === 0 && e.deltaY < 0)) return;
           setShowTooltip(false);
           e.preventDefault();
+          console.log('e.deltaY :', e.deltaY);
+          console.log('el.scrollLeft: ', el.scrollLeft);
+          console.log('el.scrollWidth: ', el.scrollWidth);
+          let scrollSpace =
+            el.scrollLeft + e.deltaY * 2.5 < el.scrollWidth ? el.scrollLeft + e.deltaY * 2.5 : el.scrollWidth;
+          console.log('scrollSpace: ', scrollSpace);
           el.scrollTo({
-            left: el.scrollLeft + e.deltaY * 2.5,
-            behavior: 'auto',
+            left: scrollSpace,
+            behavior: 'smooth',
           });
           setShowTooltip(true);
         };
