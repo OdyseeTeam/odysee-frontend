@@ -14,29 +14,6 @@ let stripeEnvironment = getStripeEnvironment();
 
 const isDev = stripeEnvironment === 'test';
 
-const perkDescriptions = [
-  {
-    perkName: 'exclusiveAccess',
-    perkDescription: 'Members-only content',
-  },
-  {
-    perkName: 'earlyAccess',
-    perkDescription: 'Early access content',
-  },
-  {
-    perkName: 'badge',
-    perkDescription: 'Member Badge',
-  },
-  {
-    perkName: 'emojis',
-    perkDescription: 'Members-only emojis',
-  },
-  {
-    perkName: 'custom-badge',
-    perkDescription: 'MVP member badge',
-  },
-];
-
 type Props = {
   uri: string,
   testMembership: { displayName: string, description: string, perks: Array<string> },
@@ -75,7 +52,7 @@ export default function MembershipChannelTab(props: Props) {
     return <JoinMembershipCard uri={uri} isChannelTab />;
   }
 
-  const { Membership, MembershipDetails, Subscription } = purchasedChannelMembership;
+  const { Membership, MembershipDetails, Subscription, Perks } = purchasedChannelMembership;
   const { channel_name: channelName } = Membership;
 
   const startDate = Subscription.current_period_start * 1000;
@@ -117,24 +94,19 @@ export default function MembershipChannelTab(props: Props) {
                 </BalanceText>
               </h1>
 
-              <div className="membership__plan-perks">
+              { Perks && (<div className="membership__plan-perks">
                 <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
-                {testMembership.perks.map((
+                {Perks.map((
                   tierPerk,
                   i // TODO: need this to come from API
                 ) => (
                   <p key={tierPerk}>
-                    {perkDescriptions.map(
-                      (globalPerk, i) =>
-                        tierPerk === globalPerk.perkName && (
-                          <ul>
-                            <li className="membership__perk-item">{globalPerk.perkDescription}</li>
-                          </ul>
-                        )
-                    )}
+                    <ul>
+                      <li className="membership__perk-item">{tierPerk.name}</li>
+                    </ul>
                   </p>
                 ))}
-              </div>
+              </div>)}
 
               <h1 className="join-membership-tab-renewal-date__header">
                 {__('Your %active_or_cancelled% membership will %renew_or_end% on %renewal_date%', {
