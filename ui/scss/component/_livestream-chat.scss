@@ -629,13 +629,15 @@ $recent-msg-button__height: 2rem;
 .livestream-hyperchats__wrapper {
   flex-shrink: 0;
   position: relative;
-  // overflow-x: scroll;
-  overflow: hidden;
-  padding: var(--spacing-s) var(--spacing-xs);
-  // border-bottom: 2px solid var(--color-border);
+  padding: var(--spacing-s) 0;
   font-size: var(--font-small);
   background: linear-gradient(180deg, var(--color-header-background) 0%, transparent 100%);
   margin-bottom: var(--spacing-xs);
+  overflow-x: scroll;
+  &::-webkit-scrollbar {
+    width: 0px;
+    height: 0px;
+  }
 
   @media (min-width: $breakpoint-small) {
     padding: 0 var(--spacing-xs);
@@ -656,14 +658,6 @@ $recent-msg-button__height: 2rem;
   border-right: unset;
   border-bottom: none;
   scrollbar-width: 0px;
-
-  .livestream-hyperchats {
-    overflow-x: scroll;
-    &::-webkit-scrollbar {
-      width: 0px;
-      height: 0px;
-    }
-  }
 }
 
 .livestream-comments__top-actions {

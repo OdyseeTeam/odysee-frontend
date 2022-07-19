@@ -97,7 +97,7 @@ function MarkdownLink(props: Props) {
   }
 
   function isMe(claim, title) {
-    return claim.replace('#', ':') === title;
+    return claim && title && claim.replace('#', ':') === title;
   }
 
   // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).

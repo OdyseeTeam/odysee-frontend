@@ -45,6 +45,10 @@ export default function LivestreamHyperchats(props: Props) {
       const el = elRef.current;
       if (el) {
         const onWheel = (e) => {
+          console.log(el);
+          console.dir(el);
+          // console.log('scrollWidth: ', el.scrollWidth)
+          // console.log('scrollLeft: ', el.scrollLeft)
           if (e.deltaY === 0 || (el.scrollLeft === 0 && e.deltaY < 0)) return;
           setShowTooltip(false);
           e.preventDefault();
