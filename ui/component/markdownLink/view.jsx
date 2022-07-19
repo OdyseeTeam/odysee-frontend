@@ -96,6 +96,10 @@ function MarkdownLink(props: Props) {
     }
   }
 
+  function isMe(claim, title) {
+    return claim.replace('#', ':') === title;
+  }
+
   // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).
   // Return plain text if no valid url.
   // Return external link if protocol is http or https.
@@ -130,7 +134,7 @@ function MarkdownLink(props: Props) {
             // commentId={commentId}
             authorUri={lbryUrlFromLink || decodedUri}
             // authorName={comment && comment.channel_name}
-            // commentIsMine={commentIsMine}
+            commentIsMine={isMe(activeChannelClaim && activeChannelClaim.short_url, lbryUrlFromLink || decodedUri)}
             // isPinned={isPinned}
             // isTopLevel
             // disableEdit

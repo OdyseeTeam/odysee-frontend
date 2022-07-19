@@ -13,6 +13,7 @@ import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import { NavLink } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
+// import { yupToFormErrors } from 'formik';
 
 type Props = {
   uri: ?string,
@@ -196,9 +197,14 @@ function CommentMenuList(props: Props) {
           </NavLink>
         </div>
       )}
-      {activeChannelIsCreator && <div className="comment__menu-title">{__('Creator tools')}</div>}
+      {activeChannelIsCreator &&
+        (!commentIsMine ? (
+          <div className="comment__menu-title">{__('Creator tools')}</div>
+        ) : (
+          <div className="comment__menu-title no-border">{__("That's you...")}</div>
+        ))}
 
-      {isLiveComment && setQuickReply && (
+      {isLiveComment && setQuickReply && !commentIsMine && (
         <>
           <MenuItem
             className="comment__menu-option menu__link"

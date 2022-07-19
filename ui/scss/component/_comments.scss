@@ -434,6 +434,10 @@ $thumbnailWidthSmall: 2rem;
   border-bottom: 1px solid var(--color-border);
   color: var(--color-text);
 
+  &.no-border {
+    border-bottom: unset;
+  }
+
   &:not(:first-child) {
     margin-top: var(--spacing-xs);
     // padding-top: var(--spacing-xs);
