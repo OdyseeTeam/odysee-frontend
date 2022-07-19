@@ -88,7 +88,7 @@ export default function LivestreamHyperchats(props: Props) {
                     'hyperchat-preview-level5': basedAmount >= 500,
                   })}
                 >
-                  <ChannelThumbnail uri={channel_url} xsmall />
+                  <ChannelThumbnail uri={channel_url} xsmall showMemberBadge />
 
                   <div
                     className={classnames('livestreamHyperchat__info', {
