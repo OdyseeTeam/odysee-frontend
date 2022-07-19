@@ -35,6 +35,7 @@ type Props = {
   claimsByUri: { [string]: any },
   authorTitle: string,
   activeChannelClaim?: any,
+  channelAge?: any,
 };
 
 export const ChatCommentContext = React.createContext<any>();
@@ -54,6 +55,7 @@ export default function ChatComment(props: Props) {
     odyseeMembership,
     authorTitle,
     activeChannelClaim,
+    channelAge,
   } = props;
 
   const {
@@ -68,6 +70,8 @@ export default function ChatComment(props: Props) {
     support_amount: supportAmount,
     timestamp,
   } = comment;
+
+  const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
 
   const [exchangeRate, setExchangeRate] = React.useState(0);
   React.useEffect(() => {
@@ -171,6 +175,9 @@ export default function ChatComment(props: Props) {
           {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
           {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
           {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
+          {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
+            <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
+          )}
           <PremiumBadge membership={odyseeMembership} linkPage />
 
           {/* Use key to force timestamp update */}

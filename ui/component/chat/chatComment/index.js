@@ -6,6 +6,7 @@ import {
   selectClaimsByUri,
   selectOdyseeMembershipForChannelId,
   selectTitleForUri,
+  selectDateForUri,
 } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 
@@ -15,6 +16,7 @@ const select = (state, props) => {
   const { uri, comment } = props;
   const { channel_url: authorUri, channel_id: channelId } = comment;
   const authorTitle = selectTitleForUri(state, authorUri);
+  const channelAge = selectDateForUri(state, authorUri);
 
   return {
     claim: selectClaimForUri(state, uri),
@@ -24,6 +26,7 @@ const select = (state, props) => {
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
     activeChannelClaim: selectActiveChannelClaim(state),
     authorTitle,
+    channelAge,
   };
 };
 

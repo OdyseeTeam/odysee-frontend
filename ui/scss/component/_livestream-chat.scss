@@ -541,6 +541,7 @@ $recent-msg-button__height: 2rem;
       margin-bottom: var(--spacing-xs);
 
       .tabs__list {
+        background-color: unset;
         padding: 0 !important;
         .tab {
           background-color: rgba(var(--color-header-button-base), 0.3);

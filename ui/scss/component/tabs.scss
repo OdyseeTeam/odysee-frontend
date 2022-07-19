@@ -5,7 +5,7 @@
 .tabs__list {
   display: flex;
   align-items: center;
-  // background-color: var(--color-tabs-background);
+  background-color: var(--color-tabs-background);
   padding: var(--spacing-m) var(--spacing-main-padding);
 
   & > *:not(.tab) {
