@@ -1048,8 +1048,8 @@ $recent-msg-button__height: 2rem;
   align-items: flex-start;
   justify-content: space-between;
   flex-direction: row;
-  width: 8rem;
-  height: 3rem;
+  width: 6.4rem;
+  max-height: 38px;
 
   .livestreamHyperchat__info--user {
     .channel-name {
