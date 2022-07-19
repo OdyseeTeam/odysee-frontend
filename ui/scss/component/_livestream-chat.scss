@@ -802,7 +802,7 @@ $recent-msg-button__height: 2rem;
   .date_time {
     color: var(--color-text-subtitle);
     opacity: var(--live-timestamp-opacity);
-    font-size: var(--font-xxsmall) !important;
+    // font-size: var(--font-xsmall) !important;
   }
 
   .channel-name {
@@ -954,11 +954,39 @@ $recent-msg-button__height: 2rem;
 }
 
 .hyperchat-preview-level1 {
+  border: 2px solid rgba(mix(#de0050, #ffa236, 0%), 1);
+  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.2);
+}
+
+.hyperchat-preview-level2 {
+  border: 2px solid rgba(mix(#de0050, #ffa236, 25%), 1);
+  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.2);
+}
+
+.hyperchat-preview-level3 {
+  border: 2px solid rgba(mix(#de0050, #ffa236, 50%), 1);
+  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.2);
+
+  .channel-name {
+    max-width: 8rem;
+  }
+}
+
+.hyperchat-preview-level4 {
+  border: 2px solid rgba(mix(#de0050, #ffa236, 75%), 1);
+  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.2);
+
+  .channel-name {
+    max-width: 8rem;
+  }
+}
+
+.hyperchat-preview-level5 {
   border: 2px solid rgba(mix(#de0050, #ffa236, 100%), 1);
   background-color: rgba(mix(#de0050, #ffa236, 100%), 0.2);
 
   .channel-name {
-    max-width: 8rem;
+    max-width: 10rem;
   }
 }
 

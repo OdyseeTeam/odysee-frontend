@@ -94,9 +94,9 @@
   }
 
   .comment__badge svg {
-    height: 1.3rem;
-    width: 1.3rem;
-    margin-bottom: -6px;
+    height: var(--font-body);
+    width: var(--font-body);
+    margin-bottom: -2px;
   }
 }
 
