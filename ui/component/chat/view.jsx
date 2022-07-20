@@ -94,6 +94,7 @@ export default function ChatLayout(props: Props) {
   const [superchatsAmount, setSuperchatsAmount] = React.useState(false);
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
+  const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
 
   let superChatsByChronologicalOrder = [];
   if (superChatsByAmount) superChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
@@ -145,7 +146,7 @@ export default function ChatLayout(props: Props) {
 
   function toggleClick(toggleMode: string) {
     if (toggleMode === VIEW_MODES.SUPERCHAT) {
-      toggleSuperChat();
+      toggleHyperChat();
     } else {
       setViewMode(VIEW_MODES.CHAT);
     }
@@ -155,7 +156,7 @@ export default function ChatLayout(props: Props) {
     }
   }
 
-  function toggleSuperChat() {
+  function toggleHyperChat() {
     const hasNewSuperchats = !superchatsAmount || superChatsChannelUrls.length !== superchatsAmount;
 
     if (superChatsChannelUrls && hasNewSuperchats) {
@@ -326,6 +327,8 @@ export default function ChatLayout(props: Props) {
             hideChat={() => setChatHidden(true)}
             setPopoutWindow={(v) => setPopoutWindow(v)}
             isMobile={isMobile}
+            toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
+            hyperchatsHidden={hideHyperchats}
           />
         </div>
       )}
@@ -343,8 +346,8 @@ export default function ChatLayout(props: Props) {
           {viewMode === VIEW_MODES.CHAT && superChatsByAmount && (
             <LivestreamHyperchats
               superChats={superChatsByAmount}
-              toggleSuperChat={toggleSuperChat}
-              hyperchatsHidden={hyperchatsHidden}
+              toggleHyperChat={toggleHyperChat}
+              hyperchatsHidden={hyperchatsHidden || hideHyperchats}
               isMobile={isMobile}
             />
           )}

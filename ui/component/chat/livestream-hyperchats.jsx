@@ -19,11 +19,11 @@ type Props = {
   superChats: Array<Comment>,
   hyperchatsHidden?: boolean,
   isMobile?: boolean,
-  toggleSuperChat: () => void,
+  toggleHyperChat: () => void,
 };
 
 export default function LivestreamHyperchats(props: Props) {
-  const { superChats: superChatsByAmount, hyperchatsHidden, isMobile, toggleSuperChat } = props;
+  const { superChats: superChatsByAmount, hyperchatsHidden, isMobile, toggleHyperChat } = props;
 
   const superChatTopTen = React.useMemo(() => {
     return superChatsByAmount ? superChatsByAmount.slice(0, 10) : superChatsByAmount;
@@ -158,7 +158,7 @@ export default function LivestreamHyperchats(props: Props) {
               label={__('Show More')}
               button="inverse"
               className="close-button"
-              onClick={() => toggleSuperChat()}
+              onClick={() => toggleHyperChat()}
               iconRight={ICONS.MORE}
             />
           )}
@@ -170,18 +170,15 @@ export default function LivestreamHyperchats(props: Props) {
 
 type SliderProps = {
   hyperchatsHidden?: boolean,
-  isMobile?: boolean,
   children: any,
 };
 
 const Slider = (sliderProps: SliderProps) => {
-  const { hyperchatsHidden, isMobile, children } = sliderProps;
+  const { hyperchatsHidden, children } = sliderProps;
 
-  return isMobile ? (
+  return (
     <Slide direction="left" in={!hyperchatsHidden} mountOnEnter unmountOnExit>
       {children}
     </Slide>
-  ) : (
-    <>{children}</>
   );
 };

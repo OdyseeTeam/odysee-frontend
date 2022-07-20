@@ -16,7 +16,7 @@ type Props = {
   isMobile?: boolean,
   hideChat?: () => void,
   setPopoutWindow?: (any) => void,
-  toggleSuperchats?: () => void,
+  toggleHyperchats?: () => void,
 };
 
 export default function LivestreamMenu(props: Props) {
@@ -27,7 +27,7 @@ export default function LivestreamMenu(props: Props) {
     isMobile,
     hideChat,
     setPopoutWindow,
-    toggleSuperchats,
+    toggleHyperchats,
   } = props;
 
   const {
@@ -82,6 +82,14 @@ export default function LivestreamMenu(props: Props) {
 
           {!isMobile ? (
             <>
+              {!noSuperchats && (
+                <MenuItem className="comment__menu-option" onSelect={toggleHyperchats}>
+                  <span className="menu__link">
+                    <Icon aria-hidden icon={hyperchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
+                    {hyperchatsHidden ? __('Display HyperChats') : __('Dismiss HyperChats')}
+                  </span>
+                </MenuItem>
+              )}
               {/* No need for Hide Chat on mobile with the expand/collapse drawer */}
               <MenuItem className="comment__menu-option" onSelect={hideChat}>
                 <span className="menu__link">
@@ -101,7 +109,7 @@ export default function LivestreamMenu(props: Props) {
             </>
           ) : (
             !noSuperchats && (
-              <MenuItem className="comment__menu-option" onSelect={toggleSuperchats}>
+              <MenuItem className="comment__menu-option" onSelect={toggleHyperchats}>
                 <span className="menu__link">
                   <Icon aria-hidden icon={hyperchatsHidden ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
                   {hyperchatsHidden ? __('Display HyperChats') : __('Dismiss HyperChats')}
