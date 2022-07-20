@@ -740,7 +740,7 @@ $recent-msg-button__height: 2rem;
         @media (max-width: $breakpoint-small) {
           margin: 0;
           margin-top: var(--spacing-xxs);
-          margin-right: var(--spacing-xs);
+          margin-right: var(--spacing-xxs);
           margin-bottom: -6px;
         }
       }

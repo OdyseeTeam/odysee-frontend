@@ -192,7 +192,7 @@ function CommentMenuList(props: Props) {
   return (
     <MenuList
       className={classnames('menu__list', {
-        'menu__chat-comment': setQuickReply,
+        'menu__chat-comment': isLiveComment,
       })}
       onClick={(e) => e.stopPropagation()}
     >
