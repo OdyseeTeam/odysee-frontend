@@ -36,6 +36,7 @@ type Props = {
   authorTitle: string,
   activeChannelClaim?: any,
   channelAge?: any,
+  chatMode?: string,
 };
 
 export const ChatCommentContext = React.createContext<any>();
@@ -56,6 +57,7 @@ export default function ChatComment(props: Props) {
     authorTitle,
     activeChannelClaim,
     channelAge,
+    chatMode,
   } = props;
 
   const {
@@ -136,75 +138,140 @@ export default function ChatComment(props: Props) {
 
       <div className="livestreamComment__body">
         {false && supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
-        <ChannelThumbnail uri={authorUri} xsmall />
+        {chatMode === 'slow' || isPinned ? (
+          <>
+            <ChannelThumbnail uri={authorUri} xsmall />
 
-        <div className="livestreamComment__info">
-          <Menu>
-            <MenuButton
-              className={classnames('button--uri-indicator comment__author', {
-                'comment__author--creator': isStreamer,
-              })}
-              onClick={(e) => e.stopPropagation()}
-            >
-              {claimName}
-            </MenuButton>
+            <div className="livestreamComment__info">
+              <Menu>
+                <MenuButton
+                  className={classnames('button--uri-indicator comment__author', {
+                    'comment__author--creator': isStreamer,
+                  })}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {claimName}
+                </MenuButton>
 
-            <CommentMenuList
-              uri={uri}
-              commentId={commentId}
-              authorUri={authorUri}
-              authorName={comment && comment.channel_name}
-              commentIsMine={commentIsMine}
-              isPinned={isPinned}
-              isTopLevel
-              disableEdit
-              disableRemove={comment.removed}
-              isLiveComment
-              handleDismissPin={handleDismissPin}
-              setQuickReply={handleCommentClick}
-            />
-          </Menu>
-
-          {isPinned && (
-            <span className="comment__pin">
-              <Icon icon={ICONS.PIN} size={14} />
-              {__('Pinned')}
-            </span>
-          )}
-
-          {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
-          {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
-          {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
-          {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
-            <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
-          )}
-          <PremiumBadge membership={odyseeMembership} linkPage />
-
-          {/* Use key to force timestamp update */}
-          <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />
-
-          {isSticker ? (
-            <div className="sticker__comment">
-              <OptimizedImage src={stickerUrlFromMessage} waitLoad loading="lazy" />
-            </div>
-          ) : (
-            <div className="livestreamComment__text">
-              {removed ? (
-                <Empty text={__('[Removed]')} />
-              ) : (
-                <MarkdownPreview
-                  content={message}
-                  promptLinks
-                  stakedLevel={stakedLevel}
-                  disableTimestamps
-                  setUserMention={setUserMention}
-                  hasMembership={Boolean(odyseeMembership)}
-                  isComment
+                <CommentMenuList
+                  uri={uri}
+                  commentId={commentId}
+                  authorUri={authorUri}
+                  authorName={comment && comment.channel_name}
+                  commentIsMine={commentIsMine}
+                  isPinned={isPinned}
+                  isTopLevel
+                  disableEdit
+                  disableRemove={comment.removed}
+                  isLiveComment
+                  handleDismissPin={handleDismissPin}
+                  setQuickReply={handleCommentClick}
                 />
+              </Menu>
+
+              {isPinned && (
+                <span className="comment__pin">
+                  <Icon icon={ICONS.PIN} size={14} />
+                  {__('Pinned')}
+                </span>
+              )}
+
+              {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
+              {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
+              {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
+              {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
+                <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
+              )}
+              <PremiumBadge membership={odyseeMembership} linkPage />
+
+              {/* Use key to force timestamp update */}
+              <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />
+
+              {isSticker ? (
+                <div className="sticker__comment">
+                  <OptimizedImage src={stickerUrlFromMessage} waitLoad loading="lazy" />
+                </div>
+              ) : (
+                <div className="livestreamComment__text">
+                  {removed ? (
+                    <Empty text={__('[Removed]')} />
+                  ) : (
+                    <MarkdownPreview
+                      content={message}
+                      promptLinks
+                      stakedLevel={stakedLevel}
+                      disableTimestamps
+                      setUserMention={setUserMention}
+                      hasMembership={Boolean(odyseeMembership)}
+                      isComment
+                    />
+                  )}
+                </div>
               )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <div className="livestreamComment--minimal">
+            <DateTime date={timePosted} key={forceUpdate} genericSeconds />
+            {(isStreamer || isModerator || isGlobalMod || odyseeMembership) && (
+              <ChannelThumbnail uri={authorUri} xxxsmall />
+            )}
+            {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
+            {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
+            {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
+            {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
+              <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
+            )}
+            <PremiumBadge membership={odyseeMembership} linkPage />
+            <Menu>
+              <MenuButton
+                className={classnames('button--uri-indicator comment__author', {
+                  'comment__author--creator': isStreamer,
+                })}
+                onClick={(e) => e.stopPropagation()}
+              >
+                {claimName}
+              </MenuButton>
+
+              <CommentMenuList
+                uri={uri}
+                commentId={commentId}
+                authorUri={authorUri}
+                authorName={comment && comment.channel_name}
+                commentIsMine={commentIsMine}
+                isPinned={isPinned}
+                isTopLevel
+                disableEdit
+                disableRemove={comment.removed}
+                isLiveComment
+                handleDismissPin={handleDismissPin}
+                setQuickReply={handleCommentClick}
+              />
+            </Menu>
+            :&nbsp;
+            {isSticker ? (
+              <div className="sticker__comment">
+                <OptimizedImage src={stickerUrlFromMessage} waitLoad loading="lazy" />
+              </div>
+            ) : (
+              <div className="livestreamComment__text">
+                {removed ? (
+                  <Empty text={__('[Removed]')} />
+                ) : (
+                  <MarkdownPreview
+                    content={message}
+                    promptLinks
+                    stakedLevel={stakedLevel}
+                    disableTimestamps
+                    setUserMention={setUserMention}
+                    hasMembership={Boolean(odyseeMembership)}
+                    isComment
+                  />
+                )}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="livestreamComment__menu">

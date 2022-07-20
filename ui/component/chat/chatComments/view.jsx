@@ -16,6 +16,7 @@ type Props = {
   restoreScrollPos?: () => void,
   setResolvingSuperChats?: (boolean) => void,
   handleCommentClick?: (string) => void,
+  chatMode: string,
   // redux
   fetchingComments: boolean,
   resolvingSuperchats: boolean,
@@ -29,6 +30,7 @@ export default function ChatComments(props: Props) {
     restoreScrollPos,
     setResolvingSuperChats,
     handleCommentClick,
+    chatMode,
     fetchingComments,
     resolvingSuperchats,
   } = props;
@@ -98,6 +100,7 @@ export default function ChatComments(props: Props) {
             comment={comment}
             key={comment.comment_id}
             handleCommentClick={handleCommentClick}
+            chatMode={chatMode}
           />
         ))}
       </div>

@@ -1085,3 +1085,29 @@ $recent-msg-button__height: 2rem;
 .livestreamHyperchat__amount--large {
   min-width: 2.5rem;
 }
+
+.livestreamComment--minimal {
+  .date_time {
+    // width:60px;
+    margin-right: var(--spacing-xxxs);
+  }
+  .channel-thumbnail {
+    width: var(--font-small) !important;
+    height: var(--font-small) !important;
+    display: inline-block;
+    margin-right: var(--spacing-xxs);
+  }
+  .comment__author {
+    display: inline-block;
+    margin-right: 0;
+    margin-top: 0 !important;
+  }
+  .livestreamComment__text {
+    display: inline-block;
+  }
+  .comment__badge {
+    .icon {
+      margin-bottom: -3px;
+    }
+  }
+}

@@ -96,6 +96,7 @@ export default function ChatLayout(props: Props) {
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
+  const [chatMode, setChatMode] = React.useState('slow');
 
   let superChatsByChronologicalOrder = [];
   if (superChatsByAmount) superChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
@@ -333,6 +334,7 @@ export default function ChatLayout(props: Props) {
             setPopoutWindow={(v) => setPopoutWindow(v)}
             isMobile={isMobile}
             toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
+            // toggleFastMode={() => setChatMode(!fastModeEnabled)}
             hyperchatsHidden={hideHyperchats}
           />
         </div>
@@ -403,6 +405,7 @@ export default function ChatLayout(props: Props) {
           isMobile={isMobile}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
+          chatMode={chatMode}
         />
 
         {scrolledPastRecent && (
