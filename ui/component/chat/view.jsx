@@ -75,6 +75,7 @@ export default function ChatLayout(props: Props) {
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
+  const isLimitedPopout = useIsMobile() && isPopoutWindow;
 
   const webElement = document.querySelector('.livestream__comments');
   const mobileElement = document.querySelector('.livestream__comments--mobile');
@@ -301,13 +302,19 @@ export default function ChatLayout(props: Props) {
     setTextInjection(authorTitle);
   }
 
+  console.log('isMobile: ', isMobile);
+
   return (
     <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (
         <div className="card__header--between livestreamDiscussion__header">
           <div className="recommended-content__toggles">
             {/* the superchats in chronological order button */}
-            <ChatContentToggle {...toggleProps} toggleMode={VIEW_MODES.CHAT} label={__('Livestream Chat')} />
+            <ChatContentToggle
+              {...toggleProps}
+              toggleMode={VIEW_MODES.CHAT}
+              label={!isLimitedPopout ? __('Livestream Chat') : __('Chat')}
+            />
 
             {/* the button to show superchats listed by most to least support amount */}
             <ChatContentToggle

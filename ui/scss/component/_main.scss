@@ -700,27 +700,18 @@ body {
   padding: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+  border-radius: 0;
 
   .livestream-hyperchats__wrapper {
     padding-top: 0;
     padding-bottom: 0;
   }
 
-  .livestream__chat--popout {
-    .livestreamComments__wrapper {
-      padding-bottom: 36px;
-      height: calc(100vh - 45px) !important;
-      // height:calc(100% - 100px);
-    }
-  }
-
   @media (max-width: $breakpoint-small) {
     .livestream__chat--popout {
       .livestreamComments__wrapper {
+        height: calc(100vh - 50px) !important;
         .livestream__comment-create {
-          position: absolute;
-          bottom: 0;
-          height: 36px;
           padding: 0 var(--spacing-xxs);
         }
       }
@@ -729,8 +720,7 @@ body {
   @media (min-width: $breakpoint-small) {
     .livestream__chat--popout {
       .livestreamComments__wrapper {
-        height: 100vh !important;
-        padding-bottom: 0;
+        height: calc(100vh - 55px) !important;
         .livestream__comment-create {
           padding-bottom: var(--spacing-s);
         }
