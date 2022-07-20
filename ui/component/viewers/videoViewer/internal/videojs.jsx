@@ -459,13 +459,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
         playerServerRef.current = response.headers.get('x-powered-by');
-        vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
+        const newSource = source.replace('player.odycdn.com', 'dev.odycdn.com');
+        vjsPlayer.claimSrcOriginal = { type: sourceType, src: newSource };
 
         if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
-          vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
+          vjsPlayer.claimSrcVhs = {
+            type: 'application/x-mpegURL',
+            src: response.url.replace('player.odycdn.com', 'dev.odycdn.com'),
+          };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
-          contentUrl = response.url;
+          contentUrl = response.url.replace('player.odycdn.com', 'dev.odycdn.com');
         } else {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
         }
