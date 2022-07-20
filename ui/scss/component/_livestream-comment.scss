@@ -32,6 +32,10 @@
     &:hover {
       color: var(--color-primary) !important;
     }
+
+    @media (max-width: $breakpoint-small) {
+      max-width: unset;
+    }
   }
 
   .channel-name {
