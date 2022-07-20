@@ -34,6 +34,17 @@ $thumbnailWidthSmall: 2rem;
   overflow-wrap: anywhere;
 }
 
+.comment__list {
+  .comments {
+    .comment {
+      .comment__menu {
+        margin-top: 2px;
+        margin-right: 2px;
+      }
+    }
+  }
+}
+
 .comment__list .card__first-pane > .button {
   margin-left: 3px;
   height: calc(var(--height-button) - 3px);

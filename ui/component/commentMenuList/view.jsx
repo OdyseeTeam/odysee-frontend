@@ -9,6 +9,7 @@ import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import ChannelThumbnail from 'component/channelThumbnail';
 import Icon from 'component/common/icon';
+import classnames from 'classnames';
 import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import { NavLink } from 'react-router-dom';
@@ -187,7 +188,12 @@ function CommentMenuList(props: Props) {
   }
 
   return (
-    <MenuList className="menu__list menu__chat-comment" onClick={(e) => e.stopPropagation()}>
+    <MenuList
+      className={classnames('menu__list', {
+        'menu__chat-comment': setQuickReply,
+      })}
+      onClick={(e) => e.stopPropagation()}
+    >
       {isLiveComment && (
         <div className="comment__menu-target">
           <ChannelThumbnail xsmall noLazyLoad uri={authorUri} />

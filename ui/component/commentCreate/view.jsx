@@ -520,6 +520,8 @@ export function CommentCreate(props: Props) {
           ? commentValue + textInjection + ' '
           : commentValue + ' ' + textInjection + ' '
       );
+      // $FlowFixMe
+      return formFieldRef?.current?.input?.current?.focus();
     }
   }, [textInjection]);
 

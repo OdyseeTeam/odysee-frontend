@@ -179,7 +179,7 @@ export default function ChatComment(props: Props) {
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} size={16} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} size={16} />}
               {isStreamer && <CommentBadge label={__('Streamer')} icon={ICONS.BADGE_STREAMER} size={16} />}
-              {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
+              {!isStreamer && !isModerator && !isGlobalMod && !odyseeMembership && isSprout && (
                 <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
               )}
               <PremiumBadge membership={odyseeMembership} linkPage />
