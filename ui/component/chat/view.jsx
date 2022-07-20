@@ -302,8 +302,6 @@ export default function ChatLayout(props: Props) {
     setTextInjection(authorTitle);
   }
 
-  console.log('isMobile: ', isMobile);
-
   return (
     <div className={classnames('card livestream__chat', { 'livestream__chat--popout': isPopoutWindow })}>
       {!hideHeader && (

@@ -536,8 +536,8 @@ body {
     width: 100%;
     max-width: var(--page-max-width--filepage);
     position: relative;
-    // display: grid;
-    display: flex;
+    display: grid;
+    // display: flex;
 
     $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
     grid-template-columns: minmax($file-min-width, 0) 1fr;
@@ -613,12 +613,17 @@ body {
 
 .main--livestream--theater-mode {
   .livestream__chat {
+    resize: none;
     position: relative;
     top: unset !important;
     // top: var(--spacing-m);
     margin-top: var(--spacing-m);
     margin-bottom: var(--spacing-m);
     margin-right: var(--spacing-s);
+  }
+
+  .chat-resize {
+    display: none !important;
   }
 
   .livestreamDiscussion__header {
@@ -700,7 +705,6 @@ body {
   padding: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
-  border-radius: 0;
 
   .livestream-hyperchats__wrapper {
     padding-top: 0;
@@ -709,6 +713,7 @@ body {
 
   @media (max-width: $breakpoint-small) {
     .livestream__chat--popout {
+      border-radius: 0;
       .livestreamComments__wrapper {
         height: calc(100vh - 50px) !important;
         .livestream__comment-create {
@@ -719,6 +724,7 @@ body {
   }
   @media (min-width: $breakpoint-small) {
     .livestream__chat--popout {
+      border-radius: 0;
       .livestreamComments__wrapper {
         height: calc(100vh - 55px) !important;
         .livestream__comment-create {

@@ -50,12 +50,8 @@ export default function LivestreamHyperchats(props: Props) {
           console.dir(el);
           setShowTooltip(false);
           e.preventDefault();
-          console.log('e.deltaY :', e.deltaY);
-          console.log('el.scrollLeft: ', el.scrollLeft);
-          console.log('el.scrollWidth: ', el.scrollWidth);
           let scrollSpace =
             el.scrollLeft + e.deltaY * 2.5 < el.scrollWidth ? el.scrollLeft + e.deltaY * 2.5 : el.scrollWidth;
-          console.log('scrollSpace: ', scrollSpace);
           el.scrollTo({
             left: scrollSpace,
             behavior: 'smooth',
