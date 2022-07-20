@@ -822,8 +822,6 @@ $recent-msg-button__height: 2rem;
   }
   @media (min-width: $breakpoint-small) {
     &:hover {
-      // background-color: rgba(var(--color-primary-dynamic), 0.1);
-
       .comment__author {
         color: var(--color-primary);
       }
@@ -917,7 +915,6 @@ $recent-msg-button__height: 2rem;
   display: flex;
   margin-right: var(--spacing-xs);
   padding: 2px var(--spacing-xxs);
-  // padding-top: 0;
   border-radius: var(--border-radius);
   transition: border 0.4s, background-color 0.4s;
   border: 2px solid var(--color-border);
@@ -929,8 +926,6 @@ $recent-msg-button__height: 2rem;
     @include handleChannelGif(2rem);
 
     @media (max-width: $breakpoint-small) {
-      // margin-top: var(--spacing-xxs);
-      // margin-right: var(--spacing-xxs);
       @include handleChannelGif(1.5rem);
     }
   }

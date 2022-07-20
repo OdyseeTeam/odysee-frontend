@@ -21,7 +21,6 @@ import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import PreorderButton from 'component/preorderButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
-// import { sortedLastIndex } from 'lodash-es';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));

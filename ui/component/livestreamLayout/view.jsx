@@ -65,10 +65,6 @@ export default function LivestreamLayout(props: Props) {
 
   const { name: channelName } = claim.signing_channel;
 
-  // TODO: use this to show the 'user is not live functionality'
-  // console.log('show livestream, currentclaimlive, activestreamurl');
-  // console.log(showLivestream, isCurrentClaimLive, activeStreamUri);
-
   return (
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>

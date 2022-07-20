@@ -2,7 +2,6 @@ import { connect } from 'react-redux';
 import {
   selectStakedLevelForChannelUri,
   selectClaimForUri,
-  // selectMyClaimIdsRaw,
   selectClaimsByUri,
   selectOdyseeMembershipForChannelId,
   selectTitleForUri,
@@ -21,7 +20,6 @@ const select = (state, props) => {
   return {
     claim: selectClaimForUri(state, uri),
     stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
-    // myChannelIds: selectMyClaimIdsRaw(state),
     claimsByUri: selectClaimsByUri(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
     activeChannelClaim: selectActiveChannelClaim(state),

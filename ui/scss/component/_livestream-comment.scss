@@ -22,7 +22,6 @@
   .comment__author:not(.comment__author--creator) {
     color: rgba(var(--color-text-base), 0.5);
     margin-top: var(--spacing-xxs);
-    // max-width: unset;
     max-width: calc(100% - 110px);
 
     .button__content {
@@ -64,7 +63,6 @@
   display: flex;
   justify-content: space-between;
   padding: 0;
-  // padding-left: var(--spacing-xxxs);
 
   .livestreamComment__menu {
     position: relative;
@@ -114,9 +112,7 @@
 }
 
 .livestream__comment--hyperchat {
-  // background-color: rgba(var(--color-primary-dynamic), 0.05);
   background-color: rgba(var(--color-text-base), 0.02);
-  // box-shadow: 2px 0px 0px 0px var(--color-primary) inset;
   box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.4) inset;
   display: unset;
   padding-left: 0;
@@ -266,22 +262,9 @@
   display: inline-block;
   position: relative;
   width: 90%;
-  // background-image: linear-gradient(to right, var(--color-primary), rgba(var(--color-primary-dynamic), 0));
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
   padding: 4px 2px 2px 4px;
   margin-left: 2px;
-
-  /*
-  &:before {
-    content:'';
-    position:absolute;
-    top:0;
-    height:30px;
-    width:60px;
-    box-shadow: 0 0 0 50px orange;
-    border-radius:0 0 0.5em 0;
-  }
-  */
 
   .superChat {
     background-color: var(--color-header-background);

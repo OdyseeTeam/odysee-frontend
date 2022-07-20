@@ -104,7 +104,6 @@ const StickersPanel = (stickersProps: StickersProps) => {
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
 
       {false && (
-        /* NEKO PREPARATION */
         <>
           <div className="emote-categories">
             <Icon icon={ICONS.TIME} />

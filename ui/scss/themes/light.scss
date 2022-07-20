@@ -128,7 +128,6 @@
 
   // Superchat
   --color-hyperchat-text: var(--color-primary-contrast);
-  // --color-hyperchat: #fcd34d;
   --color-hyperchat: rgba(var(--color-primary-dynamic), 1);
   --color-hyperchat-light: #fcd34d50;
   $test: color-mix(in srgb, #34c9eb 20%, white);

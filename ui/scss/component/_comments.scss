@@ -451,8 +451,6 @@ $thumbnailWidthSmall: 2rem;
 
   &:not(:first-child) {
     margin-top: var(--spacing-xs);
-    // padding-top: var(--spacing-xs);
-    // border-top: 1px solid var(--color-border);
   }
 
   &:not(:last-child) {
@@ -462,7 +460,6 @@ $thumbnailWidthSmall: 2rem;
 
 .comment__menu-help {
   @extend .help;
-  // margin-top: var(--spacing-xxxs);
   margin-top: 2px;
   padding-left: calc(16px + var(--spacing-s));
   max-width: 15rem;
@@ -597,7 +594,6 @@ $thumbnailWidthSmall: 2rem;
   font-size: var(--font-xsmall);
   margin-top: 0;
   max-width: 10rem;
-  // white-space: pre-line;
   word-break: break-all;
   line-clamp: 2;
   margin-right: var(--spacing-s);

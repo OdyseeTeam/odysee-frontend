@@ -167,9 +167,6 @@ export default function LivestreamPage(props: Props) {
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
   React.useEffect(() => {
-    // What's the purpose of this line? Had to diable it in order to set the primary uri and switch player mode
-    // if (!layountRendered) return;
-
     doSetPrimaryUri(uri);
     return () => doSetPrimaryUri(null);
   }, [doSetPrimaryUri, layountRendered, uri, isStreamPlaying]);

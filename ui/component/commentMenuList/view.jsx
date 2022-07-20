@@ -14,7 +14,6 @@ import React from 'react';
 import { useIsMobile } from 'effects/use-screensize';
 import { NavLink } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
-// import { yupToFormErrors } from 'formik';
 
 type Props = {
   uri: ?string,
@@ -127,7 +126,6 @@ function CommentMenuList(props: Props) {
     function getSubtitle() {
       if (personalPermanentBlockOnly) {
         return {
-          // line1: __('Prevent this channel from interacting with you.'),
           line2: null,
         };
       } else {

@@ -461,7 +461,6 @@ body {
 }
 .card__title-section--body-list {
   display: unset !important;
-  // width: 100%;
   div {
     flex: auto;
   }
@@ -537,7 +536,6 @@ body {
     max-width: var(--page-max-width--filepage);
     position: relative;
     display: grid;
-    // display: flex;
 
     $file-min-width: calc(var(--page-max-width--filepage) - var(--livestream-comments-width));
     grid-template-columns: minmax($file-min-width, 0) 1fr;
@@ -616,7 +614,6 @@ body {
     resize: none;
     position: relative;
     top: unset !important;
-    // top: var(--spacing-m);
     margin-top: var(--spacing-m);
     margin-bottom: var(--spacing-m);
     margin-right: var(--spacing-s);
