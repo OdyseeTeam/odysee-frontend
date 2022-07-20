@@ -96,7 +96,8 @@ export default function ChatLayout(props: Props) {
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
-  const [chatMode, setChatMode] = React.useState('slow');
+  // const [chatMode, setChatMode] = React.useState('slow');
+  const chatMode = 'slow';
 
   let superChatsByChronologicalOrder = [];
   if (superChatsByAmount) superChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
