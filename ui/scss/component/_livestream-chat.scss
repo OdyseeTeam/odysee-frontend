@@ -716,7 +716,6 @@ $recent-msg-button__height: 2rem;
   border-radius: var(--border-radius);
   background: linear-gradient(180deg, var(--color-primary) 0%, transparent 100%);
   padding-bottom: var(--spacing-s) !important;
-  // background-color: var(--color-primary);
 
   .livestream__comment {
     width: 100%;
@@ -747,9 +746,6 @@ $recent-msg-button__height: 2rem;
       .date_time {
         color: var(--color-primary-contrast);
         opacity: 0.8;
-      }
-      .livestreamComment__text {
-        color: var(--color-text);
       }
     }
     .livestreamComment__menu {
@@ -813,6 +809,13 @@ $recent-msg-button__height: 2rem;
   .close-button {
     padding: 0;
     padding-left: var(--spacing-xxs);
+  }
+
+  .livestreamComment__text {
+    color: var(--color-text);
+    .empty__wrap {
+      justify-content: left;
+    }
   }
 
   @media (mix-width: $breakpoint-small) {
