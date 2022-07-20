@@ -46,6 +46,7 @@ function MarkdownLink(props: Props) {
   try {
     decodedUri = decodeURI(href);
   } catch (e) {}
+  const isChannel = decodedUri && decodedUri.indexOf(':', decodedUri.indexOf(':') + 1) !== -1;
 
   let element = <span>{children}</span>;
 
@@ -120,7 +121,7 @@ function MarkdownLink(props: Props) {
       />
     );
   } else if (!simpleLinks && ((protocol && protocol[0] === 'lbry:' && isURIValid(decodedUri)) || lbryUrlFromLink)) {
-    if (isComment && setUserMention) {
+    if (isComment && isMention && isChannel && setUserMention) {
       element = (
         <Menu>
           <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
@@ -129,17 +130,9 @@ function MarkdownLink(props: Props) {
 
           <CommentMenuList
             uri={lbryUrlFromLink || decodedUri}
-            // commentId={commentId}
             authorUri={lbryUrlFromLink || decodedUri}
-            // authorName={comment && comment.channel_name}
             commentIsMine={isMe(activeChannelClaim && activeChannelClaim.short_url, lbryUrlFromLink || decodedUri)}
-            // isPinned={isPinned}
-            // isTopLevel
-            // disableEdit
-            // disableRemove={comment.removed}
             isLiveComment
-            // handleDismissPin={handleDismissPin}
-            // setQuickReply={handleCommentClick}
           />
         </Menu>
       );
