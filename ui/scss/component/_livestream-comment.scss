@@ -22,7 +22,8 @@
   .comment__author:not(.comment__author--creator) {
     color: rgba(var(--color-text-base), 0.5);
     margin-top: var(--spacing-xxs);
-    max-width: unset;
+    // max-width: unset;
+    max-width: calc(100% - 110px);
 
     .button__content {
       max-width: unset;
@@ -86,6 +87,7 @@
 
 .livestreamComment__info {
   overflow: hidden;
+  width: 100%;
 
   .comment__author {
     text-overflow: ellipsis;

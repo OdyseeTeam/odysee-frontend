@@ -1104,6 +1104,7 @@ $recent-msg-button__height: 2rem;
   }
   .livestreamComment__text {
     display: inline-block;
+    max-width: 100%;
   }
   .comment__badge {
     .icon {
