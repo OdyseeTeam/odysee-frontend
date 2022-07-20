@@ -18,10 +18,13 @@ type Props = {
   parentCommentId?: string,
   isMarkdownPost?: boolean,
   allowPreview: boolean,
+};
+
+type State = {
   claimLinkId: string,
 };
 
-class ClaimLinkClass extends React.Component<Props> {
+class ClaimLink extends React.Component<Props, State> {
   static defaultProps = {
     href: null,
     link: false,
@@ -30,6 +33,15 @@ class ClaimLinkClass extends React.Component<Props> {
     isResolvingUri: false,
     allowPreview: false,
   };
+
+  constructor(props: Props) {
+    super(props);
+
+    // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
+    this.state = {
+      claimLinkId: uuid(),
+    };
+  }
 
   componentDidMount() {
     this.resolve(this.props);
@@ -58,9 +70,9 @@ class ClaimLinkClass extends React.Component<Props> {
       parentCommentId,
       isMarkdownPost,
       allowPreview,
-      claimLinkId,
     } = this.props;
 
+    const claimLinkId = this.state.claimLinkId;
     const isUnresolved = (!isResolvingUri && !claim) || !claim;
     const isPlayingInline =
       playingUri.uri === uri &&
@@ -112,12 +124,5 @@ class ClaimLinkClass extends React.Component<Props> {
     );
   }
 }
-
-const ClaimLink = (props: Props) => {
-  // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
-  const claimLinkId = React.useRef(uuid());
-
-  return <ClaimLinkClass {...props} claimLinkId={claimLinkId.current} />;
-};
 
 export default ClaimLink;
