@@ -89,6 +89,7 @@ export default function ChatComments(props: Props) {
               isMobile
               restoreScrollPos={restoreScrollPos}
               handleCommentClick={handleCommentClick}
+              chatMode={chatMode}
             />
           ))}
       </div>
