@@ -285,8 +285,24 @@
 
   .markdown-preview {
     p,
-    h1 {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
       word-break: break-word;
+    }
+
+    .task-list-item {
+      margin-left: var(--spacing-m);
+      input[type='checkbox'] {
+        height: 26px;
+        width: 18px;
+        margin-bottom: -8px;
+        margin-right: var(--spacing-xxxs);
+        border: 2px solid var(--color-border);
+      }
     }
 
     .channel-name {
