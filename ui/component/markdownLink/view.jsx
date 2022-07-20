@@ -53,7 +53,10 @@ function MarkdownLink(props: Props) {
   const protocol = href ? protocolRegex.exec(href) : null;
   const isMention = href && href.startsWith('lbry://@');
   const mentionedMyChannel =
-    isMention && activeChannelClaim && activeChannelClaim.canonical_url.replace('#', ':') === href;
+    isMention &&
+    activeChannelClaim &&
+    activeChannelClaim.canonical_url &&
+    activeChannelClaim.canonical_url.replace('#', ':') === href;
 
   React.useEffect(() => {
     if (mentionedMyChannel && setUserMention) setUserMention(true);
