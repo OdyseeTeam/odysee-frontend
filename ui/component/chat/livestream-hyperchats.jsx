@@ -65,7 +65,7 @@ export default function LivestreamHyperchats(props: Props) {
             });
             setTimeout(() => {
               setShowTooltip(true);
-            }, 10000);
+            }, 1000);
           }
         };
         el.addEventListener('wheel', onWheel);

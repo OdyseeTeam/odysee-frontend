@@ -1046,6 +1046,7 @@ $recent-msg-button__height: 2rem;
   justify-content: space-between;
   flex-direction: row;
   width: 6.4rem;
+  max-width: 6.4rem !important;
   max-height: 38px;
 
   .livestreamHyperchat__info--user {
