@@ -16,6 +16,7 @@ const ENDPOINT = LBRY_WEB_PUBLISH_API;
 const ENDPOINT_METHOD = 'publish';
 
 const PUBLISH_FETCH_TIMEOUT_MS = 60000;
+const PREVIEW_FETCH_TIMEOUT_MS = 10000;
 
 export function makeUploadRequest(
   token: string,
@@ -52,7 +53,7 @@ export function makeUploadRequest(
     xhr.open('POST', ENDPOINT);
     xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
     if (!remoteUrl) {
-      xhr.timeout = PUBLISH_FETCH_TIMEOUT_MS;
+      xhr.timeout = isPreview ? PREVIEW_FETCH_TIMEOUT_MS : PUBLISH_FETCH_TIMEOUT_MS;
     }
     xhr.responseType = 'json';
     xhr.upload.onprogress = (e) => {
@@ -68,9 +69,14 @@ export function makeUploadRequest(
       reject(generateError(__('There was a problem with your upload. Please try again.'), params, xhr));
     };
     xhr.ontimeout = () => {
-      analytics.error(`publish-v1: timed out after ${PUBLISH_FETCH_TIMEOUT_MS / 1000}s`);
-      window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-      reject(generateError(PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL, params, xhr));
+      if (isPreview) {
+        analytics.error(`publish-v1: preview timed out after ${PREVIEW_FETCH_TIMEOUT_MS / 1000}s`);
+        resolve(null);
+      } else {
+        analytics.error(`publish-v1: timed out after ${PUBLISH_FETCH_TIMEOUT_MS / 1000}s`);
+        window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
+        reject(generateError(PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL, params, xhr));
+      }
     };
     xhr.onabort = () => {
       window.store.dispatch(doUpdateUploadRemove(guid));
