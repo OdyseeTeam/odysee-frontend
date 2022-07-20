@@ -8,6 +8,7 @@ import { selectClaimIsMine, selectClaimForUri, selectTitleForUri } from 'redux/s
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectModerationDelegatorsById } from 'redux/selectors/comments';
 import { selectPlayingUri } from 'redux/selectors/content';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import CommentMenuList from './view';
 
 const select = (state, props) => {
@@ -15,6 +16,7 @@ const select = (state, props) => {
   return {
     claim,
     claimIsMine: selectClaimIsMine(state, claim),
+    isAuthenticated: selectUserVerifiedEmail(state),
     activeChannelClaim: selectActiveChannelClaim(state),
     playingUri: selectPlayingUri(state),
     moderationDelegatorsById: selectModerationDelegatorsById(state),

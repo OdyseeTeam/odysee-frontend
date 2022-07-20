@@ -35,6 +35,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   playingUri: PlayingUri,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
+  isAuthenticated: boolean,
   // --- perform ---
   doToast: ({ message: string }) => void,
   handleEditComment: () => void,
@@ -62,6 +63,7 @@ function CommentMenuList(props: Props) {
     isPinned,
     playingUri,
     moderationDelegatorsById,
+    isAuthenticated,
     disableEdit,
     disableRemove,
     supportAmount,
@@ -210,7 +212,7 @@ function CommentMenuList(props: Props) {
           <div className="comment__menu-title no-border">{__("That's you...")}</div>
         ))}
 
-      {isLiveComment && setQuickReply && !commentIsMine && (
+      {isAuthenticated && isLiveComment && setQuickReply && !commentIsMine && (
         <>
           <MenuItem
             className="comment__menu-option menu__link"

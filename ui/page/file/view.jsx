@@ -148,7 +148,6 @@ export default function FilePage(props: Props) {
     // See https://github.com/lbryio/lbry-desktop/pull/1563 for discussion
     doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
-    console.log('set uri: ', uri);
     doSetPrimaryUri(uri);
     if (claimWasPurchased && !hasFileInfo) doFileGet(uri);
 
