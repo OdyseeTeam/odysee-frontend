@@ -19,7 +19,6 @@ type Props = {
   children: React.Node,
   parentCommentId?: string,
   simpleLinks?: boolean,
-  // myChannelUrls: ?Array<string>,
   activeChannelClaim: any,
   setUserMention?: (boolean) => void,
   isComment?: boolean,
@@ -34,7 +33,6 @@ function MarkdownLink(props: Props) {
     allowPreview = false,
     parentCommentId,
     simpleLinks = false,
-    // myChannelUrls,
     setUserMention,
     isComment,
     activeChannelClaim,
@@ -54,7 +52,6 @@ function MarkdownLink(props: Props) {
   const protocolRegex = new RegExp('^(https?|lbry|mailto)+:', 'i');
   const protocol = href ? protocolRegex.exec(href) : null;
   const isMention = href && href.startsWith('lbry://@');
-  // const mentionedMyChannel = isMention && (myChannelUrls ? myChannelUrls.some((url) => url.replace('#', ':') === href) : false);
   const mentionedMyChannel =
     isMention && activeChannelClaim && activeChannelClaim.canonical_url.replace('#', ':') === href;
 
@@ -129,6 +126,7 @@ function MarkdownLink(props: Props) {
           </MenuButton>
 
           <CommentMenuList
+            authorName={children}
             uri={lbryUrlFromLink || decodedUri}
             authorUri={lbryUrlFromLink || decodedUri}
             commentIsMine={isMe(activeChannelClaim && activeChannelClaim.short_url, lbryUrlFromLink || decodedUri)}
