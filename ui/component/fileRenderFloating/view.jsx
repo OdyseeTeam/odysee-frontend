@@ -193,7 +193,7 @@ export default function FileRenderFloating(props: Props) {
       right: rect.right,
       bottom: rect.bottom,
       left: rect.left,
-      width: rect.width - 12,
+      width: rect.width,
       height: rect.height,
       // $FlowFixMe
       x: rect.x,
@@ -435,7 +435,7 @@ export default function FileRenderFloating(props: Props) {
               [FLOATING_PLAYER_CLASS]: isFloating,
               'content__viewer--inline': !isFloating,
               'content__viewer--secondary': isComment,
-              'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isCurrentClaimLive && !isMobile,
+              'content__viewer--theater-mode': theaterMode && mainFilePlaying && !isMobile,
               'content__viewer--disable-click': wasDragging,
               'content__viewer--mobile': isMobile && !isLandscapeRotated && !playingUriSource,
             })}
