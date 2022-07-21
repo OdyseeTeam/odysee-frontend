@@ -23,20 +23,20 @@ type Props = {
 };
 
 export default function LivestreamHyperchats(props: Props) {
-  const { superChats: superChatsByAmount, hyperchatsHidden, isMobile, toggleHyperChat } = props;
+  const { superChats: hyperChatsByAmount, hyperchatsHidden, isMobile, toggleHyperChat } = props;
 
   const superChatTopTen = React.useMemo(() => {
-    return superChatsByAmount ? superChatsByAmount.slice(0, 10) : superChatsByAmount;
-  }, [superChatsByAmount]);
+    return hyperChatsByAmount ? hyperChatsByAmount.slice(0, 10) : hyperChatsByAmount;
+  }, [hyperChatsByAmount]);
 
   const [exchangeRate, setExchangeRate] = React.useState(0);
   React.useEffect(() => {
     if (!exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
   }, [exchangeRate]);
 
-  const stickerSuperChats = superChatsByAmount && superChatsByAmount.filter(({ comment }) => !!parseSticker(comment));
+  const stickerSuperChats = hyperChatsByAmount && hyperChatsByAmount.filter(({ comment }) => !!parseSticker(comment));
 
-  const showMore = superChatTopTen && superChatsByAmount && superChatTopTen.length < superChatsByAmount.length;
+  const showMore = superChatTopTen && hyperChatsByAmount && superChatTopTen.length < hyperChatsByAmount.length;
   const elRef: ElementRef<any> = React.useRef();
   const [showTooltip, setShowTooltip] = React.useState(true);
 
@@ -84,9 +84,9 @@ export default function LivestreamHyperchats(props: Props) {
         })}
       >
         <div className="livestream-hyperchats">
-          {superChatTopTen.map((superChat: Comment) => {
-            const { comment, comment_id, channel_url, support_amount, is_fiat } = superChat;
-            const isSticker = stickerSuperChats && stickerSuperChats.includes(superChat);
+          {superChatTopTen.map((hyperChat: Comment) => {
+            const { comment, comment_id, channel_url, support_amount, is_fiat } = hyperChat;
+            const isSticker = stickerSuperChats && stickerSuperChats.includes(hyperChat);
             const stickerImg = <OptimizedImage src={getStickerUrl(comment)} waitLoad loading="lazy" />;
             const basedAmount = is_fiat && exchangeRate ? support_amount : support_amount * 10 * exchangeRate;
 

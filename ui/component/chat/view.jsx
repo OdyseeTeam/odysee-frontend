@@ -60,7 +60,7 @@ export default function ChatLayout(props: Props) {
     embed,
     isPopoutWindow,
     pinnedComments,
-    superChats: superChatsByAmount,
+    superChats: hyperChatsByAmount,
     uri,
     hideHeader,
     hyperchatsHidden,
@@ -100,7 +100,7 @@ export default function ChatLayout(props: Props) {
   const chatMode = 'slow';
 
   let superChatsByChronologicalOrder = [];
-  if (superChatsByAmount) superChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
+  if (hyperChatsByAmount) hyperChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
   if (superChatsByChronologicalOrder.length > 0) {
     superChatsByChronologicalOrder.sort((a, b) => b.timestamp - a.timestamp);
   }
@@ -347,20 +347,20 @@ export default function ChatLayout(props: Props) {
             'livestream-comments__top-actions--mobile': isMobile,
           })}
         >
-          {isMobile && ((pinnedComment && showPinned) || (superChatsByAmount && !hyperchatsHidden)) && (
+          {isMobile && ((pinnedComment && showPinned) || (hyperChatsByAmount && !hyperchatsHidden)) && (
             <div className="livestream__top-gradient" />
           )}
 
-          {viewMode === VIEW_MODES.CHAT && superChatsByAmount && (
+          {viewMode === VIEW_MODES.CHAT && hyperChatsByAmount && (
             <LivestreamHyperchats
-              superChats={superChatsByAmount}
+              superChats={hyperChatsByAmount}
               toggleHyperChat={toggleHyperChat}
               hyperchatsHidden={hyperchatsHidden || hideHyperchats}
               isMobile={isMobile}
             />
           )}
 
-          {false && viewMode === VIEW_MODES.SUPERCHAT && superChatsByAmount && (
+          {false && viewMode === VIEW_MODES.SUPERCHAT && hyperChatsByAmount && (
             <div className="livestream-hyperchat-orderOptions">
               <b>Order by: </b>
               <label className="active">Date</label> | <label>amount</label>

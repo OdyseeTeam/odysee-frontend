@@ -256,24 +256,25 @@
 }
 
 .livestreamComment__hyperchatBanner {
-  @extend .superChat;
+  @extend .hyperChat;
 
   border-radius: 0;
   display: inline-block;
   position: relative;
   width: 90%;
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
-  padding: 4px 2px 2px 4px;
+  padding: 2px;
   margin-left: 2px;
+  display: flex;
 
-  .superChat {
+  .hyperChat {
     background-color: var(--color-header-background);
-    padding-top: 5px !important;
   }
 
   .credit-amount {
     color: var(--color-text);
     svg {
+      height: var(--font-small);
       margin-bottom: -2px;
     }
   }

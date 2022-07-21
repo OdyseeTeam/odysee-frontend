@@ -121,7 +121,7 @@ export default function ChatComment(props: Props) {
     >
       {supportAmount > 0 && (
         <div className="livestreamComment__hyperchatBanner">
-          <CreditAmount isFiat={isFiat} amount={supportAmount} superChat />
+          <CreditAmount isFiat={isFiat} amount={supportAmount} hyperChat />
         </div>
       )}
 

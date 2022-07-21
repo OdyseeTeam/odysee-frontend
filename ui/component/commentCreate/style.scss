@@ -141,15 +141,6 @@ $sticker-item-size: 5rem;
       img {
         margin-bottom: var(--spacing-s);
       }
-
-      .superChat--light {
-        position: absolute;
-        display: inline;
-        bottom: 0;
-        .credit-amount {
-          color: var(--color-primary-contrast) !important;
-        }
-      }
     }
 
     img {
