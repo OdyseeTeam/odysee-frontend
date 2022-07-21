@@ -82,7 +82,8 @@ function CommentMenuList(props: Props) {
     handleDismissPin,
   } = props;
 
-  const authorId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || '';
+  const authorId =
+    (claim && claim.signing_channel && claim.signing_channel.claim_id) || (claim && claim.claim_id) || '';
 
   const isMobile = useIsMobile();
 
@@ -215,7 +216,7 @@ function CommentMenuList(props: Props) {
         ) : (
           <div className="comment__menu-title no-border">{__("That's you...")}</div>
         ))}
-      {!activeChannelIsCreator && claimIsMine && (
+      {!commentIsMine && claimIsMine && (
         <div className="comment__menu-title">{__("That's one of your channels...")}</div>
       )}
 
