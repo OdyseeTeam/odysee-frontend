@@ -19,7 +19,6 @@ type Props = {
   uri: ?string,
   authorUri: string, // full LBRY Channel URI: lbry://@channel#123...
   authorName?: string,
-  authorTitle: string,
   commentId: string, // sha256 digest identifying the comment
   isTopLevel: boolean,
   isPinned: boolean,
@@ -31,10 +30,12 @@ type Props = {
   // --- select ---
   claim: ?Claim,
   claimIsMine: boolean,
+  isAuthenticated: boolean,
   activeChannelClaim: ?ChannelClaim,
   playingUri: PlayingUri,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
-  isAuthenticated: boolean,
+  authorTitle: string,
+  authorCanonicalUri: string,
   // --- perform ---
   doToast: ({ message: string }) => void,
   handleEditComment: () => void,
@@ -54,7 +55,6 @@ function CommentMenuList(props: Props) {
     claimIsMine,
     authorUri,
     authorName,
-    authorTitle,
     commentIsMine,
     commentId,
     activeChannelClaim,
@@ -62,6 +62,8 @@ function CommentMenuList(props: Props) {
     isPinned,
     playingUri,
     moderationDelegatorsById,
+    authorTitle,
+    authorCanonicalUri,
     isAuthenticated,
     disableEdit,
     disableRemove,
@@ -181,7 +183,7 @@ function CommentMenuList(props: Props) {
 
   function reduceUriToChannelName(uri: string) {
     try {
-      return uri.substring(uri.indexOf('@'), uri.indexOf('#') + 2).replace('#', ':');
+      return uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
     } catch {
       return uri;
     }
@@ -214,7 +216,7 @@ function CommentMenuList(props: Props) {
         <>
           <MenuItem
             className="comment__menu-option menu__link"
-            onSelect={() => setQuickReply(reduceUriToChannelName(authorUri))}
+            onSelect={() => setQuickReply(reduceUriToChannelName(authorCanonicalUri))}
           >
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />

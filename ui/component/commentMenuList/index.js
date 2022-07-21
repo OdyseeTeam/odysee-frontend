@@ -13,6 +13,8 @@ import CommentMenuList from './view';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
+  const authorClaim = selectClaimForUri(state, props.authorUri);
+  const authorCanonicalUri = (authorClaim && authorClaim.canonical_url) || '';
   return {
     claim,
     claimIsMine: selectClaimIsMine(state, claim),
@@ -21,6 +23,7 @@ const select = (state, props) => {
     playingUri: selectPlayingUri(state),
     moderationDelegatorsById: selectModerationDelegatorsById(state),
     authorTitle: selectTitleForUri(state, props.authorUri),
+    authorCanonicalUri,
   };
 };
 
