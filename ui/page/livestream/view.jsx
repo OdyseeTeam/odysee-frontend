@@ -167,7 +167,7 @@ export default function LivestreamPage(props: Props) {
   React.useEffect(() => {
     doSetPrimaryUri(uri);
     return () => doSetPrimaryUri(null);
-  }, [doSetPrimaryUri, layountRendered, uri, isStreamPlaying]);
+  }, [doSetPrimaryUri, uri, isStreamPlaying]);
 
   return (
     <Page
