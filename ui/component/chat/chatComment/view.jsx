@@ -104,6 +104,10 @@ export default function ChatComment(props: Props) {
     }
   }, [isMobile, restoreScrollPos]);
 
+  React.useEffect(() => {
+    if (hasUserMention) setUserMention(false);
+  }, [activeChannelClaim]);
+
   return (
     <li
       className={classnames('livestream__comment', {
