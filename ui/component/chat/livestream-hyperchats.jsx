@@ -41,39 +41,40 @@ export default function LivestreamHyperchats(props: Props) {
   const [showTooltip, setShowTooltip] = React.useState(true);
 
   const HorizontalScroll = () => {
-    React.useEffect(() => {
-      const el = elRef.current;
-      if (el) {
-        const onWheel = (e) => {
-          if (
-            !showTooltip ||
-            e.deltaY === 0 ||
-            (el.scrollLeft === 0 && e.deltaY < 0) ||
-            el.scrollLeft === el.scrollWidth
-          ) {
-            return;
-          }
-
-          if (showTooltip) {
-            setShowTooltip(false);
-            e.preventDefault();
-            let scrollSpace =
-              el.scrollLeft + e.deltaY * 2.5 < el.scrollWidth ? el.scrollLeft + e.deltaY * 2.5 : el.scrollWidth;
-            el.scrollTo({
-              left: scrollSpace,
-              behavior: 'smooth',
-            });
-            setTimeout(() => {
-              setShowTooltip(true);
-            }, 1000);
-          }
-        };
-        el.addEventListener('wheel', onWheel);
-        return () => el.removeEventListener('wheel', onWheel);
-      }
-    }, []);
     return elRef;
   };
+
+  React.useEffect(() => {
+    const el = elRef.current;
+    if (el) {
+      const onWheel = (e) => {
+        if (
+          !showTooltip ||
+          e.deltaY === 0 ||
+          (el.scrollLeft === 0 && e.deltaY < 0) ||
+          el.scrollLeft === el.scrollWidth
+        ) {
+          return;
+        }
+
+        if (showTooltip) {
+          setShowTooltip(false);
+          e.preventDefault();
+          let scrollSpace =
+            el.scrollLeft + e.deltaY * 2.5 < el.scrollWidth ? el.scrollLeft + e.deltaY * 2.5 : el.scrollWidth;
+          el.scrollTo({
+            left: scrollSpace,
+            behavior: 'smooth',
+          });
+          setTimeout(() => {
+            setShowTooltip(true);
+          }, 1000);
+        }
+      };
+      el.addEventListener('wheel', onWheel);
+      return () => el.removeEventListener('wheel', onWheel);
+    }
+  }, []);
 
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} hyperchatsHidden={hyperchatsHidden}>
