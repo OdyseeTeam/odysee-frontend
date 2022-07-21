@@ -143,7 +143,7 @@ function MarkdownLink(props: Props) {
           uri={lbryUrlFromLink || decodedUri}
           autoEmbed={embed}
           parentCommentId={parentCommentId}
-          // isMarkdownPost={isMarkdownPost}
+          isMarkdownPost
           allowPreview={allowPreview}
         >
           {children}
