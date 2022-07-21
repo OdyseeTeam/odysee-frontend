@@ -101,7 +101,6 @@ const VideoJsShorcuts = ({
   playPrevious,
   toggleVideoTheaterMode,
   isMobile,
-  isLivestreamClaim,
 }: {
   playNext: any, // function
   playPrevious: any, // function
