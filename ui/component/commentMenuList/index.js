@@ -25,13 +25,13 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
+  doToast: (props) => dispatch(doToast(props)),
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   clearPlayingUri: () => dispatch(doClearPlayingUri()),
   muteChannel: (channelUri) => dispatch(doChannelMute(channelUri)),
   pinComment: (commentId, claimId, remove) => dispatch(doCommentPin(commentId, claimId, remove)),
   commentModAddDelegate: (modChanId, modChanName, creatorChannelClaim) =>
     dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim, true)),
-  doToast: (props) => dispatch(doToast(props)),
 });
 
 export default connect(select, perform)(CommentMenuList);

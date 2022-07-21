@@ -23,20 +23,19 @@ type Props = {
   comment: Comment,
   forceUpdate?: any,
   uri: string,
-  // --- redux:
-  claim: StreamClaim,
-  // myChannelIds: ?Array<string>,
-  stakedLevel: number,
   isMobile?: boolean,
-  odyseeMembership: string,
-  handleDismissPin?: () => void,
+  chatMode?: string,
   restoreScrollPos?: () => void,
   handleCommentClick: (any) => void,
+  handleDismissPin?: () => void,
+  // --- redux:
+  claim: StreamClaim,
+  stakedLevel: number,
   claimsByUri: { [string]: any },
-  authorTitle: string,
+  odyseeMembership: string,
   activeChannelClaim?: any,
+  authorTitle: string,
   channelAge?: any,
-  chatMode?: string,
 };
 
 export const ChatCommentContext = React.createContext<any>();
