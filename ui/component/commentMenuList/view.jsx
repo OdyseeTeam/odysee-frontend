@@ -279,7 +279,6 @@ function CommentMenuList(props: Props) {
       )}
 
       {!disableRemove &&
-        setQuickReply &&
         activeChannelClaim &&
         (activeChannelIsModerator ||
           activeChannelIsAdmin ||
