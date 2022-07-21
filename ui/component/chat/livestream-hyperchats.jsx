@@ -40,10 +40,6 @@ export default function LivestreamHyperchats(props: Props) {
   const elRef: ElementRef<any> = React.useRef();
   const [showTooltip, setShowTooltip] = React.useState(true);
 
-  const HorizontalScroll = () => {
-    return elRef;
-  };
-
   React.useEffect(() => {
     const el = elRef.current;
     if (el) {
@@ -79,7 +75,7 @@ export default function LivestreamHyperchats(props: Props) {
   return !superChatTopTen ? null : (
     <Slider isMobile={isMobile} hyperchatsHidden={hyperchatsHidden}>
       <div
-        ref={HorizontalScroll()}
+        ref={elRef}
         className={classnames('livestream-hyperchats__wrapper', {
           'livestream-hyperchats__wrapper--mobile': isMobile,
         })}
