@@ -197,7 +197,6 @@ export default function FileRenderInitiator(props: Props) {
           ? 'embed__inline-button'
           : classnames('content__cover', {
               'content__cover--disabled': disabled,
-              'content__cover--hidden': isPlaying,
               'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
