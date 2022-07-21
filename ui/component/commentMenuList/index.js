@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doChannelMute } from 'redux/actions/blocked';
 import { doCommentPin, doCommentModAddDelegate } from 'redux/actions/comments';
-import { doOpenModal } from 'redux/actions/app';
+import { doOpenModal, doSetActiveChannel } from 'redux/actions/app';
 import { doClearPlayingUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectClaimIsMine, selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
@@ -35,6 +35,7 @@ const perform = (dispatch) => ({
   pinComment: (commentId, claimId, remove) => dispatch(doCommentPin(commentId, claimId, remove)),
   commentModAddDelegate: (modChanId, modChanName, creatorChannelClaim) =>
     dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim, true)),
+  doSetActiveChannel: (channelUri) => dispatch(doSetActiveChannel(channelUri)),
 });
 
 export default connect(select, perform)(CommentMenuList);

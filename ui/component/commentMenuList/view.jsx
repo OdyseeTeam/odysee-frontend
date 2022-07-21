@@ -42,6 +42,7 @@ type Props = {
   openModal: (id: string, {}) => void,
   clearPlayingUri: () => void,
   muteChannel: (string) => void,
+  doSetActiveChannel: (string) => void,
   pinComment: (string, string, boolean) => Promise<any>,
   commentModAddDelegate: (string, string, ChannelClaim) => void,
   setQuickReply: (any) => void,
@@ -74,11 +75,14 @@ function CommentMenuList(props: Props) {
     openModal,
     clearPlayingUri,
     muteChannel,
+    doSetActiveChannel,
     pinComment,
     commentModAddDelegate,
     setQuickReply,
     handleDismissPin,
   } = props;
+
+  const authorId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || '';
 
   const isMobile = useIsMobile();
 
@@ -211,8 +215,11 @@ function CommentMenuList(props: Props) {
         ) : (
           <div className="comment__menu-title no-border">{__("That's you...")}</div>
         ))}
+      {!activeChannelIsCreator && claimIsMine && (
+        <div className="comment__menu-title">{__("That's one of your channels...")}</div>
+      )}
 
-      {isAuthenticated && isLiveComment && setQuickReply && !commentIsMine && (
+      {isAuthenticated && isLiveComment && setQuickReply && !commentIsMine && !claimIsMine && (
         <>
           <MenuItem
             className="comment__menu-option menu__link"
@@ -285,7 +292,7 @@ function CommentMenuList(props: Props) {
           </MenuItem>
         )}
 
-      {!commentIsMine && (
+      {!commentIsMine && !claimIsMine && (
         <>
           <MenuItem
             className="comment__menu-option"
@@ -309,6 +316,15 @@ function CommentMenuList(props: Props) {
             )}
           </MenuItem>
         </>
+      )}
+
+      {isLiveComment && !commentIsMine && claimIsMine && (
+        <MenuItem className="comment__menu-option" onSelect={() => doSetActiveChannel(authorId)}>
+          <div className="menu__link">
+            <Icon aria-hidden icon={ICONS.REFRESH} />
+            {__('Switch channel')}
+          </div>
+        </MenuItem>
       )}
 
       {IS_WEB && !isLiveComment && (
