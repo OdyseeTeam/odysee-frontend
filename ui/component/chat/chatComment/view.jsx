@@ -188,15 +188,17 @@ export default function ChatComment(props: Props) {
                   {removed ? (
                     <Empty text={__('[Removed]')} />
                   ) : (
-                    <MarkdownPreview
-                      content={message}
-                      promptLinks
-                      stakedLevel={stakedLevel}
-                      disableTimestamps
-                      setUserMention={setUserMention}
-                      hasMembership={Boolean(odyseeMembership)}
-                      isComment
-                    />
+                    <ChatCommentContext.Provider value={{ isLiveComment: true }}>
+                      <MarkdownPreview
+                        content={message}
+                        promptLinks
+                        stakedLevel={stakedLevel}
+                        disableTimestamps
+                        setUserMention={setUserMention}
+                        hasMembership={Boolean(odyseeMembership)}
+                        isComment
+                      />
+                    </ChatCommentContext.Provider>
                   )}
                 </div>
               )}
