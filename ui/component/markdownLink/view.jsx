@@ -44,7 +44,7 @@ function MarkdownLink(props: Props) {
   try {
     decodedUri = decodeURI(href);
   } catch (e) {}
-  const isChannel = decodedUri && decodedUri.indexOf(':', decodedUri.indexOf(':') + 1) !== -1;
+  const isChannel = decodedUri && decodedUri.replace('#', ':').indexOf(':', decodedUri.indexOf(':') + 1) !== -1;
 
   let element = <span>{children}</span>;
 
