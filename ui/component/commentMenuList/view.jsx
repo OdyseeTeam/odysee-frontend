@@ -35,7 +35,7 @@ type Props = {
   playingUri: PlayingUri,
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   authorTitle: string,
-  authorCanonicalUri: string,
+  authorCanonicalUri: ?string,
   // --- perform ---
   doToast: ({ message: string }) => void,
   handleEditComment: () => void,
@@ -181,9 +181,9 @@ function CommentMenuList(props: Props) {
       .then(() => doToast({ message: __('Link copied.') }));
   }
 
-  function reduceUriToChannelName(uri: string) {
+  function reduceUriToChannelName(uri: ?string) {
     try {
-      return uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
+      return uri && uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
     } catch {
       return uri;
     }
