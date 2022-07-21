@@ -757,6 +757,9 @@ $recent-msg-button__height: 2rem;
         }
       }
     }
+    &.livestream__comment--mentioned {
+      background-color: unset;
+    }
     &:hover {
       background-color: unset;
       .comment__author {
