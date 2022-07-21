@@ -18,7 +18,7 @@ import { formatLbryUrlForWeb } from 'util/url';
 type Props = {
   uri: ?string,
   authorUri: string, // full LBRY Channel URI: lbry://@channel#123...
-  authorName: string,
+  authorName?: string,
   authorTitle: string,
   commentId: string, // sha256 digest identifying the comment
   isTopLevel: boolean,

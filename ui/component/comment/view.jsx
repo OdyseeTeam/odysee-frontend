@@ -343,7 +343,6 @@ function CommentView(props: Props) {
                     uri={uri}
                     isTopLevel={isTopLevel}
                     isPinned={isPinned}
-                    channelName={channelOwnerOfContent}
                     commentId={commentId}
                     authorUri={authorUri}
                     commentIsMine={commentIsMine}
