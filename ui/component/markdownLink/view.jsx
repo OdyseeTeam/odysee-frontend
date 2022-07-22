@@ -121,7 +121,7 @@ function MarkdownLink(props: Props) {
       />
     );
   } else if (!simpleLinks && ((protocol && protocol[0] === 'lbry:' && isURIValid(decodedUri)) || lbryUrlFromLink)) {
-    if (isComment && isMention && isChannel && setUserMention) {
+    if (!embed && isComment && isMention && isChannel && setUserMention) {
       element = (
         <Menu>
           <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
