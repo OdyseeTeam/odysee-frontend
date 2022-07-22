@@ -78,6 +78,7 @@ exports.CHECKOUT = 'checkout';
 exports.CODE_2257 = '2257';
 exports.PRIVACY_POLICY = 'privacypolicy';
 exports.TOS = 'tos';
+exports.JOBS = 'jobs';
 exports.FYP = 'fyp';
 exports.YOUTUBE_TOS = 'youtubetos';
 exports.BUY = 'buy';

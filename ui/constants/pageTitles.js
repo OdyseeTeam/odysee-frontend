@@ -50,6 +50,7 @@ export const PAGE_TITLE = {
   [PAGES.TAGS_FOLLOWING]: 'Tags',
   [PAGES.TAGS_FOLLOWING_MANAGE]: 'Manage tags',
   [PAGES.TOS]: 'Terms of Service',
+  [PAGES.JOBS]: 'Jobs',
   [PAGES.UPLOADS]: 'Your uploads',
   [PAGES.UPLOAD]: 'Upload a File to Odysee',
   [PAGES.WALLET]: 'Wallet',
