@@ -80,6 +80,7 @@
     "rss": "^1.2.2",
     "source-map-explorer": "^2.5.2",
     "tempy": "^0.6.0",
+    "terser-webpack-plugin": "^5.3.3",
     "tus-js-client": "^2.3.0",
     "twemoji": "^14.0.2",
     "videojs-contrib-ads": "^6.9.0",
