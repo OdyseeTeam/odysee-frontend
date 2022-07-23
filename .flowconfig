@@ -5,6 +5,11 @@
 .*/node_modules/raf-schd/.*
 .*/node_modules/react-beautiful-dnd/.*
 .*/node_modules/@emotion/.*
+.*/node_modules/electron-webpack-js/.*
+.*/node_modules/@babel/helper-define-polyfill-provider/.*
+.*/node_modules/eslint-plugin-node/.*
+.*/node_modules/jest-resolve/.*
+.*/node_modules/webpack-cli/.*
 
 [include]
 

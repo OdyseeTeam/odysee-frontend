@@ -26,7 +26,7 @@ if (!memo.homepageData) {
       memo.homepageData = require('../../custom/homepages/v2');
       memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
     } catch (err) {
-      console.log('getHomepageJSON:', err); // eslint-disable-line no-console
+      console.log('getHomepageJSON:', err);
     }
   }
 }
