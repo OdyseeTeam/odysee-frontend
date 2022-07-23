@@ -32,9 +32,6 @@ let baseConfig = {
       }),
     ],
   },
-  cache: {
-    type: 'filesystem',
-  },
   node: {
     __dirname: false,
   },
@@ -55,14 +52,7 @@ let baseConfig = {
         use: [
           'style-loader',
           'css-loader',
-          // {
-          //   loader: 'postcss-loader',
-          //   options: {
-          //     plugins: function () {
-          //       return [ require('postcss-rtl')() ];
-          //     },
-          //   },
-          // },
+          'postcss-loader',
           'sass-loader',
         ],
       },
