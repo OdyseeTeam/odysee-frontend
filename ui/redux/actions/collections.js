@@ -16,7 +16,7 @@ import {
   selectUnpublishedCollectionForId,
   selectEditedCollectionForId,
   selectHasItemsInQueue,
-  selectMyEditedCollections,
+  selectCollectionHasEditsForId,
   selectUrlsForCollectionId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
@@ -101,18 +101,10 @@ function isPrivateCollectionId(collectionId: string) {
   return collectionId.includes('-');
 }
 
-function isEditedCollection(state: any, collectionId: string) {
-  const editedCollections = selectMyEditedCollections(state);
-  return editedCollections.hasOwnProperty(collectionId);
-}
-
-export const doFetchItemsInCollections = (
-  resolveItemsOptions: {
-    collectionIds: Array<string>,
-    pageSize?: number,
-  },
-  resolveStartedCallback?: () => void
-) => async (dispatch: Dispatch, getState: GetState) => {
+export const doFetchItemsInCollections = (resolveItemsOptions: {
+  collectionIds: Array<string>,
+  pageSize?: number,
+}) => async (dispatch: Dispatch, getState: GetState) => {
   /*
   1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
   2) get the item claims for each
@@ -123,12 +115,7 @@ export const doFetchItemsInCollections = (
   let state = getState();
   const { collectionIds, pageSize } = resolveItemsOptions;
 
-  dispatch({
-    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED,
-    data: { ids: collectionIds },
-  });
-
-  if (resolveStartedCallback) resolveStartedCallback();
+  dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED, data: { ids: collectionIds } });
 
   const privateCollectionIds = [];
   const collectionIdsToSearch = [];
@@ -137,7 +124,7 @@ export const doFetchItemsInCollections = (
   collectionIds.forEach((id) => {
     if (isPrivateCollectionId(id)) {
       privateCollectionIds.push(id);
-    } else if (!state.claims.byId[id]) {
+    } else if (!selectClaimForId(state, id)) {
       collectionIdsToSearch.push(id);
     }
   });
@@ -149,9 +136,8 @@ export const doFetchItemsInCollections = (
     // because it is not parallel, so maybe a `Promise.all` is needed here.
     // But leaving as-is for now.
     await dispatch(doClaimSearch({ claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 }));
+    state = getState();
   }
-
-  const stateAfterClaimSearch = getState();
 
   async function fetchItemsForCollectionClaim(
     collectionId: string,
@@ -227,7 +213,9 @@ export const doFetchItemsInCollections = (
 
   // -- Collect requests for resolving items in each collection:
   collectionIds.forEach((collectionId) => {
-    if (isPrivateCollectionId(collectionId) || isEditedCollection(state, collectionId)) {
+    const hasEdits = selectCollectionHasEditsForId(state, collectionId);
+
+    if (isPrivateCollectionId(collectionId) || hasEdits) {
       const collection = selectCollectionForId(state, collectionId);
       if (collection?.items.length > 0) {
         promisedCollectionItemFetches.push(
@@ -240,7 +228,7 @@ export const doFetchItemsInCollections = (
         );
       }
     } else {
-      const claim = selectClaimForClaimId(stateAfterClaimSearch, collectionId);
+      const claim = selectClaimForClaimId(state, collectionId);
       if (!claim) {
         invalidCollectionIds.push(collectionId);
       } else {
@@ -257,8 +245,7 @@ export const doFetchItemsInCollections = (
   });
 
   // -- Await results:
-  type CollectionItemFetchResult = { claimId: string, items: ?Array<GenericClaim> };
-  const collectionItemsById: Array<CollectionItemFetchResult> = await Promise.all(promisedCollectionItemFetches);
+  const collectionItemsById: CollectionItemsFetchResult = await Promise.all(promisedCollectionItemFetches);
 
   const newCollectionObjectsById = {};
   const resolvedItemsByUrl = {};
@@ -273,9 +260,9 @@ export const doFetchItemsInCollections = (
       // Nothing to do for now. We are only interested in getting the resolved
       // data for each item in the private collection.
     } else if (collectionItems) {
-      const claim = selectClaimForClaimId(stateAfterClaimSearch, collectionId);
+      const claim = selectClaimForClaimId(state, collectionId);
 
-      const editedCollection = selectEditedCollectionForId(stateAfterClaimSearch, collectionId);
+      const editedCollection = selectEditedCollectionForId(state, collectionId);
       const { name, timestamp, value } = claim || {};
       const { title, description, thumbnail } = value;
       const valueTypes = new Set();
@@ -335,10 +322,7 @@ export const doFetchItemsInCollections = (
       });
   });
 
-  dispatch({
-    type: ACTIONS.RESOLVE_URIS_COMPLETED,
-    data: { resolveInfo },
-  });
+  dispatch({ type: ACTIONS.RESOLVE_URIS_COMPLETED, data: { resolveInfo } });
 
   dispatch({
     type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
@@ -388,13 +372,14 @@ function processResult(result, resolveInfo = {}, checkReposts = false) {
   });
 }
 
-export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }, cb?: () => void) => {
+export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }) => {
   const { collectionId, pageSize } = options;
   const newOptions: { collectionIds: Array<string>, pageSize?: number } = {
     collectionIds: [collectionId],
   };
   if (pageSize) newOptions.pageSize = pageSize;
-  return doFetchItemsInCollections(newOptions, cb);
+
+  return doFetchItemsInCollections(newOptions);
 };
 
 export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => (
