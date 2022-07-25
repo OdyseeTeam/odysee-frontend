@@ -45,6 +45,17 @@ export const selectCollectionSavedForId = (state: State, id: string) => {
   return savedIds.includes(id);
 };
 
+export const selectSavedCollections = (state: State, id: string) => {
+  const savedIds = selectSavedCollectionIds(state);
+
+  const savedCollections = {};
+  savedIds.forEach((id) => {
+    const collection = selectCollectionForId(state, id);
+    if (collection) Object.assign(savedCollections, { [id]: collection });
+  });
+  return savedCollections;
+};
+
 export const selectHasCollections = createSelector(
   selectUnpublishedCollectionsList,
   selectMyCollectionIds,
