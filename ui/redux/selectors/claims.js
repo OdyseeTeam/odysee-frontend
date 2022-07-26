@@ -732,6 +732,14 @@ export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri
   if (matchingTag) return matchingTag.slice(9);
 })((state, uri) => String(uri));
 
+export const selectPreorderContentClaimIdForUri = createCachedSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => {
+    const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('content:'));
+    if (matchingTag) return matchingTag.slice(8);
+  }
+)((state, uri) => String(uri));
+
 export const selectFetchingClaimSearchByQuery = (state: State) => selectState(state).fetchingClaimSearchByQuery || {};
 
 export const selectFetchingClaimSearch = createSelector(

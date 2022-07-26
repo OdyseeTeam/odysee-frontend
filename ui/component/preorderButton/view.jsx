@@ -14,15 +14,32 @@ type Props = {
   uri: string,
   claimIsMine: boolean,
   preferredCurrency: string,
+  preorderContentClaimId: string,
 };
 
 export default function PreorderButton(props: Props) {
-  const { preorderTag, doOpenModal, uri, claim, claimIsMine, preferredCurrency } = props;
+  const {
+    preorderTag,
+    doOpenModal,
+    uri,
+    claim,
+    claimIsMine,
+    preferredCurrency,
+    preorderContentClaimId,
+    doResolveClaimIds,
+    preorderContentClaim,
+  } = props;
 
   const claimId = claim.claim_id;
   const myUpload = claimIsMine;
 
   const [hasAlreadyPreordered, setHasAlreadyPreordered] = React.useState(false);
+
+  React.useEffect(() => {
+    if (preorderContentClaimId) {
+      doResolveClaimIds([preorderContentClaimId]);
+    }
+  }, [preorderContentClaimId]);
 
   function getPaymentHistory() {
     return Lbryio.call(
@@ -70,7 +87,32 @@ export default function PreorderButton(props: Props) {
 
   return (
     <>
-      {preorderTag && !hasAlreadyPreordered && !myUpload && (
+      {/* content is available and user has ordered (redirect to content) */}
+      {preorderTag && !hasAlreadyPreordered && !myUpload && preorderContentClaim && (
+        <div>
+          <Button
+            iconColor="red"
+            className={'preorder-button'}
+            button="primary"
+            label={__('This content is now available, click here to view it')}
+            navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
+          />
+        </div>
+      )}
+      {/* content is available and user hasn't ordered (redirect to content) */}
+      {preorderTag && hasAlreadyPreordered && !myUpload && preorderContentClaim && (
+        <div>
+          <Button
+            iconColor="red"
+            className={'preorder-button'}
+            button="primary"
+            label={__('Your preordered content is now available, click here to view it')}
+            navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
+          />
+        </div>
+      )}
+      {/* viewer can preorder */}
+      {preorderTag && !hasAlreadyPreordered && !myUpload && !preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -86,7 +128,8 @@ export default function PreorderButton(props: Props) {
           />
         </div>
       )}
-      {preorderTag && hasAlreadyPreordered && !myUpload && (
+      {/* viewer has preordered */}
+      {preorderTag && hasAlreadyPreordered && !myUpload && !preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -97,6 +140,7 @@ export default function PreorderButton(props: Props) {
           />
         </div>
       )}
+      {/* viewer owns this content */}
       {preorderTag && myUpload && (
         <div>
           <Button
