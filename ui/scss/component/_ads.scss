@@ -505,7 +505,13 @@ $BANNER_BORDER: 1px;
   &.VISIBLE {
     display: block;
   }
+  &.LEFT {
+    .ob-widget.ob-grid-layout.ob-read-next-layout {
+      left: calc(var(--spacing-s) + 93px) !important;
+    }
+  }
   .ob-widget.ob-grid-layout.ob-read-next-layout {
+    transition: left var(--resizing-animation-timing);
     .ob-widget-items-container {
       background: var(--color-header-background) !important;
       height: 90px;

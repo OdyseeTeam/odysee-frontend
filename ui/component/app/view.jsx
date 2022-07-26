@@ -416,7 +416,10 @@ function App(props: Props) {
       }
     }
 
+    console.log('locale: ', locale);
     if (inIframe() || !locale || !locale.gdpr_required) {
+      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      if (ad) ad.classList.add('VISIBLE');
       return;
     }
 
@@ -437,8 +440,9 @@ function App(props: Props) {
     secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
 
     window.gdprCallback = () => {
+      console.log('..............');
+      const ad = document.getElementsByClassName('OUTBRAIN')[0];
       if (window.OnetrustActiveGroups.indexOf('C0002') !== -1 || window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
-        const ad = document.getElementsByClassName('OUTBRAIN')[0];
         if (ad) ad.classList.add('VISIBLE');
       }
     };
