@@ -34,7 +34,9 @@ function FormNewCollection(props: Props) {
 
   const buttonref: ElementRef<any> = React.useRef();
 
-  const [newCollectionName, setCollectionName] = React.useState(sourceCollectionName || '');
+  const [newCollectionName, setCollectionName] = React.useState(
+    __('%copied_playlist_name% (copy)', { copied_playlist_name: sourceCollectionName }) || ''
+  );
 
   function handleNameInput(e) {
     const { value } = e.target;
