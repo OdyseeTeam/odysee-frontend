@@ -45,7 +45,7 @@ export const selectCollectionSavedForId = (state: State, id: string) => {
   return savedIds.includes(id);
 };
 
-export const selectSavedCollections = (state: State, id: string) => {
+export const selectSavedCollections = (state: State) => {
   const savedIds = selectSavedCollectionIds(state);
 
   const savedCollections = {};
