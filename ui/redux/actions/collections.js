@@ -11,18 +11,19 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
-  // selectPublishedCollectionForId, // for "save" or "copy" action
   selectPublishedCollectionForId,
   selectUnpublishedCollectionForId,
   selectEditedCollectionForId,
   selectHasItemsInQueue,
   selectCollectionHasEditsForId,
   selectUrlsForCollectionId,
+  selectCollectionSavedForId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { resolveCollectionType } from 'util/collections';
 import { isPermanentUrl, getThumbnailFromClaim } from 'util/claim';
 import { parseClaimIdFromPermanentUrl } from 'util/url';
+import { doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
 
@@ -93,8 +94,13 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
   return collectionDelete();
 };
 
-export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch: Dispatch) =>
+export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const isSaved = selectCollectionSavedForId(state, collectionId);
+
+  dispatch(doToast({ message: !isSaved ? __('Added to saved Playlists!') : __('Removed from saved Playlists.') }));
   dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: { collectionId } });
+};
 
 function isPrivateCollectionId(collectionId: string) {
   // Private (unpublished) collections uses UUID.
