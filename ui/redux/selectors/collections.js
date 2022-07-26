@@ -86,13 +86,13 @@ export const selectCollectionHasEditsForId = (state: State, id: string) => {
   return Boolean(editedCollection && !editedCollection.editsCleared);
 };
 
-export const selectMyCollectionsWithEdits = (state: State, id: string) => {
-  const myEditedCollections = selectMyEditedCollections(state);
-  const hasEdits = ([id]) => selectCollectionHasEditsForId(state, id);
-
-  // $FlowFixMe
-  return Object.fromEntries(Object.entries(myEditedCollections).filter(hasEdits));
-};
+export const selectMyCollectionsWithEdits = createSelector(
+  selectMyEditedCollections,
+  (state) => ([id]) => selectCollectionHasEditsForId(state, id),
+  (myEditedCollections, hasEditsForId) =>
+    // $FlowFixMe
+    Object.fromEntries(Object.entries(myEditedCollections).filter(hasEditsForId))
+);
 
 export const selectPendingCollectionForId = (state: State, id: string) => {
   const pendingCollections = selectPendingCollections(state);
