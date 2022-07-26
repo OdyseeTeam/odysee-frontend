@@ -45,21 +45,6 @@ export const selectCollectionSavedForId = (state: State, id: string) => {
   return savedIds.includes(id);
 };
 
-export const selectSavedCollections = createSelector(
-  selectSavedCollectionIds,
-  (state) => (id) => selectCollectionForId(state, id),
-  (savedIds, collectionForId) => {
-    const savedCollections = {};
-
-    savedIds.forEach((id) => {
-      const collection = collectionForId(id);
-      if (collection) savedCollections[id] = collection;
-    });
-
-    return savedCollections;
-  }
-);
-
 export const selectHasCollections = createSelector(
   selectUnpublishedCollectionsList,
   selectMyCollectionIds,
@@ -274,6 +259,23 @@ export const selectCollectionForId = createSelector(
     const edited = eLists[id] && !eLists[id].editsCleared ? eLists[id] : undefined;
     const collection = bLists[id] || uLists[id] || edited || pLists[id] || rLists[id] || queue[id];
     return collection;
+  }
+);
+
+export const selectCollectionById = (state: State) => (id: string) => selectCollectionForId(state, id);
+
+export const selectSavedCollections = createSelector(
+  selectSavedCollectionIds,
+  selectCollectionById,
+  (savedIds, collectionForId) => {
+    const savedCollections = {};
+
+    savedIds.forEach((id) => {
+      const collection = collectionForId(id);
+      if (collection) savedCollections[id] = collection;
+    });
+
+    return savedCollections;
   }
 );
 
