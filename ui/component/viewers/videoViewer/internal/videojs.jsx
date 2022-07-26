@@ -166,6 +166,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestreamClaim,
     activeLivestreamForChannel,
     doToast,
+    isPurchasedContent,
   } = props;
 
   // used to notify about default quality setting
@@ -499,6 +500,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canUseOldPlayer) {
         // $FlowIssue
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
+      }
+
+      // disable right-click (context-menu) for purchased content
+      if(isPurchasedContent){
+        // disable right click
+        document.querySelector('video.vjs-tech').setAttribute('oncontextmenu', "return false;")
       }
 
       // allow tap to unmute if no perms on iOS

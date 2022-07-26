@@ -128,6 +128,7 @@ function VideoViewer(props: Props) {
     doToast,
     doSetContentHistoryItem,
     currentPlaylistItemIndex,
+    isPurchasedContent,
   } = props;
 
   const playerEndedDuration = React.useRef();
@@ -623,6 +624,7 @@ function VideoViewer(props: Props) {
         activeLivestreamForChannel={activeLivestreamForChannel}
         defaultQuality={defaultQuality}
         doToast={doToast}
+        isPurchasedContent={isPurchasedContent}
       />
     </div>
   );

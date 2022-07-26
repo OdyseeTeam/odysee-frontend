@@ -60,6 +60,7 @@ export default function FileActions(props: Props) {
     doDownloadUri,
     isMature,
     isAPreorder,
+    isPurchasedContent,
   } = props;
 
   const {
@@ -191,7 +192,8 @@ export default function FileActions(props: Props) {
               </>
             )}
 
-            {!isLivestreamClaim && !disableDownloadButton && !isMature && (
+            {/* todo disable here if it's a purchase */}
+            {!isLivestreamClaim && !disableDownloadButton && !isMature && !isPurchasedContent && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />
