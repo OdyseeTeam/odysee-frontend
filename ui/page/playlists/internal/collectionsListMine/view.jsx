@@ -69,21 +69,22 @@ export default function CollectionsListMine(props: Props) {
   const collectionsUnresolved = unpublishedCollectionsList.length === 0 && publishedList.length === 0 && hasCollections;
   const playlistShowCount = isMobile ? COLS.PLAYLIST_SHOW_COUNT.MOBILE : COLS.PLAYLIST_SHOW_COUNT.DEFAULT;
 
-  const collectionsToShow =
-    React.useMemo(() => {
-      switch (filterType) {
-        case COLS.LIST_TYPE.ALL:
-          return [...unpublishedCollectionsList, ...publishedList, ...savedList];
-        case COLS.LIST_TYPE.PRIVATE:
-          return unpublishedCollectionsList;
-        case COLS.LIST_TYPE.PUBLIC:
-          return publishedList;
-        case COLS.LIST_TYPE.EDITED:
-          return editedList;
-        case COLS.LIST_TYPE.SAVED:
-          return savedList;
-      }
-    }, [editedList, filterType, publishedList, savedList, unpublishedCollectionsList]) || [];
+  const collectionsToShow = React.useMemo(() => {
+    switch (filterType) {
+      case COLS.LIST_TYPE.ALL:
+        return unpublishedCollectionsList.concat(publishedList).concat(savedList);
+      case COLS.LIST_TYPE.PRIVATE:
+        return unpublishedCollectionsList;
+      case COLS.LIST_TYPE.PUBLIC:
+        return publishedList;
+      case COLS.LIST_TYPE.EDITED:
+        return editedList;
+      case COLS.LIST_TYPE.SAVED:
+        return savedList;
+      default:
+        return [];
+    }
+  }, [editedList, filterType, publishedList, savedList, unpublishedCollectionsList]);
 
   const page = (collectionsToShow.length > playlistShowCount && Number(urlParams.get('page'))) || 1;
   const firstItemIndexForPage = playlistShowCount * (page - 1);
