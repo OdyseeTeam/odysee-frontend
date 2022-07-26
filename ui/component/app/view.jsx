@@ -88,6 +88,7 @@ type Props = {
   fetchModAmIList: () => void,
   homepageFetched: boolean,
   defaultChannelClaim: ?any,
+  nagsShown: boolean,
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
@@ -124,10 +125,13 @@ function App(props: Props) {
     fetchModAmIList,
     homepageFetched,
     defaultChannelClaim,
+    nagsShown,
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
   } = props;
+
+  console.log({ nagsShown });
 
   const isMobile = useIsMobile();
   const appRef = useRef();

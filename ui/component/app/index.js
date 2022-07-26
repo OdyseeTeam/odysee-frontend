@@ -25,6 +25,7 @@ import { doSyncLoop } from 'redux/actions/sync';
 import { doSignIn, doSetIncognito } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import App from './view';
+import { selectAnyNagsShown } from 'redux/selectors/notifications';
 
 const select = (state) => ({
   user: selectUser(state),
@@ -45,6 +46,7 @@ const select = (state) => ({
   myChannelClaimIds: selectMyChannelClaimIds(state),
   homepageFetched: selectHomepageFetched(state),
   defaultChannelClaim: selectDefaultChannelClaim(state),
+  nagsShown: selectAnyNagsShown(state),
 });
 
 const perform = {
