@@ -41,7 +41,7 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
     const sourceCollectionItems = selectUrlsForCollectionId(state, sourceId);
     const sourceCollection = selectCollectionForId(state, sourceId);
     const sourceCollectionClaim = selectClaimForId(state, sourceId);
-    const sourcedescription =
+    const sourceDescription =
       sourceCollection.description ||
       makeSelectMetadataItemForUri(sourceCollectionClaim?.canonical_url, 'description')(state);
     const thumbnailUrl = sourceCollection.thumbnail?.url || getThumbnailFromClaim(sourceCollectionClaim);
@@ -53,7 +53,7 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
           ...params,
           id: id,
           items: sourceCollectionItems,
-          description: sourcedescription,
+          description: sourceDescription,
           thumbnail: { url: thumbnailUrl },
         },
       },

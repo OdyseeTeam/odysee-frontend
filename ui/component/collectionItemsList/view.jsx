@@ -20,7 +20,7 @@ type Props = {
   isResolvingCollection: boolean,
   collectionUrls: Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
-  doFetchItemsInCollection: ({}, ?() => void) => void,
+  doFetchItemsInCollection: (options: { collectionId: string, pageSize?: number }) => void,
 };
 
 const CollectionItemsList = (props: Props) => {
