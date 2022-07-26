@@ -501,6 +501,10 @@ $BANNER_BORDER: 1px;
 }
 
 .OUTBRAIN {
+  display: none;
+  &.VISIBLE {
+    display: block;
+  }
   .ob-widget.ob-grid-layout.ob-read-next-layout {
     .ob-widget-items-container {
       background: var(--color-header-background) !important;
@@ -515,6 +519,11 @@ $BANNER_BORDER: 1px;
       .ob-rec-source {
         color: var(--color-text);
         opacity: 0.6;
+      }
+    }
+    &:hover {
+      .ob-rec-text {
+        color: var(--color-primary);
       }
     }
     @media (min-width: $breakpoint-small) {
