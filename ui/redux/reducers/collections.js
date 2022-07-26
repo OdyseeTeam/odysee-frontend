@@ -206,7 +206,7 @@ const collectionsReducer = handleActions(
         edited: editedCollections || state.edited,
         unpublished: unpublishedCollections || state.unpublished,
         builtin: builtinCollections || state.builtin,
-        saved: Object.assign(state.saved, savedCollections),
+        saved: savedCollections || state.saved,
       };
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
