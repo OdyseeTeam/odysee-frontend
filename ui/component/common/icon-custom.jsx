@@ -3454,6 +3454,7 @@ export const icons = {
         width={size}
         height={size}
         fill={color}
+        stroke={color}
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
