@@ -136,6 +136,7 @@ export default function PreorderContent(props: Props) {
       claimId,
       stripeEnvironment,
       preferredCurrency,
+      preorderOrPurchase,
       checkIfFinished,
       doHideModal
     );

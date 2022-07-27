@@ -50,6 +50,8 @@ export default function PreorderButton(props: Props) {
       'list',
       {
         environment: stripeEnvironment,
+        type_filter: 'purchase',
+        target_claim_id_filter: claimId,
       },
       'post'
     );
@@ -57,6 +59,8 @@ export default function PreorderButton(props: Props) {
 
   // TODO: brush up this functionality
   async function checkIfAlreadyPurchased() {
+    console.log('checking if purchased');
+
     try {
       // get card payments customer has made
       const customerTransactionResponse = await getPaymentHistory();
@@ -86,14 +90,18 @@ export default function PreorderButton(props: Props) {
 
   // populate customer payment data
   React.useEffect(() => {
+    console.log('starting the check now');
     checkIfAlreadyPurchased();
-  }, [uri]);
+  }, [claimId]);
 
   let preorderOrPurchase;
+  let pastTense;
   if(purchaseTag){
     preorderOrPurchase = 'purchase'
+    pastTense = 'purchasing'
   } else {
     preorderOrPurchase = 'preorder'
+    pastTense = 'preordering'
   }
 
   return (
@@ -128,7 +136,7 @@ export default function PreorderButton(props: Props) {
             className={'preorder-button'}
             icon={fiatIconToUse}
             button="primary"
-            label={__('Thanks for purchasing/preordering', {
+            label={__(`Thanks for ${pastTense}, enjoy your content! (No expiry date)`, {
               fiatSymbolToUse,
               preorderTag,
             })}
