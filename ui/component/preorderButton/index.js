@@ -5,6 +5,8 @@ import {
   selectClaimIsMine,
   selectPreorderContentClaimIdForUri,
   selectClaimForId,
+  selectPurchaseTagForUri,
+  selectPreorderedTagForUri,
 } from 'redux/selectors/claims';
 import PreorderButton from './view';
 import { doOpenModal } from 'redux/actions/app';
@@ -18,7 +20,9 @@ const select = (state, props) => {
   const preorderContentClaimId = selectPreorderContentClaimIdForUri(state, props.uri);
 
   return {
+    preorderedTag: selectPreorderedTagForUri(state, props.uri),
     preorderTag: selectPreorderTagForUri(state, props.uri),
+    purchaseTag: selectPurchaseTagForUri(state, props.uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claim,
     preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),

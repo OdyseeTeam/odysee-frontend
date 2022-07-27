@@ -19,15 +19,17 @@ type Props = {
 
 export default function PreorderButton(props: Props) {
   const {
-    preorderTag,
     doOpenModal,
     uri,
     claim,
     claimIsMine,
     preferredCurrency,
-    preorderContentClaimId,
     doResolveClaimIds,
-    preorderContentClaim,
+    preorderContentClaim, // populates after doResolveClaimIds
+    preorderContentClaimId, // full content that will be purchased
+    preorderTag, // the price of the preorder
+    purchaseTag, // the price of the purchase
+    preorderedTag, // the claim id of the preorder claim
   } = props;
 
   const claimId = claim.claim_id;
@@ -41,6 +43,7 @@ export default function PreorderButton(props: Props) {
     }
   }, [preorderContentClaimId]);
 
+  // TODO: brush up this functionality
   function getPaymentHistory() {
     return Lbryio.call(
       'customer',
@@ -52,6 +55,7 @@ export default function PreorderButton(props: Props) {
     );
   }
 
+  // TODO: brush up this functionality
   async function checkIfAlreadyPurchased() {
     try {
       // get card payments customer has made
@@ -83,10 +87,55 @@ export default function PreorderButton(props: Props) {
   // populate customer payment data
   React.useEffect(() => {
     checkIfAlreadyPurchased();
-  }, []);
+  }, [uri]);
+
+  let preorderOrPurchase;
+  if(purchaseTag){
+    preorderOrPurchase = 'purchase'
+  } else {
+    preorderOrPurchase = 'preorder'
+  }
 
   return (
     <>
+      {/* TODO: finish the frontend (you have purchased, you can purchase)*/}
+      {purchaseTag && !hasAlreadyPreordered && !myUpload && !preorderContentClaim && (
+        <div>
+          <Button
+            iconColor="red"
+            className={'preorder-button'}
+            icon={fiatIconToUse}
+            button="primary"
+            label={__('This content can be purchased for $' + purchaseTag, {
+              fiatSymbolToUse,
+              preorderTag,
+            })}
+            requiresAuth
+            onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, {
+              uri,
+              checkIfAlreadyPurchased,
+              preorderOrPurchase,
+              purchaseTag
+            })}
+          />
+        </div>
+      )}
+      {/* purchasable content, already purchased or preordered, )*/}
+      {purchaseTag && hasAlreadyPreordered && !myUpload && !preorderContentClaim && (
+        <div>
+          <Button
+            iconColor="red"
+            className={'preorder-button'}
+            icon={fiatIconToUse}
+            button="primary"
+            label={__('Thanks for purchasing/preordering', {
+              fiatSymbolToUse,
+              preorderTag,
+            })}
+            requiresAuth
+          />
+        </div>
+      )}
       {/* content is available and user has ordered (redirect to content) */}
       {preorderTag && !hasAlreadyPreordered && !myUpload && preorderContentClaim && (
         <div>
@@ -124,7 +173,12 @@ export default function PreorderButton(props: Props) {
               preorderTag,
             })}
             requiresAuth
-            onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, { uri, checkIfAlreadyPurchased })}
+            onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, {
+              uri,
+              checkIfAlreadyPurchased,
+              preorderOrPurchase,
+              preorderTag
+            })}
           />
         </div>
       )}

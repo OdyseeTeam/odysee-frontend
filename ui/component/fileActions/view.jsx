@@ -122,7 +122,7 @@ export default function FileActions(props: Props) {
     <div className="media__actions">
       {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
 
-      {!isAPreorder && <ClaimSupportButton uri={uri} fileAction />}
+      {!isAPreorder && !isPurchasedContent && <ClaimSupportButton uri={uri} fileAction />}
 
       <ClaimCollectionAddButton uri={uri} />
 
@@ -192,7 +192,6 @@ export default function FileActions(props: Props) {
               </>
             )}
 
-            {/* todo disable here if it's a purchase */}
             {!isLivestreamClaim && !disableDownloadButton && !isMature && !isPurchasedContent && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
