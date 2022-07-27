@@ -131,8 +131,6 @@ function App(props: Props) {
     doSetDefaultChannel,
   } = props;
 
-  console.log({ nagsShown });
-
   const isMobile = useIsMobile();
   const appRef = useRef();
   const isEnhancedLayout = useKonamiListener();
@@ -145,6 +143,7 @@ function App(props: Props) {
   const [localeLangs, setLocaleLangs] = React.useState();
   const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
+  const [sidebarOpen] = usePersistedState('sidebar', false);
 
   const { pathname, hash, search, hostname } = location;
   const [retryingSync, setRetryingSync] = useState(false);
@@ -422,7 +421,11 @@ function App(props: Props) {
 
     if (inIframe() || !locale || !locale.gdpr_required) {
       const ad = document.getElementsByClassName('OUTBRAIN')[0];
-      if (ad) ad.classList.add('VISIBLE');
+      console.log('nags: ', nagsShown);
+      if (ad) {
+        ad.classList.add('VISIBLE');
+        if (!sidebarOpen) ad.classList.add('LEFT');
+      }
       return;
     }
 
@@ -443,8 +446,8 @@ function App(props: Props) {
     secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
 
     window.gdprCallback = () => {
-      const ad = document.getElementsByClassName('OUTBRAIN')[0];
       if (window.OnetrustActiveGroups.indexOf('C0002') !== -1 || window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
+        const ad = document.getElementsByClassName('OUTBRAIN')[0];
         if (ad) ad.classList.add('VISIBLE');
       }
     };
@@ -464,7 +467,8 @@ function App(props: Props) {
         // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
       }
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
+    // (one time after locale is fetched)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
 
   useEffect(() => {
@@ -478,6 +482,16 @@ function App(props: Props) {
       }
     }
   }, [locale]);
+
+  useEffect(() => {
+    if (nagsShown) {
+      const ad = document.getElementsByClassName('VISIBLE')[0];
+      if (ad) ad.classList.remove('VISIBLE');
+    } else {
+      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      if (ad) ad.classList.add('VISIBLE');
+    }
+  }, [nagsShown]);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
