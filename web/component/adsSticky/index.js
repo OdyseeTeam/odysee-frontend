@@ -11,6 +11,7 @@ import {
   selectUserLocale,
 } from 'redux/selectors/user';
 import { isChannelClaim, isStreamPlaceholderClaim } from 'util/claim';
+import { selectAnyNagsShown } from 'redux/selectors/notifications';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -24,6 +25,7 @@ const select = (state, props) => {
     userCountry: selectUserCountry(state),
     homepageData: selectHomepageData(state),
     locale: selectUserLocale(state),
+    nagsShown: selectAnyNagsShown(state),
   };
 };
 
