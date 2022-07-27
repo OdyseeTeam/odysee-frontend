@@ -178,9 +178,7 @@ function CreateTiersTab(props: Props) {
         description: 'You can describe extra perks here',
       },
       Prices: [{
-        StripePrice: {
-          unit_amount: 500,
-        },
+        unit_amount: 500,
       }],
       saved: false,
     };
@@ -241,9 +239,7 @@ function CreateTiersTab(props: Props) {
         description: newTierDescription,
       },
       Prices: [{
-        StripePrice: {
-          unit_amount: Number(newTierMonthlyContribution) * 100,
-        },
+        unit_amount: Number(newTierMonthlyContribution) * 100,
       }],
       Perks: [], // TODO: list these dynamically
     };
@@ -255,7 +251,7 @@ function CreateTiersTab(props: Props) {
 
     let oldStripePrice = oldObject?.Prices;
     if (oldStripePrice.length) {
-      oldStripePrice = oldStripePrice[0].StripePrice.id;
+      oldStripePrice = oldStripePrice[0].id;
     }
     console.log('old stripe price')
     console.log(oldStripePrice)
@@ -311,6 +307,10 @@ function CreateTiersTab(props: Props) {
     setTimeout(function() {
       document.getElementById('edit-div').scrollIntoView({ behavior: 'smooth' });
     }, 15);
+
+    console.log('tier ');
+    console.log(tier);
+
     return (
       <div id="edit-div" className="edit-div" style={{ marginBottom: '45px' }}>
         <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.Membership.name} />
@@ -347,9 +347,11 @@ function CreateTiersTab(props: Props) {
           name="tier_contribution"
           step="1"
           label={__('Monthly Contribution ($/Month)')}
-          defaultValue={tier.Prices[0].StripePrice.unit_amount / 100}
+          defaultValue={tier.Prices[0].unit_amount / 100}
           onChange={(event) => parseFloat(event.target.value)}
+          disabled={tier.HasSubscribers}
         />
+        { tier.HasSubscribers && (<h4 className="header--cant_change_price">This membership has subscribers, you can't update the price currently</h4>) }
         <div className="section__actions">
           <Button button="primary" label={'Save Tier'} onClick={() => saveMembership(membershipIndex)} />
           <Button button="link" label={__('Cancel')} onClick={() => cancelEditingMembership(membershipIndex)} />
@@ -385,7 +387,7 @@ function CreateTiersTab(props: Props) {
                   </div>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.Membership.description}</h1>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                    Monthly Pledge: ${membershipTier.Prices[0].StripePrice.unit_amount / 100}
+                    Monthly Pledge: ${membershipTier.Prices[0].unit_amount / 100}
                   </h1>
                   {membershipTier.Perks && membershipTier.Perks.map((tierPerk, i) => (
                     <>
@@ -412,6 +414,7 @@ function CreateTiersTab(props: Props) {
                       className="cancel-membership-button"
                       label={__('Delete Tier')}
                       icon={ICONS.DELETE}
+                      disabled={membershipTier.HasSubscribers}
                     />
                   </div>
                 </div>
