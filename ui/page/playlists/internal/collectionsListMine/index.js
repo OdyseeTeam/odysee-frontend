@@ -2,7 +2,8 @@ import { connect } from 'react-redux';
 import {
   selectMyPublishedPlaylistCollections,
   selectMyUnpublishedCollections,
-  selectMyCollectionsWithEdits,
+  selectMyEditedCollections,
+  selectMyUpdatedCollections,
   selectSavedCollectionIds,
   selectSavedCollections,
   selectAreBuiltinCollectionsEmpty,
@@ -16,7 +17,8 @@ import CollectionsListMine from './view';
 const select = (state) => ({
   publishedCollections: selectMyPublishedPlaylistCollections(state),
   unpublishedCollections: selectMyUnpublishedCollections(state),
-  editedCollections: selectMyCollectionsWithEdits(state),
+  editedCollections: selectMyEditedCollections(state),
+  updatedCollections: selectMyUpdatedCollections(state),
   savedCollectionIds: selectSavedCollectionIds(state),
   savedCollections: selectSavedCollections(state),
   isFetchingCollections: selectIsFetchingMyCollections(state),
