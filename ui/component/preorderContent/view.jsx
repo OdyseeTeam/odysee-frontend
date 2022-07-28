@@ -38,9 +38,10 @@ type Props = {
     ?(any) => void
   ) => void,
   preorderTag: number,
-  checkIfAlreadyPurchasedOrPreordered: () => void,
   preorderOrPurchase: string,
   purchaseTag: number,
+  purchaseMadeForClaimId: ?boolean,
+  doCheckIfPurchasedClaimId: (string) => void,
 };
 
 export default function PreorderContent(props: Props) {
@@ -53,7 +54,6 @@ export default function PreorderContent(props: Props) {
     preOrderPurchase,
     preferredCurrency,
     preorderTag,
-    checkIfAlreadyPurchasedOrPreordered,
     preorderOrPurchase,
     purchaseTag,
     doCheckIfPurchasedClaimId,
@@ -129,7 +129,7 @@ export default function PreorderContent(props: Props) {
     const userParams: UserParams = { activeChannelName, activeChannelId };
 
     async function checkIfFinished() {
-      await doCheckIfPurchasedClaimId(claimId)
+      await doCheckIfPurchasedClaimId(claimId);
       doHideModal();
     }
 

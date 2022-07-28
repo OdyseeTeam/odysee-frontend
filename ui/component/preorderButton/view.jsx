@@ -3,9 +3,6 @@ import * as React from 'react';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
-const stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   preorderTag: number,
@@ -19,6 +16,8 @@ type Props = {
   preorderContentClaim: Claim,
   purchaseTag: string,
   preorderedTag: string,
+  purchaseMadeForClaimId: ?boolean,
+  doCheckIfPurchasedClaimId: (string) => void,
 };
 
 export default function PreorderButton(props: Props) {
@@ -38,10 +37,6 @@ export default function PreorderButton(props: Props) {
     purchaseMadeForClaimId,
   } = props;
 
-  console.log('test');
-  console.log(purchaseMadeForClaimId);
-
-  const claimId = claim.claim_id;
   const myUpload = claimIsMine;
 
   React.useEffect(() => {

@@ -11,6 +11,8 @@ type Props = {
   purchaseTag: number,
   doHideModal: () => void,
   checkIfAlreadyPurchased: () => void,
+  claimId: string,
+  doCheckIfPurchasedClaimId: (string) => void,
 };
 
 class ModalPreorderContent extends React.PureComponent<Props> {
