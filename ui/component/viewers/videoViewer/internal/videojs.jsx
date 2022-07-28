@@ -106,6 +106,7 @@ type Props = {
   userClaimId: ?string,
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
+  isPurchasedContent: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -506,8 +507,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       // disable right-click (context-menu) for purchased content
       if (isPurchasedContent) {
+        const player = document.querySelector('video.vjs-tech');
         // disable right click
-        document.querySelector('video.vjs-tech').setAttribute('oncontextmenu', 'return false;');
+        if (player) player.setAttribute('oncontextmenu', 'return false;');
       }
 
       // allow tap to unmute if no perms on iOS

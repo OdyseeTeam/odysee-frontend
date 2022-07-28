@@ -79,6 +79,8 @@ type Props = {
   doSetContentHistoryItem: (uri: string) => void,
   doClearContentHistoryUri: (uri: string) => void,
   currentPlaylistItemIndex: ?number,
+  isPurchasedContent: boolean,
+  purchaseMadeForClaimId: boolean,
 };
 
 /*
@@ -129,7 +131,7 @@ function VideoViewer(props: Props) {
     doSetContentHistoryItem,
     currentPlaylistItemIndex,
     isPurchasedContent,
-    purchaseMadeForClaimId,
+    // purchaseMadeForClaimId,
   } = props;
 
   const playerEndedDuration = React.useRef();

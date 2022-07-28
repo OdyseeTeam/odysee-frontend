@@ -1165,7 +1165,7 @@ export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => 
     .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
 };
 
-export function doCheckIfPurchasedClaimId(claimId) {
+export function doCheckIfPurchasedClaimId(claimId: string) {
   return async (dispatch: Dispatch) => {
     dispatch({
       type: ACTIONS.CHECK_IF_PURCHASED_STARTED,
@@ -1191,8 +1191,7 @@ export function doCheckIfPurchasedClaimId(claimId) {
         type: ACTIONS.CHECK_IF_PURCHASED_COMPLETED,
         data: matchingClaimId,
       });
-
-    } catch (err){
+    } catch (err) {
       return dispatch({
         type: ACTIONS.CHECK_IF_PURCHASED_FAILED,
         data: {

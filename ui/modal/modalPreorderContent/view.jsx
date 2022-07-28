@@ -5,6 +5,10 @@ import PreorderContent from 'component/preorderContent';
 
 type Props = {
   uri: string,
+  checkIfAlreadyPurchasedOrPreordered: () => void,
+  preorderOrPurchase: string,
+  preorderTag: number,
+  purchaseTag: number,
   doHideModal: () => void,
   checkIfAlreadyPurchased: () => void,
 };

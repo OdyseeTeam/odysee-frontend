@@ -39,6 +39,7 @@ type Props = {
   doDownloadUri: (uri: string) => void,
   isMature: boolean,
   isAPreorder: boolean,
+  isPurchasedContent: boolean,
 };
 
 export default function FileActions(props: Props) {

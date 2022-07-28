@@ -8,13 +8,17 @@ import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
 type Props = {
-  preorderTag: string,
+  preorderTag: number,
   doOpenModal: (string, {}) => void,
   claim: StreamClaim,
   uri: string,
   claimIsMine: boolean,
   preferredCurrency: string,
   preorderContentClaimId: string,
+  doResolveClaimIds: (Array<string>) => Promise<any>,
+  preorderContentClaim: Claim,
+  purchaseTag: string,
+  preorderedTag: string,
 };
 
 export default function PreorderButton(props: Props) {
@@ -29,7 +33,7 @@ export default function PreorderButton(props: Props) {
     preorderContentClaimId, // full content that will be purchased
     preorderTag, // the price of the preorder
     purchaseTag, // the price of the purchase
-    preorderedTag, // the claim id of the preorder claim
+    // preorderedTag, // the claim id of the preorder claim
   } = props;
 
   const claimId = claim.claim_id;
@@ -108,12 +112,14 @@ export default function PreorderButton(props: Props) {
               preorderTag,
             })}
             requiresAuth
-            onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, {
-              uri,
-              checkIfAlreadyPurchasedOrPreordered,
-              preorderOrPurchase,
-              purchaseTag,
-            })}
+            onClick={() =>
+              doOpenModal(MODALS.PREORDER_CONTENT, {
+                uri,
+                checkIfAlreadyPurchasedOrPreordered,
+                preorderOrPurchase,
+                purchaseTag,
+              })
+            }
           />
         </div>
       )}
@@ -170,12 +176,14 @@ export default function PreorderButton(props: Props) {
               preorderTag,
             })}
             requiresAuth
-            onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, {
-              uri,
-              checkIfAlreadyPurchasedOrPreordered,
-              preorderOrPurchase,
-              preorderTag,
-            })}
+            onClick={() =>
+              doOpenModal(MODALS.PREORDER_CONTENT, {
+                uri,
+                checkIfAlreadyPurchasedOrPreordered,
+                preorderOrPurchase,
+                preorderTag,
+              })
+            }
           />
         </div>
       )}

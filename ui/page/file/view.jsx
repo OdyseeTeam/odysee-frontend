@@ -51,6 +51,9 @@ type Props = {
   claimWasPurchased: boolean,
   location: { search: string },
   isUriPlaying: boolean,
+  purchaseTag: number,
+  claimId: string,
+  doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
@@ -141,7 +144,7 @@ export default function FilePage(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    if(purchaseTag && claimId) doCheckIfPurchasedClaimId(claimId)
+    if (purchaseTag && claimId) doCheckIfPurchasedClaimId(claimId);
   }, [purchaseTag, claimId]);
 
   React.useEffect(() => {

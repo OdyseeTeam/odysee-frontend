@@ -33,11 +33,14 @@ type Props = {
     claimId: string,
     stripe: ?string,
     preferredCurrency: string,
+    type: string,
     ?(any) => Promise<void>,
     ?(any) => void
   ) => void,
-  preorderTag: string,
+  preorderTag: number,
   checkIfAlreadyPurchasedOrPreordered: () => void,
+  preorderOrPurchase: string,
+  purchaseTag: number,
 };
 
 export default function PreorderContent(props: Props) {
@@ -103,12 +106,15 @@ export default function PreorderContent(props: Props) {
     });
   }, [setHasSavedCard]);
 
-  const modalHeaderText = __(`${capitalizeFirstLetter(preorderOrPurchase)} Your Content`);
+  const modalHeaderText = preorderOrPurchase
+    ? __(`%purchase_or_preorder% Your Content`, { purchase_or_preorder: capitalizeFirstLetter(preorderOrPurchase) })
+    : '';
   let subtitleString;
   if (preorderOrPurchase === 'purchase') {
-    subtitleString = 'After completing the purchase you will have instant access to your content that doesn\'t expire';
+    subtitleString = "After completing the purchase you will have instant access to your content that doesn't expire";
   } else {
-    subtitleString = 'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live';
+    subtitleString =
+      'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live';
   }
 
   const subtitleText = __(subtitleString);
@@ -145,10 +151,13 @@ export default function PreorderContent(props: Props) {
   const fiatSymbolToUse = preferredCurrency === 'EUR' ? '€' : '$';
 
   function buildButtonText() {
-    return __(capitalizeFirstLetter(transactionName) + ' your content for %tip_currency%%tip_amount%', {
-      tip_currency: fiatSymbolToUse,
-      tip_amount: tipAmount.toString(),
-    });
+    return transactionName
+      ? __('%transaction_name% your content for %tip_currency%%tip_amount%', {
+          transaction_name: capitalizeFirstLetter(transactionName),
+          tip_currency: fiatSymbolToUse,
+          tip_amount: tipAmount.toString(),
+        })
+      : '';
   }
 
   return (
@@ -174,7 +183,12 @@ export default function PreorderContent(props: Props) {
                   <div className="add-card-prompt">
                     {/* FIX_THIS: no split strings please. Use <i18Message> */}
                     <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-                    {' ' + __(`To ${capitalizeFirstLetter(preorderOrPurchase)} Content`)}
+                    {preorderOrPurchase
+                      ? ' ' +
+                        __(`To %purchase_or_preorder% Content`, {
+                          purchase_or_preorder: capitalizeFirstLetter(preorderOrPurchase),
+                        })
+                      : ''}
                   </div>
                 )}
               </div>

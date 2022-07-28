@@ -114,6 +114,9 @@ const defaultState = {
   checkingPending: false,
   checkingReflecting: false,
   latestByUri: {},
+  myPurchasedClaims: [],
+  fetchingMyPurchasedClaims: undefined,
+  fetchingMyPurchasedClaimsError: undefined,
 };
 
 // ****************************************************************************
@@ -1058,7 +1061,7 @@ reducers[ACTIONS.CHECK_IF_PURCHASED_COMPLETED] = (state: State, action: any): St
   let oldPurchasedClaims = state.myPurchasedClaims || [];
 
   return Object.assign({}, state, {
-    myPurchasedClaims : [...oldPurchasedClaims, action.data],
+    myPurchasedClaims: [...oldPurchasedClaims, action.data],
     fetchingMyPurchasedClaims: false,
   });
 };
