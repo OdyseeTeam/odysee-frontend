@@ -503,9 +503,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // disable right-click (context-menu) for purchased content
-      if(isPurchasedContent){
+      if (isPurchasedContent) {
         // disable right click
-        document.querySelector('video.vjs-tech').setAttribute('oncontextmenu', "return false;")
+        document.querySelector('video.vjs-tech').setAttribute('oncontextmenu', 'return false;');
       }
 
       // allow tap to unmute if no perms on iOS

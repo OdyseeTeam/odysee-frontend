@@ -58,22 +58,22 @@ export default function PreorderContent(props: Props) {
 
   function capitalizeFirstLetter(string) {
     console.log(string);
-    if(string) return string.charAt(0).toUpperCase() + string.slice(1);
+    if (string) return string.charAt(0).toUpperCase() + string.slice(1);
   }
 
   let transactionName;
-  if(preorderOrPurchase === 'preorder'){
-    transactionName = 'pre-order'
+  if (preorderOrPurchase === 'preorder') {
+    transactionName = 'pre-order';
   } else {
-    transactionName = 'purchase'
+    transactionName = 'purchase';
   }
 
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
-    if(preorderOrPurchase === 'preorder'){
-      setTipAmount(preorderTag)
+    if (preorderOrPurchase === 'preorder') {
+      setTipAmount(preorderTag);
     } else {
-      setTipAmount(purchaseTag)
+      setTipAmount(purchaseTag);
     }
   }, [preorderTag, purchaseTag]);
 
@@ -105,10 +105,10 @@ export default function PreorderContent(props: Props) {
 
   const modalHeaderText = __(`${capitalizeFirstLetter(preorderOrPurchase)} Your Content`);
   let subtitleString;
-  if(preorderOrPurchase === 'purchase'){
+  if (preorderOrPurchase === 'purchase') {
     subtitleString = 'After completing the purchase you will have instant access to your content that doesn\'t expire';
   } else {
-    subtitleString = 'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live'
+    subtitleString = 'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live';
   }
 
   const subtitleText = __(subtitleString);

@@ -65,7 +65,7 @@ export default function PreorderButton(props: Props) {
       // get card payments customer has made
       const existingPurchaseOrPreorder = await checkForPurchaseOrPreorder();
 
-      if(existingPurchaseOrPreorder) setHasAlreadyPreorderedOrPurchased(true);
+      if (existingPurchaseOrPreorder) setHasAlreadyPreorderedOrPurchased(true);
     } catch (err) {
       console.log(err);
     }
@@ -86,12 +86,12 @@ export default function PreorderButton(props: Props) {
 
   let preorderOrPurchase;
   let pastTense;
-  if(purchaseTag){
-    preorderOrPurchase = 'purchase'
-    pastTense = 'purchasing'
+  if (purchaseTag) {
+    preorderOrPurchase = 'purchase';
+    pastTense = 'purchasing';
   } else {
-    preorderOrPurchase = 'preorder'
-    pastTense = 'preordering'
+    preorderOrPurchase = 'preorder';
+    pastTense = 'preordering';
   }
 
   return (
@@ -113,7 +113,7 @@ export default function PreorderButton(props: Props) {
               uri,
               checkIfAlreadyPurchasedOrPreordered,
               preorderOrPurchase,
-              purchaseTag
+              purchaseTag,
             })}
           />
         </div>
@@ -175,7 +175,7 @@ export default function PreorderButton(props: Props) {
               uri,
               checkIfAlreadyPurchasedOrPreordered,
               preorderOrPurchase,
-              preorderTag
+              preorderTag,
             })}
           />
         </div>
