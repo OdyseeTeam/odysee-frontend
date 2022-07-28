@@ -49,7 +49,7 @@ export const selectCollectionSavedForId = (state: State, id: string) => {
 export const selectSavedCollections = createSelector(
   selectResolvedCollections,
   selectSavedCollectionIds,
-  (resolved, savedIds) => Object.fromEntries(Object.entries(resolved).filter(([key, val]) => savedIds.includes(key)))
+  (resolved, savedIds) => fromEntries(Object.entries(resolved).filter(([key, val]) => savedIds.includes(key)))
 );
 
 export const selectHasCollections = createSelector(
