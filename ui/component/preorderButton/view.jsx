@@ -83,7 +83,6 @@ export default function PreorderButton(props: Props) {
 
   // populate customer payment data
   React.useEffect(() => {
-    console.log('starting the check now');
     checkIfAlreadyPurchasedOrPreordered();
   }, [claimId]);
 
@@ -207,6 +206,16 @@ export default function PreorderButton(props: Props) {
             className={'preorder-button'}
             button="primary"
             label={__('You cannot preorder your own content')}
+          />
+        </div>
+      )}
+      {purchaseTag && myUpload && (
+        <div>
+          <Button
+            iconColor="red"
+            className={'preorder-button'}
+            button="primary"
+            label={__('You cannot purchase your own content')}
           />
         </div>
       )}

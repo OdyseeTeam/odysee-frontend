@@ -99,7 +99,10 @@ export default function FileRenderInitiator(props: Props) {
 
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = href && href.indexOf('t=') > -1;
-  const shouldAutoplay = !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
+
+  const didntPurchasePaidContent = purchaseContentTag && !purchaseMadeForClaimId;
+  const shouldAutoplay =
+    !didntPurchasePaidContent && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
 
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isLivestreamClaim
