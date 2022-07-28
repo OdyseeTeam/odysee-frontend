@@ -27,7 +27,6 @@ import { getChannelIdFromClaim } from 'util/claim';
 import { doFileGet } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/claims';
 
-
 import FilePage from './view';
 
 const select = (state, props) => {
