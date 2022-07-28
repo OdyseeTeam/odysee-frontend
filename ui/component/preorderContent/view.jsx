@@ -47,7 +47,6 @@ export default function PreorderContent(props: Props) {
   const {
     activeChannelId,
     activeChannelName,
-    claimId,
     channelClaimId,
     tipChannelName,
     doHideModal,
@@ -57,6 +56,8 @@ export default function PreorderContent(props: Props) {
     checkIfAlreadyPurchasedOrPreordered,
     preorderOrPurchase,
     purchaseTag,
+    doCheckIfPurchasedClaimId,
+    claimId,
   } = props;
 
   function capitalizeFirstLetter(string) {
@@ -128,7 +129,7 @@ export default function PreorderContent(props: Props) {
     const userParams: UserParams = { activeChannelName, activeChannelId };
 
     async function checkIfFinished() {
-      await checkIfAlreadyPurchasedOrPreordered();
+      await doCheckIfPurchasedClaimId(claimId)
       doHideModal();
     }
 
@@ -181,7 +182,6 @@ export default function PreorderContent(props: Props) {
 
                 {!hasCardSaved && (
                   <div className="add-card-prompt">
-                    {/* FIX_THIS: no split strings please. Use <i18Message> */}
                     <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
                     {preorderOrPurchase
                       ? ' ' +

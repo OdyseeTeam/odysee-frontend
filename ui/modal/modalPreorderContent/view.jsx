@@ -18,10 +18,11 @@ class ModalPreorderContent extends React.PureComponent<Props> {
     const {
       uri,
       doHideModal,
-      checkIfAlreadyPurchasedOrPreordered,
       preorderOrPurchase,
       preorderTag,
       purchaseTag,
+      doCheckIfPurchasedClaimId,
+      claimId,
     } = this.props;
 
     return (
@@ -29,10 +30,11 @@ class ModalPreorderContent extends React.PureComponent<Props> {
         <PreorderContent
           uri={uri}
           onCancel={doHideModal}
-          checkIfAlreadyPurchasedOrPreordered={checkIfAlreadyPurchasedOrPreordered}
           preorderOrPurchase={preorderOrPurchase}
           preorderTag={preorderTag}
           purchaseTag={purchaseTag}
+          doCheckIfPurchasedClaimId={doCheckIfPurchasedClaimId}
+          claimId={claimId}
         />
       </Modal>
     );

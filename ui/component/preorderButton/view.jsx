@@ -29,17 +29,20 @@ export default function PreorderButton(props: Props) {
     claimIsMine,
     preferredCurrency,
     doResolveClaimIds,
+    doCheckIfPurchasedClaimId,
     preorderContentClaim, // populates after doResolveClaimIds
     preorderContentClaimId, // full content that will be purchased
     preorderTag, // the price of the preorder
     purchaseTag, // the price of the purchase
     // preorderedTag, // the claim id of the preorder claim
+    purchaseMadeForClaimId,
   } = props;
+
+  console.log('test');
+  console.log(purchaseMadeForClaimId);
 
   const claimId = claim.claim_id;
   const myUpload = claimIsMine;
-
-  const [hasAlreadyPreorderedOrPurchased, setHasAlreadyPreorderedOrPurchased] = React.useState(false);
 
   React.useEffect(() => {
     if (preorderContentClaimId) {
@@ -47,44 +50,12 @@ export default function PreorderButton(props: Props) {
     }
   }, [preorderContentClaimId]);
 
-  // TODO: how to know whether to check for reference or target?
-  function checkForPurchaseOrPreorder() {
-    // we'll check if there's anything for the targeted id
-    // if we're on a preorder and there is, build the purchase url with the reference (if exists)
-    // if we're on a purchase and there is, show the video
-    return Lbryio.call(
-      'customer',
-      'list',
-      {
-        environment: stripeEnvironment,
-        target_claim_id_filter: claimId,
-      },
-      'post'
-    );
-  }
-
-  async function checkIfAlreadyPurchasedOrPreordered() {
-    try {
-      // get card payments customer has made
-      const existingPurchaseOrPreorder = await checkForPurchaseOrPreorder();
-
-      if (existingPurchaseOrPreorder && existingPurchaseOrPreorder.length) setHasAlreadyPreorderedOrPurchased(true);
-    } catch (err) {
-      console.log(err);
-    }
-  }
-
   let fiatIconToUse = ICONS.FINANCE;
   let fiatSymbolToUse = '$';
   if (preferredCurrency === 'EUR') {
     fiatIconToUse = ICONS.EURO;
     fiatSymbolToUse = '€';
   }
-
-  // populate customer payment data
-  React.useEffect(() => {
-    checkIfAlreadyPurchasedOrPreordered();
-  }, [claimId]);
 
   let preorderOrPurchase;
   let pastTense;
@@ -99,7 +70,7 @@ export default function PreorderButton(props: Props) {
   return (
     <>
       {/* purchasable content, not preordered and still needs to be purchased */}
-      {purchaseTag && !hasAlreadyPreorderedOrPurchased && !myUpload && !preorderContentClaim && (
+      {purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -114,16 +85,17 @@ export default function PreorderButton(props: Props) {
             onClick={() =>
               doOpenModal(MODALS.PREORDER_CONTENT, {
                 uri,
-                checkIfAlreadyPurchasedOrPreordered,
                 preorderOrPurchase,
                 purchaseTag,
+                doCheckIfPurchasedClaimId,
+                claimId: claim.claim_id,
               })
             }
           />
         </div>
       )}
       {/* purchasable content, already purchased or preordered */}
-      {purchaseTag && hasAlreadyPreorderedOrPurchased && !myUpload && !preorderContentClaim && (
+      {purchaseTag && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -139,7 +111,7 @@ export default function PreorderButton(props: Props) {
         </div>
       )}
       {/* content is available and user has ordered (redirect to content) */}
-      {preorderTag && !hasAlreadyPreorderedOrPurchased && !myUpload && preorderContentClaim && (
+      {preorderTag && !purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -151,7 +123,7 @@ export default function PreorderButton(props: Props) {
         </div>
       )}
       {/* content is available and user hasn't ordered (redirect to content) */}
-      {preorderTag && hasAlreadyPreorderedOrPurchased && !myUpload && preorderContentClaim && (
+      {preorderTag && purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -163,7 +135,7 @@ export default function PreorderButton(props: Props) {
         </div>
       )}
       {/* viewer can preorder */}
-      {preorderTag && !hasAlreadyPreorderedOrPurchased && !myUpload && !preorderContentClaim && (
+      {preorderTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
@@ -178,16 +150,17 @@ export default function PreorderButton(props: Props) {
             onClick={() =>
               doOpenModal(MODALS.PREORDER_CONTENT, {
                 uri,
-                checkIfAlreadyPurchasedOrPreordered,
                 preorderOrPurchase,
                 preorderTag,
+                doCheckIfPurchasedClaimId,
+                claimId: claim.claim_id,
               })
             }
           />
         </div>
       )}
       {/* viewer has preordered */}
-      {preorderTag && hasAlreadyPreorderedOrPurchased && !myUpload && !preorderContentClaim && (
+      {preorderTag && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
         <div>
           <Button
             iconColor="red"
