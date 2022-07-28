@@ -79,6 +79,7 @@ export default function FileRenderInitiator(props: Props) {
     doUriInitiatePlay,
     doFetchChannelLiveStatus,
     purchaseContentTag,
+    purchaseMadeForClaimId,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
@@ -201,7 +202,7 @@ export default function FileRenderInitiator(props: Props) {
               'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
-              'content__cover--purchasable': purchaseContentTag && 1 === 2,
+              'content__cover--purchasable': purchaseContentTag && !purchaseMadeForClaimId,
             })
       }
     >

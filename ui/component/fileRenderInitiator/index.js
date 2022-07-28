@@ -1,6 +1,11 @@
 import { connect } from 'react-redux';
 import { doUriInitiatePlay } from 'redux/actions/content';
-import { selectClaimWasPurchasedForUri, selectClaimForUri, selectPurchaseTagForUri } from 'redux/selectors/claims';
+import {
+  selectClaimWasPurchasedForUri,
+  selectClaimForUri,
+  selectPurchaseTagForUri,
+  selectPurchaseMadeForClaimId,
+} from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri } from 'lbryinc';
@@ -41,6 +46,7 @@ const select = (state, props) => {
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     purchaseContentTag: selectPurchaseTagForUri(state, props.uri),
+    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claimId),
   };
 };
 

@@ -933,3 +933,11 @@ export const selectTakeOverAmountForName = (state: State, name: string) => {
 
   return winningClaim ? winningClaim.meta.effective_amount || winningClaim.amount : null;
 };
+
+export const selectMyPurchasedClaims = createSelector(selectState, (state) => state.myPurchasedClaims || []);
+
+export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
+  const purchasedClaimIds = selectMyPurchasedClaims(state);
+
+  return purchasedClaimIds && purchasedClaimIds.includes(claimId);
+};

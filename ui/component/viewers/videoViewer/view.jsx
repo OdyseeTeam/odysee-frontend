@@ -129,6 +129,7 @@ function VideoViewer(props: Props) {
     doSetContentHistoryItem,
     currentPlaylistItemIndex,
     isPurchasedContent,
+    purchaseMadeForClaimId,
   } = props;
 
   const playerEndedDuration = React.useRef();

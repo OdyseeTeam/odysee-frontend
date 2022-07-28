@@ -53,7 +53,6 @@ export default function PreorderButton(props: Props) {
       'list',
       {
         environment: stripeEnvironment,
-        type_filter: preorderOrPurchase,
         target_claim_id_filter: claimId,
       },
       'post'
@@ -65,7 +64,7 @@ export default function PreorderButton(props: Props) {
       // get card payments customer has made
       const existingPurchaseOrPreorder = await checkForPurchaseOrPreorder();
 
-      if (existingPurchaseOrPreorder) setHasAlreadyPreorderedOrPurchased(true);
+      if (existingPurchaseOrPreorder && existingPurchaseOrPreorder.length) setHasAlreadyPreorderedOrPurchased(true);
     } catch (err) {
       console.log(err);
     }
