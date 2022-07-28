@@ -37,7 +37,7 @@ type Props = {
     ?(any) => void
   ) => void,
   preorderTag: string,
-  checkIfAlreadyPurchased: () => void,
+  checkIfAlreadyPurchasedOrPreordered: () => void,
 };
 
 export default function PreorderContent(props: Props) {
@@ -51,7 +51,7 @@ export default function PreorderContent(props: Props) {
     preOrderPurchase,
     preferredCurrency,
     preorderTag,
-    checkIfAlreadyPurchased,
+    checkIfAlreadyPurchasedOrPreordered,
     preorderOrPurchase,
     purchaseTag,
   } = props;
@@ -122,7 +122,7 @@ export default function PreorderContent(props: Props) {
     const userParams: UserParams = { activeChannelName, activeChannelId };
 
     async function checkIfFinished() {
-      await checkIfAlreadyPurchased();
+      await checkIfAlreadyPurchasedOrPreordered();
       doHideModal();
     }
 

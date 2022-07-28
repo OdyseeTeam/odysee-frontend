@@ -111,7 +111,7 @@ export default function PreorderButton(props: Props) {
             requiresAuth
             onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, {
               uri,
-              checkIfAlreadyPurchased: checkIfAlreadyPurchasedOrPreordered,
+              checkIfAlreadyPurchasedOrPreordered,
               preorderOrPurchase,
               purchaseTag
             })}
@@ -173,7 +173,7 @@ export default function PreorderButton(props: Props) {
             requiresAuth
             onClick={() => doOpenModal(MODALS.PREORDER_CONTENT, {
               uri,
-              checkIfAlreadyPurchased: checkIfAlreadyPurchasedOrPreordered,
+              checkIfAlreadyPurchasedOrPreordered,
               preorderOrPurchase,
               preorderTag
             })}

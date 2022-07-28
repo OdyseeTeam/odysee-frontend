@@ -745,8 +745,8 @@ export const selectPreorderedTagForUri = createCachedSelector(selectMetadataForU
 export const selectPreorderContentClaimIdForUri = createCachedSelector(
   selectMetadataForUri,
   (metadata: ?GenericMetadata) => {
-    const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('content:'));
-    if (matchingTag) return matchingTag.slice(8);
+    const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('full upload:'));
+    if (matchingTag) return matchingTag.slice(12);
   }
 )((state, uri) => String(uri));
 

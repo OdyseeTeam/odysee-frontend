@@ -14,7 +14,7 @@ class ModalPreorderContent extends React.PureComponent<Props> {
     const {
       uri,
       doHideModal,
-      checkIfAlreadyPurchased,
+      checkIfAlreadyPurchasedOrPreordered,
       preorderOrPurchase,
       preorderTag,
       purchaseTag,
@@ -25,7 +25,7 @@ class ModalPreorderContent extends React.PureComponent<Props> {
         <PreorderContent
           uri={uri}
           onCancel={doHideModal}
-          checkIfAlreadyPurchased={checkIfAlreadyPurchased}
+          checkIfAlreadyPurchasedOrPreordered={checkIfAlreadyPurchasedOrPreordered}
           preorderOrPurchase={preorderOrPurchase}
           preorderTag={preorderTag}
           purchaseTag={purchaseTag}
