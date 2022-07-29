@@ -404,7 +404,8 @@ export default function FileRenderFloating(props: Props) {
   function closeMiniPlayer() {
     if (window.cordova) {
       window.odysee.functions.killControls(function () {
-        doSetPlayingUri({ uri: null });
+        // doSetPlayingUri({ uri: null });
+        doClearPlayingUri()
       });
     }
   }
