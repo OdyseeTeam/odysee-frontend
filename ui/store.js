@@ -71,7 +71,14 @@ const subscriptionsFilter = createFilter('subscriptions', ['subscriptions']);
 const blockedFilter = createFilter('blocked', ['blockedChannels']);
 const coinSwapsFilter = createFilter('coinSwap', ['coinSwaps']);
 const settingsFilter = createBlacklistFilter('settings', ['loadedLanguages', 'language']);
-const collectionsFilter = createFilter('collections', ['builtin', 'saved', 'unpublished', 'edited', 'pending']);
+const collectionsFilter = createFilter('collections', [
+  'builtin',
+  'savedIds',
+  'unpublished',
+  'edited',
+  'updated',
+  'pending',
+]);
 const whiteListedReducers = [
   'claims',
   'fileInfo',
@@ -117,12 +124,6 @@ const persistOptions = {
 
 let history;
 let hashHistory;
-// @if TARGET='app'
-history = createMemoryHistory({
-  initialEntries: [generateInitialUrl(window.location.hash)],
-  initialIndex: 0,
-});
-// @endif
 // @if TARGET='web'
 history = createBrowserHistory();
 if (window.cordova) {
@@ -144,16 +145,13 @@ const triggerSharedStateActions = [
   ACTIONS.TOGGLE_TAG_FOLLOW,
   ACTIONS.CREATE_CHANNEL_COMPLETED,
   ACTIONS.SYNC_CLIENT_SETTINGS,
-  // Disabled until we can overwrite preferences
   ACTIONS.SHARED_PREFERENCE_SET,
   ACTIONS.COLLECTION_EDIT,
   ACTIONS.COLLECTION_DELETE,
   ACTIONS.COLLECTION_NEW,
   ACTIONS.COLLECTION_PENDING,
+  ACTIONS.COLLECTION_TOGGLE_SAVE,
   ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT,
-  // MAYBE COLLECTOIN SAVE
-  // ACTIONS.SET_WELCOME_VERSION,
-  // ACTIONS.SET_ALLOW_ANALYTICS,
 ];
 
 /**
@@ -191,7 +189,8 @@ const sharedStateFilters = {
   sharing_3P: { source: 'app', property: 'allowAnalytics' },
   builtinCollections: { source: 'collections', property: 'builtin' },
   editedCollections: { source: 'collections', property: 'edited' },
-  // savedCollections: { source: 'collections', property: 'saved' },
+  updatedCollections: { source: 'collections', property: 'updated' },
+  savedCollectionIds: { source: 'collections', property: 'savedIds' },
   unpublishedCollections: { source: 'collections', property: 'unpublished' },
   lastViewedAnnouncement: { source: 'content', property: 'lastViewedAnnouncement' },
 };

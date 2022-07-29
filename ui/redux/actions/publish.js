@@ -1,5 +1,4 @@
 // @flow
-import { PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL } from 'constants/errors';
 import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
@@ -14,8 +13,8 @@ import {
   // selectMyClaimsWithoutChannels,
   selectReflectingById,
 } from 'redux/selectors/claims';
-import { makeSelectPublishFormValue, selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
-import { doError, doToast } from 'redux/actions/notifications';
+import { selectPublishFormValue, selectPublishFormValues, selectMyClaimForUri } from 'redux/selectors/publish';
+import { doError } from 'redux/actions/notifications';
 import { push } from 'connected-react-router';
 import analytics from 'analytics';
 import { doOpenModal } from 'redux/actions/app';
@@ -220,8 +219,8 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
 
   const noFileParam = !filePath || filePath === NO_FILE;
   const state = getState();
-  const editingUri = makeSelectPublishFormValue('editingURI')(state) || '';
-  const remoteUrl = makeSelectPublishFormValue('remoteFileUrl')(state);
+  const editingUri = selectPublishFormValue(state, 'editingURI') || '';
+  const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
   const claim = makeSelectClaimForUri(editingUri)(state) || {};
   const hasSourceFile = claim.value && claim.value.source;
   const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
@@ -290,12 +289,7 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
       type: ACTIONS.PUBLISH_FAIL,
     });
 
-    if (error.message === PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL) {
-      actions.push(doToast({ message: error.message, duration: 'long' }));
-    } else {
-      actions.push(doError({ message: error.message, cause: error.cause }));
-    }
-
+    actions.push(doError({ message: error.message, cause: error.cause }));
     dispatch(batchActions(...actions));
   };
 
@@ -393,8 +387,8 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
 export const doBeginPublish = (name: string) => (dispatch: Dispatch) => {
   dispatch(doClearPublish());
   // $FlowFixMe
-  dispatch(doPrepareEdit({ name }));
-  dispatch(push(`/$/${PAGES.UPLOAD}`));
+  // dispatch(doPrepareEdit({ name }));
+  // dispatch(push(`/$/${PAGES.UPLOAD}`));
 };
 
 export const doClearPublish = () => (dispatch: Dispatch) => {
@@ -536,9 +530,7 @@ export const doUploadThumbnail = (
   }
 };
 
-export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileListItem, fs: any) => (
-  dispatch: Dispatch
-) => {
+export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => (dispatch: Dispatch) => {
   const { name, amount, value = {} } = claim;
   const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
   const {
@@ -598,6 +590,18 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, fileInfo: FileLis
   }
 
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
+
+  switch (claimType) {
+    case 'post':
+      dispatch(push(`/$/${PAGES.POST}`));
+      break;
+    case 'livestream':
+      dispatch(push(`/$/${PAGES.LIVESTREAM}`));
+      break;
+    default:
+      dispatch(push(`/$/${PAGES.UPLOAD}`));
+      break;
+  }
 };
 
 /**

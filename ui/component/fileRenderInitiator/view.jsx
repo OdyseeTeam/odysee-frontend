@@ -8,21 +8,28 @@ import classnames from 'classnames';
 import * as PAGES from 'constants/pages';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import Button from 'component/button';
-import Nag from 'component/common/nag';
+import Nag from 'component/nag';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { LivestreamContext } from 'page/livestream/view';
 import { formatLbryUrlForWeb } from 'util/url';
 import FileViewerEmbeddedTitle from 'component/fileViewerEmbeddedTitle';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import useGetPoster from 'effects/use-get-poster';
+import { ChatCommentContext } from 'component/chat/chatComment/view';
+import { ExpandableContext } from 'component/common/expandable';
 
 type Props = {
   channelClaimId: ?string,
   isPlaying: boolean,
   fileInfo: FileListItem,
   uri: string,
-  history: { push: (string) => void },
-  location: { search: ?string, pathname: string, href: string, state: { forceAutoplay: boolean } },
+  history: { push: (params: string | { pathname: string, state: ?{} }) => void },
+  location: {
+    search: ?string,
+    pathname: string,
+    href: string,
+    state: ?{ forceAutoplay?: boolean, forceDisableAutoplay?: boolean },
+  },
   obscurePreview: boolean,
   insufficientCredits: boolean,
   claimThumbnail?: string,
@@ -39,8 +46,12 @@ type Props = {
   embedded?: boolean,
   parentCommentId?: string,
   isMarkdownPost?: boolean,
+  claimLinkId?: string,
+  purchaseContentTag: boolean,
+  purchaseMadeForClaimId: boolean,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doFetchChannelLiveStatus: (string) => void,
+  claimIsMine: boolean,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -66,9 +77,16 @@ export default function FileRenderInitiator(props: Props) {
     embedded,
     parentCommentId,
     isMarkdownPost,
+    claimLinkId,
     doUriInitiatePlay,
     doFetchChannelLiveStatus,
+    purchaseContentTag,
+    purchaseMadeForClaimId,
+    claimIsMine,
   } = props;
+
+  const { isLiveComment } = React.useContext(ChatCommentContext) || {};
+  const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
 
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const { livestreamPage, layountRendered } = React.useContext(LivestreamContext) || {};
@@ -77,13 +95,16 @@ export default function FileRenderInitiator(props: Props) {
   const isMobile = true;
 
   const { search, href, state: locationState, pathname } = location;
+  const { forceAutoplay: forceAutoplayParam, forceDisableAutoplay } = locationState || {};
   const urlParams = search && new URLSearchParams(search);
   const collectionId = urlParams && urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = href && href.indexOf('t=') > -1;
-  const forceAutoplayParam = locationState && locationState.forceAutoplay;
-  const shouldAutoplay = !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
+
+  const didntPurchasePaidContent = purchaseContentTag && !purchaseMadeForClaimId && !claimIsMine;
+  const shouldAutoplay =
+    !didntPurchasePaidContent && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
 
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isLivestreamClaim
@@ -109,18 +130,31 @@ export default function FileRenderInitiator(props: Props) {
   const thumbnail = useGetPoster(claimThumbnail);
 
   function handleClick() {
-    if (embedded && !isPlayable) {
+    if (isLiveComment || (embedded && !isPlayable)) {
       const formattedUrl = formatLbryUrlForWeb(uri);
-      history.push(formattedUrl);
+      history.push({ pathname: formattedUrl, state: isLiveComment ? { overrideFloating: true } : undefined });
     } else {
       viewFile();
+
+      // In case of inline player where play button is reachable -> set is expanded
+      if (setExpanded && disableExpanded) {
+        setExpanded(true);
+        disableExpanded(true);
+      }
     }
   }
 
   // Wrap this in useCallback because we need to use it to the view effect
   // If we don't a new instance will be created for every render and react will think the dependencies have changed, which will add/remove the listener for every render
   const viewFile = React.useCallback(() => {
-    const playingOptions = { uri, collectionId, pathname, source: undefined, commentId: undefined };
+    const playingOptions: PlayingUri = {
+      uri,
+      collection: { collectionId },
+      location: { pathname, search },
+      source: undefined,
+      sourceId: claimLinkId,
+      commentId: undefined,
+    };
 
     if (parentCommentId) {
       playingOptions.source = 'comment';
@@ -130,7 +164,17 @@ export default function FileRenderInitiator(props: Props) {
     }
 
     doUriInitiatePlay(playingOptions, isPlayable);
-  }, [collectionId, doUriInitiatePlay, isMarkdownPost, isPlayable, parentCommentId, pathname, uri]);
+  }, [
+    claimLinkId,
+    collectionId,
+    doUriInitiatePlay,
+    isMarkdownPost,
+    isPlayable,
+    parentCommentId,
+    pathname,
+    search,
+    uri,
+  ]);
 
   React.useEffect(() => {
     // avoid selecting 'video' anymore -> can cause conflicts with Ad popup videos
@@ -165,6 +209,7 @@ export default function FileRenderInitiator(props: Props) {
               'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
+              'content__cover--purchasable': purchaseContentTag && !purchaseMadeForClaimId,
             })
       }
     >

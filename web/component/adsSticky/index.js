@@ -1,10 +1,16 @@
-import { connect } from 'react-redux';
 import AdsSticky from './view';
+import { connect } from 'react-redux';
 import { doSetAdBlockerFound } from 'redux/actions/app';
-import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectAdBlockerFound } from 'redux/selectors/app';
+import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectHomepageData } from 'redux/selectors/settings';
-import { selectOdyseeMembershipIsPremiumPlus, selectUserCountry, selectUserVerifiedEmail } from 'redux/selectors/user';
+import {
+  selectOdyseeMembershipIsPremiumPlus,
+  selectUserCountry,
+  selectUserVerifiedEmail,
+  selectUserLocale,
+} from 'redux/selectors/user';
 import { isChannelClaim, isStreamPlaceholderClaim } from 'util/claim';
 
 const select = (state, props) => {
@@ -18,6 +24,8 @@ const select = (state, props) => {
     userHasPremiumPlus: selectOdyseeMembershipIsPremiumPlus(state),
     userCountry: selectUserCountry(state),
     homepageData: selectHomepageData(state),
+    locale: selectUserLocale(state),
+    nagsShown: selectAnyNagsShown(state),
   };
 };
 

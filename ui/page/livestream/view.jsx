@@ -9,8 +9,7 @@ import Page from 'component/page';
 import React from 'react';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 
-const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
-// const LIVESTREAM_STATUS_CHECK_INTERVAL = 30000;
+const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -27,6 +26,7 @@ type Props = {
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   doUserSetReferrer: (string) => void,
+  theaterMode?: Boolean,
 };
 
 export const LivestreamContext = React.createContext<any>();
@@ -47,6 +47,7 @@ export default function LivestreamPage(props: Props) {
     doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
     doUserSetReferrer,
+    theaterMode,
   } = props;
 
   const streamPlayingRef = React.useRef();
@@ -83,8 +84,7 @@ export default function LivestreamPage(props: Props) {
     if (claimId && channelName && !socketConnection?.connected) {
       doCommentSocketConnect(uri, channelName, claimId);
     }
-    // willAutoplay mount only
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
   }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri]);
 
   React.useEffect(() => {
@@ -101,8 +101,7 @@ export default function LivestreamPage(props: Props) {
         if (claimId && channelName) doCommentSocketDisconnect(claimId, channelName);
       }
     };
-    // only on unmount -> leave page
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
   }, []);
 
   useFetchLiveStatus(isStreamPlaying ? undefined : livestreamChannelId, doFetchChannelLiveStatus);
@@ -163,12 +162,9 @@ export default function LivestreamPage(props: Props) {
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
   React.useEffect(() => {
-    if (!layountRendered) return;
-
     doSetPrimaryUri(uri);
-
     return () => doSetPrimaryUri(null);
-  }, [doSetPrimaryUri, layountRendered, uri]);
+  }, [doSetPrimaryUri, uri, isStreamPlaying]);
 
   return (
     <Page
@@ -178,10 +174,11 @@ export default function LivestreamPage(props: Props) {
       chatDisabled={hideComments}
       // whether to display livestream chat
       rightSide={
+        !theaterMode &&
         !hideComments &&
         isInitialized && (
           <React.Suspense fallback={null}>
-            <LivestreamChatLayout uri={uri} setLayountRendered={setLayountRendered} />
+            <ChatLayout uri={uri} setLayountRendered={setLayountRendered} />
           </React.Suspense>
         )
       }
@@ -196,6 +193,7 @@ export default function LivestreamPage(props: Props) {
             showLivestream={showLivestream}
             showScheduledInfo={showScheduledInfo}
             activeStreamUri={activeStreamUri}
+            theaterMode={theaterMode}
           />
         </LivestreamContext.Provider>
       )}

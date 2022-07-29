@@ -9,7 +9,6 @@ import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
 import React from 'react';
 import Tooltip from 'component/common/tooltip';
-import { formatLbryUrlForWeb } from 'util/url';
 import Notification from 'component/notification';
 import DateTime from 'component/dateTime';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -18,6 +17,7 @@ import Button from 'component/button';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { RULE } from 'constants/notifications';
 import UriIndicator from 'component/uriIndicator';
+import { getNotificationLink } from '../notification/helpers/target';
 import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
@@ -105,27 +105,22 @@ export default function NotificationHeaderButton(props: Props) {
 
   if (!notificationsEnabled) return null;
 
-  function handleNotificationClick(notification) {
-    const { id, notification_parameters, is_read } = notification;
+  function handleNotificationClick(notification, disableAutoplay) {
+    const { id, is_read } = notification;
 
     if (!is_read) {
       seeNotification([id]);
       readNotification([id]);
     }
-    let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
-    if (notification_parameters.dynamic?.hash) {
-      notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
-    }
-    push(notificationLink);
+
+    push({
+      pathname: getNotificationLink(notification),
+      state: !disableAutoplay ? undefined : { forceDisableAutoplay: true },
+    });
   }
 
   function getWebUri(notification) {
-    const { notification_parameters } = notification;
-    let notificationLink = formatLbryUrlForWeb(notification_parameters.device.target);
-    if (notification_parameters.dynamic?.hash) {
-      notificationLink += '?lc=' + notification_parameters.dynamic.hash + '&view=discussion';
-    }
-    return notificationLink;
+    return getNotificationLink(notification);
   }
 
   function menuEntry(notification) {
@@ -133,6 +128,7 @@ export default function NotificationHeaderButton(props: Props) {
 
     let channelUrl;
     let icon;
+    let disableAutoplay = false;
     switch (notification_rule) {
       case RULE.CREATOR_SUBSCRIBER:
         icon = <Icon icon={ICONS.SUBSCRIBE} sectionIcon />;
@@ -141,10 +137,12 @@ export default function NotificationHeaderButton(props: Props) {
       case RULE.CREATOR_COMMENT:
         channelUrl = notification_parameters.dynamic.comment_author;
         icon = creatorIcon(channelUrl, notification_parameters?.dynamic?.comment_author_thumbnail);
+        disableAutoplay = true;
         break;
       case RULE.COMMENT_REPLY:
         channelUrl = notification_parameters.dynamic.reply_author;
         icon = creatorIcon(channelUrl, notification_parameters?.dynamic?.comment_author_thumbnail);
+        disableAutoplay = true;
         break;
       case RULE.NEW_CONTENT:
         channelUrl = notification_parameters.dynamic.channel_url;
@@ -176,7 +174,11 @@ export default function NotificationHeaderButton(props: Props) {
     }
 
     return (
-      <NavLink onClick={() => handleNotificationClick(notification)} key={id} to={getWebUri(notification)}>
+      <NavLink
+        onClick={() => handleNotificationClick(notification, disableAutoplay)}
+        key={id}
+        to={{ pathname: getWebUri(notification), state: !disableAutoplay ? undefined : { forceDisableAutoplay: true } }}
+      >
         <div
           className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
           key={id}
@@ -216,7 +218,7 @@ export default function NotificationHeaderButton(props: Props) {
 
         <ClickAwayListener onClickAway={handleClickAway}>
           <MuiMenu {...menuProps}>
-            <div className="menu__list--notifications-header" />
+            {/* <div className="menu__list--notifications-header" /> */}
             <div className="menu__list--notifications-list">
               {list.map((notification) => {
                 return menuEntry(notification);

@@ -5,7 +5,7 @@ import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
-import { normalizeURI } from 'util/lbryURI';
+import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
@@ -16,7 +16,7 @@ import FileRenderFloating from 'component/fileRenderFloating';
 import { withRouter } from 'react-router';
 // import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
-import Nag from 'component/common/nag';
+import Nag from 'component/nag';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
@@ -90,6 +90,7 @@ type Props = {
   fetchModAmIList: () => void,
   homepageFetched: boolean,
   defaultChannelClaim: ?any,
+  nagsShown: boolean,
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
@@ -127,6 +128,7 @@ function App(props: Props) {
     fetchModAmIList,
     homepageFetched,
     defaultChannelClaim,
+    nagsShown,
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
@@ -144,6 +146,7 @@ function App(props: Props) {
   const [localeLangs, setLocaleLangs] = React.useState();
   const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
+  // const [sidebarOpen] = usePersistedState('sidebar', false);
 
   const { pathname, hash, search, hostname } = location;
   const [retryingSync, setRetryingSync] = useState(false);
@@ -190,7 +193,10 @@ function App(props: Props) {
 
   let uri;
   try {
-    uri = normalizeURI(path);
+    // here queryString and startTime are "removed" from the buildURI process
+    // to build only the uri itself
+    const { queryString, startTime, ...parsedUri } = parseURI(path);
+    uri = buildURI({ ...parsedUri });
   } catch (e) {
     const match = path.match(/[#/:]/);
 
@@ -243,6 +249,7 @@ function App(props: Props) {
     }
 
     if (localeLangs && !embedPath && !localeSwitchDismissed && homepageFetched) {
+      window.nag = true;
       const noLanguageSet = language === 'en' && languages.length === 1;
       return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} onFrontPage={pathname === '/'} />;
     }
@@ -437,8 +444,14 @@ function App(props: Props) {
 
     const secondScript = document.createElement('script');
     // OneTrust asks to add this
-    secondScript.innerHTML = 'function OptanonWrapper() { }';
+    secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
 
+    window.gdprCallback = () => {
+      if (window.OnetrustActiveGroups.indexOf('C0002') !== -1 || window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
+        const ad = document.getElementsByClassName('OUTBRAIN')[0];
+        if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
+      }
+    };
     // $FlowFixMe
     document.head.appendChild(script);
     // $FlowFixMe
@@ -455,8 +468,7 @@ function App(props: Props) {
         // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
       }
     };
-    // (one time after locale is fetched)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
   }, [locale]);
 
   useEffect(() => {
@@ -470,6 +482,17 @@ function App(props: Props) {
       }
     }
   }, [locale]);
+
+  useEffect(() => {
+    window.nagsShown = nagsShown;
+    if (nagsShown) {
+      const ad = document.getElementsByClassName('VISIBLE')[0];
+      if (ad) ad.classList.remove('VISIBLE');
+    } else {
+      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      if (ad) ad.classList.add('VISIBLE');
+    }
+  }, [nagsShown]);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
@@ -501,7 +524,7 @@ function App(props: Props) {
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...');
-      doSetLastViewedAnnouncement('');
+      doSetLastViewedAnnouncement('clear');
     };
   }, []);
 

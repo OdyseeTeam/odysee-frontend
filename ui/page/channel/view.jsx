@@ -6,7 +6,7 @@ import { parseURI } from 'util/lbryURI';
 import { YOUTUBE_STATUSES } from 'lbryinc';
 import Page from 'component/page';
 import SubscribeButton from 'component/subscribeButton';
-import ShareButton from 'component/shareButton';
+import ClaimShareButton from 'component/claimShareButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
@@ -28,7 +28,7 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
-import PremiumBadge from 'component/common/premium-badge';
+import PremiumBadge from 'component/premiumBadge';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -61,7 +61,6 @@ type Props = {
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
   lang: string,
-  odyseeMembership: string,
 };
 
 function ChannelPage(props: Props) {
@@ -82,7 +81,6 @@ function ChannelPage(props: Props) {
     mutedChannels,
     unpublishedCollections,
     lang,
-    odyseeMembership,
   } = props;
   const {
     push,
@@ -120,8 +118,7 @@ function ChannelPage(props: Props) {
 
     return discussionWasMounted && currentView === PAGE.DISCUSSION;
 
-    // only re-calculate on discussionWasMounted or uri change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-calculate on discussionWasMounted or uri change
   }, [discussionWasMounted, uri]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
@@ -134,7 +131,7 @@ function ChannelPage(props: Props) {
           <p>
             <I18nMessage
               tokens={{
-                pick: <Button button="link" navigate={`/$/${PAGES.LISTS}`} label={__('Pick')} />,
+                pick: <Button button="link" navigate={`/$/${PAGES.PLAYLISTS}`} label={__('Pick')} />,
               }}
             >
               You have unpublished lists! %pick% one and publish it!
@@ -231,7 +228,7 @@ function ChannelPage(props: Props) {
               navigate={`/$/${PAGES.CHANNELS}`}
             />
           )}
-          {!channelIsBlackListed && <ShareButton uri={uri} />}
+          {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
           <Button
@@ -257,7 +254,7 @@ function ChannelPage(props: Props) {
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
-            <PremiumBadge membership={odyseeMembership} />
+            <PremiumBadge uri={uri} />
           </h1>
           <div className="channel__meta">
             <Tooltip title={formattedSubCount} followCursor placement="top">

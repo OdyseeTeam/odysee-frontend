@@ -88,8 +88,7 @@ type Props = {
   embeddedInternal: boolean, // Markdown (Posts and Comments)
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
-  poster: ?string,
-  replay: boolean,
+  // poster: ?string,
   shareTelemetry: boolean,
   source: string,
   sourceType: string,
@@ -109,6 +108,7 @@ type Props = {
   userClaimId: ?string,
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
+  isPurchasedContent: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -149,8 +149,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     embeddedInternal,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
-    poster,
-    replay,
+    // poster,
     shareTelemetry,
     source,
     sourceType,
@@ -170,6 +169,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestreamClaim,
     activeLivestreamForChannel,
     doToast,
+    isPurchasedContent,
   } = props;
 
   // used to notify about default quality setting
@@ -218,7 +218,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     tapToRetryRef,
     setReload,
     playerRef,
-    replay,
     claimValues,
     userId,
     claimId,
@@ -472,23 +471,15 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.el().childNodes[0].setAttribute('playsinline', '');
 
-      let contentUrl;
+      // let contentUrl;
       // TODO: pull this function into videojs-functions
       // determine which source to use and load it
       if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-        vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
-        if (window.cordova) {
-          let payload = {
-            uri: livestreamVideoUrl,
-            claim: claimValues,
-            fileType: 'application/x-mpegURL',
-            channel: channelName,
-          };
-          if (!payload.claim.stream_type) payload.claim.stream_type = 'video';
-          window.odysee.chromecast.setMediaPayload(payload);
-        }
+        // temp workaround for CDN issue, remove in a few weeks.
+        const templivestreamVideoUrl = livestreamVideoUrl + '?cachebust=1';
+        vjsPlayer.src({ type: 'application/x-mpegURL', src: templivestreamVideoUrl });
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
@@ -529,6 +520,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.vttThumbnails.detach();
       }
 
+      /*
       // initialize hover thumbnails
       if (contentUrl) {
         const trimmedPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
@@ -548,12 +540,19 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           }
         }
       }
+      */
 
       vjsPlayer.load();
 
       if (canUseOldPlayer) {
         // $FlowIssue
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
+      }
+
+      // disable right-click (context-menu) for purchased content
+      if (isPurchasedContent) {
+        const player = document.querySelector('video.vjs-tech');
+        if (player) player.setAttribute('oncontextmenu', 'return false;');
       }
 
       // allow tap to unmute if no perms on iOS

@@ -62,6 +62,10 @@ const copyWebpackCommands = [
     to: `${DIST_ROOT}/public/v2-og.png`,
   },
   {
+    from: `${STATIC_ROOT}/img/cookie.svg`,
+    to: `${DIST_ROOT}/public/img/cookie.svg`,
+  },
+  {
     from: `${STATIC_ROOT}/font/`,
     to: `${DIST_ROOT}/public/font/`,
   },

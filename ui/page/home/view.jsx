@@ -15,7 +15,7 @@ import Icon from 'component/common/icon';
 import WaitUntilOnPage from 'component/common/wait-until-on-page';
 import RecommendedPersonal from 'component/recommendedPersonal';
 import Yrbl from 'component/yrbl';
-import { useIsLargeScreen, useIsMobile } from 'effects/use-screensize';
+import { useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';

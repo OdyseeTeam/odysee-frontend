@@ -1,9 +1,10 @@
 // @flow
 import * as tus from 'tus-js-client';
 import { v4 as uuid } from 'uuid';
+import { generateError } from './publish-error';
 import { makeUploadRequest } from './publish-v1';
 import { makeResumableUploadRequest } from './publish-v2';
-import { PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL } from 'constants/errors';
+import { PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL, SDK_LEDGER_TRANSACTION_TIMEOUT } from 'constants/errors';
 
 // A modified version of Lbry.apiCall that allows
 // to perform calling methods at arbitrary urls
@@ -17,10 +18,11 @@ export default function apiPublishCallViaWeb(
   reject: Function
 ) {
   const { file_path: filePath, preview, remote_url: remoteUrl } = params;
-  const isMarkdown = filePath && typeof filePath === 'object' && filePath.type === 'text/markdown';
+  const isMarkdown = filePath ? typeof filePath === 'object' && filePath.type === 'text/markdown' : false;
+  params.isMarkdown = isMarkdown;
 
   if (!filePath && !remoteUrl) {
-    const { claim_id: claimId, ...otherParams } = params;
+    const { claim_id: claimId, isMarkdown, ...otherParams } = params;
     return apiCall(method, otherParams, resolve, reject);
   }
 
@@ -52,20 +54,29 @@ export default function apiPublishCallViaWeb(
   return makeRequest(token, params, fileField, preview)
     .then((xhr) => {
       let error;
+
+      if (preview && xhr === null) {
+        return resolve(null);
+      }
+
       if (xhr && xhr.response) {
         if (xhr.status >= 200 && xhr.status < 300 && !xhr.response.error) {
           return resolve(xhr.response.result);
         } else if (xhr.response.error) {
           if (xhr.responseURL.endsWith('/notify')) {
-            // Temp handling until odysee-api/issues/401 is addressed.
             const errMsg = xhr.response.error.message;
-            if (errMsg === 'file currently locked' || errMsg.endsWith('no such file or directory')) {
-              return Promise.reject(new Error(PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL));
+            if (
+              errMsg === 'file currently locked' || // until odysee-api/issues/401 is addressed
+              errMsg.endsWith('no such file or directory') || // until odysee-api/issues/401 is addressed
+              errMsg.startsWith(SDK_LEDGER_TRANSACTION_TIMEOUT)
+            ) {
+              return Promise.reject(generateError(PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL, params, xhr));
             }
           }
-          error = new Error(xhr.response.error.message);
+
+          error = generateError(xhr.response.error.message, params, xhr);
         } else {
-          error = new Error(__('Upload likely timed out. Try a smaller file while we work on this.'));
+          error = generateError(__('Upload likely timed out. Try a smaller file while we work on this.'), params, xhr);
         }
       }
 

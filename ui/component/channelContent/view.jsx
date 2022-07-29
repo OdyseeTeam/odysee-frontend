@@ -13,9 +13,11 @@ import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
 import ScheduledStreams from 'component/scheduledStreams';
+// import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import { useIsLargeScreen } from 'effects/use-screensize';
+// import usePersistedState from 'effects/use-persisted-state';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -72,6 +74,17 @@ function ChannelContent(props: Props) {
   const {
     location: { pathname, search },
   } = useHistory();
+
+  // In Channel Page, ignore SETTINGS.HIDE_REPOSTS and show reposts by default:
+  // const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
+
+  /*
+  const claimSearchFilterCtx = {
+    contentTypes: CS.CONTENT_TYPES,
+    repost: { hideReposts, setHideReposts },
+  };
+  */
+
   const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
   const isChannelEmpty = !claim || !claim.meta;
@@ -83,6 +96,10 @@ function ChannelContent(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
+  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
+  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
+  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
+
   function handleInputChange(e) {
     const { value } = e.target;
     setSearchQuery(value);
@@ -92,12 +109,7 @@ function ChannelContent(props: Props) {
     setSearchQuery('');
   }, [url]);
 
-  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
-  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
-
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
-
-  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
   return (
     <Fragment>

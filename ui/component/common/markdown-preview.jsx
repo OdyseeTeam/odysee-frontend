@@ -1,5 +1,6 @@
 // @flow
 import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, MISSING_THUMB_DEFAULT } from 'config';
+import { platform } from 'util/platform';
 import { formattedEmote, inlineEmote } from 'util/remark-emote';
 import { formattedLinks, inlineLinks } from 'util/remark-lbry';
 import { formattedTimestamp, inlineTimestamp } from 'util/remark-timestamp';
@@ -60,6 +61,7 @@ type MarkdownProps = {
   stakedLevel?: number,
   setUserMention?: (boolean) => void,
   hasMembership?: boolean,
+  isComment?: boolean,
 };
 
 // ****************************************************************************
@@ -141,7 +143,7 @@ const schema = { ...defaultSchema };
 schema.protocols.href.push('lbry');
 schema.attributes.a.push('embed');
 
-const REPLACE_REGEX = /(<iframe\s+src=["'])(.*?(?=))(["']\s*><\/iframe>)/g;
+const REPLACE_REGEX = /(?:<iframe\s+src=["'])(.*?(?=))(?:["']\s*><\/iframe>)/g;
 
 // ****************************************************************************
 // ****************************************************************************
@@ -159,10 +161,15 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
     stakedLevel,
     setUserMention,
     hasMembership,
+    isComment,
   } = props;
 
   const strippedContent = content
-    ? content.replace(REPLACE_REGEX, (iframeHtml) => {
+    ? content.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
+        if (platform.isSafari()) {
+          return iframeUrl;
+        }
+
         // Let the browser try to create an iframe to see if the markup is valid
         const outer = document.createElement('div');
         outer.innerHTML = iframeHtml;
@@ -190,10 +197,10 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
             <MarkdownLink
               {...linkProps}
               parentCommentId={parentCommentId}
-              isMarkdownPost={isMarkdownPost}
               simpleLinks={simpleLinks}
               allowPreview={isStakeEnoughForPreview(stakedLevel) || hasMembership}
               setUserMention={setUserMention}
+              isComment={isComment}
             />
           ),
       // Workaraund of remarkOptions.Fragment

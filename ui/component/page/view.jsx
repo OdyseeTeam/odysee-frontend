@@ -64,20 +64,20 @@ function Page(props: Props) {
   } = props;
 
   const {
-    location: { pathname },
+    location: { pathname, hash },
   } = useHistory();
 
-  const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
+  const theaterMode =
+    renderMode === 'video' || renderMode === 'audio' || renderMode === 'unsupported' ? videoTheaterMode : false;
   const isMediumScreen = useIsMediumScreen();
   const isMobile = useIsMobile();
   const isLandscapeRotated = useIsMobileLandscape();
   const [sidebarOpen, setSidebarOpen] = usePersistedState('sidebar', false);
 
-  const url = pathname.slice(1).replace(/:/g, '#');
+  const urlPath = `lbry://${(pathname + hash).slice(1).replace(/:/g, '#')}`;
   let isOnFilePage = false;
   try {
-    const url = pathname.slice(1).replace(/:/g, '#');
-    const { isChannel } = parseURI(url);
+    const { isChannel } = parseURI(urlPath);
 
     if (!isChannel) isOnFilePage = true;
   } catch (e) {}
@@ -93,7 +93,7 @@ function Page(props: Props) {
 
   return (
     <>
-      <Wallpaper uri={url} />
+      <Wallpaper uri={urlPath} />
       {!noHeader && (
         <Header
           authHeader={authPage}
@@ -144,7 +144,8 @@ function Page(props: Props) {
               'main--settings-page': settingsPage,
               'main--markdown': isMarkdown,
               'main--theater-mode': isOnFilePage && theaterMode && !livestream && !isMarkdown && !isMobile,
-              'main--livestream': livestream && !chatDisabled,
+              'main--livestream': livestream && !chatDisabled && !theaterMode,
+              'main--livestream--theater-mode': livestream && !chatDisabled && theaterMode,
               'main--popout-chat': isPopoutWindow,
             })}
           >

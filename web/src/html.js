@@ -206,7 +206,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
-  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '').replace('#', ':')}`;
+  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
 
   let head = '';
 
@@ -377,7 +377,7 @@ async function getHtml(ctx) {
   }
 
   if (requestPath === `/$/${PAGES.SEARCH}` || requestPath === `/$/${PAGES.SEARCH}/`) {
-    return buildSearchPageHead(html, requestPath, query.q);
+    return buildSearchPageHead(html, requestPath, encodeURIComponent(escapeHtmlProperty(query.q)));
   }
 
   if (!requestPath.includes('$')) {
