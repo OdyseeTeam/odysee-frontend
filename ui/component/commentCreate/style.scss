@@ -8,6 +8,7 @@ $sticker-item-size: 5rem;
 .selector-menu {
   overflow-y: scroll;
   overflow-x: hidden;
+  padding-left: 46px !important;
 
   @media (min-width: $breakpoint-small) {
     border: 1px solid var(--color-border);
@@ -50,6 +51,7 @@ $sticker-item-size: 5rem;
   position: absolute;
   top: 49px;
   left: 2px;
+  max-height: calc(100% - 49px - var(--spacing-s));
   background: var(--color-header-background);
   border-radius: var(--border-radius);
   padding: var(--spacing-xs);
@@ -63,8 +65,10 @@ $sticker-item-size: 5rem;
     &:last-of-type {
       margin-bottom: 0;
     }
+    &:hover {
+      cursor: pointer;
+    }
   }
-  // tmp fix
   svg {
     margin-bottom: var(--spacing-xs) !important;
   }
@@ -90,6 +94,7 @@ $sticker-item-size: 5rem;
   grid-template-columns: repeat(auto-fit, $emote-item-size--small);
   justify-items: center;
   justify-content: space-evenly;
+  margin-bottom: var(--spacing-xxxs);
 
   button {
     margin: 0px !important;

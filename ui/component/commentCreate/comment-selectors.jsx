@@ -1,5 +1,5 @@
 // @flow
-import { EMOTES_48px as ODYSEE_EMOTES } from 'constants/emotes';
+import { EMOTES_48px as ODYSEE_EMOTES, TWEMOTES } from 'constants/emotes';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
@@ -56,34 +56,56 @@ type EmojisProps = {
   closeSelector: () => void,
 };
 
+function scrollToCategory(category) {
+  let selectorAnchor = document.getElementById('emoji-selector');
+  let categoryAnchor = document.getElementById(category);
+  let offset = 55;
+  selectorAnchor &&
+    categoryAnchor &&
+    selectorAnchor.scrollTo({ top: categoryAnchor.offsetTop - offset, behavior: 'smooth' });
+}
+
 const EmojisPanel = (emojisProps: EmojisProps) => {
   const { handleSelect, closeSelector } = emojisProps;
   const defaultRowProps = { handleSelect };
 
   return (
-    <div className="selector-menu">
+    <div className="selector-menu" id="emoji-selector">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
-      {false && (
-        <>
-          <div className="emote-categories">
-            <Icon icon={ICONS.TIME} />
-            <img
-              src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-              style={{ borderRadius: '50%' }}
-            />
-            <img src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png" />
-            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/144/twitter/141/grinning-face_1f600.png" />
-            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/bear_1f43b.png" />
-            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/basketball_1f3c0.png" />
-            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/sparkling-heart_1f496.png" />
-            <img src="https://emojipedia-us.s3.dualstack.us-west-1.amazonaws.com/thumbs/240/twitter/322/pirate-flag_1f3f4-200d-2620-fe0f.png" />
-          </div>
+      <div className="emote-categories">
+        {/* <Icon icon={ICONS.TIME} /> */}
+        {/* <img
+          src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
+          style={{ borderRadius: '50%' }}
+  /> */}
+        <img
+          onClick={() => scrollToCategory('odysee')}
+          src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png"
+        />
+        <img onClick={() => scrollToCategory('smilies')} src="/public/img/emoticons/twemoji/smilies/grinning.png" />
+        <img
+          onClick={() => scrollToCategory('activities')}
+          src="/public/img/emoticons/twemoji/activities/basketball.png"
+        />
+        <img
+          onClick={() => scrollToCategory('symbols')}
+          src="/public/img/emoticons/twemoji/symbols/sparkling_heart.png"
+        />
+        <img onClick={() => scrollToCategory('animals')} src="/public/img/emoticons/twemoji/animals/bear.png" />
+        <img onClick={() => scrollToCategory('plants')} src="/public/img/emoticons/twemoji/plants/deciduous_tree.png" />
+        <img onClick={() => scrollToCategory('flags')} src="/public/img/emoticons/twemoji/flags/pirate_flag.png" />
+      </div>
 
-          <EmoteCategory title={__('Recently used')} {...defaultRowProps} />
-          <EmoteCategory title={__('Member exclusive')} {...defaultRowProps} />
-        </>
-      )}
+      {/* <EmoteCategory title={__('Recently used')} {...defaultRowProps} /> */}
+      {/* <EmoteCategory title={__('Member exclusive')} {...defaultRowProps} /> */}
       <EmoteCategory title={__('Odysee')} images={ODYSEE_EMOTES} {...defaultRowProps} />
+      <EmoteCategory title={__('Smilies')} images={TWEMOTES.SMILIES} {...defaultRowProps} />
+
+      <EmoteCategory title={__('Activities')} images={TWEMOTES.ACTIVITIES} {...defaultRowProps} />
+      <EmoteCategory title={__('Symbols')} images={TWEMOTES.SYMBOLS} {...defaultRowProps} />
+      <EmoteCategory title={__('Animals')} images={TWEMOTES.ANIMALS} {...defaultRowProps} />
+      <EmoteCategory title={__('Plants')} images={TWEMOTES.PLANTS} {...defaultRowProps} />
+      <EmoteCategory title={__('Flags')} images={TWEMOTES.FLAGS} {...defaultRowProps} />
     </div>
   );
 };
@@ -103,21 +125,19 @@ const StickersPanel = (stickersProps: StickersProps) => {
     <div className="selector-menu">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
 
-      {false && (
-        <>
-          <div className="emote-categories">
-            <Icon icon={ICONS.TIME} />
-            <img
-              src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-              style={{ borderRadius: '50%' }}
-            />
-            <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
-            <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
-          </div>
-          <StickerCategory title={__('Recently used')} {...defaultRowProps} />
-          <StickerCategory title={__('Member exclusive')} {...defaultRowProps} />
-        </>
-      )}
+      <>
+        <div className="emote-categories">
+          <Icon icon={ICONS.TIME} />
+          <img
+            src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
+            style={{ borderRadius: '50%' }}
+          />
+          <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
+          <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
+        </div>
+        <StickerCategory title={__('Recently used')} {...defaultRowProps} />
+        {/* <StickerCategory title={__('Member exclusive')} {...defaultRowProps} /> */}
+      </>
 
       <StickerCategory title={__('Free')} images={FREE_GLOBAL_STICKERS} {...defaultRowProps} />
       {!claimIsMine && <StickerCategory title={__('Tips')} images={PAID_GLOBAL_STICKERS} {...defaultRowProps} />}
@@ -132,15 +152,16 @@ type RowProps = {
 };
 
 const EmoteCategory = (rowProps: RowProps) => {
-  const { images, handleSelect } = rowProps;
+  const { images, title, handleSelect } = rowProps;
 
   return (
     <>
-      {/*
-      <label id={title} className="chatImage-category-title">
-        {title}
-      </label>
-      */}
+      <a id={title.toLowerCase()}>
+        <label id={title} className="chatImage-category-title">
+          {title}
+        </label>
+      </a>
+
       <div className="emote-selector__items">
         {images &&
           images.map((emote) => {
@@ -163,16 +184,13 @@ const EmoteCategory = (rowProps: RowProps) => {
 };
 
 const StickerCategory = (rowProps: RowProps) => {
-  const { images, handleSelect } = rowProps;
+  const { images, title, handleSelect } = rowProps;
 
   return (
     <div>
-      {/*
-        <label id={title} className="chatImage-category-title">
-          {title}
-        </label>
-      */}
-
+      <label id={title} className="chatImage-category-title">
+        {title}
+      </label>
       <div className="sticker-selector__items">
         {images &&
           images.map((sticker) => {

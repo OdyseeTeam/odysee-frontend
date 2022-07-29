@@ -19,6 +19,11 @@ export function getThumbnailCdnUrl(props: Props) {
     return thumbnail;
   }
 
+  /* NEKO TMP PATH */
+  if (thumbnail.includes('/public/')) {
+    return thumbnail;
+  }
+
   if (thumbnail) {
     return `${THUMBNAIL_CDN_URL}s:${width}:${height}/quality:${quality}/plain/${thumbnail}`;
   }

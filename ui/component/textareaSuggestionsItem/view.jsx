@@ -2,6 +2,7 @@
 import ChannelThumbnail from 'component/channelThumbnail';
 import React from 'react';
 import PremiumBadge from 'component/premiumBadge';
+import twemoji from 'twemoji';
 
 type Props = {
   claimLabel?: string,
@@ -13,12 +14,29 @@ type Props = {
 export default function TextareaSuggestionsItem(props: Props) {
   const { claimLabel, claimTitle, emote, uri, ...autocompleteProps } = props;
 
+  const Twemoji = ({ emoji }) => (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: twemoji.parse(emoji, {
+          folder: 'svg',
+          ext: '.svg',
+        }),
+      }}
+    />
+  );
+
   if (emote) {
     const { name: value, url, unicode } = emote;
 
     return (
       <div {...autocompleteProps} dispatch={undefined}>
-        {unicode ? <div className="emote">{unicode}</div> : <img className="emote" src={url} />}
+        {unicode ? (
+          <div className="emote">
+            <Twemoji emoji={unicode} />
+          </div>
+        ) : (
+          <img className="emote" src={url} />
+        )}
 
         <div className="textarea-suggestion__label">
           <span className="textarea-suggestion__title textarea-suggestion__value textarea-suggestion__value--emote">

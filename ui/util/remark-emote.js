@@ -1,4 +1,5 @@
-import { EMOTES_48px as EMOTES } from 'constants/emotes';
+import { map } from 'bluebird';
+import { EMOTES_48px as EMOTES, TWEMOTES } from 'constants/emotes';
 import visit from 'unist-util-visit';
 
 const EMOTE_NODE_TYPE = 'emote';
@@ -38,7 +39,12 @@ function findNextEmote(value, fromIndex, strictlyFromIndex) {
 
     const str = match[0];
 
-    if (EMOTES.some(({ name }) => str === name)) {
+    if (
+      EMOTES.some(({ name }) => str === name) ||
+      Object.values(TWEMOTES)
+        .map((category) => category.some(({ name }) => str === name))
+        .includes(true)
+    ) {
       // Profit!
       return { text: str, index: match.index };
     }
@@ -99,8 +105,13 @@ export function inlineEmote() {
 const transformer = (node, index, parent) => {
   if (node.type === EMOTE_NODE_TYPE && parent && parent.type === 'paragraph') {
     const emoteStr = node.value;
-    const emote = EMOTES.find(({ name }) => emoteStr === name);
-
+    const emote =
+      EMOTES.find(({ name }) => emoteStr === name) ||
+      Object.values(TWEMOTES)
+        .map((category) => category.find(({ name }) => emoteStr === name))
+        .filter(function (x) {
+          return x !== undefined;
+        })[0];
     node.type = 'image';
     node.url = emote.url;
     node.title = emoteStr;

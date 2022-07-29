@@ -24,7 +24,11 @@ import ZoomableImage from 'component/zoomableImage';
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 
 function isEmote(title, src) {
-  return title && RE_EMOTE.test(title) && src.includes('static.odycdn.com/emoticons');
+  return (
+    title &&
+    RE_EMOTE.test(title) &&
+    (src.includes('static.odycdn.com/emoticons') || src.includes('/public/img/emoticons'))
+  );
 }
 
 function isStakeEnoughForPreview(stakedLevel) {
