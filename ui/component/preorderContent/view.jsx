@@ -60,17 +60,6 @@ export default function PreorderContent(props: Props) {
     claimId,
   } = props;
 
-  function capitalizeFirstLetter(string) {
-    if (string) return string.charAt(0).toUpperCase() + string.slice(1);
-  }
-
-  let transactionName;
-  if (preorderOrPurchase === 'preorder') {
-    transactionName = 'pre-order';
-  } else {
-    transactionName = 'purchase';
-  }
-
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
     if (preorderOrPurchase === 'preorder') {
@@ -82,6 +71,7 @@ export default function PreorderContent(props: Props) {
 
   const [tipAmount, setTipAmount] = React.useState(0);
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
+  const [waitingForCardStatus, setWaitingForCardStatus] = React.useState(true);
   const [hasCardSaved, setHasSavedCard] = React.useState(false);
 
   // check if user has a payment method saved
@@ -96,6 +86,7 @@ export default function PreorderContent(props: Props) {
       },
       'post'
     ).then((customerStatusResponse) => {
+      setWaitingForCardStatus(false);
       const defaultPaymentMethodId =
         customerStatusResponse.Customer &&
         customerStatusResponse.Customer.invoice_settings &&
@@ -106,18 +97,25 @@ export default function PreorderContent(props: Props) {
     });
   }, [setHasSavedCard]);
 
-  const modalHeaderText = preorderOrPurchase
-    ? __(`%purchase_or_preorder% Your Content`, { purchase_or_preorder: capitalizeFirstLetter(preorderOrPurchase) })
-    : '';
-  let subtitleString;
+  let modalHeaderText;
   if (preorderOrPurchase === 'purchase') {
-    subtitleString = "After completing the purchase you will have instant access to your content that doesn't expire";
+    modalHeaderText = __('Purchase Your Content');
   } else {
-    subtitleString =
-      'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live';
+    modalHeaderText = __('Preorder Your Content');
   }
 
-  const subtitleText = __(subtitleString);
+  let subtitleText, toBeAbleToText, orderYourContentText;
+  if (preorderOrPurchase === 'purchase') {
+    subtitleText = __("After completing the purchase you will have instant access to your content that doesn't expire");
+    toBeAbleToText = __(' To Purchase Your Content');
+    orderYourContentText = 'Purchase your content for %tip_currency%%tip_amount%';
+  } else {
+    subtitleText = __(
+      'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live'
+    );
+    toBeAbleToText = __(' To Preorder Your Content');
+    orderYourContentText = 'Preorder your content for %tip_currency%%tip_amount%';
+  }
 
   function handleSubmit() {
     const tipParams: TipParams = {
@@ -150,15 +148,10 @@ export default function PreorderContent(props: Props) {
 
   const fiatSymbolToUse = preferredCurrency === 'EUR' ? '€' : '$';
 
-  function buildButtonText() {
-    return transactionName
-      ? __('%transaction_name% your content for %tip_currency%%tip_amount%', {
-          transaction_name: capitalizeFirstLetter(transactionName),
-          tip_currency: fiatSymbolToUse,
-          tip_amount: tipAmount.toString(),
-        })
-      : '';
-  }
+  const buttonText = __(orderYourContentText, {
+    tip_currency: fiatSymbolToUse,
+    tip_amount: tipAmount.toString(),
+  });
 
   return (
     <Form onSubmit={handleSubmit}>
@@ -171,24 +164,29 @@ export default function PreorderContent(props: Props) {
             // confirm purchase functionality
             <>
               <div className="handle-submit-area">
-                <Button
-                  autoFocus
-                  onClick={handleSubmit}
-                  button="primary"
-                  label={buildButtonText()}
-                  disabled={!hasCardSaved}
-                />
+                {waitingForCardStatus && (
+                  <>
+                    <Button autoFocus button="primary" label={__('Getting your card connection status...')} />
+                  </>
+                )}
 
-                {!hasCardSaved && (
-                  <div className="add-card-prompt">
-                    <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-                    {preorderOrPurchase
-                      ? ' ' +
-                        __(`To %purchase_or_preorder% Content`, {
-                          purchase_or_preorder: capitalizeFirstLetter(preorderOrPurchase),
-                        })
-                      : ''}
-                  </div>
+                {!waitingForCardStatus && (
+                  <>
+                    <Button
+                      autoFocus
+                      onClick={handleSubmit}
+                      button="primary"
+                      label={buttonText}
+                      disabled={!hasCardSaved}
+                    />
+
+                    {!hasCardSaved && (
+                      <div className="add-card-prompt">
+                        <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+                        {toBeAbleToText}
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </>

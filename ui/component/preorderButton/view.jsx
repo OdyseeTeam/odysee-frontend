@@ -51,13 +51,13 @@ export default function PreorderButton(props: Props) {
   }
 
   let preorderOrPurchase;
-  let pastTense;
+  let pastTenseString;
   if (purchaseTag) {
     preorderOrPurchase = 'purchase';
-    pastTense = 'purchasing';
+    pastTenseString = __('Thanks for purchasing, enjoy your content!');
   } else {
     preorderOrPurchase = 'preorder';
-    pastTense = 'preordering';
+    pastTenseString = __('Thanks for preordering, enjoy your content!');
   }
 
   return (
@@ -70,9 +70,9 @@ export default function PreorderButton(props: Props) {
             className={'preorder-button'}
             icon={fiatIconToUse}
             button="primary"
-            label={__('This content can be purchased for $' + purchaseTag, {
+            label={__('This content can be purchased for %fiatSymbolToUse%%purchaseTag%', {
               fiatSymbolToUse,
-              preorderTag,
+              purchaseTag,
             })}
             requiresAuth
             onClick={() =>
@@ -95,10 +95,7 @@ export default function PreorderButton(props: Props) {
             className={'preorder-button'}
             icon={fiatIconToUse}
             button="primary"
-            label={__(`Thanks for ${pastTense}, enjoy your content!`, {
-              fiatSymbolToUse,
-              preorderTag,
-            })}
+            label={pastTenseString}
             requiresAuth
           />
         </div>

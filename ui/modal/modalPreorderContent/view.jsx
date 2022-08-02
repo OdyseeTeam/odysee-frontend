@@ -28,7 +28,7 @@ class ModalPreorderContent extends React.PureComponent<Props> {
     } = this.props;
 
     return (
-      <Modal onAborted={doHideModal} isOpen type="card">
+      <Modal onAborted={doHideModal} ariaHideApp={false} isOpen type="card">
         <PreorderContent
           uri={uri}
           onCancel={doHideModal}
