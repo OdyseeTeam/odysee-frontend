@@ -165,7 +165,6 @@
     "eslint-plugin-react": "^7.7.0",
     "eslint-plugin-react-hooks": "^1.6.0",
     "eslint-plugin-standard": "^4.0.1",
-    "file-loader": "^6.2.0",
     "flow-bin": "^0.97.0",
     "flow-typed": "^2.3.0",
     "formik": "^0.10.4",
