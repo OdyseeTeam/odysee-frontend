@@ -4,6 +4,7 @@ import 'scss/component/_livestream-comment.scss';
 import { getStickerUrl } from 'util/comments';
 import { Menu, MenuButton } from '@reach/menu-button';
 import { parseURI } from 'util/lbryURI';
+import { getChannelFromClaim } from 'util/claim';
 import * as ICONS from 'constants/icons';
 import ChannelThumbnail from 'component/channelThumbnail';
 import classnames from 'classnames';
@@ -16,7 +17,7 @@ import Icon from 'component/common/icon';
 import MarkdownPreview from 'component/common/markdown-preview';
 import OptimizedImage from 'component/optimizedImage';
 import React from 'react';
-import PremiumBadge from 'component/premiumBadge';
+import PremiumBadge from 'component/memberships/premiumBadge';
 import { Lbryio } from 'lbryinc';
 
 type Props = {
@@ -36,6 +37,7 @@ type Props = {
   activeChannelClaim?: any,
   authorTitle: string,
   channelAge?: any,
+  membership: any,
 };
 
 export const ChatCommentContext = React.createContext<any>();
@@ -57,6 +59,7 @@ export default function ChatComment(props: Props) {
     activeChannelClaim,
     channelAge,
     chatMode,
+    membership,
   } = props;
 
   const {
@@ -89,6 +92,8 @@ export default function ChatComment(props: Props) {
   const isSticker = Boolean(stickerUrlFromMessage);
   const timePosted = timestamp * 1000;
   const commentIsMine = comment.channel_id && isMyComment(comment.channel_id);
+  const contentChannelClaim = getChannelFromClaim(claim);
+  const channelUri = contentChannelClaim && contentChannelClaim.canonical_url;
 
   // todo: implement comment_list --mine in SDK so redux can grab with selectCommentIsMine
   function isMyComment(channelId: string) {
@@ -217,6 +222,7 @@ export default function ChatComment(props: Props) {
               <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
             )}
             <PremiumBadge membership={odyseeMembership} linkPage />
+            <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
             <Menu>
               <MenuButton
                 className={classnames('button--uri-indicator comment__author', {

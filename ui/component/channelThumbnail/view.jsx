@@ -7,7 +7,6 @@ import Gerbil from './gerbil.png';
 import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
 import OptimizedImage from 'component/optimizedImage';
 import { AVATAR_DEFAULT } from 'config';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import PremiumBadge from 'component/premiumBadge';
 
 type Props = {
@@ -29,7 +28,7 @@ type Props = {
   setThumbUploadError: (boolean) => void,
   ThumbUploadError: boolean,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
   showMemberBadge?: boolean,
   isChannel?: boolean,
   checkMembership: boolean,
@@ -54,7 +53,7 @@ function ChannelThumbnail(props: Props) {
     setThumbUploadError,
     ThumbUploadError,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
     showMemberBadge,
     isChannel,
     checkMembership = true,
@@ -76,7 +75,7 @@ function ChannelThumbnail(props: Props) {
     className: isChannel ? 'profile-badge__tooltip' : undefined,
   };
 
-  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchUserMemberships, [uri]);
+  // useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchOdyseeMembershipForChannelIds, [uri]);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);

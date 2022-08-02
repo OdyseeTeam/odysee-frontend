@@ -20,7 +20,6 @@ import Empty from 'component/common/empty';
 import React, { useEffect } from 'react';
 import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import { useHistory } from 'react-router-dom';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
@@ -58,13 +57,16 @@ type Props = {
   notInDrawer?: boolean,
   threadCommentAncestors: ?Array<string>,
   linkedCommentAncestors: ?Array<string>,
+  activeChannelMembership: ?any,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
   resetComments: (claimId: string) => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
   doPopOutInlinePlayer: (param: { source: string }) => void,
+  doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
+  membershipForChannelId: any,
 };
 
 export default function CommentList(props: Props) {
@@ -98,8 +100,9 @@ export default function CommentList(props: Props) {
     fetchReacts,
     resetComments,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
     doPopOutInlinePlayer,
+    doFetchChannelMembershipsForChannelIds,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -149,14 +152,24 @@ export default function CommentList(props: Props) {
 
   // update premium status
   const shouldFetchUserMemberships = true;
-  useGetUserMemberships(
-    shouldFetchUserMemberships,
-    commenterClaimIds,
-    claimsByUri,
-    doFetchUserMemberships,
-    [topLevelComments],
-    true
-  );
+  // useGetUserMemberships(
+  //   shouldFetchUserMemberships,
+  //   commenterClaimIds,
+  //   claimsByUri,
+  //   doFetchOdyseeMembershipForChannelIds,
+  //   [topLevelComments],
+  //   true
+  // );
+
+  // useCheckCreatorMemberships(
+  //   shouldFetchUserMemberships,
+  //   commenterClaimIds,
+  //   claimsByUri,
+  //   doFetchChannelMembershipsForChannelIds,
+  //   [topLevelComments],
+  //   true,
+  //   channelId
+  // );
 
   const handleReset = React.useCallback(() => {
     if (claimId) resetComments(claimId);

@@ -6,7 +6,7 @@ import {
   selectClaimsByUri,
 } from 'redux/selectors/claims';
 import { doResolveUri } from 'redux/actions/claims';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import ChannelThumbnail from './view';
 
 const select = (state, props) => ({
@@ -18,5 +18,5 @@ const select = (state, props) => ({
 
 export default connect(select, {
   doResolveUri,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipForChannelIds,
 })(ChannelThumbnail);

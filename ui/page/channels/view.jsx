@@ -13,7 +13,6 @@ import * as PAGES from 'constants/pages';
 import HelpLink from 'component/common/help-link';
 import ChannelSelector from 'component/channelSelector';
 import { useHistory } from 'react-router';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
   channelUrls: Array<string>,
@@ -23,7 +22,7 @@ type Props = {
   doSetActiveChannel: (string) => void,
   pendingChannels: Array<string>,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
 };
 
 export default function ChannelsPage(props: Props) {
@@ -35,13 +34,13 @@ export default function ChannelsPage(props: Props) {
     doSetActiveChannel,
     pendingChannels,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
   } = props;
   const [rewardData, setRewardData] = React.useState();
   const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
 
   const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, doFetchUserMemberships);
+  // useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, doFetchOdyseeMembershipForChannelIds);
 
   const { push } = useHistory();
 

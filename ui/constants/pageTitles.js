@@ -29,6 +29,8 @@ export const PAGE_TITLE = {
   [PAGES.NOTIFICATIONS]: 'Notifications',
   [PAGES.ODYSEE_MEMBERSHIP]: 'Odysee Premium',
   [PAGES.POST]: 'Post an Article on Odysee',
+  [PAGES.ODYSEE_PREMIUM]: 'Odysee Premium',
+  [PAGES.CREATOR_MEMBERSHIPS]: 'Creator Memberships',
   [PAGES.PRIVACY_POLICY]: 'Privacy Policy',
   [PAGES.RECEIVE]: 'Your address',
   [PAGES.REPORT]: 'Report an issue or request a feature',

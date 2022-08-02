@@ -2,6 +2,7 @@
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 import React from 'react';
+import classnames from 'classnames';
 import FileActionButton from 'component/common/file-action-button';
 
 type Props = {
@@ -12,10 +13,18 @@ type Props = {
   isRepost?: boolean,
   doOpenModal: (id: string, {}) => void,
   preferredCurrency: string,
+  doTipAccountCheckForUri: (uri: string) => void,
+  canReceiveFiatTips: ?boolean,
 };
 
 export default function ClaimSupportButton(props: Props) {
-  const { uri, fileAction, isRepost, disableSupport, doOpenModal, preferredCurrency } = props;
+  const { uri, fileAction, isRepost, disableSupport, doOpenModal, preferredCurrency, canReceiveFiatTips, doTipAccountCheckForUri } = props;
+
+  React.useEffect(() => {
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   if (disableSupport) return null;
 
@@ -35,6 +44,7 @@ export default function ClaimSupportButton(props: Props) {
   return (
     <FileActionButton
       title={__('Support this content')}
+      className={classnames('support-claim-button', { 'button--file-action': fileAction, 'approved-bank-account__button': canReceiveFiatTips })}
       label={isRepost ? __('Support Repost') : __('Support --[button to support a claim]--')}
       icon={iconToUse[currencyToUse].icon}
       iconSize={iconToUse[currencyToUse].iconSize}

@@ -16,6 +16,7 @@ import {
   getNameFromClaim,
   getChannelFromClaim,
   getChannelTitleFromClaim,
+  getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
@@ -171,6 +172,7 @@ export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return claim !== undefined;
 };
+export const selectChannelClaimIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
 
 // Note: this is deprecated. Use "selectClaimForUri(state, uri)" instead.
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
@@ -774,6 +776,9 @@ export const selectPermanentUrlForUri = (state: State, uri: string) => {
   return claim && claim.permanent_url;
 };
 
+export const selectChannelIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
+export const selectChannelNameForUri = createSelector(selectClaimForUri, (claim) => getChannelNameFromClaim(claim));
+
 export const makeSelectSupportsForUri = (uri: string) =>
   createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim: ?StreamClaim) => {
     if (!claim || !claim.is_my_output) {
@@ -902,6 +907,20 @@ export const selectOdyseeMembershipForUri = (state: State, uri: string) => {
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) => {
   // TODO: should access via selector, not from `state` directly.
   return state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
+};
+
+/**
+ * Given a channel id of a user, check if there an Odysee membership value
+ * @param state
+ * @param channelId
+ * @returns {*}
+ */
+export const selectMembershipForChannelId = function (state: State, channelId: string) {
+  // looks for the uploader id
+  const matchingMembershipOfUser =
+    state.user && state.user.membershipsPerClaimIds && state.user.membershipsPerClaimIds[channelId];
+
+  return matchingMembershipOfUser;
 };
 
 export const selectGeoRestrictionForUri = createCachedSelector(

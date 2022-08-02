@@ -74,6 +74,9 @@ const LivestreamCreatePage = lazyImport(() =>
 const OdyseeMembershipPage = lazyImport(() =>
   import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
 );
+const CreatorMembershipPage = lazyImport(() =>
+  import('page/creatorMembership' /* webpackChunkName: "creatorMembership" */)
+);
 const OwnComments = lazyImport(() => import('page/ownComments' /* webpackChunkName: "ownComments" */));
 const PasswordResetPage = lazyImport(() => import('page/passwordReset' /* webpackChunkName: "passwordReset" */));
 const PasswordSetPage = lazyImport(() => import('page/passwordSet' /* webpackChunkName: "passwordSet" */));
@@ -147,6 +150,7 @@ type PrivateRouteProps = Props & {
   isAuthenticated: boolean,
 };
 
+// private routes require authentication
 function PrivateRoute(props: PrivateRouteProps) {
   const { component: Component, isAuthenticated, ...rest } = props;
   const urlSearchParams = new URLSearchParams(props.location.search);
@@ -401,7 +405,8 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.NOTIFICATIONS}`} component={NotificationsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.AUTH_WALLET_PASSWORD}`} component={SignInWalletPasswordPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_OWN_COMMENTS}`} component={OwnComments} />
-        <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} component={OdyseeMembershipPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_PREMIUM}`} component={OdyseeMembershipPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} component={CreatorMembershipPage} />
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
@@ -415,6 +420,7 @@ function AppRouter(props: Props) {
         {/* Below need to go at the end to make sure we don't match any of our pages first */}
         <Route path={`/$/${PAGES.LATEST}/:channelName`} exact render={() => <ShowPage uri={uri} latestContentPath />} />
         <Route path={`/$/${PAGES.LIVE_NOW}/:channelName`} exact render={() => <ShowPage uri={uri} liveContentPath />} />
+        <Route path="/:claimName/membership_history" exact render={() => <ShowPage uri={uri} />} />
         <Route path="/:claimName" exact render={() => <ShowPage uri={uri} />} />
         <Route path="/:claimName/:streamName" exact render={() => <ShowPage uri={uri} />} />
         <Route path="/*" component={FourOhFourPage} />

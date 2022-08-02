@@ -29,6 +29,8 @@ import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import PremiumBadge from 'component/premiumBadge';
+import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
+import MembershipChannelTab from 'component/creatorMemberships/membershipChannelTab';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -39,6 +41,7 @@ const PAGE = {
   ABOUT: 'about',
   DISCUSSION: DISCUSSION_PAGE,
   EDIT: 'edit',
+  MEMBERSHIP: 'membership',
 };
 
 type Props = {
@@ -82,6 +85,7 @@ function ChannelPage(props: Props) {
     unpublishedCollections,
     lang,
   } = props;
+
   const {
     push,
     goBack,
@@ -148,6 +152,8 @@ function ChannelPage(props: Props) {
 
   let channelIsBlackListed = false;
 
+  // const channelUrlForNavigation = formatLbryUrlForWeb(claim.canonical_url);
+
   if (claim && blackListedOutpointMap) {
     channelIsBlackListed = blackListedOutpointMap[`${claim.txid}:${claim.nout}`];
   }
@@ -166,8 +172,11 @@ function ChannelPage(props: Props) {
     case PAGE.ABOUT:
       tabIndex = 2;
       break;
-    case PAGE.DISCUSSION:
+    case PAGE.MEMBERSHIP:
       tabIndex = 3;
+      break;
+    case PAGE.DISCUSSION:
+      tabIndex = 4;
       break;
     default:
       tabIndex = 0;
@@ -184,6 +193,8 @@ function ChannelPage(props: Props) {
       search += `${PAGE_VIEW_QUERY}=${PAGE.LISTS}`;
     } else if (newTabIndex === 2) {
       search += `${PAGE_VIEW_QUERY}=${PAGE.ABOUT}`;
+    } else if (newTabIndex === 3) {
+      search += `${PAGE_VIEW_QUERY}=${PAGE.MEMBERSHIP}`;
     } else {
       search += `${PAGE_VIEW_QUERY}=${PAGE.DISCUSSION}`;
     }
@@ -216,6 +227,27 @@ function ChannelPage(props: Props) {
     );
   }
 
+  let membershipTiers = [
+    {
+      displayName: 'Helping Hand',
+      description: "You're doing your part, thank you!",
+      monthlyContributionInUSD: 5,
+      perks: ['exclusiveAccess', 'badge'],
+    },
+    {
+      displayName: 'Big-Time Supporter',
+      description: 'You are a true fan and are helping in a big way!',
+      monthlyContributionInUSD: 10,
+      perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
+    },
+    {
+      displayName: 'Community MVP',
+      description: 'Where would this creator be without you? You are a true legend!',
+      monthlyContributionInUSD: 20,
+      perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
+    },
+  ];
+
   return (
     <Page className="channelPage-wrapper" noFooter>
       <header className="channel-cover">
@@ -229,6 +261,7 @@ function ChannelPage(props: Props) {
             />
           )}
           {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
+          <JoinMembershipButton uri={uri} isChannelPage />
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
           {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
@@ -304,6 +337,7 @@ function ChannelPage(props: Props) {
             <Tab disabled={editing}>{__('Content')}</Tab>
             <Tab disabled={editing}>{__('Playlists')}</Tab>
             <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+            <Tab>{__('Membership')}</Tab>
             <Tab disabled={editing}>{__('Community')}</Tab>
           </TabList>
           <TabPanels>
@@ -331,6 +365,11 @@ function ChannelPage(props: Props) {
             </TabPanel>
             <TabPanel>
               <ChannelAbout uri={uri} />
+            </TabPanel>
+            <TabPanel>
+              {currentView === PAGE.MEMBERSHIP && (
+                <MembershipChannelTab uri={uri} testMembership={membershipTiers[2]} />
+              )}
             </TabPanel>
             <TabPanel>
               {(showDiscussion || currentView === PAGE.DISCUSSION) && <ChannelDiscussion uri={uri} />}
