@@ -7,7 +7,7 @@ const {
 } = require('../config.js');
 const path = require('path');
 const fs = require('fs');
-const merge = require('webpack-merge');
+const { merge } = require('webpack-merge');
 const baseConfig = require('../webpack.base.config.js');
 const serviceWorkerConfig = require('./webpack.sw.config.js');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
@@ -78,7 +78,11 @@ const copyWebpackCommands = [
     from: `${WEB_STATIC_ROOT}/pwa/`,
     to: `${DIST_ROOT}/public/pwa/`,
   },
-];
+  {
+    from: `${STATIC_ROOT}/../custom/homepages/v2/announcement`,
+    to: `${DIST_ROOT}/announcement`,
+  },
+].filter((f) => fs.existsSync(f.from));
 
 const CUSTOM_OG_PATH = `${CUSTOM_ROOT}/v2-og.png`;
 if (fs.existsSync(CUSTOM_OG_PATH)) {
@@ -152,6 +156,7 @@ const webConfig = {
     path: path.join(__dirname, 'dist/public/'),
     publicPath: '/public/',
     chunkFilename: '[name]-[chunkhash].js',
+    assetModuleFilename: 'img/[name][ext]',
   },
   devServer: {
     port: WEBPACK_WEB_PORT,

@@ -59,15 +59,9 @@ let baseConfig = {
         ],
       },
       {
-        test: /\.(png|svg|gif)$/,
-        use: {
-          loader: 'file-loader',
-          options: {
-            outputPath: 'img/',
-            name: '[name].[ext]',
-          },
-        },
-      },
+        test: /\.(png|jpg|gif|svg)$/,
+        type: 'asset/resource',
+     },
       {
         test: /\.(vert|frag|glsl)$/,
         use: {
