@@ -539,6 +539,12 @@ $recent-msg-button__height: 2rem;
       // transition: height 0.4s;
       // animation: emojiPickerAnimation 0.2s ease-in;
       margin-bottom: var(--spacing-xs);
+      height: 0;
+      transition: height 0.3s;
+
+      &.tabs--open {
+        height: 240px;
+      }
 
       .tabs__list {
         background-color: unset;

@@ -1,7 +1,7 @@
 // @flow
 import { EMOTES_48px as ODYSEE_EMOTES, TWEMOTES } from 'constants/emotes';
 import * as ICONS from 'constants/icons';
-import Icon from 'component/common/icon';
+// import Icon from 'component/common/icon';
 import Button from 'component/button';
 import CreditAmount from 'component/common/credit-amount';
 import React from 'react';
@@ -16,6 +16,7 @@ export const SELECTOR_TABS = {
 
 type Props = {
   claimIsMine?: boolean,
+  isOpen?: boolean,
   openTab?: number,
   addEmoteToComment: (string) => void,
   handleSelectSticker: (any) => void,
@@ -23,12 +24,12 @@ type Props = {
 };
 
 export default function CommentSelectors(props: Props) {
-  const { claimIsMine, openTab, addEmoteToComment, handleSelectSticker, closeSelector } = props;
+  const { claimIsMine, isOpen, openTab, addEmoteToComment, handleSelectSticker, closeSelector } = props;
 
   const tabProps = { closeSelector };
 
   return (
-    <Tabs index={openTab}>
+    <Tabs index={openTab} className={isOpen ? 'tabs tabs--open' : 'tabs'}>
       <TabList className="tabs__list--comment-selector">
         <Tab>{__('Emojis')}</Tab>
         <Tab>{__('Stickers')}</Tab>
@@ -59,10 +60,21 @@ type EmojisProps = {
 function scrollToCategory(category) {
   let selectorAnchor = document.getElementById('emoji-selector');
   let categoryAnchor = document.getElementById(category);
-  let offset = 55;
+  let offset = 58;
   selectorAnchor &&
     categoryAnchor &&
+    // $FlowIgnore
     selectorAnchor.scrollTo({ top: categoryAnchor.offsetTop - offset, behavior: 'smooth' });
+}
+
+function handleHover(name) {
+  let preview = document.getElementById('emoji-code-preview');
+  if (preview) {
+    preview.innerHTML = name;
+    preview.style.display = 'inline';
+    if (name) preview.style.display = 'inline';
+    else preview.style.display = 'none';
+  }
 }
 
 const EmojisPanel = (emojisProps: EmojisProps) => {
@@ -72,40 +84,83 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
   return (
     <div className="selector-menu" id="emoji-selector">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
-      <div className="emote-categories">
+      <div id="emoji-code-preview" />
+      <div className="emoji-categories">
         {/* <Icon icon={ICONS.TIME} /> */}
-        {/* <img
-          src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-          style={{ borderRadius: '50%' }}
-  /> */}
         <img
           onClick={() => scrollToCategory('odysee')}
+          onMouseEnter={() => handleHover(__('Odysee'))}
+          onMouseLeave={() => handleHover('')}
           src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png"
         />
-        <img onClick={() => scrollToCategory('smilies')} src="/public/img/emoticons/twemoji/smilies/grinning.png" />
+        <img
+          onClick={() => scrollToCategory('smilies')}
+          onMouseEnter={() => handleHover(__('Smilies'))}
+          onMouseLeave={() => handleHover('')}
+          src="/public/img/emoticons/twemoji/smilies/grinning.png"
+        />
+        <img
+          onClick={() => scrollToCategory('hand signals')}
+          onMouseEnter={() => handleHover(__('Hand signals'))}
+          onMouseLeave={() => handleHover('')}
+          src="/public/img/emoticons/twemoji/handsignals/waving_hand.png"
+        />
         <img
           onClick={() => scrollToCategory('activities')}
-          src="/public/img/emoticons/twemoji/activities/basketball.png"
+          onMouseEnter={() => handleHover(__('Activities'))}
+          onMouseLeave={() => handleHover('')}
+          src="/public/img/emoticons/twemoji/activities/tennis.png"
         />
         <img
           onClick={() => scrollToCategory('symbols')}
+          onMouseEnter={() => handleHover(__('Symbols'))}
+          onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/symbols/sparkling_heart.png"
         />
-        <img onClick={() => scrollToCategory('animals')} src="/public/img/emoticons/twemoji/animals/bear.png" />
-        <img onClick={() => scrollToCategory('plants')} src="/public/img/emoticons/twemoji/plants/deciduous_tree.png" />
-        <img onClick={() => scrollToCategory('flags')} src="/public/img/emoticons/twemoji/flags/pirate_flag.png" />
+        <img
+          onClick={() => scrollToCategory('animals & nature')}
+          onMouseEnter={() => handleHover(__('Animals & Nature'))}
+          onMouseLeave={() => handleHover('')}
+          src="/public/img/emoticons/twemoji/animals/dolphin.png"
+        />
+        <img
+          onClick={() => scrollToCategory('food & drink')}
+          onMouseEnter={() => handleHover(__('Food & Drink'))}
+          onMouseLeave={() => handleHover('')}
+          src="/public/img/emoticons/twemoji/food/sushi.png"
+        />
+        <img
+          onClick={() => scrollToCategory('flags')}
+          onMouseEnter={() => handleHover(__('Flags'))}
+          onMouseLeave={() => handleHover('')}
+          src="/public/img/emoticons/twemoji/flags/pirate_flag.png"
+        />
       </div>
 
       {/* <EmoteCategory title={__('Recently used')} {...defaultRowProps} /> */}
-      {/* <EmoteCategory title={__('Member exclusive')} {...defaultRowProps} /> */}
-      <EmoteCategory title={__('Odysee')} images={ODYSEE_EMOTES} {...defaultRowProps} />
-      <EmoteCategory title={__('Smilies')} images={TWEMOTES.SMILIES} {...defaultRowProps} />
-
-      <EmoteCategory title={__('Activities')} images={TWEMOTES.ACTIVITIES} {...defaultRowProps} />
-      <EmoteCategory title={__('Symbols')} images={TWEMOTES.SYMBOLS} {...defaultRowProps} />
-      <EmoteCategory title={__('Animals')} images={TWEMOTES.ANIMALS} {...defaultRowProps} />
-      <EmoteCategory title={__('Plants')} images={TWEMOTES.PLANTS} {...defaultRowProps} />
-      <EmoteCategory title={__('Flags')} images={TWEMOTES.FLAGS} {...defaultRowProps} />
+      <EmoteCategory title={__('Odysee')} images={ODYSEE_EMOTES} {...defaultRowProps} handleHover={handleHover} />
+      <EmoteCategory title={__('Smilies')} images={TWEMOTES.SMILIES} {...defaultRowProps} handleHover={handleHover} />
+      <EmoteCategory
+        title={__('Hand signals')}
+        images={TWEMOTES.HANDSIGNALS}
+        {...defaultRowProps}
+        handleHover={handleHover}
+      />
+      <EmoteCategory
+        title={__('Activities')}
+        images={TWEMOTES.ACTIVITIES}
+        {...defaultRowProps}
+        handleHover={handleHover}
+      />
+      <EmoteCategory title={__('Symbols')} images={TWEMOTES.SYMBOLS} {...defaultRowProps} handleHover={handleHover} />
+      <EmoteCategory
+        title={__('Animals & Nature')}
+        images={TWEMOTES.NATURE}
+        {...defaultRowProps}
+        handleHover={handleHover}
+      />
+      <EmoteCategory title={__('Food & Drink')} images={TWEMOTES.FOOD} {...defaultRowProps} handleHover={handleHover} />
+      <EmoteCategory title={__('Flags')} images={TWEMOTES.FLAGS} {...defaultRowProps} handleHover={handleHover} />
     </div>
   );
 };
@@ -126,7 +181,8 @@ const StickersPanel = (stickersProps: StickersProps) => {
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
 
       <>
-        <div className="emote-categories">
+        {/*
+        <div className="emoji-categories">
           <Icon icon={ICONS.TIME} />
           <img
             src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
@@ -135,12 +191,25 @@ const StickersPanel = (stickersProps: StickersProps) => {
           <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
           <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
         </div>
-        <StickerCategory title={__('Recently used')} {...defaultRowProps} />
-        {/* <StickerCategory title={__('Member exclusive')} {...defaultRowProps} /> */}
+        */}
+        {/* <StickerCategory title={__('Recently used')} {...defaultRowProps} handleHover={handleHover} /> */}
+        {/* <StickerCategory title={__('Member exclusive')} {...defaultRowProps} handleHover={handleHover} /> */}
       </>
 
-      <StickerCategory title={__('Free')} images={FREE_GLOBAL_STICKERS} {...defaultRowProps} />
-      {!claimIsMine && <StickerCategory title={__('Tips')} images={PAID_GLOBAL_STICKERS} {...defaultRowProps} />}
+      <StickerCategory
+        title={__('Free')}
+        images={FREE_GLOBAL_STICKERS}
+        {...defaultRowProps}
+        handleHover={handleHover}
+      />
+      {!claimIsMine && (
+        <StickerCategory
+          title={__('Tips')}
+          images={PAID_GLOBAL_STICKERS}
+          {...defaultRowProps}
+          handleHover={handleHover}
+        />
+      )}
     </div>
   );
 };
@@ -149,10 +218,11 @@ type RowProps = {
   title: string,
   images?: any,
   handleSelect: (string) => void,
+  handleHover: (string) => void,
 };
 
 const EmoteCategory = (rowProps: RowProps) => {
-  const { images, title, handleSelect } = rowProps;
+  const { images, title, handleSelect, handleHover } = rowProps;
 
   return (
     <>
@@ -173,6 +243,8 @@ const EmoteCategory = (rowProps: RowProps) => {
                 button="alt"
                 className="button--file-action"
                 onClick={() => handleSelect(name)}
+                onMouseEnter={() => handleHover(name)}
+                onMouseLeave={() => handleHover('')}
               >
                 <img src={url} loading="lazy" />
               </Button>
@@ -184,7 +256,7 @@ const EmoteCategory = (rowProps: RowProps) => {
 };
 
 const StickerCategory = (rowProps: RowProps) => {
-  const { images, title, handleSelect } = rowProps;
+  const { images, title, handleSelect, handleHover } = rowProps;
 
   return (
     <div>
@@ -203,6 +275,8 @@ const StickerCategory = (rowProps: RowProps) => {
                 button="alt"
                 className="button--file-action"
                 onClick={() => handleSelect(sticker)}
+                onMouseEnter={() => handleHover(sticker)}
+                onMouseLeave={() => handleHover('')}
               >
                 <StickerWrapper price={price}>
                   <img src={url} loading="lazy" />

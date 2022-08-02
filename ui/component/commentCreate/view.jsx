@@ -571,6 +571,7 @@ export function CommentCreate(props: Props) {
     claimIsMine,
     addEmoteToComment,
     handleSelectSticker,
+    isOpen: showSelectors.open,
     openTab: showSelectors.tab || undefined,
   };
   const submitButtonProps = { button: 'primary', type: 'submit', requiresAuth: true };
@@ -650,7 +651,7 @@ export function CommentCreate(props: Props) {
             value={commentValue}
             uri={uri}
           />
-          {!isMobile && showSelectors.open && (
+          {!isMobile && (
             <CommentSelectors
               {...commentSelectorsProps}
               closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
