@@ -7,6 +7,7 @@ import CreditAmount from 'component/common/credit-amount';
 import React from 'react';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { FREE_GLOBAL_STICKERS, PAID_GLOBAL_STICKERS } from 'constants/stickers';
+import { useIsMobile } from 'effects/use-screensize';
 import './style.scss';
 
 export const SELECTOR_TABS = {
@@ -57,10 +58,11 @@ type EmojisProps = {
   closeSelector: () => void,
 };
 
-function scrollToCategory(category) {
-  let selectorAnchor = document.getElementById('emoji-selector');
+function scrollToCategory(category, type, isMobile) {
+  const offset = isMobile ? 48 : 58;
+  let selectorAnchor =
+    type === 'emoji' ? document.getElementById('emoji-selector') : document.getElementById('sticker-selector');
   let categoryAnchor = document.getElementById(category);
-  let offset = 58;
   selectorAnchor &&
     categoryAnchor &&
     // $FlowIgnore
@@ -80,6 +82,7 @@ function handleHover(name) {
 const EmojisPanel = (emojisProps: EmojisProps) => {
   const { handleSelect, closeSelector } = emojisProps;
   const defaultRowProps = { handleSelect };
+  const isMobile = useIsMobile();
 
   return (
     <div className="selector-menu" id="emoji-selector">
@@ -88,49 +91,49 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
       <div className="emoji-categories">
         {/* <Icon icon={ICONS.TIME} /> */}
         <img
-          onClick={() => scrollToCategory('odysee')}
+          onClick={() => scrollToCategory('odysee', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Odysee'))}
           onMouseLeave={() => handleHover('')}
           src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png"
         />
         <img
-          onClick={() => scrollToCategory('smilies')}
+          onClick={() => scrollToCategory('smilies', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Smilies'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/smilies/grinning.png"
         />
         <img
-          onClick={() => scrollToCategory('hand signals')}
+          onClick={() => scrollToCategory('hand signals', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Hand signals'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/handsignals/waving_hand.png"
         />
         <img
-          onClick={() => scrollToCategory('activities')}
+          onClick={() => scrollToCategory('activities', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Activities'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/activities/tennis.png"
         />
         <img
-          onClick={() => scrollToCategory('symbols')}
+          onClick={() => scrollToCategory('symbols', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Symbols'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/symbols/sparkling_heart.png"
         />
         <img
-          onClick={() => scrollToCategory('animals & nature')}
+          onClick={() => scrollToCategory('animals & nature', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Animals & Nature'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/animals/dolphin.png"
         />
         <img
-          onClick={() => scrollToCategory('food & drink')}
+          onClick={() => scrollToCategory('food & drink', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Food & Drink'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/food/sushi.png"
         />
         <img
-          onClick={() => scrollToCategory('flags')}
+          onClick={() => scrollToCategory('flags', 'emoji', isMobile)}
           onMouseEnter={() => handleHover(__('Flags'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/flags/pirate_flag.png"
@@ -175,27 +178,26 @@ const StickersPanel = (stickersProps: StickersProps) => {
   const { claimIsMine, handleSelect, closeSelector } = stickersProps;
 
   const defaultRowProps = { handleSelect };
+  const isMobile = useIsMobile();
 
   return (
-    <div className="selector-menu">
+    <div className="selector-menu" id="sticker-selector">
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
-
-      <>
-        {/*
-        <div className="emoji-categories">
-          <Icon icon={ICONS.TIME} />
-          <img
-            src="https://thumbnails.odycdn.com/optimize/s:200:0/quality:95/plain/https://thumbnails.lbry.com/UCMvVQIAfsGwzrfPLxiaIG8g"
-            style={{ borderRadius: '50%' }}
-          />
-          <img src="https://static.odycdn.com/stickers/MISC/PNG/fire.png" />
-          <img src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png" />
-        </div>
-        */}
-        {/* <StickerCategory title={__('Recently used')} {...defaultRowProps} handleHover={handleHover} /> */}
-        {/* <StickerCategory title={__('Member exclusive')} {...defaultRowProps} handleHover={handleHover} /> */}
-      </>
-
+      <div id="emoji-code-preview" />
+      <div className="emoji-categories">
+        <img
+          onClick={() => scrollToCategory('free', 'sticker', isMobile)}
+          onMouseEnter={() => handleHover(__('Free'))}
+          onMouseLeave={() => handleHover('')}
+          src="https://static.odycdn.com/stickers/MISC/PNG/fire.png"
+        />
+        <img
+          onClick={() => scrollToCategory('tips', 'sticker', isMobile)}
+          onMouseEnter={() => handleHover(__('Tips'))}
+          onMouseLeave={() => handleHover('')}
+          src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png"
+        />
+      </div>
       <StickerCategory
         title={__('Free')}
         images={FREE_GLOBAL_STICKERS}
@@ -259,10 +261,12 @@ const StickerCategory = (rowProps: RowProps) => {
   const { images, title, handleSelect, handleHover } = rowProps;
 
   return (
-    <div>
-      <label id={title} className="chatImage-category-title">
-        {title}
-      </label>
+    <>
+      <a id={title.toLowerCase()}>
+        <label id={title} className="chatImage-category-title">
+          {title}
+        </label>
+      </a>
       <div className="sticker-selector__items">
         {images &&
           images.map((sticker) => {
@@ -286,7 +290,7 @@ const StickerCategory = (rowProps: RowProps) => {
             );
           })}
       </div>
-    </div>
+    </>
   );
 };
 

@@ -17,6 +17,16 @@
     &:hover {
       color: var(--color-link);
     }
+    @media (max-width: $breakpoint-small) {
+      &[aria-selected='true'] {
+        color: var(--color-primary);
+        &::after {
+          background: var(--color-primary);
+          height: 4px !important;
+          bottom: calc(var(--tab-indicator-size) * -2 + 13px);
+        }
+      }
+    }
   }
 }
 

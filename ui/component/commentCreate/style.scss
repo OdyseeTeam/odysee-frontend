@@ -69,6 +69,11 @@ $sticker-item-size: 5rem;
   &.visible {
     display: inline;
   }
+
+  @media (max-width: $breakpoint-small) {
+    top: 46px;
+    font-size: var(--font-xsmall);
+  }
 }
 
 .emoji-categories {
@@ -99,11 +104,15 @@ $sticker-item-size: 5rem;
   svg {
     margin-bottom: var(--spacing-xs) !important;
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-left: var(--spacing-xxxs);
+    margin-right: var(--spacing-xxxs);
+    margin-bottom: -62px;
+  }
 }
 
 .chatImage-category-title {
-  // position:sticky;
-  // top:3px;
   position: relative;
   font-size: var(--font-small);
   padding-left: var(--spacing-xxs);
@@ -113,7 +122,6 @@ $sticker-item-size: 5rem;
   margin-top: var(--spacing-l);
   margin-bottom: var(--spacing-m);
   max-width: 220px;
-  // background:rgba(var(--color-header-background-base),1);
 
   @media (min-width: $breakpoint-small) {
     padding-top: var(--spacing-xs);
@@ -121,6 +129,8 @@ $sticker-item-size: 5rem;
 
   @media (max-width: $breakpoint-small) {
     font-size: var(--font-xsmall);
+    max-width: 150px;
+    margin-left: 9px;
   }
 }
 

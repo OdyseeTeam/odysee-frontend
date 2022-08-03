@@ -516,28 +516,9 @@ $recent-msg-button__height: 2rem;
       }
     }
 
-    /*
-    .emoteSelector__list {
-      background-color: rgba(var(--color-primary-dynamic), 0.02);
-      .emoteSelector__listRowItems {
-        .button--file-action {
-          background-color: unset !important;
-          .button__label {
-            color: var(--color-text);
-          }
-          &:hover {
-            background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
-          }
-        }
-      }
-    }
-    */
-
     .tabs {
       overflow: hidden;
       border: unset;
-      // transition: height 0.4s;
-      // animation: emojiPickerAnimation 0.2s ease-in;
       margin-bottom: var(--spacing-xs);
       height: 0;
       transition: height 0.3s;
