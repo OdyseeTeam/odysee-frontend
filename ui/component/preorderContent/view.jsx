@@ -9,6 +9,22 @@ import React from 'react';
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
+// prettier-ignore
+const STRINGS = {
+  purchase: {
+    title: 'Purchase Your Content',
+    subtitle: "After completing the purchase you will have instant access to your content that doesn't expire.",
+    button: 'Purchase your content for %currency%%amount%',
+    add_card: '%add_a_card% to purchase content',
+  },
+  preorder: {
+    title: 'Pre-order Your Content',
+    subtitle: 'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live.',
+    button: 'Pre-order your content for %currency%%amount%',
+    add_card: '%add_a_card% to preorder content',
+  },
+};
+
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
 type UserParams = { activeChannelName: ?string, activeChannelId: ?string };
 
@@ -74,22 +90,8 @@ export default function PreorderContent(props: Props) {
   const [tipAmount, setTipAmount] = React.useState(0);
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
-  // prettier-ignore
-  const STRINGS = {
-    purchase: {
-      title: 'Purchase Your Content',
-      subtitle: "After completing the purchase you will have instant access to your content that doesn't expire.",
-      button: 'Purchase your content for %currency%%amount%',
-      add_card: '%add_a_card% to purchase content',
-    },
-    preorder: {
-      title: 'Pre-order Your Content',
-      subtitle: 'This content is not available yet but you can pre-order it now so you can access it as soon as it goes live.',
-      button: 'Pre-order your content for %currency%%amount%',
-      add_card: '%add_a_card% to preorder content',
-    },
-  };
-
+  // const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
+  const fiatSymbol = '$';
   const STR = STRINGS[preorderOrPurchase || 'preorder'];
 
   const AddCardButton = (
@@ -138,16 +140,13 @@ export default function PreorderContent(props: Props) {
     );
   }
 
-  // const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
-  const fiatSymbol = '$';
-
   return (
     <Form onSubmit={handleSubmit}>
       {!waitingForBackend && (
         <Card
-          title={STR.title}
+          title={__(STR.title)}
           className={'preorder-content-modal'}
-          subtitle={<div className="section__subtitle">{STR.subtitle}</div>}
+          subtitle={<div className="section__subtitle">{__(STR.subtitle)}</div>}
           actions={
             // confirm purchase functionality
             <>
@@ -169,7 +168,7 @@ export default function PreorderContent(props: Props) {
       {/* processing payment card */}
       {waitingForBackend && (
         <Card
-          title={STR.title}
+          title={__(STR.title)}
           className={'preorder-content-modal-loading'}
           subtitle={<div className="section__subtitle">{__('Processing your purchase...')}</div>}
         />
