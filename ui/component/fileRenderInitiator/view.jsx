@@ -209,7 +209,7 @@ export default function FileRenderInitiator(props: Props) {
               'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
-              'content__cover--purchasable': purchaseContentTag && !purchaseMadeForClaimId,
+              'content__cover--purchasable': purchaseContentTag && !purchaseMadeForClaimId && !claimIsMine,
             })
       }
     >

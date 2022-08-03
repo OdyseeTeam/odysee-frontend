@@ -1,6 +1,5 @@
 // @flow
 import { Form } from 'component/common/form';
-import { Lbryio } from 'lbryinc';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -25,7 +24,7 @@ type Props = {
   customText?: string,
   doHideModal: () => void,
   setAmount?: (number) => void,
-  preferredCurrency: string,
+  // preferredCurrency: string,
   preOrderPurchase: (
     TipParams,
     anonymous: boolean,
@@ -41,6 +40,7 @@ type Props = {
   preorderOrPurchase: string,
   purchaseTag: number,
   purchaseMadeForClaimId: ?boolean,
+  hasCardSaved: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
 };
 
@@ -52,12 +52,13 @@ export default function PreorderContent(props: Props) {
     tipChannelName,
     doHideModal,
     preOrderPurchase,
-    preferredCurrency,
+    // preferredCurrency,
     preorderTag,
     preorderOrPurchase,
     purchaseTag,
     doCheckIfPurchasedClaimId,
     claimId,
+    hasCardSaved,
   } = props;
 
   // set the purchase amount once the preorder tag is selected
@@ -71,31 +72,6 @@ export default function PreorderContent(props: Props) {
 
   const [tipAmount, setTipAmount] = React.useState(0);
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
-  const [waitingForCardStatus, setWaitingForCardStatus] = React.useState(true);
-  const [hasCardSaved, setHasSavedCard] = React.useState(false);
-
-  // check if user has a payment method saved
-  React.useEffect(() => {
-    if (!stripeEnvironment) return;
-
-    Lbryio.call(
-      'customer',
-      'status',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    ).then((customerStatusResponse) => {
-      setWaitingForCardStatus(false);
-      const defaultPaymentMethodId =
-        customerStatusResponse.Customer &&
-        customerStatusResponse.Customer.invoice_settings &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method.id;
-
-      setHasSavedCard(Boolean(defaultPaymentMethodId));
-    });
-  }, [setHasSavedCard]);
 
   let modalHeaderText;
   if (preorderOrPurchase === 'purchase') {
@@ -139,14 +115,16 @@ export default function PreorderContent(props: Props) {
       userParams,
       claimId,
       stripeEnvironment,
-      preferredCurrency,
+      'USD', // hardcode to USD for the moment
+      // preferredCurrency,
       preorderOrPurchase,
       checkIfFinished,
       doHideModal
     );
   }
 
-  const fiatSymbolToUse = preferredCurrency === 'EUR' ? '€' : '$';
+  // const fiatSymbolToUse = preferredCurrency === 'EUR' ? '€' : '$';
+  const fiatSymbolToUse = '$';
 
   const buttonText = __(orderYourContentText, {
     tip_currency: fiatSymbolToUse,
@@ -164,29 +142,13 @@ export default function PreorderContent(props: Props) {
             // confirm purchase functionality
             <>
               <div className="handle-submit-area">
-                {waitingForCardStatus && (
-                  <>
-                    <Button autoFocus button="primary" label={__('Getting your card connection status...')} />
-                  </>
-                )}
+                <Button autoFocus onClick={handleSubmit} button="primary" label={buttonText} disabled={!hasCardSaved} />
 
-                {!waitingForCardStatus && (
-                  <>
-                    <Button
-                      autoFocus
-                      onClick={handleSubmit}
-                      button="primary"
-                      label={buttonText}
-                      disabled={!hasCardSaved}
-                    />
-
-                    {!hasCardSaved && (
-                      <div className="add-card-prompt">
-                        <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-                        {toBeAbleToText}
-                      </div>
-                    )}
-                  </>
+                {!hasCardSaved && (
+                  <div className="add-card-prompt">
+                    <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+                    {toBeAbleToText}
+                  </div>
                 )}
               </div>
             </>

@@ -13,17 +13,23 @@ import { doOpenModal } from 'redux/actions/app';
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { doResolveClaimIds, doCheckIfPurchasedClaimId } from 'redux/actions/claims';
+import { getChannelIdFromClaim, getChannelNameFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
 
   const preorderContentClaimId = selectPreorderContentClaimIdForUri(state, props.uri);
+  const channelClaimId = getChannelIdFromClaim(claim);
+
+  const channelName = getChannelNameFromClaim(claim);
 
   return {
     preorderTag: selectPreorderTagForUri(state, props.uri),
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claim,
+    channelClaimId,
+    channelName,
     preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
     preorderContentClaimId: selectPreorderContentClaimIdForUri(state, props.uri),
     preorderContentClaim: selectClaimForId(state, preorderContentClaimId),
