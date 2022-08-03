@@ -145,6 +145,7 @@ $sticker-item-size: 5rem;
     margin: 0px !important;
     padding: var(--spacing-xxxs) !important;
     height: unset;
+    min-height: 40px;
 
     &:hover {
       background-color: var(--color-header-background);
