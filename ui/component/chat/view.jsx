@@ -318,16 +318,18 @@ export default function ChatLayout(props: Props) {
             />
 
             {/* the button to show superchats listed by most to least support amount */}
-            <ChatContentToggle
-              {...toggleProps}
-              toggleMode={VIEW_MODES.SUPERCHAT}
-              label={
-                <>
-                  <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
-                  <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
-                </>
-              }
-            />
+            {hyperChatsByAmount && (
+              <ChatContentToggle
+                {...toggleProps}
+                toggleMode={VIEW_MODES.SUPERCHAT}
+                label={
+                  <>
+                    <CreditAmount amount={superChatsLBCAmount || 0} size={8} /> /&nbsp;
+                    <CreditAmount amount={superChatsFiatAmount || 0} size={8} isFiat /> {__('Tipped')}
+                  </>
+                }
+              />
+            )}
           </div>
 
           <LivestreamMenu
@@ -338,6 +340,7 @@ export default function ChatLayout(props: Props) {
             toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
             // toggleFastMode={() => setChatMode(!fastModeEnabled)}
             hyperchatsHidden={hideHyperchats}
+            noHyperchats={!hyperChatsByAmount}
           />
         </div>
       )}
@@ -358,6 +361,7 @@ export default function ChatLayout(props: Props) {
               toggleHyperChat={toggleHyperChat}
               hyperchatsHidden={hyperchatsHidden || hideHyperchats}
               isMobile={isMobile}
+              noHyperchats={false}
             />
           )}
 

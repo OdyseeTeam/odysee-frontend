@@ -118,7 +118,7 @@ export default function LivestreamLayout(props: Props) {
                   hasSubtitle={activeViewers}
                   actions={
                     <LivestreamMenu
-                      noSuperchats={!superChats || superChats.length === 0}
+                      noHyperchats={!superChats || superChats.length === 0}
                       hyperchatsHidden={hyperchatsHidden}
                       toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
                       isMobile
