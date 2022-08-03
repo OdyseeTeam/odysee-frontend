@@ -64,6 +64,12 @@
   justify-content: space-between;
   padding: 0;
 
+  &.livestream__comment--minimal {
+    .livestreamComment__menu {
+      position: absolute;
+      right: 0;
+    }
+  }
   .livestreamComment__menu {
     position: relative;
     right: 0;

@@ -561,6 +561,9 @@ $recent-msg-button__height: 2rem;
             background-color: var(--color-primary);
           }
         }
+        &::-webkit-scrollbar {
+          background-color: rgba(var(--color-header-background-base), 0.4) !important;
+        }
       }
     }
   }
@@ -1076,29 +1079,88 @@ $recent-msg-button__height: 2rem;
   min-width: 2.5rem;
 }
 
+.livestream__comment--minimal {
+  padding: 3px 0;
+
+  .livestreamComment__menu {
+    top: 2px;
+  }
+
+  &.livestream__comment--hyperchat {
+    padding-top: 0;
+    .livestreamComment__body {
+      margin-top: 5px;
+      margin-left: 6px;
+    }
+    .sticker__comment {
+      min-height: 80px;
+      float: center;
+      margin-right: var(--spacing-xxs);
+    }
+  }
+  &.livestream__comment--mobile {
+    display: unset;
+    .comment__author {
+      // margin-top:-2px !important;
+      line-height: 18px;
+    }
+    .channel-thumbnail {
+      margin-top: 1px;
+    }
+    .comment__badge {
+      margin-top: -2px !important;
+    }
+  }
+}
+
 .livestreamComment--minimal {
+  width: 100%;
   .date_time {
-    // width:60px;
+    width: 64px;
+    float: left;
     margin-right: var(--spacing-xxxs);
+    font-family: 'Courier New', Courier, monospace;
+    font-size: var(--font-xsmall) !important;
+    margin-top: 1px;
+
+    @media (opacity > 0) {
+      background: red !important;
+    }
   }
   .channel-thumbnail {
+    float: left;
     width: var(--font-small) !important;
     height: var(--font-small) !important;
-    display: inline-block;
-    margin-right: var(--spacing-xxs);
+    margin-right: 4px;
+    margin-top: 2px;
   }
   .comment__author {
-    display: inline-block;
-    margin-right: 0;
-    margin-top: 0 !important;
+    float: left;
+    margin-right: 0px;
+    margin-top: 0px !important;
+    margin-bottom: 0;
+  }
+  .colon {
+    float: left;
+    margin-right: 4px;
   }
   .livestreamComment__text {
-    display: inline-block;
-    max-width: 100%;
+    width: 100%;
+    padding-bottom: 0;
+  }
+  .button {
+    float: left;
   }
   .comment__badge {
+    float: left;
+    margin-top: -1px !important;
     .icon {
       margin-bottom: -3px;
     }
+  }
+
+  .sticker__comment {
+    float: left;
+    max-height: 22px;
   }
 }

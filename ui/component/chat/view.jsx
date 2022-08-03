@@ -2,7 +2,6 @@
 import 'scss/component/_livestream-chat.scss';
 
 // $FlowFixMe
-
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -18,6 +17,7 @@ import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import usePersistedState from 'effects/use-persisted-state';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -96,8 +96,7 @@ export default function ChatLayout(props: Props) {
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
-  // const [chatMode, setChatMode] = React.useState('slow');
-  const chatMode = 'slow';
+  const [fastMode, setFastMode] = usePersistedState('fastMode', false);
 
   let superChatsByChronologicalOrder = [];
   if (hyperChatsByAmount) hyperChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
@@ -338,7 +337,8 @@ export default function ChatLayout(props: Props) {
             setPopoutWindow={(v) => setPopoutWindow(v)}
             isMobile={isMobile}
             toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
-            // toggleFastMode={() => setChatMode(!fastModeEnabled)}
+            toggleFastMode={() => setFastMode(!fastMode)}
+            fastMode={fastMode}
             hyperchatsHidden={hideHyperchats}
             noHyperchats={!hyperChatsByAmount}
           />
@@ -404,7 +404,7 @@ export default function ChatLayout(props: Props) {
           isMobile={isMobile}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
-          chatMode={chatMode}
+          fastMode={fastMode}
         />
 
         {scrolledPastRecent && (
