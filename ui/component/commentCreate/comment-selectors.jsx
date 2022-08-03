@@ -191,12 +191,14 @@ const StickersPanel = (stickersProps: StickersProps) => {
           onMouseLeave={() => handleHover('')}
           src="https://static.odycdn.com/stickers/MISC/PNG/fire.png"
         />
-        <img
-          onClick={() => scrollToCategory('tips', 'sticker', isMobile)}
-          onMouseEnter={() => handleHover(__('Tips'))}
-          onMouseLeave={() => handleHover('')}
-          src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png"
-        />
+        {!claimIsMine && (
+          <img
+            onClick={() => scrollToCategory('tips', 'sticker', isMobile)}
+            onMouseEnter={() => handleHover(__('Tips'))}
+            onMouseLeave={() => handleHover('')}
+            src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png"
+          />
+        )}
       </div>
       <StickerCategory
         title={__('Free')}
