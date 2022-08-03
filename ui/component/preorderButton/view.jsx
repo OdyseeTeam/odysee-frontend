@@ -110,16 +110,7 @@ export default function PreorderButton(props: Props) {
   //   fiatSymbol = '€';
   // }
 
-  let pastTenseString, preorderOrPurchase, cantReceivePaymentsString;
-  if (purchaseTag) {
-    preorderOrPurchase = 'purchase';
-    pastTenseString = __('Thanks for purchasing, enjoy your content!');
-    cantReceivePaymentsString = __('Creator cannot receive payments for purchase');
-  } else {
-    preorderOrPurchase = 'preorder';
-    pastTenseString = __('Thanks for preordering, enjoy your content!');
-    cantReceivePaymentsString = __('Creator cannot receive payments for preorder');
-  }
+  const preorderOrPurchase = purchaseTag ? 'purchase' : 'preorder';
 
   const canBePurchased = preorderTag || purchaseTag;
 
@@ -131,7 +122,7 @@ export default function PreorderButton(props: Props) {
             iconColor="red"
             className={'preorder-button non-clickable'}
             button="primary"
-            label={cantReceivePaymentsString}
+            label={__('Creator cannot receive payments yet')}
             style={{ opacity: 0.6 }}
           />
         </div>
@@ -183,7 +174,7 @@ export default function PreorderButton(props: Props) {
                 className={'preorder-button'}
                 icon={fiatIconToUse}
                 button="primary"
-                label={pastTenseString}
+                label={__('Thanks for purchasing, enjoy your content!')}
                 requiresAuth
               />
             </div>
