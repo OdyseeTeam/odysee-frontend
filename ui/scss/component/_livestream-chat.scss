@@ -554,6 +554,10 @@ $recent-msg-button__height: 2rem;
 
       .selector-menu {
         margin: 0;
+        #emoji-code-preview {
+          left: var(--spacing-xs);
+          width: calc(100% - 260px);
+        }
         .button--close {
           margin-right: calc(var(--spacing-xxs) * -1);
         }
