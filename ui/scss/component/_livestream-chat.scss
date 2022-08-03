@@ -1140,6 +1140,23 @@ $recent-msg-button__height: 2rem;
   .livestreamComment__text {
     width: 100%;
     padding-bottom: 0;
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      font-size: var(--font-base);
+    }
+
+    .markdown-preview img:not(.channel-thumbnail__custom):not(.emote) {
+      height: 80px;
+      padding-top: 0;
+      margin-left: var(--spacing-s);
+      margin-right: var(--spacing-s);
+      float: left;
+    }
   }
   .button {
     float: left;
