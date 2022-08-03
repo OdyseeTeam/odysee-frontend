@@ -129,10 +129,9 @@ export default function PreorderButton(props: Props) {
         <div>
           <Button
             iconColor="red"
-            className={'preorder-button'}
+            className={'preorder-button non-clickable'}
             button="primary"
             label={cantReceivePaymentsString}
-            disabled
             style={{ opacity: 0.6 }}
           />
         </div>
@@ -196,7 +195,7 @@ export default function PreorderButton(props: Props) {
                 iconColor="red"
                 className={'preorder-button'}
                 button="primary"
-                label={__('This content is now available, click here to view it')}
+                label={__('Click here to view your purchased content')}
                 navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
               />
             </div>
@@ -208,7 +207,7 @@ export default function PreorderButton(props: Props) {
                 iconColor="red"
                 className={'preorder-button'}
                 button="primary"
-                label={__('Your preordered content is now available, click here to view it')}
+                label={__('Click here to view full content ')}
                 navigate={`/${preorderContentClaim.canonical_url.replace('lbry://', '')}`}
               />
             </div>
@@ -244,7 +243,7 @@ export default function PreorderButton(props: Props) {
             <div>
               <Button
                 iconColor="red"
-                className={'preorder-button'}
+                className={'preorder-button non-clickable'}
                 button="primary"
                 label={__('You have preordered this content')}
                 requiresAuth
@@ -256,7 +255,7 @@ export default function PreorderButton(props: Props) {
             <div>
               <Button
                 iconColor="red"
-                className={'preorder-button'}
+                className={'preorder-button non-clickable'}
                 button="primary"
                 label={__('You cannot preorder your own content')}
               />
@@ -266,7 +265,7 @@ export default function PreorderButton(props: Props) {
             <div>
               <Button
                 iconColor="red"
-                className={'preorder-button'}
+                className={'preorder-button non-clickable'}
                 button="primary"
                 label={__('You cannot purchase your own content')}
               />
