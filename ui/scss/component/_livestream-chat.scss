@@ -521,14 +521,15 @@ $recent-msg-button__height: 2rem;
       border: unset;
       margin-bottom: var(--spacing-xs);
       height: 0;
-      transition: height 0.3s;
+      padding: 0;
+      background-color: unset;
 
       &.tabs--open {
         height: 240px;
       }
 
       .tabs__list {
-        background-color: unset;
+        margin: 0;
         padding: 0 !important;
         .tab {
           background-color: rgba(var(--color-header-button-base), 0.3);
@@ -550,19 +551,11 @@ $recent-msg-button__height: 2rem;
           }
         }
       }
+
       .selector-menu {
-        background-color: var(--color-header-button);
-        border-radius: 0 var(--border-radius) var(--border-radius) var(--border-radius);
+        margin: 0;
         .button--close {
           margin-right: calc(var(--spacing-xxs) * -1);
-          margin-top: 4px;
-          background-color: var(--color-header-button);
-          &:hover {
-            background-color: var(--color-primary);
-          }
-        }
-        &::-webkit-scrollbar {
-          background-color: rgba(var(--color-header-background-base), 0.4) !important;
         }
       }
     }
