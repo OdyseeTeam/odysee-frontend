@@ -85,7 +85,7 @@ export default function LivestreamMenu(props: Props) {
           </MenuItem>
           <MenuItem className="comment__menu-option" onSelect={toggleFastMode}>
             <span className="menu__link">
-              <Icon aria-hidden icon={fastMode ? ICONS.EYE : ICONS.DISMISS_ALL} size={18} />
+              <Icon aria-hidden icon={ICONS.WATCH_HISTORY} size={18} />
               {!fastMode ? __('Enable Fast Mode') : __('Disable Fast Mode')}
             </span>
           </MenuItem>
