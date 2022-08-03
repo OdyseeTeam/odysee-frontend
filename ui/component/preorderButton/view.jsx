@@ -103,11 +103,11 @@ export default function PreorderButton(props: Props) {
   }, [setHasSavedCard]);
 
   let fiatIconToUse = ICONS.FINANCE;
-  let fiatSymbolToUse = '$';
+  let fiatSymbol = '$';
   // hardcore to USD for now
   // if (preferredCurrency === 'EUR') {
   //   fiatIconToUse = ICONS.EURO;
-  //   fiatSymbolToUse = '€';
+  //   fiatSymbol = '€';
   // }
 
   let pastTenseString, preorderOrPurchase, cantReceivePaymentsString;
@@ -157,8 +157,8 @@ export default function PreorderButton(props: Props) {
                 className={'preorder-button'}
                 icon={fiatIconToUse}
                 button="primary"
-                label={__('This content can be purchased for %fiatSymbolToUse%%purchaseTag%', {
-                  fiatSymbolToUse,
+                label={__('This content can be purchased for %fiatSymbol%%purchaseTag%', {
+                  fiatSymbol,
                   purchaseTag,
                 })}
                 requiresAuth
@@ -220,8 +220,8 @@ export default function PreorderButton(props: Props) {
                 className={'preorder-button'}
                 icon={fiatIconToUse}
                 button="primary"
-                label={__('Preorder now for %fiatSymbolToUse%%preorderTag%', {
-                  fiatSymbolToUse,
+                label={__('Preorder now for %fiatSymbol%%preorderTag%', {
+                  fiatSymbol,
                   preorderTag,
                 })}
                 requiresAuth
