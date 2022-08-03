@@ -51,6 +51,10 @@ type Props = {
   claimWasPurchased: boolean,
   location: { search: string },
   isUriPlaying: boolean,
+  purchaseTag: number,
+  preorderTag: number,
+  claimId: string,
+  doCheckIfPurchasedClaimId: (claimId: string) => void,
   doFetchCostInfoForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetPrimaryUri: (uri: ?string) => void,
@@ -92,6 +96,10 @@ export default function FilePage(props: Props) {
     doToggleAppDrawer,
     doFileGet,
     doSetMainPlayerDimension,
+    doCheckIfPurchasedClaimId,
+    purchaseTag,
+    preorderTag,
+    claimId,
   } = props;
 
   const { search } = location;
@@ -136,6 +144,11 @@ export default function FilePage(props: Props) {
     // would trigger the drawer
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    const aPurchaseOrPreorder = purchaseTag || preorderTag;
+    if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
+  }, [purchaseTag, preorderTag, claimId]);
 
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file

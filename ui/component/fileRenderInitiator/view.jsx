@@ -48,8 +48,11 @@ type Props = {
   parentCommentId?: string,
   isMarkdownPost?: boolean,
   claimLinkId?: string,
+  purchaseContentTag: boolean,
+  purchaseMadeForClaimId: boolean,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doFetchChannelLiveStatus: (string) => void,
+  claimIsMine: boolean,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -78,6 +81,9 @@ export default function FileRenderInitiator(props: Props) {
     claimLinkId,
     doUriInitiatePlay,
     doFetchChannelLiveStatus,
+    purchaseContentTag,
+    purchaseMadeForClaimId,
+    claimIsMine,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
@@ -95,7 +101,10 @@ export default function FileRenderInitiator(props: Props) {
 
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = href && href.indexOf('t=') > -1;
-  const shouldAutoplay = !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
+
+  const didntPurchasePaidContent = purchaseContentTag && !purchaseMadeForClaimId && !claimIsMine;
+  const shouldAutoplay =
+    !didntPurchasePaidContent && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
 
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile = isLivestreamClaim
@@ -200,6 +209,7 @@ export default function FileRenderInitiator(props: Props) {
               'content__cover--theater-mode': theaterMode && !isMobile,
               'content__cover--text': isText,
               'card__media--nsfw': obscurePreview,
+              'content__cover--purchasable': purchaseContentTag && !purchaseMadeForClaimId,
             })
       }
     >
