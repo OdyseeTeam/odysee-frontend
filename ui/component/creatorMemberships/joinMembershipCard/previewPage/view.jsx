@@ -118,6 +118,8 @@ export default function PreviewPage(props: Props) {
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
 
+  const creatorHasNoMemberships = !creatorHasMemberships || canReceiveFiatTips === false;
+
   async function getExistingTiers() {
     const response = await Lbryio.call(
       'membership',
@@ -234,8 +236,16 @@ export default function PreviewPage(props: Props) {
     <>
       <h1 className="join-membership__header">Join Membership</h1>
       <h3 className="join-membership__subtitle">{subtitleText}</h3>
-      {!shouldDisablePurchase && (
+
+      {/* show the creator's memberships */}
+      {creatorHasMemberships && (
         <>
+          { hasSavedCard === false && (
+            <div className="help help__no-card" style={{ fontSize: '18px' }}>
+              <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+              {' ' + __('To Become a Channel Member')}
+            </div>
+          )}
           {/** channel tab preview section (blocks) **/}
           { isChannelTab && (
             <>
@@ -338,15 +348,9 @@ export default function PreviewPage(props: Props) {
           )}
         </>
       )}
-      { hasSavedCard === false && (
-        <div className="help help__no-card">
-          <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
-          {' ' + __('To Become a Channel Member')}
-        </div>
-      )}
-      {/*checking if hasSavedCard is undefined doesn't seem to do much*/}
+
       {/*{ !hasSavedCard && (*/}
-      {/*  <div className="can-create-your-own-memberships__div">*/}
+      {/*  <div className="can-create-your-own-memberships__div" style={{ marginTop: '36px' }}>*/}
       {/*    <BalanceText>*/}
       {/*      {__(hasntCreatedChannelsText)}*/}
       {/*    </BalanceText>*/}
@@ -354,16 +358,25 @@ export default function PreviewPage(props: Props) {
       {/*)}*/}
 
       <div className="membership-join-purchase__div">
-        {shouldDisablePurchase && (
-          <Button
-            className="membership-join-purchase__button"
-            icon={ICONS.UPGRADE}
-            button="primary"
-            type="submit"
-            label={__('Create Your Memberships')}
-            navigate="$/memberships"
-          />
+        {!creatorHasMemberships && (
+          <>
+            <div className="can-create-your-own-memberships__div" style={{ marginTop: '36px' }}>
+              <BalanceText>
+                {__(hasntCreatedChannelsText)}
+              </BalanceText>
+              <Button
+                className="membership-join-purchase__button"
+                icon={ICONS.UPGRADE}
+                button="primary"
+                type="submit"
+                label={__('Create Your Memberships')}
+                navigate="$/memberships"
+                style={{ marginTop: '15px' }}
+              />
+            </div>
+          </>
         )}
+        {/* what is !channelTab conditional? */}
         { shouldDisablePurchase && !isChannelTab && (
           <>
             <Button

@@ -5,39 +5,6 @@ import React from 'react';
 import ConfirmationPage from './confirmationPage';
 import PreviewPage from './previewPage';
 
-let membershipTiers = [
-  {
-    displayName: 'Helping Hand',
-    description: "You're doing your part, thank you!",
-    monthlyContributionInUSD: 5,
-    perks: ['exclusiveAccess', 'badge'],
-  },
-  {
-    displayName: 'Big-Time Supporter',
-    description: 'You are a true fan and are helping in a big way!',
-    monthlyContributionInUSD: 10,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
-  },
-  {
-    displayName: 'Community MVP',
-    description: 'Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  {
-    displayName: 'Community MVP2',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  {
-    displayName: 'Community MVP3',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-];
-
 type Props = {
   uri: string,
   closeModal?: () => void,

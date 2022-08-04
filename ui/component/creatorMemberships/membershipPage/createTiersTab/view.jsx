@@ -3,6 +3,7 @@
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import { FormField } from 'component/common/form';
 import moment from 'moment';
@@ -60,8 +61,6 @@ function CreateTiersTab(props: Props) {
     channelName = activeChannel.name;
     channelClaimId = activeChannel.claim_id;
   }
-
-  console.log(activeChannel);
 
   const [isEditing, setIsEditing] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState([]);
@@ -371,8 +370,6 @@ function CreateTiersTab(props: Props) {
         <h2 style={{ fontSize: '15px' }}>You are editing your tiers for {channelName}, you can change the channel on the Basics tab</h2>
       </div>
 
-      {!bankAccountConfirmed && <h1 style={{ textAlign: 'center' }} className="confirm-account-to-create-tiers-header">Please confirm your bank account before you can create tiers </h1>}
-
       <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
         {/* list through different tiers */}
         {creatorMemberships && creatorMemberships.length > 0 && creatorMemberships.map((membershipTier, membershipIndex) => (
@@ -441,38 +438,55 @@ function CreateTiersTab(props: Props) {
           </>
         )}
 
-        {/*** show additional info checkboxes, activate memberships button ***/}
-        {/*** disabling until the backend is ready ***/}
-        {/*/!** additional options checkboxes **!/*/}
-        {/*<div className="show-additional-membership-info__div">*/}
-        {/*  <h2 className="show-additional-membership-info__header">Additional Info</h2>*/}
-        {/*  <FormField*/}
-        {/*    type="checkbox"*/}
-        {/*    defaultChecked={false}*/}
-        {/*    label={'Show the amount of supporters on your Become A Member page'}*/}
-        {/*    name={'showSupporterAmount'}*/}
-        {/*  />*/}
-        {/*  <FormField*/}
-        {/*    type="checkbox"*/}
-        {/*    defaultChecked={false}*/}
-        {/*    label={'Show the amount you make monthly on your Become A Member page'}*/}
-        {/*    name={'showMonthlyIncomeAmount'}*/}
-        {/*  />*/}
-        {/*</div>*/}
-
-        {/*/!* activate memberships button *!/*/}
-        {/*<div className="activate-memberships-button__div">*/}
-        {/*  <Button*/}
-        {/*    button="primary"*/}
-        {/*    onClick={(e) => openActivateMembershipsModal()}*/}
-        {/*    className="activate-memberships__button"*/}
-        {/*    label={__('Activate Memberships')}*/}
-        {/*    icon={ICONS.ADD}*/}
-        {/*  />*/}
-        {/*</div>*/}
-
-
       </div>
+
+      {!bankAccountConfirmed && (<>
+        <div style={{ marginTop: '56px' }}>
+          <h1 style={{ textAlign: 'center' }} className="confirm-account-to-create-tiers-header">
+            Please confirm your bank account before you can create tiers
+          </h1>
+          <Button
+            button="primary"
+            className="membership_button"
+            label={__('Connect a bank account')}
+            icon={ICONS.FINANCE}
+            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+            style={{ maxWidth: '254px', margin: '0 auto', marginTop: '15px' }}
+          />
+        </div>
+      </>)}
+
+      {/*** show additional info checkboxes, activate memberships button ***/}
+      {/*** disabling until the backend is ready ***/}
+      {/*/!** additional options checkboxes **!/*/}
+      {/*<div className="show-additional-membership-info__div">*/}
+      {/*  <h2 className="show-additional-membership-info__header">Additional Info</h2>*/}
+      {/*  <FormField*/}
+      {/*    type="checkbox"*/}
+      {/*    defaultChecked={false}*/}
+      {/*    label={'Show the amount of supporters on your Become A Member page'}*/}
+      {/*    name={'showSupporterAmount'}*/}
+      {/*  />*/}
+      {/*  <FormField*/}
+      {/*    type="checkbox"*/}
+      {/*    defaultChecked={false}*/}
+      {/*    label={'Show the amount you make monthly on your Become A Member page'}*/}
+      {/*    name={'showMonthlyIncomeAmount'}*/}
+      {/*  />*/}
+      {/*</div>*/}
+
+      {/*/!* activate memberships button *!/*/}
+      {/*<div className="activate-memberships-button__div">*/}
+      {/*  <Button*/}
+      {/*    button="primary"*/}
+      {/*    onClick={(e) => openActivateMembershipsModal()}*/}
+      {/*    className="activate-memberships__button"*/}
+      {/*    label={__('Activate Memberships')}*/}
+      {/*    icon={ICONS.ADD}*/}
+      {/*  />*/}
+      {/*</div>*/}
+
+
     </div>
   );
 }
