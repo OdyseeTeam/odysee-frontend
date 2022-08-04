@@ -75,7 +75,7 @@ const OdyseeMembershipPage = lazyImport(() =>
   import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
 );
 const CreatorMembershipPage = lazyImport(() =>
-  import('page/creatorMembership' /* webpackChunkName: "creatorMembership" */)
+  import('page/odyseeMemberships' /* webpackChunkName: "odyseeMemberships" */)
 );
 const OwnComments = lazyImport(() => import('page/ownComments' /* webpackChunkName: "ownComments" */));
 const PasswordResetPage = lazyImport(() => import('page/passwordReset' /* webpackChunkName: "passwordReset" */));

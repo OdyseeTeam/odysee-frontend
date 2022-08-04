@@ -244,7 +244,7 @@ export default function PreviewPage(props: Props) {
                           type="submit"
                           disabled={shouldDisablePurchase || checkingOwnMembershipCard}
                           label={__('Signup for $%membership_price% a month', {
-                            membership_price: membership.Prices[0].Price.amount / 100,
+                            membership_price: membership.NewPrices[0].Price.amount / 100,
                           })}
                           onClick={(e) => clickSignupButton(e)}
                           membership-tier-index={i}
