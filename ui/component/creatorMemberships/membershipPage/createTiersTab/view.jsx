@@ -365,13 +365,13 @@ function CreateTiersTab(props: Props) {
   return (
     <div className="create-tiers__div">
       {/* page header */}
-      <div className="create-tiers__header">
+      <div className="create-tiers__header" style={{ textAlign: 'center' }}>
         <h1 style={{ fontSize: '24px', marginBottom: 'var(--spacing-s)' }}>Create Your Membership Tiers</h1>
         <h2 style={{ fontSize: '18px', marginBottom: 'var(--spacing-s)' }}>Define the tiers that your viewers can subscribe to </h2>
         <h2 style={{ fontSize: '15px' }}>You are editing your tiers for {channelName}, you can change the channel on the Basics tab</h2>
       </div>
 
-      {!bankAccountConfirmed && <h1 className="confirm-account-to-create-tiers-header">Please confirm your bank account before you can create tiers </h1>}
+      {!bankAccountConfirmed && <h1 style={{ textAlign: 'center' }} className="confirm-account-to-create-tiers-header">Please confirm your bank account before you can create tiers </h1>}
 
       <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
         {/* list through different tiers */}
@@ -429,43 +429,49 @@ function CreateTiersTab(props: Props) {
         {/* add membership tier button */}
         {creatorMemberships && creatorMemberships.length < 5 && (
           <>
-            <Button
-              button="primary"
-              onClick={(e) => addMembership()}
-              className="add-membership__button"
-              label={__('Add Tier')}
-              icon={ICONS.ADD}
-            />
+            <div style={{ textAlign: 'center' }} >
+              <Button
+                button="primary"
+                onClick={(e) => addMembership()}
+                className="add-membership__button"
+                label={__('Add Tier')}
+                icon={ICONS.ADD}
+              />
+            </div>
           </>
         )}
 
-        {/** additional options checkboxes **/}
-        <div className="show-additional-membership-info__div">
-          <h2 className="show-additional-membership-info__header">Additional Info</h2>
-          <FormField
-            type="checkbox"
-            defaultChecked={false}
-            label={'Show the amount of supporters on your Become A Member page'}
-            name={'showSupporterAmount'}
-          />
-          <FormField
-            type="checkbox"
-            defaultChecked={false}
-            label={'Show the amount you make monthly on your Become A Member page'}
-            name={'showMonthlyIncomeAmount'}
-          />
-        </div>
+        {/*** show additional info checkboxes, activate memberships button ***/}
+        {/*** disabling until the backend is ready ***/}
+        {/*/!** additional options checkboxes **!/*/}
+        {/*<div className="show-additional-membership-info__div">*/}
+        {/*  <h2 className="show-additional-membership-info__header">Additional Info</h2>*/}
+        {/*  <FormField*/}
+        {/*    type="checkbox"*/}
+        {/*    defaultChecked={false}*/}
+        {/*    label={'Show the amount of supporters on your Become A Member page'}*/}
+        {/*    name={'showSupporterAmount'}*/}
+        {/*  />*/}
+        {/*  <FormField*/}
+        {/*    type="checkbox"*/}
+        {/*    defaultChecked={false}*/}
+        {/*    label={'Show the amount you make monthly on your Become A Member page'}*/}
+        {/*    name={'showMonthlyIncomeAmount'}*/}
+        {/*  />*/}
+        {/*</div>*/}
 
-        {/* activate memberships button */}
-        <div className="activate-memberships-button__div">
-          <Button
-            button="primary"
-            onClick={(e) => openActivateMembershipsModal()}
-            className="activate-memberships__button"
-            label={__('Activate Memberships')}
-            icon={ICONS.ADD}
-          />
-        </div>
+        {/*/!* activate memberships button *!/*/}
+        {/*<div className="activate-memberships-button__div">*/}
+        {/*  <Button*/}
+        {/*    button="primary"*/}
+        {/*    onClick={(e) => openActivateMembershipsModal()}*/}
+        {/*    className="activate-memberships__button"*/}
+        {/*    label={__('Activate Memberships')}*/}
+        {/*    icon={ICONS.ADD}*/}
+        {/*  />*/}
+        {/*</div>*/}
+
+
       </div>
     </div>
   );

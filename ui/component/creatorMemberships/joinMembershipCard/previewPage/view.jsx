@@ -112,7 +112,8 @@ export default function PreviewPage(props: Props) {
   // check if a user is looking at their own memberships
   const contentChannelClaim = getChannelFromClaim(claim);
   const channelClaimId = contentChannelClaim && contentChannelClaim.claim_id;
-  const checkingOwnMembershipCard = myChannelClaimIds && myChannelClaimIds.includes(channelClaimId);
+
+  const checkingOwnMembershipCard = myChannelClaimIds && myChannelClaimIds.includes(channelId);
 
   // if a membership can't be purchased from the creator
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
@@ -220,12 +221,23 @@ export default function PreviewPage(props: Props) {
     hasntCreatedChannelsText = 'Unfortunately, this creator hasn\'t activated their membership functionality yet, but you can create your own memberships with the link below';
   }
 
+  let subtitleText;
+  if (!checkingOwnMembershipCard){
+    subtitleText = 'Join this creator\'s channel for access to exclusive content and perks';
+  } else if (creatorMemberships && creatorMemberships.length){
+    subtitleText = 'Your memberships are active but you cannot join your own memberships';
+  } else {
+    subtitleText = 'You haven\'t setup your own memberships yet but you can start now!';
+  }
+
   return (
     <>
-      {!shouldDisablePurchase ? (
+      <h1 className="join-membership__header">Join Membership</h1>
+      <h3 className="join-membership__subtitle">{subtitleText}</h3>
+      {!shouldDisablePurchase && (
         <>
           {/** channel tab preview section (blocks) **/}
-          { isChannelTab ? (
+          { isChannelTab && (
             <>
               <div className="membership-join-blocks__div">
                 {creatorMemberships && creatorMemberships.map(function(membership, i) {
@@ -290,7 +302,8 @@ export default function PreviewPage(props: Props) {
               )}
             </div>
           </>
-          ) : (
+          )}
+          {!isChannelTab && (
             // modal preview section
             <>
               <div className="membership-join__tab-buttons">
@@ -324,21 +337,24 @@ export default function PreviewPage(props: Props) {
             </>
           )}
         </>
-      ) : hasSavedCard === false ? (
+      )}
+      { hasSavedCard === false && (
         <div className="help help__no-card">
           <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
           {' ' + __('To Become a Channel Member')}
         </div>
-      ) : (
-        <div className="can-create-your-own-memberships__div">
-          <BalanceText>
-            {__(hasntCreatedChannelsText)}
-          </BalanceText>
-        </div>
       )}
+      {/*checking if hasSavedCard is undefined doesn't seem to do much*/}
+      {/*{ !hasSavedCard && (*/}
+      {/*  <div className="can-create-your-own-memberships__div">*/}
+      {/*    <BalanceText>*/}
+      {/*      {__(hasntCreatedChannelsText)}*/}
+      {/*    </BalanceText>*/}
+      {/*  </div>*/}
+      {/*)}*/}
 
       <div className="membership-join-purchase__div">
-        {shouldDisablePurchase ? (
+        {shouldDisablePurchase && (
           <Button
             className="membership-join-purchase__button"
             icon={ICONS.UPGRADE}
@@ -347,27 +363,24 @@ export default function PreviewPage(props: Props) {
             label={__('Create Your Memberships')}
             navigate="$/memberships"
           />
-        ) : (
+        )}
+        { shouldDisablePurchase && !isChannelTab && (
           <>
-            { !isChannelTab && (
-              <>
-                <Button
-                  className="membership-join-purchase__button"
-                  icon={ICONS.UPGRADE}
-                  button="primary"
-                  type="submit"
-                  disabled={shouldDisablePurchase || checkingOwnMembershipCard}
-                  label={__('Signup for $%membership_price% a month', {
-                    membership_price: selectedTier.monthlyContributionInUSD,
-                  })}
-                  onClick={handleConfirm}
-                />
-                {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}
-
-              </>
-            ) }
+            <Button
+              className="membership-join-purchase__button"
+              icon={ICONS.UPGRADE}
+              button="primary"
+              type="submit"
+              disabled={shouldDisablePurchase || checkingOwnMembershipCard}
+              label={__('Signup for $%membership_price% a month', {
+                membership_price: selectedTier.monthlyContributionInUSD,
+              })}
+              onClick={handleConfirm}
+            />
+            {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}
           </>
         )}
+
       </div>
     </>
   );

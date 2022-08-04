@@ -632,3 +632,15 @@ svg.icon--Upgrade {
   color: grey;
   margin-top: 10px;
 }
+
+.join-membership__header {
+  font-size: var(--font-large);
+  font-weight: var(--font-weight-bold);
+}
+
+.join-membership__subtitle {
+  color: var(--color-text-subtitle);
+  font-size: var(--font-body);
+  margin-top: var(--spacing-s);
+  margin-bottom: var(--spacing-m);
+}
