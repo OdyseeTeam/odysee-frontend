@@ -96,7 +96,7 @@ export const doMembershipMine = () => async (dispatch: Dispatch) =>
     })
     .catch((err) => dispatch({ type: ACTIONS.SET_MEMBERSHIP_DATA_ERROR, data: err }));
 
-export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch) => {
+export const doMembershipBuy = (membershipParams: MembershipBuyParams, closeModal, doNext) => async (dispatch: Dispatch) => {
   const { membership_id: membershipId, channel_name: userChannelName } = membershipParams;
 
   if (!membershipId) return;
@@ -106,11 +106,21 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
   // show the memberships the user is subscribed to
   return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
     .then((response) => {
+      // dispatch(
+      //   doToast({
+      //     message: __('You are now a %membership_tier_name% member, enjoy the perks and special features!', {
+      //       membership_tier_name: response.MembershipDetails.name,
+      //       creator_channel_name: userChannelName,
+      //     }),
+      //   })
+      // );
+
+      doNext();
+
       dispatch(
         doToast({
-          message: __('You are now a %membership_tier_name% member, enjoy the perks and special features!', {
-            membership_tier_name: response.MembershipDetails.name,
-            creator_channel_name: userChannelName,
+          message: __('You are now a %creator_channel_name% member, enjoy the perks and special features!', {
+            creator_channel_name: response.handle,
           }),
         })
       );

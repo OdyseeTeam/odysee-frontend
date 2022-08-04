@@ -16,7 +16,16 @@ type Props = {
 };
 
 export default function ConfirmationPage(props: Props) {
-  const { selectedTier, onCancel, closeModal, channelName, fetchStarted, activeChannelClaim, doMembershipBuy } = props;
+  const {
+    selectedTier,
+    onCancel,
+    closeModal,
+    channelName,
+    fetchStarted,
+    activeChannelClaim,
+    doMembershipBuy,
+    doMembershipMine,
+  } = props;
 
   function handleJoinMembership() {
     const testChannelParams = {
@@ -26,7 +35,7 @@ export default function ConfirmationPage(props: Props) {
       price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
-    doMembershipBuy(testChannelParams, closeModal);
+    doMembershipBuy(testChannelParams, closeModal, doMembershipMine);
   }
 
   return (
