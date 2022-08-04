@@ -48,16 +48,16 @@ export default function JoinMembershipCard(props: Props) {
             <PreviewPage
               uri={uri}
               selectedTier={creatorMemberships[membershipIndex]}
-              handleConfirm={() => setConfirmationPage(true)}
               tabButtonProps={tabButtonProps}
               isChannelTab={isChannelTab}
+              expandedTabs={expandedTabs}
+              seeAllTiers={seeAllTiers}
+              creatorMemberships={creatorMemberships}
+              setCreatorMemberships={setCreatorMemberships}
               setMembershipIndex={setMembershipIndex}
               setExpandedTabs={setExpandedTabs}
-              expandedTabs={expandedTabs}
+              handleConfirm={() => setConfirmationPage(true)}
               setSeeAllTiers={setSeeAllTiers}
-              seeAllTiers={seeAllTiers}
-              setCreatorMemberships={setCreatorMemberships}
-              creatorMemberships={creatorMemberships}
             />
           )
         }

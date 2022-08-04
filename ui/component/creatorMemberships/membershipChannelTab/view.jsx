@@ -118,15 +118,16 @@ export default function MembershipChannelTab(props: Props) {
               <h1>{}</h1>
 
               <div className="section__actions--centered">
-                <Button
-                  className="join-membership-modal-purchase__button"
-                  icon={ICONS.FINANCE}
-                  button="secondary"
-                  type="submit"
-                  disabled={false}
-                  label={`View Membership History`}
-                  navigate={`/${channelId}/membership_history`}
-                />
+                {/*waiting for the backend for this*/}
+                {/*<Button*/}
+                {/*  className="join-membership-modal-purchase__button"*/}
+                {/*  icon={ICONS.FINANCE}*/}
+                {/*  button="secondary"*/}
+                {/*  type="submit"*/}
+                {/*  disabled={false}*/}
+                {/*  label={`View Membership History`}*/}
+                {/*  navigate={`/${channelId}/membership_history`}*/}
+                {/*/>*/}
 
                 {membershipisActive && <Button
                   className="join-membership-modal-purchase__button"

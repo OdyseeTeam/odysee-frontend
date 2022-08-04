@@ -564,9 +564,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                       <div className="claim-preview__primary-actions">
                         {isChannelUri && !banState.muted && !claimIsMine && (
                           <>
-                            <div className="button-group">
-                              <JoinMembershipButton uri={uri} />
-                            </div>
+                            {/* disabling until able to refactor */}
+                            {/*<div className="button-group">*/}
+                            {/*  <JoinMembershipButton uri={uri} />*/}
+                            {/*</div>*/}
                             <SubscribeButton
                               uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
                             />

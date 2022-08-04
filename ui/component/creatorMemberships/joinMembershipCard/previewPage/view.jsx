@@ -10,62 +10,6 @@ import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
-const perkDescriptions = [
-  {
-    perkName: 'exclusiveAccess',
-    perkDescription: 'Members-only content',
-  },
-  {
-    perkName: 'earlyAccess',
-    perkDescription: 'Early access content',
-  },
-  {
-    perkName: 'badge',
-    perkDescription: 'Member Badge',
-  },
-  {
-    perkName: 'emojis',
-    perkDescription: 'Members-only emojis',
-  },
-  {
-    perkName: 'custom-badge',
-    perkDescription: 'MVP member badge',
-  },
-];
-
-let membershipTiers = [
-  {
-    displayName: 'Helping Hand',
-    description: '',
-    monthlyContributionInUSD: 5,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  {
-    displayName: 'Big-Time Supporter',
-    description: 'You are a true fan and are helping in a big way!',
-    monthlyContributionInUSD: 10,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
-  },
-  {
-    displayName: 'Community MVP',
-    description: 'Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  {
-    displayName: 'Community MVP2',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  // {
-  //   displayName: 'Community MVP3',
-  //   description: 'Where would this creator be without you? You are a true legend!',
-  //   monthlyContributionInUSD: 20,
-  //   perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  // },
-];
-
 type Props = {
   uri: string,
   selectedTier: any,
@@ -85,7 +29,7 @@ type Props = {
 export default function PreviewPage(props: Props) {
   const {
     uri,
-    selectedTier,
+    // selectedTier,
     tabButtonProps,
     handleConfirm,
     setMembershipIndex,
@@ -142,6 +86,12 @@ export default function PreviewPage(props: Props) {
 
     return response;
   }
+
+  const selectedTier = creatorMemberships && creatorMemberships[0]
+
+  console.log(creatorMemberships);
+  console.log('selected tier');
+  console.log(selectedTier);
 
   useEffect(() => {
     if (channelName && channelId) {
@@ -313,11 +263,12 @@ export default function PreviewPage(props: Props) {
             </div>
           </>
           )}
-          {!isChannelTab && (
+          {!isChannelTab && creatorMemberships && selectedTier && (
             // modal preview section
             <>
+              <>{console.log('RUNNING HERE')}</>
               <div className="membership-join__tab-buttons">
-                {membershipTiers.map((membershipTier, index) => {
+                {creatorMemberships.map((creatorMembership, index) => {
                   const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
                   return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
                 })}
@@ -376,7 +327,7 @@ export default function PreviewPage(props: Props) {
             </div>
           </>
         )}
-        {/* what is !channelTab conditional? */}
+
         { shouldDisablePurchase && !isChannelTab && (
           <>
             <Button
