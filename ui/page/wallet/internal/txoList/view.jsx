@@ -1,22 +1,19 @@
 // @flow
-import * as ICONS from 'constants/icons';
-import React, { useEffect } from 'react';
+import React from 'react';
+import classnames from 'classnames';
 import { withRouter } from 'react-router';
-import * as TXO from 'constants/txo_list';
-import TransactionListTable from 'component/transactionListTable';
-import Paginate from 'component/common/paginate';
 import { FormField } from 'component/common/form-components/form-field';
+import { toCapitalCase } from 'util/string';
+import * as ICONS from 'constants/icons';
+import * as TXO from 'constants/txo_list';
+import Paginate from 'component/common/paginate';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import { toCapitalCase } from 'util/string';
-import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import FileExporter from 'component/common/file-exporter';
-import WalletFiatPaymentHistory from 'component/walletFiatPaymentHistory';
-import WalletFiatAccountHistory from 'component/walletFiatAccountHistory';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
-let stripeEnvironment = getStripeEnvironment();
+import WalletFiatPaymentHistory from './internal/walletFiatPaymentHistory';
+import WalletFiatAccountHistory from './internal/walletFiatAccountHistory';
+import TransactionListTable from './internal/transactionListTable';
 
 // constants to be used in query params
 const QUERY_NAME_CURRENCY = 'currency';
@@ -39,6 +36,10 @@ type Props = {
   transactionsFile: string,
   updateTxoPageParams: (any) => void,
   toast: (string, boolean) => void,
+  accountPaymentHistory: ?any,
+  accountTransactions: ?any,
+  doPaymentHistory: () => void,
+  doAccountTransactions: () => void,
 };
 
 type Delta = {
@@ -57,89 +58,21 @@ function TxoList(props: Props) {
     history,
     isFetchingTransactions,
     transactionsFile,
+    accountPaymentHistory,
+    accountTransactions,
+    doPaymentHistory,
+    doAccountTransactions,
   } = props;
-
-  const [accountTransactionResponse, setAccountTransactionResponse] = React.useState([]);
-  const [customerTransactions, setCustomerTransactions] = React.useState([]);
-
-  function getPaymentHistory() {
-    return Lbryio.call(
-      'customer',
-      'list',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    );
-  }
-
-  function getAccountTransactions() {
-    return Lbryio.call(
-      'account',
-      'list',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    );
-  }
 
   // calculate account transactions section
   React.useEffect(() => {
-    (async function () {
-      try {
-        const accountTransactionResponse = await getAccountTransactions();
-
-        // reverse so order is from most recent to latest
-        if (accountTransactionResponse && accountTransactionResponse.length) {
-          accountTransactionResponse.reverse();
-        }
-
-        // TODO: remove this once pagination is implemented
-        if (
-          accountTransactionResponse &&
-          accountTransactionResponse.length &&
-          accountTransactionResponse.length > 100
-        ) {
-          accountTransactionResponse.length = 100;
-        }
-
-        setAccountTransactionResponse(accountTransactionResponse);
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-  }, []);
+    doPaymentHistory();
+  }, [doPaymentHistory]);
 
   // populate customer payment data
   React.useEffect(() => {
-    (async function () {
-      try {
-        // get card payments customer has made
-        let customerTransactionResponse = await getPaymentHistory();
-        // console.log('amount of transactions');
-        // console.log(customerTransactionResponse.length);
-
-        // reverse so order is from most recent to latest
-        if (customerTransactionResponse && customerTransactionResponse.length) {
-          customerTransactionResponse.reverse();
-        }
-
-        // TODO: remove this once pagination is implemented
-        if (
-          customerTransactionResponse &&
-          customerTransactionResponse.length &&
-          customerTransactionResponse.length > 100
-        ) {
-          customerTransactionResponse.length = 100;
-        }
-
-        setCustomerTransactions(customerTransactionResponse);
-      } catch (err) {
-        console.log(err);
-      }
-    })();
-  }, []);
+    doAccountTransactions();
+  }, [doAccountTransactions]);
 
   const urlParams = new URLSearchParams(search);
   const page = urlParams.get(TXO.PAGE) || String(1);
@@ -310,7 +243,7 @@ function TxoList(props: Props) {
 
   const paramsString = JSON.stringify(params);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (paramsString && updateTxoPageParams) {
       const params = JSON.parse(paramsString);
       updateTxoPageParams(params);
@@ -501,8 +434,8 @@ function TxoList(props: Props) {
                 </div>
               </div>
               {/* listing of the transactions */}
-              {fiatType === 'incoming' && <WalletFiatAccountHistory transactions={accountTransactionResponse} />}
-              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactions={customerTransactions} />}
+              {fiatType === 'incoming' && <WalletFiatAccountHistory transactions={accountTransactions} />}
+              {fiatType === 'outgoing' && <WalletFiatPaymentHistory transactions={accountPaymentHistory} />}
               {/* TODO: have to finish pagination */}
               {/* <Paginate totalPages={Math.ceil(txoItemCount / Number(pageSize))} /> */}
             </div>

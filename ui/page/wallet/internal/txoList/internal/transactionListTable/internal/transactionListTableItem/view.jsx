@@ -1,16 +1,16 @@
 // @flow
-import * as ICONS from 'constants/icons';
-import { SITE_NAME } from 'config';
 import React from 'react';
+import { SITE_NAME } from 'config';
+import { toCapitalCase } from 'util/string';
+import { buildURI, parseURI } from 'util/lbryURI';
+import * as ICONS from 'constants/icons';
+import * as TXO from 'constants/txo_list';
+import * as ABANDON_STATES from 'constants/abandon_states';
 import ButtonTransaction from 'component/common/transaction-link';
 import CreditAmount from 'component/common/credit-amount';
 import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
-import { toCapitalCase } from 'util/string';
-import { buildURI, parseURI } from 'util/lbryURI';
-import * as TXO from 'constants/txo_list';
-import * as ABANDON_STATES from 'constants/abandon_states';
 import UriIndicator from 'component/uriIndicator';
 
 type Props = {

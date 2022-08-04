@@ -1,9 +1,9 @@
 // @flow
-import * as MODALS from 'constants/modal_types';
 import React from 'react';
-import TxoListItem from 'component/transactionListTableItem';
+import * as MODALS from 'constants/modal_types';
 import Spinner from 'component/spinner';
 import LbcSymbol from 'component/common/lbc-symbol';
+import TxoListItem from './internal/transactionListTableItem';
 
 type Props = {
   emptyMessage: ?string,

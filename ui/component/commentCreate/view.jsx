@@ -54,6 +54,7 @@ type Props = {
   supportDisabled: boolean,
   uri: string,
   disableInput?: boolean,
+  canReceiveFiatTips: ?boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -86,6 +87,7 @@ type Props = {
   myCommentedChannelIds: ?Array<string>,
   doFetchMyCommentedChannels: (claimId: ?string) => void,
   textInjection?: string,
+  doTipAccountCheckForUri: (uri: string) => void,
 };
 
 export function CommentCreate(props: Props) {
@@ -110,6 +112,7 @@ export function CommentCreate(props: Props) {
     supportDisabled,
     uri,
     disableInput,
+    canReceiveFiatTips,
     onSlimInputClose,
     doCommentCreate,
     doFetchCreatorSettings,
@@ -126,6 +129,7 @@ export function CommentCreate(props: Props) {
     myCommentedChannelIds,
     doFetchMyCommentedChannels,
     textInjection,
+    doTipAccountCheckForUri,
   } = props;
 
   const isMobile = useIsMobile();
@@ -156,7 +160,6 @@ export function CommentCreate(props: Props) {
   const [showSelectors, setShowSelectors] = React.useState({ tab: undefined, open: false });
   const [disableReviewButton, setDisableReviewButton] = React.useState();
   const [exchangeRate, setExchangeRate] = React.useState();
-  const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(undefined);
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
   const charCount = commentValue ? commentValue.length : 0;
@@ -228,7 +231,7 @@ export function CommentCreate(props: Props) {
     if (onSlimInputClose) onSlimInputClose();
 
     if (sticker.price && sticker.price > 0) {
-      setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
+      setActiveTab(canReceiveFiatTips ? TAB_FIAT : TAB_LBC);
       setTipSelector(true);
     }
   }
@@ -451,30 +454,11 @@ export function CommentCreate(props: Props) {
     if (stickerPrice && !exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
   }, [exchangeRate, stickerPrice]);
 
-  // Stickers: Check if creator has a tip account saved (on selector so that if a paid sticker is selected,
-  // it defaults to LBC tip instead of USD)
   React.useEffect(() => {
-    if (!stripeEnvironment || canReceiveFiatTip !== undefined || !tipChannelName) return;
-
-    Lbryio.call(
-      'account',
-      'check',
-      {
-        channel_claim_id: channelClaimId,
-        channel_name: tipChannelName,
-        environment: stripeEnvironment,
-      },
-      'post'
-    )
-      .then((accountCheckResponse) => {
-        if (accountCheckResponse === true && canReceiveFiatTip !== true) {
-          setCanReceiveFiatTip(true);
-        } else {
-          setCanReceiveFiatTip(false);
-        }
-      })
-      .catch(() => {});
-  }, [canReceiveFiatTip, channelClaimId, tipChannelName]);
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {

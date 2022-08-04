@@ -16,6 +16,7 @@ import {
   getNameFromClaim,
   getChannelFromClaim,
   getChannelTitleFromClaim,
+  getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
@@ -774,6 +775,9 @@ export const selectPermanentUrlForUri = (state: State, uri: string) => {
   return claim && claim.permanent_url;
 };
 
+export const selectChannelIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
+export const selectChannelNameForUri = createSelector(selectClaimForUri, (claim) => getChannelNameFromClaim(claim));
+
 export const makeSelectSupportsForUri = (uri: string) =>
   createSelector(selectSupportsByOutpoint, makeSelectClaimForUri(uri), (byOutpoint, claim: ?StreamClaim) => {
     if (!claim || !claim.is_my_output) {
@@ -900,8 +904,11 @@ export const selectOdyseeMembershipForUri = (state: State, uri: string) => {
  * @returns {*}
  */
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) => {
-  // TODO: should access via selector, not from `state` directly.
-  return state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
+  // looks for the uploader id
+  const matchingMembershipOfUser =
+    state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
+
+  return matchingMembershipOfUser;
 };
 
 export const selectGeoRestrictionForUri = createCachedSelector(
