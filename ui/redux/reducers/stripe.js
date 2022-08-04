@@ -61,6 +61,11 @@ reducers[ACTIONS.SET_HAS_SAVED_CARD] = (state, action) =>
     hasSavedCard: true,
   });
 
+reducers[ACTIONS.SET_HAS_NO_SAVED_CARD] = (state, action) =>
+  Object.assign({}, state, {
+    hasSavedCard: false,
+  });
+
 reducers[ACTIONS.SET_ACCOUNT_STATUS_FINISHED] = (state, action) =>
   Object.assign({}, state, {
     accountStatus: action.data,

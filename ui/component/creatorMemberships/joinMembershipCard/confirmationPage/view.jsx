@@ -23,7 +23,7 @@ export default function ConfirmationPage(props: Props) {
       membership_id: selectedTier.Membership.id,
       channel_id: selectedTier.Membership.channel_id,
       channel_name: selectedTier.Membership.channel_name,
-      price_id: selectedTier.Prices[0].Price.stripe_price_id,
+      price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
     doMembershipBuy(testChannelParams, closeModal);
@@ -40,18 +40,21 @@ export default function ConfirmationPage(props: Props) {
           label={__('Description:')}
           value={<BalanceText>{selectedTier.Membership.description}</BalanceText>}
         />
-        <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.Prices[0].Price.amount / 100}`} />
-        <ConfirmationSection
-          className="membership-features-confirmation__section"
-          label={__('Features and Perks:')}
-          value={
-            <ul className="membership-join-perks__list">
-              {selectedTier.Perks.map((tierPerk, i) =>
-                <li className="section__subtitle membership-join__perk-item">{tierPerk.name}</li>
-              )}
-            </ul>
-          }
-        />
+        <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.NewPrices[0].Price.amount / 100}`} />
+
+        {selectedTier.Perks && selectedTier.Perks.length && (<>
+          <ConfirmationSection
+            className="membership-features-confirmation__section"
+            label={__('Features and Perks:')}
+            value={
+              <ul className="membership-join-perks__list">
+                {selectedTier.Perks.map((tierPerk, i) =>
+                  <li className="section__subtitle membership-join__perk-item">{tierPerk.name}</li>
+                )}
+              </ul>
+            }
+          />
+        </>)}
       </div>
 
       {fetchStarted ? (

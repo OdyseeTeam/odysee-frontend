@@ -259,6 +259,8 @@ export function doGetCustomerStatus() {
 
       if (defaultPaymentMethodId) {
         dispatch({ type: ACTIONS.SET_HAS_SAVED_CARD });
+      } else {
+        dispatch({ type: ACTIONS.SET_HAS_NO_SAVED_CARD });
       }
     });
   };
