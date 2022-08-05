@@ -71,7 +71,8 @@ $sticker-item-size: 5rem;
   }
 
   @media (max-width: $breakpoint-small) {
-    top: 46px;
+    top: 45.5px;
+    left: 8px;
     font-size: var(--font-xsmall);
   }
 }
