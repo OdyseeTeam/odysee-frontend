@@ -4,6 +4,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail, selectUserEmail, selectUserLocale } from 'redux/selectors/user';
 import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
+import { doGetCustomerStatus } from 'redux/actions/stripe';
 import * as SETTINGS from 'constants/settings';
 
 import SettingsStripeCard from './view';
@@ -18,6 +19,7 @@ const select = (state) => ({
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   doToast: (options) => dispatch(doToast(options)),
+  doGetCustomerStatus: () => dispatch(doGetCustomerStatus()),
   setPreferredCurrency: (value) => {
     dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
   },
