@@ -3,10 +3,22 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
+type StripeState = {
+  canReceiveFiatTipsById: { [id: string]: boolean },
+  bankAccountConfirmed: ?boolean,
+  accountTotals: { total_received_unpaid: ?number, total_paid_out: ?number },
+  accountStatus: { accountConfirmed: ?boolean, stillRequiringVerification: ?boolean },
+  accountNotConfirmedButReceivedTips: ?boolean,
+  stripeConnectionUrl: ?string,
+  accountPendingConfirmation: ?boolean,
+  accountTransactions: ?any,
+  accountPaymentHistory: ?any,
+  customerStatus: ?any, // todo: type
+};
+
 const defaultState: StripeState = {
   canReceiveFiatTipsById: {},
   bankAccountConfirmed: undefined,
-  hasSavedCard: undefined,
   accountTotals: { total_received_unpaid: undefined, total_paid_out: undefined },
   accountStatus: { accountConfirmed: undefined, stillRequiringVerification: undefined },
   accountNotConfirmedButReceivedTips: undefined,
@@ -14,7 +26,7 @@ const defaultState: StripeState = {
   accountPendingConfirmation: undefined,
   accountTransactions: undefined,
   accountPaymentHistory: undefined,
-  lastFour: undefined,
+  customerStatus: undefined,
 };
 
 reducers[ACTIONS.SET_CAN_RECEIVE_FIAT_TIPS] = (state, action) => {
@@ -40,11 +52,6 @@ reducers[ACTIONS.SET_BANK_ACCOUNT_MISSING] = (state, action) =>
 reducers[ACTIONS.SET_STRIPE_ACCOUNT_TOTALS] = (state, action) =>
   Object.assign({}, state, {
     accountTotals: action.data,
-  });
-
-reducers[ACTIONS.SET_HAS_SAVED_CARD] = (state, action) =>
-  Object.assign({}, state, {
-    hasSavedCard: true,
   });
 
 reducers[ACTIONS.SET_ACCOUNT_STATUS_FINISHED] = (state, action) =>
@@ -77,9 +84,9 @@ reducers[ACTIONS.SET_ACCOUNT_PAYMENT_HISTORY] = (state, action) =>
     accountPaymentHistory: action.data,
   });
 
-reducers[ACTIONS.SET_PAYMENT_LAST_FOUR] = (state, action) =>
+reducers[ACTIONS.SET_CUSTOMER_STATUS] = (state, action) =>
   Object.assign({}, state, {
-    lastFour: action.data,
+    customerStatus: action.data.customerStatus,
   });
 
 export default function stripeReducer(state: UserState = defaultState, action: any) {

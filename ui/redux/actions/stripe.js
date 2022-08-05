@@ -234,32 +234,12 @@ function getAndSetAccountLink(stillNeedToConfirmAccount) {
   };
 }
 
-export function doGetCustomerStatus() {
-  return (dispatch: Dispatch) => {
-    Lbryio.call(
-      'customer',
-      'status',
-      {
-        environment: stripeEnvironment,
-      },
-      'post'
-    ).then((customerStatusResponse) => {
-      const lastFour =
-        customerStatusResponse.PaymentMethods &&
-        customerStatusResponse.PaymentMethods.length &&
-        customerStatusResponse.PaymentMethods[0].card.last4;
-
-      dispatch({
-        type: ACTIONS.SET_PAYMENT_LAST_FOUR,
-        data: lastFour,
-      });
-
-      // TODO: this is actually incorrect, last4 should be populated based on the transaction not the current customer details
-      const defaultPaymentMethodId = customerStatusResponse?.Customer?.invoice_settings?.default_payment_method?.id;
-
-      if (defaultPaymentMethodId) {
-        dispatch({ type: ACTIONS.SET_HAS_SAVED_CARD });
-      }
+export const doGetCustomerStatus = () => async (dispatch: Dispatch) =>
+  await Lbryio.call('customer', 'status', { environment: stripeEnvironment }, 'post').then((customerStatusResponse) => {
+    dispatch({
+      type: ACTIONS.SET_CUSTOMER_STATUS,
+      data: { customerStatus: customerStatusResponse },
     });
-  };
-}
+
+    return customerStatusResponse;
+  });

@@ -33,6 +33,7 @@ type Props = {
   locale: ?any,
   preferredCurrency: string,
   setPreferredCurrency: (string) => void,
+  doGetCustomerStatus: () => void,
 };
 
 // type State = {
@@ -67,7 +68,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
       cardNameValue: '',
     });
 
-    const { preferredCurrency, locale } = this.props;
+    const { preferredCurrency, locale, doGetCustomerStatus } = this.props;
 
     // use preferredCurrency if it's set on client, otherwise use USD, unless in Europe then use EUR
     if (preferredCurrency) {
@@ -345,16 +346,9 @@ class SettingsStripeCard extends React.Component<Props, State> {
         };
 
         // shows a success / error message when the payment is complete
-        var orderComplete = function (stripe, clientSecret) {
-          stripe.retrieveSetupIntent(clientSecret).then(function (result) {
-            Lbryio.call(
-              'customer',
-              'status',
-              {
-                environment: stripeEnvironment,
-              },
-              'post'
-            ).then((customerStatusResponse) => {
+        var orderComplete = (stripe, clientSecret) => {
+          stripe.retrieveSetupIntent(clientSecret).then((result) => {
+            doGetCustomerStatus().then((customerStatusResponse) => {
               let card = customerStatusResponse.PaymentMethods[0].card;
 
               let customer = customerStatusResponse.Customer;
