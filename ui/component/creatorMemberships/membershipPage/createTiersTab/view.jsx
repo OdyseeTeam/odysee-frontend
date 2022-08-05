@@ -458,7 +458,7 @@ function CreateTiersTab(props: Props) {
 
       {/*** show additional info checkboxes, activate memberships button ***/}
       {/*** disabling until the backend is ready ***/}
-      {/*/!** additional options checkboxes **!/*/}
+      {/** additional options checkboxes **/}
       {/*<div className="show-additional-membership-info__div">*/}
       {/*  <h2 className="show-additional-membership-info__header">Additional Info</h2>*/}
       {/*  <FormField*/}

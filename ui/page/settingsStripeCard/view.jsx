@@ -347,6 +347,8 @@ class SettingsStripeCard extends React.Component<Props, State> {
         // shows a success / error message when the payment is complete
         var orderComplete = function (stripe, clientSecret) {
           stripe.retrieveSetupIntent(clientSecret).then(function (result) {
+
+
             Lbryio.call(
               'customer',
               'status',

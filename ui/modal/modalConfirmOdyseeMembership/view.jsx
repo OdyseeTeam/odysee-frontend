@@ -66,6 +66,10 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
       // TODO: this copy isn't great
       doToast({ message: __('Your membership was cancelled and will no longer be renewed.') });
+
+      doMembershipMine();
+
+      closeModal();
     } catch (err) {
       console.log(err);
     }
@@ -87,7 +91,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
         },
         function () {
           setStatusText(__('Purchase was successful'));
-        }
+          setTimeout(() => closeModal(), 600);
+          doMembershipMine();
+        },
       );
     }
   }

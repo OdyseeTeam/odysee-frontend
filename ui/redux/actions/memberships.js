@@ -115,7 +115,13 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams, closeModa
       //   })
       // );
 
-      doNext();
+      if(doNext){
+        doNext()
+      }
+
+      if(closeModal){
+        closeModal()
+      }
 
       dispatch(
         doToast({

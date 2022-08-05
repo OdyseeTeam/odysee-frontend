@@ -182,6 +182,14 @@ export default function PreviewPage(props: Props) {
     subtitleText = 'You haven\'t setup your own memberships yet but you can start now!';
   }
 
+  const showMoreButtons = document.getElementsByClassName('tier-show-more__button');
+  for(const showMoreButton of showMoreButtons){
+    const infoHeight = showMoreButton.previousSibling.clientHeight;
+    if(infoHeight === 132){
+      showMoreButton.style.display = 'inline';
+    }
+  }
+
   return (
     <>
       <h1 className="join-membership__header">Join Membership</h1>
@@ -247,7 +255,12 @@ export default function PreviewPage(props: Props) {
 
                     {/* overflow show rest of tier button */}
                     { !expandedTabs[i] && (
-                      <div className="tier-show-more__button" membership-tier-index={i} onClick={(e) => showMore(e)}>
+                      <div
+                        className="tier-show-more__button"
+                        membership-tier-index={i}
+                        onClick={(e) => showMore(e)}
+                        style={{ display: 'none' }}
+                      >
                         <h1 style={{ marginTop: '14px' }} >SHOW MORE</h1>
                       </div>
                     )}
@@ -263,6 +276,9 @@ export default function PreviewPage(props: Props) {
             </div>
           </>
           )}
+
+
+
           {!isChannelTab && creatorMemberships && selectedTier && (
             // modal preview section
             <>

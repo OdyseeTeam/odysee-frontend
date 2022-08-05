@@ -36,11 +36,13 @@ export default function PremiumBadge(props: Props) {
 
   return (
     <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow}>
-      {badgeToShow === 'silver' ? (
+      {badgeToShow === 'silver' && (
         <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />
-      ) : badgeToShow === 'gold' ? (
-        badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />
-      ) : (
+      )}
+      { badgeToShow === 'gold' && (
+        <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />
+      )}
+      { badgeToShow === 'user' && (
         <CommentBadge label={membership} uri={uri} icon={ICONS.MEMBERSHIP} {...badgeProps} />
       )}
     </BadgeWrapper>
