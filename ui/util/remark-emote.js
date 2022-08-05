@@ -104,6 +104,7 @@ export function inlineEmote() {
 
 const transformer = (node, index, parent) => {
   if (node.type === EMOTE_NODE_TYPE && parent && parent.type === 'paragraph') {
+    // console.log('emote X: ', node)
     const emoteStr = node.value;
     const emote =
       EMOTES.find(({ name }) => emoteStr === name) ||

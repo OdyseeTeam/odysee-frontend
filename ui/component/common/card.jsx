@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+// import twemoji from 'twemoji';
 
 type Props = {
   title?: string | Node,
@@ -170,6 +171,16 @@ type TitleProps = {
   smallTitle?: boolean,
   children?: any,
 };
+
+/*
+const Twemoji = ({ emoji }) => (
+  <span
+    dangerouslySetInnerHTML={{
+      __html: twemoji.parse(emoji),
+    }}
+  />
+);
+*/
 
 const TitleWrapper = (props: TitleProps) => {
   const { isPageTitle, smallTitle, children } = props;

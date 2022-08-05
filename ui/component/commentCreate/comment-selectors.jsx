@@ -26,7 +26,6 @@ type Props = {
 
 export default function CommentSelectors(props: Props) {
   const { claimIsMine, isOpen, openTab, addEmoteToComment, handleSelectSticker, closeSelector } = props;
-
   const tabProps = { closeSelector };
 
   return (
@@ -58,15 +57,13 @@ type EmojisProps = {
   closeSelector: () => void,
 };
 
-function scrollToCategory(category, type, isMobile) {
+function scrollToCategory(category, reference, isMobile) {
   const offset = isMobile ? 48 : 58;
-  let selectorAnchor =
-    type === 'emoji' ? document.getElementById('emoji-selector') : document.getElementById('sticker-selector');
   let categoryAnchor = document.getElementById(category);
-  selectorAnchor &&
+  reference &&
     categoryAnchor &&
     // $FlowIgnore
-    selectorAnchor.scrollTo({ top: categoryAnchor.offsetTop - offset, behavior: 'smooth' });
+    reference.current.scrollTo({ top: categoryAnchor.offsetTop - offset, behavior: 'smooth' });
 }
 
 function handleHover(name) {
@@ -83,57 +80,58 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
   const { handleSelect, closeSelector } = emojisProps;
   const defaultRowProps = { handleSelect };
   const isMobile = useIsMobile();
+  const emojiSelectorRef = React.useRef();
 
   return (
-    <div className="selector-menu" id="emoji-selector">
+    <div className="selector-menu" ref={emojiSelectorRef}>
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
       <div id="emoji-code-preview" />
       <div className="emoji-categories">
         {/* <Icon icon={ICONS.TIME} /> */}
         <img
-          onClick={() => scrollToCategory('odysee', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('odysee', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Odysee'))}
           onMouseLeave={() => handleHover('')}
           src="https://static.odycdn.com/emoticons/48%20px/smile%402x.png"
         />
         <img
-          onClick={() => scrollToCategory('smilies', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('smilies', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Smilies'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/smilies/grinning.png"
         />
         <img
-          onClick={() => scrollToCategory('hand signals', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('hand signals', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Hand signals'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/handsignals/waving_hand.png"
         />
         <img
-          onClick={() => scrollToCategory('activities', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('activities', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Activities'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/activities/tennis.png"
         />
         <img
-          onClick={() => scrollToCategory('symbols', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('symbols', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Symbols'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/symbols/sparkling_heart.png"
         />
         <img
-          onClick={() => scrollToCategory('animals & nature', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('animals & nature', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Animals & Nature'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/animals/dolphin.png"
         />
         <img
-          onClick={() => scrollToCategory('food & drink', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('food & drink', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Food & Drink'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/food/sushi.png"
         />
         <img
-          onClick={() => scrollToCategory('flags', 'emoji', isMobile)}
+          onClick={() => scrollToCategory('flags', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Flags'))}
           onMouseLeave={() => handleHover('')}
           src="/public/img/emoticons/twemoji/flags/pirate_flag.png"
@@ -176,24 +174,24 @@ type StickersProps = {
 
 const StickersPanel = (stickersProps: StickersProps) => {
   const { claimIsMine, handleSelect, closeSelector } = stickersProps;
-
   const defaultRowProps = { handleSelect };
+  const stickerSelectorRef = React.useRef();
   const isMobile = useIsMobile();
 
   return (
-    <div className="selector-menu" id="sticker-selector">
+    <div className="selector-menu" ref={stickerSelectorRef}>
       <Button button="close" icon={ICONS.REMOVE} onClick={closeSelector} />
       <div id="emoji-code-preview" />
       <div className="emoji-categories">
         <img
-          onClick={() => scrollToCategory('free', 'sticker', isMobile)}
+          onClick={() => scrollToCategory('free', stickerSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Free'))}
           onMouseLeave={() => handleHover('')}
           src="https://static.odycdn.com/stickers/MISC/PNG/fire.png"
         />
         {!claimIsMine && (
           <img
-            onClick={() => scrollToCategory('tips', 'sticker', isMobile)}
+            onClick={() => scrollToCategory('tips', stickerSelectorRef, isMobile)}
             onMouseEnter={() => handleHover(__('Tips'))}
             onMouseLeave={() => handleHover('')}
             src="https://static.odycdn.com/stickers/TIPS/png/with%20borderlarge$tip.png"
