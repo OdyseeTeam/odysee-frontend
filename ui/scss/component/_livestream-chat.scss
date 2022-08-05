@@ -1152,6 +1152,7 @@ $recent-msg-button__height: 2rem;
     h5,
     h6 {
       font-size: var(--font-base);
+      margin: 0;
     }
 
     .markdown-preview img:not(.channel-thumbnail__custom):not(.emote) {
@@ -1164,20 +1165,27 @@ $recent-msg-button__height: 2rem;
 
     .markdown-preview {
       code,
+      blockquote,
       table,
       thead,
       tbody,
       tr,
       th,
       td,
-      li {
+      li,
+      ul {
         display: inline-block;
         background: unset;
+        border: unset;
         padding: unset;
         margin: unset;
         color: var(--color-text);
         font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
           'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+      }
+
+      .button--external-link {
+        margin-right: var(--spacing-xxxs);
       }
     }
   }

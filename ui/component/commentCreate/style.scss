@@ -52,7 +52,6 @@ $sticker-item-size: 5rem;
   position: absolute;
   display: none;
   top: 52px;
-  // left: var(--spacing-xs);
   left: calc(var(--spacing-xs) + var(--spacing-s));
   height: 33px;
   width: calc(100% - 280px);
@@ -176,6 +175,10 @@ $sticker-item-size: 5rem;
 .sticker-selector__items {
   @extend .emote-selector__items;
   grid-template-columns: repeat(auto-fit, $sticker-item-size);
+
+  button {
+    min-height: 107px;
+  }
 
   .button--file-action {
     overflow: hidden;
