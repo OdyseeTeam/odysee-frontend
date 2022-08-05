@@ -1161,6 +1161,25 @@ $recent-msg-button__height: 2rem;
       margin-right: var(--spacing-s);
       float: left;
     }
+
+    .markdown-preview {
+      code,
+      table,
+      thead,
+      tbody,
+      tr,
+      th,
+      td,
+      li {
+        display: inline-block;
+        background: unset;
+        padding: unset;
+        margin: unset;
+        color: var(--color-text);
+        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
+          'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+      }
+    }
   }
   .button {
     float: left;
