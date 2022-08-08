@@ -9,28 +9,25 @@ import ChannelTitle from 'component/channelTitle';
 import Icon from 'component/common/icon';
 import { useHistory } from 'react-router';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
-import PremiumBadge from 'component/premiumBadge';
+import PremiumBadge from 'component/common/premium-badge';
 
 type Props = {
   selectedChannelUrl: string, // currently selected channel
   channels: ?Array<ChannelClaim>,
-  onChannelSelect?: (id: ?string) => void,
+  onChannelSelect: (url: string) => void,
   hideAnon?: boolean,
   activeChannelClaim: ?ChannelClaim,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
   incognito: boolean,
   doSetIncognito: (boolean) => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   odyseeMembershipByUri: (uri: string) => string,
   storeSelection?: boolean,
   doSetDefaultChannel: (claimId: string) => void,
   isHeaderMenu?: boolean,
-  isPublishMenu?: boolean,
-  isTabHeader?: boolean,
   autoSet?: boolean,
   channelToSet?: string,
-  disabled?: boolean,
 };
 
 export default function ChannelSelector(props: Props) {
@@ -38,20 +35,16 @@ export default function ChannelSelector(props: Props) {
     channels,
     activeChannelClaim,
     doSetActiveChannel,
-    onChannelSelect,
     incognito,
     doSetIncognito,
     odyseeMembershipByUri,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     storeSelection,
     doSetDefaultChannel,
     isHeaderMenu,
-    isPublishMenu,
-    isTabHeader,
     autoSet,
     channelToSet,
-    disabled,
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
@@ -64,14 +57,11 @@ export default function ChannelSelector(props: Props) {
   const activeChannelUrl = activeChannelClaim && activeChannelClaim.permanent_url;
 
   function handleChannelSelect(channelClaim) {
-    const { claim_id: id } = channelClaim;
-
     doSetIncognito(false);
-    doSetActiveChannel(id);
-    if (onChannelSelect) onChannelSelect(id);
+    doSetActiveChannel(channelClaim.claim_id);
 
     if (storeSelection) {
-      doSetDefaultChannel(id);
+      doSetDefaultChannel(channelClaim.claim_id);
     }
   }
 
@@ -85,17 +75,12 @@ export default function ChannelSelector(props: Props) {
       doSetIncognito(true);
     }
 
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount if we get to autoSet a channel, set it.
+    // on mount, if we get to autoSet a channel, set it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <div
-      className={classnames('channel__selector', {
-        'channel__selector--publish': isPublishMenu,
-        'channel__selector--tabHeader': isTabHeader,
-        disabled: disabled,
-      })}
-    >
+    <div className="channel__selector">
       <Menu>
         {isHeaderMenu ? (
           <MenuButton className="menu__link">
@@ -113,20 +98,13 @@ export default function ChannelSelector(props: Props) {
                 uri={activeChannelUrl}
                 isSelected
                 claimsByUri={claimsByUri}
-                doFetchUserMemberships={doFetchUserMemberships}
-                isPublishMenu={isPublishMenu}
-                isTabHeader={isTabHeader}
+                doFetchOdyseeMembershipsById={doFetchOdyseeMembershipsById}
               />
             )}
           </MenuButton>
         )}
 
-        <MenuList
-          className={classnames('menu__list channel__list', {
-            'channel__list--publish': isPublishMenu,
-            'channel__list--tabHeader': isTabHeader,
-          })}
-        >
+        <MenuList className="menu__list channel__list">
           {channels &&
             channels.map((channel) => (
               <MenuItem key={channel.permanent_url} onSelect={() => handleChannelSelect(channel)}>
@@ -134,19 +112,12 @@ export default function ChannelSelector(props: Props) {
                   odyseeMembershipByUri={odyseeMembershipByUri}
                   uri={channel.permanent_url}
                   claimsByUri={claimsByUri}
-                  doFetchUserMemberships={doFetchUserMemberships}
-                  isPublishMenu={isPublishMenu}
-                  isTabHeader={isTabHeader}
+                  doFetchOdyseeMembershipsById={doFetchOdyseeMembershipsById}
                 />
               </MenuItem>
             ))}
           {!hideAnon && (
-            <MenuItem
-              onSelect={() => {
-                doSetIncognito(true);
-                if (onChannelSelect) onChannelSelect(undefined);
-              }}
-            >
+            <MenuItem onSelect={() => doSetIncognito(true)}>
               <IncognitoSelector />
             </MenuItem>
           )}
@@ -168,25 +139,21 @@ type ListItemProps = {
   claimsByUri: { [string]: any },
   doFetchUserMemberships: (claimIdCsv: string) => void,
   odyseeMembershipByUri: (uri: string) => string,
-  isPublishMenu?: boolean,
-  isTabHeader?: boolean,
 };
 
 function ChannelListItem(props: ListItemProps) {
-  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships } = props;
+  const { uri, isSelected = false, claimsByUri, doFetchUserMemberships, odyseeMembershipByUri } = props;
+
+  const membership = odyseeMembershipByUri(uri);
 
   const shouldFetchUserMemberships = true;
   useGetUserMemberships(shouldFetchUserMemberships, [uri], claimsByUri, doFetchUserMemberships, [uri]);
 
   return (
-    <div
-      className={classnames('channel__list-item', {
-        'channel__list-item--selected': isSelected,
-      })}
-    >
+    <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
-      <PremiumBadge uri={uri} />
+      <PremiumBadge membership={membership} />
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );

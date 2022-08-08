@@ -10,7 +10,7 @@ import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/c
 import * as SETTINGS from 'constants/settings';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectMutedChannels } from 'redux/selectors/blocked';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchOdyseeMembershipsById } from 'redux/actions/memberships';
 import { selectClientSetting, selectShowMatureContent, selectLanguage } from 'redux/selectors/settings';
 import { selectModerationBlockList } from 'redux/selectors/comments';
 import ClaimListDiscover from './view';
@@ -34,7 +34,7 @@ const select = (state, props) => ({
 const perform = {
   doClaimSearch,
   doFetchViewCount,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipsById,
   doResolveClaimIds,
   doResolveUris,
 };

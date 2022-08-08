@@ -70,6 +70,13 @@ export const selectPhoneVerifyIsPending = (state) => selectState(state).phoneVer
 export const selectPhoneVerifyErrorMessage = (state) => selectState(state).phoneVerifyErrorMessage;
 export const selectIdentityVerifyIsPending = (state) => selectState(state).identityVerifyIsPending;
 export const selectIdentityVerifyErrorMessage = (state) => selectState(state).identityVerifyErrorMessage;
+export const selectDidFetchMembershipsDataById = (state) => selectState(state).didFetchMembershipsDataById;
+
+export const didFetchById = createSelector(
+  (state, channelId) => channelId,
+  selectDidFetchMembershipsDataById,
+  (channelId, byId) => byId && byId[channelId]
+);
 
 export const selectUserVerifiedEmail = createSelector(selectUser, (user) => user && user.has_verified_email);
 

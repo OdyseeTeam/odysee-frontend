@@ -22,6 +22,7 @@ import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import { useHistory } from 'react-router-dom';
+import useCheckCreatorMemberships from 'effects/use-check-creator-memberships';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
 
@@ -43,7 +44,7 @@ type Props = {
   channelId?: string,
   claimIsMine: boolean,
   isFetchingComments: boolean,
-  isFetchingTopLevelComments: boolean,
+  isFetchingCommentsById: boolean,
   isFetchingReacts: boolean,
   linkedCommentId?: string,
   totalComments: number,
@@ -58,13 +59,16 @@ type Props = {
   notInDrawer?: boolean,
   threadCommentAncestors: ?Array<string>,
   linkedCommentAncestors: ?Array<string>,
+  activeChannelMembership: ?any,
   fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
   resetComments: (claimId: string) => void,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
-  doPopOutInlinePlayer: (param: { source: string }) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
+  doFetchChannelMembershipsByIds: (channelId: string, claimIds: Array<string>) => void,
+  membershipForChannelId: any,
+  didFetchById: any,
 };
 
 export default function CommentList(props: Props) {
@@ -78,7 +82,6 @@ export default function CommentList(props: Props) {
     channelId,
     claimIsMine,
     isFetchingComments,
-    isFetchingTopLevelComments,
     isFetchingReacts,
     linkedCommentId,
     totalComments,
@@ -98,8 +101,9 @@ export default function CommentList(props: Props) {
     fetchReacts,
     resetComments,
     claimsByUri,
-    doFetchUserMemberships,
-    doPopOutInlinePlayer,
+    doFetchOdyseeMembershipsById,
+    doFetchChannelMembershipsByIds,
+    didFetchById,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -153,9 +157,19 @@ export default function CommentList(props: Props) {
     shouldFetchUserMemberships,
     commenterClaimIds,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     [topLevelComments],
     true
+  );
+
+  useCheckCreatorMemberships(
+    shouldFetchUserMemberships,
+    commenterClaimIds,
+    claimsByUri,
+    doFetchChannelMembershipsByIds,
+    [topLevelComments],
+    true,
+    channelId
   );
 
   const handleReset = React.useCallback(() => {
@@ -166,14 +180,12 @@ export default function CommentList(props: Props) {
   function refreshComments() {
     // Invalidate existing comments
     setPage(0);
-    doPopOutInlinePlayer({ source: 'comment' });
   }
 
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
       refreshComments();
-      doPopOutInlinePlayer({ source: 'comment' });
     }
   }
 
@@ -202,7 +214,8 @@ export default function CommentList(props: Props) {
       setPage(page + 1);
       setDebouncedUri(undefined);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only for comparing uri with debounced uri
+    // only for comparing uri with debounced uri
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedUri, uri]);
 
   // Force comments reset
@@ -223,7 +236,8 @@ export default function CommentList(props: Props) {
   // so set the current page as the fetched page to start fetching new pages from there
   useEffect(() => {
     if (page < currentFetchedPage) setPage(currentFetchedPage > 0 ? currentFetchedPage : 1);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on uri change
+    // only on uri change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [uri]);
 
   // Fetch top-level comments
@@ -454,9 +468,7 @@ export default function CommentList(props: Props) {
             </div>
           )}
 
-          {(threadCommentId
-            ? !readyToDisplayComments
-            : isFetchingTopLevelComments || (hasDefaultExpansion && moreBelow)) && (
+          {(threadCommentId ? !readyToDisplayComments : isFetchingComments || (hasDefaultExpansion && moreBelow)) && (
             <div className="main--empty" ref={spinnerRef}>
               <Spinner type="small" />
             </div>

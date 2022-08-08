@@ -34,6 +34,7 @@ import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
 import getLanguagesForCountry from 'constants/country_languages';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
+import balanceText from 'util/balanceText';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
@@ -49,6 +50,8 @@ const SyncFatalError = lazyImport(() => import('component/syncFatalError' /* web
 
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
+
+window.balanceText = balanceText;
 
 // const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
 const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
@@ -406,6 +409,18 @@ function App(props: Props) {
   //       document.body.removeChild(script);
   //     };
   //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   const balanceTextScript = document.createElement('script');
+  //   balanceTextScript.src = 'https://cdn.jsdelivr.net/npm/balance-text/balancetext.min.js';
+  //   // $FlowFixMe
+  //   document.head.appendChild(balanceTextScript);
+  //
+  //   // const runBalanceTextScript = document.createElement('script');
+  //   // runBalanceTextScript.text = 'balanceText();';
+  //   // // $FlowFixMe
+  //   // document.head.appendChild(runBalanceTextScript);
   // }, []);
 
   // add OneTrust script

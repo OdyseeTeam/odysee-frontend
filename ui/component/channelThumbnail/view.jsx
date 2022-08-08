@@ -4,11 +4,11 @@ import { parseURI } from 'util/lbryURI';
 import { getImageProxyUrl } from 'util/thumbnail';
 import classnames from 'classnames';
 import Gerbil from './gerbil.png';
-import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
+import FreezeframeWrapper from 'component/fileThumbnail/FreezeframeWrapper';
 import OptimizedImage from 'component/optimizedImage';
 import { AVATAR_DEFAULT } from 'config';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
-import PremiumBadge from 'component/premiumBadge';
+import PremiumBadge from 'component/common/premium-badge';
 
 type Props = {
   thumbnail: ?string,
@@ -29,7 +29,8 @@ type Props = {
   setThumbUploadError: (boolean) => void,
   ThumbUploadError: boolean,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  odyseeMembership: string,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   showMemberBadge?: boolean,
   isChannel?: boolean,
   checkMembership: boolean,
@@ -54,7 +55,8 @@ function ChannelThumbnail(props: Props) {
     setThumbUploadError,
     ThumbUploadError,
     claimsByUri,
-    doFetchUserMemberships,
+    odyseeMembership,
+    doFetchOdyseeMembershipsById,
     showMemberBadge,
     isChannel,
     checkMembership = true,
@@ -69,14 +71,14 @@ function ChannelThumbnail(props: Props) {
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
 
   const badgeProps = {
-    uri,
+    membership: odyseeMembership,
     linkPage: isChannel,
     placement: isChannel ? 'bottom' : undefined,
     hideTooltip,
     className: isChannel ? 'profile-badge__tooltip' : undefined,
   };
 
-  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchUserMemberships, [uri]);
+  useGetUserMemberships(checkMembership, [uri], claimsByUri, doFetchOdyseeMembershipsById, [uri]);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);
@@ -98,19 +100,12 @@ function ChannelThumbnail(props: Props) {
   if (isGif && !allowGifs) {
     const url = getImageProxyUrl(channelThumbnail);
     return (
-      url && (
-        <FreezeframeWrapper
-          src={url}
-          className={classnames('channel-thumbnail', className, {
-            'channel-thumbnail--small': small,
-            'channel-thumbnail--xsmall': xsmall,
-            'channel-thumbnail--xxsmall': xxsmall,
-            'channel-thumbnail--resolving': isResolving,
-          })}
-        >
-          {showMemberBadge ? <PremiumBadge {...badgeProps} /> : null}
-        </FreezeframeWrapper>
-      )
+      <FreezeframeWrapper
+        src={url}
+        className={classnames('channel-thumbnail', className, { 'channel-thumbnail--xxsmall': xxsmall })}
+      >
+        {showMemberBadge && <PremiumBadge {...badgeProps} />}
+      </FreezeframeWrapper>
     );
   }
 

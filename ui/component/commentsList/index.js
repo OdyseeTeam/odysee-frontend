@@ -9,7 +9,7 @@ import {
   selectTopLevelCommentsForUri,
   makeSelectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
-  selectIsFetchingTopLevelComments,
+  selectIsFetchingCommentsById,
   selectIsFetchingReacts,
   selectTotalCommentsCountForUri,
   selectOthersReacts,
@@ -21,10 +21,10 @@ import {
   selectCommentAncestorsForId,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
-import { doPopOutInlinePlayer } from 'redux/actions/content';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { didFetchById } from 'redux/selectors/user';
 import { getChannelIdFromClaim } from 'util/claim';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import { doFetchOdyseeMembershipsById, doFetchChannelMembershipsByIds } from 'redux/actions/memberships';
 import CommentsList from './view';
 
 const select = (state, props) => {
@@ -33,6 +33,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const activeChannelClaim = selectActiveChannelClaim(state);
   const threadComment = selectCommentForCommentId(state, threadCommentId);
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   return {
     topLevelComments: threadComment ? [threadComment] : selectTopLevelCommentsForUri(state, uri),
@@ -45,16 +46,17 @@ const select = (state, props) => {
     channelId: getChannelIdFromClaim(claim),
     claimIsMine: selectClaimIsMine(state, claim),
     isFetchingComments: selectIsFetchingComments(state),
-    isFetchingTopLevelComments: selectIsFetchingTopLevelComments(state),
+    isFetchingCommentsById: selectIsFetchingCommentsById(state),
     isFetchingReacts: selectIsFetchingReacts(state),
     fetchingChannels: selectFetchingMyChannels(state),
     settingsByChannelId: selectSettingsByChannelId(state),
     myReactsByCommentId: selectMyReacts(state),
     othersReactsById: selectOthersReacts(state),
-    activeChannelId: activeChannelClaim && activeChannelClaim.claim_id,
+    activeChannelId,
     claimsByUri: selectClaimsByUri(state),
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
     linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
+    didFetchById: claim && didFetchById(state, getChannelIdFromClaim(claim)),
   };
 };
 
@@ -63,8 +65,8 @@ const perform = {
   fetchComment: doCommentById,
   fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
-  doFetchUserMemberships,
-  doPopOutInlinePlayer,
+  doFetchOdyseeMembershipsById,
+  doFetchChannelMembershipsByIds,
 };
 
 export default connect(select, perform)(CommentsList);

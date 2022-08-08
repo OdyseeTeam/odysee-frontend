@@ -2,14 +2,16 @@ import { connect } from 'react-redux';
 import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimsByUri } from 'redux/selectors/claims';
-import { doCommentList, doHyperChatList } from 'redux/actions/comments';
+import { doCommentList, doSuperChatList } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
-  selectHyperChatsForUri,
+  selectSuperChatsForUri,
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
-import { doFetchUserMemberships } from 'redux/actions/user';
-import ChatLayout from './view';
+import { selectThemePath } from 'redux/selectors/settings';
+import { doFetchOdyseeMembershipsById, doFetchChannelMembershipsByIds } from 'redux/actions/memberships';
+import LivestreamChatLayout from './view';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -19,16 +21,19 @@ const select = (state, props) => {
     claimId: claim && claim.claim_id,
     comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
-    superChats: selectHyperChatsForUri(state, uri),
+    superChats: selectSuperChatsForUri(state, uri),
+    theme: selectThemePath(state),
     claimsByUri: selectClaimsByUri(state),
+    channelId: getChannelIdFromClaim(claim),
   };
 };
 
 const perform = {
   doCommentList,
-  doHyperChatList,
+  doSuperChatList,
   doResolveUris,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipsById,
+  doFetchChannelMembershipsByIds,
 };
 
-export default connect(select, perform)(ChatLayout);
+export default connect(select, perform)(LivestreamChatLayout);

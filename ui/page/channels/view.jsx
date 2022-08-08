@@ -23,7 +23,7 @@ type Props = {
   doSetActiveChannel: (string) => void,
   pendingChannels: Array<string>,
   claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
 };
 
 export default function ChannelsPage(props: Props) {
@@ -35,13 +35,13 @@ export default function ChannelsPage(props: Props) {
     doSetActiveChannel,
     pendingChannels,
     claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
   } = props;
   const [rewardData, setRewardData] = React.useState();
   const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
 
   const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, doFetchOdyseeMembershipsById);
 
   const { push } = useHistory();
 

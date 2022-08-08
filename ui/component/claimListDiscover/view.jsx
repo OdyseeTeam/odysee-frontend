@@ -103,7 +103,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
 
@@ -187,7 +187,7 @@ function ClaimListDiscover(props: Props) {
     maxClaimRender,
     useSkeletonScreen = true,
     excludeUris = [],
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipsById,
     swipeLayout = false,
     doResolveUris,
     doResolveClaimIds,
@@ -676,7 +676,7 @@ function ClaimListDiscover(props: Props) {
 
   useFetchViewCount(fetchViewCount, finalUris, claimsByUri, doFetchViewCount);
 
-  useGetUserMemberships(true, finalUris, claimsByUri, doFetchUserMemberships);
+  useGetUserMemberships(true, finalUris, claimsByUri, doFetchOdyseeMembershipsById);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

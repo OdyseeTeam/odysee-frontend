@@ -34,6 +34,8 @@ const defaultState: UserState = {
   odyseeMembershipsPerClaimIds: undefined,
   locale: undefined,
   homepageFetched: false,
+  membershipsPerClaimIds: undefined,
+  didFetchMembershipsDataById: {},
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>
@@ -379,7 +381,7 @@ reducers[ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
   });
 };
 
-reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
+reducers[ACTIONS.ADD_CLAIMIDS_ODYSEE_MEMBERSHIP_DATA] = (state, action) => {
   let latestData = {};
 
   // add additional user membership value
@@ -392,6 +394,26 @@ reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
 
   return Object.assign({}, state, {
     odyseeMembershipsPerClaimIds: latestData,
+  });
+};
+
+reducers[ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA] = (state, action) => {
+  let latestData = {};
+
+  // add additional user membership value
+  if (state.membershipsPerClaimIds) {
+    latestData = Object.assign({}, state.membershipsPerClaimIds, action.data.response);
+  } else {
+    // otherwise just send the current data because nothing is saved yet
+    latestData = action.data.response;
+  }
+
+  const didFetchMembershipsDataById = Object.assign({}, state.didFetchMembershipsDataById);
+  didFetchMembershipsDataById[action.data.channelId] = true;
+
+  return Object.assign({}, state, {
+    membershipsPerClaimIds: latestData,
+    didFetchMembershipsDataById,
   });
 };
 

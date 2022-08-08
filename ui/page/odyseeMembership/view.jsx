@@ -6,7 +6,12 @@ import Page from 'component/page';
 import Spinner from 'component/spinner';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
+
+// TODO: don't use both of these, not sure which is betterm
 import { ODYSEE_CHANNEL } from 'constants/channels';
+// odysee channel information since the memberships are only for Odysee
+import { ODYSEE_CHANNEL_ID, ODYSEE_CHANNEL_NAME } from 'constants/odysee';
+
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
@@ -42,6 +47,8 @@ type Props = {
   user: ?User,
   locale: ?LocaleInfo,
   preferredCurrency: ?string,
+  membershipMine: any,
+  doMembershipMine: () => void,
 };
 
 const OdyseeMembershipPage = (props: Props) => {
@@ -56,6 +63,8 @@ const OdyseeMembershipPage = (props: Props) => {
     user,
     locale,
     preferredCurrency,
+    membershipMine,
+    doMembershipMine,
   } = props;
 
   const userChannelName = activeChannelClaim ? activeChannelClaim.name : '';
@@ -63,18 +72,21 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
-  const [userMemberships, setUserMemberships] = React.useState();
   const [currencyToUse, setCurrencyToUse] = React.useState('usd');
-  const [canceledMemberships, setCanceledMemberships] = React.useState();
-  const [activeMemberships, setActiveMemberships] = React.useState();
-  const [purchasedMemberships, setPurchasedMemberships] = React.useState([]);
+
+  const canceledMemberships = membershipMine?.canceledMemberships;
+  const activeMemberships = membershipMine?.activeMemberships.filter(
+    (membership) => membership.MembershipDetails.channel_name === '@odysee');
+
+  const purchasedMemberships = membershipMine?.purchasedMemberships.filter(
+    (membership) => membership.MembershipDetails.channel_name === '@odysee');
   const [hasShownModal, setHasShownModal] = React.useState(false);
   const [shouldFetchUserMemberships, setFetchUserMemberships] = React.useState(true);
   const [apiError, setApiError] = React.useState(false);
 
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
-  const hasMembership = activeMemberships && activeMemberships.length > 0;
+  const hasMembership = activeMemberships && activeMemberships?.length > 0;
 
   const channelUrls = channels && channels.map((channel) => channel.permanent_url);
 
@@ -83,56 +95,6 @@ const OdyseeMembershipPage = (props: Props) => {
     fetchUserMemberships(value);
     setFetchUserMemberships(false);
   });
-
-  async function populateMembershipData() {
-    try {
-      // show the memberships the user is subscribed to
-      const response = await Lbryio.call(
-        'membership',
-        'mine',
-        {
-          environment: stripeEnvironment,
-        },
-        'post'
-      );
-
-      log('mine response');
-      log(response);
-
-      let activeMemberships = [];
-      let canceledMemberships = [];
-      let purchasedMemberships = [];
-
-      for (const membership of response) {
-        // if it's autorenewing it's considered 'active'
-        const isActive = membership.Membership.auto_renew;
-        if (isActive) {
-          activeMemberships.push(membership);
-        } else {
-          canceledMemberships.push(membership);
-        }
-        purchasedMemberships.push(membership.Membership.membership_id);
-      }
-
-      // hide the other membership options if there's already a purchased membership
-      if (activeMemberships.length > 0) {
-        setMembershipOptions(false);
-      }
-
-      setActiveMemberships(activeMemberships);
-      setCanceledMemberships(canceledMemberships);
-      setPurchasedMemberships(purchasedMemberships);
-
-      // update the state to show the badge
-      fetchUserMemberships(userChannelClaimId || '');
-
-      setUserMemberships(response);
-    } catch (err) {
-      setApiError(true);
-      console.log(err);
-    }
-    setFetchUserMemberships(false);
-  }
 
   React.useEffect(() => {
     if (!shouldFetchUserMemberships) setFetchUserMemberships(true);
@@ -188,7 +150,7 @@ const OdyseeMembershipPage = (props: Props) => {
         log(response);
 
         // hide other options if there's already a membership
-        if (activeMemberships && activeMemberships.length > 0) {
+        if (activeMemberships && activeMemberships?.length > 0) {
           setMembershipOptions(false);
         } else {
           setMembershipOptions(response);
@@ -207,7 +169,7 @@ const OdyseeMembershipPage = (props: Props) => {
         }
       }
 
-      populateMembershipData();
+      doMembershipMine();
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -217,7 +179,7 @@ const OdyseeMembershipPage = (props: Props) => {
     purchasedMemberships === undefined ||
     cardSaved === undefined ||
     membershipOptions === undefined ||
-    userMemberships === undefined ||
+    membershipMine === undefined ||
     currencyToUse === undefined;
 
   const formatDate = function (date) {
@@ -323,14 +285,14 @@ const OdyseeMembershipPage = (props: Props) => {
     const priceId = e.currentTarget.getAttribute('price-id');
     const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, planName);
 
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       userChannelClaimId: noChannelsOrIncognitoMode ? undefined : userChannelClaimId,
       userChannelName: noChannelsOrIncognitoMode ? undefined : userChannelName,
       priceId,
       purchaseString,
       plan: planName,
-      populateMembershipData,
+      doMembershipMine,
       setMembershipOptions,
       updateUserOdyseeMembershipStatus,
       user,
@@ -345,11 +307,11 @@ const OdyseeMembershipPage = (props: Props) => {
       'features until the point of the expiration of your current membership, at which point you will not be charged ' +
       'again and your membership will no longer be active. At this time, there is no way to subscribe to another membership if you cancel and there are no refunds.';
 
-    openModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, {
+    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       hasMembership,
       purchaseString: __(cancellationString),
-      populateMembershipData,
+      doMembershipMine,
     });
   };
 
@@ -427,24 +389,24 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const helpText = (
     <div className="section__subtitle">
-      <p>
+      <p className="balance-text">
         {__(
           'First of all, thank you for considering or purchasing a membership, it means a ton to us! A few important details to know:'
         )}
       </p>
       <p>
         <ul>
-          <li>
+          <li className="balance-text">
             {__(
               'Exclusive and early access features include: recommended content, homepage customization, and the ability to post Odysee hyperlinks + images in comments. Account is also automatically eligible for Rewards. More to come later.'
             )}
           </li>
-          <li>
+          <li className="balance-text">
             {__(
               'The yearly Premium+ membership has a discount compared to monthly, and Premium is only available yearly.'
             )}
           </li>
-          <li>{__('These are limited time rates, so get in early!')}</li>
+          <li className="balance-text">{__('These are limited time rates, so get in early!')}</li>
           <li>
             {__(
               'There may be higher tiers available in the future for creators and anyone else who wants to support us.'
@@ -465,7 +427,7 @@ const OdyseeMembershipPage = (props: Props) => {
     <>
       <Page className="premium-wrapper">
         {/** splash frontend **/}
-        {!stillWaitingFromBackend && !apiError && purchasedMemberships.length === 0 && !planValue && !hasShownModal ? (
+        {!stillWaitingFromBackend && !apiError && purchasedMemberships?.length === 0 && !planValue && !hasShownModal ? (
           <MembershipSplash pageLocation={'confirmPage'} currencyToUse={currencyToUse} />
         ) : (
           /** odysee membership page **/
@@ -497,7 +459,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
             {/** available memberships **/}
             {/* if they have a card and don't have a membership yet */}
-            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 1 && cardSaved !== false && (
+            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships?.length < 1 && cardSaved !== false && (
               <>
                 <div className="card__title-section">
                   <h2 className="card__title">{__('Available Memberships')}</h2>
@@ -579,7 +541,7 @@ const OdyseeMembershipPage = (props: Props) => {
                   {/** * list of active memberships from user ***/}
                   <div>
                     {/* <h1 style={{ fontSize: '19px' }}>Active Memberships</h1> */}
-                    {!stillWaitingFromBackend && activeMemberships && activeMemberships.length === 0 && (
+                    {!stillWaitingFromBackend && activeMemberships && activeMemberships?.length === 0 && (
                       <h4>{__('You currently have no active memberships')}</h4>
                     )}
                     {/** active memberships **/}
@@ -630,7 +592,7 @@ const OdyseeMembershipPage = (props: Props) => {
                     <h2 className="card__title">{__('Canceled Memberships')}</h2>
                   </div>
                   <Card>
-                    {canceledMemberships && canceledMemberships.length === 0 && (
+                    {canceledMemberships && canceledMemberships?.length === 0 && (
                       <h4>{__('You currently have no canceled memberships')}</h4>
                     )}
                     {canceledMemberships &&
@@ -695,7 +657,7 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
 
             {/** clear membership data (only available on dev) **/}
-            {isDev && cardSaved && purchasedMemberships.length > 0 && (
+            {isDev && cardSaved && purchasedMemberships?.length > 0 && (
               <>
                 <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
                 <div>

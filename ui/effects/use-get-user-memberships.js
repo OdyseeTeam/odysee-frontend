@@ -6,7 +6,7 @@ export default function useGetUserMemberships(
   shouldFetchUserMemberships: ?boolean,
   arrayOfContentUris: ?Array<string>,
   convertClaimUrlsToIds: any, //
-  doFetchUserMemberships: (string) => void, // fetch membership values and save in redux
+  doFetchOdyseeMembershipsById: (string) => void, // fetch membership values and save in redux
   dependency?: any,
   alreadyClaimIds?: boolean
 ) {
@@ -58,8 +58,8 @@ export default function useGetUserMemberships(
         window.checkedMemberships = Object.assign(window.checkedMemberships, membershipsToAdd);
 
         // hit membership/check and save it in redux
-        if (doFetchUserMemberships) {
-          doFetchUserMemberships(commaSeparatedStringOfIds);
+        if (doFetchOdyseeMembershipsById) {
+          doFetchOdyseeMembershipsById(commaSeparatedStringOfIds);
         }
       }
     }

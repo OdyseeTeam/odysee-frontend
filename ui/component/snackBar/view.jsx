@@ -5,7 +5,6 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import LbcMessage from 'component/common/lbc-message';
-import I18nMessage from 'component/i18nMessage';
 
 type Props = {
   removeSnack: (any) => void,
@@ -47,18 +46,7 @@ class SnackBar extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const {
-      message,
-      subMessage,
-      duration,
-      linkText,
-      linkTarget,
-      actionText,
-      action,
-      secondaryActionText,
-      secondaryAction,
-      isError,
-    } = snack;
+    const { message, subMessage, duration, linkText, linkTarget, linkPath, isError } = snack;
 
     if (this.intervalId) {
       // TODO: render should be pure
@@ -72,11 +60,6 @@ class SnackBar extends React.PureComponent<Props, State> {
         },
         duration === 'long' ? 10000 : 5000
       );
-    }
-
-    function handleAction(passedAction) {
-      if (passedAction) passedAction();
-      removeSnack();
     }
 
     return (
@@ -106,22 +89,14 @@ class SnackBar extends React.PureComponent<Props, State> {
             onClick={() => removeSnack()}
           />
         </div>
-        {linkText && linkTarget && (
+        {linkText && (linkTarget || linkPath) && (
           // This is a little weird because of `linkTarget` code in `lbry-redux`
           // Any navigation code should happen in the app, and that should be removed from lbry-redux
-          <Button navigate={`/$${linkTarget}`} className="snack-bar__action" label={linkText} />
-        )}
-        {actionText && action && (
-          <div className="snack-bar__action">
-            <I18nMessage
-              tokens={{
-                firstAction: <Button onClick={() => handleAction(action)} label={actionText} />,
-                secondAction: <Button onClick={() => handleAction(secondaryAction)} label={secondaryActionText} />,
-              }}
-            >
-              {secondaryAction ? '%firstAction% / %secondAction%' : '%firstAction%'}
-            </I18nMessage>
-          </div>
+          <Button
+            navigate={linkPath ? `${linkPath}` : `/$${linkTarget}`}
+            className="snack-bar__action"
+            label={linkText}
+          />
         )}
       </div>
     );
