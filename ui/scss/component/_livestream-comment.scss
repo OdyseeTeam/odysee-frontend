@@ -12,7 +12,7 @@
   }
 
   &:hover {
-    background-color: rgba(var(--color-header-background-base), 0.4);
+    background-color: rgba(var(--color-header-background-base), 0.3);
 
     .date_time {
       opacity: 0.5;
@@ -118,10 +118,13 @@
 }
 
 .livestream__comment--hyperchat {
-  background-color: rgba(var(--color-text-base), 0.02);
-  box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.4) inset;
+  background-color: rgba(var(--color-text-base), 0.1);
+  // background-color: rgba(var(--color-text-base), 0.8);
+  // box-shadow: 2px 1px 0px 0px rgba(var(--color-text-base), 0.4) inset;
+  // border:2px solid rgba(var(--color-text-base),0.4);
   display: unset;
   padding-left: 0;
+  border-radius: var(--border-radius);
 
   + .livestream__comment--hyperchat {
     margin-bottom: var(--spacing-xxs);
@@ -175,7 +178,7 @@
 
 .hyperchat-level1 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 0%) inset;
-  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.05);
+  background-color: rgba(mix(#de0050, #ffa236, 0%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 0%), transparent);
   }
@@ -183,7 +186,7 @@
 
 .hyperchat-level2 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 25%) inset;
-  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.05);
+  background-color: rgba(mix(#de0050, #ffa236, 25%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 25%), transparent);
   }
@@ -191,7 +194,7 @@
 
 .hyperchat-level3 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 50%) inset;
-  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.05);
+  background-color: rgba(mix(#de0050, #ffa236, 50%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 50%), transparent);
   }
@@ -199,7 +202,7 @@
 
 .hyperchat-level4 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 75%) inset;
-  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.05);
+  background-color: rgba(mix(#de0050, #ffa236, 75%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 75%), transparent);
   }
@@ -207,7 +210,7 @@
 
 .hyperchat-level5 {
   box-shadow: 2px 0px 0px 0px mix(#de0050, #ffa236, 100%) inset;
-  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.05);
+  background-color: rgba(mix(#de0050, #ffa236, 100%), 0.08);
   .livestreamComment__hyperchatBanner {
     background-image: linear-gradient(to right, mix(#de0050, #ffa236, 100%), transparent);
   }
@@ -270,7 +273,8 @@
   width: 90%;
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
   padding: 2px;
-  margin-left: 2px;
+  // margin-left: 2px;
+  border-radius: var(--border-radius) 0 0 0;
   display: flex;
 
   .hyperChat {
@@ -289,6 +293,8 @@
 .livestreamComment__text {
   padding-right: var(--spacing-s);
   padding-bottom: var(--spacing-xxs);
+  // background-color:rgba(var(--color-background-base),0.5);
+  // padding:var(--spacing-xxxs);
 
   .markdown-preview {
     p,
