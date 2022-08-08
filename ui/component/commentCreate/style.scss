@@ -178,7 +178,8 @@ $sticker-item-size: 5rem;
   grid-template-columns: repeat(auto-fit, $sticker-item-size);
 
   button {
-    min-height: 125px;
+    // min-height: 125px;
+    max-height: 100px;
   }
 
   .button--file-action {

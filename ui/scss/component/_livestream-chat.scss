@@ -239,6 +239,7 @@ $recent-msg-button__height: 2rem;
 
 .livestreamDiscussion__header {
   background-color: var(--color-header-background);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 
   .recommended-content__toggles {
     margin: var(--spacing-xs);
@@ -466,6 +467,7 @@ $recent-msg-button__height: 2rem;
   background-color: var(--color-header-background);
   padding: var(--spacing-xs);
   margin-top: auto;
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
 
   .commentCreate {
     select,

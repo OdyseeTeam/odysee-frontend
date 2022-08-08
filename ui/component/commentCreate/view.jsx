@@ -207,10 +207,12 @@ export function CommentCreate(props: Props) {
 
   function handleStickerComment() {
     if (selectedSticker) {
+      console.log('A');
       setReviewingStickerComment(false);
       setSelectedSticker(undefined);
       setShowSelectors({ tab: SELECTOR_TABS.STICKER, open: true });
     } else {
+      console.log('B');
       setShowSelectors({ tab: showSelectors.tab || undefined, open: !showSelectors.open });
     }
 
@@ -218,6 +220,7 @@ export function CommentCreate(props: Props) {
   }
 
   function handleSelectSticker(sticker: any) {
+    console.log('C: ', sticker);
     // $FlowFixMe
     setSelectedSticker(sticker);
     setReviewingStickerComment(true);
@@ -236,7 +239,7 @@ export function CommentCreate(props: Props) {
   function handleCancelSticker() {
     setReviewingStickerComment(false);
     setSelectedSticker(null);
-
+    setShowSelectors({ tab: undefined, open: false });
     if (onSlimInputClose) onSlimInputClose();
   }
 
