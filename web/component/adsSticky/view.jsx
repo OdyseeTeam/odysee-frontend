@@ -2,7 +2,6 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import useShouldShowAds from 'effects/use-should-show-ads';
-import { platform } from 'util/platform';
 
 // ****************************************************************************
 // AdsSticky
@@ -21,6 +20,8 @@ type Props = {
   userHasPremiumPlus: boolean,
   userCountry: string,
   homepageData: any,
+  locale: ?LocaleInfo,
+  nagsShown: boolean,
   doSetAdBlockerFound: (boolean) => void,
 };
 
@@ -33,6 +34,8 @@ export default function AdsSticky(props: Props) {
     userHasPremiumPlus,
     userCountry,
     homepageData,
+    locale,
+    nagsShown,
     doSetAdBlockerFound,
   } = props;
 
@@ -44,22 +47,24 @@ export default function AdsSticky(props: Props) {
   // Global conditions aside, should the Sticky be shown for this path:
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   // Final answer:
-  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame() && !platform.isMobile();
+  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
     const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return pathIsCategory || isChannelClaim || (isContentClaim && !authenticated) || pathname === '/';
+    return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
   React.useEffect(() => {
     if (shouldLoadSticky) {
+      window.googletag = window.googletag || { cmd: [] };
+
       gScript = document.createElement('script');
-      gScript.src = 'https://adncdnend.azureedge.net/adtags/odysee.adn.js';
+      gScript.src = 'https://adncdnend.azureedge.net/adtags/odyseeKp.js';
       gScript.async = true;
       gScript.addEventListener('load', () => setRefresh(Date.now()));
       // $FlowFixMe
-      document.body.appendChild(gScript);
+      document.getElementsByTagName('head')[0].append(gScript); // Vendor's desired location, although I don't think location matters.
     }
   }, [shouldLoadSticky]);
 
@@ -68,6 +73,8 @@ export default function AdsSticky(props: Props) {
     if (container) {
       container.style.display = inAllowedPath ? '' : 'none';
     }
+    const ad = document.getElementsByClassName('OUTBRAIN')[0];
+    if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
   }, [inAllowedPath, refresh]);
 
   return null; // Nothing for us to mount; the ad script will handle everything.

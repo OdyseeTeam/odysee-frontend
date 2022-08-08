@@ -9,7 +9,7 @@ import {
   selectTopLevelCommentsForUri,
   makeSelectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
-  selectIsFetchingCommentsById,
+  selectIsFetchingTopLevelComments,
   selectIsFetchingReacts,
   selectTotalCommentsCountForUri,
   selectOthersReacts,
@@ -21,6 +21,7 @@ import {
   selectCommentAncestorsForId,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
+import { doPopOutInlinePlayer } from 'redux/actions/content';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { didFetchById } from 'redux/selectors/user';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -46,7 +47,7 @@ const select = (state, props) => {
     channelId: getChannelIdFromClaim(claim),
     claimIsMine: selectClaimIsMine(state, claim),
     isFetchingComments: selectIsFetchingComments(state),
-    isFetchingCommentsById: selectIsFetchingCommentsById(state),
+    isFetchingTopLevelComments: selectIsFetchingTopLevelComments(state),
     isFetchingReacts: selectIsFetchingReacts(state),
     fetchingChannels: selectFetchingMyChannels(state),
     settingsByChannelId: selectSettingsByChannelId(state),
@@ -67,6 +68,7 @@ const perform = {
   resetComments: doCommentReset,
   doFetchOdyseeMembershipsById,
   doFetchChannelMembershipsByIds,
+  doPopOutInlinePlayer,
 };
 
 export default connect(select, perform)(CommentsList);

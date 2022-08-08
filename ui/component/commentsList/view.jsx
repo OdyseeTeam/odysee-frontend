@@ -44,7 +44,7 @@ type Props = {
   channelId?: string,
   claimIsMine: boolean,
   isFetchingComments: boolean,
-  isFetchingCommentsById: boolean,
+  isFetchingTopLevelComments: boolean,
   isFetchingReacts: boolean,
   linkedCommentId?: string,
   totalComments: number,
@@ -69,6 +69,7 @@ type Props = {
   doFetchChannelMembershipsByIds: (channelId: string, claimIds: Array<string>) => void,
   membershipForChannelId: any,
   didFetchById: any,
+  doPopOutInlinePlayer: (param: { source: string }) => void,
 };
 
 export default function CommentList(props: Props) {
@@ -82,6 +83,7 @@ export default function CommentList(props: Props) {
     channelId,
     claimIsMine,
     isFetchingComments,
+    isFetchingTopLevelComments,
     isFetchingReacts,
     linkedCommentId,
     totalComments,
@@ -104,6 +106,7 @@ export default function CommentList(props: Props) {
     doFetchOdyseeMembershipsById,
     doFetchChannelMembershipsByIds,
     didFetchById,
+    doPopOutInlinePlayer,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -180,12 +183,14 @@ export default function CommentList(props: Props) {
   function refreshComments() {
     // Invalidate existing comments
     setPage(0);
+    doPopOutInlinePlayer({ source: 'comment' });
   }
 
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
       refreshComments();
+      doPopOutInlinePlayer({ source: 'comment' });
     }
   }
 
@@ -214,8 +219,7 @@ export default function CommentList(props: Props) {
       setPage(page + 1);
       setDebouncedUri(undefined);
     }
-    // only for comparing uri with debounced uri
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only for comparing uri with debounced uri
   }, [debouncedUri, uri]);
 
   // Force comments reset
@@ -236,8 +240,7 @@ export default function CommentList(props: Props) {
   // so set the current page as the fetched page to start fetching new pages from there
   useEffect(() => {
     if (page < currentFetchedPage) setPage(currentFetchedPage > 0 ? currentFetchedPage : 1);
-    // only on uri change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on uri change
   }, [uri]);
 
   // Fetch top-level comments
@@ -468,7 +471,9 @@ export default function CommentList(props: Props) {
             </div>
           )}
 
-          {(threadCommentId ? !readyToDisplayComments : isFetchingComments || (hasDefaultExpansion && moreBelow)) && (
+          {(threadCommentId
+            ? !readyToDisplayComments
+            : isFetchingTopLevelComments || (hasDefaultExpansion && moreBelow)) && (
             <div className="main--empty" ref={spinnerRef}>
               <Spinner type="small" />
             </div>

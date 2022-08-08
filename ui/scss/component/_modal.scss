@@ -36,7 +36,7 @@
       border: 2px solid black;
       border-radius: var(--border-radius);
       .card {
-        padding: var(--spacing-m);
+        padding: var(--spacing-s);
         border: unset;
         .card__title {
           margin-top: var(--spacing-s);
@@ -120,10 +120,12 @@
       .section__actions {
         .button {
           margin-top: var(--spacing-m);
-          margin-right: var(--spacing-m);
+          margin-right: var(--spacing-s);
           padding: 0;
           .button__content {
             .button__label {
+              margin-left: var(--spacing-s);
+              margin-right: var(--spacing-s);
               font-size: var(--font-small);
             }
           }
@@ -302,10 +304,16 @@
   margin-top: var(--spacing-s);
   padding: var(--spacing-s);
 
-  background-color: var(--color-error);
-  border-left: 2px solid var(--color-text-error);
+  background-color: rgba(255, 0, 0, 0.02);
+  border-radius: var(--border-radius);
+  border: 1px solid var(--color-text-error);
+  border-left: 3px solid var(--color-text-error);
   color: var(--color-text-error);
   list-style: none;
   overflow-y: scroll;
   white-space: pre-wrap;
+
+  li {
+    margin-bottom: 0;
+  }
 }

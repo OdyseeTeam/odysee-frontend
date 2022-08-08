@@ -73,3 +73,5 @@ export function getTimeAgoStr(
 }
 
 export const formatDateToMonthAndDay = (date: any) => moment(new Date(date)).format('MMMM DD');
+
+export const getCurrentTimeInSec = () => Math.floor(Date.now() / 1000);

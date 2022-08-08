@@ -5,6 +5,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import LbcMessage from 'component/common/lbc-message';
+import I18nMessage from 'component/i18nMessage';
 
 type Props = {
   removeSnack: (any) => void,
@@ -46,7 +47,19 @@ class SnackBar extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { message, subMessage, duration, linkText, linkTarget, linkPath, isError } = snack;
+    const {
+      message,
+      subMessage,
+      duration,
+      linkText,
+      linkTarget,
+      actionText,
+      action,
+      secondaryActionText,
+      secondaryAction,
+      isError,
+      linkPath
+    } = snack;
 
     if (this.intervalId) {
       // TODO: render should be pure
@@ -60,6 +73,11 @@ class SnackBar extends React.PureComponent<Props, State> {
         },
         duration === 'long' ? 10000 : 5000
       );
+    }
+
+    function handleAction(passedAction) {
+      if (passedAction) passedAction();
+      removeSnack();
     }
 
     return (
@@ -97,6 +115,18 @@ class SnackBar extends React.PureComponent<Props, State> {
             className="snack-bar__action"
             label={linkText}
           />
+        )}
+        {actionText && action && (
+          <div className="snack-bar__action">
+            <I18nMessage
+              tokens={{
+                firstAction: <Button onClick={() => handleAction(action)} label={actionText} />,
+                secondAction: <Button onClick={() => handleAction(secondaryAction)} label={secondaryActionText} />,
+              }}
+            >
+              {secondaryAction ? '%firstAction% / %secondAction%' : '%firstAction%'}
+            </I18nMessage>
+          </div>
         )}
       </div>
     );

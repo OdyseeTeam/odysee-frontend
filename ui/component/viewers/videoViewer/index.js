@@ -1,28 +1,16 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectThumbnailForUri, selectPurchaseTagForUri, selectPurchaseMadeForClaimId } from 'redux/selectors/claims';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import {
-  makeSelectNextUrlForCollectionAndUrl,
-  makeSelectPreviousUrlForCollectionAndUrl,
+  selectNextUrlForCollectionAndUrl,
+  selectPreviousUrlForCollectionAndUrl,
+  selectIndexForUrlInCollection,
 } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
-import {
-  doChangeVolume,
-  doChangeMute,
-  doAnalyticsBuffer,
-  doAnaltyicsPurchaseEvent,
-  doAnalyticsView,
-} from 'redux/actions/app';
+import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
 import { selectVolume, selectMute } from 'redux/selectors/app';
-import {
-  savePosition,
-  clearPosition,
-  doPlayUri,
-  doSetPlayingUri,
-  doSetContentHistoryItem,
-} from 'redux/actions/content';
+import { savePosition, clearPosition, doUriInitiatePlay, doSetContentHistoryItem } from 'redux/actions/content';
 import { makeSelectIsPlayerFloating, selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
 import { selectRecommendedContentForUri } from 'redux/selectors/search';
 import VideoViewer from './view';
@@ -31,44 +19,48 @@ import { doClaimEligiblePurchaseRewards } from 'redux/actions/rewards';
 import { selectDaemonSettings, selectClientSetting, selectHomepageData } from 'redux/selectors/settings';
 import { toggleVideoTheaterMode, toggleAutoplayNext, doSetClientSetting } from 'redux/actions/settings';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
+import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 
 const select = (state, props) => {
-  const { search } = props.location;
+  const { search, pathname, hash } = props.location;
   const urlParams = new URLSearchParams(search);
   const autoplay = urlParams.get('autoplay');
   const uri = props.uri;
 
+  const urlPath = `lbry://${(pathname + hash).slice(1)}`;
+  let startTime;
+  try {
+    ({ startTime } = parseURI(urlPath));
+  } catch (e) {}
+
   const claim = selectClaimForUri(state, uri);
 
   // TODO: eventually this should be received from DB and not local state (https://github.com/lbryio/lbry-desktop/issues/6796)
-  const position = urlParams.get('t') !== null ? urlParams.get('t') : selectContentPositionForUri(state, uri);
+  const position =
+    startTime || (urlParams.get('t') !== null ? urlParams.get('t') : selectContentPositionForUri(state, uri));
   const userId = selectUser(state) && selectUser(state).id;
   const internalFeature = selectUser(state) && selectUser(state).internal_feature;
   const playingUri = selectPlayingUri(state);
-  const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || playingUri.collectionId;
+  const collectionId = playingUri.collection.collectionId;
   const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
 
-  let nextRecommendedUri;
-  let previousListUri;
-  if (collectionId) {
-    nextRecommendedUri = makeSelectNextUrlForCollectionAndUrl(collectionId, uri)(state);
-    previousListUri = makeSelectPreviousUrlForCollectionAndUrl(collectionId, uri)(state);
-  } else {
-    const recommendedContent = selectRecommendedContentForUri(state, uri);
-    nextRecommendedUri = recommendedContent && recommendedContent[0];
-  }
+  const nextPlaylistUri = collectionId && selectNextUrlForCollectionAndUrl(state, uri, collectionId);
+  const previousPlaylistUri = collectionId && selectPreviousUrlForCollectionAndUrl(state, uri, collectionId);
+  const recomendedContent = selectRecommendedContentForUri(state, uri);
+  const nextRecommendedUri = recomendedContent && recomendedContent[0];
 
   return {
     position,
     userId,
     internalFeature,
     collectionId,
+    nextPlaylistUri,
     nextRecommendedUri,
-    previousListUri,
+    previousListUri: previousPlaylistUri,
     isMarkdownOrComment,
     autoplayIfEmbedded: Boolean(autoplay),
-    autoplayNext: selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
+    autoplayNext: !isMarkdownOrComment && selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT),
     volume: selectVolume(state),
     muted: selectMute(state),
     videoPlaybackRate: selectClientSetting(state, SETTINGS.VIDEO_PLAYBACK_RATE),
@@ -82,6 +74,9 @@ const select = (state, props) => {
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
+    currentPlaylistItemIndex: selectIndexForUrlInCollection(state, uri, collectionId),
+    isPurchasedContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
+    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
   };
 };
 
@@ -94,19 +89,7 @@ const perform = (dispatch) => ({
   toggleVideoTheaterMode: () => dispatch(toggleVideoTheaterMode()),
   toggleAutoplayNext: () => dispatch(toggleAutoplayNext()),
   setVideoPlaybackRate: (rate) => dispatch(doSetClientSetting(SETTINGS.VIDEO_PLAYBACK_RATE, rate)),
-  doPlayUri: (uri, collectionId) =>
-    dispatch(
-      doPlayUri(
-        uri,
-        false,
-        false,
-        (fileInfo) => {
-          dispatch(doAnaltyicsPurchaseEvent(fileInfo));
-        },
-        true
-      ),
-      dispatch(doSetPlayingUri({ uri, collectionId }))
-    ),
+  doPlayUri: (params) => dispatch(doUriInitiatePlay(params, true, true)),
   doAnalyticsView: (uri, timeToStart) => dispatch(doAnalyticsView(uri, timeToStart)),
   claimRewards: () => dispatch(doClaimEligiblePurchaseRewards()),
   doToast: (props) => dispatch(doToast(props)),

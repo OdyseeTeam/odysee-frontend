@@ -3,6 +3,7 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import * as MODALS from 'constants/modal_types';
+import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
 
 // prettier-ignore
@@ -15,6 +16,7 @@ const MAP = Object.freeze({
   [MODALS.BLOCK_CHANNEL]: lazyImport(() => import('modal/modalBlockChannel' /* webpackChunkName: "modalBlockChannel" */)),
   [MODALS.CANCEL_CREATOR_MEMBERSHIP]: lazyImport(() => import('modal/modalCancelCreatorMembership' /* webpackChunkName: "modalCancelCreatorMembership" */)),
   [MODALS.COLLECTION_ADD]: lazyImport(() => import('modal/modalClaimCollectionAdd' /* webpackChunkName: "modalClaimCollectionAdd" */)),
+  [MODALS.COLLECTION_CREATE]: lazyImport(() => import('modal/modalCollectionCreate/index' /* webpackChunkName: "modalCollectionCreate" */)),
   [MODALS.COLLECTION_DELETE]: lazyImport(() => import('modal/modalRemoveCollection' /* webpackChunkName: "modalRemoveCollection" */)),
   [MODALS.CONFIRM]: lazyImport(() => import('modal/modalConfirm' /* webpackChunkName: "modalConfirm" */)),
   [MODALS.CONFIRM_AGE]: lazyImport(() => import('modal/modalConfirmAge' /* webpackChunkName: "modalConfirmAge" */)),
@@ -29,7 +31,7 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction' /* webpackChunkName: "modalConfirmTransaction" */)),
   [MODALS.CUSTOMIZE_HOMEPAGE]: lazyImport(() => import('modal/modalCustomizeHomepage' /* webpackChunkName: "modalCustomizeHomepage" */)),
   [MODALS.DOWNLOADING]: lazyImport(() => import('modal/modalDownloading' /* webpackChunkName: "modalDownloading" */)),
-  [MODALS.ERROR]: lazyImport(() => import('modal/modalError' /* webpackChunkName: "modalError" */)),
+  [MODALS.ERROR]: ModalError,
   [MODALS.FILE_SELECTION]: lazyImport(() => import('modal/modalFileSelection' /* webpackChunkName: "modalFileSelection" */)),
   [MODALS.FILE_TIMEOUT]: lazyImport(() => import('modal/modalFileTimeout' /* webpackChunkName: "modalFileTimeout" */)),
   [MODALS.FIRST_REWARD]: lazyImport(() => import('modal/modalFirstReward' /* webpackChunkName: "modalFirstReward" */)),
@@ -42,6 +44,7 @@ const MAP = Object.freeze({
   [MODALS.MIN_CHANNEL_AGE]: lazyImport(() => import('modal/modalMinChannelAge' /* webpackChunkName: "modalMinChannelAge" */)),
   [MODALS.MOBILE_SEARCH]: lazyImport(() => import('modal/modalMobileSearch' /* webpackChunkName: "modalMobileSearch" */)),
   [MODALS.PHONE_COLLECTION]: lazyImport(() => import('modal/modalPhoneCollection' /* webpackChunkName: "modalPhoneCollection" */)),
+  [MODALS.PREORDER_CONTENT]: lazyImport(() => import('modal/modalPreorderContent' /* webpackChunkName: "modalPreorderContent" */)),
   [MODALS.PUBLISH]: lazyImport(() => import('modal/modalPublish' /* webpackChunkName: "modalPublish" */)),
   [MODALS.PUBLISH_PREVIEW]: lazyImport(() => import('modal/modalPublishPreview' /* webpackChunkName: "modalPublishPreview" */)),
   [MODALS.REPOST]: lazyImport(() => import('modal/modalRepost' /* webpackChunkName: "modalRepost" */)),
@@ -64,16 +67,16 @@ type Props = {
   modal: { id: string, modalProps: {} },
   error: { message: string },
   location: { pathname: string },
-  hideModal: () => void,
+  doHideModal: () => void,
 };
 
 function ModalRouter(props: Props) {
-  const { modal, error, location, hideModal } = props;
+  const { modal, error, location, doHideModal } = props;
   const { pathname } = location;
 
   React.useEffect(() => {
-    hideModal();
-  }, [pathname, hideModal]);
+    doHideModal();
+  }, [pathname, doHideModal]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];
@@ -97,7 +100,7 @@ function ModalRouter(props: Props) {
 
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
-      <SelectedModal {...modalProps} />
+      <SelectedModal {...modalProps} doHideModal={doHideModal} />
     </React.Suspense>
   );
 }

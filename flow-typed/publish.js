@@ -14,6 +14,9 @@ declare type UpdatePublishFormData = {
   thumbnailError?: boolean,
   description?: string,
   language?: string,
+  releaseTime?: number,
+  releaseTimeEdited?: number,
+  releaseTimeError?: string,
   channel?: string,
   channelId?: string,
   name?: string,
@@ -66,6 +69,7 @@ declare type FileUploadSdkParams = {
   // Temporary values; remove when passing to SDK
   guid: string,
   uploadUrl?: string,
+  isMarkdown: boolean,
 };
 
 declare type FileUploadItem = {

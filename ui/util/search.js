@@ -3,6 +3,7 @@
 import { isNameValid, isURIValid, normalizeURI, parseURI } from 'util/lbryURI';
 import { URL as SITE_URL, URL_LOCAL, URL_DEV, SIMPLE_SITE } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
+import { getSearchQueryString } from 'util/query-params';
 
 export function createNormalizedSearchKey(query: string) {
   const removeParam = (query: string, param: string) => {
@@ -97,7 +98,23 @@ export function getUriForSearchTerm(term: string) {
   }
 }
 
-export function getRecommendationSearchOptions(matureEnabled: boolean, claimIsMature: boolean, claimId: string) {
+/**
+ * The 'Recommended' search query is used as the key to store the results. This
+ * function ensures all clients derive the same key by making this the only
+ * place to make tweaks.
+ *
+ * @param matureEnabled
+ * @param claimIsMature
+ * @param claimId
+ * @param language
+ * @returns {{size: number, nsfw: boolean, isBackgroundSearch: boolean}}
+ */
+export function getRecommendationSearchOptions(
+  matureEnabled: boolean,
+  claimIsMature: boolean,
+  claimId: string,
+  language: ?string
+) {
   const options = { size: 20, nsfw: matureEnabled, isBackgroundSearch: true };
 
   if (SIMPLE_SITE) {
@@ -110,5 +127,14 @@ export function getRecommendationSearchOptions(matureEnabled: boolean, claimIsMa
     options[SEARCH_OPTIONS.RELATED_TO] = claimId;
   }
 
+  if (language) {
+    options[SEARCH_OPTIONS.LANGUAGE] = language;
+  }
+
   return options;
+}
+
+export function getRecommendationSearchKey(title: string, options: {}) {
+  const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
+  return createNormalizedSearchKey(searchQuery);
 }

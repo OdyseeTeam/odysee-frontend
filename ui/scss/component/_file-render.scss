@@ -686,7 +686,7 @@ $control-bar-icon-size: 30px;
     }
 
     div.vjs-playback-rate {
-      margin-left: var(--spacing-xs);
+      // margin-left: var(--spacing-xs);
       margin-right: calc(var(--spacing-xs) * -1);
       .vjs-playback-rate-value {
         font-size: $control-bar-font-size;
@@ -708,8 +708,10 @@ $control-bar-icon-size: 30px;
     }
 
     div.vjs-chapters-button {
+      right: calc(var(--spacing-xs) * -1);
       .vjs-menu {
-        width: 20em;
+        min-width: 12em;
+        max-width: 19em;
         left: -3em;
       }
 
@@ -1025,6 +1027,12 @@ $control-bar-icon-size: 30px;
   width: 100%;
   text-align: center;
   font-size: var(--font-small);
+
+  .button--link {
+    .button__content {
+      align-items: normal;
+    }
+  }
 }
 .autoplay-countdown__counter {
   margin-top: var(--spacing-m);

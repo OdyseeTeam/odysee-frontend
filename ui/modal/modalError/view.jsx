@@ -21,7 +21,7 @@ class ModalError extends React.PureComponent<Props> {
     // The thumbnail error shouldn't be routed here, but it's troublesome to create a different path.
     let errorMessage = typeof error === 'string' ? error : error.message;
     const skipLog =
-      errorMessage.startsWith('Failed to download') ||
+      (errorMessage && errorMessage.startsWith('Failed to download')) ||
       /^Thumbnail size over (.*)MB, please edit and reupload.$/.test(errorMessage);
 
     if (error.cause) {
@@ -32,8 +32,12 @@ class ModalError extends React.PureComponent<Props> {
       }
     }
 
-    if (process.env.NODE_ENV === 'production' && !skipLog) {
-      Lbryio.call('event', 'desktop_error', { error_message: errorMessage });
+    if (!skipLog) {
+      if (process.env.NODE_ENV === 'production') {
+        Lbryio.call('event', 'desktop_error', { error_message: errorMessage });
+      } else {
+        console.log(`%c'event/desktop_error' (skipped):\n${errorMessage}`, 'color:yellow');
+      }
     }
   }
 

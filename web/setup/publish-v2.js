@@ -4,11 +4,12 @@ import NoopUrlStorage from 'tus-js-client/lib/noopUrlStorage';
 import analytics from '../../ui/analytics';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
+import { generateError } from './publish-error';
 import { LBRY_WEB_PUBLISH_API_V2 } from 'config';
 
 const RESUMABLE_ENDPOINT = LBRY_WEB_PUBLISH_API_V2;
 const RESUMABLE_ENDPOINT_METHOD = 'publish';
-const UPLOAD_CHUNK_SIZE_BYTE = 10 * 1024 * 1024;
+const UPLOAD_CHUNK_SIZE_BYTE = 25 * 1024 * 1024;
 
 const STATUS_CONFLICT = 409;
 const STATUS_LOCKED = 423;
@@ -48,7 +49,7 @@ export function makeResumableUploadRequest(
       reject(new Error('Publish: v2 does not support remote_url'));
     }
 
-    const { uploadUrl, guid, ...sdkParams } = params;
+    const { uploadUrl, guid, isMarkdown, ...sdkParams } = params;
 
     const jsonPayload = JSON.stringify({
       jsonrpc: '2.0',
@@ -70,7 +71,7 @@ export function makeResumableUploadRequest(
     const uploader = new tus.Upload(file, {
       ...urlOptions,
       chunkSize: UPLOAD_CHUNK_SIZE_BYTE,
-      retryDelays: [122000],
+      retryDelays: [8000, 15000, 30000],
       parallelUploads: 1,
       storeFingerprintForResuming: false,
       urlStorage: new NoopUrlStorage(),
@@ -92,22 +93,14 @@ export function makeResumableUploadRequest(
         let customErr;
         if (status === STATUS_LOCKED || errMsg === 'file currently locked') {
           customErr = 'File is locked. Try resuming after waiting a few minutes';
+        } else if (errMsg.startsWith('tus: failed to upload chunk at offset')) {
+          customErr = 'Error uploading chunk. Click "retry" in the Uploads page to resume upload.';
         }
 
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
         analytics.sentryError(getTusErrorType(errMsg), { onError: err, tusUpload: uploader });
 
-        reject(
-          // $FlowFixMe - flow's constructor for Error is incorrect.
-          new Error(customErr || err, {
-            cause: {
-              // ...(uploader._fingerprint ? { fingerprint: uploader._fingerprint } : {}),
-              // ...(uploader._retryAttempt ? { retryAttempt: uploader._retryAttempt } : {}),
-              // ...(uploader._offsetBeforeRetry ? { offsetBeforeRetry: uploader._offsetBeforeRetry } : {}),
-              ...(customErr ? { original: errMsg } : {}),
-            },
-          })
-        );
+        reject(generateError(customErr || err, params, null, uploader, customErr ? err : null));
       },
       onProgress: (bytesUploaded, bytesTotal) => {
         const percentage = ((bytesUploaded / bytesTotal) * 100).toFixed(2);
@@ -123,6 +116,9 @@ export function makeResumableUploadRequest(
           xhr.setRequestHeader('Tus-Resumable', '1.0.0');
           xhr.setRequestHeader(X_LBRY_AUTH_TOKEN, token);
           xhr.responseType = 'json';
+          xhr.onloadstart = () => {
+            window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify' }));
+          };
           xhr.onload = () => {
             window.store.dispatch(doUpdateUploadRemove(guid));
             resolve(xhr);
@@ -134,7 +130,7 @@ export function makeResumableUploadRequest(
               setTimeout(() => makeNotifyRequest(), 10000); // Auto-retry after 10s delay.
             } else {
               window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-              reject(new Error(`There was a problem in the processing. Please retry. (${xhr.status})`));
+              reject(generateError(`Failed to process the file. Please retry. (${xhr.status})`, params, xhr, uploader));
             }
           };
           xhr.onabort = () => {
@@ -144,6 +140,8 @@ export function makeResumableUploadRequest(
           xhr.send(jsonPayload);
         }
 
+        // Server needs time to process the upload before we can send `notify`.
+        // TODO: Is it file-size dependent?
         setTimeout(() => makeNotifyRequest(), 15000);
       },
     });

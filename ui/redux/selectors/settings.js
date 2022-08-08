@@ -5,7 +5,7 @@ import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
 import { createSelector } from 'reselect';
 import { ENABLE_MATURE } from 'config';
 import { getDefaultHomepageKey, getDefaultLanguage } from 'util/default-languages';
-import { selectClaimWithId } from 'redux/selectors/claims';
+import { selectClaimForId } from 'redux/selectors/claims';
 
 const selectState = (state) => state.settings || {};
 
@@ -82,6 +82,18 @@ export const selectHomepageMeme = (state) => {
   return homepages ? homepages['en'].meme || {} : {};
 };
 
+export const selectHomepageDiscover = (state) => {
+  const homepageCode = selectHomepageCode(state);
+  const homepages = window.homepages;
+  if (homepages) {
+    const discover = homepages[homepageCode].discover;
+    if (discover) {
+      return discover;
+    }
+  }
+  return homepages ? homepages['en'].discover || [] : [];
+};
+
 export const selectHomepageAnnouncement = (state) => {
   const homepageCode = selectHomepageCode(state);
   const homepages = window.homepages;
@@ -108,6 +120,6 @@ export const selectWildWestDisabled = (state) => {
 export const selectosNotificationsEnabled = (state) => selectClientSetting(state, SETTINGS.OS_NOTIFICATIONS_ENABLED);
 
 export const selectDefaultChannelClaim = createSelector(
-  (state) => selectClaimWithId(state, selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM)),
+  (state) => selectClaimForId(state, selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM)),
   (defaultChannelClaim) => defaultChannelClaim
 );

@@ -13,6 +13,7 @@ import { FYP_ID } from 'constants/urlParams';
 import classnames from 'classnames';
 import RecSys from 'recsys';
 import { getClaimMetadata } from 'util/claim';
+import LangFilterIndicator from 'component/langFilterIndicator';
 
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
@@ -24,6 +25,7 @@ type Props = {
   recommendedContentUris: Array<string>,
   nextRecommendedUri: string,
   isSearching: boolean,
+  searchInLanguage: boolean,
   doFetchRecommendedContent: (string, ?FypParam) => void,
   claim: ?StreamClaim,
   claimId: string,
@@ -39,6 +41,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
     recommendedContentUris,
     nextRecommendedUri,
     isSearching,
+    searchInLanguage,
     claim,
     location,
     hasPremiumPlus,
@@ -79,7 +82,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const InjectedAd =
     injectAds && !blacklistTriggered && !hasPremiumPlus
       ? {
-          node: <Ads small type="video" filePage className="ads__claim-item--recommended" noFallback />,
+          node: <Ads small type="video" className="ads__claim-item--recommended" noFallback />,
           index: isMobile ? 0 : 3,
         }
       : null;
@@ -88,6 +91,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   // e.g. never in a floating popup. With that, we can grab the FYP ID from
   // the search param directly. Otherwise, the parent component would need to
   // pass it.
+  // @see https://www.notion.so/FYP-Design-Notes-727782dde2cb485290c530ae96a34285
   const { search } = location;
   const urlParams = new URLSearchParams(search);
   const fypId = urlParams.get(FYP_ID);
@@ -126,6 +130,8 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
       titleActions={
         signingChannel && (
           <div className="recommended-content__bubble">
+            {searchInLanguage && <LangFilterIndicator />}
+
             <Button
               className={classnames('button-bubble', {
                 'button-bubble--active': viewMode === VIEW_ALL_RELATED,

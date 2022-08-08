@@ -10,7 +10,7 @@ import {
 } from 'redux/selectors/claims';
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
 import { doToast } from 'redux/actions/notifications';
-import { doClearPlayingUri } from 'redux/actions/content';
+import { doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
 import {
   selectFetchedCommentAncestors,
   selectOthersReactsForComment,
@@ -43,7 +43,7 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, channel_url),
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
-    selectOdyseeMembershipForUri: channel_url && selectOdyseeMembershipForUri(state, channel_url),
+    commenterMembership: channel_url && selectOdyseeMembershipForUri(state, channel_url),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
     membership: channel_id && selectMembershipForChannelId(state, channel_id),
@@ -52,6 +52,7 @@ const select = (state, props) => {
 
 const perform = {
   doClearPlayingUri,
+  doClearPlayingSource,
   updateComment: doCommentUpdate,
   fetchReplies: doCommentList,
   doToast,

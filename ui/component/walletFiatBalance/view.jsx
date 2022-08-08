@@ -38,9 +38,10 @@ export default function WalletFiatBalance(props: Props) {
             ${total_received_unpaid ? total_received_unpaid / 100 : 0} {__('Total Received Tips')}
           </h2>
 
-          <h2 className="section__title--small">
-            ${total_paid_out ? total_paid_out / 100 : 0} {__('Withdrawn')}
-          </h2>
+          {/* withdraw amount is usuallty incorrect due to chargebacks / currency conversion issues */}
+          {/*<h2 className="section__title--small">*/}
+          {/*  ${total_paid_out ? total_paid_out / 100 : 0} {__('Withdrawn')}*/}
+          {/*</h2>*/}
 
           <div className="section__actions">
             <Button

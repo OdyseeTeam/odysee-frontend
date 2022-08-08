@@ -1,6 +1,12 @@
 import { connect } from 'react-redux';
 import { doUriInitiatePlay } from 'redux/actions/content';
-import { selectClaimWasPurchasedForUri, selectClaimForUri } from 'redux/selectors/claims';
+import {
+  selectClaimWasPurchasedForUri,
+  selectClaimForUri,
+  selectPurchaseTagForUri,
+  selectPurchaseMadeForClaimId,
+  selectClaimIsMine,
+} from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri } from 'lbryinc';
@@ -8,7 +14,7 @@ import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { withRouter } from 'react-router';
 import {
-  makeSelectIsPlaying,
+  selectFileIsPlayingOnPage,
   selectShouldObscurePreviewForUri,
   selectInsufficientCreditsForUri,
   makeSelectFileRenderModeForUri,
@@ -31,7 +37,7 @@ const select = (state, props) => {
     claimThumbnail: getThumbnailFromClaim(claim),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
     obscurePreview: selectShouldObscurePreviewForUri(state, uri),
-    isPlaying: makeSelectIsPlaying(uri)(state),
+    isPlaying: selectFileIsPlayingOnPage(state, uri),
     insufficientCredits: selectInsufficientCreditsForUri(state, uri),
     autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
     costInfo: selectCostInfoForUri(state, uri),
@@ -40,6 +46,9 @@ const select = (state, props) => {
     authenticated: selectUserVerifiedEmail(state),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    purchaseContentTag: selectPurchaseTagForUri(state, props.uri),
+    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claimId),
+    claimIsMine: selectClaimIsMine(state, claim),
   };
 };
 

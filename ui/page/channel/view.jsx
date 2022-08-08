@@ -2,11 +2,12 @@
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
+import { getChannelSubCountStr } from 'util/formatMediaDuration';
 import { parseURI } from 'util/lbryURI';
 import { YOUTUBE_STATUSES } from 'lbryinc';
 import Page from 'component/page';
 import SubscribeButton from 'component/subscribeButton';
-import ShareButton from 'component/shareButton';
+import ClaimShareButton from 'component/claimShareButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
@@ -64,7 +65,6 @@ type Props = {
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
   lang: string,
-  odyseeMembership: string,
 };
 
 function ChannelPage(props: Props) {
@@ -85,7 +85,6 @@ function ChannelPage(props: Props) {
     mutedChannels,
     unpublishedCollections,
     lang,
-    odyseeMembership,
   } = props;
 
   const {
@@ -124,8 +123,7 @@ function ChannelPage(props: Props) {
 
     return discussionWasMounted && currentView === PAGE.DISCUSSION;
 
-    // only re-calculate on discussionWasMounted or uri change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-calculate on discussionWasMounted or uri change
   }, [discussionWasMounted, uri]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
@@ -138,7 +136,7 @@ function ChannelPage(props: Props) {
           <p>
             <I18nMessage
               tokens={{
-                pick: <Button button="link" navigate={`/$/${PAGES.LISTS}`} label={__('Pick')} />,
+                pick: <Button button="link" navigate={`/$/${PAGES.PLAYLISTS}`} label={__('Pick')} />,
               }}
             >
               You have unpublished lists! %pick% one and publish it!
@@ -266,6 +264,8 @@ function ChannelPage(props: Props) {
           <JoinMembershipButton uri={uri} isChannelPage />
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!channelIsBlackListed && <ShareButton uri={uri} />}
+          {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
+          {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
           {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
           <ClaimMenuList uri={claim.permanent_url} inline isChannelPage />
@@ -284,13 +284,17 @@ function ChannelPage(props: Props) {
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
-            <PremiumBadge membership={odyseeMembership} />
+            <PremiumBadge uri={uri} />
           </h1>
           <div className="channel__meta">
             <Tooltip title={formattedSubCount} followCursor placement="top">
               <span>
-                {compactSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
-                <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+                {getChannelSubCountStr(subCount, compactSubCount)}
+                {Number.isInteger(subCount) ? (
+                  <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+                ) : (
+                  '\u00A0'
+                )}
               </span>
             </Tooltip>
             {channelIsMine && (

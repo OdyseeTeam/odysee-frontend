@@ -89,6 +89,7 @@ type Props = {
   doTipAccountCheckForUri: (uri: string) => void,
   activeChannelMembershipName: ?string,
   validUserMembershipForChannel: any,
+  textInjection?: string,
 };
 
 export function CommentCreate(props: Props) {
@@ -131,6 +132,7 @@ export function CommentCreate(props: Props) {
     doFetchMyCommentedChannels,
     doTipAccountCheckForUri,
     validUserMembershipForChannel,
+    textInjection,
   } = props;
 
   const isAChannelMember = Boolean(validUserMembershipForChannel);
@@ -507,6 +509,20 @@ export function CommentCreate(props: Props) {
     }
   }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
 
+  React.useEffect(() => {
+    if (textInjection) {
+      setCommentValue(
+        commentValue === ''
+          ? commentValue + textInjection + ' '
+          : commentValue.substring(commentValue.length - 1) === ' '
+          ? commentValue + textInjection + ' '
+          : commentValue + ' ' + textInjection + ' '
+      );
+      // $FlowFixMe
+      return formFieldRef?.current?.input?.current?.focus();
+    }
+  }, [textInjection]);
+
   // **************************************************************************
   // Render
   // **************************************************************************
@@ -543,7 +559,7 @@ export function CommentCreate(props: Props) {
 
         {!isMobile && (
           <div className="section__actions--no-margin">
-            <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth />
+            <Button disabled button="primary" label={__('Send --[button to submit something]--')} requiresAuth />
           </div>
         )}
       </div>
@@ -598,13 +614,6 @@ export function CommentCreate(props: Props) {
         activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
       ) : (
         <>
-          {!isMobile && showSelectors.open && (
-            <CommentSelectors
-              {...commentSelectorsProps}
-              closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
-            />
-          )}
-
           <FormField
             autoFocus={isReply}
             charCount={charCount}
@@ -642,6 +651,12 @@ export function CommentCreate(props: Props) {
             value={commentValue}
             uri={uri}
           />
+          {!isMobile && showSelectors.open && (
+            <CommentSelectors
+              {...commentSelectorsProps}
+              closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
+            />
+          )}
         </>
       )}
 
@@ -698,7 +713,11 @@ export function CommentCreate(props: Props) {
                 ref={buttonRef}
                 disabled={disabled}
                 label={
-                  isReply
+                  isLivestream
+                    ? isSubmitting
+                      ? __('Sending...')
+                      : __('Send --[button to send chat message]--')
+                    : isReply
                     ? isSubmitting
                       ? __('Replying...')
                       : __('Reply')
@@ -744,6 +763,11 @@ export function CommentCreate(props: Props) {
           <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
         </div>
       )}
+      <div className="chat-resize">
+        <div />
+        <div />
+        <div />
+      </div>
     </Form>
   );
 }

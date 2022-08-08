@@ -1,13 +1,19 @@
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { parseURI, buildURI } from 'util/lbryURI';
+import { parseURI, buildURI, sanitizeName } from 'util/lbryURI';
+import { dedupeLanguages } from 'util/publish';
 import {
   selectClaimsById,
   selectMyClaimsWithoutChannels,
   selectResolvingUris,
   selectClaimsByUri,
+  selectClaimForUri,
+  makeSelectMetadataItemForUri,
 } from 'redux/selectors/claims';
+import { getChannelIdFromClaim, getClaimTitle, getThumbnailFromClaim } from 'util/claim';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import { selectCollectionForId, selectClaimIdsForCollectionId } from 'redux/selectors/collections';
+import { selectActiveChannelClaimId } from 'redux/selectors/app';
 
 const selectState = (state) => state.publish || {};
 
@@ -50,7 +56,7 @@ export const selectPublishFormValues = createSelector(
   }
 );
 
-export const makeSelectPublishFormValue = (item) => createSelector(selectState, (state) => state[item]);
+export const selectPublishFormValue = (state, item) => selectState(state)[item];
 
 export const selectMyClaimForUri = createCachedSelector(
   selectPublishFormValues,
@@ -143,3 +149,35 @@ export const selectUploadCount = createSelector(
 );
 
 export const selectIsScheduled = (state) => selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);
+
+// @flow
+export const selectCollectionClaimParamsForUri = (state: State, uri: string, collectionId: string) => {
+  const claim = selectClaimForUri(state, uri);
+  const collection = selectCollectionForId(state, collectionId);
+  const activeChannelId = selectActiveChannelClaimId(state);
+
+  const { claim_id: claimId, name: collectionName, amount } = claim || collection || {};
+
+  const title = getClaimTitle(claim);
+  const collectionChannelId = getChannelIdFromClaim(claim);
+  const tags = makeSelectMetadataItemForUri(uri, 'tags')(state);
+  const languages = makeSelectMetadataItemForUri(uri, 'languages')(state);
+  // removes falsey values from string array
+  const collectionClaimIds = selectClaimIdsForCollectionId(state, collectionId).filter(Boolean);
+
+  const collectionParams: CollectionPublishParams = {
+    thumbnail_url: collection ? collection.thumbnail?.url : getThumbnailFromClaim(claim),
+    name: collectionName ? sanitizeName(collectionName) : undefined,
+    description: collection ? collection.description : makeSelectMetadataItemForUri(uri, 'description')(state),
+    title: collection ? collectionName : title,
+    bid: String(amount || 0.001),
+    languages: languages ? dedupeLanguages(languages) : [],
+    locations: makeSelectMetadataItemForUri(uri, 'locations')(state) || [],
+    tags: tags ? tags.map((tag) => ({ name: tag })) : [],
+    claim_id: claimId,
+    channel_id: claim ? collectionChannelId : activeChannelId || undefined,
+    claims: collectionClaimIds,
+  };
+
+  return collectionParams;
+};

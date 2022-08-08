@@ -3,7 +3,7 @@ import type { Node } from 'react';
 import React from 'react';
 import classnames from 'classnames';
 import Button from 'component/button';
-import PremiumBadge from 'component/common/premium-badge';
+import PremiumBadge from 'component/premiumBadge';
 import { stripLeadingAtSign } from 'util/string';
 
 type ChannelInfo = { uri: string, name: string, title: string };
@@ -23,8 +23,8 @@ type Props = {
   // --- redux ---
   claim: ?Claim,
   isResolvingUri: boolean,
-  odyseeMembership: string,
   comment?: boolean,
+  showHiddenAsAnonymous?: boolean,
   resolveUri: (string) => void,
 };
 
@@ -55,13 +55,13 @@ class UriIndicator extends React.PureComponent<Props> {
         channelTitle: channelInfo.title,
       };
     } else if (claim) {
-      const signingChannel = claim.signing_channel && claim.signing_channel.amount;
       const isChannelClaim = claim.value_type === 'channel';
+      const isChannelSignatureValid = claim.is_channel_signature_valid;
       const channelClaim = isChannelClaim ? claim : claim.signing_channel;
 
       return {
         hasChannelData: Boolean(channelClaim),
-        isAnonymous: !signingChannel && !isChannelClaim,
+        isAnonymous: !isChannelSignatureValid && !isChannelClaim,
         channelName: channelClaim?.name,
         channelLink: isLinkType ? channelClaim?.canonical_url || channelClaim?.permanent_url : false,
         channelTitle:
@@ -94,12 +94,12 @@ class UriIndicator extends React.PureComponent<Props> {
       hideAnonymous = false,
       showAtSign,
       className,
-      odyseeMembership,
       comment,
       showMemberBadge = true,
+      showHiddenAsAnonymous,
     } = this.props;
 
-    if (!channelInfo && !claim) {
+    if (!channelInfo && !claim && !showHiddenAsAnonymous) {
       return (
         <span className={classnames('empty', className)}>
           {uri === null ? '---' : isResolvingUri || claim === undefined ? __('Validating...') : __('[Removed]')}
@@ -109,7 +109,7 @@ class UriIndicator extends React.PureComponent<Props> {
 
     const data = this.resolveState(channelInfo, claim, link);
 
-    if (data.isAnonymous) {
+    if (data.isAnonymous || (!channelInfo && !claim && showHiddenAsAnonymous)) {
       if (hideAnonymous) {
         return null;
       }
@@ -127,7 +127,7 @@ class UriIndicator extends React.PureComponent<Props> {
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
           <p>{showAtSign ? channelName : stripLeadingAtSign(channelTitle)}</p>
-          {!comment && showMemberBadge && <PremiumBadge membership={odyseeMembership} />}
+          {!comment && showMemberBadge && <PremiumBadge uri={uri} />}
         </span>
       );
 

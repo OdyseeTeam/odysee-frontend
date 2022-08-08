@@ -26,6 +26,7 @@ export const selectCommentsById = (state: State) => selectState(state).commentBy
 export const selectCommentIdsByClaimId = (state: State) => selectState(state).byId;
 export const selectIsFetchingComments = (state: State) => selectState(state).isLoading;
 export const selectIsFetchingCommentsById = (state: State) => selectState(state).isLoadingById;
+export const selectIsFetchingCommentsByParentId = (state: State) => selectState(state).isLoadingByParentId;
 const selectTotalCommentsById = (state: State) => selectState(state).totalCommentsById;
 export const selectIsFetchingReacts = (state: State) => selectState(state).isFetchingReacts;
 
@@ -35,7 +36,12 @@ export const selectMyReactsForComment = (state: State, commentIdChannelId: strin
   return state.comments.myReactsByCommentId && state.comments.myReactsByCommentId[commentIdChannelId];
 };
 export const selectIsFetchingCommentsForParentId = (state: State, parentId: string) => {
-  return selectState(state).isLoadingByParentId[parentId];
+  return selectIsFetchingCommentsByParentId(state)[parentId];
+};
+export const selectIsFetchingTopLevelComments = (state: State) => {
+  const isFetching = selectIsFetchingComments(state);
+  const notFetchingReplies = Object.keys(selectIsFetchingCommentsByParentId(state)).length === 0;
+  return isFetching && notFetchingReplies;
 };
 
 export const selectOthersReacts = (state: State) => state.comments.othersReactsByCommentId;
@@ -409,19 +415,19 @@ export const makeSelectUriIsBlockingOrUnBlocking = (uri: string) =>
     return blockingByUri[uri] || unBlockingByUri[uri];
   });
 
-export const selectSuperChatDataForUri = (state: State, uri: string) => {
+export const selectHyperChatDataForUri = (state: State, uri: string) => {
   const byUri = selectSuperchatsByUri(state);
   return byUri[uri];
 };
 
-export const selectSuperChatsForUri = (state: State, uri: string) => {
-  const superChatData = selectSuperChatDataForUri(state, uri);
-  return superChatData ? superChatData.comments : undefined;
+export const selectHyperChatsForUri = (state: State, uri: string) => {
+  const hyperChatData = selectHyperChatDataForUri(state, uri);
+  return hyperChatData ? hyperChatData.comments : undefined;
 };
 
 export const selectSuperChatTotalAmountForUri = (state: State, uri: string) => {
-  const superChatData = selectSuperChatDataForUri(state, uri);
-  return superChatData ? superChatData.totalAmount : 0;
+  const hyperChatData = selectHyperChatDataForUri(state, uri);
+  return hyperChatData ? hyperChatData.totalAmount : 0;
 };
 
 export const selectChannelMentionData = createCachedSelector(

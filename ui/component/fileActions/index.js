@@ -5,6 +5,8 @@ import {
   selectHasChannels,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimIsNsfwForUri,
+  selectPreorderTagForUri,
+  selectPurchaseTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doPrepareEdit } from 'redux/actions/publish';
@@ -16,11 +18,14 @@ import FileActions from './view';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { DISABLE_DOWNLOAD_BUTTON_TAG } from 'constants/tags';
 import { isStreamPlaceholderClaim } from 'util/claim';
+import * as RENDER_MODES from 'constants/file_render_modes';
 
 const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
+  const permanentUrl = (claim && claim.permanent_url) || '';
+  const isPostClaim = makeSelectFileRenderModeForUri(permanentUrl)(state) === RENDER_MODES.MARKDOWN;
 
   return {
     claim,
@@ -29,9 +34,12 @@ const select = (state, props) => {
     costInfo: selectCostInfoForUri(state, uri),
     hasChannels: selectHasChannels(state),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    isPostClaim,
     streamingUrl: makeSelectStreamingUrlForUri(uri)(state),
     disableDownloadButton: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_DOWNLOAD_BUTTON_TAG)(state),
     isMature: selectClaimIsNsfwForUri(state, uri),
+    isAPreorder: Boolean(selectPreorderTagForUri(state, props.uri)),
+    isPurchasedContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
   };
 };
 

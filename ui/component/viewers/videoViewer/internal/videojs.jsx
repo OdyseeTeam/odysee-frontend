@@ -82,11 +82,11 @@ type Props = {
   claimId: ?string,
   title: ?string,
   channelTitle: string,
-  embedded: boolean,
+  embedded: boolean, // `/$/embed`
+  embeddedInternal: boolean, // Markdown (Posts and Comments)
   internalFeatureEnabled: ?boolean,
   isAudio: boolean,
   poster: ?string,
-  replay: boolean,
   shareTelemetry: boolean,
   source: string,
   sourceType: string,
@@ -106,7 +106,9 @@ type Props = {
   userClaimId: ?string,
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
+  isPurchasedContent: boolean,
 };
+
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
 
 const IS_IOS = platform.isIOS();
@@ -142,10 +144,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     title,
     channelTitle,
     embedded,
+    embeddedInternal,
     // internalFeatureEnabled, // for people on the team to test new features internally
     isAudio,
     poster,
-    replay,
     shareTelemetry,
     source,
     sourceType,
@@ -165,6 +167,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestreamClaim,
     activeLivestreamForChannel,
     doToast,
+    isPurchasedContent,
   } = props;
 
   // used to notify about default quality setting
@@ -213,7 +216,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     tapToRetryRef,
     setReload,
     playerRef,
-    replay,
     claimValues,
     userId,
     claimId,
@@ -248,17 +250,17 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     muted: startMuted,
     plugins: { eventTracking: true, overlay: OVERLAY.OVERLAY_DATA },
     controlBar: {
-      currentTimeDisplay: !isLivestreamClaim,
-      timeDivider: !isLivestreamClaim,
-      durationDisplay: !isLivestreamClaim,
-      remainingTimeDisplay: !isLivestreamClaim,
+      currentTimeDisplay: true,
+      timeDivider: true,
+      durationDisplay: true,
+      remainingTimeDisplay: true,
       subsCapsButton: !IS_IOS,
     },
     techOrder: ['chromecast', 'html5'],
     ...Chromecast.getOptions(),
     bigPlayButton: embedded, // only show big play button if embedded
-    liveui: isLivestreamClaim,
     suppressNotSupportedError: true,
+    liveui: true,
   };
 
   // TODO: would be nice to pull this out into functions file
@@ -310,12 +312,9 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         player.recsys({
           videoId: claimId,
           userId: userId,
-          embedded: embedded,
+          embedded: embedded || embeddedInternal,
         });
       }
-
-      // set playsinline for mobile
-      player.children_[0].setAttribute('playsinline', '');
 
       // immediately show control bar while video is loading
       player.userActive(true);
@@ -353,17 +352,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       let canUseOldPlayer = window.oldSavedDiv && vjsParent;
       const isLivestream = isLivestreamClaim && userClaimId;
-      // make an additional check and reinstantiate if switching between player types
-      // switching between types on iOS causes issues and this is a faster solution
-      if (vjsParent && window.player) {
-        const oldVideoType = window.player.isLivestream ? 'livestream' : 'video';
-        const switchFromLivestreamToVideo = oldVideoType === 'livestream' && !isLivestream;
-        const switchFromVideoToLivestream = oldVideoType === 'video' && isLivestream;
-        if (switchFromLivestreamToVideo || switchFromVideoToLivestream) {
-          canUseOldPlayer = false;
-          window.player.dispose();
-        }
-      }
 
       // initialize videojs if it hasn't been done yet
       if (!canUseOldPlayer) {
@@ -379,12 +367,33 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer = window.player;
       }
 
+      // hide unused elements on livestream
+      if (isLivestream) {
+        vjsPlayer.addClass('vjs-live');
+        vjsPlayer.addClass('vjs-liveui');
+        // $FlowIssue
+        vjsPlayer.controlBar.currentTimeDisplay?.el().style.setProperty('display', 'none', 'important');
+        // $FlowIssue
+        vjsPlayer.controlBar.timeDivider?.el().style.setProperty('display', 'none', 'important');
+        // $FlowIssue
+        vjsPlayer.controlBar.durationDisplay?.el().style.setProperty('display', 'none', 'important');
+      } else {
+        vjsPlayer.removeClass('vjs-live');
+        vjsPlayer.removeClass('vjs-liveui');
+        // $FlowIssue
+        vjsPlayer.controlBar.currentTimeDisplay?.el().style.setProperty('display', 'block', 'important');
+        // $FlowIssue
+        vjsPlayer.controlBar.timeDivider?.el().style.setProperty('display', 'block', 'important');
+        // $FlowIssue
+        vjsPlayer.controlBar.durationDisplay?.el().style.setProperty('display', 'block', 'important');
+      }
+
       // Add recsys plugin
       if (shareTelemetry) {
         vjsPlayer.recsys.options_ = {
           videoId: claimId,
           userId: userId,
-          embedded: embedded,
+          embedded: embedded || embeddedInternal,
         };
 
         vjsPlayer.recsys.lastTimeUpdate = null;
@@ -432,23 +441,33 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       vjsPlayer.poster(poster);
 
+      vjsPlayer.el().childNodes[0].setAttribute('playsinline', '');
+
       let contentUrl;
       // TODO: pull this function into videojs-functions
       // determine which source to use and load it
       if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-        vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
+        // temp workaround for CDN issue, remove in a few weeks.
+        const templivestreamVideoUrl = livestreamVideoUrl + '?cachebust=1';
+        vjsPlayer.src({ type: 'application/x-mpegURL', src: templivestreamVideoUrl });
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
 
-        // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
-        if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+        // remove query params for secured endpoints (which have query params on end of m3u8 path)
+        let trimmedUrl = new URL(response.url);
+        trimmedUrl.hash = '';
+        trimmedUrl.search = '';
+        trimmedUrl = trimmedUrl.toString();
+
+        // change to m3u8 if applicable
+        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
           vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
 
@@ -490,6 +509,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
       }
 
+      // disable right-click (context-menu) for purchased content
+      if (isPurchasedContent) {
+        const player = document.querySelector('video.vjs-tech');
+        if (player) player.setAttribute('oncontextmenu', 'return false;');
+      }
+
       // allow tap to unmute if no perms on iOS
       if (autoplay && !embedded) {
         const promise = vjsPlayer.play();
@@ -511,13 +536,29 @@ export default React.memo<Props>(function VideoJs(props: Props) {
                   // $FlowIssue
                   vjsPlayer?.muted(true);
                   // $FlowIssue
-                  vjsPlayer?.play();
-                  // $FlowIssue
-                  document.querySelector('.video-js--tap-to-unmute')?.style.setProperty('visibility', 'visible');
-                  // $FlowIssue
-                  document
-                    .querySelector('.video-js--tap-to-unmute')
-                    ?.style.setProperty('display', 'inline', 'important');
+                  const mutedPlayPromise = vjsPlayer?.play();
+                  if (mutedPlayPromise !== undefined) {
+                    mutedPlayPromise
+                      .then(() => {
+                        const tapToUnmuteButton = document.querySelector('.video-js--tap-to-unmute');
+
+                        // $FlowIssue
+                        tapToUnmuteButton?.style.setProperty('visibility', 'visible');
+                        // $FlowIssue
+                        tapToUnmuteButton?.style.setProperty('display', 'inline', 'important');
+                      })
+                      .catch((error) => {
+                        // $FlowFixMe
+                        vjsPlayer?.addClass('vjs-paused');
+                        // $FlowFixMe
+                        vjsPlayer?.addClass('vjs-has-started');
+
+                        // $FlowFixMe
+                        document.querySelector('.vjs-touch-overlay')?.classList.add('show-play-toggle');
+                        // $FlowFixMe
+                        document.querySelector('.vjs-play-control')?.classList.add('vjs-paused');
+                      });
+                  }
                 } else {
                   // $FlowIssue
                   vjsPlayer?.bigPlayButton?.show();
@@ -526,38 +567,12 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             });
         }
       }
-
-      // fix invisible vidcrunch overlay on IOS  << TODO: does not belong here. Move to ads.jsx (#739)
-      if (IS_IOS) {
-        // ads video player
-        const adsClaimDiv = document.querySelector('.ads__claim-item');
-
-        if (adsClaimDiv) {
-          // hide ad video by default
-          adsClaimDiv.style.display = 'none';
-
-          // ad containing div, we can keep part on page
-          const adsClaimParentDiv = adsClaimDiv.parentNode;
-
-          // watch parent div for when it is on viewport
-          const observer = new IntersectionObserver(function (entries) {
-            // when ad div parent becomes visible by 1px, show the ad video
-            if (entries[0].isIntersecting === true) {
-              adsClaimDiv.style.display = 'block';
-            }
-
-            observer.disconnect();
-          });
-
-          // $FlowFixMe
-          observer.observe(adsClaimParentDiv);
-        }
-      }
     })();
 
     // Cleanup
     return () => {
       window.removeEventListener('keydown', keyDownHandlerRef.current);
+
       const containerDiv = containerRef.current;
       // $FlowFixMe
       containerDiv && containerDiv.removeEventListener('wheel', videoScrollHandlerRef.current);
@@ -573,6 +588,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       const player = playerRef.current;
+
       if (player) {
         try {
           window.cast.framework.CastContext.getInstance().getCurrentSession().endSession(false);
@@ -588,9 +604,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           window.player.controlBar?.playToggle?.hide();
         }
 
-        // $FlowIssue
-        window.player?.controlBar?.getChild('ChaptersButton')?.hide();
-
         // this solves an issue with portrait videos
         // $FlowIssue
         const videoDiv = window.player?.tech_?.el(); // video element
@@ -602,7 +615,13 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         window.player.trigger('playerClosed');
 
+        // stop streams running in background
+        window.player.loadTech_('html5', null);
+
         window.player.currentTime(0);
+
+        // makes the current time update immediately
+        window.player.trigger('timeupdate');
 
         window.player.claimSrcVhs = null;
       }

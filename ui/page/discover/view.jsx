@@ -251,7 +251,8 @@ function DiscoverPage(props: Props) {
           tileLayout={repostedUri ? false : tileLayout}
           defaultOrderBy={isWildWest || tags ? CS.ORDER_BY_TRENDING : undefined}
           claimType={claimType ? [claimType] : undefined}
-          defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined}
+          defaultStreamType={undefined}
+          // defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined} remove due to claim search bug with reposts
           headerLabel={getHeaderLabel()}
           tags={tags}
           hiddenNsfwMessage={<HiddenNsfw type="page" />}
@@ -260,7 +261,7 @@ function DiscoverPage(props: Props) {
           // TODO: find a better way to determine discover / wild west vs other modes release times
           // for now including && !tags so that
           releaseTime={getReleaseTime()}
-          feeAmount={isWildWest || tags ? CS.FEE_AMOUNT_ANY : undefined}
+          feeAmount={undefined}
           channelIds={channelIds}
           excludedChannelIds={excludedChannelIds}
           limitClaimsPerChannel={
@@ -270,7 +271,7 @@ function DiscoverPage(props: Props) {
           }
           meta={getMeta()}
           hasSource
-          forceShowReposts={dynamicRouteProps}
+          hideRepostsOverride={dynamicRouteProps ? false : undefined}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
         />
       </ClaimSearchFilterContext.Provider>

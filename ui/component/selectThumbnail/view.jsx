@@ -22,6 +22,7 @@ type Props = {
   thumbnailParam: ?string,
   thumbnailParamError: boolean,
   thumbnailParamStatus: string,
+  optional?: boolean,
   openModal: (id: string, {}) => void,
   updatePublishForm: ({}) => void,
   updateThumbnailParams: ({}) => void,
@@ -42,6 +43,7 @@ function SelectThumbnail(props: Props) {
     updateThumbnailParams,
     thumbnailPath,
     resetThumbnailStatus,
+    optional,
   } = props;
 
   const publishForm = !updateThumbnailParams;
@@ -49,7 +51,7 @@ function SelectThumbnail(props: Props) {
   const thumbnailError = publishForm ? props.thumbnailError : props.thumbnailParamError;
 
   const accept = '.png, .jpg, .jpeg, .gif';
-  const manualInput = status === THUMBNAIL_STATUSES.API_DOWN || status === THUMBNAIL_STATUSES.MANUAL;
+  const manualInput = status === THUMBNAIL_STATUSES.MANUAL;
   const thumbUploaded = status === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
   const isUrlInput = thumbnail !== ThumbnailMissingImage && thumbnail !== ThumbnailBrokenImage;
 
@@ -122,7 +124,7 @@ function SelectThumbnail(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{__('Thumbnail')}</h2>
+      <h2 className="card__title">{optional ? __('Thumbnail (Optional)') : __('Thumbnail')}</h2>
       {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
         <div className="column card--thumbnail">
           {thumbPreview}
@@ -195,7 +197,11 @@ function SelectThumbnail(props: Props) {
         </div>
       )}
 
-      {status === THUMBNAIL_STATUSES.IN_PROGRESS && <p>{__('Uploading thumbnail')}...</p>}
+      {status === THUMBNAIL_STATUSES.IN_PROGRESS && (
+        <div className="column card--thumbnail">
+          <p>{__('Uploading thumbnail')}...</p>
+        </div>
+      )}
     </>
   );
 }
