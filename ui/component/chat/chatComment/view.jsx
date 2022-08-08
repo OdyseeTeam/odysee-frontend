@@ -25,7 +25,7 @@ type Props = {
   forceUpdate?: any,
   uri: string,
   isMobile?: boolean,
-  fastMode?: string,
+  fastMode?: boolean,
   restoreScrollPos?: () => void,
   handleCommentClick: (any) => void,
   handleDismissPin?: () => void,
@@ -263,6 +263,7 @@ export default function ChatComment(props: Props) {
                     setUserMention={setUserMention}
                     hasMembership={Boolean(odyseeMembership)}
                     isComment
+                    isMinimal={fastMode}
                   />
                 )}
               </div>

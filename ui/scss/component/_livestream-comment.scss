@@ -11,7 +11,7 @@
     opacity: var(--live-timestamp-opacity);
   }
 
-  &:hover {
+  &:not(.livestream__comment--hyperchat):hover {
     background-color: rgba(var(--color-header-background-base), 0.3);
 
     .date_time {
@@ -42,6 +42,10 @@
     &:hover {
       color: var(--color-primary);
     }
+  }
+
+  .embed__inline-wrapper {
+    margin-top: calc(var(--font-small) + var(--spacing-m));
   }
 
   @media (min-width: $breakpoint-small) {
@@ -119,12 +123,11 @@
 
 .livestream__comment--hyperchat {
   background-color: rgba(var(--color-text-base), 0.1);
-  // background-color: rgba(var(--color-text-base), 0.8);
-  // box-shadow: 2px 1px 0px 0px rgba(var(--color-text-base), 0.4) inset;
-  // border:2px solid rgba(var(--color-text-base),0.4);
+  margin: 0 var(--spacing-xxxs);
   display: unset;
   padding-left: 0;
   border-radius: var(--border-radius);
+  box-shadow: 2px 0px 0px 0px rgba(var(--color-text-base), 0.4) inset;
 
   + .livestream__comment--hyperchat {
     margin-bottom: var(--spacing-xxs);
@@ -156,10 +159,8 @@
   }
   .livestreamComment__menu {
     position: absolute;
-  }
-
-  .livestreamComment__menu {
     top: 2px;
+    right: 6px;
   }
 
   &::before {
@@ -273,7 +274,7 @@
   width: 90%;
   background-image: linear-gradient(to right, rgba(var(--color-text-base), 0.4), transparent);
   padding: 2px;
-  // margin-left: 2px;
+  margin-left: 2px;
   border-radius: var(--border-radius) 0 0 0;
   display: flex;
 

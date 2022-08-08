@@ -67,6 +67,7 @@ type MarkdownProps = {
   setUserMention?: (boolean) => void,
   hasMembership?: boolean,
   isComment?: boolean,
+  isMinimal?: boolean,
 };
 
 // ****************************************************************************
@@ -206,6 +207,7 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
     setUserMention,
     hasMembership,
     isComment,
+    isMinimal,
   } = props;
   let { content } = props;
 
@@ -243,7 +245,7 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
               {...linkProps}
               parentCommentId={parentCommentId}
               simpleLinks={simpleLinks}
-              allowPreview={isStakeEnoughForPreview(stakedLevel) || hasMembership}
+              allowPreview={(isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isMinimal}
               setUserMention={setUserMention}
               isComment={isComment}
             />

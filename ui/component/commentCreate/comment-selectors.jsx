@@ -187,7 +187,7 @@ const StickersPanel = (stickersProps: StickersProps) => {
           onClick={() => scrollToCategory('free', stickerSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Free'))}
           onMouseLeave={() => handleHover('')}
-          src="https://static.odycdn.com/stickers/MISC/PNG/fire.png"
+          src="https://static.odycdn.com/stickers/HYPE/PNG/hype_with_border.png"
         />
         {!claimIsMine && (
           <img
