@@ -93,21 +93,24 @@ const remarkTwemoji = (tree) => {
           .filter(function (x) {
             return x !== undefined;
           })[0];
-        node.type = 'image';
-        node.url = emote.url;
-        node.title = emote.name;
-        node.children = [{ type: 'text', value: emote.name }];
-        if (!node.data || !node.data.hProperties) {
-          // Create new node data
-          node.data = {
-            hProperties: { emote: true },
-          };
-        } else if (node.data.hProperties) {
-          // Don't overwrite current attributes
-          node.data.hProperties = {
-            emote: true,
-            ...node.data.hProperties,
-          };
+
+        if (emote) {
+          node.type = 'image';
+          node.url = emote.url;
+          node.title = emote.name;
+          node.children = [{ type: 'text', value: emote.name }];
+          if (!node.data || !node.data.hProperties) {
+            // Create new node data
+            node.data = {
+              hProperties: { emote: true },
+            };
+          } else if (node.data.hProperties) {
+            // Don't overwrite current attributes
+            node.data.hProperties = {
+              emote: true,
+              ...node.data.hProperties,
+            };
+          }
         }
       }
     });
