@@ -75,10 +75,12 @@ function CreateTiersTab(props: Props) {
 
   // focus name when you create a new tier
   React.useEffect(() => {
-    (async function() {
-      getMembershipPerks();
-    })();
-  }, []);
+    if(channelName && channelClaimId){
+      (async function() {
+        getMembershipPerks();
+      })();
+    }
+  }, [channelName, channelClaimId]);
 
   async function getMembershipPerks() {
     const response = await Lbryio.call(
@@ -380,14 +382,15 @@ function CreateTiersTab(props: Props) {
               {/* if the membership tier is marked as editing, show the edit functionality */}
               {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
               {/* display info for the tier */}
-              {isEditing !== membershipIndex && (
+              {/* this long conditional isnt fully necessary but some test environment data is bad atm */}
+              {isEditing !== membershipIndex && membershipTier.NewPrices && membershipTier.NewPrices.length && (
                 <div className="membership-tier__div">
                   <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
                     {membershipIndex + 1}) Tier Name: {membershipTier.Membership.name}
                   </div>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.Membership.description}</h1>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                    Monthly Pledge: ${membershipTier.Prices[0].unit_amount / 100}
+                    Monthly Pledge: ${membershipTier.NewPrices[0].unit_amount / 100}
                   </h1>
                   {membershipTier.Perks && membershipTier.Perks.map((tierPerk, i) => (
                     <>
