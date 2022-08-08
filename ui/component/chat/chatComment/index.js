@@ -4,7 +4,6 @@ import {
   selectClaimForUri,
   selectClaimsByUri,
   selectOdyseeMembershipForChannelId,
-  selectMembershipForChannelId,
   selectTitleForUri,
   selectDateForUri,
 } from 'redux/selectors/claims';
@@ -23,7 +22,6 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
     claimsByUri: selectClaimsByUri(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
-    membership: channelId && selectMembershipForChannelId(state, channelId),
     activeChannelClaim: selectActiveChannelClaim(state),
     authorTitle,
     channelAge,

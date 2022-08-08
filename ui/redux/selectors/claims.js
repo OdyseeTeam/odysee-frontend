@@ -16,7 +16,6 @@ import {
   getNameFromClaim,
   getChannelFromClaim,
   getChannelTitleFromClaim,
-  getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
@@ -172,8 +171,6 @@ export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return claim !== undefined;
 };
-
-export const selectChannelClaimIdForUri = createSelector(selectClaimForUri, (claim) => getChannelIdFromClaim(claim));
 
 // Note: this is deprecated. Use "selectClaimForUri(state, uri)" instead.
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
@@ -906,25 +903,8 @@ export const selectOdyseeMembershipForUri = (state: State, uri: string) => {
  * @returns {*}
  */
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) => {
-  // looks for the uploader id
   // TODO: should access via selector, not from `state` directly.
-  const matchingMembershipOfUser = state.user?.odyseeMembershipsPerClaimIds?.[channelId];
-
-  return matchingMembershipOfUser;
-};
-
-/**
- * Given a channel id of a user, check if there an Odysee membership value
- * @param state
- * @param channelId
- * @returns {*}
- */
-export const selectMembershipForChannelId = function (state: State, channelId: string) {
-  // looks for the uploader id
-  const matchingMembershipOfUser =
-    state.user && state.user.membershipsPerClaimIds && state.user.membershipsPerClaimIds[channelId];
-
-  return matchingMembershipOfUser;
+  return state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
 };
 
 export const selectGeoRestrictionForUri = createCachedSelector(

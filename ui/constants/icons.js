@@ -217,4 +217,3 @@ export const PLAYLIST_FILLED = 'PlaylistFilled';
 export const ARRANGE = 'Arrange';
 export const COMEDY = 'Comedy';
 export const LIFESTYLE = 'Lifestyle';
-export const MEMBERSHIP = 'Membership';

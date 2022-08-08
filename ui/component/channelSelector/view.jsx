@@ -113,7 +113,7 @@ export default function ChannelSelector(props: Props) {
                 uri={activeChannelUrl}
                 isSelected
                 claimsByUri={claimsByUri}
-                doFetchOdyseeMembershipsById={doFetchOdyseeMembershipsById}
+                doFetchUserMemberships={doFetchUserMemberships}
                 isPublishMenu={isPublishMenu}
                 isTabHeader={isTabHeader}
               />
@@ -134,7 +134,7 @@ export default function ChannelSelector(props: Props) {
                   odyseeMembershipByUri={odyseeMembershipByUri}
                   uri={channel.permanent_url}
                   claimsByUri={claimsByUri}
-                  doFetchOdyseeMembershipsById={doFetchOdyseeMembershipsById}
+                  doFetchUserMemberships={doFetchUserMemberships}
                   isPublishMenu={isPublishMenu}
                   isTabHeader={isTabHeader}
                 />

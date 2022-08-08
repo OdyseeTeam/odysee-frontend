@@ -30,8 +30,6 @@ import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import PremiumBadge from 'component/premiumBadge';
-import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
-import MembershipChannelTab from 'component/creatorMemberships/membershipChannelTab';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -261,9 +259,6 @@ function ChannelPage(props: Props) {
               navigate={`/$/${PAGES.CHANNELS}`}
             />
           )}
-          <JoinMembershipButton uri={uri} isChannelPage />
-          {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
-          {!channelIsBlackListed && <ShareButton uri={uri} />}
           {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}

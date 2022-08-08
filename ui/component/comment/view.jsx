@@ -47,6 +47,7 @@ import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
+import PremiumBadge from 'component/premiumBadge';
 import Spinner from 'component/spinner';
 import PremiumBadge from 'component/memberships/premiumBadge';
 
@@ -88,7 +89,6 @@ type Props = {
   repliesFetching: boolean,
   threadLevel?: number,
   threadDepthLevel?: number,
-  membership: any,
   doClearPlayingSource: () => void,
 };
 
@@ -123,7 +123,6 @@ function CommentView(props: Props) {
     threadLevel = 0,
     threadDepthLevel = 0,
     doClearPlayingSource,
-    membership,
   } = props;
 
   const commentElemRef = React.useRef();
@@ -183,7 +182,6 @@ function CommentView(props: Props) {
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
-  const channelUri = contentChannelClaim && contentChannelClaim.canonical_url;
 
   let channelOwnerOfContent;
   try {
@@ -332,8 +330,7 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
-              <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
+              <PremiumBadge membership={commenterMembership} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}

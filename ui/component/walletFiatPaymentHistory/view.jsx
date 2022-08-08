@@ -22,12 +22,31 @@ const WalletFiatPaymentHistory = (props: Props) => {
     }
   }
 
+  function getSymbol(transaction) {
+    if (transaction.currency === 'eur') {
+      return '€';
+    } else {
+      return '$';
+    }
+  }
+
   function getCurrencyIso(transaction) {
     if (transaction.currency === 'eur') {
       return 'EUR';
     } else {
       return 'USD';
     }
+  }
+
+  function getCustomerStatus() {
+    return Lbryio.call(
+      'customer',
+      'status',
+      {
+        environment: stripeEnvironment,
+      },
+      'post'
+    );
   }
 
   React.useEffect(() => {

@@ -58,7 +58,6 @@ class SnackBar extends React.PureComponent<Props, State> {
       secondaryActionText,
       secondaryAction,
       isError,
-      linkPath
     } = snack;
 
     if (this.intervalId) {
@@ -115,6 +114,18 @@ class SnackBar extends React.PureComponent<Props, State> {
             className="snack-bar__action"
             label={linkText}
           />
+        )}
+        {actionText && action && (
+          <div className="snack-bar__action">
+            <I18nMessage
+              tokens={{
+                firstAction: <Button onClick={() => handleAction(action)} label={actionText} />,
+                secondAction: <Button onClick={() => handleAction(secondaryAction)} label={secondaryActionText} />,
+              }}
+            >
+              {secondaryAction ? '%firstAction% / %secondAction%' : '%firstAction%'}
+            </I18nMessage>
+          </div>
         )}
         {actionText && action && (
           <div className="snack-bar__action">

@@ -86,9 +86,6 @@ type Props = {
   myChannelClaimIds: ?Array<string>,
   myCommentedChannelIds: ?Array<string>,
   doFetchMyCommentedChannels: (claimId: ?string) => void,
-  doTipAccountCheckForUri: (uri: string) => void,
-  activeChannelMembershipName: ?string,
-  validUserMembershipForChannel: any,
   textInjection?: string,
 };
 
@@ -130,8 +127,6 @@ export function CommentCreate(props: Props) {
     myChannelClaimIds,
     myCommentedChannelIds,
     doFetchMyCommentedChannels,
-    doTipAccountCheckForUri,
-    validUserMembershipForChannel,
     textInjection,
   } = props;
 

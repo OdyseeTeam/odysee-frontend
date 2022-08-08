@@ -27,6 +27,8 @@ export default function ClaimSupportButton(props: Props) {
 
   if (disableSupport) return null;
 
+  if (disableSupport) return null;
+
   const currencyToUse = preferredCurrency;
 
   const iconToUse = {
@@ -39,10 +41,6 @@ export default function ClaimSupportButton(props: Props) {
       iconSize: fileAction ? 22 : undefined,
     },
   };
-
-
-  // TODO: have to make this work
-  // 'approved-bank-account__button': canReceiveFiatTips
 
   return (
     <FileActionButton

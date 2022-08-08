@@ -20,28 +20,33 @@ export default function WalletFiatBalance(props: Props) {
   }, [doTipAccountStatus]);
 
   return (
-    <Card
-      title={
-        <>
-          <Icon size={18} icon={ICONS.FINANCE} />
-          {total_received_unpaid && total_paid_out ? (total_received_unpaid - total_paid_out) / 100 : 0} USD
-        </>
-      }
-      subtitle={
-        total_received_unpaid && total_received_unpaid > 0
-          ? __('This is your pending balance that will be automatically sent to your bank account.')
-          : __('When you begin to receive tips your balance will be updated here.')
-      }
-      actions={
-        <>
-          <h2 className="section__title--small">
-            ${total_received_unpaid ? total_received_unpaid / 100 : 0} {__('Total Received Tips')}
-          </h2>
-
-          {/* withdraw amount is usuallty incorrect due to chargebacks / currency conversion issues */}
-          {/*<h2 className="section__title--small">*/}
-          {/*  ${total_paid_out ? total_paid_out / 100 : 0} {__('Withdrawn')}*/}
-          {/*</h2>*/}
+    <>
+      {
+        <Card
+          title={
+            <>
+              <Icon size={18} icon={ICONS.FINANCE} />
+              {(accountStatusResponse &&
+                (accountStatusResponse.total_received_unpaid - accountStatusResponse.total_paid_out) / 100) ||
+                0}{' '}
+              USD
+            </>
+          }
+          subtitle={
+            accountStatusResponse && accountStatusResponse.total_received_unpaid > 0
+              ? __('This is your pending balance that will be automatically sent to your bank account.')
+              : __('When you begin to receive tips your balance will be updated here.')
+          }
+          actions={
+            <>
+              <h2 className="section__title--small">
+                ${(accountStatusResponse && accountStatusResponse.total_received_unpaid / 100) || 0}{' '}
+                {__('Total Received Tips')}
+              </h2>
+              {/* withdraw amount is usuallty incorrect due to chargebacks / currency conversion issues
+              <h2 className="section__title--small">
+                ${(accountStatusResponse && accountStatusResponse.total_paid_out / 100) || 0} {__('Withdrawn')}
+              </h2> */}
 
           <div className="section__actions">
             <Button

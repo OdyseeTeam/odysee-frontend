@@ -65,10 +65,7 @@ type Props = {
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
   resetComments: (claimId: string) => void,
   claimsByUri: { [string]: any },
-  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
-  doFetchChannelMembershipsByIds: (channelId: string, claimIds: Array<string>) => void,
-  membershipForChannelId: any,
-  didFetchById: any,
+  doFetchUserMemberships: (claimIdCsv: string) => void,
   doPopOutInlinePlayer: (param: { source: string }) => void,
 };
 
@@ -103,9 +100,7 @@ export default function CommentList(props: Props) {
     fetchReacts,
     resetComments,
     claimsByUri,
-    doFetchOdyseeMembershipsById,
-    doFetchChannelMembershipsByIds,
-    didFetchById,
+    doFetchUserMemberships,
     doPopOutInlinePlayer,
   } = props;
 

@@ -8,9 +8,7 @@ import {
   selectHyperChatsForUri,
   selectPinnedCommentsForUri,
 } from 'redux/selectors/comments';
-import { selectThemePath } from 'redux/selectors/settings';
-import { doFetchOdyseeMembershipsById, doFetchChannelMembershipsByIds } from 'redux/actions/memberships';
-import { getChannelIdFromClaim } from 'util/claim';
+import { doFetchUserMemberships } from 'redux/actions/user';
 import ChatLayout from './view';
 
 const select = (state, props) => {

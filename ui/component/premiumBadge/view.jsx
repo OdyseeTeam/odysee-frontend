@@ -4,7 +4,6 @@ import 'scss/component/_comment-badge.scss';
 import React from 'react';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import * as MODALS from 'constants/modal_types';
 import CommentBadge from 'component/common/comment-badge';
 import Button from 'component/button';
 
@@ -15,33 +14,23 @@ type Props = {
   placement?: string,
   className?: string,
   hideTooltip?: boolean,
-  uri?: string,
 };
 
-function getBadgeToShow(membership) {
-  if (membership === 'Premium') return 'silver';
-  if (membership === 'Premium+') return 'gold';
-  if (membership) return 'user'; // catchall for other memberships
-  return null;
-}
-
 export default function PremiumBadge(props: Props) {
-  const { membership, linkPage, placement, className, hideTooltip,  uri } = props;
+  const { membership, linkPage, placement, className, hideTooltip } = props;
 
-  const badgeToShow = getBadgeToShow(membership);
+  const badgeToShow = membership === 'Premium' ? 'silver' : membership === 'Premium+' ? 'gold' : null;
 
   if (!badgeToShow) return null;
 
   const badgeProps = { size: 40, placement, hideTooltip, className };
 
   return (
-    <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow}>
+    <BadgeWrapper linkPage={linkPage}>
       {badgeToShow === 'silver' ? (
         <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />
-      ) : badgeToShow === 'gold' ? (
-        badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />
       ) : (
-        <CommentBadge label={membership} uri={uri} icon={ICONS.MEMBERSHIP} {...badgeProps} />
+        badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />
       )}
     </BadgeWrapper>
   );
@@ -50,21 +39,10 @@ export default function PremiumBadge(props: Props) {
 type WrapperProps = {
   linkPage?: boolean,
   children: any,
-  badgeToShow: string,
-  uri?: string
 };
 
 const BadgeWrapper = (props: WrapperProps) => {
-  const { linkPage, children, badgeToShow,  uri } = props;
+  const { linkPage, children } = props;
 
-  if (badgeToShow === 'user') {
-    // onclick open user modal
-    const buttonToOpenMembershipModal = <Button onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })} />;
-
-    return linkPage ? buttonToOpenMembershipModal : children;
-  } else {
-    const linkToOdyseePremium = <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button>;
-
-    return linkPage ? linkToOdyseePremium : children;
-  }
+  return linkPage ? <Button navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>{children}</Button> : children;
 };

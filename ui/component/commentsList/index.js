@@ -66,8 +66,7 @@ const perform = {
   fetchComment: doCommentById,
   fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
-  doFetchOdyseeMembershipsById,
-  doFetchChannelMembershipsByIds,
+  doFetchUserMemberships,
   doPopOutInlinePlayer,
 };
 
