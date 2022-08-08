@@ -263,7 +263,6 @@ function ChannelPage(props: Props) {
           )}
           <JoinMembershipButton uri={uri} isChannelPage />
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
-          {!channelIsBlackListed && <ShareButton uri={uri} />}
           {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}

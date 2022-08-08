@@ -332,7 +332,6 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={selectOdyseeMembershipForUri} linkPage />
               <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
               <Button
                 className="comment__time"
