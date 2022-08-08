@@ -29,7 +29,7 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
-import PremiumBadge from 'component/common/premium-badge';
+import PremiumBadge from 'component/premiumBadge';
 import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
 import MembershipChannelTab from 'component/creatorMemberships/membershipChannelTab';
 
