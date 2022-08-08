@@ -5,39 +5,6 @@ import React from 'react';
 import ConfirmationPage from './confirmationPage';
 import PreviewPage from './previewPage';
 
-let membershipTiers = [
-  {
-    displayName: 'Helping Hand',
-    description: "You're doing your part, thank you!",
-    monthlyContributionInUSD: 5,
-    perks: ['exclusiveAccess', 'badge'],
-  },
-  {
-    displayName: 'Big-Time Supporter',
-    description: 'You are a true fan and are helping in a big way!',
-    monthlyContributionInUSD: 10,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis'],
-  },
-  {
-    displayName: 'Community MVP',
-    description: 'Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend! Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  {
-    displayName: 'Community MVP2',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-  {
-    displayName: 'Community MVP3',
-    description: 'Where would this creator be without you? You are a true legend!',
-    monthlyContributionInUSD: 20,
-    perks: ['exclusiveAccess', 'earlyAccess', 'badge', 'emojis', 'custom-badge'],
-  },
-];
-
 type Props = {
   uri: string,
   closeModal?: () => void,
@@ -68,9 +35,7 @@ export default function JoinMembershipCard(props: Props) {
   return (
     <Form>
       <Card
-        title={isChannelTab ? __('Join Membership') : __('Join Creator Membership')}
         className={isChannelTab ? 'membership-join-tab' : 'membership-join-card'}
-        subtitle={!isOnConfirmationPage && __("Join this creator's channel for access to exclusive content and perks")}
         body={
           isOnConfirmationPage ? (
             <ConfirmationPage
@@ -83,16 +48,16 @@ export default function JoinMembershipCard(props: Props) {
             <PreviewPage
               uri={uri}
               selectedTier={creatorMemberships[membershipIndex]}
-              handleConfirm={() => setConfirmationPage(true)}
               tabButtonProps={tabButtonProps}
               isChannelTab={isChannelTab}
+              expandedTabs={expandedTabs}
+              seeAllTiers={seeAllTiers}
+              creatorMemberships={creatorMemberships}
+              setCreatorMemberships={setCreatorMemberships}
               setMembershipIndex={setMembershipIndex}
               setExpandedTabs={setExpandedTabs}
-              expandedTabs={expandedTabs}
+              handleConfirm={() => setConfirmationPage(true)}
               setSeeAllTiers={setSeeAllTiers}
-              seeAllTiers={seeAllTiers}
-              setCreatorMemberships={setCreatorMemberships}
-              creatorMemberships={creatorMemberships}
             />
           )
         }
