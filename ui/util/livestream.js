@@ -94,6 +94,8 @@ const transformNewLivestreamData = (data: Array<any>): LivestreamInfo => {
       viewCount: curr.ViewerCount,
       creatorId: curr.ChannelClaimID,
       startedStreaming: moment(curr.Start),
+      claimId: curr.ActiveClaim.ClaimID,
+      claimUri: curr.ActiveClaim.CanonicalURL,
     };
     return acc;
   }, {});

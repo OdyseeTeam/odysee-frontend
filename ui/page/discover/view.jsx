@@ -34,7 +34,7 @@ type Props = {
   doResolveUri: (string) => void,
   tileLayout: boolean,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
+  doFetchActiveLivestreams: (lang: ?Array<string>) => void,
   hasPremiumPlus: boolean,
 };
 

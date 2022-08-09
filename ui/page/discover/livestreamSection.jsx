@@ -2,7 +2,6 @@
 import React from 'react';
 import Button from 'component/button';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import ClaimListDiscover from 'component/claimListDiscover';
 import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
@@ -25,7 +24,7 @@ type Props = {
   channelIds?: Array<string>,
   excludedChannelIds?: Array<string>,
   activeLivestreams: ?LivestreamInfo,
-  doFetchActiveLivestreams: (orderBy: ?Array<string>, lang: ?Array<string>) => void,
+  doFetchActiveLivestreams: (lang: ?Array<string>) => void,
   searchLanguages?: Array<string>,
   languageSetting?: string,
   searchInLanguage?: boolean,
@@ -72,7 +71,7 @@ export default function LivestreamSection(props: Props) {
     // Fetch active livestreams on mount
     const langCsv = resolveLangForClaimSearch(languageSetting, searchInLanguage, searchLanguages, langParam);
     const lang = langCsv ? langCsv.split(',') : null;
-    doFetchActiveLivestreams(CS.ORDER_BY_NEW_VALUE, lang);
+    doFetchActiveLivestreams(lang);
     // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount only
   }, []);
 

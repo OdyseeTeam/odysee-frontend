@@ -1,7 +1,7 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import { FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS } from 'constants/livestream';
-import { doClaimSearch } from 'redux/actions/claims';
+import { doClaimSearch, doResolveClaimIds } from 'redux/actions/claims';
 import {
   LiveStatus,
   fetchLiveChannel,
@@ -10,6 +10,7 @@ import {
   filterUpcomingLiveStreamClaims,
 } from 'util/livestream';
 import moment from 'moment';
+import { getChannelIdFromClaim } from 'util/claim';
 import { isEmpty } from 'util/object';
 
 export const doFetchNoSourceClaims = (channelId: string) => async (dispatch: Dispatch, getState: GetState) => {
@@ -140,16 +141,16 @@ export const doFetchChannelLiveStatus = (channelId: string) => async (dispatch: 
   }
 };
 
-export const doFetchActiveLivestreams = (
-  orderBy: Array<string> = ['release_time'],
-  lang: ?Array<string> = null
-) => async (dispatch: Dispatch, getState: GetState) => {
+export const doFetchActiveLivestreams = (lang: ?Array<string> = null) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const state = getState();
   const now = Date.now();
   const timeDelta = now - state.livestream.activeLivestreamsLastFetchedDate;
 
   const prevOptions = state.livestream.activeLivestreamsLastFetchedOptions;
-  const nextOptions = { order_by: orderBy, ...(lang ? { any_languages: lang } : {}) };
+  const nextOptions = { ...(lang ? { any_languages: lang } : {}) };
   const sameOptions = JSON.stringify(prevOptions) === JSON.stringify(nextOptions);
 
   if (sameOptions && timeDelta < FETCH_ACTIVE_LIVESTREAMS_MIN_INTERVAL_MS) {
@@ -166,33 +167,33 @@ export const doFetchActiveLivestreams = (
 
   try {
     const liveChannels = await fetchLiveChannels();
-    const liveChannelIds = Object.keys(liveChannels);
 
-    const currentlyLiveClaims = await findActiveStreams(
-      liveChannelIds,
-      nextOptions.order_by,
-      liveChannels,
-      dispatch,
-      nextOptions.any_languages
-    );
-    Object.values(currentlyLiveClaims).forEach((claim: any) => {
-      const channelId = claim.stream.signing_channel.claim_id;
+    // $FlowIgnore mixed
+    const claimIds = Object.values(liveChannels).map((x) => x.claimId);
 
-      liveChannels[channelId] = {
-        ...liveChannels[channelId],
-        claimId: claim.stream.claim_id,
-        claimUri: claim.stream.canonical_url,
-      };
-    });
-
-    dispatch({
-      type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED,
-      data: {
-        activeLivestreams: liveChannels,
-        activeLivestreamsLastFetchedDate: now,
-        activeLivestreamsLastFetchedOptions: nextOptions,
-      },
-    });
+    dispatch(doResolveClaimIds(claimIds))
+      .then((results) => {
+        if (lang && results) {
+          Object.values(results).forEach((r) => {
+            // $FlowIgnore mixed
+            const claim = r?.stream;
+            const claimLanguages: ?Array<string> = claim?.value?.languages;
+            if (claimLanguages && !claimLanguages.some((cl) => lang && lang.includes(cl))) {
+              delete liveChannels[getChannelIdFromClaim(claim) || ''];
+            }
+          });
+        }
+      })
+      .finally(() => {
+        dispatch({
+          type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_COMPLETED,
+          data: {
+            activeLivestreams: liveChannels,
+            activeLivestreamsLastFetchedDate: now,
+            activeLivestreamsLastFetchedOptions: nextOptions,
+          },
+        });
+      });
   } catch (err) {
     dispatch({
       type: ACTIONS.FETCH_ACTIVE_LIVESTREAMS_FAILED,
