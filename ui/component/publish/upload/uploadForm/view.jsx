@@ -21,6 +21,7 @@ import PublishAdditionalOptions from 'component/publish/shared/publishAdditional
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
 import PublishFile from 'component/publish/upload/publishFile';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
@@ -202,8 +203,8 @@ function UploadForm(props: Props) {
   const formValid = isOverwritingExistingClaim
     ? false
     : editingURI && !filePath // if we're editing we don't need a file
-    ? isStillEditing && formValidLessFile && !waitingForFile
-    : formValidLessFile;
+      ? isStillEditing && formValidLessFile && !waitingForFile
+      : formValidLessFile;
 
   const [previewing, setPreviewing] = React.useState(false);
 
@@ -470,6 +471,8 @@ function UploadForm(props: Props) {
       />
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+
+      <PublishProtectedContent />
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
