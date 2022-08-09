@@ -7,8 +7,6 @@ import classnames from 'classnames';
 import { getChannelFromClaim } from 'util/claim';
 import BalanceText from 'react-balance-text';
 import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
-const stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   uri: string,
@@ -29,7 +27,7 @@ type Props = {
 export default function PreviewPage(props: Props) {
   const {
     uri,
-    // selectedTier,
+    selectedTier,
     tabButtonProps,
     handleConfirm,
     setMembershipIndex,
@@ -63,41 +61,6 @@ export default function PreviewPage(props: Props) {
   const shouldDisablePurchase = !creatorHasMemberships || canReceiveFiatTips === false || hasSavedCard === false;
 
   const creatorHasNoMemberships = !creatorHasMemberships || canReceiveFiatTips === false;
-
-  async function getExistingTiers() {
-    const response = await Lbryio.call(
-      'membership',
-      'list',
-      {
-        environment: stripeEnvironment,
-        channel_name: channelName,
-        channel_id: channelId,
-      },
-      'post'
-    );
-
-    console.log(response);
-
-    if (response === null) {
-      setCreatorMemberships([]);
-    } else {
-      setCreatorMemberships(response);
-    }
-
-    return response;
-  }
-
-  const selectedTier = creatorMemberships && creatorMemberships[0]
-
-  console.log(creatorMemberships);
-  console.log('selected tier');
-  console.log(selectedTier);
-
-  useEffect(() => {
-    if (channelName && channelId) {
-      getExistingTiers();
-    }
-  }, [channelName, channelId]);
 
   useEffect(() => {
     if (hasSavedCard === undefined) {
@@ -209,7 +172,6 @@ export default function PreviewPage(props: Props) {
             <>
               <div className="membership-join-blocks__div">
                 {creatorMemberships && creatorMemberships.map(function(membership, i) {
-                  <>{console.log(membership)}</>
                   return (
                     <div className={classnames('membership-join-blocks__body', {
                       'expandedBlock': expandedTabs[i],
@@ -278,11 +240,9 @@ export default function PreviewPage(props: Props) {
           )}
 
 
-
+          {/* modal preview section */}
           {!isChannelTab && creatorMemberships && selectedTier && (
-            // modal preview section
             <>
-              <>{console.log('RUNNING HERE')}</>
               <div className="membership-join__tab-buttons">
                 {creatorMemberships.map((creatorMembership, index) => {
                   const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
@@ -290,31 +250,48 @@ export default function PreviewPage(props: Props) {
                 })}
               </div>
 
-              <div className="membership-join__body">
+              <div className="membership-join__body" style={{ marginTop: '11px' }}>
                 <section className="membership-join__plan-info">
-                  <h1 className="membership-join__plan-header">{selectedTier.name}</h1>
+                  <h1 className="membership-join__plan-header">{selectedTier.Membership.name}</h1>
                   <span className="section__subtitle membership-join__plan-description">
                     <h1 style={{ lineHeight: '27px' }}>
-                      <BalanceText>{selectedTier.description}</BalanceText>
+                      <BalanceText>{selectedTier.Membership.description}</BalanceText>
                     </h1>
                   </span>
                 </section>
 
-                <section className="membership__plan-perks">
-                  <h1 className="membership-join__plan-header" style={{ marginBottom: '5px' }}>{__('Perks')}</h1>
-                  <ul className="membership-join-perks__list">
-                    {selectedTier.Perks.map((tierPerk, i) => (
-                      <p key={tierPerk}>
-                        <li className="section__subtitle membership-join__perk-item">{tierPerk.description}</li>
-                      </p>
-                    ))}
-                  </ul>
-                </section>
+                { selectedTier.Perks && selectedTier.Perks.length && (
+                  <>
+                    <section className="membership__plan-perks">
+                      <h1 className="membership-join__plan-header" style={{ marginBottom: '5px' }}>{__('Perks')}</h1>
+                      <ul className="membership-join-perks__list">
+                        {selectedTier.Perks.map((tierPerk, i) => (
+                          <p key={tierPerk}>
+                            <li className="section__subtitle membership-join__perk-item">{tierPerk.description}</li>
+                          </p>
+                        ))}
+                      </ul>
+                    </section>
+                  </>
+                )}
               </div>
+                <Button
+                  className="membership-join-purchase__button"
+                  icon={ICONS.UPGRADE}
+                  button="primary"
+                  type="submit"
+                  disabled={shouldDisablePurchase || checkingOwnMembershipCard}
+                  label={__('Signup for $%membership_price% a month', {
+                    membership_price: selectedTier.NewPrices[0].Price.amount / 100,
+                  })}
+                  onClick={handleConfirm}
+                />
+                {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}
             </>
           )}
         </>
       )}
+
 
       {/*{ !hasSavedCard && (*/}
       {/*  <div className="can-create-your-own-memberships__div" style={{ marginTop: '36px' }}>*/}
@@ -341,23 +318,6 @@ export default function PreviewPage(props: Props) {
                 style={{ marginTop: '15px' }}
               />
             </div>
-          </>
-        )}
-
-        { shouldDisablePurchase && !isChannelTab && (
-          <>
-            <Button
-              className="membership-join-purchase__button"
-              icon={ICONS.UPGRADE}
-              button="primary"
-              type="submit"
-              disabled={shouldDisablePurchase || checkingOwnMembershipCard}
-              label={__('Signup for $%membership_price% a month', {
-                membership_price: selectedTier.monthlyContributionInUSD,
-              })}
-              onClick={handleConfirm}
-            />
-            {checkingOwnMembershipCard && (<h1 style={{ marginTop: '20px' }}>You're not able to signup for your own memberships</h1>)}
           </>
         )}
 

@@ -1,9 +1,12 @@
 // @flow
 import { Form } from 'component/common/form';
 import Card from 'component/common/card';
-import React from 'react';
+import React, { useEffect } from 'react';
 import ConfirmationPage from './confirmationPage';
 import PreviewPage from './previewPage';
+import { Lbryio } from 'lbryinc';
+import { getStripeEnvironment } from 'util/stripe';
+const stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   uri: string,
@@ -12,7 +15,7 @@ type Props = {
 };
 
 export default function JoinMembershipCard(props: Props) {
-  const { uri, closeModal, isChannelTab } = props;
+  const { uri, closeModal, isChannelTab, channelName, channelId } = props;
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [membershipIndex, setMembershipIndex] = React.useState(0);
@@ -31,6 +34,36 @@ export default function JoinMembershipCard(props: Props) {
   const [expandedTabs, setExpandedTabs] = React.useState(expandedTabsState);
   const [seeAllTiers, setSeeAllTiers] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState([]);
+
+  async function getExistingTiers() {
+    const response = await Lbryio.call(
+      'membership',
+      'list',
+      {
+        environment: stripeEnvironment,
+        channel_name: channelName,
+        channel_id: channelId,
+      },
+      'post'
+    );
+
+    console.log('response');
+    console.log(response);
+
+    if (response === null) {
+      setCreatorMemberships([]);
+    } else {
+      setCreatorMemberships(response);
+    }
+
+    return response;
+  }
+
+  useEffect(() => {
+    if (channelName && channelId) {
+      getExistingTiers();
+    }
+  }, [channelName, channelId]);
 
   return (
     <Form>
