@@ -25,6 +25,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import * as SETTINGS from 'constants/settings';
+import { selectUserValidMembershipForChannelUri } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -56,6 +57,7 @@ const select = (state, props) => {
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    validUserMembershipForChannel: selectUserValidMembershipForChannelUri(state, uri),
   };
 };
 

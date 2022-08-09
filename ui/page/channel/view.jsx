@@ -30,6 +30,8 @@ import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import PremiumBadge from 'component/premiumBadge';
+import JoinMembershipButton from 'component/creatorMemberships/joinMembershipButton';
+import MembershipChannelTab from './internal/membershipChannelTab';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -40,6 +42,7 @@ const PAGE = {
   ABOUT: 'about',
   DISCUSSION: DISCUSSION_PAGE,
   EDIT: 'edit',
+  MEMBERSHIP: 'membership',
 };
 
 type Props = {
@@ -167,8 +170,11 @@ function ChannelPage(props: Props) {
     case PAGE.ABOUT:
       tabIndex = 2;
       break;
-    case PAGE.DISCUSSION:
+    case PAGE.MEMBERSHIP:
       tabIndex = 3;
+      break;
+    case PAGE.DISCUSSION:
+      tabIndex = 4;
       break;
     default:
       tabIndex = 0;
@@ -185,6 +191,8 @@ function ChannelPage(props: Props) {
       search += `${PAGE_VIEW_QUERY}=${PAGE.LISTS}`;
     } else if (newTabIndex === 2) {
       search += `${PAGE_VIEW_QUERY}=${PAGE.ABOUT}`;
+    } else if (newTabIndex === 3) {
+      search += `${PAGE_VIEW_QUERY}=${PAGE.MEMBERSHIP}`;
     } else {
       search += `${PAGE_VIEW_QUERY}=${PAGE.DISCUSSION}`;
     }
@@ -230,6 +238,7 @@ function ChannelPage(props: Props) {
             />
           )}
           {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
+          <JoinMembershipButton uri={uri} isChannelPage />
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
           {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
@@ -309,8 +318,10 @@ function ChannelPage(props: Props) {
             <Tab disabled={editing}>{__('Content')}</Tab>
             <Tab disabled={editing}>{__('Playlists')}</Tab>
             <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+            <Tab disabled={editing}>{__('Membership')}</Tab>
             <Tab disabled={editing}>{__('Community')}</Tab>
           </TabList>
+
           <TabPanels>
             <TabPanel>
               {currentView === PAGE.CONTENT && (
@@ -337,6 +348,9 @@ function ChannelPage(props: Props) {
             <TabPanel>
               <ChannelAbout uri={uri} />
             </TabPanel>
+
+            <TabPanel>{currentView === PAGE.MEMBERSHIP && <MembershipChannelTab uri={uri} />}</TabPanel>
+
             <TabPanel>
               {(showDiscussion || currentView === PAGE.DISCUSSION) && <ChannelDiscussion uri={uri} />}
             </TabPanel>

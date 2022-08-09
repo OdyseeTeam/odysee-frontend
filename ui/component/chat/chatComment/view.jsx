@@ -36,6 +36,7 @@ type Props = {
   activeChannelClaim?: any,
   authorTitle: string,
   channelAge?: any,
+  membership: any,
 };
 
 export const ChatCommentContext = React.createContext<any>();
@@ -57,6 +58,7 @@ export default function ChatComment(props: Props) {
     activeChannelClaim,
     channelAge,
     chatMode,
+    membership,
   } = props;
 
   const {
@@ -217,6 +219,7 @@ export default function ChatComment(props: Props) {
               <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
             )}
             <PremiumBadge membership={odyseeMembership} linkPage />
+            <PremiumBadge membership={membership} linkPage />
             <Menu>
               <MenuButton
                 className={classnames('button--uri-indicator comment__author', {

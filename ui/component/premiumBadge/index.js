@@ -1,9 +1,19 @@
 import { connect } from 'react-redux';
+import { doOpenModal } from 'redux/actions/app';
+import { selectActiveMembershipNameForChannelUri } from 'redux/selectors/memberships';
+
 import PremiumBadge from './view';
-import { selectOdyseeMembershipForUri } from 'redux/selectors/claims';
 
-const select = (state, props) => ({
-  membership: props.uri ? selectOdyseeMembershipForUri(state, props.uri) : props.membership,
-});
+const select = (state, props) => {
+  const { uri } = props;
 
-export default connect(select)(PremiumBadge);
+  return {
+    activeChannelMembershipName: selectActiveMembershipNameForChannelUri(state, uri),
+  };
+};
+
+const perform = {
+  doOpenModal,
+};
+
+export default connect(select, perform)(PremiumBadge);

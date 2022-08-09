@@ -66,6 +66,8 @@ export function doTipAccountStatus(params: { getBank?: boolean, getTotals?: bool
 
         if (getBank && charges_enabled) {
           dispatch({ type: ACTIONS.SET_BANK_ACCOUNT_CONFIRMED });
+        } else if (getBank && !charges_enabled) {
+          dispatch({ type: ACTIONS.SET_BANK_ACCOUNT_MISSING });
         }
 
         if (getTotals && total_received_unpaid && total_paid_out) {

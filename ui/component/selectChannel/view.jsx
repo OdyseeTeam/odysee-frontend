@@ -7,7 +7,7 @@ type Props = {
   label?: string,
   injected?: ?Array<string>,
   // --- Redux ---
-  myChannelClaims: ?Array<ChannelClaim>,
+  myChannelClaimIds: ?Array<ChannelClaim>,
   fetchingChannels: boolean,
   activeChannelClaimId: ?string,
   setActiveChannel: (claimId: ?string, override?: boolean) => void,
@@ -16,7 +16,7 @@ type Props = {
 function SelectChannel(props: Props) {
   const {
     fetchingChannels,
-    myChannelClaims = [],
+    myChannelClaimIds = [],
     label,
     injected = [],
     tiny,
@@ -44,12 +44,11 @@ function SelectChannel(props: Props) {
           <option>{__('Loading your channels...')}</option>
         ) : (
           <>
-            {myChannelClaims &&
-              myChannelClaims.map(({ name, claim_id: claimId }) => (
-                <option key={claimId} value={claimId}>
-                  {name}
-                </option>
-              ))}
+            {myChannelClaimIds?.map(({ name, claim_id: claimId }) => (
+              <option key={claimId} value={claimId}>
+                {name}
+              </option>
+            ))}
             {injected &&
               injected.map((item) => (
                 <option key={item} value={item}>

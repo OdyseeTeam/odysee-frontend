@@ -6,6 +6,7 @@ import {
   selectOdyseeMembershipForChannelId,
   selectTitleForUri,
   selectDateForUri,
+  selectMembershipForChannelId,
 } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 
@@ -22,6 +23,7 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
     claimsByUri: selectClaimsByUri(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
+    membership: selectMembershipForChannelId(state, channelId),
     activeChannelClaim: selectActiveChannelClaim(state),
     authorTitle,
     channelAge,

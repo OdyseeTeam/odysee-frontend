@@ -6,6 +6,7 @@ import {
   selectHasChannels,
   selectMyClaimIdsRaw,
   selectOdyseeMembershipForUri,
+  selectMembershipForChannelId,
 } from 'redux/selectors/claims';
 import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
 import { doToast } from 'redux/actions/notifications';
@@ -24,7 +25,7 @@ import Comment from './view';
 
 const select = (state, props) => {
   const { comment, uri } = props;
-  const { comment_id, channel_url } = comment || {};
+  const { comment_id, channel_url, channel_id } = comment || {};
 
   const activeChannelClaim = selectActiveChannelClaim(state);
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
@@ -42,7 +43,8 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, channel_url),
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
-    commenterMembership: channel_url && selectOdyseeMembershipForUri(state, channel_url),
+    odyseeMembership: channel_url && selectOdyseeMembershipForUri(state, channel_url),
+    membership: channel_id && selectMembershipForChannelId(state, channel_id),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
   };

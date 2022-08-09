@@ -11,3 +11,5 @@ declare type StripeState = {
   accountPaymentHistory: ?any,
   lastFour: ?string,
 };
+
+declare type CurrencyOption = 'usd' | 'eur';

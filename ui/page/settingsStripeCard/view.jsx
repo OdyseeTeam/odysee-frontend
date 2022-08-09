@@ -508,7 +508,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
                 button="primary"
                 label={__('Back To Odysee Premium')}
                 icon={ICONS.UPGRADE}
-                navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}
+                navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}
                 style={{ marginBottom: '20px' }}
               />
             )}

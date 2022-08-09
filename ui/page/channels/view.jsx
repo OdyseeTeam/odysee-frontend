@@ -13,35 +13,37 @@ import * as PAGES from 'constants/pages';
 import HelpLink from 'component/common/help-link';
 import ChannelSelector from 'component/channelSelector';
 import { useHistory } from 'react-router';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
   channelUrls: Array<string>,
+  channelIds: Array<string>,
   fetchChannelListMine: () => void,
   fetchingChannels: boolean,
   youtubeChannels: ?Array<any>,
   doSetActiveChannel: (string) => void,
   pendingChannels: Array<string>,
-  claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
 };
 
 export default function ChannelsPage(props: Props) {
   const {
     channelUrls,
+    channelIds,
     fetchChannelListMine,
     fetchingChannels,
     youtubeChannels,
     doSetActiveChannel,
     pendingChannels,
-    claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
   } = props;
   const [rewardData, setRewardData] = React.useState();
   const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
 
-  const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, doFetchUserMemberships);
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
 
   const { push } = useHistory();
 
