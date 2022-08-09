@@ -48,7 +48,7 @@ import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
 import Spinner from 'component/spinner';
-import PremiumBadge from 'component/memberships/premiumBadge';
+import PremiumBadge from 'component/premiumBadge';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
 
@@ -332,7 +332,7 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
+              <PremiumBadge membership={commenterMembership} uri={uri} channelUri={channelUri} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}

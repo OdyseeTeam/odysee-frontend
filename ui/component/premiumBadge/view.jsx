@@ -1,21 +1,22 @@
 // @flow
 import 'scss/component/_comment-badge.scss';
-
-import React from 'react';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
+import React from 'react';
 import CommentBadge from 'component/common/comment-badge';
 import Button from 'component/button';
 
 type Props = {
-  uri?: string,
-  membership: ?string, // Retrieved from redux if `uri` is provided; else uses the given `membership` directly.
+  membership: ?string,
   linkPage?: boolean,
   placement?: string,
   className?: string,
   hideTooltip?: boolean,
   uri?: string,
+  openModal: (string, {}) => void,
+  activeChannelMembershipName: string,
+  channelUri?: string,
 };
 
 function getBadgeToShow(membership) {
@@ -26,7 +27,19 @@ function getBadgeToShow(membership) {
 }
 
 export default function PremiumBadge(props: Props) {
-  const { membership, linkPage, placement, className, hideTooltip,  uri } = props;
+  const {
+    membership,
+    linkPage,
+    placement,
+    className,
+    hideTooltip,
+    uri,
+    openModal,
+    activeChannelMembershipName,
+    channelUri,
+  } = props;
+
+  const userIsActiveMember = Boolean(activeChannelMembershipName);
 
   const badgeToShow = getBadgeToShow(membership);
 
@@ -35,13 +48,17 @@ export default function PremiumBadge(props: Props) {
   const badgeProps = { size: 40, placement, hideTooltip, className };
 
   return (
-    <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow}>
-      {badgeToShow === 'silver' ? (
-        <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />
-      ) : badgeToShow === 'gold' ? (
-        badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />
-      ) : (
-        <CommentBadge label={membership} uri={uri} icon={ICONS.MEMBERSHIP} {...badgeProps} />
+    <BadgeWrapper
+      linkPage={linkPage}
+      badgeToShow={badgeToShow}
+      openModal={openModal}
+      userIsActiveMember={userIsActiveMember}
+      channelUri={channelUri}
+    >
+      {badgeToShow === 'silver' && <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />}
+      {badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />}
+      {badgeToShow === 'user' && (
+        <CommentBadge label={membership} uri={uri} channelUri={channelUri} icon={ICONS.MEMBERSHIP} {...badgeProps} />
       )}
     </BadgeWrapper>
   );
@@ -51,17 +68,21 @@ type WrapperProps = {
   linkPage?: boolean,
   children: any,
   badgeToShow: string,
-  uri?: string
+  uri?: string,
+  openModal: (string, {}) => void,
+  userIsActiveMember: boolean,
 };
 
 const BadgeWrapper = (props: WrapperProps) => {
-  const { linkPage, children, badgeToShow,  uri } = props;
+  const { linkPage, children, badgeToShow, openModal, userIsActiveMember, channelUri } = props;
 
   if (badgeToShow === 'user') {
     // onclick open user modal
-    const buttonToOpenMembershipModal = <Button onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })} />;
+    const buttonToOpenMembershipModal = (
+      <Button onClick={() => openModal(MODALS.JOIN_MEMBERSHIP, { uri: channelUri })}>{children}</Button>
+    );
 
-    return linkPage ? buttonToOpenMembershipModal : children;
+    return linkPage && !userIsActiveMember ? buttonToOpenMembershipModal : children;
   } else {
     const linkToOdyseePremium = <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button>;
 
