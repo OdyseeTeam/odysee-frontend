@@ -543,38 +543,18 @@ export const selectMyClaimsOutpoints = createSelector(selectMyClaims, (myClaims)
 export const selectFetchingMyChannels = (state: State) => selectState(state).fetchingMyChannels;
 export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 
-export const selectMyChannelClaimIds = (state: State) => selectState(state).myChannelClaims;
+export const selectMyChannelClaimIds = (state: State) => selectState(state).myChannelClaimIds;
+export const selectMyChannelClaims = (state: State) => selectState(state).myChannelClaims;
 
-export const selectMyChannelClaims = createSelector(selectMyChannelClaimIds, (myChannelClaimIds) => {
-  if (!myChannelClaimIds) {
-    return myChannelClaimIds;
-  }
+export const selectMyChannelClaimsList = (state: State) => {
+  const myChannelClaims = selectMyChannelClaims(state);
 
-  if (!window || !window.store) {
-    return undefined;
-  }
+  const channelClaimsList = myChannelClaims ? Object.values(myChannelClaims) : [];
 
-  // Note: Grabbing the store and running the selector this way is anti-pattern,
-  // but it is _needed_ and works only because we know for sure that 'byId[]'
-  // will be populated with the same claims as when 'myChannelClaimIds' is populated.
-  // If we put 'state' or 'byId' as the input selector, it essentially
-  // recalculates every time. Putting 'state' as input to createSelector() is
-  // always wrong from a memoization standpoint.
-  const state = window.store.getState();
-  const byId = selectClaimsById(state);
+  return channelClaimsList;
+};
 
-  const claims = [];
-  myChannelClaimIds.forEach((id) => {
-    if (byId[id]) {
-      // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
-      claims.push(byId[id]);
-    }
-  });
-
-  return claims;
-});
-
-export const selectMyChannelUrls = createSelector(selectMyChannelClaims, (claims) =>
+export const selectMyChannelUrls = createSelector(selectMyChannelClaimsList, (claims) =>
   claims ? claims.map((claim) => claim.canonical_url || claim.permanent_url) : undefined
 );
 
@@ -721,7 +701,7 @@ export const makeSelectChannelPermUrlForClaimUri = (uri: string, includePrefix: 
   });
 
 export const makeSelectMyChannelPermUrlForName = (name: string) =>
-  createSelector(selectMyChannelClaims, (claims) => {
+  createSelector(selectMyChannelClaimsList, (claims) => {
     const matchingClaim = claims && claims.find((claim) => claim.name === name);
     return matchingClaim ? matchingClaim.permanent_url : null;
   });

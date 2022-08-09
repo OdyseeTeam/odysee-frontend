@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { doHideModal } from 'redux/actions/app';
 import ModalPublishPreview from './view';
 import { selectPublishFormValue, selectPublishFormValues, selectIsStillEditing } from 'redux/selectors/publish';
-import { selectMyChannelClaims, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectMyChannelClaimsList, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
 import * as SETTINGS from 'constants/settings';
 import { selectFfmpegStatus, selectClientSetting, selectLanguage } from 'redux/selectors/settings';
 import { doPublishDesktop } from 'redux/actions/publish';
@@ -13,7 +13,7 @@ const select = (state, props) => {
 
   return {
     ...selectPublishFormValues(state),
-    myChannels: selectMyChannelClaims(state),
+    myChannels: selectMyChannelClaimsList(state),
     isVid: selectPublishFormValue(state, 'fileVid'),
     publishing: selectPublishFormValue(state, 'publishing'),
     remoteFile: selectPublishFormValue(state, 'remoteFileUrl'),

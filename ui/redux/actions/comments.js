@@ -7,7 +7,7 @@ import Lbry from 'lbry';
 import { resolveApiMessage } from 'util/api-message';
 import { parseURI, buildURI, isURIEqual } from 'util/lbryURI';
 import { devToast, dispatchToast, doFailedSignatureToast } from 'util/toast-wrappers';
-import { selectClaimForUri, selectClaimsById, selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimsById, selectClaimsByUri, selectMyChannelClaimsList } from 'redux/selectors/claims';
 import { doResolveUris, doClaimSearch, doResolveClaimIds } from 'redux/actions/claims';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
 import {
@@ -117,13 +117,13 @@ export function doCommentListOwn(
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannelClaims = selectMyChannelClaims(state);
-    if (!myChannelClaims) {
+    const myChannelClaimIds = selectMyChannelClaimsList(state);
+    if (!myChannelClaimIds) {
       console.error('Failed to fetch channel list.'); // eslint-disable-line
       return;
     }
 
-    const channelClaim = myChannelClaims.find((x) => x.claim_id === channelId);
+    const channelClaim = myChannelClaimIds.find((x) => x.claim_id === channelId);
     if (!channelClaim) {
       console.error('You do not own this channel.'); // eslint-disable-line
       return;
@@ -255,14 +255,14 @@ export function doCommentById(commentId: string, toastIfNotFound: boolean = true
 export function doFetchMyCommentedChannels(claimId: ?string) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannelClaims = selectMyChannelClaims(state);
+    const myChannelClaimIds = selectMyChannelClaimsList(state);
     const contentClaimId = claimId;
 
-    if (!contentClaimId || !myChannelClaims) {
+    if (!contentClaimId || !myChannelClaimIds) {
       return;
     }
 
-    return Promise.all(myChannelClaims.map((x) => channelSignName(x.claim_id, x.name))).then((signatures) => {
+    return Promise.all(myChannelClaimIds.map((x) => channelSignName(x.claim_id, x.name))).then((signatures) => {
       const params = [];
       const commentedChannelIds = [];
 
@@ -272,9 +272,9 @@ export function doFetchMyCommentedChannels(claimId: ?string) {
             page: 1,
             page_size: 1,
             claim_id: contentClaimId,
-            author_claim_id: myChannelClaims[i].claim_id,
-            requestor_channel_name: myChannelClaims[i].name,
-            requestor_channel_id: myChannelClaims[i].claim_id,
+            author_claim_id: myChannelClaimIds[i].claim_id,
+            requestor_channel_name: myChannelClaimIds[i].name,
+            requestor_channel_id: myChannelClaimIds[i].claim_id,
             signature: signature.signature,
             signing_ts: signature.signing_ts,
           });
@@ -456,9 +456,9 @@ function doFetchAllReactionsForId(commentIds: Array<string>, channelClaims: ?Arr
     });
 }
 
-async function getReactedChannelNames(commentId: string, myChannelClaims: ?Array<Claim>) {
+async function getReactedChannelNames(commentId: string, myChannelClaimIds: ?Array<Claim>) {
   // 1. Fetch reactions for all channels:
-  const reactions = await doFetchAllReactionsForId([commentId], myChannelClaims);
+  const reactions = await doFetchAllReactionsForId([commentId], myChannelClaimIds);
   if (reactions) {
     const reactedChannelNames = [];
 
@@ -567,7 +567,7 @@ export function doCommentReact(commentId: string, type: string) {
 
     // --- Check if already commented from another channel ---
     if (checkIfAlreadyReacted) {
-      const reactedChannelNames = await getReactedChannelNames(commentId, selectMyChannelClaims(state));
+      const reactedChannelNames = await getReactedChannelNames(commentId, selectMyChannelClaimsList(state));
 
       if (!reactedChannelNames) {
         // Couldn't determine. Probably best to just stop the operation.
@@ -986,7 +986,7 @@ function doCommentModToggleBlock(
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const ready = selectPrefsReady(state);
-    let blockerChannelClaims = selectMyChannelClaims(state);
+    let blockerChannelClaims = selectMyChannelClaimsList(state);
 
     if (!ready) {
       return dispatch(doAlertWaitingForSync());
@@ -1296,7 +1296,7 @@ export function doCommentModUnBlockAsModerator(commenterUri: string, creatorUri:
 export function doFetchModBlockedList() {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaimsList(state);
     if (!myChannels) {
       dispatch({ type: ACTIONS.COMMENT_MODERATION_BLOCK_LIST_FAILED });
       return;
@@ -1578,7 +1578,7 @@ export function doCommentModListDelegates(channelClaim: ChannelClaim) {
 export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaimsList(state);
     if (!myChannels) {
       dispatch({ type: ACTIONS.COMMENT_MODERATION_AM_I_LIST_FAILED });
       return;
@@ -1636,7 +1636,7 @@ export function doFetchCommentModAmIList(channelClaim: ChannelClaim) {
 export const doFetchCreatorSettings = (channelId: string) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaimsList(state);
 
     dispatch({
       type: ACTIONS.COMMENT_FETCH_SETTINGS_STARTED,
@@ -1768,7 +1768,7 @@ export const doCommentUnblockWords = (channelClaim: ChannelClaim, words: Array<s
 export const doFetchBlockedWords = () => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaimsList(state);
 
     dispatch({
       type: ACTIONS.COMMENT_FETCH_BLOCKED_WORDS_STARTED,

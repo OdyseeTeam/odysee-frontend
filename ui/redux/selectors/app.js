@@ -1,5 +1,5 @@
 import { createSelector } from 'reselect';
-import { selectClaimForId, selectMyChannelClaims, selectStakedLevelForChannelUri } from 'redux/selectors/claims';
+import { selectClaimForId, selectMyChannelClaimsList, selectStakedLevelForChannelUri } from 'redux/selectors/claims';
 import { selectUserEmail } from 'redux/selectors/user';
 import { selectDefaultChannelClaim } from 'redux/selectors/settings';
 
@@ -70,12 +70,12 @@ export const selectActiveChannelClaim = createSelector(
   (state) => selectClaimForId(state, selectActiveChannelId(state)), // i.e. 'byId[activeChannelId]' specifically, instead of just 'byId'.
   (state) => selectUserEmail(state),
   selectDefaultChannelClaim,
-  selectMyChannelClaims,
-  (activeChannelClaim, userEmail, defaultChannel, myChannelClaims) => {
+  selectMyChannelClaimsList,
+  (activeChannelClaim, userEmail, defaultChannel, myChannelClaimIds) => {
     // Null: has none. Undefined: not resolved, default state, could have or not
-    if (!userEmail || myChannelClaims === null) {
+    if (!userEmail || myChannelClaimIds === null) {
       return null;
-    } else if (!myChannelClaims || !myChannelClaims.length) {
+    } else if (!myChannelClaimIds || !myChannelClaimIds.length) {
       return undefined;
     }
 
@@ -83,7 +83,7 @@ export const selectActiveChannelClaim = createSelector(
 
     if (defaultChannel) return defaultChannel;
 
-    const myChannelClaimsByEffectiveAmount = myChannelClaims.slice().sort((a, b) => {
+    const myChannelClaimsByEffectiveAmount = myChannelClaimIds.slice().sort((a, b) => {
       const effectiveAmountA = (a.meta && Number(a.meta.effective_amount)) || 0;
       const effectiveAmountB = (b.meta && Number(b.meta.effective_amount)) || 0;
       if (effectiveAmountA === effectiveAmountB) {

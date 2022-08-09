@@ -5,14 +5,14 @@ import {
   selectUserInviteReferralCode,
 } from 'redux/selectors/user';
 import { doUserInviteNew } from 'redux/actions/user';
-import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectMyChannelClaimsList } from 'redux/selectors/claims';
 import InviteNew from './view';
 
 const select = (state) => ({
   errorMessage: selectUserInviteNewErrorMessage(state),
   referralCode: selectUserInviteReferralCode(state),
   isPending: selectUserInviteNewIsPending(state),
-  channels: selectMyChannelClaims(state),
+  channels: selectMyChannelClaimsList(state),
 });
 
 const perform = (dispatch) => ({

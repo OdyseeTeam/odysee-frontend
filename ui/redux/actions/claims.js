@@ -8,7 +8,7 @@ import {
   selectMyClaimsRaw,
   selectResolvingUris,
   selectClaimsByUri,
-  selectMyChannelClaims,
+  selectMyChannelClaimsList,
   selectPendingClaimsById,
   selectClaimIsMine,
   selectIsMyChannelCountOverLimit,
@@ -529,7 +529,7 @@ export function doUpdateChannel(params: any, cb: any) {
       type: ACTIONS.UPDATE_CHANNEL_STARTED,
     });
     const state = getState();
-    const myChannels = selectMyChannelClaims(state);
+    const myChannels = selectMyChannelClaimsList(state);
     const channelClaim = myChannels.find((myChannel) => myChannel.claim_id === params.claim_id);
 
     const updateParams = {
