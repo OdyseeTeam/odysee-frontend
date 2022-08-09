@@ -3,19 +3,6 @@ import * as ACTIONS from 'constants/action_types';
 
 const reducers = {};
 
-type StripeState = {
-  canReceiveFiatTipsById: { [id: string]: boolean },
-  bankAccountConfirmed: ?boolean,
-  accountTotals: { total_received_unpaid: ?number, total_paid_out: ?number },
-  accountStatus: { accountConfirmed: ?boolean, stillRequiringVerification: ?boolean },
-  accountNotConfirmedButReceivedTips: ?boolean,
-  stripeConnectionUrl: ?string,
-  accountPendingConfirmation: ?boolean,
-  accountTransactions: ?any,
-  accountPaymentHistory: ?any,
-  customerStatus: ?any, // todo: type
-};
-
 const defaultState: StripeState = {
   canReceiveFiatTipsById: {},
   bankAccountConfirmed: undefined,
@@ -89,7 +76,7 @@ reducers[ACTIONS.SET_CUSTOMER_STATUS] = (state, action) =>
     customerStatus: action.data.customerStatus,
   });
 
-export default function stripeReducer(state: UserState = defaultState, action: any) {
+export default function stripeReducer(state: StripeState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);
   return state;
