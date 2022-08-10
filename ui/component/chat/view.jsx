@@ -17,8 +17,6 @@ import React from 'react';
 import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
-import useCheckCreatorMemberships from 'effects/use-check-creator-memberships';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -39,6 +37,7 @@ type Props = {
   comments: Array<Comment>,
   pinnedComments: Array<Comment>,
   superChats: Array<Comment>,
+  channelId: string,
   doCommentList: (
     uri: string,
     parentId: ?string,
@@ -49,11 +48,9 @@ type Props = {
   ) => void,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
   doHyperChatList: (uri: string) => void,
-  claimsByUri: { [string]: any },
-  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
-  doFetchChannelMembershipsByIds: (channelId: string, claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
+  doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void,
   setLayountRendered: (boolean) => void,
-  channelId: string,
 };
 
 export default function ChatLayout(props: Props) {
@@ -68,16 +65,14 @@ export default function ChatLayout(props: Props) {
     hideHeader,
     hyperchatsHidden,
     customViewMode,
+    channelId,
     setCustomViewMode,
     doCommentList,
     doResolveUris,
     doHyperChatList,
-    doSuperChatList,
-    doFetchOdyseeMembershipsById,
-    claimsByUri,
+    doFetchOdyseeMembershipForChannelIds,
     setLayountRendered,
-    doFetchChannelMembershipsByIds,
-    channelId,
+    doFetchChannelMembershipsForChannelIds,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -112,30 +107,16 @@ export default function ChatLayout(props: Props) {
   }
 
   // get commenter claim ids for checking premium status
-  const commenterClaimIds = commentsByChronologicalOrder.map((comment) => {
-    return comment.channel_id;
-  });
+  const commenterClaimIds = React.useMemo(() => {
+    return commentsByChronologicalOrder.map((comment) => comment.channel_id);
+  }, [commentsByChronologicalOrder]);
 
-  // update premium status
-  const shouldFetchUserMemberships = true;
-  useGetUserMemberships(
-    shouldFetchUserMemberships,
-    commenterClaimIds,
-    claimsByUri,
-    doFetchOdyseeMembershipsById,
-    [commentsByChronologicalOrder],
-    true
-  );
-
-  useCheckCreatorMemberships(
-    shouldFetchUserMemberships,
-    commenterClaimIds,
-    claimsByUri,
-    doFetchChannelMembershipsByIds,
-    [commentsByChronologicalOrder],
-    true,
-    channelId
-  );
+  React.useEffect(() => {
+    if (commenterClaimIds) {
+      doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
+      doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
+    }
+  }, [channelId, commenterClaimIds, doFetchChannelMembershipsForChannelIds, doFetchOdyseeMembershipForChannelIds]);
 
   const commentsToDisplay =
     viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByChronologicalOrder;

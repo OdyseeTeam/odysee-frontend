@@ -13,41 +13,41 @@ import * as PAGES from 'constants/pages';
 import HelpLink from 'component/common/help-link';
 import ChannelSelector from 'component/channelSelector';
 import { useHistory } from 'react-router';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 type Props = {
   channelUrls: Array<string>,
-  fetchChannelListMine: () => void,
+  channelIds: Array<string>,
+  doFetchChannelListMine: () => void,
   fetchingChannels: boolean,
   youtubeChannels: ?Array<any>,
   doSetActiveChannel: (string) => void,
   pendingChannels: Array<string>,
-  claimsByUri: { [string]: any },
-  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
 };
 
 export default function ChannelsPage(props: Props) {
   const {
     channelUrls,
-    fetchChannelListMine,
+    channelIds,
+    doFetchChannelListMine,
     fetchingChannels,
     youtubeChannels,
     doSetActiveChannel,
     pendingChannels,
-    claimsByUri,
-    doFetchOdyseeMembershipsById,
+    doFetchOdyseeMembershipForChannelIds,
   } = props;
   const [rewardData, setRewardData] = React.useState();
   const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
 
-  const shouldFetchUserMemberships = true;
-  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, doFetchOdyseeMembershipsById);
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    } else {
+      doFetchChannelListMine();
+    }
+  }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds]);
 
   const { push } = useHistory();
-
-  useEffect(() => {
-    fetchChannelListMine();
-  }, [fetchChannelListMine]);
 
   useEffect(() => {
     Lbryio.call('user_rewards', 'view_rate').then((data) => setRewardData(data));

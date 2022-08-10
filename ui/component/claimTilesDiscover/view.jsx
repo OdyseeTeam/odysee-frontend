@@ -7,7 +7,6 @@ import I18nMessage from 'component/i18nMessage';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import useGetLastVisibleSlot from 'effects/use-get-last-visible-slot';
 import useResolvePins from 'effects/use-resolve-pins';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 
 const SHOW_TIMEOUT_MSG = false;
 
@@ -65,7 +64,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
-  doFetchOdyseeMembershipsById: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
 };
@@ -88,7 +87,8 @@ function ClaimTilesDiscover(props: Props) {
     doFetchViewCount,
     pageSize = 8,
     optionsStringified,
-    doFetchOdyseeMembershipsById,
+    channelIds,
+    doFetchOdyseeMembershipForChannelIds,
     doResolveClaimIds,
     doResolveUris,
     loading,
@@ -166,7 +166,11 @@ function ClaimTilesDiscover(props: Props) {
 
   useFetchViewCount(fetchViewCount, uris, claimsByUri, doFetchViewCount);
 
-  useGetUserMemberships(true, uris, claimsByUri, doFetchOdyseeMembershipsById);
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

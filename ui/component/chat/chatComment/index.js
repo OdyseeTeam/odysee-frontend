@@ -3,12 +3,11 @@ import {
   selectStakedLevelForChannelUri,
   selectClaimForUri,
   selectClaimsByUri,
-  selectOdyseeMembershipForChannelId,
-  selectMembershipForChannelId,
   selectTitleForUri,
   selectDateForUri,
 } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectOdyseeMembershipForChannelId, selectMembershipForChannelId } from 'redux/selectors/memberships';
 
 import ChatComment from './view';
 
@@ -23,7 +22,7 @@ const select = (state, props) => {
     stakedLevel: selectStakedLevelForChannelUri(state, authorUri),
     claimsByUri: selectClaimsByUri(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
-    membership: channelId && selectMembershipForChannelId(state, channelId),
+    membership: selectMembershipForChannelId(state, uri, channelId),
     activeChannelClaim: selectActiveChannelClaim(state),
     authorTitle,
     channelAge,

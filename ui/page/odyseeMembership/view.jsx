@@ -21,7 +21,6 @@ import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import PremiumBadge from 'component/premiumBadge';
 import I18nMessage from 'component/i18nMessage';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
 
 const stripeEnvironment = getStripeEnvironment();
@@ -37,11 +36,10 @@ type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
   totalBalance: ?number,
-  openModal: (string, {}) => void,
+  doOpenModal: (string, {}) => void,
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
-  claimsByUri: { [string]: any },
-  fetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
   incognito: boolean,
   updateUserOdyseeMembershipStatus: () => void,
   user: ?User,
@@ -53,11 +51,10 @@ type Props = {
 
 const OdyseeMembershipPage = (props: Props) => {
   const {
-    openModal,
+    doOpenModal,
     activeChannelClaim,
     channels,
-    claimsByUri,
-    fetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
     updateUserOdyseeMembershipStatus,
     incognito,
     user,
@@ -74,31 +71,35 @@ const OdyseeMembershipPage = (props: Props) => {
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [currencyToUse, setCurrencyToUse] = React.useState('usd');
 
-  const canceledMemberships = membershipMine?.canceledMemberships;
-  const activeMemberships = membershipMine?.activeMemberships.filter(
-    (membership) => membership.MembershipDetails.channel_name === '@odysee');
+  const canceledMemberships = membershipMine && Object.values(membershipMine.canceledMemberships);
+  const activeMemberships =
+    membershipMine &&
+    Object.values(membershipMine.activeMemberships).filter(
+      (membership) => membership.MembershipDetails.channel_name === '@odysee'
+    );
+  const purchasedMemberships =
+    membershipMine &&
+    Object.values(membershipMine.purchasedMemberships).filter(
+      (membership) => membership.MembershipDetails.channel_name === '@odysee'
+    );
 
-  const purchasedMemberships = membershipMine?.purchasedMemberships.filter(
-    (membership) => membership.MembershipDetails.channel_name === '@odysee');
   const [hasShownModal, setHasShownModal] = React.useState(false);
-  const [shouldFetchUserMemberships, setFetchUserMemberships] = React.useState(true);
+  const [shoulddoFetchOdyseeMembershipForChannelIds, setdoFetchOdyseeMembershipForChannelIds] = React.useState(true);
   const [apiError, setApiError] = React.useState(false);
 
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
   const hasMembership = activeMemberships && activeMemberships?.length > 0;
 
-  const channelUrls = channels && channels.map((channel) => channel.permanent_url);
-
-  // check if membership data for user is already fetched, if it's needed then fetch it
-  useGetUserMemberships(shouldFetchUserMemberships, channelUrls, claimsByUri, (value) => {
-    fetchUserMemberships(value);
-    setFetchUserMemberships(false);
-  });
+  React.useEffect(() => {
+    if (channels) {
+      doFetchOdyseeMembershipForChannelIds(channels);
+    }
+  }, [channels, doFetchOdyseeMembershipForChannelIds]);
 
   React.useEffect(() => {
-    if (!shouldFetchUserMemberships) setFetchUserMemberships(true);
-  }, [shouldFetchUserMemberships]);
+    if (!shoulddoFetchOdyseeMembershipForChannelIds) setdoFetchOdyseeMembershipForChannelIds(true);
+  }, [shoulddoFetchOdyseeMembershipForChannelIds]);
 
   // make calls to backend and populate all the data for the frontend
   React.useEffect(function () {
@@ -285,7 +286,7 @@ const OdyseeMembershipPage = (props: Props) => {
     const priceId = e.currentTarget.getAttribute('price-id');
     const purchaseString = buildPurchaseString(price.unit_amount, price.recurring.interval, planName);
 
-    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
+    doOpenModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       userChannelClaimId: noChannelsOrIncognitoMode ? undefined : userChannelClaimId,
       userChannelName: noChannelsOrIncognitoMode ? undefined : userChannelName,
@@ -307,7 +308,7 @@ const OdyseeMembershipPage = (props: Props) => {
       'features until the point of the expiration of your current membership, at which point you will not be charged ' +
       'again and your membership will no longer be active. At this time, there is no way to subscribe to another membership if you cancel and there are no refunds.';
 
-    openModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
+    doOpenModal(MODALS.CONFIRM_ODYSEE_PREMIUM, {
       membershipId,
       hasMembership,
       purchaseString: __(cancellationString),

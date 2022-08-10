@@ -15,7 +15,7 @@ type Props = {
   hideTooltip?: boolean,
   uri?: string,
   openModal: (string, {}) => void,
-  activeChannelMembershipName: string,
+  activeOdyseeMembershipName: string,
   channelUri?: string,
 };
 
@@ -35,26 +35,18 @@ export default function PremiumBadge(props: Props) {
     hideTooltip,
     uri,
     openModal,
-    activeChannelMembershipName,
+    activeOdyseeMembershipName,
     channelUri,
   } = props;
 
-  const userIsActiveMember = Boolean(activeChannelMembershipName);
-
-  const badgeToShow = getBadgeToShow(membership);
+  const badgeToShow = getBadgeToShow(membership || activeOdyseeMembershipName);
 
   if (!badgeToShow) return null;
 
   const badgeProps = { size: 40, placement, hideTooltip, className };
 
   return (
-    <BadgeWrapper
-      linkPage={linkPage}
-      badgeToShow={badgeToShow}
-      openModal={openModal}
-      userIsActiveMember={userIsActiveMember}
-      channelUri={channelUri}
-    >
+    <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow} openModal={openModal} channelUri={channelUri}>
       {badgeToShow === 'silver' && <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />}
       {badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />}
       {badgeToShow === 'user' && (
@@ -70,11 +62,10 @@ type WrapperProps = {
   badgeToShow: string,
   uri?: string,
   openModal: (string, {}) => void,
-  userIsActiveMember: boolean,
 };
 
 const BadgeWrapper = (props: WrapperProps) => {
-  const { linkPage, children, badgeToShow, openModal, userIsActiveMember, channelUri } = props;
+  const { linkPage, children, badgeToShow, openModal, channelUri } = props;
 
   if (badgeToShow === 'user') {
     // onclick open user modal
@@ -82,7 +73,7 @@ const BadgeWrapper = (props: WrapperProps) => {
       <Button onClick={() => openModal(MODALS.JOIN_MEMBERSHIP, { uri: channelUri })}>{children}</Button>
     );
 
-    return linkPage && !userIsActiveMember ? buttonToOpenMembershipModal : children;
+    return linkPage ? buttonToOpenMembershipModal : children;
   } else {
     const linkToOdyseePremium = <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button>;
 

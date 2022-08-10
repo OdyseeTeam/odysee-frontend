@@ -9,6 +9,7 @@ import { formatDateToMonthAndDay } from 'util/time';
 import moment from 'moment';
 import { getStripeEnvironment } from 'util/stripe';
 import BalanceText from 'react-balance-text';
+import { doMembershipClearData } from 'util/memberships';
 
 let stripeEnvironment = getStripeEnvironment();
 
@@ -23,7 +24,6 @@ type Props = {
   activeChannelMembership: any,
   myActiveMemberships: any,
   doMembershipMine: () => void,
-  doMembershipDeleteData: () => void,
   openModal: (id: string, {}) => void,
   purchasedChannelMembership: any,
 };
@@ -37,7 +37,6 @@ export default function MembershipChannelTab(props: Props) {
     // -- redux --
     myActiveMemberships,
     doMembershipMine,
-    doMembershipDeleteData,
     openModal,
     purchasedChannelMembership,
   } = props;
@@ -164,7 +163,7 @@ export default function MembershipChannelTab(props: Props) {
                       label="Clear Membership Data"
                       icon={ICONS.SETTINGS}
                       className="membership_button"
-                      onClick={doMembershipDeleteData}
+                      onClick={doMembershipClearData}
                     />
                   </div>
                 </section>

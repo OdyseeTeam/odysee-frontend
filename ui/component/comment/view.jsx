@@ -83,12 +83,12 @@ type Props = {
   supportDisabled: boolean,
   setQuickReply: (any) => void,
   quickReply: any,
-  commenterMembership: ?string,
+  odyseeMembership: ?string,
+  creatorMembership: ?string,
   fetchedReplies: Array<Comment>,
   repliesFetching: boolean,
   threadLevel?: number,
   threadDepthLevel?: number,
-  membership: any,
   doClearPlayingSource: () => void,
 };
 
@@ -117,13 +117,13 @@ function CommentView(props: Props) {
     supportDisabled,
     setQuickReply,
     quickReply,
-    commenterMembership,
+    odyseeMembership,
+    creatorMembership,
     fetchedReplies,
     repliesFetching,
     threadLevel = 0,
     threadDepthLevel = 0,
     doClearPlayingSource,
-    membership,
   } = props;
 
   const commentElemRef = React.useRef();
@@ -183,7 +183,6 @@ function CommentView(props: Props) {
   const contentChannelClaim = getChannelFromClaim(claim);
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
-  const channelUri = contentChannelClaim && contentChannelClaim.canonical_url;
 
   let channelOwnerOfContent;
   try {
@@ -332,7 +331,8 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={commenterMembership} uri={uri} channelUri={channelUri} linkPage />
+              <PremiumBadge membership={odyseeMembership} linkPage />
+              <PremiumBadge membership={creatorMembership} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
@@ -413,7 +413,7 @@ function CommentView(props: Props) {
                         promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
-                        hasMembership={Boolean(commenterMembership)}
+                        hasMembership={Boolean(odyseeMembership)}
                       />
                     </Expandable>
                   )}

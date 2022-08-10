@@ -18,7 +18,7 @@ import { DOMAIN, LOCALE_API } from 'config';
 import { getDefaultLanguage } from 'util/default-languages';
 import { LocalStorage, LS } from 'util/storage';
 
-import { doCheckUserOdyseeMemberships, doMembershipMine } from 'redux/actions/memberships';
+import { doMembershipMine } from 'redux/actions/memberships';
 
 const AUTH_IN_PROGRESS = 'authInProgress';
 export let sessionStorageAvailable = false;
@@ -133,10 +133,6 @@ export function doAuthenticate(
             data: { user, accessToken: token },
           });
 
-          // if user is an Odysee member, get the membership details
-          if (user.odysee_member) {
-            dispatch(doCheckUserOdyseeMemberships(user));
-          }
           dispatch(doMembershipMine(user));
 
           if (shareUsageData) {
@@ -170,12 +166,6 @@ export function doUserFetch() {
 
       Lbryio.getCurrentUser()
         .then((user) => {
-          // get user membership status
-          if (user.odysee_member) {
-            dispatch(doCheckUserOdyseeMemberships(user));
-          }
-          dispatch(doMembershipMine(user));
-
           dispatch({
             type: ACTIONS.USER_FETCH_SUCCESS,
             data: { user },
@@ -197,12 +187,6 @@ export function doUserCheckEmailVerified() {
   return (dispatch) => {
     Lbryio.getCurrentUser().then((user) => {
       if (user.has_verified_email) {
-        // check premium membership
-        if (user.odysee_member) {
-          dispatch(doCheckUserOdyseeMemberships(user));
-        }
-        dispatch(doMembershipMine(user));
-
         dispatch(doRewardList());
         dispatch({
           type: ACTIONS.USER_FETCH_SUCCESS,

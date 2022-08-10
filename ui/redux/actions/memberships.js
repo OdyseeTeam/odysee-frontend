@@ -2,239 +2,137 @@
 import * as ACTIONS from 'constants/action_types';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
-import { ODYSEE_CHANNEL_ID, ODYSEE_CHANNEL_NAME } from 'constants/odysee';
+import {
+  selectFetchingIdsForMembershipChannelId,
+  selectFetchedIdsForMembershipChannelId,
+} from 'redux/selectors/memberships';
+import { ODYSEE_CHANNEL } from 'constants/channels';
 
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
-/***
- * Given a user, return their highest ranking Odysee membership (Premium or Premium Plus)
- * @param dispatch
- * @param user
- * @returns {Promise<void>}
- */
-export function doCheckUserOdyseeMemberships(user: any) {
-  return async (dispatch: Dispatch) => {
-    // TODO: to check if it's active, or if it's cancelled if it's still valid past current date
-    function mineFetchCb(odyseeMemberships) {
-      let highestMembershipRanking;
+export const doFetchChannelMembershipsForChannelIds = (channelId: string, channelIds: ClaimIds) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  if (!channelIds || channelIds.length === 0) return;
 
-      // determine highest ranking membership based on returned data
-      // note: this is from an odd state in the API where a user can be both premium/Premium + at the same time
-      // I expect this can change once upgrade/downgrade is implemented
-      if (odyseeMemberships?.length > 0) {
-        // if premium plus is a membership, return that, otherwise it's only premium
-        const premiumPlusExists = odyseeMemberships.includes('Premium+');
-        highestMembershipRanking = premiumPlusExists ? 'Premium+' : 'Premium';
-      }
+  // remove dupes and falsey values
+  const dedupedChannelIds = [...new Set(channelIds)].filter(Boolean);
 
-      dispatch({
-        type: ACTIONS.ADD_ODYSEE_MEMBERSHIP_DATA,
-        data: { user, odyseeMembershipName: highestMembershipRanking },
-      });
-    }
+  // check if channel id is fetching
+  const state = getState();
+  const fetchingForChannel = selectFetchingIdsForMembershipChannelId(state, channelId);
+  const fetchedForChannel = selectFetchedIdsForMembershipChannelId(state, channelId);
 
-    dispatch(doMembershipMine(ODYSEE_CHANNEL_NAME, mineFetchCb));
-  };
-}
+  const channelsToFetch = dedupedChannelIds.filter((dedupedChannelId) => {
+    const notFetching = !fetchingForChannel || (fetchingForChannel && !fetchingForChannel.includes(dedupedChannelId));
+    const notFetched = !fetchedForChannel || (fetchedForChannel && fetchedForChannel[dedupedChannelId] === undefined);
+    return notFetching && notFetched;
+  });
 
-/***
- * Receives a csv of channel claim ids, hits the backend and returns nicely formatted object with relevant info
- * @param claimIdCsv
- * @returns {(function(*): Promise<void>)|*}
- */
-export function doFetchOdyseeMembershipsById(claimIdCsv: any) {
-  return async (dispatch: Dispatch) => {
-    if (!claimIdCsv || (claimIdCsv.length && claimIdCsv.length < 1)) return;
+  if (channelsToFetch.length === 0) return;
 
-    // check if users have odysee memberships (premium/premium+)
-    const response = await Lbryio.call('membership', 'check', {
-      channel_id: ODYSEE_CHANNEL_ID,
-      claim_ids: claimIdCsv,
-      environment: stripeEnvironment,
-    });
+  // create 'comma separated values' string for backend
+  const channelIdsToFetch = channelsToFetch.join(',');
 
-    let updatedResponse = {};
+  dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED, data: { channel: channelId, ids: channelsToFetch } });
 
-    // loop through returned users
-    for (const user in response) {
-      // if array was returned for a user (indicating a membership exists), otherwise is null
-      if (response[user] && response[user].length) {
-        // get membership for user
-        // note: a for loop is kind of odd, indicates there may be multiple memberships?
-        // probably not needed depending on what we do with the frontend, should revisit
-        for (const membership of response[user]) {
-          if (membership.channel_name) {
-            updatedResponse[user] = membership.name;
-            window.checkedMemberships[user] = membership.name;
+  return await Lbryio.call('membership', 'check', {
+    channel_id: channelId,
+    claim_ids: channelIdsToFetch,
+    environment: stripeEnvironment,
+  })
+    .then((response) => {
+      const membershipsById = {};
+
+      for (const channelId in response) {
+        const memberships = response[channelId];
+
+        // if array was returned for a user (indicating a membership exists), otherwise is null
+        if (Number.isInteger(memberships?.length)) {
+          for (const membership of memberships) {
+            if (membership.activated) {
+              membershipsById[channelId] = membership.name;
+            }
           }
         }
-      } else {
-        // note the user has been fetched but is null
-        updatedResponse[user] = null;
-        window.checkedMemberships[user] = null;
+
+        if (!membershipsById[channelId]) membershipsById[channelId] = null;
       }
-    }
 
-    dispatch({ type: ACTIONS.ADD_CLAIMIDS_ODYSEE_MEMBERSHIP_DATA, data: { response: updatedResponse } });
-  };
-}
+      return dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED, data: { channelId, membershipsById } });
+    })
+    .catch((e) => dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED, data: { channelId, error: e } }));
+};
 
-export function doFetchChannelMembershipsByIds(channelId: string, claimIdCsv: string) {
-  return async (dispatch: Dispatch) => {
-    // hit backend with csv
-    const response = await Lbryio.call('membership', 'check', {
-      channel_id: channelId,
-      claim_ids: claimIdCsv,
-      environment: stripeEnvironment,
-    });
+export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
+  dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
-    let updatedResponse = {};
+export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
+    .then((response) =>
+      dispatch({ type: ACTIONS.LIST_MEMBERSHIP_DATA, data: { channelId: params.channel_id, list: response } })
+    )
+    .catch((e) => dispatch({ type: ACTIONS.LIST_MEMBERSHIP_DATA_ERROR, data: e }));
 
-    // loop through returned users
-    for (const user in response) {
-      // if array was returned for a user (indicating a membership exists), otherwise is null
-      if (response[user] && response[user].length) {
-        // get membership for user
-        // note: a for loop is kind of odd, indicates there may be multiple memberships?
-        // probably not needed depending on what we do with the frontend, should revisit
-        for (const membership of response[user]) {
-          if (membership.channel_name) {
-            updatedResponse[user] = membership.name;
-            window.checkedCreatorMemberships[channelId][user] = membership.name;
-          }
-        }
-      } else {
-        // note the user has been fetched but is null
-        updatedResponse[user] = null;
-        window.checkedCreatorMemberships[channelId][user] = null;
-      }
-    }
-
-    dispatch({ type: ACTIONS.ADD_CLAIMIDS_MEMBERSHIP_DATA, data: { response: updatedResponse, channelId } });
-  };
-}
-
-export function doMembershipMine(channelName?: string, channelMembershipCb?: (a: any) => void) {
-  return async (dispatch: Dispatch) => {
-    try {
-      // show the memberships the user is subscribed to
-      const response = await Lbryio.call(
-        'membership',
-        'mine',
-        {
-          environment: stripeEnvironment,
-        },
-        'post'
-      );
-
-      const activeMemberships = [];
-      const canceledMemberships = [];
-      const purchasedMemberships = [];
+export const doMembershipMine = () => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership', 'mine', { environment: stripeEnvironment }, 'post')
+    .then((response) => {
+      const activeMemberships = {};
+      const canceledMemberships = {};
+      const purchasedMemberships = {};
+      let activeOdyseeMembership;
 
       for (const membership of response) {
+        const creatorClaimId = membership.MembershipDetails.channel_id;
+
         // if it's autorenewing it's considered 'active'
         const isActive = membership.Membership.auto_renew;
-        if (isActive) {
-          activeMemberships.push(membership);
-        } else {
-          canceledMemberships.push(membership);
-        }
-        purchasedMemberships.push(membership);
-      }
 
-      // hide the other membership options if there's already a purchased membership
-      // if (activeMemberships.length > 0) {
-      //   setMembershipOptions(false);
-      // }
+        if (isActive) {
+          activeMemberships[creatorClaimId] = membership;
+        } else {
+          canceledMemberships[creatorClaimId] = membership;
+        }
+        purchasedMemberships[creatorClaimId] = membership;
+
+        const membershipChannel = membership.channel_name;
+        if (membershipChannel === ODYSEE_CHANNEL.NAME) {
+          activeOdyseeMembership = true;
+        }
+      }
 
       dispatch({
         type: ACTIONS.SET_MEMBERSHIP_DATA,
-        data: { activeMemberships, canceledMemberships, purchasedMemberships },
+        data: { activeMemberships, canceledMemberships, purchasedMemberships, activeOdyseeMembership },
       });
+    })
+    .catch((err) => dispatch({ type: ACTIONS.SET_MEMBERSHIP_DATA_ERROR, data: err }));
 
-      // Find a channelName's specific membership and do something (callback function)
-      if (channelName) {
-        let activeMembershipForChannel;
+export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch) => {
+  const { membership_id: membershipId, channel_name: userChannelName } = membershipParams;
 
-        if (channelName === ODYSEE_CHANNEL_NAME) {
-          // loop through all memberships and save the @odysee ones
-          // maybe in the future we can only hit @odysee in the API call
-          // $FlowFixMe
-          activeMembershipForChannel = purchasedMemberships?.filter(
-            (membership) => membership.Membership.channel_name === channelName
-          );
-        } else {
-          // $FlowFixMe
-          activeMembershipForChannel = activeMemberships?.find(
-            (membership) => membership.Membership.channel_name === channelName
-          );
-        }
+  if (!membershipId) return;
 
-        if (channelMembershipCb) channelMembershipCb(activeMembershipForChannel);
-      }
-    } catch (err) {
-      dispatch({
-        type: ACTIONS.SET_MEMBERSHIP_DATA_ERROR,
-        data: err,
-      });
-    }
-  };
-}
+  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED });
 
-// todo: type membership
-export function doMembershipBuy(membershipParams: any, cb?: () => void) {
-  return async (dispatch: Dispatch) => {
-    try {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED });
-
-      const {
-        membership_id: membershipId,
-        channel_id: userChannelClaimId,
-        channel_name: userChannelName,
-        price_id: priceId,
-      } = membershipParams;
-      dispatch(doMembershipList({ channel_id: userChannelClaimId, channel_name: userChannelName }));
-
-      // show the memberships the user is subscribed to
-      await Lbryio.call(
-        'membership',
-        'buy',
-        {
-          environment: stripeEnvironment,
-          membership_id: membershipId,
-          channel_id: userChannelClaimId,
-          channel_name: userChannelName,
-          price_id: priceId,
-        },
-        'post'
+  // show the memberships the user is subscribed to
+  return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
+    .then((response) => {
+      dispatch(
+        doToast({
+          message: __('You are now a %membership_tier_name% member, enjoy the perks and special features!', {
+            membership_tier_name: response.MembershipDetails.name,
+            creator_channel_name: userChannelName,
+          }),
+        })
       );
 
-      // cleary query params
-      // $FlowFixMe
-      let newURL = location.href.split('?')[0];
-      window.history.pushState('object', document.title, newURL);
-
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL });
-      // callback function
-      if (cb) cb();
-
-      const mineSuccessCb = (membership) =>
-        dispatch(
-          doToast({
-            message: __('You are now a %membership_tier_name% member, enjoy the perks and special features!', {
-              membership_tier_name: membership.MembershipDetails.name,
-              creator_channel_name: userChannelName,
-            }),
-          })
-        );
-
-      // populate the new data and update frontend
-      // and send userChannelName as search for response
-      // to notify success
-      dispatch(doMembershipMine(userChannelName, mineSuccessCb));
-    } catch (err) {
-      const errorMessage = err.message;
+    })
+    .catch((e) => {
+      const errorMessage = e.message;
       const subscriptionFailedBackendError = 'failed to create subscription with default card';
 
       // wait a bit to show the message so it's not jarring for the user
@@ -250,56 +148,15 @@ export function doMembershipBuy(membershipParams: any, cb?: () => void) {
           "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
         );
 
-        dispatch(
-          doToast({
-            message: genericErrorMessage,
-            isError: true,
-          })
-        );
+        dispatch(doToast({ message: genericErrorMessage, isError: true }));
       }, errorMessageTimeout);
-    }
-  };
-}
+    });
+};
 
-// clear membership data
-export function doMembershipDeleteData() {
-  return async () => {
-    await Lbryio.call(
-      'membership',
-      'clear',
-      {
-        environment: 'test',
-      },
-      'post'
-    );
+export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post');
 
-    // $FlowFixMe
-    location.reload();
-  };
-}
-
-export function doMembershipList(params: { channel_name: string, channel_id: string }) {
-  return async (dispatch: Dispatch) => {
-    try {
-      const response = await Lbryio.call(
-        'membership',
-        'list',
-        {
-          environment: stripeEnvironment,
-          ...params,
-        },
-        'post'
-      );
-
-      dispatch({
-        type: ACTIONS.LIST_MEMBERSHIP_DATA,
-        data: { channelId: params.channel_id, list: response },
-      });
-    } catch (err) {
-      dispatch({
-        type: ACTIONS.LIST_MEMBERSHIP_DATA_ERROR,
-        data: err,
-      });
-    }
-  };
-}
+export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>
+  await Lbryio.call('membership_perk', 'list', { ...params, environment: stripeEnvironment }, 'post').then((response) =>
+    dispatch({ type: ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE, data: { response } })
+  );

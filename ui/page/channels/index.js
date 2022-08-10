@@ -4,9 +4,8 @@ import {
   selectFetchingMyChannels,
   makeSelectClaimIsPending,
   selectPendingIds,
-  selectClaimsByUri,
 } from 'redux/selectors/claims';
-import { doFetchOdyseeMembershipsById } from 'redux/actions/memberships';
+import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { doSetActiveChannel } from 'redux/actions/app';
 import { selectYoutubeChannels } from 'redux/selectors/user';
@@ -32,14 +31,13 @@ const select = (state) => {
     fetchingChannels: selectFetchingMyChannels(state),
     youtubeChannels: selectYoutubeChannels(state),
     pendingChannels,
-    claimsByUri: selectClaimsByUri(state),
   };
 };
 
-const perform = (dispatch) => ({
-  fetchChannelListMine: () => dispatch(doFetchChannelListMine()),
-  doSetActiveChannel: (claimId) => dispatch(doSetActiveChannel(claimId)),
-  doFetchOdyseeMembershipsById: (claimIds) => dispatch(doFetchOdyseeMembershipsById(claimIds)),
-});
+const perform = {
+  doFetchChannelListMine,
+  doSetActiveChannel,
+  doFetchOdyseeMembershipForChannelIds,
+};
 
 export default connect(select, perform)(ChannelsPage);

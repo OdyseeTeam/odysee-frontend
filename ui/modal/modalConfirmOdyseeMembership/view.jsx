@@ -21,7 +21,7 @@ type Props = {
   purchaseString: string,
   plan: string,
   doMembershipBuy: (any: any) => void,
-  doFetchOdyseeMembershipsById: (string) => void,
+  doFetchOdyseeMembershipForChannelIds: (string) => void,
   doToast: ({ message: string }) => void,
 };
 
@@ -38,7 +38,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     purchaseString,
     plan,
     doMembershipBuy,
-    doFetchOdyseeMembershipsById,
+    doFetchOdyseeMembershipForChannelIds,
     doToast,
   } = props;
 
@@ -70,7 +70,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       // populate the new data and update frontend
       doMembershipMine(membershipId, function() {
         closeModal();
-        doFetchOdyseeMembershipsById([userChannelClaimId]);
+        doFetchOdyseeMembershipForChannelIds([userChannelClaimId]);
       });
     } catch (err) {
       console.log(err);
@@ -94,7 +94,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
 
         // populate the new data and update frontend
         doMembershipMine(membershipId, function() {
-          doFetchOdyseeMembershipsById(userChannelClaimId);
+          doFetchOdyseeMembershipForChannelIds(userChannelClaimId);
           setTimeout(function() {
             closeModal();
           }, 300);
