@@ -2,7 +2,7 @@
 import { parseURI } from 'util/lbryURI';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import { selectChannelClaimIdForUri, selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 
 type State = { memberships: any };
@@ -29,7 +29,11 @@ export const selectFetchedIdsForMembershipChannelId = (state: State, channelId: 
 export const selectMembershipForChannelId = (state: State, uri: string, channelId: string) => {
   const creatorId = selectChannelClaimIdForUri(state, uri);
   const fetchedMemberships = selectFetchedIdsForMembershipChannelId(state, creatorId);
-  return fetchedMemberships && fetchedMemberships[channelId];
+  return (
+    (fetchedMemberships && fetchedMemberships[channelId]) ||
+    (selectMyChannelClaimIds(state).includes(channelId) &&
+      selectUserPurchasedMembershipForChannelUri(state, uri)?.MembershipDetails?.name)
+  );
 };
 
 export const selectFetchedOdyseeMemberships = (state: State) =>
