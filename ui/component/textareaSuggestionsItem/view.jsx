@@ -9,6 +9,7 @@ type Props = {
   claimTitle?: string,
   emote?: any,
   uri?: string,
+  emoji?: string,
 };
 
 export default function TextareaSuggestionsItem(props: Props) {
