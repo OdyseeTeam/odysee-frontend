@@ -93,7 +93,11 @@ const ITManagersPage = () => {
             </section>
 
             <h1 style={{ marginTop: '30px', fontSize: '18px' }}>
-              To apply, please send your credentials to careers[at]odysee.com
+              To apply, please send your credentials to
+              <a className="careers-mail-link" href="mailto:careers@odysee.com">
+                {' '}
+                careers@odysee.com
+              </a>
             </h1>
           </>
         }
