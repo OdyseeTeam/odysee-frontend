@@ -123,7 +123,7 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
           onClick={() => scrollToCategory('animals & nature', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Animals & Nature'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/animals/dolphin.png"
+          src="/public/img/emoticons/twemoji/nature/dolphin.png"
         />
         <img
           onClick={() => scrollToCategory('food & drink', emojiSelectorRef, isMobile)}
