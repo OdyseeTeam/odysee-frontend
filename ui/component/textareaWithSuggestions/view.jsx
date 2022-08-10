@@ -271,11 +271,18 @@ export default function TextareaWithSuggestions(props: Props) {
   const handleSelect = React.useCallback(
     (selectedValue: string, key?: number) => {
       if (!suggestionValue) return;
+      if (!selectedValue) {
+        setSuggestionValue(undefined);
+        setClose(true);
+        return;
+      }
 
       const elem = inputRef && inputRef.current;
       // $FlowFixMe
-      const newCursorPos = suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
-
+      const newCursorPos =
+        suggestionValue &&
+        suggestionValue.beforeTerm &&
+        suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
       // $FlowFixMe
       const contentBegin = messageValue.substring(0, suggestionValue.index);
       // $FlowFixMe
