@@ -85,7 +85,7 @@ export default function LivestreamMenu(props: Props) {
           </MenuItem>
           <MenuItem className="comment__menu-option" onSelect={toggleIsCompact}>
             <span className="menu__link">
-              <Icon aria-hidden icon={ICONS.WATCH_HISTORY} size={18} />
+              <Icon aria-hidden icon={ICONS.COMPACT} size={18} />
               {!isCompact ? __('Enable Compact Mode') : __('Disable Compact Mode')}
             </span>
           </MenuItem>
