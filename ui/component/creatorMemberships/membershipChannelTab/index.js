@@ -13,7 +13,7 @@ const select = (state, props) => {
     channelId: selectChannelIdForUri(state, uri),
     activeChannelMembership: selectMyActiveMembershipsForCreatorId(state, uri),
     purchasedChannelMembership: selectUserPurchasedMembershipForChannelUri(state, uri),
-    myActiveMemberships: selectMyActiveMemberships(state),
+    myActiveMemberships: selectMyActiveMemberships(state) && Object.values(selectMyActiveMemberships(state)),
     // selectMembershipListByChannelName:
     //   activeMembershipName && selectMyActiveMembershipsForCreatorId(state, activeMembershipName.Membership.channel_name),
   };

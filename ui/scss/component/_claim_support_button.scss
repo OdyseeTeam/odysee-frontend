@@ -12,13 +12,6 @@
     span, svg {
       color: var(--color-support-button);
       stroke: var(--color-support-button) !important;
-    }
-  }
-}
-
-.media__actions {
-  .approved-bank-account__button {
-    span, svg {
       filter: brightness(0.85);
     }
   }

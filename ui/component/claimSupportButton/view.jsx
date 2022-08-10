@@ -17,7 +17,16 @@ type Props = {
 };
 
 export default function ClaimSupportButton(props: Props) {
-  const { uri, fileAction, isRepost, disableSupport, doOpenModal, preferredCurrency, canReceiveFiatTips, doTipAccountCheckForUri } = props;
+  const {
+    uri,
+    fileAction,
+    isRepost,
+    disableSupport,
+    doOpenModal,
+    preferredCurrency,
+    canReceiveFiatTips,
+    doTipAccountCheckForUri,
+  } = props;
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
@@ -40,12 +49,9 @@ export default function ClaimSupportButton(props: Props) {
     },
   };
 
-
-  // TODO: have to make this work
-  // 'approved-bank-account__button': canReceiveFiatTips
-
   return (
     <FileActionButton
+      className={canReceiveFiatTips ? 'approved-bank-account__button' : undefined}
       title={__('Support this content')}
       label={isRepost ? __('Support Repost') : __('Support --[button to support a claim]--')}
       icon={iconToUse[currencyToUse].icon}

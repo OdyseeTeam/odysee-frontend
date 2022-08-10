@@ -12,8 +12,8 @@ const select = (state, props) => ({
     selectActiveOdyseeMembershipNameForChannelId(state, props.uri),
 });
 
-const perform = (dispatch) => ({
-  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-});
+const perform = {
+  doOpenModal,
+};
 
 export default connect(select, perform)(PremiumBadge);

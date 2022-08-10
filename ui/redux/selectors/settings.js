@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import { ENABLE_MATURE } from 'config';
 import { getDefaultHomepageKey, getDefaultLanguage } from 'util/default-languages';
 import { selectClaimForId } from 'redux/selectors/claims';
+import { selectUserLocale } from 'redux/selectors/user';
 
 const selectState = (state) => state.settings || {};
 
@@ -123,3 +124,13 @@ export const selectDefaultChannelClaim = createSelector(
   (state) => selectClaimForId(state, selectClientSetting(state, SETTINGS.ACTIVE_CHANNEL_CLAIM)),
   (defaultChannelClaim) => defaultChannelClaim
 );
+
+// @flow
+export const selectPreferredCurrency = (state: State) => {
+  const preferredCurrencySetting = selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY);
+  const locale = selectUserLocale(state);
+
+  const preferredCurrency: CurrencyOption = preferredCurrencySetting || locale?.continent === 'EU' ? 'eur' : 'usd';
+
+  return preferredCurrency;
+};

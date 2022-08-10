@@ -30,12 +30,8 @@ const defaultState: UserState = {
   youtubeChannelImportErrorMessage: '',
   referrerSetIsPending: false,
   referrerSetError: '',
-  odyseeMembershipName: undefined,
-  odyseeMembershipsPerClaimIds: undefined,
   locale: undefined,
   homepageFetched: false,
-  membershipsPerClaimIds: undefined,
-  didFetchMembershipsDataById: {},
 };
 
 reducers[ACTIONS.AUTHENTICATION_STARTED] = (state) =>

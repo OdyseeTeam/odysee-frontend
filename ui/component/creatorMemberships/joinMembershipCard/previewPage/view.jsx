@@ -162,7 +162,7 @@ export default function PreviewPage(props: Props) {
       {creatorHasMemberships && (
         <>
           { hasSavedCard === false && (
-            <div className="help help__no-card" style={{ fontSize: '18px' }}>
+            <div className="help help--no-card" style={{ fontSize: '18px' }}>
               <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
               {' ' + __('To Become a Channel Member')}
             </div>

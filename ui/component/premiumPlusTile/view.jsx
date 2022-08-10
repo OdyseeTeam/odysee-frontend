@@ -17,7 +17,7 @@ const PremiumPlusTile = (props: Props) => {
 
   return tileLayout ? (
     <li className="card claim-preview--tile claim-preview--premium-plus">
-      <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+      <a href={`/$/${PAGES.ODYSEE_PREMIUM}`}>
         <div className="media__thumb" />
         <div className="claim-tile__header">
           <h2 className="claim-tile__title">{title}</h2>
@@ -37,7 +37,7 @@ const PremiumPlusTile = (props: Props) => {
     </li>
   ) : (
     <li className="claim-preview__wrapper claim-preview--premium-plus">
-      <a href={`/$/${PAGES.ODYSEE_MEMBERSHIP}`}>
+      <a href={`/$/${PAGES.ODYSEE_PREMIUM}`}>
         <div className="claim-preview">
           <div className="media__thumb" />
           <div className="claim-preview__text">

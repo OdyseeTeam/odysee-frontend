@@ -21,8 +21,7 @@ type State = {
   resolvingUris: Array<string>,
   reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
-  myChannelClaimIds: ?Array<string>,
-  myChannelClaims: ?Array<string>,
+  myChannelClaims: ?Array<ChannelClaim>,
   myCollectionClaims: ?Array<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
@@ -76,7 +75,6 @@ const defaultState = {
   channelClaimCounts: {},
   fetchingChannelClaims: {},
   resolvingUris: [],
-  myChannelClaimIds: undefined,
   myChannelClaims: undefined,
   myCollectionClaims: [],
   myClaims: undefined,
@@ -392,17 +390,16 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
   let myClaimIds = new Set(state.myClaims);
   const pendingByIdDelta = {};
-  let myChannelClaimIds;
+  let myChannelClaims;
   const byIdDelta = {};
   const byUriDelta = {};
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
-  const myChannelClaims = Object.assign({}, state.myChannelClaims);
 
   if (!claims.length) {
     // $FlowFixMe
-    myChannelClaimIds = null;
+    myChannelClaims = null;
   } else {
-    myChannelClaimIds = new Set(state.myChannelClaimIds);
+    myChannelClaims = new Set(state.myChannelClaims);
     claims.forEach((claim) => {
       const { meta } = claim;
       const { claims_in_channel: claimsInChannel } = meta;
@@ -414,8 +411,7 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
       channelClaimCounts[permanentUrl] = claimsInChannel;
 
       // $FlowFixMe
-      myChannelClaimIds.add(claimId);
-      myChannelClaims[claimId] = claim;
+      myChannelClaims.add(claim);
 
       if (confirmations < 1) {
         pendingByIdDelta[claimId] = claim;
@@ -439,9 +435,8 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     channelClaimCounts,
     fetchingMyChannels: false,
-    myChannelClaimIds: myChannelClaimIds ? Array.from(myChannelClaimIds) : null,
+    myChannelClaims: Array.from(myChannelClaims),
     myClaims: myClaimIds ? Array.from(myClaimIds) : null,
-    myChannelClaims,
   });
 };
 
@@ -591,7 +586,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
   const pendingById = Object.assign({}, state.pendingById);
   const byUriDelta = {};
   let myClaimIds = new Set(state.myClaims);
-  const myChannelClaimIds = new Set(state.myChannelClaimIds);
+  const myChannelClaims = new Set(state.myChannelClaims);
 
   // $FlowFixMe
   pendingClaims.forEach((claim: Claim) => {
@@ -605,7 +600,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
       newClaim = claim;
     }
     if (valueType === 'channel') {
-      myChannelClaimIds.add(claimId);
+      myChannelClaims.add(claim);
     }
 
     if (type && type.match(/claim|update/)) {
@@ -618,7 +613,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
     myClaims: Array.from(myClaimIds),
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById,
-    myChannelClaimIds: Array.from(myChannelClaimIds),
+    myChannelClaims: Array.from(myChannelClaims),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
   });
 };
@@ -653,7 +648,7 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   const byId = Object.assign({}, state.byId);
   const newMyClaims = state.myClaims ? state.myClaims.slice() : [];
   let myClaimsPageResults = null;
-  const newMyChannelClaims = state.myChannelClaimIds ? state.myChannelClaimIds.slice() : [];
+  const newMyChannelClaims = state.myChannelClaims ? state.myChannelClaims.slice() : [];
   const claimsByUri = Object.assign({}, state.claimsByUri);
   const abandoningById = Object.assign({}, state.abandoningById);
   const newMyCollectionClaims = state.myCollectionClaims ? state.myCollectionClaims.slice() : [];
@@ -676,14 +671,14 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   }
 
   const myClaims = newMyClaims.filter((i) => i !== claimId);
-  const myChannelClaimIds = newMyChannelClaims.filter((i) => i !== claimId);
+  const myChannelClaims = newMyChannelClaims.filter((i) => i !== claimId);
   const myCollectionClaims = newMyCollectionClaims.filter((i) => i !== claimId);
 
   delete byId[claimId];
 
   return Object.assign({}, state, {
     myClaims,
-    myChannelClaimIds,
+    myChannelClaims,
     myCollectionClaims,
     byId,
     claimsByUri,

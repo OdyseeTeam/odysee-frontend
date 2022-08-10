@@ -3,9 +3,6 @@ import { selectClaimForUri } from 'redux/selectors/claims';
 import { doFetchChannelListMine } from 'redux/actions/claims';
 import { isURIValid, normalizeURI } from 'util/lbryURI';
 import { batchActions } from 'util/batch-actions';
-import { getStripeEnvironment } from 'util/stripe';
-import { ODYSEE_CHANNEL } from 'constants/channels';
-
 import * as ACTIONS from 'constants/action_types';
 import { doFetchGeoBlockedList } from 'redux/actions/blocked';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
@@ -24,7 +21,6 @@ const AUTH_IN_PROGRESS = 'authInProgress';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
-const stripeEnvironment = getStripeEnvironment();
 
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
@@ -81,7 +77,7 @@ export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, doma
 
 function checkAuthBusy() {
   let time = Date.now();
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     (function waitForAuth() {
       try {
         sessionStorage.setItem('test', 'available');
@@ -133,7 +129,7 @@ export function doAuthenticate(
             data: { user, accessToken: token },
           });
 
-          dispatch(doMembershipMine(user));
+          dispatch(doMembershipMine());
 
           if (shareUsageData) {
             dispatch(doRewardList());

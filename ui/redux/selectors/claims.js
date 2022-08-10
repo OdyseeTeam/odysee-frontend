@@ -543,19 +543,14 @@ export const selectMyClaimsOutpoints = createSelector(selectMyClaims, (myClaims)
 export const selectFetchingMyChannels = (state: State) => selectState(state).fetchingMyChannels;
 export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 
-export const selectMyChannelClaimIds = (state: State) => selectState(state).myChannelClaimIds;
 export const selectMyChannelClaims = (state: State) => selectState(state).myChannelClaims;
-
-export const selectMyChannelClaimsList = (state: State) => {
-  const myChannelClaims = selectMyChannelClaims(state);
-
-  const channelClaimsList = myChannelClaims ? Object.values(myChannelClaims) : [];
-
-  return channelClaimsList;
-};
-
-export const selectMyChannelUrls = createSelector(selectMyChannelClaimsList, (claims) =>
-  claims ? claims.map((claim) => claim.canonical_url || claim.permanent_url) : undefined
+export const selectMyChannelClaimIds = createSelector(
+  selectMyChannelClaims,
+  (myChannelClaims) => myChannelClaims && myChannelClaims.map(({ claim_id }) => claim_id)
+);
+export const selectMyChannelClaimUrls = createSelector(
+  selectMyChannelClaims,
+  (myChannelClaims) => myChannelClaims && myChannelClaims.map(({ canonical_url }) => canonical_url)
 );
 
 export const selectHasChannels = (state: State) => {
@@ -701,7 +696,7 @@ export const makeSelectChannelPermUrlForClaimUri = (uri: string, includePrefix: 
   });
 
 export const makeSelectMyChannelPermUrlForName = (name: string) =>
-  createSelector(selectMyChannelClaimsList, (claims) => {
+  createSelector(selectMyChannelClaims, (claims) => {
     const matchingClaim = claims && claims.find((claim) => claim.name === name);
     return matchingClaim ? matchingClaim.permanent_url : null;
   });

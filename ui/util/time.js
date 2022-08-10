@@ -72,6 +72,7 @@ export function getTimeAgoStr(
   return __(str, { duration });
 }
 
-export const formatDateToMonthAndDay = (date: any) => moment(new Date(date)).format('MMMM DD');
-
 export const getCurrentTimeInSec = () => Math.floor(Date.now() / 1000);
+
+export const formatDateToMonthAndDay = (date: any) => moment(new Date(date)).format('MMMM DD');
+export const formatDateToMonthDayAndYear = (date: any) => moment(new Date(date)).format('MMMM DD YYYY');

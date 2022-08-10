@@ -5,24 +5,17 @@ import Page from 'component/page';
 import Button from 'component/button';
 import { useHistory } from 'react-router';
 
-const isDev = process.env.NODE_ENV !== 'production';
-
-let log = (input) => {};
-if (isDev) log = console.log;
-
 /** THIS PAGE IS NAMED WRONG THIS IS THE BILLING HISTORY PAGE **/
 
 type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
   totalBalance: ?number,
-  openModal: (string, {}) => void,
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
   claimsByUri: { [string]: any },
   fetchUserMemberships: (claimIdCsv: string) => void,
   incognito: boolean,
-  updateUserOdyseeMembershipStatus: () => void,
   user: ?User,
   locale: ?LocaleInfo,
   preferredCurrency: ?string,

@@ -10,7 +10,7 @@ import {
   makeSelectClaimForUri,
   selectMyActiveClaims,
   selectMyClaims,
-  selectMyChannelClaimsList,
+  selectMyChannelClaims,
   // selectMyClaimsWithoutChannels,
   selectReflectingById,
 } from 'redux/selectors/claims';
@@ -621,7 +621,7 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
 
   const state = getState();
   const myClaimForUri = selectMyClaimForUri(state);
-  const myChannels = selectMyChannelClaimsList(state);
+  const myChannels = selectMyChannelClaims(state);
   // const myClaims = selectMyClaimsWithoutChannels(state);
   // get redux publish form
   const publishData = selectPublishFormValues(state);

@@ -5,7 +5,7 @@ import { doClaimRewardType } from 'redux/actions/rewards';
 import { doSetClientSetting } from 'redux/actions/settings';
 import { selectClaimedRewards, makeSelectIsRewardClaimPending } from 'redux/selectors/rewards';
 import { selectUserIsPending, selectYoutubeChannels, selectEmailToVerify, selectUser } from 'redux/selectors/user';
-import { selectMyChannelClaimsList, selectFetchingMyChannels, selectCreatingChannel } from 'redux/selectors/claims';
+import { selectMyChannelClaims, selectFetchingMyChannels, selectCreatingChannel } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -16,7 +16,7 @@ import UserSignIn from './view';
 const select = (state) => ({
   emailToVerify: selectEmailToVerify(state),
   user: selectUser(state),
-  channels: selectMyChannelClaimsList(state),
+  channels: selectMyChannelClaims(state),
   claimedRewards: selectClaimedRewards(state),
   claimingReward: makeSelectIsRewardClaimPending()(state, {
     reward_type: REWARD_TYPES.TYPE_CONFIRM_EMAIL,

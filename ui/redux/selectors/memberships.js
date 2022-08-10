@@ -74,6 +74,8 @@ export const selectMyActiveMembershipsForCreatorId = (state: State, creatorId: s
   const activeMemberships = selectMyActiveMemberships(state);
   return activeMemberships && activeMemberships[creatorId];
 };
+export const selectMyActiveMembershipsForCreatorUri = (state: State, creatorUri: string) =>
+  selectMyActiveMembershipsForCreatorId(state, selectChannelClaimIdForUri(state, creatorUri));
 export const selectMyActiveCreatorMembershipForChannelId = (state: State, creatorId: string, channelId: string) => {
   const myActiveMembership = selectMyActiveMembershipsForCreatorId(state, creatorId);
   return myActiveMembership?.Membership?.channel_id === channelId ? myActiveMembership : undefined;

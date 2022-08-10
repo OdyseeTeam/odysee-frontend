@@ -287,7 +287,7 @@ function WalletTipAmountSelector(props: Props) {
                 <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
                 {' ' + __('To Tip Creators')}
               </>,
-              'help__no-card'
+              'help--no-card'
             )
           : !canReceiveFiatTips
           ? getHelpMessage(__('Only creators that verify cash accounts can receive tips'))

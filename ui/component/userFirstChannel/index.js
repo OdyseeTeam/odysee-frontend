@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectUser, selectEmailToVerify } from 'redux/selectors/user';
-import { selectCreatingChannel, selectMyChannelClaimsList, selectCreateChannelError } from 'redux/selectors/claims';
+import { selectCreatingChannel, selectMyChannelClaims, selectCreateChannelError } from 'redux/selectors/claims';
 import { doCreateChannel } from 'redux/actions/claims';
 import { doOpenModal } from 'redux/actions/app';
 import UserFirstChannel from './view';
@@ -8,7 +8,7 @@ import UserFirstChannel from './view';
 const select = (state) => ({
   email: selectEmailToVerify(state),
   user: selectUser(state),
-  channels: selectMyChannelClaimsList(state),
+  channels: selectMyChannelClaims(state),
   creatingChannel: selectCreatingChannel(state),
   createChannelError: selectCreateChannelError(state),
 });

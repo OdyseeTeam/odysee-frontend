@@ -90,6 +90,8 @@ type Props = {
   activeChannelMembershipName: ?string,
   validUserMembershipForChannel: any,
   textInjection?: string,
+  doTipAccountCheckForUri: (uri: string) => void,
+  validUserMembershipForChannel: any,
 };
 
 export function CommentCreate(props: Props) {

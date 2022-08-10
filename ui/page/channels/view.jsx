@@ -16,12 +16,12 @@ import { useHistory } from 'react-router';
 
 type Props = {
   channelUrls: Array<string>,
-  channelIds: Array<string>,
+  channelIds: ?ClaimIds,
   doFetchChannelListMine: () => void,
   fetchingChannels: boolean,
   youtubeChannels: ?Array<any>,
   doSetActiveChannel: (string) => void,
-  pendingChannels: Array<string>,
+  pendingIds: Array<string>,
   doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
 };
 
@@ -33,7 +33,7 @@ export default function ChannelsPage(props: Props) {
     fetchingChannels,
     youtubeChannels,
     doSetActiveChannel,
-    pendingChannels,
+    pendingIds,
     doFetchOdyseeMembershipForChannelIds,
   } = props;
   const [rewardData, setRewardData] = React.useState();
@@ -52,6 +52,28 @@ export default function ChannelsPage(props: Props) {
   useEffect(() => {
     Lbryio.call('user_rewards', 'view_rate').then((data) => setRewardData(data));
   }, [setRewardData]);
+
+  if (!Number.isInteger(channelUrls?.length)) {
+    return (
+      <Page className="channelsPage-wrapper">
+        {fetchingChannels ? (
+          <div className="main--empty">
+            <Spinner delayed />
+          </div>
+        ) : (
+          <Yrbl
+            title={__('No channels')}
+            subtitle={__("You haven't created a channel yet. All of your beautiful channels will be listed here!")}
+            actions={
+              <div className="section__actions">
+                <Button button="primary" label={__('Create Channel')} navigate={`/$/${PAGES.CHANNEL_NEW}`} />
+              </div>
+            }
+          />
+        )}
+      </Page>
+    );
+  }
 
   return (
     <Page className="channelsPage-wrapper">
@@ -114,7 +136,7 @@ export default function ChannelsPage(props: Props) {
                   return data.channel_claim_id === claim.claim_id;
                 });
 
-              if (channelRewardData && !pendingChannels.includes(claim.permanent_url)) {
+              if (channelRewardData && !pendingIds.includes(claim.claim_id)) {
                 return (
                   <span className="claim-preview__custom-properties">
                     <span className="help--inline">
@@ -134,26 +156,6 @@ export default function ChannelsPage(props: Props) {
           />
         )}
       </div>
-
-      {!(channelUrls && channelUrls.length) && (
-        <React.Fragment>
-          {!fetchingChannels ? (
-            <Yrbl
-              title={__('No channels')}
-              subtitle={__("You haven't created a channel yet. All of your beautiful channels will be listed here!")}
-              actions={
-                <div className="section__actions">
-                  <Button button="primary" label={__('Create Channel')} navigate={`/$/${PAGES.CHANNEL_NEW}`} />
-                </div>
-              }
-            />
-          ) : (
-            <section className="main--empty">
-              <Spinner delayed />
-            </section>
-          )}
-        </React.Fragment>
-      )}
     </Page>
   );
 }

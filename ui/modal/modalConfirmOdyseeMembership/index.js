@@ -1,14 +1,22 @@
 import { connect } from 'react-redux';
 import { doHideModal } from 'redux/actions/app';
-import { doToast } from 'redux/actions/notifications';
-import { doMembershipBuy, doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
+import { doMembershipBuy } from 'redux/actions/memberships';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+
 import ModalConfirmOdyseeMembership from './view';
 
-const perform = (dispatch) => ({
-  closeModal: () => dispatch(doHideModal()),
-  doToast: (params) => dispatch(doToast(params)),
-  doMembershipBuy: (params, callback) => dispatch(doMembershipBuy(params, callback)),
-  doFetchOdyseeMembershipForChannelIds: (claimIdCsv) => dispatch(doFetchOdyseeMembershipForChannelIds(claimIdCsv)),
+const select = (state) => ({
+  activeChannelClaim: selectActiveChannelClaim(state),
+  channels: selectMyChannelClaims(state),
+  incognito: selectIncognito(state),
+  preferredCurrency: selectPreferredCurrency(state),
 });
 
-export default connect(null, perform)(ModalConfirmOdyseeMembership);
+const perform = {
+  doHideModal,
+  doMembershipBuy,
+};
+
+export default connect(select, perform)(ModalConfirmOdyseeMembership);
