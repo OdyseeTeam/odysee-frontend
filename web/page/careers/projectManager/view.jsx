@@ -4,7 +4,7 @@ import Page from 'component/page';
 import Card from 'component/common/card';
 import SectionDivider from 'component/common/section-divider';
 
-const JobsPage = () => {
+const CareersPage = () => {
   return (
     <Page>
       <Card
@@ -133,4 +133,4 @@ const JobsPage = () => {
   );
 };
 
-export default JobsPage;
+export default CareersPage;

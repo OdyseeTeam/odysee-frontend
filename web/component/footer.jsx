@@ -42,6 +42,9 @@ export default function Footer() {
           />
         </li>
         <li className="footer__link">
+          <Button label={__('Careers')} href="https://odysee.com/$/careers" />
+        </li>
+        <li className="footer__link">
           <Button label={__('Terms')} href="https://odysee.com/$/tos" />
         </li>
         <li className="footer__link">
