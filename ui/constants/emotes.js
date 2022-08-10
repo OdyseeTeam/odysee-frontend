@@ -661,16 +661,6 @@ const getTwemotes = (category) => {
       ];
     case 'FLAGS':
       return [
-        buildTwemote('white_flag', `flags/white_flag.png`, '🏳'),
-        buildTwemote('black_flag', `flags/black_flag.png`, '🏴'),
-        buildTwemote('pirate_flag', `flags/pirate_flag.png`, '🏴‍☠️'),
-        buildTwemote('rainbow_flag', `flags/rainbow_flag.png`, '🏳️‍🌈'),
-        buildTwemote('transgender_flag', `flags/transgender_flag.png`, '🏳️‍⚧️'),
-        buildTwemote('kek_flag', `flags/kek_flag.png`, ':kek_flag:'),
-        buildTwemote('anarchocapitalism_flag', `flags/anarchocapitalism_flag.png`, ':anarchocapitalism_flag:'),
-        buildTwemote('communism_flag', `flags/communism_flag.png`, ':communism_flag:'),
-        buildTwemote('antifa_flag', `flags/antifa_flag.png`, ':antifa_flag:'),
-        buildTwemote('gadsden_flag', `flags/gadsden_flag.png`, ':gadsden_flag:'),
         buildTwemote('flag_ascension_island', `flags/flag_ascension_island.png`, '🇦🇨'),
 
         buildTwemote('flag_andorra', `flags/flag_andorra.png`, '🇦🇩'),
@@ -976,6 +966,17 @@ const getTwemotes = (category) => {
 
         buildTwemote('flag_european_union', `flags/flag_european_union.png`, '🇪🇺'),
         buildTwemote('flag_united_nations', `flags/flag_united_nations.png`, '🇺🇳'),
+
+        buildTwemote('pirate_flag', `flags/pirate_flag.png`, '🏴‍☠️'),
+        buildTwemote('rainbow_flag', `flags/rainbow_flag.png`, '🏳️‍🌈'),
+        buildTwemote('transgender_flag', `flags/transgender_flag.png`, '🏳️‍⚧️'),
+        buildTwemote('kek_flag', `flags/kek_flag.png`, ':kek_flag:'),
+        buildTwemote('anarchocapitalism_flag', `flags/anarchocapitalism_flag.png`, ':anarchocapitalism_flag:'),
+        buildTwemote('communism_flag', `flags/communism_flag.png`, ':communism_flag:'),
+        buildTwemote('antifa_flag', `flags/antifa_flag.png`, ':antifa_flag:'),
+        buildTwemote('gadsden_flag', `flags/gadsden_flag.png`, ':gadsden_flag:'),
+        buildTwemote('white_flag', `flags/white_flag.png`, '🏳'),
+        buildTwemote('black_flag', `flags/black_flag.png`, '🏴'),
       ];
   }
 };
