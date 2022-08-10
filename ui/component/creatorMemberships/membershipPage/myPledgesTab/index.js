@@ -20,7 +20,7 @@ const select = (state) => {
     user: selectUser(state),
     locale: selectUserLocale(state),
     claimsById: selectClaimsById(state),
-    myActiveMemberships: selectMyActiveMemberships(state),
+    myActiveMemberships: selectMyActiveMemberships(state) && Object.values(selectMyActiveMemberships(state)),
   };
 };
 
