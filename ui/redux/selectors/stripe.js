@@ -33,7 +33,7 @@ export const selectLastFour = (state: State) => {
 export const selectHasSavedCard = (state: State) => {
   const customerStatus = selectCustomerStatus(state);
   const defaultPaymentMethodId = customerStatus?.Customer?.invoice_settings?.default_payment_method?.id;
-  return Boolean(defaultPaymentMethodId);
+  return defaultPaymentMethodId;
 };
 
 export const selectCanReceiveFiatTipsForUri = (state: State, uri: string) => {
