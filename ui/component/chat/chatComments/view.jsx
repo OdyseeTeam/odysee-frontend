@@ -16,7 +16,7 @@ type Props = {
   restoreScrollPos?: () => void,
   setResolvingSuperChats?: (boolean) => void,
   handleCommentClick?: (string) => void,
-  fastMode: string,
+  isCompact: string,
   // redux
   fetchingComments: boolean,
   resolvingSuperchats: boolean,
@@ -30,7 +30,7 @@ export default function ChatComments(props: Props) {
     restoreScrollPos,
     setResolvingSuperChats,
     handleCommentClick,
-    fastMode,
+    isCompact,
     fetchingComments,
     resolvingSuperchats,
   } = props;
@@ -89,7 +89,7 @@ export default function ChatComments(props: Props) {
               isMobile
               restoreScrollPos={restoreScrollPos}
               handleCommentClick={handleCommentClick}
-              fastMode={fastMode}
+              isCompact={isCompact}
             />
           ))}
       </div>
@@ -101,7 +101,7 @@ export default function ChatComments(props: Props) {
             comment={comment}
             key={comment.comment_id}
             handleCommentClick={handleCommentClick}
-            fastMode={fastMode}
+            isCompact={isCompact}
           />
         ))}
       </div>

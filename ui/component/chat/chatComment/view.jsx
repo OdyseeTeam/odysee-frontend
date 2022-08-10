@@ -25,7 +25,7 @@ type Props = {
   forceUpdate?: any,
   uri: string,
   isMobile?: boolean,
-  fastMode?: boolean,
+  isCompact?: boolean,
   restoreScrollPos?: () => void,
   handleCommentClick: (any) => void,
   handleDismissPin?: () => void,
@@ -57,7 +57,7 @@ export default function ChatComment(props: Props) {
     authorTitle,
     activeChannelClaim,
     channelAge,
-    fastMode,
+    isCompact,
   } = props;
 
   const {
@@ -122,7 +122,7 @@ export default function ChatComment(props: Props) {
         'livestream__comment--sticker': isSticker,
         'livestream__comment--mentioned': hasUserMention,
         'livestream__comment--mobile': isMobile,
-        'livestream__comment--minimal': fastMode,
+        'livestream__comment--minimal': isCompact,
       })}
     >
       {supportAmount > 0 && (
@@ -133,7 +133,7 @@ export default function ChatComment(props: Props) {
 
       <div className="livestreamComment__body">
         {false && supportAmount > 0 && <ChannelThumbnail uri={authorUri} xsmall />}
-        {!fastMode || isPinned ? (
+        {!isCompact || isPinned ? (
           <>
             <ChannelThumbnail uri={authorUri} xsmall />
 
@@ -263,7 +263,7 @@ export default function ChatComment(props: Props) {
                     setUserMention={setUserMention}
                     hasMembership={Boolean(odyseeMembership)}
                     isComment
-                    isMinimal={fastMode}
+                    isMinimal={isCompact}
                   />
                 )}
               </div>

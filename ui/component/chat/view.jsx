@@ -96,7 +96,7 @@ export default function ChatLayout(props: Props) {
   const [chatElement, setChatElement] = React.useState();
   const [textInjection, setTextInjection] = React.useState('');
   const [hideHyperchats, sethideHyperchats] = React.useState(hyperchatsHidden);
-  const [fastMode, setFastMode] = usePersistedState('fastMode', false);
+  const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
   let superChatsByChronologicalOrder = [];
   if (hyperChatsByAmount) hyperChatsByAmount.forEach((chat) => superChatsByChronologicalOrder.push(chat));
@@ -337,8 +337,8 @@ export default function ChatLayout(props: Props) {
             setPopoutWindow={(v) => setPopoutWindow(v)}
             isMobile={isMobile}
             toggleHyperchats={() => sethideHyperchats(!hideHyperchats)}
-            toggleFastMode={() => setFastMode(!fastMode)}
-            fastMode={fastMode}
+            toggleIsCompact={() => setIsCompact(!isCompact)}
+            isCompact={isCompact}
             hyperchatsHidden={hideHyperchats}
             noHyperchats={!hyperChatsByAmount}
           />
@@ -404,7 +404,7 @@ export default function ChatLayout(props: Props) {
           isMobile={isMobile}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
-          fastMode={fastMode}
+          isCompact={isCompact}
         />
 
         {scrolledPastRecent && (

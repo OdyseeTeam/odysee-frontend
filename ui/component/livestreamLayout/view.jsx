@@ -61,7 +61,7 @@ export default function LivestreamLayout(props: Props) {
 
   const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
   const [chatViewMode, setChatViewMode] = React.useState(VIEW_MODES.CHAT);
-  const [fastMode, setFastMode] = usePersistedState('fastMode', false);
+  const [isCompact, setIsCompact] = usePersistedState('isCompact', false);
 
   if (!claim || !claim.signing_channel) return null;
 
@@ -123,8 +123,8 @@ export default function LivestreamLayout(props: Props) {
                       noHyperchats={!superChats || superChats.length === 0}
                       hyperchatsHidden={hyperchatsHidden}
                       toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
-                      toggleFastMode={() => setFastMode(!fastMode)}
-                      fastMode={fastMode}
+                      toggleIsCompact={() => setIsCompact(!isCompact)}
+                      isCompact={isCompact}
                       isMobile
                     />
                   }

@@ -14,11 +14,11 @@ type Props = {
   hyperchatsHidden?: boolean,
   noHyperchats?: boolean,
   isMobile?: boolean,
-  fastMode?: boolean,
+  isCompact?: boolean,
   hideChat?: () => void,
   setPopoutWindow?: (any) => void,
   toggleHyperchats?: () => void,
-  toggleFastMode?: () => void,
+  toggleIsCompact?: () => void,
 };
 
 export default function LivestreamMenu(props: Props) {
@@ -27,11 +27,11 @@ export default function LivestreamMenu(props: Props) {
     hyperchatsHidden,
     noHyperchats,
     isMobile,
-    fastMode,
+    isCompact,
     hideChat,
     setPopoutWindow,
     toggleHyperchats,
-    toggleFastMode,
+    toggleIsCompact,
   } = props;
 
   const {
@@ -83,10 +83,10 @@ export default function LivestreamMenu(props: Props) {
               {__('Toggle Timestamps')}
             </span>
           </MenuItem>
-          <MenuItem className="comment__menu-option" onSelect={toggleFastMode}>
+          <MenuItem className="comment__menu-option" onSelect={toggleIsCompact}>
             <span className="menu__link">
               <Icon aria-hidden icon={ICONS.WATCH_HISTORY} size={18} />
-              {!fastMode ? __('Enable Fast Mode') : __('Disable Fast Mode')}
+              {!isCompact ? __('Enable Compact Mode') : __('Disable Compact Mode')}
             </span>
           </MenuItem>
 
