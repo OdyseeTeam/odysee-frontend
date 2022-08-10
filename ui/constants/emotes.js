@@ -588,7 +588,7 @@ const getTwemotes = (category) => {
         buildTwemote('poultry_leg', `food/poultry_leg.png`, '🍗'),
         buildTwemote('cut_of_meat', `food/cut_of_meat.png`, '🥩'),
         buildTwemote('bacon', `food/bacon.png`, '🥓'),
-        buildTwemote('hamburger', `food/.png`, '🍔'),
+        buildTwemote('hamburger', `food/hamburger.png`, '🍔'),
         buildTwemote('french_fries', `food/french_fries.png`, '🍟'),
         buildTwemote('pizza', `food/pizza.png`, '🍕'),
 
