@@ -3,11 +3,10 @@ import React from 'react';
 import Page from 'component/page';
 import Card from 'component/common/card';
 
-const CareersPage = () => {
+const ITManagersPage = () => {
   return (
     <Page>
       <Card
-        // title={__('IT Project Manager @ Odysee')}
         body={
           <>
             <section className="section card--section">
@@ -24,17 +23,6 @@ const CareersPage = () => {
                 delivery of our various software projects.
               </p>
             </section>
-
-            {/* <section className="section card--section"> */}
-            {/*  <h1 className="card__title">About the Team</h1> The Crunchyroll Accounting Team is a global organization */}
-            {/*  <p> */}
-            {/*    of nearly 50 professionals working together to support all of our critical business functions and ensure */}
-            {/*    compliance with accounting standards, company policy, and regulatory bodies. As part of the accounting */}
-            {/*    leadership team, this individual is joining during a period of significant transformation and will have */}
-            {/*    an opportunity to help build out a highly collaborative team and processes to help the company achieve */}
-            {/*    our ambitious goals for global growth in both the near and long term. */}
-            {/*  </p> */}
-            {/* </section> */}
 
             <section className="section card--section">
               <h1 className="card__title">You will be a pro at:</h1>
@@ -114,4 +102,4 @@ const CareersPage = () => {
   );
 };
 
-export default CareersPage;
+export default ITManagersPage;

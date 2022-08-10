@@ -1,2 +1,2 @@
-import Careers from './view';
-export default Careers;
+import ITManagersPage from './view';
+export default ITManagersPage;
