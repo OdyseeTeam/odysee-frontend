@@ -60,7 +60,7 @@ type EmojisProps = {
 function scrollToCategory(category, reference, isMobile) {
   const offset = isMobile ? 48 : 58;
   // $FlowIgnore
-  let categoryAnchor = reference.current.querySelector('#' + category);
+  let categoryAnchor = reference.current.querySelector('#' + category.replace(/\s|&/g, ''));
   reference &&
     categoryAnchor &&
     // $FlowIgnore
@@ -229,7 +229,7 @@ const EmoteCategory = (rowProps: RowProps) => {
 
   return (
     <>
-      <a id={title.toLowerCase()}>
+      <a id={title.replace(/\s|&/g, '').toLowerCase()}>
         <label id={title} className="chatImage-category-title">
           {title}
         </label>
@@ -263,7 +263,7 @@ const StickerCategory = (rowProps: RowProps) => {
 
   return (
     <>
-      <a id={title.toLowerCase()}>
+      <a id={title.replace(/\s|&/g, '').toLowerCase()}>
         <label id={title} className="chatImage-category-title">
           {title}
         </label>
