@@ -29,7 +29,7 @@ export default function CommentSelectors(props: Props) {
   const tabProps = { closeSelector };
 
   return (
-    <Tabs index={openTab} className={isOpen ? 'tabs tabs--open' : 'tabs'}>
+    <Tabs index={openTab} className={isOpen ? 'tabs tabs--open' : 'tabs'} onChange={() => {}}>
       <TabList className="tabs__list--comment-selector">
         <Tab>{__('Emojis')}</Tab>
         <Tab>{__('Stickers')}</Tab>

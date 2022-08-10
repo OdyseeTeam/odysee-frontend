@@ -737,6 +737,7 @@ export function CommentCreate(props: Props) {
                 isReviewingStickerComment={isReviewingStickerComment}
                 icon={ICONS.STICKER}
                 onClick={handleStickerComment}
+                onChange={() => {}}
               />
 
               {!supportDisabled && !claimIsMine && (
