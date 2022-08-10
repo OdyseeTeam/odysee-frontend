@@ -4,7 +4,6 @@ import Page from 'component/page';
 import Card from 'component/common/card';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
-import SectionDivider from 'component/common/section-divider';
 
 const CareersPage = () => {
   return (
@@ -18,7 +17,11 @@ const CareersPage = () => {
             <section className="section card--section">
               <h1 className="card__title">Join our team and help shape the future of online video</h1>
 
-              <Button label={__('IT Project Manager')} href="https://odysee.com/$/careers" className="job-listings" />
+              <Button
+                label={__('IT Project Manager')}
+                href={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`}
+                className="job-listings"
+              />
             </section>
           </>
         }

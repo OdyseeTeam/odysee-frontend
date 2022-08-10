@@ -20,6 +20,9 @@ const Code2257Page = lazyImport(() => import('web/page/code2257' /* webpackChunk
 const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy' /* webpackChunkName: "privacypolicy" */));
 const TOSPage = lazyImport(() => import('web/page/tos' /* webpackChunkName: "tos" */));
 const CareersPage = lazyImport(() => import('web/page/careers' /* webpackChunkName: "careers" */));
+const CareersITProjectManagerPage = lazyImport(() =>
+  import('web/page/careers/itProjectManager' /* webpackChunkName: "itProjectManager" */)
+);
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
 
@@ -337,6 +340,7 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.PRIVACY_POLICY}`} exact component={PrivacyPolicyPage} />
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
         <Route path={`/$/${PAGES.CAREERS}`} exact component={CareersPage} />
+        <Route path={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`} exact component={CareersITProjectManagerPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
 
