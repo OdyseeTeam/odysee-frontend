@@ -175,9 +175,7 @@ export function CommentCreate(props: Props) {
   minAmountRef.current = minAmount;
 
   const addEmoteToComment = (emote: string) => {
-    setCommentValue(
-      commentValue + (commentValue && commentValue.charAt(commentValue.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `)
-    );
+    setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
   };
 
   const handleSelectSticker = (sticker: any) => {
@@ -185,7 +183,7 @@ export function CommentCreate(props: Props) {
     setSelectedSticker(sticker);
     setReviewingStickerComment(true);
     setTipAmount(sticker.price || 0);
-    setShowSelectors({ tab: showSelectors.tab || undefined, open: false });
+    setShowSelectors((prev) => ({ tab: prev.tab || undefined, open: false }));
 
     // added this here since selecting a sticker can cause scroll issues
     if (onSlimInputClose) onSlimInputClose();
