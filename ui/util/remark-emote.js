@@ -1,4 +1,3 @@
-// import { map } from 'bluebird';
 import { EMOTES_48px as EMOTES, SORTEDTWEMOTES } from 'constants/emotes';
 import visit from 'unist-util-visit';
 
