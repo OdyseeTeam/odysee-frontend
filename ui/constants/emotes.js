@@ -992,9 +992,9 @@ function buildTwemoteArray(): Array<Object> {
     .concat(getTwemotes('FLAGS'));
 }
 
-function buildTwemoteNameArray() {
+function buildTwemoteNameArray(objectArray) {
   let res = [];
-  for (let entry of buildTwemoteArray()) {
+  for (let entry of objectArray) {
     // $FlowIgnore
     res.push(entry.name);
   }
@@ -1015,4 +1015,4 @@ export const TWEMOTES = {
   FLAGS: getTwemotes('FLAGS'),
 };
 export const TWEMOTEARRAY = buildTwemoteArray();
-export const TWEMOTENAMES = buildTwemoteNameArray();
+export const TWEMOTENAMES = buildTwemoteNameArray(TWEMOTEARRAY);
