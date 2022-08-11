@@ -174,33 +174,39 @@ export function CommentCreate(props: Props) {
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
 
-  const addEmoteToComment = (emote: string) => {
+  const addEmoteToComment = React.useCallback((emote: string) => {
     setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
-  };
+  }, []);
 
-  const handleSelectSticker = (sticker: any) => {
-    // $FlowFixMe
-    setSelectedSticker(sticker);
-    setReviewingStickerComment(true);
-    setTipAmount(sticker.price || 0);
-    setShowSelectors((prev) => ({ tab: prev.tab || undefined, open: false }));
+  const handleSelectSticker = React.useCallback(
+    (sticker: any) => {
+      // $FlowFixMe
+      setSelectedSticker(sticker);
+      setReviewingStickerComment(true);
+      setTipAmount(sticker.price || 0);
+      setShowSelectors((prev) => ({ tab: prev.tab || undefined, open: false }));
 
-    // added this here since selecting a sticker can cause scroll issues
-    if (onSlimInputClose) onSlimInputClose();
+      // added this here since selecting a sticker can cause scroll issues
+      if (onSlimInputClose) onSlimInputClose();
 
-    if (sticker.price && sticker.price > 0) {
-      setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
-      setTipSelector(true);
-    }
-  };
+      if (sticker.price && sticker.price > 0) {
+        setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
+        setTipSelector(true);
+      }
+    },
+    [canReceiveFiatTip, onSlimInputClose]
+  );
 
-  const commentSelectorsProps = {
-    claimIsMine,
-    addEmoteToComment,
-    handleSelectSticker,
-    isOpen: showSelectors.open,
-    openTab: showSelectors.tab || undefined,
-  };
+  const commentSelectorsProps = React.useMemo(() => {
+    return {
+      claimIsMine,
+      addEmoteToComment,
+      handleSelectSticker,
+      isOpen: showSelectors.open,
+      openTab: showSelectors.tab || undefined,
+    };
+  }, [claimIsMine, addEmoteToComment, handleSelectSticker, showSelectors.open, showSelectors.tab]);
+
   const submitButtonProps = { button: 'primary', type: 'submit', requiresAuth: true };
   const actionButtonProps = { button: 'alt' };
   const tipButtonProps = {
@@ -217,6 +223,16 @@ export function CommentCreate(props: Props) {
     price: selectedSticker ? selectedSticker.price : 0,
     exchangeRate,
   };
+
+  const commentSelectorElem = React.useMemo(
+    () => (
+      <CommentSelectors
+        {...commentSelectorsProps}
+        closeSelector={() => setShowSelectors((prev) => ({ tab: prev.tab || undefined, open: false }))}
+      />
+    ),
+    [commentSelectorsProps]
+  );
 
   // **************************************************************************
   // Functions
@@ -647,12 +663,7 @@ export function CommentCreate(props: Props) {
             value={commentValue}
             uri={uri}
           />
-          {!isMobile && (
-            <CommentSelectors
-              {...commentSelectorsProps}
-              closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
-            />
-          )}
+          {!isMobile && commentSelectorElem}
         </>
       )}
 
