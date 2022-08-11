@@ -34,8 +34,6 @@ const SUGGESTION_REGEX = new RegExp(
 const SEARCH_SIZE = 10;
 const INPUT_DEBOUNCE_MS = 1000;
 
-// const EMOJI_MIN_CHARACTERS = 2;
-
 type Props = {
   canonicalCommentors?: Array<string>,
   canonicalCreatorUri?: string,
@@ -154,14 +152,7 @@ export default function TextareaWithSuggestions(props: Props) {
   const allOptions = [];
   if (isEmote) {
     emoteNames = EMOTES.map(({ name }) => name);
-    // const hasMinEmojiLength = suggestionTerm && suggestionTerm.length > EMOJI_MIN_CHARACTERS;
-    // Filter because our emotes are priority from default emojis, like :eggplant:
-    // emojiNames = hasMinEmojiLength ? EMOJIS.names.filter((name) => !emoteNames.includes(`:${name}:`)) : [];
-    // emojiNames = hasMinEmojiLength ? SORTEDTWEMOTENAMES.filter((name) => !emoteNames.includes(name)) : [];
-    // console.log('emojiNames: ', emojiNames)
-    // const emotesAndEmojis = [...emoteNames, ...emojiNames];
     const emotesAndEmojis = [...emoteNames, ...TWEMOTENAMES];
-    // console.log('emotesAndEmojis: ', emotesAndEmojis)
 
     allOptions.push(...emotesAndEmojis);
   } else {
