@@ -981,15 +981,15 @@ const getTwemotes = (category) => {
   }
 };
 
-function buildTwemoteArray(): Array<Object> {
+function buildTwemoteArray(Twemotes): Array<Object> {
   return []
-    .concat(getTwemotes('SMILIES'))
-    .concat(getTwemotes('HANDSIGNALS'))
-    .concat(getTwemotes('ACTIVITIES'))
-    .concat(getTwemotes('SYMBOLS'))
-    .concat(getTwemotes('NATURE'))
-    .concat(getTwemotes('FOOD'))
-    .concat(getTwemotes('FLAGS'));
+    .concat(Twemotes['SMILIES'])
+    .concat(Twemotes['HANDSIGNALS'])
+    .concat(Twemotes['ACTIVITIES'])
+    .concat(Twemotes['SYMBOLS'])
+    .concat(Twemotes['NATURE'])
+    .concat(Twemotes['FOOD'])
+    .concat(Twemotes['FLAGS']);
 }
 
 function buildTwemoteNameArray(objectArray) {
@@ -1014,5 +1014,5 @@ export const TWEMOTES = {
   FOOD: getTwemotes('FOOD'),
   FLAGS: getTwemotes('FLAGS'),
 };
-export const TWEMOTEARRAY = buildTwemoteArray();
+export const TWEMOTEARRAY = buildTwemoteArray(TWEMOTES);
 export const TWEMOTENAMES = buildTwemoteNameArray(TWEMOTEARRAY);
