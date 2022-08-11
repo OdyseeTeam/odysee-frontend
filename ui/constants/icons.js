@@ -22,6 +22,7 @@ export const REPORT = 'Flag';
 export const HELP = 'HelpCircle';
 export const CHAT = 'MessageCircle';
 export const COMPACT = 'CompactMode';
+export const EXPAND = 'ExpandedMode';
 export const FEEDBACK = 'MessageSquare';
 export const SEARCH = 'Search';
 export const CHANNEL = 'AtSign';
