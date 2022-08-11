@@ -981,8 +981,8 @@ const getTwemotes = (category) => {
   }
 };
 
-function buildSortedTwemoteArray() {
-  let twemoteArray = []
+function buildTwemoteArray(): Array<Object> {
+  return []
     .concat(getTwemotes('SMILIES'))
     .concat(getTwemotes('HANDSIGNALS'))
     .concat(getTwemotes('ACTIVITIES'))
@@ -990,23 +990,11 @@ function buildSortedTwemoteArray() {
     .concat(getTwemotes('NATURE'))
     .concat(getTwemotes('FOOD'))
     .concat(getTwemotes('FLAGS'));
-  // $FlowIgnore
-  twemoteArray = twemoteArray.sort(function (a, b) {
-    // $FlowIgnore
-    if (a.name > b.name) {
-      return 1;
-    }
-    // $FlowIgnore
-    if (a.name < b.name) {
-      return -1;
-    }
-  });
-  return twemoteArray;
 }
 
 function buildTwemoteNameArray() {
   let res = [];
-  for (let entry of buildSortedTwemoteArray()) {
+  for (let entry of buildTwemoteArray()) {
     // $FlowIgnore
     res.push(entry.name);
   }
@@ -1026,5 +1014,5 @@ export const TWEMOTES = {
   FOOD: getTwemotes('FOOD'),
   FLAGS: getTwemotes('FLAGS'),
 };
-export const SORTEDTWEMOTES = buildSortedTwemoteArray();
+export const TWEMOTEARRAY = buildTwemoteArray();
 export const TWEMOTENAMES = buildTwemoteNameArray();

@@ -20,7 +20,7 @@ import remarkEmoji from 'remark-emoji';
 import remarkFrontMatter from 'remark-frontmatter';
 import remarkStrip from 'strip-markdown';
 import ZoomableImage from 'component/zoomableImage';
-import { SORTEDTWEMOTES } from 'constants/emotes';
+import { TWEMOTEARRAY } from 'constants/emotes';
 const visit = require('unist-util-visit');
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 
@@ -87,7 +87,7 @@ const remarkTwemoji = (tree) => {
       if (RE_TWEMOJI.test(node.value)) {
         let code = node.value.match(RE_TWEMOJI)[0];
         // $FlowIgnore
-        const emote = SORTEDTWEMOTES.find(({ unicode }) => code === unicode);
+        const emote = TWEMOTEARRAY.find(({ unicode }) => code === unicode);
 
         if (emote) {
           node.type = 'image';
