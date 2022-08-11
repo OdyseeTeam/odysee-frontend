@@ -92,7 +92,7 @@ const getEmotes = (px: string, multiplier: string) => [
 
 const buildTwemote = (name: string, path: string, unicode: string) => ({
   name: `:${name}:`,
-  url: '/public/img/emoticons/twemoji/' + path,
+  url: 'https://static.odycdn.com/emoticons/twemoji/' + path,
   unicode: unicode,
 });
 const getTwemotes = (category) => {

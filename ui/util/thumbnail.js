@@ -19,8 +19,7 @@ export function getThumbnailCdnUrl(props: Props) {
     return thumbnail;
   }
 
-  /* NEKO TMP PATH */
-  if (thumbnail.includes('/public/')) {
+  if (thumbnail.includes('static.odycdn.com/emoticons/')) {
     return thumbnail;
   }
 
