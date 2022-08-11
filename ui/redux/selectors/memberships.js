@@ -12,9 +12,13 @@ const selectState = (state: State) => state.memberships || {};
 export const selectMembershipMineData = (state: State) => selectState(state).membershipMine;
 export const selectMyActiveMemberships = (state: State) => selectMembershipMineData(state)?.activeMemberships;
 export const selectMembershipFetchingIdsByChannel = (state: State) => selectState(state).fetchingIds;
+export const selectPendingBuyMembershipIds = (state: State) => selectState(state).pendingBuyIds;
 export const selectMembershipsFetchedById = (state: State) => selectState(state).fetchedById;
 export const selectById = (state: State) => selectState(state).membershipListById || {};
 export const selectDidFetchMembershipsDataById = (state) => selectState(state).didFetchMembershipsDataById;
+
+export const selectPurchaseIsPendingForMembershipId = (state: State, id: string) =>
+  selectPendingBuyMembershipIds(state).includes(id);
 
 export const selectFetchingIdsForMembershipChannelId = (state: State, channelId: string) => {
   const fetchingIdsById = selectMembershipFetchingIdsByChannel(state);

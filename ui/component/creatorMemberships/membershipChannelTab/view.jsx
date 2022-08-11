@@ -62,8 +62,8 @@ export default function MembershipChannelTab(props: Props) {
 
   const membershipisActive = Membership.auto_renew;
 
-  const supportingPeriodString =
-    membershipisActive ? 'You\'ve been supporting %channel_name% for %membership_duration%'
+  const supportingPeriodString = membershipisActive
+    ? "You've been supporting %channel_name% for %membership_duration%"
     : 'You supported %channel_name% for %membership_duration%';
 
   return (
@@ -79,7 +79,7 @@ export default function MembershipChannelTab(props: Props) {
                 membership_duration: timeAgo,
               })}
             </h1>
-            <h1 className="join-membership-support-time__header">{__('I\'m sure they appreciate it!')}</h1>
+            <h1 className="join-membership-support-time__header">{__("I'm sure they appreciate it!")}</h1>
           </>
         }
         body={
@@ -88,24 +88,24 @@ export default function MembershipChannelTab(props: Props) {
               <h1 className="membership__plan-header">{MembershipDetails.name}</h1>
 
               <h1 className="membership__plan-description">
-                <BalanceText>
-                  {MembershipDetails.description}
-                </BalanceText>
+                <BalanceText>{MembershipDetails.description}</BalanceText>
               </h1>
 
-              { Perks && (<div className="membership__plan-perks">
-                <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
-                {Perks.map((
-                  tierPerk,
-                  i // TODO: need this to come from API
-                ) => (
-                  <p key={tierPerk}>
-                    <ul>
-                      <li className="membership__perk-item">{tierPerk.name}</li>
-                    </ul>
-                  </p>
-                ))}
-              </div>)}
+              {Perks && (
+                <div className="membership__plan-perks">
+                  <h1 style={{ marginTop: '30px' }}>{isModal ? 'Perks:' : 'Perks'}</h1>{' '}
+                  {Perks.map((
+                    tierPerk,
+                    i // TODO: need this to come from API
+                  ) => (
+                    <p key={tierPerk}>
+                      <ul>
+                        <li className="membership__perk-item">{tierPerk.name}</li>
+                      </ul>
+                    </p>
+                  ))}
+                </div>
+              )}
 
               <h1 className="join-membership-tab-renewal-date__header">
                 {__('Your %active_or_cancelled% membership will %renew_or_end% on %renewal_date%', {
@@ -128,23 +128,25 @@ export default function MembershipChannelTab(props: Props) {
                   navigate={`/${channelId}/membership_history`}
                 />
 
-                {membershipisActive && <Button
-                  className="join-membership-modal-purchase__button"
-                  style={{ 'margin-left': '1rem' }}
-                  icon={ICONS.DELETE}
-                  button="secondary"
-                  type="submit"
-                  disabled={false}
-                  label={`Cancel Membership`}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {
-                      endOfMembershipDate: formattedEndOfMembershipDate,
-                      membershipId: Membership.membership_id,
-                    });
-                  }}
-                />}
+                {membershipisActive && (
+                  <Button
+                    className="join-membership-modal-purchase__button"
+                    style={{ marginLeft: '1rem' }}
+                    icon={ICONS.DELETE}
+                    button="secondary"
+                    type="submit"
+                    disabled={false}
+                    label={`Cancel Membership`}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      openModal(MODALS.CANCEL_CREATOR_MEMBERSHIP, {
+                        endOfMembershipDate: formattedEndOfMembershipDate,
+                        membershipId: Membership.membership_id,
+                      });
+                    }}
+                  />
+                )}
               </div>
 
               {/** clear membership data (only available on dev) **/}

@@ -10,8 +10,8 @@ type Props = {
   closeModal?: () => void,
   // -- redux --
   channelName: string,
-  fetchStarted: boolean,
   activeChannelClaim: any,
+  purchasePending: boolean,
   doMembershipBuy: (membershipParams: any, cb?: () => void) => void,
   doToast: (params: { message: string }) => void,
 };
@@ -22,8 +22,8 @@ export default function ConfirmationPage(props: Props) {
     onCancel,
     closeModal,
     channelName,
-    fetchStarted,
     activeChannelClaim,
+    purchasePending,
     doMembershipBuy,
     doToast,
   } = props;
@@ -79,7 +79,7 @@ export default function ConfirmationPage(props: Props) {
         )}
       </div>
 
-      {fetchStarted ? (
+      {purchasePending ? (
         <div className="membership-join__spinner">
           <Spinner type="small" text={__('Processing payment...')} />
         </div>

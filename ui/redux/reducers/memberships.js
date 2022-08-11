@@ -10,6 +10,7 @@ const defaultState: MembershipsState = {
   fetchedById: {},
   membershipsPerClaimIds: undefined,
   fetchingIds: {},
+  pendingBuyIds: [],
 };
 
 // type fetchingIds: {[string]: Array<string>}
@@ -37,7 +38,16 @@ reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED] = (state, action) => {
   return { ...state, fetchedById: { ...currentFetched, [channelId]: null } };
 };
 
-reducers[ACTIONS.SET_MEMBERSHIP_BUY_STARTED] = (state, action) => Object.assign({}, state, {});
+reducers[ACTIONS.SET_MEMBERSHIP_BUY_STARTED] = (state, action) => {
+  const newPendingBuyIds = new Set(state.pendingBuyIds);
+  newPendingBuyIds.add(action.data);
+  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds) };
+};
+reducers[ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL] = (state, action) => {
+  const newPendingBuyIds = new Set(state.pendingBuyIds);
+  newPendingBuyIds.delete(action.data);
+  return { ...state, pendingBuyIds: Array.from(newPendingBuyIds) };
+};
 
 reducers[ACTIONS.SET_MEMBERSHIP_DATA] = (state, action) =>
   Object.assign({}, state, {

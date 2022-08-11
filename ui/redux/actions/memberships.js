@@ -106,16 +106,17 @@ export const doMembershipMine = () => async (dispatch: Dispatch) =>
     .catch((err) => dispatch({ type: ACTIONS.SET_MEMBERSHIP_DATA_ERROR, data: err }));
 
 export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch) => {
-  const { membership_id: membershipId, channel_name: userChannelName } = membershipParams;
+  const { membership_id: membershipId } = membershipParams;
 
   if (!membershipId) return;
 
-  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED });
+  dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_STARTED, data: membershipId });
 
   // show the memberships the user is subscribed to
   return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
     .then((response) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL });
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL, data: membershipId });
+      dispatch(doMembershipMine());
 
       return response;
     })
