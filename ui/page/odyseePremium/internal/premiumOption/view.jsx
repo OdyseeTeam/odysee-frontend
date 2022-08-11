@@ -13,13 +13,14 @@ import PremiumBadge from 'component/premiumBadge';
 type Props = {
   key: any,
   membership: MembershipData,
+  isCancelled: boolean,
   // -- redux --
   preferredCurrency: CurrencyOption,
   doOpenModal: (modalId: string, {}) => void,
 };
 
 const PremiumOption = (props: Props) => {
-  const { key, membership, preferredCurrency, doOpenModal, cancelMembership } = props;
+  const { key, membership, isCancelled, preferredCurrency, doOpenModal } = props;
 
   const { Membership, Prices } = membership;
 
@@ -85,23 +86,23 @@ const PremiumOption = (props: Props) => {
       </h4>
 
       <h4 className="membership_info">
-        <b>{__(!cancelMembership ? 'Canceled On' : 'Auto-Renews On')}:</b>{' '}
-        {formatDateToMonthDayAndYear(
-          (!cancelMembership ? Subscription.canceled_at : membership.Subscription.canceled_at) * 1000
-        )}
+        <b>{__(isCancelled ? 'Canceled On' : 'Auto-Renews On')}:</b>{' '}
+        {formatDateToMonthDayAndYear((isCancelled ? Subscription.canceled_at : Subscription.current_period_end) * 1000)}
       </h4>
 
-      {cancelMembership && (
+      {!isCancelled && (
         <h4 className="membership_info">
-          <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(membership.Membership.expires)}
+          <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(Membership.current_period_end)}
         </h4>
       )}
 
-      {cancelMembership && (
+      {!isCancelled && (
         <Button
           button="alt"
           membership-id={Membership.membership_id}
-          onClick={(e) => doOpenModal(MODALS.CONFIRM_ODYSEE_PREMIUM, { membership })}
+          onClick={(e) =>
+            doOpenModal(MODALS.CONFIRM_ODYSEE_PREMIUM, { membership, isCancelled: true, membershipId: MembershipDetails.id })
+          }
           className="cancel-membership-button"
           label={__('Cancel membership')}
           icon={ICONS.FINANCE}

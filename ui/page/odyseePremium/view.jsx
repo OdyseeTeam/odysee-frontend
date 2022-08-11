@@ -158,7 +158,7 @@ const OdyseeMembershipPage = (props: Props) => {
                   <h4>{__('You currently have no canceled memberships')}</h4>
                 ) : (
                   canceledMemberships.map((membership) => (
-                    <PremiumOption key={membership.Membership.name} membership={membership} />
+                    <PremiumOption key={membership.Membership.name} membership={membership} isCancelled />
                   ))
                 ))
               }

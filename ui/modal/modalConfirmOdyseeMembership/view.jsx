@@ -1,14 +1,14 @@
 // @flow
 import React from 'react';
-
 import { Modal } from 'modal/modal';
-
-import * as ICONS from 'constants/icons';
-import * as MEMBERSHIPS from 'constants/memberships';
-
 import Card from 'component/common/card';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
+import * as ICONS from 'constants/icons';
+import * as MEMBERSHIPS from 'constants/memberships';
+import { Lbryio } from 'lbryinc';
+import { getStripeEnvironment } from 'util/stripe';
+let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   membership: MembershipData,
@@ -33,6 +33,10 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     preferredCurrency,
     doMembershipBuy,
     doHideModal,
+    isCancelled,
+    membershipId,
+    doMembershipMine,
+    doToast,
   } = props;
 
   const { Membership } = membership;
@@ -43,6 +47,31 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
   const noChannelsOrIncognitoMode = incognito || !channels;
   const plan = Membership.name;
+
+  // Cancel
+  async function cancelMembership() {
+    try {
+      setWaitingForBackend(true);
+      setStatusText(__('Canceling your membership...'));
+      // show the memberships the user is subscribed to
+      await Lbryio.call(
+        'membership',
+        'cancel',
+        {
+          environment: stripeEnvironment,
+          membership_id: membershipId,
+        },
+        'post'
+      );
+      setStatusText(__('Membership successfully canceled'));
+      // TODO: this copy isn't great
+      doToast({ message: __('Your membership was cancelled and will no longer be renewed.') });
+      // populate the new data and update frontend
+      doMembershipMine().then(() => doHideModal());
+    } catch (err) {
+      console.log(err);
+    }
+  }
 
   // TODO: can clean this up, some repeating text
   function buildPurchaseString(price, plan) {
@@ -114,19 +143,19 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   }
 
   function handleClick() {
-    // if (hasMembership) {
-    //   cancelMembership();
-    // } else {
-    setWaitingForBackend(true);
-    setStatusText(__('Completing your purchase...'));
+    if (isCancelled) {
+      cancelMembership();
+    } else {
+      setWaitingForBackend(true);
+      setStatusText(__('Completing your purchase...'));
 
-    doMembershipBuy({
-      membership_id: Membership.id,
-      channel_id: activeChannelId,
-      channel_name: activeChannelName,
-      price_id: price.id,
-    }).then(doHideModal);
-    // }
+      doMembershipBuy({
+        membership_id: Membership.id,
+        channel_id: activeChannelId,
+        channel_name: activeChannelName,
+        price_id: price.id,
+      }).then(doHideModal);
+    }
   }
 
   return (
@@ -141,7 +170,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       <Card
         className="stripe__confirm-remove-membership"
         title={__('Confirm %plan% Membership', { plan })}
-        subtitle={buildPurchaseString(price, plan)}
+        subtitle={!isCancelled && buildPurchaseString(price, plan)}
         actions={
           <div className="section__actions">
             {!waitingForBackend ? (
@@ -150,7 +179,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
                   className="stripe__confirm-remove-card"
                   button="primary"
                   icon={ICONS.FINANCE}
-                  label={__('Confirm Purchase')}
+                  label={isCancelled ? __('Cancel') : __('Confirm Purchase')}
                   onClick={handleClick}
                 />
                 <Button button="link" label={__('Cancel')} onClick={doHideModal} />
