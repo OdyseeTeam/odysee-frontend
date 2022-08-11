@@ -169,19 +169,60 @@ export function CommentCreate(props: Props) {
   const minAmountMet = activeTab !== TAB_LBC || minAmount === 0 || tipAmount >= minAmount;
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
+  const fiatIcon = preferredCurrency === 'EUR' ? ICONS.EURO : ICONS.FINANCE;
 
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
 
-  // **************************************************************************
-  // Functions
-  // **************************************************************************
-
-  function addEmoteToComment(emote: string) {
+  const addEmoteToComment = (emote: string) => {
     setCommentValue(
       commentValue + (commentValue && commentValue.charAt(commentValue.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `)
     );
-  }
+  };
+
+  const handleSelectSticker = (sticker: any) => {
+    // $FlowFixMe
+    setSelectedSticker(sticker);
+    setReviewingStickerComment(true);
+    setTipAmount(sticker.price || 0);
+    setShowSelectors({ tab: showSelectors.tab || undefined, open: false });
+
+    // added this here since selecting a sticker can cause scroll issues
+    if (onSlimInputClose) onSlimInputClose();
+
+    if (sticker.price && sticker.price > 0) {
+      setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
+      setTipSelector(true);
+    }
+  };
+
+  const commentSelectorsProps = {
+    claimIsMine,
+    addEmoteToComment,
+    handleSelectSticker,
+    isOpen: showSelectors.open,
+    openTab: showSelectors.tab || undefined,
+  };
+  const submitButtonProps = { button: 'primary', type: 'submit', requiresAuth: true };
+  const actionButtonProps = { button: 'alt' };
+  const tipButtonProps = {
+    ...actionButtonProps,
+    disabled: !commentValue.length && !selectedSticker,
+    tipSelectorOpen,
+    activeTab,
+    onClick: handleSelectTipComment,
+  };
+  const cancelButtonProps = { button: 'link', label: __('Cancel') };
+  const stickerReviewProps = {
+    activeChannelUrl,
+    src: selectedSticker ? selectedSticker.url : '',
+    price: selectedSticker ? selectedSticker.price : 0,
+    exchangeRate,
+  };
+
+  // **************************************************************************
+  // Functions
+  // **************************************************************************
 
   function handleSelectTipComment(tab: string) {
     setActiveTab(tab);
@@ -215,22 +256,6 @@ export function CommentCreate(props: Props) {
     }
 
     setTipSelector(false);
-  }
-
-  function handleSelectSticker(sticker: any) {
-    // $FlowFixMe
-    setSelectedSticker(sticker);
-    setReviewingStickerComment(true);
-    setTipAmount(sticker.price || 0);
-    setShowSelectors({ tab: showSelectors.tab || undefined, open: false });
-
-    // added this here since selecting a sticker can cause scroll issues
-    if (onSlimInputClose) onSlimInputClose();
-
-    if (sticker.price && sticker.price > 0) {
-      setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
-      setTipSelector(true);
-    }
   }
 
   function handleCancelSticker() {
@@ -416,9 +441,6 @@ export function CommentCreate(props: Props) {
     setTipSelector(false);
   }
 
-  let fiatIconToUse = ICONS.FINANCE;
-  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
-
   // **************************************************************************
   // Effects
   // **************************************************************************
@@ -567,30 +589,6 @@ export function CommentCreate(props: Props) {
     );
   }
 
-  const commentSelectorsProps = {
-    claimIsMine,
-    addEmoteToComment,
-    handleSelectSticker,
-    isOpen: showSelectors.open,
-    openTab: showSelectors.tab || undefined,
-  };
-  const submitButtonProps = { button: 'primary', type: 'submit', requiresAuth: true };
-  const actionButtonProps = { button: 'alt' };
-  const tipButtonProps = {
-    ...actionButtonProps,
-    disabled: !commentValue.length && !selectedSticker,
-    tipSelectorOpen,
-    activeTab,
-    onClick: handleSelectTipComment,
-  };
-  const cancelButtonProps = { button: 'link', label: __('Cancel') };
-  const stickerReviewProps = {
-    activeChannelUrl,
-    src: selectedSticker ? selectedSticker.url : '',
-    price: selectedSticker ? selectedSticker.price : 0,
-    exchangeRate,
-  };
-
   return (
     <Form
       onSubmit={() => {}}
@@ -698,7 +696,7 @@ export function CommentCreate(props: Props) {
             <Button
               {...submitButtonProps}
               disabled={disabled || tipSelectorError || !minAmountMet}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
               label={__('Review')}
               onClick={() => {
                 setReviewingSupportComment(true);
@@ -745,7 +743,7 @@ export function CommentCreate(props: Props) {
                   <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
                   {stripeEnvironment && (
-                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIconToUse} tab={TAB_FIAT} />
+                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                   )}
                 </>
               )}
