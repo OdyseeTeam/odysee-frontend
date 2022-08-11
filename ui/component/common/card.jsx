@@ -192,8 +192,9 @@ const TitleWrapper = (props: TitleProps) => {
     for (let child in children.props.children) {
       if (typeof children.props.children[child] === 'string') {
         return <Twemoji emoji={children.props.children[child]} />;
-      } else return children;
+      }
     }
+    return children;
   }
 
   return isPageTitle ? (
