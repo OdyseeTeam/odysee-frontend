@@ -1004,6 +1004,15 @@ function buildSortedTwemoteArray() {
   return twemoteArray;
 }
 
+function buildTwemoteNameArray() {
+  let res = [];
+  for (let entry of buildSortedTwemoteArray()) {
+    // $FlowIgnore
+    res.push(entry.name);
+  }
+  return res;
+}
+
 export const EMOTES_24px = getEmotes('24%20px', '');
 export const EMOTES_36px = getEmotes('36px', '%401.5x');
 export const EMOTES_48px = getEmotes('48%20px', '%402x');
@@ -1018,3 +1027,4 @@ export const TWEMOTES = {
   FLAGS: getTwemotes('FLAGS'),
 };
 export const SORTEDTWEMOTES = buildSortedTwemoteArray();
+export const TWEMOTENAMES = buildTwemoteNameArray();
