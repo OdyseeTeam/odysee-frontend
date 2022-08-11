@@ -108,11 +108,11 @@ export default function ChatLayout(props: Props) {
 
   // get commenter claim ids for checking premium status
   const commenterClaimIds = React.useMemo(() => {
-    return commentsByChronologicalOrder.map((comment) => comment.channel_id);
+    return commentsByChronologicalOrder?.map(({ channel_id }) => channel_id);
   }, [commentsByChronologicalOrder]);
 
   React.useEffect(() => {
-    if (commenterClaimIds) {
+    if (commenterClaimIds?.length > 0) {
       doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
       doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
     }

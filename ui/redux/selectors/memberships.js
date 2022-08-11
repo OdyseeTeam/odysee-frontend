@@ -26,24 +26,12 @@ export const selectFetchedIdsForMembershipChannelId = (state: State, channelId: 
   return fetchedById[channelId];
 };
 
-export const selectMembershipForChannelId = (state: State, uri: string, channelId: string) => {
-  const creatorId = selectChannelClaimIdForUri(state, uri);
+export const selectCreatorIdMembershipForChannelId = (state: State, creatorId: string, channelId: string) => {
   const fetchedMemberships = selectFetchedIdsForMembershipChannelId(state, creatorId);
-  return (
-    (fetchedMemberships && fetchedMemberships[channelId]) ||
-    (selectMyChannelClaimIds(state).includes(channelId) &&
-      selectUserPurchasedMembershipForChannelUri(state, uri)?.MembershipDetails?.name)
-  );
-};
-
-export const selectFetchedOdyseeMemberships = (state: State) =>
-  selectFetchedIdsForMembershipChannelId(state, ODYSEE_CHANNEL.ID);
-export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) => {
-  const fetchedMemberships = selectFetchedOdyseeMemberships(state);
   return fetchedMemberships && fetchedMemberships[channelId];
 };
-export const selectOdyseeMembershipForChannelUri = (state: State, channelId: string) =>
-  selectOdyseeMembershipForChannelId(state, selectChannelClaimIdForUri(state, channelId));
+export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) =>
+  selectCreatorIdMembershipForChannelId(state, ODYSEE_CHANNEL.ID, channelId);
 
 export const selectOdyseeMembershipOptions = (state: State) => {
   const byId = selectById(state);

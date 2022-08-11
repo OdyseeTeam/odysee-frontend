@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import { doFetchTxoPage, doFetchTransactions, doUpdateTxoPageParams } from 'redux/actions/wallet';
-import { doPaymentHistory, doAccountTransactions } from 'redux/actions/stripe';
+import { doCustomerListPaymentHistory, doListAccountTransactions } from 'redux/actions/stripe';
 import { selectPaymentHistory, selectAccountTransactions } from 'redux/selectors/stripe';
 import {
   selectIsFetchingTxos,
@@ -32,8 +32,8 @@ const perform = {
   fetchTxoPage: doFetchTxoPage,
   fetchTransactions: doFetchTransactions,
   updateTxoPageParams: doUpdateTxoPageParams,
-  doPaymentHistory,
-  doAccountTransactions,
+  doCustomerListPaymentHistory,
+  doListAccountTransactions,
 };
 
 export default withRouter(connect(select, perform)(TxoList));

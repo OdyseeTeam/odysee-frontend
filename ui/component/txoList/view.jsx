@@ -38,8 +38,8 @@ type Props = {
   toast: (string, boolean) => void,
   accountPaymentHistory: ?any,
   accountTransactions: ?any,
-  doPaymentHistory: () => void,
-  doAccountTransactions: () => void,
+  doCustomerListPaymentHistory: () => void,
+  doListAccountTransactions: () => void,
 };
 
 type Delta = {
@@ -60,19 +60,19 @@ function TxoList(props: Props) {
     transactionsFile,
     accountPaymentHistory,
     accountTransactions,
-    doPaymentHistory,
-    doAccountTransactions,
+    doCustomerListPaymentHistory,
+    doListAccountTransactions,
   } = props;
 
   // calculate account transactions section
   React.useEffect(() => {
-    doPaymentHistory();
-  }, [doPaymentHistory]);
+    doCustomerListPaymentHistory();
+  }, [doCustomerListPaymentHistory]);
 
   // populate customer payment data
   React.useEffect(() => {
-    doAccountTransactions();
-  }, [doAccountTransactions]);
+    doListAccountTransactions();
+  }, [doListAccountTransactions]);
 
   const urlParams = new URLSearchParams(search);
   const page = urlParams.get(TXO.PAGE) || String(1);

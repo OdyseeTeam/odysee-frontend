@@ -34,7 +34,8 @@ export const selectPhoneToVerify = createSelector(
   (state, userPhone) => state.phoneToVerify || userPhone
 );
 
-export const selectYoutubeChannels = createSelector(selectUser, (user) => (user ? user.youtube_channels : null));
+export const selectYoutubeChannels = (state) => (selectUser(state) ? selectUser(state).youtube_channels : null);
+export const selectHasYoutubeChannels = (state) => Number.isInteger(selectYoutubeChannels(state)?.length);
 
 export const selectUserIsRewardApproved = createSelector(selectUser, (user) => user && user.is_reward_approved);
 

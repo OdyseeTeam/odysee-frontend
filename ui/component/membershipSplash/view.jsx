@@ -20,38 +20,9 @@ type Props = {
 };
 
 const MembershipSplash = (props: Props) => {
-  const { pageLocation, currencyToUse } = props;
+  const { pageLocation, preferredCurrency } = props;
 
-  const premiumDisplayAmounts = {
-    eur: '€0.89',
-    usd: '99¢',
-  };
-
-  const premiumPlusDisplayAmounts = {
-    eur: '€2.68',
-    usd: '$2.99',
-  };
-
-  // const logo = <Icon className="header__logo" icon={ICONS.ODYSEE_WHITE_TEXT} />;
-
-  const earlyAcessInfo = (
-    <div className="membership-splash__info-content">
-      <Icon icon={ICONS.EARLY_ACCESS} />
-      {__('Exclusive and early access to features')}
-    </div>
-  );
-  const badgeInfo = (
-    <div className="membership-splash__info-content">
-      <Icon icon={ICONS.MEMBER_BADGE} />
-      {__('Badge on profile')}
-    </div>
-  );
-  const noAdsInfo = (
-    <div className="membership-splash__info-content">
-      <Icon icon={ICONS.NO_ADS} />
-      {__('No ads')}
-    </div>
-  );
+  console.log(MEMBERSHIPS.PRICES.Premium[preferredCurrency])
 
   return (
     <div className="membership-splash">

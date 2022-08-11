@@ -2,10 +2,11 @@
 import React from 'react';
 import Button from 'component/button';
 import moment from 'moment';
+import * as STRIPE from 'constants/stripe';
 
 type Props = {
   accountDetails: any,
-  transactions: any,
+  transactions: StripeTransactions,
   lastFour: ?any,
   doGetCustomerStatus: () => void,
 };
@@ -15,18 +16,10 @@ const WalletFiatPaymentHistory = (props: Props) => {
   const { transactions: accountTransactions, lastFour, doGetCustomerStatus } = props;
 
   function getSymbol(transaction) {
-    if (transaction.currency === 'eur') {
+    if (transaction.currency === STRIPE.CURRENCIES.EUR) {
       return '€';
     } else {
       return '$';
-    }
-  }
-
-  function getCurrencyIso(transaction) {
-    if (transaction.currency === 'eur') {
-      return 'EUR';
-    } else {
-      return 'USD';
     }
   }
 
@@ -82,7 +75,7 @@ const WalletFiatPaymentHistory = (props: Props) => {
                     {/* how much tipped */}
                     <td>
                       {getSymbol(transaction)}
-                      {transaction.tipped_amount / 100} {getCurrencyIso(transaction)}
+                      {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
                     </td>
                     {/* TODO: this is incorrect need it per transactions not per user */}
                     {/* last four of credit card  */}

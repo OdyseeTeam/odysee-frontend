@@ -2,10 +2,9 @@ import { connect } from 'react-redux';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import WalletTipAmountSelector from './view';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri, selectHasSavedCard } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri, doGetCustomerStatus } from 'redux/actions/stripe';
-import * as SETTINGS from 'constants/settings';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -13,7 +12,7 @@ const select = (state, props) => {
   return {
     balance: selectBalance(state),
     claim: selectClaimForUri(state, uri),
-    preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
+    preferredCurrency: selectPreferredCurrency(state),
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     hasSavedCard: selectHasSavedCard(state),
   };

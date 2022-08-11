@@ -120,16 +120,9 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
   // show the memberships the user is subscribed to
   return await Lbryio.call('membership', 'buy', { environment: stripeEnvironment, ...membershipParams }, 'post')
     .then((response) => {
-      dispatch(
-        doToast({
-          message: __('You are now a %membership_tier_name% member, enjoy the perks and special features!', {
-            membership_tier_name: response.MembershipDetails.name,
-            creator_channel_name: userChannelName,
-          }),
-        })
-      );
-
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_SUCCESFUL });
+
+      return response;
     })
     .catch((e) => {
       const errorMessage = e.message;
@@ -150,6 +143,8 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
 
         dispatch(doToast({ message: genericErrorMessage, isError: true }));
       }, errorMessageTimeout);
+
+      return e;
     });
 };
 

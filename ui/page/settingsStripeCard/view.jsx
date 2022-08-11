@@ -10,15 +10,13 @@ import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
 import { FormField } from 'component/common/form';
 import { STRIPE_PUBLIC_KEY } from 'config';
 import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
 
 const STRIPE_PLUGIN_SRC = 'https://js.stripe.com/v3/';
-
-const APIS_DOWN_ERROR_RESPONSE = __('There was an error from the server, please try again later');
-const CARD_SETUP_ERROR_RESPONSE = __('There was an error getting your card setup, please try again later');
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 type Props = {
@@ -57,7 +55,6 @@ class SettingsStripeCard extends React.Component<Props, State> {
       pageTitle: 'Add Card',
       userCardDetails: {},
       paymentMethodId: '',
-      preferredCurrency: 'USD',
     };
   }
 
@@ -68,20 +65,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
       cardNameValue: '',
     });
 
-    const { preferredCurrency, locale, doGetCustomerStatus } = this.props;
-
-    // use preferredCurrency if it's set on client, otherwise use USD, unless in Europe then use EUR
-    if (preferredCurrency) {
-      that.setState({
-        preferredCurrency: preferredCurrency,
-      });
-    } else if (locale) {
-      if (locale.continent === 'EU') {
-        that.setState({
-          preferredCurrency: 'EUR',
-        });
-      }
-    }
+    const { doGetCustomerStatus } = this.props;
 
     let doToast = this.props.doToast;
 
@@ -213,10 +197,10 @@ class SettingsStripeCard extends React.Component<Props, State> {
               });
               // 500 error from the backend being down
             } else if (error === 'internal_apis_down') {
-              doToast({ message: APIS_DOWN_ERROR_RESPONSE, isError: true });
+              doToast({ message: STRIPE.APIS_DOWN_ERROR_RESPONSE, isError: true });
             } else {
               // probably an error from stripe
-              doToast({ message: CARD_SETUP_ERROR_RESPONSE, isError: true });
+              doToast({ message: STRIPE.CARD_SETUP_ERROR_RESPONSE, isError: true });
             }
           });
       }
@@ -407,11 +391,6 @@ class SettingsStripeCard extends React.Component<Props, State> {
     function onCurrencyChange(event) {
       const { value } = event.target;
 
-      // update preferred currency in frontend
-      that.setState({
-        preferredCurrency: value,
-      });
-
       // update client settings
       setPreferredCurrency(value);
     }
@@ -436,14 +415,13 @@ class SettingsStripeCard extends React.Component<Props, State> {
       }
     }
 
-    const { scriptFailedToLoad, openModal } = this.props;
+    const { scriptFailedToLoad, preferredCurrency, openModal } = this.props;
 
     const {
       currentFlowStage,
       pageTitle,
       userCardDetails,
       paymentMethodId,
-      preferredCurrency,
       cardName,
       cardNameValue,
     } = this.state;
@@ -554,7 +532,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
                   onChange={onCurrencyChange}
                   value={preferredCurrency}
                 >
-                  {['USD', 'EUR'].map((currency) => (
+                  {Object.values(STRIPE.CURRENCIES).map((currency) => (
                     <option key={currency} value={currency}>
                       {currency}
                     </option>

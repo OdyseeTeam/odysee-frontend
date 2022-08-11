@@ -25,6 +25,7 @@ type Props = {
   isResolvingUri: boolean,
   comment?: boolean,
   showHiddenAsAnonymous?: boolean,
+  odyseePremium: ?string,
   resolveUri: (string) => void,
 };
 
@@ -97,6 +98,7 @@ class UriIndicator extends React.PureComponent<Props> {
       comment,
       showMemberBadge = true,
       showHiddenAsAnonymous,
+      odyseePremium,
     } = this.props;
 
     if (!channelInfo && !claim && !showHiddenAsAnonymous) {
@@ -127,7 +129,7 @@ class UriIndicator extends React.PureComponent<Props> {
       const inner = (
         <span dir="auto" className={classnames('channel-name', { 'channel-name--inline': inline })}>
           <p>{showAtSign ? channelName : stripLeadingAtSign(channelTitle)}</p>
-          {!comment && showMemberBadge && <PremiumBadge uri={uri} />}
+          {!comment && showMemberBadge && odyseePremium && <PremiumBadge membershipName={odyseePremium} />}
         </span>
       );
 

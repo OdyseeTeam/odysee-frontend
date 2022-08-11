@@ -2,10 +2,11 @@
 import React from 'react';
 import Button from 'component/button';
 import moment from 'moment';
+import * as STRIPE from 'constants/stripe';
 
 type Props = {
   accountDetails: any,
-  transactions: any,
+  transactions: StripeTransactions,
 };
 
 const WalletFiatAccountHistory = (props: Props) => {
@@ -21,18 +22,10 @@ const WalletFiatAccountHistory = (props: Props) => {
   // }
 
   function getSymbol(transaction) {
-    if (transaction.currency === 'eur') {
+    if (transaction.currency === STRIPE.CURRENCIES.EUR) {
       return '€';
     } else {
       return '$';
-    }
-  }
-
-  function getCurrencyIso(transaction) {
-    if (transaction.currency === 'eur') {
-      return 'EUR';
-    } else {
-      return 'USD';
     }
   }
 
@@ -77,7 +70,7 @@ const WalletFiatAccountHistory = (props: Props) => {
                 </td>
                 <td>
                   {getSymbol(transaction)}
-                  {transaction.tipped_amount / 100} {getCurrencyIso(transaction)}
+                  {transaction.tipped_amount / 100} {STRIPE.CURRENCIES[transaction.currency.toUpperCase()]}
                 </td>
                 <td>
                   {getSymbol(transaction)}

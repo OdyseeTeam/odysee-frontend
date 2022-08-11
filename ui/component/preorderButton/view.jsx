@@ -3,6 +3,7 @@ import * as React from 'react';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import * as STRIPE from 'constants/stripe';
 
 type Props = {
   preorderTag: number,
@@ -43,8 +44,8 @@ export default function PreorderButton(props: Props) {
     }
   }, [preorderContentClaimId]);
 
-  const fiatIcon = preferredCurrency === 'EUR' ? ICONS.EURO : ICONS.FINANCE;
-  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
+  const fiatIcon = preferredCurrency ===  STRIPE.CURRENCIES.EUR ? ICONS.EURO : ICONS.FINANCE;
+  const fiatSymbol = preferredCurrency === STRIPE.CURRENCIES.EUR ? '€' : '$';
   const preorderOrPurchase = purchaseTag ? 'purchase' : 'preorder';
 
   return (

@@ -13,10 +13,11 @@ type Props = {
   uri: string,
   isResolvingUri: boolean,
   geoRestriction: ?GeoRestriction,
+  odyseePremium: ?string,
 };
 
 export default function WunderbarSuggestion(props: Props) {
-  const { claim, uri, isResolvingUri, geoRestriction } = props;
+  const { claim, uri, isResolvingUri, geoRestriction, odyseePremium } = props;
 
   if (isResolvingUri) {
     return (
@@ -68,7 +69,7 @@ export default function WunderbarSuggestion(props: Props) {
           <div className="wunderbar__suggestion-title">{claim.value.title}</div>
           <div className="wunderbar__suggestion-name">
             {isChannel ? claim.name : (claim.signing_channel && claim.signing_channel.name) || __('Anonymous')}
-            <PremiumBadge uri={uri} />
+            {odyseePremium && <PremiumBadge membershipName={odyseePremium} />}
           </div>
         </span>
       </div>

@@ -1,15 +1,10 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
-import {
-  selectOdyseeMembershipForChannelUri,
-  selectActiveOdyseeMembershipNameForChannelId,
-} from 'redux/selectors/memberships';
+import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
 import PremiumBadge from './view';
 
 const select = (state, props) => ({
-  activeOdyseeMembershipName:
-    selectOdyseeMembershipForChannelUri(state, props.uri) ||
-    selectActiveOdyseeMembershipNameForChannelId(state, props.uri),
+  activeOdyseeMembershipName: selectOdyseeMembershipForChannelId(state, props.uri),
 });
 
 const perform = {

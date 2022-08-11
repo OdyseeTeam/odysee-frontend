@@ -8,10 +8,11 @@ type Props = {
   claimTitle?: string,
   emote?: any,
   uri?: string,
+  odyseePremium: ?string,
 };
 
 export default function TextareaSuggestionsItem(props: Props) {
-  const { claimLabel, claimTitle, emote, uri, ...autocompleteProps } = props;
+  const { claimLabel, claimTitle, emote, uri, odyseePremium, ...autocompleteProps } = props;
 
   if (emote) {
     const { name: value, url, unicode } = emote;
@@ -40,7 +41,7 @@ export default function TextareaSuggestionsItem(props: Props) {
           <span className="textarea-suggestion__title">{claimTitle || value}</span>
           <span className="textarea-suggestion__value">
             {value}
-            <PremiumBadge uri={uri} />
+            {odyseePremium && <PremiumBadge membershipName={odyseePremium} />}
           </span>
         </div>
       </div>

@@ -8,7 +8,7 @@ import Card from 'component/common/card';
 type Props = {
   totalTippedAmount: number,
   accountDetails: any,
-  transactions: any,
+  transactions: StripeTransactions,
 };
 
 const WalletBalance = (props: Props) => {

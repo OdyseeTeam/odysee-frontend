@@ -1,3 +1,5 @@
+import * as STRIPE from 'constants/stripe';
+
 declare type StripeState = {
   canReceiveFiatTipsById: { [id: string]: boolean },
   bankAccountConfirmed: ?boolean,
@@ -7,9 +9,24 @@ declare type StripeState = {
   accountNotConfirmedButReceivedTips: ?boolean,
   stripeConnectionUrl: ?string,
   accountPendingConfirmation: ?boolean,
-  accountTransactions: ?any,
-  accountPaymentHistory: ?any,
+  accountTransactions: ?StripeTransactions,
+  accountPaymentHistory: ?StripeTransactions,
   lastFour: ?string,
 };
 
-declare type CurrencyOption = 'usd' | 'eur';
+declare type StripeTransactions = Array<StripeTransaction>;
+
+declare type StripeTransaction = {
+  name: string,
+  channel_name: string,
+  channel_claim_id: string,
+  source_claim_id: string,
+  tipped_amount: number,
+  transaction_fee: number,
+  application_fee: number,
+  received_amount: number,
+  created_at: number,
+  private_tip: string,
+};
+
+declare type CurrencyOption = STRIPE.CURRENCIES.USD | STRIPE.CURRENCIES.EUR;

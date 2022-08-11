@@ -18,12 +18,10 @@ const defaultState: StripeState = {
 
 reducers[ACTIONS.SET_CAN_RECEIVE_FIAT_TIPS] = (state, action) => {
   const claimId = action.data;
-  const canReceiveFiatTipsById = Object.assign({}, state.canReceiveFiatTipsById);
-  canReceiveFiatTipsById[claimId] = true;
+  const newCanReceiveFiatTipsById = Object.assign({}, state.canReceiveFiatTipsById);
+  newCanReceiveFiatTipsById[claimId] = true;
 
-  return Object.assign({}, state, {
-    canReceiveFiatTipsById,
-  });
+  return { ...state, canReceiveFiatTipsById: newCanReceiveFiatTipsById };
 };
 
 reducers[ACTIONS.SET_BANK_ACCOUNT_CONFIRMED] = (state, action) =>
@@ -51,30 +49,18 @@ reducers[ACTIONS.SET_ACCOUNT_NOT_CONFIRMED_BUT_RECEIVED_TIPS] = (state, action) 
     accountNotConfirmedButReceivedTips: true,
   });
 
-reducers[ACTIONS.SET_STRIPE_CONNECTION_URL] = (state, action) =>
-  Object.assign({}, state, {
-    stripeConnectionUrl: action.data,
-  });
+reducers[ACTIONS.SET_STRIPE_CONNECTION_URL] = (state, action) => ({ ...state, stripeConnectionUrl: action.data });
 
 reducers[ACTIONS.SET_ACCOUNT_PENDING_CONFIRMATION] = (state, action) =>
   Object.assign({}, state, {
     accountPendingConfirmation: true,
   });
 
-reducers[ACTIONS.SET_ACCOUNT_TRANSACTIONS] = (state, action) =>
-  Object.assign({}, state, {
-    accountTransactions: action.data,
-  });
+reducers[ACTIONS.SET_ACCOUNT_TRANSACTIONS] = (state, action) => ({ ...state, accountTransactions: action.data });
 
-reducers[ACTIONS.SET_ACCOUNT_PAYMENT_HISTORY] = (state, action) =>
-  Object.assign({}, state, {
-    accountPaymentHistory: action.data,
-  });
+reducers[ACTIONS.SET_ACCOUNT_PAYMENT_HISTORY] = (state, action) => ({ ...state, accountPaymentHistory: action.data });
 
-reducers[ACTIONS.SET_CUSTOMER_STATUS] = (state, action) =>
-  Object.assign({}, state, {
-    customerStatus: action.data.customerStatus,
-  });
+reducers[ACTIONS.SET_CUSTOMER_STATUS] = (state, action) => ({ ...state, customerStatus: action.data });
 
 export default function stripeReducer(state: StripeState = defaultState, action: any) {
   const handler = reducers[action.type];

@@ -12,6 +12,7 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './comment-selectors';
@@ -436,7 +437,7 @@ export function CommentCreate(props: Props) {
   }
 
   let fiatIconToUse = ICONS.FINANCE;
-  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
+  if (preferredCurrency === STRIPE.CURRENCIES.EUR) fiatIconToUse = ICONS.EURO;
 
   // **************************************************************************
   // Effects

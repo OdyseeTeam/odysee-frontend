@@ -139,7 +139,6 @@ export default function PreviewPage(props: Props) {
           <div className="membership-join-blocks__div">
             {creatorMemberships &&
               creatorMemberships.map(function (membership, i) {
-                <>{console.log(membership)}</>;
                 return (
                   <div
                     className={classnames('membership-join-blocks__body', {

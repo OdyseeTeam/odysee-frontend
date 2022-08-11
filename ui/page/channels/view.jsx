@@ -1,7 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
-import React, { useEffect } from 'react';
-import { Lbryio } from 'lbryinc';
+import React from 'react';
 import ClaimList from 'component/claimList';
 import Page from 'component/page';
 import Button from 'component/button';
@@ -15,45 +14,48 @@ import ChannelSelector from 'component/channelSelector';
 import { useHistory } from 'react-router';
 
 type Props = {
+  // -- redux --
   channelUrls: Array<string>,
   channelIds: ?ClaimIds,
-  doFetchChannelListMine: () => void,
   fetchingChannels: boolean,
-  youtubeChannels: ?Array<any>,
-  doSetActiveChannel: (string) => void,
+  hasYoutubeChannels: boolean,
   pendingIds: Array<string>,
+  viewRateById: {},
+  doFetchChannelListMine: () => void,
+  doUserViewRateList: () => void,
+  doSetActiveChannel: (string) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIdCsv: string) => void,
 };
 
 export default function ChannelsPage(props: Props) {
   const {
+    // -- redux --
     channelUrls,
     channelIds,
-    doFetchChannelListMine,
     fetchingChannels,
-    youtubeChannels,
-    doSetActiveChannel,
+    hasYoutubeChannels,
     pendingIds,
+    viewRateById,
+    doFetchChannelListMine,
+    doUserViewRateList,
+    doSetActiveChannel,
     doFetchOdyseeMembershipForChannelIds,
   } = props;
-  const [rewardData, setRewardData] = React.useState();
-  const hasYoutubeChannels = youtubeChannels && Boolean(youtubeChannels.length);
+
+  const hasChannels = Number.isInteger(channelIds?.length);
 
   React.useEffect(() => {
     if (channelIds) {
       doFetchOdyseeMembershipForChannelIds(channelIds);
+      doUserViewRateList();
     } else {
       doFetchChannelListMine();
     }
-  }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds]);
+  }, [channelIds, doFetchChannelListMine, doFetchOdyseeMembershipForChannelIds, doUserViewRateList]);
 
   const { push } = useHistory();
 
-  useEffect(() => {
-    Lbryio.call('user_rewards', 'view_rate').then((data) => setRewardData(data));
-  }, [setRewardData]);
-
-  if (!Number.isInteger(channelUrls?.length)) {
+  if (!hasChannels) {
     return (
       <Page className="channelsPage-wrapper">
         {fetchingChannels ? (
@@ -91,70 +93,63 @@ export default function ChannelsPage(props: Props) {
           navigate={`/$/${PAGES.YOUTUBE_SYNC}`}
         />
 
-        {channelUrls && Boolean(channelUrls.length) && (
-          <ClaimList
-            showMemberBadge
-            header={<h1 className="section__title">{__('Your channels')}</h1>}
-            headerAltControls={
-              <Button
-                button="secondary"
-                icon={ICONS.CHANNEL}
-                label={__('New Channel')}
-                navigate={`/$/${PAGES.CHANNEL_NEW}`}
-              />
+        <ClaimList
+          showMemberBadge
+          header={<h1 className="section__title">{__('Your channels')}</h1>}
+          headerAltControls={
+            <Button
+              button="secondary"
+              icon={ICONS.CHANNEL}
+              label={__('New Channel')}
+              navigate={`/$/${PAGES.CHANNEL_NEW}`}
+            />
+          }
+          loading={fetchingChannels}
+          uris={channelUrls}
+          renderActions={(claim) => {
+            const claimsInChannel = claim.meta.claims_in_channel;
+            return claimsInChannel === 0 ? (
+              <span />
+            ) : (
+              <div className="section__actions">
+                <Button
+                  button="alt"
+                  icon={ICONS.ANALYTICS}
+                  label={__('Analytics')}
+                  onClick={() => {
+                    doSetActiveChannel(claim.claim_id);
+                    push(`/$/${PAGES.CREATOR_DASHBOARD}`);
+                  }}
+                />
+              </div>
+            );
+          }}
+          renderProperties={(claim) => {
+            const claimsInChannel = claim.meta.claims_in_channel;
+            if (!claim || claimsInChannel === 0) {
+              return null;
             }
-            loading={fetchingChannels}
-            uris={channelUrls}
-            renderActions={(claim) => {
-              const claimsInChannel = claim.meta.claims_in_channel;
-              return claimsInChannel === 0 ? (
-                <span />
-              ) : (
-                <div className="section__actions">
-                  <Button
-                    button="alt"
-                    icon={ICONS.ANALYTICS}
-                    label={__('Analytics')}
-                    onClick={() => {
-                      doSetActiveChannel(claim.claim_id);
-                      push(`/$/${PAGES.CREATOR_DASHBOARD}`);
-                    }}
-                  />
-                </div>
-              );
-            }}
-            renderProperties={(claim) => {
-              const claimsInChannel = claim.meta.claims_in_channel;
-              if (!claim || claimsInChannel === 0) {
-                return null;
-              }
 
-              const channelRewardData =
-                rewardData &&
-                rewardData.rates &&
-                rewardData.rates.find((data) => {
-                  return data.channel_claim_id === claim.claim_id;
-                });
+            const channelRewardData = viewRateById[claim.claim_id];
 
-              if (channelRewardData && !pendingIds.includes(claim.claim_id)) {
-                return (
-                  <span className="claim-preview__custom-properties">
-                    <span className="help--inline">
-                      {__('Earnings per view')}{' '}
-                      <HelpLink href="https://odysee.com/@OdyseeHelp:b/Monetization-of-Content:3" />
-                    </span>
-
-                    <span>
-                      <LbcSymbol postfix={channelRewardData.view_rate.toFixed(2)} />
-                    </span>
+            if (channelRewardData && !pendingIds.includes(claim.claim_id)) {
+              return (
+                <span className="claim-preview__custom-properties">
+                  <span className="help--inline">
+                    {__('Earnings per view')}{' '}
+                    <HelpLink href="https://odysee.com/@OdyseeHelp:b/Monetization-of-Content:3" />
                   </span>
-                );
-              } else {
-                return null;
-              }
-            }}
-          />
-        )}
+
+                  <span>
+                    <LbcSymbol postfix={channelRewardData.view_rate.toFixed(2)} />
+                  </span>
+                </span>
+              );
+            } else {
+              return null;
+            }
+          }}
+        />
       </div>
     </Page>
   );

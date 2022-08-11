@@ -28,7 +28,7 @@ const PremiumOption = (props: Props) => {
       <div className="premium-option" key={key}>
         <h4 className="membership_title">
           {Membership.name}
-          <PremiumBadge membership={Membership.name} />
+          <PremiumBadge membershipName={Membership.name} />
         </h4>
 
         <h4 className="membership_subtitle">{__(MEMBERSHIPS.DESCRIPTIONS[Membership.name])}</h4>
@@ -36,7 +36,7 @@ const PremiumOption = (props: Props) => {
         {Prices.map(
           (price) =>
             !(price.recurring.interval === 'month' && Membership.name === 'Premium') &&
-            price.currency === preferredCurrency && (
+            price.currency.toUpperCase() === preferredCurrency && (
               <>
                 <h4 className="membership_info">
                   <b>{__('Interval')}:</b> {MEMBERSHIPS.INTERVALS[price.recurring.interval]}
@@ -75,7 +75,7 @@ const PremiumOption = (props: Props) => {
     <div className="premium-option" key={MembershipDetails.name}>
       <h4 className="membership_title">
         {MembershipDetails.name}
-        <PremiumBadge membership={MembershipDetails.name} />
+        <PremiumBadge membershipName={MembershipDetails.name} />
       </h4>
 
       <h4 className="membership_subtitle">{__(MEMBERSHIPS.DESCRIPTIONS[Membership.name])}</h4>

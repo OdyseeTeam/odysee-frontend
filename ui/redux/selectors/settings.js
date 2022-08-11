@@ -1,5 +1,6 @@
 import * as SETTINGS from 'constants/settings';
 import * as DAEMON_SETTINGS from 'constants/daemon_settings';
+import * as STRIPE from 'constants/stripe';
 import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
 
 import { createSelector } from 'reselect';
@@ -130,7 +131,8 @@ export const selectPreferredCurrency = (state: State) => {
   const preferredCurrencySetting = selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY);
   const locale = selectUserLocale(state);
 
-  const preferredCurrency: CurrencyOption = preferredCurrencySetting || locale?.continent === 'EU' ? 'eur' : 'usd';
+  const preferredCurrency: CurrencyOption =
+    preferredCurrencySetting || (locale?.continent === 'EU' ? STRIPE.CURRENCIES.EUR : STRIPE.CURRENCIES.USD);
 
   return preferredCurrency;
 };

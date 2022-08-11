@@ -114,19 +114,19 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   }
 
   function handleClick() {
-    if (hasMembership) {
-      cancelMembership();
-    } else {
-      setWaitingForBackend(true);
-      setStatusText(__('Completing your purchase...'));
+    // if (hasMembership) {
+    //   cancelMembership();
+    // } else {
+    setWaitingForBackend(true);
+    setStatusText(__('Completing your purchase...'));
 
-      doMembershipBuy({
-        membership_id: Membership.id,
-        channel_id: activeChannelId,
-        channel_name: activeChannelName,
-        price_id: price.id,
-      }).then(doHideModal);
-    }
+    doMembershipBuy({
+      membership_id: Membership.id,
+      channel_id: activeChannelId,
+      channel_name: activeChannelName,
+      price_id: price.id,
+    }).then(doHideModal);
+    // }
   }
 
   return (

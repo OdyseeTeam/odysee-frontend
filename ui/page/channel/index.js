@@ -15,6 +15,7 @@ import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
 import { selectLanguage } from 'redux/selectors/settings';
+import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim } from 'util/claim';
 import ChannelPage from './view';
 
@@ -37,6 +38,7 @@ const select = (state, props) => {
     mutedChannels: selectMutedChannels(state),
     unpublishedCollections: selectMyUnpublishedCollections(state),
     lang: selectLanguage(state),
+    odyseePremium: selectOdyseeMembershipForChannelId(state, claim.claim_id),
   };
 };
 

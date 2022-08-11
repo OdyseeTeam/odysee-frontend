@@ -7,51 +7,44 @@ import React from 'react';
 import CommentBadge from 'component/common/comment-badge';
 import Button from 'component/button';
 
+const BADGE_ICONS = {
+  Premium: ICONS.PREMIUM,
+  'Premium+': ICONS.PREMIUM_PLUS,
+  Creator: ICONS.MEMBERSHIP,
+};
+
 type Props = {
-  membership: ?string,
+  membershipName: string,
   linkPage?: boolean,
   placement?: string,
   className?: string,
   hideTooltip?: boolean,
-  uri?: string,
   openModal: (string, {}) => void,
-  activeOdyseeMembershipName: string,
   channelUri?: string,
 };
 
-function getBadgeToShow(membership) {
-  if (membership === 'Premium') return 'silver';
-  if (membership === 'Premium+') return 'gold';
-  if (membership) return 'user'; // catchall for other memberships
-  return null;
+function getBadgeToShow(membershipName) {
+  switch (membershipName) {
+    case 'Premium':
+    case 'Premium+':
+      return membershipName;
+    default:
+      return 'Creator';
+  }
 }
 
 export default function PremiumBadge(props: Props) {
-  const {
-    membership,
-    linkPage,
-    placement,
-    className,
-    hideTooltip,
-    uri,
-    openModal,
-    activeOdyseeMembershipName,
-    channelUri,
-  } = props;
+  const { membershipName, linkPage, placement, className, hideTooltip, openModal, channelUri } = props;
 
-  const badgeToShow = getBadgeToShow(membership || activeOdyseeMembershipName);
+  const badgeToShow = getBadgeToShow(membershipName);
 
-  if (!badgeToShow) return null;
+  if (!membershipName) return null;
 
   const badgeProps = { size: 40, placement, hideTooltip, className };
 
   return (
     <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow} openModal={openModal} channelUri={channelUri}>
-      {badgeToShow === 'silver' && <CommentBadge label="Premium" icon={ICONS.PREMIUM} {...badgeProps} />}
-      {badgeToShow === 'gold' && <CommentBadge label="Premium+" icon={ICONS.PREMIUM_PLUS} {...badgeProps} />}
-      {badgeToShow === 'user' && (
-        <CommentBadge label={membership} uri={uri} channelUri={channelUri} icon={ICONS.MEMBERSHIP} {...badgeProps} />
-      )}
+      <CommentBadge label={membershipName} icon={BADGE_ICONS[badgeToShow]} {...badgeProps} />
     </BadgeWrapper>
   );
 }
@@ -67,16 +60,11 @@ type WrapperProps = {
 const BadgeWrapper = (props: WrapperProps) => {
   const { linkPage, children, badgeToShow, openModal, channelUri } = props;
 
-  if (badgeToShow === 'user') {
-    // onclick open user modal
-    const buttonToOpenMembershipModal = (
-      <Button onClick={() => openModal(MODALS.JOIN_MEMBERSHIP, { uri: channelUri })}>{children}</Button>
-    );
+  if (!linkPage) return children;
 
-    return linkPage ? buttonToOpenMembershipModal : children;
-  } else {
-    const linkToOdyseePremium = <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button>;
-
-    return linkPage ? linkToOdyseePremium : children;
+  if (badgeToShow === 'Creator') {
+    return <Button onClick={() => openModal(MODALS.JOIN_MEMBERSHIP, { uri: channelUri })}>{children}</Button>;
   }
+
+  return <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button>;
 };

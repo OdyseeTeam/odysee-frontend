@@ -65,6 +65,7 @@ type Props = {
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
   lang: string,
+  odyseePremium: ?string,
 };
 
 function ChannelPage(props: Props) {
@@ -85,6 +86,7 @@ function ChannelPage(props: Props) {
     mutedChannels,
     unpublishedCollections,
     lang,
+    odyseePremium,
   } = props;
   const {
     push,
@@ -258,7 +260,7 @@ function ChannelPage(props: Props) {
             <TruncatedText lines={2} showTooltip>
               {title || (channelName && '@' + channelName)}
             </TruncatedText>
-            <PremiumBadge uri={uri} />
+            {odyseePremium && <PremiumBadge membershipName={odyseePremium} />}
           </h1>
           <div className="channel__meta">
             <Tooltip title={formattedSubCount} followCursor placement="top">

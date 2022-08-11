@@ -13,26 +13,45 @@ type Props = {
   fetchStarted: boolean,
   activeChannelClaim: any,
   doMembershipBuy: (membershipParams: any, cb?: () => void) => void,
+  doToast: (params: { message: string }) => void,
 };
 
 export default function ConfirmationPage(props: Props) {
-  const { selectedTier, onCancel, closeModal, channelName, fetchStarted, activeChannelClaim, doMembershipBuy } = props;
+  const {
+    selectedTier,
+    onCancel,
+    closeModal,
+    channelName,
+    fetchStarted,
+    activeChannelClaim,
+    doMembershipBuy,
+    doToast,
+  } = props;
 
   function handleJoinMembership() {
     const testChannelParams = {
       membership_id: selectedTier.Membership.id,
-      channel_id: selectedTier.Membership.channel_id,
-      channel_name: selectedTier.Membership.channel_name,
+      channel_id: activeChannelClaim.claim_id,
+      channel_name: activeChannelClaim.name,
       price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
-    doMembershipBuy(testChannelParams, closeModal);
+    doMembershipBuy(testChannelParams, closeModal).then(() =>
+      doToast({
+        message: __(
+          "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
+          {
+            membership_tier_name: selectedTier.Membership.name,
+            creator_channel_name: selectedTier.Membership.channel_name,
+          }
+        ),
+      })
+    );
   }
 
   return (
     <div className="confirm__wrapper">
       <div className="confirmation-section__div" style={{ overflow: 'auto', maxHeight: '461px' }}>
-        {console.log(selectedTier)}
         <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
         <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.Membership.name} />
         <ConfirmationSection

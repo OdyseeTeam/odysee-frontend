@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import {
   selectStakedLevelForChannelUri,
-  makeSelectClaimForUri,
+  selectClaimForUri,
   selectThumbnailForUri,
   selectHasChannels,
   selectMyClaimIdsRaw,
@@ -16,10 +16,11 @@ import {
   selectIsFetchingCommentsForParentId,
   selectRepliesForParentId,
 } from 'redux/selectors/comments';
-import { selectOdyseeMembershipForChannelId, selectMembershipForChannelId } from 'redux/selectors/memberships';
+import { selectOdyseeMembershipForChannelId, selectCreatorIdMembershipForChannelId } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { getChannelIdFromClaim } from 'util/claim';
 import Comment from './view';
 
 const select = (state, props) => {
@@ -30,9 +31,11 @@ const select = (state, props) => {
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
   const reactionKey = activeChannelId ? `${comment_id}:${activeChannelId}` : comment_id;
 
+  const claim = selectClaimForUri(state, uri);
+
   return {
     myChannelIds: selectMyClaimIdsRaw(state),
-    claim: makeSelectClaimForUri(uri)(state),
+    claim,
     thumbnail: channel_url && selectThumbnailForUri(state, channel_url),
     commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
     othersReacts: selectOthersReactsForComment(state, reactionKey),
@@ -43,7 +46,7 @@ const select = (state, props) => {
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id),
-    creatorMembership: selectMembershipForChannelId(state, uri, channel_id),
+    creatorMembership: selectCreatorIdMembershipForChannelId(state, getChannelIdFromClaim(claim), channel_id),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
   };

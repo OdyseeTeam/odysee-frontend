@@ -5,6 +5,7 @@ import { Lbryio } from 'lbryinc';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
@@ -263,7 +264,7 @@ export default function WalletSendTip(props: Props) {
 
   let fiatIconToUse = ICONS.FINANCE;
   let fiatSymbolToUse = '$';
-  if (preferredCurrency === 'EUR') {
+  if (preferredCurrency === STRIPE.CURRENCIES.EUR) {
     fiatIconToUse = ICONS.EURO;
     fiatSymbolToUse = '€';
   }

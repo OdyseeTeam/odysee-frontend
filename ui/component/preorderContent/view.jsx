@@ -2,6 +2,7 @@
 import { Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
 import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -90,7 +91,7 @@ export default function PreorderContent(props: Props) {
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
   const [hasCardSaved, setHasSavedCard] = React.useState(false);
 
-  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
+  const fiatSymbol = preferredCurrency === STRIPE.CURRENCIES.EUR ? '€' : '$';
   const STR = STRINGS[preorderOrPurchase || 'preorder'];
 
   const AddCardButton = (

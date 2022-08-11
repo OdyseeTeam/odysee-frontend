@@ -176,7 +176,7 @@ export default function ChatComment(props: Props) {
               {!isStreamer && !isModerator && !isGlobalMod && !odyseeMembership && isSprout && (
                 <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
               )}
-              <PremiumBadge membership={odyseeMembership} linkPage />
+              <PremiumBadge membershipName={odyseeMembership} linkPage />
 
               {/* Use key to force timestamp update */}
               <DateTime date={timePosted} timeAgo key={forceUpdate} genericSeconds />
@@ -218,8 +218,8 @@ export default function ChatComment(props: Props) {
             {!isStreamer && !isModerator && !isGlobalMod && isSprout && (
               <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={16} />
             )}
-            <PremiumBadge membership={odyseeMembership} linkPage />
-            <PremiumBadge membership={membership} linkPage />
+            <PremiumBadge membershipName={odyseeMembership} linkPage />
+            <PremiumBadge membershipName={membership} linkPage />
             <Menu>
               <MenuButton
                 className={classnames('button--uri-indicator comment__author', {
