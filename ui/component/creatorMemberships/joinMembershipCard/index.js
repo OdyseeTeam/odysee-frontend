@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectChannelMembershipListByUri } from 'redux/selectors/memberships';
+import { selectMembershipTiersForChannelUri } from 'redux/selectors/memberships';
 import { selectChannelNameForUri, selectChannelIdForUri } from 'redux/selectors/claims';
 import { doMembershipList } from 'redux/actions/memberships';
 
@@ -9,7 +9,7 @@ const select = (state, props) => {
   const { uri } = props;
 
   return {
-    creatorMemberships: selectChannelMembershipListByUri(state, uri),
+    creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
     channelName: selectChannelNameForUri(state, uri),
     channelClaimId: selectChannelIdForUri(state, uri),
   };

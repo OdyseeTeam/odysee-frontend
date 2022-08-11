@@ -72,9 +72,6 @@ const LivestreamCreatePage = lazyImport(() =>
   import('page/livestreamCreate' /* webpackChunkName: "livestreamCreate" */)
 );
 const OdyseePremiumPage = lazyImport(() => import('page/odyseePremium' /* webpackChunkName: "odyseeMembership" */));
-const OdyseeMembershipsPage = lazyImport(() =>
-  import('page/odyseeMemberships' /* webpackChunkName: "odyseeMemberships" */)
-);
 const CreatorMemberships = lazyImport(() =>
   import('page/creatorMemberships' /* webpackChunkName: "creatorMembership" */)
 );

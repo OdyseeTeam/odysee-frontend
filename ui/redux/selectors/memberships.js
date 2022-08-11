@@ -16,6 +16,7 @@ export const selectPendingBuyMembershipIds = (state: State) => selectState(state
 export const selectMembershipsFetchedById = (state: State) => selectState(state).fetchedById;
 export const selectById = (state: State) => selectState(state).membershipListById || {};
 export const selectDidFetchMembershipsDataById = (state) => selectState(state).didFetchMembershipsDataById;
+export const selectMyMembershipTiers = (state) => selectState(state).myMembershipTiers;
 
 export const selectPurchaseIsPendingForMembershipId = (state: State, id: string) =>
   selectPendingBuyMembershipIds(state).includes(id);
@@ -37,23 +38,20 @@ export const selectCreatorIdMembershipForChannelId = (state: State, creatorId: s
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) =>
   selectCreatorIdMembershipForChannelId(state, ODYSEE_CHANNEL.ID, channelId);
 
-export const selectOdyseeMembershipOptions = (state: State) => {
-  const byId = selectById(state);
-  return byId[ODYSEE_CHANNEL.ID];
-};
+export const selectMembershipTiersForChannelId = (state: State, channelId: string) =>
+  selectById(state)[channelId];
+export const selectMembershipTiersForChannelUri = (state: State, uri: string) =>
+  selectMembershipTiersForChannelId(state, selectChannelClaimIdForUri(state, uri));
 
-export const selectChannelMembershipListByUri = createSelector(
-  selectChannelClaimIdForUri,
-  selectById,
-  (channelId, byId) => byId[channelId]
-);
+export const selectOdyseeMembershipTiers = (state: State) =>
+  selectMembershipTiersForChannelId(state, ODYSEE_CHANNEL.ID);
 
 export const selectCreatorMembershipsFetchedByUri = createSelector(
-  selectChannelMembershipListByUri,
+  selectMembershipTiersForChannelUri,
   (memberships) => memberships !== undefined
 );
 
-export const selectCreatorHasMembershipsByUri = createSelector(selectChannelMembershipListByUri, (memberships) =>
+export const selectCreatorHasMembershipsByUri = createSelector(selectMembershipTiersForChannelUri, (memberships) =>
   Boolean(memberships?.length > 0)
 );
 

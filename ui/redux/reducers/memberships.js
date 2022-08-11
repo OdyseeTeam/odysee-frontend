@@ -11,6 +11,7 @@ const defaultState: MembershipsState = {
   membershipsPerClaimIds: undefined,
   fetchingIds: {},
   pendingBuyIds: [],
+  myMembershipTiers: undefined,
 };
 
 // type fetchingIds: {[string]: Array<string>}
@@ -55,18 +56,14 @@ reducers[ACTIONS.SET_MEMBERSHIP_DATA] = (state, action) =>
   });
 
 reducers[ACTIONS.LIST_MEMBERSHIP_DATA] = (state, action) => {
-  const membershipListById = Object.assign({}, state.membershipListById);
-  membershipListById[action.data.channelId] = action.data.list;
+  const { channelId, list } = action.data;
+  const newMembershipListById = Object.assign({}, state.membershipListById);
+  newMembershipListById[channelId] = list;
 
-  return Object.assign({}, state, {
-    membershipListById,
-  });
+  return { ...state, membershipListById: newMembershipListById };
 };
 
-reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) =>
-  Object.assign({}, state, {
-    membershipMine: action.data,
-  });
+reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, myMembershipTiers: action.data });
 
 export default function membershipsReducer(state: UserState = defaultState, action: any) {
   const handler = reducers[action.type];

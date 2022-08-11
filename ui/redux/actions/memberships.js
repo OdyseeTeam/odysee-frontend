@@ -66,7 +66,7 @@ export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => as
 
 export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
-    .then((response) =>
+    .then((response: MembershipData) =>
       dispatch({ type: ACTIONS.LIST_MEMBERSHIP_DATA, data: { channelId: params.channel_id, list: response } })
     )
     .catch((e) => dispatch({ type: ACTIONS.LIST_MEMBERSHIP_DATA_ERROR, data: e }));
@@ -148,6 +148,9 @@ export const doMembershipAddTier = (params: MembershipAddTierParams) => async (d
   await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post');
 
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership_perk', 'list', { ...params, environment: stripeEnvironment }, 'post').then((response) =>
-    dispatch({ type: ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE, data: { response } })
-  );
+  await Lbryio.call(
+    'membership_perk',
+    'list',
+    { ...params, environment: stripeEnvironment },
+    'post'
+  ).then((response: MembershipDetails) => dispatch({ type: ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE, data: response }));

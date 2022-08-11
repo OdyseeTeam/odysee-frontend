@@ -11,7 +11,7 @@ const stripeEnvironment = getStripeEnvironment();
 type Props = {
   closeModal: () => void,
   membershipsBeforeDeletion: [],
-  tierIndex: number,
+  membershipIndex: number,
   setCreatorMemberships: () => void,
 };
 
@@ -31,15 +31,15 @@ async function deactivateMembership(membershipId) {
 }
 
 export default function ModalRemoveCard(props: Props) {
-  const { closeModal, setCreatorMemberships, membershipsBeforeDeletion, tierIndex, getExistingTiers } = props;
+  const { closeModal, setCreatorMemberships, membershipsBeforeDeletion, membershipIndex, getExistingTiers } = props;
 
   async function deleteMembership() {
-    const selectedMembershipId = membershipsBeforeDeletion[tierIndex].Membership.id;
+    const selectedMembershipId = membershipsBeforeDeletion[membershipIndex].Membership.id;
 
     try {
       const response = await deactivateMembership(selectedMembershipId);
       console.log(response);
-      const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== tierIndex);
+      const membershipsAfterDeletion = membershipsBeforeDeletion.filter((tiers, index) => index !== membershipIndex);
       setCreatorMemberships(membershipsAfterDeletion);
       closeModal();
       getExistingTiers();

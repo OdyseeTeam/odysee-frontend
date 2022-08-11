@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 import React from 'react';
 import classnames from 'classnames';
@@ -14,7 +13,8 @@ import Button from 'component/button';
 type Props = {
   bankAccountConfirmed: boolean,
   activeChannel: Claim,
-  membershipPerks: MembershipPerks,
+  membershipPerks: MembershipOptions,
+  creatorMemberships: MembershipOptions,
   doMembershipAddTier: (params: MembershipAddTierParams) => void,
   doGetMembershipPerks: (params: MembershipListParams) => void,
   doMembershipList: (params: MembershipListParams) => void,
@@ -26,6 +26,7 @@ const CreateTiersTab = (props: Props) => {
     bankAccountConfirmed,
     activeChannel,
     membershipPerks,
+    creatorMemberships: fetchedMemberships,
     doMembershipAddTier,
     doGetMembershipPerks,
     doMembershipList,
@@ -35,30 +36,26 @@ const CreateTiersTab = (props: Props) => {
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannel || {};
 
   const [isEditing, setIsEditing] = React.useState(false);
-  const [creatorMemberships, setCreatorMemberships] = React.useState([]);
+  const [creatorMemberships, setCreatorMemberships] = React.useState(fetchedMemberships || []);
   const [editTierDescription, setEditTierDescription] = React.useState('');
   const [pendingTier, setPendingTier] = React.useState(false);
 
   React.useEffect(() => {
     if (activeChannelName && activeChannelId) {
-      doGetMembershipPerks();
+      doGetMembershipPerks({ channel_name: activeChannelName, channel_id: activeChannelId });
     }
   }, [activeChannelName, activeChannelId, doGetMembershipPerks]);
 
   React.useEffect(() => {
-    if (activeChannelId) {
-      doMembershipList();
+    if (activeChannelName && activeChannelId) {
+      doMembershipList({ channel_name: activeChannelName, channel_id: activeChannelId });
     }
-  }, [activeChannelId, doMembershipList]);
+  }, [activeChannelId, activeChannelName, doMembershipList]);
 
   // focus name when you create a new tier
   React.useEffect(() => {
     document.querySelector("input[name='tier_name']")?.focus();
   }, [pendingTier]);
-
-  const handleChange = (event) => {
-    setEditTierDescription(event.target.value);
-  };
 
   // when someone hits the 'Save' button from the edit functionality
   async function saveMembership(tierIndex) {
@@ -123,15 +120,15 @@ const CreateTiersTab = (props: Props) => {
     // setCreatorMemberships(copyOfMemberships);
 
     const response = await doMembershipAddTier({
-      activeChannelName,
-      activeChannelId,
+      channel_name: activeChannelName,
+      channel_id: activeChannelId,
       name: newTierName,
       description: newTierDescription,
       amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
       currency: 'usd', // hardcoded for now
       perks: selectedPerksAsArray,
-      oldStripePrice,
-      oldMembershipId,
+      // oldStripePrice,
+      // oldMembershipId,
       // perks: selectedPerks,
     });
     console.log(response);
@@ -181,7 +178,7 @@ const CreateTiersTab = (props: Props) => {
           label={__('Tier Description (You can also add custom benefits here)')}
           placeholder={__('Description of your tier')}
           value={editTierDescription}
-          onChange={handleChange}
+          onChange={(e) => setEditTierDescription(e.target.value)}
         />
         <label htmlFor="tier_name" style={{ marginTop: '15px', marginBottom: '8px' }}>
           Odysee Perks
@@ -203,7 +200,7 @@ const CreateTiersTab = (props: Props) => {
           name="tier_contribution"
           step="1"
           label={__('Monthly Contribution ($/Month)')}
-          defaultValue={tier.NewPrices[0].unit_amount / 100}
+          defaultValue={tier.Prices[0].unit_amount / 100}
           onChange={(event) => parseFloat(event.target.value)}
           disabled={tier.HasSubscribers}
         />

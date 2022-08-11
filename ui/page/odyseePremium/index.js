@@ -1,13 +1,13 @@
 import { connect } from 'react-redux';
 import { doMembershipList } from 'redux/actions/memberships';
-import { selectMembershipMineData, selectOdyseeMembershipOptions } from 'redux/selectors/memberships';
+import { selectMembershipMineData, selectOdyseeMembershipTiers } from 'redux/selectors/memberships';
 import { doGetCustomerStatus } from 'redux/actions/stripe';
 
 import OdyseeMembership from './view';
 
 const select = (state) => ({
   membershipMine: selectMembershipMineData(state),
-  membershipOptions: selectOdyseeMembershipOptions(state),
+  membershipOptions: selectOdyseeMembershipTiers(state),
 });
 
 const perform = {
