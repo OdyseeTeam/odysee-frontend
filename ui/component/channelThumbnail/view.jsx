@@ -29,6 +29,7 @@ type Props = {
   ThumbUploadError: boolean,
   showMemberBadge?: boolean,
   isChannel?: boolean,
+  odyseeMembership: ?string,
 };
 
 function ChannelThumbnail(props: Props) {
@@ -51,6 +52,7 @@ function ChannelThumbnail(props: Props) {
     ThumbUploadError,
     showMemberBadge,
     isChannel,
+    odyseeMembership,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -61,13 +63,15 @@ function ChannelThumbnail(props: Props) {
   const isGif = channelThumbnail && channelThumbnail.endsWith('gif');
   const showThumb = (!obscure && !!thumbnail) || thumbnailPreview;
 
-  const badgeProps = {
-    uri,
-    linkPage: isChannel,
-    placement: isChannel ? 'bottom' : undefined,
-    hideTooltip,
-    className: isChannel ? 'profile-badge__tooltip' : undefined,
-  };
+  const badgeProps = React.useMemo(() => {
+    return {
+      membershipName: odyseeMembership,
+      linkPage: isChannel,
+      placement: isChannel ? 'bottom' : undefined,
+      hideTooltip,
+      className: isChannel ? 'profile-badge__tooltip' : undefined,
+    };
+  }, [hideTooltip, isChannel, odyseeMembership]);
 
   // Generate a random color class based on the first letter of the channel name
   const { channelName } = parseURI(uri);

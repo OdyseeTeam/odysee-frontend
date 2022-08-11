@@ -11,16 +11,17 @@ type Props = {
   isSelected?: boolean,
   // -- redux --
   uri: string,
+  odyseeMembership: ?string,
 };
 
 const ChannelListItem = (props: Props) => {
-  const { uri, isSelected = false } = props;
+  const { uri, odyseeMembership, isSelected = false } = props;
 
   return (
     <div className={classnames('channel__list-item', { 'channel__list-item--selected': isSelected })}>
       <ChannelThumbnail uri={uri} hideStakedIndicator xsmall noLazyLoad />
       <ChannelTitle uri={uri} />
-      <PremiumBadge uri={uri} />
+      {odyseeMembership && <PremiumBadge membershipName={odyseeMembership} />}
       {isSelected && <Icon icon={ICONS.DOWN} />}
     </div>
   );

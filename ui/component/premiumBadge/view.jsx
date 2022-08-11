@@ -19,8 +19,8 @@ type Props = {
   placement?: string,
   className?: string,
   hideTooltip?: boolean,
-  openModal: (string, {}) => void,
-  channelUri?: string,
+  creatorUri?: string,
+  doOpenModal: (modalId: string, {}) => void,
 };
 
 function getBadgeToShow(membershipName) {
@@ -33,8 +33,8 @@ function getBadgeToShow(membershipName) {
   }
 }
 
-export default function PremiumBadge(props: Props) {
-  const { membershipName, linkPage, placement, className, hideTooltip, openModal, channelUri } = props;
+function PremiumBadge(props: Props) {
+  const { membershipName, linkPage, placement, className, hideTooltip, creatorUri, doOpenModal } = props;
 
   const badgeToShow = getBadgeToShow(membershipName);
 
@@ -43,7 +43,7 @@ export default function PremiumBadge(props: Props) {
   const badgeProps = { size: 40, placement, hideTooltip, className };
 
   return (
-    <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow} openModal={openModal} channelUri={channelUri}>
+    <BadgeWrapper linkPage={linkPage} badgeToShow={badgeToShow} doOpenModal={doOpenModal} creatorUri={creatorUri}>
       <CommentBadge label={membershipName} icon={BADGE_ICONS[badgeToShow]} {...badgeProps} />
     </BadgeWrapper>
   );
@@ -54,17 +54,20 @@ type WrapperProps = {
   children: any,
   badgeToShow: string,
   uri?: string,
-  openModal: (string, {}) => void,
+  creatorUri?: string,
+  doOpenModal: (modalId: string, {}) => void,
 };
 
 const BadgeWrapper = (props: WrapperProps) => {
-  const { linkPage, children, badgeToShow, openModal, channelUri } = props;
+  const { linkPage, children, badgeToShow, doOpenModal, creatorUri } = props;
 
   if (!linkPage) return children;
 
   if (badgeToShow === 'Creator') {
-    return <Button onClick={() => openModal(MODALS.JOIN_MEMBERSHIP, { uri: channelUri })}>{children}</Button>;
+    return <Button onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri: creatorUri })}>{children}</Button>;
   }
 
   return <Button navigate={`/$/${PAGES.ODYSEE_PREMIUM}`}>{children}</Button>;
 };
+
+export default PremiumBadge;

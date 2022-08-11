@@ -3391,7 +3391,7 @@ export const icons = {
       x="0px"
       y="0px"
       viewBox="0 0 24 24"
-      style={{ 'enable-background': 'new 0 0 24 24' }}
+      style={{ enableBackground: 'new 0 0 24 24' }}
     >
       <style type="text/css">{'.membership--st0{fill:#00C2BD;}'}</style>
       <path

@@ -34,7 +34,7 @@ const select = (state, props) => {
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   return {
-    topLevelComments: threadComment ? [threadComment] : selectTopLevelCommentsForUri(state, uri),
+    topLevelComments: selectTopLevelCommentsForUri(state, uri),
     threadComment,
     allCommentIds: selectCommentIdsForUri(state, uri),
     pinnedComments: selectPinnedCommentsForUri(state, uri),

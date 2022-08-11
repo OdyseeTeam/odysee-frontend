@@ -1,13 +1,15 @@
 import { connect } from 'react-redux';
-import { selectClaimUriForId } from 'redux/selectors/claims';
-
+import { selectClaimForId } from 'redux/selectors/claims';
+import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
 import ChannelListItem from './view';
 
 const select = (state, props) => {
   const { channelId } = props;
+  const claim = selectClaimForId(state, channelId);
 
   return {
-    uri: selectClaimUriForId(state, channelId),
+    uri: claim?.canonical_url,
+    odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
   };
 };
 

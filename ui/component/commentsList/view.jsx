@@ -148,14 +148,23 @@ export default function CommentList(props: Props) {
   );
 
   // get commenter claim ids for checking premium status
-  const commenterClaimIds = topLevelComments.map((comment) => comment.channel_id);
+  const commenterClaimIds = React.useMemo(() => {
+    return topLevelComments.map((comment) => comment.channel_id);
+  }, [topLevelComments]);
 
   React.useEffect(() => {
     if (commenterClaimIds.length > 0) {
       doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
       doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
     }
-  }, [channelId, commenterClaimIds, doFetchChannelMembershipsForChannelIds, doFetchOdyseeMembershipForChannelIds]);
+    // todo: investigate why topLevelComments triggers a re-render even though the comments are the same
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keep commenterClaimIds.length instead
+  }, [
+    channelId,
+    commenterClaimIds.length,
+    doFetchChannelMembershipsForChannelIds,
+    doFetchOdyseeMembershipForChannelIds,
+  ]);
 
   const handleReset = React.useCallback(() => {
     if (claimId) resetComments(claimId);

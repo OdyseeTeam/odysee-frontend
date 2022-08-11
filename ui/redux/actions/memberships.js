@@ -2,10 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
-import {
-  selectFetchingIdsForMembershipChannelId,
-  selectFetchedIdsForMembershipChannelId,
-} from 'redux/selectors/memberships';
+import { selectFetchingIdsForMembershipChannelId } from 'redux/selectors/memberships';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 
 import { getStripeEnvironment } from 'util/stripe';
@@ -23,12 +20,10 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
   // check if channel id is fetching
   const state = getState();
   const fetchingForChannel = selectFetchingIdsForMembershipChannelId(state, channelId);
-  const fetchedForChannel = selectFetchedIdsForMembershipChannelId(state, channelId);
 
   const channelsToFetch = dedupedChannelIds.filter((dedupedChannelId) => {
     const notFetching = !fetchingForChannel || (fetchingForChannel && !fetchingForChannel.includes(dedupedChannelId));
-    const notFetched = !fetchedForChannel || (fetchedForChannel && fetchedForChannel[dedupedChannelId] === undefined);
-    return notFetching && notFetched;
+    return notFetching;
   });
 
   if (channelsToFetch.length === 0) return;
