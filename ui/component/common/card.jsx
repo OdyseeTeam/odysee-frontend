@@ -190,8 +190,8 @@ const TitleWrapper = (props: TitleProps) => {
   function transformer(children) {
     // $FlowIgnore
     for (let child in children.props.children) {
-      if (typeof children?.props?.children[child] === 'string') {
-        return <Twemoji emoji={children?.props?.children[child]} />;
+      if (typeof children.props.children[child] === 'string') {
+        return <Twemoji emoji={children.props.children[child]} />;
       } else return children;
     }
   }
