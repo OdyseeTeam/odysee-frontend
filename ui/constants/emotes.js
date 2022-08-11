@@ -981,6 +981,29 @@ const getTwemotes = (category) => {
   }
 };
 
+function buildSortedTwemoteArray() {
+  let twemoteArray = []
+    .concat(getTwemotes('SMILIES'))
+    .concat(getTwemotes('HANDSIGNALS'))
+    .concat(getTwemotes('ACTIVITIES'))
+    .concat(getTwemotes('SYMBOLS'))
+    .concat(getTwemotes('NATURE'))
+    .concat(getTwemotes('FOOD'))
+    .concat(getTwemotes('FLAGS'));
+  // $FlowIgnore
+  twemoteArray = twemoteArray.sort(function (a, b) {
+    // $FlowIgnore
+    if (a.name > b.name) {
+      return 1;
+    }
+    // $FlowIgnore
+    if (a.name < b.name) {
+      return -1;
+    }
+  });
+  return twemoteArray;
+}
+
 export const EMOTES_24px = getEmotes('24%20px', '');
 export const EMOTES_36px = getEmotes('36px', '%401.5x');
 export const EMOTES_48px = getEmotes('48%20px', '%402x');
@@ -994,3 +1017,4 @@ export const TWEMOTES = {
   FOOD: getTwemotes('FOOD'),
   FLAGS: getTwemotes('FLAGS'),
 };
+export const SORTEDTWEMOTES = buildSortedTwemoteArray();
