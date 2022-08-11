@@ -65,10 +65,6 @@ const copyWebpackCommands = [
     to: `${DIST_ROOT}/public/img/cookie.svg`,
   },
   {
-    from: `${STATIC_ROOT}/img/emoticons/twemoji/`,
-    to: `${DIST_ROOT}/public/img/emoticons/twemoji/`,
-  },
-  {
     from: `${STATIC_ROOT}/font/`,
     to: `${DIST_ROOT}/public/font/`,
   },

@@ -99,43 +99,43 @@ const EmojisPanel = (emojisProps: EmojisProps) => {
           onClick={() => scrollToCategory('smilies', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Smilies'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/smilies/grinning.png"
+          src="https://static.odycdn.com/emoticons/twemoji/smilies/grinning.png"
         />
         <img
           onClick={() => scrollToCategory('hand signals', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Hand signals'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/handsignals/waving_hand.png"
+          src="https://static.odycdn.com/emoticons/twemoji/handsignals/waving_hand.png"
         />
         <img
           onClick={() => scrollToCategory('activities', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Activities'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/activities/tennis.png"
+          src="https://static.odycdn.com/emoticons/twemoji/activities/tennis.png"
         />
         <img
           onClick={() => scrollToCategory('symbols', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Symbols'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/symbols/sparkling_heart.png"
+          src="https://static.odycdn.com/emoticons/twemoji/symbols/sparkling_heart.png"
         />
         <img
           onClick={() => scrollToCategory('animals & nature', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Animals & Nature'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/nature/dolphin.png"
+          src="https://static.odycdn.com/emoticons/twemoji/nature/dolphin.png"
         />
         <img
           onClick={() => scrollToCategory('food & drink', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Food & Drink'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/food/sushi.png"
+          src="https://static.odycdn.com/emoticons/twemoji/food/sushi.png"
         />
         <img
           onClick={() => scrollToCategory('flags', emojiSelectorRef, isMobile)}
           onMouseEnter={() => handleHover(__('Flags'))}
           onMouseLeave={() => handleHover('')}
-          src="/public/img/emoticons/twemoji/flags/pirate_flag.png"
+          src="https://static.odycdn.com/emoticons/twemoji/flags/pirate_flag.png"
         />
       </div>
 
