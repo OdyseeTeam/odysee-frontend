@@ -86,6 +86,7 @@ const remarkTwemoji = (tree) => {
     visit(tree, 'text', (node) => {
       if (RE_TWEMOJI.test(node.value)) {
         let code = node.value.match(RE_TWEMOJI)[0];
+        // $FlowIgnore
         const emote = SORTEDTWEMOTES.find(({ unicode }) => code === unicode);
 
         if (emote) {
