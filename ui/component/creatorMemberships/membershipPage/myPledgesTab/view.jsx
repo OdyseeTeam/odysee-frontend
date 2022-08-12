@@ -80,15 +80,15 @@ function MyPledgesTab(props: Props) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                {myActiveMemberships?.map((membership, i) => {
-                  return (
-                    <>
+              {myActiveMemberships?.map((membership, i) => {
+                return (
+                  <>
+                    <tr>
                       <td>
                         <Button button="link" navigate={pledges[i].url + '?view=membership'}>
                           <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
                           <span dir="auto" className="button__label">
-                            {membership.Membership.channel_name}
+                            {membership.MembershipDetails.channel_name}
                           </span>
                         </Button>
                       </td>
@@ -108,10 +108,10 @@ function MyPledgesTab(props: Props) {
                           />
                         </span>
                       </td>
-                    </>
-                  );
-                })}
-              </tr>
+                    </tr>
+                  </>
+                );
+              })}
             </tbody>
           </table>
         </div>
