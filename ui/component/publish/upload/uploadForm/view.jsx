@@ -356,6 +356,8 @@ function UploadForm(props: Props) {
     let outputFile = filePath;
     let runPublish = false;
 
+    console.log('hey something!!');
+
     // Publish post:
     // If here is no file selected yet on desktop, show file dialog and let the
     // user choose a file path. On web a new File is created
@@ -475,7 +477,7 @@ function UploadForm(props: Props) {
       <PublishProtectedContent />
 
       {!publishing && (
-        <div className={classnames({ 'card--disabled': formDisabled })}>
+        <div className={classnames({ 'card--disabled': false })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
           <Card actions={<SelectThumbnail />} />
@@ -515,7 +517,7 @@ function UploadForm(props: Props) {
       )}
       <section>
         <div className="section__actions">
-          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
+          <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={false} />
           <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
         <p className="help">

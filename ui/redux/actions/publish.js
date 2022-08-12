@@ -232,6 +232,10 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const pendingClaim = successResponse.outputs[0];
     analytics.apiLogPublish(pendingClaim);
     const { permanent_url: url } = pendingClaim;
+
+    console.log('pending claim');
+    console.log(pendingClaim);
+
     const actions = [];
 
     // @if TARGET='app'
