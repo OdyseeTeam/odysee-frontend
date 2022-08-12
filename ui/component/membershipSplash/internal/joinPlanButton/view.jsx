@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 
+import { useHistory } from 'react-router';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 
@@ -18,7 +19,7 @@ type Props = {
 const JoinButton = (props: Props) => {
   const { pageLocation, interval, plan, hasSavedCard, doOpenModal } = props;
 
-  if (hasSavedCard === undefined) return null;
+  const { push } = useHistory();
 
   return (
     <Button
@@ -29,7 +30,7 @@ const JoinButton = (props: Props) => {
           ? `/$/${PAGES.ODYSEE_PREMIUM}?interval=${interval}&plan=${plan}&pageLocation=${pageLocation}&`
           : undefined
       }
-      onClick={!hasSavedCard ? doOpenModal(MODALS.ADD_CARD) : undefined} // todo : add save card modal
+      onClick={!hasSavedCard ? () => push('/$/settings/card') : undefined} // todo : add save card modal
     />
   );
 };

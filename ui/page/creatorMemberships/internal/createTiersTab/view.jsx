@@ -139,9 +139,9 @@ const CreateTiersTab = (props: Props) => {
     // }
 
     // TODO: better way than setTimeout
-    setTimeout(function () {
-      document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
-    }, 15);
+    // setTimeout(function () {
+    //   document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
+    // }, 15);
   }
 
   const containsPerk = (perkId, tier) => {
@@ -157,9 +157,9 @@ const CreateTiersTab = (props: Props) => {
 
   function createEditTier(tier, membershipIndex) {
     // TODO: better way than setTimeout
-    setTimeout(function () {
-      document.getElementById('edit-div').scrollIntoView({ behavior: 'smooth' });
-    }, 15);
+    // setTimeout(function () {
+    //   document.getElementById('edit-div').scrollIntoView({ behavior: 'smooth' });
+    // }, 15);
 
     console.log('tier ');
     console.log(tier);
@@ -266,7 +266,7 @@ const CreateTiersTab = (props: Props) => {
                   </div>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.Membership.description}</h1>
                   <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                    Monthly Pledge: ${membershipTier.NewPrices[0].unit_amount / 100}
+                    Monthly Pledge: ${membershipTier.NewPrices[0].Price.amount / 100}
                   </h1>
                   {membershipTier.Perks &&
                     membershipTier.Perks.map((tierPerk, i) => (
