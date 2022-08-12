@@ -38,7 +38,7 @@ jobs:
         run: |
           yarn global add cross-env
           yarn
-          yarn compile:web
+          cross-env NODE_ENV=production yarn compile:web
         env:
           # UI
           WELCOME_VERSION: 1.0
@@ -48,7 +48,6 @@ jobs:
           SITE_TITLE: Odysee
           SITE_NAME: Odysee
           SHOW_ADS: false
-          NODE_ENV: production
           YRBL_HAPPY_IMG_URL: https://player.odycdn.com/api/v3/streams/free/yrbl-happy/7aa50a7e5adaf48691935d55e45d697547392929/839d9a
           YRBL_SAD_IMG_URL: https://player.odycdn.com/api/v3/streams/free/yrbl-sad/c2d9649633d974e5ffb503925e1f17d951f1bd0f/f262dd
           ENABLE_COMMENT_REACTIONS: true
