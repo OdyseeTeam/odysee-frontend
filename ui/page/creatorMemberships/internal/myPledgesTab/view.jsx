@@ -80,38 +80,36 @@ function MyPledgesTab(props: Props) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                {myActiveMemberships?.map((membership, i) => {
-                  return (
-                    <>
-                      <td>
-                        <Button button="link" navigate={pledges[i].url + '?view=membership'}>
-                          <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
-                          <span dir="auto" className="button__label">
-                            {membership.Membership.channel_name}
-                          </span>
-                        </Button>
-                      </td>
-                      <td>{membership.MembershipDetails.name}</td>
-                      {/* TODO: add moment logic here to calculate number of months */}
-                      <td>{pledges[i].timeAgo}</td>
-                      <td>
-                        ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
-                        {capitalizeFirstLetter(pledges[i].period)}
-                      </td>
-                      <td>
+              {myActiveMemberships?.map((membership, i) => {
+                return (
+                  <tr key={i}>
+                    <td>
+                      <Button button="link" navigate={pledges[i].url + '?view=membership'}>
+                        <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
                         <span dir="auto" className="button__label">
-                          <Button
-                            button="primary"
-                            label={__('See Details')}
-                            navigate={pledges[i].url + '?view=membership'}
-                          />
+                          {membership.Membership.channel_name}
                         </span>
-                      </td>
-                    </>
-                  );
-                })}
-              </tr>
+                      </Button>
+                    </td>
+                    <td>{membership.MembershipDetails.name}</td>
+                    {/* TODO: add moment logic here to calculate number of months */}
+                    <td>{pledges[i].timeAgo}</td>
+                    <td>
+                      ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
+                      {capitalizeFirstLetter(pledges[i].period)}
+                    </td>
+                    <td>
+                      <span dir="auto" className="button__label">
+                        <Button
+                          button="primary"
+                          label={__('See Details')}
+                          navigate={pledges[i].url + '?view=membership'}
+                        />
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
