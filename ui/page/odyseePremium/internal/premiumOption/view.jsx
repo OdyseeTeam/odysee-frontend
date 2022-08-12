@@ -92,7 +92,7 @@ const PremiumOption = (props: Props) => {
 
       {!isCancelled && (
         <h4 className="membership_info">
-          <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(Membership.current_period_end)}
+          <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(Subscription.current_period_end * 1000)}
         </h4>
       )}
 

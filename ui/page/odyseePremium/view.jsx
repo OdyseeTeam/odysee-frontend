@@ -35,7 +35,6 @@ const OdyseeMembershipPage = (props: Props) => {
   } = props;
 
   const [hasShownModal, setHasShownModal] = React.useState(false);
-  const [showCanceled, setShowCanceled] = React.useState(false);
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
   const canceledMemberships = membershipMine && Object.values(membershipMine.canceledMemberships);
@@ -44,7 +43,6 @@ const OdyseeMembershipPage = (props: Props) => {
     Object.values(membershipMine.activeMemberships).filter(
       (membership) => membership.MembershipDetails.channel_name === '@odysee'
     );
-
   const purchasedMemberships =
     membershipMine &&
     Object.values(membershipMine.purchasedMemberships).filter(
@@ -144,23 +142,14 @@ const OdyseeMembershipPage = (props: Props) => {
             <Card
               className="premium-explanation-text"
               title={__('Canceled Memberships')}
-              titleActions={
-                <Button
-                  button="close"
-                  icon={showCanceled ? ICONS.UP : ICONS.DOWN}
-                  onClick={() => setShowCanceled(!showCanceled)}
-                />
-              }
-              subtitle={__('Expand to view your Canceled Memberships list')}
               body={
-                showCanceled &&
-                (canceledMemberships.length === 0 ? (
+                canceledMemberships.length === 0 ? (
                   <h4>{__('You currently have no canceled memberships')}</h4>
                 ) : (
                   canceledMemberships.map((membership) => (
                     <PremiumOption key={membership.Membership.name} membership={membership} isCancelled />
                   ))
-                ))
+                )
               }
             />
           )}

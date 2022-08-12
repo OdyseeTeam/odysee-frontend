@@ -36,7 +36,8 @@ export default function ConfirmationPage(props: Props) {
       price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
-    doMembershipBuy(testChannelParams, closeModal).then(() =>
+    doMembershipBuy(testChannelParams).then(() => {
+      if (closeModal) closeModal();
       doToast({
         message: __(
           "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
@@ -45,8 +46,8 @@ export default function ConfirmationPage(props: Props) {
             creator_channel_name: selectedTier.Membership.channel_name,
           }
         ),
-      })
-    );
+      });
+    });
   }
 
   return (

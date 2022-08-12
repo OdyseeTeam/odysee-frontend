@@ -36,6 +36,7 @@ export default function PreviewPage(props: Props) {
     setExpandedTabs,
     setSeeAllTiers,
     seeAllTiers,
+    membershipTiers,
     // -- redux --
     canReceiveFiatTips,
     hasSavedCard,
@@ -209,18 +210,24 @@ export default function PreviewPage(props: Props) {
           // modal preview section
           <>
             <div className="membership-join__tab-buttons">
-              {membershipTiers.map((membershipTier, index) => {
-                const tierStr = __('Tier %tier_number%', { tier_number: index + 1 });
-                return <TabSwitchButton key={tierStr} index={index} label={tierStr} {...tabButtonProps} />;
+              {membershipTiers?.map((membershipTier, index) => {
+                return (
+                  <TabSwitchButton
+                    key={index}
+                    index={index}
+                    label={membershipTier.Membership.name}
+                    {...tabButtonProps}
+                  />
+                );
               })}
             </div>
 
             <div className="membership-join__body">
               <section className="membership-join__plan-info">
-                <h1 className="membership-join__plan-header">{selectedTier.name}</h1>
+                <h1 className="membership-join__plan-header">{selectedTier.Membership.name}</h1>
                 <span className="section__subtitle membership-join__plan-description">
                   <h1 style={{ lineHeight: '27px' }}>
-                    <BalanceText>{selectedTier.description}</BalanceText>
+                    <BalanceText>{selectedTier.Membership.description}</BalanceText>
                   </h1>
                 </span>
               </section>
@@ -230,7 +237,7 @@ export default function PreviewPage(props: Props) {
                   {__('Perks')}
                 </h1>
                 <ul className="membership-join-perks__list">
-                  {selectedTier.Perks.map((tierPerk, i) => (
+                  {selectedTier.Perks?.map((tierPerk, i) => (
                     <p key={tierPerk}>
                       <li className="section__subtitle membership-join__perk-item">{tierPerk.description}</li>
                     </p>
@@ -271,7 +278,7 @@ export default function PreviewPage(props: Props) {
                 type="submit"
                 disabled={shouldDisablePurchase || checkingOwnMembershipCard}
                 label={__('Signup for $%membership_price% a month', {
-                  membership_price: selectedTier.monthlyContributionInUSD,
+                  membership_price: selectedTier.NewPrices[0].Price.amount / 100,
                 })}
                 onClick={handleConfirm}
               />
@@ -296,7 +303,7 @@ type TabButtonProps = {
 };
 
 const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
-  const { label, activeTab, setActiveTab, index, setMembershipIndex } = tabButtonProps;
+  const { label, activeTab, setActiveTab, index, membershipIndex, setMembershipIndex } = tabButtonProps;
 
   return (
     <Button
@@ -305,10 +312,12 @@ const TabSwitchButton = (tabButtonProps: TabButtonProps) => {
       onClick={() => {
         const tipInputElement = document.getElementById('tip-input');
         if (tipInputElement) tipInputElement.focus();
-        setActiveTab(label);
+        if (setActiveTab) setActiveTab(label);
         setMembershipIndex(index);
       }}
-      className={classnames('button-toggle', { 'button-toggle--active': activeTab === label })}
+      className={classnames('button-toggle', {
+        'button-toggle--active': activeTab ? activeTab === label : index === membershipIndex,
+      })}
     />
   );
 };

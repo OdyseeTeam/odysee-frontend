@@ -21,7 +21,6 @@ function JoinMembershipCard(props: Props) {
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [membershipIndex, setMembershipIndex] = React.useState(0);
-  const [activeTab, setActiveTab] = React.useState('Tier 1');
 
   const [expandedTabs, setExpandedTabs] = React.useState({
     0: false,
@@ -38,7 +37,7 @@ function JoinMembershipCard(props: Props) {
     }
   }, [channelClaimId, channelName, creatorMemberships, doMembershipList]);
 
-  const tabButtonProps = { setMembershipIndex, activeTab, setActiveTab };
+  const tabButtonProps = { setMembershipIndex, membershipIndex };
   const pageProps = { uri, selectedTier: creatorMemberships && creatorMemberships[membershipIndex] };
 
   return (

@@ -77,7 +77,6 @@ export const doMembershipMine = () => async (dispatch: Dispatch) =>
       const activeMemberships = {};
       const canceledMemberships = {};
       const purchasedMemberships = {};
-      let activeOdyseeMembership;
 
       for (const membership of response) {
         const creatorClaimId = membership.MembershipDetails.channel_id;
@@ -91,16 +90,11 @@ export const doMembershipMine = () => async (dispatch: Dispatch) =>
           canceledMemberships[creatorClaimId] = membership;
         }
         purchasedMemberships[creatorClaimId] = membership;
-
-        const membershipChannel = membership.channel_name;
-        if (membershipChannel === ODYSEE_CHANNEL.NAME) {
-          activeOdyseeMembership = true;
-        }
       }
 
       dispatch({
         type: ACTIONS.SET_MEMBERSHIP_DATA,
-        data: { activeMemberships, canceledMemberships, purchasedMemberships, activeOdyseeMembership },
+        data: { activeMemberships, canceledMemberships, purchasedMemberships },
       });
     })
     .catch((err) => dispatch({ type: ACTIONS.SET_MEMBERSHIP_DATA_ERROR, data: err }));
