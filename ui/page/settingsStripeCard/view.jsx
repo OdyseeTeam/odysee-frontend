@@ -67,7 +67,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
       cardNameValue: '',
     });
 
-    const { preferredCurrency, locale } = this.props;
+    const { preferredCurrency, locale, getCustomerStatus } = this.props;
 
     // use preferredCurrency if it's set on client, otherwise use USD, unless in Europe then use EUR
     if (preferredCurrency) {
@@ -107,6 +107,7 @@ class SettingsStripeCard extends React.Component<Props, State> {
     setTimeout(function () {
       // check if customer has card setup already
       if (stripeEnvironment) {
+
         Lbryio.call(
           'customer',
           'status',
@@ -380,6 +381,8 @@ class SettingsStripeCard extends React.Component<Props, State> {
                 paymentMethodId: customerStatusResponse.PaymentMethods[0].id,
                 cardName: customerStatusResponse.PaymentMethods[0].billing_details.name || formattedEmailName,
               });
+
+              getCustomerStatus();
             });
 
             changeLoadingState(false);

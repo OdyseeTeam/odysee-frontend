@@ -155,6 +155,7 @@ export function doPaymentHistory() {
       },
       'post'
     ).then((customerTransactionResponse: any) => {
+
       // reverse so order is from most recent to latest
       if (customerTransactionResponse && customerTransactionResponse.length) {
         customerTransactionResponse.reverse();
@@ -259,6 +260,8 @@ export function doGetCustomerStatus() {
 
       if (defaultPaymentMethodId) {
         dispatch({ type: ACTIONS.SET_HAS_SAVED_CARD });
+      } else {
+        dispatch({ type: ACTIONS.SET_HAS_NO_SAVED_CARD });
       }
     });
   };

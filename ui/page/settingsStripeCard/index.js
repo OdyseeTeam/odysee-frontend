@@ -3,6 +3,7 @@ import { doSetClientSetting } from 'redux/actions/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail, selectUserEmail, selectUserLocale } from 'redux/selectors/user';
 import { doOpenModal } from 'redux/actions/app';
+import { doGetCustomerStatus } from 'redux/actions/stripe';
 import { doToast } from 'redux/actions/notifications';
 import * as SETTINGS from 'constants/settings';
 
@@ -17,6 +18,7 @@ const select = (state) => ({
 
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+  getCustomerStatus : () => dispatch(doGetCustomerStatus()),
   doToast: (options) => dispatch(doToast(options)),
   setPreferredCurrency: (value) => {
     dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
