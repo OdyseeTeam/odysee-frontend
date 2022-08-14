@@ -94,36 +94,37 @@ type Props = {
 
 function CommentView(props: Props) {
   const {
-    comment,
-    myChannelIds,
-    doClearPlayingUri,
+    activeChannelMembership,
     claim,
-    uri,
-    updateComment,
-    fetchReplies,
-    totalReplyPages,
-    linkedCommentId,
-    threadCommentId,
-    linkedCommentAncestors,
+    comment,
+    commenterMembership,
     commentingEnabled,
-    hasChannels,
+    doClearPlayingSource,
+    doClearPlayingUri,
     doToast,
-    isTopLevel,
+    fetchReplies,
+    fetchedReplies,
+    hasChannels,
     hideActions,
     hideContextMenu,
+    isTopLevel,
+    linkedCommentAncestors,
+    linkedCommentId,
+    membership,
+    myChannelIds,
     othersReacts,
     playingUri,
+    quickReply,
+    repliesFetching,
+    setQuickReply,
     stakedLevel,
     supportDisabled,
-    setQuickReply,
-    quickReply,
-    commenterMembership,
-    fetchedReplies,
-    repliesFetching,
-    threadLevel = 0,
+    threadCommentId,
     threadDepthLevel = 0,
-    doClearPlayingSource,
-    membership,
+    threadLevel = 0,
+    totalReplyPages,
+    updateComment,
+    uri,
   } = props;
 
   const commentElemRef = React.useRef();
@@ -142,6 +143,11 @@ function CommentView(props: Props) {
     replies: numDirectReplies,
     timestamp,
   } = comment;
+
+  const activeMembershipFromOtherApi =
+    activeChannelMembership?.Membership.channel_id === channelId &&  activeChannelMembership?.MembershipDetails?.name
+
+  const membershipToCheck = membership || activeMembershipFromOtherApi;
 
   const timePosted = timestamp * 1000;
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
@@ -332,7 +338,10 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={membership} uri={uri} channelUri={channelUri} linkPage />
+              {/* odysee premium membership */}
+              <PremiumBadge membership={commenterMembership} uri={uri} channelUri={channelUri} linkPage />
+              {/* channel membership */}
+              <PremiumBadge membership={membershipToCheck} uri={uri} channelUri={channelUri} linkPage />
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}

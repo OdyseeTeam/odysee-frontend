@@ -21,6 +21,7 @@ import {
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectActiveMembershipForChannelUri } from 'redux/selectors/memberships';
 import Comment from './view';
 
 const select = (state, props) => {
@@ -32,21 +33,22 @@ const select = (state, props) => {
   const reactionKey = activeChannelId ? `${comment_id}:${activeChannelId}` : comment_id;
 
   return {
-    myChannelIds: selectMyClaimIdsRaw(state),
-    claim: makeSelectClaimForUri(uri)(state),
-    thumbnail: channel_url && selectThumbnailForUri(state, channel_url),
-    commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
-    othersReacts: selectOthersReactsForComment(state, reactionKey),
     activeChannelClaim,
-    hasChannels: selectHasChannels(state),
-    playingUri: selectPlayingUri(state),
-    stakedLevel: selectStakedLevelForChannelUri(state, channel_url),
-    linkedCommentAncestors: selectFetchedCommentAncestors(state),
-    totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
+    activeChannelMembership: selectActiveMembershipForChannelUri(state, uri),
+    claim: makeSelectClaimForUri(uri)(state),
     commenterMembership: channel_url && selectOdyseeMembershipForUri(state, channel_url),
-    repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
+    commentingEnabled: Boolean(selectUserVerifiedEmail(state)),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
+    hasChannels: selectHasChannels(state),
+    linkedCommentAncestors: selectFetchedCommentAncestors(state),
     membership: channel_id && selectMembershipForChannelId(state, channel_id),
+    myChannelIds: selectMyClaimIdsRaw(state),
+    othersReacts: selectOthersReactsForComment(state, reactionKey),
+    playingUri: selectPlayingUri(state),
+    repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
+    stakedLevel: selectStakedLevelForChannelUri(state, channel_url),
+    thumbnail: channel_url && selectThumbnailForUri(state, channel_url),
+    totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
   };
 };
 

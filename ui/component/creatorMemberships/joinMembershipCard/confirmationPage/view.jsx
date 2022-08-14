@@ -29,8 +29,8 @@ export default function ConfirmationPage(props: Props) {
   function handleJoinMembership() {
     const testChannelParams = {
       membership_id: selectedTier.Membership.id,
-      channel_id: selectedTier.Membership.channel_id,
-      channel_name: selectedTier.Membership.channel_name,
+      channel_id: activeChannelClaim.claim_id,
+      channel_name: activeChannelClaim.name,
       price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
