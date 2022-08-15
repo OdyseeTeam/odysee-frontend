@@ -9,38 +9,39 @@ import { getStripeEnvironment } from 'util/stripe';
 let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
-  preorderTag: number,
-  doOpenModal: (string, {}) => void,
-  claim: StreamClaim,
-  uri: string,
-  claimIsMine: boolean,
-  // preferredCurrency: string,
-  preorderContentClaimId: string,
-  doResolveClaimIds: (Array<string>) => Promise<any>,
-  preorderContentClaim: Claim,
-  purchaseTag: string,
-  purchaseMadeForClaimId: ?boolean,
-  doCheckIfPurchasedClaimId: (string) => void,
   channelClaimId: string,
   channelName: string,
+  claim: StreamClaim,
+  claimIsMine: boolean,
+  doCheckIfPurchasedClaimId: (string) => void,
+  doOpenModal: (string, {}) => void,
+  doResolveClaimIds: (Array<string>) => Promise<any>,
+  preferredCurrency: string,
+  preorderContentClaim: Claim,
+  preorderContentClaimId: string,
+  preorderTag: number,
+  purchaseMadeForClaimId: ?boolean,
+  purchaseTag: string,
+  uri: string,
 };
 
 export default function PreorderButton(props: Props) {
   const {
-    doOpenModal,
-    uri,
-    claim,
-    claimIsMine,
-    // preferredCurrency,
-    doResolveClaimIds,
-    doCheckIfPurchasedClaimId,
-    preorderContentClaim, // populates after doResolveClaimIds
-    preorderContentClaimId, // full content that will be purchased
-    preorderTag, // the price of the preorder
-    purchaseTag, // the price of the purchase
-    purchaseMadeForClaimId,
     channelClaimId,
     channelName,
+    claim,
+    claimIsMine,
+    doCheckIfPurchasedClaimId,
+    doOpenModal,
+    doResolveClaimIds,
+    preorderContentClaim, // populates after doResolveClaimIds
+    preorderContentClaimId, // full content that will be purchased
+    preferredCurrency,
+    preorderTag, // the price of the preorder
+    purchaseMadeForClaimId,
+    purchaseTag, // the price of the purchase
+    rentalTag,
+    uri,
   } = props;
 
   const [hasChargesEnabled, setHasChargesEnabled] = React.useState(false);
@@ -104,11 +105,10 @@ export default function PreorderButton(props: Props) {
 
   let fiatIconToUse = ICONS.FINANCE;
   let fiatSymbol = '$';
-  // hardcore to USD for now
-  // if (preferredCurrency === 'EUR') {
-  //   fiatIconToUse = ICONS.EURO;
-  //   fiatSymbol = '€';
-  // }
+  if (preferredCurrency === 'EUR') {
+    fiatIconToUse = ICONS.EURO;
+    fiatSymbol = '€';
+  }
 
   const preorderOrPurchase = purchaseTag ? 'purchase' : 'preorder';
 

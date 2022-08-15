@@ -741,6 +741,22 @@ export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri
   if (matchingTag) return matchingTag.slice(9);
 })((state, uri) => String(uri));
 
+export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('rental:'));
+  if (matchingTag) {
+    const trimmedTag = matchingTag.slice(7);
+
+    const tags = trimmedTag.split(':');
+
+    if (tags && tags.length === 2) {
+      return {
+        price: tags[0],
+        expirationTimeInSeconds: tags[1],
+      };
+    }
+  }
+})((state, uri) => String(uri));
+
 export const selectPreorderContentClaimIdForUri = createCachedSelector(
   selectMetadataForUri,
   (metadata: ?GenericMetadata) => {
