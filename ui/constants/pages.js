@@ -94,6 +94,7 @@ exports.GENERAL = 'general';
 exports.LIST = 'list';
 exports.ODYSEE_PREMIUM = 'premium';
 exports.CREATOR_MEMBERSHIPS = 'memberships';
+exports.CREATOR_MEMBERSHIP_HISTORY = 'membership/history';
 exports.PLAYLIST = 'playlist';
 exports.POPOUT = 'popout';
 exports.LATEST = 'latest';

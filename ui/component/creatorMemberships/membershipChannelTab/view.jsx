@@ -1,6 +1,7 @@
 // @flow
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import Card from 'component/common/card';
 import React from 'react';
 import Button from 'component/button';
@@ -126,7 +127,8 @@ export default function MembershipChannelTab(props: Props) {
                   type="submit"
                   disabled={false}
                   label={`View Membership History`}
-                  navigate={`/${channelId}/membership_history`}
+                  // navigate={`/${channelId}/membership_history`}
+                  navigate={`/$/${PAGES.CREATOR_MEMBERSHIP_HISTORY}`}
                 />
 
                 {membershipisActive && <Button

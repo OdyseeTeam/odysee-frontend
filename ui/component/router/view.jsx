@@ -411,6 +411,8 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.ODYSEE_PREMIUM}`} component={OdyseeMembershipPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} component={OdyseeMembershipsPage} />
 
+        <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIP_HISTORY}`} component={CreatorMembershipPage} />
+
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
         <Route
