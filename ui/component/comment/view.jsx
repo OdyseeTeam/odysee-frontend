@@ -144,10 +144,17 @@ function CommentView(props: Props) {
     timestamp,
   } = comment;
 
-  const activeMembershipFromOtherApi =
-    activeChannelMembership?.Membership.channel_id === channelId &&  activeChannelMembership?.MembershipDetails?.name
+  // channel membership badge to show
+  const activeChannelMembershipChannelId = activeChannelMembership?.Membership?.channel_id;
+  const activeChannelMembershipName = activeChannelMembership?.MembershipDetails?.name;
 
-  const membershipToCheck = membership || activeMembershipFromOtherApi;
+  // if it's the user's own membership, use active channel selector (it's not cached on the backend)
+  let membershipToCheck;
+  if (channelId === activeChannelMembershipChannelId) {
+    membershipToCheck = activeChannelMembershipName;
+  } else {
+    membershipToCheck = membership;
+  }
 
   const timePosted = timestamp * 1000;
   const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
