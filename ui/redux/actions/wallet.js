@@ -819,8 +819,7 @@ export const preOrderPurchase = (
       creator_channel_claim_id: tipParams.channelClaimId,
       tipper_channel_name: userParams.activeChannelName,
       tipper_channel_claim_id: userParams.activeChannelId,
-      // currency: preferredCurrency || 'USD',
-      currency: 'USD', // hardcode to USD at the moment
+      currency: preferredCurrency || 'USD',
       anonymous: anonymous,
       source_claim_id: claimId,
       environment: stripeEnvironment,

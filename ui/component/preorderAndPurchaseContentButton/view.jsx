@@ -154,7 +154,7 @@ export default function PreorderButton(props: Props) {
                 })}
                 requiresAuth
                 onClick={() =>
-                  doOpenModal(MODALS.PREORDER_CONTENT, {
+                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
                     preorderOrPurchase,
                     purchaseTag,
@@ -217,7 +217,7 @@ export default function PreorderButton(props: Props) {
                 })}
                 requiresAuth
                 onClick={() =>
-                  doOpenModal(MODALS.PREORDER_CONTENT, {
+                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
                     preorderOrPurchase,
                     preorderTag,

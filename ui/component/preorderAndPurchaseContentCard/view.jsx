@@ -59,6 +59,7 @@ type Props = {
   purchaseMadeForClaimId: ?boolean,
   hasCardSaved: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
+  preferredCurrency: string,
 };
 
 export default function PreorderContent(props: Props) {
@@ -69,7 +70,7 @@ export default function PreorderContent(props: Props) {
     tipChannelName,
     doHideModal,
     preOrderPurchase,
-    // preferredCurrency,
+    preferredCurrency,
     preorderTag,
     preorderOrPurchase,
     purchaseTag,
@@ -90,8 +91,7 @@ export default function PreorderContent(props: Props) {
   const [tipAmount, setTipAmount] = React.useState(0);
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
-  // const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
-  const fiatSymbol = '$';
+  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
   const STR = STRINGS[preorderOrPurchase || 'preorder'];
 
   const AddCardButton = (
@@ -132,8 +132,7 @@ export default function PreorderContent(props: Props) {
       userParams,
       claimId,
       stripeEnvironment,
-      'USD', // hardcode to USD for the moment
-      // preferredCurrency,
+      preferredCurrency,
       preorderOrPurchase,
       checkIfFinished,
       doHideModal

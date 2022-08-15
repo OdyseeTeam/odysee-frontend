@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import { Modal } from 'modal/modal';
-import PreorderContent from 'component/preorderContent';
+import PreorderAndPurchaseContentCard from 'component/preorderAndPurchaseContentCard';
 
 type Props = {
   uri: string,
@@ -31,7 +31,7 @@ class ModalPreorderContent extends React.PureComponent<Props> {
 
     return (
       <Modal onAborted={doHideModal} ariaHideApp={false} isOpen type="card">
-        <PreorderContent
+        <PreorderAndPurchaseContentCard
           uri={uri}
           onCancel={doHideModal}
           preorderOrPurchase={preorderOrPurchase}

@@ -19,7 +19,7 @@ import Button from 'component/button';
 import Empty from 'component/common/empty';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import PreorderButton from 'component/preorderButton';
+import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
@@ -270,7 +270,7 @@ export default function FilePage(props: Props) {
         {!isMarkdown && (
           <div className="file-page__secondary-content">
             <section className="file-page__media-actions">
-              <PreorderButton uri={uri} />
+              <PreorderAndPurchaseContentButton uri={uri} />
               {claimIsMine && isLivestream && (
                 <div className="livestream__creator-message">
                   <h4>{__('Only visible to you')}</h4>
