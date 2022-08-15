@@ -19,6 +19,23 @@ import HomePage from 'page/home';
 const Code2257Page = lazyImport(() => import('web/page/code2257' /* webpackChunkName: "code2257" */));
 const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy' /* webpackChunkName: "privacypolicy" */));
 const TOSPage = lazyImport(() => import('web/page/tos' /* webpackChunkName: "tos" */));
+const CareersPage = lazyImport(() => import('web/page/careers' /* webpackChunkName: "careers" */));
+const CareersITProjectManagerPage = lazyImport(() =>
+  import('web/page/careers/itProjectManager' /* webpackChunkName: "itProjectManager" */)
+);
+const SeniorBackendEngineerPage = lazyImport(() =>
+  import('web/page/careers/seniorBackendEngineer' /* webpackChunkName: "seniorBackendEngineer" */)
+);
+const SeniorSysadminPage = lazyImport(() =>
+  import('web/page/careers/seniorSysadmin' /* webpackChunkName: "seniorSysadmin" */)
+);
+const SeniorAndroidDeveloperPage = lazyImport(() =>
+  import('web/page/careers/seniorAndroidDeveloper' /* webpackChunkName: "seniorAndroidDeveloper" */)
+);
+const SeniorIosDeveloperPage = lazyImport(() =>
+  import('web/page/careers/seniorIosDeveloper' /* webpackChunkName: "seniorIosDeveloper" */)
+);
+
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
 
@@ -335,6 +352,12 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.CODE_2257}`} exact component={Code2257Page} />
         <Route path={`/$/${PAGES.PRIVACY_POLICY}`} exact component={PrivacyPolicyPage} />
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
+        <Route path={`/$/${PAGES.CAREERS}`} exact component={CareersPage} />
+        <Route path={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`} exact component={CareersITProjectManagerPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`} exact component={SeniorBackendEngineerPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_SYSADMIN}`} exact component={SeniorSysadminPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_ANDROID_DEVELOPER}`} exact component={SeniorAndroidDeveloperPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_IOS_DEVELOPER}`} exact component={SeniorIosDeveloperPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
 

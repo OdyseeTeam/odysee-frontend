@@ -2,15 +2,13 @@
 import React from 'react';
 import CollectionItemsList from 'component/collectionItemsList';
 import Page from 'component/page';
+import { SECTION_TAGS } from 'constants/collections';
 import * as PAGES from 'constants/pages';
+import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
 import CollectionPublish from './internal/collectionPublish';
 import CollectionPrivateEdit from './internal/collectionPrivateEdit';
 import CollectionHeader from './internal/collectionHeader';
-
-export const PAGE_VIEW_QUERY = 'view';
-export const EDIT_PAGE = 'edit';
-export const PUBLISH_PAGE = 'publish';
 
 type Props = {
   collectionId: string,
@@ -45,11 +43,29 @@ export default function CollectionPage(props: Props) {
   const { name, totalItems } = collection || {};
 
   const urlParams = new URLSearchParams(search);
-  const publishing = urlParams.get(PAGE_VIEW_QUERY) === PUBLISH_PAGE;
-  const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
+  const publishing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.PUBLISH;
+  const editing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.EDIT;
+  const returnPath = urlParams.get('redirect');
+
   const editPage = editing || publishing;
   const urlsReady =
     collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
+
+  function handlePreSubmit(params) {
+    if (urlParams.get(CP.QUERIES.TYPE) === CP.TYPES.FEATURED) {
+      const channelId = collection.featuredChannelsParams?.channelId;
+      console.assert(channelId, 'Featured-channels without a parent channel ID'); // eslint-disable-line no-console
+
+      return {
+        ...params,
+        // Inject SECTION_TAGS.FEATURED_CHANNELS as the first tag:
+        tags: [{ name: SECTION_TAGS.FEATURED_CHANNELS }, ...params.tags],
+        // The channel must not be changed:
+        channel_id: channelId,
+      };
+    }
+    return params;
+  }
 
   React.useEffect(() => {
     if (collectionId && !urlsReady && !collection) {
@@ -66,7 +82,8 @@ export default function CollectionPage(props: Props) {
   }
 
   if (editPage) {
-    const onDone = (id) => replace(`/$/${PAGES.PLAYLIST}/${id || collectionId}`);
+    const getReturnPath = (id) => returnPath || `/$/${PAGES.PLAYLIST}/${id || collectionId}`;
+    const onDone = (id) => replace(getReturnPath(id));
 
     return (
       <Page
@@ -78,13 +95,13 @@ export default function CollectionPage(props: Props) {
             action: uri || editing ? __('Editing') : __('Publishing'),
           }),
           simpleTitle: uri || editing ? __('Editing') : __('Publishing'),
-          backNavDefault: onDone,
+          backNavDefault: getReturnPath(collectionId),
         }}
       >
         {editing ? (
           <CollectionPrivateEdit collectionId={collectionId} />
         ) : (
-          <CollectionPublish uri={uri} collectionId={collectionId} onDone={onDone} />
+          <CollectionPublish uri={uri} collectionId={collectionId} onPreSubmit={handlePreSubmit} onDone={onDone} />
         )}
       </Page>
     );

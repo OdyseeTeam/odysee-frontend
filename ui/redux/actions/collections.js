@@ -2,7 +2,7 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
+import { doClaimSearch, doAbandonClaim, doCollectionPublishUpdate, doCollectionPublish } from 'redux/actions/claims';
 import {
   selectClaimForClaimId,
   selectPermanentUrlForUri,
@@ -18,12 +18,17 @@ import {
   selectCollectionHasEditsForId,
   selectUrlsForCollectionId,
   selectCollectionSavedForId,
+  selectFeaturedChannelsByChannelId,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
-import { resolveCollectionType } from 'util/collections';
+import { resolveAuxParams, resolveCollectionType } from 'util/collections';
 import { isPermanentUrl, getThumbnailFromClaim } from 'util/claim';
+import { sanitizeName } from 'util/lbryURI';
 import { parseClaimIdFromPermanentUrl } from 'util/url';
-import { doToast } from 'redux/actions/notifications';
+import { doError, doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
 
@@ -291,7 +296,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
           resolvedItemsByUrl[collectionItem.canonical_url] = collectionItem;
         });
 
-        collectionType = resolveCollectionType(valueTypes, streamTypes);
+        collectionType = resolveCollectionType(value.tags, valueTypes, streamTypes);
       }
 
       newCollectionObjectsById[collectionId] = {
@@ -305,6 +310,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
         description,
         thumbnail,
         key: editedCollectionItems === collectionItems ? 'edited' : undefined,
+        ...resolveAuxParams(collectionType, claim),
       };
     } else {
       invalidCollectionIds.push(collectionId);
@@ -384,10 +390,11 @@ export const doFetchItemsInCollection = (options: { collectionId: string, pageSi
   return doFetchItemsInCollections(newOptions);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
+export const doCollectionEdit = (
+  collectionId: string,
+  params: CollectionEditParams,
+  skipSanitization: boolean = false
+) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const collection: Collection = selectCollectionForId(state, collectionId);
 
@@ -402,37 +409,41 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
   const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
 
-  const { uris: anyUris, remove, order, type } = params;
+  const { uris: anyUris, remove, replace, order, type } = params;
 
   // -- sanitization --
   // only permanent urls can be added to collections
   let uris;
 
   if (anyUris) {
-    uris = [];
+    if (skipSanitization) {
+      uris = anyUris;
+    } else {
+      uris = [];
+      anyUris.forEach(async (uri) => {
+        // related to selectBrokenUrlsForCollectionId
+        const isDeletingBrokenUris = typeof uri !== 'string';
 
-    anyUris.forEach(async (uri) => {
-      // related to selectBrokenUrlsForCollectionId
-      const isDeletingBrokenUris = typeof uri !== 'string';
+        // $FlowFixMe
+        if (isPermanentUrl(uri) || isDeletingBrokenUris) return uris.push(uri);
 
-      // $FlowFixMe
-      if (isPermanentUrl(uri) || isDeletingBrokenUris) return uris.push(uri);
-
-      const url = selectPermanentUrlForUri(state, uri);
-      // $FlowFixMe
-      return uris.push(url);
-    });
+        const url = selectPermanentUrlForUri(state, uri);
+        // $FlowFixMe
+        return uris.push(url);
+      });
+    }
   }
 
   // -------------------
 
-  const collectionType = type || collection.type;
   const currentUrls = collection.items ? collection.items.concat() : [];
   let newItems = currentUrls;
 
   // Passed uris to add/remove:
   if (uris) {
-    if (remove) {
+    if (replace) {
+      newItems = uris;
+    } else if (remove) {
       // Filters (removes) the passed uris from the current list items
       // $FlowFixMe
       newItems = currentUrls.filter((url) => url && !uris?.includes(url));
@@ -465,12 +476,12 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     data: {
       collectionKey,
       collection: {
+        ...collection,
         items: newItems,
-        id: collectionId,
-        type: collectionType,
-        name: params.name || collection.name,
-        description: params.description || collection.description,
-        thumbnail: params.thumbnail || collection.thumbnail,
+        ...(type ? { type } : {}),
+        ...(params.name ? { name: params.name } : {}),
+        ...(params.description ? { description: params.description } : {}),
+        ...(params.thumbnail ? { thumbnail: params.thumbnail } : {}),
       },
     },
   });
@@ -496,3 +507,61 @@ export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =
 
 export const doClearCollectionErrors = () => (dispatch: Dispatch) =>
   dispatch({ type: ACTIONS.CLEAR_COLLECTION_ERRORS });
+
+export const doPublishFeaturedChannels = (channelId: ChannelId) => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const featuredChannelsIds = selectFeaturedChannelsByChannelId(state)[channelId];
+  const eList = selectMyEditedCollections(state);
+  const uList = selectMyUnpublishedCollections(state);
+
+  const errors: Array<Error> = [];
+
+  if (featuredChannelsIds) {
+    dispatch({ type: ACTIONS.COLLECTION_FC_PUBLISH_STARTED });
+    let useDelay = false;
+
+    for (let i = 0; i < featuredChannelsIds.length; ++i) {
+      const fcId = featuredChannelsIds[i];
+      const fcCollection = selectCollectionForId(state, fcId);
+
+      const common = {
+        channel_id: channelId,
+        tags: [{ name: COLS.SECTION_TAGS.FEATURED_CHANNELS }],
+        bid: '0.0001',
+        claims: selectClaimIdsForCollectionId(state, fcId).filter(Boolean), // remove falseys.
+        title: fcCollection.name,
+        blocking: true,
+      };
+
+      if (eList[fcId]) {
+        const fcClaim = selectClaimForClaimId(state, fcId);
+        const options = { name: fcClaim.name, claim_id: fcClaim.claim_id, ...common };
+        await dispatch(doCollectionPublishUpdate(options)).catch((err) => errors.push(err));
+      } else if (uList[fcId]) {
+        const options = { name: `${sanitizeName(fcCollection.name)}--${fcId}`, ...common };
+        await dispatch(doCollectionPublish(options, fcId)).catch((err) => errors.push(err));
+        useDelay = true;
+      }
+    }
+
+    if (errors.length) {
+      dispatch(
+        doError({
+          message: 'Failed to create/update Featured Channels list.',
+          cause: {
+            list: errors.map((x) => x.message).join(','),
+          },
+        })
+      );
+    }
+
+    if (useDelay) {
+      // TODO: batch-action problem?
+      setTimeout(() => dispatch({ type: ACTIONS.COLLECTION_FC_PUBLISH_COMPLETED }), 5000);
+    } else {
+      dispatch({ type: ACTIONS.COLLECTION_FC_PUBLISH_COMPLETED });
+    }
+
+    return errors;
+  }
+};
