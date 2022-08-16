@@ -148,8 +148,10 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   );
 
   function handleSubmit(transactionType) {
+    const itsARental = transactionType === 'rent' || stringsToUse === 'rent';
+
     const tipParams: TipParams = {
-      tipAmount,
+      tipAmount : itsARental ? tags.rentalTag.price : tipAmount,
       tipChannelName: tipChannelName || '',
       channelClaimId: channelClaimId || '',
     };
@@ -161,8 +163,6 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     }
 
     setWaitingForBackend(true);
-
-    const itsARental = transactionType === 'rent' || stringsToUse === 'rent';
 
     let expirationTime =
       itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;

@@ -8,7 +8,6 @@ import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 const moment = require('moment');
 
-console.log(moment.duration);
 let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
@@ -60,6 +59,8 @@ export default function PreorderAndPurchaseButton(props: Props) {
     rentalPrice = rentalTag.price;
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds
   }
+
+  const purchaseClaimType = purchaseForClaimId.length && purchaseForClaimId[0].type;
 
   React.useEffect(() => {
     if (preorderContentClaimId) {
@@ -281,7 +282,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* purchasable content, already purchased or preordered */}
-          {purchaseTag && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+          {purchaseTag && purchaseClaimType === 'purchase' && !myUpload && !preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"
@@ -356,7 +357,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
               />
             </div>
           )}
-          {rentalTag && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+          {rentalTag && purchaseClaimType === 'rental' && !myUpload && !preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"

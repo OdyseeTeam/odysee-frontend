@@ -835,13 +835,12 @@ export const preOrderPurchase = (
       const STRINGS = {
         purchase: {
           title: 'Purchase completed successfully',
-          subtitle: 'Enjoy your content!',
         },
         preorder: {
           title: 'Preorder completed successfully',
           subtitle: 'You will be able to see the content as soon as it\'s available!',
         },
-        rent: {
+        rental: {
           title: 'Renting content completed successfully',
           subtitle: 'Enjoy your content!',
         },
