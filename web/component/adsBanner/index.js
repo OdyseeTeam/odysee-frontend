@@ -2,7 +2,8 @@ import { connect } from 'react-redux';
 import * as SETTINGS from 'constants/settings';
 import { selectAdBlockerFound } from 'redux/selectors/app';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { selectOdyseeMembershipIsPremiumPlus, selectUserCountry } from 'redux/selectors/user';
+import { selectOdyseeMembershipIsPremiumPlus } from 'redux/selectors/memberships';
+import { selectUserCountry } from 'redux/selectors/user';
 import AdsBanner from './view';
 
 const select = (state, props) => ({

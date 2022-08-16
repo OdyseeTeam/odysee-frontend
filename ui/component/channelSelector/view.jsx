@@ -27,6 +27,7 @@ type Props = {
   autoSet?: boolean,
   channelToSet?: string,
   disabled?: boolean,
+  doFetchOdyseeMembershipForChannelIds: (channelIds: ClaimIds) => void,
 };
 
 function ChannelSelector(props: Props) {
@@ -45,6 +46,7 @@ function ChannelSelector(props: Props) {
     autoSet,
     channelToSet,
     disabled,
+    doFetchOdyseeMembershipForChannelIds,
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
@@ -79,6 +81,12 @@ function ChannelSelector(props: Props) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps -- On mount if we get to autoSet a channel, set it.
   }, []);
+
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
 
   return (
     <div

@@ -4,11 +4,12 @@ import { selectLastActiveSubscriptions, selectSubscriptions } from 'redux/select
 import { doClearClaimSearch } from 'redux/actions/claims';
 import { doClearPurchasedUriSuccess } from 'redux/actions/file';
 import { selectFollowedTags } from 'redux/selectors/tags';
-import { selectUserVerifiedEmail, selectUser, selectOdyseeMembershipName } from 'redux/selectors/user';
+import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectHomepageData } from 'redux/selectors/settings';
 import { doSignOut } from 'redux/actions/app';
 import { selectUnseenNotificationCount } from 'redux/selectors/notifications';
 import { selectPurchaseUriSuccess } from 'redux/selectors/claims';
+import { selectOdyseeMembershipForChannelId } from 'redux/selectors/memberships';
 
 import SideNavigation from './view';
 
@@ -21,7 +22,7 @@ const select = (state) => ({
   unseenCount: selectUnseenNotificationCount(state),
   user: selectUser(state),
   homepageData: selectHomepageData(state),
-  odyseeMembership: selectOdyseeMembershipName(state),
+  odyseeMembership: selectOdyseeMembershipForChannelId(state), // todo MINE
 });
 
 export default connect(select, {

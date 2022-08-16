@@ -1,3 +1,46 @@
+/** CONFIRM / CANCEL PREMIUM MODAL **/
+.confirm-odysee-premium__modal {
+  max-width: 580px !important; // default modal width is too wide, looks weird
+}
+
+.stripe__confirm-remove-membership {
+  max-width: 600px;
+  padding: var(--spacing-m) var(--spacing-l) !important;
+
+  .card__subtitle {
+    line-height: 39px;
+    margin-top: 5px;
+    margin-bottom: -1px;
+  }
+
+  .section__actions {
+    display: block;
+    text-align: center;
+  }
+
+  .card__main-actions {
+    padding-top: 2px;
+  }
+
+  .card__subtitle {
+    text-wrap: balance;
+  }
+}
+
+.expanded-block {
+  height: auto !important;
+  max-height: 1000px !important;
+}
+
+.show-tiers {
+  display: flex !important;
+}
+
+.button--membership-see-all-tiers {
+  color: var(--color-text);
+  margin: 0 auto;
+}
+
 .membership_title {
   margin-top: var(--spacing-l);
   font-size: 18px;
@@ -34,9 +77,13 @@
 }
 
 .cancel-membership-button {
-  display: block;
-  margin-bottom: 18px;
   margin-top: 13px;
+  display: inline;
+  margin-left: 10px;
+}
+
+.edit-membership-button {
+  display: inline;
 }
 
 .explanation-text {
@@ -78,4 +125,429 @@
 
 .membership-bolded {
   color: var(--color-text);
+}
+
+/** CREATOR MEMBERSHIPS PAGE **/
+
+.my-membership__div {
+  .form-field--copyable {
+    max-width: 535px;
+    margin-top: 5px;
+  }
+
+  .channel__selector {
+    margin-bottom: 17px;
+  }
+
+  .membership_button {
+    max-width: 279px;
+  }
+}
+
+/** JOIN CARD **/
+
+.join-membership__purchase-button {
+  margin-top: var(--spacing-xxs);
+  margin-bottom: var(--spacing-xs);
+}
+
+.join-membership__block {
+  text-align: center;
+
+  padding: var(--spacing-s);
+  padding-bottom: var(--spacing-l);
+
+  display: flex;
+  flex-direction: column;
+  flex-basis: 32%;
+
+  border-radius: var(--border-radius);
+
+  transition: max-height 0.3s;
+  background-color: rgba(var(--color-header-background-base), 0.6);
+
+  @media (max-width: 1000px) {
+    flex-basis: 66%;
+    margin: 0 227px;
+  }
+
+  &:nth-child(4),
+  &:nth-child(5) {
+    display: none;
+  }
+}
+
+.button--membership-tier__show-more {
+  color: var(--color-text);
+  margin-top: var(--spacing-xs);
+
+  .button__content {
+    justify-content: center;
+  }
+}
+
+/** MEMBERSHIP TAB SECTION **/
+.card--join-membership {
+  .join-membership__blocks-wrapper {
+    display: flex;
+    flex-flow: wrap;
+    justify-content: space-around;
+    gap: 30px 0px;
+  }
+
+  .section__subtitle--join-membership__description {
+    max-width: 90%;
+    margin: 0 auto;
+  }
+
+  .card__body {
+    margin: 0 auto;
+  }
+
+  .join-membership__tier-info {
+    max-height: 132px;
+    overflow: hidden;
+    transition: all linear 5s;
+
+    .section__subtitle--join-membership__perk:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .can-create-your-own-memberships__div {
+    line-height: 28px;
+  }
+}
+
+.join-membership__plan-header {
+  margin-top: var(--spacing-s);
+  margin-bottom: var(--spacing-xxs);
+  font-size: calc(var(--font-base) + 4px);
+}
+
+.membership__tier-perks {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  //height: 100%;
+  align-items: center;
+
+  ul {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    list-style: none;
+
+    > div {
+      height: 100%;
+
+      .expandable__wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+
+        .expandable--closed {
+          max-height: calc(180px * 3 / 4);
+        }
+      }
+    }
+  }
+
+  li:before {
+    content: '\2605';
+    color: yellow;
+    display: inline-block;
+    margin-left: -1.3em;
+    width: 1.3em;
+  }
+
+  ul,
+  li {
+    list-style-position: inside !important;
+  }
+
+  p {
+    text-align: left;
+  }
+}
+
+.join-membership__tab-buttons {
+  margin-top: var(--spacing-s);
+}
+
+/** JOIN CARD ON CHANNEL PAGE **/
+
+.card--join-membership,
+.membership {
+  .section__actions {
+    display: block;
+  }
+
+  .card__header--between {
+    justify-content: center !important;
+  }
+
+  .card__subtitle {
+    line-height: 1.5 !important;
+  }
+
+  .confirm__wrapper {
+    padding-top: var(--spacing-s);
+
+    .confirm__section {
+      display: flex;
+      flex-direction: column;
+
+      &:not(:first-of-type) {
+        margin-top: var(--spacing-m);
+      }
+
+      .confirm__label {
+        margin-top: 0px;
+      }
+
+      .confirm__value {
+        font-size: unset;
+        display: unset;
+        margin-top: 0px;
+
+        ul {
+          padding: var(--spacing-s);
+          max-height: 15rem;
+          overflow: auto;
+        }
+
+        .section__subtitle--join-membership__perk {
+          text-align: start;
+          list-style-position: inside !important;
+        }
+      }
+    }
+  }
+
+  .card__first-pane,
+  .membership__body {
+    text-align: center;
+  }
+
+  .join-membership-tab-renewal-date__header {
+    font-size: 1.1rem;
+    margin-top: 43px;
+  }
+
+  .help--no-card {
+    color: var(--color-danger) !important;
+    font-size: var(--font-base);
+  }
+}
+
+.membership__tier-perks p {
+  text-align: left;
+}
+
+.section__subtitle--join-membership__perk,
+.membership__tier-perks li {
+  margin-left: 0px;
+  margin-right: 0px;
+
+  &:first-of-type {
+    margin-top: 0px;
+  }
+}
+
+.join-membership-support-time__header {
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.join-membership-support-time__header:nth-of-type(2) {
+  margin-bottom: 34px;
+}
+
+.show-additional-membership-info__div {
+  label {
+    font-size: 17px;
+  }
+
+  .show-additional-membership-info__header {
+    font-size: 17px;
+    margin-top: 30px;
+  }
+
+  .checkbox:nth-of-type(1) {
+    margin-top: 13px;
+  }
+
+  .checkbox:nth-of-type(2) {
+    margin-top: 11px;
+    margin-bottom: 15px;
+  }
+}
+
+.activate-memberships-button__div {
+  text-align: center;
+
+  .activate-memberships__button {
+    margin-top: 23px;
+  }
+
+  .button__label {
+    font-size: 18px;
+  }
+}
+
+.ReactModal__Overlay {
+  .activate-memberships__modal {
+    min-width: unset;
+    max-width: 486px;
+  }
+}
+
+.ReactModal__Overlay {
+  .cancel-creator-membership__modal {
+    min-width: unset;
+    max-width: 486px;
+  }
+
+  .card__subtitle {
+    line-height: 39px;
+  }
+
+  .card__title {
+    text-align: center;
+  }
+}
+
+.billingHistory__header {
+  text-align: center;
+  font-size: 25px;
+  margin-top: 28px;
+  margin-bottom: 30px;
+}
+
+.billingHistory-back__button {
+  margin-top: 34px;
+}
+
+// membership card
+.card--join-membership {
+  .card__header--between,
+  .join-membership__tab-buttons,
+  .membership-join-purchase__div {
+    text-align: center;
+    margin-top: 22px;
+  }
+
+  .card__body {
+    text-align: center;
+  }
+
+  .confirm__value {
+    display: block;
+    margin-top: 0px;
+  }
+
+  .confirm__label {
+    font-size: 17px;
+  }
+
+  .confirm__value {
+    font-size: 16px;
+  }
+
+  .section__actions {
+    display: block;
+  }
+
+  .confirm__value {
+    margin: 0 auto;
+    margin-top: 5px;
+    margin-bottom: 23px;
+  }
+
+  .confirm__section {
+    margin-bottom: 7px;
+  }
+}
+
+.membership-tab {
+  .membership__body {
+    padding: 0px 20%;
+  }
+
+  .membership__perk-item {
+    color: var(--color-text-subtitle);
+  }
+
+  .membership__plan-header {
+    font-size: 22px;
+  }
+
+  .membership__plan-description {
+    font-size: 19px;
+    margin-top: 3px;
+  }
+}
+
+.can-create-your-own-memberships__div {
+  max-width: 641px;
+  margin: 0 auto;
+  margin-bottom: 18px;
+}
+
+.edit-div,
+.membership-tier__div {
+  // this accounts for the header when scrolling
+  scroll-margin-top: 83px;
+}
+
+// create tiers tab
+.create-tier__card {
+  background-color: rgba(var(--color-header-background-base), 0.4);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+}
+
+.create-tiers__header {
+  margin-bottom: 22px;
+}
+
+.add-membership__button {
+  margin-top: 13px;
+  font-size: 18px;
+}
+
+svg.icon--Upgrade {
+  margin-top: 2px;
+}
+
+.edit-functionality-disabled {
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.confirm-account-to-create-tiers-header {
+  font-size: 17px;
+  margin-bottom: 8px;
+  margin-top: 39px;
+}
+
+.header--cant_change_price {
+  font-size: 13px;
+  color: grey;
+  margin-top: 10px;
+}
+
+.join-membership__header {
+  font-size: var(--font-large);
+  font-weight: var(--font-weight-bold);
+}
+
+.join-membership__subtitle {
+  color: var(--color-text-subtitle);
+  font-size: var(--font-body);
+  margin-top: var(--spacing-s);
+  margin-bottom: var(--spacing-m);
 }

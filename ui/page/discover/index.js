@@ -8,7 +8,7 @@ import { selectActiveLivestreams } from 'redux/selectors/livestream';
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { doToggleTagFollowDesktop } from 'redux/actions/tags';
 import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
-import { selectOdyseeMembershipIsPremiumPlus } from 'redux/selectors/user';
+import { selectOdyseeMembershipIsPremiumPlus } from 'redux/selectors/memberships';
 import DiscoverPage from './view';
 
 const select = (state, props) => {
