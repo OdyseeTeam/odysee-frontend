@@ -25,7 +25,7 @@ const STRINGS = {
   },
   rent: {
     title: 'Rent Your Content',
-    subtitle: 'You can rent this content and it will be available for ____.',
+    subtitle: 'You can rent this content and it will be available for 3 days and 20 hours.',
     button: 'Pre-order your content for %currency%%amount%',
     add_card: '%add_a_card% to preorder content',
   },
@@ -75,7 +75,7 @@ type Props = {
   tags: any,
 };
 
-export default function PreorderContent(props: Props) {
+export default function PreorderAndPurchaseContentCard(props: Props) {
   const {
     activeChannelId,
     activeChannelName,
