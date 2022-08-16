@@ -224,7 +224,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* viewer can rent */}
-          {rentalTag && !purchaseTag && !purchaseMadeForClaimId && !myUpload && (
+          {rentalTag && !purchaseTag && !validRentalPurchase && !myUpload && (
             <div>
               <Button
                 iconColor="red"
