@@ -1,6 +1,7 @@
 // @flow
 import { Form } from 'component/common/form';
 import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -205,7 +206,10 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                   autoFocus
                   onClick={() => handleSubmit()}
                   button="primary"
-                  label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}
+                  label={__(STR.button, {
+                    currency: STRIPE.CURRENCY[preferredCurrency].symbol,
+                    amount: tipAmount.toString(),
+                  })}
                   disabled={!hasCardSaved}
                 />
                 {tags.purchaseTag && tags.rentalTag && (
