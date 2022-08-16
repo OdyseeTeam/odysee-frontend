@@ -8,7 +8,7 @@ import Card from 'component/common/card';
 type Props = {
   totalTippedAmount: number,
   accountDetails: any,
-  transactions: any,
+  transactions: StripeTransactions,
 };
 
 const WalletBalance = (props: Props) => {
@@ -44,7 +44,7 @@ const WalletBalance = (props: Props) => {
   }, [transactions]);
 
   return (
-    <>{<Card
+    <Card
       // TODO: implement hasActiveCard and show the current card the user would charge to
       // subtitle={hasActiveCard && <h2>Hello</h2>
       //   // <Plastic
@@ -56,20 +56,21 @@ const WalletBalance = (props: Props) => {
       // }
       actions={
         <>
-          <h2 className="section__title--small">
-            {(transactions && transactions.length) || 0} Total Tips
-          </h2>
+          <h2 className="section__title--small">{(transactions && transactions.length) || 0} Total Tips</h2>
 
-          <h2 className="section__title--small">
-            {totalCreatorsSupported || 0} Creators Supported
-          </h2>
+          <h2 className="section__title--small">{totalCreatorsSupported || 0} Creators Supported</h2>
 
           <div className="section__actions">
-            <Button button="secondary" label={__('Manage Cards')} icon={ICONS.SETTINGS} navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} />
+            <Button
+              button="secondary"
+              label={__('Manage Cards')}
+              icon={ICONS.SETTINGS}
+              navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+            />
           </div>
         </>
       }
-    />}</>
+    />
   );
 };
 

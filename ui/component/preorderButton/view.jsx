@@ -2,7 +2,7 @@
 import * as React from 'react';
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
-import * as ICONS from 'constants/icons';
+import * as STRIPE from 'constants/stripe';
 
 type Props = {
   preorderTag: number,
@@ -43,8 +43,6 @@ export default function PreorderButton(props: Props) {
     }
   }, [preorderContentClaimId]);
 
-  const fiatIcon = preferredCurrency === 'EUR' ? ICONS.EURO : ICONS.FINANCE;
-  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
   const preorderOrPurchase = purchaseTag ? 'purchase' : 'preorder';
 
   return (
@@ -55,10 +53,10 @@ export default function PreorderButton(props: Props) {
           <Button
             iconColor="red"
             className={'preorder-button'}
-            icon={fiatIcon}
+            icon={STRIPE.CURRENCY[preferredCurrency].icon}
             button="primary"
             label={__('This content can be purchased for %currency%%amount%', {
-              currency: '$', // fiatSymbol -- b5813fe1 hardcoded to dollar. But preorder below allows euro. ??
+              currency: STRIPE.CURRENCY[preferredCurrency].symbol,
               amount: purchaseTag,
             })}
             requiresAuth
@@ -80,7 +78,7 @@ export default function PreorderButton(props: Props) {
           <Button
             iconColor="red"
             className={'preorder-button'}
-            icon={fiatIcon}
+            icon={STRIPE.CURRENCY[preferredCurrency].icon}
             button="primary"
             label={__('Thanks for purchasing, enjoy your content!')}
             requiresAuth
@@ -117,9 +115,12 @@ export default function PreorderButton(props: Props) {
           <Button
             iconColor="red"
             className={'preorder-button'}
-            icon={fiatIcon}
+            icon={STRIPE.CURRENCY[preferredCurrency].icon}
             button="primary"
-            label={__('Preorder now for %currency%%amount%', { currency: fiatSymbol, amount: preorderTag })}
+            label={__('Preorder now for %currency%%amount%', {
+              currency: STRIPE.CURRENCY[preferredCurrency].symbol,
+              amount: preorderTag,
+            })}
             requiresAuth
             onClick={() =>
               doOpenModal(MODALS.PREORDER_CONTENT, {

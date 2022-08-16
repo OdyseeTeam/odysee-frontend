@@ -10,8 +10,7 @@ import {
 } from 'redux/selectors/claims';
 import PreorderButton from './view';
 import { doOpenModal } from 'redux/actions/app';
-import * as SETTINGS from 'constants/settings';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { doResolveClaimIds, doCheckIfPurchasedClaimId } from 'redux/actions/claims';
 
 const select = (state, props) => {
@@ -24,7 +23,7 @@ const select = (state, props) => {
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claim,
-    preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
+    preferredCurrency: selectPreferredCurrency(state),
     preorderContentClaimId: selectPreorderContentClaimIdForUri(state, props.uri),
     preorderContentClaim: selectClaimForId(state, preorderContentClaimId),
     purchaseContentTag: selectPurchaseTagForUri(state, props.uri),

@@ -65,7 +65,7 @@ class CardVerify extends React.Component {
           resolve();
           this.onScriptLoaded();
         };
-        script.onerror = event => {
+        script.onerror = (event) => {
           scriptDidError = true;
           scriptLoading = false;
           reject(event);
@@ -74,7 +74,7 @@ class CardVerify extends React.Component {
       });
       const wrappedPromise = new Promise((resolve, reject) => {
         promise.then(() => (canceled ? reject({ isCanceled: true }) : resolve()));
-        promise.catch(error => (canceled ? reject({ isCanceled: true }) : reject(error)));
+        promise.catch((error) => (canceled ? reject({ isCanceled: true }) : reject(error)));
       });
 
       return {
@@ -166,7 +166,7 @@ class CardVerify extends React.Component {
     return (
       <div>
         {scriptFailedToLoad && (
-          <div className="error__text">There was an error connecting to Stripe. Please try again later.</div>
+          <div className="error__text">{__('There was an error connecting to Stripe. Please try again later.')}</div>
         )}
 
         <Button

@@ -5,6 +5,7 @@ import { Lbryio } from 'lbryinc';
 import { parseURI } from 'util/lbryURI';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import ChannelSelector from 'component/channelSelector';
@@ -236,9 +237,9 @@ export default function WalletSendTip(props: Props) {
       case TAB_BOOST:
         return titleText;
       case TAB_FIAT:
-        return __('Send a %amount% tip', { amount: `${fiatSymbolToUse}${displayAmount}` });
+        return __('Send a %amount% Tip', { amount: `${STRIPE.CURRENCY[preferredCurrency].symbol}${displayAmount}` });
       case TAB_LBC:
-        return __('Send a %amount% tip', { amount: `${displayAmount} LBC` });
+        return __('Send a %amount% Tip', { amount: `${displayAmount} LBC` });
       default:
         return titleText;
     }
@@ -261,13 +262,6 @@ export default function WalletSendTip(props: Props) {
 
   const tabButtonProps = { isOnConfirmationPage, activeTab, setActiveTab };
 
-  let fiatIconToUse = ICONS.FINANCE;
-  let fiatSymbolToUse = '$';
-  if (preferredCurrency === 'EUR') {
-    fiatIconToUse = ICONS.EURO;
-    fiatSymbolToUse = '€';
-  }
-
   return (
     <Form onSubmit={handleSubmit}>
       {/* if there is no LBC balance, show user frontend to get credits */}
@@ -281,7 +275,12 @@ export default function WalletSendTip(props: Props) {
               <div className="section">
                 {/* tip fiat tab button */}
                 {stripeEnvironment && (
-                  <TabSwitchButton icon={fiatIconToUse} label={__('Tip')} name={TAB_FIAT} {...tabButtonProps} />
+                  <TabSwitchButton
+                    icon={STRIPE.CURRENCY[preferredCurrency].icon}
+                    label={__('Tip')}
+                    name={TAB_FIAT}
+                    {...tabButtonProps}
+                  />
                 )}
 
                 {/* tip LBC tab button */}
@@ -319,7 +318,9 @@ export default function WalletSendTip(props: Props) {
                   <div className="confirm__label">{__('Amount')}</div>
                   <div className="confirm__value">
                     {activeTab === TAB_FIAT ? (
-                      <p>{`${fiatSymbolToUse} ${(Math.round(tipAmount * 100) / 100).toFixed(2)}`}</p>
+                      <p>{`${STRIPE.CURRENCY[preferredCurrency].symbol} ${(Math.round(tipAmount * 100) / 100).toFixed(
+                        2
+                      )}`}</p>
                     ) : (
                       <LbcSymbol postfix={tipAmount} size={22} />
                     )}
