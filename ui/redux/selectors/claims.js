@@ -951,8 +951,12 @@ export const selectTakeOverAmountForName = (state: State, name: string) => {
 
 export const selectMyPurchasedClaims = createSelector(selectState, (state) => state.myPurchasedClaims || []);
 
-export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
-  const purchasedClaimIds = selectMyPurchasedClaims(state);
+export const selectPurchaseForClaimId = (state: State, claimId: string) => {
+  const purchasedClaims = selectMyPurchasedClaims(state);
 
-  return purchasedClaimIds && purchasedClaimIds.includes(claimId);
+  const purchasedClaimsByClaimId = purchasedClaims.filter(purchase => {
+    return purchase.reference_claim_id === claimId || purchase.target_claim_id === claimId
+  })
+
+  return purchasedClaimsByClaimId
 };

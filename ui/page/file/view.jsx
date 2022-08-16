@@ -99,6 +99,7 @@ export default function FilePage(props: Props) {
     doCheckIfPurchasedClaimId,
     purchaseTag,
     preorderTag,
+    rentalTag,
     claimId,
   } = props;
 
@@ -146,9 +147,9 @@ export default function FilePage(props: Props) {
   }, []);
 
   React.useEffect(() => {
-    const aPurchaseOrPreorder = purchaseTag || preorderTag;
+    const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
     if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
-  }, [purchaseTag, preorderTag, claimId]);
+  }, [purchaseTag, preorderTag, rentalTag, claimId]);
 
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file

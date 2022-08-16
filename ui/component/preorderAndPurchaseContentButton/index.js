@@ -8,6 +8,7 @@ import {
   selectPurchaseTagForUri,
   selectPurchaseMadeForClaimId,
   selectRentalTagForUri,
+  selectPurchaseForClaimId,
 } from 'redux/selectors/claims';
 import PreorderAndPurchaseButton from './view';
 import { doOpenModal } from 'redux/actions/app';
@@ -24,6 +25,8 @@ const select = (state, props) => {
 
   const channelName = getChannelNameFromClaim(claim);
 
+  const purchaseForClaimId = selectPurchaseForClaimId(state, claim.claim_id);
+
   return {
     channelClaimId,
     channelName,
@@ -34,9 +37,10 @@ const select = (state, props) => {
     preorderContentClaimId: selectPreorderContentClaimIdForUri(state, props.uri),
     preorderTag: selectPreorderTagForUri(state, props.uri),
     purchaseContentTag: selectPurchaseTagForUri(state, props.uri),
-    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
+    purchaseMadeForClaimId: Boolean(purchaseForClaimId && purchaseForClaimId.length),
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
+    purchaseForClaimId,
   };
 };
 

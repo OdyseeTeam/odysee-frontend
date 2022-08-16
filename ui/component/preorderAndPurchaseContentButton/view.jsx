@@ -45,7 +45,14 @@ export default function PreorderAndPurchaseButton(props: Props) {
     purchaseTag, // the price of the purchase
     rentalTag,
     uri,
+    purchaseForClaimId,
   } = props;
+
+  console.log('purchase made');
+  console.log(purchaseMadeForClaimId);
+
+  console.log('purchaseForClaimId');
+  console.log(purchaseForClaimId);
 
   const [hasChargesEnabled, setHasChargesEnabled] = React.useState(false);
   const [hasCardSaved, setHasSavedCard] = React.useState(false);
@@ -342,6 +349,17 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 className={'preorder-button non-clickable'}
                 button="primary"
                 label={__('You have preordered this content')}
+                requiresAuth
+              />
+            </div>
+          )}
+          {rentalTag && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button non-clickable'}
+                button="primary"
+                label={__('Your rental lasts for another 2 days and 3 hours')}
                 requiresAuth
               />
             </div>

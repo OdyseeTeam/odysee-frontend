@@ -1168,16 +1168,9 @@ export function doCheckIfPurchasedClaimId(claimId: string) {
         'post'
       );
 
-      let matchedClaimIds = [];
-      const matchingTargetClaimId = response && response.length && response[0].target_claim_id;
-      const matchingReferenceClaimId = response && response.length && response[0].reference_claim_id;
-
-      if (matchingTargetClaimId) matchedClaimIds.push(matchingTargetClaimId);
-      if (matchingReferenceClaimId) matchedClaimIds.push(matchingReferenceClaimId);
-
       return dispatch({
         type: ACTIONS.CHECK_IF_PURCHASED_COMPLETED,
-        data: matchedClaimIds,
+        data: response,
       });
     } catch (err) {
       return dispatch({
