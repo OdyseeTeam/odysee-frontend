@@ -6,6 +6,9 @@ import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
+const moment = require('moment');
+
+console.log(moment.duration);
 let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
@@ -25,7 +28,7 @@ type Props = {
   uri: string,
 };
 
-export default function PreorderButton(props: Props) {
+export default function PreorderAndPurchaseButton(props: Props) {
   const {
     channelClaimId,
     channelName,
@@ -49,6 +52,11 @@ export default function PreorderButton(props: Props) {
   const [waitingForBackend, setWaitingForBackend] = React.useState(true);
 
   const myUpload = claimIsMine;
+
+  const { price: rentalPrice, expirationTimeInSeconds: rentalExpirationTimeInSeconds  } = rentalTag;
+
+  console.log('rental price');
+  console.log(rentalPrice);
 
   React.useEffect(() => {
     if (preorderContentClaimId) {
@@ -78,10 +86,10 @@ export default function PreorderButton(props: Props) {
   }
 
   React.useEffect(() => {
-    if (preorderTag || purchaseTag) {
+    if (preorderTag || purchaseTag || rentalTag) {
       checkStripeAccountStatus();
     }
-  }, [preorderTag, purchaseTag]);
+  }, [preorderTag, purchaseTag, rentalTag]);
 
   // check if user has a payment method saved
   React.useEffect(() => {
@@ -112,7 +120,13 @@ export default function PreorderButton(props: Props) {
 
   const preorderOrPurchase = purchaseTag ? 'purchase' : 'preorder';
 
-  const canBePurchased = preorderTag || purchaseTag;
+  let tags = {
+    rentalTag,
+    purchaseTag,
+    preorderTag,
+  }
+
+  const canBePurchased = preorderTag || purchaseTag || rentalTag;
 
   return (
     <>
@@ -161,6 +175,7 @@ export default function PreorderButton(props: Props) {
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
                     hasCardSaved,
+                    tags,
                   })
                 }
               />
@@ -224,6 +239,62 @@ export default function PreorderButton(props: Props) {
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
                     hasCardSaved,
+                    tags,
+                  })
+                }
+              />
+            </div>
+          )}
+          {/* viewer can rent or purchase */}
+          {rentalTag && purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button'}
+                icon={fiatIconToUse}
+                button="primary"
+                label={__('This content can be rented for %fiatSymbol%%rentalPrice%', {
+                  fiatSymbol,
+                  rentalPrice,
+                })}
+                requiresAuth
+                onClick={() =>
+                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                    uri,
+                    preorderOrPurchase,
+                    purchaseTag,
+                    doCheckIfPurchasedClaimId,
+                    claimId: claim.claim_id,
+                    hasCardSaved,
+                    tags,
+                  })
+                }
+              />
+            </div>
+          )}
+          {/* viewer can rent */}
+          {rentalTag && !purchaseMadeForClaimId && !myUpload && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button'}
+                icon={fiatIconToUse}
+                button="primary"
+                label={__('Rent for %humanReadableTime% for %fiatSymbol%%rentalPrice% ', {
+                  fiatSymbol,
+                  rentalPrice,
+                  humanReadableTime: moment(moment.duration(rentalExpirationTimeInSeconds, "seconds")).format("d [days] [and] h [hours]")
+                })}
+                requiresAuth
+                onClick={() =>
+                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                    uri,
+                    preorderOrPurchase,
+                    purchaseTag,
+                    doCheckIfPurchasedClaimId,
+                    claimId: claim.claim_id,
+                    hasCardSaved,
+                    tags,
                   })
                 }
               />
@@ -249,6 +320,26 @@ export default function PreorderButton(props: Props) {
                 className={'preorder-button non-clickable'}
                 button="primary"
                 label={__('You cannot preorder your own content')}
+              />
+            </div>
+          )}
+          {purchaseTag && myUpload && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button non-clickable'}
+                button="primary"
+                label={__('You cannot purchase your own content')}
+              />
+            </div>
+          )}
+          {purchaseTag && myUpload && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button non-clickable'}
+                button="primary"
+                label={__('You cannot purchase your own content')}
               />
             </div>
           )}

@@ -23,6 +23,18 @@ const STRINGS = {
     button: 'Pre-order your content for %currency%%amount%',
     add_card: '%add_a_card% to preorder content',
   },
+  rent: {
+    title: 'Rent Your Content',
+    subtitle: 'You can rent this content and it will be available for ____.',
+    button: 'Pre-order your content for %currency%%amount%',
+    add_card: '%add_a_card% to preorder content',
+  },
+  purchaseOrRent: {
+    title: 'Purchase Or Rent Your Content',
+    subtitle: 'You can purchase this content for access that doesn\'t expire, or rent for ____.',
+    button: 'Pre-order your content for %currency%%amount%',
+    add_card: '%add_a_card% to preorder content',
+  },
 };
 
 type TipParams = { tipAmount: number, tipChannelName: string, channelClaimId: string };
@@ -60,6 +72,7 @@ type Props = {
   hasCardSaved: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
   preferredCurrency: string,
+  tags: any,
 };
 
 export default function PreorderContent(props: Props) {
@@ -77,6 +90,7 @@ export default function PreorderContent(props: Props) {
     doCheckIfPurchasedClaimId,
     claimId,
     hasCardSaved,
+    tags,
   } = props;
 
   // set the purchase amount once the preorder tag is selected
@@ -92,7 +106,22 @@ export default function PreorderContent(props: Props) {
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
   const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
-  const STR = STRINGS[preorderOrPurchase || 'preorder'];
+
+  let stringsToUse;
+  if(tags.purchaseTag && tags.rentalTag){
+    stringsToUse = 'purchaseOrRent';
+  } else if(tags.purchaseTag){
+    stringsToUse = 'purchase';
+  } else if(tags.rentalTag){
+    stringsToUse = 'rent';
+  } else if(tags.preorderTag){
+    stringsToUse = 'preorder';
+  }
+
+  console.log('strings to use');
+  console.log(stringsToUse)
+
+  const STR = STRINGS[stringsToUse];
 
   const AddCardButton = (
     <I18nMessage
@@ -126,17 +155,17 @@ export default function PreorderContent(props: Props) {
     setWaitingForBackend(true);
 
     // hit backend to send tip
-    preOrderPurchase(
-      tipParams,
-      !activeChannelId,
-      userParams,
-      claimId,
-      stripeEnvironment,
-      preferredCurrency,
-      preorderOrPurchase,
-      checkIfFinished,
-      doHideModal
-    );
+    // preOrderPurchase(
+    //   tipParams,
+    //   !activeChannelId,
+    //   userParams,
+    //   claimId,
+    //   stripeEnvironment,
+    //   preferredCurrency,
+    //   preorderOrPurchase, // TODO: have to change this to rental (rename to transaction_type)
+    //   checkIfFinished,
+    //   doHideModal
+    // );
   }
 
   return (
@@ -150,13 +179,13 @@ export default function PreorderContent(props: Props) {
             // confirm purchase functionality
             <>
               <div className="handle-submit-area">
-                <Button
-                  autoFocus
-                  onClick={handleSubmit}
-                  button="primary"
-                  label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}
-                  disabled={!hasCardSaved}
-                />
+                {/*<Button*/}
+                {/*  autoFocus*/}
+                {/*  onClick={handleSubmit}*/}
+                {/*  button="primary"*/}
+                {/*  label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}*/}
+                {/*  disabled={!hasCardSaved}*/}
+                {/*/>*/}
 
                 {!hasCardSaved && <div className="add-card-prompt">{AddCardButton}</div>}
               </div>

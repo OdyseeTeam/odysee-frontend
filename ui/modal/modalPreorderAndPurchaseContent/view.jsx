@@ -14,6 +14,7 @@ type Props = {
   claimId: string,
   doCheckIfPurchasedClaimId: (string) => void,
   hasCardSaved: boolean,
+  tags: any,
 };
 
 class ModalPreorderContent extends React.PureComponent<Props> {
@@ -27,6 +28,7 @@ class ModalPreorderContent extends React.PureComponent<Props> {
       doCheckIfPurchasedClaimId,
       claimId,
       hasCardSaved,
+      tags,
     } = this.props;
 
     return (
@@ -40,6 +42,7 @@ class ModalPreorderContent extends React.PureComponent<Props> {
           doCheckIfPurchasedClaimId={doCheckIfPurchasedClaimId}
           claimId={claimId}
           hasCardSaved={hasCardSaved}
+          tags={tags}
         />
       </Modal>
     );

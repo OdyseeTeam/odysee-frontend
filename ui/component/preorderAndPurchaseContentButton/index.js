@@ -9,7 +9,7 @@ import {
   selectPurchaseMadeForClaimId,
   selectRentalTagForUri,
 } from 'redux/selectors/claims';
-import PreorderButton from './view';
+import PreorderAndPurchaseButton from './view';
 import { doOpenModal } from 'redux/actions/app';
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -46,4 +46,4 @@ const perform = {
   doCheckIfPurchasedClaimId,
 };
 
-export default connect(select, perform)(PreorderButton);
+export default connect(select, perform)(PreorderAndPurchaseButton);
