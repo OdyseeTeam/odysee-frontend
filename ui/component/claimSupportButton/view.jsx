@@ -18,7 +18,7 @@ type Props = {
   canReceiveFiatTips: ?boolean,
 };
 
-export default function ClaimSupportButton(props: Props) {
+const ClaimSupportButton = (props: Props) => {
   const {
     uri,
     fileAction,
@@ -51,4 +51,6 @@ export default function ClaimSupportButton(props: Props) {
       noStyle={!fileAction}
     />
   );
-}
+};
+
+export default ClaimSupportButton;
