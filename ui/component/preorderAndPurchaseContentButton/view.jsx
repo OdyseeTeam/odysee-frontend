@@ -48,15 +48,10 @@ export default function PreorderAndPurchaseButton(props: Props) {
     purchaseForClaimId,
   } = props;
 
-  console.log('purchase made');
-  console.log(purchaseMadeForClaimId);
-
-  console.log('purchaseForClaimId');
-  console.log(purchaseForClaimId);
-
   const [hasChargesEnabled, setHasChargesEnabled] = React.useState(false);
   const [hasCardSaved, setHasSavedCard] = React.useState(false);
   const [waitingForBackend, setWaitingForBackend] = React.useState(true);
+  const [rentExpiresTime, setRentExpiresTime] = React.useState(false);
 
   const myUpload = claimIsMine;
 
@@ -71,6 +66,14 @@ export default function PreorderAndPurchaseButton(props: Props) {
       doResolveClaimIds([preorderContentClaimId]);
     }
   }, [preorderContentClaimId]);
+
+  React.useEffect(() => {
+    const validThroughTime = purchaseForClaimId.length && purchaseForClaimId[0].valid_through;
+
+    const differenceInSeconds = moment.duration(moment(validThroughTime).diff(new Date())).asSeconds();
+
+    setRentExpiresTime(secondsToDhms(differenceInSeconds))
+  }, [purchaseForClaimId]);
 
   async function checkStripeAccountStatus() {
     const response = await Lbryio.call(
@@ -359,7 +362,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 iconColor="red"
                 className={'preorder-button non-clickable'}
                 button="primary"
-                label={__('Your rental lasts for another 2 days and 3 hours')}
+                label={__('Your rental expires in %rentExpiresTime%', { rentExpiresTime })}
                 requiresAuth
               />
             </div>
