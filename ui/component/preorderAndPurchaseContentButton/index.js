@@ -8,7 +8,7 @@ import {
   selectPurchaseTagForUri,
   selectPurchaseMadeForClaimId,
   selectRentalTagForUri,
-  selectPurchaseForClaimId,
+  selectValidRentalPurchaseForClaimId,
 } from 'redux/selectors/claims';
 import PreorderAndPurchaseButton from './view';
 import { doOpenModal } from 'redux/actions/app';
@@ -36,9 +36,9 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, props.uri),
     purchaseContentTag: selectPurchaseTagForUri(state, props.uri),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
-    purchaseForClaimId: selectPurchaseForClaimId(state, claim.claim_id),
     purchaseTag: selectPurchaseTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
+    validRentalPurchase: selectValidRentalPurchaseForClaimId(state, claim.claim_id),
   };
 };
 

@@ -44,7 +44,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
     purchaseTag, // the price of the purchase
     rentalTag,
     uri,
-    purchaseForClaimId,
+    validRentalPurchase,
   } = props;
 
   const [hasChargesEnabled, setHasChargesEnabled] = React.useState(false);
@@ -60,8 +60,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds
   }
 
-  const purchaseClaimType = purchaseForClaimId.length && purchaseForClaimId[0].type;
-
   React.useEffect(() => {
     if (preorderContentClaimId) {
       doResolveClaimIds([preorderContentClaimId]);
@@ -69,12 +67,11 @@ export default function PreorderAndPurchaseButton(props: Props) {
   }, [preorderContentClaimId]);
 
   React.useEffect(() => {
-    const validThroughTime = purchaseForClaimId.length && purchaseForClaimId[0].valid_through;
-
-    const differenceInSeconds = moment.duration(moment(validThroughTime).diff(new Date())).asSeconds();
-
-    setRentExpiresTime(secondsToDhms(differenceInSeconds))
-  }, [purchaseForClaimId]);
+    if(validRentalPurchase){
+      const differenceInSeconds = moment.duration(moment(validRentalPurchase.valid_through).diff(new Date())).asSeconds();
+      setRentExpiresTime(secondsToDhms(differenceInSeconds))
+    }
+  }, [validRentalPurchase]);
 
   async function checkStripeAccountStatus() {
     const response = await Lbryio.call(
@@ -161,10 +158,11 @@ export default function PreorderAndPurchaseButton(props: Props) {
     if(mDisplay){
       if(hDisplay || dDisplay){
         returnText = returnText + ', ' + mDisplay
+      } else {
+        returnText = mDisplay
       }
-    } else {
-      returnText = mDisplay
     }
+
     return returnText
   }
 
@@ -282,7 +280,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* purchasable content, already purchased or preordered */}
-          {purchaseTag && purchaseClaimType === 'purchase' && !myUpload && !preorderContentClaim && (
+          {purchaseTag && !validRentalPurchase && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"
@@ -357,7 +355,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
               />
             </div>
           )}
-          {rentalTag && purchaseClaimType === 'rental' && !myUpload && !preorderContentClaim && (
+          {rentalTag && validRentalPurchase && !myUpload && !preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"
