@@ -1,30 +1,28 @@
 import { connect } from 'react-redux';
-import { doOpenModal } from 'redux/actions/app';
+import { doMembershipList } from 'redux/actions/memberships';
+import {
+  selectMembershipMineFetched,
+  selectMyActiveMembershipsForChannelClaimId,
+  selectMyPurchasedMembershipsForChannelClaimId,
+  selectMyCanceledMembershipsForChannelClaimId,
+  selectOdyseeMembershipTiers,
+} from 'redux/selectors/memberships';
+import { doGetCustomerStatus } from 'redux/actions/stripe';
+import { ODYSEE_CHANNEL } from 'constants/channels';
+
 import OdyseeMembership from './view';
-import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
-import { selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
-import { doFetchUserMemberships, doCheckUserOdyseeMemberships } from 'redux/actions/user';
-import { selectPreferredCurrency } from 'redux/selectors/settings';
-import { selectUser, selectUserLocale } from 'redux/selectors/user';
 
-const select = (state) => {
-  const activeChannelClaim = selectActiveChannelClaim(state);
-
-  return {
-    activeChannelClaim,
-    channels: selectMyChannelClaims(state),
-    claimsByUri: selectClaimsByUri(state),
-    incognito: selectIncognito(state),
-    user: selectUser(state),
-    locale: selectUserLocale(state),
-    preferredCurrency: selectPreferredCurrency(state),
-  };
-};
-
-const perform = (dispatch) => ({
-  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
-  fetchUserMemberships: (claimIds) => dispatch(doFetchUserMemberships(claimIds)),
-  updateUserOdyseeMembershipStatus: (user) => dispatch(doCheckUserOdyseeMemberships(user)),
+const select = (state) => ({
+  mineFetched: selectMembershipMineFetched(state),
+  activeMemberships: selectMyActiveMembershipsForChannelClaimId(state, ODYSEE_CHANNEL.ID),
+  purchasedMemberships: selectMyPurchasedMembershipsForChannelClaimId(state, ODYSEE_CHANNEL.ID),
+  canceledMemberships: selectMyCanceledMembershipsForChannelClaimId(state, ODYSEE_CHANNEL.ID),
+  membershipOptions: selectOdyseeMembershipTiers(state),
 });
+
+const perform = {
+  doGetCustomerStatus,
+  doMembershipList,
+};
 
 export default connect(select, perform)(OdyseeMembership);

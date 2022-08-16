@@ -1,7 +1,8 @@
 import { connect } from 'react-redux';
 import { selectAdBlockerFound } from 'redux/selectors/app';
 import { makeSelectClaimForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
-import { selectOdyseeMembershipIsPremiumPlus, selectUserCountry } from 'redux/selectors/user';
+import { selectOdyseeMembershipIsPremiumPlus } from 'redux/selectors/memberships';
+import { selectUserCountry } from 'redux/selectors/user';
 import Ads from './view';
 
 const select = (state, props) => ({

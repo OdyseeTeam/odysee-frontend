@@ -1,10 +1,5 @@
 import { connect } from 'react-redux';
-import {
-  selectClaimForUri,
-  selectClaimIsMine,
-  selectFetchingMyChannels,
-  selectClaimsByUri,
-} from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine, selectFetchingMyChannels } from 'redux/selectors/claims';
 import {
   selectTopLevelCommentsForUri,
   makeSelectTopLevelTotalPagesForUri,
@@ -24,7 +19,10 @@ import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from
 import { doPopOutInlinePlayer } from 'redux/actions/content';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelIdFromClaim } from 'util/claim';
-import { doFetchUserMemberships } from 'redux/actions/user';
+import {
+  doFetchOdyseeMembershipForChannelIds,
+  doFetchChannelMembershipsForChannelIds,
+} from 'redux/actions/memberships';
 import CommentsList from './view';
 
 const select = (state, props) => {
@@ -33,9 +31,10 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
   const activeChannelClaim = selectActiveChannelClaim(state);
   const threadComment = selectCommentForCommentId(state, threadCommentId);
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
 
   return {
-    topLevelComments: threadComment ? [threadComment] : selectTopLevelCommentsForUri(state, uri),
+    topLevelComments: selectTopLevelCommentsForUri(state, uri),
     threadComment,
     allCommentIds: selectCommentIdsForUri(state, uri),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
@@ -51,8 +50,7 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     myReactsByCommentId: selectMyReacts(state),
     othersReactsById: selectOthersReacts(state),
-    activeChannelId: activeChannelClaim && activeChannelClaim.claim_id,
-    claimsByUri: selectClaimsByUri(state),
+    activeChannelId,
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
     linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
   };
@@ -63,7 +61,8 @@ const perform = {
   fetchComment: doCommentById,
   fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
-  doFetchUserMemberships,
+  doFetchOdyseeMembershipForChannelIds,
+  doFetchChannelMembershipsForChannelIds,
   doPopOutInlinePlayer,
 };
 

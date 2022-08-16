@@ -4,12 +4,8 @@ import { selectAdBlockerFound } from 'redux/selectors/app';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectHomepageData } from 'redux/selectors/settings';
-import {
-  selectOdyseeMembershipIsPremiumPlus,
-  selectUserCountry,
-  selectUserVerifiedEmail,
-  selectUserLocale,
-} from 'redux/selectors/user';
+import { selectUserCountry, selectUserVerifiedEmail, selectUserLocale } from 'redux/selectors/user';
+import { selectOdyseeMembershipIsPremiumPlus } from 'redux/selectors/memberships';
 import { isChannelClaim, isStreamPlaceholderClaim } from 'util/claim';
 
 const select = (state, props) => {
