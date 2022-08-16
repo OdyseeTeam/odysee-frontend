@@ -25,8 +25,8 @@ const STRINGS = {
   },
   rent: {
     title: 'Rent Your Content',
-    subtitle: 'You can rent this content and it will be available for 3 days and 20 hours.',
-    button: 'Pre-order your content for %currency%%amount%',
+    subtitle: 'You can rent this content and it will be available for %humanReadableTime%',
+    button: 'Rent your content for %currency%%amount%',
     add_card: '%add_a_card% to preorder content',
   },
   purchaseOrRent: {
@@ -73,6 +73,7 @@ type Props = {
   doCheckIfPurchasedClaimId: (string) => void,
   preferredCurrency: string,
   tags: any,
+  humanReadableTime: ?string,
 };
 
 export default function PreorderAndPurchaseContentCard(props: Props) {
@@ -91,16 +92,24 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     claimId,
     hasCardSaved,
     tags,
+    humanReadableTime,
   } = props;
+
+  console.log('human readable time');
+  console.log(humanReadableTime);
 
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
-    if (preorderOrPurchase === 'preorder') {
-      setTipAmount(preorderTag);
-    } else {
-      setTipAmount(purchaseTag);
+    if(tags.purchaseTag && tags.rentalTag){
+      setTipAmount(tags.purchaseTag)
+    } else if(tags.purchaseTag){
+      setTipAmount(tags.purchaseTag)
+    } else if(tags.rentalTag){
+      setTipAmount(tags.rentalTag.price)
+    } else if(tags.preorderTag){
+      setTipAmount(tags.preorderTag)
     }
-  }, [preorderTag, purchaseTag]);
+  }, [tags]);
 
   const [tipAmount, setTipAmount] = React.useState(0);
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
@@ -162,7 +171,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     //   claimId,
     //   stripeEnvironment,
     //   preferredCurrency,
-    //   preorderOrPurchase, // TODO: have to change this to rental (rename to transaction_type)
+    //   stringsToUse, // TODO: rename this
     //   checkIfFinished,
     //   doHideModal
     // );
@@ -172,20 +181,20 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     <Form onSubmit={handleSubmit}>
       {!waitingForBackend && (
         <Card
-          title={__(STR.title)}
+          title={__(STR.title, { humanReadableTime })}
           className={'preorder-content-modal'}
           subtitle={<div className="section__subtitle">{__(STR.subtitle)}</div>}
           actions={
             // confirm purchase functionality
             <>
               <div className="handle-submit-area">
-                {/*<Button*/}
-                {/*  autoFocus*/}
-                {/*  onClick={handleSubmit}*/}
-                {/*  button="primary"*/}
-                {/*  label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}*/}
-                {/*  disabled={!hasCardSaved}*/}
-                {/*/>*/}
+                <Button
+                  autoFocus
+                  onClick={handleSubmit}
+                  button="primary"
+                  label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}
+                  disabled={!hasCardSaved}
+                />
 
                 {!hasCardSaved && <div className="add-card-prompt">{AddCardButton}</div>}
               </div>

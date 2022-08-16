@@ -184,6 +184,63 @@ export default function PreorderAndPurchaseButton(props: Props) {
       )}
       {!waitingForBackend && hasChargesEnabled && (
         <>
+          {/* viewer can rent or purchase */}
+          {rentalTag && purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button'}
+                icon={fiatIconToUse}
+                button="primary"
+                label={__('This content can be rented for %fiatSymbol%%rentalPrice%', {
+                  fiatSymbol,
+                  rentalPrice,
+                })}
+                requiresAuth
+                onClick={() =>
+                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                    uri,
+                    preorderOrPurchase,
+                    purchaseTag,
+                    doCheckIfPurchasedClaimId,
+                    claimId: claim.claim_id,
+                    hasCardSaved,
+                    tags,
+                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
+                  })
+                }
+              />
+            </div>
+          )}
+          {/* viewer can rent */}
+          {rentalTag && !purchaseMadeForClaimId && !myUpload && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button'}
+                icon={fiatIconToUse}
+                button="primary"
+                label={__('Rent for %humanReadableTime% for %fiatSymbol%%rentalPrice% ', {
+                  fiatSymbol,
+                  rentalPrice,
+                  humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
+                })}
+                requiresAuth
+                onClick={() =>
+                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                    uri,
+                    preorderOrPurchase,
+                    purchaseTag,
+                    doCheckIfPurchasedClaimId,
+                    claimId: claim.claim_id,
+                    hasCardSaved,
+                    tags,
+                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
+                  })
+                }
+              />
+            </div>
+          )}
           {/* purchasable content, not preordered and still needs to be purchased */}
           {purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
             <div>
@@ -266,61 +323,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     uri,
                     preorderOrPurchase,
                     preorderTag,
-                    doCheckIfPurchasedClaimId,
-                    claimId: claim.claim_id,
-                    hasCardSaved,
-                    tags,
-                  })
-                }
-              />
-            </div>
-          )}
-          {/* viewer can rent or purchase */}
-          {rentalTag && purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button'}
-                icon={fiatIconToUse}
-                button="primary"
-                label={__('This content can be rented for %fiatSymbol%%rentalPrice%', {
-                  fiatSymbol,
-                  rentalPrice,
-                })}
-                requiresAuth
-                onClick={() =>
-                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
-                    uri,
-                    preorderOrPurchase,
-                    purchaseTag,
-                    doCheckIfPurchasedClaimId,
-                    claimId: claim.claim_id,
-                    hasCardSaved,
-                    tags,
-                  })
-                }
-              />
-            </div>
-          )}
-          {/* viewer can rent */}
-          {rentalTag && !purchaseMadeForClaimId && !myUpload && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button'}
-                icon={fiatIconToUse}
-                button="primary"
-                label={__('Rent for %humanReadableTime% for %fiatSymbol%%rentalPrice% ', {
-                  fiatSymbol,
-                  rentalPrice,
-                  humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
-                })}
-                requiresAuth
-                onClick={() =>
-                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
-                    uri,
-                    preorderOrPurchase,
-                    purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
                     hasCardSaved,
