@@ -53,10 +53,11 @@ export default function PreorderAndPurchaseButton(props: Props) {
 
   const myUpload = claimIsMine;
 
-  const { price: rentalPrice, expirationTimeInSeconds: rentalExpirationTimeInSeconds  } = rentalTag;
-
-  console.log('rental price');
-  console.log(rentalPrice);
+  let rentalPrice, rentalExpirationTimeInSeconds;
+  if(rentalTag){
+    rentalPrice = rentalTag.price;
+    rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds
+  }
 
   React.useEffect(() => {
     if (preorderContentClaimId) {
@@ -192,9 +193,10 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 className={'preorder-button'}
                 icon={fiatIconToUse}
                 button="primary"
-                label={__('This content can be rented for %fiatSymbol%%rentalPrice%', {
+                label={__('Purchase for %fiatSymbol%%purchasePrice% or Rent for %fiatSymbol%%rentalPrice%', {
                   fiatSymbol,
                   rentalPrice,
+                  purchasePrice: purchaseTag,
                 })}
                 requiresAuth
                 onClick={() =>
@@ -213,7 +215,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* viewer can rent */}
-          {rentalTag && !purchaseMadeForClaimId && !myUpload && (
+          {rentalTag && !purchaseTag && !purchaseMadeForClaimId && !myUpload && (
             <div>
               <Button
                 iconColor="red"
@@ -242,7 +244,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* purchasable content, not preordered and still needs to be purchased */}
-          {purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
+          {purchaseTag && !rentalTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"

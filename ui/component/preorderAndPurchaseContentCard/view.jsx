@@ -31,9 +31,10 @@ const STRINGS = {
   },
   purchaseOrRent: {
     title: 'Purchase Or Rent Your Content',
-    subtitle: 'You can purchase this content for access that doesn\'t expire, or rent for ____.',
-    button: 'Pre-order your content for %currency%%amount%',
-    add_card: '%add_a_card% to preorder content',
+    subtitle: 'You can purchase this content for access that doesn\'t ' +
+      'expire for %currency%%purchasePrice%, or rent for %humanReadableTime% for %currency%%rentPrice%.',
+    button: 'Purchase your content for %currency%%amount%',
+    add_card: '%add_a_card% to purchase or rent your content',
   },
 };
 
@@ -95,13 +96,11 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     humanReadableTime,
   } = props;
 
-  console.log('human readable time');
-  console.log(humanReadableTime);
-
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
     if(tags.purchaseTag && tags.rentalTag){
       setTipAmount(tags.purchaseTag)
+      setRentTipAmount(tags.rentalTag.price)
     } else if(tags.purchaseTag){
       setTipAmount(tags.purchaseTag)
     } else if(tags.rentalTag){
@@ -112,6 +111,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   }, [tags]);
 
   const [tipAmount, setTipAmount] = React.useState(0);
+  const [rentTipAmount, setRentTipAmount] = React.useState(0);
   const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
   const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
@@ -127,10 +127,9 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     stringsToUse = 'preorder';
   }
 
-  console.log('strings to use');
-  console.log(stringsToUse)
-
   const STR = STRINGS[stringsToUse];
+
+  const RENT_STRINGS = STRINGS['rent'];
 
   const AddCardButton = (
     <I18nMessage
@@ -148,7 +147,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     </I18nMessage>
   );
 
-  function handleSubmit() {
+  function handleSubmit(transactionType) {
     const tipParams: TipParams = {
       tipAmount,
       tipChannelName: tipChannelName || '',
@@ -163,38 +162,68 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
     setWaitingForBackend(true);
 
+    const itsARental = transactionType === 'rent' || stringsToUse === 'rent';
+
+    let expirationTime =
+      itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
+
+    if(stringsToUse === 'purchaseOrRent'){
+      stringsToUse = 'purchase';
+    }
+
+    if(itsARental){
+      transactionType = 'rental'
+    }
+
     // hit backend to send tip
-    // preOrderPurchase(
-    //   tipParams,
-    //   !activeChannelId,
-    //   userParams,
-    //   claimId,
-    //   stripeEnvironment,
-    //   preferredCurrency,
-    //   stringsToUse, // TODO: rename this
-    //   checkIfFinished,
-    //   doHideModal
-    // );
+    preOrderPurchase(
+      tipParams,
+      !activeChannelId,
+      userParams,
+      claimId,
+      stripeEnvironment,
+      preferredCurrency,
+      transactionType || stringsToUse, // TODO: rename this
+      expirationTime,
+      checkIfFinished,
+      doHideModal,
+    );
   }
 
   return (
     <Form onSubmit={handleSubmit}>
       {!waitingForBackend && (
         <Card
-          title={__(STR.title, { humanReadableTime })}
+          title={__(STR.title)}
           className={'preorder-content-modal'}
-          subtitle={<div className="section__subtitle">{__(STR.subtitle)}</div>}
+          subtitle={<div className="section__subtitle">{__(STR.subtitle, {
+            humanReadableTime,
+            currency: fiatSymbol,
+            purchasePrice: tipAmount.toString(),
+            rentPrice: tags.rentalTag.price,
+          })}</div>}
           actions={
             // confirm purchase functionality
             <>
               <div className="handle-submit-area">
                 <Button
                   autoFocus
-                  onClick={handleSubmit}
+                  onClick={() => handleSubmit()}
                   button="primary"
                   label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}
                   disabled={!hasCardSaved}
                 />
+                { tags.purchaseTag && tags.rentalTag && (
+                  <Button
+                    autoFocus
+                    onClick={() => handleSubmit('rent')}
+                    button="primary"
+                    label={__(RENT_STRINGS.button, { currency: fiatSymbol, amount: rentTipAmount.toString() })}
+                    disabled={!hasCardSaved}
+                    style={{ marginTop: '16px' }}
+                  />
+                )}
+
 
                 {!hasCardSaved && <div className="add-card-prompt">{AddCardButton}</div>}
               </div>

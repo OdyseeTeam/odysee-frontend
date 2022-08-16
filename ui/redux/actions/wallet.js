@@ -806,8 +806,9 @@ export const preOrderPurchase = (
   stripeEnvironment,
   preferredCurrency,
   type,
+  expirationTime,
   successCallback,
-  failureCallback
+  failureCallback,
 ) => (dispatch) => {
   Lbryio.call(
     'customer',
@@ -825,16 +826,33 @@ export const preOrderPurchase = (
       environment: stripeEnvironment,
       target_claim_id: claimId,
       type,
+      validity_seconds: expirationTime,
     },
     'post'
   )
     .then((customerTipResponse) => {
+
+      const STRINGS = {
+        purchase: {
+          title: 'Purchase completed successfully',
+          subtitle: 'Enjoy your content!',
+        },
+        preorder: {
+          title: 'Preorder completed successfully',
+          subtitle: 'You will be able to see the content as soon as it\'s available!',
+        },
+        rent: {
+          title: 'Renting content completed successfully',
+          subtitle: 'Enjoy your content!',
+        },
+      };
+
+      const stringsToUse = STRINGS[type];
+
       dispatch(
         doToast({
-          message: __('Preorder completed successfully'),
-          subMessage: __("You will be able to see the content as soon as it's available!"),
-          // linkText: `${fiatSymbol}${tipParams.tipAmount} ⇒ ${tipParams.tipChannelName}`,
-          // linkTarget: '/wallet',
+          message: __(stringsToUse.title),
+          subMessage: __(stringsToUse.subtitle),
         })
       );
 
