@@ -5,6 +5,7 @@ import { MINIMUM_PUBLISH_BID } from 'constants/claim';
 import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import classnames from 'classnames';
 import React from 'react';
@@ -36,6 +37,7 @@ type Props = {
   preferredCurrency: string,
   doTipAccountCheckForUri: (uri: string) => void,
   doGetCustomerStatus: () => void,
+  doOpenModal: (modalId: string) => void,
 };
 
 function WalletTipAmountSelector(props: Props) {
@@ -59,6 +61,7 @@ function WalletTipAmountSelector(props: Props) {
     preferredCurrency,
     doTipAccountCheckForUri,
     doGetCustomerStatus,
+    doOpenModal,
   } = props;
 
   const isMobile = useIsMobile();
@@ -284,7 +287,7 @@ function WalletTipAmountSelector(props: Props) {
         (!hasSavedCard
           ? getHelpMessage(
               <>
-                <Button navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} label={__('Add a Card')} button="link" />
+                <Button onClick={() => doOpenModal(MODALS.ADD_CARD)} label={__('Add a Card')} button="link" />
                 {' ' + __('To Tip Creators')}
               </>,
               'help--no-card'
