@@ -1,6 +1,8 @@
 // @flow
 import { Form } from 'component/common/form';
 import * as PAGES from 'constants/pages';
+import { Lbryio } from 'lbryinc';
+import * as MODALS from 'constants/modal_types';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -71,6 +73,7 @@ type Props = {
   purchaseMadeForClaimId: ?boolean,
   hasCardSaved: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
+  doOpenModal: (modalId: string) => void,
   preferredCurrency: string,
   tags: any,
   humanReadableTime: ?string,
@@ -87,6 +90,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     preferredCurrency,
     doCheckIfPurchasedClaimId,
     claimId,
+    doOpenModal,
     hasCardSaved,
     tags,
     humanReadableTime,
@@ -131,7 +135,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
       tokens={{
         add_a_card: (
           <Button
-            navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+            onClick={() => doOpenModal(MODALS.ADD_CARD)}
             label={__('Add a card --[replaces add_a_card]--')}
             button="link"
           />
