@@ -89,7 +89,8 @@ function buildOgMetadata(overrideOptions = {}) {
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
   const url = (path ? `${URL}${path}` : URL) + (urlQueryString ? `?${urlQueryString}` : '');
-
+  const thumbnailWidth = '1280';
+  const thumbnailHeight = '720';
   const head =
     `<title>${SITE_TITLE}</title>\n` +
     `<meta name="description" content="${cleanDescription}" />\n` +
@@ -100,6 +101,11 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:image" content="${
       getThumbnailCardCdnUrl(image) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
     }" />\n` +
+    `<meta property="og:image:secure_url" content="${
+      getThumbnailCardCdnUrl(image) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
+    }" />\n` +
+    `<meta property="og:image:width" content="${thumbnailWidth}"/>` +
+    `<meta property="og:image:height" content="${thumbnailHeight}"/>` +
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
     `<meta name="twitter:title" content="${
@@ -167,6 +173,8 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const liveStream = isStream && !source;
   const mediaHeight = (media && media.height) || '720';
   const mediaWidth = (media && media.width) || '1280';
+  const thumbnailWidth = '1280';
+  const thumbnailHeight = '720';
 
   const claimDescription =
     value && value.description && value.description.length > 0
@@ -224,6 +232,8 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   head += `<meta property="og:description" content="${cleanDescription}"/>`;
   head += `<meta property="og:image" content="${claimThumbnail}"/>`;
   head += `<meta property="og:image:secure_url" content="${claimThumbnail}"/>`;
+  head += `<meta property="og:image:width" content="${thumbnailWidth}"/>`;
+  head += `<meta property="og:image:height" content="${thumbnailHeight}"/>`;
   head += `<meta property="og:locale" content="${claimLanguage}"/>`;
   head += `<meta property="og:site_name" content="${SITE_NAME}"/>`;
   head += `<meta property="og:type" content="${getOgType(value?.stream_type, liveStream)}"/>`;
@@ -249,7 +259,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     if (channel) {
       head += `<meta name="og:video:series" content="${channel}"/>`;
     }
-    head += `<meta name="twitter:card" content="player"/>`;
+    // head += `<meta name="twitter:card" content="player"/>`;
     head += `<meta name="twitter:player" content="${videoUrl}" />`;
     if (releaseTime) {
       var release = new Date(releaseTime * 1000).toISOString();
