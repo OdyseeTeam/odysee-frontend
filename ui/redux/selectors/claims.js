@@ -980,8 +980,8 @@ export const selectValidRentalPurchaseForClaimId = (state: State, claimId: strin
     return (
       purchase.target_claim_id === claimId &&
       purchase.type === 'rental' &&
-      new Date(purchase.valid_through) > new Date()
-    ); // expiry date is sometime in the future
+      new Date(purchase.valid_through) > new Date() // expiry date is sometime in the future
+    );
   });
 
   return validRentalClaimForClaimId;
