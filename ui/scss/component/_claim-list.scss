@@ -1163,12 +1163,17 @@
   span {
     color: #faf6f6;
   }
-  @media (min-width: $breakpoint-large) {
-    span {
-      font-size: 11px;
-    }
+}
 
-    left: 2px;
+.claim-grid {
+  .claim-preview__file-purchase-overlay {
+    @media (min-width: $breakpoint-large) {
+      span {
+        font-size: 11px;
+      }
+
+      left: 2px;
+    }
   }
 }
 
