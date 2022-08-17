@@ -387,23 +387,13 @@ export default function PreorderAndPurchaseButton(props: Props) {
               />
             </div>
           )}
-          {purchaseTag && myUpload && (
+          {rentalTag && myUpload && (
             <div>
               <Button
                 iconColor="red"
                 className={'preorder-button non-clickable'}
                 button="primary"
-                label={__('You cannot purchase your own content')}
-              />
-            </div>
-          )}
-          {purchaseTag && myUpload && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('You cannot purchase your own content')}
+                label={__('You cannot rent your own content')}
               />
             </div>
           )}

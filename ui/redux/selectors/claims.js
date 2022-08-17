@@ -960,13 +960,11 @@ export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
     matchedClaimIds.push(purchasedClaim.target_claim_id);
   }
 
-  return matchedClaimIds.length && matchedClaimIds.includes(claimId);
+  return matchedClaimIds.length && matchedClaimIds.includes(claimId) || false;
 };
 
 export const selectPurchaseForClaimId = (state: State, claimId: string) => {
   const purchasedClaims = selectMyPurchasedClaims(state);
-
-  console.log(purchasedClaims);
 
   const purchasedClaimsByClaimId = purchasedClaims.filter(purchase => {
     return purchase.reference_claim_id === claimId || purchase.target_claim_id === claimId
