@@ -954,23 +954,9 @@ export const selectMyPurchasedClaims = createSelector(selectState, (state) => st
 export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
   const purchasedClaims = selectMyPurchasedClaims(state);
 
-  let matchedClaimIds = [];
-  for (const purchasedClaim of purchasedClaims) {
-    matchedClaimIds.push(purchasedClaim.reference_claim_id);
-    matchedClaimIds.push(purchasedClaim.target_claim_id);
-  }
-
-  return (matchedClaimIds.length && matchedClaimIds.includes(claimId)) || false;
-};
-
-export const selectPurchaseForClaimId = (state: State, claimId: string) => {
-  const purchasedClaims = selectMyPurchasedClaims(state);
-
-  const purchasedClaimsByClaimId = purchasedClaims.filter((purchase) => {
-    return purchase.reference_claim_id === claimId || purchase.target_claim_id === claimId;
-  });
-
-  return purchasedClaimsByClaimId;
+  return purchasedClaims.some(
+    p => p.reference_claim_id === claimId || p.target_claim_id === claimId
+  );
 };
 
 export const selectValidRentalPurchaseForClaimId = (state: State, claimId: string) => {
