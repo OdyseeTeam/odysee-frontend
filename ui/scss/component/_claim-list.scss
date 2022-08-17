@@ -1151,6 +1151,7 @@
   margin-top: -3px;
 }
 
+// used for purchase/preorder/rental claim preview overlay
 .claim-preview__file-purchase-overlay {
   position: absolute;
   background-color: #679a28;
@@ -1161,6 +1162,13 @@
 
   span {
     color: #faf6f6;
+  }
+  @media (min-width: $breakpoint-large) {
+    span {
+      font-size: 11px;
+    }
+
+    left: 2px;
   }
 }
 
