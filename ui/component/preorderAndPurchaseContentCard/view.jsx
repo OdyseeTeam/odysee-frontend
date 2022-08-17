@@ -23,7 +23,7 @@ const STRINGS = {
     button: 'Pre-order your content for %currency%%amount%',
     add_card: '%add_a_card% to preorder content',
   },
-  rent: {
+  rental: {
     title: 'Rent Your Content',
     subtitle: 'You can rent this content and it will be available for %humanReadableTime%',
     button: 'Rent your content for %currency%%amount%',
@@ -66,9 +66,6 @@ type Props = {
     ?(any) => Promise<void>,
     ?(any) => void
   ) => void,
-  preorderTag: number,
-  preorderOrPurchase: string,
-  purchaseTag: number,
   purchaseMadeForClaimId: ?boolean,
   hasCardSaved: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
@@ -86,15 +83,16 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     doHideModal,
     preOrderPurchase,
     preferredCurrency,
-    preorderTag,
-    preorderOrPurchase,
-    purchaseTag,
     doCheckIfPurchasedClaimId,
     claimId,
     hasCardSaved,
     tags,
     humanReadableTime,
   } = props;
+
+  const [tipAmount, setTipAmount] = React.useState(0);
+  const [rentTipAmount, setRentTipAmount] = React.useState(0);
+  const [waitingForBackend, setWaitingForBackend] = React.useState(false);
 
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
@@ -110,26 +108,21 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     }
   }, [tags]);
 
-  const [tipAmount, setTipAmount] = React.useState(0);
-  const [rentTipAmount, setRentTipAmount] = React.useState(0);
-  const [waitingForBackend, setWaitingForBackend] = React.useState(false);
-
-  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
-
-  let stringsToUse;
+  let transactionType;
   if(tags.purchaseTag && tags.rentalTag){
-    stringsToUse = 'purchaseOrRent';
+    transactionType = 'purchaseOrRent';
   } else if(tags.purchaseTag){
-    stringsToUse = 'purchase';
+    transactionType = 'purchase';
   } else if(tags.rentalTag){
-    stringsToUse = 'rent';
+    transactionType = 'rental';
   } else if(tags.preorderTag){
-    stringsToUse = 'preorder';
+    transactionType = 'preorder';
   }
 
-  const STR = STRINGS[stringsToUse];
+  const STR = STRINGS[transactionType];
+  const RENT_STRINGS = STRINGS['rental'];
 
-  const RENT_STRINGS = STRINGS['rent'];
+  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
 
   const AddCardButton = (
     <I18nMessage
@@ -147,8 +140,14 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     </I18nMessage>
   );
 
-  function handleSubmit(transactionType) {
-    const itsARental = transactionType === 'rent' || stringsToUse === 'rent';
+  function handleSubmit(forceRental) {
+    // if it's both purchase/rent, use purchase, for rent we will force it
+    if(transactionType === 'purchaseOrRent'){
+      transactionType = 'purchase';
+    }
+    if(forceRental) transactionType = 'rental';
+
+    const itsARental = transactionType === 'rental';
 
     const tipParams: TipParams = {
       tipAmount : itsARental ? tags.rentalTag.price : tipAmount,
@@ -167,14 +166,6 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     let expirationTime =
       itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
 
-    if(stringsToUse === 'purchaseOrRent'){
-      stringsToUse = 'purchase';
-    }
-
-    if(itsARental){
-      transactionType = 'rental'
-    }
-
     // hit backend to send tip
     preOrderPurchase(
       tipParams,
@@ -183,7 +174,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
       claimId,
       stripeEnvironment,
       preferredCurrency,
-      transactionType || stringsToUse, // TODO: rename this
+      transactionType,
       expirationTime,
       checkIfFinished,
       doHideModal,
@@ -223,8 +214,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                     style={{ marginTop: '16px' }}
                   />
                 )}
-
-
+                
                 {!hasCardSaved && <div className="add-card-prompt">{AddCardButton}</div>}
               </div>
             </>

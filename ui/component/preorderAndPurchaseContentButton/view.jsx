@@ -128,8 +128,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
     fiatSymbol = '€';
   }
 
-  const preorderOrPurchase = purchaseTag ? 'purchase' : 'preorder';
-
   let tags = {
     rentalTag,
     purchaseTag,
@@ -181,7 +179,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 onClick={() =>
                   doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
-                    preorderOrPurchase,
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
@@ -210,7 +207,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 onClick={() =>
                   doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
-                    preorderOrPurchase,
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
@@ -238,7 +234,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 onClick={() =>
                   doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
-                    preorderOrPurchase,
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
@@ -302,7 +297,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 onClick={() =>
                   doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
                     uri,
-                    preorderOrPurchase,
                     preorderTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,

@@ -6,9 +6,6 @@ import PreorderAndPurchaseContentCard from 'component/preorderAndPurchaseContent
 type Props = {
   uri: string,
   checkIfAlreadyPurchasedOrPreordered: () => void,
-  preorderOrPurchase: string,
-  preorderTag: number,
-  purchaseTag: number,
   doHideModal: () => void,
   checkIfAlreadyPurchased: () => void,
   claimId: string,
@@ -23,9 +20,6 @@ class ModalPreorderContent extends React.PureComponent<Props> {
     const {
       uri,
       doHideModal,
-      preorderOrPurchase,
-      preorderTag,
-      purchaseTag,
       doCheckIfPurchasedClaimId,
       claimId,
       hasCardSaved,
@@ -38,9 +32,6 @@ class ModalPreorderContent extends React.PureComponent<Props> {
         <PreorderAndPurchaseContentCard
           uri={uri}
           onCancel={doHideModal}
-          preorderOrPurchase={preorderOrPurchase}
-          preorderTag={preorderTag}
-          purchaseTag={purchaseTag}
           doCheckIfPurchasedClaimId={doCheckIfPurchasedClaimId}
           claimId={claimId}
           hasCardSaved={hasCardSaved}
