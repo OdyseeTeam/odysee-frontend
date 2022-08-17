@@ -22,7 +22,7 @@ export default function apiPublishCallViaWeb(
   params.isMarkdown = isMarkdown;
 
   if (!filePath && !remoteUrl) {
-    const { claim_id: claimId, isMarkdown, ...otherParams } = params;
+    const { isMarkdown, ...otherParams } = params;
     return apiCall(method, otherParams, resolve, reject);
   }
 
