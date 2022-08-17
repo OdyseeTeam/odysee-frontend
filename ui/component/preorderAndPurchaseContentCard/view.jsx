@@ -96,26 +96,26 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
   // set the purchase amount once the preorder tag is selected
   React.useEffect(() => {
-    if(tags.purchaseTag && tags.rentalTag){
-      setTipAmount(tags.purchaseTag)
-      setRentTipAmount(tags.rentalTag.price)
-    } else if(tags.purchaseTag){
-      setTipAmount(tags.purchaseTag)
-    } else if(tags.rentalTag){
-      setTipAmount(tags.rentalTag.price)
-    } else if(tags.preorderTag){
-      setTipAmount(tags.preorderTag)
+    if (tags.purchaseTag && tags.rentalTag) {
+      setTipAmount(tags.purchaseTag);
+      setRentTipAmount(tags.rentalTag.price);
+    } else if (tags.purchaseTag) {
+      setTipAmount(tags.purchaseTag);
+    } else if (tags.rentalTag) {
+      setTipAmount(tags.rentalTag.price);
+    } else if (tags.preorderTag) {
+      setTipAmount(tags.preorderTag);
     }
   }, [tags]);
 
   let transactionType;
-  if(tags.purchaseTag && tags.rentalTag){
+  if (tags.purchaseTag && tags.rentalTag) {
     transactionType = 'purchaseOrRent';
-  } else if(tags.purchaseTag){
+  } else if (tags.purchaseTag) {
     transactionType = 'purchase';
-  } else if(tags.rentalTag){
+  } else if (tags.rentalTag) {
     transactionType = 'rental';
-  } else if(tags.preorderTag){
+  } else if (tags.preorderTag) {
     transactionType = 'preorder';
   }
 
@@ -142,15 +142,15 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
   function handleSubmit(forceRental) {
     // if it's both purchase/rent, use purchase, for rent we will force it
-    if(transactionType === 'purchaseOrRent'){
+    if (transactionType === 'purchaseOrRent') {
       transactionType = 'purchase';
     }
-    if(forceRental) transactionType = 'rental';
+    if (forceRental) transactionType = 'rental';
 
     const itsARental = transactionType === 'rental';
 
     const tipParams: TipParams = {
-      tipAmount : itsARental ? tags.rentalTag.price : tipAmount,
+      tipAmount: itsARental ? tags.rentalTag.price : tipAmount,
       tipChannelName: tipChannelName || '',
       channelClaimId: channelClaimId || '',
     };
@@ -163,8 +163,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
 
     setWaitingForBackend(true);
 
-    let expirationTime =
-      itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
+    let expirationTime = itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
 
     // hit backend to send tip
     preOrderPurchase(
@@ -177,7 +176,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
       transactionType,
       expirationTime,
       checkIfFinished,
-      doHideModal,
+      doHideModal
     );
   }
 
@@ -187,12 +186,16 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
         <Card
           title={__(STR.title)}
           className={'preorder-content-modal'}
-          subtitle={<div className="section__subtitle">{__(STR.subtitle, {
-            humanReadableTime,
-            currency: fiatSymbol,
-            purchasePrice: tipAmount.toString(),
-            rentPrice: tags.rentalTag.price,
-          })}</div>}
+          subtitle={
+            <div className="section__subtitle">
+              {__(STR.subtitle, {
+                humanReadableTime,
+                currency: fiatSymbol,
+                purchasePrice: tipAmount.toString(),
+                rentPrice: tags.rentalTag.price,
+              })}
+            </div>
+          }
           actions={
             // confirm purchase functionality
             <>
@@ -204,7 +207,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                   label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}
                   disabled={!hasCardSaved}
                 />
-                { tags.purchaseTag && tags.rentalTag && (
+                {tags.purchaseTag && tags.rentalTag && (
                   <Button
                     autoFocus
                     onClick={() => handleSubmit('rent')}
@@ -214,7 +217,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                     style={{ marginTop: '16px' }}
                   />
                 )}
-                
+
                 {!hasCardSaved && <div className="add-card-prompt">{AddCardButton}</div>}
               </div>
             </>

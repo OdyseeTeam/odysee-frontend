@@ -6,6 +6,7 @@ type Props = {
   purchaseTag: string,
   rentalTag: string,
   preorderContentClaimId: string,
+  preferredCurrency: string,
 };
 
 export default function PreviewTilePurchaseOverlay(props: Props) {
@@ -13,13 +14,13 @@ export default function PreviewTilePurchaseOverlay(props: Props) {
 
   let actionTag;
   let price;
-  if(purchaseTag){
+  if (purchaseTag) {
     actionTag = 'Purchase';
     price = purchaseTag;
-  } else if (preorderTag){
+  } else if (preorderTag) {
     actionTag = 'Preorder';
     price = preorderTag;
-  } else if (rentalTag){
+  } else if (rentalTag) {
     actionTag = 'Rent';
     price = rentalTag.price;
   }
@@ -38,7 +39,8 @@ export default function PreviewTilePurchaseOverlay(props: Props) {
           <div className="claim-preview__file-purchase-overlay">
             <div className="claim-preview__overlay-properties">
               <span>
-                {actionTag} for {fiatSymbol}{price}
+                {actionTag} for {fiatSymbol}
+                {price}
               </span>
             </div>
           </div>

@@ -955,32 +955,34 @@ export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
   const purchasedClaims = selectMyPurchasedClaims(state);
 
   let matchedClaimIds = [];
-  for(const purchasedClaim of purchasedClaims){
-    matchedClaimIds.push(purchasedClaim.reference_claim_id)
+  for (const purchasedClaim of purchasedClaims) {
+    matchedClaimIds.push(purchasedClaim.reference_claim_id);
     matchedClaimIds.push(purchasedClaim.target_claim_id);
   }
 
-  return matchedClaimIds.length && matchedClaimIds.includes(claimId) || false;
+  return (matchedClaimIds.length && matchedClaimIds.includes(claimId)) || false;
 };
 
 export const selectPurchaseForClaimId = (state: State, claimId: string) => {
   const purchasedClaims = selectMyPurchasedClaims(state);
 
-  const purchasedClaimsByClaimId = purchasedClaims.filter(purchase => {
-    return purchase.reference_claim_id === claimId || purchase.target_claim_id === claimId
-  })
+  const purchasedClaimsByClaimId = purchasedClaims.filter((purchase) => {
+    return purchase.reference_claim_id === claimId || purchase.target_claim_id === claimId;
+  });
 
-  return purchasedClaimsByClaimId
+  return purchasedClaimsByClaimId;
 };
 
 export const selectValidRentalPurchaseForClaimId = (state: State, claimId: string) => {
   const purchasedClaims = selectMyPurchasedClaims(state);
 
-  const validRentalClaimForClaimId = purchasedClaims.find(purchase => {
-    return purchase.target_claim_id === claimId &&
+  const validRentalClaimForClaimId = purchasedClaims.find((purchase) => {
+    return (
+      purchase.target_claim_id === claimId &&
       purchase.type === 'rental' &&
-      new Date(purchase.valid_through) > new Date(); // expiry date is sometime in the future
-  })
+      new Date(purchase.valid_through) > new Date()
+    ); // expiry date is sometime in the future
+  });
 
-  return validRentalClaimForClaimId
+  return validRentalClaimForClaimId;
 };

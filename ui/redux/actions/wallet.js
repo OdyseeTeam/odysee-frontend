@@ -808,7 +808,7 @@ export const preOrderPurchase = (
   type,
   expirationTime,
   successCallback,
-  failureCallback,
+  failureCallback
 ) => (dispatch) => {
   Lbryio.call(
     'customer',
@@ -831,14 +831,13 @@ export const preOrderPurchase = (
     'post'
   )
     .then((customerTipResponse) => {
-
       const STRINGS = {
         purchase: {
           title: 'Purchase completed successfully',
         },
         preorder: {
           title: 'Preorder completed successfully',
-          subtitle: 'You will be able to see the content as soon as it\'s available!',
+          subtitle: "You will be able to see the content as soon as it's available!",
         },
         rental: {
           title: 'Renting content completed successfully',

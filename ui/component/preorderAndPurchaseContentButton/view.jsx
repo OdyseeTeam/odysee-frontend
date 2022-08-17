@@ -6,8 +6,8 @@ import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
-const moment = require('moment');
 import { secondsToDhms } from 'util/time';
+const moment = require('moment');
 
 let stripeEnvironment = getStripeEnvironment();
 
@@ -25,7 +25,9 @@ type Props = {
   preorderTag: number,
   purchaseMadeForClaimId: ?boolean,
   purchaseTag: string,
+  rentalTag: any,
   uri: string,
+  validRentalPurchase: any,
 };
 
 export default function PreorderAndPurchaseButton(props: Props) {
@@ -56,9 +58,9 @@ export default function PreorderAndPurchaseButton(props: Props) {
   const myUpload = claimIsMine;
 
   let rentalPrice, rentalExpirationTimeInSeconds;
-  if(rentalTag){
+  if (rentalTag) {
     rentalPrice = rentalTag.price;
-    rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds
+    rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;
   }
 
   React.useEffect(() => {
@@ -68,9 +70,11 @@ export default function PreorderAndPurchaseButton(props: Props) {
   }, [preorderContentClaimId]);
 
   React.useEffect(() => {
-    if(validRentalPurchase){
-      const differenceInSeconds = moment.duration(moment(validRentalPurchase.valid_through).diff(new Date())).asSeconds();
-      setRentExpiresTime(secondsToDhms(differenceInSeconds))
+    if (validRentalPurchase) {
+      const differenceInSeconds = moment
+        .duration(moment(validRentalPurchase.valid_through).diff(new Date()))
+        .asSeconds();
+      setRentExpiresTime(secondsToDhms(differenceInSeconds));
     }
   }, [validRentalPurchase]);
 
@@ -132,7 +136,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
     rentalTag,
     purchaseTag,
     preorderTag,
-  }
+  };
 
   const canBePurchased = preorderTag || purchaseTag || rentalTag;
 
@@ -184,7 +188,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     claimId: claim.claim_id,
                     hasCardSaved,
                     tags,
-                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
+                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
                   })
                 }
               />
@@ -201,7 +205,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
                 label={__('Rent for %humanReadableTime% for %fiatSymbol%%rentalPrice% ', {
                   fiatSymbol,
                   rentalPrice,
-                  humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
+                  humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
                 })}
                 requiresAuth
                 onClick={() =>
@@ -212,7 +216,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     claimId: claim.claim_id,
                     hasCardSaved,
                     tags,
-                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds)
+                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
                   })
                 }
               />

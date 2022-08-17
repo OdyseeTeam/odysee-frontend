@@ -15,33 +15,33 @@ export function secondsToHms(seconds: number) {
 
 export function secondsToDhms(seconds) {
   seconds = Number(seconds);
-  var d = Math.floor(seconds / (3600*24));
-  var h = Math.floor(seconds % (3600*24) / 3600);
-  var m = Math.floor(seconds % 3600 / 60);
+  var d = Math.floor(seconds / (3600 * 24));
+  var h = Math.floor((seconds % (3600 * 24)) / 3600);
+  var m = Math.floor((seconds % 3600) / 60);
 
-  var dDisplay = d > 0 ? d + (d === 1 ? " day" : " days") : "";
-  var hDisplay = h > 0 ? h + (h === 1 ? " hour" : " hours") : "";
-  var mDisplay = m > 0 ? m + (m === 1 ? " minute" : " minutes") : "";
+  var dDisplay = d > 0 ? d + (d === 1 ? ' day' : ' days') : '';
+  var hDisplay = h > 0 ? h + (h === 1 ? ' hour' : ' hours') : '';
+  var mDisplay = m > 0 ? m + (m === 1 ? ' minute' : ' minutes') : '';
 
   // build the return string
   let returnText;
-  if(dDisplay) returnText = dDisplay
-  if(hDisplay){
-    if(dDisplay){
-      returnText = returnText + ', ' + hDisplay
+  if (dDisplay) returnText = dDisplay;
+  if (hDisplay) {
+    if (dDisplay) {
+      returnText = returnText + ', ' + hDisplay;
     } else {
-      returnText = hDisplay
+      returnText = hDisplay;
     }
   }
-  if(mDisplay){
-    if(hDisplay || dDisplay){
-      returnText = returnText + ', ' + mDisplay
+  if (mDisplay) {
+    if (hDisplay || dDisplay) {
+      returnText = returnText + ', ' + mDisplay;
     } else {
-      returnText = mDisplay
+      returnText = mDisplay;
     }
   }
 
-  return returnText
+  return returnText;
 }
 
 export function hmsToSeconds(str: string) {
