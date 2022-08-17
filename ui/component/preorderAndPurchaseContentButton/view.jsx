@@ -11,6 +11,8 @@ const moment = require('moment');
 
 let stripeEnvironment = getStripeEnvironment();
 
+type RentalTagParams = { price: number, expirationTimeInSeconds: number };
+
 type Props = {
   channelClaimId: string,
   channelName: string,
@@ -25,7 +27,7 @@ type Props = {
   preorderTag: number,
   purchaseMadeForClaimId: ?boolean,
   purchaseTag: string,
-  rentalTag: any,
+  rentalTag: RentalTagParams,
   uri: string,
   validRentalPurchase: any,
 };
@@ -57,7 +59,9 @@ export default function PreorderAndPurchaseButton(props: Props) {
 
   const myUpload = claimIsMine;
 
-  let rentalPrice, rentalExpirationTimeInSeconds;
+  // setting as 0 so flow doesn't complain, better approach?
+  let rentalPrice,
+    rentalExpirationTimeInSeconds = 0;
   if (rentalTag) {
     rentalPrice = rentalTag.price;
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;

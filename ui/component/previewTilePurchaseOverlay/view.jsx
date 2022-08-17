@@ -1,10 +1,12 @@
 // @flow
 import * as React from 'react';
 
+type RentalTagParams = { price: number, expirationTimeInSeconds: number };
+
 type Props = {
   preorderTag: string,
   purchaseTag: string,
-  rentalTag: string,
+  rentalTag: RentalTagParams,
   preorderContentClaimId: string,
   preferredCurrency: string,
 };

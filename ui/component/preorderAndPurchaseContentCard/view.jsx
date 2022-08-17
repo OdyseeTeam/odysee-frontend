@@ -63,6 +63,7 @@ type Props = {
     stripe: ?string,
     preferredCurrency: string,
     type: string,
+    expiredTime: ?string,
     ?(any) => Promise<void>,
     ?(any) => void
   ) => void,
@@ -115,7 +116,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     transactionType = 'purchase';
   } else if (tags.rentalTag) {
     transactionType = 'rental';
-  } else if (tags.preorderTag) {
+  } else {
     transactionType = 'preorder';
   }
 

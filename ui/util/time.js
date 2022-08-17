@@ -13,7 +13,7 @@ export function secondsToHms(seconds: number) {
     .join(':');
 }
 
-export function secondsToDhms(seconds) {
+export function secondsToDhms(seconds: number) {
   seconds = Number(seconds);
   var d = Math.floor(seconds / (3600 * 24));
   var h = Math.floor((seconds % (3600 * 24)) / 3600);
@@ -24,7 +24,7 @@ export function secondsToDhms(seconds) {
   var mDisplay = m > 0 ? m + (m === 1 ? ' minute' : ' minutes') : '';
 
   // build the return string
-  let returnText;
+  let returnText = '';
   if (dDisplay) returnText = dDisplay;
   if (hDisplay) {
     if (dDisplay) {
