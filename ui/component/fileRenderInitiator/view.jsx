@@ -108,7 +108,7 @@ export default function FileRenderInitiator(props: Props) {
 
   // purchased and rental content
   const stillNeedsToBePurchased = purchaseContentTag && !purchaseMadeForClaimId;
-  const stillNeedsToBeRented = rentalTag && !validRentalPurchase;
+  const stillNeedsToBeRented = rentalTag && !validRentalPurchase && !(purchaseContentTag && purchaseMadeForClaimId);
   const notAuthedToView = (stillNeedsToBePurchased || stillNeedsToBeRented) && !claimIsMine;
 
   const shouldAutoplay =
