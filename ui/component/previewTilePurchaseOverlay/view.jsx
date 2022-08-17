@@ -9,7 +9,7 @@ type Props = {
 };
 
 export default function PreviewTilePurchaseOverlay(props: Props) {
-  const { preorderTag, purchaseTag, rentalTag, preorderContentClaimId } = props;
+  const { preorderTag, purchaseTag, rentalTag, preorderContentClaimId, preferredCurrency } = props;
 
   let actionTag;
   let price;
@@ -29,6 +29,8 @@ export default function PreviewTilePurchaseOverlay(props: Props) {
     (preorderTag && !preorderContentClaimId) || // preorder but doesn't have a linked claim
     rentalTag;
 
+  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
+
   return (
     <>
       {tagToUse && (
@@ -36,7 +38,7 @@ export default function PreviewTilePurchaseOverlay(props: Props) {
           <div className="claim-preview__file-purchase-overlay">
             <div className="claim-preview__overlay-properties">
               <span>
-                {actionTag} for ${price}
+                {actionTag} for {fiatSymbol}{price}
               </span>
             </div>
           </div>
