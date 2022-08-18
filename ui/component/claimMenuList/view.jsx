@@ -20,6 +20,7 @@ import {
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import analytics from 'analytics';
 
 const SHARE_DOMAIN = SHARE_DOMAIN_URL || URL;
 
@@ -295,6 +296,7 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
+    analytics.log(new Error('test xxx'), {}, 'revamp');
     copyToClipboard(shareUrl, 'Link copied.', 'Failed to copy link.');
   }
 

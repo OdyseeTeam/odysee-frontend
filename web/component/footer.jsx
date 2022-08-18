@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import Button from 'component/button';
 import { SIMPLE_SITE } from 'config';
-import * as PAGES from 'constants/pages';
+import analytics from 'analytics';
 
 export default function Footer() {
   useEffect(() => {
@@ -43,7 +43,12 @@ export default function Footer() {
           />
         </li>
         <li className="footer__link">
-          <Button label={__('Careers')} navigate={`/$/${PAGES.CAREERS}`} />
+          <Button
+            label={__('Careers')}
+            onClick={() => {
+              analytics.log(new Error('from footer chunk'), {}, 'revamp');
+            }}
+          />
         </li>
         <li className="footer__link">
           <Button label={__('Terms')} href="https://odysee.com/$/tos" />
