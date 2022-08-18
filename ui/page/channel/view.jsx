@@ -31,6 +31,7 @@ import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import PremiumBadge from 'component/premiumBadge';
+import SnackBar from 'component/snackBar';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -233,6 +234,7 @@ function ChannelPage(props: Props) {
   return (
     <Page className="channelPage-wrapper" noFooter>
       <header className="channel-cover">
+        <SnackBar />
         <div className="channel__quick-actions">
           {isMyYouTubeChannel && (
             <Button
