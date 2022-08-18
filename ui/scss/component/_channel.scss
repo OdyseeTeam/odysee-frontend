@@ -457,10 +457,6 @@ $actions-z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-
-  .button {
-    // height: auto;
-  }
 }
 
 .channel__quick-actions {
@@ -790,7 +786,6 @@ $actions-z-index: 2;
   }
 
   .channel__list-item {
-    // height: var(--height-button);
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 
@@ -821,15 +816,10 @@ $actions-z-index: 2;
   }
 }
 
-.channel__list--tabHeader {
-  @extend .channel__list--publish;
-}
-
 .channel-staked__wrapper {
   display: flex;
   position: absolute;
   text-align: center;
-  //width: 116%;
   width: 128%;
   left: -14%;
   bottom: -16%;
