@@ -175,33 +175,38 @@ export default function PreorderAndPurchaseButton(props: Props) {
       {!waitingForBackend && hasChargesEnabled && (
         <>
           {/* viewer can rent or purchase */}
-          {rentalTag && purchaseTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button'}
-                icon={fiatIconToUse}
-                button="primary"
-                label={__('Purchase for %fiatSymbol%%purchasePrice% or Rent for %fiatSymbol%%rentalPrice%', {
-                  fiatSymbol,
-                  rentalPrice,
-                  purchasePrice: purchaseTag,
-                })}
-                requiresAuth
-                onClick={() =>
-                  doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
-                    uri,
-                    purchaseTag,
-                    doCheckIfPurchasedClaimId,
-                    claimId: claim.claim_id,
-                    hasCardSaved,
-                    tags,
-                    humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
-                  })
-                }
-              />
-            </div>
-          )}
+          {rentalTag &&
+            purchaseTag &&
+            !purchaseMadeForClaimId &&
+            !validRentalPurchase &&
+            !myUpload &&
+            !preorderContentClaim && (
+              <div>
+                <Button
+                  iconColor="red"
+                  className={'preorder-button'}
+                  icon={fiatIconToUse}
+                  button="primary"
+                  label={__('Purchase for %fiatSymbol%%purchasePrice% or Rent for %fiatSymbol%%rentalPrice%', {
+                    fiatSymbol,
+                    rentalPrice,
+                    purchasePrice: purchaseTag,
+                  })}
+                  requiresAuth
+                  onClick={() =>
+                    doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
+                      uri,
+                      purchaseTag,
+                      doCheckIfPurchasedClaimId,
+                      claimId: claim.claim_id,
+                      hasCardSaved,
+                      tags,
+                      humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
+                    })
+                  }
+                />
+              </div>
+            )}
           {/* viewer can rent */}
           {rentalTag && !purchaseTag && !validRentalPurchase && !myUpload && (
             <div>
@@ -353,7 +358,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
               />
             </div>
           )}
-          {purchaseTag && myUpload && (
+          {purchaseTag && !rentalTag && myUpload && (
             <div>
               <Button
                 iconColor="red"
@@ -363,13 +368,23 @@ export default function PreorderAndPurchaseButton(props: Props) {
               />
             </div>
           )}
-          {rentalTag && myUpload && (
+          {rentalTag && !purchaseTag && myUpload && (
             <div>
               <Button
                 iconColor="red"
                 className={'preorder-button non-clickable'}
                 button="primary"
                 label={__('You cannot rent your own content')}
+              />
+            </div>
+          )}
+          {rentalTag && purchaseTag && myUpload && (
+            <div>
+              <Button
+                iconColor="red"
+                className={'preorder-button non-clickable'}
+                button="primary"
+                label={__('You cannot purchase or rent your own content')}
               />
             </div>
           )}
