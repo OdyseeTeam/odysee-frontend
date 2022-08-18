@@ -83,24 +83,26 @@ export default function PreorderAndPurchaseButton(props: Props) {
   }, [validRentalPurchase]);
 
   async function checkStripeAccountStatus() {
-    const response = await Lbryio.call(
-      'account',
-      'check',
-      {
-        environment: stripeEnvironment,
-        channel_claim_id: channelClaimId,
-        channel_name: channelName,
-      },
-      'post'
-    );
+    try {
+      const response = await Lbryio.call(
+        'account',
+        'check',
+        {
+          environment: stripeEnvironment,
+          channel_claim_id: channelClaimId,
+          channel_name: channelName,
+        },
+        'post'
+      );
 
-    if (response === true) {
-      setHasChargesEnabled(true);
-    }
+      if (response === true) {
+        setHasChargesEnabled(true);
+      }
 
-    setWaitingForBackend(false);
+      setWaitingForBackend(false);
 
-    return response;
+      return response;
+    } catch (err) {}
   }
 
   React.useEffect(() => {
@@ -118,15 +120,17 @@ export default function PreorderAndPurchaseButton(props: Props) {
         environment: stripeEnvironment,
       },
       'post'
-    ).then((customerStatusResponse) => {
-      const defaultPaymentMethodId =
-        customerStatusResponse.Customer &&
-        customerStatusResponse.Customer.invoice_settings &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method &&
-        customerStatusResponse.Customer.invoice_settings.default_payment_method.id;
+    )
+      .then((customerStatusResponse) => {
+        const defaultPaymentMethodId =
+          customerStatusResponse.Customer &&
+          customerStatusResponse.Customer.invoice_settings &&
+          customerStatusResponse.Customer.invoice_settings.default_payment_method &&
+          customerStatusResponse.Customer.invoice_settings.default_payment_method.id;
 
-      setHasSavedCard(Boolean(defaultPaymentMethodId));
-    });
+        setHasSavedCard(Boolean(defaultPaymentMethodId));
+      })
+      .catch(function (err) {});
   }, [setHasSavedCard]);
 
   let fiatIconToUse = ICONS.FINANCE;
@@ -266,7 +270,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* content is available and user has ordered (redirect to content) */}
-          {preorderTag && !purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
+          {preorderTag && purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"
@@ -278,7 +282,7 @@ export default function PreorderAndPurchaseButton(props: Props) {
             </div>
           )}
           {/* content is available and user hasn't ordered (redirect to content) */}
-          {preorderTag && purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
+          {preorderTag && !purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
             <div>
               <Button
                 iconColor="red"
