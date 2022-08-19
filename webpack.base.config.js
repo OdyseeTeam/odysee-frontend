@@ -21,6 +21,11 @@ if (NODE_ENV !== 'development' && process.env.BUNDLE_ANALYZER_ENABLED) {
   }));
 }
 
+/**
+ * @typedef { import('webpack').Configuration } Configuration
+ *
+ * @type {Configuration}
+ */
 let baseConfig = {
   mode: ifProduction('production', 'development'),
   devtool: ifProduction('source-map', 'eval-cheap-module-source-map'),

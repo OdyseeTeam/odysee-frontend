@@ -116,6 +116,7 @@
     "@sentry/browser": "^5.12.1",
     "@sentry/webpack-plugin": "^1.18.8",
     "@types/three": "^0.103.2",
+    "@types/webpack-config-utils": "^2.3.1",
     "adm-zip": "^0.4.13",
     "async-exit-hook": "^2.0.1",
     "babel-loader": "^8.0.5",

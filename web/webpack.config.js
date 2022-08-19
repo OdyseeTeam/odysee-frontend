@@ -146,6 +146,11 @@ if (isProduction && hasSentryToken) {
   );
 }
 
+/**
+ * @typedef { import('webpack').Configuration } Configuration
+ *
+ * @type {Configuration}
+ */
 const webConfig = {
   target: 'web',
   entry: {
