@@ -30,7 +30,7 @@ const SeniorSysadminPage = lazyImport(() =>
   import('web/page/careers/seniorSysadmin' /* webpackChunkName: "seniorSysadmin" */)
 );
 const SoftwareSecurityEngineerPage = lazyImport(() =>
-  import('web/page/careers/seniorSysadmin' /* webpackChunkName: "seniorSysadmin" */)
+  import('web/page/careers/securityEngineer' /* webpackChunkName: "securityEngineer" */)
 );
 const SeniorAndroidDeveloperPage = lazyImport(() =>
   import('web/page/careers/seniorAndroidDeveloper' /* webpackChunkName: "seniorAndroidDeveloper" */)
