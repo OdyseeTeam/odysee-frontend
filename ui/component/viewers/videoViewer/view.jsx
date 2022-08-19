@@ -381,17 +381,20 @@ function VideoViewer(props: Props) {
     setIsEndedEmbed(false);
     setDoNavigate(false);
     analytics.video.videoIsPlaying(true, player);
+    if (window.cordova) window.odysee.functions.onPlay(claim, channelTitle, thumbnail);
   }
 
   function onPause(event, player) {
     setIsPlaying(false);
     handlePosition(player);
     analytics.video.videoIsPlaying(false, player);
+    if (window.cordova) window.odysee.functions.onPause();
   }
 
   function onPlayerClosed(event, player) {
     handlePosition(player);
     analytics.video.videoIsPlaying(false, player);
+    if (window.cordova) window.odysee.functions.onPause();
   }
 
   function handlePosition(player) {
