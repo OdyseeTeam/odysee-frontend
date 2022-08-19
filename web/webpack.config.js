@@ -8,7 +8,6 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const WriteFilePlugin = require('write-file-webpack-plugin');
 const { DefinePlugin, ProvidePlugin } = require('webpack');
 const SentryWebpackPlugin = require('@sentry/webpack-plugin');
-const { getJsBundleId } = require('./bundle-id.js');
 const { insertToHead, buildHead } = require('./src/html');
 const { insertVariableXml, getOpenSearchXml } = require('./src/xml');
 
@@ -20,7 +19,6 @@ const WEB_STATIC_ROOT = path.resolve(__dirname, 'static/');
 const WEB_PLATFORM_ROOT = __dirname;
 const isProduction = process.env.NODE_ENV === 'production';
 const hasSentryToken = process.env.SENTRY_AUTH_TOKEN !== undefined;
-const jsBundleId = getJsBundleId();
 
 const BUILD_TIME_UTC = Date.now();
 const BUILD_TIME_STR = new Date(BUILD_TIME_UTC).toISOString().replace(/[-:T]/g, '').slice(0, 12);
@@ -34,7 +32,7 @@ const copyWebpackCommands = [
     to: `${DIST_ROOT}/index.html`,
     // add javascript script to index.html, generate/insert metatags
     transform(content, path) {
-      return insertToHead(content.toString(), buildHead());
+      return insertToHead(content.toString(), buildHead(), BUILD_REV);
     },
     force: true,
   },
@@ -147,7 +145,7 @@ if (isProduction && hasSentryToken) {
 const webConfig = {
   target: 'web',
   entry: {
-    [`ui-${jsBundleId}`]: '../ui/index.jsx',
+    [`ui-${BUILD_REV}`]: '../ui/index.jsx',
   },
   output: {
     filename: '[name].js',
