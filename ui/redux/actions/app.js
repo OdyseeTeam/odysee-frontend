@@ -394,7 +394,7 @@ export function doDaemonReady() {
             status.wallet.connected_features.trending_algorithm;
 
           if (trendingAlgorithm) {
-            analytics.trendingAlgorithmEvent(trendingAlgorithm);
+            analytics.event.trendingAlgorithm(trendingAlgorithm);
           }
         },
         undefined
@@ -506,7 +506,7 @@ export function doAnalyticsView(uri, timeToStart) {
       return Promise.resolve();
     }
 
-    return analytics.apiLogView(uri, outpoint, claimId, timeToStart);
+    return analytics.apiLog.view(uri, outpoint, claimId, timeToStart);
   };
 }
 
@@ -528,7 +528,7 @@ export function doAnalyticsBuffer(uri, bufferData) {
     const userId = user && user.id.toString();
     // if there's a logged in user, send buffer event data to watchman
     if (userId) {
-      analytics.videoBufferEvent(claim, {
+      analytics.video.videoBufferEvent(claim, {
         isLivestream,
         timeAtBuffer,
         bufferDuration,
@@ -547,7 +547,7 @@ export function doAnaltyicsPurchaseEvent(fileInfo) {
     let purchasePrice = fileInfo.purchase_receipt && fileInfo.purchase_receipt.amount;
     if (purchasePrice) {
       const purchaseInt = Number(Number(purchasePrice).toFixed(0));
-      analytics.purchaseEvent(purchaseInt);
+      analytics.event.purchase(purchaseInt);
     }
   };
 }

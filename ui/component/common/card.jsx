@@ -5,6 +5,7 @@ import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import twemoji from 'twemoji';
 
 type Props = {
   title?: string | Node,
@@ -16,7 +17,6 @@ type Props = {
   icon?: string,
   className?: string,
   isPageTitle?: boolean,
-  noTitleWrap?: boolean,
   isBodyList?: boolean,
   defaultExpand?: boolean,
   nag?: Node,
@@ -24,8 +24,6 @@ type Props = {
   onClick?: () => void,
   children?: Node,
   secondPane?: Node,
-  slimHeader?: boolean,
-  colorHeader?: boolean,
   singlePane?: boolean,
   headerActions?: Node,
   gridHeader?: boolean,
@@ -43,18 +41,14 @@ function Card(props: Props) {
     className,
     isPageTitle = false,
     isBodyList = false,
-    noTitleWrap = false,
     smallTitle = false,
     defaultExpand,
     nag,
     onClick,
     children,
     secondPane,
-    slimHeader,
-    colorHeader,
     singlePane,
     headerActions,
-    gridHeader,
   } = props;
 
   const [expanded, setExpanded] = useState(defaultExpand);
@@ -78,10 +72,7 @@ function Card(props: Props) {
         {(title || subtitle) && (
           <div
             className={classnames('card__header--between', {
-              'card__header--nowrap': noTitleWrap,
-              'card__header--slim': slimHeader,
-              'card__header--bg-color': colorHeader,
-              'card__header--grid': gridHeader,
+              // 'card__header--nowrap': noTitleWrap,
             })}
           >
             <div className={classnames('card__title-section', { 'card__title-section--body-list': isBodyList })}>
@@ -169,13 +160,34 @@ type TitleProps = {
   isPageTitle?: boolean,
   smallTitle?: boolean,
   children?: any,
+  emoji?: any,
 };
 
 const TitleWrapper = (props: TitleProps) => {
   const { isPageTitle, smallTitle, children } = props;
 
+  const Twemoji = ({ emoji }) => (
+    <span
+      dangerouslySetInnerHTML={{
+        __html: twemoji.parse(emoji, {
+          folder: 'svg',
+          ext: '.svg',
+        }),
+      }}
+    />
+  );
+
+  function transformer(children) {
+    for (let child in children?.props?.children) {
+      if (typeof children?.props?.children[child] === 'string') {
+        return <Twemoji emoji={children?.props?.children[child]} />;
+      }
+    }
+    return children;
+  }
+
   return isPageTitle ? (
-    <h1 className="card__title">{children}</h1>
+    <h1 className="card__title">{transformer(children)}</h1>
   ) : (
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>
   );

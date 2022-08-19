@@ -839,7 +839,11 @@ export function doCollectionPublish(
       params['channel_id'] = options.channel_id;
     }
 
-    return new Promise((resolve) => {
+    if (params.description && typeof params.description !== 'string') {
+      delete params.description;
+    }
+
+    return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_STARTED,
       });
@@ -878,6 +882,7 @@ export function doCollectionPublish(
             error: error.message,
           },
         });
+        return reject(error);
       }
 
       return Lbry.collection_create(params).then(success, failure);
@@ -951,7 +956,11 @@ export function doCollectionPublishUpdate(
       updateParams['channel_id'] = options.channel_id;
     }
 
-    return new Promise((resolve) => {
+    if (updateParams.description && typeof updateParams.description !== 'string') {
+      delete updateParams.description;
+    }
+
+    return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,
       });
@@ -985,6 +994,7 @@ export function doCollectionPublishUpdate(
             error: error.message,
           },
         });
+        return reject(error);
       }
 
       return Lbry.collection_update(updateParams).then(success, failure);
@@ -1161,21 +1171,14 @@ export function doCheckIfPurchasedClaimId(claimId: string) {
         'list',
         {
           environment: stripeEnvironment,
-          claim_id_filter: claimId,
+          claim_id_filter: claimId, // checks by target_claim_id or reference_claim_id
         },
         'post'
       );
 
-      let matchedClaimIds = [];
-      const matchingTargetClaimId = response && response.length && response[0].target_claim_id;
-      const matchingReferenceClaimId = response && response.length && response[0].reference_claim_id;
-
-      if (matchingTargetClaimId) matchedClaimIds.push(matchingTargetClaimId);
-      if (matchingReferenceClaimId) matchedClaimIds.push(matchingReferenceClaimId);
-
       return dispatch({
         type: ACTIONS.CHECK_IF_PURCHASED_COMPLETED,
-        data: matchedClaimIds,
+        data: response,
       });
     } catch (err) {
       return dispatch({

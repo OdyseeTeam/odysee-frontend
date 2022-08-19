@@ -10,6 +10,7 @@ import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { isChannelClaim } from 'util/claim';
 import { formatLbryUrlForWeb } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
+import { getChannelSubCountStr } from 'util/formatMediaDuration';
 import { toCompactNotation } from 'util/string';
 import ClaimPreviewProgress from 'component/claimPreviewProgress';
 import Icon from 'component/common/icon';
@@ -38,6 +39,7 @@ import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
+import PreviewTilePurchaseOverlay from 'component/previewTilePurchaseOverlay';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -210,7 +212,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
       <div className="media__subtitle">
         <Tooltip title={formattedSubCountLocale} followCursor placement="top">
           <span className="claim-preview__channel-sub-count">
-            {channelSubCount === 1 ? __('1 Follower') : __('%formattedSubCount% Followers', { formattedSubCount })}
+            {getChannelSubCountStr(channelSubCount, formattedSubCount)}
           </span>
         </Tooltip>
       </div>
@@ -492,6 +494,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
               {!pending ? (
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
                   <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail}>
+                    <PreviewTilePurchaseOverlay uri={uri} />
                     {isPlayable && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
                         <FileWatchLaterLink focusable={false} uri={repostedContentUri} />

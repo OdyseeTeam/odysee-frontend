@@ -17,6 +17,7 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
+import PreviewTilePurchaseOverlay from 'component/previewTilePurchaseOverlay';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
@@ -53,13 +54,12 @@ type Props = {
   collectionId?: string,
   fypId?: string,
   isLivestream: boolean,
-  viewCount: string,
+  viewCount: ?string,
   isLivestreamActive: boolean,
   livestreamViewerCount: ?number,
   swipeLayout: boolean,
   onHidden?: (string) => void,
   pulse?: boolean,
-  collectionFirstUrl: ?string,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -95,7 +95,6 @@ function ClaimPreviewTile(props: Props) {
     swipeLayout = false,
     onHidden,
     pulse,
-    collectionFirstUrl,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -113,7 +112,7 @@ function ClaimPreviewTile(props: Props) {
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const shouldFetch = claim === undefined;
   const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder) || thumbnail;
-  const canonicalUrl = claim && ((isCollection && collectionFirstUrl) || claim.canonical_url);
+  const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId;
   const navigateUrl =
@@ -256,6 +255,8 @@ function ClaimPreviewTile(props: Props) {
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout>
           {!isChannel && (
             <React.Fragment>
+              <PreviewTilePurchaseOverlay uri={uri} />
+
               {((fypId && isStream) || isPlayable) && (
                 <div className="claim-preview__hover-actions-grid">
                   {fypId && isStream && (

@@ -62,7 +62,7 @@ const VideoJsEvents = ({
     // how long until the video starts
     let timeToStartVideo = data.secondsToLoad;
 
-    analytics.playerVideoStartedEvent(embedded);
+    analytics.event.playerVideoStarted(embedded);
 
     // don't send this data on livestream
     if (!isLivestreamClaim) {
@@ -75,7 +75,7 @@ const VideoJsEvents = ({
       }
 
       // populates data for watchman, sends prom and matomo event
-      analytics.videoStartEvent(
+      analytics.video.videoStartEvent(
         claimId,
         timeToStartVideo,
         playerPoweredBy,
@@ -87,7 +87,7 @@ const VideoJsEvents = ({
       );
     } else {
       // populates data for watchman, sends prom and matomo event
-      analytics.videoStartEvent(
+      analytics.video.videoStartEvent(
         claimId,
         0,
         playerPoweredBy,

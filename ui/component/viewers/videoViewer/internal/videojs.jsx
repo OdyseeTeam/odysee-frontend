@@ -108,7 +108,8 @@ type Props = {
   userClaimId: ?string,
   activeLivestreamForChannel: any,
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
-  isPurchasedContent: boolean,
+  isPurchasableContent: boolean,
+  isRentableContent: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -169,7 +170,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isLivestreamClaim,
     activeLivestreamForChannel,
     doToast,
-    isPurchasedContent,
+    isPurchasableContent,
+    isRentableContent,
   } = props;
 
   // used to notify about default quality setting
@@ -484,12 +486,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
 
-        // change to m3u8 if applicable
         const response = await fetch(source, { method: 'HEAD', cache: 'no-store' });
         playerServerRef.current = response.headers.get('x-powered-by');
         vjsPlayer.claimSrcOriginal = { type: sourceType, src: source };
 
-        if (response && response.redirected && response.url && response.url.endsWith('m3u8')) {
+        // remove query params for secured endpoints (which have query params on end of m3u8 path)
+        let trimmedUrl = new URL(response.url);
+        trimmedUrl.hash = '';
+        trimmedUrl.search = '';
+        trimmedUrl = trimmedUrl.toString();
+
+        // change to m3u8 if applicable
+        if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
           vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
           if (window.cordova) {
@@ -550,7 +558,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // disable right-click (context-menu) for purchased content
-      if (isPurchasedContent) {
+      if (isPurchasableContent || isRentableContent) {
         const player = document.querySelector('video.vjs-tech');
         if (player) player.setAttribute('oncontextmenu', 'return false;');
       }

@@ -8,7 +8,7 @@ import { COL_TYPES } from 'constants/collections';
 import React from 'react';
 import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
-import { PUBLISH_PAGE, EDIT_PAGE, PAGE_VIEW_QUERY } from 'page/collection/view';
+import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
 import {
   generateShareUrl,
@@ -255,7 +255,7 @@ function ClaimMenuList(props: Props) {
       prepareEdit(claim, editUri, claimType);
     } else {
       const channelUrl = claim.name + ':' + claim.claim_id;
-      push(`/${channelUrl}?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`);
+      push(`/${channelUrl}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`);
     }
   }
 
@@ -317,7 +317,7 @@ function ClaimMenuList(props: Props) {
   }
 
   function handleCopyLink() {
-    // $FlowFixMe
+    // $FlowIgnore
     () =>
       function (event) {
         event.preventDefault();
@@ -388,7 +388,9 @@ function ClaimMenuList(props: Props) {
                   {!collectionEmpty && (
                     <MenuItem
                       className="comment__menu-option"
-                      onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${PUBLISH_PAGE}`)}
+                      onSelect={() =>
+                        push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.PUBLISH}`)
+                      }
                     >
                       <div className="menu__link">
                         <Icon aria-hidden iconColor={'red'} icon={ICONS.PUBLISH} />
@@ -398,7 +400,7 @@ function ClaimMenuList(props: Props) {
                   )}
                   <MenuItem
                     className="comment__menu-option"
-                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${PAGE_VIEW_QUERY}=${EDIT_PAGE}`)}
+                    onSelect={() => push(`/$/${PAGES.PLAYLIST}/${collectionId}?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)}
                   >
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.EDIT} />

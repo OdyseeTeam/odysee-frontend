@@ -18,7 +18,7 @@ Lbryio.setLocalApi = (endpoint) => {
   Lbryio.CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
 };
 
-Lbryio.call = (resource, action, params = {}, method = 'get') => {
+Lbryio.call = (resource, action, params = {}, method = 'post') => {
   if (!Lbryio.enabled) {
     return Promise.reject(new Error(__('LBRY internal API is disabled')));
   }
@@ -235,7 +235,7 @@ function sendCallAnalytics(resource, action, params) {
   switch (resource) {
     case 'customer':
       if (action === 'tip') {
-        analytics.reportEvent('spend_virtual_currency', {
+        analytics.event.report('spend_virtual_currency', {
           // https://developers.google.com/analytics/devguides/collection/ga4/reference/events#spend_virtual_currency
           value: params.amount,
           virtual_currency_name: params.currency.toLowerCase(),

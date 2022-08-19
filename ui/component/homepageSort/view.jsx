@@ -120,11 +120,8 @@ export default function HomepageSort(props: Props) {
             // https://github.com/atlassian/react-beautiful-dnd/issues/1881#issuecomment-691237307
             // $FlowFixMe
             draggableProvided.draggableProps.style.left = draggedItemRef.offsetLeft;
-            // $FlowFixMe
-            if (navigator.userAgent.toLowerCase().indexOf('firefox') === -1) {
-              draggableProvided.draggableProps.style.top =
-                draggableProvided.draggableProps.style.top - document.getElementsByClassName('modal')[0].offsetTop;
-            }
+            draggableProvided.draggableProps.style.top =
+              draggableProvided.draggableProps.style.top - document.getElementsByClassName('modal')[0].offsetTop;
           }
           return (
             <div

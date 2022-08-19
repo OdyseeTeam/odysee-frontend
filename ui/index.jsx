@@ -1,5 +1,4 @@
 import 'babel-polyfill';
-import * as Sentry from '@sentry/browser';
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
 import SnackBar from 'component/snackBar';
@@ -53,20 +52,7 @@ import 'scss/all.scss';
 import apiPublishCallViaWeb from 'web/setup/publish';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
 
-// Sentry error logging setup
-// Will only work if you have a SENTRY_AUTH_TOKEN env
-// We still add code in analytics.js to send the error to sentry manually
-// If it's caught by componentDidCatch in component/errorBoundary, it will not bubble up to this error reporter
-if (process.env.NODE_ENV === 'production') {
-  Sentry.init({
-    dsn: 'https://1f3c88e2e4b341328a638e138a60fb73@sentry.odysee.tv/2',
-    whitelistUrls: [/\/public\/ui.js/],
-  });
-}
-
-if (process.env.SDK_API_URL) {
-  console.warn('SDK_API_URL env var is deprecated. Use SDK_API_HOST instead'); // @eslint-disable-line
-}
+analytics.init();
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -88,7 +74,7 @@ Lbry.setOverride(
 );
 // @endif
 
-analytics.initAppStartTime(Date.now());
+analytics.event.initAppStartTime(Date.now());
 
 // @if TARGET='app'
 const { autoUpdater } = remote.require('electron-updater');
@@ -152,7 +138,7 @@ ipcRenderer.on('open-uri-requested', (event, url, newSession) => {
 
   if (isURIValid(url)) {
     const formattedUrl = formatLbryUrlForWeb(url);
-    analytics.openUrlEvent(formattedUrl);
+    analytics.event.openUrl(formattedUrl);
     return app.store.dispatch(push(formattedUrl));
   }
 
@@ -263,7 +249,7 @@ function AppWrapper() {
         app.store.dispatch(doMinVersionSubscribe());
       }, 5000);
 
-      analytics.startupEvent(Date.now());
+      analytics.event.startup(Date.now());
 
       return () => {
         clearTimeout(timer);

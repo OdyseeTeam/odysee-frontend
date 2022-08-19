@@ -4,6 +4,7 @@ import {
   selectThumbnailForUri,
   selectPurchaseTagForUri,
   selectPurchaseMadeForClaimId,
+  selectRentalTagForUri,
 } from 'redux/selectors/claims';
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
@@ -80,7 +81,8 @@ const select = (state, props) => {
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
     currentPlaylistItemIndex: selectIndexForUrlInCollection(state, uri, collectionId),
-    isPurchasedContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
+    isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
+    isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),
   };
 };

@@ -22,6 +22,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
+import AdBlockTester from 'web/component/adBlockTester';
 import AdsSticky from 'web/component/adsSticky';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
@@ -386,13 +387,13 @@ function App(props: Props) {
     // Check that previousHasVerifiedEmail was not undefined instead of just not truthy
     // This ensures we don't fire the emailVerified event on the initial user fetch
     if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
-      analytics.emailVerifiedEvent();
+      analytics.event.emailVerified();
     }
   }, [previousHasVerifiedEmail, hasVerifiedEmail, signIn]);
 
   useEffect(() => {
     if (previousRewardApproved === false && isRewardApproved) {
-      analytics.rewardEligibleEvent();
+      analytics.event.rewardEligible();
     }
   }, [previousRewardApproved, isRewardApproved]);
 
@@ -575,6 +576,7 @@ function App(props: Props) {
         />
       ) : (
         <React.Fragment>
+          <AdBlockTester />
           <AdsSticky uri={uri} />
           <Router uri={uri} embedLatestPath={embedLatestPath} />
           <ModalRouter />

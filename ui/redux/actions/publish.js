@@ -1,4 +1,5 @@
 // @flow
+import * as ERRORS from 'constants/errors';
 import * as MODALS from 'constants/modal_types';
 import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
@@ -229,7 +230,7 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const state = getState();
     const myClaims = selectMyClaims(state);
     const pendingClaim = successResponse.outputs[0];
-    analytics.apiLogPublish(pendingClaim);
+    analytics.apiLog.publish(pendingClaim);
     const { permanent_url: url } = pendingClaim;
     const actions = [];
 
@@ -289,7 +290,13 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
       type: ACTIONS.PUBLISH_FAIL,
     });
 
-    actions.push(doError({ message: error.message, cause: error.cause }));
+    let message = typeof error === 'string' ? error : error.message;
+
+    if (message.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
+      message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
+    }
+
+    actions.push(doError({ message, cause: error.cause }));
     dispatch(batchActions(...actions));
   };
 
@@ -318,7 +325,7 @@ export const doPublishResume = (publishPayload: any) => (dispatch: Dispatch, get
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
 
-    analytics.apiLogPublish(pendingClaim);
+    analytics.apiLog.publish(pendingClaim);
 
     // We have to fake a temp claim until the new pending one is returned by claim_list_mine
     // We can't rely on claim_list_mine because there might be some delay before the new claims are returned
@@ -530,7 +537,10 @@ export const doUploadThumbnail = (
   }
 };
 
-export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => (dispatch: Dispatch) => {
+export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => (
+  dispatch: Dispatch,
+  getState: () => {}
+) => {
   const { name, amount, value = {} } = claim;
   const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
   const {
@@ -551,7 +561,11 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     tags,
   } = value;
 
+  const state = getState();
+  const myClaimForUri = selectMyClaimForUri(state);
+  const { claim_id } = myClaimForUri || {};
   const publishData: UpdatePublishFormData = {
+    claim_id: claim_id,
     name,
     bid: Number(amount),
     contentIsFree: fee.amount === '0',

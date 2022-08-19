@@ -2,6 +2,7 @@
 import fromEntries from '@ungap/from-entries';
 import { createSelector } from 'reselect';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COL_TYPES } from 'constants/collections';
 import moment from 'moment';
 import {
   selectMyCollectionIds,
@@ -9,13 +10,14 @@ import {
   selectClaimForClaimId,
   selectChannelNameForId,
   selectPermanentUrlForUri,
+  selectClaimsById,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
 import { selectCountForCollection } from 'util/collections';
-import { isPermanentUrl } from 'util/claim';
+import { getChannelIdFromClaim, isPermanentUrl } from 'util/claim';
 
 type State = { collections: CollectionState };
 
@@ -30,6 +32,7 @@ export const selectMyUpdatedCollections = (state: State) => selectState(state).u
 export const selectPendingCollections = (state: State) => selectState(state).pending;
 export const selectIsResolvingCollectionById = (state: State) => selectState(state).resolvingById;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
+export const selectFeaturedChannelsPublishing = (state: State) => selectState(state).featuredChannelsPublishing;
 
 export const selectCurrentQueueList = createSelector(selectQueueCollection, (queue) => ({ queue }));
 export const selectHasItemsInQueue = createSelector(selectQueueCollection, (queue) => queue.items.length > 0);
@@ -476,3 +479,68 @@ export const selectIsCollectionPrivateForId = createSelector(
   selectCurrentQueueList,
   (id, builtinById, unpublishedById, queue) => Boolean(builtinById[id] || unpublishedById[id] || queue[id])
 );
+
+export const selectFeaturedChannelsByChannelId = createSelector(
+  selectMyUnpublishedCollections,
+  selectResolvedCollections,
+  selectClaimsById,
+  (privateLists, publicLists, claimsById) => {
+    let results: { [ChannelId]: Array<CollectionId> } = {};
+
+    function addToResults(channelId, collectionId) {
+      if (results[channelId]) {
+        const ids = results[channelId];
+        // $FlowIgnore
+        if (!ids.some((id) => id === collectionId)) {
+          ids.push(collectionId);
+        }
+      } else {
+        results[channelId] = [collectionId];
+      }
+    }
+
+    Object.values(privateLists).forEach((col) => {
+      // $FlowIgnore
+      const { type, featuredChannelsParams, id } = col;
+      if (type === COL_TYPES.FEATURED_CHANNELS && featuredChannelsParams?.channelId) {
+        addToResults(featuredChannelsParams.channelId, id);
+      }
+    });
+
+    Object.values(publicLists).forEach((col) => {
+      // $FlowIgnore
+      const { type, id } = col;
+      if (type === COL_TYPES.FEATURED_CHANNELS) {
+        const channelId = getChannelIdFromClaim(claimsById[id]);
+        if (channelId) {
+          addToResults(channelId, id);
+        }
+      }
+    });
+
+    return results;
+  }
+);
+
+function flatten(ary, ret = []) {
+  // Array.flat() support not available in obscure browsers.
+  for (const entry of ary) {
+    if (Array.isArray(entry)) {
+      flatten(entry, ret);
+    } else {
+      ret.push(entry);
+    }
+  }
+  return ret;
+}
+
+export const selectFeaturedChannelsIds = createSelector(selectFeaturedChannelsByChannelId, (byChannelId) => {
+  // $FlowIgnore mixed
+  const values: Array<Array<CollectionId>> = Object.values(byChannelId);
+  return flatten(values);
+});
+
+export const selectCollectionTypeForId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  return collection?.type;
+};

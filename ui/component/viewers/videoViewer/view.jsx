@@ -1,5 +1,6 @@
 // @flow
 import { ENABLE_PREROLL_ADS } from 'config';
+import { ERR_GRP } from 'constants/errors';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
@@ -66,7 +67,7 @@ type Props = {
   doPlayUri: (params: { uri: string, collection: { collectionId: ?string } }) => void,
   collectionId: string,
   nextRecommendedUri: string,
-  channelName: string,
+  // channelName: string,
   nextPlaylistUri: string,
   previousListUri: string,
   videoTheaterMode: boolean,
@@ -80,7 +81,8 @@ type Props = {
   doSetContentHistoryItem: (uri: string) => void,
   doClearContentHistoryUri: (uri: string) => void,
   currentPlaylistItemIndex: ?number,
-  isPurchasedContent: boolean,
+  isPurchasableContent: boolean,
+  isRentableContent: boolean,
   purchaseMadeForClaimId: boolean,
 };
 
@@ -121,7 +123,7 @@ function VideoViewer(props: Props) {
     doPlayUri,
     collectionId,
     nextRecommendedUri,
-    channelName,
+    // channelName,
     nextPlaylistUri,
     previousListUri,
     videoTheaterMode,
@@ -132,7 +134,8 @@ function VideoViewer(props: Props) {
     doToast,
     doSetContentHistoryItem,
     currentPlaylistItemIndex,
-    isPurchasedContent,
+    isPurchasableContent,
+    isRentableContent,
     // purchaseMadeForClaimId,
   } = props;
 
@@ -332,7 +335,7 @@ function VideoViewer(props: Props) {
   React.useEffect(() => {
     if (!ended) return;
 
-    analytics.videoIsPlaying(false);
+    analytics.video.videoIsPlaying(false);
 
     if (adUrl) {
       setAdUrl(null);
@@ -377,21 +380,18 @@ function VideoViewer(props: Props) {
     setShowAutoplayCountdown(false);
     setIsEndedEmbed(false);
     setDoNavigate(false);
-    analytics.videoIsPlaying(true, player);
-    if (window.cordova) window.odysee.functions.onPlay(claim, channelName, thumbnail);
+    analytics.video.videoIsPlaying(true, player);
   }
 
   function onPause(event, player) {
     setIsPlaying(false);
     handlePosition(player);
-    analytics.videoIsPlaying(false, player);
-    if (window.cordova) window.odysee.functions.onPause();
+    analytics.video.videoIsPlaying(false, player);
   }
 
   function onPlayerClosed(event, player) {
     handlePosition(player);
-    analytics.videoIsPlaying(false, player);
-    if (window.cordova) window.odysee.functions.onPause();
+    analytics.video.videoIsPlaying(false, player);
   }
 
   function handlePosition(player) {
@@ -481,7 +481,7 @@ function VideoViewer(props: Props) {
     const onError = () => {
       const error = player.error();
       if (error) {
-        analytics.sentryError('Video.js error', error);
+        analytics.log(error, {}, ERR_GRP.VIDEOJS);
       }
     };
     const onRateChange = () => {
@@ -632,7 +632,8 @@ function VideoViewer(props: Props) {
         activeLivestreamForChannel={activeLivestreamForChannel}
         defaultQuality={defaultQuality}
         doToast={doToast}
-        isPurchasedContent={isPurchasedContent}
+        isPurchasableContent={isPurchasableContent}
+        isRentableContent={isRentableContent}
       />
     </div>
   );

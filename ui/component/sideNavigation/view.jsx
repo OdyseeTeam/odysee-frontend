@@ -19,7 +19,7 @@ import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 import PremiumBadge from 'component/premiumBadge';
 
-const touch = platform.isTouch();
+const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
 type SideNavLink = {
   title: string,
@@ -493,6 +493,9 @@ function SideNavigation(props: Props) {
           label={__('Community Guidelines')}
           onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c')}
         />
+      </li>
+      <li className="navigation-link">
+        <Button label={__('Careers')} onClick={() => window.odysee.functions.history.push('/$/careers')} />
       </li>
       <li className="navigation-link">
         <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos')} />
