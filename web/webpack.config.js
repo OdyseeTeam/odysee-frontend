@@ -22,6 +22,11 @@ const isProduction = process.env.NODE_ENV === 'production';
 const hasSentryToken = process.env.SENTRY_AUTH_TOKEN !== undefined;
 const jsBundleId = getJsBundleId();
 
+const BUILD_TIME_UTC = Date.now();
+const BUILD_TIME_STR = new Date(BUILD_TIME_UTC).toISOString().replace(/[-:T]/g, '').slice(0, 12);
+const COMMIT_ID = process.env.COMMIT_ID || '';
+const BUILD_REV = `${BUILD_TIME_STR}${COMMIT_ID ? `.${COMMIT_ID.slice(0, 10)}` : ''}`;
+
 // copy static files to dist folder
 const copyWebpackCommands = [
   {
@@ -121,6 +126,7 @@ let plugins = [
   new DefinePlugin({
     IS_WEB: JSON.stringify(true),
     'process.env.SDK_API_URL': JSON.stringify(process.env.SDK_API_URL || LBRY_WEB_API),
+    'process.env.BUILD_REV': BUILD_REV,
   }),
   new ProvidePlugin({
     __: ['i18n.js', '__'],
