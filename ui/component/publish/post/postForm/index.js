@@ -20,6 +20,7 @@ import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/se
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { selectUser } from 'redux/selectors/user';
+import { doOpenModal } from 'redux/actions/app';
 import PostForm from './view';
 
 const select = (state) => {
@@ -60,6 +61,7 @@ const perform = (dispatch) => ({
   resetThumbnailStatus: () => dispatch(doResetThumbnailStatus()),
   checkAvailability: (name) => dispatch(doCheckPublishNameAvailability(name)),
   claimInitialRewards: () => dispatch(doClaimInitialRewards()),
+  doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
 });
 
 export default connect(select, perform)(PostForm);

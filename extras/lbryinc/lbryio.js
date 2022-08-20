@@ -155,9 +155,10 @@ Lbryio.authenticate = (domain, language) => {
             return user;
           }
 
-          const appId = window.odysee.build.googlePlay
-            ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
-            : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
+          const appId =
+            window.odysee && window.odysee.build.googlePlay
+              ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
+              : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
 
           return new Promise((res, rej) => {
             Lbryio.call(

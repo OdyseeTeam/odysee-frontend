@@ -10,8 +10,9 @@ import React from 'react';
 import Wallpaper from 'component/wallpaper';
 import SettingsSideNavigation from 'component/settingsSideNavigation';
 import SideNavigation from 'component/sideNavigation';
-import type { Node } from 'react';
 import usePersistedState from 'effects/use-persisted-state';
+
+import type { Node } from 'react';
 
 const Footer = lazyImport(() => import('web/component/footer' /* webpackChunkName: "footer" */));
 
