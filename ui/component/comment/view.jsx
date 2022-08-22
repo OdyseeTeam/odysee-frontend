@@ -124,6 +124,7 @@ function CommentView(props: Props) {
     threadLevel = 0,
     threadDepthLevel = 0,
     doClearPlayingSource,
+    disabled,
   } = props;
 
   const commentElemRef = React.useRef();
@@ -420,7 +421,7 @@ function CommentView(props: Props) {
                 </div>
 
                 {!hideActions && (
-                  <div className="comment__actions">
+                  <div className={classnames('comment__actions', { 'comment__actions--disabled': disabled })}>
                     <Button
                       requiresAuth={IS_WEB}
                       label={commentingEnabled ? __('Reply') : __('Log in to reply')}
@@ -434,7 +435,7 @@ function CommentView(props: Props) {
                 )}
 
                 {numDirectReplies > 0 && !hideActions && (
-                  <div className="comment__actions">
+                  <div className={classnames('comment__actions', { 'comment__actions--disabled': disabled })}>
                     {!showReplies ? (
                       openNewThread ? (
                         <Button

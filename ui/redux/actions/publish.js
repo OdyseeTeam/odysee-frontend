@@ -6,6 +6,7 @@ import * as PAGES from 'constants/pages';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
+import { doSaveMembershipRestrictionsForContent } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
   selectMyActiveClaims,
@@ -633,7 +634,38 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   // get redux publish form
   const publishData = selectPublishFormValues(state);
 
+  l('publish data');
+  l(publishData);
+
+  /** protected content and members-only chat functionality **/
+  const { restrictCommentsAndChat, restrictedToMemberships, channelClaimId } = publishData;
+
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, preview);
+
+  const membersOnlyContentTag = 'c:members-only';
+  const restrictedChatCommentsTag = 'chat:members-only';
+
+  const publishTagsHasRestrictedMemberships = publishPayload.tags.includes(membersOnlyContentTag);
+  const publishTagsHasRestrictedChatComments = publishPayload.tags.includes(restrictedChatCommentsTag);
+
+  // add members only tag if it's restricted to memberships and tag doesn't exist
+  if (restrictedToMemberships && !publishTagsHasRestrictedMemberships) {
+    publishPayload.tags.push(membersOnlyContentTag);
+  }
+
+  if (restrictCommentsAndChat && !publishTagsHasRestrictedChatComments) {
+    publishPayload.tags.push(restrictedChatCommentsTag);
+  }
+
+  if (!restrictedToMemberships && publishTagsHasRestrictedMemberships) {
+    publishPayload.tags = publishPayload.tags.filter(tag => tag !== membersOnlyContentTag);
+  }
+
+  if (!restrictCommentsAndChat && publishTagsHasRestrictedChatComments) {
+    publishPayload.tags = publishPayload.tags.filter(tag => tag !== publishTagsHasRestrictedChatComments);
+  }
+
+  // return
 
   if (preview) {
     return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
@@ -642,6 +674,22 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   }
 
   return Lbry.publish(publishPayload).then((response: PublishResponse) => {
+    // get the upload's claim id
+    const claimId = response.outputs.find(obj => {
+      return obj.claim_id;
+    }).claim_id;
+
+    // hit backend to save restricted memberships
+    if (restrictedToMemberships || restrictedToMemberships === '') {
+      l('calling backend')
+      dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimId, restrictedToMemberships));
+    }
+
+    dispatch(doUpdatePublishForm({
+      restrictedToMemberships: undefined,
+      restrictCommentsAndChat: undefined,
+    }));
+
     // TODO: Restore LbryFirst
     // if (!useLBRYUploader) {
     return success(response);

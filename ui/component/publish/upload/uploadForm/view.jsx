@@ -21,6 +21,7 @@ import PublishAdditionalOptions from 'component/publish/shared/publishAdditional
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
 import PublishFile from 'component/publish/upload/publishFile';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
@@ -91,41 +92,41 @@ type Props = {
 function UploadForm(props: Props) {
   // Detect upload type from query in URL
   const {
-    thumbnail,
-    thumbnailError,
-    name,
-    editingURI,
-    myClaimForUri,
-    resolveUri,
-    title,
+    activeChannelClaim,
     bid,
     bidError,
+    checkAvailability,
+    claimInitialRewards,
+    clearPublish,
     description,
-    uploadThumbnailStatus,
-    resetThumbnailStatus,
-    updatePublishForm,
+    disabled = false,
+    editingURI,
+    enablePublishPreview,
     filePath,
     fileText,
-    publishing,
-    publishSuccess,
-    publishError,
-    clearPublish,
-    isStillEditing,
-    tags,
-    publish,
-    disabled = false,
-    checkAvailability,
-    ytSignupPending,
-    modal,
-    enablePublishPreview,
-    activeChannelClaim,
-    incognito,
-    user,
-    permanentUrl,
-    remoteUrl,
-    isClaimingInitialRewards,
-    claimInitialRewards,
     hasClaimedInitialRewards,
+    incognito,
+    isClaimingInitialRewards,
+    isStillEditing,
+    modal,
+    myClaimForUri,
+    name,
+    permanentUrl,
+    publish,
+    publishError,
+    publishSuccess,
+    publishing,
+    remoteUrl,
+    resetThumbnailStatus,
+    resolveUri,
+    tags,
+    thumbnail,
+    thumbnailError,
+    title,
+    updatePublishForm,
+    uploadThumbnailStatus,
+    user,
+    ytSignupPending,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -468,6 +469,8 @@ function UploadForm(props: Props) {
           </>
         }
       />
+
+      <PublishProtectedContent claim={myClaimForUri} />
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 

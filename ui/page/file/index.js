@@ -30,6 +30,8 @@ import { doFileGet } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import FilePage from './view';
+import { doGetMembershipTiersForContentClaimId, doMembershipMine } from 'redux/actions/memberships';
+import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -62,6 +64,7 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
     claimId: claim.claim_id,
+    myActiveMemberships: selectMyActiveMembershipsById(state) && Object.values(selectMyActiveMembershipsById(state)),
   };
 };
 
@@ -74,6 +77,8 @@ const perform = {
   doFileGet,
   doSetMainPlayerDimension,
   doCheckIfPurchasedClaimId,
+  doGetMembershipTiersForContentClaimId,
+  doMembershipMine,
 };
 
 export default withRouter(connect(select, perform)(FilePage));
