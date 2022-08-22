@@ -25,6 +25,7 @@ type Props = {
   channelTitle: string,
   channelUri: string,
   doOpenModal: (id: string, props: {}) => void,
+  protectedMembershipIds: Array<number>,
 };
 
 const PreviewPage = (props: Props) => {
@@ -34,6 +35,7 @@ const PreviewPage = (props: Props) => {
     selectedMembershipIndex,
     setMembershipIndex,
     handleSelect,
+    protectedMembershipIds,
     // -- redux --
     canReceiveFiatTips,
     channelIsMine,
@@ -115,7 +117,10 @@ const PreviewPage = (props: Props) => {
             label={Membership.name}
             button="alt"
             onClick={() => setMembershipIndex(index)}
-            className={classnames('button-toggle', { 'button-toggle--active': index === selectedMembershipIndex })}
+            className={classnames('button-toggle', {
+              'button-toggle--active': index === selectedMembershipIndex,
+              'protected-membership-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
+            })}
           />
         ))}
       </div>

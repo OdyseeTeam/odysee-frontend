@@ -67,8 +67,9 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
     .catch((e) => dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED, data: { channelId, error: e } }));
 };
 
-export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
-  dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
+// TODO: some bug was introduced here where kept calling itself over and over
+export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) => {}
+  // dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
 export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
@@ -229,6 +230,107 @@ export const doDeactivateMembershipForId = (membershipId: number) => async (disp
     })
     .catch((e) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+      return e;
+    });
+};
+
+export const doSetMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (dispatch: Dispatch) => {
+  dispatch({
+    type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
+    data: {
+      membershipIds,
+      claimId,
+    },
+  });
+
+  await Lbryio.call('membership_content', 'modify', {
+    environment: stripeEnvironment,
+    membership_ids: membershipIds,
+    add_claim_id: claimId, // TODO: this is changed in the updated API
+  }, 'post')
+    .then((response) => {
+      dispatch({
+        type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS,
+        data: {
+          membershipIds,
+          claimId,
+        },
+      });
+      return response;
+    })
+    .catch((e) => {
+      dispatch({
+        type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED,
+        data: {
+          membershipIds,
+          claimId,
+        },
+      });
+      return e;
+    });
+};
+
+export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_STARTED, data: channelClaimId });
+
+  await Lbryio.call('membership', 'content', {
+    environment: stripeEnvironment,
+    for_channel: channelClaimId,
+  }, 'post')
+    .then((response) => {
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS, data: response });
+      return response;
+    })
+    .catch((e) => {
+      console.log(e);
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_FAILED, data: channelClaimId });
+      return e;
+    });
+};
+
+export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
+
+  await Lbryio.call('membership', 'content', {
+    environment: stripeEnvironment,
+    claim_id: contentClaimId,
+  }, 'post')
+    .then((response) => {
+      console.log('response');
+      console.log(response);
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
+      return response;
+    })
+    .catch((e) => {
+      console.log(e);
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
+      return e;
+    });
+};
+
+export const doSaveMembershipRestrictionsForContent = (channelClaimId: string, contentClaimId: string, commaSeperatedMembershipIds: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
+    data: {
+      commaSeperatedMembershipIds,
+      contentClaimId,
+    },
+  });
+
+  await Lbryio.call('membership_content', 'modify', {
+    environment: stripeEnvironment,
+    claim_id: contentClaimId,
+    membership_ids: commaSeperatedMembershipIds,
+    channel_id: channelClaimId,
+  }, 'post')
+    .then((response) => {
+      console.log('response');
+      console.log(response);
+      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
+      return response;
+    })
+    .catch((e) => {
+      console.log(e);
+      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
       return e;
     });
 };

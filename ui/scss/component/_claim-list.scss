@@ -1110,6 +1110,38 @@
   }
 }
 
+.claim-preview__overlay-protected-content {
+  height: 100%;
+  width: 100%;
+  opacity: 0.6;
+  z-index: 3;
+  position: absolute !important;
+  background-color: black;
+}
+
+.protected-content-lock {
+  stroke: white;
+  width: 61px;
+  height: 61px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.protected-content-holder {
+  position: absolute;
+  z-index: 5;
+
+  .protected-content-text {
+    background-color: black;
+    margin: 0 auto;
+    padding: 5px;
+    border-radius: 10px;
+    width: 62%;
+    text-align: center;
+    color: white;
+  }
+}
+
 .claim-tile-collection__info {
   display: flex;
   color: var(--color-subtitle);
@@ -1163,6 +1195,27 @@
   span {
     color: #faf6f6;
   }
+}
+
+.protected-content-overlay {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 9%;
+  transform: translate(-50%,-50%);
+  background-color: #1d1d1d;
+  padding: 7px;
+  border-radius: 7px;
+  text-align: center;
+  width: 37%;
+
+  h1 {
+    font-size: 23px;
+  }
+}
+
+.protected-content-overlay__button {
+  margin: 9px 0px;
 }
 
 .claim-grid {

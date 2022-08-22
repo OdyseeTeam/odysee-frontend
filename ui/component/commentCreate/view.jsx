@@ -89,6 +89,9 @@ type Props = {
   doFetchMyCommentedChannels: (claimId: ?string) => void,
   doTipAccountCheckForUri: (uri: string) => void,
   textInjection?: string,
+  activeMembershipIds: Array<number>,
+  creatorsMemberships: Array<Membership>,
+  chatCommentsRestrictedToChannelMembers: boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -131,6 +134,9 @@ export function CommentCreate(props: Props) {
     doFetchMyCommentedChannels,
     doTipAccountCheckForUri,
     textInjection,
+    chatCommentsRestrictedToChannelMembers,
+    activeMembershipIds,
+    creatorsMemberships,
   } = props;
 
   const isMobile = useIsMobile();
@@ -162,6 +168,7 @@ export function CommentCreate(props: Props) {
   const [disableReviewButton, setDisableReviewButton] = React.useState();
   const [exchangeRate, setExchangeRate] = React.useState();
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
+  const [isAChannelMember, setIsAChannelMember] = React.useState(false);
 
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
@@ -463,6 +470,20 @@ export function CommentCreate(props: Props) {
   // Effects
   // **************************************************************************
 
+  // Determine whether user is a channel member (used for authing members only chat)
+  React.useEffect(() => {
+    if (chatCommentsRestrictedToChannelMembers && creatorsMemberships && creatorsMemberships.length) {
+      let ids = [];
+      for (const membership of creatorsMemberships) {
+        ids.push(membership.Membership.id);
+      }
+
+      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id));
+
+      setIsAChannelMember(isAMember);
+    }
+  }, [chatCommentsRestrictedToChannelMembers, , activeMembershipIds]);
+
   // Fetch channel constraints if not already.
   React.useEffect(() => {
     if (!channelSettings && channelClaimId) {
@@ -546,6 +567,13 @@ export function CommentCreate(props: Props) {
     }
   }, [textInjection]);
 
+  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
+
+  let commentLabelText = 'Say something about this...';
+  if (notAuthedToChat) {
+    commentLabelText = 'This chat is members-only, please Join a membership to access chat';
+  }
+
   // **************************************************************************
   // Render
   // **************************************************************************
@@ -575,7 +603,7 @@ export function CommentCreate(props: Props) {
         <FormField
           type="textarea"
           name="comment__signup-prompt"
-          placeholder={__('Say something about this...')}
+          placeholder={__(commentLabelText)}
           disabled={isMobile}
         />
 
@@ -616,8 +644,12 @@ export function CommentCreate(props: Props) {
           <FormField
             autoFocus={isReply}
             charCount={charCount}
-            className={isReply ? 'create__reply' : 'create__comment'}
-            disabled={isFetchingChannels || disableInput}
+            className={classnames('', {
+              'create__reply': isReply,
+              'create__comment': !isReply,
+              'disabled_chat_comments': notAuthedToChat,
+            })}
+            disabled={isFetchingChannels || disableInput || notAuthedToChat}
             isLivestream={isLivestream}
             label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
             noticeLabel={
@@ -637,7 +669,7 @@ export function CommentCreate(props: Props) {
             setShowSelectors={setShowSelectors}
             showSelectors={showSelectors}
             tipModalOpen={tipModalOpen}
-            placeholder={__('Say something about this...')}
+            placeholder={__(commentLabelText)}
             quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
             quickActionLabel={
               !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
@@ -730,6 +762,7 @@ export function CommentCreate(props: Props) {
                 icon={ICONS.STICKER}
                 onClick={handleStickerComment}
                 onChange={() => {}}
+                disabled={notAuthedToChat}
               />
 
               {!supportDisabled && !claimIsMine && (
