@@ -232,3 +232,38 @@ export const doDeactivateMembershipForId = (membershipId: number) => async (disp
       return e;
     });
 };
+
+export const setMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (dispatch: Dispatch) => {
+  // dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
+
+  await Lbryio.call('membership', 'content', {
+    environment: stripeEnvironment,
+    membership_ids: membershipIds,
+    claim_id: claimId,
+  }, 'post')
+    .then((response) => {
+      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+      return response;
+    })
+    .catch((e) => {
+      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+      return e;
+    });
+};
+
+export const getMembershipTiersForChannelClaimId = (membershipId: number) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_, data: membershipId });
+
+  await Lbryio.call('membership', 'content', {
+    environment: stripeEnvironment,
+    membership_id: membershipId,
+  }, 'post')
+    .then((response) => {
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+      return response;
+    })
+    .catch((e) => {
+      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+      return e;
+    });
+};
