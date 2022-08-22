@@ -21,6 +21,7 @@ import PublishAdditionalOptions from 'component/publish/shared/publishAdditional
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
 import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
 import PublishFile from 'component/publish/upload/publishFile';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
@@ -468,6 +469,8 @@ function UploadForm(props: Props) {
           </>
         }
       />
+
+      <PublishProtectedContent />
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
