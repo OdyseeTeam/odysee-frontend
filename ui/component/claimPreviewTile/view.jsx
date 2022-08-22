@@ -27,6 +27,7 @@ import * as ICONS from 'constants/icons';
 import { FYP_ID } from 'constants/urlParams';
 // $FlowFixMe cannot resolve ...
 import PlaceholderTx from 'static/img/placeholderTx.gif';
+import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
 
 type Props = {
   uri: string,
@@ -254,6 +255,7 @@ function ClaimPreviewTile(props: Props) {
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout>
           {!isChannel && (
             <React.Fragment>
+              <PreviewOverlayProtectedContent />
               {((fypId && isStream) || isPlayable) && (
                 <div className="claim-preview__hover-actions-grid">
                   {fypId && isStream && (

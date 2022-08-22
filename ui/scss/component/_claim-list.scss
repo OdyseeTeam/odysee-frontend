@@ -1110,6 +1110,38 @@
   }
 }
 
+.claim-preview__overlay-protected-content {
+  height: 100%;
+  width: 100%;
+  opacity: 0.6;
+  z-index: 3;
+  position: absolute !important;
+  background-color: black;
+}
+
+.protected-content-lock {
+  stroke: white;
+  width: 61px;
+  height: 61px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.protected-content-holder {
+  position: absolute;
+  z-index: 5;
+
+  .protected-content-text {
+    background-color: black;
+    margin: 0 auto;
+    padding: 5px;
+    border-radius: 10px;
+    width: 62%;
+    text-align: center;
+    color: white;
+  }
+}
+
 .claim-tile-collection__info {
   display: flex;
   color: var(--color-subtitle);
