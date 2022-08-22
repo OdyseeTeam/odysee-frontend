@@ -2,7 +2,6 @@
 import { Lbryio } from 'lbryinc';
 
 const isProduction = process.env.NODE_ENV === 'production';
-const devInternalApis = process.env.LBRY_API_URL && process.env.LBRY_API_URL.includes('dev');
 
 type LogPublishParams = {
   uri: string,
@@ -27,26 +26,22 @@ export const apiLog: ApiLog = {
 
   view: (uri, outpoint, claimId, timeToStart) => {
     return new Promise((resolve, reject) => {
-      if (gApiLogOn && (isProduction || devInternalApis)) {
-        const params: {
-          uri: string,
-          outpoint: string,
-          claim_id: string,
-          time_to_start?: number,
-        } = {
-          uri,
-          outpoint,
-          claim_id: claimId,
-        };
+      const params: {
+        uri: string,
+        outpoint: string,
+        claim_id: string,
+        time_to_start?: number,
+      } = {
+        uri,
+        outpoint,
+        claim_id: claimId,
+      };
 
-        if (timeToStart && !IS_WEB) {
-          params.time_to_start = timeToStart;
-        }
-
-        resolve(Lbryio.call('file', 'view', params));
-      } else {
-        resolve();
+      if (timeToStart && !IS_WEB) {
+        params.time_to_start = timeToStart;
       }
+
+      resolve(Lbryio.call('file', 'view', params));
     });
   },
 
