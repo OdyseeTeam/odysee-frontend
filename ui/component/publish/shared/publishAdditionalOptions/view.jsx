@@ -51,7 +51,13 @@ function PublishAdditionalOptions(props: Props) {
     setHideSection(!hideSection);
   }
 
-  console.log('licenseType: ', licenseType);
+  React.useEffect(() => {
+    if (licenseType === 'copyright') {
+      updatePublishForm({
+        otherLicenseDescription: 'All rights reserved',
+      });
+    }
+  }, [licenseType]);
 
   return (
     <>
