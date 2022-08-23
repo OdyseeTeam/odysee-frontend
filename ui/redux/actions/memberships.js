@@ -234,36 +234,71 @@ export const doDeactivateMembershipForId = (membershipId: number) => async (disp
 };
 
 export const setMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (dispatch: Dispatch) => {
-  // dispatch({ type: ACTIONS.DELETE_MEMBERSHIP_STARTED, data: membershipId });
+  dispatch({
+    type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
+    data: {
+      membershipIds,
+      claimId,
+    },
+  });
 
-  await Lbryio.call('membership', 'content', {
+  await Lbryio.call('membership_content', 'modify', {
     environment: stripeEnvironment,
     membership_ids: membershipIds,
-    claim_id: claimId,
+    add_claim_id: claimId, // TODO: this is changed in the updated API
   }, 'post')
     .then((response) => {
-      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+      dispatch({
+        type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS,
+        data: {
+          membershipIds,
+          claimId,
+        },
+      });
       return response;
     })
     .catch((e) => {
-      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+      dispatch({
+        type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED,
+        data: {
+          membershipIds,
+          claimId,
+        },
+      });
       return e;
     });
 };
 
-export const getMembershipTiersForChannelClaimId = (membershipId: number) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_, data: membershipId });
+export const getMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_STARTED, data: channelClaimId });
 
   await Lbryio.call('membership', 'content', {
     environment: stripeEnvironment,
-    membership_id: membershipId,
+    for_channel: channelClaimId,
   }, 'post')
     .then((response) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_SUCCESFUL, data: membershipId });
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS, data: channelClaimId });
       return response;
     })
     .catch((e) => {
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_CANCEL_FAILED, data: membershipId });
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_FAILED, data: channelClaimId });
+      return e;
+    });
+};
+
+export const getMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
+
+  await Lbryio.call('membership', 'content', {
+    environment: stripeEnvironment,
+    claim_id: contentClaimId,
+  }, 'post')
+    .then((response) => {
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: contentClaimId });
+      return response;
+    })
+    .catch((e) => {
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
       return e;
     });
 };
