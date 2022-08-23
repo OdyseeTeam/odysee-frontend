@@ -111,3 +111,7 @@ export const selectUserValidMembershipForChannelUri = createSelector(
     return membershipIsValid ? purchasedMembershipForChannel[0] : null;
   }
 );
+
+export const selectProtectedContentMembershipsForClaimId = (state: State, channelId: string, claimId: string) => {
+  return state.memberships?.protectedContentClaims[channelId]?.[claimId];
+};

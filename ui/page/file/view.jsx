@@ -201,7 +201,7 @@ export default function FilePage(props: Props) {
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
       return (
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
-          <ProtectedContentOverlay />
+          <ProtectedContentOverlay uri={uri} />
           {/* playables will be rendered and injected by <FileRenderFloating> */}
           <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         </div>
