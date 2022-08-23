@@ -1197,6 +1197,27 @@
   }
 }
 
+.protected-content-overlay {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 9%;
+  transform: translate(-50%,-50%);
+  background-color: #1d1d1d;
+  padding: 5px;
+  border-radius: 7px;
+  text-align: center;
+  width: 32%;
+
+  h1 {
+    font-size: 23px;
+  }
+}
+
+.protected-content-overlay__button {
+  margin: 9px 0px;
+}
+
 .claim-grid {
   .claim-preview__file-purchase-overlay {
     @media (min-width: $breakpoint-large) {
