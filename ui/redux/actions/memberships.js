@@ -277,7 +277,9 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
     for_channel: channelClaimId,
   }, 'post')
     .then((response) => {
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS, data: channelClaimId });
+      console.log('response');
+      console.log(response);
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {

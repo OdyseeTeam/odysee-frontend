@@ -152,3 +152,54 @@ export default function membershipsReducer(state: MembershipsState = defaultStat
   if (handler) return handler(state, action);
   return state;
 }
+
+reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => {
+  console.log('action data');
+  console.log(action);
+
+  const newProtectedContentClaims = Object.assign({}, state.protectedContentClaims);
+
+  let wholeObject = {};
+  for (const memberContent of action.data) {
+    if (!wholeObject[memberContent.claim_id]) {
+      wholeObject[memberContent.claim_id] = {
+        membershipIds: [],
+      };
+    }
+
+    const membershipIds = wholeObject[memberContent.claim_id].membershipIds;
+
+    if (!membershipIds.includes(memberContent.membership_id)) {
+      membershipIds.push(memberContent.membership_id);
+    }
+  }
+
+  console.log('whole object');
+  console.log(wholeObject);
+
+  if (action.data && action.data.length) {
+
+
+
+
+
+    const channelId = action.data[0].channel_id;
+    const claimId =  action.data[0].claim_id;
+
+    if (!newProtectedContentClaims[channelId]) newProtectedContentClaims[channelId] = {};
+    const thisContentChannel = newProtectedContentClaims[channelId];
+    if (!thisContentChannel[claimId]) thisContentChannel[claimId] = {};
+
+    let membershipIds = [];
+    for (const content of action.data) {
+      membershipIds.push(content.membership_id);
+    }
+    thisContentChannel[claimId]['memberships'] = membershipIds;
+  }
+  console.log('running here2');
+
+  console.log(newProtectedContentClaims);
+
+  return { ...state, protectedContentClaims: newProtectedContentClaims };
+};
+

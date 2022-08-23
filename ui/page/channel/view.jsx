@@ -79,6 +79,7 @@ function ChannelPage(props: Props) {
     unpublishedCollections,
     lang,
     odyseeMembership,
+    getMembershipTiersForChannel,
   } = props;
   const {
     push,
@@ -211,6 +212,10 @@ function ChannelPage(props: Props) {
       setDiscussionWasMounted(true);
     }
   }, [currentView]);
+
+  React.useEffect(() => {
+    getMembershipTiersForChannel(claim.claim_id);
+  }, [claim]);
 
   React.useEffect(() => {
     fetchSubCount(claimId);
