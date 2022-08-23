@@ -12,6 +12,7 @@ type MembershipsState = {
   pendingCancelIds: Array<ClaimIds>,
   myMembershipTiers: ?MembershipTiers,
   pendingDeleteIds: Array<string>,
+  // protectedContentClaims: { [channelId: string]: any },
 };
 
 const defaultState: MembershipsState = {
@@ -23,6 +24,7 @@ const defaultState: MembershipsState = {
   pendingCancelIds: [],
   myMembershipTiers: undefined,
   pendingDeleteIds: [],
+  protectedContentClaims: {},
 };
 
 // type fetchingIds: {[string]: Array<string>}
@@ -109,6 +111,41 @@ reducers[ACTIONS.LIST_MEMBERSHIP_DATA] = (state, action) => {
 };
 
 reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, myMembershipTiers: action.data });
+
+reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED] = (state, action) => {
+  return { ...state };
+};
+
+reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => {
+  console.log('action data');
+  console.log(action);
+
+  const newProtectedContentClaims = Object.assign({}, state.protectedContentClaims);
+
+  if (action.data && action.data.length) {
+    const channelId = action.data[0].channel_id;
+    const claimId =  action.data[0].claim_id;
+
+    if (!newProtectedContentClaims[channelId]) newProtectedContentClaims[channelId] = {};
+    const thisContentChannel = newProtectedContentClaims[channelId];
+    if (!thisContentChannel[claimId]) thisContentChannel[claimId] = {};
+
+    let membershipIds = [];
+    for (const content of action.data) {
+      membershipIds.push(content.membership_id);
+    }
+    thisContentChannel[claimId]['memberships'] = membershipIds;
+  }
+  console.log('running here2');
+
+  console.log(newProtectedContentClaims);
+
+  return { ...state, protectedContentClaims: newProtectedContentClaims };
+};
+
+reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED] = (state, action) => {
+  return { ...state };
+};
 
 export default function membershipsReducer(state: MembershipsState = defaultState, action: any) {
   const handler = reducers[action.type];

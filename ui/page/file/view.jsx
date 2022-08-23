@@ -47,6 +47,7 @@ type Props = {
   doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
+  doGetMembershipTiersForContentClaimId: (type: string) => void,
   fileInfo: FileListItem,
   isLivestream: boolean,
   isMature: boolean,
@@ -103,6 +104,7 @@ export default function FilePage(props: Props) {
     preorderTag,
     rentalTag,
     claimId,
+    doGetMembershipTiersForContentClaimId,
   } = props;
 
   const { search } = location;
@@ -152,6 +154,10 @@ export default function FilePage(props: Props) {
     const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
     if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
   }, [purchaseTag, preorderTag, rentalTag, claimId]);
+
+  React.useEffect(() => {
+    doGetMembershipTiersForContentClaimId(claimId);
+  }, [claimId]);
 
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file

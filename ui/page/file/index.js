@@ -30,6 +30,7 @@ import { doFileGet } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/claims';
 
 import FilePage from './view';
+import { doGetMembershipTiersForContentClaimId } from 'redux/actions/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -74,6 +75,7 @@ const perform = {
   doFileGet,
   doSetMainPlayerDimension,
   doCheckIfPurchasedClaimId,
+  doGetMembershipTiersForContentClaimId,
 };
 
 export default withRouter(connect(select, perform)(FilePage));

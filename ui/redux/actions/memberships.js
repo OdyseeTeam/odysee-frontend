@@ -233,7 +233,7 @@ export const doDeactivateMembershipForId = (membershipId: number) => async (disp
     });
 };
 
-export const setMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (dispatch: Dispatch) => {
+export const doSetMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (dispatch: Dispatch) => {
   dispatch({
     type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
     data: {
@@ -269,7 +269,7 @@ export const setMembershipTiersForClaimId = (membershipIds: string, claimId: str
     });
 };
 
-export const getMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
+export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_STARTED, data: channelClaimId });
 
   await Lbryio.call('membership', 'content', {
@@ -286,7 +286,7 @@ export const getMembershipTiersForChannelClaimId = (channelClaimId: string) => a
     });
 };
 
-export const getMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
+export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
 
   await Lbryio.call('membership', 'content', {
@@ -294,10 +294,13 @@ export const getMembershipTiersForContentClaimId = (contentClaimId: string) => a
     claim_id: contentClaimId,
   }, 'post')
     .then((response) => {
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: contentClaimId });
+      console.log('response');
+      console.log(response);
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {
+      console.log(e);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
       return e;
     });
