@@ -6,7 +6,7 @@ import { doClearPlayingUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectClaimIsMine, selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectModerationDelegatorsById } from 'redux/selectors/comments';
+import { selectModerationDelegatorsById, selectModerationDelegatesById } from 'redux/selectors/comments';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import CommentMenuList from './view';
@@ -15,6 +15,8 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
   const authorClaim = selectClaimForUri(state, props.authorUri);
   const authorCanonicalUri = (authorClaim && authorClaim.canonical_url) || '';
+  const authorId = (authorClaim && authorClaim.claim_id) || '';
+
   return {
     claim,
     claimIsMine: selectClaimIsMine(state, claim),
@@ -23,8 +25,10 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, authorClaim),
     playingUri: selectPlayingUri(state),
     moderationDelegatorsById: selectModerationDelegatorsById(state),
+    moderationDelegatesById: selectModerationDelegatesById(state),
     authorTitle: selectTitleForUri(state, props.authorUri),
     authorCanonicalUri,
+    authorId,
   };
 };
 
@@ -36,7 +40,7 @@ const perform = (dispatch) => ({
   pinComment: (commentId, claimId, remove) => dispatch(doCommentPin(commentId, claimId, remove)),
   commentModAddDelegate: (modChanId, modChanName, creatorChannelClaim) =>
     dispatch(doCommentModAddDelegate(modChanId, modChanName, creatorChannelClaim, true)),
-  doSetActiveChannel: (channelUri) => dispatch(doSetActiveChannel(channelUri)),
+  doSetActiveChannel: (authorId) => dispatch(doSetActiveChannel(authorId)),
 });
 
 export default connect(select, perform)(CommentMenuList);
