@@ -37,7 +37,7 @@ type Props = {
   moderationDelegatorsById: { [string]: { global: boolean, delegators: { name: string, claimId: string } } },
   authorTitle: string,
   authorCanonicalUri: ?string,
-  authorId?: string,
+  authorId: string,
   // --- perform ---
   doToast: ({ message: string }) => void,
   handleEditComment: () => void,
