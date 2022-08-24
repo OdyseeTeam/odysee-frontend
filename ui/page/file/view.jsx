@@ -105,6 +105,8 @@ export default function FilePage(props: Props) {
     rentalTag,
     claimId,
     doGetMembershipTiersForContentClaimId,
+    doMembershipMine,
+    myActiveMemberships,
   } = props;
 
   const { search } = location;
@@ -149,6 +151,13 @@ export default function FilePage(props: Props) {
     // would trigger the drawer
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  React.useEffect(() => {
+    if (myActiveMemberships === undefined) {
+      doMembershipMine();
+      console.log('running my active memberships');
+    }
+  }, [doMembershipMine, myActiveMemberships]);
 
   React.useEffect(() => {
     const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;

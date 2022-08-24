@@ -28,9 +28,9 @@ import { doToggleAppDrawer, doSetMainPlayerDimension } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doFileGet } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/claims';
-
 import FilePage from './view';
-import { doGetMembershipTiersForContentClaimId } from 'redux/actions/memberships';
+import { doGetMembershipTiersForContentClaimId, doMembershipMine } from 'redux/actions/memberships';
+import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -63,6 +63,7 @@ const select = (state, props) => {
     preorderTag: selectPreorderTagForUri(state, props.uri),
     rentalTag: selectRentalTagForUri(state, props.uri),
     claimId: claim.claim_id,
+    myActiveMemberships: selectMyActiveMembershipsById(state) && Object.values(selectMyActiveMembershipsById(state)),
   };
 };
 
@@ -76,6 +77,7 @@ const perform = {
   doSetMainPlayerDimension,
   doCheckIfPurchasedClaimId,
   doGetMembershipTiersForContentClaimId,
+  doMembershipMine,
 };
 
 export default withRouter(connect(select, perform)(FilePage));

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
-import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import ProtectedContentOverlay from './view';
-import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
+import { selectProtectedContentMembershipsForClaimId, selectMyActiveMembershipIds } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -9,8 +9,10 @@ const select = (state, props) => {
   const channelId = claim && claim?.signing_channel?.claim_id;
 
   return {
+    claimIsMine: selectClaimIsMine(state),
     claim,
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelId, claimId),
+    activeMembershipIds: selectMyActiveMembershipIds(state),
   };
 };
 

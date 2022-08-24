@@ -5,18 +5,28 @@ import Icon from 'component/common/icon';
 import Button from 'component/button';
 
 type Props = {
-  protectedMembershipIds: Array,
+  protectedMembershipIds: Array<number>,
+  activeMembershipIds: Array<number>,
+  claimIsMine: boolean,
 };
 
 export default function ProtectedContentOverlay(props: Props) {
   const {
     protectedMembershipIds,
+    activeMembershipIds,
+    claimIsMine,
   } = props;
 
-  console.log('protected memberships');
-  console.log(protectedMembershipIds);
+  const [userIsAMember, setUserIsAMember] = React.useState(false);
 
-  if (!protectedMembershipIds) return (<></>);
+  React.useEffect(() => {
+    if (protectedMembershipIds && activeMembershipIds) {
+      setUserIsAMember(activeMembershipIds.some(id => protectedMembershipIds.includes(id)));
+    }
+  }, [protectedMembershipIds, activeMembershipIds]);
+
+  // don't show overlay if it's not protected or user is a member
+  if (!protectedMembershipIds || userIsAMember || claimIsMine) return (<></>);
 
   return (
     <>
