@@ -67,8 +67,8 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
     .catch((e) => dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED, data: { channelId, error: e } }));
 };
 
-export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
-  dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
+export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) => {}
+  // dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
 export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')

@@ -155,17 +155,21 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => 
 
   if (action.data && action.data.length) {
     channelId = action.data[0].channel_id;
+
     for (const memberContent of action.data) {
-      if (!wholeObject[memberContent.claim_id]) {
-        wholeObject[memberContent.claim_id] = {
-          membershipIds: [],
-        };
-      }
+      // doing this conditional because sometimes the backend data is not right
+      if (memberContent.claim_id && memberContent.channel_id) {
+        if (!wholeObject[memberContent.claim_id]) {
+          wholeObject[memberContent.claim_id] = {
+            memberships: [],
+          };
+        }
 
-      const membershipIds = wholeObject[memberContent.claim_id].membershipIds;
+        const membershipIds = wholeObject[memberContent.claim_id].memberships;
 
-      if (!membershipIds.includes(memberContent.membership_id)) {
-        membershipIds.push(memberContent.membership_id);
+        if (!membershipIds.includes(memberContent.membership_id)) {
+          membershipIds.push(memberContent.membership_id);
+        }
       }
     }
   }

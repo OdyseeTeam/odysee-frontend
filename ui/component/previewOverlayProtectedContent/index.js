@@ -1,20 +1,18 @@
 import { connect } from 'react-redux';
-import { selectClaimIsMine, selectClaimForUri } from 'redux/selectors/claims';
-import { makeSelectFilePartlyDownloaded } from 'redux/selectors/file_info';
-import { selectCollectionHasEditsForId } from 'redux/selectors/collections';
-import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import PreviewOverlayProtectedContent from './view';
+import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectProtectedContentMembershipsForClaimId, selectMyActiveMembershipIds } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
   const claimId = claim && claim.claim_id;
+  const channelId = claim && claim?.signing_channel?.claim_id;
 
   return {
-    claim,
-    hasEdits: selectCollectionHasEditsForId(state, claimId),
-    downloaded: makeSelectFilePartlyDownloaded(props.uri)(state),
-    isSubscribed: selectIsSubscribedForUri(state, props.uri),
     claimIsMine: selectClaimIsMine(state, claim),
+    claim,
+    protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelId, claimId),
+    activeMembershipIds: selectMyActiveMembershipIds(state),
   };
 };
 

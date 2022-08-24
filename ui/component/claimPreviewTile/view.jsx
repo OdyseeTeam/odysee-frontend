@@ -256,7 +256,7 @@ function ClaimPreviewTile(props: Props) {
         <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout>
           {!isChannel && (
             <React.Fragment>
-              <PreviewOverlayProtectedContent />
+              <PreviewOverlayProtectedContent uri={uri} />
               <PreviewTilePurchaseOverlay uri={uri} />
               {((fypId && isStream) || isPlayable) && (
                 <div className="claim-preview__hover-actions-grid">

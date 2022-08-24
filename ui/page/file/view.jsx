@@ -155,7 +155,6 @@ export default function FilePage(props: Props) {
   React.useEffect(() => {
     if (myActiveMemberships === undefined) {
       doMembershipMine();
-      console.log('running my active memberships');
     }
   }, [doMembershipMine, myActiveMemberships]);
 
