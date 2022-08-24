@@ -277,12 +277,11 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
     for_channel: channelClaimId,
   }, 'post')
     .then((response) => {
-      console.log('response');
-      console.log(response);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {
+      console.log(e);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_FAILED, data: channelClaimId });
       return e;
     });
