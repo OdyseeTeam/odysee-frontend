@@ -1654,7 +1654,6 @@ export const doFetchCreatorSettings = (channelId: string) => {
     const state = getState();
     const myChannels = selectMyChannelClaims(state);
 
-    console.log('fetch settings');
     dispatch({
       type: ACTIONS.COMMENT_FETCH_SETTINGS_STARTED,
     });
