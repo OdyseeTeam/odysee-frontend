@@ -6,7 +6,7 @@ import { doClearPlayingUri } from 'redux/actions/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectClaimIsMine, selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectModerationDelegatorsById, selectModerationDelegatesById } from 'redux/selectors/comments';
+import { selectModerationDelegatorsById } from 'redux/selectors/comments';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import CommentMenuList from './view';
@@ -25,7 +25,6 @@ const select = (state, props) => {
     channelIsMine: selectClaimIsMine(state, authorClaim),
     playingUri: selectPlayingUri(state),
     moderationDelegatorsById: selectModerationDelegatorsById(state),
-    moderationDelegatesById: selectModerationDelegatesById(state),
     authorTitle: selectTitleForUri(state, props.authorUri),
     authorCanonicalUri,
     authorId,
