@@ -108,16 +108,19 @@ const JoinMembershipCard = (props: Props) => {
 
   let commaSeparatedMembershipNames;
   let membershipNames = [];
-  for (const membership of creatorMemberships) {
+  if (creatorMemberships && protectedMembershipIds) {
+    for (const membership of creatorMemberships) {
 
-    const membershipId = membership.Membership.id;
+      const membershipId = membership.Membership.id;
 
-    if (protectedMembershipIds.includes(membershipId)) {
-      membershipNames.push(membership.Membership.name);
+      if (protectedMembershipIds.includes(membershipId)) {
+        membershipNames.push(membership.Membership.name);
+      }
+
+      commaSeparatedMembershipNames = membershipNames.join(', ');
     }
-
-    commaSeparatedMembershipNames = membershipNames.join(', ');
   }
+
 
   return (
     <Form onSubmit={handleJoinMembership}>

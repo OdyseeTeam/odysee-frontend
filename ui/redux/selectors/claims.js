@@ -729,6 +729,11 @@ export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri
   if (matchingTag) return matchingTag.slice(9);
 })((state, uri) => String(uri));
 
+export const selectProtectedContentTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('c:members-only'));
+  if (matchingTag) return true;
+})((state, uri) => String(uri));
+
 export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('rental:'));
   if (matchingTag) {

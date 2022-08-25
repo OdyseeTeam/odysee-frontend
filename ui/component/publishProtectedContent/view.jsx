@@ -41,19 +41,12 @@ function PublishProtectedContent(props: Props) {
     updatePublishForm({ restrictedToMemberships: commaSeparatedValueString });
   }
 
-  console.log('active channel');
-  console.log(activeChannel);
-
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState([]);
 
-  function handleChangeRestriction(){
-    setIsRestrictingContent(!isRestrictingContent)
-
-    console.log('hey something')
+  function handleChangeRestriction() {
+    setIsRestrictingContent(!isRestrictingContent);
   }
-
-  const memberships = ['Bronze Plan', 'Silver Plan', 'Gold Plan']
 
   const [hasSavedTiers, setHasSavedTiers] = React.useState(false);
 
