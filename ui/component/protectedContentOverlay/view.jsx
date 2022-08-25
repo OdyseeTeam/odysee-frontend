@@ -1,5 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
 import * as React from 'react';
 import Icon from 'component/common/icon';
 import Button from 'component/button';
@@ -15,6 +16,8 @@ export default function ProtectedContentOverlay(props: Props) {
     protectedMembershipIds,
     activeMembershipIds,
     claimIsMine,
+    openModal,
+    uri,
   } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
@@ -41,7 +44,10 @@ export default function ProtectedContentOverlay(props: Props) {
           icon={ICONS.UPGRADE}
           label={__('See Membership Options')}
           title={__('Become A Member')}
-          // onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}
+          onClick={() => openModal(MODALS.JOIN_MEMBERSHIP, {
+            uri,
+            protectedMembershipIds,
+          })}
           // style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
         />
       </div>

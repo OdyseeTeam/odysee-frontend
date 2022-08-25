@@ -11,6 +11,7 @@ import Spinner from 'component/spinner';
 type Props = {
   uri: string,
   doHideModal: () => void,
+  protectedMembershipIds: Array<number>,
   // -- redux --
   activeChannelClaim: ChannelClaim,
   channelName: ?string,
@@ -27,6 +28,7 @@ const JoinMembershipCard = (props: Props) => {
   const {
     uri,
     doHideModal,
+    protectedMembershipIds,
     // -- redux --
     activeChannelClaim,
     channelName,
@@ -97,25 +99,51 @@ const JoinMembershipCard = (props: Props) => {
     );
   }
 
+  let previewTitle = 'Join Membership';
+  let previewSubtitle = 'Join this creator\'s channel for access to exclusive content and perks';
+  if (protectedMembershipIds) {
+    previewTitle = 'Join Channel Membership To View Content';
+    previewSubtitle = 'This content is available with the following memberships:';
+  }
+
+  let commaSeparatedMembershipNames;
+  let membershipNames = [];
+  for (const membership of creatorMemberships) {
+
+    const membershipId = membership.Membership.id;
+
+    if (protectedMembershipIds.includes(membershipId)) {
+      membershipNames.push(membership.Membership.name);
+    }
+
+    commaSeparatedMembershipNames = membershipNames.join(', ');
+  }
+
   return (
     <Form onSubmit={handleJoinMembership}>
       <Card
-        title={__('Join Membership')}
+        title={__(previewTitle)}
         className="card--join-membership"
         subtitle={
-          isOnConfirmationPage ? undefined : __("Join this creator's channel for access to exclusive content and perks")
+          isOnConfirmationPage ? undefined : __(previewSubtitle)
         }
         body={
-          isOnConfirmationPage ? (
-            <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />
-          ) : (
-            <PreviewPage
-              {...pageProps}
-              handleSelect={() => setConfirmationPage(true)}
-              selectedMembershipIndex={selectedMembershipIndex}
-              setMembershipIndex={setMembershipIndex}
-            />
-          )
+          <>
+            {commaSeparatedMembershipNames && <p className="section__subtitle section__subtitle--join-membership__perk">
+              {commaSeparatedMembershipNames}
+            </p>}
+            {isOnConfirmationPage ? (
+              <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />
+            ) : (
+              <PreviewPage
+                {...pageProps}
+                handleSelect={() => setConfirmationPage(true)}
+                selectedMembershipIndex={selectedMembershipIndex}
+                setMembershipIndex={setMembershipIndex}
+                protectedMembershipIds={protectedMembershipIds}
+              />
+            )}
+          </>
         }
       />
     </Form>

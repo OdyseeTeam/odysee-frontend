@@ -23,6 +23,7 @@ type Props = {
   channelIsMine: boolean,
   creatorMemberships: CreatorMemberships,
   doTipAccountCheckForUri: (uri: string) => void,
+  protectedMembershipIds: Array<number>,
 };
 
 const PreviewPage = (props: Props) => {
@@ -32,6 +33,7 @@ const PreviewPage = (props: Props) => {
     selectedMembershipIndex,
     setMembershipIndex,
     handleSelect,
+    protectedMembershipIds,
     // -- redux --
     canReceiveFiatTips,
     channelIsMine,
@@ -138,7 +140,10 @@ const PreviewPage = (props: Props) => {
             label={Membership.name}
             button="alt"
             onClick={() => setMembershipIndex(index)}
-            className={classnames('button-toggle', { 'button-toggle--active': index === selectedMembershipIndex })}
+            className={classnames('button-toggle', {
+              'button-toggle--active': index === selectedMembershipIndex,
+              'protected-membership-button': protectedMembershipIds.includes(Membership.id),
+            })}
           />
         ))}
       </div>

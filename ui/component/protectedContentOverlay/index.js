@@ -2,6 +2,7 @@ import { connect } from 'react-redux';
 import ProtectedContentOverlay from './view';
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import { selectProtectedContentMembershipsForClaimId, selectMyActiveMembershipIds } from 'redux/selectors/memberships';
+import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -16,4 +17,8 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select, null)(ProtectedContentOverlay);
+const perform = (dispatch) => ({
+  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+});
+
+export default connect(select, perform)(ProtectedContentOverlay);
