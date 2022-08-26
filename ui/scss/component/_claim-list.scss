@@ -1146,7 +1146,7 @@
     background-color: var(--color-header-background);
     margin: 0 var(--spacing-xxs);
     padding: var(--spacing-xxs);
-    border-radius: 10px;
+    border-radius: var(--border-radius);
     text-align: center;
     color: var(--color-text);
     font-size: var(--font-small);
@@ -1201,11 +1201,11 @@
   background-color: #679a28;
   padding: 0.3rem;
   border-radius: var(--border-radius);
-  bottom: var(--spacing-xxs);
-  left: var(--spacing-xxs);
+  bottom: var(--spacing-xs);
+  left: var(--spacing-xs);
 
   span {
-    color: #faf6f6;
+    color: #dddddd;
   }
 }
 
