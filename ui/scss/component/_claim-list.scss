@@ -1130,9 +1130,9 @@
 .protected-content-holder {
   position: absolute;
   z-index: 5;
-  left: calc(50% - 60px);
+  left: calc(50% - 80px);
   top: calc(50% - 40px);
-  width: 120px;
+  width: 160px;
   height: 92px;
   text-align: center;
 
@@ -1148,8 +1148,9 @@
     padding: var(--spacing-xxs);
     border-radius: 10px;
     text-align: center;
-    color: white;
+    color: var(--color-text);
     font-size: var(--font-small);
+    border: 2px solid rgba(var(--color-header-background-base), 1);
   }
 }
 
@@ -1214,15 +1215,24 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background-color: #1d1d1d;
+  background-color: var(--color-header-background);
   padding: 7px;
   border-radius: 7px;
   text-align: center;
   width: 300px;
   height: 230px;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  border: 2px solid rgba(var(--color-header-background-base), 1);
 
   h1 {
     font-size: 23px;
+  }
+
+  div {
+    .icon {
+      stroke: var(--color-text);
+    }
   }
 }
 
