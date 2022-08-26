@@ -1,5 +1,5 @@
 // @flow
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { FormField } from 'component/common/form';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -16,10 +16,10 @@ type Props = {
   doGetMembershipTiersForContentClaimId: (type: string) => void,
   claim: Claim,
   protectedMembershipIds: Array<number>,
+  activeChannel: ChannelClaim,
 };
 
 function PublishProtectedContent(props: Props) {
-
   const {
     activeChannel,
     updatePublishForm,
@@ -36,11 +36,19 @@ function PublishProtectedContent(props: Props) {
     };
   }, [claimId]);
 
+  // if there are already restricted memberships for this content
   React.useEffect(() => {
-    if (protectedMembershipIds && protectedMembershipIds) {
+    if (activeChannel && protectedMembershipIds && protectedMembershipIds) {
       setIsRestrictingContent(true);
+
+      const commaSeparatedValueString = protectedMembershipIds.join(',');
+
+      updatePublishForm({
+        restrictedToMemberships: commaSeparatedValueString,
+        channelClaimId: activeChannel.claim_id,
+      });
     };
-  }, [protectedMembershipIds]);
+  }, [protectedMembershipIds, activeChannel]);
 
   function handleRestrictedMembershipChange(event) {
 
@@ -54,7 +62,10 @@ function PublishProtectedContent(props: Props) {
 
     const commaSeparatedValueString = matchedMemberships.join(',');
 
-    updatePublishForm({ restrictedToMemberships: commaSeparatedValueString });
+    updatePublishForm({
+      restrictedToMemberships: commaSeparatedValueString,
+      channelClaimId: activeChannel.claim_id,
+    });
   }
 
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);

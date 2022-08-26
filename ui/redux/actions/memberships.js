@@ -67,6 +67,7 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
     .catch((e) => dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED, data: { channelId, error: e } }));
 };
 
+// TODO: some bug was introduced here where kept calling itself over and over
 export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) => {}
   // dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
@@ -303,6 +304,33 @@ export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) =>
     .catch((e) => {
       console.log(e);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
+      return e;
+    });
+};
+
+export const doSaveMembershipRestrictionsForContent = (channelClaimId: string, contentClaimId: string, commaSeperatedMembershipIds: string) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
+    data: {
+      commaSeperatedMembershipIds,
+      contentClaimId,
+    },
+  });
+
+  await Lbryio.call('membership_content', 'modify', {
+    environment: stripeEnvironment,
+    claim_id: contentClaimId,
+    membership_ids: commaSeperatedMembershipIds,
+    channel_id: channelClaimId,
+  }, 'post')
+    .then((response) => {
+      console.log('response');
+      console.log(response);
+      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
+      return response;
+    })
+    .catch((e) => {
+      console.log(e);
+      // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
       return e;
     });
 };

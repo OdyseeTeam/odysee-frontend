@@ -6,6 +6,7 @@ import * as PAGES from 'constants/pages';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
+import { doSaveMembershipRestrictionsForContent } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
   selectMyActiveClaims,
@@ -633,7 +634,13 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   // get redux publish form
   const publishData = selectPublishFormValues(state);
 
+  const { restrictedToMemberships, channelClaimId } = publishData;
+
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, preview);
+
+  if (restrictedToMemberships && !publishPayload.tags.includes('c:members-only')) {
+    publishPayload.tags.push('c:members-only');
+  }
 
   if (preview) {
     return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
@@ -642,6 +649,14 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   }
 
   return Lbry.publish(publishPayload).then((response: PublishResponse) => {
+    const claimId = response.outputs.find(obj => {
+      return obj.claim_id;
+    }).claim_id;
+
+    if (restrictedToMemberships) {
+      dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimId, restrictedToMemberships));
+    }
+
     // TODO: Restore LbryFirst
     // if (!useLBRYUploader) {
     return success(response);
