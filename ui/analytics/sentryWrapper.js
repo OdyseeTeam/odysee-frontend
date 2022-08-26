@@ -14,8 +14,9 @@ import { LocalStorage } from 'util/storage';
 
 const SENTRY_DSN = 'https://1f3c88e2e4b341328a638e138a60fb73@sentry.odysee.tv/2';
 const TEST_DSN = LocalStorage.getItem('sentry_test_dsn') || '';
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-const isProduction = process.env.NODE_ENV === 'production';
+let gSentryInitialized = false;
 let gSentryEnabled = false;
 
 // ****************************************************************************
@@ -33,28 +34,31 @@ export const sentryWrapper: SentryWrapper = {
     // Call init() as early as possible in the app.
     // Note that we currently catch React errors in 'component/errorBoundary' and
     // manually relay it to Sentry. Those will not bubble up to this error reporter.
-    if (isProduction) {
+    if (IS_PRODUCTION || LocalStorage.getItem('sentry_install')) {
       // https://docs.sentry.io/platforms/javascript/configuration/options/
       Sentry.init({
         dsn: TEST_DSN || SENTRY_DSN,
         beforeBreadcrumb: handleBeforeBreadcrumb,
         beforeSend: handleBeforeSend,
-        debug: !isProduction,
+        debug: LocalStorage.getItem('sentry_debug') === 'true' || !IS_PRODUCTION,
         integrations: [new BrowserTracing()],
         maxBreadcrumbs: 50,
-        tracesSampleRate: isProduction ? 0.1 : 1.0,
-        whitelistUrls: [/\/public\/ui.js/],
+        release: process.env.BUILD_REV,
+        tracesSampleRate: 0.0,
+        whitelistUrls: [/https:\/\/((.*)\.)?odysee\.(com|tv)/, 'http://localhost:9090'],
       });
+
+      gSentryInitialized = true;
     }
   },
 
   setState: (enable: boolean) => {
-    gSentryEnabled = isProduction && enable;
+    gSentryEnabled = enable;
   },
 
   log: (error: Error | string, options?: SentryEventOptions, transactionName?: string) => {
     return new Promise((resolve) => {
-      if (gSentryEnabled) {
+      if (gSentryInitialized && gSentryEnabled) {
         Sentry.withScope((scope) => {
           if (transactionName) {
             // Using transactionName as the label is somewhat of a hack:
@@ -81,6 +85,25 @@ export const sentryWrapper: SentryWrapper = {
 // ****************************************************************************
 
 function handleBeforeSend(event) {
+  if (event.message === 'ResizeObserver loop limit exceeded') {
+    // This is coming from the ads, but unfortunately there's no data linking
+    // to ads for us to filter exactly. It's apparently an ignorable browser
+    // message, and usually there should be an accompanying exception (we'll
+    // capture that instead).
+    return null;
+  }
+
+  try {
+    const ev = event.exception?.values;
+    if (ev) {
+      const fr = ev[0]?.stacktrace?.frames;
+      const filename = fr && fr[0]?.filename;
+      if (filename && filename.startsWith('https://tg1.aniview.com/')) {
+        return null;
+      }
+    }
+  } catch {}
+
   return event;
 }
 

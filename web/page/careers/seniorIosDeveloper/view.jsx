@@ -62,7 +62,7 @@ const SeniorIosDeveloperPage = () => {
                 <li>Team player</li>
                 <li>Good time-management skills</li>
                 <li>Great interpersonal and communication skills</li>
-                <li>BA in Computer Science or similar relevant field(or additional 4 years experience)</li>
+                <li>Degree in Computer Science or similar relevant field(or additional 4 years experience)</li>
               </ul>
             </section>
 
@@ -71,7 +71,7 @@ const SeniorIosDeveloperPage = () => {
               <ul>
                 <li>Led a team of developers in the past</li>
                 <li>Implemented at the enterprise scale (50 million users)</li>
-                <li>Familiarity with Play Store procedures and policies.</li>
+                <li>Familiarity with App Store procedures and policies.</li>
               </ul>
             </section>
 

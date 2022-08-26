@@ -51,7 +51,7 @@
   @extend .card;
   background-color: var(--color-modal-background);
   line-height: 1.55;
-  min-width: 580px;
+  min-width: 500px;
   max-width: var(--modal-width);
   overflow: auto;
   overflow-x: hidden;
@@ -73,6 +73,23 @@
       &:focus {
         border: 1px solid var(--color-primary);
         box-shadow: unset;
+      }
+    }
+
+    .card__title-section {
+      padding-top: 0;
+    }
+    .card--inline {
+      .claim-preview__wrapper {
+        border: 2px solid var(--color-border);
+        background: var(--color-header-background) !important;
+        padding: var(--spacing-s) !important;
+        .claim-preview-info {
+          padding-top: 0;
+          span {
+            font-size: var(--font-body);
+          }
+        }
       }
     }
   }
@@ -101,6 +118,16 @@
       .claim-preview__actions {
         margin-top: unset;
       }
+    }
+  }
+
+  .purchase-stuff {
+    div:first-of-type {
+      width: unset;
+    }
+    div:last-of-type {
+      margin-left: auto;
+      margin-right: var(--spacing-xs);
     }
   }
 
@@ -184,19 +211,18 @@
     }
 
     button.button-toggle {
-      // background-color: rgba(var(--color-header-button-base), 0.4) !important;
       background-color: var(--color-header-background) !important;
       border: 2px solid var(--color-border);
-      border-right: 0px;
+      border-left: 0px;
       &:hover {
         background-color: var(--color-border) !important;
         border: 2px solid transparent;
-        border-right: 0px;
+        border-left: 0px;
       }
-      &:last-of-type {
-        border-right: 2px solid var(--color-border);
+      &:first-of-type {
+        border-left: 2px solid var(--color-border);
         &:hover {
-          border-right: 2px solid transparent;
+          border-left: 2px solid transparent;
         }
       }
       .button__label {
@@ -207,9 +233,9 @@
     button.button-toggle--active {
       background-color: var(--color-border) !important;
       border: 2px solid transparent;
-      border-right: 0px;
-      &:last-child {
-        border-right: 2px solid transparent;
+      border-left: 0px;
+      &:first-child {
+        border-left: 2px solid transparent;
       }
     }
 

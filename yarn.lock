@@ -9309,6 +9309,11 @@ homedir-polyfill@^1.0.1:
   dependencies:
     parse-passwd "^1.0.0"
 
+hook-shell-script-webpack-plugin@^0.1.4:
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/hook-shell-script-webpack-plugin/-/hook-shell-script-webpack-plugin-0.1.4.tgz#a6b16b7aa15e70f66511367b78a9ab23a1fec84f"
+  integrity sha512-LDv0JiHW9GqYpMJuvn9DuNkGbuzOegEo/M2IJTDsJWZjHF+XlJyeXHq2lVf75m6GkSFKQKFMCk7nbqNUSio4mQ==
+
 hosted-git-info@^2.1.4:
   version "2.8.9"
   resolved "https://registry.yarnpkg.com/hosted-git-info/-/hosted-git-info-2.8.9.tgz#dffc0bf9a21c02209090f2aa69429e1414daf3f9"
