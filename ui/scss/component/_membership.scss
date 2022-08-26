@@ -175,6 +175,10 @@
   &:nth-child(5) {
     display: none;
   }
+
+  .join-membership__perks {
+    align-items: center;
+  }
 }
 
 .button--membership-tier__show-more {
@@ -191,8 +195,8 @@
   .join-membership__blocks-wrapper {
     display: flex;
     flex-flow: wrap;
-    justify-content: space-around;
-    gap: 30px 0px;
+    justify-content: space-between;
+    gap: var(--spacing-m) 0px;
   }
 
   .section__subtitle--join-membership__description {
@@ -205,7 +209,8 @@
   }
 
   .join-membership__tier-info {
-    max-height: 132px;
+    max-height: 138px;
+    margin-bottom: var(--spacing-s);
     overflow: hidden;
     transition: all linear 5s;
 
@@ -230,7 +235,7 @@
   display: flex;
   flex-direction: column;
   //height: 100%;
-  align-items: center;
+  // align-items: center;
 
   ul {
     display: flex;
@@ -254,9 +259,13 @@
     }
   }
 
+  li {
+    margin-left: 1.3rem !important;
+  }
+
   li:before {
     content: '\2605';
-    color: yellow;
+    color: #ffc800;
     display: inline-block;
     margin-left: -1.3em;
     width: 1.3em;
@@ -284,10 +293,6 @@
     display: block;
   }
 
-  .card__header--between {
-    justify-content: center !important;
-  }
-
   .card__subtitle {
     line-height: 1.5 !important;
   }
@@ -300,7 +305,7 @@
       flex-direction: column;
 
       &:not(:first-of-type) {
-        margin-top: var(--spacing-m);
+        margin-top: var(--spacing-xs);
       }
 
       .confirm__label {
@@ -308,12 +313,11 @@
       }
 
       .confirm__value {
-        font-size: unset;
         display: unset;
         margin-top: 0px;
 
         ul {
-          padding: var(--spacing-s);
+          //padding: var(--spacing-s);
           max-height: 15rem;
           overflow: auto;
         }
@@ -325,12 +329,6 @@
       }
     }
   }
-
-  .card__first-pane,
-  .membership__body {
-    text-align: center;
-  }
-
   .join-membership-tab-renewal-date__header {
     font-size: 1.1rem;
     margin-top: 43px;
@@ -348,21 +346,15 @@
 
 .section__subtitle--join-membership__perk,
 .membership__tier-perks li {
-  margin-left: 0px;
-  margin-right: 0px;
-
-  &:first-of-type {
-    margin-top: 0px;
-  }
+  margin-left: 0;
+  margin-right: 0;
+  font-size: var(--font-base);
+  margin-top: var(--spacing-xs);
+  margin-bottom: 0;
 }
 
 .join-membership-support-time__header {
-  font-size: 18px;
-  margin-bottom: 6px;
-}
-
-.join-membership-support-time__header:nth-of-type(2) {
-  margin-bottom: 34px;
+  font-size: var(--font-big);
 }
 
 .show-additional-membership-info__div {
@@ -413,10 +405,6 @@
   .card__subtitle {
     line-height: 39px;
   }
-
-  .card__title {
-    text-align: center;
-  }
 }
 
 .billingHistory__header {
@@ -435,12 +423,12 @@
   .card__header--between,
   .join-membership__tab-buttons,
   .membership-join-purchase__div {
-    text-align: center;
+    // text-align: center;
     margin-top: 22px;
   }
 
   .card__body {
-    text-align: center;
+    // text-align: center;
   }
 
   .confirm__value {
@@ -448,12 +436,8 @@
     margin-top: 0px;
   }
 
-  .confirm__label {
-    font-size: 17px;
-  }
-
   .confirm__value {
-    font-size: 16px;
+    font-size: var(--font-base);
   }
 
   .section__actions {
@@ -461,7 +445,7 @@
   }
 
   .confirm__value {
-    margin: 0 auto;
+    // margin: 0 auto;
     margin-top: 5px;
     margin-bottom: 23px;
   }
@@ -472,16 +456,18 @@
 }
 
 .membership-tab {
-  .membership__body {
-    padding: 0px 20%;
+  .membership__wrapper {
+    background: var(--color-header-background);
+    padding: var(--spacing-s);
+    border-radius: var(--border-radius);
+    margin: var(--spacing-m) 0;
+    .subtitle {
+      color: var(--color-text-subtitle);
+    }
   }
 
   .membership__perk-item {
     color: var(--color-text-subtitle);
-  }
-
-  .membership__plan-header {
-    font-size: 22px;
   }
 
   .membership__plan-description {
@@ -550,8 +536,4 @@ svg.icon--Upgrade {
   font-size: var(--font-body);
   margin-top: var(--spacing-s);
   margin-bottom: var(--spacing-m);
-}
-
-.protected-membership-button {
-  span { color: #68f368; }
 }

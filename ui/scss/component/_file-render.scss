@@ -234,6 +234,7 @@
 }
 
 .file-page__video-container {
+  position: relative;
   max-height: var(--desktop-portrait-player-max-height);
 }
 

@@ -14,6 +14,23 @@
     z-index: 2; // Ensure focus box-shadow is always visible on every button side
   }
 }
+.button-membership {
+  background-image: linear-gradient(142deg, var(--color-primary), rgb(255, 162, 57));
+  .icon {
+    stroke: white !important;
+  }
+  .button__label {
+    color: white;
+  }
+  &:hover {
+    .icon {
+      stroke: white !important;
+    }
+    .button__label {
+      color: white;
+    }
+  }
+}
 
 .button--primary,
 .button--secondary,

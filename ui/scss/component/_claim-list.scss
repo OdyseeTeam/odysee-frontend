@@ -1130,15 +1130,26 @@
 .protected-content-holder {
   position: absolute;
   z-index: 5;
+  left: calc(50% - 60px);
+  top: calc(50% - 40px);
+  width: 120px;
+  height: 92px;
+  text-align: center;
+
+  .icon {
+    stroke: white;
+    width: 2rem;
+    height: 2rem;
+  }
 
   .protected-content-text {
-    background-color: black;
-    margin: 0 auto;
-    padding: 5px;
+    background-color: var(--color-header-background);
+    margin: 0 var(--spacing-xxs);
+    padding: var(--spacing-xxs);
     border-radius: 10px;
-    width: 62%;
     text-align: center;
     color: white;
+    font-size: var(--font-small);
   }
 }
 
@@ -1201,13 +1212,14 @@
   position: absolute;
   z-index: 1;
   left: 50%;
-  top: 9%;
-  transform: translate(-50%,-50%);
+  top: 50%;
+  transform: translate(-50%, -50%);
   background-color: #1d1d1d;
   padding: 7px;
   border-radius: 7px;
   text-align: center;
-  width: 37%;
+  width: 300px;
+  height: 230px;
 
   h1 {
     font-size: 23px;

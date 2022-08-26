@@ -58,44 +58,46 @@ const MembershipChannelTab = (props: Props) => {
       className="membership membership-tab"
       subtitle={
         <>
-          <h1 className="join-membership-support-time__header">
+          <p className="join-membership-support-time__header">
             {__(
               membershipIsActive
-                ? "You've been supporting %channel_name% for %membership_duration%"
-                : 'You supported %channel_name% for %membership_duration%',
+                ? "You've been supporting %channel_name% for %membership_duration%."
+                : 'You supported %channel_name% for %membership_duration%.',
               { channel_name: creatorChannel, membership_duration: timeAgo }
             )}
-          </h1>
-          <h1 className="join-membership-support-time__header">{__("I'm sure they appreciate it!")}</h1>
+          </p>
+          <p className="join-membership-support-time__header">{__("I'm sure they appreciate it!")}</p>
         </>
       }
       body={
-        <div className="membership__body">
-          <h1 className="membership__plan-header">{membershipName}</h1>
+        <div>
+          <div className="membership__wrapper">
+            <label>{membershipName}</label>
 
-          <h1 className="membership__plan-description">
-            <BalanceText>{membershipDescription}</BalanceText>
-          </h1>
+            <p className="subtitle">
+              <BalanceText>{membershipDescription}</BalanceText>
+            </p>
 
-          {Perks && (
-            <div className="membership__tier-perks">
-              <h1 style={{ marginTop: '30px' }}>{__('Perks')}</h1>
+            {Perks && (
+              <div className="membership__tier-perks">
+                <h1 style={{ marginTop: '30px' }}>{__('Perks')}</h1>
 
-              <ul>
-                {Perks.map((tierPerk, i) => (
-                  <li key={i} className="membership__perk-item">
-                    {tierPerk.name}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
+                <ul>
+                  {Perks.map((tierPerk, i) => (
+                    <li key={i} className="membership__perk-item">
+                      {tierPerk.name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
 
-          <h1 className="join-membership-tab-renewal-date__header">
+          <label>
             {membershipIsActive
               ? __('Your membership will renew on %renewal_date%', { renewal_date: formattedEndOfMembershipDate })
               : __('Your cancelled membership will end on %end_date%', { end_date: formattedEndOfMembershipDate })}
-          </h1>
+          </label>
 
           <div className="section__actions--centered">
             <Button

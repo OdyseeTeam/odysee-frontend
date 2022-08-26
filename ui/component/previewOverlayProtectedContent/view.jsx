@@ -11,37 +11,28 @@ type Props = {
 };
 
 export default function PreviewOverlayProtectedContent(props: Props) {
-  const {
-    protectedMembershipIds,
-    activeMembershipIds,
-    claimIsMine,
-  } = props;
+  const { protectedMembershipIds, activeMembershipIds, claimIsMine } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
 
   React.useEffect(() => {
     if (protectedMembershipIds && activeMembershipIds) {
-      setUserIsAMember(activeMembershipIds.some(id => protectedMembershipIds.includes(id)));
+      setUserIsAMember(activeMembershipIds.some((id) => protectedMembershipIds.includes(id)));
     }
   }, [protectedMembershipIds, activeMembershipIds]);
 
   // don't show overlay if it's not protected or user is a member
-  if (!protectedMembershipIds || userIsAMember || claimIsMine) return (<></>);
+  if (!protectedMembershipIds || userIsAMember || claimIsMine) return <></>;
 
   return (
     <>
       <div className="protected-content-holder">
-        <div style={{ textAlign: 'center', marginTop: '19px' }}>
-          <Icon icon={ICONS.LOCK} className="protected-content-lock" />
-        </div>
+        <Icon icon={ICONS.LOCK} />
         <div className="protected-content-text">
-          <h1>This content is only accessible to members</h1>
+          <span>Members Only</span>
         </div>
       </div>
-      <div
-        className={classnames('claim-preview__overlay-protected-content', {
-        })}
-       />
+      <div className={classnames('claim-preview__overlay-protected-content', {})} />
     </>
   );
 }
