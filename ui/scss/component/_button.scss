@@ -30,6 +30,10 @@
       color: white;
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-right: var(--spacing-xxs);
+  }
 }
 
 .button--primary,

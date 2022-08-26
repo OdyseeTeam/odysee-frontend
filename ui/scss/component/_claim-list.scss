@@ -1226,12 +1226,30 @@
   border: 2px solid rgba(var(--color-header-background-base), 1);
 
   h1 {
-    font-size: 23px;
+    font-size: var(--font-large);
   }
 
   div {
     .icon {
       stroke: var(--color-text);
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    width: 300px;
+    height: 160px;
+
+    h1 {
+      font-size: var(--font-body);
+    }
+
+    div {
+      margin-top: 0 !important;
+      .icon {
+        width: 2rem;
+        height: 2rem;
+        stroke: var(--color-text);
+      }
     }
   }
 }

@@ -68,6 +68,7 @@ export default function JoinMembershipButton(props: Props) {
   return (
     <Button
       button="alt"
+      className="button-membership"
       icon={ICONS.UPGRADE}
       label={__('Join')}
       title={__('Become A Member')}
