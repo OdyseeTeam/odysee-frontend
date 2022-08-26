@@ -57,20 +57,18 @@ const MembershipChannelTab = (props: Props) => {
       title={__('Your %creator_channel_name% membership', { creator_channel_name: creatorChannel })}
       className="membership membership-tab"
       subtitle={
-        <>
-          <p className="join-membership-support-time__header">
-            {__(
-              membershipIsActive
-                ? "You've been supporting %channel_name% for %membership_duration%."
-                : 'You supported %channel_name% for %membership_duration%.',
-              { channel_name: creatorChannel, membership_duration: timeAgo }
-            )}
-          </p>
-          <p className="join-membership-support-time__header">{__("I'm sure they appreciate it!")}</p>
-        </>
+        <p>
+          {__(
+            membershipIsActive
+              ? "You've been supporting %channel_name% for %membership_duration%. "
+              : 'You supported %channel_name% for %membership_duration%. ',
+            { channel_name: creatorChannel, membership_duration: timeAgo }
+          )}
+          {__("I'm sure they appreciate it!")}
+        </p>
       }
       body={
-        <div>
+        <>
           <div className="membership__wrapper">
             <label>{membershipName}</label>
 
@@ -80,7 +78,7 @@ const MembershipChannelTab = (props: Props) => {
 
             {Perks && (
               <div className="membership__tier-perks">
-                <h1 style={{ marginTop: '30px' }}>{__('Perks')}</h1>
+                <label>{__('Perks')}</label>
 
                 <ul>
                   {Perks.map((tierPerk, i) => (
@@ -101,7 +99,6 @@ const MembershipChannelTab = (props: Props) => {
 
           <div className="section__actions--centered">
             <Button
-              className="join-membership-modal-purchase__button"
               icon={ICONS.FINANCE}
               button="secondary"
               type="submit"
@@ -111,7 +108,6 @@ const MembershipChannelTab = (props: Props) => {
 
             {membershipIsActive && (
               <Button
-                className="join-membership-modal-purchase__button"
                 icon={ICONS.DELETE}
                 button="secondary"
                 type="submit"
@@ -122,7 +118,7 @@ const MembershipChannelTab = (props: Props) => {
           </div>
 
           <ClearMembershipDataButton />
-        </div>
+        </>
       }
     />
   );

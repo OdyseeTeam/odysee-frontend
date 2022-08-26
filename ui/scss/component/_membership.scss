@@ -234,8 +234,7 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  //height: 100%;
-  // align-items: center;
+  margin-top: var(--spacing-m);
 
   ul {
     display: flex;
@@ -353,16 +352,12 @@
   margin-bottom: 0;
 }
 
-.join-membership-support-time__header {
-  font-size: var(--font-big);
-}
-
 .show-additional-membership-info__div {
   label {
     font-size: 17px;
   }
 
-  .show-additional-membership-info__header {
+  .show-additional-membershipmembership__tier-perks-info__header {
     font-size: 17px;
     margin-top: 30px;
   }
@@ -458,10 +453,16 @@
 .membership-tab {
   .membership__wrapper {
     background: var(--color-header-background);
-    padding: var(--spacing-s);
+    padding: var(--spacing-m);
     border-radius: var(--border-radius);
     margin: var(--spacing-m) 0;
+
+    label {
+      margin-top: 0;
+    }
+
     .subtitle {
+      font-size: var(--font-base);
       color: var(--color-text-subtitle);
     }
   }
