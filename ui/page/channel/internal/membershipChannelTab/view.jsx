@@ -97,7 +97,7 @@ const MembershipChannelTab = (props: Props) => {
               : __('Your cancelled membership will end on %end_date%', { end_date: formattedEndOfMembershipDate })}
           </label>
 
-          <div className="section__actions--centered">
+          <div className="membership__options">
             <Button
               icon={ICONS.FINANCE}
               button="secondary"
