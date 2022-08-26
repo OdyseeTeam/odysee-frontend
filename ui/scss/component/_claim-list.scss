@@ -1198,14 +1198,14 @@
 // used for purchase/preorder/rental claim preview overlay
 .claim-preview__file-purchase-overlay {
   position: absolute;
-  background-color: #679a28;
+  background-color: rgba(50, 150, 15, 0.9);
   padding: 0.3rem;
   border-radius: var(--border-radius);
   bottom: var(--spacing-xs);
   left: var(--spacing-xs);
 
   span {
-    color: #dddddd;
+    color: white;
   }
 }
 
@@ -1247,7 +1247,7 @@
     }
 
     span {
-      font-size: 11px;
+      font-size: var(--font-xsmall);
     }
   }
 }
