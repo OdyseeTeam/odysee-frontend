@@ -13,11 +13,34 @@ type Props = {
   description: ?string,
   disabled: boolean,
   updatePublishForm: ({}) => void,
+  doGetMembershipTiersForContentClaimId: (type: string) => void,
+  claim: Claim,
+  protectedMembershipIds: Array<number>,
 };
 
 function PublishProtectedContent(props: Props) {
 
-  const { activeChannel, updatePublishForm } = props;
+  const {
+    activeChannel,
+    updatePublishForm,
+    doGetMembershipTiersForContentClaimId,
+    claim,
+    protectedMembershipIds,
+  } = props;
+
+  const claimId = claim?.claim_id;
+
+  React.useEffect(() => {
+    if (claimId) {
+      doGetMembershipTiersForContentClaimId(claimId);
+    };
+  }, [claimId]);
+
+  React.useEffect(() => {
+    if (protectedMembershipIds && protectedMembershipIds) {
+      setIsRestrictingContent(true);
+    };
+  }, [protectedMembershipIds]);
 
   function handleRestrictedMembershipChange(event) {
 
@@ -30,13 +53,6 @@ function PublishProtectedContent(props: Props) {
     }
 
     const commaSeparatedValueString = matchedMemberships.join(',');
-
-    console.log('matched membership');
-    console.log(matchedMemberships);
-    console.log(commaSeparatedValueString);
-
-    // console.log('event');
-    // console.log(event);
 
     updatePublishForm({ restrictedToMemberships: commaSeparatedValueString });
   }
@@ -115,7 +131,7 @@ function PublishProtectedContent(props: Props) {
               <>
                 <FormField
                   type="checkbox"
-                  defaultChecked={false}
+                  defaultChecked={protectedMembershipIds && protectedMembershipIds.length}
                   label={'Restrict content to only allow subscribers to certain memberships to view it'}
                   name={'toggleRestrictedContent'}
                   style={{ fontSize: '15px' }}
@@ -126,9 +142,9 @@ function PublishProtectedContent(props: Props) {
                   <h1 style={{ marginTop: '20px', marginBottom: '18px' }} >Memberships which can view the content:</h1>
                   {creatorMemberships.map((membership) => (
                     <FormField
-                      key={membership.id}
+                      key={membership.Membership.id}
                       type="checkbox"
-                      defaultChecked={false}
+                      defaultChecked={protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)}
                       label={membership.Membership.name}
                       name={'restrictToMembership:' + membership.Membership.id}
                       style={{ fontSize: '15px', marginTop: '10px' }}

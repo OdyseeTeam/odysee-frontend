@@ -92,41 +92,41 @@ type Props = {
 function UploadForm(props: Props) {
   // Detect upload type from query in URL
   const {
-    thumbnail,
-    thumbnailError,
-    name,
-    editingURI,
-    myClaimForUri,
-    resolveUri,
-    title,
+    activeChannelClaim,
     bid,
     bidError,
+    checkAvailability,
+    claimInitialRewards,
+    clearPublish,
     description,
-    uploadThumbnailStatus,
-    resetThumbnailStatus,
-    updatePublishForm,
+    disabled = false,
+    editingURI,
+    enablePublishPreview,
     filePath,
     fileText,
-    publishing,
-    publishSuccess,
-    publishError,
-    clearPublish,
-    isStillEditing,
-    tags,
-    publish,
-    disabled = false,
-    checkAvailability,
-    ytSignupPending,
-    modal,
-    enablePublishPreview,
-    activeChannelClaim,
-    incognito,
-    user,
-    permanentUrl,
-    remoteUrl,
-    isClaimingInitialRewards,
-    claimInitialRewards,
     hasClaimedInitialRewards,
+    incognito,
+    isClaimingInitialRewards,
+    isStillEditing,
+    modal,
+    myClaimForUri,
+    name,
+    permanentUrl,
+    publish,
+    publishError,
+    publishSuccess,
+    publishing,
+    remoteUrl,
+    resetThumbnailStatus,
+    resolveUri,
+    tags,
+    thumbnail,
+    thumbnailError,
+    title,
+    updatePublishForm,
+    uploadThumbnailStatus,
+    user,
+    ytSignupPending,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -470,7 +470,7 @@ function UploadForm(props: Props) {
         }
       />
 
-      <PublishProtectedContent />
+      <PublishProtectedContent claim={myClaimForUri} />
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
