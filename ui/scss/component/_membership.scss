@@ -166,9 +166,8 @@
   transition: max-height 0.3s;
   background-color: rgba(var(--color-header-background-base), 0.6);
 
-  @media (max-width: 1000px) {
-    flex-basis: 66%;
-    margin: 0 227px;
+  @media (max-width: $breakpoint-small) {
+    flex-basis: 100%;
   }
 
   &:nth-child(4),

@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-
+import { useIsMobile } from 'effects/use-screensize';
 import * as ICONS from 'constants/icons';
 
 import Button from 'component/button';
@@ -17,8 +17,15 @@ type Props = {
 
 const MembershipBlock = (props: Props) => {
   const { key, membership, seeAllTiers, channelIsMine, handleSelect } = props;
+  const isMobile = useIsMobile();
 
   const [blockExpanded, setBlockExpanded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (isMobile) {
+      setBlockExpanded(true);
+    }
+  }, [isMobile]);
 
   function handleShowMore(e: Event) {
     setBlockExpanded(true);
