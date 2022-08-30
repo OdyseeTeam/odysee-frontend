@@ -5,7 +5,7 @@ import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
 
 import {
   selectCollectionForId,
-  selectUrlsForCollectionId,
+  selectPublishedCollectionForId,
   selectIsResolvingCollectionForId,
   selectBrokenUrlsForCollectionId,
   selectMyEditedCollections,
@@ -26,7 +26,7 @@ const select = (state, props) => {
     collectionId,
     uri,
     collection: selectCollectionForId(state, collectionId),
-    collectionUrls: selectUrlsForCollectionId(state, collectionId),
+    resolvedCollection: selectPublishedCollectionForId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
     editedCollections: selectMyEditedCollections(state),
     isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),

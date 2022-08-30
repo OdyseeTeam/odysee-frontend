@@ -94,9 +94,12 @@ export const selectPendingCollectionForId = (state: State, id: string) => {
   return pendingCollections[id];
 };
 
+export const selectResolvedCollectionForId = (state: State, id: string) => selectResolvedCollections(state)[id];
+
 export const selectPublishedCollectionForId = (state: State, id: string) => {
   const publishedCollections = selectResolvedCollections(state);
-  return publishedCollections[id];
+  // $FlowFixMe
+  return Boolean(publishedCollections[id] && !publishedCollections[id].key) && publishedCollections[id];
 };
 
 export const selectPublishedCollectionClaimForId = (state: any, id: string) => {
@@ -150,6 +153,8 @@ export const selectMyPublishedCollections = createSelector(
           ([key, val]) =>
             myIds.includes(key) &&
             // $FlowFixMe
+            !val.key &&
+            // $FlowFixMe
             !pending[key]
         )
       )
@@ -179,6 +184,8 @@ export const selectMyPublishedOnlyCollections = createSelector(
         Object.entries(resolved).filter(
           ([key, val]) =>
             myIds.includes(key) &&
+            // $FlowFixMe
+            !val.key &&
             // $FlowFixMe
             !pending[key]
         )
@@ -256,8 +263,10 @@ export const selectCollectionForId = createSelector(
   selectPendingCollections,
   selectCurrentQueueList,
   (id, bLists, rLists, uLists, eLists, pLists, queue) => {
-    const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
-    return collection;
+    if (id && bLists && rLists && uLists && eLists && pLists && queue) {
+      const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
+      return collection;
+    }
   }
 );
 
@@ -335,8 +344,8 @@ export const selectAreBuiltinCollectionsEmpty = (state: State) => {
   return !notEmpty;
 };
 
-export const selectClaimIdsForCollectionId = createSelector(selectCollectionForId, (collection) => {
-  const items = (collection && collection.items) || [];
+export const selectClaimIdsForCollectionId = createSelector(selectResolvedCollectionForId, (resolved) => {
+  const items = (resolved && resolved.items) || [];
 
   const ids = items.map((item) => {
     const { claimId } = parseURI(item);
@@ -508,6 +517,9 @@ export const selectFeaturedChannelsByChannelId = createSelector(
     });
 
     Object.values(publicLists).forEach((col) => {
+      // $FlowFixMe
+      if (col.key) return;
+
       // $FlowIgnore
       const { type, id } = col;
       if (type === COL_TYPES.FEATURED_CHANNELS) {

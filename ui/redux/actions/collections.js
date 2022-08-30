@@ -2,7 +2,13 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim, doCollectionPublishUpdate, doCollectionPublish } from 'redux/actions/claims';
+import {
+  doClaimSearch,
+  doAbandonClaim,
+  doCollectionPublishUpdate,
+  doCollectionPublish,
+  doResolveUris,
+} from 'redux/actions/claims';
 import {
   selectClaimForClaimId,
   selectPermanentUrlForUri,
@@ -26,8 +32,7 @@ import {
 import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType } from 'util/collections';
 import { isPermanentUrl, getThumbnailFromClaim } from 'util/claim';
-import { sanitizeName } from 'util/lbryURI';
-import { parseClaimIdFromPermanentUrl } from 'util/url';
+import { parseURI, sanitizeName } from 'util/lbryURI';
 import { doError, doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
@@ -159,8 +164,8 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
   ) {
     const sortResults = (items: Array<Claim>, claimList) => {
       const newItems: Array<Claim> = [];
-      claimList.forEach((id) => {
-        const index = items.findIndex((i) => i.claim_id === id);
+      claimList.forEach((uri) => {
+        const index = items.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(uri));
         if (index >= 0) {
           newItems.push(items[index]);
         }
@@ -172,17 +177,17 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       return newItems;
     };
 
-    const mergeBatches = (
-      arrayOfResults: Array<{ items: Array<Claim>, total_items: number }>,
-      claimList: Array<string>
-    ) => {
+    const mergeBatches = (arrayOfResults: Array<{ [claimId: ClaimId]: Claim }>, claimList: Array<string>) => {
       const mergedResults: { items: Array<Claim>, total_items: number } = {
         items: [],
         total_items: 0,
       };
       arrayOfResults.forEach((result) => {
-        mergedResults.items = mergedResults.items.concat(result.items);
-        mergedResults.total_items = result.total_items;
+        const claims = result.items || Object.values(result);
+        // $FlowFixMe
+        mergedResults.items = mergedResults.items.concat(claims);
+        // $FlowFixMe
+        mergedResults.total_items = mergedResults.total_items + claims.length;
       });
 
       mergedResults.items = sortResults(mergedResults.items, claimList);
@@ -194,12 +199,17 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       const batches: Array<Promise<any>> = [];
 
       for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
-        batches[i] = Lbry.claim_search({
-          claim_ids: itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize),
-          page: 1,
-          page_size: batchSize,
-          no_totals: true,
-        });
+        const uris = itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize);
+        const { streamName, streamClaimId } = parseURI(itemIdsInOrder[0]);
+        const isValid = Boolean(streamName && streamClaimId);
+        batches[i] = !isValid
+          ? Lbry.claim_search({
+              claim_ids: itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize),
+              page: 1,
+              page_size: batchSize,
+              no_totals: true,
+            })
+          : dispatch(doResolveUris(uris, true));
       }
       const itemsInBatches = await Promise.all(batches);
       const result = mergeBatches(itemsInBatches, itemIdsInOrder);
@@ -232,31 +242,26 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       const collection = selectCollectionForId(state, collectionId);
       if (collection?.items.length > 0) {
         promisedCollectionItemFetches.push(
-          fetchItemsForCollectionClaim(
-            collectionId,
-            collection.items.length,
-            collection.items.map((url) => parseClaimIdFromPermanentUrl(url, 'junk')),
-            pageSize
-          )
+          fetchItemsForCollectionClaim(collectionId, collection.items.length, collection.items, pageSize)
         );
       } else {
         const collectionItem: CollectionItemFetchResult = { claimId: collectionId, items: [] };
         collectionItemsById.push(collectionItem);
       }
-    }
-
-    const claim = selectClaimForClaimId(state, collectionId);
-    if (!claim) {
-      invalidCollectionIds.push(collectionId);
     } else {
-      promisedCollectionItemFetches.push(
-        fetchItemsForCollectionClaim(
-          collectionId,
-          claim.value.claims && claim.value.claims.length,
-          claim.value.claims,
-          pageSize
-        )
-      );
+      const claim = selectClaimForClaimId(state, collectionId);
+      if (!claim) {
+        invalidCollectionIds.push(collectionId);
+      } else {
+        promisedCollectionItemFetches.push(
+          fetchItemsForCollectionClaim(
+            collectionId,
+            claim.value.claims && claim.value.claims.length,
+            claim.value.claims,
+            pageSize
+          )
+        );
+      }
     }
   });
 
@@ -264,7 +269,6 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
   if (promisedCollectionItemFetches.length > 0) collectionItemsById = await Promise.all(promisedCollectionItemFetches);
 
   const newCollectionObjectsById = {};
-  const resolvedItemsByUrl = {};
 
   // -- Process results:
   collectionItemsById.forEach((entry) => {
@@ -273,8 +277,28 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
     const collectionId = entry.claimId;
 
     if (isPrivateCollectionId(collectionId) && collectionItems) {
-      // Nothing to do for now. We are only interested in getting the resolved
-      // data for each item in the private collection.
+      let newItems = [];
+
+      if (collectionItems) {
+        collectionItems.forEach((collectionItem) => {
+          newItems.push(collectionItem.permanent_url);
+        });
+      }
+
+      const isQueue = collectionId === COLS.QUEUE_ID;
+      const editedCollection: Collection = selectEditedCollectionForId(state, collectionId);
+      const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
+      const collectionKey =
+        (isQueue && COLS.QUEUE_ID) ||
+        (editedCollection && COLS.COL_KEY_EDITED) ||
+        (COLS.BUILTIN_PLAYLISTS.includes(collectionId) && COLS.COL_KEY_BUILTIN) ||
+        (unpublishedCollection && COLS.COL_KEY_UNPUBLISHED);
+
+      newCollectionObjectsById[collectionId] = {
+        ...selectCollectionForId(state, collectionId),
+        items: newItems,
+        key: collectionKey,
+      };
     } else if (collectionItems) {
       const claim = selectClaimForClaimId(state, collectionId);
 
@@ -294,7 +318,6 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
           if (collectionItem.value.stream_type) {
             streamTypes.add(collectionItem.value.stream_type);
           }
-          resolvedItemsByUrl[collectionItem.canonical_url] = collectionItem;
         });
 
         collectionType = resolveCollectionType(value.tags, valueTypes, streamTypes);
@@ -408,6 +431,7 @@ export const doCollectionEdit = (
 
   const editedCollection: Collection = selectEditedCollectionForId(state, collectionId);
   const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
+  // $FlowFixMe
   const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
 
   const { uris: anyUris, remove, replace, order, type } = params;

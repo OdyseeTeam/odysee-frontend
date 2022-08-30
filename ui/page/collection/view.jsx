@@ -12,9 +12,9 @@ import CollectionHeader from './internal/collectionHeader';
 
 type Props = {
   collectionId: string,
+  resolvedCollection: any,
   uri: string,
   collection: Collection,
-  collectionUrls: Array<string>,
   brokenUrls: ?Array<any>,
   isResolvingCollection: boolean,
   doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
@@ -23,9 +23,9 @@ type Props = {
 export default function CollectionPage(props: Props) {
   const {
     collectionId,
+    resolvedCollection,
     uri,
     collection,
-    collectionUrls,
     brokenUrls,
     isResolvingCollection,
     doFetchItemsInCollection,
@@ -40,7 +40,7 @@ export default function CollectionPage(props: Props) {
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
-  const { name, totalItems } = collection || {};
+  const { name } = collection || {};
 
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.PUBLISH;
@@ -48,8 +48,6 @@ export default function CollectionPage(props: Props) {
   const returnPath = urlParams.get('redirect');
 
   const editPage = editing || publishing;
-  const urlsReady =
-    collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
 
   function handlePreSubmit(params) {
     if (urlParams.get(CP.QUERIES.TYPE) === CP.TYPES.FEATURED) {
@@ -68,10 +66,10 @@ export default function CollectionPage(props: Props) {
   }
 
   React.useEffect(() => {
-    if (collectionId && !urlsReady && !collection) {
+    if (!resolvedCollection) {
       doFetchItemsInCollection({ collectionId });
     }
-  }, [collectionId, urlsReady, doFetchItemsInCollection, collection]);
+  }, [resolvedCollection, doFetchItemsInCollection, collectionId]);
 
   if (!collection && !isResolvingCollection) {
     return (
