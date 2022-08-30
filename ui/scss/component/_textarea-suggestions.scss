@@ -9,6 +9,10 @@
     .create__comment {
       min-height: calc(var(--height-input) * 1.5) !important;
     }
+
+    .disabled_chat_comments {
+      opacity: 0.7;
+    }
   }
 }
 
