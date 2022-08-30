@@ -47,7 +47,7 @@ import OptimizedImage from 'component/optimizedImage';
 import { getChannelFromClaim } from 'util/claim';
 import { parseSticker } from 'util/comments';
 import { useIsMobile } from 'effects/use-screensize';
-import PremiumBadge from 'component/premiumBadge';
+import MembershipBadge from 'component/membershipBadge';
 import Spinner from 'component/spinner';
 
 const AUTO_EXPAND_ALL_REPLIES = false;
@@ -84,7 +84,8 @@ type Props = {
   supportDisabled: boolean,
   setQuickReply: (any) => void,
   quickReply: any,
-  commenterMembership: ?string,
+  odyseeMembership: ?string,
+  creatorMembership: ?string,
   fetchedReplies: Array<Comment>,
   repliesFetching: boolean,
   threadLevel?: number,
@@ -118,7 +119,8 @@ function CommentView(props: Props) {
     supportDisabled,
     setQuickReply,
     quickReply,
-    commenterMembership,
+    odyseeMembership,
+    creatorMembership,
     fetchedReplies,
     repliesFetching,
     threadLevel = 0,
@@ -331,7 +333,8 @@ function CommentView(props: Props) {
               )}
               {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
               {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
-              <PremiumBadge membership={commenterMembership} linkPage />
+              {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} linkPage />}
+              {creatorMembership && <MembershipBadge membershipName={creatorMembership} linkPage uri={uri} />}
               <Button
                 className="comment__time"
                 onClick={handleTimeClick}
@@ -412,7 +415,7 @@ function CommentView(props: Props) {
                         promptLinks
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
-                        hasMembership={Boolean(commenterMembership)}
+                        hasMembership={Boolean(odyseeMembership)}
                       />
                     </Expandable>
                   )}
