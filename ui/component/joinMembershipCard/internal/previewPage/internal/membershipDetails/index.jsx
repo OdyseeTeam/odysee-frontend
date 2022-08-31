@@ -14,7 +14,7 @@ const MembershipDetails = (props: Props) => {
 
   return (
     <>
-      <section className="join-membership__header"></section>
+      <section className="join-membership__header" />
 
       <section>
         <h2>{membership.Membership.name}</h2>

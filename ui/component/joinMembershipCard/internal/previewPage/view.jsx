@@ -1,16 +1,14 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-
 import { ChannelPageContext } from 'page/channel/view';
-
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-
 import Button from 'component/button';
 import BalanceText from 'react-balance-text';
 import MembershipBlock from './internal/membershipBlock';
 import MembershipDetails from './internal/membershipDetails';
+import ChannelThumbnail from 'component/channelThumbnail';
 
 type Props = {
   uri: string,
@@ -23,6 +21,8 @@ type Props = {
   channelIsMine: boolean,
   creatorMemberships: CreatorMemberships,
   doTipAccountCheckForUri: (uri: string) => void,
+  channelTitle: string,
+  channelUri: string,
 };
 
 const PreviewPage = (props: Props) => {
@@ -37,6 +37,8 @@ const PreviewPage = (props: Props) => {
     channelIsMine,
     creatorMemberships,
     doTipAccountCheckForUri,
+    channelTitle,
+    channelUri,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
@@ -130,11 +132,10 @@ const PreviewPage = (props: Props) => {
     );
   }
 
-  const channelTitle = 'Placeholder Title';
   return (
     <>
       <div className="join-membership__modal-header">
-        <img src="https://thumbs.odycdn.com/d850515e5e3ab98769e072084a1b04bb.webp" />
+        <ChannelThumbnail uri={channelUri} />
         <h2>{channelTitle}</h2>
         <h3>Join Membership</h3>
         <p>Support {channelTitle} with a monthly membership subscription to help and receive exclusive features.</p>

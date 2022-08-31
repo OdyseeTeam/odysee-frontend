@@ -9,12 +9,27 @@ import PreviewPage from './view';
 const select = (state, props) => {
   const { uri } = props;
   const { claim_id: claimId } = selectClaimForUri(state, props.uri) || {};
+  const claim = selectClaimForUri(state, props.uri);
+
+  let channelTitle = null;
+  let channelUri = null;
+  if (claim) {
+    channelUri = claim.canonical_url;
+    const { value, name } = claim;
+    if (value && value.title) {
+      channelTitle = value.title;
+    } else {
+      channelTitle = name;
+    }
+  }
 
   return {
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     creatorMemberships: selectMembershipTiersForChannelUri(state, uri),
     membershipTiers: selectMembershipTiersForChannelId(state, claimId),
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
+    channelTitle,
+    channelUri,
   };
 };
 
