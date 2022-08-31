@@ -62,17 +62,19 @@ const PreviewPage = (props: Props) => {
     }, 0);
   }
 
+  /*
   React.useEffect(() => {
     setTimeout(() => {
       const tiers = document.getElementsByClassName('join-membership__tier-info');
       for (const tier of tiers) {
         const elementIsOverflown = tier.scrollHeight > tier.clientHeight || tier.scrollWidth > tier.clientWidth;
         // $FlowFixMe
-        const seeMoreButton = tier.parentNode.querySelector('.button--membership-tier__show-more');
-        if (elementIsOverflown && seeMoreButton) seeMoreButton.style.display = 'block';
+        // const seeMoreButton = tier.parentNode.querySelector('.button--membership-tier__show-more');
+        // if (elementIsOverflown && seeMoreButton) seeMoreButton.style.display = 'block';
       }
     }, 0);
   }, []);
+  */
 
   if (creatorPurchaseDisabled) {
     return (
@@ -87,16 +89,15 @@ const PreviewPage = (props: Props) => {
           </BalanceText>
         </div>
 
-        <div className="membership-join-purchase__div">
+        <>
           <Button
-            className="membership-join-purchase__button"
             icon={ICONS.UPGRADE}
             button="primary"
             type="submit"
             label={__('Create Your Memberships')}
             navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
           />
-        </div>
+        </>
       </>
     );
   }
@@ -129,9 +130,16 @@ const PreviewPage = (props: Props) => {
     );
   }
 
+  const channelTitle = 'Placeholder Title';
   return (
     <>
-      <div className="join-membership__tab-buttons">
+      <div className="join-membership__modal-header">
+        <img src="https://thumbs.odycdn.com/d850515e5e3ab98769e072084a1b04bb.webp" />
+        <h2>{channelTitle}</h2>
+        <h3>Join Membership</h3>
+        <p>Support {channelTitle} with a monthly membership subscription to help and receive exclusive features.</p>
+      </div>
+      <div className="join-membership__modal-tabs">
         {creatorMemberships.map(({ Membership }, index) => (
           <Button
             key={Membership.id}
@@ -142,12 +150,12 @@ const PreviewPage = (props: Props) => {
           />
         ))}
       </div>
+      <div className="join-membership__modal-content">
+        <MembershipDetails membership={selectedTier} expanded />
+      </div>
 
-      <MembershipDetails membership={selectedTier} expanded />
-
-      <div className="membership-join-purchase__div">
+      <>
         <Button
-          className="membership-join-purchase__button"
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
@@ -159,7 +167,7 @@ const PreviewPage = (props: Props) => {
         />
 
         {channelIsMine && <h1>{__("You're not able to signup for your own memberships")}</h1>}
-      </div>
+      </>
     </>
   );
 };

@@ -157,6 +157,47 @@
 
 /** MEMBERSHIP TAB SECTION **/
 .card--join-membership {
+  .join-membership__modal-header {
+    height: 108px;
+    margin-top: calc(var(--spacing-m) * -1);
+    margin-bottom: var(--spacing-l);
+
+    img {
+      margin-right: var(--spacing-m);
+      border-radius: 50%;
+      float: left;
+    }
+    h2 {
+      font-weight: bold;
+    }
+    h3 {
+      font-size: var(--font-title);
+    }
+    p {
+      font-size: var(--font-small);
+      opacity: 0.8;
+    }
+  }
+
+  .join-membership__modal-tabs {
+    margin-bottom: var(--spacing-s);
+  }
+
+  .join-membership__modal-content {
+    h2 {
+      display: none;
+    }
+    .membership__tier-perks {
+      width: 100%;
+      background: var(--color-header-background);
+      padding: var(--spacing-xs);
+      border: 2px solid var(--color-border);
+      margin-top: var(--spacing-m);
+      margin-bottom: var(--spacing-l);
+      border-radius: var(--border-radius);
+    }
+  }
+
   .join-membership__blocks-wrapper {
     display: flex;
     flex-flow: wrap;
@@ -328,10 +369,6 @@
   }
 }
 
-.join-membership__tab-buttons {
-  margin-top: var(--spacing-s);
-}
-
 /** JOIN CARD ON CHANNEL PAGE **/
 
 .card--join-membership,
@@ -450,12 +487,6 @@
 
 // membership card
 .card--join-membership {
-  .card__header--between,
-  .join-membership__tab-buttons,
-  .membership-join-purchase__div {
-    margin-top: 22px;
-  }
-
   .confirm__value {
     display: block;
     margin-top: 0px;
