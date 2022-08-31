@@ -19,16 +19,16 @@ export default function ConfirmationPage(props: Props) {
 
   return (
     <div className="confirm__wrapper">
-      <ConfirmationSection label={__('Subscribing To:')} value={channelName} />
-      <ConfirmationSection label={__('Membership Tier:')} value={selectedTier.Membership.name} />
+      <ConfirmationSection label={__('Subscribing To')} value={channelName} />
+      <ConfirmationSection label={__('Membership Tier')} value={selectedTier.Membership.name} />
       <ConfirmationSection
-        label={__('Description:')}
+        label={__('Description')}
         value={<BalanceText>{selectedTier.Membership.description}</BalanceText>}
       />
-      <ConfirmationSection label={__('Monthly Cost:')} value={`$${selectedTier.NewPrices[0].Price.amount / 100}`} />
+      <ConfirmationSection label={__('Monthly Cost')} value={`$${selectedTier.NewPrices[0].Price.amount / 100}`} />
       {selectedTier.Perks && selectedTier.Perks.length > 0 && (
         <ConfirmationSection
-          label={__('Features and Perks:')}
+          label={__('Features and Perks')}
           value={
             <ul className="ul--no-style membership__tier-perks">
               {/* $FlowFixMe -- already handled above */}
@@ -60,12 +60,12 @@ type GroupProps = {
 };
 
 const ConfirmationSection = (props: GroupProps) => {
-  const { label, value, className, style } = props;
+  const { label, value } = props;
 
   return (
-    <section style={style} className={`confirm__section ${className || ''}`}>
-      <span className="confirm__label">{label}</span>
-      <span className="section__subtitle confirm__value">{value}</span>
+    <section>
+      <label>{label}</label>
+      <span>{value}</span>
     </section>
   );
 };
