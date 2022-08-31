@@ -282,7 +282,7 @@
   display: flex;
   flex-direction: column;
   //height: 100%;
-  align-items: center;
+  // align-items: center;
 
   ul {
     display: flex;
@@ -306,9 +306,13 @@
     }
   }
 
+  li {
+    margin-left: 1.3em !important;
+  }
+
   li:before {
     content: '\2605';
-    color: yellow;
+    color: #ffc800;
     display: inline-block;
     margin-left: -1.3em;
     width: 1.3em;
@@ -343,7 +347,7 @@
   .confirm__wrapper {
     padding-top: var(--spacing-s);
 
-    .confirm__section {
+    section {
       display: flex;
       flex-direction: column;
 
@@ -351,25 +355,17 @@
         margin-top: var(--spacing-m);
       }
 
-      .confirm__label {
-        margin-top: 0px;
-      }
-
-      .confirm__value {
+      span {
         font-size: unset;
         display: unset;
         margin-top: 0px;
+        font-size: var(--font-base);
+        opacity: 0.8;
+      }
 
-        ul {
-          padding: var(--spacing-s);
-          max-height: 15rem;
-          overflow: auto;
-        }
-
-        .section__subtitle--join-membership__perk {
-          text-align: start;
-          list-style-position: inside !important;
-        }
+      .section__subtitle--join-membership__perk {
+        text-align: start;
+        list-style-position: inside !important;
       }
     }
   }
@@ -386,7 +382,7 @@
 }
 
 .membership__tier-perks {
-  text-align: left;
+  // text-align: left;
   li {
     margin-left: 0px;
     margin-right: 0px;
@@ -475,16 +471,6 @@
 
   .section__actions {
     display: block;
-  }
-
-  .confirm__value {
-    margin: 0 auto;
-    margin-top: 5px;
-    margin-bottom: 23px;
-  }
-
-  .confirm__section {
-    margin-bottom: 7px;
   }
 }
 
