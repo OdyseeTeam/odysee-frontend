@@ -14,9 +14,10 @@ const MembershipDetails = (props: Props) => {
 
   return (
     <>
-      <section className="join-membership__plan-info">
-        <h1 className="join-membership__plan-header">{membership.Membership.name}</h1>
+      <section className="join-membership__header"></section>
 
+      <section>
+        <h2>{membership.Membership.name}</h2>
         {headerAction}
       </section>
 
@@ -27,16 +28,12 @@ const MembershipDetails = (props: Props) => {
 
         {membership.Perks && membership.Perks.length > 0 && (
           <div className="membership__tier-perks">
-            <h1 className="join-membership__plan-header" style={{ marginTop: '17px' }}>
-              {__('Perks')}
-            </h1>
+            <h3>{__('Perks')}</h3>
 
-            <ul className="join-membership__perks">
+            <ul>
               {/* $FlowFixMe -- already handled above */}
               {membership.Perks.map((tierPerk, i) => (
-                <p key={i}>
-                  <li className="section__subtitle section__subtitle--join-membership__perk">{tierPerk.name}</li>
-                </p>
+                <li key={i}>{tierPerk.name}</li>
               ))}
             </ul>
           </div>

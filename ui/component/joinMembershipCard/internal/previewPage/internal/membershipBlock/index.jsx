@@ -38,7 +38,6 @@ const MembershipBlock = (props: Props) => {
         membership={membership}
         headerAction={
           <Button
-            className="join-membership__purchase-button"
             icon={ICONS.UPGRADE}
             button="primary"
             disabled={channelIsMine}
@@ -51,7 +50,7 @@ const MembershipBlock = (props: Props) => {
         expanded={blockExpanded}
       />
 
-      {!blockExpanded && (
+      {false && !blockExpanded && (
         <Button
           button="link"
           className="button--membership-tier__show-more"

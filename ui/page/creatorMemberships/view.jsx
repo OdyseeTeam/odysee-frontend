@@ -102,7 +102,7 @@ const MembershipsPage = (props: Props) => {
     <Page className="premium-wrapper">
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Basics')}</Tab>
+          <Tab>{__('Overview')}</Tab>
           <Tab>{__('Tiers')}</Tab>
           <Tab>{__('Supporters')}</Tab>
           <Tab>{__('My Pledges')}</Tab>

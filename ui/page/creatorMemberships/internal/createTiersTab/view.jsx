@@ -249,16 +249,11 @@ const CreateTiersTab = (props: Props) => {
   }
 
   return (
-    <div className="create-tiers__div">
+    <div>
       {/* page header */}
-      <div className="create-tiers__header" style={{ textAlign: 'center' }}>
-        <h1 style={{ fontSize: '24px', marginBottom: 'var(--spacing-s)' }}>Create Your Membership Tiers</h1>
-        <h2 style={{ fontSize: '18px', marginBottom: 'var(--spacing-s)' }}>
-          Define the tiers that your viewers can subscribe to{' '}
-        </h2>
-        <h2 style={{ fontSize: '15px' }}>
-          You are editing your tiers for {activeChannelName}, you can change the channel on the Basics tab
-        </h2>
+      <div className="create-tiers__header">
+        <h1>Create Your Membership Tiers</h1>
+        <h2>Define the tiers that your viewers can subscribe to.</h2>
       </div>
 
       <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
@@ -276,10 +271,8 @@ const CreateTiersTab = (props: Props) => {
                   <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
                     {membershipIndex + 1}) Tier Name: {membershipTier.Membership.name}
                   </div>
-                  <h1 style={{ marginBottom: 'var(--spacing-s)' }}>{membershipTier.Membership.description}</h1>
-                  <h1 style={{ marginBottom: 'var(--spacing-s)' }}>
-                    Monthly Pledge: ${membershipTier.NewPrices[0].Price.amount / 100}
-                  </h1>
+                  <h1>{membershipTier.Membership.description}</h1>
+                  <h1>Monthly Pledge: ${membershipTier.NewPrices[0].Price.amount / 100}</h1>
                   {membershipTier.Perks &&
                     membershipTier.Perks.map((tierPerk, i) => (
                       <>
@@ -349,7 +342,7 @@ const CreateTiersTab = (props: Props) => {
 
         {/* add membership tier button */}
         {creatorMemberships && creatorMemberships.length < 5 && (
-          <div style={{ textAlign: 'center' }}>
+          <div>
             <Button
               button="primary"
               onClick={(e) => {
