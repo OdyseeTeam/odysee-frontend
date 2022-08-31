@@ -142,7 +142,7 @@ const PreviewPage = (props: Props) => {
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'protected-membership-button': protectedMembershipIds.includes(Membership.id),
+              'protected-membership-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
             })}
           />
         ))}

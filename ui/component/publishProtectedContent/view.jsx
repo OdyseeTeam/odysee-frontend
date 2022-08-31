@@ -28,6 +28,9 @@ function PublishProtectedContent(props: Props) {
     protectedMembershipIds,
   } = props;
 
+  const [hasSavedTiers, setHasSavedTiers] = React.useState(false);
+  const [commentsChatAlreadyRestricted, setCommentsChatAlreadyRestricted] = React.useState(false);
+
   const claimId = claim?.claim_id;
 
   React.useEffect(() => {
@@ -36,17 +39,20 @@ function PublishProtectedContent(props: Props) {
     };
   }, [claimId]);
 
-  // if there are already restricted memberships for this content
   React.useEffect(() => {
+    if (claim) {
+      const alreadyRestricted = claim?.value?.tags?.includes('chat:members-only');
+      setCommentsChatAlreadyRestricted(alreadyRestricted);
+    };
+  }, [claim]);
+
+  // if there are already restricted memberships for this content, setup state
+  React.useEffect(() => {
+    l('protected membership ids');
+    l(protectedMembershipIds)
+
     if (activeChannel && protectedMembershipIds && protectedMembershipIds) {
       setIsRestrictingContent(true);
-
-      const commaSeparatedValueString = protectedMembershipIds.join(',');
-
-      updatePublishForm({
-        restrictedToMemberships: commaSeparatedValueString,
-        channelClaimId: activeChannel.claim_id,
-      });
     };
   }, [protectedMembershipIds, activeChannel]);
 
@@ -72,10 +78,28 @@ function PublishProtectedContent(props: Props) {
   const [creatorMemberships, setCreatorMemberships] = React.useState([]);
 
   function handleChangeRestriction() {
+    // user is no longer restricting content
+    if (isRestrictingContent) {
+      updatePublishForm({
+        restrictedToMemberships: '',
+      });
+    }
+
     setIsRestrictingContent(!isRestrictingContent);
   }
 
-  const [hasSavedTiers, setHasSavedTiers] = React.useState(false);
+  function handleChangeRestrictCommentsChat() {
+    if (commentsChatAlreadyRestricted) {
+      updatePublishForm({
+        restrictCommentsAndChat: false,
+      });
+    } else {
+      updatePublishForm({
+        restrictCommentsAndChat: true,
+      });
+    }
+    setCommentsChatAlreadyRestricted(!commentsChatAlreadyRestricted);
+  }
 
   async function getExistingTiers() {
     const response = await Lbryio.call(
@@ -109,6 +133,7 @@ function PublishProtectedContent(props: Props) {
   return (
     <>
       <h2 className="card__title" style={{ marginBottom: '10px' }}>{__('Restrict Content')}</h2>
+
       { !hasSavedTiers && (
         <>
           <div style={{ marginTop: '10px', marginBottom: '40px' }}>
@@ -149,6 +174,7 @@ function PublishProtectedContent(props: Props) {
                   className="restrict-content__checkbox"
                   onChange={() => handleChangeRestriction()}
                 />
+
                 { isRestrictingContent && (<>
                   <h1 style={{ marginTop: '20px', marginBottom: '18px' }} >Memberships which can view the content:</h1>
                   {creatorMemberships.map((membership) => (
@@ -163,12 +189,24 @@ function PublishProtectedContent(props: Props) {
                     />
                   ))}
                 </>)}
+
+                {/* restrict livestream or upload chat/comments */}
+                <h2 className="card__title" style={{ marginBottom: '10px', marginTop: '20px' }}>{__('Restrict Comments And Chat')}</h2>
+
+                <FormField
+                  type="checkbox"
+                  defaultChecked={commentsChatAlreadyRestricted}
+                  label={'Restrict comments and chats to members only'}
+                  name={'toggleRestrictCommentsChat'}
+                  style={{ fontSize: '15px' }}
+                  className="restrict-comments-chat_checkbox"
+                  onChange={() => handleChangeRestrictCommentsChat()}
+                />
               </>
             }
           />
         </>
       )}
-
     </>
   );
 }
