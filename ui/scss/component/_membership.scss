@@ -210,22 +210,12 @@
   }
 
   .join-membership__blocks-wrapper {
-    /*
-    display: flex;
-    flex-flow: wrap;
-    // flex-flow: row;
-    justify-content: space-between;
-    gap: var(--spacing-l) var(--spacing-l);
-    */
-
     display: grid;
-    grid-template-columns: repeat(3, auto);
+    grid-gap: var(--spacing-l);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
 
     .join-membership__block {
       text-align: center;
-      margin-right: var(--spacing-l);
-      margin-bottom: var(--spacing-l);
-      // padding: var(--spacing-s);
       padding-bottom: var(--spacing-l);
       overflow: hidden;
 
@@ -292,7 +282,6 @@
       }
 
       &:nth-child(3) {
-        margin-right: 0;
         .join-membership__header {
           background-color: #5d2270;
         }
@@ -335,7 +324,6 @@
       }
 
       &:nth-child(6) {
-        margin-right: 0;
         .join-membership__header {
           background-color: #302270;
         }
