@@ -91,6 +91,7 @@ function ChannelPage(props: Props) {
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
+  console.log('title: ', title);
   const { permanent_url: permanentUrl } = claim;
   const claimId = claim.claim_id;
   const compactSubCount = toCompactNotation(subCount, lang, 10000);

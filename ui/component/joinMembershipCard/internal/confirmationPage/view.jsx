@@ -33,9 +33,7 @@ export default function ConfirmationPage(props: Props) {
             <ul className="ul--no-style membership__tier-perks">
               {/* $FlowFixMe -- already handled above */}
               {selectedTier.Perks.map((tierPerk, i) => (
-                <li key={i} className="section__subtitle section__subtitle--join-membership__perk">
-                  {tierPerk.name}
-                </li>
+                <li key={i}>{tierPerk.name}</li>
               ))}
             </ul>
           }

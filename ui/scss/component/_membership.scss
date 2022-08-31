@@ -146,37 +146,6 @@
 
 /** JOIN CARD **/
 
-.join-membership__purchase-button {
-  margin-top: var(--spacing-xxs);
-  margin-bottom: var(--spacing-xs);
-}
-
-.join-membership__block {
-  text-align: center;
-
-  padding: var(--spacing-s);
-  padding-bottom: var(--spacing-l);
-
-  display: flex;
-  flex-direction: column;
-  flex-basis: 32%;
-
-  border-radius: var(--border-radius);
-
-  transition: max-height 0.3s;
-  background-color: rgba(var(--color-header-background-base), 0.6);
-
-  @media (max-width: 1000px) {
-    flex-basis: 66%;
-    margin: 0 227px;
-  }
-
-  &:nth-child(4),
-  &:nth-child(5) {
-    display: none;
-  }
-}
-
 .button--membership-tier__show-more {
   color: var(--color-text);
   margin-top: var(--spacing-xs);
@@ -191,8 +160,97 @@
   .join-membership__blocks-wrapper {
     display: flex;
     flex-flow: wrap;
-    justify-content: space-around;
+    justify-content: space-between;
     gap: 30px 0px;
+
+    .join-membership__block {
+      text-align: center;
+
+      // padding: var(--spacing-s);
+      padding-bottom: var(--spacing-l);
+      overflow: hidden;
+
+      display: flex;
+      flex-direction: column;
+      flex-basis: 32%;
+
+      border-radius: var(--border-radius);
+
+      transition: max-height 0.3s;
+      background-color: rgba(var(--color-header-background-base), 0.6);
+
+      .button--primary {
+        margin: var(--spacing-m) 0 !important;
+      }
+
+      h2 {
+        font-size: var(--font-large);
+      }
+      h3 {
+        font-size: var(--font-body);
+        font-weight: var(--font-weight-bold);
+        margin-top: var(--spacing-l);
+      }
+
+      .join-membership__header {
+        height: 80px;
+        background-image: url('/public/img/spaceman_pattern.png');
+        background-size: 34px;
+        margin-bottom: var(--spacing-m);
+      }
+
+      @media (max-width: 1000px) {
+        flex-basis: 66%;
+        margin: 0 227px;
+      }
+
+      &:nth-child(1) {
+        .join-membership__header {
+          background-color: #00ced8;
+        }
+        .button--primary {
+          background-color: #00ced8 !important;
+        }
+        .membership__tier-perks {
+          li:before {
+            color: #00ced8;
+          }
+        }
+      }
+
+      &:nth-child(2) {
+        .join-membership__header {
+          background-color: #ff7229;
+        }
+        .button--primary {
+          background-color: #ff7229 !important;
+        }
+        .membership__tier-perks {
+          li:before {
+            color: #ff7229;
+          }
+        }
+      }
+
+      &:nth-child(3) {
+        .join-membership__header {
+          background-color: #5d2270;
+        }
+        .button--primary {
+          background-color: #5d2270 !important;
+        }
+        .membership__tier-perks {
+          li:before {
+            color: #5d2270;
+          }
+        }
+      }
+
+      &:nth-child(4),
+      &:nth-child(5) {
+        display: none;
+      }
+    }
   }
 
   .section__subtitle--join-membership__description {
@@ -205,9 +263,9 @@
   }
 
   .join-membership__tier-info {
-    max-height: 132px;
+    max-height: 182px;
     overflow: hidden;
-    transition: all linear 5s;
+    // transition: all linear 5s;
 
     .section__subtitle--join-membership__perk:last-child {
       margin-bottom: 0;
@@ -217,12 +275,6 @@
   .can-create-your-own-memberships__div {
     line-height: 28px;
   }
-}
-
-.join-membership__plan-header {
-  margin-top: var(--spacing-s);
-  margin-bottom: var(--spacing-xxs);
-  font-size: calc(var(--font-base) + 4px);
 }
 
 .membership__tier-perks {
@@ -284,10 +336,6 @@
     display: block;
   }
 
-  .card__header--between {
-    justify-content: center !important;
-  }
-
   .card__subtitle {
     line-height: 1.5 !important;
   }
@@ -326,11 +374,6 @@
     }
   }
 
-  .card__first-pane,
-  .membership__body {
-    text-align: center;
-  }
-
   .join-membership-tab-renewal-date__header {
     font-size: 1.1rem;
     margin-top: 43px;
@@ -342,17 +385,12 @@
   }
 }
 
-.membership__tier-perks p {
+.membership__tier-perks {
   text-align: left;
-}
-
-.section__subtitle--join-membership__perk,
-.membership__tier-perks li {
-  margin-left: 0px;
-  margin-right: 0px;
-
-  &:first-of-type {
-    margin-top: 0px;
+  li {
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0;
   }
 }
 
@@ -385,18 +423,6 @@
   }
 }
 
-.activate-memberships-button__div {
-  text-align: center;
-
-  .activate-memberships__button {
-    margin-top: 23px;
-  }
-
-  .button__label {
-    font-size: 18px;
-  }
-}
-
 .ReactModal__Overlay {
   .activate-memberships__modal {
     min-width: unset;
@@ -412,10 +438,6 @@
 
   .card__subtitle {
     line-height: 39px;
-  }
-
-  .card__title {
-    text-align: center;
   }
 }
 
@@ -435,12 +457,7 @@
   .card__header--between,
   .join-membership__tab-buttons,
   .membership-join-purchase__div {
-    text-align: center;
     margin-top: 22px;
-  }
-
-  .card__body {
-    text-align: center;
   }
 
   .confirm__value {

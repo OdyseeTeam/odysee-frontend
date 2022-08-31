@@ -100,11 +100,7 @@ const JoinMembershipCard = (props: Props) => {
   return (
     <Form onSubmit={handleJoinMembership}>
       <Card
-        title={__('Join Membership')}
         className="card--join-membership"
-        subtitle={
-          isOnConfirmationPage ? undefined : __("Join this creator's channel for access to exclusive content and perks")
-        }
         body={
           isOnConfirmationPage ? (
             <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />
