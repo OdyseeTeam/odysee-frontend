@@ -162,9 +162,10 @@
     margin-top: calc(var(--spacing-m) * -1);
     margin-bottom: var(--spacing-l);
 
-    img {
+    .channel-thumbnail {
+      width: 108px;
+      height: 108px;
       margin-right: var(--spacing-m);
-      border-radius: 50%;
       float: left;
     }
     h2 {
@@ -316,6 +317,10 @@
   .can-create-your-own-memberships__div {
     line-height: 28px;
   }
+
+  .card__body--no-title {
+    padding-top: 0;
+  }
 }
 
 .membership__tier-perks {
@@ -370,7 +375,6 @@
 }
 
 /** JOIN CARD ON CHANNEL PAGE **/
-
 .card--join-membership,
 .membership {
   .section__actions {
@@ -382,8 +386,6 @@
   }
 
   .confirm__wrapper {
-    padding-top: var(--spacing-s);
-
     section {
       display: flex;
       flex-direction: column;
