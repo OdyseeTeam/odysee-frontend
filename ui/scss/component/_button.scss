@@ -1060,3 +1060,7 @@ svg + .button__label {
 .file-reaction__tooltip-inner {
   margin: 0px !important;
 }
+
+.button--membership {
+  background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
+}
