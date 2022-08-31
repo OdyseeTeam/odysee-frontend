@@ -91,7 +91,6 @@ function ChannelPage(props: Props) {
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
-  console.log('title: ', title);
   const { permanent_url: permanentUrl } = claim;
   const claimId = claim.claim_id;
   const compactSubCount = toCompactNotation(subCount, lang, 10000);
@@ -265,9 +264,7 @@ function ChannelPage(props: Props) {
               hideStakedIndicator
             />
             <h1 className="channel__title">
-              <TruncatedText lines={2} showTooltip>
-                {title || (channelName && '@' + channelName)}
-              </TruncatedText>
+              <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
               {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
             </h1>
             <div className="channel__meta">
