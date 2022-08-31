@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import classnames from 'classnames';
 
 import * as ICONS from 'constants/icons';
 
@@ -10,13 +9,12 @@ import MembershipDetails from '../membershipDetails';
 type Props = {
   key?: any,
   membership: CreatorMembership,
-  seeAllTiers: boolean,
   channelIsMine: boolean,
   handleSelect: () => void,
 };
 
 const MembershipBlock = (props: Props) => {
-  const { key, membership, seeAllTiers, channelIsMine, handleSelect } = props;
+  const { key, membership, channelIsMine, handleSelect } = props;
 
   const [blockExpanded, setBlockExpanded] = React.useState(false);
 
@@ -30,10 +28,7 @@ const MembershipBlock = (props: Props) => {
   }
 
   return (
-    <div
-      key={key}
-      className={classnames('join-membership__block', { 'expanded-block': blockExpanded, 'show-tiers': seeAllTiers })}
-    >
+    <div key={key} className="join-membership__block">
       <MembershipDetails
         membership={membership}
         headerAction={

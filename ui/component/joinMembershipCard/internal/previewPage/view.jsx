@@ -43,8 +43,6 @@ const PreviewPage = (props: Props) => {
 
   const isChannelTab = React.useContext(ChannelPageContext);
 
-  const [seeAllTiers, setSeeAllTiers] = React.useState(false);
-
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = !creatorHasMemberships || canReceiveFiatTips === false;
 
@@ -53,30 +51,6 @@ const PreviewPage = (props: Props) => {
       doTipAccountCheckForUri(uri);
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
-
-  function showAllTiers(e) {
-    setSeeAllTiers(true);
-
-    setTimeout(() => {
-      const membershipTierDivs = document.getElementsByClassName('join-membership__block');
-      const lastTier = membershipTierDivs[membershipTierDivs.length - 1];
-      lastTier.scrollIntoView({ behavior: 'smooth' });
-    }, 0);
-  }
-
-  /*
-  React.useEffect(() => {
-    setTimeout(() => {
-      const tiers = document.getElementsByClassName('join-membership__tier-info');
-      for (const tier of tiers) {
-        const elementIsOverflown = tier.scrollHeight > tier.clientHeight || tier.scrollWidth > tier.clientWidth;
-        // $FlowFixMe
-        // const seeMoreButton = tier.parentNode.querySelector('.button--membership-tier__show-more');
-        // if (elementIsOverflown && seeMoreButton) seeMoreButton.style.display = 'block';
-      }
-    }, 0);
-  }, []);
-  */
 
   if (creatorPurchaseDisabled) {
     return (
@@ -115,19 +89,9 @@ const PreviewPage = (props: Props) => {
               setMembershipIndex(index);
               handleSelect();
             }}
-            seeAllTiers={seeAllTiers}
             key={index}
           />
         ))}
-
-        {!seeAllTiers && creatorMemberships.length > 3 && (
-          <Button
-            button="link"
-            className="button--membership-see-all-tiers"
-            label={__('See All')}
-            onClick={showAllTiers}
-          />
-        )}
       </div>
     );
   }

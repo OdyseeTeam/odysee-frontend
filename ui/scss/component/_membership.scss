@@ -210,21 +210,28 @@
   }
 
   .join-membership__blocks-wrapper {
+    /*
     display: flex;
     flex-flow: wrap;
+    // flex-flow: row;
     justify-content: space-between;
-    gap: 30px 0px;
+    gap: var(--spacing-l) var(--spacing-l);
+    */
+
+    display: grid;
+    grid-template-columns: repeat(3, auto);
 
     .join-membership__block {
       text-align: center;
-
+      margin-right: var(--spacing-l);
+      margin-bottom: var(--spacing-l);
       // padding: var(--spacing-s);
       padding-bottom: var(--spacing-l);
       overflow: hidden;
 
       display: flex;
       flex-direction: column;
-      flex-basis: 32%;
+      flex-basis: calc(33% - (var(--spacing-l)));
 
       border-radius: var(--border-radius);
 
@@ -285,6 +292,7 @@
       }
 
       &:nth-child(3) {
+        margin-right: 0;
         .join-membership__header {
           background-color: #5d2270;
         }
@@ -298,9 +306,47 @@
         }
       }
 
-      &:nth-child(4),
+      &:nth-child(4) {
+        .join-membership__header {
+          background-color: #00c06b;
+        }
+        .button--primary {
+          background-color: #00c06b !important;
+        }
+        .membership__tier-perks {
+          li:before {
+            color: #00c06b;
+          }
+        }
+      }
+
       &:nth-child(5) {
-        display: none;
+        .join-membership__header {
+          background-color: #ac0000;
+        }
+        .button--primary {
+          background-color: #ac0000 !important;
+        }
+        .membership__tier-perks {
+          li:before {
+            color: #ac0000;
+          }
+        }
+      }
+
+      &:nth-child(6) {
+        margin-right: 0;
+        .join-membership__header {
+          background-color: #302270;
+        }
+        .button--primary {
+          background-color: #302270 !important;
+        }
+        .membership__tier-perks {
+          li:before {
+            color: #302270;
+          }
+        }
       }
     }
   }
