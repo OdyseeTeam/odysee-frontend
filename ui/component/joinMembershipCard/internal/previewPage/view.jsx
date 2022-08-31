@@ -155,7 +155,7 @@ const PreviewPage = (props: Props) => {
         <MembershipDetails membership={selectedTier} expanded />
       </div>
 
-      <>
+      <div className="join-membership__modal-action">
         <Button
           icon={ICONS.UPGRADE}
           button="primary"
@@ -167,8 +167,10 @@ const PreviewPage = (props: Props) => {
           onClick={handleSelect}
         />
 
-        {channelIsMine && <h1>{__("You're not able to signup for your own memberships")}</h1>}
-      </>
+        {channelIsMine && (
+          <span className="info-label">{__("You're not able to signup for your own memberships")}</span>
+        )}
+      </div>
     </>
   );
 };

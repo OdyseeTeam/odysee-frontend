@@ -159,7 +159,6 @@
 .card--join-membership {
   .join-membership__modal-header {
     height: 108px;
-    margin-top: calc(var(--spacing-m) * -1);
     margin-bottom: var(--spacing-l);
 
     .channel-thumbnail {
@@ -196,6 +195,17 @@
       margin-top: var(--spacing-m);
       margin-bottom: var(--spacing-l);
       border-radius: var(--border-radius);
+    }
+  }
+
+  .join-membership__modal-action {
+    .info-label {
+      display: block;
+      padding: var(--spacing-s);
+      border-radius: var(--border-radius);
+      background-color: rgba(255, 0, 0, 0.1);
+      border: 1px solid red;
+      margin-top: var(--spacing-m);
     }
   }
 
