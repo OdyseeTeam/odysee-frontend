@@ -341,7 +341,7 @@ const CreateTiersTab = (props: Props) => {
           ))}
 
         {/* add membership tier button */}
-        {creatorMemberships && creatorMemberships.length < 5 && (
+        {creatorMemberships && creatorMemberships.length < 6 && (
           <div>
             <Button
               button="primary"
