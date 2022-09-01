@@ -471,9 +471,9 @@ export function CommentCreate(props: Props) {
 
   // Determine whether user is a channel member (used for authing members only chat)
   React.useEffect(() => {
-    if(chatCommentsRestrictedToChannelMembers && creatorsMemberships && creatorsMemberships.length){
+    if (chatCommentsRestrictedToChannelMembers && creatorsMemberships && creatorsMemberships.length) {
       let ids = [];
-      for(const membership of creatorsMemberships){
+      for (const membership of creatorsMemberships) {
         ids.push(membership.Membership.id);
       }
 
@@ -481,7 +481,7 @@ export function CommentCreate(props: Props) {
 
       setIsAChannelMember(isAMember);
     }
-  }, [chatCommentsRestrictedToChannelMembers, creatorsMemberships, activeMembershipIds]);
+  }, [chatCommentsRestrictedToChannelMembers, , activeMembershipIds]);
 
   // Fetch channel constraints if not already.
   React.useEffect(() => {

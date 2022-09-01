@@ -99,6 +99,9 @@ export default function CommentList(props: Props) {
     doFetchOdyseeMembershipForChannelIds,
     doPopOutInlinePlayer,
     doFetchChannelMembershipsForChannelIds,
+    chatCommentsRestrictedToChannelMembers,
+    creatorsMemberships,
+    activeMembershipIds,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -121,6 +124,9 @@ export default function CommentList(props: Props) {
   const hasDefaultExpansion = commentsAreExpanded || !isMediumScreen || isMobile;
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const [debouncedUri, setDebouncedUri] = React.useState();
+
+  // used for disabling comment actions
+  const [isAChannelMember, setIsAChannelMember] = React.useState(false);
 
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
@@ -199,6 +205,23 @@ export default function CommentList(props: Props) {
       threadRedirect.current = true;
     }
   }, [linkedCommentAncestors, linkedCommentId, pathname, push, search, threadCommentId, threadDepthLevel]);
+
+  // Determine whether user is a channel member (used for authing members only chat)
+  // TODO: refactor this to use redux
+  useEffect(() => {
+    if (chatCommentsRestrictedToChannelMembers && creatorsMemberships && creatorsMemberships.length) {
+      let ids = [];
+      for (const membership of creatorsMemberships) {
+        ids.push(membership.Membership.id);
+      }
+
+      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id));
+
+      setIsAChannelMember(isAMember);
+    }
+  }, [chatCommentsRestrictedToChannelMembers, creatorsMemberships, activeMembershipIds]);
+
+  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
 
   // set new page on scroll debounce and avoid setting the page after navigated uris
   useEffect(() => {
@@ -421,8 +444,8 @@ export default function CommentList(props: Props) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments && !threadCommentId && <CommentElements comments={pinnedComments} {...commentProps} />}
-                <CommentElements comments={topLevelComments} {...commentProps} />
+                {pinnedComments && !threadCommentId && <CommentElements comments={pinnedComments} disabled={notAuthedToChat} {...commentProps} />}
+                <CommentElements comments={topLevelComments} disabled={notAuthedToChat} {...commentProps} />
               </>
             )}
           </ul>
@@ -476,9 +499,9 @@ type CommentProps = {
 };
 
 const CommentElements = (commentProps: CommentProps) => {
-  const { comments, ...commentsProps } = commentProps;
+  const { comments, disabled, ...commentsProps } = commentProps;
 
-  return comments.map((comment) => <CommentView key={comment.comment_id} comment={comment} {...commentsProps} />);
+  return comments.map((comment) => <CommentView key={comment.comment_id} comment={comment} disabled={disabled} {...commentsProps} />);
 };
 
 type ActionButtonsProps = {

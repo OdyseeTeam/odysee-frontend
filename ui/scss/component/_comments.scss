@@ -482,6 +482,15 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
+.comment__actions--disabled {
+  filter: brightness(50%);
+  pointer-events: none;
+
+  button {
+    color: white !important;
+  }
+}
+
 .comment__actions {
   display: flex;
   margin-top: var(--spacing-s);
