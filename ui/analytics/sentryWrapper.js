@@ -29,6 +29,8 @@ declare type SentryWrapper = {
   log: (error: Error | string, options?: SentryEventOptions, transactionName?: string) => Promise<?LogId>,
 };
 
+declare type StackFrame = { filename: string, function?: string, abs_path?: string, module?: string };
+
 export const sentryWrapper: SentryWrapper = {
   init: () => {
     // Call init() as early as possible in the app.
@@ -85,14 +87,36 @@ export const sentryWrapper: SentryWrapper = {
 // Private
 // ****************************************************************************
 
-function handleBeforeSend(event, hints) {
+function handleBeforeSend(event, hint) {
   try {
     const ev = event.exception?.values || [];
-    const frames = ev[0]?.stacktrace?.frames || [];
-    const lastFrame = frames[frames.length - 1];
+    const frames: Array<StackFrame> = ev[0]?.stacktrace?.frames || [];
+    const lastFrame: StackFrame = frames[frames.length - 1];
 
+    // ---Discard browser extension errors---
     if (lastFrame?.filename && lastFrame.filename.match(/([a-z]*)-extension:\/\//)) {
       return null;
+    }
+
+    // ---If SDK failure, isolate per command---
+    if (ev[0].value === 'Failed to fetch') {
+      // The fancy reverse-find functions aren't supported on all browsers,
+      // so stick with basic for-loop.
+      for (let i = frames.length - 1; i >= 0; --i) {
+        const frame = frames[i];
+        if (
+          frame.filename &&
+          frame.filename.endsWith('ui/lbry.js') &&
+          frame.function &&
+          frame.function.startsWith('Proxy.')
+        ) {
+          const cmd = frame.function.replace('Proxy.', '');
+          // Overwrite event
+          ev[0].value = `Failed to fetch (Lbry.${cmd})`;
+          event.fingerprint = [`failed-to-fetch-${cmd}`];
+          break;
+        }
+      }
     }
   } catch {}
 
