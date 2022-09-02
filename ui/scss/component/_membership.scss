@@ -445,7 +445,7 @@
 
     .join-membership__block {
       text-align: center;
-      padding-bottom: var(--spacing-l);
+      padding-bottom: calc(var(--spacing-l) - var(--spacing-m));
       overflow: hidden;
 
       display: flex;
