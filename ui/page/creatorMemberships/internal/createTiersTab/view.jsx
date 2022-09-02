@@ -268,21 +268,31 @@ const CreateTiersTab = (props: Props) => {
               {/* this long conditional isnt fully necessary but some test environment data is bad atm */}
               {isEditing !== membershipIndex && membershipTier.NewPrices && membershipTier.NewPrices.length && (
                 <div className="membership-tier__div">
-                  <div style={{ marginBottom: 'var(--spacing-s)', fontSize: '1.1rem' }}>
-                    {membershipIndex + 1}) Tier Name: {membershipTier.Membership.name}
+                  <div className="membership-tier__div-header">
+                    <span>
+                      {membershipIndex + 1}) {membershipTier.Membership.name}
+                    </span>
                   </div>
-                  <h1>{membershipTier.Membership.description}</h1>
-                  <h1>Monthly Pledge: ${membershipTier.NewPrices[0].Price.amount / 100}</h1>
-                  {membershipTier.Perks &&
-                    membershipTier.Perks.map((tierPerk, i) => (
-                      <>
-                        <p>
-                          <ul>
-                            <li>{tierPerk.description}</li>
-                          </ul>
-                        </p>
-                      </>
-                    ))}
+                  <div className="membership-tier__div-content">
+                    <span>Pledge</span>
+                    <label>${membershipTier.NewPrices[0].Price.amount / 100}</label>
+
+                    <span>Your Perks</span>
+                    <label>{membershipTier.Membership.description}</label>
+
+                    <span>Odysee Perks</span>
+                    {membershipTier.Perks &&
+                      membershipTier.Perks.map((tierPerk, i) => (
+                        <>
+                          <p>
+                            <ul>
+                              <li>{tierPerk.description}</li>
+                            </ul>
+                          </p>
+                        </>
+                      ))}
+                  </div>
+
                   <div className="buttons-div" style={{ marginTop: '13px' }}>
                     {/* cancel membership button */}
                     <Button
