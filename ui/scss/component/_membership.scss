@@ -571,6 +571,11 @@
   .section__subtitle--join-membership__description {
     max-width: 90%;
     margin: 0 auto;
+
+    span {
+      width: 100%;
+      padding: 0 var(--spacing-m);
+    }
   }
 
   .card__body {
