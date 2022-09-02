@@ -3,7 +3,7 @@ import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { selectMembershipTiersForChannelUri, selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
-
+import { doOpenModal } from 'redux/actions/app';
 import PreviewPage from './view';
 
 const select = (state, props) => {
@@ -33,8 +33,9 @@ const select = (state, props) => {
   };
 };
 
-const perform = {
+const perform = (dispatch) => ({
   doTipAccountCheckForUri,
-};
+  doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+});
 
 export default connect(select, perform)(PreviewPage);

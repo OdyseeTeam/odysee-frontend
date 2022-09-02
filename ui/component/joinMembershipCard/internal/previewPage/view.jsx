@@ -9,6 +9,7 @@ import BalanceText from 'react-balance-text';
 import MembershipBlock from './internal/membershipBlock';
 import MembershipDetails from './internal/membershipDetails';
 import ChannelThumbnail from 'component/channelThumbnail';
+import * as MODALS from 'constants/modal_types';
 
 type Props = {
   uri: string,
@@ -23,6 +24,7 @@ type Props = {
   doTipAccountCheckForUri: (uri: string) => void,
   channelTitle: string,
   channelUri: string,
+  doOpenModal: (id: string, props: {}) => void,
 };
 
 const PreviewPage = (props: Props) => {
@@ -39,6 +41,7 @@ const PreviewPage = (props: Props) => {
     doTipAccountCheckForUri,
     channelTitle,
     channelUri,
+    doOpenModal,
   } = props;
 
   const isChannelTab = React.useContext(ChannelPageContext);
@@ -87,7 +90,8 @@ const PreviewPage = (props: Props) => {
             channelIsMine={channelIsMine}
             handleSelect={() => {
               setMembershipIndex(index);
-              handleSelect();
+              doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index });
+              // handleSelect();
             }}
             key={index}
           />
@@ -116,7 +120,7 @@ const PreviewPage = (props: Props) => {
         ))}
       </div>
       <div className="join-membership__modal-content">
-        <MembershipDetails membership={selectedTier} expanded />
+        <MembershipDetails membership={selectedTier} />
       </div>
 
       <div className="join-membership__modal-action">
