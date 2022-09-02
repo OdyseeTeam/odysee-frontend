@@ -819,6 +819,103 @@
   scroll-margin-top: 83px;
 }
 
+.tier-edit-functionality {
+  .create-tier__card {
+    overflow: hidden;
+    border-radius: var(--border-radius);
+    .membership-tier__div-header {
+      margin-left: calc(var(--spacing-m) * -1);
+      margin-top: calc(var(--spacing-m) * -1);
+      margin-right: calc(var(--spacing-m) * -1);
+      padding: var(--spacing-m);
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      margin-bottom: var(--spacing-m);
+      background-image: url('/public/img/spaceman_pattern.png');
+      background-size: 34px;
+      span {
+        background-color: var(--color-header-background);
+        border-radius: var(--border-radius);
+        padding: var(--spacing-xxs);
+      }
+    }
+
+    .membership-tier__div-content {
+      span {
+        display: block;
+      }
+      label {
+        font-size: var(--font-base) !important;
+        opacity: 0.8;
+        margin-bottom: var(--spacing-m);
+      }
+    }
+
+    ul {
+      list-style: none;
+      li {
+        margin-left: var(--spacing-m);
+        font-size: var(--font-base) !important;
+        opacity: 0.8;
+      }
+      li::before {
+        content: '\2605';
+        color: #ffc800;
+        display: inline-block;
+        width: 1.3em;
+      }
+    }
+
+    &:nth-of-type(1) {
+      .membership-tier__div-header {
+        background-color: rgba(var(--color-membership-1), 1);
+      }
+      li::before {
+        color: rgba(var(--color-membership-1), 1);
+      }
+    }
+    &:nth-of-type(2) {
+      .membership-tier__div-header {
+        background-color: rgba(var(--color-membership-2), 2);
+      }
+      li::before {
+        color: rgba(var(--color-membership-2), 1);
+      }
+    }
+    &:nth-of-type(3) {
+      .membership-tier__div-header {
+        background-color: rgba(var(--color-membership-3), 3);
+      }
+      li::before {
+        color: rgba(var(--color-membership-3), 1);
+      }
+    }
+    &:nth-of-type(4) {
+      .membership-tier__div-header {
+        background-color: rgba(var(--color-membership-4), 3);
+      }
+      li::before {
+        color: rgba(var(--color-membership-4), 1);
+      }
+    }
+    &:nth-of-type(5) {
+      .membership-tier__div-header {
+        background-color: rgba(var(--color-membership-5), 3);
+      }
+      li::before {
+        color: rgba(var(--color-membership-5), 1);
+      }
+    }
+    &:nth-of-type(6) {
+      .membership-tier__div-header {
+        background-color: rgba(var(--color-membership-6), 3);
+      }
+      li::before {
+        color: rgba(var(--color-membership-6), 1);
+      }
+    }
+  }
+}
+
 // create tiers tab
 .create-tier__card {
   background-color: rgba(var(--color-header-background-base), 0.4);
