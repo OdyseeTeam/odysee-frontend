@@ -5,6 +5,7 @@ import Card from 'component/common/card';
 import ConfirmationPage from './internal/confirmationPage';
 import PreviewPage from './internal/previewPage';
 import Spinner from 'component/spinner';
+import classnames from 'classnames';
 
 type Props = {
   uri: string,
@@ -38,8 +39,6 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipBuy,
     doToast,
   } = props;
-
-  console.log('membershipIndex: ', membershipIndex);
 
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
   const [selectedMembershipIndex, setMembershipIndex] = React.useState(0);
@@ -108,7 +107,14 @@ const JoinMembershipCard = (props: Props) => {
   return (
     <Form onSubmit={handleJoinMembership}>
       <Card
-        className="card--join-membership"
+        className={classnames('card--join-membership', {
+          'membership-tier1': selectedMembershipIndex === 0,
+          'membership-tier2': selectedMembershipIndex === 1,
+          'membership-tier3': selectedMembershipIndex === 2,
+          'membership-tier4': selectedMembershipIndex === 3,
+          'membership-tier5': selectedMembershipIndex === 4,
+          'membership-tier6': selectedMembershipIndex === 5,
+        })}
         body={
           isOnConfirmationPage ? (
             <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />

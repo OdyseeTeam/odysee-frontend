@@ -166,45 +166,45 @@
           }
         }
         &:nth-of-type(1) {
-          background-color: rgba(0, 208, 217, 0.2) !important;
-          border: 2px solid rgba(0, 208, 217, 0.6) !important;
+          background-color: rgba(var(--color-membership-1), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-1), 0.6) !important;
           &:hover {
-            background-color: rgba(0, 208, 217, 1) !important;
+            background-color: rgba(var(--color-membership-1), 1) !important;
           }
         }
         &:nth-of-type(2) {
-          background-color: rgba(247, 125, 53, 0.2) !important;
-          border: 2px solid rgba(247, 125, 53, 0.6) !important;
+          background-color: rgba(var(--color-membership-2), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-2), 0.6) !important;
           &:hover {
-            background-color: rgba(247, 125, 53, 1) !important;
+            background-color: rgba(var(--color-membership-2), 1) !important;
           }
         }
         &:nth-of-type(3) {
-          background-color: rgba(100, 68, 154, 0.2) !important;
-          border: 2px solid rgba(100, 68, 154, 0.6) !important;
+          background-color: rgba(var(--color-membership-3), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-3), 0.6) !important;
           &:hover {
-            background-color: rgba(100, 68, 154, 1) !important;
+            background-color: rgba(var(--color-membership-3), 1) !important;
           }
         }
         &:nth-of-type(4) {
-          background-color: rgba(35, 190, 97, 0.2) !important;
-          border: 2px solid rgba(35, 190, 97, 0.6) !important;
+          background-color: rgba(var(--color-membership-4), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-4), 0.6) !important;
           &:hover {
-            background-color: rgba(35, 190, 97, 1) !important;
+            background-color: rgba(var(--color-membership-4), 1) !important;
           }
         }
         &:nth-of-type(5) {
-          background-color: rgba(212, 105, 77, 0.2) !important;
-          border: 2px solid rgba(212, 105, 77, 0.6) !important;
+          background-color: rgba(var(--color-membership-5), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-5), 0.6) !important;
           &:hover {
-            background-color: rgba(212, 105, 77, 1) !important;
+            background-color: rgba(var(--color-membership-5), 1) !important;
           }
         }
         &:nth-of-type(6) {
-          background-color: rgba(184, 55, 105, 0.2) !important;
-          border: 2px solid rgba(184, 55, 105, 0.6) !important;
+          background-color: rgba(var(--color-membership-6), 0.2) !important;
+          border: 2px solid rgba(var(--color-membership-6), 0.6) !important;
           &:hover {
-            background-color: rgba(184, 55, 105, 1) !important;
+            background-color: rgba(var(--color-membership-6), 1) !important;
           }
         }
       }
@@ -213,23 +213,96 @@
           color: white !important;
         }
         &:nth-of-type(1) {
-          background-color: rgba(0, 208, 217, 1) !important;
+          background-color: rgba(var(--color-membership-1), 1) !important;
         }
         &:nth-of-type(2) {
-          background-color: rgba(247, 125, 53, 1) !important;
+          background-color: rgba(var(--color-membership-2), 1) !important;
         }
         &:nth-of-type(3) {
-          background-color: rgba(100, 68, 154, 1) !important;
+          background-color: rgba(var(--color-membership-3), 1) !important;
         }
         &:nth-of-type(4) {
-          background-color: rgba(35, 190, 97, 1) !important;
+          background-color: rgba(var(--color-membership-4), 1) !important;
         }
         &:nth-of-type(5) {
-          background-color: rgba(212, 105, 77, 1) !important;
+          background-color: rgba(var(--color-membership-5), 1) !important;
         }
         &:nth-of-type(6) {
-          background-color: rgba(184, 55, 105, 1) !important;
+          background-color: rgba(var(--color-membership-6), 1) !important;
         }
+      }
+    }
+
+    &.membership-tier1 {
+      .membership__tier-perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-1), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-1), 1) !important;
+      }
+    }
+    &.membership-tier2 {
+      .membership__tier-perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-2), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-2), 1) !important;
+      }
+    }
+    &.membership-tier3 {
+      .membership__tier-perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-3), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-3), 1) !important;
+      }
+    }
+    &.membership-tier4 {
+      .membership__tier-perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-4), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-4), 1) !important;
+      }
+    }
+    &.membership-tier5 {
+      .membership__tier-perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-5), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-5), 1) !important;
+      }
+    }
+    &.membership-tier6 {
+      .membership__tier-perks {
+        li {
+          &::before {
+            color: rgba(var(--color-membership-6), 1);
+          }
+        }
+      }
+      .button--primary {
+        background-color: rgba(var(--color-membership-6), 1) !important;
       }
     }
   }
@@ -369,84 +442,84 @@
 
       &:nth-child(1) {
         .join-membership__header {
-          background-color: #00d0d9;
+          background-color: rgba(var(--color-membership-1), 1);
         }
         .button--primary {
-          background-color: #00d0d9 !important;
+          background-color: rgba(var(--color-membership-1), 1) !important;
         }
         .membership__tier-perks {
           li:before {
-            color: #00d0d9;
+            color: rgba(var(--color-membership-1), 1);
           }
         }
       }
 
       &:nth-child(2) {
         .join-membership__header {
-          background-color: #f77d35;
+          background-color: rgba(var(--color-membership-2), 1);
         }
         .button--primary {
-          background-color: #f77d35 !important;
+          background-color: rgba(var(--color-membership-2), 1) !important;
         }
         .membership__tier-perks {
           li:before {
-            color: #f77d35;
+            color: rgba(var(--color-membership-2), 1);
           }
         }
       }
 
       &:nth-child(3) {
         .join-membership__header {
-          background-color: #64449a;
+          background-color: rgba(var(--color-membership-3), 1);
         }
         .button--primary {
-          background-color: #64449a !important;
+          background-color: rgba(var(--color-membership-3), 1) !important;
         }
         .membership__tier-perks {
           li:before {
-            color: #64449a;
+            color: rgba(var(--color-membership-3), 1);
           }
         }
       }
 
       &:nth-child(4) {
         .join-membership__header {
-          background-color: #23be61;
+          background-color: rgba(var(--color-membership-4), 1);
         }
         .button--primary {
-          background-color: #23be61 !important;
+          background-color: rgba(var(--color-membership-4), 1) !important;
         }
         .membership__tier-perks {
           li:before {
-            color: #23be61;
+            color: rgba(var(--color-membership-4), 1);
           }
         }
       }
 
       &:nth-child(5) {
         .join-membership__header {
-          background-color: rgba(212, 105, 77, 1);
+          background-color: rgba(var(--color-membership-5), 1);
         }
         .button--primary {
-          background-color: rgba(212, 105, 77, 1) !important;
+          background-color: rgba(var(--color-membership-5), 1) !important;
         }
         .membership__tier-perks {
           li:before {
-            color: rgba(212, 105, 77, 1);
+            color: rgba(var(--color-membership-5), 1);
           }
         }
       }
 
       &:nth-child(6) {
         .join-membership__header {
-          background-color: #b83769;
+          background-color: rgba(var(--color-membership-6), 1);
         }
         .button--primary {
-          background-color: #b83769 !important;
+          background-color: rgba(var(--color-membership-6), 1) !important;
         }
         .membership__tier-perks {
           li:before {
-            color: #b83769;
+            color: rgba(var(--color-membership-6), 1);
           }
         }
       }
@@ -465,7 +538,7 @@
   .join-membership__tier-info {
     max-height: 182px;
     overflow: hidden;
-    // transition: all linear 5s;
+    margin-bottom: var(--spacing-m);
 
     .section__subtitle--join-membership__perk:last-child {
       margin-bottom: 0;
