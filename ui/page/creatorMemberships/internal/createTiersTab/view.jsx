@@ -127,7 +127,7 @@ const CreateTiersTab = (props: Props) => {
       oldStripePrice = oldStripePrice[0].id;
     }
 
-    // const oldMembershipId = oldObject?.Membership.id;
+    const oldMembershipId = oldObject?.Membership.id;
 
     // only hit backend if there is a difference between the current state
     // if (1 == 1) {
@@ -143,17 +143,21 @@ const CreateTiersTab = (props: Props) => {
       amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
       currency: 'usd', // hardcoded for now
       perks: selectedPerksAsArray,
-      // oldStripePrice,
-      // oldMembershipId,
+      old_stripe_price: oldStripePrice,
+      membership_id: oldMembershipId,
       // perks: selectedPerks,
     });
     console.log(response);
 
-    // getExistingTiers();
-
     setIsEditing(false);
+
+    creatorMemberships[tierIndex] = newObject;
+
     console.log(newObject);
-    setCreatorMemberships([...fetchedMemberships, newObject]);
+    setCreatorMemberships(creatorMemberships);
+
+    doMembershipList({ channel_name: activeChannelName, channel_id: activeChannelId });
+
     // }
 
     // TODO: better way than setTimeout
@@ -175,9 +179,9 @@ const CreateTiersTab = (props: Props) => {
 
   function createEditTier(tier, membershipIndex) {
     // TODO: better way than setTimeout
-    // setTimeout(function () {
-    //   document.getElementById('edit-div').scrollIntoView({ behavior: 'smooth' });
-    // }, 15);
+    setTimeout(function () {
+      document.getElementsByClassName('edit-div')[0].scrollIntoView({ behavior: 'smooth' });
+    }, 15);
 
     console.log('tier ');
     console.log(tier);
