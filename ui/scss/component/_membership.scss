@@ -244,6 +244,13 @@
       .button--primary {
         background-color: rgba(var(--color-membership-1), 1) !important;
       }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-1), 1) !important;
+          }
+        }
+      }
     }
     &.membership-tier2 {
       .membership__tier-perks {
@@ -255,6 +262,13 @@
       }
       .button--primary {
         background-color: rgba(var(--color-membership-2), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-2), 1) !important;
+          }
+        }
       }
     }
     &.membership-tier3 {
@@ -268,6 +282,13 @@
       .button--primary {
         background-color: rgba(var(--color-membership-3), 1) !important;
       }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-3), 1) !important;
+          }
+        }
+      }
     }
     &.membership-tier4 {
       .membership__tier-perks {
@@ -279,6 +300,13 @@
       }
       .button--primary {
         background-color: rgba(var(--color-membership-4), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-4), 1) !important;
+          }
+        }
       }
     }
     &.membership-tier5 {
@@ -292,6 +320,13 @@
       .button--primary {
         background-color: rgba(var(--color-membership-5), 1) !important;
       }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-5), 1) !important;
+          }
+        }
+      }
     }
     &.membership-tier6 {
       .membership__tier-perks {
@@ -303,6 +338,13 @@
       }
       .button--primary {
         background-color: rgba(var(--color-membership-6), 1) !important;
+      }
+      .button--link {
+        .button__content {
+          .button__label {
+            color: rgba(var(--color-membership-6), 1) !important;
+          }
+        }
       }
     }
   }
