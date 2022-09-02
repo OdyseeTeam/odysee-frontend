@@ -13,6 +13,8 @@ import * as MODALS from 'constants/modal_types';
 // import Card from 'component/common/card';
 import Button from 'component/button';
 import ErrorText from 'component/common/error-text';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import Icon from 'component/common/icon';
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 type Props = {
@@ -272,6 +274,59 @@ const CreateTiersTab = (props: Props) => {
                     <span>
                       {membershipIndex + 1}) {membershipTier.Membership.name}
                     </span>
+                    <Menu>
+                      <MenuButton className="menu__button">
+                        <Icon size={18} icon={ICONS.SETTINGS} />
+                      </MenuButton>
+                      <MenuList className="menu__list">
+                        <MenuItem
+                          className="comment__menu-option"
+                          onSelect={(e) => editMembership(e, membershipIndex, membershipTier.Membership.description)}
+                        >
+                          <div className="menu__link">
+                            <Icon size={16} icon={ICONS.EDIT} /> Edit Tier
+                          </div>
+                        </MenuItem>
+                        <MenuItem
+                          className="comment__menu-option"
+                          onSelect={(e) => {
+                            let membershipsBeforeDeletion = creatorMemberships;
+
+                            // const amountOfMembershipsCurrently = creatorMemberships.length;
+                            // if (amountOfMembershipsCurrently === 1) {
+                            //   const displayString = __('You must have at least one tier for your membership options');
+                            //   return doToast({ message: displayString, isError: true });
+                            // }
+
+                            doOpenModal(MODALS.CONFIRM, {
+                              title: __('Confirm Membership Deletion'),
+                              subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
+                                membership_name: membershipsBeforeDeletion[membershipIndex].Membership.name,
+                              }),
+                              busyMsg: __('Deleting your membership...'),
+                              onConfirm: (closeModal, setIsBusy) => {
+                                setIsBusy(true);
+                                doDeactivateMembershipForId(
+                                  membershipsBeforeDeletion[membershipIndex].Membership.id
+                                ).then(() => {
+                                  setIsBusy(false);
+                                  doToast({ message: __('Your membership was succesfully deleted.') });
+                                  const membershipsAfterDeletion = membershipsBeforeDeletion.filter(
+                                    (tiers, index) => index !== membershipIndex
+                                  );
+                                  setCreatorMemberships(membershipsAfterDeletion);
+                                  closeModal();
+                                });
+                              },
+                            });
+                          }}
+                        >
+                          <div className="menu__link">
+                            <Icon size={16} icon={ICONS.DELETE} /> Delete Tier
+                          </div>
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
                   </div>
                   <div className="membership-tier__div-content">
                     <span>Pledge</span>
@@ -291,56 +346,6 @@ const CreateTiersTab = (props: Props) => {
                           </p>
                         </>
                       ))}
-                  </div>
-
-                  <div className="buttons-div" style={{ marginTop: '13px' }}>
-                    {/* cancel membership button */}
-                    <Button
-                      button="alt"
-                      onClick={(e) => editMembership(e, membershipIndex, membershipTier.Membership.description)}
-                      className="edit-membership-button"
-                      label={__('Edit Tier')}
-                      icon={ICONS.EDIT}
-                    />
-                    {/* cancel membership button */}
-                    <Button
-                      button="alt"
-                      onClick={(e) => {
-                        let membershipsBeforeDeletion = creatorMemberships;
-
-                        // const amountOfMembershipsCurrently = creatorMemberships.length;
-                        // if (amountOfMembershipsCurrently === 1) {
-                        //   const displayString = __('You must have at least one tier for your membership options');
-                        //   return doToast({ message: displayString, isError: true });
-                        // }
-
-                        doOpenModal(MODALS.CONFIRM, {
-                          title: __('Confirm Membership Deletion'),
-                          subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
-                            membership_name: membershipsBeforeDeletion[membershipIndex].Membership.name,
-                          }),
-                          busyMsg: __('Deleting your membership...'),
-                          onConfirm: (closeModal, setIsBusy) => {
-                            setIsBusy(true);
-                            doDeactivateMembershipForId(membershipsBeforeDeletion[membershipIndex].Membership.id).then(
-                              () => {
-                                setIsBusy(false);
-                                doToast({ message: __('Your membership was succesfully deleted.') });
-                                const membershipsAfterDeletion = membershipsBeforeDeletion.filter(
-                                  (tiers, index) => index !== membershipIndex
-                                );
-                                setCreatorMemberships(membershipsAfterDeletion);
-                                closeModal();
-                              }
-                            );
-                          },
-                        });
-                      }}
-                      className="cancel-membership-button"
-                      label={__('Delete Tier')}
-                      icon={ICONS.DELETE}
-                      disabled={membershipTier.HasSubscribers}
-                    />
                   </div>
                   {membershipTier.HasSubscribers && (
                     <ErrorText>{__('This membership has active subscribers and cannot be deleted.')}</ErrorText>
