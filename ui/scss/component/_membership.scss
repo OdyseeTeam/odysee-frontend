@@ -813,10 +813,37 @@
   margin-bottom: 18px;
 }
 
+/*
 .edit-div,
 .membership-tier__div {
   // this accounts for the header when scrolling
-  scroll-margin-top: 83px;
+  scroll-margin-top: 283px;
+}*/
+
+.edit-div {
+  label {
+    font-size: var(--font-body);
+  }
+  input,
+  textarea {
+    border: 2px solid var(--color-border);
+  }
+  fieldset-section {
+    margin-top: var(--spacing-m);
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
+  .checkbox {
+    margin-top: var(--spacing-xs);
+    label {
+      font-size: var(--font-base) !important;
+      opacity: 0.8;
+    }
+  }
+  .section__actions {
+    margin-top: var(--spacing-m);
+  }
 }
 
 .tier-edit-functionality {

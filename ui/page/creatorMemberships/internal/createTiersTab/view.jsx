@@ -31,7 +31,7 @@ type Props = {
 };
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
-const CreateTiersTab = (props: Props) => {
+function CreateTiersTab(props: Props) {
   const {
     bankAccountConfirmed,
     activeChannel,
@@ -177,17 +177,20 @@ const CreateTiersTab = (props: Props) => {
     return perkIds.includes(perkId);
   };
 
-  function createEditTier(tier, membershipIndex) {
+  function createEditTier(reference, tier, membershipIndex) {
     // TODO: better way than setTimeout
+
+    // console.log('reference: ', reference);
+    // console.log('reference: ', reference.current.offsetTop);
     setTimeout(function () {
-      document.getElementsByClassName('edit-div')[0].scrollIntoView({ behavior: 'smooth' });
+      // window.scrollTo({ top: reference.current.offsetTop, behavior: 'smooth' });
     }, 15);
 
     console.log('tier ');
     console.log(tier);
 
     return (
-      <div className="edit-div" style={{ marginBottom: '45px' }}>
+      <div className="edit-div">
         <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.Membership.name} />
         {/* could be cool to have markdown */}
         {/* <FormField */}
@@ -197,14 +200,14 @@ const CreateTiersTab = (props: Props) => {
           type="textarea"
           rows="10"
           name="tier_description"
-          label={__('Tier Description (You can also add custom benefits here)')}
+          label={__('Tier Description & custom Perks')}
           placeholder={__('Description of your tier')}
           value={editTierDescription}
           onChange={(e) => setEditTierDescription(e.target.value)}
         />
-        <label htmlFor="tier_name" style={{ marginTop: '15px', marginBottom: '8px' }}>
-          Odysee Perks
-        </label>
+        <fieldset-section>
+          <label htmlFor="tier_name">Odysee Perks</label>
+        </fieldset-section>
         {membershipPerks.map((tierPerk, i) => (
           <>
             <FormField
@@ -254,6 +257,13 @@ const CreateTiersTab = (props: Props) => {
     );
   }
 
+  let refs = [];
+  /*
+  React.useEffect(() => {
+    refs = creatorMemberships && creatorMemberships.map(() => React.useRef());
+  }, [creatorMemberships]);
+  */
+
   return (
     <div>
       {/* page header */}
@@ -267,9 +277,11 @@ const CreateTiersTab = (props: Props) => {
         {creatorMemberships &&
           creatorMemberships.length > 0 &&
           creatorMemberships.map((membershipTier, membershipIndex) => (
-            <div className="create-tier__card" key={membershipIndex}>
+            <div className="create-tier__card" key={membershipIndex} ref={refs[membershipIndex]}>
               {/* if the membership tier is marked as editing, show the edit functionality */}
-              {isEditing === membershipIndex && <>{createEditTier(membershipTier, membershipIndex)}</>}
+              {isEditing === membershipIndex && (
+                <>{createEditTier(refs[membershipIndex], membershipTier, membershipIndex)}</>
+              )}
               {/* display info for the tier */}
               {/* this long conditional isnt fully necessary but some test environment data is bad atm */}
               {isEditing !== membershipIndex && membershipTier.NewPrices && membershipTier.NewPrices.length && (
@@ -336,7 +348,7 @@ const CreateTiersTab = (props: Props) => {
                     <span>Pledge</span>
                     <label>${membershipTier.NewPrices[0].Price.amount / 100}</label>
 
-                    <span>Your Perks</span>
+                    <span>Description & custom Perks</span>
                     <label>{membershipTier.Membership.description}</label>
 
                     <span>Odysee Perks</span>
@@ -395,8 +407,8 @@ const CreateTiersTab = (props: Props) => {
 
       {!bankAccountConfirmed && (
         <>
-          <div style={{ marginTop: '56px' }}>
-            <h1 style={{ textAlign: 'center' }} className="confirm-account-to-create-tiers-header">
+          <div>
+            <h1 className="confirm-account-to-create-tiers-header">
               Please confirm your bank account before you can create tiers
             </h1>
             <Button
@@ -405,7 +417,6 @@ const CreateTiersTab = (props: Props) => {
               label={__('Connect a bank account')}
               icon={ICONS.FINANCE}
               navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-              style={{ maxWidth: '254px', margin: '0 auto', marginTop: '15px' }}
             />
           </div>
         </>
@@ -442,7 +453,7 @@ const CreateTiersTab = (props: Props) => {
       {/* {/*</div> */}
     </div>
   );
-};
+}
 
 export default CreateTiersTab;
 /* eslint-disable no-undef */
