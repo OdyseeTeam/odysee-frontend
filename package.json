@@ -87,8 +87,7 @@
     "videojs-ima": "^1.11.0",
     "videojs-ima-player": "^0.5.6",
     "videojs-logo": "^2.1.4",
-    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails",
-    "write-file-webpack-plugin": "^4.5.1"
+    "videojs-vtt-thumbnails": "https://github.com/OdyseeTeam/videojs-vtt-thumbnails"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0",
@@ -250,6 +249,7 @@
     "webpack-hot-middleware": "^2.25.1",
     "webpack-merge": "^5.8.0",
     "webpack-node-externals": "^3.0.0",
+    "write-file-webpack-plugin": "^4.5.1",
     "y18n": "^4.0.1",
     "yarnhook": "^0.2.0"
   },
