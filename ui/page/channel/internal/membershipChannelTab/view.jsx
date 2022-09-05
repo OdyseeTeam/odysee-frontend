@@ -80,7 +80,7 @@ const MembershipChannelTab = (props: Props) => {
                 <MenuButton className="menu__button">
                   <Icon size={18} icon={ICONS.SETTINGS} />
                 </MenuButton>
-                <MenuList className={'menu__list membership-tier' + (Number(membershipIndex) + 1)}>
+                <MenuList className={'menu__list membership-tier' + membershipIndex}>
                   <MenuItem
                     className="comment__menu-option"
                     onSelect={() => navigate(`/$/${PAGES.MEMBERSHIP_BILLING_HISTORY}`)}
