@@ -782,6 +782,55 @@
     border-radius: var(--border-radius);
     background-color: var(--color-header-background);
     overflow: hidden;
+
+    &.membership-tier1 {
+      .membership__plan-header {
+        background-color: rgba(var(--color-membership-1), 1);
+      }
+      .membership__perk-item::before {
+        color: rgba(var(--color-membership-1), 1);
+      }
+    }
+    &.membership-tier2 {
+      .membership__plan-header {
+        background-color: rgba(var(--color-membership-2), 1);
+      }
+      .membership__perk-item::before {
+        color: rgba(var(--color-membership-2), 1);
+      }
+    }
+    &.membership-tier3 {
+      .membership__plan-header {
+        background-color: rgba(var(--color-membership-3), 1);
+      }
+      .membership__perk-item::before {
+        color: rgba(var(--color-membership-3), 1);
+      }
+    }
+    &.membership-tier4 {
+      .membership__plan-header {
+        background-color: rgba(var(--color-membership-4), 1);
+      }
+      .membership__perk-item::before {
+        color: rgba(var(--color-membership-4), 1);
+      }
+    }
+    &.membership-tier5 {
+      .membership__plan-header {
+        background-color: rgba(var(--color-membership-5), 1);
+      }
+      .membership__perk-item::before {
+        color: rgba(var(--color-membership-5), 1);
+      }
+    }
+    &.membership-tier6 {
+      .membership__plan-header {
+        background-color: rgba(var(--color-membership-6), 1);
+      }
+      .membership__perk-item::before {
+        color: rgba(var(--color-membership-6), 1);
+      }
+    }
   }
 
   .membership__perk-item {
@@ -792,7 +841,6 @@
 
   .membership__plan-header {
     padding: var(--spacing-m);
-    background-color: rgba(var(--color-membership-1), 1);
     background-image: url('/public/img/spaceman_pattern.png');
     background-size: 34px;
     span {

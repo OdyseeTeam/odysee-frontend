@@ -37,7 +37,8 @@ const MembershipChannelTab = (props: Props) => {
   const { Membership, MembershipDetails, Subscription, Perks } = purchasedChannelMembership;
 
   const { channel_name: creatorChannel } = Membership;
-  const { name: membershipName, description: membershipDescription } = MembershipDetails;
+  const { name: membershipName, description: membershipDescription, level: membershipIndex } = MembershipDetails;
+  console.log('MembershipDetails: ', MembershipDetails);
   const {
     current_period_start: subscriptionStartDate,
     current_period_end: subscriptionEndDate,
@@ -72,7 +73,7 @@ const MembershipChannelTab = (props: Props) => {
       */
       body={
         <>
-          <div className="membership__body">
+          <div className={'membership__body membership-tier' + membershipIndex}>
             <div className="membership__plan-header">
               <span>{membershipName}</span>
             </div>
