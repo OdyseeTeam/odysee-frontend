@@ -139,6 +139,55 @@ reach-portal {
   [data-reach-menu-item] {
     margin: 0 var(--spacing-xxs);
   }
+
+  &.membership-tier1 {
+    [data-reach-menu-item][data-selected] {
+      background-color: rgba(var(--color-membership-1), 1) !important;
+      .menu__link {
+        background-color: unset;
+      }
+    }
+  }
+  &.membership-tier2 {
+    [data-reach-menu-item][data-selected] {
+      background-color: rgba(var(--color-membership-2), 1) !important;
+      .menu__link {
+        background-color: unset;
+      }
+    }
+  }
+  &.membership-tier3 {
+    [data-reach-menu-item][data-selected] {
+      background-color: rgba(var(--color-membership-3), 1) !important;
+      .menu__link {
+        background-color: unset;
+      }
+    }
+  }
+  &.membership-tier4 {
+    [data-reach-menu-item][data-selected] {
+      background-color: rgba(var(--color-membership-4), 1) !important;
+      .menu__link {
+        background-color: unset;
+      }
+    }
+  }
+  &.membership-tier5 {
+    [data-reach-menu-item][data-selected] {
+      background-color: rgba(var(--color-membership-5), 1) !important;
+      .menu__link {
+        background-color: unset;
+      }
+    }
+  }
+  &.membership-tier6 {
+    [data-reach-menu-item][data-selected] {
+      background-color: rgba(var(--color-membership-6), 1) !important;
+      .menu__link {
+        background-color: unset;
+      }
+    }
+  }
 }
 
 .menu__list--header {

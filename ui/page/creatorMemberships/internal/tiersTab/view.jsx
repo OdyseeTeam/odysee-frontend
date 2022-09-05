@@ -262,10 +262,8 @@ function TiersTab(props: Props) {
 
   return (
     <div>
-      {/* page header */}
       <div className="create-tiers__header">
-        <h1>Create Your Membership Tiers</h1>
-        <h2>Define the tiers that your viewers can subscribe to.</h2>
+        <h2>Create and define your Membership Tiers.</h2>
       </div>
 
       <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
@@ -290,7 +288,7 @@ function TiersTab(props: Props) {
                       <MenuButton className="menu__button">
                         <Icon size={18} icon={ICONS.SETTINGS} />
                       </MenuButton>
-                      <MenuList className="menu__list">
+                      <MenuList className={'menu__list membership-tier' + (Number(membershipIndex) + 1)}>
                         <MenuItem
                           className="comment__menu-option"
                           onSelect={(e) => editMembership(e, membershipIndex, membershipTier.Membership.description)}
