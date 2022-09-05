@@ -897,11 +897,13 @@
       }
     }
 
-    .membership-tier__div-content {
+    .membership-tier-content {
+      label {
+        display: block;
+        font-size: var(--font-body) !important;
+      }
       span {
         display: block;
-      }
-      label {
         font-size: var(--font-base) !important;
         opacity: 0.8;
         margin-bottom: var(--spacing-m);

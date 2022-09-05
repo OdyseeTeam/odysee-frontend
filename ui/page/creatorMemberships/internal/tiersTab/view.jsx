@@ -338,14 +338,14 @@ function TiersTab(props: Props) {
                       </MenuList>
                     </Menu>
                   </div>
-                  <div className="membership-tier__div-content">
-                    <span>Pledge</span>
-                    <label>${membershipTier.NewPrices[0].Price.amount / 100}</label>
+                  <div className="membership-tier-content">
+                    <label>Pledge</label>
+                    <span>${membershipTier.NewPrices[0].Price.amount / 100}</span>
 
-                    <span>Description & custom Perks</span>
-                    <label>{membershipTier.Membership.description}</label>
+                    <label>{__('Description & custom Perks')}</label>
+                    <span>{membershipTier.Membership.description}</span>
 
-                    <span>Odysee Perks</span>
+                    <label>{__('Odysee Perks')}</label>
                     {membershipTier.Perks &&
                       membershipTier.Perks.map((tierPerk, i) => (
                         <>
