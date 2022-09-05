@@ -153,13 +153,6 @@ function TiersTab(props: Props) {
     setCreatorMemberships(creatorMemberships);
 
     doMembershipList({ channel_name: activeChannelName, channel_id: activeChannelId });
-
-    // }
-
-    // TODO: better way than setTimeout
-    // setTimeout(function () {
-    //   document.getElementsByClassName('membership-tier__div')[tierIndex].scrollIntoView({ behavior: 'smooth' });
-    // }, 15);
   }
 
   const containsPerk = (perkId, tier) => {
@@ -279,8 +272,8 @@ function TiersTab(props: Props) {
               {/* display info for the tier */}
               {/* this long conditional isnt fully necessary but some test environment data is bad atm */}
               {isEditing !== membershipIndex && membershipTier.NewPrices && membershipTier.NewPrices.length && (
-                <div className="membership-tier__div">
-                  <div className="membership-tier__div-header">
+                <div>
+                  <div className="membership-tier__header">
                     <span>
                       {membershipIndex + 1}) {membershipTier.Membership.name}
                     </span>
