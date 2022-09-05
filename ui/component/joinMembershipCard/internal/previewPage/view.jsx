@@ -58,7 +58,7 @@ const PreviewPage = (props: Props) => {
   if (creatorPurchaseDisabled) {
     return (
       <>
-        <div className="can-create-your-own-memberships__div">
+        <div>
           <BalanceText>
             {__(
               channelIsMine

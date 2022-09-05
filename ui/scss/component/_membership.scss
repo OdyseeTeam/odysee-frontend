@@ -591,11 +591,6 @@
       margin-bottom: 0;
     }
   }
-
-  .can-create-your-own-memberships__div {
-    line-height: 28px;
-  }
-
   .card__body--no-title {
     padding-top: 0;
   }
@@ -686,12 +681,6 @@
       }
     }
   }
-
-  .join-membership-tab-renewal-date__header {
-    font-size: 1.1rem;
-    margin-top: 43px;
-  }
-
   .help--no-card {
     color: var(--color-danger) !important;
     font-size: var(--font-base);
@@ -790,35 +779,58 @@
 
 .membership-tab {
   .membership__body {
-    padding: 0px 20%;
+    border-radius: var(--border-radius);
+    background-color: var(--color-header-background);
+    overflow: hidden;
   }
 
   .membership__perk-item {
-    color: var(--color-text-subtitle);
+    // color: var(--color-text-subtitle);
+    font-size: var(--font-base);
+    opacity: 0.8;
   }
 
   .membership__plan-header {
-    font-size: 22px;
+    padding: var(--spacing-m);
+    background-color: rgba(var(--color-membership-1), 1);
+    background-image: url('/public/img/spaceman_pattern.png');
+    background-size: 34px;
+    span {
+      padding: var(--spacing-xxs);
+      border-radius: var(--border-radius);
+      font-size: var(--font-body);
+      background-color: var(--color-header-background);
+    }
   }
 
   .membership__plan-description {
-    font-size: 19px;
-    margin-top: 3px;
+    padding: var(--spacing-m);
+    span {
+      display: block;
+      font-size: var(--font-base);
+      opacity: 0.8;
+    }
+  }
+
+  .membership__tier-perks {
+    padding: var(--spacing-m);
+    padding-top: 0;
+  }
+
+  .membership__plan-actions {
+    padding: var(--spacing-m);
+    padding-top: 0;
+    label {
+      display: block;
+    }
+
+    .button {
+      background-color: var(--color-header-background) !important;
+      border: 2px solid var(--color-border);
+      margin-right: var(--spacing-s);
+    }
   }
 }
-
-.can-create-your-own-memberships__div {
-  max-width: 641px;
-  margin: 0 auto;
-  margin-bottom: 18px;
-}
-
-/*
-.edit-div,
-.membership-tier__div {
-  // this accounts for the header when scrolling
-  scroll-margin-top: 283px;
-}*/
 
 .edit-div {
   label {
