@@ -24,10 +24,10 @@ const MySupportersTab = lazyImport(() =>
 const TAB_QUERY = 'tab';
 
 const TABS = {
-  MY_MEMBERSHIPS: 'my_memberships',
-  CREATE_TIERS: 'create_tiers',
-  MY_SUPPORTERS: 'my_supporters',
-  MY_PLEDGES: 'my_pledges',
+  OVERVIEW: 'overview',
+  TIERS: 'tiers',
+  SUPPORTERS: 'supporters',
+  PLEDGES: 'pledges',
 };
 
 type Props = {
@@ -63,23 +63,22 @@ const MembershipsPage = (props: Props) => {
 
   const urlParams = new URLSearchParams(search);
   // if tiers are saved, then go to balance, otherwise go to tiers
-  const currentView = urlParams.get(TAB_QUERY) || TABS.MY_MEMBERSHIPS;
+  const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
 
   // based on query param or default, update value which will determine which tab to show
   let tabIndex;
   switch (currentView) {
-    case TABS.CREATE_TIERS:
+    case TABS.OVERVIEW:
+      tabIndex = 0;
+      break;
+    case TABS.TIERS:
       tabIndex = 1;
       break;
-    case TABS.MY_SUPPORTERS:
+    case TABS.SUPPORTERS:
       tabIndex = 2;
       break;
-    case TABS.MY_PLEDGES:
+    case TABS.PLEDGES:
       tabIndex = 3;
-      break;
-    case TABS.MY_MEMBERSHIPS:
-    default:
-      tabIndex = 0;
       break;
   }
 
@@ -87,13 +86,13 @@ const MembershipsPage = (props: Props) => {
     let url = `/$/${PAGES.CREATOR_MEMBERSHIPS}?`;
 
     if (newTabIndex === 0) {
-      url += `${TAB_QUERY}=${TABS.MY_MEMBERSHIPS}`;
+      url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.CREATE_TIERS}`;
+      url += `${TAB_QUERY}=${TABS.TIERS}`;
     } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.MY_SUPPORTERS}`;
+      url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     } else if (newTabIndex === 3) {
-      url += `${TAB_QUERY}=${TABS.MY_PLEDGES}`;
+      url += `${TAB_QUERY}=${TABS.PLEDGES}`;
     }
     push(url);
   }
