@@ -1,12 +1,11 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
-import MembershipsPage from './view';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClaimsById, selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
 import { selectUser, selectUserLocale } from 'redux/selectors/user';
-import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
-import { doMembershipMine } from 'redux/actions/memberships';
+import { doToast } from 'redux/actions/notifications';
 import { doResolveClaimIds } from 'redux/actions/claims';
+import SupportersTab from './view';
 
 const select = (state) => {
   const activeChannelClaim = selectActiveChannelClaim(state);
@@ -19,14 +18,13 @@ const select = (state) => {
     user: selectUser(state),
     locale: selectUserLocale(state),
     claimsById: selectClaimsById(state),
-    myActiveMemberships: selectMyActiveMembershipsById(state) && Object.values(selectMyActiveMembershipsById(state)),
   };
 };
 
-const perform = {
-  openModal: doOpenModal,
-  doResolveClaimIds,
-  doMembershipMine,
-};
+const perform = (dispatch) => ({
+  doResolveClaimIds: (claimIds) => dispatch(doResolveClaimIds(claimIds)),
+  doToast: (options) => dispatch(doToast(options)),
+  openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+});
 
-export default connect(select, perform)(MembershipsPage);
+export default connect(select, perform)(SupportersTab);

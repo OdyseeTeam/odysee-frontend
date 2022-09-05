@@ -12,14 +12,10 @@ import Page from 'component/page';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 
-const CreateTiersTab = lazyImport(() => import('./internal/createTiersTab' /* webpackChunkName: "createTiersTab" */));
-const CreatorMembershipsTab = lazyImport(() =>
-  import('./internal/creatorMembershipsTab' /* webpackChunkName: "creatorMembershipsTab" */)
-);
-const MyPledgesTab = lazyImport(() => import('./internal/myPledgesTab' /* webpackChunkName: "myPledgesTab" */));
-const MySupportersTab = lazyImport(() =>
-  import('./internal/mySupportersTab' /* webpackChunkName: "mySupportersTab" */)
-);
+const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
+const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
+const PledgesTab = lazyImport(() => import('./internal/pledgesTab' /* webpackChunkName: "pledgesTab" */));
+const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
 
 const TAB_QUERY = 'tab';
 
@@ -110,22 +106,22 @@ const MembershipsPage = (props: Props) => {
         <TabPanels>
           <TabPanel>
             <ChannelSelector hideAnon />
-            <CreatorMembershipsTab />
+            <OverviewTab />
           </TabPanel>
 
           <TabPanel>
             <ChannelSelector hideAnon />
-            <CreateTiersTab />
+            <TiersTab />
           </TabPanel>
 
           <TabPanel>
             <ChannelSelector hideAnon />
-            <MySupportersTab />
+            <SupportersTab />
           </TabPanel>
 
           <TabPanel>
             <ChannelSelector hideAnon />
-            <MyPledgesTab />
+            <PledgesTab />
           </TabPanel>
         </TabPanels>
       </Tabs>
