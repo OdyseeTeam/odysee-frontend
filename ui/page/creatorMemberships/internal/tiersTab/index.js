@@ -10,8 +10,7 @@ import {
   doDeactivateMembershipForId,
 } from 'redux/actions/memberships';
 import { doToast } from 'redux/actions/notifications';
-
-import MembershipsPage from './view';
+import TiersTab from './view';
 
 const select = (state) => {
   const activeChannel = selectActiveChannelClaim(state);
@@ -33,4 +32,4 @@ const perform = {
   doToast,
 };
 
-export default connect(select, perform)(MembershipsPage);
+export default connect(select, perform)(TiersTab);

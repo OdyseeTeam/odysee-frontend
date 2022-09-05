@@ -13,7 +13,7 @@ type Props = {
   bankAccountConfirmed: ?boolean,
 };
 
-function CreatorMembershipsTab(props: Props) {
+function OverviewTab(props: Props) {
   const { bankAccountConfirmed, activeChannelClaim } = props;
 
   return (
@@ -76,4 +76,4 @@ function CreatorMembershipsTab(props: Props) {
   );
 }
 
-export default CreatorMembershipsTab;
+export default OverviewTab;

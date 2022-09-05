@@ -3,14 +3,10 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
 import classnames from 'classnames';
-
 import { FormField } from 'component/common/form';
-
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
-
-// import Card from 'component/common/card';
 import Button from 'component/button';
 import ErrorText from 'component/common/error-text';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
@@ -31,7 +27,7 @@ type Props = {
 };
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
-function CreateTiersTab(props: Props) {
+function TiersTab(props: Props) {
   const {
     bankAccountConfirmed,
     activeChannel,
@@ -455,6 +451,6 @@ function CreateTiersTab(props: Props) {
   );
 }
 
-export default CreateTiersTab;
+export default TiersTab;
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */

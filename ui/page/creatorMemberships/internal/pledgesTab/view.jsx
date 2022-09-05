@@ -17,7 +17,7 @@ type Props = {
 };
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
-function MyPledgesTab(props: Props) {
+function PledgesTab(props: Props) {
   const { myActiveMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
 
   const [pledges, setPledges] = React.useState();
@@ -130,6 +130,6 @@ function MyPledgesTab(props: Props) {
   );
 }
 
-export default MyPledgesTab;
+export default PledgesTab;
 /* eslint-disable no-undef */
 /* eslint-disable react/prop-types */

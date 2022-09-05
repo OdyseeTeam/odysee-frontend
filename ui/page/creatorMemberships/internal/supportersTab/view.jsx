@@ -1,7 +1,7 @@
 // @flow
 import React from 'react';
 
-export default function CreatorMembershipsTab() {
+export default function SupportersTab() {
   // TODO: replace with API call
   const yourSupporters = [
     {
