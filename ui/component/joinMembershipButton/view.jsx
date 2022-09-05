@@ -56,6 +56,7 @@ export default function JoinMembershipButton(props: Props) {
     return (
       <Button
         button="alt"
+        className="button--membership"
         navigate={`/${channelPath}?${urlParams.toString()}`}
         icon={ICONS.UPGRADE}
         label={membershipName}
