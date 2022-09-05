@@ -33,6 +33,12 @@ const OdyseeMembershipPage = (props: Props) => {
 
   const myMemberships = [1, 2];
 
+  /*
+  React.useEffect(() => {
+    fetchUserMemberships("7668ddc8e46d146b5c3b24f019ba9cd6e56ab893")
+  }, []);
+  */
+
   return (
     <Page className="premium-wrapper">
       <div className="billingHistory-back__button">
