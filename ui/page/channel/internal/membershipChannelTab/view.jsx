@@ -1,31 +1,32 @@
 // @flow
 import React from 'react';
-
 import { formatDateToMonthAndDay } from 'util/time';
-
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-
 import Card from 'component/common/card';
-import Button from 'component/button';
 import JoinMembershipCard from 'component/joinMembershipCard';
 import moment from 'moment';
-import BalanceText from 'react-balance-text';
 import ClearMembershipDataButton from 'component/clearMembershipData';
+import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
+import Icon from 'component/common/icon';
 
 type Props = {
   uri: string,
+  membershipIndex: number,
   // -- redux --
   purchasedChannelMembership: MembershipTier,
   doOpenCancelationModalForMembership: (membership: MembershipTier) => void,
+  navigate: (string) => void,
 };
 
 const MembershipChannelTab = (props: Props) => {
   const {
     uri,
+    membershipIndex,
     // -- redux --
     purchasedChannelMembership,
     doOpenCancelationModalForMembership,
+    navigate,
   } = props;
 
   if (!purchasedChannelMembership) {
@@ -35,9 +36,8 @@ const MembershipChannelTab = (props: Props) => {
   }
 
   const { Membership, MembershipDetails, Subscription, Perks } = purchasedChannelMembership;
-
   const { channel_name: creatorChannel } = Membership;
-  const { name: membershipName, description: membershipDescription, level: membershipIndex } = MembershipDetails;
+  const { name: membershipName, description: membershipDescription } = MembershipDetails;
   console.log('MembershipDetails: ', MembershipDetails);
   const {
     current_period_start: subscriptionStartDate,
@@ -76,6 +76,31 @@ const MembershipChannelTab = (props: Props) => {
           <div className={'membership__body membership-tier' + membershipIndex}>
             <div className="membership__plan-header">
               <span>{membershipName}</span>
+              <Menu>
+                <MenuButton className="menu__button">
+                  <Icon size={18} icon={ICONS.SETTINGS} />
+                </MenuButton>
+                <MenuList className={'menu__list membership-tier' + (Number(membershipIndex) + 1)}>
+                  <MenuItem
+                    className="comment__menu-option"
+                    onSelect={() => navigate(`/$/${PAGES.MEMBERSHIP_BILLING_HISTORY}`)}
+                  >
+                    <div className="menu__link">
+                      <Icon size={16} icon={ICONS.FINANCE} /> Membership History
+                    </div>
+                  </MenuItem>
+                  {membershipIsActive && (
+                    <MenuItem
+                      className="comment__menu-option"
+                      onSelect={() => doOpenCancelationModalForMembership(purchasedChannelMembership)}
+                    >
+                      <div className="menu__link">
+                        <Icon size={16} icon={ICONS.DELETE} /> Cancel Membership
+                      </div>
+                    </MenuItem>
+                  )}
+                </MenuList>
+              </Menu>
             </div>
 
             <div className="membership__plan-description">
@@ -103,25 +128,6 @@ const MembershipChannelTab = (props: Props) => {
                   ? __('This membership will renew on %renewal_date%', { renewal_date: formattedEndOfMembershipDate })
                   : __('Your cancelled membership will end on %end_date%', { end_date: formattedEndOfMembershipDate })}
               </label>
-              <Button
-                className="join-membership-modal-purchase__button"
-                icon={ICONS.FINANCE}
-                button="secondary"
-                type="submit"
-                label={__('View Membership History')}
-                navigate={`/$/${PAGES.MEMBERSHIP_BILLING_HISTORY}`}
-              />
-
-              {membershipIsActive && (
-                <Button
-                  className="join-membership-modal-purchase__button"
-                  icon={ICONS.DELETE}
-                  button="secondary"
-                  type="submit"
-                  label={__('Cancel Membership')}
-                  onClick={() => doOpenCancelationModalForMembership(purchasedChannelMembership)}
-                />
-              )}
             </div>
           </div>
           <ClearMembershipDataButton />

@@ -783,12 +783,41 @@
     background-color: var(--color-header-background);
     overflow: hidden;
 
+    .membership__plan-header {
+      .menu__button {
+        background-color: var(--color-header-background);
+        float: right;
+        border-radius: 50%;
+        padding: var(--spacing-s);
+        opacity: 1;
+        margin-top: calc(var(--spacing-xxs) * -1);
+
+        .icon {
+          transform: rotate(0deg);
+          transition: transform 0.4s;
+        }
+
+        &[aria-expanded='true'] {
+          .icon {
+            transform: rotate(90deg);
+          }
+        }
+      }
+    }
+
     &.membership-tier1 {
       .membership__plan-header {
         background-color: rgba(var(--color-membership-1), 1);
       }
       .membership__perk-item::before {
         color: rgba(var(--color-membership-1), 1);
+      }
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-1), 1);
+          }
+        }
       }
     }
     &.membership-tier2 {
@@ -798,6 +827,13 @@
       .membership__perk-item::before {
         color: rgba(var(--color-membership-2), 1);
       }
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-2), 1);
+          }
+        }
+      }
     }
     &.membership-tier3 {
       .membership__plan-header {
@@ -805,6 +841,13 @@
       }
       .membership__perk-item::before {
         color: rgba(var(--color-membership-3), 1);
+      }
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-3), 1);
+          }
+        }
       }
     }
     &.membership-tier4 {
@@ -814,6 +857,13 @@
       .membership__perk-item::before {
         color: rgba(var(--color-membership-4), 1);
       }
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-4), 1);
+          }
+        }
+      }
     }
     &.membership-tier5 {
       .membership__plan-header {
@@ -822,6 +872,13 @@
       .membership__perk-item::before {
         color: rgba(var(--color-membership-5), 1);
       }
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-5), 1);
+          }
+        }
+      }
     }
     &.membership-tier6 {
       .membership__plan-header {
@@ -829,6 +886,13 @@
       }
       .membership__perk-item::before {
         color: rgba(var(--color-membership-6), 1);
+      }
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-6), 1);
+          }
+        }
       }
     }
   }
@@ -910,7 +974,7 @@
   .create-tier__card {
     overflow: hidden;
     border-radius: var(--border-radius);
-    .membership-tier__div-header {
+    .membership-tier__header {
       margin-left: calc(var(--spacing-m) * -1);
       margin-top: calc(var(--spacing-m) * -1);
       margin-right: calc(var(--spacing-m) * -1);
@@ -974,7 +1038,7 @@
     }
 
     &:nth-of-type(1) {
-      .membership-tier__div-header {
+      .membership-tier__header {
         background-color: rgba(var(--color-membership-1), 1);
         .menu__button {
           &:hover {
@@ -989,7 +1053,7 @@
       }
     }
     &:nth-of-type(2) {
-      .membership-tier__div-header {
+      .membership-tier__header {
         background-color: rgba(var(--color-membership-2), 2);
         .menu__button {
           &:hover {
@@ -1004,7 +1068,7 @@
       }
     }
     &:nth-of-type(3) {
-      .membership-tier__div-header {
+      .membership-tier__header {
         background-color: rgba(var(--color-membership-3), 3);
         .menu__button {
           &:hover {
@@ -1019,7 +1083,7 @@
       }
     }
     &:nth-of-type(4) {
-      .membership-tier__div-header {
+      .membership-tier__header {
         background-color: rgba(var(--color-membership-4), 3);
         .menu__button {
           &:hover {
@@ -1034,7 +1098,7 @@
       }
     }
     &:nth-of-type(5) {
-      .membership-tier__div-header {
+      .membership-tier__header {
         background-color: rgba(var(--color-membership-5), 3);
         .menu__button {
           &:hover {
@@ -1049,7 +1113,7 @@
       }
     }
     &:nth-of-type(6) {
-      .membership-tier__div-header {
+      .membership-tier__header {
         background-color: rgba(var(--color-membership-6), 3);
         .menu__button {
           &:hover {
