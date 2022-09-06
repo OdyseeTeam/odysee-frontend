@@ -5,6 +5,7 @@ import { ChannelPageContext } from 'page/channel/view';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
+import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 import BalanceText from 'react-balance-text';
 import MembershipTier from './internal/membershipTier';
 import MembershipDetails from './internal/membershipDetails';
@@ -64,21 +65,19 @@ const PreviewPage = (props: Props) => {
           <BalanceText>
             {__(
               channelIsMine
-                ? "Unfortunately you haven't activated your memberships functionality yet, but you can do so now at the link below"
+                ? "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below"
                 : "Unfortunately, this creator hasn't activated their membership functionality yet. You can try creating your own memberships with the link below!"
             )}
           </BalanceText>
         </div>
 
-        <>
-          <Button
-            icon={ICONS.UPGRADE}
-            button="primary"
-            type="submit"
-            label={__('Create Your Memberships')}
-            navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
-          />
-        </>
+        <ButtonNavigateChannelId
+          icon={ICONS.UPGRADE}
+          button="primary"
+          type="submit"
+          label={__('Create Your Memberships')}
+          page={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+        />
       </>
     );
   }
