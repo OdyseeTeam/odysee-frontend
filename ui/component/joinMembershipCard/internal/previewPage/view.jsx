@@ -77,7 +77,7 @@ const PreviewPage = (props: Props) => {
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
-          label={__('Create Your Memberships For This Channel')}
+          label={__(channelIsMine ? 'Create Your Memberships For This Channel' : 'Create Your Memberships')}
           page={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
           channelId={channelId}
         />
