@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import ProtectedContentOverlay from './view';
-import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { selectProtectedContentMembershipsForClaimId, selectMyActiveMembershipIds } from 'redux/selectors/memberships';
 import { doOpenModal } from 'redux/actions/app';
 
@@ -14,6 +14,7 @@ const select = (state, props) => {
     claim,
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelId, claimId),
     activeMembershipIds: selectMyActiveMembershipIds(state),
+    isProtected: Boolean(selectProtectedContentTagForUri(state, props.uri)),
   };
 };
 
