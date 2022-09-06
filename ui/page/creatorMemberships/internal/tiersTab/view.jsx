@@ -213,6 +213,7 @@ function TiersTab(props: Props) {
           type="number"
           name="tier_contribution"
           step="1"
+          min="1"
           label={__('Monthly Contribution ($/Month)')}
           defaultValue={tier.Prices[0].unit_amount / 100}
           onChange={(event) => parseFloat(event.target.value)}
