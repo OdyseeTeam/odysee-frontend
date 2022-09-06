@@ -19,6 +19,7 @@ type Props = {
   setMembershipIndex: (index: number) => void,
   handleSelect: () => void,
   // -- redux --
+  channelId: string,
   canReceiveFiatTips: ?boolean,
   channelIsMine: boolean,
   creatorMemberships: CreatorMemberships,
@@ -38,6 +39,7 @@ const PreviewPage = (props: Props) => {
     handleSelect,
     protectedMembershipIds,
     // -- redux --
+    channelId,
     canReceiveFiatTips,
     channelIsMine,
     creatorMemberships,
@@ -75,8 +77,9 @@ const PreviewPage = (props: Props) => {
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
-          label={__('Create Your Memberships')}
+          label={__('Create Your Memberships For This Channel')}
           page={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+          channelId={channelId}
         />
       </>
     );

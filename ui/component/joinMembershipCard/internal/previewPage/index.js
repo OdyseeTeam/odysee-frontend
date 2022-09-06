@@ -30,6 +30,7 @@ const select = (state, props) => {
     channelIsMine: selectIsChannelMineForClaimId(state, claimId),
     channelTitle,
     channelUri,
+    channelId: claimId,
   };
 };
 
