@@ -450,6 +450,15 @@
   }
 }
 
+.info-label {
+  display: block;
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+  background-color: rgba(255, 0, 0, 0.1);
+  border: 1px solid red;
+  margin-top: var(--spacing-m);
+}
+
 .membership-tier__perks {
   margin: 0 auto;
   display: flex;

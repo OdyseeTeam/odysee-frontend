@@ -60,7 +60,7 @@ const PreviewPage = (props: Props) => {
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
-  if (creatorPurchaseDisabled) {
+  if (!creatorHasMemberships) {
     return (
       <>
         <div>
@@ -87,20 +87,30 @@ const PreviewPage = (props: Props) => {
 
   if (isChannelTab) {
     return (
-      <div className="join-membership__tab">
-        {creatorMemberships.map((membership, index) => (
-          <MembershipTier
-            membership={membership}
-            channelIsMine={channelIsMine}
-            handleSelect={() => {
-              setMembershipIndex(index);
-              doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index });
-              // handleSelect();
-            }}
-            key={index}
-          />
-        ))}
-      </div>
+      <>
+        <div className="join-membership__tab">
+          {creatorMemberships.map((membership, index) => (
+            <MembershipTier
+              membership={membership}
+              handleSelect={() => {
+                setMembershipIndex(index);
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index });
+                // handleSelect();
+              }}
+              disabled={creatorPurchaseDisabled}
+              key={index}
+            />
+          ))}
+        </div>
+
+        {creatorPurchaseDisabled && (
+          <span className="info-label">
+            {channelIsMine
+              ? __("You're not able to signup for your own memberships")
+              : __('This creator does not have an active bank account to receive payments.')}
+          </span>
+        )}
+      </>
     );
   }
 
@@ -135,15 +145,19 @@ const PreviewPage = (props: Props) => {
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
-          disabled={channelIsMine}
+          disabled={creatorPurchaseDisabled}
           label={__('Signup for $%membership_price% a month', {
-            membership_price: selectedTier.NewPrices[0].Price.amount / 100,
+            membership_price: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.amount / 100,
           })}
           onClick={handleSelect}
         />
 
-        {channelIsMine && (
-          <span className="info-label">{__("You're not able to signup for your own memberships")}</span>
+        {creatorPurchaseDisabled && (
+          <span className="info-label">
+            {channelIsMine
+              ? __("You're not able to signup for your own memberships")
+              : __('This creator does not have an active bank account to receive payments.')}
+          </span>
         )}
       </div>
     </>
