@@ -30,7 +30,7 @@ export default function ConfirmationPage(props: Props) {
         <ConfirmationSection
           label={__('Features and Perks')}
           value={
-            <ul className="ul--no-style membership__tier-perks">
+            <ul className="ul--no-style membership-tier__perks">
               {/* $FlowFixMe -- already handled above */}
               {selectedTier.Perks.map((tierPerk, i) => (
                 <li key={i}>{tierPerk.name}</li>

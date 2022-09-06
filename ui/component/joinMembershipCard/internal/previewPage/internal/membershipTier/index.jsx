@@ -1,8 +1,6 @@
 // @flow
 import React from 'react';
-
 import * as ICONS from 'constants/icons';
-
 import Button from 'component/button';
 import MembershipDetails from '../membershipDetails';
 
@@ -13,11 +11,11 @@ type Props = {
   handleSelect: () => void,
 };
 
-const MembershipBlock = (props: Props) => {
+const MembershipTier = (props: Props) => {
   const { key, membership, channelIsMine, handleSelect } = props;
 
   return (
-    <div key={key} className="join-membership__block">
+    <div key={key} className="membership-tier__wrapper">
       <MembershipDetails
         membership={membership}
         headerAction={
@@ -36,4 +34,4 @@ const MembershipBlock = (props: Props) => {
   );
 };
 
-export default MembershipBlock;
+export default MembershipTier;

@@ -6,7 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import BalanceText from 'react-balance-text';
-import MembershipBlock from './internal/membershipBlock';
+import MembershipTier from './internal/membershipTier';
 import MembershipDetails from './internal/membershipDetails';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as MODALS from 'constants/modal_types';
@@ -83,9 +83,9 @@ const PreviewPage = (props: Props) => {
 
   if (isChannelTab) {
     return (
-      <div className="join-membership__blocks-wrapper">
+      <div className="join-membership__tab">
         {creatorMemberships.map((membership, index) => (
-          <MembershipBlock
+          <MembershipTier
             membership={membership}
             channelIsMine={channelIsMine}
             handleSelect={() => {
