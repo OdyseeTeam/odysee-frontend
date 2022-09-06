@@ -166,13 +166,18 @@ function TiersTab(props: Props) {
     return perkIds.includes(perkId);
   };
 
+  function _scrollTo(selector, yOffset = 0){
+    const el = document.querySelector(selector);
+    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+    window.scrollTo({top: y, behavior: 'smooth'});
+  }
+
   function createEditTier(reference, tier, membershipIndex) {
     // TODO: better way than setTimeout
-
-    // console.log('reference: ', reference);
-    // console.log('reference: ', reference.current.offsetTop);
     setTimeout(function () {
-      // window.scrollTo({ top: reference.current.offsetTop, behavior: 'smooth' });
+      _scrollTo('.membership-tier__wrapper-edit', -55)
+      document.querySelector("input[type='text'][name='tier_name']").focus();
     }, 15);
 
     console.log('tier ');
