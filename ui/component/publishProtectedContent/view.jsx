@@ -36,28 +36,27 @@ function PublishProtectedContent(props: Props) {
   React.useEffect(() => {
     if (claimId) {
       doGetMembershipTiersForContentClaimId(claimId);
-    };
+    }
   }, [claimId]);
 
   React.useEffect(() => {
     if (claim) {
       const alreadyRestricted = claim?.value?.tags?.includes('chat:members-only');
       setCommentsChatAlreadyRestricted(alreadyRestricted);
-    };
+    }
   }, [claim]);
 
   // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
     l('protected membership ids');
-    l(protectedMembershipIds)
+    l(protectedMembershipIds);
 
     if (activeChannel && protectedMembershipIds && protectedMembershipIds) {
       setIsRestrictingContent(true);
-    };
+    }
   }, [protectedMembershipIds, activeChannel]);
 
   function handleRestrictedMembershipChange(event) {
-
     let matchedMemberships = [];
     const restrictCheckboxes = document.querySelectorAll('*[id^="restrictToMembership"]');
     for (const checkbox of restrictCheckboxes) {
@@ -132,11 +131,11 @@ function PublishProtectedContent(props: Props) {
 
   return (
     <>
-      <h2 className="card__title" style={{ marginBottom: '10px' }}>{__('Restrict Content')}</h2>
+      <h2 className="card__title">{__('Restrictions')}</h2>
 
-      { !hasSavedTiers && (
+      {!hasSavedTiers && (
         <>
-          <div style={{ marginTop: '10px', marginBottom: '40px' }}>
+          <div>
             <I18nMessage
               tokens={{
                 activate_your_memberships: (
@@ -147,7 +146,6 @@ function PublishProtectedContent(props: Props) {
                   />
                 ),
               }}
-              style={{ marginTop: '10px', marginBottom: '40px' }}
             >
               Please %activate_your_memberships% first to to use this functionality
             </I18nMessage>
@@ -155,14 +153,10 @@ function PublishProtectedContent(props: Props) {
         </>
       )}
 
-      { hasSavedTiers && (
+      {hasSavedTiers && (
         <>
           <Card
-            className=""
-            actions={
-              <>
-              </>
-            }
+            className="card--restrictions"
             body={
               <>
                 <FormField
@@ -170,35 +164,32 @@ function PublishProtectedContent(props: Props) {
                   defaultChecked={protectedMembershipIds && protectedMembershipIds.length}
                   label={'Restrict content to only allow subscribers to certain memberships to view it'}
                   name={'toggleRestrictedContent'}
-                  style={{ fontSize: '15px' }}
                   className="restrict-content__checkbox"
                   onChange={() => handleChangeRestriction()}
                 />
 
-                { isRestrictingContent && (<>
-                  <h1 style={{ marginTop: '20px', marginBottom: '18px' }} >Memberships which can view the content:</h1>
-                  {creatorMemberships.map((membership) => (
-                    <FormField
-                      key={membership.Membership.id}
-                      type="checkbox"
-                      defaultChecked={protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)}
-                      label={membership.Membership.name}
-                      name={'restrictToMembership:' + membership.Membership.id}
-                      style={{ fontSize: '15px', marginTop: '10px' }}
-                      onChange={handleRestrictedMembershipChange}
-                    />
-                  ))}
-                </>)}
-
-                {/* restrict livestream or upload chat/comments */}
-                <h2 className="card__title" style={{ marginBottom: '10px', marginTop: '20px' }}>{__('Restrict Comments And Chat')}</h2>
+                {isRestrictingContent && (
+                  <div className="tier-list">
+                    {creatorMemberships.map((membership) => (
+                      <FormField
+                        key={membership.Membership.id}
+                        type="checkbox"
+                        defaultChecked={
+                          protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)
+                        }
+                        label={membership.Membership.name}
+                        name={'restrictToMembership:' + membership.Membership.id}
+                        onChange={handleRestrictedMembershipChange}
+                      />
+                    ))}
+                  </div>
+                )}
 
                 <FormField
                   type="checkbox"
                   defaultChecked={commentsChatAlreadyRestricted}
                   label={'Restrict comments and chats to members only'}
                   name={'toggleRestrictCommentsChat'}
-                  style={{ fontSize: '15px' }}
                   className="restrict-comments-chat_checkbox"
                   onChange={() => handleChangeRestrictCommentsChat()}
                 />

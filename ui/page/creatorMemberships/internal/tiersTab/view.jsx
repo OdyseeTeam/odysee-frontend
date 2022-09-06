@@ -264,7 +264,7 @@ function TiersTab(props: Props) {
         {creatorMemberships &&
           creatorMemberships.length > 0 &&
           creatorMemberships.map((membershipTier, membershipIndex) => (
-            <div className="create-tier__card" key={membershipIndex} ref={refs[membershipIndex]}>
+            <div className="membership-tier__wrapper" key={membershipIndex} ref={refs[membershipIndex]}>
               {/* if the membership tier is marked as editing, show the edit functionality */}
               {isEditing === membershipIndex && (
                 <>{createEditTier(refs[membershipIndex], membershipTier, membershipIndex)}</>
@@ -331,7 +331,7 @@ function TiersTab(props: Props) {
                       </MenuList>
                     </Menu>
                   </div>
-                  <div className="membership-tier-content">
+                  <div className="membership-tier__infos">
                     <label>Pledge</label>
                     <span>${membershipTier.NewPrices[0].Price.amount / 100}</span>
 
