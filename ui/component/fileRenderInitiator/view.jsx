@@ -96,7 +96,7 @@ export default function FileRenderInitiator(props: Props) {
   } = props;
 
   const isAnAuthorizedMember  =
-    protectedMembershipIds && activeMembershipIds && Boolean(protectedMembershipIds.filter(m => activeMembershipIds.includes(m)));
+    protectedMembershipIds && activeMembershipIds && protectedMembershipIds.filter(m => activeMembershipIds.includes(m)).length;
 
   const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
 

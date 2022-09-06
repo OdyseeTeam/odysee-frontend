@@ -9,6 +9,7 @@ type Props = {
   protectedMembershipIds: Array<number>,
   activeMembershipIds: Array<number>,
   claimIsMine: boolean,
+  isProtected: boolean,
 };
 
 export default function ProtectedContentOverlay(props: Props) {
@@ -18,18 +19,20 @@ export default function ProtectedContentOverlay(props: Props) {
     claimIsMine,
     openModal,
     uri,
+    isProtected,
   } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
 
   React.useEffect(() => {
-    if (protectedMembershipIds && activeMembershipIds) {
+    if (protectedMembershipIds && activeMembershipIds && isProtected) {
+
       setUserIsAMember(activeMembershipIds.some(id => protectedMembershipIds.includes(id)));
     }
-  }, [protectedMembershipIds, activeMembershipIds]);
+  }, [protectedMembershipIds, activeMembershipIds, isProtected]);
 
   // don't show overlay if it's not protected or user is a member
-  if (!protectedMembershipIds || userIsAMember || claimIsMine) return (<></>);
+  if (!isProtected || userIsAMember || claimIsMine) return (<></>);
 
   return (
     <>
