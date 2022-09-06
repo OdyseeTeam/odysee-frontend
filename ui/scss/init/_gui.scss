@@ -1127,7 +1127,6 @@ img {
 
     .MuiAutocomplete-root {
       background: rgba(var(--color-header-background-base), 0.4);
-      border-radius: var(--border-radius);
       padding: var(--spacing-s);
 
       textarea {
@@ -1138,10 +1137,6 @@ img {
       }
 
       @media (max-width: $breakpoint-small) {
-        .MuiFormControl-root {
-          border-radius: var(--border-radius);
-          box-shadow: 0 0 0 2px var(--color-border) inset;
-        }
         textarea {
           box-shadow: unset;
         }
@@ -1479,13 +1474,6 @@ img {
   }
 
   @media (max-width: $breakpoint-small) {
-    .MuiTextField-root {
-      background-color: var(--color-header-background);
-    }
-    .css-3i94e7-MuiInputBase-root-MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border: unset;
-      border: 2px solid var(--color-primary);
-    }
     textarea#content_description:focus-visible {
       box-shadow: unset;
     }
