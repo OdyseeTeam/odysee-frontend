@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
+import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 
 type Props = {
   // -- redux --
@@ -22,12 +23,13 @@ function OverviewTab(props: Props) {
 
       {activeChannelClaim && (
         <>
-          <Button
+          <ButtonNavigateChannelId
             button="primary"
             className="membership_button"
             label={__('View your membership page')}
             icon={ICONS.UPGRADE}
-            navigate={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
+            page={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}`}
+            search="?view=membership"
           />
 
           <span>{__('You can also click the button below to copy your membership page url')}</span>

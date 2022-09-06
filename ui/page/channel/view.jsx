@@ -56,6 +56,9 @@ type Props = {
   unpublishedCollections: CollectionGroup,
   lang: string,
   odyseeMembership: ?string,
+  getMembershipTiersForChannel: any,
+  doMembershipMine: any,
+  myActiveMemberships: any,
 };
 
 export const ChannelPageContext = React.createContext<any>();
