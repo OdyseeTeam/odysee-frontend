@@ -31,7 +31,7 @@ const select = (state, props) => {
 };
 
 const perform = (dispatch) => ({
-  doOpenCancelationModalForMembership,
+  doOpenCancelationModalForMembership: (membership) => dispatch(doOpenCancelationModalForMembership(membership)),
   navigate: (path) => dispatch(push(path)),
 });
 
