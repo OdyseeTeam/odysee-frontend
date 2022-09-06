@@ -179,7 +179,7 @@ function TiersTab(props: Props) {
     console.log(tier);
 
     return (
-      <div className="edit-div">
+      <div className="membership-tier__wrapper-edit">
         <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.Membership.name} />
         {/* could be cool to have markdown */}
         {/* <FormField */}
@@ -338,17 +338,21 @@ function TiersTab(props: Props) {
                     <label>{__('Description & custom Perks')}</label>
                     <span>{membershipTier.Membership.description}</span>
 
-                    <label>{__('Odysee Perks')}</label>
-                    {membershipTier.Perks &&
-                      membershipTier.Perks.map((tierPerk, i) => (
-                        <>
-                          <p>
-                            <ul>
-                              <li>{tierPerk.description}</li>
-                            </ul>
-                          </p>
-                        </>
-                      ))}
+                    <div className="membership-tier__perks">
+                      <div className="membership-tier__perks-content">
+                        <label>{__('Odysee Perks')}</label>
+                        {membershipTier.Perks &&
+                          membershipTier.Perks.map((tierPerk, i) => (
+                            <>
+                              <p>
+                                <ul>
+                                  <li>{tierPerk.description}</li>
+                                </ul>
+                              </p>
+                            </>
+                          ))}
+                      </div>
+                    </div>
                   </div>
                   {membershipTier.HasSubscribers && (
                     <ErrorText>{__('This membership has active subscribers and cannot be deleted.')}</ErrorText>
