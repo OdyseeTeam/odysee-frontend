@@ -399,7 +399,7 @@ export function doSetLanguage(language) {
       (settings.loadedLanguages && !settings.loadedLanguages.includes(language))
     ) {
       // this should match the behavior/logic in index-web.html
-      return fetch('https://lbry.com/i18n/get/lbry-desktop/app-strings/' + language + '.json')
+      fetch('https://lbry.com/i18n/get/lbry-desktop/app-strings/' + language + '.json')
         .then((r) => r.json())
         .then((j) => {
           window.i18n_messages[language] = j;
@@ -437,8 +437,6 @@ export function doSetLanguage(language) {
             })
           );
         });
-    } else {
-      return Promise.resolve();
     }
   };
 }
