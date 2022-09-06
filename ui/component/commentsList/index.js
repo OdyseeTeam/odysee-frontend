@@ -31,6 +31,8 @@ import {
 import {
   selectMyActiveMembershipIds,
   selectById,
+  selectMyValidMembershipsById,
+  selectMyValidMembershipIds,
 } from 'redux/selectors/memberships';
 import CommentsList from './view';
 
@@ -67,6 +69,8 @@ const select = (state, props) => {
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
     creatorsMemberships: selectById(state)[channelId],
     activeMembershipIds: selectMyActiveMembershipIds(state, activeChannelClaim),
+    validMemberships: selectMyValidMembershipsById(state),
+    validMembershipIds: selectMyValidMembershipIds(state),
   };
 };
 
