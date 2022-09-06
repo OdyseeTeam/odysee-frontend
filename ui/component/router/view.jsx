@@ -13,6 +13,7 @@ import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
 import * as CS from 'constants/claim_search';
 import { buildUnseenCountStr } from 'util/notifications';
+import { CHANNEL_ID } from 'constants/urlParams';
 
 import HomePage from 'page/home';
 
@@ -323,6 +324,14 @@ function AppRouter(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on 'pathname' change
   }, [pathname]);
+
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(search);
+    const channelParam = urlParams.get(CHANNEL_ID);
+    doSetActiveChannel(channelParam);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on 'search' change
+  }, [search]);
 
   // react-router doesn't decode pathanmes before doing the route matching check
   // We have to redirect here because if we redirect on the server, it might get encoded again
