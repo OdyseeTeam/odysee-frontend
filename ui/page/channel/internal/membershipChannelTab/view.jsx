@@ -109,7 +109,7 @@ const MembershipChannelTab = (props: Props) => {
             </div>
 
             {Perks && (
-              <div className="membership__tier-perks">
+              <div className="membership-tier__perks">
                 <label>{__('Odysee Perks')}</label>
 
                 <ul>

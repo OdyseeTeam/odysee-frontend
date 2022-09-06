@@ -16,7 +16,12 @@ const select = (state, props) => {
   const membershipIndex =
     (creatorMemberships &&
       creatorMemberships.findIndex(
-        (membership) => membership.Membership.id === purchasedChannelMembership.Membership.id
+        (membership) =>
+          membership &&
+          membership.Membership &&
+          purchasedChannelMembership &&
+          purchasedChannelMembership.Membership &&
+          membership.Membership.id === purchasedChannelMembership.Membership.id
       )) + 1;
 
   return {

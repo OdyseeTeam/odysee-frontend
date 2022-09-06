@@ -10,25 +10,22 @@ type Props = {
 const MembershipDetails = (props: Props) => {
   const { membership, headerAction } = props;
 
+  console.log('headerAction: ', headerAction);
+
   return (
     <>
-      <section className="join-membership__header" />
-
-      <section>
-        <h2>{membership.Membership.name}</h2>
-        {headerAction}
+      <section className="membership-tier__header">
+        <span>{membership.Membership.name}</span>
       </section>
 
-      <section className="join-membership__tier-info">
-        <span className="section__subtitle section__subtitle--join-membership__description">
-          <BalanceText>{membership.Membership.description}</BalanceText>
-        </span>
+      <section className="membership-tier__infos">
+        <span>{membership.Membership.description}</span>
 
         {membership.Perks && membership.Perks.length > 0 && (
-          <div className="membership__tier-perks">
-            <div className="membership__tier-moon" />
-            <div className="membership__tier-perks-content">
-              <h3>{__('Perks')}</h3>
+          <div className="membership-tier__perks">
+            <div className="membership-tier__moon" />
+            <div className="membership-tier__perks-content">
+              <label>{__('Perks')}</label>
 
               <ul>
                 {/* $FlowFixMe -- already handled above */}
@@ -40,6 +37,8 @@ const MembershipDetails = (props: Props) => {
           </div>
         )}
       </section>
+
+      <section className="membership-tier__actions">{headerAction}</section>
     </>
   );
 };
