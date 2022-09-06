@@ -658,6 +658,18 @@
   &:nth-child(1) {
     .membership-tier__header {
       background-color: rgba(var(--color-membership-1), 1);
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-1), 1);
+          }
+        }
+        &[aria-expanded='true'] {
+          .icon {
+            stroke: rgba(var(--color-membership-1), 1);
+          }
+        }
+      }
     }
     .button--primary {
       background-color: rgba(var(--color-membership-1), 1) !important;
@@ -672,6 +684,18 @@
   &:nth-child(2) {
     .membership-tier__header {
       background-color: rgba(var(--color-membership-2), 1);
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-2), 1);
+          }
+        }
+        &[aria-expanded='true'] {
+          .icon {
+            stroke: rgba(var(--color-membership-2), 1);
+          }
+        }
+      }
     }
     .button--primary {
       background-color: rgba(var(--color-membership-2), 1) !important;
@@ -686,6 +710,18 @@
   &:nth-child(3) {
     .membership-tier__header {
       background-color: rgba(var(--color-membership-3), 1);
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-3), 1);
+          }
+        }
+        &[aria-expanded='true'] {
+          .icon {
+            stroke: rgba(var(--color-membership-3), 1);
+          }
+        }
+      }
     }
     .button--primary {
       background-color: rgba(var(--color-membership-3), 1) !important;
@@ -700,6 +736,18 @@
   &:nth-child(4) {
     .membership-tier__header {
       background-color: rgba(var(--color-membership-4), 1);
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-4), 1);
+          }
+        }
+        &[aria-expanded='true'] {
+          .icon {
+            stroke: rgba(var(--color-membership-4), 1);
+          }
+        }
+      }
     }
     .button--primary {
       background-color: rgba(var(--color-membership-4), 1) !important;
@@ -714,6 +762,18 @@
   &:nth-child(5) {
     .membership-tier__header {
       background-color: rgba(var(--color-membership-5), 1);
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-5), 1);
+          }
+        }
+        &[aria-expanded='true'] {
+          .icon {
+            stroke: rgba(var(--color-membership-5), 1);
+          }
+        }
+      }
     }
     .button--primary {
       background-color: rgba(var(--color-membership-5), 1) !important;
@@ -728,6 +788,18 @@
   &:nth-child(6) {
     .membership-tier__header {
       background-color: rgba(var(--color-membership-6), 1);
+      .menu__button {
+        &:hover {
+          .icon {
+            stroke: rgba(var(--color-membership-6), 1);
+          }
+        }
+        &[aria-expanded='true'] {
+          .icon {
+            stroke: rgba(var(--color-membership-6), 1);
+          }
+        }
+      }
     }
     .button--primary {
       background-color: rgba(var(--color-membership-6), 1) !important;
@@ -985,7 +1057,9 @@
   }
 }
 
-.edit-div {
+.membership-tier__wrapper-edit {
+  padding: var(--spacing-m);
+
   label {
     font-size: var(--font-body);
   }
@@ -1008,10 +1082,26 @@
   }
   .section__actions {
     margin-top: var(--spacing-m);
+    margin-bottom: calc(var(--spacing-m) * -1) !important;
   }
 }
 
 .tier-edit-functionality {
+  .membership-tier__wrapper {
+    padding-bottom: 0;
+    margin-bottom: var(--spacing-l);
+
+    .membership-tier__perks-content {
+      margin-top: var(--spacing-s);
+    }
+
+    label {
+      margin-top: var(--spacing-s);
+      &:first-of-type {
+        margin-top: 0;
+      }
+    }
+  }
   /*
   .create-tier__card {
     overflow: hidden;
