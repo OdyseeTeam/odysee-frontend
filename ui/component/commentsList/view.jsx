@@ -64,6 +64,7 @@ type Props = {
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doPopOutInlinePlayer: (param: { source: string }) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
+  creatorsMemberships: Array<Membership>,
 };
 
 export default function CommentList(props: Props) {
@@ -215,7 +216,7 @@ export default function CommentList(props: Props) {
         ids.push(membership.Membership.id);
       }
 
-      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id));
+      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id)).length;
 
       setIsAChannelMember(isAMember);
     }

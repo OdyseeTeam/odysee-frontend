@@ -478,11 +478,11 @@ export function CommentCreate(props: Props) {
         ids.push(membership.Membership.id);
       }
 
-      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id));
+      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id)).length;
 
       setIsAChannelMember(isAMember);
     }
-  }, [chatCommentsRestrictedToChannelMembers, , activeMembershipIds]);
+  }, [chatCommentsRestrictedToChannelMembers, activeMembershipIds]);
 
   // Fetch channel constraints if not already.
   React.useEffect(() => {
