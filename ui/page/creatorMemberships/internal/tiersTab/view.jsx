@@ -339,7 +339,7 @@ function TiersTab(props: Props) {
                   </div>
                   <div className="membership-tier__infos">
                     <label>Pledge</label>
-                    <span>${membershipTier.NewPrices[0].Price.amount / 100}</span>
+                    <span>${membershipTier.NewPrices && selectedTier.NewPrices[0].Price.amount / 100}</span>
 
                     <label>{__('Description & custom Perks')}</label>
                     <span>{membershipTier.Membership.description}</span>
