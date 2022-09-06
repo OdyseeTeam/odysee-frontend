@@ -55,40 +55,50 @@ type Props = {
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doFetchChannelLiveStatus: (string) => void,
   claimIsMine: boolean,
+  protectedMembershipIds: Array<number>,
+  activeMembershipIds: Array<number>,
 };
 
 export default function FileRenderInitiator(props: Props) {
   const {
-    channelClaimId,
-    isPlaying,
-    fileInfo,
-    uri,
-    obscurePreview,
-    insufficientCredits,
-    history,
-    location,
-    claimThumbnail,
-    autoplay,
-    renderMode,
-    costInfo,
-    claimWasPurchased,
+    activeMembershipIds,
     authenticated,
-    videoTheaterMode,
+    autoplay,
+    channelClaimId,
+    claimIsMine,
+    claimLinkId,
+    claimThumbnail,
+    claimWasPurchased,
+    costInfo,
+    customAction,
+    doFetchChannelLiveStatus,
+    doUriInitiatePlay,
+    embedded,
+    fileInfo,
+    history,
+    insufficientCredits,
     isCurrentClaimLive,
     isLivestreamClaim,
-    customAction,
-    embedded,
-    parentCommentId,
     isMarkdownPost,
-    claimLinkId,
-    doUriInitiatePlay,
-    doFetchChannelLiveStatus,
+    isPlaying,
+    location,
+    obscurePreview,
+    parentCommentId,
+    protectedMembershipIds,
     purchaseContentTag,
     purchaseMadeForClaimId,
-    claimIsMine,
+    protectedContentTag,
+    renderMode,
     rentalTag,
+    uri,
     validRentalPurchase,
+    videoTheaterMode,
   } = props;
+
+  const isAnAuthorizedMember  =
+    protectedMembershipIds && activeMembershipIds && Boolean(protectedMembershipIds.filter(m => activeMembershipIds.includes(m)));
+
+  const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
   const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
@@ -113,7 +123,7 @@ export default function FileRenderInitiator(props: Props) {
   const stillNeedsToBePurchased = purchaseContentTag && !purchaseMadeForClaimId && !hasBeenRented;
   const stillNeedsToBeRented = rentalTag && !validRentalPurchase && !hasBeenPurchased;
 
-  const notAuthedToView = (stillNeedsToBePurchased || stillNeedsToBeRented) && !claimIsMine;
+  const notAuthedToView = (stillNeedsToBePurchased || stillNeedsToBeRented || isNotAuthorizedForProtectedContent) && !claimIsMine;
 
   const shouldAutoplay =
     !notAuthedToView && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);

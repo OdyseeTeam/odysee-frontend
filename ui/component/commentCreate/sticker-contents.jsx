@@ -13,6 +13,7 @@ type Props = {
   src: string,
   price: number,
   exchangeRate?: number,
+  disabled: boolean,
 };
 
 export const StickerReviewBox = (props: Props) => {
@@ -47,9 +48,9 @@ type StickerButtonProps = {
 };
 
 export const StickerActionButton = (stickerButtonProps: StickerButtonProps) => {
-  const { isReviewingStickerComment, ...buttonProps } = stickerButtonProps;
+  const { isReviewingStickerComment, disabled, ...buttonProps } = stickerButtonProps;
 
   return (
-    <Button {...buttonProps} title={__('Stickers')} label={isReviewingStickerComment ? __('Change') : undefined} />
+    <Button disabled={disabled} {...buttonProps} title={__('Stickers')} label={isReviewingStickerComment ? __('Change') : undefined} />
   );
 };

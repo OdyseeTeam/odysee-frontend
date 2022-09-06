@@ -79,6 +79,9 @@ function ChannelPage(props: Props) {
     unpublishedCollections,
     lang,
     odyseeMembership,
+    getMembershipTiersForChannel,
+    doMembershipMine,
+    myActiveMemberships,
   } = props;
   const {
     push,
@@ -213,8 +216,18 @@ function ChannelPage(props: Props) {
   }, [currentView]);
 
   React.useEffect(() => {
+    if (claim) getMembershipTiersForChannel(claim.claim_id);
+  }, [claim]);
+
+  React.useEffect(() => {
     fetchSubCount(claimId);
   }, [uri, fetchSubCount, claimId]);
+
+  React.useEffect(() => {
+    if (myActiveMemberships === undefined) {
+      doMembershipMine();
+    }
+  }, [doMembershipMine, myActiveMemberships]);
 
   if (editing) {
     return (

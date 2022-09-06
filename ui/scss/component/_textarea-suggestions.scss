@@ -10,6 +10,11 @@
       min-height: calc(var(--height-input) * 1.5) !important;
     }
   }
+
+  // override normal disabled opacity to make comment visible
+  .disabled_chat_comments {
+    opacity: 1;
+  }
 }
 
 .comment-create__auth {

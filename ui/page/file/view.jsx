@@ -21,6 +21,7 @@ import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
 import PreorderAndPurchaseContentButton from 'component/preorderAndPurchaseContentButton';
 import { useIsMobile, useIsMobileLandscape, useIsMediumScreen } from 'effects/use-screensize';
+import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const CommentsList = lazyImport(() => import('component/commentsList' /* webpackChunkName: "comments" */));
 const PostViewer = lazyImport(() => import('component/postViewer' /* webpackChunkName: "postViewer" */));
@@ -46,6 +47,7 @@ type Props = {
   doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
+  doGetMembershipTiersForContentClaimId: (type: string) => void,
   fileInfo: FileListItem,
   isLivestream: boolean,
   isMature: boolean,
@@ -102,6 +104,9 @@ export default function FilePage(props: Props) {
     preorderTag,
     rentalTag,
     claimId,
+    doGetMembershipTiersForContentClaimId,
+    doMembershipMine,
+    myActiveMemberships,
   } = props;
 
   const { search } = location;
@@ -148,9 +153,19 @@ export default function FilePage(props: Props) {
   }, []);
 
   React.useEffect(() => {
+    if (myActiveMemberships === undefined) {
+      doMembershipMine();
+    }
+  }, [doMembershipMine, myActiveMemberships]);
+
+  React.useEffect(() => {
     const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
     if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
   }, [purchaseTag, preorderTag, rentalTag, claimId]);
+
+  React.useEffect(() => {
+    doGetMembershipTiersForContentClaimId(claimId);
+  }, [claimId]);
 
   React.useEffect(() => {
     // always refresh file info when entering file page to see if we have the file
@@ -194,6 +209,7 @@ export default function FilePage(props: Props) {
     if (RENDER_MODES.FLOATING_MODES.includes(renderMode)) {
       return (
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS} ref={playerRef}>
+          <ProtectedContentOverlay uri={uri} />
           {/* playables will be rendered and injected by <FileRenderFloating> */}
           <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         </div>
