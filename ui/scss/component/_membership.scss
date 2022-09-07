@@ -890,6 +890,29 @@
   }
 }
 
+.membership-table__wrapper {
+  .form-field--copyable {
+    display: none;
+  }
+  button.button {
+    // display:inline-block;
+    border-radius: var(--border-radius);
+    float: right;
+  }
+
+  .membership-table__page {
+    width: 60px;
+  }
+
+  .membership-table__url {
+    text-align: right;
+    width: 60px;
+    fieldset-section {
+      flex-direction: row-reverse;
+    }
+  }
+}
+
 .membership-tab {
   .membership__body {
     border-radius: var(--border-radius);
