@@ -48,20 +48,21 @@ type Props = {
   parentCommentId?: string,
   isMarkdownPost?: boolean,
   claimLinkId?: string,
-  purchaseContentTag: boolean,
-  rentalTag: { price: number, expirationTimeInSeconds: number },
-  validRentalPurchase: boolean,
-  purchaseMadeForClaimId: boolean,
+  purchaseContentTag?: boolean,
+  rentalTag?: { price: number, expirationTimeInSeconds: number },
+  validRentalPurchase?: boolean,
+  purchaseMadeForClaimId?: boolean,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doFetchChannelLiveStatus: (string) => void,
   claimIsMine: boolean,
-  protectedMembershipIds: Array<number>,
-  activeMembershipIds: Array<number>,
+  protectedMembershipIds?: Array<number>,
+  validMembershipIds?: Array<number>,
+  protectedContentTag?: string
 };
 
 export default function FileRenderInitiator(props: Props) {
   const {
-    activeMembershipIds,
+    validMembershipIds,
     authenticated,
     autoplay,
     channelClaimId,
@@ -96,7 +97,7 @@ export default function FileRenderInitiator(props: Props) {
   } = props;
 
   const isAnAuthorizedMember  =
-    protectedMembershipIds && activeMembershipIds && protectedMembershipIds.filter(m => activeMembershipIds.includes(m)).length;
+    protectedMembershipIds && validMembershipIds && protectedMembershipIds.filter(m => validMembershipIds.includes(m)).length;
 
   const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
 

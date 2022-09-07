@@ -89,7 +89,7 @@ type Props = {
   doFetchMyCommentedChannels: (claimId: ?string) => void,
   doTipAccountCheckForUri: (uri: string) => void,
   textInjection?: string,
-  activeMembershipIds: Array<number>,
+  validMembershipIds: Array<number>,
   creatorsMemberships: Array<Membership>,
   chatCommentsRestrictedToChannelMembers: boolean,
 };
@@ -135,7 +135,7 @@ export function CommentCreate(props: Props) {
     doTipAccountCheckForUri,
     textInjection,
     chatCommentsRestrictedToChannelMembers,
-    activeMembershipIds,
+    validMembershipIds,
     creatorsMemberships,
   } = props;
 
@@ -478,11 +478,11 @@ export function CommentCreate(props: Props) {
         ids.push(membership.Membership.id);
       }
 
-      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id)).length;
+      const isAMember = validMembershipIds && validMembershipIds.filter(id => ids.includes(id)).length;
 
       setIsAChannelMember(isAMember);
     }
-  }, [chatCommentsRestrictedToChannelMembers, activeMembershipIds]);
+  }, [chatCommentsRestrictedToChannelMembers, validMembershipIds]);
 
   // Fetch channel constraints if not already.
   React.useEffect(() => {
