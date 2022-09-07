@@ -19,41 +19,45 @@ function OverviewTab(props: Props) {
 
   return (
     <>
-      <h1>{__('Membership Page')}</h1>
-
-      {activeChannelClaim && (
-        <>
-          <ButtonNavigateChannelId
-            button="primary"
-            className="membership_button"
-            label={__('View your membership page')}
-            icon={ICONS.UPGRADE}
-            page={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}`}
-            search="?view=membership"
-          />
-
-          <span>{__('You can also click the button below to copy your membership page url')}</span>
-
-          <CopyableText
-            className="membership-page__copy-button"
-            primaryButton
-            copyable={`${URL}${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
-            snackMessage={__('Page location copied')}
-          />
-        </>
-      )}
-
-      {/* Dashboard showing income/supporters amount */}
-      <label>{__('Received Funds')}</label>
-
-      {/* TODO: replace this with API calls */}
-      <label>{__('Total Supporters: 0')}</label>
-
-      <label>{__('Estimated Monthly Income: $0')}</label>
-
-      <label>{__('Total Received: $0')}</label>
-
-      {/* <h1 style={{ marginTop: '10px' }}>{__('You do not any withdrawable funds')}</h1> */}
+      <div className="membership-table__wrapper">
+        <table className="table">
+          <thead>
+            <tr>
+              <th className="channelName-header">Channel Name</th>
+              <th>{__('Supporters')}</th>
+              <th>{__('Estimated Monthly Income')}</th>
+              <th>{__('Total Received')}</th>
+              <th className="membership-table__page">{__('Page')}</th>
+              <th className="membership-table__url">{__('URL')}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Channel Name</td>
+              <td>0</td>
+              <td>$0</td>
+              <td>$0</td>
+              <td>
+                <ButtonNavigateChannelId
+                  button="primary"
+                  // className="membership_button"
+                  // label={__('View your membership page')}
+                  icon={ICONS.UPGRADE}
+                  page={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}`}
+                  search="?view=membership"
+                />
+              </td>
+              <td className="membership-table__url">
+                <CopyableText
+                  primaryButton
+                  copyable={`${URL}${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
+                  snackMessage={__('Page location copied')}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       {/* Bank account connection status */}
       <div className="bank-account-information__div">
