@@ -1128,6 +1128,7 @@ img {
     .MuiAutocomplete-root {
       background: rgba(var(--color-header-background-base), 0.4);
       padding: var(--spacing-s);
+      border: unset !important;
 
       textarea {
         box-shadow: 0 0 0 2px var(--color-border) inset;
