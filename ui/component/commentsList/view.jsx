@@ -64,8 +64,9 @@ type Props = {
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doPopOutInlinePlayer: (param: { source: string }) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
-  creatorsMemberships?: Array<Membership>,
-  validMembershipIds?: Array<number>
+  creatorsMemberships: Array<Membership>,
+  chatCommentsRestrictedToChannelMembers: boolean,
+  isAChannelMember: boolean,
 };
 
 export default function CommentList(props: Props) {
@@ -102,8 +103,7 @@ export default function CommentList(props: Props) {
     doPopOutInlinePlayer,
     doFetchChannelMembershipsForChannelIds,
     chatCommentsRestrictedToChannelMembers,
-    creatorsMemberships,
-    validMembershipIds,
+    isAChannelMember,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -126,9 +126,6 @@ export default function CommentList(props: Props) {
   const hasDefaultExpansion = commentsAreExpanded || !isMediumScreen || isMobile;
   const [expandedComments, setExpandedComments] = React.useState(hasDefaultExpansion);
   const [debouncedUri, setDebouncedUri] = React.useState();
-
-  // used for disabling comment actions
-  const [isAChannelMember, setIsAChannelMember] = React.useState(false);
 
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
@@ -207,21 +204,6 @@ export default function CommentList(props: Props) {
       threadRedirect.current = true;
     }
   }, [linkedCommentAncestors, linkedCommentId, pathname, push, search, threadCommentId, threadDepthLevel]);
-
-  // Determine whether user is a channel member (used for authing members only chat)
-  // TODO: refactor this to use redux
-  useEffect(() => {
-    if (chatCommentsRestrictedToChannelMembers && creatorsMemberships && creatorsMemberships.length) {
-      let ids = [];
-      for (const membership of creatorsMemberships) {
-        ids.push(membership.Membership.id);
-      }
-
-      const isAMember = validMembershipIds && validMembershipIds.filter(id => ids.includes(id)).length;
-
-      setIsAChannelMember(isAMember);
-    }
-  }, [chatCommentsRestrictedToChannelMembers, creatorsMemberships, validMembershipIds]);
 
   const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
 
@@ -446,7 +428,9 @@ export default function CommentList(props: Props) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments && !threadCommentId && <CommentElements comments={pinnedComments} disabled={notAuthedToChat} {...commentProps} />}
+                {pinnedComments && !threadCommentId && (
+                  <CommentElements comments={pinnedComments} disabled={notAuthedToChat} {...commentProps} />
+                )}
                 <CommentElements comments={topLevelComments} disabled={notAuthedToChat} {...commentProps} />
               </>
             )}
@@ -503,7 +487,9 @@ type CommentProps = {
 const CommentElements = (commentProps: CommentProps) => {
   const { comments, disabled, ...commentsProps } = commentProps;
 
-  return comments.map((comment) => <CommentView key={comment.comment_id} comment={comment} disabled={disabled} {...commentsProps} />);
+  return comments.map((comment) => (
+    <CommentView key={comment.comment_id} comment={comment} disabled={disabled} {...commentsProps} />
+  ));
 };
 
 type ActionButtonsProps = {

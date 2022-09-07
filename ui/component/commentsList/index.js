@@ -28,10 +28,7 @@ import {
   doFetchOdyseeMembershipForChannelIds,
   doFetchChannelMembershipsForChannelIds,
 } from 'redux/actions/memberships';
-import {
-  selectById,
-  selectMyValidMembershipIds,
-} from 'redux/selectors/memberships';
+import { selectUserHasValidMembershipForCreatorId } from 'redux/selectors/memberships';
 import CommentsList from './view';
 
 const select = (state, props) => {
@@ -65,8 +62,7 @@ const select = (state, props) => {
     threadCommentAncestors: selectCommentAncestorsForId(state, threadCommentId),
     linkedCommentAncestors: selectCommentAncestorsForId(state, linkedCommentId),
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
-    creatorsMemberships: selectById(state)[channelId],
-    validMembershipIds: selectMyValidMembershipIds(state),
+    isAChannelMember: selectUserHasValidMembershipForCreatorId(state, channelId),
   };
 };
 
