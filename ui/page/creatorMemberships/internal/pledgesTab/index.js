@@ -3,7 +3,7 @@ import { doOpenModal } from 'redux/actions/app';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClaimsById, selectMyChannelClaims, selectClaimsByUri } from 'redux/selectors/claims';
 import { selectUser, selectUserLocale } from 'redux/selectors/user';
-import { selectMyActiveMembershipsById } from 'redux/selectors/memberships';
+import { selectMyPurchasedMembershipsById } from 'redux/selectors/memberships';
 import { doMembershipMine } from 'redux/actions/memberships';
 import { doResolveClaimIds } from 'redux/actions/claims';
 import PledgesTab from './view';
@@ -19,7 +19,7 @@ const select = (state) => {
     user: selectUser(state),
     locale: selectUserLocale(state),
     claimsById: selectClaimsById(state),
-    myActiveMemberships: selectMyActiveMembershipsById(state) && Object.values(selectMyActiveMembershipsById(state)),
+    myPurchasedMemberships: selectMyPurchasedMembershipsById(state) && Object.values(selectMyPurchasedMembershipsById(state)),
   };
 };
 

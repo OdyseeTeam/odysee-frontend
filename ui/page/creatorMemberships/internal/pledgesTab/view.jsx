@@ -10,7 +10,7 @@ import { getThumbnailFromClaim } from 'util/claim';
 type Props = {
   openModal: (string, {}) => void,
   activeChannelClaim: ?ChannelClaim,
-  myActiveMemberships: any,
+  myPurchasedMemberships: any,
   claimsById: any,
   doMembershipMine: () => Promise<MembershipTiers>,
   doResolveClaimIds: (a: any) => void,
@@ -18,7 +18,7 @@ type Props = {
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 function PledgesTab(props: Props) {
-  const { myActiveMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
+  const { myPurchasedMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
 
   const [pledges, setPledges] = React.useState();
   const [resolved, setResolved] = React.useState();
@@ -28,22 +28,22 @@ function PledgesTab(props: Props) {
   }
 
   React.useEffect(() => {
-    if (myActiveMemberships === undefined) {
+    if (myPurchasedMemberships === undefined) {
       doMembershipMine();
     }
-  }, [doMembershipMine, myActiveMemberships]);
+  }, [doMembershipMine, myPurchasedMemberships]);
 
   React.useEffect(() => {
-    if (myActiveMemberships) {
-      const claimIds = myActiveMemberships.map((membership) => membership[0].MembershipDetails.channel_id);
+    if (myPurchasedMemberships) {
+      const claimIds = myPurchasedMemberships.map((membership) => membership[0].MembershipDetails.channel_id);
 
       doResolveClaimIds(claimIds).then(() => setResolved(true));
     }
-  }, [doResolveClaimIds, myActiveMemberships]);
+  }, [doResolveClaimIds, myPurchasedMemberships]);
 
   React.useEffect(() => {
-    if (myActiveMemberships && resolved) {
-      const allPledges = myActiveMemberships.map((active) => {
+    if (myPurchasedMemberships && resolved) {
+      const allPledges = myPurchasedMemberships.map((active) => {
         const membership = active[0];
         const pledgeData = {};
         const fullClaim = claimsById[membership.MembershipDetails.channel_id];
@@ -66,7 +66,7 @@ function PledgesTab(props: Props) {
 
       setPledges(allPledges);
     }
-  }, [claimsById, myActiveMemberships, resolved]);
+  }, [claimsById, myPurchasedMemberships, resolved]);
 
   return (
     <>
@@ -79,11 +79,12 @@ function PledgesTab(props: Props) {
                 <th className="channelName-header">Membership Tier</th>
                 <th className="channelName-header">Total Supporting Time</th>
                 <th className="location-header">Support Amount</th>
+                <th className="channelName-header">Status</th>
                 <th className="amount-header">Details</th>
               </tr>
             </thead>
             <tbody>
-              {myActiveMemberships?.map((active, i) => {
+              {myPurchasedMemberships?.map((active, i) => {
                 const membership = active[0];
                 return (
                   <tr key={i}>
@@ -102,6 +103,7 @@ function PledgesTab(props: Props) {
                       ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
                       {capitalizeFirstLetter(pledges[i].period)}
                     </td>
+                    <td>{membership.Subscription.status === 'active' ? __('Active') : __('Cancelled') }</td>
                     <td>
                       <span dir="auto" className="button__label">
                         <Button
@@ -119,7 +121,7 @@ function PledgesTab(props: Props) {
         </div>
       )}
 
-      {myActiveMemberships?.length === 0 && (
+      {myPurchasedMemberships?.length === 0 && (
         <>
           <h1 style={{ marginTop: '10px' }}> You are not currently supporting any creators </h1>
 
