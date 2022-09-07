@@ -1129,14 +1129,26 @@
 
 .protected-content-holder {
   position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   z-index: 5;
+  width: 100%;
+  height: 100%;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 
-  .protected-content-text {
-    background-color: black;
-    margin: 0 auto;
-    padding: 5px;
-    border-radius: 10px;
-    width: 62%;
+  .icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  span {
+    background-color: var(--color-header-background);
+    padding: var(--spacing-xxxs);
+    border-radius: var(--border-radius);
     text-align: center;
     color: white;
   }
@@ -1199,23 +1211,36 @@
 
 .protected-content-overlay {
   position: absolute;
-  z-index: 1;
-  left: 50%;
-  top: 9%;
-  transform: translate(-50%,-50%);
-  background-color: #1d1d1d;
-  padding: 7px;
-  border-radius: 7px;
-  text-align: center;
-  width: 37%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
 
-  h1 {
-    font-size: 23px;
+  div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    width: 400px;
+    height: 200px;
+    background-color: var(--color-header-background);
+    padding: var(--spacing-m);
+    border-radius: var(--border-radius);
+
+    .icon.icon--Lock {
+      width: 80px;
+      height: 80px;
+      margin-bottom: var(--spacing-xxxs);
+    }
+    .button {
+      margin-top: var(--spacing-m);
+    }
   }
-}
-
-.protected-content-overlay__button {
-  margin: 9px 0px;
 }
 
 .claim-grid {
