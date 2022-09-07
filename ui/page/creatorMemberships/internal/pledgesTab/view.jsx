@@ -92,7 +92,7 @@ function PledgesTab(props: Props) {
                       <Button button="link" navigate={pledges[i].url + '?view=membership'}>
                         <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
                         <span dir="auto" className="button__label">
-                          {membership.Membership.channel_name}
+                          {membership.MembershipDetails.channel_name}
                         </span>
                       </Button>
                     </td>
