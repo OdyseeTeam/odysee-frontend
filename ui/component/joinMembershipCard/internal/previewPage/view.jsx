@@ -78,7 +78,7 @@ const PreviewPage = (props: Props) => {
           button="primary"
           type="submit"
           label={__(channelIsMine ? 'Create Your Memberships For This Channel' : 'Create Your Memberships')}
-          page={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+          navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
           channelId={channelId}
         />
       </>

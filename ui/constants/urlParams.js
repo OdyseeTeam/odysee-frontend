@@ -1,7 +1,5 @@
 export const FYP_ID = 'fypId';
 
-export const CHANNEL_ID = 'cId';
-
 export const CHANNEL_PAGE = Object.freeze({
   QUERIES: { VIEW: 'view' },
   VIEWS: {
