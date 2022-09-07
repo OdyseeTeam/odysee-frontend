@@ -53,7 +53,8 @@ const select = (state, props) => {
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id),
     creatorMembership:
       channel_id === activeChannelId
-        ? selectMyValidMembershipsForCreatorId(state, creatorId)
+        ? selectMyValidMembershipsForCreatorId(state, creatorId) &&
+          selectMyValidMembershipsForCreatorId(state, creatorId)[0]?.MembershipDetails?.name
         : selectCreatorIdMembershipForChannelId(state, creatorId, channel_id),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
