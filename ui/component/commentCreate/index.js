@@ -25,10 +25,7 @@ import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
-import {
-  selectMyValidMembershipIds,
-  selectById,
-} from 'redux/selectors/memberships';
+import { selectUserHasValidMembershipForCreatorId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -53,7 +50,6 @@ const select = (state, props) => {
     chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
     claimId,
     claimIsMine: selectClaimIsMine(state, claim),
-    creatorsMemberships: selectById(state)[channelClaimId],
     hasChannels: selectHasChannels(state),
     isFetchingChannels: selectFetchingMyChannels(state),
     myChannelClaimIds: selectMyChannelClaimIds(state),
@@ -62,7 +58,7 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     tipChannelName,
-    validMembershipIds: selectMyValidMembershipIds(state, activeChannelClaim),
+    isAChannelMember: selectUserHasValidMembershipForCreatorId(state, channelClaimId),
   };
 };
 

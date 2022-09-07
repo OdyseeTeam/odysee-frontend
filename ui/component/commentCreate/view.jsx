@@ -89,9 +89,8 @@ type Props = {
   doFetchMyCommentedChannels: (claimId: ?string) => void,
   doTipAccountCheckForUri: (uri: string) => void,
   textInjection?: string,
-  validMembershipIds: Array<number>,
-  creatorsMemberships: Array<Membership>,
   chatCommentsRestrictedToChannelMembers: boolean,
+  isAChannelMember: boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -135,8 +134,7 @@ export function CommentCreate(props: Props) {
     doTipAccountCheckForUri,
     textInjection,
     chatCommentsRestrictedToChannelMembers,
-    validMembershipIds,
-    creatorsMemberships,
+    isAChannelMember,
   } = props;
 
   const isMobile = useIsMobile();
@@ -168,7 +166,6 @@ export function CommentCreate(props: Props) {
   const [disableReviewButton, setDisableReviewButton] = React.useState();
   const [exchangeRate, setExchangeRate] = React.useState();
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
-  const [isAChannelMember, setIsAChannelMember] = React.useState(false);
 
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
@@ -470,20 +467,6 @@ export function CommentCreate(props: Props) {
   // Effects
   // **************************************************************************
 
-  // Determine whether user is a channel member (used for authing members only chat)
-  React.useEffect(() => {
-    if (chatCommentsRestrictedToChannelMembers && creatorsMemberships && creatorsMemberships.length) {
-      let ids = [];
-      for (const membership of creatorsMemberships) {
-        ids.push(membership.Membership.id);
-      }
-
-      const isAMember = validMembershipIds && validMembershipIds.filter(id => ids.includes(id)).length;
-
-      setIsAChannelMember(isAMember);
-    }
-  }, [chatCommentsRestrictedToChannelMembers, validMembershipIds]);
-
   // Fetch channel constraints if not already.
   React.useEffect(() => {
     if (!channelSettings && channelClaimId) {
@@ -645,9 +628,9 @@ export function CommentCreate(props: Props) {
             autoFocus={isReply}
             charCount={charCount}
             className={classnames('', {
-              'create__reply': isReply,
-              'create__comment': !isReply,
-              'disabled_chat_comments': notAuthedToChat,
+              create__reply: isReply,
+              create__comment: !isReply,
+              disabled_chat_comments: notAuthedToChat,
             })}
             disabled={isFetchingChannels || disableInput || notAuthedToChat}
             isLivestream={isLivestream}

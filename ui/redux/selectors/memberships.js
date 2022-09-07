@@ -39,21 +39,33 @@ export const selectMyActiveMembershipIds = (state: State, id: string) => {
   return (activeMembershipIds.length && activeMembershipIds) || null;
 };
 
-export const selectMyValidMembershipsById = (state: State) => {
-  const purchasedMembershipsById = selectMyPurchasedMembershipsById(state);
+export const selectMyValidMembershipsById = createSelector(
+  selectMyPurchasedMembershipsById,
+  (purchasedMembershipsById) => {
+    const validMembershipsById = {};
 
-  let filteredMemberships = {};
+    for (const creatorChannelId in purchasedMembershipsById) {
+      const purchasedCreatorMemberships = purchasedMembershipsById[creatorChannelId];
 
-  for (const channelId in purchasedMembershipsById) {
-    for (const membership of purchasedMembershipsById[channelId]) {
-      if ((membership.Subscription.current_period_end * 1000) > Date.now()) {
-        if (!filteredMemberships[channelId]) filteredMemberships[channelId] = [];
-        filteredMemberships[channelId].push(membership);
+      for (const membership of purchasedCreatorMemberships) {
+        if (membership.Subscription.current_period_end * 1000 > Date.now()) {
+          validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
+          validMembershipsById[creatorChannelId].add(membership);
+          validMembershipsById[creatorChannelId] = Array.from(validMembershipsById[creatorChannelId]);
+        }
       }
     }
-  }
 
-  return filteredMemberships
+    return validMembershipsById;
+  }
+);
+
+export const selectMyValidMembershipsForCreatorId = (state: State, id: string) =>
+  selectMyValidMembershipsById(state)[id];
+
+export const selectUserHasValidMembershipForCreatorId = (state: State, id: string) => {
+  const validMemberships = selectMyValidMembershipsForCreatorId(state, id);
+  return Boolean(validMemberships && validMemberships.length > 0);
 };
 
 export const selectMyValidMembershipIds = (state: State) => {
