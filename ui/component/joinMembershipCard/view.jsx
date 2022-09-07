@@ -133,11 +133,6 @@ const JoinMembershipCard = (props: Props) => {
         })}
         body={
           <>
-            {commaSeparatedMembershipNames && (
-              <p className="section__subtitle section__subtitle--join-membership__perk">
-                {commaSeparatedMembershipNames}
-              </p>
-            )}
             {isOnConfirmationPage ? (
               <ConfirmationPage {...pageProps} onCancel={() => setConfirmationPage(false)} />
             ) : (

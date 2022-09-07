@@ -348,6 +348,22 @@
       }
     }
   }
+
+  .membership-tier__header {
+    display: none;
+  }
+  .membership-tier__infos {
+    margin-top: var(--spacing-l);
+    span {
+      opacity: 0.8;
+    }
+    .membership-tier__perks {
+      margin-bottom: 0 !important;
+    }
+  }
+  .join-membership__modal-action {
+    margin-top: var(--spacing-l);
+  }
 }
 
 .card--join-membership {
