@@ -98,8 +98,8 @@ const MembershipsPage = (props: Props) => {
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
-          <Tab>{__('Tiers')}</Tab>
-          <Tab>{__('Supporters')}</Tab>
+          <Tab>{activeChannelClaim !== null && __('Tiers')}</Tab>
+          <Tab>{activeChannelClaim !== null && __('Supporters')}</Tab>
           <Tab>{__('My Pledges')}</Tab>
         </TabList>
 
@@ -110,13 +110,21 @@ const MembershipsPage = (props: Props) => {
           </TabPanel>
 
           <TabPanel>
-            <ChannelSelector hideAnon />
-            <TiersTab />
+            {activeChannelClaim !== null && (
+              <>
+                <ChannelSelector hideAnon />
+                <TiersTab />
+              </>
+            )}
           </TabPanel>
 
           <TabPanel>
-            <ChannelSelector hideAnon />
-            <SupportersTab />
+            {activeChannelClaim !== null && (
+              <>
+                <ChannelSelector hideAnon />
+                <SupportersTab />
+              </>
+            )}
           </TabPanel>
 
           <TabPanel>
