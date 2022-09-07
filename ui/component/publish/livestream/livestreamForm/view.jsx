@@ -525,9 +525,9 @@ function LivestreamForm(props: Props) {
           replaySource={replaySource}
         />
 
-        <PublishProtectedContent claim={myClaimForUri} />
-
         <PublishDescription disabled={disabled} />
+
+        <PublishProtectedContent claim={myClaimForUri} />
 
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
