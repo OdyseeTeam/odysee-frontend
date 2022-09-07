@@ -35,7 +35,8 @@ const select = (state, props) => {
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channelId),
     creatorMembership:
       channelId === activeChannelId
-        ? selectMyValidMembershipsForCreatorId(state, creatorId)
+        ? selectMyValidMembershipsForCreatorId(state, creatorId) &&
+          selectMyValidMembershipsForCreatorId(state, creatorId)[0]?.MembershipDetails?.name
         : selectCreatorIdMembershipForChannelId(state, creatorId, channelId),
     activeChannelClaim,
     authorTitle,
