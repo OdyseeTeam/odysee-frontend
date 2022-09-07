@@ -148,7 +148,7 @@ function PublishProtectedContent(props: Props) {
                 ),
               }}
             >
-              Please %activate_your_memberships% first to to use this functionality
+              Please %activate_your_memberships% first to to use this functionality.
             </I18nMessage>
           }
         />
