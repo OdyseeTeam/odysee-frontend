@@ -527,10 +527,6 @@ function LivestreamForm(props: Props) {
 
         <PublishDescription disabled={disabled} />
 
-        <div className={classnames({ 'card--disabled': formDisabled })}>
-          <PublishProtectedContent claim={myClaimForUri} />
-        </div>
-
         {!publishing && (
           <div className={classnames({ 'card--disabled': disabled })}>
             {(publishMode === 'New' || (publishMode === 'Edit' && replaySource === 'keep')) && (
@@ -538,6 +534,8 @@ function LivestreamForm(props: Props) {
             )}
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+
+            <PublishProtectedContent claim={myClaimForUri} />
 
             <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
               {__('Tags')}
