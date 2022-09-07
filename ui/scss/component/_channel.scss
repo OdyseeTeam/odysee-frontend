@@ -126,17 +126,8 @@ $actions-z-index: 2;
   .media__info-text:first-of-type {
     opacity: 1;
   }
-
-  .MuiAutocomplete-root {
-  }
-  .MuiOutlinedInput-root {
-    background-color: var(--color-input-bg);
-
-    .MuiOutlinedInput-notchedOutline {
-      border: unset !important;
-    }
-  }
 }
+
 .channel-cover {
   position: relative;
   background-image: linear-gradient(to right, #637ad2, #318794 80%);

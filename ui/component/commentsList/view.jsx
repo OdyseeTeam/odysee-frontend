@@ -103,6 +103,8 @@ export default function CommentList(props: Props) {
     chatCommentsRestrictedToChannelMembers,
     creatorsMemberships,
     activeMembershipIds,
+    validMemberships,
+    validMembershipIds,
   } = props;
 
   const threadRedirect = React.useRef(false);

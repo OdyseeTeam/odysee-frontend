@@ -53,7 +53,7 @@ const JoinMembershipCard = (props: Props) => {
       membership_id: selectedTier.Membership.id,
       channel_id: activeChannelClaim.claim_id,
       channel_name: activeChannelClaim.name,
-      price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
+      price_id: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
     doMembershipBuy(membershipBuyParams).then(() => {

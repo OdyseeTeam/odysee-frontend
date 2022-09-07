@@ -7,12 +7,12 @@ import MembershipDetails from '../membershipDetails';
 type Props = {
   key?: any,
   membership: CreatorMembership,
-  channelIsMine: boolean,
+  disabled?: boolean,
   handleSelect: () => void,
 };
 
 const MembershipTier = (props: Props) => {
-  const { key, membership, channelIsMine, handleSelect } = props;
+  const { key, membership, disabled, handleSelect } = props;
 
   return (
     <div key={key} className="membership-tier__wrapper">
@@ -22,9 +22,9 @@ const MembershipTier = (props: Props) => {
           <Button
             icon={ICONS.UPGRADE}
             button="primary"
-            disabled={channelIsMine}
+            disabled={disabled}
             label={__('Signup for $%membership_price% a month', {
-              membership_price: membership.NewPrices[0].Price.amount / 100,
+              membership_price: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
             })}
             onClick={handleSelect}
           />

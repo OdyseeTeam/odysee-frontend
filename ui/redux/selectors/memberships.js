@@ -39,6 +39,37 @@ export const selectMyActiveMembershipIds = (state: State, id: string) => {
   return (activeMembershipIds.length && activeMembershipIds) || null;
 };
 
+export const selectMyValidMembershipsById = (state: State) => {
+  const purchasedMembershipsById = selectMyPurchasedMembershipsById(state);
+
+  let filteredMemberships = {};
+
+  for (const channelId in purchasedMembershipsById) {
+    for (const membership of purchasedMembershipsById[channelId]) {
+      if ((membership.Subscription.current_period_end * 1000) > Date.now()) {
+        if (!filteredMemberships[channelId]) filteredMemberships[channelId] = [];
+        filteredMemberships[channelId].push(membership);
+      }
+    }
+  }
+
+  return filteredMemberships
+};
+
+export const selectMyValidMembershipIds = (state: State) => {
+  const validMembershipsById = selectMyValidMembershipsById(state);
+
+  const values = Object.values(validMembershipsById);
+
+  let validMembershipIds = [];
+  for (const channelId of values) {
+    for (const membership of channelId) {
+      validMembershipIds.push(membership.MembershipDetails.id);
+    }
+  }
+  return (validMembershipIds.length && validMembershipIds) || null;
+};
+
 export const selectMyActiveOdyseeMembership = (state: State) =>
   selectMyActiveMembershipsForChannelClaimId(state, ODYSEE_CHANNEL.ID);
 export const selectUserHasActiveOdyseeMembership = (state: State, id: string) =>

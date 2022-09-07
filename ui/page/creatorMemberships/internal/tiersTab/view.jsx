@@ -166,13 +166,18 @@ function TiersTab(props: Props) {
     return perkIds.includes(perkId);
   };
 
+  function _scrollTo(selector, yOffset = 0){
+    const el = document.querySelector(selector);
+    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
+
+    window.scrollTo({top: y, behavior: 'smooth'});
+  }
+
   function createEditTier(reference, tier, membershipIndex) {
     // TODO: better way than setTimeout
-
-    // console.log('reference: ', reference);
-    // console.log('reference: ', reference.current.offsetTop);
     setTimeout(function () {
-      // window.scrollTo({ top: reference.current.offsetTop, behavior: 'smooth' });
+      _scrollTo('.membership-tier__wrapper-edit', -55)
+      document.querySelector("input[type='text'][name='tier_name']").focus();
     }, 15);
 
     console.log('tier ');
@@ -213,6 +218,7 @@ function TiersTab(props: Props) {
           type="number"
           name="tier_contribution"
           step="1"
+          min="1"
           label={__('Monthly Contribution ($/Month)')}
           defaultValue={tier.Prices[0].unit_amount / 100}
           onChange={(event) => parseFloat(event.target.value)}
@@ -333,7 +339,7 @@ function TiersTab(props: Props) {
                   </div>
                   <div className="membership-tier__infos">
                     <label>Pledge</label>
-                    <span>${membershipTier.NewPrices[0].Price.amount / 100}</span>
+                    <span>${membershipTier.NewPrices && membershipTier.NewPrices[0].Price.amount / 100}</span>
 
                     <label>{__('Description & custom Perks')}</label>
                     <span>{membershipTier.Membership.description}</span>
