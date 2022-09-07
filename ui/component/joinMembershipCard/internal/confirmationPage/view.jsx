@@ -4,6 +4,7 @@ import React from 'react';
 import BusyIndicator from 'component/common/busy-indicator';
 import Button from 'component/button';
 import BalanceText from 'react-balance-text';
+import ChannelSelector from 'component/channelSelector';
 import { Submit } from 'component/common/form';
 
 type Props = {
@@ -19,6 +20,7 @@ export default function ConfirmationPage(props: Props) {
 
   return (
     <div className="confirm__wrapper">
+      <ConfirmationSection label={__('Subscribing As')} value={<ChannelSelector />} />
       <ConfirmationSection label={__('Subscribing To')} value={channelName} />
       <ConfirmationSection label={__('Membership Tier')} value={selectedTier.Membership.name} />
       <ConfirmationSection

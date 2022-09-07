@@ -234,6 +234,9 @@
     }
 
     &.membership-tier1 {
+      *::selection {
+        background: rgba(var(--color-membership-1), 1) !important;
+      }
       .membership-tier__perks {
         li {
           &::before {
@@ -253,6 +256,9 @@
       }
     }
     &.membership-tier2 {
+      *::selection {
+        background: rgba(var(--color-membership-2), 1) !important;
+      }
       .membership-tier__perks {
         li {
           &::before {
@@ -272,6 +278,9 @@
       }
     }
     &.membership-tier3 {
+      *::selection {
+        background: rgba(var(--color-membership-3), 1) !important;
+      }
       .membership-tier__perks {
         li {
           &::before {
@@ -291,6 +300,9 @@
       }
     }
     &.membership-tier4 {
+      *::selection {
+        background: rgba(var(--color-membership-4), 1) !important;
+      }
       .membership-tier__perks {
         li {
           &::before {
@@ -310,6 +322,9 @@
       }
     }
     &.membership-tier5 {
+      *::selection {
+        background: rgba(var(--color-membership-5), 1) !important;
+      }
       .membership-tier__perks {
         li {
           &::before {
@@ -329,6 +344,9 @@
       }
     }
     &.membership-tier6 {
+      *::selection {
+        background: rgba(var(--color-membership-6), 1) !important;
+      }
       .membership-tier__perks {
         li {
           &::before {
@@ -552,6 +570,12 @@
 
       &:not(:first-of-type) {
         margin-top: var(--spacing-m);
+      }
+
+      &:first-of-type {
+        .channel__selector {
+          margin-bottom: 0;
+        }
       }
 
       span {
