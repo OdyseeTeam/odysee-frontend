@@ -64,7 +64,8 @@ type Props = {
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doPopOutInlinePlayer: (param: { source: string }) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
-  creatorsMemberships: Array<Membership>,
+  creatorsMemberships?: Array<Membership>,
+  validMembershipIds?: Array<number>
 };
 
 export default function CommentList(props: Props) {
@@ -102,8 +103,6 @@ export default function CommentList(props: Props) {
     doFetchChannelMembershipsForChannelIds,
     chatCommentsRestrictedToChannelMembers,
     creatorsMemberships,
-    activeMembershipIds,
-    validMemberships,
     validMembershipIds,
   } = props;
 
@@ -218,11 +217,11 @@ export default function CommentList(props: Props) {
         ids.push(membership.Membership.id);
       }
 
-      const isAMember = activeMembershipIds && activeMembershipIds.filter(id => ids.includes(id)).length;
+      const isAMember = validMembershipIds && validMembershipIds.filter(id => ids.includes(id)).length;
 
       setIsAChannelMember(isAMember);
     }
-  }, [chatCommentsRestrictedToChannelMembers, creatorsMemberships, activeMembershipIds]);
+  }, [chatCommentsRestrictedToChannelMembers, creatorsMemberships, validMembershipIds]);
 
   const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
 
