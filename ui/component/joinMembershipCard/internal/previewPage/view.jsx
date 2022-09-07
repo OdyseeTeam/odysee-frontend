@@ -6,7 +6,6 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
-import BalanceText from 'react-balance-text';
 import MembershipTier from './internal/membershipTier';
 import MembershipDetails from './internal/membershipDetails';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -62,17 +61,14 @@ const PreviewPage = (props: Props) => {
 
   if (!creatorHasMemberships) {
     return (
-      <>
-        <div>
-          <BalanceText>
-            {__(
-              channelIsMine
-                ? "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below"
-                : "Unfortunately, this creator hasn't activated their membership functionality yet. You can try creating your own memberships with the link below!"
-            )}
-          </BalanceText>
-        </div>
-
+      <div className="join-membership__empty">
+        <span>
+          {__(
+            channelIsMine
+              ? "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
+              : "Unfortunately, this creator hasn't activated their membership functionality yet. You can try creating your own memberships with the link below!"
+          )}
+        </span>
         <ButtonNavigateChannelId
           icon={ICONS.UPGRADE}
           button="primary"
@@ -81,7 +77,7 @@ const PreviewPage = (props: Props) => {
           navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
           channelId={channelId}
         />
-      </>
+      </div>
     );
   }
 

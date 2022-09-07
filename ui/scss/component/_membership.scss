@@ -483,6 +483,12 @@
     }
   }
 
+  .join-membership__empty {
+    .button {
+      margin-top: var(--spacing-m);
+    }
+  }
+
   .card__body {
     margin: 0 auto;
   }
