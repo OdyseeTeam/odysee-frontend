@@ -72,15 +72,15 @@ function PledgesTab(props: Props) {
     <>
       {pledges?.length > 0 && (
         <div className="table__wrapper">
-          <table className="table table--transactions">
+          <table className="table table--pledges">
             <thead>
               <tr>
-                <th className="date-header">Channel You're Supporting</th>
-                <th className="channelName-header">Membership Tier</th>
-                <th className="channelName-header">Total Supporting Time</th>
-                <th className="location-header">Support Amount</th>
-                <th className="channelName-header">Status</th>
-                <th className="amount-header">Details</th>
+                <th>Channel Name</th>
+                <th>Tier</th>
+                <th>Time Total</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Details</th>
               </tr>
             </thead>
             <tbody>
@@ -103,7 +103,7 @@ function PledgesTab(props: Props) {
                       ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
                       {capitalizeFirstLetter(pledges[i].period)}
                     </td>
-                    <td>{membership.Subscription.status === 'active' ? __('Active') : __('Cancelled') }</td>
+                    <td>{membership.Subscription.status === 'active' ? __('Active') : __('Cancelled')}</td>
                     <td>
                       <span dir="auto" className="button__label">
                         <Button
