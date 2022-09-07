@@ -134,8 +134,9 @@ function PublishProtectedContent(props: Props) {
       <h2 className="card__title">{__('Restrictions')}</h2>
 
       {!hasSavedTiers && (
-        <>
-          <div>
+        <Card
+          className="card--restrictions"
+          body={
             <I18nMessage
               tokens={{
                 activate_your_memberships: (
@@ -149,8 +150,8 @@ function PublishProtectedContent(props: Props) {
             >
               Please %activate_your_memberships% first to to use this functionality
             </I18nMessage>
-          </div>
-        </>
+          }
+        />
       )}
 
       {hasSavedTiers && (
