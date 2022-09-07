@@ -712,6 +712,13 @@ $actions-z-index: 2;
     margin-bottom: -3px;
   }
 
+  span.icon__wrapper {
+    display: flex !important;
+  }
+  .icon {
+    -ms-flex-align: center;
+  }
+
   &:hover {
     .claim-preview__title {
       color: var(--color-primary-contrast);
