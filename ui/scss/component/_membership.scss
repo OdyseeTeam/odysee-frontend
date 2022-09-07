@@ -688,6 +688,9 @@
   }
 
   &:nth-child(1) {
+    *::selection {
+      background: rgba(var(--color-membership-1), 1) !important;
+    }
     .membership-tier__header {
       background-color: rgba(var(--color-membership-1), 1);
       .menu__button {
@@ -714,6 +717,9 @@
   }
 
   &:nth-child(2) {
+    *::selection {
+      background: rgba(var(--color-membership-2), 1) !important;
+    }
     .membership-tier__header {
       background-color: rgba(var(--color-membership-2), 1);
       .menu__button {
@@ -740,6 +746,9 @@
   }
 
   &:nth-child(3) {
+    *::selection {
+      background: rgba(var(--color-membership-3), 1) !important;
+    }
     .membership-tier__header {
       background-color: rgba(var(--color-membership-3), 1);
       .menu__button {
@@ -766,6 +775,9 @@
   }
 
   &:nth-child(4) {
+    *::selection {
+      background: rgba(var(--color-membership-4), 1) !important;
+    }
     .membership-tier__header {
       background-color: rgba(var(--color-membership-4), 1);
       .menu__button {
@@ -792,6 +804,9 @@
   }
 
   &:nth-child(5) {
+    *::selection {
+      background: rgba(var(--color-membership-5), 1) !important;
+    }
     .membership-tier__header {
       background-color: rgba(var(--color-membership-5), 1);
       .menu__button {
@@ -818,6 +833,9 @@
   }
 
   &:nth-child(6) {
+    *::selection {
+      background: rgba(var(--color-membership-6), 1) !important;
+    }
     .membership-tier__header {
       background-color: rgba(var(--color-membership-6), 1);
       .menu__button {
