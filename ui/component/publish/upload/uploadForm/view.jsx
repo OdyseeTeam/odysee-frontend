@@ -470,9 +470,9 @@ function UploadForm(props: Props) {
         }
       />
 
-      <PublishProtectedContent claim={myClaimForUri} />
-
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+
+      <PublishProtectedContent claim={myClaimForUri} />
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
