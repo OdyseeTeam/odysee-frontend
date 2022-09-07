@@ -6,20 +6,20 @@ import Icon from 'component/common/icon';
 
 type Props = {
   protectedMembershipIds: Array<number>,
-  activeMembershipIds: Array<number>,
+  validMembershipIds: Array<number>,
   claimIsMine: boolean,
 };
 
 export default function PreviewOverlayProtectedContent(props: Props) {
-  const { protectedMembershipIds, activeMembershipIds, claimIsMine } = props;
+  const { protectedMembershipIds, validMembershipIds, claimIsMine } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
 
   React.useEffect(() => {
-    if (protectedMembershipIds && activeMembershipIds) {
-      setUserIsAMember(activeMembershipIds.some((id) => protectedMembershipIds.includes(id)));
+    if (protectedMembershipIds && validMembershipIds) {
+      setUserIsAMember(validMembershipIds.some((id) => protectedMembershipIds.includes(id)));
     }
-  }, [protectedMembershipIds, activeMembershipIds]);
+  }, [protectedMembershipIds, validMembershipIds]);
 
   // don't show overlay if it's not protected or user is a member
   if (!protectedMembershipIds || userIsAMember || claimIsMine) return <></>;
