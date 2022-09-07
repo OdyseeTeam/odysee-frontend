@@ -16,7 +16,11 @@ import {
   selectIsFetchingCommentsForParentId,
   selectRepliesForParentId,
 } from 'redux/selectors/comments';
-import { selectOdyseeMembershipForChannelId, selectCreatorIdMembershipForChannelId } from 'redux/selectors/memberships';
+import {
+  selectOdyseeMembershipForChannelId,
+  selectMyValidMembershipsForCreatorId,
+  selectCreatorIdMembershipForChannelId,
+} from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -32,6 +36,7 @@ const select = (state, props) => {
   const reactionKey = activeChannelId ? `${comment_id}:${activeChannelId}` : comment_id;
 
   const claim = selectClaimForUri(state, uri);
+  const creatorId = getChannelIdFromClaim(claim);
 
   return {
     myChannelIds: selectMyClaimIdsRaw(state),
@@ -46,7 +51,10 @@ const select = (state, props) => {
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id),
-    creatorMembership: selectCreatorIdMembershipForChannelId(state, getChannelIdFromClaim(claim), channel_id),
+    creatorMembership:
+      channel_id === activeChannelId
+        ? selectMyValidMembershipsForCreatorId(state, creatorId)
+        : selectCreatorIdMembershipForChannelId(state, creatorId, channel_id),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
   };
