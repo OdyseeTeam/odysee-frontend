@@ -472,15 +472,13 @@ function UploadForm(props: Props) {
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
 
-      <div className={classnames({ 'card--disabled': formDisabled })}>
-        <PublishProtectedContent claim={myClaimForUri} />
-      </div>
-
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           {showSchedulingOptions && <Card body={<PublishStreamReleaseDate />} />}
 
           <Card actions={<SelectThumbnail />} />
+
+          <PublishProtectedContent claim={myClaimForUri} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}
