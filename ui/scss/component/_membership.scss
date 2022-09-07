@@ -455,6 +455,14 @@
     display: grid;
     grid-gap: var(--spacing-l);
     grid-template-columns: repeat(3, minmax(0, 1fr));
+
+    @media (max-width: $breakpoint-small) {
+      grid-template-columns: repeat(1, minmax(0, 1fr));
+    }
+
+    @media (max-width: $breakpoint-medium) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
   }
 
   .card__body {
