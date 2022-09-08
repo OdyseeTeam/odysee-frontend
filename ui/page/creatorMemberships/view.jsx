@@ -30,11 +30,22 @@ type Props = {
   // -- redux --
   activeChannelClaim: ?ChannelClaim,
   bankAccountConfirmed: ?boolean,
+  myChannelClaims: ?Array<ChannelClaim>,
   doTipAccountStatus: (any) => void,
 };
 
 const MembershipsPage = (props: Props) => {
-  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim } = props;
+  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims } = props;
+
+  const [allSelected, setAllSelected] = React.useState(false);
+
+  const channelsToList = React.useMemo(() => {
+    if (!myChannelClaims) return myChannelClaims;
+    if (!activeChannelClaim) return activeChannelClaim;
+
+    if (allSelected) return myChannelClaims;
+    return [activeChannelClaim];
+  }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   React.useEffect(() => {
     if (bankAccountConfirmed === undefined) {
@@ -105,14 +116,23 @@ const MembershipsPage = (props: Props) => {
 
         <TabPanels>
           <TabPanel>
-            <OverviewTab />
+            <ChannelSelector
+              hideAnon
+              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+              onChannelSelect={() => setAllSelected(false)}
+            />
+            <OverviewTab channelsToList={channelsToList} />
           </TabPanel>
 
           <TabPanel>
             {activeChannelClaim !== null && (
               <>
-                <ChannelSelector hideAnon />
-                <TiersTab />
+                <ChannelSelector
+                  hideAnon
+                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                  onChannelSelect={() => setAllSelected(false)}
+                />
+                <TiersTab channelsToList={channelsToList} />
               </>
             )}
           </TabPanel>
@@ -120,15 +140,23 @@ const MembershipsPage = (props: Props) => {
           <TabPanel>
             {activeChannelClaim !== null && (
               <>
-                <ChannelSelector hideAnon />
-                <SupportersTab />
+                <ChannelSelector
+                  hideAnon
+                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                  onChannelSelect={() => setAllSelected(false)}
+                />
+                <SupportersTab channelsToList={channelsToList} />
               </>
             )}
           </TabPanel>
 
           <TabPanel>
-            <ChannelSelector hideAnon />
-            <PledgesTab />
+            <ChannelSelector
+              hideAnon
+              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+              onChannelSelect={() => setAllSelected(false)}
+            />
+            <PledgesTab channelsToList={channelsToList} />
           </TabPanel>
         </TabPanels>
       </Tabs>

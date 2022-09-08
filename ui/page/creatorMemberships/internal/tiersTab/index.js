@@ -1,8 +1,7 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
-import { selectMyMembershipTiers, selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMyMembershipTiers, selectMembershipsByIdForChannelIds } from 'redux/selectors/memberships';
 import {
   doMembershipList,
   doGetMembershipPerks,
@@ -12,14 +11,14 @@ import {
 import { doToast } from 'redux/actions/notifications';
 import TiersTab from './view';
 
-const select = (state) => {
-  const activeChannel = selectActiveChannelClaim(state);
+const select = (state, props) => {
+  const { channelsToList } = props;
+  const channelIds = channelsToList && channelsToList.map((channel) => channel.claim_id);
 
   return {
     bankAccountConfirmed: selectAccountChargesEnabled(state),
-    activeChannel,
     membershipPerks: selectMyMembershipTiers(state),
-    creatorMemberships: selectMembershipTiersForChannelId(state, activeChannel?.claim_id),
+    membershipsByChannelId: channelIds && selectMembershipsByIdForChannelIds(state, channelIds),
   };
 };
 

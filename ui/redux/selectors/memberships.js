@@ -121,6 +121,22 @@ export const selectOdyseeMembershipIsPremiumPlus = (state: State, channelId: str
   selectOdyseeMembershipForChannelId(state, channelId) === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS;
 
 export const selectMembershipTiersForChannelId = (state: State, channelId: string) => selectById(state)[channelId];
+
+export const selectMembershipsByIdForChannelIds = createSelector(
+  (state, ids) => ids,
+  selectById,
+  (ids, byId) => {
+    const membershipsById = {};
+
+    ids.forEach((id) => {
+      const membershipForId = byId[id];
+      if (membershipForId) membershipsById[id] = membershipForId;
+    });
+
+    return membershipsById;
+  }
+);
+
 export const selectMembershipTiersForChannelUri = (state: State, uri: string) =>
   selectMembershipTiersForChannelId(state, selectChannelClaimIdForUri(state, uri));
 
