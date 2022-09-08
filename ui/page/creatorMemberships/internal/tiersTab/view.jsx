@@ -198,7 +198,8 @@ function TiersTab(props: Props) {
           type="text"
           name="tier_name"
           label={__('Tier Name')}
-          placeholder={tier.Membership.name}
+          placeholder={__('Example Plan')}
+          value={tier.Membership.name}
           onChange={(e) => setEditTierName(e.target.value)}
         />
         {/* could be cool to have markdown */}
@@ -399,7 +400,7 @@ function TiersTab(props: Props) {
 
                 const newestMembership = {
                   Membership: {
-                    name: 'Example Plan',
+                    name: '',
                     description: '',
                   },
                   Prices: [
