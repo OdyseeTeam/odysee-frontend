@@ -1186,6 +1186,9 @@
   .section__actions {
     margin-top: var(--spacing-m);
     margin-bottom: calc(var(--spacing-m) * -1) !important;
+    .button--primary {
+      background-color: var(--color-primary) !important;
+    }
   }
 }
 
