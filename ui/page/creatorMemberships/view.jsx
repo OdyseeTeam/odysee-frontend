@@ -105,7 +105,6 @@ const MembershipsPage = (props: Props) => {
 
         <TabPanels>
           <TabPanel>
-            <ChannelSelector hideAnon />
             <OverviewTab />
           </TabPanel>
 

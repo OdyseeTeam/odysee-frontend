@@ -7,19 +7,37 @@ import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
+import ChannelSelector from 'component/channelSelector';
 
 type Props = {
   // -- redux --
   activeChannelClaim: ?ChannelClaim,
   bankAccountConfirmed: ?boolean,
+  myChannelClaims: ?Array<ChannelClaim>,
 };
 
 function OverviewTab(props: Props) {
-  const { bankAccountConfirmed, activeChannelClaim } = props;
+  const { bankAccountConfirmed, activeChannelClaim, myChannelClaims } = props;
+
+  const [allSelected, setAllSelected] = React.useState(false);
+
+  const channelsToList = React.useMemo(() => {
+    if (!myChannelClaims) return myChannelClaims;
+    if (!activeChannelClaim) return activeChannelClaim;
+
+    if (allSelected) return myChannelClaims;
+    return [activeChannelClaim];
+  }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   return (
     <>
-      {activeChannelClaim !== null && (
+      <ChannelSelector
+        hideAnon
+        allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+        onChannelSelect={() => setAllSelected(false)}
+      />
+
+      {channelsToList && (
         <div className="membership-table__wrapper">
           <table className="table">
             <thead>
@@ -33,28 +51,31 @@ function OverviewTab(props: Props) {
               </tr>
             </thead>
             <tbody>
-              <tr>
-                <td>Channel Name</td>
-                <td>0</td>
-                <td>$0</td>
-                <td>$0</td>
-                <td>
-                  <ButtonNavigateChannelId
-                    button="primary"
-                    // className="membership_button"
-                    // label={__('View your membership page')}
-                    icon={ICONS.UPGRADE}
-                    navigate={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
-                  />
-                </td>
-                <td className="membership-table__url">
-                  <CopyableText
-                    primaryButton
-                    copyable={`${URL}${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
-                    snackMessage={__('Page location copied')}
-                  />
-                </td>
-              </tr>
+              {channelsToList.map((channelClaim) => (
+                <tr key={channelClaim.claim_id}>
+                  <td>{channelClaim.value.title || channelClaim.name}</td>
+                  <td>0</td>
+                  <td>$0</td>
+                  <td>$0</td>
+                  <td>
+                    <ButtonNavigateChannelId
+                      button="primary"
+                      // className="membership_button"
+                      // label={__('View your membership page')}
+                      icon={ICONS.UPGRADE}
+                      navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+                    />
+                  </td>
+                  <td className="membership-table__url">
+                    <CopyableText
+                      onlyCopy
+                      primaryButton
+                      copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+                      snackMessage={__('Page location copied')}
+                    />
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
