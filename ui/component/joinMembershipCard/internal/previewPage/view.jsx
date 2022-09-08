@@ -51,7 +51,7 @@ const PreviewPage = (props: Props) => {
   const isChannelTab = React.useContext(ChannelPageContext);
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
-  const creatorPurchaseDisabled = !creatorHasMemberships || canReceiveFiatTips === false;
+  const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
