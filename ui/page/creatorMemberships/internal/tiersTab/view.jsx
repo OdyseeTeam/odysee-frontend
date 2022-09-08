@@ -72,7 +72,7 @@ function TiersTab(props: Props) {
     const nameTest = editTierName && editTierName.length > 2 && /\S/.test(editTierName);
     const descriptionTest = editTierDescription && editTierDescription.length > 4 && /\S/.test(editTierDescription);
     setFieldValidation(nameTest && descriptionTest ? true : false);
-  }, [editTierDescription, editTierName]);
+  }, [editTierDescription, editTierName, isEditing]);
 
   // focus name when you create a new tier
   React.useEffect(() => {
