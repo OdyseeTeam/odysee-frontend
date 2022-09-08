@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import BalanceText from 'react-balance-text';
 
 type Props = {
   membership: CreatorMembership,
@@ -23,21 +22,20 @@ const MembershipDetails = (props: Props) => {
 
         <div className="membership-tier__perks">
           <div className="membership-tier__moon" />
-            <div className="membership-tier__perks-content">
-              {membership.Perks && membership.Perks.length > 0 ? (          
-                <>            
-                  <label>{__('Perks')}</label>
-                  <ul>
-                    {/* $FlowFixMe -- already handled above */}
-                    {membership.Perks.map((tierPerk, i) => (
-                      <li key={i}>{tierPerk.name}</li>
-                    ))}
-                  </ul>
-                  
-                </>
-              ) : (
-                <label>{__('No Perks...')}</label>
-              )}
+          <div className="membership-tier__perks-content">
+            {membership.Perks && membership.Perks.length > 0 ? (
+              <>
+                <label>{__('Perks')}</label>
+                <ul>
+                  {/* $FlowFixMe -- already handled above */}
+                  {membership.Perks.map((tierPerk, i) => (
+                    <li key={i}>{tierPerk.name}</li>
+                  ))}
+                </ul>
+              </>
+            ) : (
+              <label>{__('No Perks...')}</label>
+            )}
           </div>
         </div>
       </section>
