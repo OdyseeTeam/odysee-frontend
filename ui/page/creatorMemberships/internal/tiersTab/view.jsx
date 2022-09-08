@@ -69,10 +69,10 @@ function TiersTab(props: Props) {
   }, [fetchedMemberships]);
 
   React.useEffect(() => {
-    const nameTest = editTierName && editTierName.length > 2 && /\S/.test(editTierName);
-    const descriptionTest = editTierDescription && editTierDescription.length > 4 && /\S/.test(editTierDescription);
+    const nameTest = editTierName && editTierName.trim().length > 2;
+    const descriptionTest = editTierDescription && editTierDescription.trim().length > 4;
     setFieldValidation(nameTest && descriptionTest ? true : false);
-  }, [editTierDescription, editTierName, isEditing]);
+  }, [editTierName, editTierDescription, isEditing]);
 
   // focus name when you create a new tier
   React.useEffect(() => {
@@ -199,7 +199,7 @@ function TiersTab(props: Props) {
           name="tier_name"
           label={__('Tier Name')}
           placeholder={__('Example Plan')}
-          value={tier.Membership.name}
+          value={editTierName}
           onChange={(e) => setEditTierName(e.target.value)}
         />
         {/* could be cool to have markdown */}
