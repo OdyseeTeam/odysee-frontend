@@ -46,7 +46,9 @@ function TiersTab(props: Props) {
   const [isEditing, setIsEditing] = React.useState(false);
   const [creatorMemberships, setCreatorMemberships] = React.useState(fetchedMemberships || []);
   const [editTierDescription, setEditTierDescription] = React.useState('');
+  const [editTierName, setEditTierName] = React.useState('');
   const [pendingTier, setPendingTier] = React.useState(false);
+  const [fieldValidation, setFieldValidation] = React.useState(false);
 
   React.useEffect(() => {
     if (activeChannelName && activeChannelId) {
@@ -65,6 +67,12 @@ function TiersTab(props: Props) {
       setCreatorMemberships(fetchedMemberships);
     }
   }, [fetchedMemberships]);
+
+  React.useEffect(() => {
+    const nameTest = editTierName && editTierName.length > 2 && /\S/.test(editTierName);
+    const descriptionTest = editTierDescription && editTierDescription.length > 4 && /\S/.test(editTierDescription);
+    setFieldValidation(nameTest && descriptionTest ? true : false);
+  }, [editTierDescription, editTierName]);
 
   // focus name when you create a new tier
   React.useEffect(() => {
@@ -166,18 +174,18 @@ function TiersTab(props: Props) {
     return perkIds.includes(perkId);
   };
 
-  function _scrollTo(selector, yOffset = 0){
+  function _scrollTo(selector, yOffset = 0) {
     const el = document.querySelector(selector);
     const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
 
-    window.scrollTo({top: y, behavior: 'smooth'});
+    window.scrollTo({ top: y, behavior: 'smooth' });
   }
 
   function createEditTier(reference, tier, membershipIndex) {
     // TODO: better way than setTimeout
     setTimeout(function () {
-      _scrollTo('.membership-tier__wrapper-edit', -55)
-      document.querySelector("input[type='text'][name='tier_name']").focus();
+      _scrollTo('.membership-tier__wrapper-edit', -55);
+      // document.querySelector("input[type='text'][name='tier_name']").focus();
     }, 15);
 
     console.log('tier ');
@@ -185,7 +193,14 @@ function TiersTab(props: Props) {
 
     return (
       <div className="membership-tier__wrapper-edit">
-        <FormField type="text" name="tier_name" label={__('Tier Name')} defaultValue={tier.Membership.name} />
+        <FormField
+          max="30"
+          type="text"
+          name="tier_name"
+          label={__('Tier Name')}
+          placeholder={tier.Membership.name}
+          onChange={(e) => setEditTierName(e.target.value)}
+        />
         {/* could be cool to have markdown */}
         {/* <FormField */}
         {/*  type="markdown" */}
@@ -193,6 +208,7 @@ function TiersTab(props: Props) {
         <FormField
           type="textarea"
           rows="10"
+          max="400"
           name="tier_description"
           label={__('Tier Description & custom Perks')}
           placeholder={__('Description of your tier')}
@@ -230,7 +246,12 @@ function TiersTab(props: Props) {
           </h4>
         )}
         <div className="section__actions">
-          <Button button="primary" label={'Save Tier'} onClick={() => saveMembership(membershipIndex)} />
+          <Button
+            disabled={!fieldValidation}
+            button="primary"
+            label={'Save Tier'}
+            onClick={() => saveMembership(membershipIndex)}
+          />
           <Button
             button="link"
             label={__('Cancel')}
@@ -379,7 +400,7 @@ function TiersTab(props: Props) {
                 const newestMembership = {
                   Membership: {
                     name: 'Example Plan',
-                    description: 'You can describe extra perks here',
+                    description: '',
                   },
                   Prices: [
                     {
