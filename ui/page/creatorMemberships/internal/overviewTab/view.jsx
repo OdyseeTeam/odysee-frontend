@@ -7,36 +7,18 @@ import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
-import ChannelSelector from 'component/channelSelector';
 
 type Props = {
+  channelsToList: ?Array<ChannelClaim>,
   // -- redux --
-  activeChannelClaim: ?ChannelClaim,
   bankAccountConfirmed: ?boolean,
-  myChannelClaims: ?Array<ChannelClaim>,
 };
 
 function OverviewTab(props: Props) {
-  const { bankAccountConfirmed, activeChannelClaim, myChannelClaims } = props;
-
-  const [allSelected, setAllSelected] = React.useState(false);
-
-  const channelsToList = React.useMemo(() => {
-    if (!myChannelClaims) return myChannelClaims;
-    if (!activeChannelClaim) return activeChannelClaim;
-
-    if (allSelected) return myChannelClaims;
-    return [activeChannelClaim];
-  }, [activeChannelClaim, allSelected, myChannelClaims]);
+  const { channelsToList, bankAccountConfirmed } = props;
 
   return (
     <>
-      <ChannelSelector
-        hideAnon
-        allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-        onChannelSelect={() => setAllSelected(false)}
-      />
-
       {channelsToList && (
         <div className="membership-table__wrapper">
           <table className="table">

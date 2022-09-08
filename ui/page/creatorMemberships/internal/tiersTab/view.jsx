@@ -1,445 +1,209 @@
-// restore flow
-/* eslint-disable no-undef */
-/* eslint-disable react/prop-types */
+// @flow
 import React from 'react';
 import classnames from 'classnames';
-import { FormField } from 'component/common/form';
+
+import { v4 as uuid } from 'uuid';
+
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
-import ErrorText from 'component/common/error-text';
-import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
-import Icon from 'component/common/icon';
 
-// eslint-disable-next-line flowtype/no-types-missing-file-annotation
+import MembershipTier from './internal/membershipTier';
+import EditingTier from './internal/editingTier';
+
 type Props = {
+  channelsToList: ?Array<ChannelClaim>,
+  // -- redux --
   bankAccountConfirmed: boolean,
-  activeChannel: Claim,
-  membershipPerks: MembershipTiers,
-  creatorMemberships: CreatorMemberships,
-  doMembershipAddTier: (params: MembershipAddTierParams) => Promise<Membership>,
+  membershipsByChannelId: CreatorMemberships,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipPerks>,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
-  doOpenModal: (modalId: string, {}) => void,
-  doToast: (params: { message: string }) => void,
-  doDeactivateMembershipForId: (membershipId: number) => Promise<Membership>,
 };
 
-// eslint-disable-next-line flowtype/no-types-missing-file-annotation
 function TiersTab(props: Props) {
   const {
+    channelsToList,
+    // -- redux --
     bankAccountConfirmed,
-    activeChannel,
-    membershipPerks,
-    creatorMemberships: fetchedMemberships,
-    doMembershipAddTier,
+    membershipsByChannelId: fetchedMemberships,
     doGetMembershipPerks,
     doMembershipList,
-    doOpenModal,
-    doToast,
-    doDeactivateMembershipForId,
   } = props;
 
-  const { name: activeChannelName, claim_id: activeChannelId } = activeChannel || {};
+  const channelsToListStr = channelsToList && JSON.stringify(channelsToList);
+  const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
 
-  const [isEditing, setIsEditing] = React.useState(false);
-  const [creatorMemberships, setCreatorMemberships] = React.useState(fetchedMemberships || []);
-  const [editTierDescription, setEditTierDescription] = React.useState('');
-  const [editTierName, setEditTierName] = React.useState('');
-  const [pendingTier, setPendingTier] = React.useState(false);
-  const [fieldValidation, setFieldValidation] = React.useState(false);
+  const [editingIds, setEditingIds] = React.useState(() => []);
+  const [membershipsByChannelId, setMembershipsByChannelId] = React.useState(fetchedMemberships || {});
 
-  React.useEffect(() => {
-    if (activeChannelName && activeChannelId) {
-      doGetMembershipPerks({ channel_name: activeChannelName, channel_id: activeChannelId });
-    }
-  }, [activeChannelName, activeChannelId, doGetMembershipPerks]);
+  function addEditingForMembershipId(membershipId) {
+    setEditingIds((previousEditingIds) => {
+      const newEditingIds = new Set(previousEditingIds);
+      newEditingIds.add(membershipId);
 
-  React.useEffect(() => {
-    if (activeChannelName && activeChannelId) {
-      doMembershipList({ channel_name: activeChannelName, channel_id: activeChannelId });
-    }
-  }, [activeChannelId, activeChannelName, doMembershipList]);
-
-  React.useEffect(() => {
-    if (fetchedMemberships) {
-      setCreatorMemberships(fetchedMemberships);
-    }
-  }, [fetchedMemberships]);
-
-  React.useEffect(() => {
-    const nameTest = editTierName && editTierName.trim().length > 2;
-    const descriptionTest = editTierDescription && editTierDescription.trim().length > 4;
-    setFieldValidation(nameTest && descriptionTest ? true : false);
-  }, [editTierName, editTierDescription, isEditing]);
-
-  // focus name when you create a new tier
-  React.useEffect(() => {
-    document.querySelector("input[name='tier_name']")?.focus();
-  }, [pendingTier]);
-
-  const editMembership = (e, tierIndex, tierDescription) => {
-    setEditTierDescription(tierDescription);
-    setIsEditing(tierIndex);
-    // setPendingTier(true);
-  };
-
-  // when someone hits the 'Save' button from the edit functionality
-  async function saveMembership(tierIndex) {
-    const copyOfMemberships = creatorMemberships;
-
-    // grab the tier name, description, monthly amount and perks
-    // $FlowFixMe
-    const newTierName = document.querySelectorAll('input[name=tier_name]')[0]?.value;
-    const newTierDescription = editTierDescription;
-    // $FlowFixMe
-    const newTierMonthlyContribution = document.querySelectorAll('input[name=tier_contribution]')[0]?.value;
-
-    let selectedPerks = [];
-
-    for (const perk of membershipPerks) {
-      // $FlowFixMe
-      const odyseePerkSelected = document.querySelector(`input#perk_${perk.id}.membership_perks`).checked;
-      // const odyseePerkSelected = document.getElementById(perkDescription.perkName)?.checked;
-      if (odyseePerkSelected) {
-        selectedPerks.push(perk.id);
-      }
-    }
-
-    const selectedPerksAsArray = selectedPerks.toString();
-
-    const newObject = {
-      // displayName: newTierName,
-      // description: newTierDescription,
-      // amount: Number(newTierMonthlyContribution) * 100,
-      // monthlyContributionInUSD: Number(newTierMonthlyContribution),
-      // perks: selectedPerks,
-      Membership: {
-        name: newTierName,
-        description: newTierDescription,
-      },
-      Prices: [{ unit_amount: Number(newTierMonthlyContribution) * 100 }],
-      NewPrices: [{ Price: { amount: Number(newTierMonthlyContribution) * 100 } }],
-      Perks: [], // TODO: list these dynamically
-    };
-
-    const oldObject = creatorMemberships[tierIndex];
-
-    let oldStripePrice = oldObject?.Prices;
-    if (oldStripePrice.length) {
-      oldStripePrice = oldStripePrice[0].id;
-    }
-
-    const oldMembershipId = oldObject?.Membership.id;
-
-    // only hit backend if there is a difference between the current state
-    // if (1 == 1) {
-    copyOfMemberships[tierIndex] = newObject;
-
-    // setCreatorMemberships(copyOfMemberships);
-
-    const response = await doMembershipAddTier({
-      channel_name: activeChannelName,
-      channel_id: activeChannelId,
-      name: newTierName,
-      description: newTierDescription,
-      amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
-      currency: 'usd', // hardcoded for now
-      perks: selectedPerksAsArray,
-      old_stripe_price: oldStripePrice,
-      membership_id: oldMembershipId,
-      // perks: selectedPerks,
+      return Array.from(newEditingIds);
     });
-    console.log(response);
-
-    setIsEditing(false);
-
-    creatorMemberships[tierIndex] = newObject;
-
-    console.log(newObject);
-    setCreatorMemberships(creatorMemberships);
-
-    doMembershipList({ channel_name: activeChannelName, channel_id: activeChannelId });
   }
 
-  const containsPerk = (perkId, tier) => {
-    if (!tier.Perks) return false;
+  function removeEditingForMembershipId(membershipId) {
+    setEditingIds((previousEditingIds) => {
+      const newEditingIds = new Set(previousEditingIds);
+      newEditingIds.delete(membershipId);
 
-    let perkIds = [];
-    for (const tierPerk of tier.Perks) {
-      perkIds.push(tierPerk.id);
+      return Array.from(newEditingIds);
+    });
+  }
+
+  function addMembershipForChannelId(channelId, membership) {
+    setMembershipsByChannelId((previousMembershipsByChannelId) => {
+      const newChannelMemberships = new Set(previousMembershipsByChannelId[channelId]);
+      newChannelMemberships.add(membership);
+
+      const newMembershipsByChannelId = Object.assign({}, previousMembershipsByChannelId);
+      newMembershipsByChannelId[channelId] = Array.from(newChannelMemberships);
+
+      return newMembershipsByChannelId;
+    });
+  }
+
+  function removeChannelMembershipForId(channelId, membershipId) {
+    setMembershipsByChannelId((previousMembershipsByChannelId) => {
+      const newChannelMemberships = previousMembershipsByChannelId[channelId];
+      const filtered = newChannelMemberships.filter((membership) => membership.Membership.id !== membershipId);
+
+      const newMembershipsByChannelId = Object.assign({}, previousMembershipsByChannelId);
+      newMembershipsByChannelId[channelId] = filtered;
+
+      return newMembershipsByChannelId;
+    });
+  }
+
+  React.useEffect(() => {
+    if (channelsToListStr) {
+      const channelsToList = JSON.parse(channelsToListStr);
+
+      channelsToList.forEach((channel) => {
+        doGetMembershipPerks({ channel_name: channel.name, channel_id: channel.claim_id });
+        doMembershipList({ channel_name: channel.name, channel_id: channel.claim_id });
+      });
     }
+  }, [channelsToListStr, doGetMembershipPerks, doMembershipList]);
 
-    return perkIds.includes(perkId);
-  };
+  React.useEffect(() => {
+    if (fetchedMembershipsStr) {
+      const fetchedMemberships = JSON.parse(fetchedMembershipsStr);
+      setMembershipsByChannelId(fetchedMemberships);
+    }
+  }, [fetchedMembershipsStr]);
 
-  function _scrollTo(selector, yOffset = 0) {
-    const el = document.querySelector(selector);
-    const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-
-    window.scrollTo({ top: y, behavior: 'smooth' });
-  }
-
-  function createEditTier(reference, tier, membershipIndex) {
-    // TODO: better way than setTimeout
-    setTimeout(function () {
-      _scrollTo('.membership-tier__wrapper-edit', -55);
-      // document.querySelector("input[type='text'][name='tier_name']").focus();
-    }, 15);
-
-    console.log('tier ');
-    console.log(tier);
-
+  if (!bankAccountConfirmed) {
     return (
-      <div className="membership-tier__wrapper-edit">
-        <FormField
-          max="30"
-          type="text"
-          name="tier_name"
-          label={__('Tier Name')}
-          placeholder={__('Example Plan')}
-          value={editTierName}
-          onChange={(e) => setEditTierName(e.target.value)}
+      <>
+        <h1 className="confirm-account-to-create-tiers-header">
+          {__('Please confirm your bank account before you can create tiers')}
+        </h1>
+
+        <Button
+          button="primary"
+          className="membership_button"
+          label={__('Connect a bank account')}
+          icon={ICONS.FINANCE}
+          navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
         />
-        {/* could be cool to have markdown */}
-        {/* <FormField */}
-        {/*  type="markdown" */}
-        {/* /> */}
-        <FormField
-          type="textarea"
-          rows="10"
-          max="400"
-          name="tier_description"
-          label={__('Tier Description & custom Perks')}
-          placeholder={__('Description of your tier')}
-          value={editTierDescription}
-          onChange={(e) => setEditTierDescription(e.target.value)}
-        />
-        <fieldset-section>
-          <label htmlFor="tier_name">Odysee Perks</label>
-        </fieldset-section>
-        {membershipPerks.map((tierPerk, i) => (
-          <>
-            <FormField
-              type="checkbox"
-              defaultChecked={containsPerk(tierPerk.id, tier)}
-              label={tierPerk.description}
-              name={'perk_' + tierPerk.id}
-              className="membership_perks"
-            />
-          </>
-        ))}
-        <FormField
-          className="form-field--price-amount"
-          type="number"
-          name="tier_contribution"
-          step="1"
-          min="1"
-          label={__('Monthly Contribution ($/Month)')}
-          defaultValue={tier.Prices[0].unit_amount / 100}
-          onChange={(event) => parseFloat(event.target.value)}
-          disabled={tier.HasSubscribers}
-        />
-        {tier.HasSubscribers && (
-          <h4 className="header--cant_change_price">
-            This membership has subscribers, you can't update the price currently
-          </h4>
-        )}
-        <div className="section__actions">
-          <Button
-            disabled={!fieldValidation}
-            button="primary"
-            label={'Save Tier'}
-            onClick={() => saveMembership(membershipIndex)}
-          />
-          <Button
-            button="link"
-            label={__('Cancel')}
-            onClick={() => {
-              setIsEditing(false);
-              // tier was just added, if canceled then 'delete' the tier
-              if (pendingTier) {
-                let membershipsBeforeDeletion = creatorMemberships;
-                const membershipsAfterDeletion = membershipsBeforeDeletion.filter(
-                  (tiers, index) => index !== membershipIndex
-                );
-                setCreatorMemberships(membershipsAfterDeletion);
-                setPendingTier(false);
-              }
-            }}
-          />
-        </div>
-      </div>
+      </>
     );
   }
 
-  let refs = [];
-  /*
-  React.useEffect(() => {
-    refs = creatorMemberships && creatorMemberships.map(() => React.useRef());
-  }, [creatorMemberships]);
-  */
-
   return (
-    <div>
-      <div className="create-tiers__header">
-        <h2>Create and define your Membership Tiers.</h2>
-      </div>
+    <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
+      {Object.values(channelsToList).map((channel) => {
+        const channelId = channel.claim_id;
+        const channelMemberships = membershipsByChannelId[channelId];
+        const channelName = channelsToList.find((channel) => channel.claim_id === channelId)?.name;
 
-      <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
-        {/* list through different tiers */}
-        {creatorMemberships &&
-          creatorMemberships.length > 0 &&
-          creatorMemberships.map((membershipTier, membershipIndex) => (
-            <div className="membership-tier__wrapper" key={membershipIndex} ref={refs[membershipIndex]}>
-              {/* if the membership tier is marked as editing, show the edit functionality */}
-              {isEditing === membershipIndex && (
-                <>{createEditTier(refs[membershipIndex], membershipTier, membershipIndex)}</>
-              )}
-              {/* display info for the tier */}
-              {/* this long conditional isnt fully necessary but some test environment data is bad atm */}
-              {isEditing !== membershipIndex && membershipTier.NewPrices && membershipTier.NewPrices.length && (
-                <div>
-                  <div className="membership-tier__header">
-                    <span>
-                      {membershipIndex + 1}) {membershipTier.Membership.name}
-                    </span>
-                    <Menu>
-                      <MenuButton className="menu__button">
-                        <Icon size={18} icon={ICONS.SETTINGS} />
-                      </MenuButton>
-                      <MenuList className={'menu__list membership-tier' + (Number(membershipIndex) + 1)}>
-                        <MenuItem
-                          className="comment__menu-option"
-                          onSelect={(e) => editMembership(e, membershipIndex, membershipTier.Membership.description)}
-                        >
-                          <div className="menu__link">
-                            <Icon size={16} icon={ICONS.EDIT} /> Edit Tier
-                          </div>
-                        </MenuItem>
-                        <MenuItem
-                          className="comment__menu-option"
-                          onSelect={(e) => {
-                            let membershipsBeforeDeletion = creatorMemberships;
+        return (
+          <>
+            <h1>{channelMemberships && channelName}</h1>
 
-                            // const amountOfMembershipsCurrently = creatorMemberships.length;
-                            // if (amountOfMembershipsCurrently === 1) {
-                            //   const displayString = __('You must have at least one tier for your membership options');
-                            //   return doToast({ message: displayString, isError: true });
-                            // }
+            {channelMemberships
+              ? channelMemberships.map((membershipTier, membershipIndex) => {
+                  const membershipId = membershipTier.Membership.id;
+                  const isEditing = new Set(editingIds).has(membershipId);
+                  const hasSubscribers = membershipTier.HasSubscribers;
 
-                            doOpenModal(MODALS.CONFIRM, {
-                              title: __('Confirm Membership Deletion'),
-                              subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
-                                membership_name: membershipsBeforeDeletion[membershipIndex].Membership.name,
-                              }),
-                              busyMsg: __('Deleting your membership...'),
-                              onConfirm: (closeModal, setIsBusy) => {
-                                setIsBusy(true);
-                                doDeactivateMembershipForId(
-                                  membershipsBeforeDeletion[membershipIndex].Membership.id
-                                ).then(() => {
-                                  setIsBusy(false);
-                                  doToast({ message: __('Your membership was succesfully deleted.') });
-                                  const membershipsAfterDeletion = membershipsBeforeDeletion.filter(
-                                    (tiers, index) => index !== membershipIndex
-                                  );
-                                  setCreatorMemberships(membershipsAfterDeletion);
-                                  closeModal();
-                                });
-                              },
-                            });
+                  return (
+                    <div className="membership-tier__wrapper" key={membershipIndex}>
+                      {isEditing ? (
+                        <EditingTier
+                          channelsToList={channelsToList}
+                          channelId={channelId}
+                          membership={membershipTier}
+                          hasSubscribers={hasSubscribers}
+                          removeEditing={() => removeEditingForMembershipId(membershipId)}
+                          onCancel={() => {
+                            removeEditingForMembershipId(membershipId);
+
+                            if (typeof membershipId === 'string') {
+                              removeChannelMembershipForId(channelId, membershipId);
+                            }
                           }}
-                        >
-                          <div className="menu__link">
-                            <Icon size={16} icon={ICONS.DELETE} /> Delete Tier
-                          </div>
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </div>
-                  <div className="membership-tier__infos">
-                    <label>Pledge</label>
-                    <span>${membershipTier.NewPrices && membershipTier.NewPrices[0].Price.amount / 100}</span>
-
-                    <label>{__('Description & custom Perks')}</label>
-                    <span>{membershipTier.Membership.description}</span>
-
-                    <div className="membership-tier__perks">
-                      <div className="membership-tier__perks-content">
-                        <label>{__('Odysee Perks')}</label>
-                        {membershipTier.Perks &&
-                          membershipTier.Perks.map((tierPerk, i) => (
-                            <>
-                              <p>
-                                <ul>
-                                  <li>{tierPerk.description}</li>
-                                </ul>
-                              </p>
-                            </>
-                          ))}
-                      </div>
+                        />
+                      ) : (
+                        <MembershipTier
+                          membership={membershipTier}
+                          index={membershipIndex}
+                          hasSubscribers={hasSubscribers}
+                          addEditingId={() => addEditingForMembershipId(membershipId)}
+                          removeMembership={() => removeChannelMembershipForId(channelId, membershipId)}
+                        />
+                      )}
                     </div>
-                  </div>
-                  {membershipTier.HasSubscribers && (
-                    <ErrorText>{__('This membership has active subscribers and cannot be deleted.')}</ErrorText>
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+                  );
+                })
+              : Object.values(channelsToList).length === 1 && (
+                  <Button
+                    button="primary"
+                    onClick={(e) => {
+                      const newestId = uuid(); // --> this will only be used locally when creating a new tier
 
-        {/* add membership tier button */}
-        {creatorMemberships && creatorMemberships.length < 6 && (
-          <div>
-            <Button
-              button="primary"
-              onClick={(e) => {
-                const amountOfMembershipsCurrently = creatorMemberships.length;
+                      const newestMembership = {
+                        Membership: { id: newestId, name: 'Example Plan', description: '' },
+                        NewPrices: [{ Price: { amount: 500 } }],
+                        saved: false,
+                      };
 
-                const newestMembership = {
-                  Membership: {
-                    name: '',
-                    description: '',
-                  },
-                  Prices: [
-                    {
-                      unit_amount: 500,
-                    },
-                  ],
-                  saved: false,
-                };
+                      addEditingForMembershipId(newestId);
+                      addMembershipForChannelId(Object.values(channelsToList)[0].claim_id, newestMembership);
+                    }}
+                    className="add-membership__button"
+                    label={__('Create Tier for %channel_name%', { channel_name: channelName })}
+                    icon={ICONS.ADD}
+                  />
+                )}
 
-                setEditTierDescription(newestMembership.Membership.description);
-                setCreatorMemberships([...creatorMemberships, newestMembership]);
-                setPendingTier(true);
-                setIsEditing(amountOfMembershipsCurrently);
-              }}
-              className="add-membership__button"
-              label={__('Add Tier')}
-              icon={ICONS.ADD}
-            />
-          </div>
-        )}
-      </div>
+            {channelMemberships && channelMemberships.length < 6 && (
+              <Button
+                button="primary"
+                onClick={(e) => {
+                  const newestId = uuid(); // --> this will only be used locally when creating a new tier
 
-      {!bankAccountConfirmed && (
-        <>
-          <div>
-            <h1 className="confirm-account-to-create-tiers-header">
-              Please confirm your bank account before you can create tiers
-            </h1>
-            <Button
-              button="primary"
-              className="membership_button"
-              label={__('Connect a bank account')}
-              icon={ICONS.FINANCE}
-              navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-            />
-          </div>
-        </>
-      )}
+                  const newestMembership = {
+                    Membership: { id: newestId, name: 'Example Plan', description: '' },
+                    NewPrices: [{ Price: { amount: 500 } }],
+                    saved: false,
+                  };
+
+                  addEditingForMembershipId(newestId);
+                  addMembershipForChannelId(channelId, newestMembership);
+                }}
+                className="add-membership__button"
+                label={__('Add Tier for %channel_name%', { channel_name: channelName })}
+                icon={ICONS.ADD}
+              />
+            )}
+          </>
+        );
+      })}
 
       {/* ** show additional info checkboxes, activate memberships button ***/}
       {/* ** disabling until the backend is ready ** */}
@@ -475,5 +239,3 @@ function TiersTab(props: Props) {
 }
 
 export default TiersTab;
-/* eslint-disable no-undef */
-/* eslint-disable react/prop-types */
