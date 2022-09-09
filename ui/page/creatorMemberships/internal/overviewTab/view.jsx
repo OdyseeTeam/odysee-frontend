@@ -11,12 +11,20 @@ import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 
 type Props = {
   channelsToList: ?Array<ChannelClaim>,
+  onTabChange: (tabIndex: number) => void,
   // -- redux --
   bankAccountConfirmed: ?boolean,
+  doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
 function OverviewTab(props: Props) {
-  const { channelsToList, bankAccountConfirmed } = props;
+  const { channelsToList, bankAccountConfirmed, onTabChange, doSetActiveChannel } = props;
+
+  function selectChannel(channelClaim) {
+    console.log('Click channel: ', channelClaim);
+    doSetActiveChannel(channelClaim.claim_id, true);
+    onTabChange(1);
+  }
 
   return (
     <>
@@ -39,7 +47,7 @@ function OverviewTab(props: Props) {
               </thead>
               <tbody>
                 {channelsToList.map((channelClaim) => (
-                  <tr key={channelClaim.claim_id}>
+                  <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
                     <td>
                       <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
                       {channelClaim.value.title || channelClaim.name}
