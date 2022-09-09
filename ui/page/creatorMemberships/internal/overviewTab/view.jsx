@@ -6,6 +6,7 @@ import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Button from 'component/button';
 import CopyableText from 'component/copyableText';
+import ChannelThumbnail from 'component/channelThumbnail';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 
 type Props = {
@@ -16,6 +17,8 @@ type Props = {
 
 function OverviewTab(props: Props) {
   const { channelsToList, bankAccountConfirmed } = props;
+
+  console.log('channelClaim: ', props);
 
   return (
     <>
@@ -35,7 +38,10 @@ function OverviewTab(props: Props) {
             <tbody>
               {channelsToList.map((channelClaim) => (
                 <tr key={channelClaim.claim_id}>
-                  <td>{channelClaim.value.title || channelClaim.name}</td>
+                  <td>
+                    <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
+                    {channelClaim.value.title || channelClaim.name}
+                  </td>
                   <td>0</td>
                   <td>$0</td>
                   <td>$0</td>

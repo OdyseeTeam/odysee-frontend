@@ -1,5 +1,6 @@
 // @flow
 import React from 'react';
+import ChannelThumbnail from 'component/channelThumbnail';
 
 export default function SupportersTab() {
   // TODO: replace with API call
@@ -14,8 +15,8 @@ export default function SupportersTab() {
   ];
 
   return (
-    <div className="table__wrapper">
-      <table className="table table--transactions">
+    <div className="membership-table__wrapper">
+      <table className="table">
         <thead>
           <tr>
             <th className="date-header">Channel Name</th>
@@ -31,6 +32,7 @@ export default function SupportersTab() {
               <>
                 <td>
                   <span dir="auto" className="button__label">
+                    {false && <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />}
                     @test35234
                   </span>
                 </td>

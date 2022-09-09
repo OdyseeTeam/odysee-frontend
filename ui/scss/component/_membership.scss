@@ -975,7 +975,6 @@
     display: none;
   }
   button.button {
-    // display:inline-block;
     border-radius: var(--border-radius);
     float: right;
   }
@@ -985,10 +984,18 @@
   }
 
   .membership-table__url {
-    text-align: right;
-    width: 60px;
+    width: 20px;
     fieldset-section {
       flex-direction: row-reverse;
+    }
+  }
+
+  .channel-thumbnail {
+    display: inline-block;
+  }
+  tr {
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 0.2);
     }
   }
 }
@@ -1427,22 +1434,28 @@ svg.icon--Upgrade {
 .table--pledges {
   th {
     &:nth-of-type(1) {
-      min-width: 200px;
+      // Channel Name
+      min-width: 220px;
     }
     &:nth-of-type(2) {
+      // Tier
       min-width: 200px;
     }
     &:nth-of-type(3) {
+      // Time Total
       min-width: 120px;
     }
     &:nth-of-type(4) {
-      width: 300px;
+      // Amount
+      min-width: 160px;
     }
     &:nth-of-type(5) {
-      width: 120px;
+      // status
+      min-width: 100px;
     }
     &:nth-of-type(6) {
-      max-width: 150px;
+      // Details
+      width: 120px;
     }
   }
 }
