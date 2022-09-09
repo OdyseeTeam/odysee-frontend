@@ -50,6 +50,15 @@ function MembershipTier(props: Props) {
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
 
+  // custom emojis should be changed to channel member badge
+  const permanentTierPerks = ['Members-only chat', 'Custom emojis'];
+
+  /**
+   * Check whether the tier already has the perk added
+   * @param {number} perkId - Id of the perk returned from DB
+   * @param {any} tier - Tier that is being edited
+   * @returns {boolean}
+   */
   function containsPerk(perkId, tier) {
     if (!tier.Perks) return false;
 
@@ -58,23 +67,35 @@ function MembershipTier(props: Props) {
     return perkIds.has(perkId);
   }
 
-  // when someone hits the 'Save' button from the edit functionality
+  /**
+   * Selects the checked perks and builds them into a csv value for the backend
+   * @returns {string}
+   */
+  function generatePerksCsv() {
+    let selectedPerks = [];
+    for (const perk of membershipPerks) {
+      // $FlowFixMe
+      const odyseePerkSelected = document.querySelector(`input#perk_${perk.id}.membership_perks`).checked;
+      if (odyseePerkSelected) {
+        selectedPerks.push(perk.id);
+      }
+    }
+    return selectedPerks.toString();
+  }
+
+  /**
+   * When someone hits the 'Save' button from the edit functionality
+   * @param channelId - Channel claim id to pass to backend
+   * @param membershipTier - If an existing tier, use the old price and id
+   * @returns {Promise<void>}
+   */
   async function saveMembership(channelId, membershipTier) {
     setIsSubmitting(true);
 
     const channel = channelsToList.find((channel) => channel.claim_id === channelId);
     const newTierMonthlyContribution = document.querySelectorAll('input[name=tier_contribution]')[0]?.value;
 
-    let selectedPerks = [];
-    for (const perk of membershipPerks) {
-      // $FlowFixMe
-      const odyseePerkSelected = document.querySelector(`input#perk_${perk.id}.membership_perks`).checked;
-      // const odyseePerkSelected = document.getElementById(perkDescription.perkName)?.checked;
-      if (odyseePerkSelected) {
-        selectedPerks.push(perk.id);
-      }
-    }
-    const selectedPerksAsArray = selectedPerks.toString();
+    const selectedPerksAsArray = generatePerksCsv();
 
     doMembershipAddTier({
       channel_name: channel.name,
@@ -136,10 +157,11 @@ function MembershipTier(props: Props) {
         <FormField
           key={i}
           type="checkbox"
-          defaultChecked={containsPerk(tierPerk.id, membership)}
+          defaultChecked={permanentTierPerks.includes(tierPerk.name) || containsPerk(tierPerk.id, membership)}
           label={tierPerk.description}
           name={'perk_' + tierPerk.id}
           className="membership_perks"
+          disabled={permanentTierPerks.includes(tierPerk.name)}
         />
       ))}
 

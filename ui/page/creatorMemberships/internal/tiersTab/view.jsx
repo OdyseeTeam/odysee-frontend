@@ -123,7 +123,7 @@ function TiersTab(props: Props) {
 
         return (
           <>
-            <h1>{channelMemberships && channelName}</h1>
+            {/*<h1>{channelMemberships && channelName}</h1>*/}
 
             {channelMemberships
               ? channelMemberships.map((membershipTier, membershipIndex) => {

@@ -69,7 +69,7 @@ function MembershipTier(props: Props) {
                       setIsBusy(true);
                       doDeactivateMembershipForId(membership.Membership.id).then(() => {
                         setIsBusy(false);
-                        doToast({ message: __('Your membership was succesfully deleted.') });
+                        doToast({ message: __('Your membership was successfully deleted.') });
                         removeMembership();
                         closeModal();
                       });
