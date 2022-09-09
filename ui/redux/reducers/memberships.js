@@ -6,50 +6,50 @@ const reducers = {};
 type MembershipsState = {
   membershipMineByKey: ?MembershipMineDataByKey,
   membershipListById: { [channelId: string]: MembershipTiers },
-  fetchedById: { [creatorId: string]: Array<{ [channelId: string]: ?Membership }> },
-  fetchingIds: { [creatorId: string]: Array<ClaimIds> },
-  pendingBuyIds: Array<ClaimIds>,
-  pendingCancelIds: Array<ClaimIds>,
+  channelMembershipsByCreatorId: ChannelMembershipsByCreatorId,
+  fetchingIdsByCreatorId: { [creatorId: string]: ClaimIds },
+  pendingBuyIds: ClaimIds,
+  pendingCancelIds: ClaimIds,
   myMembershipTiers: ?MembershipTiers,
   pendingDeleteIds: Array<string>,
-  // protectedContentClaims: { [channelId: string]: any },
+  protectedContentClaims: { [channelId: string]: any },
+  mySupportersList: ?SupportersList,
 };
 
 const defaultState: MembershipsState = {
   membershipMineByKey: undefined,
   membershipListById: {},
-  fetchedById: {},
-  fetchingIds: {},
+  channelMembershipsByCreatorId: {},
+  fetchingIdsByCreatorId: {},
   pendingBuyIds: [],
   pendingCancelIds: [],
   myMembershipTiers: undefined,
   pendingDeleteIds: [],
   protectedContentClaims: {},
+  mySupportersList: undefined,
 };
-
-// type fetchingIds: {[string]: Array<string>}
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
   const { channel, ids } = action.data;
-  const { fetchingIds: currentFetching } = state;
+  const { fetchingIdsByCreatorId: currentFetching } = state;
 
-  return { ...state, fetchingIds: { ...currentFetching, [channel]: ids } };
+  return { ...state, fetchingIdsByCreatorId: { ...currentFetching, [channel]: ids } };
 };
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED] = (state, action) => {
   const { channelId, membershipsById } = action.data;
 
-  const currentFetched = Object.assign({}, state.fetchedById);
+  const currentFetched = Object.assign({}, state.channelMembershipsByCreatorId);
   const newFetched = currentFetched[channelId] ? { ...currentFetched[channelId], ...membershipsById } : membershipsById;
-  delete state.fetchingIds[channelId];
+  delete state.fetchingIdsByCreatorId[channelId];
 
-  return { ...state, fetchedById: { ...currentFetched, [channelId]: newFetched } };
+  return { ...state, channelMembershipsByCreatorId: { ...currentFetched, [channelId]: newFetched } };
 };
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED] = (state, action) => {
   const { channelId } = action.data;
-  delete state.fetchingIds[channelId];
-  const currentFetched = Object.assign({}, state.fetchedById);
+  delete state.fetchingIdsByCreatorId[channelId];
+  const currentFetched = Object.assign({}, state.channelMembershipsByCreatorId);
 
-  return { ...state, fetchedById: { ...currentFetched, [channelId]: null } };
+  return { ...state, channelMembershipsByCreatorId: { ...currentFetched, [channelId]: null } };
 };
 
 reducers[ACTIONS.SET_MEMBERSHIP_BUY_STARTED] = (state, action) => {
@@ -121,7 +121,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => 
 
   if (action.data && action.data.length) {
     const channelId = action.data[0].channel_id;
-    const claimId =  action.data[0].claim_id;
+    const claimId = action.data[0].claim_id;
 
     if (!newProtectedContentClaims[channelId]) newProtectedContentClaims[channelId] = {};
     const thisContentChannel = newProtectedContentClaims[channelId];
@@ -140,12 +140,6 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED] = (state, action) => {
   return { ...state };
 };
-
-export default function membershipsReducer(state: MembershipsState = defaultState, action: any) {
-  const handler = reducers[action.type];
-  if (handler) return handler(state, action);
-  return state;
-}
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => {
   const newProtectedContentClaims = Object.assign({}, state.protectedContentClaims);
@@ -180,3 +174,17 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => 
 
   return { ...state, protectedContentClaims: newProtectedContentClaims };
 };
+
+reducers[ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE] = (state, action) => {
+  const mySupportersList = action.data;
+  return { ...state, mySupportersList };
+};
+
+// -----------------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------------
+
+export default function membershipsReducer(state: MembershipsState = defaultState, action: any) {
+  const handler = reducers[action.type];
+  if (handler) return handler(state, action);
+  return state;
+}

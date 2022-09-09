@@ -200,3 +200,20 @@ declare type MembershipAddTierParams = {
 
 declare type MembershipMineKeys = 'activeById' | 'canceledById' | 'purchasedById';
 declare type MembershipMineDataByKey = { [key: MembershipMineKeys]: { [id: ClaimId]: MembershipTiers } };
+
+declare type MembershipIdByChannelId = {
+  [channelId: string]: string,
+};
+declare type ChannelMembershipsByCreatorId = {
+  [creatorId: string]: Array<MembershipIdByChannelId>,
+};
+
+declare type MembershipSupporter = {
+  ChannelBeingSupported: string,
+  ChannelName: string,
+  Interval: string,
+  JoinedAtTime: string,
+  MembershipName: string,
+  Price: number,
+};
+declare type SupportersList = Array<MembershipSupporter>;
