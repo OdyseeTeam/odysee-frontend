@@ -8,7 +8,7 @@ import {
 } from 'redux/selectors/sync';
 import { doUserSetReferrer } from 'redux/actions/user';
 import { doSetLastViewedAnnouncement } from 'redux/actions/content';
-import { selectUser, selectUserLocale, selectUserVerifiedEmail, selectHomepageFetched } from 'redux/selectors/user';
+import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectUnclaimedRewards } from 'redux/selectors/rewards';
 import { doFetchChannelListMine, doFetchCollectionListMine } from 'redux/actions/claims';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
@@ -17,13 +17,14 @@ import {
   selectLoadedLanguages,
   selectThemePath,
   selectDefaultChannelClaim,
+  selectHomepageAnnouncement,
 } from 'redux/selectors/settings';
 import { selectAnyNagsShown } from 'redux/selectors/notifications';
 import { selectModal, selectActiveChannelClaim, selectIsReloadRequired } from 'redux/selectors/app';
 import { selectUploadCount } from 'redux/selectors/publish';
-import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel } from 'redux/actions/settings';
+import { doOpenAnnouncements, doSetLanguage, doSetDefaultChannel, doFetchLanguage } from 'redux/actions/settings';
 import { doSyncLoop } from 'redux/actions/sync';
-import { doSignIn, doSetIncognito } from 'redux/actions/app';
+import { doSignIn, doSetIncognito, doSetGdprConsentList } from 'redux/actions/app';
 import { doFetchModBlockedList, doFetchCommentModAmIList } from 'redux/actions/comments';
 import App from './view';
 
@@ -44,15 +45,16 @@ const select = (state) => ({
   syncFatalError: selectSyncFatalError(state),
   activeChannelClaim: selectActiveChannelClaim(state),
   myChannelClaimIds: selectMyChannelClaimIds(state),
-  homepageFetched: selectHomepageFetched(state),
   defaultChannelClaim: selectDefaultChannelClaim(state),
   nagsShown: selectAnyNagsShown(state),
+  announcement: selectHomepageAnnouncement(state),
 });
 
 const perform = {
   fetchChannelListMine: doFetchChannelListMine,
   fetchCollectionListMine: doFetchCollectionListMine,
   setLanguage: doSetLanguage,
+  fetchLanguage: doFetchLanguage,
   signIn: doSignIn,
   syncLoop: doSyncLoop,
   setReferrer: doUserSetReferrer,
@@ -62,6 +64,7 @@ const perform = {
   doOpenAnnouncements,
   doSetLastViewedAnnouncement,
   doSetDefaultChannel,
+  doSetGdprConsentList,
 };
 
 export default hot(connect(select, perform)(App));

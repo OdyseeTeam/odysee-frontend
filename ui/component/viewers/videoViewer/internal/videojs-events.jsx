@@ -48,7 +48,7 @@ const VideoJsEvents = ({
     data.playPoweredBy = playerPoweredBy;
     data.isLivestream = isLivestreamClaim;
     // $FlowFixMe
-    data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH;
+    data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
     doAnalyticsBuffer(uri, data);
   }
   /**
@@ -95,7 +95,7 @@ const VideoJsEvents = ({
         uri,
         this, // pass the player
         // $FlowFixMe
-        this.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH,
+        this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH,
         isLivestreamClaim
       );
     }
@@ -257,23 +257,39 @@ const VideoJsEvents = ({
     });
     // player.on('ended', onEnded);
 
-    if (isLivestreamClaim && player) {
-      player.liveTracker.on('liveedgechange', async () => {
-        // Only respond to when we fall behind
-        if (player.liveTracker.atLiveEdge()) {
-          player.playbackRate(1);
+    if (isLivestreamClaim) {
+      player.liveTracker.on('liveedgechange', () => {
+        if (player.paused()) {
+          // when liveedge changes, add the window variable so that the timeout isn't triggered
+          // when it's changed back again
+          window.liveEdgePaused = true;
           return;
+        } else {
+          if (window.liveEdgePaused) delete window.liveEdgePaused;
         }
-
-        // Don't respond to when user has paused the player
-        if (player.paused()) return;
 
         setTimeout(() => {
           // Do not jump ahead if user has paused the player
-          if (player.paused()) return;
+          if (window.liveEdgePaused) return;
+
           player.liveTracker.seekToLiveEdge();
         }, 5 * 1000);
       });
+      player.on('timeupdate', liveEdgeRestoreSpeed);
+    }
+  }
+
+  function liveEdgeRestoreSpeed() {
+    const player = playerRef.current;
+
+    if (player.playbackRate() !== 1) {
+      player.liveTracker.handleSeeked_();
+
+      // Only respond to when we fall behind
+      if (player.liveTracker.atLiveEdge()) {
+        player.playbackRate(1);
+        player.liveTracker.seekToLiveEdge();
+      }
     }
   }
 

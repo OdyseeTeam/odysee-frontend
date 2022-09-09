@@ -8,7 +8,6 @@ import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import Card from 'component/common/card';
 import MembershipSplash from 'component/membershipSplash';
@@ -18,6 +17,7 @@ import PremiumBadge from 'component/premiumBadge';
 import I18nMessage from 'component/i18nMessage';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistedState from 'effects/use-persisted-state';
+import * as PAGES from 'constants/pages';
 
 let stripeEnvironment = getStripeEnvironment();
 
@@ -34,7 +34,7 @@ type Props = {
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
   totalBalance: ?number,
-  openModal: (string, {}) => void,
+  openModal: (string, ?{}) => void,
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
   claimsByUri: { [string]: any },
@@ -44,6 +44,8 @@ type Props = {
   user: ?User,
   locale: ?LocaleInfo,
   preferredCurrency: ?string,
+  hasSavedCard: boolean,
+  doGetCustomerStatus: () => void,
 };
 
 const OdyseeMembershipPage = (props: Props) => {
@@ -58,12 +60,15 @@ const OdyseeMembershipPage = (props: Props) => {
     user,
     locale,
     preferredCurrency,
+    hasSavedCard,
+    doGetCustomerStatus,
   } = props;
+
+  const initialCardState = React.useRef(hasSavedCard);
 
   const userChannelName = activeChannelClaim ? activeChannelClaim.name : '';
   const userChannelClaimId = activeChannelClaim && activeChannelClaim.claim_id;
 
-  const [cardSaved, setCardSaved] = React.useState();
   const [membershipOptions, setMembershipOptions] = React.useState();
   const [userMemberships, setUserMemberships] = React.useState();
   const [currencyToUse, setCurrencyToUse] = React.useState('usd');
@@ -140,38 +145,15 @@ const OdyseeMembershipPage = (props: Props) => {
     if (!shouldFetchUserMemberships) setFetchUserMemberships(true);
   }, [shouldFetchUserMemberships]);
 
-  // make calls to backend and populate all the data for the frontend
-  React.useEffect(function () {
+  React.useEffect(() => {
+    if (hasSavedCard === undefined) {
+      doGetCustomerStatus();
+    }
+  }, [doGetCustomerStatus, hasSavedCard]);
+
+  React.useEffect(() => {
     // TODO: this should be refactored to make these calls in parallel
     (async function () {
-      try {
-        // check if there is a payment method
-        const response = await Lbryio.call(
-          'customer',
-          'status',
-          {
-            environment: stripeEnvironment,
-          },
-          'post'
-        );
-
-        log('customer/status response');
-        log(response);
-
-        // hardcoded to first card
-        const hasAPaymentCard = Boolean(response && response.PaymentMethods && response.PaymentMethods[0]);
-
-        setCardSaved(hasAPaymentCard);
-      } catch (err) {
-        const customerDoesntExistError = 'user as customer is not setup yet';
-        if (err.message === customerDoesntExistError) {
-          setCardSaved(false);
-        } else {
-          setApiError(true);
-          console.log(err);
-        }
-      }
-
       try {
         // check the available membership for odysee.com
         const response = await Lbryio.call(
@@ -217,7 +199,6 @@ const OdyseeMembershipPage = (props: Props) => {
   // we are still waiting from the backend if any of these are undefined
   const stillWaitingFromBackend =
     purchasedMemberships === undefined ||
-    cardSaved === undefined ||
     membershipOptions === undefined ||
     userMemberships === undefined ||
     currencyToUse === undefined;
@@ -420,7 +401,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
   // if user already selected plan, wait a bit (so it's not jarring) and open modal
   React.useEffect(() => {
-    if (!stillWaitingFromBackend && planValue && cardSaved) {
+    if (!stillWaitingFromBackend && planValue && initialCardState.current) {
       const delayTimeout = setTimeout(function () {
         // clear query params
         window.history.replaceState(null, null, window.location.pathname);
@@ -434,7 +415,7 @@ const OdyseeMembershipPage = (props: Props) => {
 
       return () => clearTimeout(delayTimeout);
     }
-  }, [stillWaitingFromBackend, planValue, cardSaved]);
+  }, [stillWaitingFromBackend, planValue]);
 
   const helpText = (
     <div className="section__subtitle">
@@ -489,7 +470,7 @@ const OdyseeMembershipPage = (props: Props) => {
         ) : (
           /** odysee membership page **/
           <div className={'card-stack'}>
-            {!stillWaitingFromBackend && cardSaved !== false && (
+            {!stillWaitingFromBackend && (
               <>
                 <h1 style={{ fontSize: '23px' }}>{__('Odysee Premium')}</h1>
                 {/* let user switch channel */}
@@ -514,9 +495,29 @@ const OdyseeMembershipPage = (props: Props) => {
               </>
             )}
 
+            {/** send user to add card if they don't have one yet */}
+            {!stillWaitingFromBackend && !hasSavedCard && (
+              <div>
+                <br />
+                <h2 className={'getPaymentCard'}>
+                  {__('Please save a card as a payment method so you can join Odysee Premium')}
+                </h2>
+
+                <Button
+                  requiresAuth
+                  button="primary"
+                  label={__('Add a Card')}
+                  icon={ICONS.SETTINGS}
+                  onClick={() => openModal(MODALS.ADD_CARD)}
+                  className="membership_button"
+                  style={{ maxWidth: '151px' }}
+                />
+              </div>
+            )}
+
             {/** available memberships **/}
             {/* if they have a card and don't have a membership yet */}
-            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 1 && cardSaved !== false && (
+            {!stillWaitingFromBackend && membershipOptions && purchasedMemberships.length < 1 && (
               <>
                 <div className="card__title-section">
                   <h2 className="card__title">{__('Available Memberships')}</h2>
@@ -571,6 +572,7 @@ const OdyseeMembershipPage = (props: Props) => {
                                               icon={ICONS.FINANCE}
                                               interval={price.recurring.interval}
                                               plan={membershipOption.Membership.name}
+                                              disabled={!hasSavedCard}
                                             />
                                           </div>
                                         )}
@@ -588,7 +590,7 @@ const OdyseeMembershipPage = (props: Props) => {
                 </Card>
               </>
             )}
-            {!stillWaitingFromBackend && cardSaved === true && (
+            {!stillWaitingFromBackend && hasSavedCard === true && (
               <>
                 <div className="card__title-section">
                   <h2 className="card__title">{__('Your Active Memberships')}</h2>
@@ -679,7 +681,7 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
 
             {/** send user to add card if they don't have one yet */}
-            {!stillWaitingFromBackend && cardSaved === false && (
+            {!stillWaitingFromBackend && hasSavedCard === false && (
               <div>
                 <br />
                 <h2 className={'getPaymentCard'}>
@@ -719,7 +721,7 @@ const OdyseeMembershipPage = (props: Props) => {
             )}
 
             {/** clear membership data (only available on dev) **/}
-            {isDev && cardSaved && purchasedMemberships.length > 0 && (
+            {isDev && hasSavedCard && purchasedMemberships.length > 0 && (
               <>
                 <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
                 <div>

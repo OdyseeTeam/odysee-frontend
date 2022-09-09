@@ -3,7 +3,6 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import type { Node } from 'react';
 import * as CS from 'constants/claim_search';
 import React from 'react';
-import usePersistedState from 'effects/use-persisted-state';
 import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
@@ -21,6 +20,8 @@ import useFetchViewCount from 'effects/use-fetch-view-count';
 import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import usePersistentUserParam from 'effects/use-persistent-user-param';
+import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
   uris: Array<string>,
@@ -202,8 +203,6 @@ function ClaimListDiscover(props: Props) {
   const [page, setPage] = React.useState(1);
   const [forceRefresh, setForceRefresh] = React.useState();
   const isLargeScreen = useIsLargeScreen();
-  const [orderParamEntry, setOrderParamEntry] = usePersistedState(`entry-${location.pathname}`, CS.ORDER_BY_TRENDING);
-  const [orderParamUser, setOrderParamUser] = usePersistedState(`orderUser-${location.pathname}`, CS.ORDER_BY_TRENDING);
   const followed = (followedTags && followedTags.map((t) => t.name)) || [];
   const urlParams = new URLSearchParams(search);
   const tagsParam = // can be 'x,y,z' or 'x' or ['x','y'] or CS.CONSTANT
@@ -261,38 +260,19 @@ function ClaimListDiscover(props: Props) {
     }
   }
 
-  const durationParam = urlParams.get(CS.DURATION_KEY) || null;
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
+  const [durationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
   const originalPageSize = 12;
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
-  const historyAction = history.action;
-
-  let orderParam = orderBy || urlParams.get(CS.ORDER_BY_KEY) || defaultOrderBy || orderParamEntry;
-
-  if (!orderParam) {
-    if (historyAction === 'POP') {
-      // Reaching here means user have popped back to the page's entry point (e.g. '/$/tags' without any '?order=').
-      orderParam = orderParamEntry;
-    } else {
-      // This is the direct entry into the page, so we load the user's previous value.
-      orderParam = orderParamUser;
-    }
-  }
-
-  React.useEffect(() => {
-    setOrderParamUser(orderParam);
-  }, [orderParam, setOrderParamUser]);
-
-  React.useEffect(() => {
-    // One-time update to stash the finalized 'orderParam' at entry.
-    if (historyAction !== 'POP') {
-      setOrderParamEntry(orderParam);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [historyAction, setOrderParamEntry]);
+  const orderParam = usePersistentUserParam(
+    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
+    'orderUser',
+    CS.ORDER_BY_TRENDING
+  );
 
   let options: {
     page_size: number,
@@ -406,10 +386,25 @@ function ClaimListDiscover(props: Props) {
   }
 
   if (durationParam) {
-    if (durationParam === CS.DURATION_SHORT) {
-      options.duration = '<=240';
-    } else if (durationParam === CS.DURATION_LONG) {
-      options.duration = '>=1200';
+    switch (durationParam) {
+      case CS.DURATION_ALL:
+        // Do nothing (no options needed)
+        break;
+      case CS.DURATION_SHORT:
+        options.duration = '<=240';
+        break;
+      case CS.DURATION_LONG:
+        options.duration = '>=1200';
+        break;
+      case CS.DURATION_GT_EQ:
+        options.duration = `>=${(durationMinutes || 0) * 60}`;
+        break;
+      case CS.DURATION_LT_EQ:
+        options.duration = `<=${(durationMinutes || 0) * 60}`;
+        break;
+      default:
+        console.error('Unhandled duration: ' + durationParam);
+        break;
     }
   }
 

@@ -1,6 +1,7 @@
 // @flow
 import { Form } from 'component/common/form';
-import * as PAGES from 'constants/pages';
+import * as MODALS from 'constants/modal_types';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -68,11 +69,12 @@ type Props = {
     ?(any) => void
   ) => void,
   purchaseMadeForClaimId: ?boolean,
-  hasCardSaved: boolean,
+  hasSavedCard: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
   preferredCurrency: string,
   tags: any,
   humanReadableTime: ?string,
+  doOpenModal: (modalId: string, ?{}) => void,
 };
 
 export default function PreorderAndPurchaseContentCard(props: Props) {
@@ -86,9 +88,10 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     preferredCurrency,
     doCheckIfPurchasedClaimId,
     claimId,
-    hasCardSaved,
+    hasSavedCard,
     tags,
     humanReadableTime,
+    doOpenModal,
   } = props;
 
   const [tipAmount, setTipAmount] = React.useState(0);
@@ -123,14 +126,20 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
   const STR = STRINGS[transactionType];
   const RENT_STRINGS = STRINGS['rental'];
 
-  const fiatSymbol = preferredCurrency === 'EUR' ? '€' : '$';
+  const fiatSymbol = STRIPE.CURRENCY[preferredCurrency].symbol;
 
   const AddCardButton = (
     <I18nMessage
       tokens={{
         add_a_card: (
           <Button
-            navigate={`/$/${PAGES.SETTINGS_STRIPE_CARD}`}
+            requiresAuth
+            onClick={() =>
+              doOpenModal(MODALS.ADD_CARD, {
+                previousModal: MODALS.PREORDER_AND_PURCHASE_CONTENT,
+                previousProps: props,
+              })
+            }
             label={__('Add a card --[replaces add_a_card]--')}
             button="link"
           />
@@ -206,7 +215,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                   onClick={() => handleSubmit()}
                   button="primary"
                   label={__(STR.button, { currency: fiatSymbol, amount: tipAmount.toString() })}
-                  disabled={!hasCardSaved}
+                  disabled={!hasSavedCard}
                 />
                 {tags.purchaseTag && tags.rentalTag && (
                   <Button
@@ -214,12 +223,12 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                     onClick={() => handleSubmit('rent')}
                     button="primary"
                     label={__(RENT_STRINGS.button, { currency: fiatSymbol, amount: rentTipAmount.toString() })}
-                    disabled={!hasCardSaved}
+                    disabled={!hasSavedCard}
                     style={{ marginTop: '16px' }}
                   />
                 )}
 
-                {!hasCardSaved && <div className="add-card-prompt">{AddCardButton}</div>}
+                {!hasSavedCard && <div className="add-card-prompt">{AddCardButton}</div>}
               </div>
             </>
           }

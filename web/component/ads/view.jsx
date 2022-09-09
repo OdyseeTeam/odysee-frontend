@@ -5,9 +5,10 @@ import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import PremiumPlusTile from 'component/premiumPlusTile';
 import classnames from 'classnames';
-import useShouldShowAds from 'effects/use-should-show-ads';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
+
+const DISABLE_VIDEO_AD = true;
 
 // prettier-ignore
 const AD_CONFIGS = Object.freeze({
@@ -28,28 +29,16 @@ type Props = {
   className?: string,
   noFallback?: boolean,
   // --- redux ---
-  isAdBlockerFound: ?boolean,
-  userHasPremiumPlus: boolean,
-  userCountry: string,
+  shouldShowAds: boolean,
 };
 
 function Ads(props: Props) {
-  const {
-    type = 'video',
-    tileLayout,
-    small,
-    isAdBlockerFound,
-    userHasPremiumPlus,
-    userCountry,
-    className,
-    noFallback,
-  } = props;
+  const { type = 'video', tileLayout, small, shouldShowAds, className, noFallback } = props;
 
-  const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, isAdBlockerFound);
   const adConfig = AD_CONFIGS.ADNIMATION;
 
   React.useEffect(() => {
-    if (shouldShowAds) {
+    if (shouldShowAds && !DISABLE_VIDEO_AD) {
       let script;
       try {
         script = document.createElement('script');

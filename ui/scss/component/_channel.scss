@@ -604,6 +604,10 @@ $actions-z-index: 2;
       .claim-preview__title {
         margin-right: var(--spacing-xs);
       }
+      .claim-preview__title,
+      .channel__list-text {
+        margin-bottom: -3px;
+      }
       .comment__badge {
         svg {
           width: 1.4rem;
@@ -674,9 +678,9 @@ $actions-z-index: 2;
 
   .icon__wrapper {
     padding: 0;
-    height: 2rem;
-    width: 2rem;
-    margin-right: var(--spacing-m);
+    height: 1.4rem;
+    width: 1.4rem;
+    margin-right: var(--spacing-xs);
     border-radius: var(--border-radius);
   }
 
@@ -722,9 +726,13 @@ $actions-z-index: 2;
     margin-left: var(--spacing-l);
   }
 
+  .claim-preview__title {
+    margin-bottom: -3px;
+  }
+
   &:hover {
     .claim-preview__title {
-      color: white;
+      color: var(--color-primary-contrast);
     }
   }
 }

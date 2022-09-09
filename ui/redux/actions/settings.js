@@ -15,8 +15,9 @@ import { doAlertWaitingForSync, doGetAndPopulatePreferences, doOpenModal } from 
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { Lbryio } from 'lbryinc';
 import { getDefaultLanguage } from 'util/default-languages';
+import { LocalStorage } from 'util/storage';
 
-const { DEFAULT_LANGUAGE, URL_DEV } = require('config');
+const { URL_DEV } = require('config');
 const { SDK_SYNC_KEYS } = SHARED_PREFERENCES;
 
 export const IS_MAC = process.platform === 'darwin';
@@ -167,6 +168,9 @@ export function doSetClientSetting(key, value, pushPrefs) {
     }
   };
 }
+
+export const doSetPreferredCurrency = (value) => (dispatch) =>
+  dispatch(doSetClientSetting(SETTINGS.PREFERRED_CURRENCY, value, true));
 
 export function doUpdateIsNight() {
   return {
@@ -383,19 +387,20 @@ export function doSetLanguage(language) {
     const { daemonSettings } = settings;
     const { share_usage_data: shareSetting } = daemonSettings;
     const isSharingData = shareSetting || IS_WEB;
-    let languageSetting;
+
+    let languageSetting = language;
+    // @if TARGET='DISABLED_FOR_NOW'
     if (language === getDefaultLanguage()) {
       languageSetting = null;
-    } else {
-      languageSetting = language;
     }
+    // @endif
 
     if (
       settings.language !== languageSetting ||
       (settings.loadedLanguages && !settings.loadedLanguages.includes(language))
     ) {
       // this should match the behavior/logic in index-web.html
-      fetch('https://lbry.com/i18n/get/lbry-desktop/app-strings/' + language + '.json')
+      return fetch('https://lbry.com/i18n/get/lbry-desktop/app-strings/' + language + '.json')
         .then((r) => r.json())
         .then((j) => {
           window.i18n_messages[language] = j;
@@ -407,26 +412,31 @@ export function doSetLanguage(language) {
           });
         })
         .then(() => {
-          // set on localStorage so it can be read outside of redux
-          window.localStorage.setItem(SETTINGS.LANGUAGE, language);
           dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
           if (isSharingData) {
-            Lbryio.call('user', 'language', {
-              language: language,
-            });
+            Lbryio.call('user', 'language', { language: language }).catch(() => {});
           }
         })
         .catch((e) => {
-          window.localStorage.setItem(SETTINGS.LANGUAGE, DEFAULT_LANGUAGE);
-          dispatch(doSetClientSetting(SETTINGS.LANGUAGE, DEFAULT_LANGUAGE));
+          dispatch(doSetClientSetting(SETTINGS.LANGUAGE, languageSetting));
+
           const languageName = SUPPORTED_LANGUAGES[language] ? SUPPORTED_LANGUAGES[language] : language;
+          const fetched = Boolean(window.i18n_messages && window.i18n_messages[language]);
+
+          const log = `doSetLanguage-${fetched ? 'load' : 'fetch'}`;
+          analytics.log(e, { fingerprint: [log], tags: { language } }, log);
+
           dispatch(
             doToast({
-              message: __('Failed to load %language% translations.', { language: languageName }),
+              message: fetched
+                ? __('Failed to load %language% translations.', { language: languageName })
+                : __('Failed to fetch %language% translations.', { language: languageName }),
               isError: true,
             })
           );
         });
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -483,7 +493,7 @@ export function doSetAutoLaunch(value) {
 
 export function doSetAppToTrayWhenClosed(value) {
   return (dispatch) => {
-    window.localStorage.setItem(SETTINGS.TO_TRAY_WHEN_CLOSED, value);
+    LocalStorage.setItem(SETTINGS.TO_TRAY_WHEN_CLOSED, value);
     dispatch(doSetClientSetting(SETTINGS.TO_TRAY_WHEN_CLOSED, value));
   };
 }

@@ -482,9 +482,17 @@ function VideoViewer(props: Props) {
       playerEndedDuration.current = true;
     };
     const onError = () => {
-      const error = player.error();
-      if (error) {
-        analytics.log(error, {}, ERR_GRP.VIDEOJS);
+      const mediaError = player.error();
+      if (mediaError) {
+        let fingerprint;
+        if (mediaError.message.match(/^video append of (.*) failed for segment (.*) in playlist (.*).m3u8$/)) {
+          fingerprint = ['videojs-media-segment-append'];
+        } else if (mediaError.message.match(/^audio append of (.*) failed for segment (.*) in playlist (.*).m3u8$/)) {
+          fingerprint = ['videojs-media-segment-append--audio'];
+        }
+
+        const options = { ...(fingerprint ? { fingerprint } : {}) };
+        analytics.log(`[${mediaError.code}] ${mediaError.message}`, options, ERR_GRP.VIDEOJS);
       }
     };
     const onRateChange = () => {

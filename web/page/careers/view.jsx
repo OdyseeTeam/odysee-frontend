@@ -35,8 +35,8 @@ const CareersPage = () => {
                 />
                 <br />
                 <Button
-                  label={'Senior Sysadmin'}
-                  navigate={`/$/${PAGES.CAREERS_SENIOR_SYSADMIN}`}
+                  label={'Software Security Engineer'}
+                  navigate={`/$/${PAGES.CAREERS_SOFTWARE_SECURITY_ENGINEER}`}
                   className="job-listing"
                 />
                 <br />

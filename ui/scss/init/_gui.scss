@@ -329,7 +329,7 @@ img {
 .help {
   display: block;
   font-size: var(--font-xsmall);
-  color: var(--color-text-help);
+  color: var(--color-text);
   margin-top: var(--spacing-s);
 
   &:not(:last-child) {
@@ -592,7 +592,6 @@ img {
   font-weight: bold;
   line-height: 1;
   font-size: 1rem;
-  // margin-bottom: var(--spacing-m);
 
   > .button {
     white-space: initial;
@@ -602,7 +601,8 @@ img {
     font-size: 1.2rem;
     // margin-bottom: var(--spacing-l);
   }
-  @media (min-width: $breakpoint-medium) {
+  // @media (min-width: $breakpoint-medium) {
+  @media (min-width: 1200px) {
     margin-top: var(--spacing-s);
     margin-bottom: -3.7rem;
   }
@@ -615,6 +615,7 @@ img {
 
 .confirming-change {
   padding-top: var(--spacing-s);
+  font-size: var(--font-small);
 }
 
 .background-image {
@@ -726,6 +727,10 @@ img {
   -webkit-column-gap: var(--spacing-m);
   column-count: 2;
   column-gap: var(--spacing-m);
+
+  .claim-preview__title {
+    height: 20px;
+  }
 
   @media (min-width: $breakpoint-small) {
     .navigation-link {
@@ -1262,7 +1267,7 @@ img {
       margin-top: 0;
     }
 
-    fieldset-group {
+    fieldset-group:not(.fieldset-group--smushed) {
       fieldset-section {
         width: 50%;
         &:last-of-type {
@@ -1387,12 +1392,6 @@ img {
     .button--link {
       margin-left: 0;
     }
-  }
-}
-
-.input--currency-select {
-  label {
-    margin-top: 2.5px !important;
   }
 }
 
@@ -2094,11 +2093,21 @@ a {
 *:focus-visible:not(.modal):not(.card):not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(.button--secondary):not(.button-like):not(.button-dislike):not(select):not(input):not(textarea):not(video):not([data-reach-tab-panels]):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(.MuiPaper-root):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
-  // outline: 2px solid var(--color-primary);
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
 
   .icon {
     stroke: var(--color-text) !important;
+  }
+}
+
+.channel__selector {
+  button:focus-visible {
+    background-color: unset !important;
+    box-shadow: unset !important;
+    .channel__list-item {
+      background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
+      box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
+    }
   }
 }
 
@@ -2185,6 +2194,14 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
       background-color: var(--color-header-button);
       color: var(--color-text);
     }
+  }
+}
+
+/* Safari Only */
+@supports selector(:nth-child(1 of x)) {
+  [data-reach-menu-list] {
+    -webkit-backdrop-filter: unset !important;
+    backdrop-filter: unset !important;
   }
 }
 

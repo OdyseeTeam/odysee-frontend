@@ -14,6 +14,7 @@ import {
   selectIsMyChannelCountOverLimit,
   selectById,
   selectMyChannelClaimIds,
+  selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -24,9 +25,6 @@ import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
 import { selectClaimIdsForCollectionId } from 'redux/selectors/collections';
 import { doFetchItemsInCollections } from 'redux/actions/collections';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
-const stripeEnvironment = getStripeEnvironment();
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
@@ -604,34 +602,39 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999, resolve: boolean = true) {
-  return (dispatch: Dispatch) => {
-    dispatch({
-      type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
-    });
+export const doFetchChannelListMine = (page: number = 1, pageSize: number = 99999, resolve: boolean = true) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const state = getState();
+  const isFetching = selectFetchingMyChannels(state);
 
-    const callback = (response: ChannelListResponse) => {
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: response.items },
-      });
-    };
+  if (isFetching) return;
 
-    const failure = (error) => {
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_LIST_FAILED,
-        data: error,
-      });
-    };
+  dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_STARTED });
 
-    Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
+  const callback = (response: ChannelListResponse) => {
+    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
   };
-}
 
-export const doFetchCollectionListMine = (page: number = 1, pageSize: number = 99999) => (dispatch: Dispatch) => {
+  const failure = (error) => {
+    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_FAILED, data: error });
+  };
+
+  Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
+};
+
+export const doFetchCollectionListMine = (page: number = 1, pageSize: number = 50) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_STARTED });
 
-  const callback = (response: CollectionListResponse) => {
+  let options = {
+    page: page,
+    page_size: pageSize,
+    resolve_claims: 1,
+    resolve: true,
+  };
+
+  const success = (response: CollectionListResponse) => {
     const { items } = response;
     const collectionIds = items.map(({ claim_id }) => claim_id);
 
@@ -641,7 +644,31 @@ export const doFetchCollectionListMine = (page: number = 1, pageSize: number = 9
 
   const failure = (error) => dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_FAILED, data: error });
 
-  return Lbry.collection_list({ page, page_size: pageSize, resolve_claims: 1, resolve: true }).then(callback, failure);
+  const autoPaginate = () => {
+    let allClaims = [];
+
+    const next = async (response: CollectionListResponse) => {
+      const moreData = response.items.length === options.page_size;
+      allClaims = allClaims.concat(response.items);
+      options.page++;
+
+      if (!moreData) {
+        // $FlowIgnore: the callback doesn't need all data anyway.
+        return success({ items: allClaims });
+      }
+
+      try {
+        const data = await Lbry.collection_list(options);
+        return next(data);
+      } catch (err) {
+        failure(err);
+      }
+    };
+
+    return next;
+  };
+
+  return await Lbry.collection_list(options).then(autoPaginate(), failure);
 };
 
 export function doClearClaimSearch() {
@@ -1155,38 +1182,3 @@ export const doFetchLatestClaimForChannel = (uri: string, isEmbed?: boolean) => 
     )
     .catch(() => dispatch({ type: ACTIONS.FETCH_LATEST_FOR_CHANNEL_FAIL }));
 };
-
-export function doCheckIfPurchasedClaimId(claimId: string) {
-  return async (dispatch: Dispatch) => {
-    dispatch({
-      type: ACTIONS.CHECK_IF_PURCHASED_STARTED,
-    });
-
-    // we'll check if there's anything for the targeted id
-    // if we're on a preorder and there is, build the purchase url with the reference (if exists)
-    // if we're on a purchase and there is, show the video
-    try {
-      const response = await Lbryio.call(
-        'customer',
-        'list',
-        {
-          environment: stripeEnvironment,
-          claim_id_filter: claimId, // checks by target_claim_id or reference_claim_id
-        },
-        'post'
-      );
-
-      return dispatch({
-        type: ACTIONS.CHECK_IF_PURCHASED_COMPLETED,
-        data: response,
-      });
-    } catch (err) {
-      return dispatch({
-        type: ACTIONS.CHECK_IF_PURCHASED_FAILED,
-        data: {
-          error: err.message,
-        },
-      });
-    }
-  };
-}

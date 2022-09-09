@@ -8,6 +8,7 @@ import { lazyImport } from 'util/lazyImport';
 
 // prettier-ignore
 const MAP = Object.freeze({
+  [MODALS.ADD_CARD]: lazyImport(() => import('modal/modalStripeCard' /* webpackChunkName: "modalStripeCard" */)),
   [MODALS.ANNOUNCEMENTS]: lazyImport(() => import('modal/modalAnnouncements' /* webpackChunkName: "modalAnnouncements" */)),
   [MODALS.AFFIRM_PURCHASE]: lazyImport(() => import('modal/modalAffirmPurchase' /* webpackChunkName: "modalAffirmPurchase" */)),
   [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)),
@@ -22,7 +23,6 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_EXTERNAL_RESOURCE]: lazyImport(() => import('modal/modalOpenExternalResource' /* webpackChunkName: "modalOpenExternalResource" */)),
   [MODALS.CONFIRM_FILE_REMOVE]: lazyImport(() => import('modal/modalRemoveFile' /* webpackChunkName: "modalRemoveFile" */)),
   [MODALS.CONFIRM_ODYSEE_MEMBERSHIP]: lazyImport(() => import('modal/modalConfirmOdyseeMembership' /* webpackChunkName: "modalConfirmOdyseeMembership" */)),
-  [MODALS.CONFIRM_REMOVE_CARD]: lazyImport(() => import('modal/modalRemoveCard' /* webpackChunkName: "modalRemoveCard" */)),
   [MODALS.CONFIRM_REMOVE_COMMENT]: lazyImport(() => import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)),
   [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload' /* webpackChunkName: "modalConfirmThumbnailUpload" */)),
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction' /* webpackChunkName: "modalConfirmTransaction" */)),
@@ -64,17 +64,11 @@ const MAP = Object.freeze({
 type Props = {
   modal: { id: string, modalProps: {} },
   error: { message: string },
-  location: { pathname: string },
   doHideModal: () => void,
 };
 
 function ModalRouter(props: Props) {
-  const { modal, error, location, doHideModal } = props;
-  const { pathname } = location;
-
-  React.useEffect(() => {
-    doHideModal();
-  }, [pathname, doHideModal]);
+  const { modal, error, doHideModal } = props;
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];

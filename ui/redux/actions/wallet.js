@@ -1,6 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import * as MODALS from 'constants/modal_types';
 import * as ERRORS from 'constants/errors';
+import * as PAGES from 'constants/pages';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 import { doOpenModal } from 'redux/actions/app';
@@ -15,6 +16,7 @@ import {
 } from 'redux/selectors/wallet';
 import { resolveApiMessage } from 'util/api-message';
 import { creditsToString } from 'util/format-credits';
+import { dispatchToast } from 'util/toast-wrappers';
 import { selectMyClaimsRaw, selectClaimsById } from 'redux/selectors/claims';
 import { doFetchChannelListMine, doFetchClaimListMine, doClaimSearch } from 'redux/actions/claims';
 const FIFTEEN_SECONDS = 15000;
@@ -71,14 +73,19 @@ export function doFetchTransactions(page = 1, pageSize = 999999) {
       type: ACTIONS.FETCH_TRANSACTIONS_STARTED,
     });
 
-    Lbry.transaction_list({ page, page_size: pageSize }).then((result) => {
-      dispatch({
-        type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
-        data: {
-          transactions: result.items,
-        },
+    Lbry.transaction_list({ page, page_size: pageSize })
+      .then((result) => {
+        dispatch({
+          type: ACTIONS.FETCH_TRANSACTIONS_COMPLETED,
+          data: {
+            transactions: result.items,
+          },
+        });
+      })
+      .catch((e) => {
+        dispatch({ type: ACTIONS.FETCH_TRANSACTIONS_FAILED });
+        dispatchToast(dispatch, __('Failed to get transactions. Try again later.'), e.message || e, 'long');
       });
-    });
   };
 }
 
@@ -387,7 +394,7 @@ export function doSendTip(params, isSupport, successCallback, errorCallback, sho
             message: shouldSupport ? __('Boost transaction successful.') : __('Tip successfully sent.'),
             subMessage: __("I'm sure they appreciate it!"),
             linkText: `${params.amount} LBC`,
-            linkTarget: '/wallet',
+            linkTarget: `/${PAGES.WALLET}?tab=fiat-payment-history`,
           })
         );
       }

@@ -653,7 +653,7 @@ $recent-msg-button__height: 2rem;
 
 .livestream-comments__top-actions {
   border-left: 1px solid var(--color-header-background);
-  border-right: 1px solid var(--color-header-background);
+  border-right: 8px solid var(--color-header-background);
 }
 
 .livestream-comments__top-actions--mobile {
@@ -1064,7 +1064,7 @@ $recent-msg-button__height: 2rem;
   padding: 3px 0;
 
   .livestreamComment__menu {
-    top: 1.5px;
+    top: 1px;
   }
 
   &.livestream__comment--hyperchat {
@@ -1124,6 +1124,8 @@ $recent-msg-button__height: 2rem;
     margin-right: 0px;
     margin-top: 0px !important;
     margin-bottom: 0;
+    height: 20px;
+    line-height: 22px;
   }
   .colon {
     float: left;

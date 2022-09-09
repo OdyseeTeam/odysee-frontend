@@ -6,12 +6,14 @@ import type { Node } from 'react';
 import classnames from 'classnames';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
+import usePersistentUserParam from 'effects/use-persistent-user-param';
 import { useHistory } from 'react-router';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import { toCapitalCase } from 'util/string';
 import SEARCHABLE_LANGUAGES from 'constants/searchable_languages';
 import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
+import debounce from 'util/debounce';
 
 type Props = {
   defaultTags: string,
@@ -64,23 +66,29 @@ function ClaimListHeader(props: Props) {
     scrollAnchor,
   } = props;
   const filterCtx = React.useContext(ClaimSearchFilterContext);
-  const { action, push, location } = useHistory();
+  const { push, location } = useHistory();
   const { search } = location;
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
-  const [orderParamEntry, setOrderParamEntry] = usePersistedState(`entry-${location.pathname}`, CS.ORDER_BY_TRENDING);
-  const [orderParamUser, setOrderParamUser] = usePersistedState(`orderUser-${location.pathname}`, CS.ORDER_BY_TRENDING);
   const urlParams = new URLSearchParams(search);
   const freshnessParam = freshness || urlParams.get(CS.FRESH_KEY) || defaultFreshness;
   const contentTypeParam = urlParams.get(CS.CONTENT_KEY);
   const streamTypeParam =
     streamType || (CS.FILE_TYPES.includes(contentTypeParam) && contentTypeParam) || defaultStreamType || null;
-  const durationParam = urlParams.get(CS.DURATION_KEY) || null;
   const languageParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const sortByParam = sortBy || urlParams.get(CS.SORT_BY_KEY) || null;
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount || CS.FEE_AMOUNT_ANY;
   const showDuration = !(claimType && claimType === CS.CLAIM_CHANNEL && claimType === CS.CLAIM_COLLECTION);
+
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
+  const [durationMinutes, setDurationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
+  const [minutes, setMinutes] = React.useState(durationMinutes);
+  const setDurationMinutesDebounced = React.useCallback(
+    debounce((m) => setDurationMinutes(m), 750),
+    []
+  );
+
   const isFiltered = () =>
     Boolean(
       urlParams.get(CS.FRESH_KEY) ||
@@ -103,6 +111,12 @@ function ClaimListHeader(props: Props) {
   const shouldHighlight = searchInLanguage
     ? languageParam !== languageSetting && languageParam !== null
     : languageParam !== CS.LANGUAGES_ALL && languageParam !== null;
+
+  const orderParam = usePersistentUserParam(
+    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
+    'orderUser',
+    CS.ORDER_BY_TRENDING
+  );
 
   function getHideRepostsElem(filterCtx, contentType) {
     if (filterCtx?.repost) {
@@ -128,29 +142,6 @@ function ClaimListHeader(props: Props) {
   React.useEffect(() => {
     if (hideAdvancedFilter) {
       setExpanded(false);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  let orderParam = orderBy || urlParams.get(CS.ORDER_BY_KEY) || defaultOrderBy;
-  if (!orderParam) {
-    if (action === 'POP') {
-      // Reaching here means user have popped back to the page's entry point (e.g. '/$/tags' without any '?order=').
-      orderParam = orderParamEntry;
-    } else {
-      // This is the direct entry into the page, so we load the user's previous value.
-      orderParam = orderParamUser;
-    }
-  }
-
-  React.useEffect(() => {
-    setOrderParamUser(orderParam);
-  }, [orderParam, setOrderParamUser]);
-
-  React.useEffect(() => {
-    // One-time update to stash the finalized 'orderParam' at entry.
-    if (action !== 'POP') {
-      setOrderParamEntry(orderParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -422,43 +413,6 @@ function ClaimListHeader(props: Props) {
                 </div>
               )}
 
-              {/* DURATIONS FIELD */}
-              {showDuration && (
-                <div className={'claim-search__input-container'}>
-                  <FormField
-                    className={classnames('claim-search__dropdown', {
-                      'claim-search__dropdown--selected': durationParam,
-                    })}
-                    label={__('Duration --[length of audio or video]--')}
-                    type="select"
-                    name="duration"
-                    disabled={
-                      !(
-                        contentTypeParam === null ||
-                        streamTypeParam === CS.FILE_AUDIO ||
-                        streamTypeParam === CS.FILE_VIDEO
-                      )
-                    }
-                    value={durationParam || CS.DURATION_ALL}
-                    onChange={(e) =>
-                      handleChange({
-                        key: CS.DURATION_KEY,
-                        value: e.target.value,
-                      })
-                    }
-                  >
-                    {CS.DURATION_TYPES.map((dur) => (
-                      <option key={dur} value={dur}>
-                        {/* i18fixme */}
-                        {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
-                        {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
-                        {dur === CS.DURATION_ALL && __('Any')}
-                      </option>
-                    ))}
-                  </FormField>
-                </div>
-              )}
-
               {/* PAID FIELD */}
               <div className={'claim-search__input-container'}>
                 <FormField
@@ -522,6 +476,62 @@ function ClaimListHeader(props: Props) {
                 </div>
               )}
             </div>
+
+            {/* DURATIONS FIELD */}
+            {showDuration && (
+              <div className={classnames(`card claim-search__menus`)}>
+                <div className={'claim-search__input-container'}>
+                  <FormField
+                    className={classnames('claim-search__dropdown', {
+                      'claim-search__dropdown--selected': durationParam,
+                    })}
+                    label={__('Duration --[length of audio or video]--')}
+                    type="select"
+                    name="duration"
+                    disabled={
+                      !(
+                        contentTypeParam === null ||
+                        streamTypeParam === CS.FILE_AUDIO ||
+                        streamTypeParam === CS.FILE_VIDEO
+                      )
+                    }
+                    value={durationParam || CS.DURATION_ALL}
+                    onChange={(e) =>
+                      handleChange({
+                        key: CS.DURATION_KEY,
+                        value: e.target.value,
+                      })
+                    }
+                  >
+                    {CS.DURATION_TYPES.map((dur) => (
+                      <option key={dur} value={dur}>
+                        {/* i18fixme */}
+                        {dur === CS.DURATION_SHORT && __('Short (< 4 minutes)')}
+                        {dur === CS.DURATION_LONG && __('Long (> 20 min)')}
+                        {dur === CS.DURATION_ALL && __('Any')}
+                        {dur === CS.DURATION_GT_EQ && __('Longer than')}
+                        {dur === CS.DURATION_LT_EQ && __('Shorter than')}
+                      </option>
+                    ))}
+                  </FormField>
+                </div>
+                {(durationParam === CS.DURATION_GT_EQ || durationParam === CS.DURATION_LT_EQ) && (
+                  <div className={'claim-search__input-container'}>
+                    <FormField
+                      label={__('Minutes')}
+                      type="number"
+                      name="duration__minutes"
+                      value={minutes}
+                      onChange={(e) => {
+                        setMinutes(e.target.value);
+                        setDurationMinutesDebounced(e.target.value);
+                      }}
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+
             {getHideRepostsElem(filterCtx, contentTypeParam)}
           </>
         )}
