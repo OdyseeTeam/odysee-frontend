@@ -21,9 +21,9 @@ const TAB_QUERY = 'tab';
 
 const TABS = {
   OVERVIEW: 'overview',
-  TIERS: 'tiers',
   SUPPORTERS: 'supporters',
-  PLEDGES: 'pledges',
+  TIERS: 'tiers',
+  // PLEDGES: 'pledges',
 };
 
 type Props = {
@@ -78,15 +78,17 @@ const MembershipsPage = (props: Props) => {
     case TABS.OVERVIEW:
       tabIndex = 0;
       break;
-    case TABS.TIERS:
+    case TABS.SUPPORTERS:
       tabIndex = 1;
       break;
-    case TABS.SUPPORTERS:
+    case TABS.TIERS:
       tabIndex = 2;
       break;
+    /*
     case TABS.PLEDGES:
       tabIndex = 3;
       break;
+      */
   }
 
   function onTabChange(newTabIndex) {
@@ -95,12 +97,12 @@ const MembershipsPage = (props: Props) => {
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
-    } else if (newTabIndex === 3) {
+    } else if (newTabIndex === 2) {
+      url += `${TAB_QUERY}=${TABS.TIERS}`;
+    } /*else if (newTabIndex === 3) {
       url += `${TAB_QUERY}=${TABS.PLEDGES}`;
-    }
+    }*/
     push(url);
   }
 
@@ -109,9 +111,9 @@ const MembershipsPage = (props: Props) => {
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('Tiers')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('Supporters')}</Tab>
-          <Tab>{__('My Pledges')}</Tab>
+          <Tab>{activeChannelClaim !== null && __('My Supporters')}</Tab>
+          <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
+          {/* <Tab>{__('My Pledges')}</Tab> */}
         </TabList>
 
         <TabPanels>
@@ -122,19 +124,7 @@ const MembershipsPage = (props: Props) => {
               onChannelSelect={() => setAllSelected(false)}
             />
             <OverviewTab channelsToList={channelsToList} />
-          </TabPanel>
-
-          <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <ChannelSelector
-                  hideAnon
-                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                  onChannelSelect={() => setAllSelected(false)}
-                />
-                <TiersTab channelsToList={channelsToList} />
-              </>
-            )}
+            <PledgesTab channelsToList={channelsToList} />
           </TabPanel>
 
           <TabPanel>
@@ -151,6 +141,20 @@ const MembershipsPage = (props: Props) => {
           </TabPanel>
 
           <TabPanel>
+            {activeChannelClaim !== null && (
+              <>
+                <ChannelSelector
+                  hideAnon
+                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                  onChannelSelect={() => setAllSelected(false)}
+                />
+                <TiersTab channelsToList={channelsToList} />
+              </>
+            )}
+          </TabPanel>
+
+          {/*
+          <TabPanel>
             <ChannelSelector
               hideAnon
               allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
@@ -158,6 +162,7 @@ const MembershipsPage = (props: Props) => {
             />
             <PledgesTab channelsToList={channelsToList} />
           </TabPanel>
+          */}
         </TabPanels>
       </Tabs>
     </Page>

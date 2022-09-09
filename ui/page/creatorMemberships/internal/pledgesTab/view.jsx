@@ -72,55 +72,60 @@ function PledgesTab(props: Props) {
   return (
     <>
       {pledges?.length > 0 && (
-        <div className="membership-table__wrapper">
-          <table className="table table--pledges">
-            <thead>
-              <tr>
-                <th>Channel Name</th>
-                <th>Tier</th>
-                <th>Time Total</th>
-                <th>Amount</th>
-                <th>Status</th>
-                <th>Details</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myPurchasedMemberships?.map((active, i) => {
-                const membership = active[0];
-                return (
-                  <tr key={i}>
-                    <td>
-                      <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
-                      {/* <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} /> */}
-                      <Button
-                        button="link"
-                        navigate={pledges[i].url + '?view=membership'}
-                        label={membership.MembershipDetails.channel_name}
-                      />
-                    </td>
-                    <td>{membership.MembershipDetails.name}</td>
-                    {/* TODO: add moment logic here to calculate number of months */}
-                    <td>{pledges[i].timeAgo}</td>
-                    <td>
-                      ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
-                      {capitalizeFirstLetter(pledges[i].period)}
-                    </td>
-                    <td>{membership.Subscription.status === 'active' ? __('Active') : __('Cancelled')}</td>
-                    <td>
-                      <span dir="auto" className="button__label">
+        <>
+          <div className="membership__mypledges-header">
+            <label>My Pledges</label>
+          </div>
+          <div className="membership-table__wrapper">
+            <table className="table table--pledges">
+              <thead>
+                <tr>
+                  <th>Channel Name</th>
+                  <th>Tier</th>
+                  <th>Time Total</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody>
+                {myPurchasedMemberships?.map((active, i) => {
+                  const membership = active[0];
+                  return (
+                    <tr key={i}>
+                      <td>
+                        <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
+                        {/* <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} /> */}
                         <Button
-                          button="primary"
-                          label={__('See Details')}
+                          button="link"
                           navigate={pledges[i].url + '?view=membership'}
+                          label={membership.MembershipDetails.channel_name}
                         />
-                      </span>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+                      <td>{membership.MembershipDetails.name}</td>
+                      {/* TODO: add moment logic here to calculate number of months */}
+                      <td>{pledges[i].timeAgo}</td>
+                      <td>
+                        ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
+                        {capitalizeFirstLetter(pledges[i].period)}
+                      </td>
+                      <td>{membership.Subscription.status === 'active' ? __('Active') : __('Cancelled')}</td>
+                      <td>
+                        <span dir="auto" className="button__label">
+                          <Button
+                            button="primary"
+                            label={__('See Details')}
+                            navigate={pledges[i].url + '?view=membership'}
+                          />
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </>
       )}
 
       {myPurchasedMemberships?.length === 0 && (

@@ -1462,3 +1462,43 @@ svg.icon--Upgrade {
     }
   }
 }
+
+.membership__mychannels-header {
+  width: 100%;
+  background-size: cover;
+  background-position: top -320px left 0px;
+  background-image: url('/public/img/my_channels.jpg');
+  border-radius: var(--border-radius);
+  padding: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+  margin-top: var(--spacing-m);
+  border: 2px solid rgba(255, 0, 0, 0.1);
+
+  label {
+    padding: var(--spacing-m);
+    background-color: rgba(255, 0, 0, 0.2);
+    border-radius: var(--border-radius);
+    font-size: var(--font-large);
+    color: white;
+  }
+}
+
+.membership__mypledges-header {
+  width: 100%;
+  background-size: cover;
+  background-position: top -200px left 0px;
+  background-image: url('/public/img/my_pledges.jpg');
+  border-radius: var(--border-radius);
+  padding: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+  margin-top: var(--spacing-xxl);
+  border: 2px solid rgba(0, 255, 0, 0.1);
+
+  label {
+    padding: var(--spacing-m);
+    background-color: rgba(0, 255, 0, 0.2);
+    border-radius: var(--border-radius);
+    font-size: var(--font-large);
+    color: white;
+  }
+}
