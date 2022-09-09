@@ -1,37 +1,31 @@
 // @flow
 import React from 'react';
-import ChannelThumbnail from 'component/channelThumbnail';
-import { Lbryio } from 'lbryinc';
+// import ChannelThumbnail from 'component/channelThumbnail';
 import moment from 'moment';
-
-import { getStripeEnvironment } from 'util/stripe';
-const stripeEnvironment = getStripeEnvironment();
+import Spinner from 'component/spinner';
 
 type Props = {
   // -- redux --
-  activeChannelClaim: ?ChannelClaim,
-  bankAccountConfirmed: ?boolean,
-  doTipAccountStatus: (any) => void,
+  supportersList: ?SupportersList,
+  doGetMembershipSupportersList: () => void,
 };
 
 const SupportersTab = (props: Props) => {
-  const { activeChannelClaim } = props;
-
-  const [supportersResponse, setSupportersResponse] = React.useState();
+  const { supportersList, doGetMembershipSupportersList } = props;
 
   React.useEffect(() => {
-    (async function() {
-      const response = await Lbryio.call('membership', 'supporters_list', {
-        environment: stripeEnvironment,
-      });
+    if (supportersList === undefined) {
+      doGetMembershipSupportersList();
+    }
+  }, [doGetMembershipSupportersList, supportersList]);
 
-      l(response);
-      setSupportersResponse(response)
-
-    })();
-  }, [activeChannelClaim]);
-
-  l(activeChannelClaim);
+  if (supportersList === undefined) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
 
   return (
     <div className="membership-table__wrapper">
@@ -46,11 +40,12 @@ const SupportersTab = (props: Props) => {
           </tr>
         </thead>
         <tbody>
-            {supportersResponse && supportersResponse.map((supporter, i) => (
-              <tr>
+          {supportersList &&
+            supportersList.map((supporter, i) => (
+              <tr key={i}>
                 <td>
                   <span dir="auto" className="button__label">
-                    {false && <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />}
+                    {/* {false && <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />} */}
                     {supporter.ChannelName}
                   </span>
                 </td>

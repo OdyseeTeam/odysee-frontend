@@ -26,9 +26,10 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
   // check if channel id is fetching
   const state = getState();
   const fetchingForChannel = selectFetchingIdsForMembershipChannelId(state, channelId);
+  const fetchingSet = fetchingForChannel && new Set(fetchingForChannel);
 
   const channelsToFetch = dedupedChannelIds.filter((dedupedChannelId) => {
-    const notFetching = !fetchingForChannel || (fetchingForChannel && !fetchingForChannel.includes(dedupedChannelId));
+    const notFetching = !fetchingSet || !fetchingSet.has(dedupedChannelId);
     return notFetching;
   });
 
@@ -67,9 +68,8 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
     .catch((e) => dispatch({ type: ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED, data: { channelId, error: e } }));
 };
 
-// TODO: some bug was introduced here where kept calling itself over and over
-export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) => {}
-  // dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
+export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
+  dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
 export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
@@ -234,7 +234,9 @@ export const doDeactivateMembershipForId = (membershipId: number) => async (disp
     });
 };
 
-export const doSetMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (dispatch: Dispatch) => {
+export const doSetMembershipTiersForClaimId = (membershipIds: string, claimId: string) => async (
+  dispatch: Dispatch
+) => {
   dispatch({
     type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
     data: {
@@ -243,11 +245,16 @@ export const doSetMembershipTiersForClaimId = (membershipIds: string, claimId: s
     },
   });
 
-  await Lbryio.call('membership_content', 'modify', {
-    environment: stripeEnvironment,
-    membership_ids: membershipIds,
-    add_claim_id: claimId, // TODO: this is changed in the updated API
-  }, 'post')
+  await Lbryio.call(
+    'membership_content',
+    'modify',
+    {
+      environment: stripeEnvironment,
+      membership_ids: membershipIds,
+      add_claim_id: claimId, // TODO: this is changed in the updated API
+    },
+    'post'
+  )
     .then((response) => {
       dispatch({
         type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS,
@@ -273,16 +280,20 @@ export const doSetMembershipTiersForClaimId = (membershipIds: string, claimId: s
 export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_STARTED, data: channelClaimId });
 
-  await Lbryio.call('membership', 'content', {
-    environment: stripeEnvironment,
-    for_channel: channelClaimId,
-  }, 'post')
+  await Lbryio.call(
+    'membership',
+    'content',
+    {
+      environment: stripeEnvironment,
+      for_channel: channelClaimId,
+    },
+    'post'
+  )
     .then((response) => {
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {
-      console.log(e);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_FAILED, data: channelClaimId });
       return e;
     });
@@ -291,45 +302,46 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
 export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
 
-  await Lbryio.call('membership', 'content', {
-    environment: stripeEnvironment,
-    claim_id: contentClaimId,
-  }, 'post')
+  await Lbryio.call('membership', 'content', { environment: stripeEnvironment, claim_id: contentClaimId }, 'post')
     .then((response) => {
-      console.log('response');
-      console.log(response);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {
-      console.log(e);
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
       return e;
     });
 };
 
-export const doSaveMembershipRestrictionsForContent = (channelClaimId: string, contentClaimId: string, commaSeperatedMembershipIds: string) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
+export const doSaveMembershipRestrictionsForContent = (
+  channelClaimId: string,
+  contentClaimId: string,
+  commaSeperatedMembershipIds: string
+) => async (dispatch: Dispatch) => {
+  dispatch({
+    type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
     data: {
       commaSeperatedMembershipIds,
       contentClaimId,
     },
   });
 
-  await Lbryio.call('membership_content', 'modify', {
-    environment: stripeEnvironment,
-    claim_id: contentClaimId,
-    membership_ids: commaSeperatedMembershipIds,
-    channel_id: channelClaimId,
-  }, 'post')
+  await Lbryio.call(
+    'membership_content',
+    'modify',
+    {
+      environment: stripeEnvironment,
+      claim_id: contentClaimId,
+      membership_ids: commaSeperatedMembershipIds,
+      channel_id: channelClaimId,
+    },
+    'post'
+  )
     .then((response) => {
-      console.log('response');
-      console.log(response);
       // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {
-      console.log(e);
       // dispatch({ type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
       return e;
     });
@@ -337,3 +349,10 @@ export const doSaveMembershipRestrictionsForContent = (channelClaimId: string, c
 
 export const doMembershipClearData = () => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'clear', { environment: 'test' }, 'post').then(() => dispatch(doMembershipMine()));
+
+export const doGetMembershipSupportersList = () => async (dispatch: Dispatch) =>
+  Lbryio.call('membership', 'supporters_list', { environment: stripeEnvironment }, 'post')
+    .then((response: SupportersList) =>
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response })
+    )
+    .catch(() => dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: null }));
