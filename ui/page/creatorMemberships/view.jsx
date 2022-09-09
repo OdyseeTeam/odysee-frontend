@@ -123,7 +123,7 @@ const MembershipsPage = (props: Props) => {
               allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
               onChannelSelect={() => setAllSelected(false)}
             />
-            <OverviewTab channelsToList={channelsToList} />
+            <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} />
             <PledgesTab channelsToList={channelsToList} />
           </TabPanel>
 
@@ -132,7 +132,7 @@ const MembershipsPage = (props: Props) => {
               <>
                 <ChannelSelector
                   hideAnon
-                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                  allOptionProps={{ onSelectAll: () => setAllSelected(false), isSelected: false }}
                   onChannelSelect={() => setAllSelected(false)}
                 />
                 <SupportersTab channelsToList={channelsToList} />
