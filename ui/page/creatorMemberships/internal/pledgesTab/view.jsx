@@ -69,8 +69,6 @@ function PledgesTab(props: Props) {
     }
   }, [claimsById, myPurchasedMemberships, resolved]);
 
-  console.log('pledges: ', pledges);
-
   return (
     <>
       {pledges?.length > 0 && (
