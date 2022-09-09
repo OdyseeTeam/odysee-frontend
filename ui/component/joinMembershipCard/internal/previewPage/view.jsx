@@ -145,6 +145,7 @@ const PreviewPage = (props: Props) => {
           label={__('Signup for $%membership_price% a month', {
             membership_price: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.amount / 100,
           })}
+          requiresAuth
           onClick={handleSelect}
         />
 
