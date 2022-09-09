@@ -5,6 +5,7 @@ import Button from 'component/button';
 import moment from 'moment';
 import { formatLbryUrlForWeb } from 'util/url';
 import { getThumbnailFromClaim } from 'util/claim';
+import ChannelThumbnail from 'component/channelThumbnail';
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 type Props = {
@@ -68,10 +69,12 @@ function PledgesTab(props: Props) {
     }
   }, [claimsById, myPurchasedMemberships, resolved]);
 
+  console.log('pledges: ', pledges);
+
   return (
     <>
       {pledges?.length > 0 && (
-        <div className="table__wrapper">
+        <div className="membership-table__wrapper">
           <table className="table table--pledges">
             <thead>
               <tr>
@@ -89,12 +92,13 @@ function PledgesTab(props: Props) {
                 return (
                   <tr key={i}>
                     <td>
-                      <Button button="link" navigate={pledges[i].url + '?view=membership'}>
-                        <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} />
-                        <span dir="auto" className="button__label">
-                          {membership.MembershipDetails.channel_name}
-                        </span>
-                      </Button>
+                      <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
+                      {/* <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} /> */}
+                      <Button
+                        button="link"
+                        navigate={pledges[i].url + '?view=membership'}
+                        label={membership.MembershipDetails.channel_name}
+                      />
                     </td>
                     <td>{membership.MembershipDetails.name}</td>
                     {/* TODO: add moment logic here to calculate number of months */}
