@@ -649,7 +649,8 @@
     background-size: 34px;
     padding: var(--spacing-m);
 
-    .membership-tier__name {
+    .membership-tier__name,
+    span {
       background: var(--color-header-background);
       border-radius: var(--border-radius);
       padding: var(--spacing-xxs);
