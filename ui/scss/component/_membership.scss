@@ -993,9 +993,11 @@
   .channel-thumbnail {
     display: inline-block;
   }
-  tr {
-    &:hover {
-      background-color: rgba(var(--color-header-background-base), 0.2);
+  tbody {
+    tr {
+      &:hover {
+        background-color: rgba(var(--color-header-background-base), 0.2);
+      }
     }
   }
 }
