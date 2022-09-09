@@ -17,9 +17,7 @@ type Props = {
 
 function OverviewTab(props: Props) {
   const { channelsToList, bankAccountConfirmed } = props;
-
-  console.log('channelClaim: ', props);
-
+  
   return (
     <>
       {channelsToList && (
