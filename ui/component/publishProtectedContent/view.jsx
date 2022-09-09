@@ -57,15 +57,17 @@ function PublishProtectedContent(props: Props) {
   }, [protectedMembershipIds, activeChannel]);
 
   function handleRestrictedMembershipChange(event) {
-    let matchedMemberships = [];
+    let matchedMemberships;
     const restrictCheckboxes = document.querySelectorAll('*[id^="restrictToMembership"]');
+
     for (const checkbox of restrictCheckboxes) {
       if (checkbox.checked) {
-        matchedMemberships.push(Number(checkbox.id.split(':')[1]));
+        matchedMemberships = new Set(matchedMemberships);
+        matchedMemberships.add(Number(checkbox.id.split(':')[1]));
       }
     }
 
-    const commaSeparatedValueString = matchedMemberships.join(',');
+    const commaSeparatedValueString = matchedMemberships && Array.from(matchedMemberships).join(',');
 
     updatePublishForm({
       restrictedToMemberships: commaSeparatedValueString,
@@ -78,11 +80,7 @@ function PublishProtectedContent(props: Props) {
 
   function handleChangeRestriction() {
     // user is no longer restricting content
-    if (isRestrictingContent) {
-      updatePublishForm({
-        restrictedToMemberships: '',
-      });
-    }
+    updatePublishForm({ restrictedToMemberships: isRestrictingContent ? null : undefined });
 
     setIsRestrictingContent(!isRestrictingContent);
   }
@@ -163,7 +161,7 @@ function PublishProtectedContent(props: Props) {
                 <FormField
                   type="checkbox"
                   defaultChecked={protectedMembershipIds && protectedMembershipIds.length}
-                  label={'Restrict content to only allow subscribers to certain memberships to view it'}
+                  label={__('Restrict content to only allow subscribers to certain memberships to view it')}
                   name={'toggleRestrictedContent'}
                   className="restrict-content__checkbox"
                   onChange={() => handleChangeRestriction()}

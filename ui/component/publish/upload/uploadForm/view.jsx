@@ -87,6 +87,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
+  restrictedToMemberships: ?string,
 };
 
 function UploadForm(props: Props) {
@@ -127,6 +128,7 @@ function UploadForm(props: Props) {
     uploadThumbnailStatus,
     user,
     ytSignupPending,
+    restrictedToMemberships,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -200,11 +202,13 @@ function UploadForm(props: Props) {
 
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
 
-  const formValid = isOverwritingExistingClaim
-    ? false
-    : editingURI && !filePath // if we're editing we don't need a file
-    ? isStillEditing && formValidLessFile && !waitingForFile
-    : formValidLessFile;
+  const formValid =
+    restrictedToMemberships !== undefined &&
+    (isOverwritingExistingClaim
+      ? false
+      : editingURI && !filePath // if we're editing we don't need a file
+      ? isStillEditing && formValidLessFile && !waitingForFile
+      : formValidLessFile);
 
   const [previewing, setPreviewing] = React.useState(false);
 
