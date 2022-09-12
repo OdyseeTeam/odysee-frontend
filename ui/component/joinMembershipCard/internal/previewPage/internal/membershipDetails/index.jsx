@@ -10,9 +10,9 @@ type Props = {
 const MembershipDetails = (props: Props) => {
   const { membership, headerAction, protectedMembershipIds } = props;
 
-  let accessText = 'This content doesn\'t have access to content';
+  let accessText = 'This membership doesn\'t have access to the current content';
   if (protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)) {
-    accessText = 'This content has access to content';
+    accessText = 'This membership has access to the current content';
   }
 
   console.log('headerAction: ', headerAction);
