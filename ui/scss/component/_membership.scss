@@ -380,7 +380,7 @@
     display: none;
   }
   .membership-tier__infos {
-    margin-top: var(--spacing-l);
+    margin-top: var(--spacing-m);
     span {
       opacity: 0.8;
     }
@@ -1446,7 +1446,12 @@ svg.icon--Upgrade {
   margin-bottom: var(--spacing-m);
 }
 
+.no-access-button {
+  opacity: 0.6;
+}
+
 .protected-membership-button {
+  opacity: 1 !important;
   span {
     color: #68f368;
   }
