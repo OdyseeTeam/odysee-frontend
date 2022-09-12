@@ -53,7 +53,7 @@ function ChannelSelector(props: Props) {
   } = props;
 
   const hideAnon = Boolean(props.hideAnon || storeSelection);
-  const showAllOption = Boolean(allOptionProps);
+  const showAllOption = Boolean(allOptionProps && channelIds && channelIds.length > 1);
 
   const {
     push,

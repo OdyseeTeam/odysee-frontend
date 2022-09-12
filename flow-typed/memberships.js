@@ -1,7 +1,7 @@
 declare type MembershipBuyParams = {
   membership_id: number,
-  channel_id: string,
-  channel_name: string,
+  channel_id?: string,
+  channel_name?: string,
   price_id: string,
 };
 

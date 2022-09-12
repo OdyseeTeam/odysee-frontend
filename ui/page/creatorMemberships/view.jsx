@@ -119,7 +119,6 @@ const MembershipsPage = (props: Props) => {
         <TabPanels>
           <TabPanel>
             <ChannelSelector
-              hideAnon
               allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
               onChannelSelect={() => setAllSelected(false)}
             />

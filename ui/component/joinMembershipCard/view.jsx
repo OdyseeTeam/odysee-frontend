@@ -18,6 +18,7 @@ type Props = {
   channelClaimId: ?string,
   creatorMemberships: ?CreatorMemberships,
   hasSavedCard: ?boolean,
+  incognito: boolean,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doGetCustomerStatus: () => void,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
@@ -36,6 +37,7 @@ const JoinMembershipCard = (props: Props) => {
     channelClaimId,
     creatorMemberships,
     hasSavedCard,
+    incognito,
     doMembershipList,
     doGetCustomerStatus,
     doMembershipBuy,
@@ -51,10 +53,15 @@ const JoinMembershipCard = (props: Props) => {
 
     const membershipBuyParams: MembershipBuyParams = {
       membership_id: selectedTier.Membership.id,
-      channel_id: activeChannelClaim.claim_id,
-      channel_name: activeChannelClaim.name,
       price_id: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.stripe_price_id,
     };
+
+    if (activeChannelClaim && !incognito) {
+      Object.assign(membershipBuyParams, {
+        channel_id: activeChannelClaim.claim_id,
+        channel_name: activeChannelClaim.name,
+      });
+    }
 
     doMembershipBuy(membershipBuyParams).then(() => {
       if (doHideModal) {
