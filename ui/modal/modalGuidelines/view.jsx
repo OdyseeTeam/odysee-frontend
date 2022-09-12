@@ -14,7 +14,7 @@ class modalGuidelines extends React.PureComponent<Props> {
   render() {
     const { closeModal } = this.props;
 
-    console.log('Test');
+    // console.log('Test');
     return (
       <Modal ariaHideApp={false} isOpen type="custom" onAborted={closeModal}>
         By publishing or commenting, you agree to the <a href="ff.html">Odysee community guidelines.</a>

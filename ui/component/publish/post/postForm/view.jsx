@@ -29,11 +29,11 @@ import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 
-import usePersistedState from 'effects/use-persisted-state';
-import * as MODALS from 'constants/modal_types';
+// import usePersistedState from 'effects/use-persisted-state';
+// import * as MODALS from 'constants/modal_types';
 
 type Props = {
-  doOpenModal: (id: string, props: {}) => void,
+  // doOpenModal: (id: string, props: {}) => void,
   disabled: boolean,
   tags: Array<Tag>,
   publish: (source?: string | File, ?boolean) => void,
@@ -91,7 +91,7 @@ type Props = {
 function PostForm(props: Props) {
   // Detect upload type from query in URL
   const {
-    doOpenModal,
+    // doOpenModal,
     thumbnail,
     thumbnailError,
     name,
@@ -394,9 +394,11 @@ function PostForm(props: Props) {
     ytSignupPending ||
     previewing;
 
+  /*
   useEffect(() => {
     doOpenModal(MODALS.GUIDELINES);
   }, []);
+  */
 
   // Editing claim uri
   return (
