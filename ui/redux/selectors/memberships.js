@@ -18,8 +18,7 @@ export const selectPendingCancelMembershipIds = (state: State) => selectState(st
 export const selectChannelMembershipsByCreatorId = (state: State) => selectState(state).channelMembershipsByCreatorId;
 export const selectById = (state: State) => selectState(state).membershipListById || {};
 export const selectDidFetchMembershipsDataById = (state: State) => selectState(state).didFetchMembershipsDataById;
-// TODO: this seems to be named wrong, it's related to perks not tiers
-// export const selectMyMembershipTiers = (state: State) => selectState(state).myMembershipTiers;
+export const selectMembershipPerks = (state: State) => selectState(state).membershipPerks;
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 
 export const selectMembershipMineFetched = (state: State) => selectMembershipMineData(state) !== undefined;

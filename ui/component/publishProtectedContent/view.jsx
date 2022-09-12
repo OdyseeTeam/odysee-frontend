@@ -5,9 +5,6 @@ import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
 import * as PAGES from 'constants/pages';
-import { Lbryio } from 'lbryinc';
-import { getStripeEnvironment } from 'util/stripe';
-let stripeEnvironment = getStripeEnvironment();
 
 type Props = {
   description: ?string,
@@ -20,6 +17,8 @@ type Props = {
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
   myMembershipTiers: Array<Membership>,
   myMembershipTiersWithExclusiveContentPerk: Array<Membership>,
+  myMembershipTiersWithExclusiveLivestreamPerk: Array<Membership>,
+  location: string,
 };
 
 function PublishProtectedContent(props: Props) {
@@ -32,12 +31,17 @@ function PublishProtectedContent(props: Props) {
     getExistingTiers,
     myMembershipTiers,
     myMembershipTiersWithExclusiveContentPerk,
+    myMembershipTiersWithExclusiveLivestreamPerk,
+    location,
   } = props;
 
   const [commentsChatAlreadyRestricted, setCommentsChatAlreadyRestricted] = React.useState(false);
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
 
   const claimId = claim?.claim_id;
+
+  let membershipsToUse = myMembershipTiersWithExclusiveContentPerk;
+  if (location === 'livestream') membershipsToUse = myMembershipTiersWithExclusiveLivestreamPerk;
 
   // run the redux action
   React.useEffect(() => {
@@ -134,7 +138,9 @@ function PublishProtectedContent(props: Props) {
         />
       )}
 
-      {myMembershipTiers && myMembershipTiers.length > 1 && (
+      {/* to-do: add some logic to say "none of your tiers have the perk" */}
+
+      {membershipsToUse && membershipsToUse.length > 1 && (
         <>
           <Card
             className="card--restrictions"
@@ -151,7 +157,7 @@ function PublishProtectedContent(props: Props) {
 
                 {isRestrictingContent && (
                   <div className="tier-list">
-                    {myMembershipTiersWithExclusiveContentPerk.map((membership) => (
+                    {membershipsToUse.map((membership) => (
                       <FormField
                         key={membership.Membership.id}
                         type="checkbox"
@@ -169,7 +175,7 @@ function PublishProtectedContent(props: Props) {
                 <FormField
                   type="checkbox"
                   defaultChecked={commentsChatAlreadyRestricted}
-                  label={'Restrict comments and chats to memberships with Members-only Chat perk'}
+                  label={'Restrict comments and chats to memberships with members-only chat perk'}
                   name={'toggleRestrictCommentsChat'}
                   className="restrict-comments-chat_checkbox"
                   onChange={() => handleChangeRestrictCommentsChat()}

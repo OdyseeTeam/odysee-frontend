@@ -535,7 +535,7 @@ function LivestreamForm(props: Props) {
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
-            <PublishProtectedContent claim={myClaimForUri} />
+            <PublishProtectedContent claim={myClaimForUri} location={'livestream'} />
 
             <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
               {__('Tags')}
