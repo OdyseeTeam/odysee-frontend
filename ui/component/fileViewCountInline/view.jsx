@@ -22,7 +22,8 @@ export default function FileViewCountInline(props: Props) {
   // (only one place edit/remove).
 
   // const pathname: string = window.location.pathname;
-  const pathname: string = window.odysee.functions.history.entries[window.odysee.functions.history.index].pathname;
+  const pathname: string =
+    window?.odysee?.functions?.history?.entries[window?.odysee?.functions?.history?.index].pathname;
 
   const isOnAllowedPage =
     (pathname && pathname.startsWith('/@') && pathname.indexOf('/', 1) === -1) || // Channel Page

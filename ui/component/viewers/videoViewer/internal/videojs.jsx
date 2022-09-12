@@ -505,7 +505,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
               uri: response.url,
               claim: claimValues,
               fileType: 'application/x-mpegURL',
-              channel: channelName,
+              channel: channelTitle,
             };
             window.odysee.chromecast.setMediaPayload(payload);
           }
@@ -513,10 +513,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           vjsPlayer.src(vjsPlayer.claimSrcOriginal);
           if (window.cordova) {
             let payload = {
-              uri: vjsPlayer.claimSrcOriginal,
+              uri: vjsPlayer.claimSrcOriginal.src,
               claim: claimValues,
               fileType: sourceType,
-              channel: channelName,
+              channel: channelTitle,
             };
             window.odysee.chromecast.setMediaPayload(payload);
           }
