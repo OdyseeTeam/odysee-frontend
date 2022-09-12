@@ -125,7 +125,7 @@ const PreviewPage = (props: Props) => {
             label={Membership.name}
             button="alt"
             onClick={() => setMembershipIndex(index)}
-            className={classnames('button-toggle', {
+            className={classnames('button-toggle no-access-button', {
               'button-toggle--active': index === selectedMembershipIndex,
               'protected-membership-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
             })}
@@ -133,7 +133,7 @@ const PreviewPage = (props: Props) => {
         ))}
       </div>
       <div className="join-membership__modal-content">
-        <MembershipDetails membership={selectedTier} />
+        <MembershipDetails membership={selectedTier} protectedMembershipIds={protectedMembershipIds} />
       </div>
 
       <div className="join-membership__modal-action">
