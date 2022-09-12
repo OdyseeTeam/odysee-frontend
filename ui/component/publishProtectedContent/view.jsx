@@ -117,7 +117,7 @@ function PublishProtectedContent(props: Props) {
     <>
       <h2 className="card__title">{__('Restrictions')}</h2>
 
-      {myMembershipTiers && myMembershipTiers.length === 0 && (
+      {(!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) && (
         <Card
           className="card--restrictions"
           body={

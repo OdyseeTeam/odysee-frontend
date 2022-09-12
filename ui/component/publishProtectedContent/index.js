@@ -9,6 +9,8 @@ import {
   selectProtectedContentMembershipsForClaimId,
   selectMyMembershipTiers,
   selectMyMembershipTiersWithExclusiveContentPerk,
+  selectMyMembershipTiersWithExclusiveLivestreamPerk,
+  selectMyMembershipTiersWithMembersOnlyChatPerk,
 } from 'redux/selectors/memberships';
 import { doGetMembershipTiersForContentClaimId, doMembershipList } from 'redux/actions/memberships';
 import PublishProtectedContent from './view';
@@ -25,8 +27,8 @@ const select = (state, props) => {
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelClaimId, claimId),
     myMembershipTiers: selectMyMembershipTiers(state, activeChannel?.claim_id),
     myMembershipTiersWithExclusiveContentPerk: selectMyMembershipTiersWithExclusiveContentPerk(state, activeChannel?.claim_id),
-    myMembershipTiersWithExclusiveLivestreamPerk: selectMyMembershipTiersWithExclusiveContentPerk(state, activeChannel?.claim_id),
-    myMembershipTiersWithMembersOnlyChatPerk: selectMyMembershipTiersWithExclusiveContentPerk(state, activeChannel?.claim_id),
+    myMembershipTiersWithExclusiveLivestreamPerk: selectMyMembershipTiersWithExclusiveLivestreamPerk(state, activeChannel?.claim_id),
+    myMembershipTiersWithMembersOnlyChatPerk: selectMyMembershipTiersWithMembersOnlyChatPerk(state, activeChannel?.claim_id),
   };
 };
 
