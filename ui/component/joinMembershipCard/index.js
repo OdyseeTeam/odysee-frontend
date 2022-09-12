@@ -4,7 +4,7 @@ import { selectChannelNameForUri, selectChannelClaimIdForUri } from 'redux/selec
 import { selectHasSavedCard } from 'redux/selectors/stripe';
 import { doMembershipList, doMembershipBuy } from 'redux/actions/memberships';
 import { doGetCustomerStatus } from 'redux/actions/stripe';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { doToast } from 'redux/actions/notifications';
 import PreviewPage from './view';
 
@@ -17,6 +17,7 @@ const select = (state, props) => {
     channelName: selectChannelNameForUri(state, uri),
     channelClaimId: selectChannelClaimIdForUri(state, uri),
     hasSavedCard: selectHasSavedCard(state),
+    incognito: selectIncognito(state),
   };
 };
 
