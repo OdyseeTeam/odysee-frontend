@@ -5,22 +5,18 @@ import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import PreviewPage from './view';
+import { getChannelNameFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
   const { claim_id: claimId } = selectClaimForUri(state, props.uri) || {};
   const claim = selectClaimForUri(state, props.uri);
 
-  let channelTitle = null;
+  const channelTitle = getChannelNameFromClaim(claim);
+
   let channelUri = null;
   if (claim) {
     channelUri = claim.canonical_url;
-    const { value, name } = claim;
-    if (value && value.title) {
-      channelTitle = value.title;
-    } else {
-      channelTitle = name;
-    }
   }
 
   return {

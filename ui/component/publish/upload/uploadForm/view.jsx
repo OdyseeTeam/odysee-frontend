@@ -482,7 +482,7 @@ function UploadForm(props: Props) {
 
           <Card actions={<SelectThumbnail />} />
 
-          <PublishProtectedContent claim={myClaimForUri} />
+          <PublishProtectedContent claim={myClaimForUri} location={'upload'} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}

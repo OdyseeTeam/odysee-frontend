@@ -14,6 +14,7 @@ type MembershipsState = {
   pendingDeleteIds: Array<string>,
   protectedContentClaims: { [channelId: string]: any },
   mySupportersList: ?SupportersList,
+  membershipPerks: Array<MembershipPerk>
 };
 
 const defaultState: MembershipsState = {
@@ -27,6 +28,7 @@ const defaultState: MembershipsState = {
   pendingDeleteIds: [],
   protectedContentClaims: {},
   mySupportersList: undefined,
+  membershipPerks: [],
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
@@ -110,7 +112,7 @@ reducers[ACTIONS.LIST_MEMBERSHIP_DATA] = (state, action) => {
   return { ...state, membershipListById: newMembershipListById };
 };
 
-reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, myMembershipTiers: action.data });
+reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, membershipPerks: action.data });
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED] = (state, action) => {
   return { ...state };
