@@ -882,6 +882,8 @@ $control-bar-icon-size: 30px;
     &.show-play-toggle,
     &.skip {
       background-color: rgba(0, 0, 0, 0.5);
+      width: 100% !important;
+      height: 100% !important;
     }
 
     max-height: var(--mobile-player-max-height);
