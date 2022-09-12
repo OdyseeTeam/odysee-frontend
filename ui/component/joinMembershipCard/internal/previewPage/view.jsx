@@ -25,6 +25,7 @@ type Props = {
   doTipAccountCheckForUri: (uri: string) => void,
   channelTitle: string,
   channelUri: string,
+  channelName: string,
   doOpenModal: (id: string, props: {}) => void,
   protectedMembershipIds: Array<number>,
 };
@@ -45,6 +46,7 @@ const PreviewPage = (props: Props) => {
     doTipAccountCheckForUri,
     channelTitle,
     channelUri,
+    channelName,
     doOpenModal,
   } = props;
 
@@ -52,7 +54,6 @@ const PreviewPage = (props: Props) => {
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
-
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
@@ -74,8 +75,12 @@ const PreviewPage = (props: Props) => {
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
-          label={__(channelIsMine ? 'Create Your Memberships For This Channel' : 'Create Your Memberships')}
-          navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+          label={
+            channelIsMine
+              ? __('Create Memberships For %channel_name%', { channel_name: channelName })
+              : __('Create Your Memberships')
+          }
+          navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
           channelId={channelId}
         />
       </div>

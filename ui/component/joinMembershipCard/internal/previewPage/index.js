@@ -27,6 +27,7 @@ const select = (state, props) => {
     channelTitle,
     channelUri,
     channelId: claimId,
+    channelName: claim.name,
   };
 };
 
