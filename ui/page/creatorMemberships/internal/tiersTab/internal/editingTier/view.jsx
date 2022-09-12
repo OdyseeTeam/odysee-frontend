@@ -51,7 +51,7 @@ function MembershipTier(props: Props) {
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
 
   // custom emojis should be changed to channel member badge
-  const permanentTierPerks = ['Members-only chat', 'Custom emojis'];
+  const permanentTierPerks = ['Channel member badge'];
 
   /**
    * Check whether the tier already has the perk added
