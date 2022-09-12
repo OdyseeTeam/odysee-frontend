@@ -53,6 +53,7 @@ const PreviewPage = (props: Props) => {
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
 
+
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
       doTipAccountCheckForUri(uri);
@@ -125,9 +126,9 @@ const PreviewPage = (props: Props) => {
             label={Membership.name}
             button="alt"
             onClick={() => setMembershipIndex(index)}
-            className={classnames('button-toggle no-access-button', {
+            className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'protected-membership-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
+              'no-access-button': protectedMembershipIds && !protectedMembershipIds.includes(Membership.id),
             })}
           />
         ))}

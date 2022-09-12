@@ -26,7 +26,7 @@ const MembershipDetails = (props: Props) => {
       </section>
 
       <section className="membership-tier__infos">
-        <h1>{accessText}</h1>
+        <h1>{protectedMembershipIds && accessText}</h1>
 
         <span>{membership.Membership.description}</span>
 
