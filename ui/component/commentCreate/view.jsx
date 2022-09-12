@@ -91,6 +91,8 @@ type Props = {
   textInjection?: string,
   chatCommentsRestrictedToChannelMembers: boolean,
   isAChannelMember: boolean,
+  channelTiersWithMembersOnlyChatPerk: ?Array<Membership>,
+  myTiersWithMembersOnlyChatPerk: ?Array<Membership>,
 };
 
 export function CommentCreate(props: Props) {
@@ -135,7 +137,11 @@ export function CommentCreate(props: Props) {
     textInjection,
     chatCommentsRestrictedToChannelMembers,
     isAChannelMember,
+    channelTiersWithMembersOnlyChatPerk,
+    myTiersWithMembersOnlyChatPerk,
   } = props;
+
+  const userHasMembersOnlyChatPerk = channelTiersWithMembersOnlyChatPerk.some(r => myTiersWithMembersOnlyChatPerk.includes(r));
 
   const isMobile = useIsMobile();
 
@@ -550,7 +556,7 @@ export function CommentCreate(props: Props) {
     }
   }, [textInjection]);
 
-  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
+  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !userHasMembersOnlyChatPerk && !claimIsMine;
 
   let commentLabelText = 'Say something about this...';
   if (notAuthedToChat) {

@@ -18,7 +18,8 @@ export const selectPendingCancelMembershipIds = (state: State) => selectState(st
 export const selectChannelMembershipsByCreatorId = (state: State) => selectState(state).channelMembershipsByCreatorId;
 export const selectById = (state: State) => selectState(state).membershipListById || {};
 export const selectDidFetchMembershipsDataById = (state: State) => selectState(state).didFetchMembershipsDataById;
-export const selectMyMembershipTiers = (state: State) => selectState(state).myMembershipTiers;
+// TODO: this seems to be named wrong, it's related to perks not tiers
+// export const selectMyMembershipTiers = (state: State) => selectState(state).myMembershipTiers;
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 
 export const selectMembershipMineFetched = (state: State) => selectMembershipMineData(state) !== undefined;
@@ -183,4 +184,50 @@ export const selectUserValidMembershipForChannelUri = createSelector(
 
 export const selectProtectedContentMembershipsForClaimId = (state: State, channelId: string, claimId: string) => {
   return state.memberships?.protectedContentClaims[channelId]?.[claimId]?.memberships;
+};
+
+export const selectMyMembershipTiers = (state: State, activeChannelClaimId: string) => {
+  return state.memberships?.membershipListById[activeChannelClaimId];
+};
+
+export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {
+  const myMembershipTiers = state.memberships?.membershipListById[activeChannelClaimId];
+
+  if (!myMembershipTiers) return [];
+
+  const perkName = 'Exclusive content';
+
+  return myMembershipTiers.filter(membershipTier => {
+    return membershipTier.Perks.some(perk => perk.name === perkName);
+  });
+};
+
+export const selectMyMembershipTiersWithExclusiveLivestreamPerk = (state: State, activeChannelClaimId: string) => {
+  const myMembershipTiers = state.memberships?.membershipListById[activeChannelClaimId];
+
+  if (!myMembershipTiers) return [];
+
+  const perkName = 'Exclusive livestreams';
+
+  return myMembershipTiers.filter(membershipTier => {
+    return membershipTier.Perks.some(perk => perk.name === perkName);
+  });
+};
+
+export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, channelId: string) => {
+  const myMembershipTiers = state.memberships?.membershipListById[channelId];
+
+  if (!myMembershipTiers) return [];
+
+  const perkName = 'Members-only chat';
+
+  return myMembershipTiers.filter(membershipTier => {
+    return membershipTier.Perks.some(perk => perk.name === perkName);
+  });
+};
+
+export const selectMembershipTierIdsWithMembersOnlyChatPerk = (state: State, channelId: string) => {
+  const memberships = selectMyMembershipTiersWithMembersOnlyChatPerk(state, channelId);
+
+  return memberships.map(membership => membership.Membership.id);
 };
