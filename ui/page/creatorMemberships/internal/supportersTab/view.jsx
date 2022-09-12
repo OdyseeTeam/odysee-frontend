@@ -45,8 +45,7 @@ const SupportersTab = (props: Props) => {
               <tr key={i}>
                 <td>
                   <span dir="auto" className="button__label">
-                    {/* {false && <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />} */}
-                    {supporter.ChannelName}
+                    {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
                   </span>
                 </td>
                 <td>{supporter.MembershipName}</td>
