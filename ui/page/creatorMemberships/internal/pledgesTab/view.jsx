@@ -92,11 +92,11 @@ function PledgesTab(props: Props) {
               <tbody>
                 {myPurchasedMemberships?.map((active, i) => {
                   const membership = active[0];
+
                   return (
                     <tr key={i}>
                       <td>
                         <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
-                        {/* <img src={pledges[i].thumbnail} style={{ maxHeight: '70px', marginRight: '13px' }} /> */}
                         <Button
                           button="link"
                           navigate={pledges[i].url + '?view=membership'}

@@ -18,6 +18,7 @@ const PledgesTab = lazyImport(() => import('./internal/pledgesTab' /* webpackChu
 const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
 
 const TAB_QUERY = 'tab';
+const hasTiers = false;
 
 const TABS = {
   OVERVIEW: 'overview',
@@ -35,7 +36,7 @@ type Props = {
 };
 
 const MembershipsPage = (props: Props) => {
-  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims } = props;
+  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims, tiersByChannelId } = props;
 
   const [allSelected, setAllSelected] = React.useState(false);
 
@@ -108,43 +109,71 @@ const MembershipsPage = (props: Props) => {
 
   return (
     <Page className="premium-wrapper">
-      <Tabs onChange={onTabChange} index={tabIndex}>
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('My Supporters')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
-          {/* <Tab>{__('My Pledges')}</Tab> */}
-        </TabList>
+      {/* If true we want the entire page to be aimed at creators. Otherwise it will be aimed at users. */}
+      {hasTiers ? (
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab>{__('Overview')}</Tab>
+            <Tab>{activeChannelClaim !== null && __('My Supporters')}</Tab>
+            <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
+            {/* <Tab>{__('My Pledges')}</Tab> */}
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <ChannelSelector
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
+              <PledgesTab channelsToList={channelsToList} />
+            </TabPanel>
 
-        <TabPanels>
-          <TabPanel>
-            <ChannelSelector
-              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-              onChannelSelect={() => setAllSelected(false)}
-            />
-            <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} />
-            <PledgesTab channelsToList={channelsToList} />
-          </TabPanel>
+            <TabPanel>
+              {activeChannelClaim !== null && (
+                <>
+                  <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                  <SupportersTab channelsToList={channelsToList} />
+                </>
+              )}
+            </TabPanel>
 
-          <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
-                <SupportersTab channelsToList={channelsToList} />
-              </>
-            )}
-          </TabPanel>
+            <TabPanel>
+              {activeChannelClaim !== null && (
+                <>
+                  <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                  <TiersTab channelsToList={channelsToList} />
+                </>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      ) : (
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab>{__('Overview')}</Tab>
+            <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <ChannelSelector
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
+              <PledgesTab channelsToList={channelsToList} />
+            </TabPanel>
 
-          <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
-                <TiersTab channelsToList={channelsToList} />
-              </>
-            )}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            <TabPanel>
+              {activeChannelClaim !== null && (
+                <>
+                  <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                  <TiersTab channelsToList={channelsToList} />
+                </>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      )}
     </Page>
   );
 };

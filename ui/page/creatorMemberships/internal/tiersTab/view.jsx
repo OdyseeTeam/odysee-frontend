@@ -99,17 +99,18 @@ function TiersTab(props: Props) {
   if (!bankAccountConfirmed) {
     return (
       <>
-        <h1 className="confirm-account-to-create-tiers-header">
-          {__('Please confirm your bank account before you can create tiers')}
-        </h1>
-
-        <Button
-          button="primary"
-          className="membership_button"
-          label={__('Connect a bank account')}
-          icon={ICONS.FINANCE}
-          navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-        />
+        <div className="bank-account-status">
+          <div>
+            <label>{__('Bank Account Status')}</label>
+            <span>{__('You have to connect a bank account before you can create tiers.')}</span>
+          </div>
+          <Button
+            button="primary"
+            label={__('Connect a bank account')}
+            icon={ICONS.FINANCE}
+            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+          />
+        </div>
       </>
     );
   }
