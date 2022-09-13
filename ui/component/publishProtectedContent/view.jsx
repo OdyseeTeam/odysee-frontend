@@ -19,6 +19,7 @@ type Props = {
   myMembershipTiers: CreatorMemberships,
   myMembershipTiersWithExclusiveContentPerk: CreatorMemberships,
   myMembershipTiersWithExclusiveLivestreamPerk: CreatorMemberships,
+  myMembershipTiersWithMembersOnlyChatPerk: CreatorMemberships,
   location: string,
 };
 
@@ -33,6 +34,7 @@ function PublishProtectedContent(props: Props) {
     myMembershipTiers,
     myMembershipTiersWithExclusiveContentPerk,
     myMembershipTiersWithExclusiveLivestreamPerk,
+    myMembershipTiersWithMembersOnlyChatPerk,
     location,
   } = props;
 
@@ -58,8 +60,9 @@ function PublishProtectedContent(props: Props) {
       if (alreadyRestricted) {
         setCommentsChatAlreadyRestricted(alreadyRestricted);
         const restrictionCheckbox = document.getElementById('toggleRestrictCommentsChat');
+        // $FlowFixMe
         if (restrictionCheckbox) restrictionCheckbox.checked = true;
-      };
+      }
     }
   }, [claim]);
 
@@ -68,6 +71,7 @@ function PublishProtectedContent(props: Props) {
     if (activeChannel && protectedMembershipIds && protectedMembershipIds.length) {
       setIsRestrictingContent(true);
       const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
+      // $FlowFixMe
       if (restrictionCheckbox) restrictionCheckbox.checked = true;
     }
   }, [protectedMembershipIds, activeChannel]);
@@ -124,8 +128,6 @@ function PublishProtectedContent(props: Props) {
 
   return (
     <>
-      <h2 className="card__title">{__('Restrictions')}</h2>
-
       {(!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) && (
         <Card
           className="card--restrictions"
@@ -149,8 +151,10 @@ function PublishProtectedContent(props: Props) {
 
       {/* to-do: add some logic to say "none of your tiers have the perk" */}
 
-      {membershipsToUse && membershipsToUse.length > 1 && (
+      {membershipsToUse && membershipsToUse.length > 0 && (
         <>
+          <h2 className="card__title">{__('Restrictions')}</h2>
+
           <Card
             className="card--restrictions"
             body={
@@ -184,11 +188,15 @@ function PublishProtectedContent(props: Props) {
                 <FormField
                   type="checkbox"
                   defaultChecked={commentsChatAlreadyRestricted}
+                  disabled={myMembershipTiersWithMembersOnlyChatPerk.length === 0}
                   label={'Restrict comments and chats to memberships with members-only chat perk'}
                   name={'toggleRestrictCommentsChat'}
                   className="restrict-comments-chat_checkbox"
                   onChange={() => handleChangeRestrictCommentsChat()}
                 />
+                {myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (
+                  <span className="info-label">{__('You have no tiers with members only chat')}</span>
+                )}
               </>
             }
           />
