@@ -1,23 +1,25 @@
 // @flow
 import React from 'react';
+import './style.scss';
 
 type Props = {
   membership: CreatorMembership,
   headerAction?: any,
-  protectedMembershipIds: Array<number>
+  protectedMembershipIds: Array<number>,
 };
 
 const MembershipDetails = (props: Props) => {
   const { membership, headerAction, protectedMembershipIds } = props;
 
-  let accessText = 'This membership doesn\'t have access to the current content';
+  let accessText = `This membership doesn't have access to the current content.`;
   if (protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)) {
-    accessText = 'This membership has access to the current content';
+    // accessText = 'This membership has access to the current content.';
+    accessText = undefined;
   }
 
   console.log('headerAction: ', headerAction);
 
-  l(membership.Membership)
+  l(membership.Membership);
 
   return (
     <>
@@ -26,7 +28,11 @@ const MembershipDetails = (props: Props) => {
       </section>
 
       <section className="membership-tier__infos">
-        <h1>{protectedMembershipIds && accessText}</h1>
+        {accessText && (
+          <div className="access-status">
+            <label>{protectedMembershipIds && accessText}</label>
+          </div>
+        )}
 
         <span>{membership.Membership.description}</span>
 
