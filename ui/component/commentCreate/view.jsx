@@ -561,7 +561,7 @@ export function CommentCreate(props: Props) {
 
   let commentLabelText = 'Say something about this...';
   if (notAuthedToChat) {
-    commentLabelText = 'This chat is members-only, please Join a membership to access chat';
+    commentLabelText = 'Only members of a tier with members-only chat can access this perk';
   }
 
   // **************************************************************************
