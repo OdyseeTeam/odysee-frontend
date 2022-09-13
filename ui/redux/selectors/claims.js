@@ -19,7 +19,7 @@ import {
   getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
-import { INTERNAL_TAGS } from 'constants/tags';
+import { INTERNAL_TAGS, MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
 
 type State = { claims: any, user: UserState };
@@ -731,15 +731,15 @@ export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri
   if (matchingTag) return matchingTag.slice(9);
 })((state, uri) => String(uri));
 
-export const selectProtectedContentTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('c:members-only'));
-  if (matchingTag) return true;
-})((state, uri) => String(uri));
+export const selectProtectedContentTagForUri = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has(MEMBERS_ONLY_CONTENT_TAG)
+);
 
-export const selectedRestrictedCommentsChatTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('chat:members-only'));
-  if (matchingTag) return true;
-})((state, uri) => String(uri));
+export const selectedRestrictedCommentsChatTagForUri = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has(RESTRICTED_CHAT_COMMENTS_TAG)
+);
 
 export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('rental:'));

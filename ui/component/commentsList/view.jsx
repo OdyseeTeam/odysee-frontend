@@ -483,6 +483,7 @@ export default function CommentList(props: Props) {
 
 type CommentProps = {
   comments: Array<Comment>,
+  disabled?: boolean,
 };
 
 const CommentElements = (commentProps: CommentProps) => {

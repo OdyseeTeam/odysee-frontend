@@ -10,34 +10,61 @@ type Props = {
   validMembershipIds: Array<number>,
   claimIsMine: boolean,
   isProtected: boolean,
-  channelMemberships: Array<Membership>,
+  uri: string,
+  openModal: (string, {}) => void,
+  channelMemberships: CreatorMemberships,
 };
 
 export default function ProtectedContentOverlay(props: Props) {
-  const { protectedMembershipIds, validMembershipIds, claimIsMine, openModal, uri, isProtected, channelMemberships } = props;
+  const {
+    protectedMembershipIds,
+    validMembershipIds,
+    claimIsMine,
+    openModal,
+    uri,
+    isProtected,
+    channelMemberships,
+  } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
+  const protectedMembershipIdsSet = new Set(protectedMembershipIds);
+  const hideOverlay = !isProtected || userIsAMember || claimIsMine;
+
+  const channelsWithContentAccess = React.useMemo(
+    () =>
+      !hideOverlay &&
+      channelMemberships &&
+      channelMemberships.filter((membership) => protectedMembershipIdsSet.has(membership.Membership.id)),
+    [channelMemberships, hideOverlay, protectedMembershipIdsSet]
+  );
+
+  const cheapestPlan = React.useMemo(
+    () =>
+      !hideOverlay &&
+      channelsWithContentAccess &&
+      channelsWithContentAccess.sort(
+        (a, b) => (a.NewPrices ? a.NewPrices[0].Price.amount : 0) - (b.NewPrices ? b.NewPrices[0].Price.amount : 0)
+      )[0],
+    [channelsWithContentAccess, hideOverlay]
+  );
+
+  const membershipIndex = React.useMemo(
+    () =>
+      !hideOverlay &&
+      cheapestPlan &&
+      channelMemberships.findIndex((membership) => membership.Membership.id === cheapestPlan.Membership.id),
+    [channelMemberships, cheapestPlan, hideOverlay]
+  );
 
   React.useEffect(() => {
     if (protectedMembershipIds && validMembershipIds && isProtected) {
-      setUserIsAMember(validMembershipIds.some((id) => protectedMembershipIds.includes(id)));
+      setUserIsAMember(validMembershipIds.some((id) => protectedMembershipIdsSet.has(id)));
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [protectedMembershipIds, validMembershipIds, isProtected]);
 
   // don't show overlay if it's not protected or user is a member
-  if (!isProtected || userIsAMember || claimIsMine) return <></>;
-
-  const channelsWithContentAccess =  channelMemberships && channelMemberships.filter(membership => {
-    return protectedMembershipIds.includes(membership.Membership.id);
-  });
-
-  const cheapestPlan = channelsWithContentAccess && channelsWithContentAccess.sort(function (a, b) {
-    return a.NewPrices[0].Price.amount - b.NewPrices[0].Price.amount;
-  })[0];
-
-  const membershipIndex = cheapestPlan && channelMemberships.findIndex(function(membership){
-    return membership.Membership.id === cheapestPlan.Membership.id
-  });
+  if (!isProtected || userIsAMember || claimIsMine) return null;
 
   return (
     <>

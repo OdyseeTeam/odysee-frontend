@@ -50,10 +50,11 @@ const JoinMembershipCard = (props: Props) => {
 
   function handleJoinMembership() {
     if (!selectedTier) return;
+    if (!selectedTier.NewPrices) return;
 
     const membershipBuyParams: MembershipBuyParams = {
       membership_id: selectedTier.Membership.id,
-      price_id: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.stripe_price_id,
+      price_id: selectedTier.NewPrices ? selectedTier.NewPrices[0].Price.stripe_price_id : '',
     };
 
     if (activeChannelClaim && !incognito) {
@@ -113,19 +114,19 @@ const JoinMembershipCard = (props: Props) => {
     );
   }
 
-  let commaSeparatedMembershipNames;
-  let membershipNames = [];
-  if (creatorMemberships && protectedMembershipIds) {
-    for (const membership of creatorMemberships) {
-      const membershipId = membership.Membership.id;
+  // let commaSeparatedMembershipNames;
+  // let membershipNames = [];
+  // if (creatorMemberships && protectedMembershipIds) {
+  //   for (const membership of creatorMemberships) {
+  //     const membershipId = membership.Membership.id;
 
-      if (protectedMembershipIds.includes(membershipId)) {
-        membershipNames.push(membership.Membership.name);
-      }
+  //     if (protectedMembershipIds.includes(membershipId)) {
+  //       membershipNames.push(membership.Membership.name);
+  //     }
 
-      commaSeparatedMembershipNames = membershipNames.join(', ');
-    }
-  }
+  //     commaSeparatedMembershipNames = membershipNames.join(', ');
+  //   }
+  // }
 
   return (
     <Form onSubmit={handleJoinMembership}>

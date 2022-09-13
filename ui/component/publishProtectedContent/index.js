@@ -1,13 +1,9 @@
 import { connect } from 'react-redux';
-import { makeSelectPublishFormValue } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
-  selectClaimForUri,
-} from 'redux/selectors/claims';
-import {
   selectProtectedContentMembershipsForClaimId,
-  selectMyMembershipTiers,
+  selectMembershipTiersForChannelId,
   selectMyMembershipTiersWithExclusiveContentPerk,
   selectMyMembershipTiersWithExclusiveLivestreamPerk,
   selectMyMembershipTiersWithMembersOnlyChatPerk,
@@ -25,10 +21,19 @@ const select = (state, props) => {
   return {
     activeChannel,
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelClaimId, claimId),
-    myMembershipTiers: selectMyMembershipTiers(state, activeChannel?.claim_id),
-    myMembershipTiersWithExclusiveContentPerk: selectMyMembershipTiersWithExclusiveContentPerk(state, activeChannel?.claim_id),
-    myMembershipTiersWithExclusiveLivestreamPerk: selectMyMembershipTiersWithExclusiveLivestreamPerk(state, activeChannel?.claim_id),
-    myMembershipTiersWithMembersOnlyChatPerk: selectMyMembershipTiersWithMembersOnlyChatPerk(state, activeChannel?.claim_id),
+    myMembershipTiers: selectMembershipTiersForChannelId(state, activeChannel?.claim_id),
+    myMembershipTiersWithExclusiveContentPerk: selectMyMembershipTiersWithExclusiveContentPerk(
+      state,
+      activeChannel?.claim_id
+    ),
+    myMembershipTiersWithExclusiveLivestreamPerk: selectMyMembershipTiersWithExclusiveLivestreamPerk(
+      state,
+      activeChannel?.claim_id
+    ),
+    myMembershipTiersWithMembersOnlyChatPerk: selectMyMembershipTiersWithMembersOnlyChatPerk(
+      state,
+      activeChannel?.claim_id
+    ),
   };
 };
 

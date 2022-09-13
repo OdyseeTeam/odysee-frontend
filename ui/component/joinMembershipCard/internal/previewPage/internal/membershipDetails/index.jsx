@@ -5,21 +5,17 @@ import './style.scss';
 type Props = {
   membership: CreatorMembership,
   headerAction?: any,
-  protectedMembershipIds: Array<number>,
+  protectedMembershipIds?: Array<number>,
 };
 
 const MembershipDetails = (props: Props) => {
   const { membership, headerAction, protectedMembershipIds } = props;
 
-  let accessText = `This Tier does not grant you access to the currently selected content.`;
-  if (protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)) {
+  let accessText = 'This Tier does not grant you access to the currently selected content';
+  if (new Set(protectedMembershipIds).has(membership.Membership.id)) {
     // accessText = 'This membership has access to the current content.';
     accessText = undefined;
   }
-
-  console.log('headerAction: ', headerAction);
-
-  l(membership.Membership);
 
   return (
     <>
@@ -56,7 +52,7 @@ const MembershipDetails = (props: Props) => {
         </div>
       </section>
 
-      <section className="membership-tier__actions">{headerAction}</section>
+      {headerAction && <section className="membership-tier__actions">{headerAction}</section>}
     </>
   );
 };

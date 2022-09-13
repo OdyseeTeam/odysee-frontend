@@ -12,29 +12,28 @@ import MembershipTier from './internal/membershipTier';
 import EditingTier from './internal/editingTier';
 
 type Props = {
-  channelsToList: ?Array<ChannelClaim>,
   // -- redux --
   bankAccountConfirmed: boolean,
-  membershipsByChannelId: CreatorMemberships,
+  channelMemberships: CreatorMemberships,
+  activeChannelClaim: ?ChannelClaim,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipPerks>,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
 
 function TiersTab(props: Props) {
   const {
-    channelsToList,
     // -- redux --
     bankAccountConfirmed,
-    membershipsByChannelId: fetchedMemberships,
+    channelMemberships: fetchedMemberships,
+    activeChannelClaim,
     doGetMembershipPerks,
     doMembershipList,
   } = props;
 
-  const channelsToListStr = channelsToList && JSON.stringify(channelsToList);
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
 
   const [editingIds, setEditingIds] = React.useState(() => []);
-  const [membershipsByChannelId, setMembershipsByChannelId] = React.useState(fetchedMemberships || {});
+  const [channelMemberships, setChannelMemberships] = React.useState<any>(fetchedMemberships || []);
 
   function addEditingForMembershipId(membershipId) {
     setEditingIds((previousEditingIds) => {
@@ -54,46 +53,35 @@ function TiersTab(props: Props) {
     });
   }
 
-  function addMembershipForChannelId(channelId, membership) {
-    setMembershipsByChannelId((previousMembershipsByChannelId) => {
-      const newChannelMemberships = new Set(previousMembershipsByChannelId[channelId]);
-      newChannelMemberships.add(membership);
+  function addMembershipForChannelId(membership) {
+    setChannelMemberships((previousMemberships) => {
+      const newChannelMemberships = [...previousMemberships];
+      newChannelMemberships.push(membership);
 
-      const newMembershipsByChannelId = Object.assign({}, previousMembershipsByChannelId);
-      newMembershipsByChannelId[channelId] = Array.from(newChannelMemberships);
-
-      return newMembershipsByChannelId;
+      return newChannelMemberships;
     });
   }
 
-  function removeChannelMembershipForId(channelId, membershipId) {
-    setMembershipsByChannelId((previousMembershipsByChannelId) => {
-      const newChannelMemberships = previousMembershipsByChannelId[channelId];
-      const filtered = newChannelMemberships.filter((membership) => membership.Membership.id !== membershipId);
+  function removeChannelMembershipForId(membershipId) {
+    setChannelMemberships((previousMemberships) => {
+      const newChannelMemberships = previousMemberships.filter(
+        (membership) => membership.Membership.id !== membershipId
+      );
 
-      const newMembershipsByChannelId = Object.assign({}, previousMembershipsByChannelId);
-      newMembershipsByChannelId[channelId] = filtered;
-
-      return newMembershipsByChannelId;
+      return newChannelMemberships;
     });
   }
 
   React.useEffect(() => {
-    if (channelsToListStr) {
-      const channelsToList = JSON.parse(channelsToListStr);
-
-      channelsToList.forEach((channel) => {
-        doGetMembershipPerks({ channel_name: channel.name, channel_id: channel.claim_id });
-        doMembershipList({ channel_name: channel.name, channel_id: channel.claim_id });
-      });
+    if (activeChannelClaim) {
+      doGetMembershipPerks({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
+      doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
     }
-  }, [channelsToListStr, doGetMembershipPerks, doMembershipList]);
+  }, [activeChannelClaim, doGetMembershipPerks, doMembershipList]);
 
   React.useEffect(() => {
-    if (fetchedMembershipsStr) {
-      const fetchedMemberships = JSON.parse(fetchedMembershipsStr);
-      setMembershipsByChannelId(fetchedMemberships);
-    }
+    const fetchedMemberships = fetchedMembershipsStr && JSON.parse(fetchedMembershipsStr);
+    setChannelMemberships(fetchedMemberships);
   }, [fetchedMembershipsStr]);
 
   if (!bankAccountConfirmed) {
@@ -117,94 +105,61 @@ function TiersTab(props: Props) {
 
   return (
     <div className={classnames('tier-edit-functionality', { 'edit-functionality-disabled': !bankAccountConfirmed })}>
-      {Object.values(channelsToList).map((channel) => {
-        const channelId = channel.claim_id;
-        const channelMemberships = membershipsByChannelId[channelId];
-        const channelName = channelsToList.find((channel) => channel.claim_id === channelId)?.name;
+      {channelMemberships &&
+        channelMemberships.map((membershipTier, membershipIndex) => {
+          const membershipId = membershipTier.Membership.id;
+          const isEditing = new Set(editingIds).has(membershipId);
+          const hasSubscribers = membershipTier.HasSubscribers;
 
-        return (
-          <>
-            {/*<h1>{channelMemberships && channelName}</h1>*/}
+          return (
+            <div className="membership-tier__wrapper" key={membershipIndex}>
+              {isEditing ? (
+                <EditingTier
+                  membership={membershipTier}
+                  hasSubscribers={hasSubscribers}
+                  removeEditing={() => removeEditingForMembershipId(membershipId)}
+                  onCancel={() => {
+                    removeEditingForMembershipId(membershipId);
 
-            {channelMemberships
-              ? channelMemberships.map((membershipTier, membershipIndex) => {
-                  const membershipId = membershipTier.Membership.id;
-                  const isEditing = new Set(editingIds).has(membershipId);
-                  const hasSubscribers = membershipTier.HasSubscribers;
+                    if (typeof membershipId === 'string') {
+                      removeChannelMembershipForId(membershipId);
+                    }
+                  }}
+                />
+              ) : (
+                <MembershipTier
+                  membership={membershipTier}
+                  index={membershipIndex}
+                  hasSubscribers={hasSubscribers}
+                  addEditingId={() => addEditingForMembershipId(membershipId)}
+                  removeMembership={() => removeChannelMembershipForId(membershipId)}
+                />
+              )}
+            </div>
+          );
+        })}
 
-                  return (
-                    <div className="membership-tier__wrapper" key={membershipIndex}>
-                      {isEditing ? (
-                        <EditingTier
-                          channelsToList={channelsToList}
-                          channelId={channelId}
-                          membership={membershipTier}
-                          hasSubscribers={hasSubscribers}
-                          removeEditing={() => removeEditingForMembershipId(membershipId)}
-                          onCancel={() => {
-                            removeEditingForMembershipId(membershipId);
+      {(!channelMemberships || channelMemberships.length < 6) && (
+        <Button
+          button="primary"
+          onClick={(e) => {
+            const newestId = uuid(); // --> this will only be used locally when creating a new tier
 
-                            if (typeof membershipId === 'string') {
-                              removeChannelMembershipForId(channelId, membershipId);
-                            }
-                          }}
-                        />
-                      ) : (
-                        <MembershipTier
-                          membership={membershipTier}
-                          index={membershipIndex}
-                          hasSubscribers={hasSubscribers}
-                          addEditingId={() => addEditingForMembershipId(membershipId)}
-                          removeMembership={() => removeChannelMembershipForId(channelId, membershipId)}
-                        />
-                      )}
-                    </div>
-                  );
-                })
-              : Object.values(channelsToList).length === 1 && (
-                  <Button
-                    button="primary"
-                    onClick={(e) => {
-                      const newestId = uuid(); // --> this will only be used locally when creating a new tier
+            const newestMembership = {
+              HasSubscribers: false,
+              Membership: { id: newestId, name: 'Example Plan', description: '' },
+              NewPrices: [{ Price: { amount: 500 } }],
+              saved: false,
+            };
 
-                      const newestMembership = {
-                        Membership: { id: newestId, name: 'Example Plan', description: '' },
-                        NewPrices: [{ Price: { amount: 500 } }],
-                        saved: false,
-                      };
-
-                      addEditingForMembershipId(newestId);
-                      addMembershipForChannelId(Object.values(channelsToList)[0].claim_id, newestMembership);
-                    }}
-                    className="add-membership__button"
-                    label={__('Create Tier for %channel_name%', { channel_name: channelName })}
-                    icon={ICONS.ADD}
-                  />
-                )}
-
-            {channelMemberships && channelMemberships.length < 6 && (
-              <Button
-                button="primary"
-                onClick={(e) => {
-                  const newestId = uuid(); // --> this will only be used locally when creating a new tier
-
-                  const newestMembership = {
-                    Membership: { id: newestId, name: 'Example Plan', description: '' },
-                    NewPrices: [{ Price: { amount: 500 } }],
-                    saved: false,
-                  };
-
-                  addEditingForMembershipId(newestId);
-                  addMembershipForChannelId(channelId, newestMembership);
-                }}
-                className="add-membership__button"
-                label={__('Add Tier for %channel_name%', { channel_name: channelName })}
-                icon={ICONS.ADD}
-              />
-            )}
-          </>
-        );
-      })}
+            addEditingForMembershipId(newestId);
+            addMembershipForChannelId(newestMembership);
+          }}
+          className="add-membership__button"
+          label={__('Add Tier for %channel_name%', { channel_name: activeChannelClaim?.name || '' })}
+          icon={ICONS.ADD}
+        />
+      )}
 
       {/* ** show additional info checkboxes, activate memberships button ***/}
       {/* ** disabling until the backend is ready ** */}

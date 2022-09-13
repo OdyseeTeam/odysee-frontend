@@ -66,6 +66,8 @@ type Props = {
   threadCommentId?: string,
   uri: string,
   videoTheaterMode: boolean,
+  myActiveMemberships: ?MembershipMineDataByKey,
+  doMembershipMine: () => void,
 };
 
 export default function FilePage(props: Props) {
@@ -161,10 +163,14 @@ export default function FilePage(props: Props) {
   React.useEffect(() => {
     const aPurchaseOrPreorder = purchaseTag || preorderTag || rentalTag;
     if (aPurchaseOrPreorder && claimId) doCheckIfPurchasedClaimId(claimId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [purchaseTag, preorderTag, rentalTag, claimId]);
 
   React.useEffect(() => {
     doGetMembershipTiersForContentClaimId(claimId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimId]);
 
   React.useEffect(() => {

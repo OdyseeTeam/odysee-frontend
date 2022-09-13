@@ -25,7 +25,7 @@ export default function ConfirmationPage(props: Props) {
       <ConfirmationSection label={__('Description')} value={selectedTier.Membership.description} />
       <ConfirmationSection
         label={__('Monthly Cost')}
-        value={`$${selectedTier.NewPrices && selectedTier.NewPrices[0].Price.amount / 100}`}
+        value={`$${selectedTier.NewPrices ? selectedTier.NewPrices[0].Price.amount / 100 : 0}`}
       />
       {selectedTier.Perks && selectedTier.Perks.length > 0 && (
         <ConfirmationSection

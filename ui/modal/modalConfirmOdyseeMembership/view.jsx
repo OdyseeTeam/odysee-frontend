@@ -69,33 +69,33 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       onAborted={doHideModal}
     >
       <Card
-        className="stripe__confirm-remove-membership"
+        className="stripe__confirm-remove-membershipDetails"
         title={__('Confirm %plan% Membership', { plan })}
         subtitle={
           <>
             <I18nMessage
               tokens={{
                 time_interval_bold: (
-                  <b className="membership-bolded">{MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]}</b>
+                  <b className="membershipDetails-bolded">{MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]}</b>
                 ),
                 time_interval: MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval],
                 price_bold: (
-                  <b className="membership-bolded">{`${preferredCurrency.toUpperCase()} ${
+                  <b className="membershipDetails-bolded">{`${preferredCurrency.toUpperCase()} ${
                     STRIPE.CURRENCY[price.currency.toUpperCase()].symbol
                   }${price.unit_amount / 100}`}</b>
                 ),
                 plan,
               }}
             >
-              You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will renew
-              %time_interval% at a price of %price_bold%.
+              You are purchasing a %time_interval_bold% %plan% membershipDetails that is active immediately and will
+              renew %time_interval% at a price of %price_bold%.
             </I18nMessage>
 
             {plan === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS &&
               __('The no ads feature applies site-wide for all channels.')}
 
             {!noChannelsOrIncognitoMode ? (
-              <I18nMessage tokens={{ channel_name: <b className="membership-bolded">{activeChannelName}</b> }}>
+              <I18nMessage tokens={{ channel_name: <b className="membershipDetails-bolded">{activeChannelName}</b> }}>
                 Your badge will be shown for your %channel_name% channel in all areas of the app, and can be added to
                 two additional channels in the future for free.
               </I18nMessage>
@@ -110,7 +110,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             ) : undefined}
 
             {__(
-              'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
+              'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membershipDetails option.'
             )}
           </>
         }

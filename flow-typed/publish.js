@@ -2,7 +2,7 @@
 
 declare type UpdatePublishFormData = {
   claim_id?: string,
-  filePath?: string,  
+  filePath?: string,
   contentIsFree?: boolean,
   fee?: {
     amount: string,
@@ -28,7 +28,7 @@ declare type UpdatePublishFormData = {
   licenseUrl?: string,
   licenseType?: string,
   uri?: string,
-  nsfw: boolean,
+  nsfw?: boolean,
   isMarkdownPost?: boolean,
 };
 

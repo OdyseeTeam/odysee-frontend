@@ -65,7 +65,6 @@ const JoinMembershipButton = (props: Props) => {
     );
   }
 
-
   return (
     <Button
       {...DEFAULT_PROPS}

@@ -14,8 +14,8 @@ declare type CreatorMembership = {
   HasSubscribers: boolean,
   Membership: MembershipDetails,
   Perks: ?MembershipPerks,
-  Prices: Array<StripePriceDetails>,
-  NewPrices: Array<MembershipNewStripePriceDetails>,
+  Prices?: Array<StripePriceDetails>,
+  NewPrices?: Array<MembershipNewStripePriceDetails>,
 };
 declare type CreatorMemberships = Array<CreatorMembership>;
 
@@ -191,11 +191,11 @@ declare type MembershipAddTierParams = {
   channel_id: string,
   name: string,
   description: string,
-  currency: CurrencyOption,
+  currency: string,
   amount: number,
-  perks: MembershipPerks,
-  old_stripe_price: StripePriceDetails,
-  membership_id: number,
+  perks: string, // csv
+  old_stripe_price?: ?string, // price id
+  membership_id?: ?number,
 };
 
 declare type MembershipMineKeys = 'activeById' | 'canceledById' | 'purchasedById';

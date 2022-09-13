@@ -36,7 +36,7 @@ type Props = {
 };
 
 const MembershipsPage = (props: Props) => {
-  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims, tiersByChannelId, hasTiers } = props;
+  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims, hasTiers } = props;
 
   const [allSelected, setAllSelected] = React.useState(false);
 
@@ -101,9 +101,9 @@ const MembershipsPage = (props: Props) => {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } /*else if (newTabIndex === 3) {
+    } /* else if (newTabIndex === 3) {
       url += `${TAB_QUERY}=${TABS.PLEDGES}`;
-    }*/
+    } */
     push(url);
   }
 

@@ -1,7 +1,6 @@
 // @flow
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
-import classnames from 'classnames';
 import Icon from 'component/common/icon';
 
 type Props = {
@@ -12,20 +11,20 @@ type Props = {
 };
 
 export default function PreviewOverlayProtectedContent(props: Props) {
-  const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
+  const { protectedMembershipIds, validMembershipIds, claimIsMine } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
+  // const protectedMembershipIdsSet = new Set(protectedMembershipIds);
 
-  const channelsWithContentAccess =  channelMemberships && channelMemberships.filter(membership => {
-    return protectedMembershipIds.includes(membership.Membership.id);
-  });
+  // const channelsWithContentAccess =
+  //   channelMemberships &&
+  //   channelMemberships.filter((membership) => protectedMembershipIdsSet.has(membership.Membership.id));
 
-  const cheapestPlan = channelsWithContentAccess && channelsWithContentAccess.sort(function (a, b) {
-    return a.NewPrices[0].Price.amount - b.NewPrices[0].Price.amount;
-  })[0];
-
-  l('cheapest plan with access');
-  l(cheapestPlan)
+  // const cheapestPlan =
+  //   channelsWithContentAccess &&
+  //   channelsWithContentAccess.sort(function (a, b) {
+  //     return a.NewPrices[0].Price.amount - b.NewPrices[0].Price.amount;
+  //   })[0];
 
   // TODO: let's add something that's like 'Content available starting at $5.00/month'
 

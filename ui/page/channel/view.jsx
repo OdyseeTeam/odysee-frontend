@@ -57,8 +57,8 @@ type Props = {
   lang: string,
   odyseeMembership: ?string,
   getMembershipTiersForChannel: any,
-  doMembershipMine: any,
-  myActiveMemberships: any,
+  doMembershipMine: () => void,
+  myActiveMemberships: ?MembershipMineDataByKey,
 };
 
 export const ChannelPageContext = React.createContext<any>();
@@ -220,6 +220,8 @@ function ChannelPage(props: Props) {
 
   React.useEffect(() => {
     if (claim) getMembershipTiersForChannel(claim.claim_id);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claim]);
 
   React.useEffect(() => {

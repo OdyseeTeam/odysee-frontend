@@ -4,7 +4,7 @@ import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
-type State = { memberships: any };
+type State = { claims: any, user: any, memberships: any };
 
 const selectState = (state: State) => state.memberships || {};
 
@@ -20,24 +20,13 @@ export const selectById = (state: State) => selectState(state).membershipListByI
 export const selectDidFetchMembershipsDataById = (state: State) => selectState(state).didFetchMembershipsDataById;
 export const selectMembershipPerks = (state: State) => selectState(state).membershipPerks;
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
+export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 
 export const selectMembershipMineFetched = (state: State) => selectMembershipMineData(state) !== undefined;
 
 export const selectMyActiveMembershipsForChannelClaimId = (state: State, id: string) => {
   const byId = selectMyActiveMembershipsById(state);
   return byId && byId[id];
-};
-
-export const selectMyActiveMembershipIds = (state: State, id: string) => {
-  const byId = selectMyActiveMembershipsById(state);
-  const values = Object.values(byId);
-  let activeMembershipIds = [];
-  for (const channelId of values) {
-    for (const membership of channelId) {
-      activeMembershipIds.push(membership.MembershipDetails.id);
-    }
-  }
-  return (activeMembershipIds.length && activeMembershipIds) || null;
 };
 
 export const selectMyValidMembershipsById = createSelector(
@@ -52,6 +41,7 @@ export const selectMyValidMembershipsById = createSelector(
         if (membership.Subscription.current_period_end * 1000 > Date.now()) {
           validMembershipsById[creatorChannelId] = new Set(validMembershipsById[creatorChannelId]);
           validMembershipsById[creatorChannelId].add(membership);
+          // $FlowFixMe
           validMembershipsById[creatorChannelId] = Array.from(validMembershipsById[creatorChannelId]);
         }
       }
@@ -72,15 +62,17 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
 export const selectMyValidMembershipIds = (state: State) => {
   const validMembershipsById = selectMyValidMembershipsById(state);
 
-  const values = Object.values(validMembershipsById);
+  const validMembershipIds = new Set([]);
+  for (const creatorId in validMembershipsById) {
+    const memberships = validMembershipsById[creatorId];
 
-  let validMembershipIds = [];
-  for (const channelId of values) {
-    for (const membership of channelId) {
-      validMembershipIds.push(membership.MembershipDetails.id);
+    for (const membership of memberships) {
+      validMembershipIds.add(membership.MembershipDetails.id);
     }
   }
-  return (validMembershipIds.length && validMembershipIds) || null;
+
+  // $FlowFixMe
+  return validMembershipIds.size ? Array.from(validMembershipIds) : null;
 };
 
 export const selectMyActiveOdyseeMembership = (state: State) =>
@@ -135,7 +127,7 @@ export const selectMembershipsByIdForChannelIds = createSelector(
 );
 
 export const selectMembershipTiersForChannelUri = (state: State, uri: string) =>
-  selectMembershipTiersForChannelId(state, selectChannelClaimIdForUri(state, uri));
+  selectMembershipTiersForChannelId(state, selectChannelClaimIdForUri(state, uri) || '');
 
 export const selectOdyseeMembershipTiers = (state: State) =>
   selectMembershipTiersForChannelId(state, ODYSEE_CHANNEL.ID);
@@ -168,7 +160,7 @@ export const selectMyPurchasedMembershipTierForCreatorUri = (state: State, creat
 };
 
 export const selectUserValidMembershipForChannelUri = createSelector(
-  (state, uri) => selectMyPurchasedMembershipsForChannelClaimId(state, selectChannelClaimIdForUri(state, uri)),
+  (state, uri) => selectMyPurchasedMembershipsForChannelClaimId(state, selectChannelClaimIdForUri(state, uri) || ''),
   (purchasedMembershipForChannel) => {
     if (!purchasedMembershipForChannel) return purchasedMembershipForChannel;
 
@@ -181,52 +173,59 @@ export const selectUserValidMembershipForChannelUri = createSelector(
   }
 );
 
-export const selectProtectedContentMembershipsForClaimId = (state: State, channelId: string, claimId: string) => {
-  return state.memberships?.protectedContentClaims[channelId]?.[claimId]?.memberships || [];
-};
+export const selectProtectedContentClaimsForId = (state: State, id: string) =>
+  selectProtectedContentClaimsById(state)[id];
 
-export const selectMyMembershipTiers = (state: State, activeChannelClaimId: string) => {
-  return state.memberships?.membershipListById[activeChannelClaimId];
+export const selectProtectedContentMembershipsForClaimId = (state: State, channelId: string, claimId: string) => {
+  const protectedClaimsById = selectProtectedContentClaimsForId(state, channelId);
+  return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
 };
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {
-  const myMembershipTiers = state.memberships?.membershipListById[activeChannelClaimId];
+  const membershipTiers: MembershipTiers = selectMembershipTiersForChannelId(state, activeChannelClaimId);
 
-  if (!myMembershipTiers) return [];
+  if (!membershipTiers) return [];
 
   const perkName = 'Exclusive content';
 
-  return myMembershipTiers.filter(membershipTier => {
-    return membershipTier.Perks.some(perk => perk.name === perkName);
+  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
+    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipPerk) => perk.name === perkName);
   });
+
+  return tiers;
 };
 
 export const selectMyMembershipTiersWithExclusiveLivestreamPerk = (state: State, activeChannelClaimId: string) => {
-  const myMembershipTiers = state.memberships?.membershipListById[activeChannelClaimId];
+  const membershipTiers: MembershipTiers = selectMembershipTiersForChannelId(state, activeChannelClaimId);
 
-  if (!myMembershipTiers) return [];
+  if (!membershipTiers) return [];
 
   const perkName = 'Exclusive livestreams';
 
-  return myMembershipTiers.filter(membershipTier => {
-    return membershipTier.Perks.some(perk => perk.name === perkName);
+  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
+    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipPerk) => perk.name === perkName);
   });
+
+  return tiers;
 };
 
 export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, channelId: string) => {
-  const myMembershipTiers = state.memberships?.membershipListById[channelId];
+  const membershipTiers: MembershipTiers = selectMembershipTiersForChannelId(state, channelId);
 
-  if (!myMembershipTiers) return [];
+  if (!membershipTiers) return [];
 
   const perkName = 'Members-only chat';
 
-  return myMembershipTiers.filter(membershipTier => {
-    return membershipTier.Perks.some(perk => perk.name === perkName);
+  const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
+    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipPerk) => perk.name === perkName);
   });
+
+  return tiers;
 };
 
 export const selectMembershipTierIdsWithMembersOnlyChatPerk = (state: State, channelId: string) => {
-  const memberships = selectMyMembershipTiersWithMembersOnlyChatPerk(state, channelId);
+  const memberships: MembershipTiers = selectMyMembershipTiersWithMembersOnlyChatPerk(state, channelId);
+  const membershipIds: Array<number> = memberships.map((membership: MembershipTier) => membership.Membership.id);
 
-  return memberships.map(membership => membership.Membership.id);
+  return membershipIds;
 };

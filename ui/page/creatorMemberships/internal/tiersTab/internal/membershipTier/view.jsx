@@ -6,7 +6,6 @@ import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 
-import ErrorText from 'component/common/error-text';
 import Icon from 'component/common/icon';
 
 type Props = {
@@ -92,7 +91,7 @@ function MembershipTier(props: Props) {
 
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
-        <span>${membership.NewPrices[0].Price.amount / 100}</span>
+        <span>${membership.NewPrices && membership.NewPrices[0].Price.amount / 100}</span>
 
         <label>{__('Description & custom Perks')}</label>
         <span>{membership.Membership.description}</span>

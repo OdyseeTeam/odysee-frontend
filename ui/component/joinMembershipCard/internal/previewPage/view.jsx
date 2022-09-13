@@ -116,7 +116,7 @@ const PreviewPage = (props: Props) => {
     );
   }
 
-  function pickIconToUse(membershipId){
+  function pickIconToUse(membershipId) {
     let icon = '';
     if (protectedMembershipIds && !protectedMembershipIds.includes(membershipId)) {
       icon = ICONS.LOCK;

@@ -12,9 +12,9 @@ type MembershipsState = {
   pendingCancelIds: ClaimIds,
   myMembershipTiers: ?MembershipTiers,
   pendingDeleteIds: Array<string>,
-  protectedContentClaims: { [channelId: string]: any },
+  protectedContentClaimsByCreatorId: { [channelId: string]: any },
   mySupportersList: ?SupportersList,
-  membershipPerks: Array<MembershipPerk>
+  membershipPerks: Array<MembershipPerk>,
 };
 
 const defaultState: MembershipsState = {
@@ -26,7 +26,7 @@ const defaultState: MembershipsState = {
   pendingCancelIds: [],
   myMembershipTiers: undefined,
   pendingDeleteIds: [],
-  protectedContentClaims: {},
+  protectedContentClaimsByCreatorId: {},
   mySupportersList: undefined,
   membershipPerks: [],
 };
@@ -119,7 +119,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED] = (state, action) => 
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => {
-  const newProtectedContentClaims = Object.assign({}, state.protectedContentClaims);
+  const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);
 
   if (action.data && action.data.length) {
     const channelId = action.data[0].channel_id;
@@ -136,7 +136,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => 
     thisContentChannel[claimId]['memberships'] = membershipIds;
   }
 
-  return { ...state, protectedContentClaims: newProtectedContentClaims };
+  return { ...state, protectedContentClaimsByCreatorId: newProtectedContentClaims };
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED] = (state, action) => {
@@ -144,7 +144,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED] = (state, action) => {
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => {
-  const newProtectedContentClaims = Object.assign({}, state.protectedContentClaims);
+  const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);
 
   let wholeObject = {};
   let channelId;
@@ -174,7 +174,7 @@ reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => 
     newProtectedContentClaims[channelId] = wholeObject;
   }
 
-  return { ...state, protectedContentClaims: newProtectedContentClaims };
+  return { ...state, protectedContentClaimsByCreatorId: newProtectedContentClaims };
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE] = (state, action) => {

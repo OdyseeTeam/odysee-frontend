@@ -4,11 +4,11 @@ import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
 import { doTipAccountStatus } from 'redux/actions/stripe';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
-import { selectMyMembershipTiers } from 'redux/selectors/memberships';
+import { selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const activeChannel = selectActiveChannelClaim(state);
-  const myMembershipTiers = selectMyMembershipTiers(state, activeChannel?.claim_id);
+  const myMembershipTiers = selectMembershipTiersForChannelId(state, activeChannel?.claim_id);
 
   return {
     hasTiers: myMembershipTiers?.length,

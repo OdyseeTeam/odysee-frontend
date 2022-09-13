@@ -27,7 +27,12 @@ import { creditsToString } from 'util/format-credits';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
 import { isClaimNsfw } from 'util/claim';
-import { LBRY_FIRST_TAG, SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import {
+  LBRY_FIRST_TAG,
+  SCHEDULED_LIVESTREAM_TAG,
+  MEMBERS_ONLY_CONTENT_TAG,
+  RESTRICTED_CHAT_COMMENTS_TAG,
+} from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
   if (!claim) {
@@ -634,36 +639,33 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   // get redux publish form
   const publishData = selectPublishFormValues(state);
 
-  l('publish data');
-  l(publishData);
-
   /** protected content and members-only chat functionality **/
   const { restrictCommentsAndChat, restrictedToMemberships, channelClaimId } = publishData;
 
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, preview);
+  publishPayload.tags = new Set(publishPayload.tags);
 
-  const membersOnlyContentTag = 'c:members-only';
-  const restrictedChatCommentsTag = 'chat:members-only';
-
-  const publishTagsHasRestrictedMemberships = publishPayload.tags.includes(membersOnlyContentTag);
-  const publishTagsHasRestrictedChatComments = publishPayload.tags.includes(restrictedChatCommentsTag);
+  const publishTagsHasRestrictedMemberships = publishPayload.tags.has(MEMBERS_ONLY_CONTENT_TAG);
+  const publishTagsHasRestrictedChatComments = publishPayload.tags.has(RESTRICTED_CHAT_COMMENTS_TAG);
 
   // add members only tag if it's restricted to memberships and tag doesn't exist
   if (restrictedToMemberships && !publishTagsHasRestrictedMemberships) {
-    publishPayload.tags.push(membersOnlyContentTag);
+    publishPayload.tags.add(MEMBERS_ONLY_CONTENT_TAG);
   }
 
   if (restrictCommentsAndChat && !publishTagsHasRestrictedChatComments) {
-    publishPayload.tags.push(restrictedChatCommentsTag);
+    publishPayload.tags.add(RESTRICTED_CHAT_COMMENTS_TAG);
   }
 
   if (!restrictedToMemberships && publishTagsHasRestrictedMemberships) {
-    publishPayload.tags = publishPayload.tags.filter(tag => tag !== membersOnlyContentTag);
+    publishPayload.tags = publishPayload.tags.delete(MEMBERS_ONLY_CONTENT_TAG);
   }
 
   if (!restrictCommentsAndChat && publishTagsHasRestrictedChatComments) {
-    publishPayload.tags = publishPayload.tags.filter(tag => tag !== publishTagsHasRestrictedChatComments);
+    publishPayload.tags = publishPayload.tags.delete(MEMBERS_ONLY_CONTENT_TAG);
   }
+
+  publishPayload.tags = Array.from(publishPayload.tags);
 
   // return
 
@@ -675,20 +677,23 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
 
   return Lbry.publish(publishPayload).then((response: PublishResponse) => {
     // get the upload's claim id
-    const claimId = response.outputs.find(obj => {
+    const claimId = response.outputs.find((obj) => {
+      // $FlowFixMe
       return obj.claim_id;
+      // $FlowFixMe
     }).claim_id;
 
     // hit backend to save restricted memberships
     if (restrictedToMemberships || restrictedToMemberships === '') {
-      l('calling backend')
       dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimId, restrictedToMemberships));
     }
 
-    dispatch(doUpdatePublishForm({
-      restrictedToMemberships: undefined,
-      restrictCommentsAndChat: undefined,
-    }));
+    dispatch(
+      doUpdatePublishForm({
+        restrictedToMemberships: undefined,
+        restrictCommentsAndChat: undefined,
+      })
+    );
 
     // TODO: Restore LbryFirst
     // if (!useLBRYUploader) {

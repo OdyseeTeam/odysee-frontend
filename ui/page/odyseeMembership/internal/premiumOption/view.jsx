@@ -12,8 +12,8 @@ import Button from 'component/button';
 import MembershipBadge from 'component/membershipBadge';
 
 type Props = {
-  key: any,
-  membership: CreatorMembership | MembershipTier,
+  membershipPurchase?: CreatorMembership,
+  membershipView?: MembershipTier,
   isCancelled: boolean,
   // -- redux --
   preferredCurrency: CurrencyOption,
@@ -23,104 +23,135 @@ type Props = {
 
 const PremiumOption = (props: Props) => {
   const {
-    key,
-    membership: passedMembership,
+    membershipPurchase,
+    membershipView,
     isCancelled,
     preferredCurrency,
     doOpenModal,
     doOpenCancelationModalForMembership,
   } = props;
 
-  // $FlowFixMe
-  if (passedMembership.Prices) {
-    // $FlowFixMe
-    const membership: CreatorMembership = passedMembership;
-    const { Membership, Prices } = membership;
+  if (membershipPurchase) {
+    const membership = membershipPurchase;
+    const { Membership, Prices, NewPrices } = membership;
+
+    const purchaseFieldsProps = { preferredCurrency, membership, doOpenModal };
 
     return (
-      <div className="premium-option" key={key}>
-        <h4 className="membership_title">
-          {Membership.name}
-          <MembershipBadge membershipName={Membership.name} />
-        </h4>
-
-        <h4 className="membership_subtitle">{__(MEMBERSHIP_CONSTS.DESCRIPTIONS[Membership.name])}</h4>
-
-        {Prices.map(
-          (price) =>
-            !(price.recurring.interval === 'month' && Membership.name === 'Premium') &&
-            price.currency.toUpperCase() === preferredCurrency && (
-              <>
-                <h4 className="membership_info">
-                  <b>{__('Interval')}:</b> {MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]}
-                </h4>
-
-                <h4 className="membership_info">
-                  <b>{__('Price')}:</b>{' '}
-                  {price.currency.toUpperCase() + ' ' + STRIPE.CURRENCY[price.currency.toUpperCase()].symbol}
-                  {price.unit_amount / 100} / {MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]}
-                </h4>
-
-                <Button
-                  button="primary"
-                  onClick={() => doOpenModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, { membership, price })}
-                  membership-id={Membership.id}
-                  membership-subscription-period={Membership.type}
-                  price-id={price.id}
-                  className="membership_button"
-                  label={__('Join via %interval% membership', {
-                    interval: price.recurring.interval,
-                  })}
-                  icon={ICONS.FINANCE}
-                  interval={price.recurring.interval}
-                  plan={Membership.name}
-                />
-              </>
-            )
-        )}
-      </div>
+      <Wrapper name={Membership.name}>
+        {NewPrices
+          ? NewPrices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
+              <PurchaseFields key={Membership.id} {...purchaseFieldsProps} stripePrice={StripePrice} />
+            ))
+          : Prices
+          ? Prices.map((price: StripePriceDetails) => (
+              <PurchaseFields key={Membership.id} {...purchaseFieldsProps} stripePrice={price} />
+            ))
+          : undefined}
+      </Wrapper>
     );
   }
 
-  // $FlowFixMe
-  const membership: MembershipTier = passedMembership;
-  const { Membership, MembershipDetails, Subscription } = membership;
+  if (membershipView) {
+    const membership = membershipView;
+    const { Membership, MembershipDetails, Subscription } = membership;
+
+    return (
+      <Wrapper name={MembershipDetails.name}>
+        <h4 className="membership_info">
+          <b>{__('Registered On')}:</b> {formatDateToMonthDayAndYear(Membership.created_at)}
+        </h4>
+
+        <h4 className="membership_info">
+          <b>{__(isCancelled ? 'Canceled On' : 'Auto-Renews On')}:</b>{' '}
+          {formatDateToMonthDayAndYear(
+            (isCancelled ? Subscription.canceled_at : Subscription.current_period_end) * 1000
+          )}
+        </h4>
+
+        {!isCancelled && (
+          <h4 className="membership_info">
+            <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(Subscription.current_period_end * 1000)}
+          </h4>
+        )}
+
+        {!isCancelled && Subscription.canceled_at === 0 && (
+          <Button
+            button="alt"
+            membership-id={Membership.membership_id}
+            onClick={() => doOpenCancelationModalForMembership(membership)}
+            className="cancel-membership-button"
+            label={__('Cancel membership')}
+            icon={ICONS.FINANCE}
+          />
+        )}
+      </Wrapper>
+    );
+  }
+
+  return null;
+};
+
+type WrapperProps = {
+  name: string,
+  children: any,
+};
+
+const Wrapper = (props: WrapperProps) => {
+  const { name, children } = props;
 
   return (
-    <div className="premium-option" key={MembershipDetails.name}>
+    <div className="premium-option" key={name}>
       <h4 className="membership_title">
-        {MembershipDetails.name}
-        <MembershipBadge membershipName={MembershipDetails.name} />
+        {name}
+        <MembershipBadge membershipName={name} />
       </h4>
 
-      <h4 className="membership_subtitle">{__(MEMBERSHIP_CONSTS.DESCRIPTIONS[MembershipDetails.name])}</h4>
+      <h4 className="membership_subtitle">{__(MEMBERSHIP_CONSTS.DESCRIPTIONS[name])}</h4>
 
-      <h4 className="membership_info">
-        <b>{__('Registered On')}:</b> {formatDateToMonthDayAndYear(Membership.created_at)}
-      </h4>
+      {children}
+    </div>
+  );
+};
 
-      <h4 className="membership_info">
-        <b>{__(isCancelled ? 'Canceled On' : 'Auto-Renews On')}:</b>{' '}
-        {formatDateToMonthDayAndYear((isCancelled ? Subscription.canceled_at : Subscription.current_period_end) * 1000)}
-      </h4>
+type PurchaseProps = {
+  preferredCurrency: string,
+  membership: CreatorMembership,
+  stripePrice: StripePriceDetails,
+  doOpenModal: (modalId: string, {}) => void,
+};
 
-      {!isCancelled && (
+const PurchaseFields = (props: PurchaseProps) => {
+  const { preferredCurrency, membership, stripePrice, doOpenModal } = props;
+
+  const {
+    currency: priceCurrency,
+    unit_amount: amount,
+    recurring: { interval },
+  } = stripePrice;
+  const currency = priceCurrency.toUpperCase();
+
+  return (
+    currency === preferredCurrency && (
+      <React.Fragment key={membership.Membership.id}>
         <h4 className="membership_info">
-          <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(Subscription.current_period_end * 1000)}
+          <b>{__('Interval')}:</b> {MEMBERSHIP_CONSTS.INTERVALS[interval]}
         </h4>
-      )}
 
-      {!isCancelled && Subscription.canceled_at === 0 && (
+        <h4 className="membership_info">
+          <b>{__('Price')}:</b> {currency + ' ' + STRIPE.CURRENCY[currency].symbol}
+          {amount / 100} / {MEMBERSHIP_CONSTS.INTERVALS[interval]}
+        </h4>
+
         <Button
-          button="alt"
-          membership-id={Membership.membership_id}
-          onClick={() => doOpenCancelationModalForMembership(membership)}
-          className="cancel-membership-button"
-          label={__('Cancel membership')}
+          button="primary"
+          onClick={() => doOpenModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, { membership, price: stripePrice })}
+          className="membership_button"
+          label={__('Join via %interval% membership', { interval })}
           icon={ICONS.FINANCE}
         />
-      )}
-    </div>
+      </React.Fragment>
+    )
   );
 };
 

@@ -90,6 +90,7 @@ type Props = {
   repliesFetching: boolean,
   threadLevel?: number,
   threadDepthLevel?: number,
+  disabled?: boolean,
   doClearPlayingSource: () => void,
 };
 

@@ -114,7 +114,7 @@ const OdyseeMembershipPage = (props: Props) => {
           {membershipOptions && (!activeMemberships || activeMemberships.length === 0) && (
             <Card title={__('Available Memberships')}>
               {membershipOptions.map((membership) => (
-                <PremiumOption key={membership.Membership.name} membership={membership} />
+                <PremiumOption key={membership.Membership.name} membershipPurchase={membership} />
               ))}
             </Card>
           )}
@@ -125,7 +125,7 @@ const OdyseeMembershipPage = (props: Props) => {
                 <h4>{__('You currently have no active memberships')}</h4>
               ) : (
                 activeMemberships.map((membership) => (
-                  <PremiumOption key={membership.MembershipDetails.name} membership={membership} />
+                  <PremiumOption key={membership.MembershipDetails.name} membershipView={membership} />
                 ))
               )}
             </Card>
@@ -140,7 +140,7 @@ const OdyseeMembershipPage = (props: Props) => {
                   <h4>{__('You currently have no canceled memberships')}</h4>
                 ) : (
                   canceledMemberships.map((membership) => (
-                    <PremiumOption key={membership.MembershipDetails.name} membership={membership} isCancelled />
+                    <PremiumOption key={membership.MembershipDetails.name} membershipView={membership} isCancelled />
                   ))
                 )
               }

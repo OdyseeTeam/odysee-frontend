@@ -17,9 +17,7 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   channels: ?Array<ChannelClaim>,
   claimsByUri: { [string]: any },
-  fetchUserMemberships: (claimIdCsv: string) => void,
   incognito: boolean,
-  updateUserOdyseeMembershipStatus: () => void,
   user: ?User,
   locale: ?LocaleInfo,
   preferredCurrency: ?string,
@@ -32,12 +30,6 @@ const OdyseeMembershipPage = (props: Props) => {
   const { goBack } = useHistory();
 
   const myMemberships = [1, 2];
-
-  /*
-  React.useEffect(() => {
-    fetchUserMemberships("7668ddc8e46d146b5c3b24f019ba9cd6e56ab893")
-  }, []);
-  */
 
   return (
     <Page className="premium-wrapper">

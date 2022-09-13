@@ -1,6 +1,7 @@
 // @flow
 import React, { useEffect } from 'react';
 import { FormField } from 'component/common/form';
+import { RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
@@ -15,9 +16,9 @@ type Props = {
   protectedMembershipIds: Array<number>,
   activeChannel: ChannelClaim,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
-  myMembershipTiers: Array<Membership>,
-  myMembershipTiersWithExclusiveContentPerk: Array<Membership>,
-  myMembershipTiersWithExclusiveLivestreamPerk: Array<Membership>,
+  myMembershipTiers: CreatorMemberships,
+  myMembershipTiersWithExclusiveContentPerk: CreatorMemberships,
+  myMembershipTiersWithExclusiveLivestreamPerk: CreatorMemberships,
   location: string,
 };
 
@@ -53,7 +54,7 @@ function PublishProtectedContent(props: Props) {
   // update frontend is restricted chat tag is already present
   React.useEffect(() => {
     if (claim) {
-      const alreadyRestricted = claim?.value?.tags?.includes('chat:members-only');
+      const alreadyRestricted = new Set(claim?.value?.tags).has(RESTRICTED_CHAT_COMMENTS_TAG);
       setCommentsChatAlreadyRestricted(alreadyRestricted);
     }
   }, [claim]);
@@ -69,7 +70,9 @@ function PublishProtectedContent(props: Props) {
     let matchedMemberships;
     const restrictCheckboxes = document.querySelectorAll('*[id^="restrictToMembership"]');
 
+    // $FlowFixMe
     for (const checkbox of restrictCheckboxes) {
+      // $FlowFixMe
       if (checkbox.checked) {
         matchedMemberships = new Set(matchedMemberships);
         matchedMemberships.add(Number(checkbox.id.split(':')[1]));
