@@ -33,6 +33,7 @@ function OverviewTab(props: Props) {
       {channelsToList && (
         <>
           <div className="membership__mychannels-header">
+            <div />
             <label>My Earnings</label>
           </div>
           {bankAccountConfirmed && (
