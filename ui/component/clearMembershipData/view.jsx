@@ -16,7 +16,8 @@ const ClearMembershipDataButton = (props: Props) => {
   const { purchasedMemberships, doMembershipClearData } = props;
 
   return (
-    isDev &&
+    // isDev &&
+    1 == 1 && // TODO: change this when it's ready for prod
     (!purchasedMemberships || purchasedMemberships?.length > 0) && (
       <>
         <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
