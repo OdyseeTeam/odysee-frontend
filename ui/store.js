@@ -2,7 +2,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 import { createStore, applyMiddleware, compose } from 'redux';
 import thunk from 'redux-thunk';
 // import { createMemoryHistory, createBrowserHistory } from 'history';
-import { createBrowserHistory } from 'history';
+import { createMemoryHistory } from 'history';
 import { routerMiddleware } from 'connected-react-router';
 
 import createRootReducer from './reducers';
@@ -15,7 +15,8 @@ import { persistOptions } from 'redux/setup/persistedState';
 import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
 
-const history = createBrowserHistory();
+const history = createMemoryHistory();
+if (window.cordova) window.odysee.functions.history = history;
 const rootReducer = createRootReducer(history);
 const persistedReducer = persistReducer(persistOptions, rootReducer);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
