@@ -55,34 +55,37 @@ function MembershipTier(props: Props) {
               </div>
             </MenuItem>
 
-            {!hasSubscribers && (
-              <MenuItem
-                className="comment__menu-option"
-                onSelect={() => {
-                  doOpenModal(MODALS.CONFIRM, {
-                    title: __('Confirm Membership Deletion'),
-                    subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
-                      membership_name: membership.Membership.name,
-                    }),
-                    busyMsg: __('Deleting your membership...'),
-                    onConfirm: (closeModal, setIsBusy) => {
-                      setIsBusy(true);
-                      doDeactivateMembershipForId(membership.Membership.id).then(() => {
-                        setIsBusy(false);
-                        doToast({ message: __('Your membership was succesfully deleted.') });
-                        removeMembership();
-                        closeModal();
-                      });
-                    },
-                  });
-                }}
-              >
-                <div className="menu__link">
-                  <Icon size={16} icon={ICONS.DELETE} />
-                  {__('Delete Tier')}
-                </div>
-              </MenuItem>
-            )}
+            <MenuItem
+              className="comment__menu-option"
+              onSelect={() =>
+                hasSubscribers
+                  ? doToast({
+                      message: __('This membership has active subscribers and cannot be deleted.'),
+                      isError: true,
+                    })
+                  : doOpenModal(MODALS.CONFIRM, {
+                      title: __('Confirm Membership Deletion'),
+                      subtitle: __('Are you sure you want to delete yor "%membership_name%" membership?', {
+                        membership_name: membership.Membership.name,
+                      }),
+                      busyMsg: __('Deleting your membership...'),
+                      onConfirm: (closeModal, setIsBusy) => {
+                        setIsBusy(true);
+                        doDeactivateMembershipForId(membership.Membership.id).then(() => {
+                          setIsBusy(false);
+                          doToast({ message: __('Your membership was successfully deleted.') });
+                          removeMembership();
+                          closeModal();
+                        });
+                      },
+                    })
+              }
+            >
+              <div className="menu__link">
+                <Icon size={16} icon={ICONS.DELETE} />
+                {__('Delete Tier')}
+              </div>
+            </MenuItem>
           </MenuList>
         </Menu>
       </div>
@@ -103,8 +106,6 @@ function MembershipTier(props: Props) {
           </div>
         </div>
       </div>
-
-      {hasSubscribers && <ErrorText>{__('This membership has active subscribers and cannot be deleted.')}</ErrorText>}
     </>
   );
 }

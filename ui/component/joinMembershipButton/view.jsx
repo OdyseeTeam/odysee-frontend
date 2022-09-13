@@ -11,6 +11,8 @@ import * as MODALS from 'constants/modal_types';
 
 import Button from 'component/button';
 
+const DEFAULT_PROPS = { button: 'alt', className: 'button--membership', icon: ICONS.UPGRADE };
+
 type Props = {
   uri: string,
   // -- redux --
@@ -22,7 +24,7 @@ type Props = {
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
 };
 
-export default function JoinMembershipButton(props: Props) {
+const JoinMembershipButton = (props: Props) => {
   const {
     uri,
     permanentUrl,
@@ -55,10 +57,8 @@ export default function JoinMembershipButton(props: Props) {
 
     return (
       <Button
-        button="alt"
-        className="button--membership"
-        navigate={`/${channelPath}?${urlParams.toString()}`}
-        icon={ICONS.UPGRADE}
+        {...DEFAULT_PROPS}
+        navigate={`${channelPath}?${urlParams.toString()}`}
         label={membershipName}
         title={__('You are a "%membership_tier_name%" member', { membership_tier_name: membershipName })}
       />
@@ -67,13 +67,13 @@ export default function JoinMembershipButton(props: Props) {
 
   return (
     <Button
-      button="alt"
-      className="button--membership"
-      icon={ICONS.UPGRADE}
+      {...DEFAULT_PROPS}
       label={__('Join')}
       title={__('Become A Member')}
       onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}
       style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
     />
   );
-}
+};
+
+export default JoinMembershipButton;

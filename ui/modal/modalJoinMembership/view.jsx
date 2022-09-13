@@ -8,7 +8,7 @@ type Props = {
   // -- redux --
   doHideModal: () => void,
   membershipIndex: number,
-  protectedMembershipIds: Array<number>
+  protectedMembershipIds: ?Array<number>
 };
 class ModalJoinMembership extends React.PureComponent<Props> {
   render() {
@@ -16,7 +16,12 @@ class ModalJoinMembership extends React.PureComponent<Props> {
 
     return (
       <Modal onAborted={doHideModal} isOpen type="card">
-        <JoinMembershipCard uri={uri} doHideModal={doHideModal} membershipIndex={membershipIndex} protectedMembershipIds={protectedMembershipIds} />
+        <JoinMembershipCard
+          uri={uri}
+          doHideModal={doHideModal}
+          membershipIndex={membershipIndex}
+          protectedMembershipIds={protectedMembershipIds}
+        />
       </Modal>
     );
   }

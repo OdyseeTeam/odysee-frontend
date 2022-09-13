@@ -82,6 +82,7 @@ function PledgesTab(props: Props) {
                 <tr>
                   <th>Channel Name</th>
                   <th>Tier</th>
+                  <th>Subscribed As</th>
                   <th>Time Total</th>
                   <th>Amount</th>
                   <th>Status</th>
@@ -103,6 +104,11 @@ function PledgesTab(props: Props) {
                         />
                       </td>
                       <td>{membership.MembershipDetails.name}</td>
+                      <td>
+                        {membership.Membership.channel_name === ''
+                          ? __('Anonymous')
+                          : membership.Membership.channel_name}
+                      </td>
                       {/* TODO: add moment logic here to calculate number of months */}
                       <td>{pledges[i].timeAgo}</td>
                       <td>

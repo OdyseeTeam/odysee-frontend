@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
-import { selectMyMembershipTiers } from 'redux/selectors/memberships';
+import { selectMembershipPerks } from 'redux/selectors/memberships';
 import { doMembershipAddTier, doMembershipList } from 'redux/actions/memberships';
 import TiersTab from './view';
 
 const select = (state, props) => ({
-  membershipPerks: selectMyMembershipTiers(state),
+  membershipPerks: selectMembershipPerks(state),
 });
 
 const perform = {

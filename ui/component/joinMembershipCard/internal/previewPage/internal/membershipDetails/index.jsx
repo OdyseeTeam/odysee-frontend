@@ -4,12 +4,20 @@ import React from 'react';
 type Props = {
   membership: CreatorMembership,
   headerAction?: any,
+  protectedMembershipIds: Array<number>
 };
 
 const MembershipDetails = (props: Props) => {
-  const { membership, headerAction } = props;
+  const { membership, headerAction, protectedMembershipIds } = props;
+
+  let accessText = 'This membership doesn\'t have access to the current content';
+  if (protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)) {
+    accessText = 'This membership has access to the current content';
+  }
 
   console.log('headerAction: ', headerAction);
+
+  l(membership.Membership)
 
   return (
     <>
@@ -18,6 +26,8 @@ const MembershipDetails = (props: Props) => {
       </section>
 
       <section className="membership-tier__infos">
+        <h1>{protectedMembershipIds && accessText}</h1>
+
         <span>{membership.Membership.description}</span>
 
         <div className="membership-tier__perks">

@@ -25,6 +25,7 @@ type Props = {
   doTipAccountCheckForUri: (uri: string) => void,
   channelTitle: string,
   channelUri: string,
+  channelName: string,
   doOpenModal: (id: string, props: {}) => void,
   protectedMembershipIds: Array<number>,
 };
@@ -45,6 +46,7 @@ const PreviewPage = (props: Props) => {
     doTipAccountCheckForUri,
     channelTitle,
     channelUri,
+    channelName,
     doOpenModal,
   } = props;
 
@@ -73,8 +75,12 @@ const PreviewPage = (props: Props) => {
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
-          label={__(channelIsMine ? 'Create Your Memberships For This Channel' : 'Create Your Memberships')}
-          navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+          label={
+            channelIsMine
+              ? __('Create Memberships For %channel_name%', { channel_name: channelName })
+              : __('Create Your Memberships')
+          }
+          navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
           channelId={channelId}
         />
       </div>
@@ -127,13 +133,13 @@ const PreviewPage = (props: Props) => {
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'protected-membership-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
+              'no-access-button': protectedMembershipIds && !protectedMembershipIds.includes(Membership.id),
             })}
           />
         ))}
       </div>
       <div className="join-membership__modal-content">
-        <MembershipDetails membership={selectedTier} />
+        <MembershipDetails membership={selectedTier} protectedMembershipIds={protectedMembershipIds} />
       </div>
 
       <div className="join-membership__modal-action">
@@ -145,6 +151,7 @@ const PreviewPage = (props: Props) => {
           label={__('Signup for $%membership_price% a month', {
             membership_price: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.amount / 100,
           })}
+          requiresAuth
           onClick={handleSelect}
         />
 
