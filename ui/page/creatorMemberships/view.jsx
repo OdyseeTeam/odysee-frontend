@@ -159,8 +159,8 @@ const MembershipsPage = (props: Props) => {
                 allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
                 onChannelSelect={() => setAllSelected(false)}
               />
-              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
               <PledgesTab channelsToList={channelsToList} />
+              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
             </TabPanel>
 
             <TabPanel>
