@@ -8,12 +8,24 @@ type Props = {
   protectedMembershipIds: Array<number>,
   validMembershipIds: Array<number>,
   claimIsMine: boolean,
+  channelMemberships: Array<Membership>,
 };
 
 export default function PreviewOverlayProtectedContent(props: Props) {
-  const { protectedMembershipIds, validMembershipIds, claimIsMine } = props;
+  const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
+
+  const channelsWithContentAccess =  channelMemberships.filter(membership => {
+    return protectedMembershipIds.includes(membership.Membership.id);
+  });
+
+  const cheapestPlan = channelsWithContentAccess.sort(function (a, b) {
+    return a.NewPrices[0].Price.amount - b.NewPrices[0].Price.amount;
+  })[0];
+
+  l('cheapest plan with access');
+  l(cheapestPlan)
 
   React.useEffect(() => {
     if (protectedMembershipIds && validMembershipIds) {
