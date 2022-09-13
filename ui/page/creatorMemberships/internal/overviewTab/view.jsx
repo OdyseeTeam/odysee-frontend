@@ -13,13 +13,14 @@ import './style.scss';
 type Props = {
   channelsToList: ?Array<ChannelClaim>,
   onTabChange: (tabIndex: number) => void,
+  hasTiers: ?boolean,
   // -- redux --
   bankAccountConfirmed: ?boolean,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
 function OverviewTab(props: Props) {
-  const { channelsToList, bankAccountConfirmed, onTabChange, doSetActiveChannel } = props;
+  const { channelsToList, onTabChange, hasTiers, bankAccountConfirmed, doSetActiveChannel } = props;
 
   function selectChannel(channelClaim) {
     console.log('Click channel: ', channelClaim);
@@ -83,23 +84,32 @@ function OverviewTab(props: Props) {
         </>
       )}
 
+      {/* Tiers status */}
+      {!hasTiers && (
+        <div className="bank-account-status">
+          <div>
+            <label>{__(`You don't have any Tiers`)}</label>
+            <span>{__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}</span>
+          </div>
+          <Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(1)} />
+        </div>
+      )}
+
       {/* Bank account connection status */}
-      <div className="bank-account-status">
-        {!bankAccountConfirmed && (
-          <>
-            <div className="">
-              <label>{__('Bank Account Status')}</label>
-              <span>{__('To be able to begin receiving payments you must connect a Bank Account first.')}</span>
-            </div>
-            <Button
-              button="primary"
-              label={__('Connect a bank account')}
-              icon={ICONS.FINANCE}
-              navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-            />
-          </>
-        )}
-      </div>
+      {hasTiers && !bankAccountConfirmed && (
+        <div className="bank-account-status">
+          <div>
+            <label>{__('Bank Account Status')}</label>
+            <span>{__('To be able to begin receiving payments you must connect a Bank Account first.')}</span>
+          </div>
+          <Button
+            button="primary"
+            label={__('Connect a bank account')}
+            icon={ICONS.FINANCE}
+            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+          />
+        </div>
+      )}
     </>
   );
 }
