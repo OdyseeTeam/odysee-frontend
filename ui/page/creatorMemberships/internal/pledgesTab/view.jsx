@@ -71,12 +71,12 @@ function PledgesTab(props: Props) {
 
   return (
     <>
+      <div className="membership__mypledges-header">
+        <div />
+        <label>My Pledges</label>
+      </div>
       {pledges?.length > 0 && (
         <>
-          <div className="membership__mypledges-header">
-            <div />
-            <label>My Pledges</label>
-          </div>
           <div className="membership-table__wrapper">
             <table className="table table--pledges">
               <thead>
@@ -136,11 +136,12 @@ function PledgesTab(props: Props) {
       )}
 
       {myPurchasedMemberships?.length === 0 && (
-        <>
-          <h1 style={{ marginTop: '10px' }}> You are not currently supporting any creators </h1>
-
-          {/* <h1 style={{ marginTop: '10px' }}> You can find some creators to support on the membership page here </h1> */}
-        </>
+        <div className="bank-account-status">
+          <div>
+            <label>{__('You are not currently supporting any creators')}</label>
+            <span>{__(`Find creators that you like and support them. Your pledges will show up on this page.`)}</span>
+          </div>
+        </div>
       )}
     </>
   );
