@@ -74,6 +74,7 @@ function PledgesTab(props: Props) {
       {pledges?.length > 0 && (
         <>
           <div className="membership__mypledges-header">
+            <div />
             <label>My Pledges</label>
           </div>
           <div className="membership-table__wrapper">

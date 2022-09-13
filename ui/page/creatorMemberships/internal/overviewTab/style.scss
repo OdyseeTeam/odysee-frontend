@@ -28,42 +28,73 @@
 }
 
 .membership__mychannels-header {
+  position: relative;
   width: 100%;
   background-size: cover;
   background-position: top -320px left 0px;
   background-image: url('/public/img/my_channels.jpg');
   border-radius: var(--border-radius);
-  padding: var(--spacing-m);
   margin-bottom: var(--spacing-m);
-  margin-top: var(--spacing-m);
+  margin-top: var(--spacing-xxl);
+  overflow: hidden;
+  height: 96px;
+
+  div {
+    position: absolute;
+    height: 400px;
+    left: -110px;
+    top: -210px;
+    width: 40%;
+    background-color: rgba(184, 55, 105, 0.6);
+    transform: rotate(38deg);
+  }
 
   label {
+    position: absolute;
+    background-color: var(--color-header-background);
     padding: var(--spacing-m);
-    // background-color: rgba(100, 68, 154, 0.6);
-    background-color: rgba(184, 55, 105, 0.6);
     border-radius: var(--border-radius);
+    top: var(--spacing-m);
+    left: var(--spacing-m);
+    padding: var(--spacing-m);
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
-    color: white;
+    color: var(--color-text);
   }
 }
 
 .membership__mypledges-header {
+  position: relative;
   width: 100%;
   background-size: cover;
   background-position: top -180px left 0px;
   background-image: url('/public/img/my_pledges.jpg');
   border-radius: var(--border-radius);
-  padding: var(--spacing-m);
   margin-bottom: var(--spacing-m);
   margin-top: var(--spacing-xxl);
+  overflow: hidden;
+  height: 96px;
 
-  label {
-    padding: var(--spacing-m);
+  div {
+    position: absolute;
+    position: absolute;
+    height: 400px;
+    left: -110px;
+    top: -210px;
+    width: 40%;
     background-color: rgba(0, 208, 217, 0.6);
+    transform: rotate(38deg);
+  }
+  label {
+    position: absolute;
+    background-color: var(--color-header-background);
+    padding: var(--spacing-m);
     border-radius: var(--border-radius);
+    top: var(--spacing-m);
+    left: var(--spacing-m);
+    padding: var(--spacing-m);
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
-    color: white;
+    color: var(--color-text);
   }
 }
