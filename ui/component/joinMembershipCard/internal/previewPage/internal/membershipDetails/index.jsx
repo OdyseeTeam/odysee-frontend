@@ -11,7 +11,7 @@ type Props = {
 const MembershipDetails = (props: Props) => {
   const { membership, headerAction, protectedMembershipIds } = props;
 
-  let accessText = `This membership doesn't have access to the current content.`;
+  let accessText = `This Tier does not grant you access to the currently selected content.`;
   if (protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)) {
     // accessText = 'This membership has access to the current content.';
     accessText = undefined;
