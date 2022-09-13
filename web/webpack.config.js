@@ -94,12 +94,12 @@ const copyWebpackCommands = [
     to: `${output.PATH}/public/img/moon.png`,
   },
   {
-    from: `${STATIC_ROOT}/img/my_channels.png`,
-    to: `${output.PATH}/public/img/my_channels.png`,
+    from: `${STATIC_ROOT}/img/my_channels.jpg`,
+    to: `${output.PATH}/public/img/my_channels.jpg`,
   },
   {
-    from: `${STATIC_ROOT}/img/my_pledges.png`,
-    to: `${output.PATH}/public/img/my_pledges.png`,
+    from: `${STATIC_ROOT}/img/my_pledges.jpg`,
+    to: `${output.PATH}/public/img/my_pledges.jpg`,
   },
   {
     from: `${STATIC_ROOT}/font/`,
