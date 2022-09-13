@@ -21,6 +21,17 @@ type Props = {
 function PledgesTab(props: Props) {
   const { myPurchasedMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
 
+  // TODO: this should probably be fixed in the selector
+  let formattedMemberships = [];
+  if (myPurchasedMemberships.length) {
+    for (const creator of myPurchasedMemberships) {
+      // filter out odysee, probably also to be fixed in selector
+      if (creator[0].MembershipDetails.channel_name !== '@odysee') {
+        formattedMemberships.push(creator[0]);
+      }
+    }
+  }
+
   const [pledges, setPledges] = React.useState();
   const [resolved, setResolved] = React.useState();
 
@@ -60,7 +71,7 @@ function PledgesTab(props: Props) {
         const startDate = membership.Subscription.current_period_start * 1000;
         const endDate = membership.Subscription.current_period_end * 1000;
         const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
-        pledgeData.timeAgo = amountOfMonths === 1 ? '1 Month' : amountOfMonths + ' Months';
+        pledgeData.timeAgoInMonths = amountOfMonths === 1 ? '1 Month' : amountOfMonths + ' Months';
 
         return pledgeData;
       });
@@ -91,9 +102,8 @@ function PledgesTab(props: Props) {
                 </tr>
               </thead>
               <tbody>
-                {myPurchasedMemberships?.map((active, i) => {
-                  const membership = active[0];
-
+                {/* this logic looks strange, selector should probably be improved */}
+                {formattedMemberships?.map((membership, i) => {
                   return (
                     <tr key={i}>
                       <td>
@@ -110,8 +120,7 @@ function PledgesTab(props: Props) {
                           ? __('Anonymous')
                           : membership.Membership.channel_name}
                       </td>
-                      {/* TODO: add moment logic here to calculate number of months */}
-                      <td>{pledges[i].timeAgo}</td>
+                      <td>{pledges[i].timeAgoInMonths}</td>
                       <td>
                         ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
                         {capitalizeFirstLetter(pledges[i].period)}
@@ -135,7 +144,7 @@ function PledgesTab(props: Props) {
         </>
       )}
 
-      {myPurchasedMemberships?.length === 0 && (
+      {formattedMemberships?.length === 0 && (
         <div className="bank-account-status">
           <div>
             <label>{__('You are not currently supporting any creators')}</label>
