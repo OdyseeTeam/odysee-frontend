@@ -1,11 +1,14 @@
 import { connect } from 'react-redux';
 import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
+
 import { doSetActiveChannel } from 'redux/actions/app';
 import OverviewTab from './view';
 
-const select = (state) => ({
-  bankAccountConfirmed: selectAccountChargesEnabled(state),
-});
+const select = (state, props) => {
+  return {
+    bankAccountConfirmed: selectAccountChargesEnabled(state),
+  };
+};
 
 const perform = {
   doSetActiveChannel,
