@@ -1,7 +1,11 @@
 import { connect } from 'react-redux';
 import PreviewOverlayProtectedContent from './view';
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
-import { selectProtectedContentMembershipsForClaimId, selectMyValidMembershipIds } from 'redux/selectors/memberships';
+import {
+  selectProtectedContentMembershipsForClaimId,
+  selectMyValidMembershipIds,
+  selectMembershipTiersForChannelId
+} from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
@@ -12,6 +16,7 @@ const select = (state, props) => {
     claimIsMine: selectClaimIsMine(state, claim),
     claim,
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelId, claimId),
+    channelMemberships: selectMembershipTiersForChannelId(state, channelId),
     validMembershipIds: selectMyValidMembershipIds(state),
   };
 };
