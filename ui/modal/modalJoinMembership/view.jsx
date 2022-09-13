@@ -7,7 +7,7 @@ type Props = {
   uri: string,
   // -- redux --
   doHideModal: () => void,
-  membershipIndex: number,
+  membershipIndex: ?number,
   protectedMembershipIds: ?Array<number>
 };
 class ModalJoinMembership extends React.PureComponent<Props> {
