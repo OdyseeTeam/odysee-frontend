@@ -22,7 +22,7 @@ export default function PreviewOverlayProtectedContent(props: Props) {
   }, [protectedMembershipIds, validMembershipIds]);
 
   // don't show overlay if it's not protected or user is a member
-  if (!protectedMembershipIds || userIsAMember || claimIsMine) return <></>;
+  if (!protectedMembershipIds?.length || userIsAMember || claimIsMine) return <></>;
 
   return (
     <>
