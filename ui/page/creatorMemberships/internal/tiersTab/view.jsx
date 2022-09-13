@@ -55,10 +55,10 @@ function TiersTab(props: Props) {
 
   function addMembershipForChannelId(membership) {
     setChannelMemberships((previousMemberships) => {
-      const newChannelMemberships = [...previousMemberships];
-      newChannelMemberships.push(membership);
+      const newChannelMemberships = new Set(previousMemberships);
+      newChannelMemberships.add(membership);
 
-      return newChannelMemberships;
+      return Array.from(newChannelMemberships);
     });
   }
 

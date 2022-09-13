@@ -23,7 +23,6 @@ function OverviewTab(props: Props) {
   const { channelsToList, onTabChange, hasTiers, bankAccountConfirmed, doSetActiveChannel } = props;
 
   function selectChannel(channelClaim) {
-    console.log('Click channel: ', channelClaim);
     doSetActiveChannel(channelClaim.claim_id, true);
     onTabChange(1);
   }

@@ -5,6 +5,7 @@ import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
 import { doTipAccountStatus } from 'redux/actions/stripe';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
 import { selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
+import { doMembershipList } from 'redux/actions/memberships';
 
 const select = (state, props) => {
   const activeChannel = selectActiveChannelClaim(state);
@@ -20,6 +21,7 @@ const select = (state, props) => {
 
 const perform = {
   doTipAccountStatus,
+  doMembershipList,
 };
 
 export default connect(select, perform)(MembershipsPage);
