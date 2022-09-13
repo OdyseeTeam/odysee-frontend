@@ -130,6 +130,7 @@ const PreviewPage = (props: Props) => {
             key={Membership.id}
             label={Membership.name}
             button="alt"
+            icon={ICONS.LOCK}
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
