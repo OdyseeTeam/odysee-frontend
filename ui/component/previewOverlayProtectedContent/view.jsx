@@ -25,12 +25,9 @@ export default function PreviewOverlayProtectedContent(props: Props) {
   if (!protectedMembershipIds || userIsAMember || claimIsMine) return <></>;
 
   return (
-    <>
-      <div className="protected-content-holder">
-        <Icon icon={ICONS.LOCK} className="protected-content-lock" />
-        <span>Members Only</span>
-      </div>
-      <div className={classnames('claim-preview__overlay-protected-content', {})} />
-    </>
+    <div className="protected-content-holder">
+      <Icon icon={ICONS.LOCK} className="protected-content-lock" />
+      <span>Members Only</span>
+    </div>
   );
 }
