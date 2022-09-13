@@ -39,9 +39,11 @@
 
   label {
     padding: var(--spacing-m);
-    background-color: rgba(255, 0, 0, 0.4);
+    // background-color: rgba(100, 68, 154, 0.6);
+    background-color: rgba(184, 55, 105, 0.6);
     border-radius: var(--border-radius);
     font-size: var(--font-large);
+    font-weight: var(--font-weight-bold);
     color: white;
   }
 }
@@ -58,9 +60,10 @@
 
   label {
     padding: var(--spacing-m);
-    background-color: rgba(0, 255, 0, 0.4);
+    background-color: rgba(0, 208, 217, 0.6);
     border-radius: var(--border-radius);
     font-size: var(--font-large);
+    font-weight: var(--font-weight-bold);
     color: white;
   }
 }
