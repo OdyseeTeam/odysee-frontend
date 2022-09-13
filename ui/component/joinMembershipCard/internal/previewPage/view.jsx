@@ -116,6 +116,16 @@ const PreviewPage = (props: Props) => {
     );
   }
 
+  function pickIconToUse(membershipId){
+    let icon = '';
+    if (protectedMembershipIds && !protectedMembershipIds.includes(membershipId)) {
+      icon = ICONS.LOCK;
+    } else if (protectedMembershipIds && protectedMembershipIds.includes(membershipId)) {
+      icon = ICONS.UNLOCK;
+    }
+    return icon;
+  }
+
   return (
     <>
       <div className="join-membership__modal-header">
@@ -130,11 +140,12 @@ const PreviewPage = (props: Props) => {
             key={Membership.id}
             label={Membership.name}
             button="alt"
-            icon={ICONS.LOCK}
+            icon={pickIconToUse(Membership.id)}
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
               'no-access-button': protectedMembershipIds && !protectedMembershipIds.includes(Membership.id),
+              'access-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
             })}
           />
         ))}

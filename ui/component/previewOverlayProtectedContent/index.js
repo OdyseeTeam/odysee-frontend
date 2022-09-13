@@ -4,7 +4,7 @@ import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import {
   selectProtectedContentMembershipsForClaimId,
   selectMyValidMembershipIds,
-  selectMembershipTiersForChannelId
+  selectMembershipTiersForChannelId,
 } from 'redux/selectors/memberships';
 
 const select = (state, props) => {

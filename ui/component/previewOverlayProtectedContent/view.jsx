@@ -16,16 +16,18 @@ export default function PreviewOverlayProtectedContent(props: Props) {
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
 
-  const channelsWithContentAccess =  channelMemberships.filter(membership => {
+  const channelsWithContentAccess =  channelMemberships && channelMemberships.filter(membership => {
     return protectedMembershipIds.includes(membership.Membership.id);
   });
 
-  const cheapestPlan = channelsWithContentAccess.sort(function (a, b) {
+  const cheapestPlan = channelsWithContentAccess && channelsWithContentAccess.sort(function (a, b) {
     return a.NewPrices[0].Price.amount - b.NewPrices[0].Price.amount;
   })[0];
 
   l('cheapest plan with access');
   l(cheapestPlan)
+
+  // TODO: let's add something that's like 'Content available starting at $5.00/month'
 
   React.useEffect(() => {
     if (protectedMembershipIds && validMembershipIds) {
@@ -33,6 +35,7 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     }
   }, [protectedMembershipIds, validMembershipIds]);
 
+  // TODO: we can do an additional condition to show an unlocked icon if it's protected but user is a member
   // don't show overlay if it's not protected or user is a member
   if (!protectedMembershipIds?.length || userIsAMember || claimIsMine) return <></>;
 
