@@ -18,7 +18,6 @@ const PledgesTab = lazyImport(() => import('./internal/pledgesTab' /* webpackChu
 const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
 
 const TAB_QUERY = 'tab';
-const hasTiers = false;
 
 const TABS = {
   OVERVIEW: 'overview',
@@ -33,10 +32,11 @@ type Props = {
   bankAccountConfirmed: ?boolean,
   myChannelClaims: ?Array<ChannelClaim>,
   doTipAccountStatus: (any) => void,
+  hasTiers: ?boolean,
 };
 
 const MembershipsPage = (props: Props) => {
-  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims, tiersByChannelId } = props;
+  const { bankAccountConfirmed, doTipAccountStatus, activeChannelClaim, myChannelClaims, tiersByChannelId, hasTiers } = props;
 
   const [allSelected, setAllSelected] = React.useState(false);
 
