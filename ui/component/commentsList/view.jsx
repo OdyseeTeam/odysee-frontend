@@ -205,6 +205,7 @@ export default function CommentList(props: Props) {
     }
   }, [linkedCommentAncestors, linkedCommentId, pathname, push, search, threadCommentId, threadDepthLevel]);
 
+  // TODO: still have to change this to use the new check
   const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
 
   // set new page on scroll debounce and avoid setting the page after navigated uris
