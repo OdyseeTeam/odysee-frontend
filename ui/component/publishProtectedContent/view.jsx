@@ -55,14 +55,20 @@ function PublishProtectedContent(props: Props) {
   React.useEffect(() => {
     if (claim) {
       const alreadyRestricted = new Set(claim?.value?.tags).has(RESTRICTED_CHAT_COMMENTS_TAG);
-      setCommentsChatAlreadyRestricted(alreadyRestricted);
+      if (alreadyRestricted) {
+        setCommentsChatAlreadyRestricted(alreadyRestricted);
+        const restrictionCheckbox = document.getElementById('toggleRestrictCommentsChat');
+        if (restrictionCheckbox) restrictionCheckbox.checked = true;
+      };
     }
   }, [claim]);
 
   // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
-    if (activeChannel && protectedMembershipIds && protectedMembershipIds) {
+    if (activeChannel && protectedMembershipIds && protectedMembershipIds.length) {
       setIsRestrictingContent(true);
+      const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
+      if (restrictionCheckbox) restrictionCheckbox.checked = true;
     }
   }, [protectedMembershipIds, activeChannel]);
 
@@ -151,7 +157,7 @@ function PublishProtectedContent(props: Props) {
               <>
                 <FormField
                   type="checkbox"
-                  defaultChecked={protectedMembershipIds && protectedMembershipIds.length}
+                  defaultChecked={isRestrictingContent}
                   label={__('Restrict content to only allow subscribers to certain memberships to view it')}
                   name={'toggleRestrictedContent'}
                   className="restrict-content__checkbox"
