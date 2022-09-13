@@ -28,9 +28,9 @@ const MembershipDetails = (props: Props) => {
       </section>
 
       <section className="membership-tier__infos">
-        {accessText && (
+        {protectedMembershipIds && accessText && (
           <div className="access-status">
-            <label>{protectedMembershipIds && accessText}</label>
+            <label>{accessText}</label>
           </div>
         )}
 

@@ -92,7 +92,7 @@ type Props = {
   chatCommentsRestrictedToChannelMembers: boolean,
   isAChannelMember: boolean,
   channelTiersWithMembersOnlyChatPerk: ?Array<Membership>,
-  myTiersWithMembersOnlyChatPerk: ?Array<Membership>,
+  myValidMembershipIds: ?Array<Membership>,
 };
 
 export function CommentCreate(props: Props) {
@@ -136,12 +136,13 @@ export function CommentCreate(props: Props) {
     doTipAccountCheckForUri,
     textInjection,
     chatCommentsRestrictedToChannelMembers,
-    isAChannelMember,
     channelTiersWithMembersOnlyChatPerk,
-    myTiersWithMembersOnlyChatPerk,
+    myValidMembershipIds,
   } = props;
 
-  const userHasMembersOnlyChatPerk = channelTiersWithMembersOnlyChatPerk.some(r => myTiersWithMembersOnlyChatPerk.includes(r));
+  const userHasMembersOnlyChatPerk = myValidMembershipIds && myValidMembershipIds.some(
+    validMembershipId => channelTiersWithMembersOnlyChatPerk.includes(validMembershipId)
+  );
 
   const isMobile = useIsMobile();
 
