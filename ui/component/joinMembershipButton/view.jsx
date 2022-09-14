@@ -43,7 +43,7 @@ const JoinMembershipButton = (props: Props) => {
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
       const { channelName, channelClaimId } = parseURI(permanentUrl || '');
-      doMembershipList({ channel_name: `@${channelName || ''}`, channel_id: channelClaimId || '' });
+      doMembershipList({ channel_name: `@${channelName || ''}`, channel_id: channelClaimId || '' }).catch((e) => {});
     }
   }, [creatorMembershipsFetched, doMembershipList, permanentUrl]);
 

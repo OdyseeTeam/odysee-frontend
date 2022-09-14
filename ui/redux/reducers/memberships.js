@@ -117,7 +117,7 @@ reducers[ACTIONS.DELETE_MEMBERSHIP_FAILED] = (state, action) => {
 
 reducers[ACTIONS.SET_MEMBERSHIP_MINE_DATA] = (state, action) => ({ ...state, membershipMineByKey: action.data });
 
-reducers[ACTIONS.LIST_MEMBERSHIP_DATA] = (state, action) => {
+reducers[ACTIONS.MEMBERSHIP_LIST_COMPLETE] = (state, action) => {
   const { channelId, list } = action.data;
   const newMembershipListById = Object.assign({}, state.membershipListById);
   newMembershipListById[channelId] = list;

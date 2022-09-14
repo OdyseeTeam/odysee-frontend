@@ -74,9 +74,11 @@ export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => as
 export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
     .then((response: MembershipTiers) =>
-      dispatch({ type: ACTIONS.LIST_MEMBERSHIP_DATA, data: { channelId: params.channel_id, list: response } })
+      dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId: params.channel_id, list: response } })
     )
-    .catch((e) => dispatch({ type: ACTIONS.LIST_MEMBERSHIP_DATA_ERROR, data: e }));
+    .catch(() =>
+      dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId: params.channel_id, list: null } })
+    );
 
 export const doMembershipMine = () => async (dispatch: Dispatch) =>
   await Lbryio.call('membership', 'mine', { environment: stripeEnvironment }, 'post')
