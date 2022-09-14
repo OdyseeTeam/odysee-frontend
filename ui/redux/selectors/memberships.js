@@ -1,6 +1,6 @@
 // @flow
 import { createSelector } from 'reselect';
-import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import { selectChannelClaimIdForUri, selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
@@ -21,6 +21,7 @@ export const selectDidFetchMembershipsDataById = (state: State) => selectState(s
 export const selectMembershipPerks = (state: State) => selectState(state).membershipPerks;
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
+export const selectIsListingAllMyTiers = (state: State) => selectState(state).listingAllMyTiers;
 
 export const selectMembershipMineFetched = (state: State) => selectMembershipMineData(state) !== undefined;
 
@@ -124,6 +125,17 @@ export const selectMembershipsByIdForChannelIds = createSelector(
 
     return membershipsById;
   }
+);
+
+export const selectMyMembershipTiersChannelById = (state: State) => {
+  const myChannelClaimIds = selectMyChannelClaimIds(state);
+  if (!myChannelClaimIds) return myChannelClaimIds;
+
+  return selectMembershipsByIdForChannelIds(state, myChannelClaimIds);
+};
+
+export const userHasMembershipTiers = createSelector(selectMyMembershipTiersChannelById, (myMembershipsById) =>
+  Boolean(myMembershipsById && Object.values(myMembershipsById).length > 0)
 );
 
 export const selectMembershipTiersForChannelUri = (state: State, uri: string) =>

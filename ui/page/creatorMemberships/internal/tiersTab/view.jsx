@@ -17,7 +17,6 @@ type Props = {
   channelMemberships: CreatorMemberships,
   activeChannelClaim: ?ChannelClaim,
   doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipPerks>,
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
 
 function TiersTab(props: Props) {
@@ -27,7 +26,6 @@ function TiersTab(props: Props) {
     channelMemberships: fetchedMemberships,
     activeChannelClaim,
     doGetMembershipPerks,
-    doMembershipList,
   } = props;
 
   const fetchedMembershipsStr = fetchedMemberships && JSON.stringify(fetchedMemberships);
@@ -75,9 +73,8 @@ function TiersTab(props: Props) {
   React.useEffect(() => {
     if (activeChannelClaim) {
       doGetMembershipPerks({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
-      doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
     }
-  }, [activeChannelClaim, doGetMembershipPerks, doMembershipList]);
+  }, [activeChannelClaim, doGetMembershipPerks]);
 
   React.useEffect(() => {
     const fetchedMemberships = fetchedMembershipsStr && JSON.parse(fetchedMembershipsStr);

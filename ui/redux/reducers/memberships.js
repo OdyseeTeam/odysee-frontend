@@ -15,6 +15,7 @@ type MembershipsState = {
   protectedContentClaimsByCreatorId: { [channelId: string]: any },
   mySupportersList: ?SupportersList,
   membershipPerks: Array<MembershipPerk>,
+  listingAllMyTiers: ?boolean,
 };
 
 const defaultState: MembershipsState = {
@@ -29,6 +30,7 @@ const defaultState: MembershipsState = {
   protectedContentClaimsByCreatorId: {},
   mySupportersList: undefined,
   membershipPerks: [],
+  listingAllMyTiers: undefined,
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
@@ -181,6 +183,9 @@ reducers[ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE] = (state, action) => {
   const mySupportersList = action.data;
   return { ...state, mySupportersList };
 };
+
+reducers[ACTIONS.LIST_ALL_MY_MEMBERSHIPS_START] = (state, action) => ({ ...state, listingAllMyTiers: true });
+reducers[ACTIONS.LIST_ALL_MY_MEMBERSHIPS_COMPLETE] = (state, action) => ({ ...state, listingAllMyTiers: false });
 
 // -----------------------------------------------------------------------------------------------
 // -----------------------------------------------------------------------------------------------

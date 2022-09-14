@@ -1,13 +1,17 @@
 import { connect } from 'react-redux';
-// import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectMySupportersList } from 'redux/selectors/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectMySupportersList, selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
 import { doGetMembershipSupportersList } from 'redux/actions/memberships';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
 import SupportersTab from './view';
 
 const select = (state) => {
+  const activeChannelClaim = selectActiveChannelClaim(state);
+
   return {
-    // activeChannelClaim: selectActiveChannelClaim(state),
+    channelMembershipTiers: activeChannelClaim && selectMembershipTiersForChannelId(state, activeChannelClaim.claim_id),
     supportersList: selectMySupportersList(state),
+    myChannelClaims: selectMyChannelClaims(state),
   };
 };
 

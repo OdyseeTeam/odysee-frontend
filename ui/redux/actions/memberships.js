@@ -4,8 +4,8 @@ import * as MODALS from 'constants/modal_types';
 
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
-import { selectFetchingIdsForMembershipChannelId } from 'redux/selectors/memberships';
-import { selectChannelTitleForUri } from 'redux/selectors/claims';
+import { selectFetchingIdsForMembershipChannelId, selectIsListingAllMyTiers } from 'redux/selectors/memberships';
+import { selectChannelTitleForUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import { formatDateToMonthDayAndYear } from 'util/time';
@@ -356,3 +356,33 @@ export const doGetMembershipSupportersList = () => async (dispatch: Dispatch) =>
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: response })
     )
     .catch(() => dispatch({ type: ACTIONS.GET_MEMBERSHIP_SUPPORTERS_LIST_COMPLETE, data: null }));
+
+export const doListAllMyMembershipTiers = () => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const isListingAllMyTiers = selectIsListingAllMyTiers(state);
+
+  if (isListingAllMyTiers !== undefined) return Promise.resolve();
+
+  dispatch({ type: ACTIONS.LIST_ALL_MY_MEMBERSHIPS_START });
+
+  const myChannelClaims = selectMyChannelClaims(state);
+
+  if (!myChannelClaims) return Promise.resolve();
+
+  const pendingPromises = [];
+  myChannelClaims.map((channelClaim, index) => {
+    pendingPromises[index] = dispatch(
+      doMembershipList({ channel_name: channelClaim.name, channel_id: channelClaim.claim_id })
+    );
+  });
+
+  return await Promise.all(pendingPromises)
+    .then((responseList) => {
+      dispatch({ type: ACTIONS.LIST_ALL_MY_MEMBERSHIPS_COMPLETE });
+      return responseList;
+    })
+    .catch((e) => {
+      dispatch({ type: ACTIONS.LIST_ALL_MY_MEMBERSHIPS_COMPLETE });
+      return e;
+    });
+};
