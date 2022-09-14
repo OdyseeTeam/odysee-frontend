@@ -35,7 +35,7 @@ function OverviewTab(props: Props) {
             <div />
             <label>My Earnings</label>
           </div>
-          {bankAccountConfirmed && (
+          {hasTiers && bankAccountConfirmed && (
             <div className="membership-table__wrapper">
               <table className="table">
                 <thead>

@@ -21,8 +21,8 @@ const TAB_QUERY = 'tab';
 
 const TABS = {
   OVERVIEW: 'overview',
-  TIERS: 'tiers',
   SUPPORTERS: 'supporters',
+  TIERS: 'tiers',
 };
 
 type Props = {
@@ -92,10 +92,10 @@ const MembershipsPage = (props: Props) => {
     case TABS.OVERVIEW:
       tabIndex = 0;
       break;
-    case TABS.TIERS:
+    case TABS.SUPPORTERS:
       tabIndex = 1;
       break;
-    case TABS.SUPPORTERS:
+    case TABS.TIERS:
       tabIndex = 2;
       break;
   }
@@ -103,12 +103,14 @@ const MembershipsPage = (props: Props) => {
   function onTabChange(newTabIndex) {
     let url = `/$/${PAGES.CREATOR_MEMBERSHIPS}?`;
 
+    console.log('tabchange index: ', newTabIndex);
+
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
+    } else if (newTabIndex === 2) {
+      url += `${TAB_QUERY}=${TABS.TIERS}`;
     }
     push(url);
   }
@@ -118,46 +120,83 @@ const MembershipsPage = (props: Props) => {
 
   return (
     <Page className="premium-wrapper">
-      <Tabs onChange={onTabChange} index={tabIndex}>
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
-          <Tab>{activeChannelClaim !== null && showMySupporters && __('My Supporters')}</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <ChannelSelector
-              hideAnon
-              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-              onChannelSelect={() => setAllSelected(false)}
-            />
-            <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
-            <PledgesTab />
-          </TabPanel>
+      {hasTiers ? (
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab>{__('Overview')}</Tab>
+            <Tab>{activeChannelClaim !== null && showMySupporters && __('My Supporters')}</Tab>
+            <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <ChannelSelector
+                hideAnon
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <div style={{ marginTop: 'var(--spacing-l)' }}>
+                <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
+              </div>
+              <div style={{ marginTop: 'var(--spacing-xxl)' }}>
+                <PledgesTab />
+              </div>
+            </TabPanel>
 
-          <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
-                <TiersTab />
-              </>
-            )}
-          </TabPanel>
+            <TabPanel>
+              {activeChannelClaim !== null && showMySupporters && (
+                <>
+                  <ChannelSelector
+                    hideAnon
+                    allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                    onChannelSelect={() => setAllSelected(false)}
+                  />
+                  <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
+                </>
+              )}
+            </TabPanel>
 
-          <TabPanel>
-            {activeChannelClaim !== null && showMySupporters && (
-              <>
-                <ChannelSelector
-                  hideAnon
-                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                  onChannelSelect={() => setAllSelected(false)}
-                />
-                <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
-              </>
-            )}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
+            <TabPanel>
+              {activeChannelClaim !== null && (
+                <>
+                  <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                  <TiersTab />
+                </>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      ) : (
+        <Tabs onChange={onTabChange} index={tabIndex}>
+          <TabList className="tabs__list--collection-edit-page">
+            <Tab>{__('Overview')}</Tab>
+            <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
+          </TabList>
+          <TabPanels>
+            <TabPanel>
+              <ChannelSelector
+                hideAnon
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <div style={{ marginTop: 'var(--spacing-l)' }}>
+                <PledgesTab />
+              </div>
+              <div style={{ marginTop: 'var(--spacing-xxl)' }}>
+                <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
+              </div>
+            </TabPanel>
+
+            <TabPanel>
+              {activeChannelClaim !== null && (
+                <>
+                  <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                  <TiersTab />
+                </>
+              )}
+            </TabPanel>
+          </TabPanels>
+        </Tabs>
+      )}
     </Page>
   );
 };
