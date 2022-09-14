@@ -44,16 +44,27 @@ reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_COMPLETED] = (state, action) => {
 
   const currentFetched = Object.assign({}, state.channelMembershipsByCreatorId);
   const newFetched = currentFetched[channelId] ? { ...currentFetched[channelId], ...membershipsById } : membershipsById;
-  delete state.fetchingIdsByCreatorId[channelId];
+  const newFetchingIdsByCreatorId = Object.assign({}, state.fetchingIdsByCreatorId);
+  delete newFetchingIdsByCreatorId[channelId];
 
-  return { ...state, channelMembershipsByCreatorId: { ...currentFetched, [channelId]: newFetched } };
+  return {
+    ...state,
+    fetchingIdsByCreatorId: newFetchingIdsByCreatorId,
+    channelMembershipsByCreatorId: { ...currentFetched, [channelId]: newFetched },
+  };
 };
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_FAILED] = (state, action) => {
   const { channelId } = action.data;
-  delete state.fetchingIdsByCreatorId[channelId];
-  const currentFetched = Object.assign({}, state.channelMembershipsByCreatorId);
 
-  return { ...state, channelMembershipsByCreatorId: { ...currentFetched, [channelId]: null } };
+  const currentFetched = Object.assign({}, state.channelMembershipsByCreatorId);
+  const newFetchingIdsByCreatorId = Object.assign({}, state.fetchingIdsByCreatorId);
+  delete newFetchingIdsByCreatorId[channelId];
+
+  return {
+    ...state,
+    fetchingIdsByCreatorId: newFetchingIdsByCreatorId,
+    channelMembershipsByCreatorId: { ...currentFetched, [channelId]: null },
+  };
 };
 
 reducers[ACTIONS.SET_MEMBERSHIP_BUY_STARTED] = (state, action) => {
