@@ -65,11 +65,17 @@ const MAP = Object.freeze({
 type Props = {
   modal: { id: string, modalProps: {} },
   error: { message: string },
+  location: { pathname: string },
   doHideModal: () => void,
 };
 
 function ModalRouter(props: Props) {
-  const { modal, error, doHideModal } = props;
+  const { modal, error, location, doHideModal } = props;
+  const { pathname } = location;
+
+  React.useEffect(() => {
+    doHideModal();
+  }, [pathname, doHideModal]);
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];
