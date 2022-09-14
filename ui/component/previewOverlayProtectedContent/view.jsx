@@ -40,7 +40,7 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     }
   }, [protectedMembershipIds, validMembershipIds]);
 
-  if (!protectedMembershipIds?.length || userIsAMember || claimIsMine) {
+  if (userIsAMember || (protectedMembershipIds && claimIsMine)) {
     return (
       <div className="protected-content-unlocked">
         <Icon icon={ICONS.UNLOCK} size={64} />
