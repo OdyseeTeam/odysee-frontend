@@ -2,6 +2,7 @@
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Icon from 'component/common/icon';
+import './style.scss';
 
 type Props = {
   protectedMembershipIds: Array<number>,
@@ -34,13 +35,16 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     }
   }, [protectedMembershipIds, validMembershipIds]);
 
-  // TODO: we can do an additional condition to show an unlocked icon if it's protected but user is a member
-  // don't show overlay if it's not protected or user is a member
-  if (!protectedMembershipIds?.length || userIsAMember || claimIsMine) return <></>;
+  if (!protectedMembershipIds?.length || userIsAMember || claimIsMine)
+    return (
+      <div class="protected-content-unlocked">
+        <Icon icon={ICONS.UNLOCK} size={64} />
+      </div>
+    );
 
   return (
     <div className="protected-content-holder">
-      <Icon icon={ICONS.LOCK} className="protected-content-lock" />
+      <Icon icon={ICONS.LOCK} className="protected-content-locked" />
       <span>Members Only</span>
     </div>
   );
