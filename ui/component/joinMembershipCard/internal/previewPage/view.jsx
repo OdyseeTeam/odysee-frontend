@@ -62,26 +62,41 @@ const PreviewPage = (props: Props) => {
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   if (!creatorHasMemberships) {
+    // -- On a channel that is mine, the button uses the channel id to set it as active
+    // when landing on the memberships page for the given channel --
+    if (channelIsMine) {
+      return (
+        <div className="join-membership__empty">
+          <span>
+            {__(
+              "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
+            )}
+          </span>
+          <ButtonNavigateChannelId
+            icon={ICONS.UPGRADE}
+            button="primary"
+            type="submit"
+            label={__('Create Memberships For %channel_name%', { channel_name: channelName })}
+            navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+            channelId={channelId}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="join-membership__empty">
         <span>
           {__(
-            channelIsMine
-              ? "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
-              : "Unfortunately, this creator hasn't activated their membership functionality yet. You can try creating your own memberships with the link below!"
+            "Unfortunately, this creator hasn't activated their membership functionality yet. You can try creating your own memberships with the link below!"
           )}
         </span>
-        <ButtonNavigateChannelId
+        <Button
           icon={ICONS.UPGRADE}
           button="primary"
           type="submit"
-          label={
-            channelIsMine
-              ? __('Create Memberships For %channel_name%', { channel_name: channelName })
-              : __('Create Your Memberships')
-          }
+          label={__('Create Your Memberships')}
           navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
-          channelId={channelId}
         />
       </div>
     );
