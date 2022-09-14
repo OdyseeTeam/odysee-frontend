@@ -2,6 +2,7 @@
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Icon from 'component/common/icon';
+import classnames from 'classnames';
 import './style.scss';
 
 type Props = {
@@ -12,7 +13,7 @@ type Props = {
 };
 
 export default function PreviewOverlayProtectedContent(props: Props) {
-  const { protectedMembershipIds, validMembershipIds, claimIsMine } = props;
+  const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
 
   const [userIsAMember, setUserIsAMember] = React.useState(false);
   // const protectedMembershipIdsSet = new Set(protectedMembershipIds);
@@ -37,15 +38,32 @@ export default function PreviewOverlayProtectedContent(props: Props) {
 
   if (!protectedMembershipIds?.length || userIsAMember || claimIsMine)
     return (
-      <div class="protected-content-unlocked">
+      <div className="protected-content-unlocked">
         <Icon icon={ICONS.UNLOCK} size={64} />
       </div>
     );
 
-  return (
-    <div className="protected-content-holder">
-      <Icon icon={ICONS.LOCK} className="protected-content-locked" />
-      <span>Members Only</span>
-    </div>
-  );
+  const tiers = () => {
+    return channelMemberships.map(({ Membership }) => {
+      return (
+        <div
+          className={classnames('dot', {
+            active: protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
+          })}
+        ></div>
+      );
+    });
+  };
+
+  if (channelMemberships && protectedMembershipIds)
+    return (
+      <div className="protected-content-holder">
+        <Icon icon={ICONS.LOCK} className="protected-content-locked" />
+        <span>
+          Members Only
+          <br />
+          {tiers()}
+        </span>
+      </div>
+    );
 }
