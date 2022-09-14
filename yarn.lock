@@ -13305,12 +13305,6 @@ react-awesome-lightbox@^1.7.3:
   resolved "https://registry.yarnpkg.com/react-awesome-lightbox/-/react-awesome-lightbox-1.7.3.tgz#ee1c00fd4197e0e65bf996aa219eac4d8b6db5a0"
   integrity sha512-mSxdL3KGzuh2eR8I00nv9njiolmMoXITuCvfd71DBXK13JW3e+Z/sCMENS9+dngBJU8/m7dR1Ix0W6afS5cFsA==
 
-react-balance-text@^2.0.1:
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/react-balance-text/-/react-balance-text-2.0.1.tgz#0da811d37190c2ea0d4b10cbeb4ff5c1f86ab1b0"
-  integrity sha512-AyhX0GchhK6xcPEzvsLPAgbM8dcUA6xkrWEYJtyg3voDRYW/QLPlCFgHU3r3sdTaZu0UztsOdJa8BemScd8llQ==
-  dependencies:
-    balance-text "^3.2.0"
 
 react-beautiful-dnd@^13.1.0:
   version "13.1.0"
