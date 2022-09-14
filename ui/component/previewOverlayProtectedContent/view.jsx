@@ -50,7 +50,7 @@ export default function PreviewOverlayProtectedContent(props: Props) {
           className={classnames('dot', {
             active: protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
           })}
-        ></div>
+        />
       );
     });
   };
