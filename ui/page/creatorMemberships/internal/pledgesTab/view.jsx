@@ -81,13 +81,14 @@ function PledgesTab(props: Props) {
   }, [claimsById, myPurchasedMemberships, resolved]);
 
   return (
-    <>
+    <div className="membership__mypledges-wrapper">
       <div className="membership__mypledges-header">
         <div />
-        <label>My Pledges</label>
+        <label>Donor Portal</label>
       </div>
-      {pledges?.length > 0 && (
-        <>
+
+      <div className="membership__mypledges-content">
+        {pledges?.length > 0 && (
           <div className="membership-table__wrapper">
             <table className="table table--pledges">
               <thead>
@@ -141,18 +142,17 @@ function PledgesTab(props: Props) {
               </tbody>
             </table>
           </div>
-        </>
-      )}
-
-      {formattedMemberships?.length === 0 && (
-        <div className="bank-account-status">
-          <div>
-            <label>{__('You are not currently supporting any creators')}</label>
-            <span>{__(`Find creators that you like and support them. Your pledges will show up on this page.`)}</span>
+        )}
+        {formattedMemberships?.length === 0 && (
+          <div className="bank-account-status">
+            <div>
+              <label>{__('You are not currently supporting any creators')}</label>
+              <span>{__(`Find creators that you like and support them. Your pledges will show up on this page.`)}</span>
+            </div>
           </div>
-        </div>
-      )}
-    </>
+        )}
+      </div>
+    </div>
   );
 }
 

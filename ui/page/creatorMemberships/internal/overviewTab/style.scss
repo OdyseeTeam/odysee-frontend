@@ -27,6 +27,15 @@
   }
 }
 
+.membership__mychannels-wrapper {
+  border-radius: var(--border-radius);
+  background: rgba(239, 25, 112, 0.2);
+
+  .membership__mychannels-content {
+    padding: var(--spacing-s);
+  }
+}
+
 .membership__mychannels-header {
   position: relative;
   width: 100%;
@@ -59,6 +68,15 @@
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
     color: var(--color-text);
+  }
+}
+
+.membership__mypledges-wrapper {
+  border-radius: var(--border-radius);
+  background: rgba(0, 208, 217, 0.2);
+
+  .membership__mypledges-content {
+    padding: var(--spacing-s);
   }
 }
 

@@ -30,84 +30,87 @@ function OverviewTab(props: Props) {
   return (
     <>
       {channelsToList && (
-        <>
+        <div className="membership__mychannels-wrapper">
           <div className="membership__mychannels-header">
             <div />
-            <label>My Earnings</label>
+            <label>Membership Portal</label>
           </div>
-          {hasTiers && bankAccountConfirmed && (
-            <div className="membership-table__wrapper">
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th className="channelName-header">Channel Name</th>
-                    <th>{__('Supporters')}</th>
-                    <th>{__('Estimated Monthly Income')}</th>
-                    <th>{__('Total Received')}</th>
-                    <th className="membership-table__page">{__('Page')}</th>
-                    <th className="membership-table__url">{__('URL')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {channelsToList.map((channelClaim) => (
-                    <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
-                      <td>
-                        <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
-                        {channelClaim.value.title || channelClaim.name}
-                      </td>
-                      <td>0</td>
-                      <td>$0</td>
-                      <td>$0</td>
-                      <td>
-                        <ButtonNavigateChannelId
-                          button="primary"
-                          // className="membership_button"
-                          // label={__('View your membership page')}
-                          icon={ICONS.UPGRADE}
-                          navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
-                        />
-                      </td>
-                      <td className="membership-table__url">
-                        <CopyableText
-                          onlyCopy
-                          primaryButton
-                          copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
-                          snackMessage={__('Page location copied')}
-                        />
-                      </td>
+          <div className="membership__mychannels-content">
+            {hasTiers && bankAccountConfirmed && (
+              <div className="membership-table__wrapper">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th className="channelName-header">Channel Name</th>
+                      <th>{__('Supporters')}</th>
+                      <th>{__('Estimated Monthly Income')}</th>
+                      <th>{__('Total Received')}</th>
+                      <th className="membership-table__page">{__('Page')}</th>
+                      <th className="membership-table__url">{__('URL')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </>
-      )}
+                  </thead>
+                  <tbody>
+                    {channelsToList.map((channelClaim) => (
+                      <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
+                        <td>
+                          <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
+                          {channelClaim.value.title || channelClaim.name}
+                        </td>
+                        <td>0</td>
+                        <td>$0</td>
+                        <td>$0</td>
+                        <td>
+                          <ButtonNavigateChannelId
+                            button="primary"
+                            // className="membership_button"
+                            // label={__('View your membership page')}
+                            icon={ICONS.UPGRADE}
+                            navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+                          />
+                        </td>
+                        <td className="membership-table__url">
+                          <CopyableText
+                            onlyCopy
+                            primaryButton
+                            copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
+                            snackMessage={__('Page location copied')}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+            {/* Tiers status */}
+            {!hasTiers && (
+              <div className="bank-account-status">
+                <div>
+                  <label>{__(`You don't have any Tiers`)}</label>
+                  <span>
+                    {__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}
+                  </span>
+                </div>
+                <Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(1)} />
+              </div>
+            )}
 
-      {/* Tiers status */}
-      {!hasTiers && (
-        <div className="bank-account-status">
-          <div>
-            <label>{__(`You don't have any Tiers`)}</label>
-            <span>{__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}</span>
+            {/* Bank account connection status */}
+            {hasTiers && !bankAccountConfirmed && (
+              <div className="bank-account-status">
+                <div>
+                  <label>{__('Bank Account Status')}</label>
+                  <span>{__('To be able to begin receiving payments you must connect a Bank Account first.')}</span>
+                </div>
+                <Button
+                  button="primary"
+                  label={__('Connect a bank account')}
+                  icon={ICONS.FINANCE}
+                  navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
+                />
+              </div>
+            )}
           </div>
-          <Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(1)} />
-        </div>
-      )}
-
-      {/* Bank account connection status */}
-      {hasTiers && !bankAccountConfirmed && (
-        <div className="bank-account-status">
-          <div>
-            <label>{__('Bank Account Status')}</label>
-            <span>{__('To be able to begin receiving payments you must connect a Bank Account first.')}</span>
-          </div>
-          <Button
-            button="primary"
-            label={__('Connect a bank account')}
-            icon={ICONS.FINANCE}
-            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-          />
         </div>
       )}
     </>
