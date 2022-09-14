@@ -1,5 +1,6 @@
 // @flow
 import { createSelector } from 'reselect';
+import { createCachedSelector } from 're-reselect';
 import { selectChannelClaimIdForUri, selectMyChannelClaimIds } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
@@ -101,12 +102,24 @@ export const selectFetchingIdsForMembershipChannelId = (state: State, channelId:
 export const selectChannelMembershipsForCreatorId = (state: State, channelId: string) =>
   selectChannelMembershipsByCreatorId(state)[channelId];
 
-export const selectCreatorIdMembershipForChannelId = (state: State, creatorId: string, channelId: string) => {
-  const fetchedMemberships = selectChannelMembershipsForCreatorId(state, creatorId);
-  return fetchedMemberships && fetchedMemberships[channelId];
-};
+export const selectMembershipForCreatorIdAndChannelId = createCachedSelector(
+  (state, creatorId, channelId) => channelId,
+  selectChannelMembershipsForCreatorId,
+  selectMyValidMembershipsForCreatorId,
+  selectMyChannelClaimIds,
+  (channelId, creatorMemberships, myValidCreatorMemberships, myChannelClaimIds) => {
+    const channelIsMine = new Set(myChannelClaimIds).has(channelId);
+
+    if (channelIsMine && myValidCreatorMemberships) {
+      return myValidCreatorMemberships[0].MembershipDetails.name;
+    }
+
+    return creatorMemberships && creatorMemberships[channelId];
+  }
+)((state, creatorId, channelId) => `${String(creatorId)}:${String(channelId)}`);
+
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) =>
-  selectCreatorIdMembershipForChannelId(state, ODYSEE_CHANNEL.ID, channelId);
+  selectMembershipForCreatorIdAndChannelId(state, ODYSEE_CHANNEL.ID, channelId);
 export const selectOdyseeMembershipIsPremiumPlus = (state: State, channelId: string) =>
   selectOdyseeMembershipForChannelId(state, channelId) === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS;
 

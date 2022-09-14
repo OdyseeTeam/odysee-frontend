@@ -18,8 +18,7 @@ import {
 } from 'redux/selectors/comments';
 import {
   selectOdyseeMembershipForChannelId,
-  selectMyValidMembershipsForCreatorId,
-  selectCreatorIdMembershipForChannelId,
+  selectMembershipForCreatorIdAndChannelId,
 } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectPlayingUri } from 'redux/selectors/content';
@@ -51,11 +50,7 @@ const select = (state, props) => {
     linkedCommentAncestors: selectFetchedCommentAncestors(state),
     totalReplyPages: makeSelectTotalReplyPagesForParentId(comment_id)(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, channel_id),
-    creatorMembership:
-      channel_id === activeChannelId
-        ? selectMyValidMembershipsForCreatorId(state, creatorId) &&
-          selectMyValidMembershipsForCreatorId(state, creatorId)[0]?.MembershipDetails?.name
-        : selectCreatorIdMembershipForChannelId(state, creatorId, channel_id),
+    creatorMembership: selectMembershipForCreatorIdAndChannelId(state, creatorId, channel_id),
     repliesFetching: selectIsFetchingCommentsForParentId(state, comment_id),
     fetchedReplies: selectRepliesForParentId(state, comment_id),
   };
