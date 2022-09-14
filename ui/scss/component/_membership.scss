@@ -156,6 +156,7 @@
     .join-membership__modal-tabs {
       button.button-toggle {
         margin-right: var(--spacing-xxxs);
+        margin-bottom: var(--spacing-xxxs);
         border-radius: var(--border-radius);
         .button__label {
           color: rgba(var(--color-text-base), 0.7) !important;
