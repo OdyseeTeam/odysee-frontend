@@ -93,7 +93,7 @@ const MembershipsPage = (props: Props) => {
       tabIndex = 0;
       break;
     case TABS.TIERS:
-      tabIndex = 1;
+      if (activeChannelClaim !== null) tabIndex = 1;
       break;
     case TABS.SUPPORTERS:
       if (hasTiers) tabIndex = 2;
@@ -105,7 +105,7 @@ const MembershipsPage = (props: Props) => {
 
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
-    } else if (newTabIndex === 1) {
+    } else if (activeChannelClaim !== null && newTabIndex === 1) {
       url += `${TAB_QUERY}=${TABS.TIERS}`;
     } else if (newTabIndex === 2 && hasTiers) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;

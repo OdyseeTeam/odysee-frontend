@@ -91,7 +91,7 @@ function OverviewTab(props: Props) {
                     {__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}
                   </span>
                 </div>
-                <Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(1)} />
+                <Button requiresChannel button="primary" label={__('Add a Tier')} onClick={() => onTabChange(1)} />
               </div>
             )}
 
