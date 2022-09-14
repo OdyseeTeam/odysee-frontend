@@ -5,17 +5,16 @@ import Button from 'component/button';
 import MembershipDetails from '../membershipDetails';
 
 type Props = {
-  key?: any,
   membership: CreatorMembership,
   disabled?: boolean,
   handleSelect: () => void,
 };
 
 const MembershipTier = (props: Props) => {
-  const { key, membership, disabled, handleSelect } = props;
+  const { membership, disabled, handleSelect } = props;
 
   return (
-    <div key={key} className="membership-tier__wrapper">
+    <div className="membership-tier__wrapper">
       <MembershipDetails
         membership={membership}
         headerAction={
