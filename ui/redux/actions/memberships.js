@@ -197,7 +197,7 @@ export const doOpenCancelationModalForMembership = (membership: MembershipTier) 
       title: __('Confirm %membership_name% Cancelation', { membership_name: MembershipDetails.name }),
       subtitle: __(
         'Are you sure you want to cancel your %creator_name%\'s "%membership_name%" membership? ' +
-          'You will still have all your features until %end_date% at which point your purchase will not renewed ' +
+          'You will still have all your features until %end_date% at which point your purchase will not be renewed ' +
           'and you will lose access to your membership features and perks',
         {
           creator_name: creatorTitleName,
