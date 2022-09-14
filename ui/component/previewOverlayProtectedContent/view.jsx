@@ -1,10 +1,13 @@
-// @flow
+// add flow when this component is finished
+/* eslint-disable no-undef */
+/* eslint-disable react/prop-types */
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import Icon from 'component/common/icon';
 import classnames from 'classnames';
 import './style.scss';
 
+// eslint-disable-next-line flowtype/no-types-missing-file-annotation
 type Props = {
   protectedMembershipIds: Array<number>,
   validMembershipIds: Array<number>,
@@ -12,6 +15,7 @@ type Props = {
   channelMemberships: Array<Membership>,
 };
 
+// eslint-disable-next-line flowtype/no-types-missing-file-annotation
 export default function PreviewOverlayProtectedContent(props: Props) {
   const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
 
@@ -36,17 +40,19 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     }
   }, [protectedMembershipIds, validMembershipIds]);
 
-  if (!protectedMembershipIds?.length || userIsAMember || claimIsMine)
+  if (!protectedMembershipIds?.length || userIsAMember || claimIsMine) {
     return (
       <div className="protected-content-unlocked">
         <Icon icon={ICONS.UNLOCK} size={64} />
       </div>
     );
+  }
 
   const tiers = () => {
     return channelMemberships.map(({ Membership }) => {
       return (
         <div
+          key={Membership.id}
           className={classnames('dot', {
             active: protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
           })}
@@ -55,7 +61,7 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     });
   };
 
-  if (channelMemberships && protectedMembershipIds)
+  if (channelMemberships && protectedMembershipIds) {
     return (
       <div className="protected-content-holder">
         <Icon icon={ICONS.LOCK} className="protected-content-locked" />
@@ -66,4 +72,9 @@ export default function PreviewOverlayProtectedContent(props: Props) {
         </span>
       </div>
     );
+  }
+
+  return null;
 }
+/* eslint-enable no-undef */
+/* eslint-enable react/prop-types */

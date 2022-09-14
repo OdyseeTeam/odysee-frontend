@@ -8,7 +8,7 @@ type Props = {
   isSelected?: boolean,
 };
 
-const IncognitoSelector = (props: Props) => {
+const AllSelector = (props: Props) => {
   const { isSelected } = props;
 
   return (
@@ -20,4 +20,4 @@ const IncognitoSelector = (props: Props) => {
   );
 };
 
-export default IncognitoSelector;
+export default AllSelector;

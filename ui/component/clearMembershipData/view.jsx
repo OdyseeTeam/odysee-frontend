@@ -4,7 +4,7 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 
-const isDev = process.env.NODE_ENV !== 'production';
+// const isDev = process.env.NODE_ENV !== 'production';
 
 type Props = {
   purchasedMemberships?: ?MembershipTiers,
@@ -17,7 +17,7 @@ const ClearMembershipDataButton = (props: Props) => {
 
   return (
     // isDev &&
-    1 == 1 && // TODO: change this when it's ready for prod
+    true && // TODO: change this when it's ready for prod
     (!purchasedMemberships || purchasedMemberships?.length > 0) && (
       <>
         <h1 style={{ marginTop: '30px', fontSize: '20px' }}>Clear Membership Data (Only Available On Dev)</h1>
