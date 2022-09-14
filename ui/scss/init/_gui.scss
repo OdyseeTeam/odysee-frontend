@@ -1195,7 +1195,7 @@ img {
             border: 2px solid rgba(var(--color-membership-1), 0.6);
             background-color: rgba(var(--color-membership-1), 0.2);
             &:hover {
-              background-color: rgba(var(--color-membership-1), 1);
+              background-color: rgba(var(--color-membership-1), 0.4);
             }
           }
           input[type='checkbox']:checked + label {
@@ -1207,7 +1207,7 @@ img {
             border: 2px solid rgba(var(--color-membership-2), 0.6);
             background-color: rgba(var(--color-membership-2), 0.2);
             &:hover {
-              background-color: rgba(var(--color-membership-2), 1);
+              background-color: rgba(var(--color-membership-2), 0.4);
             }
           }
           input[type='checkbox']:checked + label {
@@ -1219,7 +1219,7 @@ img {
             border: 2px solid rgba(var(--color-membership-3), 0.6);
             background-color: rgba(var(--color-membership-3), 0.2);
             &:hover {
-              background-color: rgba(var(--color-membership-3), 1);
+              background-color: rgba(var(--color-membership-3), 0.4);
             }
           }
           input[type='checkbox']:checked + label {
@@ -1231,7 +1231,7 @@ img {
             border: 2px solid rgba(var(--color-membership-4), 0.6);
             background-color: rgba(var(--color-membership-4), 0.2);
             &:hover {
-              background-color: rgba(var(--color-membership-4), 1);
+              background-color: rgba(var(--color-membership-4), 0.4);
             }
           }
           input[type='checkbox']:checked + label {
@@ -1243,7 +1243,7 @@ img {
             border: 2px solid rgba(var(--color-membership-5), 0.6);
             background-color: rgba(var(--color-membership-5), 0.2);
             &:hover {
-              background-color: rgba(var(--color-membership-5), 1);
+              background-color: rgba(var(--color-membership-5), 0.4);
             }
           }
           input[type='checkbox']:checked + label {
@@ -1260,7 +1260,7 @@ img {
             }
           }
           input[type='checkbox']:checked + label {
-            background-color: rgba(var(--color-membership-6), 1);
+            background-color: rgba(var(--color-membership-6), 0.4);
           }
         }
       }
