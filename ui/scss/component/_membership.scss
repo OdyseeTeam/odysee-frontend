@@ -477,14 +477,15 @@
 
       .membership-tier__moon {
         float: left;
-        width: 36%;
-        height: 220px;
+        width: 42%;
+        height: 260px;
         background-image: url('/public/img/moon.png');
         background-size: cover;
+        background-position: -5px -10px;
         border-radius: var(--border-radius) 0 0 var(--border-radius);
         margin-left: -40px;
         margin-top: -56px;
-        margin-bottom: -50px;
+        margin-bottom: -76px;
         transform: rotate(-16deg);
       }
       .membership-tier__perks-content {
@@ -702,10 +703,12 @@
   }
 
   .membership-tier__header {
+    position: relative;
     background-image: url('/public/img/spaceman_pattern.png');
     background-size: 34px;
     padding: var(--spacing-m);
     width: 100%;
+    height: 4.5rem;
 
     .membership-tier__name,
     span {
@@ -719,15 +722,17 @@
       -webkit-line-clamp: 1;
       display: inline-block;
       max-width: 100%;
+      height: 2.6rem;
     }
 
     .menu__button {
+      position: absolute;
       background-color: var(--color-header-background);
-      float: right;
       border-radius: 50%;
       padding: var(--spacing-s);
       opacity: 1;
-      margin-top: calc(var(--spacing-xxs) * -1);
+      right: var(--spacing-m);
+      top: var(--spacing-m);
 
       .icon {
         transform: rotate(0deg);
