@@ -54,7 +54,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       channel_name: activeChannelName,
       price_id: price.id,
     }).then(() => {
-      doToast({ message: __('Purchase was succesful. Enjoy the perks and special features!') });
+      doToast({ message: __('Purchase was successful. Enjoy the perks and special features!') });
       doHideModal();
     });
   }

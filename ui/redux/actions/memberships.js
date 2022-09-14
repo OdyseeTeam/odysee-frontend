@@ -211,7 +211,7 @@ export const doOpenCancelationModalForMembership = (membership: MembershipTier) 
         dispatch(doMembershipCancelForMembershipId(MembershipDetails.id)).then(() => {
           setIsBusy(false);
           dispatch(
-            doToast({ message: __('Your membership was succesfully cancelled and will no longer be renewed.') })
+            doToast({ message: __('Your membership was successfully cancelled and will no longer be renewed.') })
           );
           closeModal();
         });
