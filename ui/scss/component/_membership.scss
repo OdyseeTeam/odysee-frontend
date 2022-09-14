@@ -1070,6 +1070,11 @@
 
   .channel-thumbnail {
     display: inline-block;
+
+    &.channel-thumbnail--xxsmall {
+      position: absolute;
+      transform: translate(-150%, 125%);
+    }
   }
   tbody {
     tr {
@@ -1349,33 +1354,5 @@ svg.icon--Upgrade {
 
 .table--pledges {
   th {
-    &:nth-of-type(1) {
-      // Channel Name
-      min-width: 220px;
-    }
-    &:nth-of-type(2) {
-      // Tier
-      min-width: 200px;
-    }
-    &:nth-of-type(3) {
-      // 	Subscribed As
-      min-width: 220px;
-    }
-    &:nth-of-type(4) {
-      // Time Total
-      min-width: 120px;
-    }
-    &:nth-of-type(5) {
-      // Amount
-      min-width: 160px;
-    }
-    &:nth-of-type(6) {
-      // status
-      min-width: 100px;
-    }
-    &:nth-of-type(7) {
-      // Details
-      width: 120px;
-    }
   }
 }

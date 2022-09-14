@@ -30,6 +30,7 @@ type Props = {
   showMemberBadge?: boolean,
   isChannel?: boolean,
   odyseeMembership: ?string,
+  tooltipTitle?: string,
 };
 
 function ChannelThumbnail(props: Props) {
@@ -53,6 +54,7 @@ function ChannelThumbnail(props: Props) {
     showMemberBadge,
     isChannel,
     odyseeMembership,
+    tooltipTitle,
   } = props;
   const [thumbLoadError, setThumbLoadError] = React.useState(ThumbUploadError);
   const shouldResolve = !isResolving && claim === undefined;
@@ -118,6 +120,7 @@ function ChannelThumbnail(props: Props) {
         'channel-thumbnail--xxsmall': xxsmall,
         'channel-thumbnail--resolving': isResolving,
       })}
+      title={tooltipTitle}
     >
       {/* width: use the same size for all 'small' variants so that caching works better */}
       <OptimizedImage

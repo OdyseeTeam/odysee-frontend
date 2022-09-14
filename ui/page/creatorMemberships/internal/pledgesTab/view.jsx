@@ -5,7 +5,9 @@ import Button from 'component/button';
 import moment from 'moment';
 import { formatLbryUrlForWeb } from 'util/url';
 import { getThumbnailFromClaim } from 'util/claim';
+import { buildURI } from 'util/lbryURI';
 import ChannelThumbnail from 'component/channelThumbnail';
+import * as ICONS from 'constants/icons';
 
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 type Props = {
@@ -95,11 +97,10 @@ function PledgesTab(props: Props) {
                 <tr>
                   <th>Channel Name</th>
                   <th>Tier</th>
-                  <th>Subscribed As</th>
                   <th>Time Total</th>
                   <th>Amount</th>
                   <th>Status</th>
-                  <th>Details</th>
+                  <th>Page</th>
                 </tr>
               </thead>
               <tbody>
@@ -109,6 +110,22 @@ function PledgesTab(props: Props) {
                     <tr key={i}>
                       <td>
                         <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
+                        <ChannelThumbnail
+                          xxsmall
+                          uri={
+                            membership.Membership.channel_id === ''
+                              ? undefined
+                              : buildURI({
+                                  channelName: membership.Membership.channel_name,
+                                  channelClaimId: membership.Membership.channel_id,
+                                })
+                          }
+                          tooltipTitle={
+                            membership.Membership.channel_name === ''
+                              ? __('Anonymous')
+                              : membership.Membership.channel_name
+                          }
+                        />
                         <Button
                           button="link"
                           navigate={pledges[i].url + '?view=membership'}
@@ -116,11 +133,6 @@ function PledgesTab(props: Props) {
                         />
                       </td>
                       <td>{membership.MembershipDetails.name}</td>
-                      <td>
-                        {membership.Membership.channel_name === ''
-                          ? __('Anonymous')
-                          : membership.Membership.channel_name}
-                      </td>
                       <td>{pledges[i].timeAgoInMonths}</td>
                       <td>
                         ${pledges[i].supportAmount / 100} {pledges[i].currency} /{' '}
@@ -131,7 +143,7 @@ function PledgesTab(props: Props) {
                         <span dir="auto" className="button__label">
                           <Button
                             button="primary"
-                            label={__('See Details')}
+                            icon={ICONS.UPGRADE}
                             navigate={pledges[i].url + '?view=membership'}
                           />
                         </span>
