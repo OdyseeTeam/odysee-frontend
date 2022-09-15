@@ -95,10 +95,10 @@ const MembershipsPage = (props: Props) => {
       tabIndex = 0;
       break;
     case TABS.TIERS:
-      if (activeChannelClaim !== null) tabIndex = 1;
+      tabIndex = 1;
       break;
     case TABS.SUPPORTERS:
-      if (hasTiers) tabIndex = 2;
+      tabIndex = 2;
       break;
   }
 
@@ -107,9 +107,9 @@ const MembershipsPage = (props: Props) => {
 
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
-    } else if (activeChannelClaim !== null && newTabIndex === 1) {
+    } else if (newTabIndex === 1) {
       url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2 && hasTiers) {
+    } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     }
     push(url);
@@ -120,8 +120,8 @@ const MembershipsPage = (props: Props) => {
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
-          <Tab>{activeChannelClaim !== null && hasTiers && __('My Supporters')}</Tab>
+          <Tab>{__('My Tiers')}</Tab>
+          <Tab>{__('My Supporters')}</Tab>
           <div className="no-after">
             <Tab>
               <Button
@@ -149,25 +149,38 @@ const MembershipsPage = (props: Props) => {
           <TabPanel>
             {activeChannelClaim !== null && (
               <>
-                <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                <div className="create-tiers-header-buttons">
+                  <div className="create-tiers-channel-selector">
+                    <span className="section__subtitle ">{__('Choose what channel to create tiers for')}</span>
+                    <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                  </div>
+
+                  <div className="create-tiers-preview-button">
+                    <span className="section__subtitle ">{__('Preview your tiers')}</span>
+                    <br />
+                    <Button
+                      navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
+                      label={__('See Your Memberships')}
+                      icon={ICONS.SIGN_OUT}
+                      button="secondary"
+                    />
+                  </div>
+                </div>
                 <TiersTab />
               </>
             )}
           </TabPanel>
 
           <TabPanel>
-            {activeChannelClaim !== null && hasTiers && (
-              <>
-                <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
-                <ChannelSelector
-                  hideAnon
-                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                  onChannelSelect={() => setAllSelected(false)}
-                />
-                <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
-              </>
-            )}
+            <>
+              <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
+              <ChannelSelector
+                hideAnon
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
+            </>
           </TabPanel>
         </TabPanels>
       </Tabs>

@@ -4,8 +4,17 @@
   margin-bottom: -3px;
 }
 
-.no-after {
-  button:after {
-    content:none;
-  }
+.create-tiers-header-buttons {
+  max-width: 100%;
+}
+
+.create-tiers-channel-selector {
+  width: 50%;
+  display: inline-block;
+}
+
+.create-tiers-preview-button {
+  width: 50%;
+  display: inline-block;
+  text-align: right;
 }

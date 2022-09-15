@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // @flow
 import React from 'react';
 
@@ -9,8 +10,10 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 
 import Page from 'component/page';
+import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
+import Icon from 'component/common/icon';
 
 import './style.scss';
 
@@ -43,6 +46,16 @@ const MembershipsPage = (props: Props) => {
     doTipAccountStatus,
     doListAllMyMembershipTiers,
   } = props;
+
+  const [allSelected, setAllSelected] = React.useState(false);
+
+  const channelsToList = React.useMemo(() => {
+    if (!myChannelClaims) return myChannelClaims;
+    if (!activeChannelClaim) return activeChannelClaim;
+
+    if (allSelected) return myChannelClaims;
+    return [activeChannelClaim];
+  }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   React.useEffect(() => {
     if (bankAccountConfirmed === undefined) {
@@ -82,21 +95,21 @@ const MembershipsPage = (props: Props) => {
       tabIndex = 0;
       break;
     case TABS.TIERS:
-      if (activeChannelClaim !== null) tabIndex = 1;
+      tabIndex = 1;
       break;
     case TABS.SUPPORTERS:
-      if (hasTiers) tabIndex = 2;
+      tabIndex = 2;
       break;
   }
 
   function onTabChange(newTabIndex) {
-    let url = `/$/${PAGES.CREATOR_MEMBERSHIPS}?`;
+    let url = `/$/${PAGES.MEMBERSHIPS_SUPPORTER}?`;
 
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
-    } else if (activeChannelClaim !== null && newTabIndex === 1) {
+    } else if (newTabIndex === 1) {
       url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2 && hasTiers) {
+    } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     }
     push(url);
@@ -106,8 +119,10 @@ const MembershipsPage = (props: Props) => {
     <Page className="premium-wrapper">
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('My Pledges')}</Tab>
-          <div className="no-after">
+          <Tab>{__('Creators I\'m Supporting')}</Tab>
+          <Tab>{__('Billing History')}</Tab>
+          <Tab> {__('Creators To Support')}</Tab>
+          <div>
             <Tab>
               <Button
                 navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
@@ -118,10 +133,39 @@ const MembershipsPage = (props: Props) => {
             </Tab>
           </div>
         </TabList>
-
         <TabPanels>
+
+          {/* my pledges tab (creators I'm supporting) */}
           <TabPanel>
-            <PledgesTab />
+            <span className="section__subtitle ">{__('View information for a specific channel')}</span>
+            <ChannelSelector
+              hideAnon
+              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+              onChannelSelect={() => setAllSelected(false)}
+            />
+            <div style={{ marginTop: 'var(--spacing-xxl)' }}>
+              <PledgesTab />
+            </div>
+          </TabPanel>
+
+          {/* billing history tab */}
+          <TabPanel>
+              <>
+                <span className="section__subtitle ">{__('Choose what channel to create tiers for')}</span>
+                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+              </>
+          </TabPanel>
+
+          {/* creators to support tab */}
+          <TabPanel>
+            <>
+              <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
+              <ChannelSelector
+                hideAnon
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+            </>
           </TabPanel>
         </TabPanels>
       </Tabs>
