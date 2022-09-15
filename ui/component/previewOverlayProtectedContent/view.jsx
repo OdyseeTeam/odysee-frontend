@@ -19,7 +19,14 @@ type Props = {
 export default function PreviewOverlayProtectedContent(props: Props) {
   const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
 
-  const [userIsAMember, setUserIsAMember] = React.useState(false);
+  const userIsAMember = React.useMemo(() => {
+    return (
+      protectedMembershipIds &&
+      validMembershipIds &&
+      protectedMembershipIds.some((id) => validMembershipIds.includes(id))
+    );
+  }, [protectedMembershipIds, validMembershipIds]);
+
   // const protectedMembershipIdsSet = new Set(protectedMembershipIds);
 
   // const channelsWithContentAccess =
@@ -34,12 +41,6 @@ export default function PreviewOverlayProtectedContent(props: Props) {
 
   // TODO: let's add something that's like 'Content available starting at $5.00/month'
 
-  React.useEffect(() => {
-    if (protectedMembershipIds && validMembershipIds) {
-      setUserIsAMember(protectedMembershipIds.some((id) => validMembershipIds.includes(id)));
-    }
-  }, [protectedMembershipIds, validMembershipIds]);
-
   if (userIsAMember || (protectedMembershipIds && claimIsMine)) {
     return (
       <div className="protected-content-unlocked">
@@ -48,27 +49,21 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     );
   }
 
-  const tiers = () => {
-    return channelMemberships.map(({ Membership }) => {
-      return (
-        <div
-          key={Membership.id}
-          className={classnames('dot', {
-            active: protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
-          })}
-        />
-      );
-    });
-  };
+  if (channelMemberships && protectedMembershipIds && userIsAMember !== undefined) {
+    const protectedMembershipIdsSet = new Set(protectedMembershipIds);
 
-  if (channelMemberships && protectedMembershipIds) {
     return (
       <div className="protected-content-holder">
         <Icon icon={ICONS.LOCK} className="protected-content-locked" />
         <span>
           Members Only
           <br />
-          {tiers()}
+          {channelMemberships.map(({ Membership }) => (
+            <div
+              key={Membership.id}
+              className={classnames('dot', { active: protectedMembershipIdsSet.has(Membership.id) })}
+            />
+          ))}
         </span>
       </div>
     );

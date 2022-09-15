@@ -17,7 +17,6 @@ import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { formatClaimPreviewTitle } from 'util/formatAriaLabel';
 import { parseURI } from 'util/lbryURI';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
-import PreviewTilePurchaseOverlay from 'component/previewTilePurchaseOverlay';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
@@ -28,7 +27,6 @@ import * as ICONS from 'constants/icons';
 import { FYP_ID } from 'constants/urlParams';
 // $FlowFixMe cannot resolve ...
 import PlaceholderTx from 'static/img/placeholderTx.gif';
-import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
 
 type Props = {
   uri: string,
@@ -253,11 +251,9 @@ function ClaimPreviewTile(props: Props) {
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
-        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout>
+        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri}>
           {!isChannel && (
             <React.Fragment>
-              <PreviewOverlayProtectedContent uri={uri} />
-              <PreviewTilePurchaseOverlay uri={uri} />
               {((fypId && isStream) || isPlayable) && (
                 <div className="claim-preview__hover-actions-grid">
                   {fypId && isStream && (

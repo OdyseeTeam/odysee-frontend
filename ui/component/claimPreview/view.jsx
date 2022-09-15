@@ -492,7 +492,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             <>
               {!pending ? (
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
-                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail}>
+                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail} uri={uri}>
                     <PreviewTilePurchaseOverlay uri={uri} />
                     {isPlayable && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
@@ -515,7 +515,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </FileThumbnail>
                 </NavLink>
               ) : (
-                <FileThumbnail thumbnail={thumbnailUrl} />
+                <FileThumbnail thumbnail={thumbnailUrl} uri={uri} />
               )}
             </>
           )}
@@ -563,7 +563,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                       actions
                     ) : (
                       <div className="claim-preview__primary-actions">
-                      {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
                           <>
                             <div className="button-group">
                               <JoinMembershipButton uri={uri} />
