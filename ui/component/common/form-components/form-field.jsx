@@ -379,7 +379,7 @@ export class FormField extends React.PureComponent<Props, State> {
               {(label || errorMessage) && (
                 <div>
                   <Label {...labelProps} errorMessage={errorMessage} />
-                  {inputElementProps.maxLength && inputElementProps.value && (
+                  {inputElementProps.maxLength && typeof inputElementProps.value === 'string' && (
                     <label
                       className={
                         Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0

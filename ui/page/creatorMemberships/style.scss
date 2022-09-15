@@ -149,11 +149,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-
-  h1 {
-    color: black;
-    font-size: 18px;
-  }
+  gap: 0.3em;
+  color: black;
 
   .help-hub-link {
     color: red;
@@ -163,6 +160,6 @@
 
 .no-after {
   a {
-   color: white;
+    color: white;
   }
 }

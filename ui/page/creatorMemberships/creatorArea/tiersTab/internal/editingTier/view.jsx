@@ -138,7 +138,7 @@ function MembershipTier(props: Props) {
         onChange={(e) =>
           setEditTierParams((prev) => ({ ...prev, editTierName: nameRef.current?.input?.current?.value || '' }))
         }
-        // value={editTierParams.editTierName}
+        value={editTierParams.editTierName}
       />
 
       <FormField
