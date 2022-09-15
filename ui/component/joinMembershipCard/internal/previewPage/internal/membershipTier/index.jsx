@@ -7,14 +7,22 @@ import MembershipDetails from '../membershipDetails';
 type Props = {
   membership: CreatorMembership,
   disabled?: boolean,
+  index?: number,
+  length?: number,
   handleSelect: () => void,
 };
 
 const MembershipTier = (props: Props) => {
-  const { membership, disabled, handleSelect } = props;
+  const { membership, disabled, index, length, handleSelect } = props;
 
   return (
-    <div className="membership-tier__wrapper">
+    <div
+      className={
+        Number.isInteger(index) && Number.isInteger(length)
+          ? `membership-tier__wrapper item${index + 1}-${length}`
+          : 'membership-tier__wrapper'
+      }
+    >
       <MembershipDetails
         membership={membership}
         headerAction={

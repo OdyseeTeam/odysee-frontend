@@ -115,6 +115,8 @@ const PreviewPage = (props: Props) => {
                 // handleSelect();
               }}
               disabled={creatorPurchaseDisabled}
+              index={index}
+              length={creatorMemberships.length}
               key={index}
             />
           ))}
