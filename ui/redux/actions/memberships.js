@@ -81,7 +81,7 @@ export const doMembershipList = (params: MembershipListParams) => async (dispatc
     );
 
 export const doMembershipMine = () => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership', 'mine', { environment: stripeEnvironment }, 'post')
+  await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
     .then((response) => {
       const membershipMine: MembershipMineDataByKey = { activeById: {}, canceledById: {}, purchasedById: {} };
 
