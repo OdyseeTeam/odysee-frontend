@@ -9,15 +9,12 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 
 import Page from 'component/page';
-import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 
 import './style.scss';
 
-const OverviewTab = lazyImport(() => import('./overviewTab' /* webpackChunkName: "overviewTab" */));
-const TiersTab = lazyImport(() => import('./tiersTab' /* webpackChunkName: "tiersTab" */));
-const SupportersTab = lazyImport(() => import('./supportersTab' /* webpackChunkName: "supportersTab" */));
+const PledgesTab = lazyImport(() => import('./pledgesTab' /* webpackChunkName: "pledgesTab" */));
 
 const TAB_QUERY = 'tab';
 
@@ -46,16 +43,6 @@ const MembershipsPage = (props: Props) => {
     doTipAccountStatus,
     doListAllMyMembershipTiers,
   } = props;
-
-  const [allSelected, setAllSelected] = React.useState(false);
-
-  const channelsToList = React.useMemo(() => {
-    if (!myChannelClaims) return myChannelClaims;
-    if (!activeChannelClaim) return activeChannelClaim;
-
-    if (allSelected) return myChannelClaims;
-    return [activeChannelClaim];
-  }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   React.useEffect(() => {
     if (bankAccountConfirmed === undefined) {
@@ -119,9 +106,7 @@ const MembershipsPage = (props: Props) => {
     <Page className="premium-wrapper">
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
-          <Tab>{activeChannelClaim !== null && hasTiers && __('My Supporters')}</Tab>
+          <Tab>{__('My Pledges')}</Tab>
           <div className="no-after">
             <Tab>
               <Button
@@ -133,41 +118,10 @@ const MembershipsPage = (props: Props) => {
             </Tab>
           </div>
         </TabList>
+
         <TabPanels>
           <TabPanel>
-            <span className="section__subtitle ">{__('View information for a specific channel')}</span>
-            <ChannelSelector
-              hideAnon
-              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-              onChannelSelect={() => setAllSelected(false)}
-            />
-            <div style={{ marginTop: 'var(--spacing-l)' }}>
-              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
-            </div>
-          </TabPanel>
-
-          <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
-                <TiersTab />
-              </>
-            )}
-          </TabPanel>
-
-          <TabPanel>
-            {activeChannelClaim !== null && hasTiers && (
-              <>
-                <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
-                <ChannelSelector
-                  hideAnon
-                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                  onChannelSelect={() => setAllSelected(false)}
-                />
-                <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
-              </>
-            )}
+            <PledgesTab />
           </TabPanel>
         </TabPanels>
       </Tabs>

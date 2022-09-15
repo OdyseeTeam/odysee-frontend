@@ -1,5 +1,4 @@
-/* eslint-disable no-undef */
-/* eslint-disable react/prop-types */
+// @flow
 import React from 'react';
 import Button from 'component/button';
 import moment from 'moment';
@@ -9,20 +8,17 @@ import { buildURI } from 'util/lbryURI';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
 
-// eslint-disable-next-line flowtype/no-types-missing-file-annotation
 type Props = {
   openModal: (string, {}) => void,
   activeChannelClaim: ?ChannelClaim,
   myPurchasedMemberships: any,
   claimsById: any,
   doMembershipMine: () => Promise<MembershipTiers>,
-  doResolveClaimIds: (a: any) => void,
+  doResolveClaimIds: (a: any) => Promise<any>,
 };
 
-// eslint-disable-next-line flowtype/no-types-missing-file-annotation
 function PledgesTab(props: Props) {
   const { myPurchasedMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
-
   // TODO: this should probably be fixed in the selector
   let formattedMemberships = [];
   if (myPurchasedMemberships.length) {
@@ -34,11 +30,13 @@ function PledgesTab(props: Props) {
     }
   }
 
-  const [pledges, setPledges] = React.useState();
+  const [pledges, setPledges] = React.useState([]);
   const [resolved, setResolved] = React.useState();
 
   function capitalizeFirstLetter(string) {
-    return string?.charAt(0).toUpperCase() + string?.slice(1);
+    if (string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
   }
 
   React.useEffect(() => {
@@ -50,7 +48,6 @@ function PledgesTab(props: Props) {
   React.useEffect(() => {
     if (myPurchasedMemberships) {
       const claimIds = myPurchasedMemberships.map((membership) => membership[0].MembershipDetails.channel_id);
-
       doResolveClaimIds(claimIds).then(() => setResolved(true));
     }
   }, [doResolveClaimIds, myPurchasedMemberships]);
@@ -86,11 +83,11 @@ function PledgesTab(props: Props) {
     <div className="membership__mypledges-wrapper">
       <div className="membership__mypledges-header">
         <div />
-        {/*<label>Donor Portal</label>*/}
+        {/* <label>Donor Portal</label> */}
       </div>
 
       <div className="membership__mypledges-content">
-        {pledges?.length > 0 && (
+        {pledges && pledges.length > 0 && (
           <div className="membership-table__wrapper">
             <table className="table table--pledges">
               <thead>
@@ -105,8 +102,8 @@ function PledgesTab(props: Props) {
               </thead>
               <tbody>
                 {/* this logic looks strange, selector should probably be improved */}
-                {formattedMemberships?.map((membership, i) => {
-                  return (
+                {formattedMemberships &&
+                  formattedMemberships.map((membership, i) => (
                     <tr key={i}>
                       <td>
                         <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
@@ -149,8 +146,7 @@ function PledgesTab(props: Props) {
                         </span>
                       </td>
                     </tr>
-                  );
-                })}
+                  ))}
               </tbody>
             </table>
           </div>
@@ -167,7 +163,4 @@ function PledgesTab(props: Props) {
     </div>
   );
 }
-
 export default PledgesTab;
-/* eslint-disable no-undef */
-/* eslint-disable react/prop-types */
