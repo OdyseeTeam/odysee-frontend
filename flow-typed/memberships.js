@@ -10,6 +10,7 @@ declare type MembershipListParams = {
   channel_name: string,
 };
 
+// -- CreatorMembership: data the creator sees for a given membership
 declare type CreatorMembership = {
   HasSubscribers: boolean,
   Membership: MembershipDetails,
@@ -19,6 +20,7 @@ declare type CreatorMembership = {
 };
 declare type CreatorMemberships = Array<CreatorMembership>;
 
+// -- MembershipTier: data the supporter sees for a given membership
 declare type MembershipTier = {
   Membership: Membership,
   MembershipDetails: MembershipDetails,
