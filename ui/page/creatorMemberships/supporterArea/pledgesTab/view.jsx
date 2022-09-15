@@ -86,7 +86,7 @@ function PledgesTab(props: Props) {
     <div className="membership__mypledges-wrapper">
       <div className="membership__mypledges-header">
         <div />
-        <label>Donor Portal</label>
+        {/*<label>Donor Portal</label>*/}
       </div>
 
       <div className="membership__mypledges-content">

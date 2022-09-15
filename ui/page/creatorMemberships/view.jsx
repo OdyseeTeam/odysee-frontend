@@ -1,166 +1,81 @@
-/* eslint-disable no-console */
 // @flow
 import React from 'react';
-
-import { useHistory } from 'react-router';
-import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
-import { lazyImport } from 'util/lazyImport';
-
+import { URL } from 'config';
+import { formatLbryUrlForWeb } from 'util/url';
+import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
-
+import Button from 'component/button';
+import CopyableText from 'component/copyableText';
+import ChannelThumbnail from 'component/channelThumbnail';
+import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 import Page from 'component/page';
-import ChannelSelector from 'component/channelSelector';
-import Spinner from 'component/spinner';
 
-const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
-const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
-const PledgesTab = lazyImport(() => import('./internal/pledgesTab' /* webpackChunkName: "pledgesTab" */));
-const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
-
-const TAB_QUERY = 'tab';
-
-const TABS = {
-  OVERVIEW: 'overview',
-  SUPPORTERS: 'supporters',
-  TIERS: 'tiers',
-};
+import './style.scss';
 
 type Props = {
-  // -- redux --
-  activeChannelClaim: ?ChannelClaim,
-  bankAccountConfirmed: ?boolean,
-  myChannelClaims: ?Array<ChannelClaim>,
+  channelsToList: ?Array<ChannelClaim>,
+  onTabChange: (tabIndex: number) => void,
   hasTiers: ?boolean,
-  doTipAccountStatus: (any) => void,
-  doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
+  // -- redux --
+  bankAccountConfirmed: ?boolean,
+  doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
-const MembershipsPage = (props: Props) => {
-  const {
-    bankAccountConfirmed,
-    activeChannelClaim,
-    myChannelClaims,
-    hasTiers,
-    doTipAccountStatus,
-    doListAllMyMembershipTiers,
-  } = props;
+function MembershipsLandingPage(props: Props) {
+  const { channelsToList, onTabChange, hasTiers, bankAccountConfirmed, doSetActiveChannel } = props;
 
-  const [allSelected, setAllSelected] = React.useState(false);
-
-  const channelsToList = React.useMemo(() => {
-    if (!myChannelClaims) return myChannelClaims;
-    if (!activeChannelClaim) return activeChannelClaim;
-
-    if (allSelected) return myChannelClaims;
-    return [activeChannelClaim];
-  }, [activeChannelClaim, allSelected, myChannelClaims]);
-
-  React.useEffect(() => {
-    if (bankAccountConfirmed === undefined) {
-      doTipAccountStatus({ getBank: true }); // todo: refactor this getBank
-    }
-  }, [bankAccountConfirmed, doTipAccountStatus]);
-
-  React.useEffect(() => {
-    if (myChannelClaims !== undefined) {
-      doListAllMyMembershipTiers();
-    }
-  }, [doListAllMyMembershipTiers, myChannelClaims]);
-
-  const {
-    location: { search },
-    push,
-  } = useHistory();
-
-  if (activeChannelClaim === undefined || bankAccountConfirmed === undefined) {
-    return (
-      <Page className="premium-wrapper">
-        <div className="main--empty">
-          <Spinner />
-        </div>
-      </Page>
-    );
-  }
-
-  const urlParams = new URLSearchParams(search);
-  // if tiers are saved, then go to balance, otherwise go to tiers
-  const currentView = urlParams.get(TAB_QUERY) || TABS.OVERVIEW;
-
-  // based on query param or default, update value which will determine which tab to show
-  let tabIndex = 0;
-  switch (currentView) {
-    case TABS.OVERVIEW:
-      tabIndex = 0;
-      break;
-    case TABS.TIERS:
-      if (activeChannelClaim !== null) tabIndex = 1;
-      break;
-    case TABS.SUPPORTERS:
-      if (hasTiers) tabIndex = 2;
-      break;
-  }
-
-  function onTabChange(newTabIndex) {
-    let url = `/$/${PAGES.CREATOR_MEMBERSHIPS}?`;
-
-    if (newTabIndex === 0) {
-      url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
-    } else if (activeChannelClaim !== null && newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2 && hasTiers) {
-      url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
-    }
-    push(url);
+  function selectChannel(channelClaim) {
+    doSetActiveChannel(channelClaim.claim_id, true);
+    onTabChange(1);
   }
 
   return (
-    <Page className="premium-wrapper">
-      <Tabs onChange={onTabChange} index={tabIndex}>
-        <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Overview')}</Tab>
-          <Tab>{activeChannelClaim !== null && __('My Tiers')}</Tab>
-          <Tab>{activeChannelClaim !== null && hasTiers && __('My Supporters')}</Tab>
-        </TabList>
-        <TabPanels>
-          <TabPanel>
-            <ChannelSelector
-              hideAnon
-              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-              onChannelSelect={() => setAllSelected(false)}
+    <>
+      <Page className="premium-wrapper">
+        <div>
+          <h1 className="creator-memberships-header">Creator Memberships</h1>
+          <hr className="creator-memberships-seperator"/>
+        </div>
+        <div className="membership__mypledges-wrapper">
+          <div className="membership__mypledges-header">
+            <div />
+            <label>Donor Portal</label>
+          </div>
+          <div className="membership__mypledges-content">
+            <h1 className="portal-tagline">Find creators you like and support them</h1>
+            <Button
+              button="primary"
+              navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`}
+              label={__('Enter Donor Portal')}
             />
-            <div style={{ marginTop: 'var(--spacing-l)' }}>
-              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
-            </div>
-            <div style={{ marginTop: 'var(--spacing-xxl)' }}>
-              <PledgesTab />
-            </div>
-          </TabPanel>
+          </div>
+        </div>
 
-          <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
-                <TiersTab />
-              </>
-            )}
-          </TabPanel>
+        <div className="membership__mychannels-wrapper">
+          <div className="membership__mychannels-header">
+            <div />
+            <label>Membership Portal</label>
+          </div>
+          <div className="membership__mychannels-content">
+            <h1 className="portal-tagline">Create memberships and have users subscribe to them to support you</h1>
+            <Button
+              button="primary"
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`}
+              label={__('Manage Memberships')}
+            />
+          </div>
+        </div>
 
-          <TabPanel>
-            {activeChannelClaim !== null && hasTiers && (
-              <>
-                <ChannelSelector
-                  hideAnon
-                  allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                  onChannelSelect={() => setAllSelected(false)}
-                />
-                <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
-              </>
-            )}
-          </TabPanel>
-        </TabPanels>
-      </Tabs>
-    </Page>
+        <div className="creator-memberships-help-div">
+          <h1>Click here to read more information in the&nbsp;</h1>
+          <a rel="noopener noreferrer" href="https://help.odysee.tv/category-memberships/" target="_blank">
+            <h1 className="help-hub-link">Help Hub</h1>
+          </a>
+        </div>
+
+      </Page>
+    </>
   );
-};
+}
 
-export default MembershipsPage;
+export default MembershipsLandingPage;
