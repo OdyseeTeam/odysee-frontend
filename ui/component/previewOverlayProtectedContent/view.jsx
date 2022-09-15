@@ -36,7 +36,7 @@ export default function PreviewOverlayProtectedContent(props: Props) {
 
   React.useEffect(() => {
     if (protectedMembershipIds && validMembershipIds) {
-      setUserIsAMember(validMembershipIds.some((id) => protectedMembershipIds.includes(id)));
+      setUserIsAMember(protectedMembershipIds.some((id) => validMembershipIds.includes(id)));
     }
   }, [protectedMembershipIds, validMembershipIds]);
 

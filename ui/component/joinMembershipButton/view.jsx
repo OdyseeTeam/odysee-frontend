@@ -11,7 +11,7 @@ import * as MODALS from 'constants/modal_types';
 
 import Button from 'component/button';
 
-const DEFAULT_PROPS = { button: 'alt', className: 'button--membership', icon: ICONS.UPGRADE };
+const DEFAULT_PROPS = { button: 'alt', icon: ICONS.UPGRADE };
 
 type Props = {
   uri: string,
@@ -20,6 +20,7 @@ type Props = {
   validUserMembershipForChannel: ?any,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
+  creatorTiers: Array<Membership>,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
 };
@@ -33,12 +34,16 @@ const JoinMembershipButton = (props: Props) => {
     creatorMembershipsFetched,
     doOpenModal,
     doMembershipList,
+    creatorTiers,
   } = props;
 
   const isChannelPage = React.useContext(ChannelPageContext);
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
   const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
+  const membershipIndex =
+    creatorTiers?.findIndex((res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id) +
+    1;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
@@ -61,6 +66,8 @@ const JoinMembershipButton = (props: Props) => {
         navigate={`${channelPath}?${urlParams.toString()}`}
         label={membershipName}
         title={__('You are a "%membership_tier_name%" member', { membership_tier_name: membershipName })}
+        className="button--membership-active"
+        style={{ backgroundColor: 'rgba(var(--color-membership-' + membershipIndex + '), 1)', color: 'white' }}
       />
     );
   }
@@ -68,6 +75,7 @@ const JoinMembershipButton = (props: Props) => {
   return (
     <Button
       {...DEFAULT_PROPS}
+      className="button--membership"
       label={__('Join')}
       title={__('Become A Member')}
       onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}

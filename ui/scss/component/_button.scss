@@ -1078,3 +1078,10 @@ svg + .button__label {
     }
   }
 }
+
+.button--membership-active {
+  color: white;
+  .icon {
+    stroke: white !important;
+  }
+}
