@@ -146,9 +146,15 @@ const PreviewPage = (props: Props) => {
       <div className="join-membership__modal-header">
         <ChannelThumbnail uri={channelUri} />
         <h2>{channelTitle}</h2>
-        <h3>Join Membership</h3>
-        <p>Support {channelTitle} with a monthly membership subscription to help and receive exclusive features.</p>
+        <h3>{__('Join Membership')}</h3>
+        <p>
+          {__(
+            'Support %channel_title% with a monthly membership subscription to help and receive exclusive features.',
+            { channel_title: channelTitle }
+          )}
+        </p>
       </div>
+
       <div className="join-membership__modal-tabs">
         {creatorMemberships.map(({ Membership }, index) => (
           <Button
