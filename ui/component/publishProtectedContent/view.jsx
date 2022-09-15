@@ -15,6 +15,7 @@ type Props = {
   claim: Claim,
   protectedMembershipIds: Array<number>,
   activeChannel: ChannelClaim,
+  incognito: boolean,
   getExistingTiers: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
   myMembershipTiers: CreatorMemberships,
   myMembershipTiersWithExclusiveContentPerk: CreatorMemberships,
@@ -26,6 +27,7 @@ type Props = {
 function PublishProtectedContent(props: Props) {
   const {
     activeChannel,
+    incognito,
     updatePublishForm,
     getMembershipTiersForContentClaimId,
     claim,
@@ -125,6 +127,8 @@ function PublishProtectedContent(props: Props) {
       });
     }
   }, [activeChannel]);
+
+  if (incognito) return null;
 
   return (
     <>

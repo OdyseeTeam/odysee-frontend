@@ -30,6 +30,9 @@ declare type UpdatePublishFormData = {
   uri?: string,
   nsfw?: boolean,
   isMarkdownPost?: boolean,
+  tags?: Array<Tag>,
+  restrictedToMemberships?: Array<string>,
+  restrictCommentsAndChat?: boolean,
 };
 
 declare type PublishParams = {

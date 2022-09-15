@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { doUpdatePublishForm } from 'redux/actions/publish';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import {
   selectProtectedContentMembershipsForClaimId,
   selectMembershipTiersForChannelId,
@@ -16,10 +16,12 @@ const select = (state, props) => {
   const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
   const { claim_id: channelClaimId } = channelClaim || {};
 
-  const activeChannel = selectActiveChannelClaim(state);
+  const incognito = selectIncognito(state);
+  const activeChannel = !incognito && selectActiveChannelClaim(state);
 
   return {
     activeChannel,
+    incognito,
     protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelClaimId, claimId),
     myMembershipTiers: selectMembershipTiersForChannelId(state, activeChannel?.claim_id),
     myMembershipTiersWithExclusiveContentPerk: selectMyMembershipTiersWithExclusiveContentPerk(

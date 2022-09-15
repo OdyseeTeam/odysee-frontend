@@ -6,7 +6,11 @@ import * as PAGES from 'constants/pages';
 import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
-import { doSaveMembershipRestrictionsForContent } from 'redux/actions/memberships';
+import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
+import {
+  doSaveMembershipRestrictionsForContent,
+  doGetMembershipTiersForContentClaimId,
+} from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
   selectMyActiveClaims,
@@ -543,12 +547,13 @@ export const doUploadThumbnail = (
   }
 };
 
-export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => (
+export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string) => async (
   dispatch: Dispatch,
-  getState: () => {}
+  getState: GetState
 ) => {
   const { name, amount, value = {} } = claim;
   const channelName = (claim && claim.signing_channel && claim.signing_channel.name) || null;
+  const channelId = (claim && claim.signing_channel && claim.signing_channel.claim_id) || null;
   const {
     author,
     description,
@@ -567,9 +572,10 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     tags,
   } = value;
 
-  const state = getState();
+  let state = getState();
   const myClaimForUri = selectMyClaimForUri(state);
   const { claim_id } = myClaimForUri || {};
+
   const publishData: UpdatePublishFormData = {
     claim_id: claim_id,
     name,
@@ -609,6 +615,39 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     publishData['channel'] = channelName;
   }
 
+  const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
+
+  const publishTagsHaveRestrictedMemberships = publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG);
+  const publishTagsHaveRestrictedChatComments = publishDataTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
+
+  if (publishTagsHaveRestrictedMemberships) {
+    if (channelId) {
+      let protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
+
+      if (protectedMembershipIds === undefined) {
+        await dispatch(doGetMembershipTiersForContentClaimId(claim.claim_id));
+        state = getState();
+        protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
+      }
+
+      publishData['restrictedToMemberships'] = protectedMembershipIds.join(',');
+    } else {
+      publishData.tags = publishData.tags
+        ? publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG)
+        : [];
+    }
+  }
+
+  if (publishTagsHaveRestrictedChatComments) {
+    if (channelId) {
+      publishData['restrictCommentsAndChat'] = true;
+    } else {
+      publishData.tags = publishData.tags
+        ? publishData.tags.filter((tag) => tag.name === RESTRICTED_CHAT_COMMENTS_TAG)
+        : [];
+    }
+  }
+
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
 
   switch (claimType) {
@@ -643,29 +682,29 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   const { restrictCommentsAndChat, restrictedToMemberships, channelClaimId } = publishData;
 
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, preview);
-  publishPayload.tags = new Set(publishPayload.tags);
+  const publishPayloadTags = new Set(publishPayload.tags);
 
-  const publishTagsHasRestrictedMemberships = publishPayload.tags.has(MEMBERS_ONLY_CONTENT_TAG);
-  const publishTagsHasRestrictedChatComments = publishPayload.tags.has(RESTRICTED_CHAT_COMMENTS_TAG);
+  const publishTagsHaveRestrictedMemberships = publishPayloadTags.has(MEMBERS_ONLY_CONTENT_TAG);
+  const publishTagsHaveRestrictedChatComments = publishPayloadTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
 
   // add members only tag if it's restricted to memberships and tag doesn't exist
-  if (restrictedToMemberships && !publishTagsHasRestrictedMemberships) {
-    publishPayload.tags.add(MEMBERS_ONLY_CONTENT_TAG);
+  if (restrictedToMemberships && !publishTagsHaveRestrictedMemberships && publishPayload.channel_id) {
+    publishPayloadTags.add(MEMBERS_ONLY_CONTENT_TAG);
   }
 
-  if (restrictCommentsAndChat && !publishTagsHasRestrictedChatComments) {
-    publishPayload.tags.add(RESTRICTED_CHAT_COMMENTS_TAG);
+  if (restrictCommentsAndChat && !publishTagsHaveRestrictedChatComments && publishPayload.channel_id) {
+    publishPayloadTags.add(RESTRICTED_CHAT_COMMENTS_TAG);
   }
 
-  if (!restrictedToMemberships && publishTagsHasRestrictedMemberships) {
-    publishPayload.tags = publishPayload.tags.delete(MEMBERS_ONLY_CONTENT_TAG);
+  if (!publishPayload.channel_id || (!restrictedToMemberships && publishTagsHaveRestrictedMemberships)) {
+    publishPayloadTags.delete(MEMBERS_ONLY_CONTENT_TAG);
   }
 
-  if (!restrictCommentsAndChat && publishTagsHasRestrictedChatComments) {
-    publishPayload.tags = publishPayload.tags.delete(MEMBERS_ONLY_CONTENT_TAG);
+  if (!publishPayload.channel_id || (!restrictCommentsAndChat && publishTagsHaveRestrictedChatComments)) {
+    publishPayloadTags.delete(RESTRICTED_CHAT_COMMENTS_TAG);
   }
 
-  publishPayload.tags = Array.from(publishPayload.tags);
+  publishPayload.tags = Array.from(publishPayloadTags);
 
   // return
 
