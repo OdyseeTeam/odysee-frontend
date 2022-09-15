@@ -13,7 +13,7 @@ import Page from 'component/page';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
-import Icon from 'component/common/icon';
+// import Icon from 'component/common/icon';
 
 import './style.scss';
 
@@ -42,20 +42,20 @@ const MembershipsPage = (props: Props) => {
     bankAccountConfirmed,
     activeChannelClaim,
     myChannelClaims,
-    hasTiers,
+    // hasTiers,
     doTipAccountStatus,
     doListAllMyMembershipTiers,
   } = props;
 
   const [allSelected, setAllSelected] = React.useState(false);
 
-  const channelsToList = React.useMemo(() => {
-    if (!myChannelClaims) return myChannelClaims;
-    if (!activeChannelClaim) return activeChannelClaim;
+  // const channelsToList = React.useMemo(() => {
+  //   if (!myChannelClaims) return myChannelClaims;
+  //   if (!activeChannelClaim) return activeChannelClaim;
 
-    if (allSelected) return myChannelClaims;
-    return [activeChannelClaim];
-  }, [activeChannelClaim, allSelected, myChannelClaims]);
+  //   if (allSelected) return myChannelClaims;
+  //   return [activeChannelClaim];
+  // }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   React.useEffect(() => {
     if (bankAccountConfirmed === undefined) {
