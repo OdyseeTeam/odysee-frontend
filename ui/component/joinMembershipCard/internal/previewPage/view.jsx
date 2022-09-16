@@ -11,6 +11,8 @@ import MembershipDetails from './internal/membershipDetails';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as MODALS from 'constants/modal_types';
 
+import './style.scss';
+
 type Props = {
   uri: string,
   selectedTier: CreatorMembership,
@@ -67,7 +69,7 @@ const PreviewPage = (props: Props) => {
     if (channelIsMine) {
       return (
         <div className="join-membership__empty">
-          <h2 className="header--no-memberships">Channel Has No Memberships</h2>
+          <h2 className="header--no-memberships">{__('Channel Has No Memberships')}</h2>
           <h2>
             {__(
               "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
@@ -111,6 +113,16 @@ const PreviewPage = (props: Props) => {
   if (isChannelTab) {
     return (
       <>
+        <div className="button--manage-memberships">
+          <ButtonNavigateChannelId
+            icon={ICONS.MEMBERSHIP}
+            button="primary"
+            type="submit"
+            label={__('Manage Your Membership Tiers')}
+            navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+            channelId={channelId}
+          />
+        </div>
         <div className="join-membership__tab">
           {creatorMemberships.map((membership, index) => (
             <MembershipTier
