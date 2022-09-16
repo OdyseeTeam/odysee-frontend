@@ -1080,8 +1080,18 @@ svg + .button__label {
 }
 
 .button--membership-active {
-  color: white;
+  .button__label {
+    color: white;
+  }
   .icon {
     stroke: white !important;
+  }
+  &:hover {
+    .button__label {
+      color: white;
+    }
+    .icon {
+      stroke: white !important;
+    }
   }
 }
