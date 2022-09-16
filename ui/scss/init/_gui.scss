@@ -2339,3 +2339,26 @@ audio,
 video {
   background-color: black;
 }
+
+.help-hub__wrapper{
+  margin-top: var(--spacing-l);
+  width: 100%;
+  background-color: #f3e3f6;
+  color: black;
+  border-radius: var(--border-radius);
+  text-align: center;
+  padding: var(--spacing-s);
+  font-weight: bold;
+
+  a {
+    color: var(--color-primary);
+  }
+
+  img {
+    width: 46px;
+    height: 46px;
+    background-color: #650f7c;
+    border-radius: 50%;
+    margin-left: var(--spacing-s);
+  }
+}

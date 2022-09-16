@@ -10,6 +10,7 @@ import Button from 'component/button';
 
 import MembershipTier from './internal/membershipTier';
 import EditingTier from './internal/editingTier';
+import HelpHub from 'component/common/help-hub';
 
 type Props = {
   // -- redux --
@@ -187,7 +188,10 @@ function TiersTab(props: Props) {
       {/*    icon={ICONS.ADD} */}
       {/* /> */}
       {/* {/*</div> */}
+      <HelpHub href="https://help.odysee.tv/category-memberships/category-creatorportal/creatingtiers/" image="h264.png" text="Need some ideas on what tiers to make? Ms. H.264 has lots of ideas in the %help_hub%." />
     </div>
+
+    
   );
 }
 

@@ -8,7 +8,7 @@ import Button from 'component/button';
 import CopyableText from 'component/copyableText';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
-import I18nMessage from 'component/i18nMessage';
+import HelpHub from 'component/common/help-hub';
 import './style.scss';
 
 type Props = {
@@ -119,6 +119,8 @@ function OverviewTab(props: Props) {
         </div>
       )}
 
+      <HelpHub href="https://help.odysee.tv/category-memberships/" image="lady_fungus.png" text="Need help setting up your Channel Membership page? Lady Fungus can show you in the %help_hub%." />
+      {/*
       <div className="ugly-alien-box">
         <I18nMessage
           tokens={{
@@ -133,6 +135,8 @@ function OverviewTab(props: Props) {
         </I18nMessage>
         <img src="/public/img/lady_fungus.png" />
       </div>
+      */}
+      
     </>
   );
 }
