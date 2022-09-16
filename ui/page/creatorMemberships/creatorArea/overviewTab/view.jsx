@@ -8,6 +8,7 @@ import Button from 'component/button';
 import CopyableText from 'component/copyableText';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
+import I18nMessage from 'component/i18nMessage';
 import './style.scss';
 
 type Props = {
@@ -117,6 +118,21 @@ function OverviewTab(props: Props) {
           </div>
         </div>
       )}
+
+      <div className="ugly-alien-box">
+        <I18nMessage
+          tokens={{
+            help_hub: (
+              <a rel="noopener noreferrer" href="https://help.odysee.tv/category-memberships/" target="_blank">
+                {__('Help Hub')}
+              </a>
+            ),
+          }}
+        >
+          Need help setting up your Channel Membership page? Lady Fungus can show you in the %help_hub%.
+        </I18nMessage>
+        <img src="/public/img/lady_fungus.png" />
+      </div>
     </>
   );
 }
