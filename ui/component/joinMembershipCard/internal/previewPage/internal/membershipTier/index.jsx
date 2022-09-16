@@ -19,8 +19,7 @@ const MembershipTier = (props: Props) => {
     <div
       className={
         Number.isInteger(index) && Number.isInteger(length)
-          ? // $FlowFixMe
-            `membership-tier__wrapper item${index + 1}-${length}`
+          ? `membership-tier__wrapper item${(index || 0) + 1}-${length || 0}`
           : 'membership-tier__wrapper'
       }
     >

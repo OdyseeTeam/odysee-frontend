@@ -3443,9 +3443,9 @@ export const icons = {
         <path d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z" />
         <path
           d="M16.5 12.5H17.5L16.5 10L17.5 7H16.5M1.87719 7H0.5L1.49999 10L0.5 12.5H1.87719M15 10C15 13.3137 12.3137 16 8.99999 16C5.68629 16 2.99999 13.3137 2.99999 10C2.99999 6.68629 5.68629 4 8.99999 4C12.3137 4 15 6.68629 15 10Z"
-          stroke-width="1.3"
-          stroke-linecap="round"
-          stroke-linejoin="round"
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
         />
       </g>
       <defs>
