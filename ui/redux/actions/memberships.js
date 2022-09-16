@@ -144,7 +144,7 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
         dispatch(doToast({ message: genericErrorMessage, isError: true }));
       }, errorMessageTimeout);
 
-      throw new Error(e);
+      return e;
     });
 };
 
@@ -173,12 +173,9 @@ export const doMembershipAddTier = (params: MembershipAddTierParams) => async (d
   await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post');
 
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call(
-    'membership_perk',
-    'list',
-    { ...params, environment: stripeEnvironment },
-    'post'
-  ).then((response: MembershipDetails) => dispatch({ type: ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE, data: response }));
+  await Lbryio.call('membership_perk', 'list', { ...params, environment: stripeEnvironment }, 'post')
+    .then((response: MembershipDetails) => dispatch({ type: ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE, data: response }))
+    .catch((e) => e);
 
 export const doOpenCancelationModalForMembership = (membership: MembershipTier) => (
   dispatch: Dispatch,
@@ -302,7 +299,7 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
 };
 
 export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
+  // dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
 
   await Lbryio.call('membership', 'content', { environment: stripeEnvironment, claim_id: contentClaimId }, 'post')
     .then((response) => {
