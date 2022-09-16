@@ -17,7 +17,7 @@ const MembershipsLandingPage = () => (
     </div>
 
     <div className="membership-wrapper">
-      <img src="/public/img/my_channels.jpg" />
+      <img src="/public/img/my_pledges.jpg" />
 
       <div className="membership-content supporter">
         <h2>{__('Donor Portal')}</h2>
@@ -30,7 +30,7 @@ const MembershipsLandingPage = () => (
     </div>
 
     <div className="membership-wrapper">
-      <img src="/public/img/my_pledges.jpg" />
+      <img src="/public/img/my_channels.jpg" />      
 
       <div className="membership-content memberships">
         <h2>{__('Membership Portal')}</h2>

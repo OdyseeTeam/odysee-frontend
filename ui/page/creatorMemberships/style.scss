@@ -27,6 +27,13 @@
   }
 }
 
+.creator-memberships-header{
+  width:100%;
+  font-size:var(--font-title);
+  font-weight:var(--font-bold);
+  text-align:center;
+}
+
 .membership-wrapper {
   display: flex;
   flex-direction: row;
@@ -43,6 +50,7 @@
   .membership-content {
     position: relative;
     padding: var(--spacing-s);
+    padding-top: var(--spacing-m);
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
     color: black;
     flex: 1;
@@ -58,7 +66,7 @@
       width: 100%;
       text-align: center;
       margin-top: calc(var(--spacing-xxs) * -1);
-      margin-bottom: var(--spacing-l);
+      margin-bottom: var(--spacing-m);
 
       div {
         display: inline-block;
