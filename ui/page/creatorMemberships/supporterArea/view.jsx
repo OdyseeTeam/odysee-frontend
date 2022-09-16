@@ -5,6 +5,7 @@ import React from 'react';
 import { useHistory } from 'react-router';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { lazyImport } from 'util/lazyImport';
+import HelpHub from 'component/common/help-hub';
 
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
@@ -150,6 +151,7 @@ const MembershipsPage = (props: Props) => {
             */}
 
             <PledgesTab />
+            <HelpHub href="https://help.odysee.tv/category-memberships/" image="lady_fungus.png" text="What are these donations? Lady Fungus can explain it in the %help_hub%." />
           </TabPanel>
 
           {/* billing history tab */}

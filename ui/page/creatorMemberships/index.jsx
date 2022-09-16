@@ -5,7 +5,8 @@ import * as PAGES from 'constants/pages';
 
 import Button from 'component/button';
 import Page from 'component/page';
-import I18nMessage from 'component/i18nMessage';
+import HelpHub from 'component/common/help-hub';
+
 
 import './style.scss';
 
@@ -39,6 +40,7 @@ const MembershipsLandingPage = () => (
         </div>
         <p className="portal-tagline">{__('Create memberships and have users subscribe to them to support you.')}</p>
         <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
+        {/*
         <div className="ugly-alien-box">
           <I18nMessage
             tokens={{
@@ -53,8 +55,10 @@ const MembershipsLandingPage = () => (
           </I18nMessage>
           <img src="/public/img/lady_fungus.png" />
         </div>
+        */}        
       </div>
     </div>
+    <HelpHub href="https://help.odysee.tv/category-memberships/" image="lady_fungus.png" text="What are Memberships? Lady Fungus can explain it in the %help_hub%." />
   </Page>
 );
 
