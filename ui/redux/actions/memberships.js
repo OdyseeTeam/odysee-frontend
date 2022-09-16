@@ -124,27 +124,13 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
     })
     .catch((e) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+      const genericErrorMessage = __(
+        "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
+      );
 
-      const errorMessage = e.message;
-      const subscriptionFailedBackendError = 'failed to create subscription with default card';
+      dispatch(doToast({ message: genericErrorMessage, isError: true }));
 
-      // wait a bit to show the message so it's not jarring for the user
-      let errorMessageTimeout = 1150;
-
-      // don't do an error delay if there's already a network error
-      if (errorMessage === subscriptionFailedBackendError) {
-        errorMessageTimeout = 0;
-      }
-
-      setTimeout(() => {
-        const genericErrorMessage = __(
-          "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
-        );
-
-        dispatch(doToast({ message: genericErrorMessage, isError: true }));
-      }, errorMessageTimeout);
-
-      return e;
+      throw new Error(e);
     });
 };
 
