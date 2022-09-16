@@ -118,25 +118,9 @@ function OverviewTab(props: Props) {
 
       <HelpHub
         href="https://help.odysee.tv/category-memberships/"
-        image="lady_fungus.png"
-        text="Need help setting up your Channel Membership page? Lady Fungus can show you in the %help_hub%."
+        image="spaceman.png"
+        text="Want to increase your channel growth? Spaceman has whipped up some marketing concepts in the %help_hub%."
       />
-      {/*
-      <div className="ugly-alien-box">
-        <I18nMessage
-          tokens={{
-            help_hub: (
-              <a rel="noopener noreferrer" href="https://help.odysee.tv/category-memberships/" target="_blank">
-                {__('Help Hub')}
-              </a>
-            ),
-          }}
-        >
-          Need help setting up your Channel Membership page? Lady Fungus can show you in the %help_hub%.
-        </I18nMessage>
-        <img src="/public/img/lady_fungus.png" />
-      </div>
-      */}
     </>
   );
 }
