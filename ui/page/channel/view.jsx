@@ -234,6 +234,18 @@ function ChannelPage(props: Props) {
     }
   }, [doMembershipMine, myActiveMemberships]);
 
+  // hides the membership button for Odysee
+  // the tab creator thing is very finicky better to just use JS, though this isn't react optimized
+  const channelIsOdysee = claim && claim.short_url === 'lbry://@Odysee#8';
+  if (channelIsOdysee) {
+    const tabButtons = document.querySelectorAll('button[data-reach-tab]');
+    for (const tabButton of tabButtons) {
+      if (tabButton.innerHTML === 'Membership') {
+        tabButton.style.display = 'none';
+      }
+    }
+  }
+
   if (editing) {
     return (
       <Page
@@ -343,7 +355,7 @@ function ChannelPage(props: Props) {
               <Tab disabled={editing}>{__('Content')}</Tab>
               <Tab disabled={editing}>{__('Playlists')}</Tab>
               <Tab disabled={editing}>{__('Channels')}</Tab>
-              <Tab disabled={editing}>{__('Membership')}</Tab>
+              <Tab className="tab--membership" disabled={editing}>{__('Membership')}</Tab>
               <Tab disabled={editing}>{__('Community')}</Tab>
               <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
             </TabList>
