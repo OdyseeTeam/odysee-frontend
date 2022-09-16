@@ -104,7 +104,7 @@ const MembershipChannelTab = (props: Props) => {
             </div>
 
             <div className="membership__plan-description">
-              <label>{__('Description & custom Perks')}</label>
+              <label>{__('Description')}</label>
               <span>{membershipDescription}</span>
             </div>
 

@@ -72,10 +72,12 @@ const SupportersTab = (props: Props) => {
 
           return supportersForChannel && supportersForChannel.length > 0 ? (
             <React.Fragment key={channelClaim.claim_id}>
-              {(!isViewingSingleChannel || !channelMembershipTiers) && (
-                <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
-              )}
-              {(!isViewingSingleChannel || !channelMembershipTiers) && (channelClaim.value.title || channelClaim.name)}
+              <div className="table-channel-header">
+                {(!isViewingSingleChannel || !channelMembershipTiers) && (
+                  <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
+                )}
+                {(!isViewingSingleChannel || !channelMembershipTiers) && (channelClaim.value.title || channelClaim.name)}
+              </div>
 
               <table className="table">
                 <thead>

@@ -4,6 +4,7 @@ import React from 'react';
 import { useHistory } from 'react-router';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { lazyImport } from 'util/lazyImport';
+import { formatLbryUrlForWeb } from 'util/url';
 
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
@@ -175,7 +176,7 @@ const MembershipsPage = (props: Props) => {
                     <span className="section__subtitle ">{__('Preview your tiers')}</span>
                     <br />
                     <Button
-                      navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
+                      navigate={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
                       label={__('See Your Memberships')}
                       icon={ICONS.SIGN_OUT}
                       button="secondary"

@@ -93,7 +93,7 @@ function MembershipTier(props: Props) {
         <label>{__('Pledge')}</label>
         <span>${membership.NewPrices && membership.NewPrices[0].Price.amount / 100}</span>
 
-        <label>{__('Description & custom Perks')}</label>
+        <label>{__('Description ')}</label>
         <span>{membership.Membership.description}</span>
 
         <div className="membership-tier__perks">

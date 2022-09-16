@@ -10,7 +10,7 @@
         .button--secondary{
           .button__label{
             color:white !important;
-          }      
+          }
           .icon{
             stroke:white;
           }
@@ -19,7 +19,7 @@
           .button--secondary{
             .button__label{
               color:var(--color-primary) !important;
-            }      
+            }
             .icon{
               stroke:var(--color-primary) !important;
             }
@@ -28,9 +28,9 @@
           &::after{
             display:none;
           }
-        }        
-      }      
-    }    
+        }
+      }
+    }
   }
 }
 
@@ -41,13 +41,15 @@
     }
   }
   tbody {
-    tr {
+    tr:not(:last-child) {
       td {
         padding: 0.8rem;
         border-bottom: 2px solid rgba(var(--color-primary-static), 0.4) !important;
       }
     }
   }
+
+  margin-bottom: 28px;
 }
 
 .back-to-memberships-button {
@@ -69,4 +71,8 @@
   width: 50%;
   display: inline-block;
   text-align: right;
+}
+
+.table-channel-header {
+  margin-bottom: 6px;
 }

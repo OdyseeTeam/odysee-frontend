@@ -149,7 +149,6 @@ function PledgesTab(props: Props) {
         {formattedMemberships?.length === 0 && (
           <div className="bank-account-status">
             <div>
-              <label>{__('You are not currently supporting any creators')}</label>
               <span>{__(`Find creators that you like and support them. Your pledges will show up on this page.`)}</span>
             </div>
           </div>
