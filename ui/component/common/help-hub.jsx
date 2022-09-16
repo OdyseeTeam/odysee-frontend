@@ -1,13 +1,13 @@
 // @flow
-import * as ICONS from 'constants/icons';
+// import * as ICONS from 'constants/icons';
 import React from 'react';
 import I18nMessage from 'component/i18nMessage';
-
 
 type Props = {
   href?: string,
   image?: string,
   description?: string,
+  text?: string,
 };
 
 export default function HelpHub(props: Props) {
@@ -25,14 +25,14 @@ export default function HelpHub(props: Props) {
         }}
       >
         {text}
-      </I18nMessage> 
-    )
-  }
+      </I18nMessage>
+    );
+  };
 
   return (
     <div className="help-hub__wrapper">
       <span>{hubMessage(text, href)}</span>
-      {image && (<img src={'/public/img/' + image} />)}
+      {image && <img src={'/public/img/' + image} />}
     </div>
   );
 }

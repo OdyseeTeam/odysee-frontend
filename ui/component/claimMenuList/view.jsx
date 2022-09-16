@@ -1,5 +1,6 @@
 // @flow
 import { URL, SHARE_DOMAIN_URL } from 'config';
+import { ChannelPageContext } from 'page/channel/view';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
@@ -63,7 +64,6 @@ type Props = {
   isSubscribed: boolean,
   doChannelSubscribe: (SubscriptionArgs) => void,
   doChannelUnsubscribe: (SubscriptionArgs) => void,
-  isChannelPage: boolean,
   hasEdits: Collection,
   isAuthenticated: boolean,
   playNextUri: string,
@@ -117,7 +117,6 @@ function ClaimMenuList(props: Props) {
     isSubscribed,
     doChannelSubscribe,
     doChannelUnsubscribe,
-    isChannelPage = false,
     hasEdits,
     isAuthenticated,
     playNextUri,
@@ -131,6 +130,8 @@ function ClaimMenuList(props: Props) {
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
   } = props;
+
+  const isChannelPage = React.useContext(ChannelPageContext);
 
   const {
     push,

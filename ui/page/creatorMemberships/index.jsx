@@ -7,7 +7,6 @@ import Button from 'component/button';
 import Page from 'component/page';
 import HelpHub from 'component/common/help-hub';
 
-
 import './style.scss';
 
 const MembershipsLandingPage = () => (
@@ -31,7 +30,7 @@ const MembershipsLandingPage = () => (
     </div>
 
     <div className="membership-wrapper">
-      <img src="/public/img/my_channels.jpg" />      
+      <img src="/public/img/my_channels.jpg" />
 
       <div className="membership-content memberships">
         <h2>{__('Membership Portal')}</h2>
@@ -55,10 +54,14 @@ const MembershipsLandingPage = () => (
           </I18nMessage>
           <img src="/public/img/lady_fungus.png" />
         </div>
-        */}        
+        */}
       </div>
     </div>
-    <HelpHub href="https://help.odysee.tv/category-memberships/" image="lady_fungus.png" text="What are Memberships? Lady Fungus can explain it in the %help_hub%." />
+    <HelpHub
+      href="https://help.odysee.tv/category-memberships/"
+      image="lady_fungus.png"
+      text="What are Memberships? Lady Fungus can explain it in the %help_hub%."
+    />
   </Page>
 );
 

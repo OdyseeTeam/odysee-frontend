@@ -20,7 +20,7 @@ type Props = {
   validUserMembershipForChannel: ?any,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
-  creatorTiers: Array<Membership>,
+  creatorTiers: CreatorMemberships,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
 };
@@ -41,9 +41,6 @@ const JoinMembershipButton = (props: Props) => {
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
   const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
-  const membershipIndex =
-    creatorTiers?.findIndex((res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id) +
-    1;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
@@ -59,6 +56,13 @@ const JoinMembershipButton = (props: Props) => {
     urlParams.set(CHANNEL_PAGE.QUERIES.VIEW, CHANNEL_PAGE.VIEWS.MEMBERSHIP);
     // if you're on the channel page channelPath comes with a leading / already
     if (isChannelPage) channelPath = channelPath.substr(1);
+
+    const membershipIndex =
+      (creatorTiers
+        ? creatorTiers.findIndex(
+            (res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id
+          )
+        : 0) + 1;
 
     return (
       <Button

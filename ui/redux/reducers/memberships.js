@@ -127,9 +127,9 @@ reducers[ACTIONS.MEMBERSHIP_LIST_COMPLETE] = (state, action) => {
 
 reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, membershipPerks: action.data });
 
-reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED] = (state, action) => {
-  return { ...state };
-};
+// reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED] = (state, action) => {
+//   return { ...state };
+// };
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => {
   const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);

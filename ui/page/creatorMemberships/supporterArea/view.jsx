@@ -48,7 +48,7 @@ const MembershipsPage = (props: Props) => {
     doListAllMyMembershipTiers,
   } = props;
 
-  const [allSelected, setAllSelected] = React.useState(false);
+  // const [allSelected, setAllSelected] = React.useState(false);
 
   // const channelsToList = React.useMemo(() => {
   //   if (!myChannelClaims) return myChannelClaims;
@@ -124,7 +124,7 @@ const MembershipsPage = (props: Props) => {
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__("Overview")}</Tab>
+          <Tab>{__('Overview')}</Tab>
           <Tab>{__('Billing History')}</Tab>
           <Tab> {__('Creators To Support')}</Tab>
           <div>
@@ -157,8 +157,8 @@ const MembershipsPage = (props: Props) => {
           {/* billing history tab */}
           <TabPanel>
             <>
-              <span className="section__subtitle ">{__('Choose what channel to create tiers for')}</span>
-              <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+              <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
+              <ChannelSelector hideAnon />
             </>
           </TabPanel>
 
@@ -172,7 +172,7 @@ const MembershipsPage = (props: Props) => {
                 allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
                 onChannelSelect={() => setAllSelected(false)}
               />
-              */}              
+              */}
             </>
           </TabPanel>
         </TabPanels>
