@@ -123,7 +123,7 @@ const MembershipsPage = (props: Props) => {
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__("Creators I'm Supporting")}</Tab>
+          <Tab>{__("Overview")}</Tab>
           <Tab>{__('Billing History')}</Tab>
           <Tab> {__('Creators To Support')}</Tab>
           <div>
@@ -140,15 +140,16 @@ const MembershipsPage = (props: Props) => {
         <TabPanels>
           {/* my pledges tab (creators I'm supporting) */}
           <TabPanel>
+            {/*
             <span className="section__subtitle ">{__('View information for a specific channel')}</span>
             <ChannelSelector
               hideAnon
               allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
               onChannelSelect={() => setAllSelected(false)}
             />
-            <div style={{ marginTop: 'var(--spacing-xxl)' }}>
-              <PledgesTab />
-            </div>
+            */}
+
+            <PledgesTab />
           </TabPanel>
 
           {/* billing history tab */}
@@ -162,12 +163,14 @@ const MembershipsPage = (props: Props) => {
           {/* creators to support tab */}
           <TabPanel>
             <>
+              {/*
               <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
               <ChannelSelector
                 hideAnon
                 allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
                 onChannelSelect={() => setAllSelected(false)}
               />
+              */}              
             </>
           </TabPanel>
         </TabPanels>
