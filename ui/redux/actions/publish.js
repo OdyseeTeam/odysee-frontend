@@ -87,6 +87,8 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     optimize,
     isLivestreamPublish,
     remoteFileUrl,
+    restrictedToMemberships,
+    restrictCommentsAndChat,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -215,6 +217,31 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     publishPayload.preview = true;
     publishPayload.optimize_file = false;
   }
+
+  // ** Memberships **
+  const publishPayloadTags = new Set(publishPayload.tags);
+
+  const publishTagsHaveRestrictedMemberships = publishPayloadTags.has(MEMBERS_ONLY_CONTENT_TAG);
+  const publishTagsHaveRestrictedChatComments = publishPayloadTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
+
+  // add members only tag if it's restricted to memberships and tag doesn't exist
+  if (restrictedToMemberships && !publishTagsHaveRestrictedMemberships && publishPayload.channel_id) {
+    publishPayloadTags.add(MEMBERS_ONLY_CONTENT_TAG);
+  }
+
+  if (restrictCommentsAndChat && !publishTagsHaveRestrictedChatComments && publishPayload.channel_id) {
+    publishPayloadTags.add(RESTRICTED_CHAT_COMMENTS_TAG);
+  }
+
+  if (!publishPayload.channel_id || (!restrictedToMemberships && publishTagsHaveRestrictedMemberships)) {
+    publishPayloadTags.delete(MEMBERS_ONLY_CONTENT_TAG);
+  }
+
+  if (!publishPayload.channel_id || (!restrictCommentsAndChat && publishTagsHaveRestrictedChatComments)) {
+    publishPayloadTags.delete(RESTRICTED_CHAT_COMMENTS_TAG);
+  }
+
+  publishPayload.tags = Array.from(publishPayloadTags);
 
   return publishPayload;
 }
@@ -679,32 +706,9 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   const publishData = selectPublishFormValues(state);
 
   /** protected content and members-only chat functionality **/
-  const { restrictCommentsAndChat, restrictedToMemberships, channelClaimId } = publishData;
+  const { restrictedToMemberships, channelClaimId } = publishData;
 
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, preview);
-  const publishPayloadTags = new Set(publishPayload.tags);
-
-  const publishTagsHaveRestrictedMemberships = publishPayloadTags.has(MEMBERS_ONLY_CONTENT_TAG);
-  const publishTagsHaveRestrictedChatComments = publishPayloadTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
-
-  // add members only tag if it's restricted to memberships and tag doesn't exist
-  if (restrictedToMemberships && !publishTagsHaveRestrictedMemberships && publishPayload.channel_id) {
-    publishPayloadTags.add(MEMBERS_ONLY_CONTENT_TAG);
-  }
-
-  if (restrictCommentsAndChat && !publishTagsHaveRestrictedChatComments && publishPayload.channel_id) {
-    publishPayloadTags.add(RESTRICTED_CHAT_COMMENTS_TAG);
-  }
-
-  if (!publishPayload.channel_id || (!restrictedToMemberships && publishTagsHaveRestrictedMemberships)) {
-    publishPayloadTags.delete(MEMBERS_ONLY_CONTENT_TAG);
-  }
-
-  if (!publishPayload.channel_id || (!restrictCommentsAndChat && publishTagsHaveRestrictedChatComments)) {
-    publishPayloadTags.delete(RESTRICTED_CHAT_COMMENTS_TAG);
-  }
-
-  publishPayload.tags = Array.from(publishPayloadTags);
 
   // return
 
