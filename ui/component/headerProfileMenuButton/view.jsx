@@ -172,7 +172,7 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
               <HeaderMenuLink
                 useMui
                 page={PAGES.MEMBERSHIPS_LANDING}
-                icon={ICONS.UPGRADE}
+                icon={ICONS.MEMBERSHIP}
                 name={__('Memberships')}
               />
               <HeaderMenuLink useMui page={PAGES.ODYSEE_MEMBERSHIP} icon={ICONS.UPGRADE} name={__('Odysee Premium')} />

@@ -22,7 +22,7 @@ export default function ModalRemoveCard(props: Props) {
   const activateMembershipsButton = (
     <Button
       button="primary"
-      icon={ICONS.UPGRADE}
+      icon={ICONS.MEMBERSHIP}
       label={__('Activate Memberships')}
       // onClick={deleteMembership}
     />

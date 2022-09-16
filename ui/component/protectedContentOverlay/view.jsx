@@ -74,7 +74,7 @@ export default function ProtectedContentOverlay(props: Props) {
           <span>Only channel members can view this content</span>
           <Button
             button="primary"
-            icon={ICONS.UPGRADE}
+            icon={ICONS.MEMBERSHIP}
             label={__('Membership Options')}
             title={__('Become A Member')}
             onClick={() =>

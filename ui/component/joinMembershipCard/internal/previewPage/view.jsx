@@ -73,7 +73,7 @@ const PreviewPage = (props: Props) => {
             )}
           </span>
           <ButtonNavigateChannelId
-            icon={ICONS.UPGRADE}
+            icon={ICONS.MEMBERSHIP}
             button="primary"
             type="submit"
             label={__('Create Memberships For %channel_name%', { channel_name: channelName })}
@@ -92,7 +92,7 @@ const PreviewPage = (props: Props) => {
           )}
         </span>
         <Button
-          icon={ICONS.UPGRADE}
+          icon={ICONS.MEMBERSHIP}
           button="primary"
           type="submit"
           label={__('Create Your Memberships')}
@@ -179,7 +179,7 @@ const PreviewPage = (props: Props) => {
 
       <div className="join-membership__modal-action">
         <Button
-          icon={ICONS.UPGRADE}
+          icon={ICONS.MEMBERSHIP}
           button="primary"
           type="submit"
           disabled={creatorPurchaseDisabled}

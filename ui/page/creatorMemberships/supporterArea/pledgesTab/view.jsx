@@ -135,7 +135,7 @@ function PledgesTab(props: Props) {
                         <span dir="auto" className="button__label">
                           <Button
                             button="primary"
-                            icon={ICONS.UPGRADE}
+                            icon={ICONS.MEMBERSHIP}
                             navigate={pledges[i].url + '?view=membership'}
                           />
                         </span>

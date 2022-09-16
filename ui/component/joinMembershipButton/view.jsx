@@ -11,7 +11,7 @@ import * as MODALS from 'constants/modal_types';
 
 import Button from 'component/button';
 
-const DEFAULT_PROPS = { button: 'alt', icon: ICONS.UPGRADE };
+const DEFAULT_PROPS = { button: 'alt', icon: ICONS.MEMBERSHIP };
 
 type Props = {
   uri: string,
@@ -20,7 +20,7 @@ type Props = {
   validUserMembershipForChannel: ?any,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
-  creatorTiers: CreatorMemberships,
+  creatorTiers: Array<Membership>,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
 };
@@ -41,6 +41,9 @@ const JoinMembershipButton = (props: Props) => {
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
   const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
+  const membershipIndex =
+    creatorTiers?.findIndex((res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id) +
+    1;
 
   React.useEffect(() => {
     if (!creatorMembershipsFetched) {
@@ -57,13 +60,6 @@ const JoinMembershipButton = (props: Props) => {
     // if you're on the channel page channelPath comes with a leading / already
     if (isChannelPage) channelPath = channelPath.substr(1);
 
-    const membershipIndex =
-      (creatorTiers
-        ? creatorTiers.findIndex(
-            (res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id
-          )
-        : 0) + 1;
-
     return (
       <Button
         {...DEFAULT_PROPS}
@@ -71,7 +67,7 @@ const JoinMembershipButton = (props: Props) => {
         label={membershipName}
         title={__('You are a "%membership_tier_name%" member', { membership_tier_name: membershipName })}
         className="button--membership-active"
-        style={{ backgroundColor: 'rgba(var(--color-membership-' + membershipIndex + '), 1)', color: 'white' }}
+        style={{ backgroundColor: 'rgba(var(--color-membership-' + membershipIndex + '), 1)' }}
       />
     );
   }

@@ -69,7 +69,7 @@ function OverviewTab(props: Props) {
                             button="primary"
                             // className="membership_button"
                             // label={__('View your membership page')}
-                            icon={ICONS.UPGRADE}
+                            icon={ICONS.MEMBERSHIP}
                             navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
                           />
                         </td>
@@ -119,7 +119,11 @@ function OverviewTab(props: Props) {
         </div>
       )}
 
-      <HelpHub href="https://help.odysee.tv/category-memberships/" image="lady_fungus.png" text="Need help setting up your Channel Membership page? Lady Fungus can show you in the %help_hub%." />
+      <HelpHub
+        href="https://help.odysee.tv/category-memberships/"
+        image="lady_fungus.png"
+        text="Need help setting up your Channel Membership page? Lady Fungus can show you in the %help_hub%."
+      />
       {/*
       <div className="ugly-alien-box">
         <I18nMessage
@@ -136,7 +140,6 @@ function OverviewTab(props: Props) {
         <img src="/public/img/lady_fungus.png" />
       </div>
       */}
-      
     </>
   );
 }

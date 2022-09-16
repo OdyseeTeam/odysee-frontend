@@ -19,8 +19,8 @@ const MembershipTier = (props: Props) => {
     <div
       className={
         Number.isInteger(index) && Number.isInteger(length)
-        // $FlowFixMe
-          ? `membership-tier__wrapper item${index + 1}-${length}`
+          ? // $FlowFixMe
+            `membership-tier__wrapper item${index + 1}-${length}`
           : 'membership-tier__wrapper'
       }
     >
@@ -28,7 +28,7 @@ const MembershipTier = (props: Props) => {
         membership={membership}
         headerAction={
           <Button
-            icon={ICONS.UPGRADE}
+            icon={ICONS.MEMBERSHIP}
             button="primary"
             disabled={disabled}
             label={__('Signup for $%membership_price% a month', {
