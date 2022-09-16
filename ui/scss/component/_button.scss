@@ -1063,35 +1063,49 @@ svg + .button__label {
 
 .button--membership {
   background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
-  .button__label {
-    color: white;
-  }
-  .icon {
-    stroke: white !important;
-  }
-  &:hover {
+
+  .button__content{
+    .icon {
+      stroke: white !important;
+      fill: white !important;
+    }
     .button__label {
       color: white;
     }
-    .icon {
-      stroke: white !important;
-    }
+  }  
+  
+  &:hover {
+    .button__content{
+      .icon {
+        color: white !important;
+        stroke: white !important;
+        fill: white !important;
+      }
+      .button__label {
+        color: white;
+      }
+    }    
   }
 }
 
 .button--membership-active {
-  .button__label {
-    color: white;
-  }
-  .icon {
-    stroke: white !important;
-  }
+  .button__content{
+    .icon {
+      stroke: white !important;
+      fill: white !important;
+    }
+    .button__label {
+      color: white;
+    }  
+  }  
   &:hover {
     .button__label {
       color: white;
     }
     .icon {
+      color: white !important;
       stroke: white !important;
+      fill: white !important;
     }
   }
 }
