@@ -151,7 +151,7 @@ const MembershipsPage = (props: Props) => {
             */}
 
             <PledgesTab />
-            <HelpHub href="https://help.odysee.tv/category-memberships/" image="lady_fungus.png" text="What are these donations? Lady Fungus can explain it in the %help_hub%." />
+            <HelpHub href="https://help.odysee.tv/category-memberships/donorportal" image="lady_fungus.png" text="What are these donations? Lady Fungus can explain it in the %help_hub%." />
           </TabPanel>
 
           {/* billing history tab */}
