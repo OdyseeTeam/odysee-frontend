@@ -47,7 +47,7 @@ const MembershipsPage = (props: Props) => {
     doListAllMyMembershipTiers,
   } = props;
 
-  const [allSelected, setAllSelected] = React.useState(false);
+  const [allSelected, setAllSelected] = React.useState(true);
 
   const channelsToList = React.useMemo(() => {
     if (!myChannelClaims) return myChannelClaims;
@@ -94,12 +94,12 @@ const MembershipsPage = (props: Props) => {
     case TABS.OVERVIEW:
       tabIndex = 0;
       break;
-    case TABS.TIERS:
+    case TABS.SUPPORTERS:
       tabIndex = 1;
       break;
-    case TABS.SUPPORTERS:
+    case TABS.TIERS:
       tabIndex = 2;
-      break;
+      break;    
   }
 
   function onTabChange(newTabIndex) {
@@ -108,20 +108,24 @@ const MembershipsPage = (props: Props) => {
     if (newTabIndex === 0) {
       url += `${TAB_QUERY}=${TABS.OVERVIEW}`;
     } else if (newTabIndex === 1) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;
-    } else if (newTabIndex === 2) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
+    } else if (newTabIndex === 2) {
+      url += `${TAB_QUERY}=${TABS.TIERS}`;    
     }
     push(url);
   }
 
   return (
-    <Page className="premium-wrapper">
+    <Page className="membershipPage-wrapper">
+      <div className="membership__mychannels-header">
+        <div />
+        <label>Creator Portal</label>
+      </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
-          <Tab>{__('My Tiers')}</Tab>
           <Tab>{__('My Supporters')}</Tab>
+          <Tab>{__('My Tiers')}</Tab>          
           <div className="no-after">
             <Tab>
               <Button
@@ -135,15 +139,27 @@ const MembershipsPage = (props: Props) => {
         </TabList>
         <TabPanels>
           <TabPanel>
+            {/*
             <span className="section__subtitle ">{__('View information for a specific channel')}</span>
             <ChannelSelector
               hideAnon
               allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
               onChannelSelect={() => setAllSelected(false)}
             />
-            <div style={{ marginTop: 'var(--spacing-l)' }}>
-              <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
-            </div>
+            */}
+            <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
+          </TabPanel>
+
+          <TabPanel>
+            <>
+              <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
+              <ChannelSelector
+                hideAnon
+                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                onChannelSelect={() => setAllSelected(false)}
+              />
+              <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
+            </>
           </TabPanel>
 
           <TabPanel>
@@ -169,18 +185,6 @@ const MembershipsPage = (props: Props) => {
                 <TiersTab />
               </>
             )}
-          </TabPanel>
-
-          <TabPanel>
-            <>
-              <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
-              <ChannelSelector
-                hideAnon
-                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                onChannelSelect={() => setAllSelected(false)}
-              />
-              <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
-            </>
           </TabPanel>
         </TabPanels>
       </Tabs>
