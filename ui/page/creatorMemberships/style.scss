@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .bank-account-status {
   margin-top: var(--spacing-s);
   padding: var(--spacing-s);
@@ -102,6 +104,20 @@
       background-color: #f3e3f6;
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    flex-direction: column;
+
+    .membership-content {
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      margin-right: var(--spacing-s);
+    }
+
+    img {
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      width: 100%;
+    }
+  }
 }
 
 .portal-tagline {
@@ -117,4 +133,8 @@
   // background-color: red;
   height: 2px;
   margin-bottom: 38px;
+
+  @media (max-width: $breakpoint-small) {
+    width: 80%;
+  }
 }

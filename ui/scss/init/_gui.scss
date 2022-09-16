@@ -2340,7 +2340,7 @@ video {
   background-color: black;
 }
 
-.help-hub__wrapper{
+.help-hub__wrapper {
   margin-top: var(--spacing-l);
   width: 100%;
   background-color: #f3e3f6;
@@ -2349,6 +2349,10 @@ video {
   text-align: center;
   padding: var(--spacing-s);
   font-weight: bold;
+
+  span {
+    display: inline-block;
+  }
 
   a {
     color: var(--color-primary);
@@ -2360,5 +2364,9 @@ video {
     background-color: #650f7c;
     border-radius: 50%;
     margin-left: var(--spacing-s);
+
+    @media (max-width: $breakpoint-small) {
+      margin-top: var(--spacing-xxs);
+    }
   }
 }
