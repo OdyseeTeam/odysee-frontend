@@ -16,42 +16,44 @@ const MembershipsLandingPage = () => (
       <hr className="creator-memberships-seperator" />
     </div>
 
-    <div className="membership__mypledges-wrapper">
-      <div className="membership__mypledges-header">
-        <div />
-        <label>{__('Donor Portal')}</label>
-      </div>
+    <div className="membership-wrapper">
+      <img src="/public/img/my_channels.jpg" />
 
-      <div className="membership__mypledges-content">
-        <h1 className="portal-tagline">{__('Find creators you like and support them')}</h1>
+      <div className="membership-content supporter">
+        <h2>{__('Donor Portal')}</h2>
+        <div className="separator">
+          <div />
+        </div>
+        <p className="portal-tagline">{__('Find creators you like and support them')}</p>
         <Button button="primary" navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} label={__('Enter Donor Portal')} />
       </div>
     </div>
 
-    <div className="membership__mychannels-wrapper">
-      <div className="membership__mychannels-header">
-        <div />
-        <label>{__('Membership Portal')}</label>
-      </div>
+    <div className="membership-wrapper">
+      <img src="/public/img/my_pledges.jpg" />
 
-      <div className="membership__mychannels-content">
-        <h1 className="portal-tagline">{__('Create memberships and have users subscribe to them to support you')}</h1>
+      <div className="membership-content memberships">
+        <h2>{__('Membership Portal')}</h2>
+        <div className="separator">
+          <div />
+        </div>
+        <p className="portal-tagline">{__('Create memberships and have users subscribe to them to support you.')}</p>
         <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
+        <div className="ugly-alien-box">
+          <I18nMessage
+            tokens={{
+              help_hub: (
+                <a rel="noopener noreferrer" href="https://help.odysee.tv/category-memberships/" target="_blank">
+                  {__('Help Hub')}
+                </a>
+              ),
+            }}
+          >
+            Click here to read more information in the %help_hub%.
+          </I18nMessage>
+          <img src="/public/img/lady_fungus.png" />
+        </div>
       </div>
-    </div>
-
-    <div className="creator-memberships-help-div">
-      <I18nMessage
-        tokens={{
-          help_hub: (
-            <a rel="noopener noreferrer" href="https://help.odysee.tv/category-memberships/" target="_blank">
-              <h1 className="help-hub-link">{' ' + __('Help Hub')}</h1>
-            </a>
-          ),
-        }}
-      >
-        Click here to read more information in the %help_hub%
-      </I18nMessage>
     </div>
   </Page>
 );

@@ -102,6 +102,10 @@ const copyWebpackCommands = [
     to: `${output.PATH}/public/img/my_pledges.jpg`,
   },
   {
+    from: `${STATIC_ROOT}/img/lady_fungus.png`,
+    to: `${output.PATH}/public/img/lady_fungus.png`,
+  },
+  {
     from: `${STATIC_ROOT}/font/`,
     to: `${output.PATH}/public/font/`,
   },

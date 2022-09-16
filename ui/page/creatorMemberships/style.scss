@@ -27,102 +27,72 @@
   }
 }
 
-.membership__mychannels-wrapper {
-  border-radius: var(--border-radius);
-  background: rgba(239, 25, 112, 0.2);
-
-  .membership__mychannels-content {
-    padding: var(--spacing-s);
-  }
-}
-
-.membership__mychannels-header {
-  position: relative;
+.membership-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
   width: 100%;
-  background-size: cover;
-  background-position: top -320px left 0px;
-  background-image: url('/public/img/my_channels.jpg');
-  border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-m);
-  overflow: hidden;
-  height: 96px;
+  margin-bottom: var(--spacing-xl);
 
-  div {
-    position: absolute;
-    height: 400px;
-    left: -110px;
-    top: -210px;
+  img {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
     width: 40%;
-    background-color: rgba(184, 55, 105, 0.6);
-    transform: rotate(38deg);
+    margin-right: var(--spacing-s);
   }
 
-  label {
-    position: absolute;
-    background-color: var(--color-header-background);
-    padding: var(--spacing-m);
-    border-radius: var(--border-radius);
-    top: var(--spacing-m);
-    left: var(--spacing-m);
-    padding: var(--spacing-m);
-    font-size: var(--font-large);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text);
-  }
-}
-
-.membership__mypledges-wrapper {
-  border-radius: var(--border-radius);
-  background: rgba(0, 208, 217, 0.2);
-
-  .membership__mypledges-content {
+  .membership-content {
+    position: relative;
     padding: var(--spacing-s);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    color: black;
+    flex: 1;
+    text-align: center;
+
+    h2 {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+      text-align: center;
+    }
+
+    .separator {
+      width: 100%;
+      text-align: center;
+      margin-top: calc(var(--spacing-xxs) * -1);
+      margin-bottom: var(--spacing-l);
+
+      div {
+        display: inline-block;
+        width: 70%;
+        border-bottom: 2px solid var(--color-primary);
+      }
+    }
+
+    .ugly-alien-box {
+      position: absolute;
+      bottom: var(--spacing-s);
+      width: 100%;
+
+      a {
+        color: var(--color-primary);
+      }
+
+      img {
+        width: 46px;
+        height: 46px;
+        background-color: #650f7c;
+        border-radius: 50%;
+        margin-left: var(--spacing-s);
+      }
+    }
+
+    &.supporter {
+      background: #e4f8f8;
+    }
+
+    &.memberships {
+      background-color: #f3e3f6;
+    }
   }
-}
-
-.membership__mypledges-header {
-  position: relative;
-  width: 100%;
-  background-size: cover;
-  background-position: top -180px left 0px;
-  background-image: url('/public/img/my_pledges.jpg');
-  border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-m);
-  overflow: hidden;
-  height: 96px;
-
-  div {
-    position: absolute;
-    position: absolute;
-    height: 400px;
-    left: -110px;
-    top: -210px;
-    width: 40%;
-    background-color: rgba(0, 208, 217, 0.6);
-    transform: rotate(38deg);
-  }
-  label {
-    position: absolute;
-    background-color: var(--color-header-background);
-    padding: var(--spacing-m);
-    border-radius: var(--border-radius);
-    top: var(--spacing-m);
-    left: var(--spacing-m);
-    padding: var(--spacing-m);
-    font-size: var(--font-large);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text);
-  }
-}
-
-.creator-memberships-header {
-  font-size: 24px;
-  text-align: center;
-  margin-bottom: 10px;
-}
-
-.membership__mypledges-wrapper {
-  margin-bottom: 20px;
 }
 
 .portal-tagline {
@@ -134,28 +104,10 @@
 .creator-memberships-seperator {
   width: 58%;
   margin: 0 auto;
-  color: red;
-  background-color: red;
+  background-color: var(--color-primary);
+  // background-color: red;
   height: 2px;
   margin-bottom: 38px;
-}
-
-.creator-memberships-help-div {
-  background-color: #ddd2d2;
-  border-radius: 50px;
-  margin-top: 13px;
-  text-align: center;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.3em;
-  color: black;
-
-  .help-hub-link {
-    color: red;
-    text-decoration: underline;
-  }
 }
 
 .no-after {
