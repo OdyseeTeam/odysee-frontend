@@ -27,11 +27,11 @@
   }
 }
 
-.creator-memberships-header{
-  width:100%;
-  font-size:var(--font-title);
-  font-weight:var(--font-bold);
-  text-align:center;
+.creator-memberships-header {
+  width: 100%;
+  font-size: var(--font-title);
+  font-weight: var(--font-bold);
+  text-align: center;
 }
 
 .membership-wrapper {
@@ -79,6 +79,7 @@
       position: absolute;
       bottom: var(--spacing-s);
       width: 100%;
+      background-color: unset;
 
       a {
         color: var(--color-primary);

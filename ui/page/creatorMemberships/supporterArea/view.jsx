@@ -116,10 +116,14 @@ const MembershipsPage = (props: Props) => {
   }
 
   return (
-    <Page className="premium-wrapper">
+    <Page className="membershipPage-wrapper">
+      <div className="membership__mypledges-header">
+        <div />
+        <label>Donor Portal</label>
+      </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
-          <Tab>{__('Creators I\'m Supporting')}</Tab>
+          <Tab>{__("Creators I'm Supporting")}</Tab>
           <Tab>{__('Billing History')}</Tab>
           <Tab> {__('Creators To Support')}</Tab>
           <div>
@@ -134,7 +138,6 @@ const MembershipsPage = (props: Props) => {
           </div>
         </TabList>
         <TabPanels>
-
           {/* my pledges tab (creators I'm supporting) */}
           <TabPanel>
             <span className="section__subtitle ">{__('View information for a specific channel')}</span>
@@ -150,10 +153,10 @@ const MembershipsPage = (props: Props) => {
 
           {/* billing history tab */}
           <TabPanel>
-              <>
-                <span className="section__subtitle ">{__('Choose what channel to create tiers for')}</span>
-                <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
-              </>
+            <>
+              <span className="section__subtitle ">{__('Choose what channel to create tiers for')}</span>
+              <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+            </>
           </TabPanel>
 
           {/* creators to support tab */}

@@ -81,11 +81,6 @@ function PledgesTab(props: Props) {
 
   return (
     <div className="membership__mypledges-wrapper">
-      <div className="membership__mypledges-header">
-        <div />
-        {/* <label>Donor Portal</label> */}
-      </div>
-
       <div className="membership__mypledges-content">
         {pledges && pledges.length > 0 && (
           <div className="membership-table__wrapper">
