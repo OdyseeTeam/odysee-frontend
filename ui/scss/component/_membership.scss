@@ -536,7 +536,7 @@
     @media (min-width: $breakpoint-medium) {
       .item1-1,
       .item4-4 {
-        grid-column: 2;
+        grid-column: 1;
       }
 
       .item1-2,
@@ -577,8 +577,25 @@
   }
 
   .join-membership__empty {
+    max-width: 539px;
+    margin: 0 auto;
+
+    .header--no-memberships {
+      text-align: center;
+      font-size: 21px;
+      margin-bottom: 20px;
+    }
+
     .button {
       margin-top: var(--spacing-m);
+    }
+
+    h2 {
+      line-height: 29px;
+    }
+
+    .button--create-tiers {
+      text-align: center;
     }
   }
 

@@ -13,7 +13,7 @@ type Props = {
 };
 
 const MembershipTier = (props: Props) => {
-  const { membership, disabled, index, length, handleSelect } = props;
+  const { membership, index, length, handleSelect } = props;
 
   return (
     <div
@@ -29,7 +29,6 @@ const MembershipTier = (props: Props) => {
           <Button
             icon={ICONS.MEMBERSHIP}
             button="primary"
-            disabled={disabled}
             label={__('Signup for $%membership_price% a month', {
               membership_price: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
             })}
