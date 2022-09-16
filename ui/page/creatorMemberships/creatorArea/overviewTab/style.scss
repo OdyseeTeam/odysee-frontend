@@ -136,3 +136,20 @@
     color: var(--color-text);
   }
 }
+
+.table-total {
+  margin-bottom: var(--spacing-l);
+
+  td {
+    font-weight: var(--font-weight-bold);
+    &:nth-child(2) {
+      text-align: center;
+    }
+    &:nth-child(3) {
+      text-align: right;
+    }
+  }
+  span {
+    color: var(--color-primary);
+  }
+}

@@ -22,18 +22,35 @@ type Props = {
 
 function OverviewTab(props: Props) {
   const { channelsToList, onTabChange, hasTiers, bankAccountConfirmed, doSetActiveChannel } = props;
+  const [total, setTotal] = React.useState({ supporters: 0, income: 0, received: 0 });
 
   function selectChannel(channelClaim) {
     doSetActiveChannel(channelClaim.claim_id, true);
     onTabChange(1);
   }
 
+  React.useEffect(() => {
+    channelsToList &&
+      channelsToList.map((channel) => {
+        setTotal({ supporters: 0, income: 0, received: 0 });
+      });
+  }, [channelsToList]);
+
   return (
     <>
-      <h1>Total Supporters:</h1>
-      <h1>Total Monthly Income:</h1>
-      <h1>Total Received:</h1>
-      <br />
+      <table className="table table-total">
+        <tr>
+          <td>
+            Total Supporters: <span>{total.supporters}</span>
+          </td>
+          <td>
+            Total Monthly Income: <span>${total.income}</span>
+          </td>
+          <td>
+            Total Received: <span>${total.received}</span>
+          </td>
+        </tr>
+      </table>
 
       {channelsToList && (
         <div className="membership__mychannels-wrapper">
