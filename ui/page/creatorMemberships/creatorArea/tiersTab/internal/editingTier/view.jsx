@@ -142,14 +142,13 @@ function MembershipTier(props: Props) {
       />
 
       <FormField
-        type="markdown"
-        rows="10"
+        type="textarea"
         max="400"
         name="tier_description"
         label={__('Tier Description & custom Perks')}
         placeholder={__('Description of your tier')}
         value={editTierParams.editTierDescription}
-        onChange={(value) => setEditTierParams((prev) => ({ ...prev, editTierDescription: value }))}
+        onChange={(e) => setEditTierParams((prev) => ({ ...prev, editTierDescription: e.target.value }))}
       />
 
       <fieldset-section>

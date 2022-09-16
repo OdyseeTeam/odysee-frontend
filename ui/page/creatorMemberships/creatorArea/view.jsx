@@ -99,7 +99,7 @@ const MembershipsPage = (props: Props) => {
       break;
     case TABS.TIERS:
       tabIndex = 2;
-      break;    
+      break;
   }
 
   function onTabChange(newTabIndex) {
@@ -110,7 +110,7 @@ const MembershipsPage = (props: Props) => {
     } else if (newTabIndex === 1) {
       url += `${TAB_QUERY}=${TABS.SUPPORTERS}`;
     } else if (newTabIndex === 2) {
-      url += `${TAB_QUERY}=${TABS.TIERS}`;    
+      url += `${TAB_QUERY}=${TABS.TIERS}`;
     }
     push(url);
   }
@@ -125,7 +125,7 @@ const MembershipsPage = (props: Props) => {
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
           <Tab>{__('My Supporters')}</Tab>
-          <Tab>{__('My Tiers')}</Tab>          
+          <Tab>{__('My Tiers')}</Tab>
           <div className="no-after">
             <Tab>
               <Button
@@ -167,7 +167,7 @@ const MembershipsPage = (props: Props) => {
               <>
                 <div className="create-tiers-header-buttons">
                   <div className="create-tiers-channel-selector">
-                    <span className="section__subtitle ">{__('Choose what channel to create tiers for')}</span>
+                    <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
                     <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
                   </div>
 
