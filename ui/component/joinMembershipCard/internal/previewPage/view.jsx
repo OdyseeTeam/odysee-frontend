@@ -67,37 +67,43 @@ const PreviewPage = (props: Props) => {
     if (channelIsMine) {
       return (
         <div className="join-membership__empty">
-          <span>
+          <h2 className="header--no-memberships">Channel Has No Memberships</h2>
+          <h2>
             {__(
               "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
             )}
-          </span>
-          <ButtonNavigateChannelId
-            icon={ICONS.MEMBERSHIP}
-            button="primary"
-            type="submit"
-            label={__('Create Memberships For %channel_name%', { channel_name: channelName })}
-            navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
-            channelId={channelId}
-          />
+          </h2>
+          <div className="button--create-tiers">
+            <ButtonNavigateChannelId
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__('Create Memberships For %channel_name%', { channel_name: channelName })}
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+              channelId={channelId}
+            />
+          </div>
         </div>
       );
     }
 
     return (
       <div className="join-membership__empty">
-        <span>
+        <h2 className="header--no-memberships">{__('Channel Has No Memberships')}</h2>
+        <h2>
           {__(
-            "Unfortunately, this creator hasn't activated their membership functionality yet. You can try creating your own memberships with the link below!"
+            "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers with the link below!"
           )}
-        </span>
-        <Button
-          icon={ICONS.MEMBERSHIP}
-          button="primary"
-          type="submit"
-          label={__('Create Your Memberships')}
-          navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
-        />
+        </h2>
+        <div className="button--create-tiers">
+          <Button
+            icon={ICONS.MEMBERSHIP}
+            button="primary"
+            type="submit"
+            label={__('Create Your Memberships')}
+            navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+          />
+        </div>
       </div>
     );
   }
@@ -114,7 +120,6 @@ const PreviewPage = (props: Props) => {
                 doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index });
                 // handleSelect();
               }}
-              disabled={creatorPurchaseDisabled}
               index={index}
               length={creatorMemberships.length}
               key={index}

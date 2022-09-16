@@ -30,13 +30,10 @@ function OverviewTab(props: Props) {
 
   return (
     <>
-      {/*
-    <h1>Total Supporters:</h1>
+      <h1>Total Supporters:</h1>
       <h1>Total Monthly Income:</h1>
       <h1>Total Received:</h1>
       <br />
-    */}
-      {/* to-do: hard set it to "All" */}
 
       {channelsToList && (
         <div className="membership__mychannels-wrapper">
