@@ -145,7 +145,7 @@ function MembershipTier(props: Props) {
         type="textarea"
         max="400"
         name="tier_description"
-        label={__('Tier Description & custom Perks')}
+        label={__('Tier description and custom perks')}
         placeholder={__('Description of your tier')}
         value={editTierParams.editTierDescription}
         onChange={(e) => setEditTierParams((prev) => ({ ...prev, editTierDescription: e.target.value }))}
