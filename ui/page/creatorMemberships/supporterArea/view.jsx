@@ -127,7 +127,7 @@ const MembershipsPage = (props: Props) => {
           <Tab>{__('Overview')}</Tab>
           <Tab>{__('Billing History')}</Tab>
           <Tab> {__('Creators To Support')}</Tab>
-          <div>
+          <div className="no-after">
             <Tab>
               <Button
                 navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}

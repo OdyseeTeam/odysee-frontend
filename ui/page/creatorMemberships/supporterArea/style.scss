@@ -1,6 +1,36 @@
 .membershipPage-wrapper{
   .tabs__list{
     border-radius:0 0 var(--border-radius) var(--border-radius);
+
+    .no-after{
+      button{
+        margin-right:var(--spacing-s);
+      }
+      .tab{
+        .button--secondary{
+          .button__label{
+            color:white !important;
+          }      
+          .icon{
+            stroke:white;
+          }
+        }
+        &:hover{
+          .button--secondary{
+            .button__label{
+              color:var(--color-primary) !important;
+            }      
+            .icon{
+              stroke:var(--color-primary) !important;
+            }
+          }
+
+          &::after{
+            display:none;
+          }
+        }        
+      }      
+    }
   }
 
 }
