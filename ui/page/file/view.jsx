@@ -256,6 +256,7 @@ export default function FilePage(props: Props) {
         <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
           <FileTitleSection uri={uri} isNsfwBlocked />
         </div>
+        {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
         {!isMarkdown && !theaterMode && <RightSideContent {...rightSideProps} />}
       </Page>
     );
