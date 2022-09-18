@@ -43,12 +43,9 @@ type Props = {
   collectionParams: CollectionPublishParams,
   collectionClaimIds: Array<string>,
   updatingCollection: boolean,
-  updateError: string,
-  createError: string,
   creatingCollection: boolean,
   doCollectionPublishUpdate: (CollectionUpdateParams) => Promise<any>,
   doCollectionPublish: (CollectionPublishParams, string) => Promise<any>,
-  doClearCollectionErrors: () => void,
   // onPreSubmit: Hook to allow clients to change/finalize the params before the form is submitted.
   onPreSubmit: (params: {}) => {},
   onDone: (string) => void,
@@ -66,12 +63,9 @@ function CollectionForm(props: Props) {
     collectionParams,
     collectionClaimIds,
     updatingCollection,
-    updateError,
-    createError,
     creatingCollection,
     doCollectionPublishUpdate,
     doCollectionPublish,
-    doClearCollectionErrors,
     onPreSubmit,
     onDone,
   } = props;
@@ -96,7 +90,7 @@ function CollectionForm(props: Props) {
   const hasClaims = claims && claims.length;
   const collectionClaimIdsString = JSON.stringify(collectionClaimIds);
   const itemError = !hasClaims ? __('Cannot publish empty list') : '';
-  const submitError = nameError || bidError || itemError || updateError || createError || thumbailError;
+  const submitError = nameError || bidError || itemError || thumbailError;
 
   function updateParams(newParams) {
     // $FlowFixMe
@@ -131,7 +125,6 @@ function CollectionForm(props: Props) {
     const collectionClaimIds = JSON.parse(collectionClaimIdsString);
     // $FlowFixMe
     updateParams({ claims: collectionClaimIds });
-    doClearCollectionErrors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionClaimIdsString]);
 
