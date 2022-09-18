@@ -797,7 +797,7 @@
 
   .card__header--slim {
     padding: var(--spacing-xxs);
-    padding-top: 0;
+
     @media (max-width: $breakpoint-small) {
       padding: 0;
     }
