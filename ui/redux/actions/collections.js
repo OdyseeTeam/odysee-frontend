@@ -450,6 +450,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         items: newItems,
         ...(type ? { type } : {}),
         ...(params.name ? { name: params.name } : {}),
+        ...(params.title ? { name: params.title } : {}),
         ...(params.description ? { description: params.description } : {}),
         ...(params.thumbnail ? { thumbnail: params.thumbnail } : {}),
       },

@@ -117,7 +117,7 @@ function ChannelSelector(props: Props) {
             <MenuItem
               onSelect={() => {
                 doSetIncognito(true);
-                if (onChannelSelect) onChannelSelect(undefined);
+                if (onChannelSelect) onChannelSelect(null);
               }}
             >
               <IncognitoSelector />

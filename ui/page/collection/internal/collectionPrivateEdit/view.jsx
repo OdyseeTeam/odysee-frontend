@@ -40,10 +40,11 @@ function CollectionForm(props: Props) {
   const collectionResetPending = React.useRef(false);
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
-  const { name, description, thumbnail } = collection || {};
+  const { name, title, description, thumbnail } = collection || {};
   const initialParams = React.useRef({
     uris: collectionUrls,
     name,
+    title: title || name,
     description,
     thumbnail,
   });

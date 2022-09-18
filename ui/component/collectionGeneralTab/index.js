@@ -1,16 +1,14 @@
 import { connect } from 'react-redux';
-import { selectChannelForUri } from 'redux/selectors/claims';
-import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectClaimNameForId } from 'redux/selectors/claims';
 
 import CollectionGeneralTab from './view';
 
 const select = (state, props) => {
-  const { uri, isPrivateEdit } = props;
+  const { params } = props;
+  const { channel_id: collectionChannelId } = params;
 
   return {
-    collectionChannel: !isPrivateEdit && selectChannelForUri(state, uri),
-    activeChannelClaim: !isPrivateEdit && selectActiveChannelClaim(state),
-    incognito: selectIncognito(state),
+    collectionChannelName: selectClaimNameForId(state, collectionChannelId),
   };
 };
 

@@ -15,13 +15,11 @@ type Props = {
   params: any,
   nameError: any,
   isPrivateEdit?: boolean,
-  incognito: boolean,
   setThumbnailError: (error: ?string) => void,
   updateParams: (obj: any) => void,
   collectionType: string,
   // -- redux --
-  collectionChannel: ?ChannelClaim,
-  activeChannelClaim: ?ChannelClaim,
+  collectionChannelName: ?string,
 };
 
 function CollectionGeneralTab(props: Props) {
@@ -30,23 +28,19 @@ function CollectionGeneralTab(props: Props) {
     params,
     nameError,
     isPrivateEdit,
-    incognito,
     setThumbnailError,
     updateParams,
     collectionType,
     // -- redux --
-    collectionChannel,
-    activeChannelClaim,
+    collectionChannelName,
   } = props;
 
-  const { name, description } = params;
+  const { channel_id: collectionChannelId, name, title, description } = params;
   const thumbnailUrl = params.thumbnail_url || params.thumbnail?.url;
-  const title = params.title || name;
 
   const [thumbStatus, setThumbStatus] = React.useState();
   const [thumbError, setThumbError] = React.useState();
 
-  const { name: activeChannelName } = activeChannelClaim || {};
   const isNewCollection = !uri;
 
   function handleUpdateThumbnail(update: { [string]: string }) {
@@ -77,7 +71,7 @@ function CollectionGeneralTab(props: Props) {
     setThumbnailError(thumbnailError);
   }, [setThumbnailError, thumbError, thumbStatus]);
 
-  if (activeChannelClaim === undefined && !isPrivateEdit) {
+  if (collectionChannelId === undefined && !isPrivateEdit) {
     return (
       <div className="main--empty">
         <Spinner />
@@ -91,7 +85,7 @@ function CollectionGeneralTab(props: Props) {
       {!isPrivateEdit && collectionType !== COL_TYPES.FEATURED_CHANNELS && (
         <ChannelSelector
           autoSet
-          channelToSet={collectionChannel}
+          channelToSet={collectionChannelId}
           onChannelSelect={(id) => updateParams({ channel_id: id })}
         />
       )}
@@ -104,7 +98,7 @@ function CollectionGeneralTab(props: Props) {
                 <fieldset-section>
                   <label htmlFor="collection_name">{__('Name')}</label>
                   <div className="form-field__prefix">
-                    {incognito ? `${DOMAIN}/` : `${DOMAIN}/${activeChannelName}/`}
+                    {!collectionChannelName ? `${DOMAIN}/` : `${DOMAIN}/${collectionChannelName}/`}
                   </div>
                 </fieldset-section>
 
@@ -135,9 +129,7 @@ function CollectionGeneralTab(props: Props) {
               label={__('Title')}
               placeholder={__('My Awesome Playlist')}
               value={title || ''}
-              onChange={(e) =>
-                updateParams(isPrivateEdit ? { name: e.target.value || '' } : { title: e.target.value || '' })
-              }
+              onChange={(e) => updateParams({ title: e.target.value || '' })}
             />
 
             <fieldset-section>

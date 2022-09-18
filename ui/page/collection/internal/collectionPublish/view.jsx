@@ -37,11 +37,11 @@ type Props = {
   uri: string, // collection uri
   collectionId: string,
   // -- redux -
-  hasClaim: boolean,
   balance: number,
+  claimName?: string,
   amount: number,
   collection: Collection,
-  collectionParams: CollectionPublishParams,
+  collectionParams: CollectionPublishParams | CollectionUpdateParams,
   collectionClaimIds: Array<string>,
   updatingCollection: boolean,
   creatingCollection: boolean,
@@ -58,8 +58,8 @@ function CollectionForm(props: Props) {
     uri,
     collectionId,
     // -- redux -
-    hasClaim,
     balance,
+    claimName,
     amount,
     collection,
     collectionParams,
@@ -93,6 +93,7 @@ function CollectionForm(props: Props) {
   const collectionClaimIdsString = JSON.stringify(collectionClaimIds);
   const itemError = !hasClaims ? __('Cannot publish empty list') : '';
   const submitError = nameError || bidError || itemError || thumbailError;
+  const hasParams = collectionParams !== undefined;
 
   function updateParams(newParams) {
     // $FlowFixMe
@@ -141,13 +142,15 @@ function CollectionForm(props: Props) {
     setNameError(nameError);
   }, [name]);
 
-  // setup initial params after we're sure if it's published or not
   React.useEffect(() => {
-    if (!uri || (uri && hasClaim)) {
-      updateParams(collectionParams);
+    if (hasParams) {
+      updateParams({ ...collectionParams, name: claimName });
     }
+
+    // -- Only updateParams when collectionParams isn't undefined, will be instant on private publish,
+    // but could wait for claim resolve on published update
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [uri, hasClaim]);
+  }, [hasParams]);
 
   function onTabChange(newTabIndex) {
     if (tabIndex !== newTabIndex) {

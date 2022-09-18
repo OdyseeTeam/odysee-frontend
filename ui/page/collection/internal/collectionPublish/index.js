@@ -1,30 +1,30 @@
 import { connect } from 'react-redux';
 import {
-  selectHasClaimForUri,
-  makeSelectAmountForUri,
+  selectClaimBidAmountForId,
+  selectClaimNameForId,
   selectUpdatingCollection,
   selectCreatingCollection,
 } from 'redux/selectors/claims';
 import { selectClaimIdsForCollectionId, selectCollectionForId } from 'redux/selectors/collections';
 import { doCollectionPublish, doCollectionPublishUpdate } from 'redux/actions/claims';
 import { selectBalance } from 'redux/selectors/wallet';
-import { selectCollectionClaimParamsForUri } from 'redux/selectors/publish';
+import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 
 import CollectionForm from './view';
 
 const select = (state, props) => {
-  const { uri, collectionId } = props;
+  const { collectionId } = props;
 
   return {
-    hasClaim: selectHasClaimForUri(state, uri),
-    amount: makeSelectAmountForUri(uri)(state),
+    claimName: selectClaimNameForId(state, collectionId),
+    amount: selectClaimBidAmountForId(state, collectionId),
     updatingCollection: selectUpdatingCollection(state),
     creatingCollection: selectCreatingCollection(state),
     balance: selectBalance(state),
     collection: selectCollectionForId(state, collectionId),
     collectionClaimIds: selectClaimIdsForCollectionId(state, collectionId),
-    collectionParams: selectCollectionClaimParamsForUri(state, uri, collectionId),
+    collectionParams: selectCollectionClaimUploadParamsForId(state, collectionId),
     activeChannelClaim: selectActiveChannelClaim(state),
   };
 };

@@ -387,6 +387,46 @@ export const selectMetadataForUri = (state: State, uri: string) => {
   return metadata || (claim === undefined ? undefined : null);
 };
 
+export const selectMetadataForClaimId = (state: State, claimId: ClaimId) => {
+  const claim = selectClaimForClaimId(state, claimId);
+  if (!claim) return claim;
+
+  const { value: metadata } = claim;
+  return metadata;
+};
+
+export const selectMetadataItemForClaimIdAndKey = (
+  state: State,
+  claimId: ClaimId,
+  key: ChannelMetadataKey | StreamMetadataKey | CollectionMetadataKey
+) => selectMetadataForClaimId(state, claimId)[key];
+
+export const selectTagNamesForClaimId = createSelector(
+  (state, claimId) => selectMetadataItemForClaimIdAndKey(state, claimId, 'tags'),
+  (tags) => tags && tags.map((tag) => tag.name)
+);
+
+export const selectGenericClaimUploadMetadataForId = (state: State, claimId: ClaimId) => {
+  const claim = selectClaimForClaimId(state, claimId);
+  if (!claim) return claim;
+
+  const thumbnail = selectMetadataItemForClaimIdAndKey(state, claimId, 'thumbnail');
+
+  const genericUploadMetadata: GenericUpdateParams = {
+    claim_id: claim.claim_id,
+    channel_id: getChannelIdFromClaim(claim) || null,
+    title: selectMetadataItemForClaimIdAndKey(state, claimId, 'title'),
+    description: selectMetadataItemForClaimIdAndKey(state, claimId, 'description'),
+    languages: selectMetadataItemForClaimIdAndKey(state, claimId, 'languages') || [],
+    locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations'),
+    bid: selectClaimBidAmountForId(state, claimId) || 0.001,
+    tags: selectTagNamesForClaimId(state, claimId) || [],
+    ...(thumbnail ? { thumbnail_url: thumbnail.url } : {}),
+  };
+
+  return genericUploadMetadata;
+};
+
 export const makeSelectMetadataForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     const metadata = claim && claim.value;
@@ -429,6 +469,11 @@ export const makeSelectAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     return claim && claim.amount;
   });
+
+export const selectClaimBidAmountForId = (state: State, id: ClaimId) => {
+  const claim = selectClaimForClaimId(state, id);
+  return claim && claim.amount;
+};
 
 export const makeSelectEffectiveAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri, false), (claim) => {
@@ -658,6 +703,9 @@ export const selectChannelNameForId = (state: State, claimId: string) => {
   const uri = selectClaimUriForId(state, claimId);
   return selectChannelForClaimUri(state, uri);
 };
+
+export const selectClaimNameForId = (state: State, claimId: string) =>
+  getNameFromClaim(selectClaimForId(state, claimId));
 
 export const selectChannelForClaimUri = createCachedSelector(
   (state, uri, includePrefix) => includePrefix,

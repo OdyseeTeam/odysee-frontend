@@ -74,9 +74,9 @@ export const selectUpdatedCollectionForId = (state: State, id: string) => {
   return updatedCollections[id];
 };
 
-export const selectCollectionNameForId = (state: State, id: string) => {
+export const selectCollectionTitleForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
-  return collection?.name;
+  return collection?.title || collection?.name;
 };
 
 export const selectCollectionDescriptionForId = (state: State, id: string) => {
@@ -336,9 +336,12 @@ export const selectAreBuiltinCollectionsEmpty = (state: State) => {
 };
 
 export const selectClaimIdsForCollectionId = createSelector(selectCollectionForId, (collection) => {
-  const items = (collection && collection.items) || [];
+  if (!collection) return [];
 
-  const ids = items.map((item) => {
+  const ids = collection.items.map((item) => {
+    // this is safe because at this point the app should've called doFetchItemsInCollections
+    // which would fetch and use the permanent urls for any item that was in the collection
+    // or filter the falsey values
     const { claimId } = parseURI(item);
     return claimId;
   });
