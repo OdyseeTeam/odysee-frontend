@@ -423,7 +423,7 @@ export const selectMetadataItemForClaimIdAndKey = (
 
 export const selectTagNamesForClaimId = createSelector(
   (state, claimId) => selectMetadataItemForClaimIdAndKey(state, claimId, 'tags'),
-  (tags) => tags && tags.map((tag) => tag.name)
+  (tags) => tags && tags.map((tag) => tag.name || tag)
 );
 
 export const selectGenericClaimUploadMetadataForId = (state: State, claimId: ClaimId) => {
@@ -438,7 +438,7 @@ export const selectGenericClaimUploadMetadataForId = (state: State, claimId: Cla
     title: selectMetadataItemForClaimIdAndKey(state, claimId, 'title'),
     description: selectMetadataItemForClaimIdAndKey(state, claimId, 'description'),
     languages: selectMetadataItemForClaimIdAndKey(state, claimId, 'languages') || [],
-    locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations'),
+    locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations') || [],
     bid: selectClaimBidAmountForId(state, claimId) || 0.001,
     tags: selectTagNamesForClaimId(state, claimId) || [],
     ...(thumbnail ? { thumbnail_url: thumbnail.url } : {}),

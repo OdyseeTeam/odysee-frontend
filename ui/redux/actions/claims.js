@@ -18,6 +18,7 @@ import {
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
@@ -185,12 +186,15 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: 
       return Promise.resolve(resolvedClaims);
     }
 
+    const isAuthenticated = selectUserVerifiedEmail(state);
+
     const response = await dispatch(
       doClaimSearch(
         {
           claim_ids: idsToResolve,
           page: 1,
           page_size: Math.min(idsToResolve.length, 50),
+          include_is_my_output: isAuthenticated,
           no_totals: true,
         },
         {
