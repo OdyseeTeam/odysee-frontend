@@ -93,6 +93,10 @@
     font-weight: var(--font-weight-bold);
     color: var(--color-text);
   }
+
+  @media (max-width: $breakpoint-small) {
+    background-position: unset;
+  }
 }
 
 .membership__mypledges-wrapper {
@@ -108,7 +112,7 @@
   position: relative;
   width: 100%;
   background-size: cover;
-  background-position: top -180px left 0px;
+  background-position: top -20px left 0px;
   background-image: url('/public/img/my_pledges.jpg');
   border-radius: var(--border-radius);
   margin-bottom: var(--spacing-m);
@@ -136,6 +140,10 @@
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
     color: var(--color-text);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    background-position: unset;
   }
 }
 
