@@ -17,9 +17,9 @@ const BuiltinPlaylists = () => {
       {!isMobile && <TableHeader />}
 
       <ul className={classnames('ul--no-style claim-list', { playlists: !isMobile })}>
-        {COLS.BUILTIN_PLAYLISTS.map((playlist) => (
-          <CollectionPreview collectionId={playlist} key={playlist} />
-        ))}
+        {COLS.BUILTIN_PLAYLISTS.map(
+          (playlist) => playlist !== COLS.QUEUE_ID && <CollectionPreview collectionId={playlist} key={playlist} />
+        )}
       </ul>
     </>
   );
