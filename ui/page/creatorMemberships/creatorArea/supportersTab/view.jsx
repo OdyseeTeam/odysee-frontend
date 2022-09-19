@@ -76,17 +76,18 @@ const SupportersTab = (props: Props) => {
                 {(!isViewingSingleChannel || !channelMembershipTiers) && (
                   <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
                 )}
-                {(!isViewingSingleChannel || !channelMembershipTiers) && (channelClaim.value.title || channelClaim.name)}
+                {(!isViewingSingleChannel || !channelMembershipTiers) &&
+                  (channelClaim.value.title || channelClaim.name)}
               </div>
 
               <table className="table">
                 <thead>
                   <tr>
-                    <th className="date-header">{__('Channel Name')}</th>
+                    <th>{__('Channel Name')}</th>
                     <th className="channelName-header">{__('Tier')}</th>
-                    <th className="location-header">{__('Amount')}</th>
-                    <th className="amount-header">{__('Joined On')}</th>
-                    <th className="channelName-header">{__('Months Supporting')}</th>
+                    <th>{__('Amount')}</th>
+                    <th>{__('Joined On')}</th>
+                    <th>{__('Months Supporting')}</th>
                   </tr>
                 </thead>
 

@@ -9,6 +9,7 @@ import CopyableText from 'component/copyableText';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 import HelpHub from 'component/common/help-hub';
+import TruncatedText from 'component/common/truncated-text';
 import './style.scss';
 
 type Props = {
@@ -60,7 +61,9 @@ function OverviewTab(props: Props) {
                 <table className="table">
                   <thead>
                     <tr>
-                      <th className="channelName-header">Channel Name</th>
+                      <th className="channelName-header" colSpan="2">
+                        Channel Name
+                      </th>
                       <th>{__('Supporters')}</th>
                       <th>{__('Estimated Monthly Income')}</th>
                       <th>{__('Total Received')}</th>
@@ -71,9 +74,11 @@ function OverviewTab(props: Props) {
                   <tbody>
                     {channelsToList.map((channelClaim) => (
                       <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
-                        <td>
+                        <td className="channelThumbnail">
                           <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
-                          {channelClaim.value.title || channelClaim.name}
+                        </td>
+                        <td>
+                          <TruncatedText text={channelClaim.value.title || channelClaim.name} lines={1} />
                         </td>
                         <td>0</td>
                         <td>$0</td>
