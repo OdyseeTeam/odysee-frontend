@@ -35,16 +35,17 @@
     }
 
     @media (max-width: $breakpoint-small) {
-      flex-flow: column;
-      height: unset;
-      padding: 0;
+      overflow-x: auto;
+      overflow-y: hidden;
+
       .tab {
-        margin-left: var(--spacing-s);
-        margin-top: var(--spacing-s);
-        width: 100%;
+        flex: auto;
+        white-space: nowrap;
+        margin-right: var(--spacing-m);
       }
+
       .no-after {
-        margin-left: calc(var(--spacing-m) * -1);
+        margin-right: calc(var(--spacing-xl) * -1);
       }
     }
   }
