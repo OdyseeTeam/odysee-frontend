@@ -8,7 +8,7 @@ import {
   selectMyClaimsRaw,
   selectResolvingUris,
   selectClaimForUri,
-  selectClaimForClaimId,
+  selectClaimsById,
   selectMyChannelClaims,
   selectPendingClaimsById,
   selectClaimIsMine,
@@ -161,14 +161,16 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: 
     const state = getState();
 
     const resolvingIds = new Set(selectResolvingIds(state));
+    const claimsById = selectClaimsById(state);
     const resolvedClaims = {};
+
     const idsToResolve = claimIds.filter((id) => {
       if (resolvingIds.has(id)) {
         return false;
       }
 
       if (returnCachedClaims) {
-        const claim = selectClaimForClaimId(state, id);
+        const claim = claimsById[id];
 
         if (claim) {
           resolvedClaims[claim.permanent_url] = claim;
