@@ -6,7 +6,7 @@ import { selectClaimIsPendingForId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectCollectionHasEditsForId,
-  selectCollectionIsMine,
+  selectCollectionIsMineForId,
   selectIsCollectionPrivateForId,
 } from 'redux/selectors/collections';
 
@@ -14,7 +14,7 @@ const select = (state, props) => {
   return {
     collection: selectCollectionForId(state, props.collectionId),
     isUnpublished: selectIsCollectionPrivateForId(state, props.collectionId),
-    isCollectionMine: selectCollectionIsMine(state, props.collectionId),
+    isCollectionMine: selectCollectionIsMineForId(state, props.collectionId),
     hasEdits: selectCollectionHasEditsForId(state, props.collectionId),
     claimIsPending: selectClaimIsPendingForId(state, props.collectionId),
   };

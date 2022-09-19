@@ -1,70 +1,76 @@
 // @flow
-import fromEntries from '@ungap/from-entries';
-import { createSelector } from 'reselect';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+
+import { createSelector } from 'reselect';
 import { COL_TYPES } from 'constants/collections';
 import moment from 'moment';
 import {
-  selectMyCollectionIds,
   selectClaimForUri,
-  selectClaimForClaimId,
-  selectChannelNameForId,
-  selectPermanentUrlForUri,
   selectClaimsById,
+  selectClaimIdsByUri,
+  selectMyCollectionClaims,
+  selectCollectionClaimsById,
+  selectMyCollectionClaimsById,
 } from 'redux/selectors/claims';
-import { parseURI } from 'util/lbryURI';
+import { normalizeURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
-import { selectCountForCollection } from 'util/collections';
-import { getChannelIdFromClaim, isPermanentUrl } from 'util/claim';
+import { getItemCountForCollection } from 'util/collections';
+import { getChannelIdFromClaim } from 'util/claim';
 
-type State = { collections: CollectionState };
+type State = { claims: any, user: any, collections: CollectionState };
 
 const selectState = (state: State) => state.collections || {};
 
 export const selectSavedCollectionIds = (state: State) => selectState(state).savedIds;
 export const selectBuiltinCollections = (state: State) => selectState(state).builtin;
-export const selectResolvedCollections = (state: State) => selectState(state).resolved;
 export const selectMyUnpublishedCollections = (state: State) => selectState(state).unpublished;
 export const selectMyEditedCollections = (state: State) => selectState(state).edited;
 export const selectMyUpdatedCollections = (state: State) => selectState(state).updated;
-export const selectPendingCollections = (state: State) => selectState(state).pending;
-export const selectIsResolvingCollectionById = (state: State) => selectState(state).resolvingById;
+export const selectCollectionItemsFetchingIds = (state: State) => selectState(state).collectionItemsFetchingIds;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
+export const selectCurrentQueueList = (state: State) => ({ queue: selectQueueCollection(state) });
 export const selectFeaturedChannelsPublishing = (state: State) => selectState(state).featuredChannelsPublishing;
+export const selectLastUsedCollection = (state: State) => selectState(state).lastUsedCollection;
+export const selectIsFetchingMyCollectionClaims = (state: State) => selectState(state).isFetchingMyCollectionClaims;
+export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
 
-export const selectCurrentQueueList = createSelector(selectQueueCollection, (queue) => ({ queue }));
-export const selectHasItemsInQueue = createSelector(selectQueueCollection, (queue) => queue.items.length > 0);
-
-export const selectLastUsedCollection = createSelector(selectState, (state) => state.lastUsedCollection);
+export const selectCollectionHasItemsResolvedForId = (state: State, id: string) =>
+  new Set(selectCollectionIdsWithItemsResolved(state)).has(id);
 
 export const selectUnpublishedCollectionsList = createSelector(
   selectMyUnpublishedCollections,
-  (unpublishedCollections) => Object.keys(unpublishedCollections || {})
+  (unpublishedCollections) => Object.keys(unpublishedCollections)
 );
 
-export const selectCollectionSavedForId = (state: State, id: string) => {
-  const savedIds = selectSavedCollectionIds(state);
-  return savedIds.includes(id);
-};
+export const selectIsCollectionSavedForId = (state: State, id: string) =>
+  new Set(selectSavedCollectionIds(state)).has(id);
 
 export const selectSavedCollections = createSelector(
-  selectResolvedCollections,
+  selectCollectionClaimsById,
   selectSavedCollectionIds,
-  (resolved, savedIds) => fromEntries(Object.entries(resolved).filter(([key, val]) => savedIds.includes(key)))
+  (byId, savedIds) => {
+    const savedCollections = {};
+
+    savedIds.forEach((savedId) => {
+      if (byId[savedId]) savedCollections[savedId] = byId[savedId];
+    });
+
+    return savedCollections;
+  }
 );
 
-export const selectHasCollections = createSelector(
-  selectUnpublishedCollectionsList,
-  selectMyCollectionIds,
-  (unpublished, publishedIds) => Boolean(unpublished.length > 0 || publishedIds.length > 0)
-);
+export const selectHasCollections = (state: State) => {
+  const unpublishedCollections = selectUnpublishedCollectionsList(state);
+  const publishedCollectionIds = selectMyCollectionClaims(state);
 
-export const selectEditedCollectionForId = (state: State, id: string) => {
-  const editedCollections = selectMyEditedCollections(state);
-  return editedCollections[id];
+  return unpublishedCollections.length > 0 || (publishedCollectionIds && publishedCollectionIds.length > 0);
 };
+
+export const selectEditedCollectionForId = (state: State, id: string) => selectMyEditedCollections(state)[id];
+export const selectCollectionHasEditsForId = (state: State, id: string) =>
+  Boolean(selectEditedCollectionForId(state, id));
 
 export const selectUpdatedCollectionForId = (state: State, id: string) => {
   const editedCollections = selectMyEditedCollections(state);
@@ -74,227 +80,114 @@ export const selectUpdatedCollectionForId = (state: State, id: string) => {
   return updatedCollections[id];
 };
 
-export const selectCollectionTitleForId = (state: State, id: string) => {
-  const collection = selectCollectionForId(state, id);
-  return collection?.title || collection?.name;
-};
-
 export const selectCollectionDescriptionForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   return collection?.description;
 };
 
-export const selectCollectionHasEditsForId = (state: State, id: string) => {
-  const editedCollections = selectMyEditedCollections(state);
-  return Boolean(editedCollections[id]);
+export const selectPublishedCollectionForId = (state: State, id: string) => selectCollectionClaimsById(state)[id];
+
+export const selectUnpublishedCollectionForId = (state: State, id: string) => selectMyUnpublishedCollections(state)[id];
+
+export const selectIsCollectionPrivateForId = (state: State, id: string) => {
+  const unpublishedCollection = selectUnpublishedCollectionForId(state, id);
+  if (unpublishedCollection) return true;
+
+  const builtinIds = selectBuiltinCollections(state);
+  if (builtinIds[id]) return true;
+
+  const queue = selectCurrentQueueList(state);
+  if (queue[id]) return true;
+
+  return false;
 };
 
-export const selectPendingCollectionForId = (state: State, id: string) => {
-  const pendingCollections = selectPendingCollections(state);
-  return pendingCollections[id];
+export const selectCollectionIsMineForId = (state: State, id: string) => {
+  const isPrivate = selectIsCollectionPrivateForId(state, id);
+  if (isPrivate) return true;
+
+  const publicIds = selectMyCollectionClaims(state);
+  if (publicIds && new Set(publicIds).has(id)) return true;
+
+  return false;
 };
 
-export const selectPublishedCollectionForId = (state: State, id: string) => {
-  const publishedCollections = selectResolvedCollections(state);
-  return publishedCollections[id];
-};
-
-export const selectPublishedCollectionClaimForId = (state: any, id: string) => {
-  const publishedCollection = selectPublishedCollectionForId(state, id);
-
-  if (publishedCollection) {
-    const claim = selectClaimForClaimId(state, id);
-    return claim;
-  }
-
-  return null;
-};
-
-export const selectPublishedCollectionChannelNameForId = (state: any, id: string) => {
-  const collectionClaim = selectPublishedCollectionClaimForId(state, id);
-
-  if (collectionClaim) {
-    const name = selectChannelNameForId(state, id);
-    return name;
-  }
-
-  return null;
-};
-
-export const selectUnpublishedCollectionForId = (state: State, id: string) => {
-  const unpublishedCollections = selectMyUnpublishedCollections(state);
-  return unpublishedCollections[id];
-};
-
-export const selectCollectionIsMine = createSelector(
-  (state, id) => id,
-  selectMyCollectionIds,
-  selectMyUnpublishedCollections,
-  selectBuiltinCollections,
-  selectCurrentQueueList,
-  (id, publicIds, privateIds, builtinIds, queue) =>
-    Boolean(publicIds.includes(id) || privateIds[id] || builtinIds[id] || queue[id])
-);
-
-export const selectMyPublishedCollections = createSelector(
-  selectResolvedCollections,
-  selectPendingCollections,
+// returns published collections + local edits or update timestamps
+export const selectMyPublicLocalCollections = createSelector(
+  selectMyCollectionClaimsById,
   selectMyEditedCollections,
   selectMyUpdatedCollections,
-  selectMyCollectionIds,
-  (resolved, pending, edited, updated, myIds) => {
-    // all resolved in myIds, plus those in pending and edited
-    const myPublishedCollections = fromEntries(
-      Object.entries(pending).concat(
-        Object.entries(resolved).filter(
-          ([key, val]) =>
-            myIds.includes(key) &&
-            // $FlowFixMe
-            !pending[key]
-        )
-      )
-    );
-    // now add in edited:
-    Object.entries(edited).forEach(([id, item]) => {
-      // $FlowFixMe
-      if (!updated[id]) {
-        myPublishedCollections[id] = item;
-      } else {
-        // $FlowFixMe
-        myPublishedCollections[id] = { ...myPublishedCollections[id], updatedAt: item.updatedAt };
+  (myCollectionsById, edited, updated) => {
+    const myPublicLocalCollections = {};
+
+    for (const id in myCollectionsById) {
+      const collection = myCollectionsById[id];
+      const updatedCollection = updated[id];
+      const editedCollection = edited[id];
+
+      myPublicLocalCollections[id] = Object.assign({}, collection);
+
+      if (updatedCollection) {
+        Object.assign(myPublicLocalCollections[id], updatedCollection);
+      } else if (editedCollection) {
+        Object.assign(myPublicLocalCollections[id], editedCollection);
       }
-    });
-    return myPublishedCollections;
+    }
+
+    return myPublicLocalCollections;
   }
 );
 
-export const selectMyPublishedOnlyCollections = createSelector(
-  selectResolvedCollections,
-  selectPendingCollections,
-  selectMyCollectionIds,
-  (resolved, pending, myIds) => {
-    // all resolved in myIds, plus those in pending and edited
-    const myPublishedCollections = fromEntries(
-      Object.entries(pending).concat(
-        Object.entries(resolved).filter(
-          ([key, val]) =>
-            myIds.includes(key) &&
-            // $FlowFixMe
-            !pending[key]
-        )
-      )
-    );
-    return myPublishedCollections;
-  }
-);
+export const selectMyPublicCollectionForId = (state: State, id: string) => selectMyCollectionClaimsById(state)[id];
 
-export const selectCollectionValuesListForKey = createSelector(
-  (state, key) => key,
-  selectBuiltinCollections,
-  selectCurrentQueueList,
-  selectMyPublishedCollections,
-  selectMyUnpublishedCollections,
-  (key, builtin, queue, published, unpublished) => {
-    const myCollections = { builtin, queue, published, unpublished };
-    const collectionsForKey = myCollections[key];
-    // this is needed so Flow doesn't error saying it is mixed when this list is looped
-    const collectionValues: CollectionList = (Object.values(collectionsForKey): any);
+export const selectIsMyPublicCollectionNotEditedForId = (state: State, id: string) => {
+  const publicCollection = selectMyPublicCollectionForId(state, id);
+  const hasEdits = selectCollectionHasEditsForId(state, id);
 
-    return collectionValues;
-  }
-);
-
-export const selectIsMyCollectionPublishedForId = (state: State, id: string) => {
-  const publishedCollection = selectMyPublishedCollections(state);
-  return Boolean(publishedCollection[id]);
+  return Boolean(publicCollection && !hasEdits);
 };
 
-export const selectPublishedCollectionNotEditedForId = createSelector(
-  selectIsMyCollectionPublishedForId,
-  selectCollectionHasEditsForId,
-  (isPublished, hasEdits) => isPublished && !hasEdits
-);
+export const selectMyPublicCollectionCountForId = (state: State, id: string) =>
+  getItemCountForCollection(selectMyPublicCollectionForId(state, id));
 
-export const selectMyPublishedMixedCollections = createSelector(selectMyPublishedCollections, (published) => {
-  const myCollections = fromEntries(
-    // $FlowFixMe
-    Object.entries(published).filter(([key, collection]) => {
-      // $FlowFixMe
-      return collection.type === COLLECTIONS_CONSTS.COL_TYPES.COLLECTION;
-    })
-  );
-  return myCollections;
-});
-
-export const selectMyPublishedCollectionForId = (state: State, id: string) => {
-  const myPublishedCollections = selectMyPublishedCollections(state);
-  return myPublishedCollections[id];
-};
-
-export const selectMyPublishedOnlyCollectionForId = (state: State, id: string) => {
-  const myPublishedCollections = selectMyPublishedOnlyCollections(state);
-  return myPublishedCollections[id];
-};
-
-export const selectMyPublishedCollectionCountForId = (state: State, id: string) => {
-  const publishedCollection = selectMyPublishedOnlyCollectionForId(state, id);
-  const count = selectCountForCollection(publishedCollection);
-  return count;
-};
-
-export const selectIsResolvingCollectionForId = (state: State, id: string) => {
-  const resolvingById = selectIsResolvingCollectionById(state);
-  return resolvingById[id];
-};
+export const selectIsCollectionItemsFetchingForId = (state: State, id: string) =>
+  new Set(selectCollectionItemsFetchingIds(state)).has(id);
 
 export const selectCollectionForId = createSelector(
   (state, id) => id,
+  selectPublishedCollectionForId,
   selectBuiltinCollections,
-  selectResolvedCollections,
   selectMyUnpublishedCollections,
   selectMyEditedCollections,
-  selectPendingCollections,
   selectCurrentQueueList,
-  (id, bLists, rLists, uLists, eLists, pLists, queue) => {
-    const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
+  (id, published, bLists, uLists, eLists, queue) => {
+    const collection = bLists[id] || uLists[id] || eLists[id] || published || queue[id];
     return collection;
   }
 );
 
-export const selectIsCollectionBuiltInForId = (state: State, id: string) => {
-  const builtin = selectBuiltinCollections(state);
-  return builtin[id];
-};
+export const selectIsCollectionBuiltInForId = (state: State, id: string) => selectBuiltinCollections(state)[id];
 
-export const selectClaimSavedForUrl = (state: State, url: string) => {
-  const [bLists, myRLists, uLists, eLists, pLists] = [
-    selectBuiltinCollections(state),
-    selectMyPublishedCollections(state),
-    selectMyUnpublishedCollections(state),
-    selectMyEditedCollections(state),
-    selectPendingCollections(state),
-  ];
-  const collections = [bLists, uLists, eLists, myRLists, pLists];
+export const selectClaimSavedForUrl = createSelector(
+  (state, url) => url,
+  selectBuiltinCollections,
+  selectMyPublicLocalCollections,
+  selectMyPublicLocalCollections,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  (url, bLists, myRLists, uLists, eLists) => {
+    const collections = [bLists, uLists, eLists, myRLists];
 
-  // $FlowFixMe
-  return collections.some((list) => Object.values(list).some(({ items }) => items?.some((item) => item === url)));
-};
+    // $FlowFixMe
+    return collections.some((list) => Object.values(list).some(({ items }) => items?.some((item) => item === url)));
+  }
+);
 
-export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
-  const queue = selectQueueCollection(state);
-  const claimInQueue = queue.items.some((item) => item === url);
-  const claimSaved = selectClaimSavedForUrl(state, url);
-
-  return claimSaved && claimInQueue;
-};
-
-export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) => {
-  // $FlowFixMe
-  const url = isPermanentUrl(uri) ? uri : selectPermanentUrlForUri(state, uri);
-  const collection = selectCollectionForId(state, id);
-
-  return collection && collection.items.includes(url);
-};
+export const selectCollectionForIdHasClaimUrl = createCachedSelector(
+  (state, id, uri) => uri,
+  selectCollectionForId,
+  (url, collection) => Boolean(collection && new Set(collection.items).has(url))
+)((state, id, url) => `${String(url)}:${String(id)}`);
 
 export const selectUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
@@ -309,10 +202,11 @@ export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
   return collection && collection.items.filter((item) => typeof item !== 'string');
 };
 
-export const selectFirstItemUrlForCollection = createSelector(
-  selectUrlsForCollectionId,
-  (collectionItemUrls) => collectionItemUrls?.length > 0 && collectionItemUrls[0]
-);
+export const selectFirstItemUrlForCollectionId = (state: State, id: string) => {
+  const collectionItemUrls = selectUrlsForCollectionId(state, id);
+
+  return collectionItemUrls?.length > 0 && collectionItemUrls[0];
+};
 
 export const selectCollectionLengthForId = (state: State, id: string) => {
   const urls = selectUrlsForCollectionId(state, id);
@@ -335,19 +229,27 @@ export const selectAreBuiltinCollectionsEmpty = (state: State) => {
   return !notEmpty;
 };
 
-export const selectClaimIdsForCollectionId = createSelector(selectCollectionForId, (collection) => {
-  if (!collection) return [];
+export const selectClaimIdsForCollectionId = createSelector(
+  selectCollectionForId,
+  selectClaimIdsByUri,
+  (collection, byUri) => {
+    const items = (collection && collection.items && collection.items.filter(Boolean)) || [];
 
-  const ids = collection.items.map((item) => {
-    // this is safe because at this point the app should've called doFetchItemsInCollections
-    // which would fetch and use the permanent urls for any item that was in the collection
-    // or filter the falsey values
-    const { claimId } = parseURI(item);
-    return claimId;
-  });
+    let ids = [];
+    for (const item of items) {
+      const claimId = byUri[normalizeURI(item)];
 
-  return ids;
-});
+      if (!claimId) {
+        ids = [];
+        break;
+      }
+
+      ids.push(claimId);
+    }
+
+    return ids;
+  }
+);
 
 export const selectIndexForUrlInCollection = createSelector(
   (state, url, id, ignoreShuffle) => ignoreShuffle,
@@ -425,10 +327,10 @@ export const selectNextUrlForCollectionAndUrl = createCachedSelector(
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);
 
-export const selectNameForCollectionId = createSelector(
-  selectCollectionForId,
-  (collection) => (collection && collection.name) || ''
-);
+export const selectNameForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  return (collection && collection.name) || '';
+};
 
 export const selectThumbnailForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
@@ -456,7 +358,7 @@ export const selectUpdatedAtForCollectionId = createSelector(
 
 export const selectCreatedAtForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
-  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(id);
+  const isBuiltin = new Set(COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS).has(id);
 
   if (isBuiltin) {
     const userCreatedAt = selectUserCreationDate(state);
@@ -465,27 +367,15 @@ export const selectCreatedAtForCollectionId = (state: State, id: string) => {
 
   if (collection?.createdAt) return collection.createdAt * 1000;
 
-  const publishedClaim = selectPublishedCollectionClaimForId(state, id);
-  if (publishedClaim) return publishedClaim.meta?.creation_timestamp * 1000;
-
   return null;
 };
 
-export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) =>
-  selectCountForCollection(collection)
-);
-
-export const selectIsCollectionPrivateForId = createSelector(
-  (state, id) => id,
-  selectBuiltinCollections,
-  selectMyUnpublishedCollections,
-  selectCurrentQueueList,
-  (id, builtinById, unpublishedById, queue) => Boolean(builtinById[id] || unpublishedById[id] || queue[id])
-);
+export const selectCountForCollectionId = (state: State, id: string) =>
+  getItemCountForCollection(selectCollectionForId(state, id));
 
 export const selectFeaturedChannelsByChannelId = createSelector(
   selectMyUnpublishedCollections,
-  selectResolvedCollections,
+  selectMyCollectionClaimsById,
   selectClaimsById,
   (privateLists, publicLists, claimsById) => {
     let results: { [ChannelId]: Array<CollectionId> } = {};
@@ -546,4 +436,23 @@ export const selectFeaturedChannelsIds = createSelector(selectFeaturedChannelsBy
 export const selectCollectionTypeForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   return collection?.type;
+};
+
+export const selectCollectionKeyForId = (state: State, id: string) => {
+  const isQueue = id === COLLECTIONS_CONSTS.QUEUE_ID;
+  if (isQueue) return COLLECTIONS_CONSTS.QUEUE_ID;
+
+  const unpublishedCollection = selectUnpublishedCollectionForId(state, id);
+  if (unpublishedCollection) return COLLECTIONS_CONSTS.KEYS.UNPUBLISHED;
+
+  const editedCollection = selectEditedCollectionForId(state, id);
+  if (editedCollection) return COLLECTIONS_CONSTS.KEYS.EDITED;
+
+  const isBuiltin = new Set(COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS).has(id);
+  if (isBuiltin) return COLLECTIONS_CONSTS.KEYS.BUILTIN;
+
+  const updated = selectUpdatedCollectionForId(state, id);
+  if (updated) return COLLECTIONS_CONSTS.KEYS.UPDATED;
+
+  return undefined;
 };

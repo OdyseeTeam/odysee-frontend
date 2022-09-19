@@ -17,7 +17,7 @@ type Props = {
   onCancel?: () => void, // Notifies parent that changes were canceled.
   // --- redux ---
   collection: Collection, // Corresponding collection for 'collectionId'.
-  doLocalCollectionCreate: (params: CollectionCreateParams) => void,
+  doLocalCollectionCreate: (params: CollectionLocalCreateParams) => void,
   doCollectionEdit: (id: string, CollectionEditParams, skipSanitization?: boolean) => void,
 };
 
@@ -42,6 +42,7 @@ export default function FeaturedChannelsEdit(props: Props) {
     } else {
       doLocalCollectionCreate({
         name,
+        title: name,
         items: uris,
         type: COL_TYPES.FEATURED_CHANNELS,
         featuredChannelsParams: { channelId: channelId || '0' },

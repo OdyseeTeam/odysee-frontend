@@ -2,27 +2,23 @@ import { connect } from 'react-redux';
 import {
   selectNameForCollectionId,
   selectIsCollectionBuiltInForId,
-  selectPublishedCollectionNotEditedForId,
+  selectIsMyPublicCollectionNotEditedForId,
   selectCollectionIsEmptyForId,
-  selectCollectionIsMine,
+  selectCollectionIsMineForId,
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
-import { selectListShuffleForId } from 'redux/selectors/content';
 import { doToggleShuffleList } from 'redux/actions/content';
 import CollectionMenuList from './view';
 
 const select = (state, props) => {
   const collectionId = props.collectionId;
-  const shuffleList = selectListShuffleForId(state, collectionId);
-  const playNextUri = shuffleList && shuffleList.newUrls[0];
 
   return {
     collectionName: selectNameForCollectionId(state, collectionId),
-    playNextUri,
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
-    publishedNotEdited: selectPublishedCollectionNotEditedForId(state, collectionId),
+    publishedNotEdited: selectIsMyPublicCollectionNotEditedForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
-    isMyCollection: selectCollectionIsMine(state, collectionId),
+    isMyCollection: selectCollectionIsMineForId(state, collectionId),
   };
 };
 

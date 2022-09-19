@@ -1,14 +1,12 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
-import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
   selectCollectionForId,
   selectCollectionForIdHasClaimUrl,
-  selectCollectionIsMine,
+  selectCollectionIsMineForId,
   selectCollectionHasEditsForId,
-  selectUrlsForCollectionId,
   selectLastUsedCollection,
   selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
@@ -32,7 +30,7 @@ import { doToast } from 'redux/actions/notifications';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectListShuffleForId, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { doToggleShuffleList, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -47,8 +45,6 @@ const select = (state, props) => {
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
   const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
-  const collectionShuffle = selectListShuffleForId(state, collectionId);
-  const playNextUri = collectionShuffle && collectionShuffle.newUrls[0];
   const lastUsedCollectionId = selectLastUsedCollection(state);
   const lastUsedCollection = lastUsedCollectionId && selectCollectionForId(state, lastUsedCollectionId);
   const isLivestreamClaim = isStreamPlaceholderClaim(claim);
@@ -77,11 +73,9 @@ const select = (state, props) => {
     channelIsAdminBlocked: makeSelectChannelIsAdminBlocked(props.uri)(state),
     isAdmin: selectHasAdminChannel(state),
     claimInCollection: selectCollectionForIdHasClaimUrl(state, collectionId, contentPermanentUri),
-    isMyCollection: selectCollectionIsMine(state, collectionId),
+    isMyCollection: selectCollectionIsMineForId(state, collectionId),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-    resolvedList: selectUrlsForCollectionId(state, collectionId),
-    playNextUri,
     lastUsedCollection,
     hasClaimInLastUsedCollection: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
     lastUsedCollectionIsNotBuiltin:
@@ -104,7 +98,6 @@ const perform = (dispatch) => ({
     dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
   doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
   doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
-  fetchCollectionItems: (collectionId) => dispatch(doFetchItemsInCollection({ collectionId })),
   doToggleShuffleList: (params) => dispatch(doToggleShuffleList(params)),
   doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
   doPlaylistAddAndAllowPlaying: (params) => dispatch(doPlaylistAddAndAllowPlaying(params)),

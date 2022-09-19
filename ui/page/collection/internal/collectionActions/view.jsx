@@ -26,7 +26,7 @@ type Props = {
   setShowEdit: (boolean) => void,
   isBuiltin: boolean,
   collectionEmpty: boolean,
-  collectionSavedForId: boolean,
+  isCollectionSaved: boolean,
   collectionType: string,
   doOpenModal: (id: string, props: {}) => void,
   doToggleCollectionSavedForId: (id: string) => void,
@@ -41,7 +41,7 @@ function CollectionActions(props: Props) {
     isBuiltin,
     showEdit,
     setShowEdit,
-    collectionSavedForId,
+    isCollectionSaved,
     collectionEmpty,
     collectionType,
     doOpenModal,
@@ -103,7 +103,7 @@ function CollectionActions(props: Props) {
             requiresAuth
             title={__('Save')}
             className="button-toggle"
-            icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+            icon={isCollectionSaved ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
             onClick={() => doToggleCollectionSavedForId(collectionId)}
           />
         )}

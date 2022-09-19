@@ -75,7 +75,13 @@ declare type BalanceResponse = {
 
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
-  [string]: { error?: {}, stream?: StreamClaim, channel?: ChannelClaim, collection?: CollectionClaim, claimsInChannel?: number },
+  [string]: {
+    error?: {},
+    stream?: StreamClaim,
+    channel?: ChannelClaim,
+    collection?: CollectionClaim,
+    claimsInChannel?: number,
+  },
 };
 
 declare type GetResponse = FileListItem & { error?: string };
@@ -115,7 +121,7 @@ declare type ClaimListResponse = {
 
 declare type ChannelCreateParam = {
   name: string, // name of the channel prefixed with '@'
-  bid: number,  // amount to back the claim"
+  bid: number, // amount to back the claim"
   allow_duplicate_name?: boolean, // create new channel even if one already exists with given name. default: false.
   title?: string, // title of the publication
   description?: string, // description of the publication
@@ -191,37 +197,6 @@ declare type ChannelListResponse = {
 declare type ChannelSignResponse = {
   signature: string,
   signing_ts: string,
-};
-
-declare type CollectionCreateResponse = {
-  outputs: Array<Claim>,
-  page: number,
-  page_size: number,
-  total_items: number,
-  total_pages: number,
-}
-
-declare type CollectionListResponse = {
-  items: Array<Claim>,
-  page: number,
-  page_size: number,
-  total_items: number,
-  total_pages: number,
-};
-
-declare type CollectionResolveResponse = {
-  items: Array<Claim>,
-  total_items: number,
-};
-
-declare type CollectionResolveOptions = {
-  claim_id: string,
-};
-
-declare type CollectionListOptions = {
-  page: number,
-  page_size: number,
-  resolve?: boolean,
 };
 
 declare type FileListResponse = {
@@ -312,9 +287,9 @@ declare type LbryTypes = {
   alternateConnectionString: string,
   methodsUsingAlternateConnectionString: Array<string>,
   apiRequestHeaders: { [key: string]: string },
-  setDaemonConnectionString: string => void,
+  setDaemonConnectionString: (string) => void,
   setApiHeader: (string, string) => void,
-  unsetApiHeader: string => void,
+  unsetApiHeader: (string) => void,
   overrides: { [string]: ?Function },
   setOverride: (string, Function) => void,
   // getMediaType: (?string, ?string) => string,

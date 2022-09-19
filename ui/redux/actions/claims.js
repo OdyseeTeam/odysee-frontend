@@ -7,24 +7,23 @@ import { doToast } from 'redux/actions/notifications';
 import {
   selectMyClaimsRaw,
   selectResolvingUris,
-  selectClaimsByUri,
+  selectClaimForUri,
+  selectClaimForClaimId,
   selectMyChannelClaims,
   selectPendingClaimsById,
   selectClaimIsMine,
   selectIsMyChannelCountOverLimit,
-  selectById,
+  selectResolvingIds,
   selectMyChannelClaimIds,
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
-import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
-import { selectClaimIdsForCollectionId } from 'redux/selectors/collections';
-import { doFetchItemsInCollections } from 'redux/actions/collections';
 
 let onChannelConfirmCallback;
 let checkPendingInterval;
@@ -39,18 +38,27 @@ export function doResolveUris(
     const normalizedUris = uris.map(normalizeURI);
     const state = getState();
 
-    const resolvingUris = selectResolvingUris(state);
-    const claimsByUri = selectClaimsByUri(state);
+    const resolvingUris = new Set(selectResolvingUris(state));
+    const resolvedClaims = {};
     const urisToResolve = normalizedUris.filter((uri) => {
-      if (resolvingUris.includes(uri)) {
+      if (resolvingUris.has(uri)) {
         return false;
       }
 
-      return returnCachedClaims ? !claimsByUri[uri] : true;
+      if (returnCachedClaims) {
+        const claim = selectClaimForUri(state, uri);
+
+        if (claim) {
+          resolvedClaims[claim.permanent_url] = claim;
+          return false;
+        }
+      }
+
+      return true;
     });
 
     if (urisToResolve.length === 0) {
-      return Promise.resolve();
+      return Promise.resolve(resolvedClaims);
     }
 
     dispatch({
@@ -67,59 +75,11 @@ export function doResolveUris(
       },
     } = {};
 
-    const collectionIds: Array<string> = [];
-
-    return Lbry.resolve({ urls: urisToResolve, ...additionalOptions }).then(async (result: ResolveResponse) => {
+    return Lbry.resolve({ urls: urisToResolve, ...additionalOptions }).then(async (response: ResolveResponse) => {
+      const result = { ...response, ...resolvedClaims };
       let repostedResults = {};
       const repostsToResolve = [];
-      const fallbackResolveInfo = {
-        stream: null,
-        claimsInChannel: null,
-        channel: null,
-      };
-
-      function processResult(result, resolveInfo = {}, checkReposts = false) {
-        Object.entries(result).forEach(([uri, uriResolveInfo]) => {
-          // Flow has terrible Object.entries support
-          // https://github.com/facebook/flow/issues/2221
-          if (uriResolveInfo) {
-            if (uriResolveInfo.error) {
-              // $FlowFixMe
-              resolveInfo[uri] = { ...fallbackResolveInfo };
-            } else {
-              if (checkReposts) {
-                if (uriResolveInfo.reposted_claim) {
-                  // $FlowFixMe
-                  const repostUrl = uriResolveInfo.reposted_claim.permanent_url;
-                  if (!resolvingUris.includes(repostUrl)) {
-                    repostsToResolve.push(repostUrl);
-                  }
-                }
-              }
-              let result = {};
-              if (uriResolveInfo.value_type === 'channel') {
-                result.channel = uriResolveInfo;
-                // $FlowFixMe
-                result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-              } else if (uriResolveInfo.value_type === 'collection') {
-                result.collection = uriResolveInfo;
-                // $FlowFixMe
-                collectionIds.push(uriResolveInfo.claim_id);
-              } else {
-                result.stream = uriResolveInfo;
-                if (uriResolveInfo.signing_channel) {
-                  result.channel = uriResolveInfo.signing_channel;
-                  result.claimsInChannel =
-                    (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
-                }
-              }
-              // $FlowFixMe
-              resolveInfo[uri] = result;
-            }
-          }
-        });
-      }
-      processResult(result, resolveInfo, resolveReposts);
+      processResolveResult(result, resolveInfo, resolveReposts, resolvingUris, repostsToResolve);
 
       if (repostsToResolve.length) {
         dispatch({
@@ -128,20 +88,65 @@ export function doResolveUris(
         });
         repostedResults = await Lbry.resolve({ urls: repostsToResolve, ...additionalOptions });
       }
-      processResult(repostedResults, resolveInfo);
+      processResolveResult(repostedResults, resolveInfo);
 
-      dispatch({
-        type: ACTIONS.RESOLVE_URIS_COMPLETED,
-        data: { resolveInfo },
-      });
-
-      if (collectionIds.length) {
-        dispatch(doFetchItemsInCollections({ collectionIds, pageSize: 50 }));
-      }
+      dispatch({ type: ACTIONS.RESOLVE_URIS_COMPLETED, data: { resolveInfo } });
 
       return result;
     });
   };
+}
+
+export function processResolveResult(
+  result: any,
+  resolveInfo: any = {},
+  checkReposts: boolean = false,
+  resolvingUris: any,
+  repostsToResolve: any
+) {
+  const fallbackResolveInfo = {
+    stream: null,
+    claimsInChannel: null,
+    channel: null,
+  };
+
+  Object.entries(result).forEach(([uri, uriResolveInfo]) => {
+    // Flow has terrible Object.entries support
+    // https://github.com/facebook/flow/issues/2221
+    if (uriResolveInfo) {
+      if (uriResolveInfo.error) {
+        // $FlowFixMe
+        resolveInfo[uri] = { ...fallbackResolveInfo };
+      } else {
+        if (checkReposts && repostsToResolve && resolvingUris) {
+          if (uriResolveInfo.reposted_claim) {
+            // $FlowFixMe
+            const repostUrl = uriResolveInfo.reposted_claim.permanent_url;
+            if (!resolvingUris.has(repostUrl)) {
+              repostsToResolve.push(repostUrl);
+            }
+          }
+        }
+        let result = {};
+        if (uriResolveInfo.value_type === 'channel') {
+          result.channel = uriResolveInfo;
+          // $FlowFixMe
+          result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
+        } else if (uriResolveInfo.value_type === 'collection') {
+          result.collection = uriResolveInfo;
+        } else {
+          result.stream = uriResolveInfo;
+          if (uriResolveInfo.signing_channel) {
+            result.channel = uriResolveInfo.signing_channel;
+            result.claimsInChannel =
+              (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
+          }
+        }
+        // $FlowFixMe
+        resolveInfo[uri] = result;
+      }
+    }
+  });
 }
 
 /**
@@ -152,15 +157,34 @@ export function doResolveUris(
  *
  * @param claimIds
  */
-export function doResolveClaimIds(claimIds: Array<string>) {
+export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const resolvedIds = Object.keys(selectById(state));
-    const idsToResolve = claimIds.filter((x) => !resolvedIds.includes(x));
+
+    const resolvingIds = new Set(selectResolvingIds(state));
+    const resolvedClaims = {};
+    const idsToResolve = claimIds.filter((id) => {
+      if (resolvingIds.has(id)) {
+        return false;
+      }
+
+      if (returnCachedClaims) {
+        const claim = selectClaimForClaimId(state, id);
+
+        if (claim) {
+          resolvedClaims[claim.permanent_url] = claim;
+          return false;
+        }
+      }
+
+      return true;
+    });
 
     if (idsToResolve.length === 0) {
-      return Promise.resolve();
+      return Promise.resolve(resolvedClaims);
     }
+
+    const isAuthenticated = selectUserVerifiedEmail(state);
 
     return dispatch(
       doClaimSearch(
@@ -169,6 +193,7 @@ export function doResolveClaimIds(claimIds: Array<string>) {
           page: 1,
           page_size: Math.min(idsToResolve.length, 50),
           no_totals: true,
+          include_is_my_output: Boolean(isAuthenticated),
         },
         {
           useAutoPagination: idsToResolve.length > 50,
@@ -177,6 +202,7 @@ export function doResolveClaimIds(claimIds: Array<string>) {
     );
   };
 }
+export const doResolveClaimId = (claimId: ClaimId) => doResolveClaimIds([claimId]);
 
 export function doResolveUri(
   uri: string,
@@ -317,7 +343,7 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
   };
 }
 
-export function doAbandonClaim(claim: Claim, cb: (string) => void) {
+export function doAbandonClaim(claim: Claim, cb?: (string) => any) {
   const { txid, nout } = claim;
   const outpoint = `${txid}:${nout}`;
 
@@ -624,53 +650,6 @@ export const doFetchChannelListMine = (page: number = 1, pageSize: number = 9999
   Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
 };
 
-export const doFetchCollectionListMine = (page: number = 1, pageSize: number = 50) => async (dispatch: Dispatch) => {
-  dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_STARTED });
-
-  let options = {
-    page: page,
-    page_size: pageSize,
-    resolve_claims: 1,
-    resolve: true,
-  };
-
-  const success = (response: CollectionListResponse) => {
-    const { items } = response;
-    const collectionIds = items.map(({ claim_id }) => claim_id);
-
-    dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_COMPLETED, data: { claims: items } });
-    dispatch(doFetchItemsInCollections({ collectionIds, page_size: 5 }));
-  };
-
-  const failure = (error) => dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_FAILED, data: error });
-
-  const autoPaginate = () => {
-    let allClaims = [];
-
-    const next = async (response: CollectionListResponse) => {
-      const moreData = response.items.length === options.page_size;
-      allClaims = allClaims.concat(response.items);
-      options.page++;
-
-      if (!moreData) {
-        // $FlowIgnore: the callback doesn't need all data anyway.
-        return success({ items: allClaims });
-      }
-
-      try {
-        const data = await Lbry.collection_list(options);
-        return next(data);
-      } catch (err) {
-        failure(err);
-      }
-    };
-
-    return next;
-  };
-
-  return await Lbry.collection_list(options).then(autoPaginate(), failure);
-};
-
 export function doClearClaimSearch() {
   return (dispatch: Dispatch) => {
     dispatch({ type: ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY });
@@ -816,211 +795,6 @@ export function doRepost(options: StreamRepostOptions) {
   };
 }
 
-export function doCollectionPublish(
-  options: {
-    name: string,
-    bid: string,
-    blocking: true,
-    title?: string,
-    channel_id?: string,
-    thumbnail_url?: string,
-    description?: string,
-    tags?: Array<Tag>,
-    languages?: Array<string>,
-    claims: Array<string>,
-  },
-  localId: string
-) {
-  return (dispatch: Dispatch): Promise<any> => {
-    // $FlowFixMe
-
-    const params: {
-      name: string,
-      bid: string,
-      channel_id?: string,
-      blocking?: true,
-      title?: string,
-      thumbnail_url?: string,
-      description?: string,
-      tags?: Array<string>,
-      languages?: Array<string>,
-      claims: Array<string>,
-    } = {
-      name: options.name,
-      bid: creditsToString(options.bid),
-      title: options.title,
-      thumbnail_url: options.thumbnail_url,
-      description: options.description,
-      tags: [],
-      languages: options.languages || [],
-      locations: [],
-      blocking: true,
-      claims: options.claims,
-    };
-
-    if (options.tags) {
-      params['tags'] = options.tags.map((tag) => tag.name);
-    }
-
-    if (options.channel_id) {
-      params['channel_id'] = options.channel_id;
-    }
-
-    if (params.description && typeof params.description !== 'string') {
-      delete params.description;
-    }
-
-    return new Promise((resolve, reject) => {
-      dispatch({
-        type: ACTIONS.COLLECTION_PUBLISH_STARTED,
-      });
-
-      function success(response) {
-        const collectionClaim = response.outputs[0];
-        dispatch(
-          batchActions(
-            {
-              type: ACTIONS.COLLECTION_PUBLISH_COMPLETED,
-              data: { claimId: collectionClaim.claim_id },
-            },
-            // move unpublished collection to pending collection with new publish id
-            // recent publish won't resolve this second. handle it in checkPending
-            {
-              type: ACTIONS.UPDATE_PENDING_CLAIMS,
-              data: {
-                claims: [collectionClaim],
-              },
-            }
-          )
-        );
-        dispatch({
-          type: ACTIONS.COLLECTION_PENDING,
-          data: { localId: localId, claimId: collectionClaim.claim_id },
-        });
-        dispatch(doCheckPendingClaims());
-        dispatch(doFetchCollectionListMine(1, 10));
-        return resolve(collectionClaim);
-      }
-
-      function failure(error) {
-        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_FAILED });
-        dispatch(doToast({ message: error.message, isError: true }));
-        return reject(error);
-      }
-
-      return Lbry.collection_create(params).then(success, failure);
-    });
-  };
-}
-
-export function doCollectionPublishUpdate(
-  options: {
-    bid?: string,
-    blocking?: true,
-    title?: string,
-    thumbnail_url?: string,
-    description?: string,
-    claim_id: string,
-    tags?: Array<Tag>,
-    languages?: Array<string>,
-    claims?: Array<string>,
-    channel_id?: string,
-  },
-  isBackgroundUpdate?: boolean
-) {
-  return (dispatch: Dispatch, getState: GetState): Promise<any> => {
-    // TODO: implement one click update
-
-    const updateParams: {
-      bid?: string,
-      blocking?: true,
-      title?: string,
-      thumbnail_url?: string,
-      channel_id?: string,
-      description?: string,
-      claim_id: string,
-      tags?: Array<string>,
-      languages?: Array<string>,
-      claims?: Array<string>,
-      clear_claims: boolean,
-      replace?: boolean,
-    } = isBackgroundUpdate
-      ? {
-          blocking: true,
-          claim_id: options.claim_id,
-          clear_claims: true,
-        }
-      : {
-          bid: creditsToString(options.bid),
-          title: options.title,
-          thumbnail_url: options.thumbnail_url,
-          description: options.description,
-          tags: [],
-          languages: options.languages || [],
-          locations: [],
-          blocking: true,
-          claim_id: options.claim_id,
-          clear_claims: true,
-          replace: true,
-        };
-
-    if (isBackgroundUpdate && updateParams.claim_id) {
-      const state = getState();
-      updateParams['claims'] = selectClaimIdsForCollectionId(state, updateParams.claim_id);
-    } else if (options.claims) {
-      updateParams['claims'] = options.claims;
-    }
-
-    if (options.tags) {
-      updateParams['tags'] = options.tags.map((tag) => tag.name);
-    }
-
-    if (options.channel_id) {
-      updateParams['channel_id'] = options.channel_id;
-    }
-
-    if (updateParams.description && typeof updateParams.description !== 'string') {
-      delete updateParams.description;
-    }
-
-    return new Promise((resolve, reject) => {
-      dispatch({
-        type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,
-      });
-
-      function success(response) {
-        const collectionClaim = response.outputs[0];
-        dispatch({
-          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED,
-          data: {
-            collectionClaim,
-          },
-        });
-        dispatch({
-          type: ACTIONS.COLLECTION_PENDING,
-          data: { claimId: collectionClaim.claim_id },
-        });
-        dispatch({
-          type: ACTIONS.UPDATE_PENDING_CLAIMS,
-          data: {
-            claims: [collectionClaim],
-          },
-        });
-        dispatch(doCheckPendingClaims());
-        return resolve(collectionClaim);
-      }
-
-      function failure(error) {
-        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED });
-        dispatch(doToast({ message: error.message }));
-        return reject(error);
-      }
-
-      return Lbry.collection_update(updateParams).then(success, failure);
-    });
-  };
-}
-
 export function doCheckPublishNameAvailability(name: string) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
@@ -1101,7 +875,7 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
     const state = getState();
     const pendingById = Object.assign({}, selectPendingClaimsById(state));
     const pendingTxos = (Object.values(pendingById): any).map((p) => p.txid);
-    // use collections
+
     if (pendingTxos.length) {
       Lbry.txo_list({ txid: pendingTxos })
         .then((result) => {
@@ -1120,7 +894,7 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
           if (idsToConfirm.length) {
             return Lbry.claim_list({ claim_id: idsToConfirm, resolve: true }).then((results) => {
               const claims = results.items;
-              const collectionIds = claims.filter((c) => c.value_type === 'collection').map((c) => c.claim_id);
+
               dispatch({
                 type: ACTIONS.UPDATE_CONFIRMED_CLAIMS,
                 data: {
@@ -1128,9 +902,7 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
                   pending: pendingById,
                 },
               });
-              if (collectionIds.length) {
-                dispatch(doFetchItemsInCollections({ collectionIds }));
-              }
+
               const channelClaims = claims.filter((claim) => claim.value_type === 'channel');
               if (channelClaims.length && onChannelConfirmCallback) {
                 channelClaims.forEach((claim) => onChannelConfirmCallback(claim));

@@ -22,16 +22,17 @@ declare type CollectionType = 'playlist' | 'channelList' | 'featuredChannels' | 
 
 declare type CollectionState = {
   unpublished: CollectionGroup,
-  resolved: CollectionGroup,
-  pending: CollectionGroup,
   edited: CollectionGroup,
   updated: UpdatedCollectionGroup,
   builtin: CollectionGroup,
   savedIds: Array<string>,
-  resolvingById: { [id: string]: boolean },
   error?: string | null,
   queue: Collection,
+  lastUsedCollection: ?string,
   featuredChannelsPublishing: boolean,
+  isFetchingMyCollectionClaims: boolean,
+  collectionItemsFetchingIds: Array<string>,
+  resolvedIds: ?Array<string>,
 };
 
 declare type CollectionGroup = {
@@ -49,8 +50,9 @@ declare type UpdatedCollection = {
 
 declare type CollectionList = Array<Collection>;
 
-declare type CollectionCreateParams = {
-  name: string,
+declare type CollectionLocalCreateParams = {
+  name?: string,
+  title?: string,
   description?: string,
   thumbnail?: {
     url?: string,
@@ -83,6 +85,46 @@ declare type CollectionFetchParams = {
 };
 
 declare type CollectionItemFetchResult = {
-  claimId: string,
+  collectionId: string,
   items: ?Array<GenericClaim>,
+};
+
+declare type CollectionPublishParams = GenericPublishParams & {
+  claims: Array<string>,
+};
+
+declare type CollectionUpdateParams = GenericUpdateParams & {
+  claims?: Array<string>,
+  clear_claims: boolean,
+};
+
+declare type CollectionCreateResponse = {
+  outputs: Array<CollectionClaim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
+
+declare type CollectionListResponse = {
+  items: Array<CollectionClaim>,
+  page: number,
+  page_size: number,
+  total_items: number,
+  total_pages: number,
+};
+
+declare type CollectionResolveResponse = {
+  items: Array<Claim>,
+  total_items: number,
+};
+
+declare type CollectionResolveOptions = {
+  claim_id: string,
+};
+
+declare type CollectionListOptions = {
+  page: number,
+  page_size: number,
+  resolve?: boolean,
 };

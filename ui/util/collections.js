@@ -1,7 +1,42 @@
 // @flow
 import { COL_TYPES, SECTION_TAGS } from 'constants/collections';
+import { getCurrentTimeInSec } from 'util/time';
 
-export const selectCountForCollection = (collection: Collection) => {
+export const defaultCollectionState: Collection = {
+  id: '',
+  name: '',
+  title: '',
+  items: [],
+  itemCount: 0,
+  createdAt: getCurrentTimeInSec(),
+  updatedAt: getCurrentTimeInSec(),
+  type: 'collection',
+};
+
+export function claimToStoredCollection(passedClaim: Claim) {
+  // $FlowFixMe
+  const claim: CollectionClaim = passedClaim;
+  const storedCollection: Collection = Object.assign({}, defaultCollectionState);
+
+  // -- Using the claim data works, BUT this will return items with CLAIMIDS instead of uris
+  // so where collection.items are used, it's needed doFetchItemsInCollection (after resolve
+  // items is replaced from ids to uris)
+  Object.assign(storedCollection, {
+    id: claim.claim_id,
+    items: claim.value.claims,
+    itemCount: claim.value.claims.length,
+    name: claim.value.title,
+    title: claim.value.title,
+    description: claim.value.description,
+    thumbnail: claim.value.thumbnail,
+    createdAt: claim.meta.creation_timestamp,
+    updatedAt: claim.timestamp,
+  });
+
+  return storedCollection;
+}
+
+export const getItemCountForCollection = (collection: Collection) => {
   if (collection) {
     if (collection.itemCount !== undefined) {
       return collection.itemCount;

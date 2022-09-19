@@ -136,3 +136,5 @@ export const selectPreferredCurrency = (state: State) => {
 
   return preferredCurrency;
 };
+
+export const selectFloatingPlayerEnabled = (state: State) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER);

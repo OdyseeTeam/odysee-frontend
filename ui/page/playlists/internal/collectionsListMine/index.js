@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import {
-  selectMyPublishedCollections,
+  selectMyPublicLocalCollections,
   selectMyUnpublishedCollections,
   selectMyEditedCollections,
   selectMyUpdatedCollections,
@@ -9,28 +9,28 @@ import {
   selectAreBuiltinCollectionsEmpty,
   selectHasCollections,
   selectFeaturedChannelsIds,
+  selectIsFetchingMyCollectionClaims,
 } from 'redux/selectors/collections';
-import { selectIsFetchingMyCollections } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
-import { doFetchItemsInCollections } from 'redux/actions/collections';
+import { doResolveClaimIds } from 'redux/actions/claims';
 import CollectionsListMine from './view';
 
 const select = (state) => ({
-  publishedCollections: selectMyPublishedCollections(state),
+  publishedCollections: selectMyPublicLocalCollections(state),
   unpublishedCollections: selectMyUnpublishedCollections(state),
   editedCollections: selectMyEditedCollections(state),
   updatedCollections: selectMyUpdatedCollections(state),
   savedCollectionIds: selectSavedCollectionIds(state),
   savedCollections: selectSavedCollections(state),
   featuredChannelsIds: selectFeaturedChannelsIds(state),
-  isFetchingCollections: selectIsFetchingMyCollections(state),
+  isFetchingCollections: selectIsFetchingMyCollectionClaims(state),
   areBuiltinCollectionsEmpty: selectAreBuiltinCollectionsEmpty(state),
   hasCollections: selectHasCollections(state),
 });
 
 const perform = {
   doOpenModal,
-  doFetchItemsInCollections,
+  doResolveClaimIds,
 };
 
 export default connect(select, perform)(CollectionsListMine);

@@ -12,7 +12,7 @@ import {
   selectNextUrlForCollectionAndUrl,
   selectPreviousUrlForCollectionAndUrl,
   selectCollectionForIdHasClaimUrl,
-  selectFirstItemUrlForCollection,
+  selectFirstItemUrlForCollectionId,
 } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -83,7 +83,7 @@ const select = (state, props) => {
     hasClaimInQueue:
       permanent_url && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, permanent_url),
     mainPlayerDimensions: selectMainPlayerDimensions(state),
-    firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
+    firstCollectionItemUrl: selectFirstItemUrlForCollectionId(state, collectionId),
     isMature: selectClaimIsNsfwForUri(state, uri),
   };
 };

@@ -25,7 +25,7 @@ type Props = {
   myUnpublishedCollections: CollectionGroup,
   myEditedCollections: CollectionGroup,
   isPublishing: boolean,
-  isFetchingMyCollections: boolean,
+  isFetchingMyCollectionClaims: boolean,
   hasMembership: ?boolean,
   doClaimSearch: ({}, {}) => Promise<any>,
   doFetchItemsInCollections: (params: { collectionIds: ClaimIds }) => Promise<any>,
@@ -42,7 +42,7 @@ export default function SectionList(props: Props) {
     myUnpublishedCollections,
     myEditedCollections,
     isPublishing,
-    isFetchingMyCollections,
+    isFetchingMyCollectionClaims,
     hasMembership,
     doClaimSearch,
     doFetchItemsInCollections,
@@ -138,7 +138,7 @@ export default function SectionList(props: Props) {
   return (
     <div
       className={classnames('channel_sections', {
-        'channel_sections--disabled': isPublishing || isFetchingMyCollections,
+        'channel_sections--disabled': isPublishing || isFetchingMyCollectionClaims,
       })}
     >
       {editMode ? (
@@ -168,7 +168,7 @@ export default function SectionList(props: Props) {
         {sectionIds.length === 0 ? (
           <div className="empty main--empty">
             {isClaimSearching && <Spinner />}
-            {!isClaimSearching && !isPublishing && !isFetchingMyCollections && (
+            {!isClaimSearching && !isPublishing && !isFetchingMyCollectionClaims && (
               <>
                 {__('No featured channels.')}
                 {!hasMembership && <Button button="link" label={__('Learn more')} onClick={openPromoModal} />}

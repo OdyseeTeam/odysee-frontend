@@ -58,7 +58,9 @@ function CollectionForm(props: Props) {
   }
 
   function handleSubmit() {
-    doCollectionEdit(collectionId, params);
+    if (params !== initialParams.current) {
+      doCollectionEdit(collectionId, params);
+    }
     goBack();
   }
 
@@ -111,7 +113,7 @@ function CollectionForm(props: Props) {
               <Button
                 button="primary"
                 label={__('Submit')}
-                disabled={isBuiltin || thumbailError || params === initialParams.current}
+                disabled={isBuiltin || thumbailError}
                 onClick={handleSubmit}
               />
               <Button button="link" label={__('Cancel')} onClick={goBack} />

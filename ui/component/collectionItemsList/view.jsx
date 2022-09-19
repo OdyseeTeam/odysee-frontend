@@ -17,7 +17,7 @@ type Props = {
   collection: Collection,
   isPrivateCollection: boolean,
   isEditedCollection: boolean,
-  isResolvingCollection: boolean,
+  fetchingItems: boolean,
   collectionUrls: Array<string>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
   doFetchItemsInCollection: (options: { collectionId: string, pageSize?: number }) => void,
@@ -30,17 +30,13 @@ const CollectionItemsList = (props: Props) => {
     isPrivateCollection,
     isEditedCollection,
     collectionUrls,
-    isResolvingCollection,
+    fetchingItems,
     doCollectionEdit,
     doFetchItemsInCollection,
     ...claimListProps
   } = props;
 
-  const { totalItems } = collection || {};
-
-  const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
-  const shouldFetchItems = isPrivateCollection || isEditedCollection || (!urlsReady && collectionId && !collection);
-  const didInitialFetch = React.useRef(!shouldFetchItems);
+  const collectionUrlsStr = collectionUrls && JSON.stringify(collectionUrls);
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
@@ -52,16 +48,16 @@ const CollectionItemsList = (props: Props) => {
 
     doCollectionEdit(collectionId, { order: { from, to } });
   }
+
   React.useEffect(() => {
-    if (shouldFetchItems && !didInitialFetch.current) {
+    if (collectionUrlsStr) {
       doFetchItemsInCollection({ collectionId });
-      didInitialFetch.current = true;
     }
-  }, [collectionId, doFetchItemsInCollection, shouldFetchItems]);
+  }, [collectionId, collectionUrlsStr, doFetchItemsInCollection]);
 
   return (
     <React.Suspense fallback={null}>
-      {isResolvingCollection ? (
+      {fetchingItems ? (
         <div className="main--empty">
           <Spinner />
         </div>

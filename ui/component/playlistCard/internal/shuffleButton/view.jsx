@@ -21,7 +21,7 @@ const ShuffleButton = (props: Props) => {
       title={__('Shuffle')}
       icon={ICONS.SHUFFLE}
       iconColor={shuffle ? 'blue' : undefined}
-      onClick={() => doToggleShuffleList({ currentUri: url, collectionId: id })}
+      onClick={() => doToggleShuffleList({ currentUri: url, collectionId: id, onlySet: true })}
     />
   );
 };

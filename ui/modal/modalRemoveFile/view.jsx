@@ -14,7 +14,7 @@ type Props = {
   claimIsMine: boolean,
   doResolveUri: (string) => void,
   closeModal: () => void,
-  deleteFile: (string, boolean, boolean, boolean, any) => void,
+  deleteFile: (string, boolean, boolean, any) => void,
   doGoBack: boolean,
   title: string,
   fileInfo?: {
@@ -25,7 +25,6 @@ type Props = {
 
 function ModalRemoveFile(props: Props) {
   const { uri, claimIsMine, doResolveUri, closeModal, deleteFile, doGoBack = true, title, claim, isAbandoning } = props;
-  const [deleteChecked, setDeleteChecked] = usePersistedState('modal-remove-file:delete', true);
   const [abandonChecked, setAbandonChecked] = usePersistedState('modal-remove-file:abandon', true);
 
   React.useEffect(() => {
@@ -44,19 +43,9 @@ function ModalRemoveFile(props: Props) {
           </I18nMessage>
         }
         body={
-          <React.Fragment>
-            {/* @if TARGET='app' */}
-            <FormField
-              name="file_delete"
-              label={__('Delete this file from my computer')}
-              type="checkbox"
-              checked={deleteChecked}
-              onChange={() => setDeleteChecked(!deleteChecked)}
-            />
-            {/* @endif */}
-
+          <>
             {claimIsMine && (
-              <React.Fragment>
+              <>
                 <FormField
                   name="claim_abandon"
                   label={
@@ -68,23 +57,10 @@ function ModalRemoveFile(props: Props) {
                   checked={abandonChecked}
                   onChange={() => setAbandonChecked(!abandonChecked)}
                 />
-                {abandonChecked === true && (
-                  <p className="help error__text">{__('This action is permanent and cannot be undone')}</p>
-                )}
-
-                {/* @if TARGET='app' */}
-                {abandonChecked === false && deleteChecked && (
-                  <p className="help">{__('This file will be removed from your Library and Downloads folder.')}</p>
-                )}
-                {!deleteChecked && (
-                  <p className="help">
-                    {__('This file will be removed from your Library but will remain in your Downloads folder.')}
-                  </p>
-                )}
-                {/* @endif */}
-              </React.Fragment>
+                <p className="help error__text">{__('This action is permanent and cannot be undone')}</p>
+              </>
             )}
-          </React.Fragment>
+          </>
         }
         actions={
           <>
@@ -92,8 +68,8 @@ function ModalRemoveFile(props: Props) {
               <Button
                 button="primary"
                 label={isAbandoning ? __('Removing...') : __('OK')}
-                disabled={isAbandoning || !(deleteChecked || abandonChecked)}
-                onClick={() => deleteFile(uri, deleteChecked, claimIsMine ? abandonChecked : false, doGoBack, claim)}
+                disabled={isAbandoning || !abandonChecked}
+                onClick={() => deleteFile(uri, claimIsMine ? abandonChecked : false, doGoBack, claim)}
               />
               <Button button="link" label={__('Cancel')} onClick={closeModal} />
             </div>

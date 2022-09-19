@@ -15,7 +15,6 @@ import { doClearPlayingUri } from 'redux/actions/content';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
-import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { isStreamPlaceholderClaim } from 'util/claim';
 
 type Dispatch = (action: any) => any;
@@ -35,77 +34,30 @@ export function doOpenFileInShell(path: string) {
   };
 }
 
-export function doDeleteFile(
-  outpoint: string,
-  deleteFromComputer?: boolean,
-  abandonClaim?: boolean,
-  cb: any,
-  claim: Claim
-) {
-  return (dispatch: Dispatch) => {
-    if (abandonClaim) {
-      dispatch(doAbandonClaim(claim, cb));
-    }
-
-    // @if TARGET='app'
-    Lbry.file_delete({
-      outpoint,
-      delete_from_download_dir: deleteFromComputer,
-    });
-
-    dispatch({
-      type: ACTIONS.FILE_DELETE,
-      data: {
-        outpoint,
-      },
-    });
-    // @endif
-  };
-}
-
-export function doDeleteFileAndMaybeGoBack(
-  uri: string,
-  deleteFromComputer?: boolean,
-  abandonClaim?: boolean,
-  doGoBack: (any) => void,
-  claim: Claim
-) {
+export function doDeleteFileAndMaybeGoBack(uri: string, abandonClaim?: boolean, doGoBack: (any) => void, claim: Claim) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const playingUri = selectPlayingUri(state);
-    const { outpoint } = makeSelectFileInfoForUri(uri)(state) || '';
-    const { nout, txid } = selectClaimForUri(state, uri);
-    const claimOutpoint = `${txid}:${nout}`;
     const actions = [];
 
     if (!abandonClaim) {
       actions.push(doHideModal());
     }
 
-    actions.push(
-      doDeleteFile(
-        outpoint || claimOutpoint,
-        deleteFromComputer,
-        abandonClaim,
-        (abandonState) => {
+    if (abandonClaim) {
+      actions.push(
+        doAbandonClaim(claim, (abandonState) => {
           if (abandonState === ABANDON_STATES.DONE) {
-            if (abandonClaim) {
-              if (doGoBack) {
-                dispatch(goBack());
-              }
-              dispatch(doHideModal());
-            }
+            if (doGoBack) dispatch(goBack());
+            dispatch(doHideModal());
           }
-        },
-        claim
-      )
-    );
+        })
+      );
+    }
 
     if (playingUri.uri === uri) {
       actions.push(doClearPlayingUri());
     }
-    // it would be nice to stay on the claim if you just want to delete it
-    // we need to alter autoplay to not start downloading again after you delete it
 
     dispatch(batchActions(...actions));
   };

@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import {
-  selectCollectionIsMine,
+  selectCollectionIsMineForId,
   selectCollectionIsEmptyForId,
-  selectCollectionSavedForId,
+  selectIsCollectionSavedForId,
   selectCollectionTypeForId,
 } from 'redux/selectors/collections';
 import { doOpenModal } from 'redux/actions/app';
@@ -18,9 +18,9 @@ const select = (state, props) => {
 
   return {
     claimId,
-    isMyCollection: selectCollectionIsMine(state, collectionId),
+    isMyCollection: selectCollectionIsMineForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
-    collectionSavedForId: selectCollectionSavedForId(state, collectionId),
+    isCollectionSaved: selectIsCollectionSavedForId(state, collectionId),
     collectionType: selectCollectionTypeForId(state, collectionId),
   };
 };

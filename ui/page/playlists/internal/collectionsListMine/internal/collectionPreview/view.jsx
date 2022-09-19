@@ -21,6 +21,8 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
 import './style.scss';
 
+const THUMBNAIL_PREVIEW_AMOUNT = 3;
+
 type Props = {
   uri: string,
   collectionId: string,
@@ -29,8 +31,8 @@ type Props = {
   collectionName: string,
   collectionItemUrls: Array<string>,
   collectionType: ?string,
-  isResolvingCollectionClaims: boolean,
-  isResolvingUri: boolean,
+  isFetchingItems: boolean,
+  isResolvingCollection: boolean,
   title?: string,
   channel: ?any,
   channelTitle?: String,
@@ -42,6 +44,7 @@ type Props = {
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
+  doFetchItemsInCollection: (options: CollectionFetchParams) => void,
 };
 
 function CollectionPreview(props: Props) {
@@ -50,8 +53,8 @@ function CollectionPreview(props: Props) {
     collectionId,
     collectionName,
     collectionCount,
-    isResolvingUri,
-    isResolvingCollectionClaims,
+    isFetchingItems,
+    isResolvingCollection,
     collectionItemUrls,
     collectionType,
     hasClaim,
@@ -64,11 +67,16 @@ function CollectionPreview(props: Props) {
     isBuiltin,
     thumbnail,
     isEmpty,
+    doFetchItemsInCollection,
   } = props;
 
   const { push } = useHistory();
 
-  if (isResolvingUri || isResolvingCollectionClaims) {
+  React.useEffect(() => {
+    doFetchItemsInCollection({ collectionId, itemCount: THUMBNAIL_PREVIEW_AMOUNT });
+  }, [collectionId, doFetchItemsInCollection]);
+
+  if (isFetchingItems || isResolvingCollection) {
     return <ClaimPreviewLoading />;
   }
 
@@ -97,7 +105,7 @@ function CollectionPreview(props: Props) {
     >
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
-          <FileThumbnail uri={uri || firstCollectionItemUrl} thumbnail={thumbnail} forcePlaceholder>
+          <FileThumbnail uri={firstCollectionItemUrl} thumbnail={thumbnail} forcePlaceholder>
             <CollectionItemCount count={collectionCount} hasEdits={hasEdits} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>

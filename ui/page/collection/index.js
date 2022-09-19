@@ -1,12 +1,10 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 
-import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
+import { selectIsResolvingForId, makeSelectClaimForClaimId } from 'redux/selectors/claims';
 
 import {
   selectCollectionForId,
-  selectUrlsForCollectionId,
-  selectIsResolvingCollectionForId,
   selectBrokenUrlsForCollectionId,
   selectMyEditedCollections,
 } from 'redux/selectors/collections';
@@ -26,10 +24,9 @@ const select = (state, props) => {
     collectionId,
     uri,
     collection: selectCollectionForId(state, collectionId),
-    collectionUrls: selectUrlsForCollectionId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
     editedCollections: selectMyEditedCollections(state),
-    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isResolvingCollection: selectIsResolvingForId(state, collectionId),
   };
 };
 

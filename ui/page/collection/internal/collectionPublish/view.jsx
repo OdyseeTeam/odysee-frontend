@@ -41,13 +41,10 @@ type Props = {
   claimName?: string,
   amount: number,
   collection: Collection,
-  collectionParams: CollectionPublishParams | CollectionUpdateParams,
+  collectionParams: CollectionPublishParams,
   collectionClaimIds: Array<string>,
-  updatingCollection: boolean,
-  creatingCollection: boolean,
   activeChannelClaim: ?ChannelClaim,
-  doCollectionPublishUpdate: (CollectionUpdateParams) => Promise<any>,
-  doCollectionPublish: (CollectionPublishParams, string) => Promise<any>,
+  doCollectionPublish: (params: CollectionPublishParams, string) => Promise<any>,
   // onPreSubmit: Hook to allow clients to change/finalize the params before the form is submitted.
   onPreSubmit: (params: {}) => {},
   onDone: (string) => void,
@@ -64,10 +61,7 @@ function CollectionForm(props: Props) {
     collection,
     collectionParams,
     collectionClaimIds,
-    updatingCollection,
-    creatingCollection,
     activeChannelClaim,
-    doCollectionPublishUpdate,
     doCollectionPublish,
     onPreSubmit,
     onDone,
@@ -81,6 +75,7 @@ function CollectionForm(props: Props) {
   const [params, setParams] = React.useState({});
   const [tabIndex, setTabIndex] = React.useState(0);
   const [showItemsSpinner, setShowItemsSpinner] = React.useState(false);
+  const [isPublishing, setIsPublishing] = React.useState(false);
 
   const { name, languages, claims, tags } = params;
 
@@ -101,27 +96,20 @@ function CollectionForm(props: Props) {
   }
 
   function handleSubmit() {
+    setIsPublishing(true);
+
     const finalParams = onPreSubmit ? onPreSubmit(params) : params;
 
-    if (uri) {
-      // $FlowFixMe
-      doCollectionPublishUpdate(finalParams).then((pendingClaim) => {
+    // $FlowFixMe
+    doCollectionPublish(finalParams, collectionId)
+      .then((pendingClaim) => {
         if (pendingClaim) {
           const claimId = pendingClaim.claim_id;
           analytics.apiLog.publish(pendingClaim);
           onDone(claimId);
         }
-      });
-    } else {
-      // $FlowFixMe
-      doCollectionPublish(finalParams, collectionId).then((pendingClaim) => {
-        if (pendingClaim) {
-          const claimId = pendingClaim.claim_id;
-          analytics.apiLog.publish(pendingClaim);
-          onDone(claimId);
-        }
-      });
-    }
+      })
+      .catch(() => setIsPublishing(false));
   }
 
   React.useEffect(() => {
@@ -144,7 +132,7 @@ function CollectionForm(props: Props) {
 
   React.useEffect(() => {
     if (hasParams) {
-      updateParams({ ...collectionParams, name: claimName });
+      updateParams({ ...collectionParams, ...(claimName ? { name: claimName } : {}) });
     }
 
     // -- Only updateParams when collectionParams isn't undefined, will be instant on private publish,
@@ -313,14 +301,8 @@ function CollectionForm(props: Props) {
               <div className="section__actions">
                 <Button
                   button="primary"
-                  disabled={isBuiltin || creatingCollection || updatingCollection || Boolean(submitError) || !hasClaims}
-                  label={
-                    creatingCollection || updatingCollection ? (
-                      <BusyIndicator message={__('Submitting')} />
-                    ) : (
-                      __('Submit')
-                    )
-                  }
+                  disabled={isBuiltin || isPublishing || Boolean(submitError) || !hasClaims}
+                  label={isPublishing ? <BusyIndicator message={__('Submitting...')} /> : __('Submit')}
                   onClick={handleSubmit}
                 />
                 <Button button="link" label={__('Cancel')} onClick={() => onDone(collectionId)} />

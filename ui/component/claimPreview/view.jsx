@@ -356,10 +356,10 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
   }
 
   useEffect(() => {
-    if (isValid && !isResolvingUri && shouldFetch && uri) {
+    if (isValid && !isResolvingUri && shouldFetch && uri && !collectionId) {
       resolveUri(uri);
     }
-  }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri]);
+  }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri, collectionId]);
 
   // **************************************************************************
   // **************************************************************************

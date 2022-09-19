@@ -8,17 +8,15 @@ import * as COLS from 'constants/collections';
 import * as ICONS from 'constants/icons';
 
 type Props = {
-  builtin: CollectionList,
-  queue: CollectionList,
-  published: CollectionList,
-  unpublished: CollectionList,
+  uri: string,
   closeModal: () => void,
   // -- redux --
-  uri: string,
+  published: CollectionList,
+  unpublished: CollectionList,
 };
 
 const ClaimCollectionAdd = (props: Props) => {
-  const { builtin, queue, published, unpublished, closeModal, uri } = props;
+  const { uri, closeModal, published, unpublished } = props;
 
   const [addNewCollection, setAddNewCollection] = React.useState(false);
 
@@ -28,18 +26,20 @@ const ClaimCollectionAdd = (props: Props) => {
       singlePane
       body={
         <ul className="ul--no-style card__body-scrollable">
-          {[...builtin, ...queue].map(({ id }) => (
+          {COLS.BUILTIN_PLAYLISTS.map((id) => (
             <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={COLS.PLAYLIST_ICONS[id]} />
           ))}
-          {unpublished
+          {Object.values(unpublished)
             // $FlowFixMe
             .sort((a, b) => a.name?.localeCompare(b.name))
+            // $FlowFixMe
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
             ))}
-          {published
+          {Object.values(published)
             // $FlowFixMe
             .sort((a, b) => a.name?.localeCompare(b.name))
+            // $FlowFixMe
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
             ))}

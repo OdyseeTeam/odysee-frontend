@@ -1,12 +1,7 @@
 import { connect } from 'react-redux';
-import {
-  selectClaimBidAmountForId,
-  selectClaimNameForId,
-  selectUpdatingCollection,
-  selectCreatingCollection,
-} from 'redux/selectors/claims';
+import { selectClaimBidAmountForId, selectClaimNameForId } from 'redux/selectors/claims';
 import { selectClaimIdsForCollectionId, selectCollectionForId } from 'redux/selectors/collections';
-import { doCollectionPublish, doCollectionPublishUpdate } from 'redux/actions/claims';
+import { doCollectionPublish } from 'redux/actions/collections';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -19,8 +14,6 @@ const select = (state, props) => {
   return {
     claimName: selectClaimNameForId(state, collectionId),
     amount: selectClaimBidAmountForId(state, collectionId),
-    updatingCollection: selectUpdatingCollection(state),
-    creatingCollection: selectCreatingCollection(state),
     balance: selectBalance(state),
     collection: selectCollectionForId(state, collectionId),
     collectionClaimIds: selectClaimIdsForCollectionId(state, collectionId),
@@ -30,7 +23,6 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doCollectionPublishUpdate,
   doCollectionPublish,
 };
 

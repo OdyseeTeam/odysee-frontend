@@ -10,7 +10,7 @@ import {
   selectGeoRestrictionForUri,
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { selectCollectionIsMine } from 'redux/selectors/collections';
+import { selectCollectionIsMineForId } from 'redux/selectors/collections';
 
 import { doResolveUri } from 'redux/actions/claims';
 import { doFileGet } from 'redux/actions/file';
@@ -51,7 +51,7 @@ const select = (state, props) => {
     isLivestream,
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
     livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
-    isCollectionMine: selectCollectionIsMine(state, props.collectionId),
+    isCollectionMine: selectCollectionIsMineForId(state, props.collectionId),
     lang: selectLanguage(state),
   };
 };

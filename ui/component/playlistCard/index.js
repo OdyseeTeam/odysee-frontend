@@ -1,17 +1,16 @@
 import { connect } from 'react-redux';
 import PlaylistCard from './view';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
   selectNameForCollectionId,
-  selectCollectionIsMine,
+  selectCollectionIsMineForId,
   selectIsCollectionPrivateForId,
-  selectPublishedCollectionChannelNameForId,
   selectIndexForUrlInCollection,
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
   selectCollectionForId,
-  selectCollectionSavedForId,
+  selectIsCollectionSavedForId,
 } from 'redux/selectors/collections';
 import { selectPlayingUri } from 'redux/selectors/content';
 import { doCollectionEdit, doClearQueueList, doToggleCollectionSavedForId } from 'redux/actions/collections';
@@ -35,15 +34,15 @@ const select = (state, props) => {
     playingCurrentPlaylist,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionName: selectNameForCollectionId(state, collectionId),
-    isMyCollection: selectCollectionIsMine(state, collectionId),
+    isMyCollection: selectCollectionIsMineForId(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
-    publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
+    publicCollectionChannel: selectChannelNameForId(state, collectionId),
     playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
     collectionLength: selectCollectionLengthForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
     playingCollectionId,
-    collectionSavedForId: selectCollectionSavedForId(state, collectionId),
+    isCollectionSaved: selectIsCollectionSavedForId(state, collectionId),
   };
 };
 

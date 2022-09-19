@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import { doResolveUri } from 'redux/actions/claims';
 import { selectHasResolvedClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
 import CardMedia from './view';
 
@@ -12,8 +11,4 @@ const select = (state, props) => {
   };
 };
 
-const perform = {
-  doResolveUri,
-};
-
-export default connect(select, perform)(CardMedia);
+export default connect(select)(CardMedia);

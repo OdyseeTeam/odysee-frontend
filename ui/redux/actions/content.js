@@ -24,9 +24,11 @@ import {
 import {
   selectUrlsForCollectionId,
   selectCollectionForIdHasClaimUrl,
-  selectFirstItemUrlForCollection,
+  selectFirstItemUrlForCollectionId,
+  selectIsCollectionPrivateForId,
+  selectCollectionHasItemsResolvedForId,
 } from 'redux/selectors/collections';
-import { doCollectionEdit, doLocalCollectionCreate } from 'redux/actions/collections';
+import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
@@ -34,7 +36,13 @@ import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri, Lbryio, doFetchCostInfoForUri } from 'lbryinc';
-import { selectClientSetting, selectosNotificationsEnabled, selectDaemonSettings } from 'redux/selectors/settings';
+import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
+import {
+  selectClientSetting,
+  selectFloatingPlayerEnabled,
+  selectosNotificationsEnabled,
+  selectDaemonSettings,
+} from 'redux/selectors/settings';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import {
   selectRecsysEntries,
@@ -266,7 +274,7 @@ export function doPlaylistAddAndAllowPlaying({
     if (createNew) {
       dispatch(
         doLocalCollectionCreate(
-          { name: collectionName, items: uri ? [uri] : [], type: COL_TYPES.PLAYLIST, sourceId },
+          { name: collectionName, title: collectionName, items: uri ? [uri] : [], type: COL_TYPES.PLAYLIST, sourceId },
           (newId) => {
             collectionId = newId;
             if (createCb) createCb(newId);
@@ -305,7 +313,7 @@ export function doPlaylistAddAndAllowPlaying({
     const collectionPlayingId = selectPlayingCollectionId(state);
     const playingUri = selectPlayingUri(state);
     const isUriPlaying = uri && selectIsUriCurrentlyPlaying(state, uri);
-    const firstItemUri = selectFirstItemUrlForCollection(state, collectionId);
+    const firstItemUri = collectionId && selectFirstItemUrlForCollectionId(state, collectionId);
 
     const isPlayingCollection = collectionPlayingId && collectionId && collectionPlayingId === collectionId;
     const hasItemPlaying = playingUri.uri && !isUriPlaying;
@@ -318,7 +326,7 @@ export function doPlaylistAddAndAllowPlaying({
       } else {
         dispatch(
           doUriInitiatePlay(
-            { uri: createNew ? uri : firstItemUri, collection: { collectionId } },
+            { uri: createNew ? uri : firstItemUri || '', collection: { collectionId } },
             true,
             true,
             !floatingPlayerEnabled && pushPlay ? (url) => pushPlay(url) : undefined
@@ -523,18 +531,26 @@ export const doToggleLoopList = (params: { collectionId: string, hideToast?: boo
   }
 };
 
-export const doToggleShuffleList = (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => (
-  dispatch: Dispatch,
-  getState: () => any
-) => {
-  const { currentUri, collectionId, hideToast } = params;
-  const state = getState();
+export const doToggleShuffleList = (params: {
+  currentUri?: string,
+  collectionId: string,
+  hideToast?: boolean,
+  forcePush?: boolean,
+  onlySet?: boolean,
+}) => async (dispatch: Dispatch, getState: () => any) => {
+  const { currentUri, collectionId, hideToast, forcePush, onlySet } = params;
+  let state = getState();
   const playingUri = selectPlayingUri(state);
   const { collection: playingCollection } = playingUri;
-  // const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
   const listIsShuffledForId = selectListIsShuffledForId(state, collectionId);
+  const hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
 
   if (!listIsShuffledForId) {
+    if (!selectIsCollectionPrivateForId(state, collectionId) && !hasItemsResolved) {
+      await dispatch(doFetchItemsInCollection({ collectionId })).then(() => {
+        state = getState();
+      });
+    }
     const urls = selectUrlsForCollectionId(state, collectionId);
 
     let newUrls = urls
@@ -550,7 +566,29 @@ export const doToggleShuffleList = (params: { currentUri?: string, collectionId:
       newUrls.splice(0, 0, currentUri);
     }
 
-    dispatch(doChangePlayingUriParam({ collection: { ...playingCollection, collectionId, shuffle: { newUrls } } }));
+    if (onlySet) {
+      dispatch(doChangePlayingUriParam({ collection: { ...playingCollection, collectionId, shuffle: { newUrls } } }));
+    } else {
+      const floatingPlayerEnabled = selectFloatingPlayerEnabled(state);
+
+      if (!forcePush && floatingPlayerEnabled) {
+        dispatch(
+          doUriInitiatePlay(
+            { uri: newUrls[0], collection: { ...playingCollection, collectionId, shuffle: { newUrls } } },
+            true,
+            true
+          )
+        );
+      } else {
+        dispatch(
+          push({
+            pathname: formatLbryUrlForWeb(newUrls[0]),
+            search: generateListSearchUrlParams(collectionId),
+            state: { forceAutoplay: true },
+          })
+        );
+      }
+    }
   } else {
     dispatch(doChangePlayingUriParam({ collection: { ...playingCollection, collectionId, shuffle: undefined } }));
   }

@@ -38,7 +38,6 @@ type Props = {
   collectionId: string,
   collection: Collection,
   collectionUrls: Array<string>,
-  isResolvingCollection: boolean,
   isAuthenticated: boolean,
   geoRestriction: ?GeoRestriction,
   homepageFetched: boolean,
@@ -49,7 +48,6 @@ type Props = {
   fetchChannelLiveStatus: (channelId: string) => void,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
   doBeginPublish: (name: ?string) => void,
-  doFetchItemsInCollection: ({ collectionId: string }) => void,
   doOpenModal: (string, {}) => void,
 };
 
@@ -68,7 +66,6 @@ export default function ShowPage(props: Props) {
     collectionId,
     collection,
     collectionUrls,
-    isResolvingCollection,
     isAuthenticated,
     geoRestriction,
     homepageFetched,
@@ -79,7 +76,6 @@ export default function ShowPage(props: Props) {
     fetchChannelLiveStatus,
     doResolveUri,
     doBeginPublish,
-    doFetchItemsInCollection,
     doOpenModal,
   } = props;
 
@@ -98,7 +94,6 @@ export default function ShowPage(props: Props) {
 
   const { contentName, isChannel } = parseURI(uri); // deprecated contentName - use streamName and channelName
   const isCollection = claim && claim.value_type === 'collection';
-  const resolvedCollection = collection && collection.id; // not null
   const showLiveStream = isLivestream && ENABLE_NO_SOURCE_CLAIMS;
 
   const channelOutpoint = signingChannel ? `${signingChannel.txid}:${signingChannel.nout}` : '';
@@ -129,13 +124,6 @@ export default function ShowPage(props: Props) {
       fetchLatestClaimForChannel(canonicalUrl);
     }
   }, [canonicalUrl, fetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
-
-  // changed this from 'isCollection' to resolve strangers' collections.
-  useEffect(() => {
-    if (collectionId && !resolvedCollection) {
-      doFetchItemsInCollection({ collectionId });
-    }
-  }, [isCollection, resolvedCollection, collectionId, doFetchItemsInCollection]);
 
   useEffect(() => {
     if (canonicalUrl) {
@@ -231,15 +219,13 @@ export default function ShowPage(props: Props) {
 
     return (
       <Page>
-        {(haventFetchedYet ||
+        {haventFetchedYet ||
           shouldResolveUri || // covers the initial mount case where we haven't run doResolveUri, so 'isResolvingUri' is not true yet.
-          isResolvingUri ||
-          isResolvingCollection || // added for collection
-          (isCollection && !urlForCollectionZero)) && ( // added for collection - make sure we accept urls = []
-          <div className="main--empty">
-            <Spinner />
-          </div>
-        )}
+          isResolvingUri || (
+            <div className="main--empty">
+              <Spinner />
+            </div>
+          )}
 
         {!isResolvingUri && !isSubscribed && !shouldResolveUri && !waitingForCategory && (
           <div className="main--empty">

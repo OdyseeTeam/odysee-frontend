@@ -34,7 +34,7 @@ type Props = {
   collectionUrls: Array<Claim>,
   collectionName: string,
   isPrivateCollection: boolean,
-  publishedCollectionName: string | boolean,
+  publicCollectionChannel: string | boolean,
   playingItemIndex: number,
   collectionLength: number,
   disableClickNavigation?: boolean,
@@ -43,7 +43,7 @@ type Props = {
   hasCollectionById: boolean,
   isFloating?: boolean,
   playingCollectionId: ?string,
-  collectionSavedForId: boolean,
+  isCollectionSaved: boolean,
   createUnpublishedCollection: (string, Array<any>, ?string) => void,
   doCollectionEdit: (string, CollectionEditParams) => void,
   doDisablePlayerDrag?: (disable: boolean) => void,
@@ -116,7 +116,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     id,
     playingItemUrl,
     isPrivateCollection,
-    publishedCollectionName,
+    publicCollectionChannel,
     doCollectionEdit,
     playingItemIndex,
     collectionLength,
@@ -135,7 +135,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
     doOpenModal,
     doClearQueueList,
     doToggleCollectionSavedForId,
-    collectionSavedForId,
+    isCollectionSaved,
     ...cardProps
   } = props;
 
@@ -319,7 +319,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                         requiresAuth
                         title={__('Save')}
                         className="button-toggle"
-                        icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+                        icon={isCollectionSaved ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
                         onClick={() => doToggleCollectionSavedForId(id)}
                       />
                     )}
@@ -382,7 +382,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                   Private %lock_icon%
                 </I18nMessage>
               ) : (
-                <UriIndicator link uri={publishedCollectionName} showHiddenAsAnonymous />
+                <UriIndicator link uri={publicCollectionChannel} showHiddenAsAnonymous />
               )}
 
               {currentIndexLabel}

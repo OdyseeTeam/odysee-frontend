@@ -7,7 +7,6 @@ import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import Icon from 'component/common/icon';
 import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router';
-import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 
 type Props = {
@@ -15,7 +14,6 @@ type Props = {
   doOpenModal: (string, {}) => void,
   collectionName?: string,
   collectionId: string,
-  playNextUri: string,
   doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
   isBuiltin: boolean,
   publishedNotEdited: boolean,
@@ -29,7 +27,6 @@ function CollectionMenuList(props: Props) {
     collectionId,
     collectionName,
     doOpenModal,
-    playNextUri,
     doToggleShuffleList,
     isBuiltin,
     publishedNotEdited,
@@ -37,21 +34,7 @@ function CollectionMenuList(props: Props) {
     isMyCollection,
   } = props;
 
-  const [doShuffle, setDoShuffle] = React.useState(false);
-
   const { push } = useHistory();
-
-  React.useEffect(() => {
-    if (playNextUri && doShuffle) {
-      setDoShuffle(false);
-      const navigateUrl = formatLbryUrlForWeb(playNextUri);
-      push({
-        pathname: navigateUrl,
-        search: generateListSearchUrlParams(collectionId),
-        state: { forceAutoplay: true },
-      });
-    }
-  }, [collectionId, doShuffle, playNextUri, push]);
 
   return (
     <Menu>
@@ -77,10 +60,7 @@ function CollectionMenuList(props: Props) {
             {!collectionEmpty && (
               <MenuItem
                 className="comment__menu-option"
-                onSelect={() => {
-                  doToggleShuffleList({ collectionId });
-                  setDoShuffle(true);
-                }}
+                onSelect={() => doToggleShuffleList({ collectionId, hideToast: true })}
               >
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.SHUFFLE} />

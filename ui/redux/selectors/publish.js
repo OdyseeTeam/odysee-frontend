@@ -180,6 +180,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
 
   const claimUploadParams: CollectionUpdateParams = {
     channel_id: activeChannelId,
+    claims: collectionClaimIds,
     ...(collectionClaimMetadata || {}),
   };
 
@@ -189,7 +190,6 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
     Object.assign(claimUploadParams, {
       title: collection.title || collection.name,
       description: collection.description,
-      claims: collectionClaimIds,
       thumbnail_url: collection.thumbnail?.url,
     });
   }

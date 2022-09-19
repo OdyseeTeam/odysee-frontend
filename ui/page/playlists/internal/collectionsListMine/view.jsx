@@ -29,7 +29,7 @@ type Props = {
   areBuiltinCollectionsEmpty: boolean,
   hasCollections: boolean,
   doOpenModal: (id: string) => void,
-  doFetchItemsInCollections: (params: { collectionIds: ClaimIds }) => void,
+  doResolveClaimIds: (collectionIds: ClaimIds) => void,
 };
 
 // Avoid prop drilling
@@ -48,7 +48,7 @@ export default function CollectionsListMine(props: Props) {
     areBuiltinCollectionsEmpty,
     hasCollections,
     doOpenModal,
-    doFetchItemsInCollections,
+    doResolveClaimIds,
   } = props;
 
   const isMobile = useIsMobile();
@@ -177,15 +177,15 @@ export default function CollectionsListMine(props: Props) {
 
   React.useEffect(() => {
     if (savedCollectionIds.length > 0) {
-      doFetchItemsInCollections({ collectionIds: savedCollectionIds });
+      doResolveClaimIds(savedCollectionIds);
     }
-  }, [doFetchItemsInCollections, savedCollectionIds]);
+  }, [doResolveClaimIds, savedCollectionIds]);
 
   function handleCreatePlaylist() {
     doOpenModal(MODALS.COLLECTION_CREATE);
   }
 
-  if (areBuiltinCollectionsEmpty && !hasCollections) {
+  if (areBuiltinCollectionsEmpty && !hasCollections && !isFetchingCollections) {
     return (
       <div className="claim-grid__wrapper">
         <BuiltinPlaylists />
@@ -216,7 +216,7 @@ export default function CollectionsListMine(props: Props) {
 
         {isFetchingCollections ? (
           <div className="main--empty empty">
-            <Spinner text={__('Fetching playlists. This may take a while...')} delayed />
+            <Spinner text={__('Loading your playlists...')} />
           </div>
         ) : (
           <>

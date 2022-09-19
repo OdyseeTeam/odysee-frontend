@@ -57,33 +57,37 @@ const CollectionHeader = (props: Props) => {
     <Card
       title={<CollectionTitle collectionId={collectionId} />}
       titleActions={
-        unavailableUris.length > 0 ? (
-          <Button
-            button="close"
-            icon={ICONS.DELETE}
-            label={__('Remove all unavailable claims')}
-            onClick={() => {
-              doCollectionEdit(collectionId, { uris: unavailableUris, remove: true });
-              setUnavailable([]);
-            }}
-          />
-        ) : claimIsPending ? (
-          <div className="help card__title--help">
-            <Spinner type="small" />
-            {__('Your publish is being confirmed and will be live soon')}
-          </div>
-        ) : (
-          isMyCollection &&
-          !isBuiltin && (
+        <>
+          {unavailableUris.length > 0 ? (
             <Button
               button="close"
-              title={__('Edit')}
-              className="button-toggle"
-              icon={ICONS.EDIT}
-              onClick={() => push(`?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)}
+              icon={ICONS.DELETE}
+              label={__('Remove all unavailable claims')}
+              onClick={() => {
+                doCollectionEdit(collectionId, { uris: unavailableUris, remove: true });
+                setUnavailable([]);
+              }}
             />
-          )
-        )
+          ) : (
+            isMyCollection &&
+            !isBuiltin && (
+              <Button
+                button="close"
+                title={__('Edit')}
+                className="button-toggle"
+                icon={ICONS.EDIT}
+                onClick={() => push(`?${CP.QUERIES.VIEW}=${CP.VIEWS.EDIT}`)}
+              />
+            )
+          )}
+
+          {claimIsPending && (
+            <div className="help card__title--help">
+              <Spinner type="small" />
+              {__('Your publish is being confirmed and will be live soon')}
+            </div>
+          )}
+        </>
       }
       subtitle={<CollectionSubtitle collectionId={collectionId} />}
       body={
