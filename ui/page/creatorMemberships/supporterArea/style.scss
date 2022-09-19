@@ -101,6 +101,31 @@
       }
     }
   }
+  @media (max-width: $breakpoint-small) {
+    overflow-x: auto !important;
+
+    .table {
+      .channelName-header {
+        min-width: 180px;
+      }
+      thead {
+        tr {
+          th {
+            white-space: nowrap;
+          }
+        }
+      }
+      tbody {
+        tr {
+          td {
+            white-space: nowrap;
+            padding: 0.6rem !important;
+            padding-right: 0 !important;
+          }
+        }
+      }
+    }
+  }
 }
 
 .back-to-memberships-button {
