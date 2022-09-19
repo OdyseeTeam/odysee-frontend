@@ -319,10 +319,11 @@ reducers[ACTIONS.TOGGLE_SPLASH_ANIMATION] = (state, action) => {
 };
 
 reducers[ACTIONS.SET_ACTIVE_CHANNEL] = (state, action) => {
-  return {
-    ...state,
-    activeChannel: action.data.claimId,
-  };
+  const { claimId } = action.data;
+
+  // for consistency, if a falsey value is provided, set is as null
+  // since undefined is used as initialState before being changed
+  return { ...state, activeChannel: claimId || null };
 };
 
 reducers[ACTIONS.SET_INCOGNITO] = (state, action) => {

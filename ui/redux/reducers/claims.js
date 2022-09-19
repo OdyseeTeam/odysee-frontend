@@ -388,7 +388,7 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
       myClaimIds.add(claimId);
 
       if (valueType === 'collection') {
-        if (!newCollectionClaimsById[claimId]) newCollectionClaimsById[claimId] = claimToStoredCollection(claim);
+        newCollectionClaimsById[claimId] = claimToStoredCollection(claim);
         newMyCollectionClaims.add(claimId);
       }
     }
@@ -415,16 +415,12 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
   const { claims }: { claims: Array<ChannelClaim> } = action.data;
   const myClaimIds = new Set(state.myClaims);
   const pendingByIdDelta = {};
-  let newMyChannelClaimsById;
+  const newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
   const byIdDelta = {};
   const byUriDelta = {};
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
 
-  if (!claims.length) {
-    // $FlowFixMe
-    newMyChannelClaimsById = null;
-  } else {
-    newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
+  if (claims.length) {
     claims.forEach((claim) => {
       const { meta } = claim;
       const { claims_in_channel: claimsInChannel } = meta;
@@ -435,7 +431,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_COMPLETED] = (state: State, action: any): St
       channelClaimCounts[canonicalUrl] = claimsInChannel;
       channelClaimCounts[permanentUrl] = claimsInChannel;
 
-      // $FlowFixMe
       newMyChannelClaimsById[claimId] = claim;
 
       if (confirmations < 1) {
@@ -574,7 +569,7 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
       const channelClaim: ChannelClaim = claim;
       newMyChannelClaimsById[claimId] = channelClaim;
     } else if (valueType === 'collection') {
-      if (!newCollectionClaimsById[claimId]) newCollectionClaimsById[claimId] = claimToStoredCollection(claim);
+      newCollectionClaimsById[claimId] = claimToStoredCollection(claim);
       newMyCollectionClaims.add(claimId);
     }
 
