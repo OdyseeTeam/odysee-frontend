@@ -34,7 +34,7 @@ export const SYSTEM_TAGS = [SCHEDULED_LIVESTREAM_TAG, LBRY_FIRST_TAG];
 
 export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS];
 
-export const MATURE_TAGS = [
+export const MATURE_TAGS = Object.freeze([
   'porn',
   'porno',
   'nsfw',
@@ -55,7 +55,7 @@ export const MATURE_TAGS = [
   'ass',
   'fuck',
   'hentai',
-];
+]);
 
 const DEFAULT_ENGLISH_KNOWN_TAGS = [
   'free speech',

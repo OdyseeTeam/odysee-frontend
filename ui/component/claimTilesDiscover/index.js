@@ -10,12 +10,12 @@ import {
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import * as SETTINGS from 'constants/settings';
-import { MATURE_TAGS } from 'constants/tags';
 import { doFetchViewCount } from 'lbryinc';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
 import { createNormalizedClaimSearchKey } from 'util/claim';
+import { CsOptions } from 'util/claim-search';
 
 import ClaimListDiscover from './view';
 
@@ -87,11 +87,13 @@ function resolveSearchOptions(props) {
     showNsfw,
     hideReposts,
     forceShowReposts,
+    hideMembersOnlyContent,
     mutedAndBlockedChannelIds,
     location,
     pageSize,
     claimType,
     tags,
+    notTags,
     languages,
     channelIds,
     orderBy,
@@ -124,7 +126,7 @@ function resolveSearchOptions(props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     any_tags: tags || [],
-    not_tags: !showNsfw ? MATURE_TAGS : [],
+    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnlyContent),
     any_languages: languages,
     channel_ids: channelIds || [],
     not_channel_ids: mutedAndBlockedChannelIds,

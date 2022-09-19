@@ -62,6 +62,7 @@ function DiscoverPage(props: Props) {
   const tags = tagsQuery ? tagsQuery.split(',') : null;
   const repostedClaimIsResolved = repostedUri && repostedClaim;
   const hideRepostRibbon = isCategory && !isWildWest;
+  const hideMembersOnlyContent = isCategory && !isWildWest;
 
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
@@ -104,6 +105,7 @@ function DiscoverPage(props: Props) {
           languageSetting={languageSetting}
           searchInLanguage={searchInLanguage}
           langParam={langParam}
+          hideMembersOnlyContent={hideMembersOnlyContent}
         />
       );
     }
@@ -229,6 +231,7 @@ function DiscoverPage(props: Props) {
           meta={getMeta()}
           hasSource
           hideRepostsOverride={dynamicRouteProps ? false : undefined}
+          hideMembersOnlyContent={hideMembersOnlyContent}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
         />
       </ClaimSearchFilterContext.Provider>
