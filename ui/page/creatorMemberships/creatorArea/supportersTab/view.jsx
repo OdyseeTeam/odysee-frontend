@@ -53,70 +53,71 @@ const SupportersTab = (props: Props) => {
   }
 
   return (
-    <div className="membership-table__wrapper">
+    <>
       {isViewingSingleChannel && !channelMembershipTiers && (
         <div className="bank-account-status">
           <div>
             <label>{__(`This channel doesn't have any Tiers`)}</label>
             <span>{__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}</span>
           </div>
-          <Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(1)} />
+          <Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(2)} />
         </div>
       )}
+      <div className="membership-table__wrapper">
+        {supportedChannels &&
+          supportedChannels.map((channelClaim) => {
+            const supportersForChannel =
+              supportersList &&
+              supportersList.filter((supporter) => channelClaim.name === supporter.ChannelBeingSupported);
 
-      {supportedChannels &&
-        supportedChannels.map((channelClaim) => {
-          const supportersForChannel =
-            supportersList &&
-            supportersList.filter((supporter) => channelClaim.name === supporter.ChannelBeingSupported);
+            return supportersForChannel && supportersForChannel.length > 0 ? (
+              <React.Fragment key={channelClaim.claim_id}>
+                <div className="table-channel-header">
+                  {(!isViewingSingleChannel || !channelMembershipTiers) && (
+                    <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
+                  )}
+                  {(!isViewingSingleChannel || !channelMembershipTiers) &&
+                    (channelClaim.value.title || channelClaim.name)}
+                </div>
 
-          return supportersForChannel && supportersForChannel.length > 0 ? (
-            <React.Fragment key={channelClaim.claim_id}>
-              <div className="table-channel-header">
-                {(!isViewingSingleChannel || !channelMembershipTiers) && (
-                  <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
-                )}
-                {(!isViewingSingleChannel || !channelMembershipTiers) &&
-                  (channelClaim.value.title || channelClaim.name)}
-              </div>
-
-              <table className="table">
-                <thead>
-                  <tr>
-                    <th>{__('Channel Name')}</th>
-                    <th className="channelName-header">{__('Tier')}</th>
-                    <th>{__('Amount')}</th>
-                    <th>{__('Joined On')}</th>
-                    <th>{__('Months Supporting')}</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {supportersForChannel.map((supporter, i) => (
-                    <tr key={i}>
-                      <td>
-                        <span dir="auto" className="button__label">
-                          {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
-                        </span>
-                      </td>
-                      <td>{supporter.MembershipName}</td>
-                      <td>${supporter.Price / 100} USD / Month</td>
-                      <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
-                      <td>{Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}</td>
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>{__('Channel Name')}</th>
+                      <th className="channelName-header">{__('Tier')}</th>
+                      <th>{__('Amount')}</th>
+                      <th>{__('Joined On')}</th>
+                      <th>{__('Months Supporting')}</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </React.Fragment>
-          ) : (
-            isViewingSingleChannel && channelMembershipTiers && (
-              <div className="main--empty">
-                <Yrbl type="sad" subtitle={__('No supporters yet...')} />
-              </div>
-            )
-          );
-        })}
-    </div>
+                  </thead>
+
+                  <tbody>
+                    {supportersForChannel.map((supporter, i) => (
+                      <tr key={i}>
+                        <td>
+                          <span dir="auto" className="button__label">
+                            {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
+                          </span>
+                        </td>
+                        <td>{supporter.MembershipName}</td>
+                        <td>${supporter.Price / 100} USD / Month</td>
+                        <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
+                        <td>{Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </React.Fragment>
+            ) : (
+              isViewingSingleChannel && channelMembershipTiers && (
+                <div className="main--empty">
+                  <Yrbl type="sad" subtitle={__('No supporters yet...')} />
+                </div>
+              )
+            );
+          })}
+      </div>
+    </>
   );
 };
 
