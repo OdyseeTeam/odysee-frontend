@@ -37,11 +37,14 @@ export function doCommentList(
   page: number = 1,
   pageSize: number = 99999,
   sortBy: ?number = SORT_BY.NEWEST,
-  isLivestream?: boolean
+  isLivestream?: boolean,
+  isProtected?: boolean,
+  requesterChannelId?: string
 ) {
-  return (dispatch: Dispatch, getState: GetState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
+    const myChannelClaims = selectMyChannelClaims(state);
     const { claim_id: claimId } = claim || {};
 
     if (!claimId) {
@@ -54,6 +57,23 @@ export function doCommentList(
     const creatorChannelClaim = getChannelFromClaim(claim);
     const { claim_id: creatorClaimId, name: channelName } = creatorChannelClaim || {};
 
+    if (!myChannelClaims) {
+      console.error('Failed to fetch channel list.'); // eslint-disable-line
+      return;
+    }
+
+    const myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
+    if (!myChannelClaim) {
+      console.error('You do not own this channel.'); // eslint-disable-line
+      return;
+    }
+
+    const channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+    if (!channelSignature) {
+      console.error('Failed to sign channel name.'); // eslint-disable-line
+      return;
+    }
+
     return Comments.comment_list({
       page,
       claim_id: claimId,
@@ -63,6 +83,10 @@ export function doCommentList(
       channel_id: creatorClaimId,
       channel_name: channelName,
       sort_by: sortBy,
+      is_protected: !!isProtected, // in case undefined is passed
+      requestor_channel_id: isProtected && requesterChannelId, // typo (requestor vs requester) is on backend atm
+      signature: isProtected && channelSignature.signature,
+      signing_ts: isProtected && channelSignature.signing_ts,
     })
       .then((result: CommentListResponse) => {
         const { items: comments, total_items, total_filtered_items, total_pages } = result;
@@ -98,6 +122,15 @@ export function doCommentList(
         switch (message) {
           case 'comments are disabled by the creator':
             return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { creatorClaimId, disabled: true } });
+          case 'channel does not have permissions to comment on this claim':
+            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED,
+              data: {
+                creatorClaimId,
+                disabled: true,
+                restrictedToMembersOnly: true,
+                claimId,
+              },
+            });
           case FETCH_API_FAILED_TO_FETCH:
             dispatch(doToast({ isError: true, message: __('Failed to fetch comments.') }));
             return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });

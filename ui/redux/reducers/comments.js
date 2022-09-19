@@ -284,6 +284,7 @@ export default handleActions(
         uri,
         disabled,
         creatorClaimId,
+        restrictedToMembersOnly,
       } = action.data;
 
       const commentById = Object.assign({}, state.commentById);
@@ -299,9 +300,16 @@ export default handleActions(
       const isLoadingByParentId = Object.assign({}, state.isLoadingByParentId);
       const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
 
+      // save an array of claim ids of members-only chats to check during list
+      let membersOnlyChats = settingsByChannelId[creatorClaimId].members_only_chat || [];
+      if (restrictedToMembersOnly) {
+        membersOnlyChats.push(claimId);
+      }
+
       settingsByChannelId[creatorClaimId] = {
         ...(settingsByChannelId[creatorClaimId] || {}),
         comments_enabled: !disabled,
+        members_only_chats: membersOnlyChats,
       };
 
       if (parentId) {

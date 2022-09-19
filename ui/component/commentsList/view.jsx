@@ -256,7 +256,9 @@ export default function CommentList(props: Props) {
         }
       }
 
-      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort);
+      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false,
+        // protected comments params
+        chatCommentsRestrictedToChannelMembers, activeChannelId);
     }
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 

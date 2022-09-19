@@ -131,6 +131,8 @@ export default function FilePage(props: Props) {
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
+  const membersOnlyChat = channelSettings?.members_only_chats?.includes(claimId);
+
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
@@ -313,10 +315,16 @@ export default function FilePage(props: Props) {
 
               <React.Suspense fallback={null}>
                 {contentCommentsDisabled ? (
+                  // content disabled based on tag for content
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
+                ) : membersOnlyChat ? (
+                    // user has comments disabled for entire channel
+                    <Empty {...emptyMsgProps} text={__('Comments are members-only, please join a membership to access comments.')} />
                 ) : commentSettingDisabled ? (
+                  // user has comments disabled for entire channel
                   <Empty {...emptyMsgProps} text={__('This channel has disabled comments on their page.')} />
                 ) : isMobile && !isLandscapeRotated ? (
+                  // mobile mode comments
                   <>
                     <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
                       <CommentsList {...commentsListProps} />
@@ -325,6 +333,7 @@ export default function FilePage(props: Props) {
                     <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
                   </>
                 ) : (
+                  // normal comments list
                   <CommentsList {...commentsListProps} notInDrawer />
                 )}
               </React.Suspense>
