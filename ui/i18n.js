@@ -1,8 +1,8 @@
 // @flow
-import { isLocalStorageAvailable } from 'util/storage';
+import * as SETTINGS from 'constants/settings';
+import { getDefaultLanguage } from 'util/default-languages';
 
 const isProduction = process.env.NODE_ENV === 'production';
-const localStorageAvailable = isLocalStorageAvailable();
 
 window.i18n_messages = window.i18n_messages || {};
 let reportTimer;
@@ -50,12 +50,11 @@ function removeContextMetadata(message) {
 
   const begin = message.lastIndexOf(CONTEXT_BEGIN);
   if (begin > 0 && message.endsWith(CONTEXT_FINAL)) {
-    // Strip away context:
-    message = message.substring(0, begin);
-    // No trailing spaces should be allowed in the string database anyway, because that is hard to translate
+    // (1) Strip away context.
+    // (2) No trailing spaces should be allowed in the string database anyway, because that is hard to translate
     // (can't see in Transifex; might not make sense in other languages; etc.).
     // With that, we can add a space before the context-metadata to make it neat, and trim both cases here:
-    message = message.trimEnd();
+    return message.substring(0, begin).trimEnd();
   }
 
   return message;
@@ -66,16 +65,16 @@ export function __(message: string, tokens: { [string]: string }) {
     return '';
   }
 
-  const language = localStorageAvailable
-    ? window.localStorage.getItem('language') || 'en'
-    : window.navigator.language.slice(0, 2) || 'en';
+  const state = window.store && window.store.getState();
+  const browserLanguage = getDefaultLanguage();
+  const language = state?.settings?.clientSettings[SETTINGS.LANGUAGE] || browserLanguage || 'en';
 
   if (!isProduction) {
     saveMessageWeb(message);
   }
 
-  let translatedMessage = window.i18n_messages[language] ? window.i18n_messages[language][message] || message : message;
-  translatedMessage = removeContextMetadata(translatedMessage);
+  const i18n_messages = window.i18n_messages[language] || window.i18n_messages[browserLanguage];
+  const translatedMessage = removeContextMetadata(i18n_messages ? i18n_messages[message] || message : message);
 
   if (!tokens) {
     return translatedMessage;

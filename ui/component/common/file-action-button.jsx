@@ -2,6 +2,7 @@
 import React from 'react';
 import Button from 'component/button';
 import Tooltip from 'component/common/tooltip';
+import classnames from 'classnames';
 
 type Props = {
   title: string,
@@ -10,10 +11,11 @@ type Props = {
   navigate?: string,
   requiresAuth?: boolean,
   requiresChannel?: boolean,
+  className?: string,
 };
 
 function FileActionButton(props: Props) {
-  const { title, iconSize, noStyle, ...buttonProps } = props;
+  const { title, iconSize, noStyle, className, ...buttonProps } = props;
   const { navigate, requiresAuth, requiresChannel } = buttonProps;
 
   if (navigate || requiresAuth || requiresChannel) {
@@ -22,7 +24,14 @@ function FileActionButton(props: Props) {
         <div className="button--file-action--tooltip-wrapper">
           <Button
             button={noStyle ? 'alt' : undefined}
-            className={noStyle ? undefined : 'button--file-action button--file-action--tooltip'}
+            className={
+              noStyle
+                ? className || undefined
+                : classnames('button--file-action', {
+                    'button--file-action--tooltip': !className,
+                    [className || '']: Boolean(className),
+                  })
+            }
             iconSize={iconSize || 16}
             {...buttonProps}
           />
@@ -35,7 +44,11 @@ function FileActionButton(props: Props) {
     <Tooltip title={title} arrow={false} enterDelay={100}>
       <Button
         button={noStyle ? 'alt' : undefined}
-        className={noStyle ? undefined : 'button--file-action'}
+        className={
+          noStyle
+            ? className || undefined
+            : classnames('button--file-action', { [className || '']: Boolean(className) })
+        }
         iconSize={iconSize || 16}
         {...buttonProps}
       />

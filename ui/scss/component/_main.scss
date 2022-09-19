@@ -1021,6 +1021,12 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
+
+    .claim-preview__wrapper {
+      .claim-tile__info {
+        margin-top: var(--spacing-xxxs) !important;
+      }
+    }
   }
 }
 
@@ -1189,6 +1195,14 @@ body {
   max-width: 27rem;
   margin-left: auto;
   margin-right: auto;
+
+  .nag--error {
+    border: 2px solid red;
+    background-color: rgba(255, 0, 0, 0.1);
+    left: 0;
+    bottom: unset;
+    top: var(--spacing-s);
+  }
 
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-m);

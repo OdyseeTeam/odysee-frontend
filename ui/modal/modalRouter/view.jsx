@@ -8,6 +8,7 @@ import { lazyImport } from 'util/lazyImport';
 
 // prettier-ignore
 const MAP = Object.freeze({
+  [MODALS.ADD_CARD]: lazyImport(() => import('modal/modalStripeCard' /* webpackChunkName: "modalStripeCard" */)),
   [MODALS.ANNOUNCEMENTS]: lazyImport(() => import('modal/modalAnnouncements' /* webpackChunkName: "modalAnnouncements" */)),
   [MODALS.AFFIRM_PURCHASE]: lazyImport(() => import('modal/modalAffirmPurchase' /* webpackChunkName: "modalAffirmPurchase" */)),
   [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)),
@@ -22,7 +23,6 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_EXTERNAL_RESOURCE]: lazyImport(() => import('modal/modalOpenExternalResource' /* webpackChunkName: "modalOpenExternalResource" */)),
   [MODALS.CONFIRM_FILE_REMOVE]: lazyImport(() => import('modal/modalRemoveFile' /* webpackChunkName: "modalRemoveFile" */)),
   [MODALS.CONFIRM_ODYSEE_MEMBERSHIP]: lazyImport(() => import('modal/modalConfirmOdyseeMembership' /* webpackChunkName: "modalConfirmOdyseeMembership" */)),
-  [MODALS.CONFIRM_REMOVE_CARD]: lazyImport(() => import('modal/modalRemoveCard' /* webpackChunkName: "modalRemoveCard" */)),
   [MODALS.CONFIRM_REMOVE_COMMENT]: lazyImport(() => import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)),
   [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload' /* webpackChunkName: "modalConfirmThumbnailUpload" */)),
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction' /* webpackChunkName: "modalConfirmTransaction" */)),
@@ -48,6 +48,7 @@ const MAP = Object.freeze({
   [MODALS.REWARD_GENERATED_CODE]: lazyImport(() => import('modal/modalRewardCode' /* webpackChunkName: "modalRewardCode" */)),
   [MODALS.SEND_TIP]: lazyImport(() => import('modal/modalSendTip' /* webpackChunkName: "modalSendTip" */)),
   [MODALS.SET_REFERRER]: lazyImport(() => import('modal/modalSetReferrer' /* webpackChunkName: "modalSetReferrer" */)),
+  [MODALS.SIGN_OUT]: lazyImport(() => import('modal/modalSignOut' /* webpackChunkName: "modalSignOut" */)),
   [MODALS.SOCIAL_SHARE]: lazyImport(() => import('modal/modalSocialShare' /* webpackChunkName: "modalSocialShare" */)),
   [MODALS.SYNC_ENABLE]: lazyImport(() => import('modal/modalSyncEnable' /* webpackChunkName: "modalSyncEnable" */)),
   [MODALS.TRANSACTION_FAILED]: lazyImport(() => import('modal/modalTransactionFailed' /* webpackChunkName: "modalTransactionFailed" */)),

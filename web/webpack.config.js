@@ -92,6 +92,10 @@ const copyWebpackCommands = [
     to: `${output.PATH}/public/img/cookie.svg`,
   },
   {
+    from: `${STATIC_ROOT}/cast/`,
+    to: `${output.PATH}/public/cast/`,
+  },
+  {
     from: `${STATIC_ROOT}/font/`,
     to: `${output.PATH}/public/font/`,
   },

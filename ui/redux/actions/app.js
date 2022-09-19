@@ -573,7 +573,14 @@ export function doSignIn() {
   };
 }
 
-export function doSignOut() {
+function clearBeforeUnloadListeners() {
+  const beforeUnloads = Object.values(window.beforeUnloadMap || {});
+  beforeUnloads.forEach((x) => {
+    window.removeEventListener('beforeunload', x.cb);
+  });
+}
+
+function doSignOutAction() {
   return async (dispatch, getState) => {
     const state = getState();
     const user = selectUser(state);
@@ -593,6 +600,25 @@ export function doSignOut() {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);
         })
         .finally(() => location.reload());
+    }
+  };
+}
+
+export function doSignOut() {
+  return async (dispatch, getState) => {
+    const pendingActions = Object.values(window.beforeUnloadMap || {});
+    if (pendingActions.length > 0) {
+      dispatch(
+        doOpenModal(MODALS.SIGN_OUT, {
+          pendingActions: pendingActions.map((x) => x.msg),
+          onConfirm: () => {
+            clearBeforeUnloadListeners();
+            dispatch(doSignOutAction());
+          },
+        })
+      );
+    } else {
+      dispatch(doSignOutAction());
     }
   };
 }

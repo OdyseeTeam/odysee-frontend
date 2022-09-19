@@ -300,6 +300,13 @@
   }
 }
 
+.navigation-link--icon-centered {
+  padding-left: 0;
+  .button__content {
+    justify-content: center;
+  }
+}
+
 .navigation-links {
   @extend .ul--no-style;
   flex-direction: column;
@@ -411,7 +418,7 @@
   @extend .navigation-links;
   margin-right: 0;
   padding-right: 0;
-  margin-top: var(--spacing-m);
+  margin-top: var(--spacing-xxl);
   margin-bottom: 0;
 
   .navigation-link {

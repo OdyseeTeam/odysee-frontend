@@ -1,6 +1,6 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
@@ -21,6 +21,7 @@ import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
+import { BeforeUnload, Unload } from 'util/beforeUnload';
 import AdBlockTester from 'web/component/adBlockTester';
 import AdsSticky from 'web/component/adsSticky';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
@@ -33,12 +34,9 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
-import getLanguagesForCountry from 'constants/country_languages';
-import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
-const NagLocaleSwitch = lazyImport(() => import('component/nagLocaleSwitch' /* webpackChunkName: "nagLocaleSwitch" */));
 const NagDegradedPerformance = lazyImport(() =>
   import('web/component/nag-degraded-performance' /* webpackChunkName: "NagDegradedPerformance" */)
 );
@@ -70,6 +68,7 @@ type Props = {
   fetchCollectionListMine: () => void,
   signIn: () => void,
   setLanguage: (string) => void,
+  fetchLanguage: (string) => void,
   isReloadRequired: boolean,
   uploadCount: number,
   balance: ?number,
@@ -115,6 +114,7 @@ function App(props: Props) {
     language,
     languages,
     setLanguage,
+    fetchLanguage,
     rewards,
     setReferrer,
     isAuthenticated,
@@ -126,7 +126,6 @@ function App(props: Props) {
     setIncognito,
     fetchModBlockedList,
     fetchModAmIList,
-    homepageFetched,
     defaultChannelClaim,
     nagsShown,
     announcement,
@@ -137,7 +136,6 @@ function App(props: Props) {
   } = props;
 
   const isMobile = useIsMobile();
-  const appRef = useRef();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
   const hasVerifiedEmail = user && Boolean(user.has_verified_email);
@@ -145,8 +143,6 @@ function App(props: Props) {
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const previousRewardApproved = usePrevious(isRewardApproved);
 
-  const [localeLangs, setLocaleLangs] = React.useState();
-  const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
   const [sidebarOpen] = usePersistedState('sidebar', false);
 
@@ -249,12 +245,6 @@ function App(props: Props) {
         />
       );
     }
-
-    if (localeLangs && !embedPath && !localeSwitchDismissed && homepageFetched) {
-      window.nag = true;
-      const noLanguageSet = language === 'en' && languages.length === 1;
-      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} onFrontPage={pathname === '/'} />;
-    }
   }
 
   useEffect(() => {
@@ -266,30 +256,33 @@ function App(props: Props) {
 
   useEffect(() => {
     if (syncIsLocked) {
+      const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
       const handleBeforeUnload = (event) => {
         event.preventDefault();
-        event.returnValue = __('There are unsaved settings. Exit the Settings Page to finalize them.');
+        event.returnValue = msg;
       };
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+
+      BeforeUnload.register(handleBeforeUnload, msg);
+      return () => BeforeUnload.unregister(handleBeforeUnload);
     }
   }, [syncIsLocked]);
 
   useEffect(() => {
     if (!uploadCount) return;
 
+    const msg = 'Unfinished uploads.';
     const handleUnload = (event) => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
-      event.returnValue = __('There are pending uploads.'); // without setting this to something it doesn't work
+      event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
     };
 
-    window.addEventListener('unload', handleUnload);
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    Unload.register(handleUnload);
+    BeforeUnload.register(handleBeforeUnload, msg);
 
     return () => {
-      window.removeEventListener('unload', handleUnload);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      Unload.unregister(handleUnload);
+      BeforeUnload.unregister(handleBeforeUnload);
     };
   }, [uploadCount]);
 
@@ -323,16 +316,11 @@ function App(props: Props) {
   }, [sanitizedReferrerParam, isRewardApproved, referredRewardAvailable]);
 
   useEffect(() => {
-    const { current: wrapperElement } = appRef;
-    if (wrapperElement) {
-      ReactModal.setAppElement(wrapperElement);
-    }
-
     // @if TARGET='app'
     fetchChannelListMine(); // This is fetched after a user is signed in on web
     fetchCollectionListMine();
     // @endif
-  }, [appRef, fetchChannelListMine, fetchCollectionListMine]);
+  }, [fetchChannelListMine, fetchCollectionListMine]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -369,7 +357,7 @@ function App(props: Props) {
 
   useEffect(() => {
     if (!languages.includes(language)) {
-      setLanguage(language);
+      fetchLanguage(language);
 
       if (document && document.documentElement && LANGUAGES[language].length >= 3) {
         document.documentElement.dir = LANGUAGES[language][2];
@@ -477,18 +465,6 @@ function App(props: Props) {
   }, [locale]);
 
   useEffect(() => {
-    if (locale) {
-      const countryCode = locale.country;
-      const langs = getLanguagesForCountry(countryCode) || [];
-      const supportedLangs = langs.filter((lang) => lang !== 'en' && SUPPORTED_LANGUAGES[lang]);
-
-      if (supportedLangs.length > 0) {
-        setLocaleLangs(supportedLangs);
-      }
-    }
-  }, [locale]);
-
-  useEffect(() => {
     window.nagsShown = nagsShown;
     if (nagsShown) {
       const ad = document.getElementsByClassName('VISIBLE')[0];
@@ -528,7 +504,7 @@ function App(props: Props) {
 
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
-      console.log('Clearing history. Please wait ...');
+      console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
       doSetLastViewedAnnouncement('clear');
     };
   }, []);
@@ -544,9 +520,18 @@ function App(props: Props) {
   useDegradedPerformance(setLbryTvApiStatus, user);
 
   useEffect(() => {
-    // When language is changed or translations are fetched, we render.
-    setLangRenderKey(Date.now());
+    if (!syncIsLocked) {
+      // When language is changed or translations are fetched, we render.
+      setLangRenderKey(Date.now());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- don't respond to syncIsLocked, but skip action when locked.
   }, [language, languages]);
+
+  const appRef = React.useCallback((wrapperElement) => {
+    if (wrapperElement) {
+      ReactModal.setAppElement(wrapperElement);
+    }
+  }, []);
 
   // Require an internal-api user on lbry.tv
   // This also prevents the site from loading in the un-authed state while we wait for internal-apis to return for the first time

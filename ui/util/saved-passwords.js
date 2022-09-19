@@ -7,6 +7,20 @@ const isProduction = process.env.NODE_ENV === 'production';
 const maxExpiration = 2147483647;
 let sessionPassword;
 
+function areCookiesEnabled() {
+  // `navigator.cookieEnabled` doesn't get populated until a certain stage after
+  // startup, so https://stackoverflow.com/a/48521179/977819 remains the best
+  // solution so far.
+  try {
+    document.cookie = 'cookietest=1';
+    const cookiesEnabled = document.cookie.indexOf('cookietest=') !== -1;
+    document.cookie = 'cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT';
+    return cookiesEnabled;
+  } catch (e) {
+    return false;
+  }
+}
+
 function setCookie(name, value, expirationDaysOnWeb) {
   let expires = '';
   if (expirationDaysOnWeb) {
@@ -48,13 +62,7 @@ function getCookie(name) {
 }
 
 function deleteCookie(name) {
-  document.cookie = name + `=; Max-Age=-99999999; domain=${domain}; path=/;`;
-
-  // Legacy
-  // Adding this here to delete any old cookies before we removed the "." in front of the domain
-  // Remove this if you see it after March 11th, 2021
-  // https://github.com/lbryio/lbry-desktop/pull/3830
-  document.cookie = name + `=; Max-Age=-99999999; domain=.${domain}; path=/;`;
+  document.cookie = name + `=; Max-Age=-99999999; domain=${domain}; path=/; Secure; SameSite=None;`;
 }
 
 function setSavedPassword(value, saveToDisk) {
@@ -129,6 +137,7 @@ function doAuthTokenRefresh() {
 }
 
 module.exports = {
+  areCookiesEnabled,
   setCookie,
   getCookie,
   deleteCookie,

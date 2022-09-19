@@ -40,12 +40,13 @@ export const sentryWrapper: SentryWrapper = {
         dsn: TEST_DSN || SENTRY_DSN,
         beforeBreadcrumb: handleBeforeBreadcrumb,
         beforeSend: handleBeforeSend,
-        debug: LocalStorage.getItem('sentry_debug') === 'true' || !IS_PRODUCTION,
+        debug: LocalStorage.getItem('sentry_debug') === 'true',
+        denyUrls: [/extensions\//i, /^chrome:\/\//i],
         integrations: [new BrowserTracing()],
         maxBreadcrumbs: 50,
         release: process.env.BUILD_REV,
         tracesSampleRate: 0.0,
-        whitelistUrls: [/https:\/\/((.*)\.)?odysee\.(com|tv)/, 'http://localhost:9090'],
+        allowUrls: [/https:\/\/((.*)\.)?odysee\.(com|tv)/],
       });
 
       gSentryInitialized = true;
@@ -84,23 +85,14 @@ export const sentryWrapper: SentryWrapper = {
 // Private
 // ****************************************************************************
 
-function handleBeforeSend(event) {
-  if (event.message === 'ResizeObserver loop limit exceeded') {
-    // This is coming from the ads, but unfortunately there's no data linking
-    // to ads for us to filter exactly. It's apparently an ignorable browser
-    // message, and usually there should be an accompanying exception (we'll
-    // capture that instead).
-    return null;
-  }
-
+function handleBeforeSend(event, hints) {
   try {
-    const ev = event.exception?.values;
-    if (ev) {
-      const fr = ev[0]?.stacktrace?.frames;
-      const filename = fr && fr[0]?.filename;
-      if (filename && filename.startsWith('https://tg1.aniview.com/')) {
-        return null;
-      }
+    const ev = event.exception?.values || [];
+    const frames = ev[0]?.stacktrace?.frames || [];
+    const lastFrame = frames[frames.length - 1];
+
+    if (lastFrame?.filename && lastFrame.filename.match(/([a-z]*)-extension:\/\//)) {
+      return null;
     }
   } catch {}
 

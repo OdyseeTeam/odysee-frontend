@@ -1,13 +1,16 @@
 // @flow
+import React from 'react';
 import type { Node } from 'react';
+import classnames from 'classnames';
+
+import './style.scss';
+import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import { SIDEBAR_SUBS_DISPLAYED } from 'constants/subscriptions';
-import React from 'react';
 import Button from 'component/button';
 import ClaimPreviewTitle from 'component/claimPreviewTitle';
-import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import NotificationBubble from 'component/notificationBubble';
 import DebouncedInput from 'component/common/debounced-input';
@@ -18,6 +21,9 @@ import { GetLinksData } from 'util/buildHomepage';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
 import PremiumBadge from 'component/premiumBadge';
+
+// TODO: move to selector for memoization
+import { getSortedRowData } from 'page/home/helper';
 
 const touch = platform.isTouch() && /iPad|Android/i.test(navigator.userAgent);
 
@@ -122,6 +128,8 @@ const UNAUTH_LINKS: Array<SideNavLink> = [
 // ****************************************************************************
 // ****************************************************************************
 
+type HomepageOrder = { active: ?Array<string>, hidden: ?Array<string> };
+
 type Props = {
   subscriptions: Array<Subscription>,
   lastActiveSubs: ?Array<Subscription>,
@@ -138,9 +146,12 @@ type Props = {
   doClearPurchasedUriSuccess: () => void,
   user: ?User,
   homepageData: any,
+  homepageOrder: HomepageOrder,
+  homepageOrderApplyToSidebar: boolean,
   doClearClaimSearch: () => void,
-  odyseeMembership: ?string,
+  hasMembership: ?boolean,
   doFetchLastActiveSubs: (force?: boolean, count?: number) => void,
+  doOpenModal: (id: string, ?{}) => void,
 };
 
 function SideNavigation(props: Props) {
@@ -157,18 +168,18 @@ function SideNavigation(props: Props) {
     isOnFilePage,
     unseenCount,
     homepageData,
+    homepageOrder,
+    homepageOrderApplyToSidebar,
     user,
     followedTags,
     doClearClaimSearch,
-    odyseeMembership,
+    hasMembership,
     doFetchLastActiveSubs,
+    doOpenModal,
   } = props;
 
   const isLargeScreen = useIsLargeScreen();
-
-  const EXTRA_SIDEBAR_LINKS = GetLinksData(homepageData, isLargeScreen).map(
-    ({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest
-  );
+  const categories = getSidebarCategories(isLargeScreen);
 
   const MOBILE_PUBLISH: Array<SideNavLink> = [
     {
@@ -190,6 +201,7 @@ function SideNavigation(props: Props) {
       hideForUnauth: true,
     },
   ];
+
   const MOBILE_LINKS: Array<SideNavLink> = [
     {
       title: 'New Channel',
@@ -277,20 +289,6 @@ function SideNavigation(props: Props) {
 
   const [canDisposeMenu, setCanDisposeMenu] = React.useState(false);
 
-  React.useEffect(() => {
-    if (hideMenuFromView || !menuInitialized) {
-      const handler = setTimeout(() => {
-        setMenuInitialized(true);
-        setCanDisposeMenu(true);
-      }, 250);
-      return () => {
-        clearTimeout(handler);
-      };
-    } else {
-      setCanDisposeMenu(false);
-    }
-  }, [hideMenuFromView, menuInitialized]);
-
   const shouldRenderLargeMenu = (menuCanCloseCompletely && !isAbsolute) || sidebarOpen;
 
   const showMicroMenu = !sidebarOpen && !menuCanCloseCompletely;
@@ -304,6 +302,21 @@ function SideNavigation(props: Props) {
   let displayedFollowedTags = followedTags;
   if (showTagSection && followedTags.length > SIDEBAR_SUBS_DISPLAYED && !expandTags) {
     displayedFollowedTags = followedTags.slice(0, SIDEBAR_SUBS_DISPLAYED);
+  }
+
+  // **************************************************************************
+  // **************************************************************************
+
+  function getSidebarCategories(isLargeScreen) {
+    const rowData = GetLinksData(homepageData, isLargeScreen);
+    let categories = rowData;
+
+    if (homepageOrderApplyToSidebar) {
+      const sortedRowData: Array<RowDataItem> = getSortedRowData(Boolean(email), hasMembership, homepageOrder, rowData);
+      categories = sortedRowData.filter((x) => x.id !== 'FYP');
+    }
+
+    return categories.map(({ pinnedUrls, pinnedClaimIds, hideByDefault, ...theRest }) => theRest);
   }
 
   function getLink(props: SideNavLink) {
@@ -351,6 +364,13 @@ function SideNavigation(props: Props) {
 
       return (
         <ul className="navigation__secondary navigation-links">
+          {!showMicroMenu && (
+            <SectionHeader
+              title={__('Following')}
+              actionTooltip={__('Manage')}
+              navigate={!subscriptionFilter ? `/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}` : ''}
+            />
+          )}
           {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
             <li className="navigation-item">
               <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setSubscriptionFilter} />
@@ -359,20 +379,23 @@ function SideNavigation(props: Props) {
           {displayedSubscriptions.map((subscription) => (
             <SubscriptionListItem key={subscription.uri} subscription={subscription} />
           ))}
+          {subscriptions.length > SIDEBAR_SUBS_DISPLAYED && (
+            <li className="navigation-item">
+              <Button
+                icon={ICONS.MORE}
+                title={__('Manage Following')}
+                navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
+                className="navigation-link navigation-link--icon-centered"
+                activeClass="navigation-link--active"
+              />
+            </li>
+          )}
           {!!subscriptionFilter && !displayedSubscriptions.length && (
             <li>
               <div className="navigation-item">
                 <div className="empty empty--centered">{__('No results')}</div>
               </div>
             </li>
-          )}
-          {!subscriptionFilter && (
-            <Button
-              key="showMore"
-              label={__('Manage')}
-              className="navigation-link"
-              navigate={`/$/${PAGES.CHANNELS_FOLLOWING_MANAGE}`}
-            />
           )}
         </ul>
       );
@@ -384,6 +407,7 @@ function SideNavigation(props: Props) {
     if (showTagSection) {
       return (
         <>
+          {!showMicroMenu && <SectionHeader title={__('Tags')} />}
           <ul className="navigation__secondary navigation-links">
             {displayedFollowedTags.map(({ name }, key) => (
               <li key={name} className="navigation-link__wrapper">
@@ -404,6 +428,9 @@ function SideNavigation(props: Props) {
     }
     return null;
   }
+
+  // **************************************************************************
+  // **************************************************************************
 
   React.useEffect(() => {
     // $FlowFixMe
@@ -463,8 +490,43 @@ function SideNavigation(props: Props) {
   }, [sidebarOpen, isMobile]);
 
   React.useEffect(() => {
+    if (hideMenuFromView || !menuInitialized) {
+      const handler = setTimeout(() => {
+        setMenuInitialized(true);
+        setCanDisposeMenu(true);
+      }, 250);
+      return () => {
+        clearTimeout(handler);
+      };
+    } else {
+      setCanDisposeMenu(false);
+    }
+  }, [hideMenuFromView, menuInitialized]);
+
+  React.useEffect(() => {
     doFetchLastActiveSubs();
   }, []);
+
+  // **************************************************************************
+  // **************************************************************************
+
+  type SectionHeaderProps = { title: string, actionTooltip?: string, onClick?: any, navigate?: string };
+  const SectionHeader = ({ title, actionTooltip, onClick, navigate }: SectionHeaderProps) => {
+    return (
+      <div className="navigation-section-header">
+        <span>{title}</span>
+        {(onClick || navigate) && (
+          <Button
+            button="link"
+            iconRight={ICONS.SETTINGS}
+            onClick={onClick}
+            navigate={navigate}
+            title={actionTooltip}
+          />
+        )}
+      </div>
+    );
+  };
 
   const unAuthNudge =
     DOMAIN === 'lbry.tv' ? null : (
@@ -506,6 +568,9 @@ function SideNavigation(props: Props) {
     </ul>
   );
 
+  // **************************************************************************
+  // **************************************************************************
+
   return (
     <div
       className={classnames('navigation__wrapper', {
@@ -534,7 +599,7 @@ function SideNavigation(props: Props) {
             >
               {getLink(getHomeButton(doClearClaimSearch))}
               {getLink(RECENT_FROM_FOLLOWING)}
-              {!odyseeMembership && getLink(PREMIUM)}
+              {!hasMembership && getLink(PREMIUM)}
             </ul>
 
             <ul
@@ -543,6 +608,7 @@ function SideNavigation(props: Props) {
                 'navigation-links--absolute': shouldRenderLargeMenu,
               })}
             >
+              {!showMicroMenu && email && <SectionHeader title={__('Lists')} />}
               {!showMicroMenu && getLink(WATCH_LATER)}
               {!showMicroMenu && getLink(FAVORITES)}
               {getLink(PLAYLISTS)}
@@ -555,10 +621,17 @@ function SideNavigation(props: Props) {
                 'navigation-links--absolute': shouldRenderLargeMenu,
               })}
             >
-              {EXTRA_SIDEBAR_LINKS && (
+              {categories && (
                 <>
+                  {!showMicroMenu && (
+                    <SectionHeader
+                      title={__('Categories')}
+                      onClick={() => doOpenModal(MODALS.CUSTOMIZE_HOMEPAGE)}
+                      actionTooltip={__('Sort and customize your homepage')}
+                    />
+                  )}
                   {/* $FlowFixMe: GetLinksData type needs an update */}
-                  {EXTRA_SIDEBAR_LINKS.map((linkProps) => getLink(linkProps))}
+                  {categories.map((linkProps) => getLink(linkProps))}
                 </>
               )}
             </ul>
@@ -587,6 +660,10 @@ function SideNavigation(props: Props) {
     </div>
   );
 }
+
+// ****************************************************************************
+// SubscriptionListItem
+// ****************************************************************************
 
 type SubItemProps = {
   subscription: Subscription,
