@@ -1119,8 +1119,13 @@
     }
   }
 
+  .channelThumbnail {
+    padding-right: 0 !important;
+  }
   .channel-thumbnail {
     display: inline-block;
+    margin-right: 0;
+    padding-right: 0;
 
     &.channel-thumbnail--xxsmall {
       position: absolute;

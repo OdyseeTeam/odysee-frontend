@@ -7,6 +7,7 @@ import { getThumbnailFromClaim } from 'util/claim';
 import { buildURI } from 'util/lbryURI';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
+import TruncatedText from 'component/common/truncated-text';
 
 type Props = {
   openModal: (string, {}) => void,
@@ -87,7 +88,9 @@ function PledgesTab(props: Props) {
             <table className="table table--pledges">
               <thead>
                 <tr>
-                  <th>Channel Name</th>
+                  <th className="channelName-header" colSpan="2">
+                    Channel Name
+                  </th>
                   <th>Tier</th>
                   <th>Time Total</th>
                   <th>Amount</th>
@@ -100,7 +103,7 @@ function PledgesTab(props: Props) {
                 {formattedMemberships &&
                   formattedMemberships.map((membership, i) => (
                     <tr key={i}>
-                      <td>
+                      <td className="channelThumbnail">
                         <ChannelThumbnail xsmall uri={'lbry:/' + pledges[i].url} />
                         <ChannelThumbnail
                           xxsmall
@@ -118,10 +121,19 @@ function PledgesTab(props: Props) {
                               : membership.Membership.channel_name
                           }
                         />
+                        {/*
                         <Button
                           button="link"
                           navigate={pledges[i].url + '?view=membership'}
                           label={membership.MembershipDetails.channel_name}
+                        />
+                        */}
+                      </td>
+                      <td>
+                        <TruncatedText
+                          navigate={pledges[i].url + '?view=membership'}
+                          text={membership.MembershipDetails.channel_name}
+                          lines={1}
                         />
                       </td>
                       <td>{membership.MembershipDetails.name}</td>

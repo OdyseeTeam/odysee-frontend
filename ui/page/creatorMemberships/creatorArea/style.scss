@@ -62,6 +62,9 @@
         td {
           padding: 0.8rem;
           border-bottom: 2px solid rgba(var(--color-primary-static), 0.4) !important;
+          .truncated-text {
+            display: inline-block;
+          }
         }
       }
     }
