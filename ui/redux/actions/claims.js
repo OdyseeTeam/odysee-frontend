@@ -17,7 +17,6 @@ import {
   selectMyChannelClaimIds,
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
@@ -158,7 +157,7 @@ export function processResolveResult(
  * @param claimIds
  */
 export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true) {
-  return (dispatch: Dispatch, getState: GetState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
 
     const resolvingIds = new Set(selectResolvingIds(state));
@@ -184,22 +183,21 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: 
       return Promise.resolve(resolvedClaims);
     }
 
-    const isAuthenticated = selectUserVerifiedEmail(state);
-
-    return dispatch(
+    const response = await dispatch(
       doClaimSearch(
         {
           claim_ids: idsToResolve,
           page: 1,
           page_size: Math.min(idsToResolve.length, 50),
           no_totals: true,
-          include_is_my_output: Boolean(isAuthenticated),
         },
         {
           useAutoPagination: idsToResolve.length > 50,
         }
       )
     );
+
+    return { ...response, ...resolvedClaims };
   };
 }
 export const doResolveClaimId = (claimId: ClaimId) => doResolveClaimIds([claimId]);
