@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .membershipPage-wrapper {
   .tabs__list {
     border-radius: 0 0 var(--border-radius) var(--border-radius);
@@ -29,6 +31,20 @@
             display: none;
           }
         }
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      flex-flow: column;
+      height: unset;
+      padding: 0;
+      .tab {
+        margin-left: var(--spacing-s);
+        margin-bottom: var(--spacing-s);
+        width: 100%;
+      }
+      .no-after {
+        margin-left: calc(var(--spacing-m) * -1);
       }
     }
   }
