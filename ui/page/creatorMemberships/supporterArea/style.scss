@@ -1,6 +1,11 @@
 @import '~ui/scss/init/breakpoints';
 
 .membershipPage-wrapper {
+  .tabs {
+    @media (max-width: $breakpoint-small) {
+      position: unset;
+    }
+  }
   .tabs__list {
     border-radius: 0 0 var(--border-radius) var(--border-radius);
 
@@ -45,7 +50,15 @@
       }
 
       .no-after {
-        margin-right: calc(var(--spacing-xl) * -1);
+        position: absolute;
+        top: var(--spacing-s);
+        right: 0;
+        .button {
+          background-color: var(--color-header-background) !important;
+        }
+        .button__label {
+          display: none;
+        }
       }
     }
   }
@@ -55,7 +68,7 @@
   position: relative;
   width: 100%;
   background-size: cover;
-  background-position: top -180px left 0px;
+  background-position: top -140px left 0px;
   background-image: url('/public/img/my_pledges.jpg');
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   margin-bottom: 0;
@@ -82,6 +95,10 @@
     font-size: var(--font-large);
     font-weight: var(--font-weight-bold);
     color: var(--color-text);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    background-position: unset;
   }
 }
 

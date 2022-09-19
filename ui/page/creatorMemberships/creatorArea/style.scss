@@ -1,6 +1,11 @@
 @import '~ui/scss/init/breakpoints';
 
 .membershipPage-wrapper {
+  .tabs {
+    @media (max-width: $breakpoint-small) {
+      position: unset;
+    }
+  }
   .tabs__list {
     border-radius: 0 0 var(--border-radius) var(--border-radius);
 
@@ -45,7 +50,15 @@
       }
 
       .no-after {
-        margin-right: calc(var(--spacing-xl) * -1);
+        position: absolute;
+        top: var(--spacing-s);
+        right: 0;
+        .button {
+          background-color: var(--color-header-background) !important;
+        }
+        .button__label {
+          display: none;
+        }
       }
     }
   }
