@@ -14,8 +14,8 @@ type Props = {
   className?: string,
   disabled?: boolean,
   // -- redux --
-  emailVerified: ?boolean,
-  hasChannels: ?boolean,
+  emailVerified?: boolean,
+  hasChannels?: boolean,
 };
 
 function FileActionButton(props: Props) {
