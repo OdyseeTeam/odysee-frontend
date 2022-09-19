@@ -12,15 +12,19 @@ type Props = {
   requiresAuth?: boolean,
   requiresChannel?: boolean,
   className?: string,
+  disabled?: boolean,
+  // -- redux --
+  emailVerified: ?boolean,
+  hasChannels: ?boolean,
 };
 
 function FileActionButton(props: Props) {
-  const { title, iconSize, noStyle, className, ...buttonProps } = props;
-  const { navigate, requiresAuth, requiresChannel } = buttonProps;
+  const { title, iconSize, noStyle, className, emailVerified, hasChannels, ...buttonProps } = props;
+  const { navigate, requiresAuth, requiresChannel, disabled } = buttonProps;
 
   if (navigate || requiresAuth || requiresChannel) {
     return (
-      <Tooltip title={title} arrow={false} enterDelay={100}>
+      <Wrapper title={title} disabled={disabled}>
         <div className="button--file-action--tooltip-wrapper">
           <Button
             button={noStyle ? 'alt' : undefined}
@@ -36,12 +40,12 @@ function FileActionButton(props: Props) {
             {...buttonProps}
           />
         </div>
-      </Tooltip>
+      </Wrapper>
     );
   }
 
   return (
-    <Tooltip title={title} arrow={false} enterDelay={100}>
+    <Wrapper title={title} disabled={disabled}>
       <Button
         button={noStyle ? 'alt' : undefined}
         className={
@@ -52,8 +56,17 @@ function FileActionButton(props: Props) {
         iconSize={iconSize || 16}
         {...buttonProps}
       />
-    </Tooltip>
+    </Wrapper>
   );
 }
+
+const Wrapper = ({ title, disabled, children }: { title: string, disabled?: boolean, children: any }) =>
+  disabled ? (
+    children
+  ) : (
+    <Tooltip title={title} arrow={false} enterDelay={100}>
+      {children}
+    </Tooltip>
+  );
 
 export default FileActionButton;
