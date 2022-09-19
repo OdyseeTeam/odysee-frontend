@@ -127,9 +127,10 @@ export function doCollectionPublish(options: CollectionPublishParams, collection
 
       function success(response: CollectionCreateResponse) {
         const collectionClaim = response.outputs[0];
+        dispatch({ type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, data: collectionId });
+
         dispatch(
           batchActions(
-            { type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, data: collectionId },
             { type: ACTIONS.UPDATE_PENDING_CLAIMS, data: { claims: [collectionClaim] } },
             doCheckPendingClaims()
           )
