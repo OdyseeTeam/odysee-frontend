@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectHasClaimForClaimId } from 'redux/selectors/claims';
 import { doCollectionDelete } from 'redux/actions/collections';
 import {
-  selectNameForCollectionId,
+  selectTitleForCollectionId,
   selectCollectionKeyForId,
   selectCollectionIsMineForId,
 } from 'redux/selectors/collections';
@@ -15,7 +15,7 @@ const select = (state, props) => {
   return {
     hasClaim: selectHasClaimForClaimId(state, collectionId),
     collectionIsMine: selectCollectionIsMineForId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectTitleForCollectionId(state, collectionId),
     collectionKey: selectCollectionKeyForId(state, collectionId),
   };
 };

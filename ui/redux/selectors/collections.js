@@ -327,9 +327,9 @@ export const selectNextUrlForCollectionAndUrl = createCachedSelector(
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);
 
-export const selectNameForCollectionId = (state: State, id: string) => {
+export const selectTitleForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
-  return (collection && collection.name) || '';
+  return (collection && (collection.title || collection.name)) || '';
 };
 
 export const selectThumbnailForCollectionId = (state: State, id: string) => {

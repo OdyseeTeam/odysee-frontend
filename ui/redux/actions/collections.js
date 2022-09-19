@@ -531,6 +531,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   }
 
   const isQueue = collectionId === COLS.QUEUE_ID;
+  const title = params.title || params.name;
 
   return dispatch({
     // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
@@ -541,7 +542,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
         ...collection,
         items: newItems,
         ...(type ? { type } : {}),
-        ...(params.name ? { name: params.name } : {}),
+        ...(title ? { name: title, title } : {}),
         ...(params.description ? { description: params.description } : {}),
         ...(params.thumbnail ? { thumbnail: params.thumbnail } : {}),
       },

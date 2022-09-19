@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import {
-  selectNameForCollectionId,
+  selectTitleForCollectionId,
   selectIsCollectionBuiltInForId,
   selectIsMyPublicCollectionNotEditedForId,
   selectCollectionIsEmptyForId,
@@ -14,7 +14,7 @@ const select = (state, props) => {
   const collectionId = props.collectionId;
 
   return {
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectTitleForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     publishedNotEdited: selectIsMyPublicCollectionNotEditedForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),

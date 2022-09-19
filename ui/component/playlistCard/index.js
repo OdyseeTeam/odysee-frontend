@@ -3,7 +3,7 @@ import PlaylistCard from './view';
 import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectTitleForCollectionId,
   selectCollectionIsMineForId,
   selectIsCollectionPrivateForId,
   selectIndexForUrlInCollection,
@@ -33,7 +33,7 @@ const select = (state, props) => {
     playingItemUrl,
     playingCurrentPlaylist,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectTitleForCollectionId(state, collectionId),
     isMyCollection: selectCollectionIsMineForId(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
     publicCollectionChannel: selectChannelNameForId(state, collectionId),

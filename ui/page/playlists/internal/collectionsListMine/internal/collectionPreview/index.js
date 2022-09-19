@@ -7,7 +7,7 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectTitleForCollectionId,
   selectCountForCollectionId,
   selectIsCollectionItemsFetchingForId,
   selectFirstItemUrlForCollectionId,
@@ -43,7 +43,7 @@ const select = (state, props) => {
     collectionId,
     uri: collectionUri,
     collectionCount: selectCountForCollectionId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectTitleForCollectionId(state, collectionId),
     collectionItemUrls: selectUrlsForCollectionId(state, collectionId), // ForId || ForUri
     collectionType: selectCollectionTypeForId(state, collectionId),
     isFetchingItems: selectIsCollectionItemsFetchingForId(state, collectionId),
