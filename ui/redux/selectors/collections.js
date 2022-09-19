@@ -375,7 +375,7 @@ export const selectCountForCollectionId = (state: State, id: string) =>
 
 export const selectFeaturedChannelsByChannelId = createSelector(
   selectMyUnpublishedCollections,
-  selectMyCollectionClaimsById,
+  selectCollectionClaimsById,
   selectClaimsById,
   (privateLists, publicLists, claimsById) => {
     let results: { [ChannelId]: Array<CollectionId> } = {};
