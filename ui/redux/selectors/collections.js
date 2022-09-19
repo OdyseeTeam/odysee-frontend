@@ -193,13 +193,13 @@ export const selectUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   // -- sanitize -- > in case non-urls got added into a collection: only select string types
   // to avoid general app errors trying to use its uri
-  return collection && collection.items.filter((item) => typeof item === 'string');
+  return collection && collection.items && collection.items.filter((item) => typeof item === 'string');
 };
 
 export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   // Allows removing non-standard uris from a collection
-  return collection && collection.items.filter((item) => typeof item !== 'string');
+  return collection && collection.items && collection.items.filter((item) => typeof item !== 'string');
 };
 
 export const selectFirstItemUrlForCollectionId = (state: State, id: string) => {
@@ -235,19 +235,19 @@ export const selectClaimIdsForCollectionId = createSelector(
   (collection, byUri) => {
     const items = (collection && collection.items && collection.items.filter(Boolean)) || [];
 
-    let ids = [];
+    const ids = new Set([]);
     for (const item of items) {
-      const claimId = byUri[normalizeURI(item)];
+      let claimId;
+      try {
+        claimId = byUri[normalizeURI(item)];
+      } catch (e) {}
 
-      if (!claimId) {
-        ids = [];
-        break;
+      if (claimId) {
+        ids.add(claimId);
       }
-
-      ids.push(claimId);
     }
 
-    return ids;
+    return Array.from(ids);
   }
 );
 
