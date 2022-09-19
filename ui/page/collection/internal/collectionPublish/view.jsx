@@ -302,7 +302,7 @@ function CollectionForm(props: Props) {
                 <Button
                   button="primary"
                   disabled={isBuiltin || isPublishing || Boolean(submitError) || !hasClaims}
-                  label={isPublishing ? <BusyIndicator message={__('Submitting...')} /> : __('Submit')}
+                  label={isPublishing ? <BusyIndicator message={__('Submitting')} /> : __('Submit')}
                   onClick={handleSubmit}
                 />
                 <Button button="link" label={__('Cancel')} onClick={() => onDone(collectionId)} />
