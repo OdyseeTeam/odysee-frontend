@@ -47,6 +47,7 @@ type Props = {
   fetchLatestClaimForChannel: (uri: string) => void,
   fetchChannelLiveStatus: (channelId: string) => void,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
+  doResolveClaimId: (claimId: string) => void,
   doBeginPublish: (name: ?string) => void,
   doOpenModal: (string, {}) => void,
 };
@@ -75,6 +76,7 @@ export default function ShowPage(props: Props) {
     fetchLatestClaimForChannel,
     fetchChannelLiveStatus,
     doResolveUri,
+    doResolveClaimId,
     doBeginPublish,
     doOpenModal,
   } = props;
@@ -112,6 +114,10 @@ export default function ShowPage(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only for mount on a latest content page
   }, []);
+
+  React.useEffect(() => {
+    if (collectionId) doResolveClaimId(collectionId);
+  }, [collectionId, doResolveClaimId]);
 
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
@@ -166,7 +172,7 @@ export default function ShowPage(props: Props) {
     if (shouldResolveUri) {
       doResolveUri(
         uri,
-        false,
+        true,
         true,
         isMine === undefined && isAuthenticated ? { include_is_my_output: true, include_purchase_receipt: true } : {}
       );

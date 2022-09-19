@@ -10,7 +10,7 @@ import {
 } from 'redux/selectors/claims';
 import { selectCollectionForId, selectUrlsForCollectionId } from 'redux/selectors/collections';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
+import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 import { isStreamPlaceholderClaim } from 'util/claim';
@@ -61,6 +61,7 @@ const select = (state, props) => {
 
 const perform = {
   doResolveUri,
+  doResolveClaimId,
   doBeginPublish,
   doOpenModal,
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
