@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .bank-account-status {
   margin-top: var(--spacing-s);
   padding: var(--spacing-s);
@@ -151,5 +153,9 @@
   }
   span {
     color: var(--color-primary);
+
+    @media (max-width: $breakpoint-small) {
+      display: block;
+    }
   }
 }
