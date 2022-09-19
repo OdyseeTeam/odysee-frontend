@@ -24,9 +24,9 @@ function CollectionPreviewOverlay(props: Props) {
   return (
     <div className="claim-preview__collection-wrapper">
       <ul className="ul--no-style collection-preview-overlay__grid">
-        {displayedItems.map((uri) => (
-          <li className="li--no-style collection-preview-overlay__grid-item" key={uri}>
-            <FileThumbnail uri={uri} />
+        {displayedItems.map((item) => (
+          <li className="li--no-style collection-preview-overlay__grid-item" key={item}>
+            <FileThumbnail uri={item} id={item} />
           </li>
         ))}
       </ul>
