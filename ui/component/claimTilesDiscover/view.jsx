@@ -37,6 +37,7 @@ type Props = {
   fetchViewCount?: boolean,
   // claim search options are below
   tags: Array<string>,
+  notTags?: Array<string>,
   claimIds?: Array<string>,
   channelIds?: Array<string>,
   pageSize: number,
@@ -51,6 +52,7 @@ type Props = {
   hasSource?: boolean,
   hasNoSource?: boolean,
   forceShowReposts?: boolean, // overrides SETTINGS.HIDE_REPOSTS
+  hideMembersOnlyContent?: boolean,
   loading: boolean,
   // --- select ---
   location: { search: string },
