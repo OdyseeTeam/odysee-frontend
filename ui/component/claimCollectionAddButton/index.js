@@ -11,6 +11,7 @@ const select = (state, props) => {
   const { stream_type: streamType } = value || {};
 
   return {
+    uri: permanentUrl,
     streamType,
     isSaved: permanentUrl && selectClaimSavedForUrl(state, permanentUrl),
   };
