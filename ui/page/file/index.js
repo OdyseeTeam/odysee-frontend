@@ -22,7 +22,7 @@ import {
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
 } from 'redux/selectors/content';
-import { selectCommentsListTitleForUri, selectSettingsByChannelId } from 'redux/selectors/comments';
+import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { doToggleAppDrawer, doSetMainPlayerDimension } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -38,10 +38,10 @@ const select = (state, props) => {
   const urlParams = new URLSearchParams(search);
   const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
+  const channelId = getChannelIdFromClaim(claim);
 
   return {
     playingCollectionId,
-    channelId: getChannelIdFromClaim(claim),
     linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     costInfo: selectCostInfoForUri(state, uri),
@@ -51,7 +51,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     contentCommentsDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
+    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
     position: selectContentPositionForUri(state, uri),
     audioVideoDuration: claim?.value?.video?.duration || claim?.value?.audio?.duration,

@@ -30,7 +30,6 @@ export const PRIMARY_IMAGE_WRAPPER_CLASS = 'file-render__img-container';
 
 type Props = {
   audioVideoDuration: ?number,
-  channelId?: string,
   claimId: string,
   claimIsMine: boolean,
   claimWasPurchased: boolean,
@@ -60,7 +59,7 @@ type Props = {
   purchaseTag: number,
   renderMode: string,
   rentalTag: string,
-  settingsByChannelId: { [channelId: string]: PerChannelSettings },
+  commentSettingDisabled: ?boolean,
   threadCommentId?: string,
   uri: string,
   videoTheaterMode: boolean,
@@ -70,7 +69,6 @@ export default function FilePage(props: Props) {
   const {
     playingCollectionId,
     uri,
-    channelId,
     renderMode,
     fileInfo,
     obscureNsfw,
@@ -86,7 +84,7 @@ export default function FilePage(props: Props) {
     position,
     audioVideoDuration,
     commentsListTitle,
-    settingsByChannelId,
+    commentSettingDisabled,
     claimWasPurchased,
     location,
     isUriPlaying,
@@ -122,8 +120,6 @@ export default function FilePage(props: Props) {
   const isMediumScreen = useIsMediumScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
-  const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
-  const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;

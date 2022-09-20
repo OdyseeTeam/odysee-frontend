@@ -227,6 +227,16 @@ export const selectSettingsByChannelId = (state: State) => selectState(state).se
 export const selectFetchingCreatorSettings = (state: State) => selectState(state).fetchingSettings;
 export const selectFetchingBlockedWords = (state: State) => selectState(state).fetchingBlockedWords;
 
+export const selectSettingsForChannelId = (state: State, channelId: ClaimId) =>
+  selectSettingsByChannelId(state)[channelId];
+
+export const selectCommentsEnabledSettingForChannelId = (state: State, channelId: ClaimId) => {
+  const channelSettings = selectSettingsForChannelId(state, channelId);
+  return channelSettings && channelSettings.comments_enabled;
+};
+export const selectCommentsDisabledSettingForChannelId = (state: State, channelId: ClaimId) =>
+  selectCommentsEnabledSettingForChannelId(state, channelId) === false;
+
 export const selectCommentsForUri = createCachedSelector(
   (state, uri) => uri,
   selectCommentsByClaimId,
