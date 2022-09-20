@@ -199,7 +199,7 @@ function PublishProtectedContent(props: Props) {
                   onChange={() => handleChangeRestrictCommentsChat()}
                 />
                 {myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (
-                  <span className="info-label">{__('You have no tiers with members only chat')}</span>
+                  <span className="error__bubble">{__('You have no tiers with members only chat')}</span>
                 )}
               </>
             }

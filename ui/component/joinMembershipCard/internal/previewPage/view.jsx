@@ -140,7 +140,7 @@ const PreviewPage = (props: Props) => {
         </div>
 
         {creatorPurchaseDisabled && (
-          <span className="info-label">
+          <span className="error__bubble">
             {channelIsMine
               ? __("You're not able to signup for your own memberships")
               : __('This creator does not have an active bank account to receive payments.')}
@@ -208,7 +208,7 @@ const PreviewPage = (props: Props) => {
         />
 
         {creatorPurchaseDisabled && (
-          <span className="info-label">
+          <span className="error__bubble">
             {channelIsMine
               ? __("You're not able to signup for your own memberships")
               : __('This creator does not have an active bank account to receive payments.')}

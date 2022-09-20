@@ -6,8 +6,12 @@ import { useIsMobile } from 'effects/use-screensize';
 
 import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
+import ErrorBubble from 'component/common/error-bubble';
 
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
+
+const MIN_PRICE = '1';
+const MAX_PRICE = '99999999'; // -- the value that fails on the backend, not sure the actual limit
 
 type Props = {
   membership: CreatorMembership,
@@ -43,11 +47,16 @@ function MembershipTier(props: Props) {
   const [editTierParams, setEditTierParams] = React.useState({
     editTierDescription: membership.Membership.description || '',
     editTierName: membership.Membership.name || '',
+    editTierPrice: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
+
+  const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
+  const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > Number(MAX_PRICE) / 100;
+  const priceError = !editTierParams || priceLowerThanMin || priceHigherThanMax;
 
   // custom emojis should be changed to channel member badge
   const permanentTierPerks = ['Member badge'];
@@ -177,22 +186,26 @@ function MembershipTier(props: Props) {
         type="number"
         name="tier_contribution"
         step="1"
-        min="1"
+        min={MIN_PRICE}
+        max={MAX_PRICE}
         label={__('Monthly Contribution ($/Month)')}
-        defaultValue={membership.NewPrices && membership.NewPrices[0].Price.amount / 100}
-        onChange={(e) => parseFloat(e.target.value)}
+        value={editTierParams.editTierPrice}
+        onChange={(e) => {
+          const value = contributionRef.current?.input?.current?.value;
+          setEditTierParams((prev) => ({ ...prev, editTierPrice: parseFloat(value) }));
+        }}
         disabled={hasSubscribers}
       />
 
-      {hasSubscribers && (
-        <h4 className="header--cant_change_price">
-          {__("This membership has subscribers, you can't update the price currently")}
-        </h4>
-      )}
+      <ErrorBubble>
+        {(hasSubscribers && __("This membership has subscribers, you can't update the price currently")) ||
+          (priceLowerThanMin && __('Price must be greater or equal than %min%.', { min: MIN_PRICE })) ||
+          (priceHigherThanMax && __('Price must be lower or equal than %max%.', { max: MAX_PRICE }))}
+      </ErrorBubble>
 
       <div className="section__actions">
         <Button
-          disabled={nameError || descriptionError}
+          disabled={nameError || descriptionError || priceError}
           button="primary"
           label={isSubmitting ? <BusyIndicator message={__('Saving')} /> : __('Save Tier')}
           onClick={() => saveMembership(membership)}

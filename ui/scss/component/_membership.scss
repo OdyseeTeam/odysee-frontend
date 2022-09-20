@@ -517,17 +517,6 @@
     }
   }
 
-  .join-membership__modal-action {
-    .info-label {
-      display: block;
-      padding: var(--spacing-s);
-      border-radius: var(--border-radius);
-      background-color: rgba(255, 0, 0, 0.1);
-      border: 1px solid red;
-      margin-top: var(--spacing-m);
-    }
-  }
-
   .join-membership__tab {
     display: grid;
     grid-gap: var(--spacing-l);
@@ -606,15 +595,6 @@
   .card__body--no-title {
     padding-top: 0;
   }
-}
-
-.info-label {
-  display: block;
-  padding: var(--spacing-s);
-  border-radius: var(--border-radius);
-  background-color: rgba(255, 0, 0, 0.1);
-  border: 1px solid red;
-  margin-top: var(--spacing-m);
 }
 
 .membership-tier__perks {
