@@ -11,6 +11,7 @@ import {
   selectMyCollectionClaims,
   selectCollectionClaimsById,
   selectMyCollectionClaimsById,
+  selectClaimIsMineForId,
 } from 'redux/selectors/claims';
 import { normalizeURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
@@ -109,7 +110,7 @@ export const selectCollectionIsMineForId = (state: State, id: string) => {
   const publicIds = selectMyCollectionClaims(state);
   if (publicIds && new Set(publicIds).has(id)) return true;
 
-  return false;
+  return selectClaimIsMineForId(state, id);
 };
 
 // returns published collections + local edits or update timestamps
