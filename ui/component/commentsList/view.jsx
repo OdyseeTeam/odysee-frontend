@@ -65,7 +65,7 @@ type Props = {
     sortBy: number,
     isLivestream?: boolean,
     isProtected?: boolean,
-    requesterChannelId?: string
+    requesterChannelId?: ?string
   ) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,

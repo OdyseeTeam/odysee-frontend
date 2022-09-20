@@ -131,7 +131,8 @@ export default function FilePage(props: Props) {
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
-  const membersOnlyChat = channelSettings?.members_only_chats && channelSettings.members_only_chats.includes(claimId);
+  const membersOnlyChat =
+    channelSettings && channelSettings.members_only_chats && channelSettings.members_only_chats.includes(claimId);
 
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
