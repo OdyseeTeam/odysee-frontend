@@ -120,11 +120,12 @@
 
 .create-tiers-header-buttons {
   max-width: 100%;
+  display: flex;
 }
 
 .create-tiers-channel-selector {
   width: 50%;
-  display: inline-block;
+  // display: inline-block;
 
   @media (max-width: $breakpoint-small) {
     width: 100%;
