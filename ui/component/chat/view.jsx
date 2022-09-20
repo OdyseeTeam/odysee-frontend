@@ -25,54 +25,60 @@ export const VIEW_MODES = {
 const COMMENT_SCROLL_TIMEOUT = 25;
 
 type Props = {
+  customViewMode?: string,
   embed?: boolean,
-  isPopoutWindow?: boolean,
-  uri: string,
   hideHeader?: boolean,
   hyperchatsHidden?: boolean,
-  customViewMode?: string,
+  isPopoutWindow?: boolean,
   setCustomViewMode?: (any) => void,
+  uri: string,
   // redux
+  channelId: string,
   claimId?: string,
   comments: Array<Comment>,
-  pinnedComments: Array<Comment>,
-  superChats: Array<Comment>,
-  channelId: string,
   doCommentList: (
     uri: string,
     parentId: ?string,
     page: number,
     pageSize: number,
     sortBy: ?number,
-    isLivestream: boolean
+    isLivestream: boolean,
+    chatCommentsRestrictedToChannelMembers: ?boolean,
+    activeChannelId: ?string
   ) => void,
-  doResolveUris: (uris: Array<string>, cache: boolean) => void,
-  doHyperChatList: (uri: string) => void,
-  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
+  doHyperChatList: (uri: string) => void,
+  doResolveUris: (uris: Array<string>, cache: boolean) => void,
+  pinnedComments: Array<Comment>,
   setLayountRendered: (boolean) => void,
+  superChats: Array<Comment>,
+  chatCommentsRestrictedToChannelMembers: boolean,
+  activeChannelId: string,
 };
 
 export default function ChatLayout(props: Props) {
   const {
+    activeChannelId,
+    channelId,
+    chatCommentsRestrictedToChannelMembers,
     claimId,
     comments: commentsByChronologicalOrder,
+    customViewMode,
+    doCommentList,
+    doFetchChannelMembershipsForChannelIds,
+    doFetchOdyseeMembershipForChannelIds,
+    doHyperChatList,
+    doResolveUris,
     embed,
-    isPopoutWindow,
-    pinnedComments,
-    superChats: hyperChatsByAmount,
-    uri,
     hideHeader,
     hyperchatsHidden,
-    customViewMode,
-    channelId,
+    isPopoutWindow,
+    pinnedComments,
     setCustomViewMode,
-    doCommentList,
-    doResolveUris,
-    doHyperChatList,
-    doFetchOdyseeMembershipForChannelIds,
     setLayountRendered,
-    doFetchChannelMembershipsForChannelIds,
+    superChats: hyperChatsByAmount,
+    uri,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -185,7 +191,17 @@ export default function ChatLayout(props: Props) {
 
   React.useEffect(() => {
     if (claimId) {
-      doCommentList(uri, undefined, 1, 75, undefined, true);
+      doCommentList(
+        uri,
+        undefined,
+        1,
+        75,
+        undefined,
+        true,
+        // protected comments params
+        chatCommentsRestrictedToChannelMembers,
+        activeChannelId
+      );
       doHyperChatList(uri);
     }
   }, [claimId, uri, doCommentList, doHyperChatList]);

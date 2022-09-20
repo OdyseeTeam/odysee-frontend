@@ -113,16 +113,18 @@ const PreviewPage = (props: Props) => {
   if (isChannelTab) {
     return (
       <>
-        <div className="button--manage-memberships">
-          <ButtonNavigateChannelId
-            icon={ICONS.MEMBERSHIP}
-            button="primary"
-            type="submit"
-            label={__('Manage Your Membership Tiers')}
-            navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
-            channelId={channelId}
-          />
-        </div>
+        {channelIsMine && (
+          <div className="button--manage-memberships">
+            <ButtonNavigateChannelId
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__('Manage Your Membership Tiers')}
+              navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=tiers`}
+              channelId={channelId}
+            />
+          </div>
+        )}
         <div className="join-membership__tab">
           {creatorMemberships.map((membership, index) => (
             <MembershipTier

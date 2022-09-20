@@ -29,6 +29,7 @@ declare type CommentSubmitParams = {
   payment_intent_id?: ?string,
   environment?: ?string,
   sticker: boolean,
+  is_protected?: boolean,
 };
 
 declare type PerChannelSettings = {
