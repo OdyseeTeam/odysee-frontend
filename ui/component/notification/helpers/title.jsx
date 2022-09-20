@@ -107,6 +107,7 @@ export function generateNotificationTitle(rule: string, notificationParams: any,
     case RULE.MISSED_OUT:
     case RULE.REWARDS_APPROVAL_PROMPT:
     case RULE.FIAT_TIP:
+    case RULE.NEW_MEMBER:
       // Use Commentron default
       return __(notificationParams.device.title);
 
