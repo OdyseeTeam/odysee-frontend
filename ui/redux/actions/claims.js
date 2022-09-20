@@ -18,7 +18,6 @@ import {
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doFetchTxoPage } from 'redux/actions/wallet';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
