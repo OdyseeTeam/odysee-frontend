@@ -200,9 +200,13 @@ function MembershipTier(props: Props) {
       />
 
       <ErrorBubble>
-        {(hasSubscribers && __("This membership has subscribers, you can't update the price currently")) ||
-          (priceLowerThanMin && __('Price must be greater or equal than %min%.', { min: MIN_PRICE })) ||
-          (priceHigherThanMax && __('Price must be lower or equal than %max%.', { max: MAX_PRICE }))}
+        {hasSubscribers
+          ? __("This membership has subscribers, you can't update the price currently")
+          : priceLowerThanMin
+          ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
+          : priceHigherThanMax
+          ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
+          : undefined}
       </ErrorBubble>
 
       <div className="section__actions">

@@ -2,10 +2,10 @@
 import React from 'react';
 
 type Props = {
-  children: string,
+  children: ?string,
 };
 
-export default function ErrorText(props: Props) {
+const ErrorBubble = (props: Props) => {
   const { children } = props;
 
   if (!children) {
@@ -13,4 +13,6 @@ export default function ErrorText(props: Props) {
   }
 
   return <span className="error__bubble">{children}</span>;
-}
+};
+
+export default ErrorBubble;
