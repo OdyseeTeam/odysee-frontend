@@ -156,7 +156,11 @@ export const doMembershipCancelForMembershipId = (membershipId: number) => async
 };
 
 export const doMembershipAddTier = (params: MembershipAddTierParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post');
+  await Lbryio.call('membership', 'add', { ...params, environment: stripeEnvironment }, 'post')
+    .then((response: Membership) => response)
+    .catch((e) => {
+      throw new Error(e);
+    });
 
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>
   await Lbryio.call('membership_perk', 'list', { ...params, environment: stripeEnvironment }, 'post')

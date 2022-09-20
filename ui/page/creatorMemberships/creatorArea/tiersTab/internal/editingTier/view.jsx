@@ -116,11 +116,13 @@ function MembershipTier(props: Props) {
         perks: selectedPerksAsArray,
         old_stripe_price: membershipTier.Prices ? membershipTier.Prices[0].id : undefined,
         membership_id: isCreatingAMembership ? undefined : membershipTier.Membership.id,
-      }).then(() => {
-        setIsSubmitting(false);
-        removeEditing();
-        doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
-      });
+      })
+        .then(() => {
+          setIsSubmitting(false);
+          removeEditing();
+          doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
+        })
+        .catch(() => setIsSubmitting(false));
     }
   }
 
