@@ -192,7 +192,7 @@ declare type GenericUploadParams = {
   description?: string,
   thumbnail_url?: string,
   languages?: Array<string>,
-  tags?: Array<string>,
+  tags?: Array<any>,
   locations?: Array<Location>,
   blocking?: boolean,
 };

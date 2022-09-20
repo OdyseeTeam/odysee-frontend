@@ -421,16 +421,12 @@ export const selectMetadataItemForClaimIdAndKey = (
   key: ChannelMetadataKey | StreamMetadataKey | CollectionMetadataKey
 ) => selectMetadataForClaimId(state, claimId)[key];
 
-export const selectTagNamesForClaimId = createSelector(
-  (state, claimId) => selectMetadataItemForClaimIdAndKey(state, claimId, 'tags'),
-  (tags) => tags && tags.map((tag) => tag.name || tag)
-);
-
 export const selectGenericClaimUploadMetadataForId = (state: State, claimId: ClaimId) => {
   const claim = selectClaimForClaimId(state, claimId);
   if (!claim) return claim;
 
   const thumbnail = selectMetadataItemForClaimIdAndKey(state, claimId, 'thumbnail');
+  const tags = selectMetadataItemForClaimIdAndKey(state, claimId, 'tags');
 
   const genericUploadMetadata: GenericUpdateParams = {
     claim_id: claim.claim_id,
@@ -440,7 +436,7 @@ export const selectGenericClaimUploadMetadataForId = (state: State, claimId: Cla
     languages: selectMetadataItemForClaimIdAndKey(state, claimId, 'languages') || [],
     locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations') || [],
     bid: selectClaimBidAmountForId(state, claimId) || 0.001,
-    tags: selectTagNamesForClaimId(state, claimId) || [],
+    tags: tags ? tags.map((tag) => ({ name: tag })) : [],
     ...(thumbnail ? { thumbnail_url: thumbnail.url } : {}),
   };
 

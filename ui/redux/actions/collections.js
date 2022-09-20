@@ -90,7 +90,7 @@ export function doCollectionPublish(options: CollectionPublishParams, collection
       blocking: true,
       title: options.title,
       thumbnail_url: options.thumbnail_url,
-      tags: options.tags,
+      tags: options.tags ? options.tags.map((tag) => tag.name) : [],
       languages: options.languages || [],
       description: options.description,
     };

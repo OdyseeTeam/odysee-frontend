@@ -78,6 +78,7 @@ function CollectionForm(props: Props) {
   const [isPublishing, setIsPublishing] = React.useState(false);
 
   const { name, languages, claims, tags } = params;
+  const tagsSet = new Set(tags);
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const isNewCollection = !uri;
@@ -219,20 +220,19 @@ function CollectionForm(props: Props) {
                       const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
                       updateParams({ tags: newTags });
                     }}
-                    onSelect={(newTags) => {
-                      tags &&
-                        newTags.forEach((newTag) => {
+                    onSelect={(newTags) =>
+                      newTags.forEach((newTag) => {
+                        // $FlowFixMe
+                        if (!tagsSet.has(newTag.name)) {
                           // $FlowFixMe
-                          if (!tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
-                            // $FlowFixMe
-                            updateParams({ tags: [...tags, newTag] });
-                          } else {
-                            // If it already exists and the user types it in, remove itit
-                            // $FlowFixMe
-                            updateParams({ tags: tags.filter((tag) => tag.name !== newTag.name) });
-                          }
-                        });
-                    }}
+                          updateParams({ tags: [...tags, newTag] });
+                        } else {
+                          // If it already exists and the user types it in, remove itit
+                          // $FlowFixMe
+                          updateParams({ tags: Array.from(tagsSet.delete(newTag.name)) });
+                        }
+                      })
+                    }
                   />
                 }
               />

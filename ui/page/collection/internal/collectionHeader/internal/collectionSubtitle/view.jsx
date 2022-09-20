@@ -14,7 +14,7 @@ type Props = {
   collectionHasEdits: boolean,
 };
 
-const CollectionTitle = (props: Props) => {
+const CollectionSubtitle = (props: Props) => {
   const { uri, collectionDescription, collectionCount, publishedCollectionCount, collectionHasEdits } = props;
 
   return (
@@ -41,4 +41,4 @@ const CollectionTitle = (props: Props) => {
   );
 };
 
-export default CollectionTitle;
+export default CollectionSubtitle;

@@ -170,6 +170,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
       description: collection.description,
       claims: collectionClaimIds,
       thumbnail_url: collection.thumbnail?.url,
+      tags: [],
     };
 
     return collectionPublishParams;
