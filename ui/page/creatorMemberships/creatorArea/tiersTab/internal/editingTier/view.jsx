@@ -21,8 +21,8 @@ type Props = {
   // -- redux --
   membershipPerks: MembershipPerks,
   activeChannelClaim: ChannelClaim,
-  doMembershipAddTier: (params: MembershipAddTierParams) => Promise<Membership>,
-  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
+  doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
+  addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
 };
 
 function MembershipTier(props: Props) {
@@ -35,7 +35,7 @@ function MembershipTier(props: Props) {
     membershipPerks,
     activeChannelClaim,
     doMembershipAddTier,
-    doMembershipList,
+    addChannelMembership,
   } = props;
 
   const isMobile = useIsMobile();
@@ -82,8 +82,12 @@ function MembershipTier(props: Props) {
   function generatePerksCsv() {
     let selectedPerks = [];
     for (const perk of membershipPerks) {
+      const odyseePerkElem = document.querySelector(
+        `input#perk_${perk.id} membership_${membership.Membership.id}.membership_perks`
+      );
+
       // $FlowFixMe
-      const odyseePerkSelected = document.querySelector(`input#perk_${perk.id}.membership_perks`).checked;
+      const odyseePerkSelected = odyseePerkElem && odyseePerkElem.checked;
       if (odyseePerkSelected) {
         selectedPerks.push(perk.id);
       }
@@ -105,22 +109,29 @@ function MembershipTier(props: Props) {
 
     if (activeChannelClaim) {
       const isCreatingAMembership = typeof membershipTier.Membership.id === 'string';
+      const price = Number(newTierMonthlyContribution) * 100; // multiply to turn into cents
 
       doMembershipAddTier({
         channel_name: activeChannelClaim.name,
         channel_id: activeChannelClaim.claim_id,
         name: editTierParams.editTierName,
         description: editTierParams.editTierDescription,
-        amount: Number(newTierMonthlyContribution) * 100, // multiply to turn into cents
+        amount: price,
         currency: 'usd', // hardcoded for now
         perks: selectedPerksAsArray,
         old_stripe_price: membershipTier.Prices ? membershipTier.Prices[0].id : undefined,
         membership_id: isCreatingAMembership ? undefined : membershipTier.Membership.id,
       })
-        .then(() => {
+        .then((response: MembershipDetails) => {
           setIsSubmitting(false);
           removeEditing();
-          doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
+
+          const newMembershipObj = {
+            HasSubscribers: false,
+            Membership: response,
+            NewPrices: [{ Price: { amount: price } }],
+          };
+          addChannelMembership(newMembershipObj);
         })
         .catch(() => setIsSubmitting(false));
     }
@@ -175,7 +186,7 @@ function MembershipTier(props: Props) {
             type="checkbox"
             defaultChecked={isPermanent || containsPerk(tierPerk.id, membership)}
             label={tierPerk.description}
-            name={'perk_' + tierPerk.id}
+            name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.Membership.id}
             className="membership_perks"
             disabled={isPermanent}
           />
@@ -200,8 +211,15 @@ function MembershipTier(props: Props) {
       />
 
       <ErrorBubble>
+        {nameError
+          ? __('A membership name is required.')
+          : descriptionError
+          ? __('A membership description is required.')
+          : undefined}
+      </ErrorBubble>
+      <ErrorBubble>
         {hasSubscribers
-          ? __("This membership has subscribers, you can't update the price currently")
+          ? __("This membership has subscribers, you can't update the price currently.")
           : priceLowerThanMin
           ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
           : priceHigherThanMax
@@ -211,7 +229,7 @@ function MembershipTier(props: Props) {
 
       <div className="section__actions">
         <Button
-          disabled={nameError || descriptionError || priceError}
+          disabled={nameError || descriptionError || priceError || isSubmitting}
           button="primary"
           label={isSubmitting ? <BusyIndicator message={__('Saving')} /> : __('Save Tier')}
           onClick={() => saveMembership(membership)}

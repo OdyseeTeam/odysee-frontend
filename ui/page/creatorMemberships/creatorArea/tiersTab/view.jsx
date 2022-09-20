@@ -52,7 +52,7 @@ function TiersTab(props: Props) {
     });
   }
 
-  function addMembershipForChannelId(membership) {
+  function addChannelMembership(membership) {
     setChannelMemberships((previousMemberships) => {
       const newChannelMemberships = new Set(previousMemberships);
       newChannelMemberships.add(membership);
@@ -116,6 +116,10 @@ function TiersTab(props: Props) {
                   membership={membershipTier}
                   hasSubscribers={hasSubscribers}
                   removeEditing={() => removeEditingForMembershipId(membershipId)}
+                  addChannelMembership={(newMembership) => {
+                    removeChannelMembershipForId(membershipId);
+                    addChannelMembership(newMembership);
+                  }}
                   onCancel={() => {
                     removeEditingForMembershipId(membershipId);
 
@@ -151,7 +155,7 @@ function TiersTab(props: Props) {
             };
 
             addEditingForMembershipId(newestId);
-            addMembershipForChannelId(newestMembership);
+            addChannelMembership(newestMembership);
           }}
           className="add-membership__button"
           label={__('Add Tier for %channel_name%', { channel_name: activeChannelClaim?.name || '' })}
