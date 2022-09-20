@@ -59,20 +59,17 @@ export function doCommentList(
 
     if (isProtected) {
       if (!myChannelClaims) {
-        console.error('Failed to fetch channel list.'); // eslint-disable-line
-        return;
+        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
       }
 
       const myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
       if (!myChannelClaim) {
-        console.error('You do not own this channel.'); // eslint-disable-line
-        return;
+        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
 
       const channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
       if (!channelSignature) {
-        console.error('Failed to sign channel name.'); // eslint-disable-line
-        return;
+        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to sign channel name.') });
       }
     }
 
