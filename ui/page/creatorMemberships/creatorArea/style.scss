@@ -121,6 +121,11 @@
 .create-tiers-header-buttons {
   max-width: 100%;
   display: flex;
+
+  @media (max-width: $breakpoint-small) {
+    flex-direction: column;
+    margin-bottom: var(--spacing-s);
+  }
 }
 
 .create-tiers-channel-selector {
