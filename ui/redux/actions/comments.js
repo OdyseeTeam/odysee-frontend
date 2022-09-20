@@ -57,21 +57,23 @@ export function doCommentList(
     const creatorChannelClaim = getChannelFromClaim(claim);
     const { claim_id: creatorClaimId, name: channelName } = creatorChannelClaim || {};
 
-    if (!myChannelClaims) {
-      console.error('Failed to fetch channel list.'); // eslint-disable-line
-      return;
-    }
+    if (isProtected) {
+      if (!myChannelClaims) {
+        console.error('Failed to fetch channel list.'); // eslint-disable-line
+        return;
+      }
 
-    const myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
-    if (!myChannelClaim) {
-      console.error('You do not own this channel.'); // eslint-disable-line
-      return;
-    }
+      const myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
+      if (!myChannelClaim) {
+        console.error('You do not own this channel.'); // eslint-disable-line
+        return;
+      }
 
-    const channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
-    if (!channelSignature) {
-      console.error('Failed to sign channel name.'); // eslint-disable-line
-      return;
+      const channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+      if (!channelSignature) {
+        console.error('Failed to sign channel name.'); // eslint-disable-line
+        return;
+      }
     }
 
     return Comments.comment_list({
@@ -83,10 +85,14 @@ export function doCommentList(
       channel_id: creatorClaimId,
       channel_name: channelName,
       sort_by: sortBy,
-      is_protected: !!isProtected, // in case undefined is passed
-      requestor_channel_id: isProtected && requesterChannelId, // typo (requestor vs requester) is on backend atm
-      signature: isProtected && channelSignature.signature,
-      signing_ts: isProtected && channelSignature.signing_ts,
+      ...(isProtected
+        ? {
+            is_protected: true, // in case undefined is passed
+            requestor_channel_id: requesterChannelId, // typo (requestor vs requester) is on backend atm
+            signature: channelSignature.signature,
+            signing_ts: channelSignature.signing_ts,
+          }
+        : {}),
     })
       .then((result: CommentListResponse) => {
         const { items: comments, total_items, total_filtered_items, total_pages } = result;
@@ -123,7 +129,8 @@ export function doCommentList(
           case 'comments are disabled by the creator':
             return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { creatorClaimId, disabled: true } });
           case 'channel does not have permissions to comment on this claim':
-            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED,
+            return dispatch({
+              type: ACTIONS.COMMENT_LIST_COMPLETED,
               data: {
                 creatorClaimId,
                 disabled: true,
