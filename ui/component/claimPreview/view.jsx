@@ -20,6 +20,7 @@ import UriIndicator from 'component/uriIndicator';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import ClaimTags from 'component/claimTags';
 import SubscribeButton from 'component/subscribeButton';
+import JoinMembershipButton from 'component/joinMembershipButton';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimSupportButton from 'component/claimSupportButton';
 import useGetThumbnail from 'effects/use-get-thumbnail';
@@ -491,7 +492,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             <>
               {!pending ? (
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
-                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail}>
+                  <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail} uri={uri}>
                     <PreviewTilePurchaseOverlay uri={uri} />
                     {isPlayable && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
@@ -514,7 +515,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                   </FileThumbnail>
                 </NavLink>
               ) : (
-                <FileThumbnail thumbnail={thumbnailUrl} />
+                <FileThumbnail thumbnail={thumbnailUrl} uri={uri} />
               )}
             </>
           )}
@@ -563,9 +564,14 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     ) : (
                       <div className="claim-preview__primary-actions">
                         {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                          <SubscribeButton
-                            uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                          />
+                          <>
+                            <div className="button-group">
+                              <JoinMembershipButton uri={uri} />
+                            </div>
+                            <SubscribeButton
+                              uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                            />
+                          </>
                         )}
 
                         {includeSupportAction && <ClaimSupportButton uri={uri} />}

@@ -1,0 +1,98 @@
+.protected-content-holder {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  transition: all 0.2s;
+  background-color: rgba(0, 0, 0, 0.6);
+
+  .icon {
+    width: 30px;
+    height: 30px;
+    margin-bottom: var(--spacing-xs);
+  }
+
+  span {
+    background-color: var(--color-header-background);
+    padding: var(--spacing-xxxs);
+    border-radius: var(--border-radius);
+    text-align: center;
+    color: var(--color-text);
+    font-size: 15px;
+
+    &:nth-of-type(2) {
+      margin-top: 10px;
+    }
+
+    .dot {
+      width: 16px;
+      height: 16px;
+      display: inline-block;
+      border-radius: 50%;
+      margin: 0 2px;
+      opacity: 0.2;
+
+      &:nth-of-type(1) {
+        background-color: rgba(var(--color-membership-1), 1);
+      }
+      &:nth-of-type(2) {
+        background-color: rgba(var(--color-membership-2), 1);
+      }
+      &:nth-of-type(3) {
+        background-color: rgba(var(--color-membership-3), 1);
+      }
+      &:nth-of-type(4) {
+        background-color: rgba(var(--color-membership-4), 1);
+      }
+      &:nth-of-type(5) {
+        background-color: rgba(var(--color-membership-5), 1);
+      }
+      &:nth-of-type(6) {
+        background-color: rgba(var(--color-membership-6), 1);
+      }
+    }
+  }
+
+  .active {
+    opacity: 1 !important;
+  }
+
+  &:hover {
+    -webkit-backdrop-filter: blur(0);
+    backdrop-filter: blur(0);
+    background-color: rgba(0, 0, 0, 0);
+  }
+}
+
+.protected-content-locked {
+  stroke: white;
+  width: 61px;
+  height: 61px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+.protected-content-unlocked {
+  position: absolute;
+  bottom: var(--spacing-xxs);
+  left: var(--spacing-xxs);
+  background: var(--color-black);
+  border-radius: var(--border-radius);
+  opacity: 0.85;
+
+  .icon {
+    width: 14px;
+    height: 14px;
+    padding: 0;
+    margin: 0;
+    stroke: #91f92d;
+    margin: 0.3rem;
+    margin-bottom: 0;
+  }
+}

@@ -20,7 +20,6 @@ import Empty from 'component/common/empty';
 import React, { useEffect } from 'react';
 import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import { useHistory } from 'react-router-dom';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
@@ -62,9 +61,12 @@ type Props = {
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
   resetComments: (claimId: string) => void,
-  claimsByUri: { [string]: any },
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doPopOutInlinePlayer: (param: { source: string }) => void,
+  doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: Array<string>) => void,
+  creatorsMemberships: Array<Membership>,
+  chatCommentsRestrictedToChannelMembers: boolean,
+  isAChannelMember: boolean,
 };
 
 export default function CommentList(props: Props) {
@@ -97,9 +99,11 @@ export default function CommentList(props: Props) {
     fetchComment,
     fetchReacts,
     resetComments,
-    claimsByUri,
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
     doPopOutInlinePlayer,
+    doFetchChannelMembershipsForChannelIds,
+    chatCommentsRestrictedToChannelMembers,
+    isAChannelMember,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -145,18 +149,23 @@ export default function CommentList(props: Props) {
   );
 
   // get commenter claim ids for checking premium status
-  const commenterClaimIds = topLevelComments.map((comment) => comment.channel_id);
+  const commenterClaimIds = React.useMemo(() => {
+    return topLevelComments.map((comment) => comment.channel_id);
+  }, [topLevelComments]);
 
-  // update premium status
-  const shouldFetchUserMemberships = true;
-  useGetUserMemberships(
-    shouldFetchUserMemberships,
-    commenterClaimIds,
-    claimsByUri,
-    doFetchUserMemberships,
-    [topLevelComments],
-    true
-  );
+  React.useEffect(() => {
+    if (commenterClaimIds.length > 0 && channelId) {
+      doFetchOdyseeMembershipForChannelIds(commenterClaimIds);
+      doFetchChannelMembershipsForChannelIds(channelId, commenterClaimIds);
+    }
+    // todo: investigate why topLevelComments triggers a re-render even though the comments are the same
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- keep commenterClaimIds.length instead
+  }, [
+    channelId,
+    commenterClaimIds.length,
+    doFetchChannelMembershipsForChannelIds,
+    doFetchOdyseeMembershipForChannelIds,
+  ]);
 
   const handleReset = React.useCallback(() => {
     if (claimId) resetComments(claimId);
@@ -195,6 +204,9 @@ export default function CommentList(props: Props) {
       threadRedirect.current = true;
     }
   }, [linkedCommentAncestors, linkedCommentId, pathname, push, search, threadCommentId, threadDepthLevel]);
+
+  // TODO: still have to change this to use the new check
+  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !isAChannelMember && !claimIsMine;
 
   // set new page on scroll debounce and avoid setting the page after navigated uris
   useEffect(() => {
@@ -417,8 +429,10 @@ export default function CommentList(props: Props) {
           >
             {readyToDisplayComments && (
               <>
-                {pinnedComments && !threadCommentId && <CommentElements comments={pinnedComments} {...commentProps} />}
-                <CommentElements comments={topLevelComments} {...commentProps} />
+                {pinnedComments && !threadCommentId && (
+                  <CommentElements comments={pinnedComments} disabled={notAuthedToChat} {...commentProps} />
+                )}
+                <CommentElements comments={topLevelComments} disabled={notAuthedToChat} {...commentProps} />
               </>
             )}
           </ul>
@@ -469,12 +483,15 @@ export default function CommentList(props: Props) {
 
 type CommentProps = {
   comments: Array<Comment>,
+  disabled?: boolean,
 };
 
 const CommentElements = (commentProps: CommentProps) => {
-  const { comments, ...commentsProps } = commentProps;
+  const { comments, disabled, ...commentsProps } = commentProps;
 
-  return comments.map((comment) => <CommentView key={comment.comment_id} comment={comment} {...commentsProps} />);
+  return comments.map((comment) => (
+    <CommentView key={comment.comment_id} comment={comment} disabled={disabled} {...commentsProps} />
+  ));
 };
 
 type ActionButtonsProps = {

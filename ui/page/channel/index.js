@@ -15,7 +15,9 @@ import { selectModerationBlockList } from 'redux/selectors/comments';
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { doOpenModal } from 'redux/actions/app';
 import { selectLanguage } from 'redux/selectors/settings';
+import { selectOdyseeMembershipForChannelId, selectMembershipMineData } from 'redux/selectors/memberships';
 import { getThumbnailFromClaim } from 'util/claim';
+import { doGetMembershipTiersForChannelClaimId, doMembershipMine } from 'redux/actions/memberships';
 import ChannelPage from './view';
 
 const select = (state, props) => {
@@ -37,12 +39,16 @@ const select = (state, props) => {
     mutedChannels: selectMutedChannels(state),
     unpublishedCollections: selectMyUnpublishedCollections(state),
     lang: selectLanguage(state),
+    odyseeMembership: selectOdyseeMembershipForChannelId(state, claim.claim_id),
+    myActiveMemberships: selectMembershipMineData(state),
   };
 };
 
 const perform = (dispatch) => ({
   openModal: (modal, props) => dispatch(doOpenModal(modal, props)),
   fetchSubCount: (claimId) => dispatch(doFetchSubCount(claimId)),
+  getMembershipTiersForChannel: (channelId) => dispatch(doGetMembershipTiersForChannelClaimId(channelId)),
+  doMembershipMine: () => dispatch(doMembershipMine()),
 });
 
 export default connect(select, perform)(ChannelPage);

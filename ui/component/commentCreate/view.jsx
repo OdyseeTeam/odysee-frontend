@@ -89,6 +89,10 @@ type Props = {
   doFetchMyCommentedChannels: (claimId: ?string) => void,
   doTipAccountCheckForUri: (uri: string) => void,
   textInjection?: string,
+  chatCommentsRestrictedToChannelMembers: boolean,
+  isAChannelMember: boolean,
+  channelTiersWithMembersOnlyChatPerk: ?Array<string>,
+  myValidMembershipIds: ?Array<string>,
 };
 
 export function CommentCreate(props: Props) {
@@ -131,7 +135,15 @@ export function CommentCreate(props: Props) {
     doFetchMyCommentedChannels,
     doTipAccountCheckForUri,
     textInjection,
+    chatCommentsRestrictedToChannelMembers,
+    channelTiersWithMembersOnlyChatPerk,
+    myValidMembershipIds,
   } = props;
+
+  const myValidMembershipIdsSet = new Set(myValidMembershipIds);
+  const userHasMembersOnlyChatPerk =
+    channelTiersWithMembersOnlyChatPerk &&
+    channelTiersWithMembersOnlyChatPerk.some((tierName) => myValidMembershipIdsSet.has(tierName));
 
   const isMobile = useIsMobile();
 
@@ -546,6 +558,13 @@ export function CommentCreate(props: Props) {
     }
   }, [textInjection]);
 
+  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !userHasMembersOnlyChatPerk && !claimIsMine;
+
+  let commentLabelText = 'Say something about this...';
+  if (notAuthedToChat) {
+    commentLabelText = 'Only members of a tier with members-only chat can access this perk';
+  }
+
   // **************************************************************************
   // Render
   // **************************************************************************
@@ -575,7 +594,7 @@ export function CommentCreate(props: Props) {
         <FormField
           type="textarea"
           name="comment__signup-prompt"
-          placeholder={__('Say something about this...')}
+          placeholder={__(commentLabelText)}
           disabled={isMobile}
         />
 
@@ -616,8 +635,12 @@ export function CommentCreate(props: Props) {
           <FormField
             autoFocus={isReply}
             charCount={charCount}
-            className={isReply ? 'create__reply' : 'create__comment'}
-            disabled={isFetchingChannels || disableInput}
+            className={classnames('', {
+              create__reply: isReply,
+              create__comment: !isReply,
+              disabled_chat_comments: notAuthedToChat,
+            })}
+            disabled={isFetchingChannels || disableInput || notAuthedToChat}
             isLivestream={isLivestream}
             label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
             noticeLabel={
@@ -637,7 +660,7 @@ export function CommentCreate(props: Props) {
             setShowSelectors={setShowSelectors}
             showSelectors={showSelectors}
             tipModalOpen={tipModalOpen}
-            placeholder={__('Say something about this...')}
+            placeholder={__(commentLabelText)}
             quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
             quickActionLabel={
               !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
@@ -730,6 +753,7 @@ export function CommentCreate(props: Props) {
                 icon={ICONS.STICKER}
                 onClick={handleStickerComment}
                 onChange={() => {}}
+                disabled={notAuthedToChat}
               />
 
               {!supportDisabled && !claimIsMine && (

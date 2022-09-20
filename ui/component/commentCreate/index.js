@@ -6,6 +6,7 @@ import {
   selectFetchingMyChannels,
   makeSelectTagInClaimOrChannelForUri,
   selectMyChannelClaimIds,
+  selectedRestrictedCommentsChatTagForUri,
 } from 'redux/selectors/claims';
 import { CommentCreate } from './view';
 import { DISABLE_SUPPORT_TAG } from 'constants/tags';
@@ -24,6 +25,7 @@ import { doOpenModal } from 'redux/actions/app';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
+import { selectMembershipTierIdsWithMembersOnlyChatPerk, selectMyValidMembershipIds } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -43,18 +45,21 @@ const select = (state, props) => {
     activeChannelClaimId,
     activeChannelName,
     activeChannelUrl,
-    hasChannels: selectHasChannels(state),
-    claimId,
+    canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
     channelClaimId,
-    tipChannelName,
+    chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
+    claimId,
     claimIsMine: selectClaimIsMine(state, claim),
+    hasChannels: selectHasChannels(state),
     isFetchingChannels: selectFetchingMyChannels(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
-    supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
-    preferredCurrency: selectPreferredCurrency(state),
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
-    canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    preferredCurrency: selectPreferredCurrency(state),
+    settingsByChannelId: selectSettingsByChannelId(state),
+    supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
+    tipChannelName,
+    channelTiersWithMembersOnlyChatPerk: selectMembershipTierIdsWithMembersOnlyChatPerk(state, channelClaimId),
+    myValidMembershipIds: selectMyValidMembershipIds(state),
   };
 };
 

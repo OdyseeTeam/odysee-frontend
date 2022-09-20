@@ -19,7 +19,6 @@ import ClaimListHeader from 'component/claimListHeader';
 import useFetchViewCount from 'effects/use-fetch-view-count';
 import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
-import useGetUserMemberships from 'effects/use-get-user-memberships';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
 import usePersistedState from 'effects/use-persisted-state';
 
@@ -105,7 +104,7 @@ type Props = {
   // --- perform ---
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
-  doFetchUserMemberships: (claimIdCsv: string) => void,
+  doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
   doResolveClaimIds: (Array<string>) => Promise<any>,
   doResolveUris: (Array<string>, boolean) => Promise<any>,
 
@@ -190,7 +189,7 @@ function ClaimListDiscover(props: Props) {
     maxClaimRender,
     useSkeletonScreen = true,
     excludeUris = [],
-    doFetchUserMemberships,
+    doFetchOdyseeMembershipForChannelIds,
     swipeLayout = false,
     doResolveUris,
     doResolveClaimIds,
@@ -677,7 +676,11 @@ function ClaimListDiscover(props: Props) {
 
   useFetchViewCount(fetchViewCount, finalUris, claimsByUri, doFetchViewCount);
 
-  useGetUserMemberships(true, finalUris, claimsByUri, doFetchUserMemberships);
+  React.useEffect(() => {
+    if (channelIds) {
+      doFetchOdyseeMembershipForChannelIds(channelIds);
+    }
+  }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

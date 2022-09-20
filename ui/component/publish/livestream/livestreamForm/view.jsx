@@ -35,6 +35,7 @@ import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 type Props = {
   tags: Array<Tag>,
@@ -533,6 +534,8 @@ function LivestreamForm(props: Props) {
             )}
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
+
+            <PublishProtectedContent claim={myClaimForUri} location={'livestream'} />
 
             <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
               {__('Tags')}

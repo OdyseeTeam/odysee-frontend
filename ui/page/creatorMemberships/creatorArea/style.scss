@@ -1,0 +1,80 @@
+.membershipPage-wrapper {
+  .tabs__list {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+    .no-after {
+      button {
+        margin-right: var(--spacing-s);
+      }
+      .tab {
+        .button--secondary {
+          .button__label {
+            color: white !important;
+          }
+          .icon {
+            stroke: white;
+          }
+        }
+        &:hover {
+          .button--secondary {
+            .button__label {
+              color: var(--color-primary) !important;
+            }
+            .icon {
+              stroke: var(--color-primary) !important;
+            }
+          }
+
+          &::after {
+            display: none;
+          }
+        }
+      }
+    }
+  }
+}
+
+.membership-table__wrapper {
+  .table {
+    thead {
+      th {
+        border-bottom: 2px solid rgba(var(--color-primary-static), 0.4);
+      }
+    }
+    tbody {
+      tr:not(:last-child) {
+        td {
+          padding: 0.8rem;
+          border-bottom: 2px solid rgba(var(--color-primary-static), 0.4) !important;
+        }
+      }
+    }
+
+    margin-bottom: 28px;
+  }
+}
+
+.back-to-memberships-button {
+  transform: rotate(180deg);
+  margin-left: 6px;
+  margin-bottom: -3px;
+}
+
+.create-tiers-header-buttons {
+  max-width: 100%;
+}
+
+.create-tiers-channel-selector {
+  width: 50%;
+  display: inline-block;
+}
+
+.create-tiers-preview-button {
+  width: 50%;
+  display: inline-block;
+  text-align: right;
+}
+
+.table-channel-header {
+  margin-bottom: 6px;
+}

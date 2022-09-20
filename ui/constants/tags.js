@@ -23,6 +23,9 @@ export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream';
 export const LBRY_FIRST_TAG = 'c:lbry-first';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
 
+export const MEMBERS_ONLY_CONTENT_TAG = 'c:members-only';
+export const RESTRICTED_CHAT_COMMENTS_TAG = 'chat:members-only';
+
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [DISABLE_COMMENTS_TAG, DISABLE_SUPPORT_TAG, PREFERENCE_EMBED, DISABLE_DOWNLOAD_BUTTON_TAG];
 

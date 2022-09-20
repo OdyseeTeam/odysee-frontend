@@ -90,6 +90,22 @@ const copyWebpackCommands = [
     to: `${output.PATH}/public/cast/`,
   },
   {
+    from: `${STATIC_ROOT}/img/moon.png`,
+    to: `${output.PATH}/public/img/moon.png`,
+  },
+  {
+    from: `${STATIC_ROOT}/img/my_channels.jpg`,
+    to: `${output.PATH}/public/img/my_channels.jpg`,
+  },
+  {
+    from: `${STATIC_ROOT}/img/my_pledges.jpg`,
+    to: `${output.PATH}/public/img/my_pledges.jpg`,
+  },
+  {
+    from: `${STATIC_ROOT}/img/lady_fungus.png`,
+    to: `${output.PATH}/public/img/lady_fungus.png`,
+  },
+  {
     from: `${STATIC_ROOT}/font/`,
     to: `${output.PATH}/public/font/`,
   },
@@ -100,6 +116,10 @@ const copyWebpackCommands = [
   {
     from: `${STATIC_ROOT}/../custom/homepages/v2/announcement`,
     to: `${output.PATH}/announcement`,
+  },
+  {
+    from: `${STATIC_ROOT}/img/spaceman_pattern.png`,
+    to: `${output.PATH}/public/img/spaceman_pattern.png`,
   },
 ];
 

@@ -3,7 +3,7 @@ import * as CONFIGS from 'config';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { RULE } from 'constants/notifications';
 import * as PAGES from 'constants/pages';
-import { DISCUSSION_PAGE, PAGE_VIEW_QUERY } from 'page/channel/view'; // TODO: move into const to avoid lazy-load problems
+import { CHANNEL_PAGE } from 'constants/urlParams';
 import { parseURI } from 'util/lbryURI';
 import { formatLbryUrlForWeb } from 'util/url';
 
@@ -41,7 +41,7 @@ function getUrlParams(notification, notificationTarget) {
 
   try {
     const { isChannel } = parseURI(notificationTarget);
-    if (isChannel) urlParams.append(PAGE_VIEW_QUERY, DISCUSSION_PAGE);
+    if (isChannel) urlParams.append(CHANNEL_PAGE.QUERIES.VIEW, CHANNEL_PAGE.VIEWS.DISCUSSION_PAGE);
   } catch (e) {}
 
   return urlParams;

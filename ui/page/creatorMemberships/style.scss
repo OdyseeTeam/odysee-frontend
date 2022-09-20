@@ -1,0 +1,136 @@
+@import '~ui/scss/init/breakpoints';
+
+.bank-account-status {
+  margin-top: var(--spacing-s);
+  padding: var(--spacing-s);
+  border-radius: var(--border-radius);
+  border: 2px solid rgba(255, 0, 0, 0.8);
+  background-color: rgba(255, 0, 0, 0.1);
+
+  div {
+    label {
+      display: block;
+      font-size: var(--font-body);
+      font-weight: var(--font-weight-bold);
+    }
+
+    span {
+      display: block;
+      font-size: var(--font-small);
+      font-weight: var(--font-weight-bold);
+      opacity: 0.8;
+    }
+  }
+
+  .button {
+    width: auto;
+    margin-top: var(--spacing-s);
+    margin-bottom: 0;
+  }
+}
+
+.creator-memberships-header {
+  width: 100%;
+  font-size: var(--font-title);
+  font-weight: var(--font-bold);
+  text-align: center;
+}
+
+.membership-wrapper {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: var(--spacing-xl);
+
+  img {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    width: 40%;
+    margin-right: var(--spacing-s);
+  }
+
+  .membership-content {
+    position: relative;
+    padding: var(--spacing-s);
+    padding-top: var(--spacing-m);
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    color: black;
+    flex: 1;
+    text-align: center;
+
+    h2 {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+      text-align: center;
+    }
+
+    .separator {
+      width: 100%;
+      text-align: center;
+      margin-top: calc(var(--spacing-xxs) * -1);
+      margin-bottom: var(--spacing-m);
+
+      div {
+        display: inline-block;
+        width: 70%;
+        border-bottom: 2px solid var(--color-primary);
+      }
+    }
+
+    .ugly-alien-box {
+      position: absolute;
+      bottom: var(--spacing-s);
+      width: 100%;
+      background-color: unset;
+
+      a {
+        color: var(--color-primary);
+      }
+
+      img {
+        width: 46px;
+        height: 46px;
+        background-color: #650f7c;
+        border-radius: 50%;
+        margin-left: var(--spacing-s);
+      }
+    }
+
+    &.supporter {
+      background: #e4f8f8;
+    }
+
+    &.memberships {
+      background-color: #f3e3f6;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    flex-direction: column;
+
+    .membership-content {
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      margin-right: var(--spacing-s);
+    }
+
+    img {
+      border-radius: var(--border-radius) var(--border-radius) 0 0;
+      width: 100%;
+    }
+  }
+}
+
+.portal-tagline {
+  margin-bottom: 12px;
+  font-size: 17px;
+  margin-left: 4px;
+}
+
+.creator-memberships-seperator {
+  width: 58%;
+  margin: 0 auto;
+  background-color: var(--color-primary);
+  // background-color: red;
+  height: 2px;
+  margin-bottom: 38px;
+}
