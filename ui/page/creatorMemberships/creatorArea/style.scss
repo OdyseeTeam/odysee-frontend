@@ -16,10 +16,10 @@
       .tab {
         .button--secondary {
           .button__label {
-            color: white !important;
+            color: var(--color-text) !important;
           }
           .icon {
-            stroke: white;
+            stroke: var(--color-text) !important;
           }
         }
         &:hover {
