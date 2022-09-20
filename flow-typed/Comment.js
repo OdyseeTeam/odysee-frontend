@@ -38,6 +38,7 @@ declare type PerChannelSettings = {
   min_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
+  members_only_chats?: Array<string>,
 };
 
 // todo: relate individual comments to their commentId

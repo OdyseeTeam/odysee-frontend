@@ -57,7 +57,16 @@ type Props = {
   notInDrawer?: boolean,
   threadCommentAncestors: ?Array<string>,
   linkedCommentAncestors: ?Array<string>,
-  fetchTopLevelComments: (uri: string, parentId: ?string, page: number, pageSize: number, sortBy: number) => void,
+  fetchTopLevelComments: (
+    uri: string,
+    parentId: ?string,
+    page: number,
+    pageSize: number,
+    sortBy: number,
+    isLivestream?: boolean,
+    isProtected?: boolean,
+    requesterChannelId?: string
+  ) => void,
   fetchComment: (commentId: string) => void,
   fetchReacts: (commentIds: Array<string>) => Promise<any>,
   resetComments: (claimId: string) => void,
@@ -256,9 +265,17 @@ export default function CommentList(props: Props) {
         }
       }
 
-      fetchTopLevelComments(uri, undefined, page, COMMENT_PAGE_SIZE_TOP_LEVEL, sort, false,
+      fetchTopLevelComments(
+        uri,
+        undefined,
+        page,
+        COMMENT_PAGE_SIZE_TOP_LEVEL,
+        sort,
+        false,
         // protected comments params
-        chatCommentsRestrictedToChannelMembers, activeChannelId);
+        chatCommentsRestrictedToChannelMembers,
+        activeChannelId
+      );
     }
   }, [currentFetchedPage, fetchComment, fetchTopLevelComments, linkedCommentId, page, sort, threadCommentId, uri]);
 

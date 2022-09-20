@@ -57,6 +57,7 @@ export function doCommentList(
     const creatorChannelClaim = getChannelFromClaim(claim);
     const { claim_id: creatorClaimId, name: channelName } = creatorChannelClaim || {};
 
+    let channelSignature = {};
     if (isProtected) {
       if (!myChannelClaims) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
@@ -67,7 +68,7 @@ export function doCommentList(
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
 
-      const channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+      channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
       if (!channelSignature) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to sign channel name.') });
       }
