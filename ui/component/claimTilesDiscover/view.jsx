@@ -52,7 +52,7 @@ type Props = {
   hasSource?: boolean,
   hasNoSource?: boolean,
   forceShowReposts?: boolean, // overrides SETTINGS.HIDE_REPOSTS
-  hideMembersOnlyContent?: boolean,
+  hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
   loading: boolean,
   // --- select ---
   location: { search: string },

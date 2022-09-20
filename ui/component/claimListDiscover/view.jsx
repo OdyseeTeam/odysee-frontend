@@ -32,12 +32,12 @@ type Props = {
   pageSize?: number,
 
   fetchViewCount?: boolean,
-  hideRepostsOverride?: boolean, // undefined = use SETTINGS.HIDE_REPOSTS; true/false: use this.
+  hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
+  hideRepostsOverride?: boolean, // undefined = use SETTINGS.HIDE_REPOSTS; true/false: use this override.
   hasNoSource?: boolean,
   hasSource?: boolean,
   hideAdvancedFilter?: boolean,
   hideFilters?: boolean,
-  hideMembersOnlyContent?: boolean,
   includeSupportAction?: boolean,
   infiniteScroll?: Boolean,
   isChannel?: boolean,
@@ -158,7 +158,7 @@ function ClaimListDiscover(props: Props) {
     includeSupportAction,
     repostedClaimId,
     hideAdvancedFilter,
-    hideMembersOnlyContent,
+    hideMembersOnly,
     infiniteScroll = true,
     followedTags,
     injectedItem,
@@ -307,7 +307,7 @@ function ClaimListDiscover(props: Props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     not_channel_ids: isChannel ? undefined : mutedAndBlockedChannelIds,
-    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnlyContent),
+    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
     order_by: resolveOrderByOption(orderParam, sortByParam),
     remove_duplicates: isChannel ? undefined : true,
   };

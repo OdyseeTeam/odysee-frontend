@@ -19,8 +19,14 @@ import { CsOptions } from 'util/claim-search';
 
 import ClaimListDiscover from './view';
 
+function resolveHideMembersOnly(global, override) {
+  return override === undefined || override === null ? global : override;
+}
+
 const select = (state, props) => {
   const showNsfw = selectShowMatureContent(state);
+  const hmocSetting = selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT);
+  const hideMembersOnly = resolveHideMembersOnly(hmocSetting, props.hideMembersOnly);
   const hideReposts = selectClientSetting(state, SETTINGS.HIDE_REPOSTS);
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = selectMutedAndBlockedChannelIds(state);
@@ -28,6 +34,7 @@ const select = (state, props) => {
   // TODO: memoize these 2 function calls. Lots of params, though; might not be feasible.
   const options = resolveSearchOptions({
     showNsfw,
+    hideMembersOnly,
     hideReposts,
     forceShowReposts,
     mutedAndBlockedChannelIds,
@@ -87,7 +94,7 @@ function resolveSearchOptions(props) {
     showNsfw,
     hideReposts,
     forceShowReposts,
-    hideMembersOnlyContent,
+    hideMembersOnly,
     mutedAndBlockedChannelIds,
     location,
     pageSize,
@@ -126,7 +133,7 @@ function resolveSearchOptions(props) {
     // it's faster, but we will need to remove it if we start using total_pages
     no_totals: true,
     any_tags: tags || [],
-    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnlyContent),
+    not_tags: CsOptions.not_tags(notTags, showNsfw, hideMembersOnly),
     any_languages: languages,
     channel_ids: channelIds || [],
     not_channel_ids: mutedAndBlockedChannelIds,

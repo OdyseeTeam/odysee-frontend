@@ -109,7 +109,8 @@ function ClaimListHeader(props: Props) {
         urlParams.get(CS.DURATION_KEY) ||
         urlParams.get(CS.FEE_AMOUNT_KEY) ||
         urlParams.get(CS.LANGUAGE_KEY) ||
-        filterCtx?.repost?.hideReposts
+        filterCtx?.repost?.hideReposts ||
+        filterCtx?.membersOnly?.hideMembersOnly
     );
 
   // Pulled out of the collapsible group.
