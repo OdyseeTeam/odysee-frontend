@@ -20,6 +20,8 @@ export function getNotificationTarget(notification: WebNotification) {
       return `/$/${PAGES.REWARDS_VERIFY}?redirect=/$/${PAGES.REWARDS}`;
     case RULE.FIAT_TIP:
       return `/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`;
+    case RULE.NEW_MEMBER:
+      return `/$/${PAGES.CREATOR_MEMBERSHIPS}?tab=supporters`;
     default:
       return notification_parameters.device.target;
   }

@@ -17,6 +17,7 @@ export function generateNotificationText(rule: string, notificationParams: any) 
     // eslint-disable-next-line no-fallthrough -- Intended fallthrough from 'default'
     case RULE.NEW_CONTENT:
     case RULE.NEW_LIVESTREAM:
+    case RULE.NEW_MEMBER:
     case RULE.CREATOR_SUBSCRIBER:
     case RULE.DAILY_WATCH_AVAILABLE:
     case RULE.DAILY_WATCH_REMIND:
