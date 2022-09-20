@@ -47,6 +47,9 @@
         flex: auto;
         white-space: nowrap;
         margin-right: var(--spacing-m);
+        &:last-of-type {
+          margin-right: 0;
+        }
       }
 
       .no-after {
@@ -54,6 +57,7 @@
         top: var(--spacing-s);
         right: 0;
         .button {
+          margin-right: var(--spacing-m);
           background-color: var(--color-header-background) !important;
         }
         .button__label {
