@@ -47,13 +47,8 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     return (
       <div className="protected-content-holder">
         <Icon icon={ICONS.LOCK} className="protected-content-locked" />
-        <span>
-          Members Only
-        </span>
-        <span>
-          Join for ${cheapestPlan.NewPrices[0].Price.amount / 100} per month
-        </span>
-
+        <span>Members Only</span>
+        <span>Join for ${cheapestPlan?.NewPrices[0]?.Price.amount / 100} per month</span>
       </div>
     );
   }
