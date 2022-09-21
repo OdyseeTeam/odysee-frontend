@@ -1080,6 +1080,12 @@
 }
 
 .membership-table__wrapper {
+  .channelThumbnail {
+    .channel-thumbnail__custom {
+      height: 100%;
+    }
+  }
+
   .form-field--copyable {
     display: none;
   }
