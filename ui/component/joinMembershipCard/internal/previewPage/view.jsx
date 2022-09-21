@@ -125,6 +125,7 @@ const PreviewPage = (props: Props) => {
             />
           </div>
         )}
+
         <div className="join-membership__tab">
           {creatorMemberships.map((membership, index) => (
             <MembershipTier
@@ -140,14 +141,6 @@ const PreviewPage = (props: Props) => {
             />
           ))}
         </div>
-
-        {creatorPurchaseDisabled && (
-          <span className="error__bubble">
-            {channelIsMine
-              ? __("You're not able to signup for your own memberships")
-              : __('This creator does not have an active bank account to receive payments.')}
-          </span>
-        )}
       </>
     );
   }

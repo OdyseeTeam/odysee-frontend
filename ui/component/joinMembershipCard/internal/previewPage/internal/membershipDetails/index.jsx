@@ -11,6 +11,8 @@ type Props = {
 const MembershipDetails = (props: Props) => {
   const { membership, headerAction, protectedMembershipIds } = props;
 
+  const descriptionParagraphs = membership.Membership.description.split('\n');
+
   let accessText = 'This Tier does not grant you access to the currently selected content.';
   if (new Set(protectedMembershipIds).has(membership.Membership.id)) {
     // accessText = 'This membership has access to the current content.';
@@ -30,7 +32,11 @@ const MembershipDetails = (props: Props) => {
           </div>
         )}
 
-        <span>{membership.Membership.description}</span>
+        <span>
+          {descriptionParagraphs.map((descriptionLine, i) =>
+            descriptionLine === '' ? <br /> : <p key={i}>{descriptionLine}</p>
+          )}
+        </span>
 
         <div className="membership-tier__perks">
           <div className="membership-tier__moon" />
