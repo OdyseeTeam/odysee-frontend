@@ -13,6 +13,9 @@ const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(val
 const MIN_PRICE = '1';
 const MAX_PRICE = '99999999'; // -- the value that fails on the backend, not sure the actual limit
 
+// custom emojis should be changed to channel member badge
+const PERMANENT_TIER_PERKS = new Set([4]); // -- perk name: Member Badge
+
 type Props = {
   membership: CreatorMembership,
   hasSubscribers: ?boolean,
@@ -52,6 +55,10 @@ function MembershipTier(props: Props) {
     editTierPrice: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [selectedPerkIds, setSelectedPerkIds] = React.useState([
+    ...Array.from(PERMANENT_TIER_PERKS),
+    ...(membership.Perks ? membership.Perks.map((perk) => perk.id) : []),
+  ]);
 
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
@@ -59,43 +66,6 @@ function MembershipTier(props: Props) {
   const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
   const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > Number(MAX_PRICE) / 100;
   const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
-
-  // custom emojis should be changed to channel member badge
-  const permanentTierPerks = ['Member badge'];
-
-  /**
-   * Check whether the tier already has the perk added
-   * @param {number} perkId - Id of the perk returned from DB
-   * @param {any} tier - Tier that is being edited
-   * @returns {boolean}
-   */
-  function containsPerk(perkId, tier) {
-    if (!tier.Perks) return false;
-
-    const perkIds = new Set(tier.Perks.map((tierPerk) => tierPerk.id));
-
-    return perkIds.has(perkId);
-  }
-
-  /**
-   * Selects the checked perks and builds them into a csv value for the backend
-   * @returns {string}
-   */
-  function generatePerksCsv() {
-    let selectedPerks = [];
-    for (const perk of membershipPerks) {
-      const odyseePerkElem = document.querySelector(
-        `input#perk_${perk.id} membership_${membership.Membership.id}.membership_perks`
-      );
-
-      // $FlowFixMe
-      const odyseePerkSelected = odyseePerkElem && odyseePerkElem.checked;
-      if (odyseePerkSelected) {
-        selectedPerks.push(perk.id);
-      }
-    }
-    return selectedPerks.toString();
-  }
 
   /**
    * When someone hits the 'Save' button from the edit functionality
@@ -107,7 +77,7 @@ function MembershipTier(props: Props) {
 
     const newTierMonthlyContribution = contributionRef.current?.input?.current?.value || 0;
 
-    const selectedPerksAsArray = generatePerksCsv();
+    const selectedPerksAsArray = selectedPerkIds.toString();
 
     if (activeChannelClaim) {
       const isCreatingAMembership = typeof membershipTier.Membership.id === 'string';
@@ -181,18 +151,33 @@ function MembershipTier(props: Props) {
         <label htmlFor="tier_name">{__('Odysee Perks')}</label>
       </fieldset-section>
 
-      {membershipPerks.map((tierPerk, i) => {
-        const isPermanent = new Set(permanentTierPerks).has(tierPerk.name);
+      {membershipPerks.map((tierPerk) => {
+        const isPermanent = PERMANENT_TIER_PERKS.has(tierPerk.id);
+        const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
 
         return (
           <FormField
-            key={i}
+            key={tierPerk.id}
             type="checkbox"
-            defaultChecked={isPermanent || containsPerk(tierPerk.id, membership)}
+            defaultChecked={isPermanent || isSelected}
             label={tierPerk.description}
             name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.Membership.id}
             className="membership_perks"
             disabled={isPermanent}
+            onChange={() =>
+              setSelectedPerkIds((prevPerks) => {
+                const newPrevPerks = new Set(prevPerks);
+                const isSelected = newPrevPerks.has(tierPerk.id);
+
+                if (!isSelected) {
+                  newPrevPerks.add(tierPerk.id);
+                } else {
+                  newPrevPerks.delete(tierPerk.id);
+                }
+
+                return Array.from(newPrevPerks);
+              })
+            }
           />
         );
       })}
