@@ -28,6 +28,7 @@ type Props = {
   doFetchChannelLiveStatus: (string) => void,
   doUserSetReferrer: (string) => void,
   theaterMode?: Boolean,
+  doGetMembershipTiersForContentClaimId: (type: string) => void,
 };
 
 export const LivestreamContext = React.createContext<any>();
@@ -49,6 +50,7 @@ export default function LivestreamPage(props: Props) {
     doFetchChannelLiveStatus,
     doUserSetReferrer,
     theaterMode,
+    doGetMembershipTiersForContentClaimId,
   } = props;
 
   const isMobile = useIsMobile();
@@ -96,6 +98,12 @@ export default function LivestreamPage(props: Props) {
     // use for unmount case without triggering render
     streamPlayingRef.current = isStreamPlaying;
   }, [isStreamPlaying]);
+
+  React.useEffect(() => {
+    doGetMembershipTiersForContentClaimId(claimId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimId]);
 
   React.useEffect(() => {
     return () => {

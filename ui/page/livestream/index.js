@@ -15,6 +15,8 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doGetMembershipTiersForContentClaimId } from 'redux/actions/memberships';
+
 import LivestreamPage from './view';
 
 const select = (state, props) => {
@@ -43,6 +45,7 @@ const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchChannelLiveStatus,
+  doGetMembershipTiersForContentClaimId,
 };
 
 export default connect(select, perform)(LivestreamPage);
