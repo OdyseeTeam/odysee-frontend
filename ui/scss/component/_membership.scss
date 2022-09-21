@@ -435,7 +435,7 @@
 
 .card--join-membership {
   .join-membership__modal-header {
-    height: 108px;
+    height: 158px;
     margin-bottom: var(--spacing-l);
 
     .channel-thumbnail {
@@ -445,9 +445,11 @@
       float: left;
     }
     h2 {
+      padding-top: var(--spacing-l);
       font-weight: bold;
     }
     h3 {
+      padding-bottom: var(--spacing-l);
       font-size: var(--font-title);
     }
     p {
@@ -570,9 +572,10 @@
     margin: 0 auto;
 
     .header--no-memberships {
-      text-align: center;
-      font-size: 21px;
-      margin-bottom: 20px;
+      font-size: 1.2rem;
+      line-height: 1.25;
+      margin-top: var(--spacing-s);
+      margin-bottom: 16px;
     }
 
     .button {

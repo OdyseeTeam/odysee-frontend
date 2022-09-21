@@ -70,11 +70,11 @@ const PreviewPage = (props: Props) => {
       return (
         <div className="join-membership__empty">
           <h2 className="header--no-memberships">{__('Channel Has No Memberships')}</h2>
-          <h2>
+          <p>
             {__(
               "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
             )}
-          </h2>
+          </p>
           <div className="button--create-tiers">
             <ButtonNavigateChannelId
               icon={ICONS.MEMBERSHIP}
