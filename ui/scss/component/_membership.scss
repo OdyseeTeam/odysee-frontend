@@ -477,6 +477,27 @@
         padding-bottom: var(--spacing-s);
       }
     }
+
+    @media (max-width: $breakpoint-xxsmall) {
+      height: 138px;
+      .channel-thumbnail {
+        margin-top: 0;
+        margin-right: var(--spacing-s);
+        width: 44px;
+        height: 44px;
+      }
+
+      h2 {
+        font-size: var(--font-base);
+        padding-top: 0;
+      }
+
+      h3 {
+        padding-bottom: var(--spacing-s);
+        font-size: var(--font-body);
+        font-weight: bold;
+      }
+    }
   }
 
   .join-membership__modal-tabs {
