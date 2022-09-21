@@ -18,7 +18,7 @@
     margin-bottom: var(--spacing-xs);
   }
 
-  span {
+  div {
     background-color: var(--color-header-background);
     padding: var(--spacing-xxxs);
     border-radius: var(--border-radius);
@@ -28,6 +28,12 @@
 
     &:nth-of-type(2) {
       margin-top: 10px;
+    }
+
+    span {
+      display: block;
+      font-size: var(--font-small);
+      opacity: 0.8;
     }
 
     .dot {
