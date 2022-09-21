@@ -166,6 +166,7 @@ function MembershipTier(props: Props) {
       <FormField
         type="textarea"
         max="400"
+        lines="3"
         name="tier_description"
         label={__('Tier Description')}
         placeholder={__('Description of your tier')}
