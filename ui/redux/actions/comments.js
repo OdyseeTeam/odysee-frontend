@@ -364,7 +364,7 @@ export function doCommentReset(claimId: string) {
   };
 }
 
-export function doHyperChatList(uri: string) {
+export function doHyperChatList(uri: string, is_protected: boolean) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -381,6 +381,7 @@ export function doHyperChatList(uri: string) {
 
     return Comments.super_list({
       claim_id: claimId,
+      is_protected: is_protected || undefined,
     })
       .then((result: SuperListResponse) => {
         const { items: comments, total_amount: totalAmount } = result;

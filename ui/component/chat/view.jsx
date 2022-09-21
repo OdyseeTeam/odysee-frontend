@@ -48,7 +48,7 @@ type Props = {
   ) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
-  doHyperChatList: (uri: string) => void,
+  doHyperChatList: (uri: string, is_protected: boolean) => void,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
   pinnedComments: Array<Comment>,
   setLayountRendered: (boolean) => void,
@@ -202,7 +202,7 @@ export default function ChatLayout(props: Props) {
         chatCommentsRestrictedToChannelMembers,
         activeChannelId
       );
-      doHyperChatList(uri);
+      doHyperChatList(uri, chatCommentsRestrictedToChannelMembers);
     }
   }, [claimId, uri, doCommentList, doHyperChatList]);
 
