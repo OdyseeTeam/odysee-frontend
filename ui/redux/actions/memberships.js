@@ -124,13 +124,32 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
     })
     .catch((e) => {
       dispatch({ type: ACTIONS.SET_MEMBERSHIP_BUY_FAILED, data: membershipId });
+
+      if (e.message === 'user needs to be linked to a setup customer first') {
+        return dispatch(
+          doToast({
+            message: __('You need to link a bank account in order to purchase.'),
+            isError: true,
+            linkText: __('Take me there'),
+            linkTarget: '/settings/tip_account',
+          })
+        );
+      }
+
+      if (e.message === 'cannot purchase inactivate membership!') {
+        return dispatch(
+          doToast({
+            message: __('Error purchasing. This membership was deleted by the creator.'),
+            isError: true,
+          })
+        );
+      }
+
       const genericErrorMessage = __(
         "Sorry, your purchase wasn't able to completed. Please contact support for possible next steps"
       );
 
-      dispatch(doToast({ message: genericErrorMessage, isError: true }));
-
-      throw new Error(e);
+      return dispatch(doToast({ message: genericErrorMessage, isError: true }));
     });
 };
 
