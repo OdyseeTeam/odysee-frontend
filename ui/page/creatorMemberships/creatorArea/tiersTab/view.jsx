@@ -79,7 +79,23 @@ function TiersTab(props: Props) {
 
   React.useEffect(() => {
     const fetchedMemberships = fetchedMembershipsStr && JSON.parse(fetchedMembershipsStr);
-    setChannelMemberships(fetchedMemberships);
+    setChannelMemberships((previousMemberships) => {
+      const newEditingIds = new Set(editingIds);
+      const newFetchedMemberships = new Set(fetchedMemberships);
+
+      previousMemberships.forEach((membership) => {
+        if (newEditingIds.has(membership.Membership.id) && typeof membership.Membership.id === 'string') {
+          // after membership/list fetch, in case there are still local editing ids (clicked create tier twice but
+          // only published one for ex) keep the unpublished memberships on the state instead of replacing for the
+          // new fetched values which would erase them
+          newFetchedMemberships.add(membership);
+        }
+      });
+
+      return Array.from(newFetchedMemberships);
+    });
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- no need to listen for editing ids
   }, [fetchedMembershipsStr]);
 
   if (!bankAccountConfirmed) {

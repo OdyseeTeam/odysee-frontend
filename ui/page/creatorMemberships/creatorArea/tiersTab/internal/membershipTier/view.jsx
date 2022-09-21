@@ -18,6 +18,7 @@ type Props = {
   doOpenModal: (modalId: string, {}) => void,
   doToast: (params: { message: string }) => void,
   doDeactivateMembershipForId: (membershipId: number) => Promise<Membership>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
 
 function MembershipTier(props: Props) {
@@ -31,6 +32,7 @@ function MembershipTier(props: Props) {
     doOpenModal,
     doToast,
     doDeactivateMembershipForId,
+    doMembershipList,
   } = props;
 
   // const membershipId = membership.Membership.id;
@@ -70,12 +72,18 @@ function MembershipTier(props: Props) {
                       busyMsg: __('Deleting your membership...'),
                       onConfirm: (closeModal, setIsBusy) => {
                         setIsBusy(true);
-                        doDeactivateMembershipForId(membership.Membership.id).then(() => {
-                          setIsBusy(false);
-                          doToast({ message: __('Your membership was successfully deleted.') });
-                          removeMembership();
-                          closeModal();
-                        });
+                        doDeactivateMembershipForId(membership.Membership.id)
+                          .then(() => {
+                            setIsBusy(false);
+                            doToast({ message: __('Your membership was successfully deleted.') });
+                            removeMembership();
+                            closeModal();
+                            doMembershipList({
+                              channel_name: membership.Membership.channel_name,
+                              channel_id: membership.Membership.channel_id,
+                            });
+                          })
+                          .catch(() => setIsBusy(false));
                       },
                     })
               }

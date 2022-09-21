@@ -23,6 +23,7 @@ type Props = {
   activeChannelClaim: ChannelClaim,
   doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
+  doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
 
 function MembershipTier(props: Props) {
@@ -36,6 +37,7 @@ function MembershipTier(props: Props) {
     activeChannelClaim,
     doMembershipAddTier,
     addChannelMembership,
+    doMembershipList,
   } = props;
 
   const isMobile = useIsMobile();
@@ -132,6 +134,7 @@ function MembershipTier(props: Props) {
             NewPrices: [{ Price: { amount: price } }],
           };
           addChannelMembership(newMembershipObj);
+          doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
         })
         .catch(() => setIsSubmitting(false));
     }
