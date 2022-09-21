@@ -100,54 +100,6 @@
   }
 }
 
-.membership__mypledges-wrapper {
-  // border-radius: var(--border-radius);
-  // background: rgba(0, 208, 217, 0.2);
-
-  .membership__mypledges-content {
-    // padding: var(--spacing-s);
-  }
-}
-
-.membership__mypledges-header {
-  position: relative;
-  width: 100%;
-  background-size: cover;
-  background-position: top -20px left 0px;
-  background-image: url('/public/img/my_pledges.jpg');
-  border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-m);
-  overflow: hidden;
-  height: 96px;
-
-  div {
-    position: absolute;
-    position: absolute;
-    height: 400px;
-    left: -110px;
-    top: -210px;
-    width: 40%;
-    background-color: rgba(0, 208, 217, 0.6);
-    transform: rotate(38deg);
-  }
-  label {
-    position: absolute;
-    background-color: var(--color-header-background);
-    padding: var(--spacing-m);
-    border-radius: var(--border-radius);
-    top: var(--spacing-m);
-    left: var(--spacing-m);
-    padding: var(--spacing-m);
-    font-size: var(--font-large);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    background-position: unset;
-  }
-}
-
 .table-total {
   margin-bottom: var(--spacing-l);
 
