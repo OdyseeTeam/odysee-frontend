@@ -435,7 +435,7 @@
 
 .card--join-membership {
   .join-membership__modal-header {
-    height: 158px;
+    height: 108px;
     margin-bottom: var(--spacing-l);
 
     .channel-thumbnail {
@@ -445,16 +445,24 @@
       float: left;
     }
     h2 {
-      padding-top: var(--spacing-l);
       font-weight: bold;
     }
     h3 {
-      padding-bottom: var(--spacing-l);
       font-size: var(--font-title);
     }
     p {
       font-size: var(--font-small);
       opacity: 0.8;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      height: 158px;
+      h2 {
+        padding-top: var(--spacing-l);
+      }
+      h3 {
+        padding-bottom: var(--spacing-l);
+      }
     }
   }
 
