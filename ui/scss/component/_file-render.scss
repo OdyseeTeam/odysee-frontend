@@ -25,6 +25,10 @@
       }
     }
 
+    .claim-preview__primary-actions {
+      margin-right: 0;
+    }
+
     @media (max-width: $breakpoint-small) {
       .card {
         .card__first-pane {
@@ -62,7 +66,7 @@
                 .membersgip-button-wrapper {
                   width: 50%;
                   margin-top: var(--spacing-xxs);
-                  margin-bottom: var(--spacing-s);
+                  margin-bottom: 0;
                   margin-right: var(--spacing-xxs);
                   .button--membership {
                     width: 100%;
@@ -70,6 +74,7 @@
                 }
                 .claim-preview__primary-actions {
                   width: 50%;
+                  margin-right: 0;
                   .button-group {
                     width: 100%;
                     .button {

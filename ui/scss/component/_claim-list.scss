@@ -744,6 +744,10 @@
     background-color: var(--color-primary);
   }
 
+  .claim__tags {
+    margin-left: auto;
+  }
+
   @media (min-width: $breakpoint-small) {
     flex-direction: row;
   }
@@ -751,7 +755,8 @@
 
 .claim-preview__primary-actions {
   @extend .section__actions;
-  margin-right: 0;
+  margin-right: var(--spacing-s);
+  margin-bottom: 0 !important;
 
   &:first-child {
     .button {
