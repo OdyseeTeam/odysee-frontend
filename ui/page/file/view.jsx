@@ -78,7 +78,6 @@ export default function FilePage(props: Props) {
     videoTheaterMode,
 
     claimIsMine,
-    contentCommentsDisabled,
     isLivestream,
     position,
     audioVideoDuration,
@@ -94,6 +93,7 @@ export default function FilePage(props: Props) {
     doFileGet,
     doSetMainPlayerDimension,
     doCheckIfPurchasedClaimId,
+    commentSettingDisabled,
     purchaseTag,
     preorderTag,
     rentalTag,

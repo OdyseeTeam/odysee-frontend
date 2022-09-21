@@ -3,7 +3,6 @@ import { doSetContentHistoryItem, doSetPrimaryUri, clearPosition } from 'redux/a
 import { withRouter } from 'react-router-dom';
 import {
   selectClaimIsNsfwForUri,
-  makeSelectTagInClaimOrChannelForUri,
   selectIsStreamPlaceholderForUri,
   selectClaimForUri,
   selectClaimWasPurchasedForUri,
