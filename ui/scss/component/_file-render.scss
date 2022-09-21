@@ -33,6 +33,21 @@
               }
             }
           }
+          .card__main-actions {
+            .claim-preview--channel {
+              a.button {
+                align-self: baseline;
+              }
+              .claim-preview__primary-actions {
+                flex-direction: column-reverse;
+                align-items: end !important;
+
+                .button--membership {
+                  margin-top: var(--spacing-xxxs);
+                }
+              }
+            }
+          }
         }
       }
     }
