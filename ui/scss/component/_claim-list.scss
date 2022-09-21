@@ -639,6 +639,11 @@
 .claim-preview--channel {
   .claim-preview__actions {
     margin-top: 0px;
+    flex-direction: row;
+    justify-content: unset;
+    .claim-preview__custom-properties {
+      margin-left: auto;
+    }
   }
   @media (max-width: $breakpoint-small) {
     a.button--no-style:first-of-type {
