@@ -56,7 +56,7 @@ function MembershipTier(props: Props) {
 
   const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
   const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > Number(MAX_PRICE) / 100;
-  const priceError = !editTierParams || priceLowerThanMin || priceHigherThanMax;
+  const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
 
   // custom emojis should be changed to channel member badge
   const permanentTierPerks = ['Member badge'];
@@ -225,6 +225,8 @@ function MembershipTier(props: Props) {
           ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
           : priceHigherThanMax
           ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
+          : !editTierParams.editTierPrice
+          ? __('A price is required.')
           : undefined}
       </ErrorBubble>
 
