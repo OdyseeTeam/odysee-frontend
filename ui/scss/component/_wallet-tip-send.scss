@@ -17,4 +17,15 @@
   .add-a-card-help-message {
     font-size: 16px;
   }
+
+  .confirm__wrapper {
+    padding-bottom: var(--spacing-s);
+
+    .confirm__value {
+      width: 100%;
+    }
+    .claim-preview__wrapper--channel {
+      width: 100% !important;
+    }
+  }
 }
