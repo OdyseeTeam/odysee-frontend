@@ -35,7 +35,6 @@ type Props = {
   claimWasPurchased: boolean,
   clearPosition: (uri: string) => void,
   commentsListTitle: string,
-  contentCommentsDisabled: boolean,
   costInfo: ?{ includesData: boolean, cost: number },
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doClearPlayingUri: () => void,
@@ -84,7 +83,6 @@ export default function FilePage(props: Props) {
     position,
     audioVideoDuration,
     commentsListTitle,
-    commentSettingDisabled,
     claimWasPurchased,
     location,
     isUriPlaying,
@@ -286,18 +284,16 @@ export default function FilePage(props: Props) {
               {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
 
               <React.Suspense fallback={null}>
-                {contentCommentsDisabled ? (
+                {commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : commentSettingDisabled ? (
-                  <Empty {...emptyMsgProps} text={__('This channel has disabled comments on their page.')} />
                 ) : isMobile && !isLandscapeRotated ? (
-                  <>
+                  <React.Fragment>
                     <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
                       <CommentsList {...commentsListProps} />
                     </SwipeableDrawer>
 
                     <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
-                  </>
+                  </React.Fragment>
                 ) : (
                   <CommentsList {...commentsListProps} notInDrawer />
                 )}
@@ -311,7 +307,7 @@ export default function FilePage(props: Props) {
 
       {!isMarkdown
         ? !theaterMode && <RightSideContent {...rightSideProps} />
-        : !contentCommentsDisabled && (
+        : !commentSettingDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
                 <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />

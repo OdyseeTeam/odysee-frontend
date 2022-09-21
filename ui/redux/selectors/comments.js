@@ -234,8 +234,7 @@ export const selectCommentsEnabledSettingForChannelId = (state: State, channelId
   const channelSettings = selectSettingsForChannelId(state, channelId);
   return channelSettings && channelSettings.comments_enabled;
 };
-export const selectCommentsDisabledSettingForChannelId = (state: State, channelId: ClaimId) =>
-  selectCommentsEnabledSettingForChannelId(state, channelId) === false;
+export const selectCommentsDisabledSettingForChannelId = (state: State, channelId: ClaimId) => true;
 
 export const selectCommentsForUri = createCachedSelector(
   (state, uri) => uri,
