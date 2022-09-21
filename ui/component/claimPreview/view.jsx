@@ -556,26 +556,28 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             </div>
             {type !== 'small' && (
               <div className="claim-preview__actions">
+                <div className="membersgip-button-wrapper">
+                  <JoinMembershipButton uri={uri} />
+                </div>
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}
                     {shouldHideActions || renderActions ? null : actions !== undefined ? (
                       actions
                     ) : (
-                      <div className="claim-preview__primary-actions">
-                        {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                          <>
-                            <div className="button-group">
-                              <JoinMembershipButton uri={uri} />
-                            </div>
-                            <SubscribeButton
-                              uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
-                            />
-                          </>
-                        )}
+                      <>
+                        <div className="claim-preview__primary-actions">
+                          {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                            <>
+                              <SubscribeButton
+                                uri={repostedChannelUri || (uri.startsWith('lbry://') ? uri : `lbry://${uri}`)}
+                              />
+                            </>
+                          )}
 
-                        {includeSupportAction && <ClaimSupportButton uri={uri} />}
-                      </div>
+                          {includeSupportAction && <ClaimSupportButton uri={uri} />}
+                        </div>
+                      </>
                     )}
                   </>
                 )}

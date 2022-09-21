@@ -13,6 +13,10 @@
       }
     }
 
+    .membersgip-button-wrapper {
+      margin: var(--spacing-s);
+    }
+
     @media (max-width: $breakpoint-small) {
       .card {
         .card__first-pane {
@@ -38,12 +42,34 @@
               a.button {
                 align-self: baseline;
               }
-              .claim-preview__primary-actions {
-                flex-direction: column-reverse;
-                align-items: end !important;
+              .claim-preview__text {
+                flex-direction: column;
+                overflow: visible;
+              }
+              .claim-preview__actions {
+                width: calc(100% + calc(2.5rem + var(--spacing-m)));
+                flex-direction: row;
+                margin-left: calc(-2.5rem + calc(var(--spacing-m) * -1));
 
-                .button--membership {
-                  margin-top: var(--spacing-xxxs);
+                .membersgip-button-wrapper {
+                  width: 50%;
+                  margin-top: var(--spacing-xxs);
+                  margin-bottom: var(--spacing-s);
+                  margin-right: var(--spacing-xxs);
+                  .button--membership {
+                    width: 100%;
+                  }
+                }
+                .claim-preview__primary-actions {
+                  width: 50%;
+                  .button-group {
+                    width: 100%;
+                    .button {
+                      &:first-of-type {
+                        width: 100%;
+                      }
+                    }
+                  }
                 }
               }
             }
