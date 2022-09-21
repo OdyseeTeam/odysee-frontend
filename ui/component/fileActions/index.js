@@ -8,6 +8,7 @@ import {
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
+  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doPrepareEdit } from 'redux/actions/publish';
@@ -42,6 +43,7 @@ const select = (state, props) => {
     isAPreorder: Boolean(selectPreorderTagForUri(state, props.uri)),
     isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
+    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
   };
 };
 

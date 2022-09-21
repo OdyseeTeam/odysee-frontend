@@ -41,6 +41,7 @@ type Props = {
   isAPreorder: boolean,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
+  isProtectedContent: boolean,
 };
 
 export default function FileActions(props: Props) {
@@ -64,6 +65,7 @@ export default function FileActions(props: Props) {
     isAPreorder,
     isPurchasableContent,
     isRentableContent,
+    isProtectedContent,
   } = props;
 
   const {
@@ -82,6 +84,8 @@ export default function FileActions(props: Props) {
   const webShareable = costInfo && costInfo.cost === 0 && RENDER_MODES.WEB_SHAREABLE_MODES.includes(renderMode);
   const urlParams = new URLSearchParams(search);
   const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
+
+  const unauthorizedToDownload = isPurchasableContent || isRentableContent || isProtectedContent;
 
   // We want to use the short form uri for editing
   // This is what the user is used to seeing, they don't care about the claim id
@@ -195,7 +199,7 @@ export default function FileActions(props: Props) {
               </>
             )}
 
-            {!isLivestreamClaim && !disableDownloadButton && !isMature && !isPurchasableContent && !isRentableContent && (
+            {!isLivestreamClaim && !disableDownloadButton && !isMature && !unauthorizedToDownload && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />
