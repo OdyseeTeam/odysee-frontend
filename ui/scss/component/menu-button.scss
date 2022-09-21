@@ -283,6 +283,9 @@ reach-portal {
       .notification__icon {
         margin-top: 0;
         margin-left: 0;
+        .icon__wrapper {
+          color: var(--color-text);
+        }
         .channel-thumbnail {
           margin-right: var(--spacing-s);
           width: 3rem;
@@ -397,6 +400,7 @@ reach-portal {
         background-color: rgba(var(--color-header-background-base), 1);
         .notification__icon {
           .icon__wrapper {
+            color: var(--color-text);
             background-color: var(--color-header-button);
           }
         }
