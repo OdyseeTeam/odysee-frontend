@@ -225,6 +225,8 @@ function MembershipTier(props: Props) {
           ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
           : priceHigherThanMax
           ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
+          : !editTierParams.editTierPrice
+          ? __('A price is required.')
           : undefined}
       </ErrorBubble>
 
