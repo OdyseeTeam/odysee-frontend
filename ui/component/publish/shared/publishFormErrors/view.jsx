@@ -46,7 +46,7 @@ function PublishFormErrors(props: Props) {
   return (
     <div className="error__text">
       {waitForFile && <div>{__('Choose a replay file, or select None')}</div>}
-      {restrictedToMemberships === undefined && (
+      {restrictedToMemberships === null && (
         <div>
           {__(
             "You selected to restrict this content but didn't choose any memberships, please choose a membership tier to restrict, or uncheck the restriction box"

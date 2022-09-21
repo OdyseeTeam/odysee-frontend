@@ -101,7 +101,7 @@ function PublishProtectedContent(props: Props) {
 
   function handleChangeRestriction() {
     // user is no longer restricting content
-    updatePublishForm({ restrictedToMemberships: isRestrictingContent ? null : undefined });
+    updatePublishForm({ restrictedToMemberships: isRestrictingContent ? undefined : null });
 
     setIsRestrictingContent(!isRestrictingContent);
   }
