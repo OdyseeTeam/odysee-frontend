@@ -56,7 +56,7 @@ function MembershipTier(props: Props) {
 
   const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
   const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > Number(MAX_PRICE) / 100;
-  const priceError = !editTierParams || priceLowerThanMin || priceHigherThanMax;
+  const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
 
   // custom emojis should be changed to channel member badge
   const permanentTierPerks = ['Member badge'];
