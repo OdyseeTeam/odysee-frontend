@@ -779,6 +779,10 @@
       display: inline-block;
       max-width: 100%;
       height: 2.6rem;
+
+      @media (max-width: $breakpoint-small) {
+        max-width: calc(100% - var(--spacing-xl));
+      }
     }
 
     .menu__button {
@@ -1371,7 +1375,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    button {
+    .button--primary {
       width: 100%;
     }
   }
