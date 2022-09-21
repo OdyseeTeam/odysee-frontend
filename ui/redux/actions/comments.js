@@ -58,96 +58,95 @@ export function doCommentList(
     const { claim_id: creatorClaimId, name: channelName } = creatorChannelClaim || {};
 
     let channelSignature = {};
+    let myChannelClaim;
     if (isProtected) {
       if (!myChannelClaims) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
       }
 
-      const myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
+      myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
       if (!myChannelClaim) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
 
-      if (isProtected) {
-        channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
-        if (!channelSignature) {
-          console.error('Failed to sign channel name.'); // eslint-disable-line
-          return;
-        }
+      channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+      if (!channelSignature) {
+        console.error('Failed to sign channel name.'); // eslint-disable-line
+        return;
       }
+    }
 
-      return Comments.comment_list({
-        page,
-        claim_id: claimId,
-        page_size: pageSize,
-        parent_id: parentId,
-        top_level: !parentId,
-        channel_id: creatorClaimId,
-        channel_name: channelName,
-        sort_by: sortBy,
-        ...(isProtected
-          ? {
-              is_protected: true, // in case undefined is passed
-              requestor_channel_id: requesterChannelId, // typo (requestor vs requester) is on backend atm
-              requestor_channel_name: myChannelClaim.name,
-              signature: channelSignature.signature,
-              signing_ts: channelSignature.signing_ts,
-            }
-          : {}),
+    return Comments.comment_list({
+      page,
+      claim_id: claimId,
+      page_size: pageSize,
+      parent_id: parentId,
+      top_level: !parentId,
+      channel_id: creatorClaimId,
+      channel_name: channelName,
+      sort_by: sortBy,
+      ...(isProtected
+        ? {
+            is_protected: true, // in case undefined is passed
+            requestor_channel_id: requesterChannelId, // typo (requestor vs requester) is on backend atm
+            requestor_channel_name: myChannelClaim?.name,
+            signature: channelSignature.signature,
+            signing_ts: channelSignature.signing_ts,
+          }
+        : {}),
+    })
+      .then((result: CommentListResponse) => {
+        const { items: comments, total_items, total_filtered_items, total_pages } = result;
+
+        const returnResult = () => {
+          dispatch({
+            type: ACTIONS.COMMENT_LIST_COMPLETED,
+            data: {
+              comments,
+              parentId,
+              totalItems: total_items,
+              totalFilteredItems: total_filtered_items,
+              totalPages: total_pages,
+              claimId,
+              creatorClaimId,
+              uri,
+            },
+          });
+          return result;
+        };
+
+        // Batch resolve comment authors
+        const commentChannelIds = comments && comments.map((comment) => comment.channel_id || '');
+        if (commentChannelIds && !isLivestream) {
+          return dispatch(doResolveClaimIds(commentChannelIds)).finally(() => returnResult());
+        }
+
+        return returnResult();
       })
-        .then((result: CommentListResponse) => {
-          const { items: comments, total_items, total_filtered_items, total_pages } = result;
+      .catch((error) => {
+        const { message } = error;
 
-          const returnResult = () => {
-            dispatch({
+        switch (message) {
+          case 'comments are disabled by the creator':
+            return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { creatorClaimId, disabled: true } });
+          case 'channel does not have permissions to comment on this claim':
+            return dispatch({
               type: ACTIONS.COMMENT_LIST_COMPLETED,
               data: {
-                comments,
-                parentId,
-                totalItems: total_items,
-                totalFilteredItems: total_filtered_items,
-                totalPages: total_pages,
-                claimId,
                 creatorClaimId,
-                uri,
+                disabled: true,
+                restrictedToMembersOnly: true,
+                claimId,
               },
             });
-            return result;
-          };
-
-          // Batch resolve comment authors
-          const commentChannelIds = comments && comments.map((comment) => comment.channel_id || '');
-          if (commentChannelIds && !isLivestream) {
-            return dispatch(doResolveClaimIds(commentChannelIds)).finally(() => returnResult());
-          }
-
-          return returnResult();
-        })
-        .catch((error) => {
-          const { message } = error;
-
-          switch (message) {
-            case 'comments are disabled by the creator':
-              return dispatch({ type: ACTIONS.COMMENT_LIST_COMPLETED, data: { creatorClaimId, disabled: true } });
-            case 'channel does not have permissions to comment on this claim':
-              return dispatch({
-                type: ACTIONS.COMMENT_LIST_COMPLETED,
-                data: {
-                  creatorClaimId,
-                  disabled: true,
-                  restrictedToMembersOnly: true,
-                  claimId,
-                },
-              });
-            case FETCH_API_FAILED_TO_FETCH:
-              dispatch(doToast({ isError: true, message: __('Failed to fetch comments.') }));
-              return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
-            default:
-              dispatch(doToast({ isError: true, message: `${message}` }));
-              dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
-          }
-        });
-    }
+          case FETCH_API_FAILED_TO_FETCH:
+            dispatch(doToast({ isError: true, message: __('Failed to fetch comments.') }));
+            return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
+          default:
+            dispatch(doToast({ isError: true, message: `${message}` }));
+            dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: error });
+        }
+      });
   };
 }
 
