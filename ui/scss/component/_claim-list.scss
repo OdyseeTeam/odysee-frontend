@@ -1196,6 +1196,14 @@
     .button {
       margin-top: var(--spacing-m);
     }
+
+    @media (max-width: $breakpoint-small) {
+      width: 94%;
+      height: 90%;
+      span {
+        text-align: center;
+      }
+    }
   }
 }
 
