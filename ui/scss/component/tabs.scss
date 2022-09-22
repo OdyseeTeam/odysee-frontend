@@ -18,7 +18,7 @@
   }
 
   .tab {
-    flex: auto;
+    flex: inherit;
     white-space: nowrap;
     &:hover {
       color: var(--color-link);
