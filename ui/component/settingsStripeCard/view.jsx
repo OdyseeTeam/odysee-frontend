@@ -59,6 +59,7 @@ const SettingsStripeCard = (props: Props) => {
   const cardElement = React.useRef();
 
   const stripe = useStripe();
+  const stripeScriptLoaded = stripe !== null;
 
   const [cardNameValue, setCardNameValue] = React.useState('');
   const [isLoading, setLoading] = React.useState(false);
@@ -75,6 +76,8 @@ const SettingsStripeCard = (props: Props) => {
       setFormError(__('There was an error in generating your payment method. Please contact a developer'));
       return;
     }
+
+    if (!stripe) return;
 
     stripe
       .confirmCardSetup(clientSecret, {
@@ -133,7 +136,7 @@ const SettingsStripeCard = (props: Props) => {
     }
   }
 
-  if (cardDetails) {
+  if (stripeScriptLoaded && cardDetails) {
     return (
       <div className="successCard">
         {/* back to membership button */}
@@ -212,7 +215,7 @@ const SettingsStripeCard = (props: Props) => {
     );
   }
 
-  if (cardDetails === null) {
+  if (stripeScriptLoaded && cardDetails === null) {
     return (
       <Form className="stripe-card__form" onSubmit={handleSubmit}>
         <FormField
@@ -253,7 +256,7 @@ const SettingsStripeCard = (props: Props) => {
 
   return (
     <div className="main--empty">
-      {customerStatusFetching && <Spinner text={__('Getting your card connection status...')} />}
+      <Spinner text={customerStatusFetching ? __('Getting your card connection status...') : undefined} />
     </div>
   );
 };
