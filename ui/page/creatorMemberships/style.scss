@@ -1,5 +1,10 @@
 @import '~ui/scss/init/breakpoints';
 
+// H1 is temporary for test
+h1 {
+  font-size: var(--font-title);
+}
+
 .bank-account-status {
   margin-top: var(--spacing-s);
   padding: var(--spacing-s);
@@ -78,25 +83,6 @@
       }
     }
 
-    .ugly-alien-box {
-      position: absolute;
-      bottom: var(--spacing-s);
-      width: 100%;
-      background-color: unset;
-
-      a {
-        color: var(--color-primary);
-      }
-
-      img {
-        width: 46px;
-        height: 46px;
-        background-color: #650f7c;
-        border-radius: 50%;
-        margin-left: var(--spacing-s);
-      }
-    }
-
     &.supporter {
       background-color: rgba(0, 208, 217, 0.2);
     }
@@ -117,6 +103,58 @@
     img {
       border-radius: var(--border-radius) var(--border-radius) 0 0;
       width: 100%;
+    }
+  }
+}
+
+.membership-wrapper-b {
+  background-size: 120%;
+  margin-bottom: var(--spacing-l);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+
+  .membership-content {
+    text-align: center;
+    padding: 2% 26%;
+
+    div:first-of-type {
+      background: var(--color-header-background);
+      border-radius: 50px;
+      padding: var(--spacing-m);
+
+      h2 {
+        font-size: var(--font-title);
+        font-weight: var(--font-bold);
+        margin-bottom: var(--spacing-s);
+
+        &:after {
+          content: '';
+          display: block;
+          margin-left: 10%;
+          width: 80%;
+          height: 2px;
+          background: var(--color-primary);
+          color: #b83b3b;
+          text-shadow: #b83b3b 0 0 5px;
+          margin: 0 10px;
+        }
+      }
+    }
+  }
+
+  &.supporter {
+    background-image: url('/public/img/my_pledges.jpg');
+    background-position: 20% -90px;
+    .membership-content {
+      background-color: rgba(0, 208, 217, 0.3);
+    }
+  }
+
+  &.memberships {
+    background-image: url('/public/img/my_channels.jpg');
+    background-position: 60% -50px;
+    .membership-content {
+      background-color: rgba(230, 25, 112, 0.2);
     }
   }
 }

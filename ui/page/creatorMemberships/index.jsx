@@ -20,6 +20,28 @@ const MembershipsLandingPage = () => (
       </h1>
     </div>
 
+    <h1>Version A</h1>
+    <div className="membership-wrapper-b supporter">
+      <div className="membership-content">
+        <div>
+          <h2>{__('Donor Portal')}</h2>
+          <p className="portal-tagline">{__('Find creators you like and support them')}</p>
+          <Button button="primary" navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} label={__('Enter Donor Portal')} />
+        </div>
+      </div>
+    </div>
+
+    <div className="membership-wrapper-b memberships">
+      <div className="membership-content">
+        <div>
+          <h2>{__('Membership Portal')}</h2>
+          <p className="portal-tagline">{__('Create memberships and have users subscribe to them to support you.')}</p>
+          <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
+        </div>
+      </div>
+    </div>
+
+    <h1>Version B</h1>
     <div className="membership-wrapper">
       <img src="/public/img/my_pledges.jpg" />
 
