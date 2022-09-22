@@ -56,12 +56,17 @@ const PreviewPage = (props: Props) => {
 
   const creatorHasMemberships = creatorMemberships && creatorMemberships.length > 0;
   const creatorPurchaseDisabled = channelIsMine || canReceiveFiatTips === false;
+  const [selectedMembershipName, setSelectedMembershipName] = React.useState('');
 
   React.useEffect(() => {
     if (canReceiveFiatTips === undefined) {
       doTipAccountCheckForUri(uri);
     }
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
+
+  React.useEffect(() => {
+    setSelectedMembershipName(creatorMemberships[selectedMembershipIndex].Membership.name);
+  }, [selectedMembershipIndex]);
 
   if (!creatorHasMemberships) {
     // -- On a channel that is mine, the button uses the channel id to set it as active
@@ -185,6 +190,8 @@ const PreviewPage = (props: Props) => {
           />
         ))}
       </div>
+
+      <div className="selected-membership">{selectedMembershipName}</div>
       <div className="join-membership__modal-content">
         <MembershipDetails membership={selectedTier} protectedMembershipIds={protectedMembershipIds} />
       </div>

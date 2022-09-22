@@ -154,10 +154,18 @@
 .modal--card-internal {
   .card--join-membership {
     .join-membership__modal-tabs {
+      &:hover {
+        button.button-toggle {
+          opacity: 1;
+        }
+      }
+
       button.button-toggle {
+        opacity: 0.6;
         margin-right: var(--spacing-xxxs);
         margin-bottom: var(--spacing-xxxs);
         border-radius: var(--border-radius);
+        transition: opacity 0.2s;
         .button__label {
           color: rgba(var(--color-text-base), 0.7) !important;
         }
@@ -205,6 +213,7 @@
             }
           }
         }
+
         &:nth-of-type(1) {
           background-color: rgba(var(--color-membership-1), 0.2) !important;
           border: 2px solid rgba(var(--color-membership-1), 0.6) !important;
@@ -249,6 +258,7 @@
         }
       }
       button.button-toggle--active {
+        opacity: 1;
         .button__label {
           color: white !important;
         }
@@ -274,6 +284,9 @@
     }
 
     &.membership-tier1 {
+      .dot {
+        background-color: rgba(var(--color-membership-1), 1);
+      }
       *::selection {
         background: rgba(var(--color-membership-1), 1) !important;
       }
@@ -296,6 +309,9 @@
       }
     }
     &.membership-tier2 {
+      .dot {
+        background-color: rgba(var(--color-membership-2), 1);
+      }
       *::selection {
         background: rgba(var(--color-membership-2), 1) !important;
       }
@@ -318,6 +334,9 @@
       }
     }
     &.membership-tier3 {
+      .dot {
+        background-color: rgba(var(--color-membership-3), 1);
+      }
       *::selection {
         background: rgba(var(--color-membership-3), 1) !important;
       }
@@ -340,6 +359,9 @@
       }
     }
     &.membership-tier4 {
+      .dot {
+        background-color: rgba(var(--color-membership-4), 1);
+      }
       *::selection {
         background: rgba(var(--color-membership-4), 1) !important;
       }
@@ -362,6 +384,9 @@
       }
     }
     &.membership-tier5 {
+      .dot {
+        background-color: rgba(var(--color-membership-5), 1);
+      }
       *::selection {
         background: rgba(var(--color-membership-5), 1) !important;
       }
@@ -384,6 +409,9 @@
       }
     }
     &.membership-tier6 {
+      .dot {
+        background-color: rgba(var(--color-membership-6), 1);
+      }
       *::selection {
         background: rgba(var(--color-membership-6), 1) !important;
       }
@@ -480,6 +508,7 @@
 
     @media (max-width: $breakpoint-xxsmall) {
       height: 138px;
+      margin-bottom: var(--spacing-s);
       .channel-thumbnail {
         margin-top: 0;
         margin-right: var(--spacing-s);
