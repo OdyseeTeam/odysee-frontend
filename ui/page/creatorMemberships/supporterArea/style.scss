@@ -72,17 +72,17 @@
   position: relative;
   width: 100%;
   background-size: cover;
-  background-position: top -140px left 0px;
+  background-position: top -150px left 0px;
   background-image: url('/public/img/my_pledges.jpg');
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   margin-bottom: 0;
   overflow: hidden;
-  height: 96px;
+  height: 146px;
 
   div {
     position: absolute;
     height: 400px;
-    left: -110px;
+    left: -130px;
     top: -210px;
     width: 40%;
     background-color: rgba(0, 208, 217, 0.6);
@@ -93,7 +93,7 @@
     background-color: var(--color-header-background);
     padding: var(--spacing-m);
     border-radius: var(--border-radius);
-    top: var(--spacing-m);
+    bottom: var(--spacing-m);
     left: var(--spacing-m);
     padding: var(--spacing-m);
     font-size: var(--font-large);
