@@ -717,6 +717,7 @@ export const makeSelectMyChannelPermUrlForName = (name: string) =>
     return matchingClaim ? matchingClaim.permanent_url : null;
   });
 
+// CAUTION: this is purely meant for the GUI now, as it filters out INTERNAL_TAGS.
 export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return metadata && metadata.tags ? metadata.tags.filter((tag) => !INTERNAL_TAGS.includes(tag)) : [];
 })((state, uri) => String(uri));
