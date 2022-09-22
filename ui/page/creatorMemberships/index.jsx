@@ -20,12 +20,11 @@ const MembershipsLandingPage = () => (
       </h1>
     </div>
 
-    <h1>Version A</h1>
     <div className="membership-wrapper-b supporter">
       <div className="membership-content">
         <div>
           <h2>{__('Donor Portal')}</h2>
-          <p className="portal-tagline">{__('Find creators you like and support them')}</p>
+          <p className="portal-tagline">{__('Find creators you like and support them.')}</p>
           <Button button="primary" navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} label={__('Enter Donor Portal')} />
         </div>
       </div>
@@ -67,7 +66,7 @@ const MembershipsLandingPage = () => (
         <div className="separator">
           <div />
         </div>
-        <p className="portal-tagline">{__('Find creators you like and support them')}</p>
+        <p className="portal-tagline">{__('Find creators you like and support them.')}</p>
         <Button button="primary" navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} label={__('Enter Donor Portal')} />
       </div>
     </div>

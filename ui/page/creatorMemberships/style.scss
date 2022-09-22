@@ -191,6 +191,14 @@ h1 {
       }
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    background-size: cover !important;
+    background-position: unset !important;
+    .membership-content {
+      padding: var(--spacing-s);
+    }
+  }
 }
 
 .portal-tagline {
