@@ -1130,6 +1130,8 @@
 
 .membership-table__wrapper {
   .channelThumbnail {
+    padding-right: 0 !important;
+    width: 50px;
     .channel-thumbnail__custom {
       height: 100%;
     }
@@ -1154,9 +1156,6 @@
     }
   }
 
-  .channelThumbnail {
-    padding-right: 0 !important;
-  }
   .channel-thumbnail {
     display: inline-block;
     margin-right: 0;

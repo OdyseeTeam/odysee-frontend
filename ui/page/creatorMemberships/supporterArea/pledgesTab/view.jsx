@@ -95,7 +95,7 @@ function PledgesTab(props: Props) {
                   <th>Time Total</th>
                   <th>Amount</th>
                   <th>Status</th>
-                  <th>Page</th>
+                  <th className="membership-table__page">Page</th>
                 </tr>
               </thead>
               <tbody>
