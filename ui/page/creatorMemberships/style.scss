@@ -134,17 +134,22 @@ h1 {
           width: 80%;
           height: 2px;
           background: var(--color-primary);
-          color: #b83b3b;
-          text-shadow: #b83b3b 0 0 5px;
+          color: var(--color-primary);
           margin: 0 10px;
+          transition: width 0.2s, margin-left 0.2s;
         }
       }
     }
   }
 
+  .membership-content {
+    transition: background-color 0.4s;
+  }
+
   &.supporter {
     background-image: url('/public/img/my_pledges.jpg');
     background-position: 20% -90px;
+    transition: background-position 0.4s;
     .membership-content {
       background-color: rgba(0, 208, 217, 0.3);
     }
@@ -153,8 +158,37 @@ h1 {
   &.memberships {
     background-image: url('/public/img/my_channels.jpg');
     background-position: 60% -50px;
+    transition: background-position 0.4s;
     .membership-content {
-      background-color: rgba(230, 25, 112, 0.2);
+      background-color: rgba(230, 25, 112, 0.3);
+    }
+  }
+
+  &:hover {
+    // cursor:pointer;
+    h2 {
+      font-size: var(--font-title);
+      font-weight: var(--font-bold);
+      margin-bottom: var(--spacing-s);
+
+      &:after {
+        margin-left: 5% !important;
+        width: 90% !important;
+      }
+    }
+
+    &.supporter {
+      background-position: 22% -91px;
+      .membership-content {
+        background-color: rgba(0, 208, 217, 0.5);
+      }
+    }
+
+    &.memberships {
+      background-position: 58% -51px;
+      .membership-content {
+        background-color: rgba(230, 25, 112, 0.5);
+      }
     }
   }
 }

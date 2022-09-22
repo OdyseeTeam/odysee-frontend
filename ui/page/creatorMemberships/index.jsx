@@ -40,7 +40,24 @@ const MembershipsLandingPage = () => (
         </div>
       </div>
     </div>
+    <HelpHub
+      href="https://help.odysee.tv/category-memberships/"
+      image="lady_fungus.png"
+      text="What are Memberships? Lady Fungus can explain it in the %help_hub%."
+    />
 
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
+    <br />
     <h1>Version B</h1>
     <div className="membership-wrapper">
       <img src="/public/img/my_pledges.jpg" />
