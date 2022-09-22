@@ -2,7 +2,8 @@
 import React from 'react';
 
 import * as PAGES from 'constants/pages';
-
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import Button from 'component/button';
 import Page from 'component/page';
 import HelpHub from 'component/common/help-hub';
@@ -13,8 +14,10 @@ import './style.scss';
 const MembershipsLandingPage = () => (
   <Page className="premium-wrapper">
     <div>
-      <h1 className="creator-memberships-header">{__('Creator Memberships')}</h1>
-      <hr className="creator-memberships-seperator" />
+      <h1 className="membership-wrapper-title">
+        <Icon icon={ICONS.MEMBERSHIP} size={10} />
+        <label>{__('Creator Memberships')}</label>
+      </h1>
     </div>
 
     <div className="membership-wrapper">
@@ -39,29 +42,11 @@ const MembershipsLandingPage = () => (
           <div />
         </div>
 
-          <p className="portal-tagline">
-            <BalanceText>
-              {__('Create memberships and have users subscribe to them to support you.')}
-          </BalanceText>
-          </p>
+        <p className="portal-tagline">
+          <BalanceText>{__('Create memberships and have users subscribe to them to support you.')}</BalanceText>
+        </p>
 
         <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
-        {/*
-        <div className="ugly-alien-box">
-          <I18nMessage
-            tokens={{
-              help_hub: (
-                <a rel="noopener noreferrer" href="https://help.odysee.tv/category-memberships/" target="_blank">
-                  {__('Help Hub')}
-                </a>
-              ),
-            }}
-          >
-            Click here to read more information in the %help_hub%.
-          </I18nMessage>
-          <img src="/public/img/lady_fungus.png" />
-        </div>
-        */}
       </div>
     </div>
     <HelpHub
