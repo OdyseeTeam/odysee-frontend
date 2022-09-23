@@ -290,7 +290,10 @@
       .claim-tile__info {
         display: unset !important;
         .media__subtitle {
-          margin-bottom: -3px !important;
+          margin-top: 1px !important;
+          .claim-preview__channel-sub-count {
+            margin-top: 2px !important;
+          }
         }
       }
     }
@@ -326,6 +329,13 @@
           }
           .view_count {
             font-size: var(--font-xsmall);
+          }
+          .claim-extra-info {
+            display: block;
+            width: 100%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            overflow: hidden;
           }
         }
       }
