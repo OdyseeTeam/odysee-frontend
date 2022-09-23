@@ -516,13 +516,20 @@ img {
 
 .confirm__label {
   @extend label;
+  font-size: var(--font-base);
+  font-weight: var(--font-weight-bold);
 }
 
 .confirm__value {
   display: flex;
   align-items: center;
   margin-bottom: var(--spacing-m);
-  font-size: var(--font-large);
+  font-size: var(--font-base);
+  opacity: 0.8;
+
+  .claim-preview__wrapper--channel {
+    width: 100%;
+  }
 
   &:last-child {
     margin-bottom: 0;
@@ -716,7 +723,10 @@ img {
 .followManage-wrapper {
   @extend .discoverPage-wrapper;
   .claim-list {
-    margin-top: var(--spacing-m);
+    // margin-top: var(--spacing-m);
+  }
+  .wunderbar--inline {
+    margin-bottom: var(--spacing-m);
   }
 }
 
@@ -727,6 +737,18 @@ img {
   -webkit-column-gap: var(--spacing-m);
   column-count: 2;
   column-gap: var(--spacing-m);
+
+  .navigation-link__wrapper {
+    .button {
+      padding-left: 0;
+      background-color: rgba(var(--color-header-background-base), 0.6);
+      margin-bottom: var(--spacing-s);
+      border-radius: var(--border-radius);
+      &:hover {
+        background-color: rgba(var(--color-header-background-base), 0.8);
+      }
+    }
+  }
 
   .claim-preview__title {
     height: 20px;

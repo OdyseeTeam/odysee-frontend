@@ -19,6 +19,7 @@
   "Home": "Home",
   "Library": "Library",
   "Purchased": "Purchased",
+  "Categories": "Categories",
   "Following": "Following",
   "Following --[sidebar button]--": "Following",
   "Following --[button label indicating a channel has been followed]--": "Following",
@@ -2218,6 +2219,7 @@
   "Scheduled streams hidden, you can re-enable them in settings.": "Scheduled streams hidden, you can re-enable them in settings.",
   "Customize Homepage": "Customize Homepage",
   "Customize --[Short label for \"Customize Homepage\"]--": "Customize",
+  "Also apply to sidebar": "Also apply to sidebar",
   "This is currently an early-access feature for Premium members.": "This is currently an early-access feature for Premium members.",
   "Sort and customize your homepage": "Sort and customize your homepage",
   "Clean as a whistle! --[title for empty homepage]--": "Clean as a whistle!",
@@ -2464,5 +2466,9 @@
   "Hand signals": "Hand signals",
   "Smilies": "Smilies",
   "Symbols": "Symbols",
+  "There are pending actions.": "There are pending actions.",
+  "Do you want to proceed with signing out?": "Do you want to proceed with signing out?",
+  "Multiple tags can be added by separating them with a comma.\nExample: sports,news,tv": "Multiple tags can be added by separating them with a comma.\nExample: sports,news,tv",
+  "Search tags": "Search tags",
   "--end--": "--end--"
 }

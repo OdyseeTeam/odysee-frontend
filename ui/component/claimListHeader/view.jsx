@@ -1,4 +1,6 @@
 // @flow
+import './style.scss';
+import AdditionalFilters from './internal/additionalFilters';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
@@ -7,6 +9,7 @@ import classnames from 'classnames';
 import React from 'react';
 import usePersistedState from 'effects/use-persisted-state';
 import usePersistentUserParam from 'effects/use-persistent-user-param';
+import { useIsLargeScreen } from 'effects/use-screensize';
 import { useHistory } from 'react-router';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
@@ -27,17 +30,18 @@ type Props = {
   orderBy?: Array<string>,
   defaultOrderBy?: string,
   hideAdvancedFilter: boolean,
+  hideFilters: boolean,
   hideLayoutButton: boolean,
   hasMatureTags: boolean,
   hiddenNsfwMessage?: Node,
   channelIds?: Array<string>,
   tileLayout: boolean,
-  doSetClientSetting: (string, boolean, ?boolean) => void,
+  scrollAnchor?: string,
   setPage: (number) => void,
-  hideFilters: boolean,
+  // --- redux ---
+  doSetClientSetting: (string, boolean, ?boolean) => void,
   searchInLanguage: boolean,
   languageSetting: string,
-  scrollAnchor?: string,
 };
 
 function ClaimListHeader(props: Props) {
@@ -65,7 +69,9 @@ function ClaimListHeader(props: Props) {
     languageSetting,
     scrollAnchor,
   } = props;
+
   const filterCtx = React.useContext(ClaimSearchFilterContext);
+  const isLargeScreen = useIsLargeScreen();
   const { push, location } = useHistory();
   const { search } = location;
   const [expanded, setExpanded] = usePersistedState(`expanded-${location.pathname}`, false);
@@ -89,16 +95,25 @@ function ClaimListHeader(props: Props) {
     []
   );
 
+  const [tagSearchExpanded, setTagSearchExpanded] = React.useState(isLargeScreen);
+  const [tagSearchQuery, setTagSearchQuery] = React.useState(urlParams.get(CS.TAGS_KEY) || '');
+  const handleChangeDebounced = React.useCallback(
+    debounce((v) => handleChange({ key: CS.TAGS_KEY, value: v }), 500),
+    []
+  );
+
   const isFiltered = () =>
     Boolean(
       urlParams.get(CS.FRESH_KEY) ||
         urlParams.get(CS.CONTENT_KEY) ||
         urlParams.get(CS.DURATION_KEY) ||
-        urlParams.get(CS.TAGS_KEY) ||
         urlParams.get(CS.FEE_AMOUNT_KEY) ||
         urlParams.get(CS.LANGUAGE_KEY) ||
         filterCtx?.repost?.hideReposts
     );
+
+  // Pulled out of the collapsible group.
+  const isTagFiltered = urlParams.get(CS.TAGS_KEY);
 
   const languageValue = searchInLanguage
     ? languageParam === null
@@ -117,27 +132,6 @@ function ClaimListHeader(props: Props) {
     'orderUser',
     CS.ORDER_BY_TRENDING
   );
-
-  function getHideRepostsElem(filterCtx, contentType) {
-    if (filterCtx?.repost) {
-      return (
-        <div className={classnames(`card claim-search__menus`)}>
-          <FormField
-            label={__('Hide reposts')}
-            name="hide_reposts"
-            type="checkbox"
-            checked={filterCtx.repost.hideReposts}
-            disabled={contentType === CS.CLAIM_REPOST}
-            onChange={() => {
-              filterCtx.repost.setHideReposts((prev) => !prev);
-            }}
-          />
-        </div>
-      );
-    } else {
-      return null;
-    }
-  }
 
   React.useEffect(() => {
     if (hideAdvancedFilter) {
@@ -240,7 +234,7 @@ function ClaimListHeader(props: Props) {
 
   return (
     <>
-      <div className="claim-search__wrapper">
+      <div className="claim-search__wrapper clh__wrapper">
         <div className="claim-search__top">
           {!hideFilters && (
             <div className="claim-search__menu-group">
@@ -290,11 +284,53 @@ function ClaimListHeader(props: Props) {
                 icon={ICONS.LAYOUT}
               />
             )}
+
+            <div
+              className="clh-tag-search"
+              title={__('Multiple tags can be added by separating them with a comma.\nExample: sports,news,tv')}
+            >
+              <Button
+                icon={ICONS.TAG}
+                button="alt"
+                className={classnames('button-toggle', {
+                  'button-toggle--active': tagSearchExpanded,
+                  'button-toggle--custom': isTagFiltered,
+                })}
+                aria-label={__('Search tags')}
+                onClick={() => setTagSearchExpanded((prev) => !prev)}
+              />
+              <FormField
+                placeholder={__('Search tags')}
+                type="text"
+                className={classnames('clh-tag-search__input', {
+                  'clh-tag-search__input--hidden': !tagSearchExpanded,
+                })}
+                name="tag_query"
+                value={tagSearchQuery}
+                onChange={(e) => {
+                  setTagSearchQuery(e.target.value);
+                  handleChangeDebounced(e.target.value);
+                }}
+              />
+              <Button
+                icon={ICONS.REMOVE}
+                aria-label={__('Clear')}
+                button="alt"
+                className={classnames('clh-tag-search__clear', {
+                  'clh-tag-search__clear--hidden': !tagSearchExpanded || !tagSearchQuery,
+                })}
+                onClick={() => {
+                  setTagSearchQuery('');
+                  setTagSearchExpanded(false);
+                  handleChange({ key: CS.TAGS_KEY, value: '' });
+                }}
+              />
+            </div>
           </div>
         </div>
         {expanded && (
           <>
-            <div className={classnames(`card claim-search__menus`)}>
+            <div className={classnames('claim-search__menus')}>
               {/* FRESHNESS FIELD */}
               {orderParam === CS.ORDER_BY_TOP && (
                 <div className="claim-search__input-container">
@@ -479,7 +515,7 @@ function ClaimListHeader(props: Props) {
 
             {/* DURATIONS FIELD */}
             {showDuration && (
-              <div className={classnames(`card claim-search__menus`)}>
+              <div className={classnames('claim-search__menus duration')}>
                 <div className={'claim-search__input-container'}>
                   <FormField
                     className={classnames('claim-search__dropdown', {
@@ -532,7 +568,7 @@ function ClaimListHeader(props: Props) {
               </div>
             )}
 
-            {getHideRepostsElem(filterCtx, contentTypeParam)}
+            <AdditionalFilters filterCtx={filterCtx} contentType={contentTypeParam} />
           </>
         )}
       </div>

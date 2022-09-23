@@ -24,10 +24,26 @@ type Props = {
 
 class ModalConfirmTransaction extends React.PureComponent<Props> {
   onConfirmed() {
-    const { closeModal, sendToAddress, sendTip, amount, destination, isAddress, claim, setConfirmed } = this.props;
+    const {
+      closeModal,
+      sendToAddress,
+      sendTip,
+      amount,
+      destination,
+      isAddress,
+      claim,
+      activeChannelClaim,
+      incognito,
+      setConfirmed,
+    } = this.props;
+
     if (!isAddress) {
       const claimId = claim && claim.claim_id;
-      const tipParams: TipParams = { amount: amount, claim_id: claimId };
+      const tipParams: TipParams = {
+        amount: amount,
+        claim_id: claimId,
+        channel_id: (!incognito && activeChannelClaim && activeChannelClaim.claim_id) || undefined,
+      };
       sendTip(tipParams, false);
     } else {
       sendToAddress(destination, amount);
@@ -46,7 +62,7 @@ class ModalConfirmTransaction extends React.PureComponent<Props> {
           <Card
             title={title}
             body={
-              <div className="section section--padded card--inline confirm__wrapper">
+              <div className="section card--inline confirm__wrapper">
                 <div className="section">
                   <div className="confirm__label">{__('Sending')}</div>
                   <div className="confirm__value">{<LbcSymbol postfix={amount} size={22} />}</div>

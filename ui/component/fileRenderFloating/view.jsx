@@ -372,12 +372,30 @@ export default function FileRenderFloating(props: Props) {
   // RENDER
   // ****************************************************************************
 
-  function handleDragStart() {
+  function isDraggingVideojsComponent(e) {
+    const className = e?.target?.className;
+    return (
+      typeof className === 'string' &&
+      (className.includes('vjs-volume-control') ||
+        className.includes('vjs-volume-level') ||
+        className.includes('vjs-mouse-display'))
+    );
+  }
+
+  function handleDragStart(e) {
+    if (isDraggingVideojsComponent(e)) {
+      return false;
+    }
+
     // Not really necessary, but reset just in case 'handleStop' didn't fire.
     setWasDragging(false);
   }
 
   function handleDragMove(e, ui) {
+    if (isDraggingVideojsComponent(e)) {
+      return false;
+    }
+
     const { x, y } = position;
     const newX = ui.x;
     const newY = ui.y;
@@ -389,6 +407,10 @@ export default function FileRenderFloating(props: Props) {
   }
 
   function handleDragStop(e, ui) {
+    if (isDraggingVideojsComponent(e)) {
+      return false;
+    }
+
     if (wasDragging) setWasDragging(false);
     const { x, y } = ui;
     let newPos = { x, y };
