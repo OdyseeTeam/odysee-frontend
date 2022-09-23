@@ -500,18 +500,22 @@ const OdyseeMembershipPage = (props: Props) => {
               <div>
                 <br />
                 <h2 className={'getPaymentCard'}>
-                  {__('Please save a card as a payment method so you can join Odysee Premium')}
+                {!window.odysee.build.googlePlay
+                    ? __('Please save a card as a payment method so you can join Odysee Premium.')
+                    : __('Please visit Odysee.com on your PC to add a payment method so you can join Odysee Premium.')}
                 </h2>
 
-                <Button
-                  requiresAuth
-                  button="primary"
-                  label={__('Add a Card')}
-                  icon={ICONS.SETTINGS}
-                  onClick={() => openModal(MODALS.ADD_CARD)}
-                  className="membership_button"
-                  style={{ maxWidth: '151px' }}
-                />
+                {!window.odysee.build.googlePlay && (
+                  <Button
+                    requiresAuth
+                    button="primary"
+                    label={__('Add a Card')}
+                    icon={ICONS.SETTINGS}
+                    onClick={() => openModal(MODALS.ADD_CARD)}
+                    className="membership_button"
+                    style={{ maxWidth: '151px' }}
+                  />
+                )}                
               </div>
             )}
 
@@ -686,8 +690,8 @@ const OdyseeMembershipPage = (props: Props) => {
                 <br />
                 <h2 className={'getPaymentCard'}>
                   {!window.odysee.build.googlePlay
-                    ? __('Please save a card as a payment method so you can join Odysee Premium')
-                    : __('Please visit Odysee.com on your PC to add a payment method so you can join Odysee Premium')}
+                    ? __('Please save a card as a payment method so you can join Odysee Premium.')
+                    : __('Please visit Odysee.com on your PC to add a payment method so you can join Odysee Premium.')}
                 </h2>
 
                 {!window.odysee.build.googlePlay && (
