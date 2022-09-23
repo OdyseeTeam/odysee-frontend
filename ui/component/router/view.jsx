@@ -146,10 +146,11 @@ type Props = {
     listen: (any) => () => void,
   },
   uri: string,
+  hasClaim: ?boolean,
   title: string,
   hasNavigated: boolean,
   setHasNavigated: () => void,
-  setReferrer: (?string) => void,
+  doUserSetReferrer: (referrerUri: string) => void,
   hasUnclaimedRefereeReward: boolean,
   homepageData: any,
   wildWestDisabled: boolean,
@@ -157,7 +158,6 @@ type Props = {
   hideTitleNotificationCount: boolean,
   hasDefaultChannel: boolean,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
-  embedLatestPath: ?boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -190,18 +190,18 @@ function AppRouter(props: Props) {
     isAuthenticated,
     history,
     uri,
+    hasClaim,
     title,
     hasNavigated,
     setHasNavigated,
     hasUnclaimedRefereeReward,
-    setReferrer,
+    doUserSetReferrer,
     homepageData,
     wildWestDisabled,
     unseenCount,
     hideTitleNotificationCount,
     hasDefaultChannel,
     doSetActiveChannel,
-    embedLatestPath,
   } = props;
 
   const defaultChannelRef = React.useRef(hasDefaultChannel);
@@ -239,14 +239,14 @@ function AppRouter(props: Props) {
   }, [listen, hasNavigated, setHasNavigated]);
 
   useEffect(() => {
-    if (!hasNavigated && hasUnclaimedRefereeReward && !isAuthenticated) {
+    if (!hasNavigated && hasUnclaimedRefereeReward && isAuthenticated === false && hasClaim) {
       const valid = isURIValid(uri);
       if (valid) {
         const { path } = parseURI(uri);
-        if (path !== 'undefined') setReferrer(path);
+        if (typeof path === 'string') doUserSetReferrer(path);
       }
     }
-  }, [hasNavigated, uri, hasUnclaimedRefereeReward, setReferrer, isAuthenticated]);
+  }, [hasNavigated, uri, hasUnclaimedRefereeReward, doUserSetReferrer, isAuthenticated, hasClaim]);
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
@@ -433,11 +433,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
-        <Route
-          path={`/$/${PAGES.EMBED}/:claimName`}
-          exact
-          component={embedLatestPath ? () => <EmbedWrapperPage uri={uri} /> : EmbedWrapperPage}
-        />
+        <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}

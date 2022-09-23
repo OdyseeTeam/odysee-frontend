@@ -9,7 +9,7 @@ import {
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
-import { buildURI } from 'util/lbryURI';
+import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doPlayUri } from 'redux/actions/content';
 import { selectShouldObscurePreviewForUri } from 'redux/selectors/content';
 import { selectCostInfoForUri, doFetchCostInfoForUri, selectBlackListedOutpoints } from 'lbryinc';
@@ -27,13 +27,15 @@ const select = (state, props) => {
   const { search } = state.router.location;
   const { match } = props || {};
 
-  let uri = props.uri;
-  let claimId;
+  let uri, claimId;
   if (match) {
-    const { params } = match;
-    const { claimName } = params;
-    claimId = params.claimId;
-    uri = claimName ? buildURI({ claimName, claimId }) : '';
+    const { claimName, claimId } = match.params;
+
+    uri = claimName
+      ? claimName.includes(':') && claimId
+        ? normalizeURI(claimName + '/' + claimId)
+        : buildURI({ claimName, claimId })
+      : '';
   }
 
   const urlParams = new URLSearchParams(search);

@@ -8,6 +8,7 @@ import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
 import useFetchLiveStatus from 'effects/use-fetch-live';
+import Spinner from 'component/spinner';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
@@ -25,7 +26,7 @@ type Props = {
   doCommentSocketConnect: (uri: string, channelName: string, claimId: string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
-  doUserSetReferrer: (string) => void,
+  doUserSetReferrer: (referrerUri: string) => void,
   theaterMode?: Boolean,
 };
 
@@ -190,7 +191,7 @@ export default function LivestreamPage(props: Props) {
         )
       }
     >
-      {isInitialized && (
+      {isInitialized ? (
         <LivestreamContext.Provider value={{ livestreamPage: true, layountRendered }}>
           <LivestreamLayout
             uri={uri}
@@ -203,6 +204,10 @@ export default function LivestreamPage(props: Props) {
             theaterMode={theaterMode}
           />
         </LivestreamContext.Provider>
+      ) : (
+        <div className="main--empty">
+          <Spinner />
+        </div>
       )}
     </Page>
   );

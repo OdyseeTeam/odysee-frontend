@@ -77,7 +77,7 @@ type Props = {
   syncError: ?string,
   prefsReady: boolean,
   rewards: Array<Reward>,
-  setReferrer: (string, boolean) => void,
+  doUserSetReferrer: (referrerUri: string) => void,
   isAuthenticated: boolean,
   syncLoop: (?boolean) => void,
   currentModal: any,
@@ -118,7 +118,7 @@ function App(props: Props) {
     setLanguage,
     fetchLanguage,
     rewards,
-    setReferrer,
+    doUserSetReferrer,
     isAuthenticated,
     syncLoop,
     currentModal,
@@ -310,13 +310,11 @@ function App(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (referredRewardAvailable && sanitizedReferrerParam && isRewardApproved) {
-      setReferrer(sanitizedReferrerParam, true);
-    } else if (referredRewardAvailable && sanitizedReferrerParam) {
-      setReferrer(sanitizedReferrerParam, false);
+    if (referredRewardAvailable && sanitizedReferrerParam) {
+      doUserSetReferrer(sanitizedReferrerParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sanitizedReferrerParam, isRewardApproved, referredRewardAvailable]);
+  }, [sanitizedReferrerParam, referredRewardAvailable]);
 
   useEffect(() => {
     // @if TARGET='app'
@@ -569,7 +567,7 @@ function App(props: Props) {
         <React.Fragment>
           <AdBlockTester />
           <AdsSticky uri={uri} />
-          <Router uri={uri} embedLatestPath={embedLatestPath} />
+          <Router uri={uri} />
           <ModalRouter />
 
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
