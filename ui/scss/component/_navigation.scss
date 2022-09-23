@@ -302,8 +302,13 @@
 
 .navigation-link--icon-centered {
   padding-left: 0;
+  border-radius: var(--border-radius);
   .button__content {
     justify-content: center;
+  }
+
+  &.navigation-link--active {
+    display: none;
   }
 }
 
@@ -435,6 +440,18 @@
 
   .empty {
     padding: 0;
+  }
+
+  .wunderbar {
+    fieldset-section {
+      width: 100%;
+    }
+    @media (max-width: $breakpoint-small) {
+      padding-left: 0;
+      .icon {
+        left: var(--spacing-s);
+      }
+    }
   }
 }
 
