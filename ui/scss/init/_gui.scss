@@ -775,6 +775,11 @@ img {
       }
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    -webkit-column-gap: var(--spacing-s);
+    column-gap: var(--spacing-s);
+  }
 }
 
 .uploadPage-wrapper {

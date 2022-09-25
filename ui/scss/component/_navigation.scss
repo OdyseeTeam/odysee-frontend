@@ -302,8 +302,13 @@
 
 .navigation-link--icon-centered {
   padding-left: 0;
+  border-radius: var(--border-radius);
   .button__content {
     justify-content: center;
+  }
+
+  &.navigation-link--active {
+    display: none;
   }
 }
 
@@ -436,6 +441,18 @@
   .empty {
     padding: 0;
   }
+
+  .wunderbar {
+    fieldset-section {
+      width: 100%;
+    }
+    @media (max-width: $breakpoint-small) {
+      padding-left: 0;
+      .icon {
+        left: var(--spacing-s);
+      }
+    }
+  }
 }
 
 .navigation__overlay {
@@ -512,6 +529,14 @@
 
   .navigation__subscription-title {
     max-width: 90%;
+    .channel-name {
+      margin-right: var(--spacing-m);
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
   }
 
   .claim-preview__title {

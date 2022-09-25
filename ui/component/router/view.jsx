@@ -7,7 +7,7 @@ import { PAGE_TITLE } from 'constants/pageTitles';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import { lazyImport } from 'util/lazyImport';
 import { LINKED_COMMENT_QUERY_PARAM } from 'constants/comment';
-import { parseURI, isURIValid } from 'util/lbryURI';
+import { parseURI } from 'util/lbryURI';
 import { SITE_TITLE } from 'config';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import { GetLinksData } from 'util/buildHomepage';
@@ -146,10 +146,11 @@ type Props = {
     listen: (any) => () => void,
   },
   uri: string,
+  channelClaimPermanentUri: ?string,
   title: string,
   hasNavigated: boolean,
   setHasNavigated: () => void,
-  setReferrer: (?string) => void,
+  doUserSetReferrerForUri: (referrerPermanentUri: string) => void,
   hasUnclaimedRefereeReward: boolean,
   homepageData: any,
   wildWestDisabled: boolean,
@@ -157,7 +158,6 @@ type Props = {
   hideTitleNotificationCount: boolean,
   hasDefaultChannel: boolean,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
-  embedLatestPath: ?boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -190,18 +190,18 @@ function AppRouter(props: Props) {
     isAuthenticated,
     history,
     uri,
+    channelClaimPermanentUri,
     title,
     hasNavigated,
     setHasNavigated,
     hasUnclaimedRefereeReward,
-    setReferrer,
+    doUserSetReferrerForUri,
     homepageData,
     wildWestDisabled,
     unseenCount,
     hideTitleNotificationCount,
     hasDefaultChannel,
     doSetActiveChannel,
-    embedLatestPath,
   } = props;
 
   const defaultChannelRef = React.useRef(hasDefaultChannel);
@@ -239,14 +239,10 @@ function AppRouter(props: Props) {
   }, [listen, hasNavigated, setHasNavigated]);
 
   useEffect(() => {
-    if (!hasNavigated && hasUnclaimedRefereeReward && !isAuthenticated) {
-      const valid = isURIValid(uri);
-      if (valid) {
-        const { path } = parseURI(uri);
-        if (path !== 'undefined') setReferrer(path);
-      }
+    if (channelClaimPermanentUri && !hasNavigated && hasUnclaimedRefereeReward && !isAuthenticated) {
+      doUserSetReferrerForUri(channelClaimPermanentUri);
     }
-  }, [hasNavigated, uri, hasUnclaimedRefereeReward, setReferrer, isAuthenticated]);
+  }, [channelClaimPermanentUri, doUserSetReferrerForUri, hasNavigated, hasUnclaimedRefereeReward, isAuthenticated]);
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
@@ -429,11 +425,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
-        <Route
-          path={`/$/${PAGES.EMBED}/:claimName`}
-          exact
-          component={embedLatestPath ? () => <EmbedWrapperPage uri={uri} /> : EmbedWrapperPage}
-        />
+        <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}

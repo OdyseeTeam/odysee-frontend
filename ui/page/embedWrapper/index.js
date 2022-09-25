@@ -9,7 +9,7 @@ import {
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
-import { buildURI } from 'util/lbryURI';
+import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doPlayUri } from 'redux/actions/content';
 import { selectShouldObscurePreviewForUri } from 'redux/selectors/content';
 import { selectCostInfoForUri, doFetchCostInfoForUri, selectBlackListedOutpoints } from 'lbryinc';
@@ -20,20 +20,21 @@ import {
   selectActiveLivestreamInitialized,
   selectActiveLiveClaimForChannel,
 } from 'redux/selectors/livestream';
-import { getThumbnailFromClaim, isStreamPlaceholderClaim } from 'util/claim';
-import { doUserSetReferrerWithUri } from 'redux/actions/user';
+import { getThumbnailFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { search } = state.router.location;
   const { match } = props || {};
 
-  let uri = props.uri;
-  let claimId;
+  let uri, claimId;
   if (match) {
-    const { params } = match;
-    const { claimName } = params;
-    claimId = params.claimId;
-    uri = claimName ? buildURI({ claimName, claimId }) : '';
+    const { claimName, claimId } = match.params;
+
+    uri = claimName
+      ? claimName.includes(':') && claimId
+        ? normalizeURI(claimName + '/' + claimId)
+        : buildURI({ claimName, claimId })
+      : '';
   }
 
   const urlParams = new URLSearchParams(search);
@@ -41,19 +42,23 @@ const select = (state, props) => {
   const isNewestPath = featureParam === PAGES.LIVE_NOW || featureParam === PAGES.LATEST;
 
   const claim = selectClaimForUri(state, uri);
-  const { canonical_url: canonicalUrl, signing_channel: channelClaim, txid, nout } = claim || {};
-  if (isNewestPath) claimId = claim?.claim_id;
+  const { canonical_url: canonicalUrl, txid, nout } = claim || {};
+  if (!claimId) claimId = claim?.claim_id;
 
+  const channelClaim = getChannelFromClaim(claim);
   const { claim_id: channelClaimId, canonical_url: channelUri, txid: channelTxid, channelNout } = channelClaim || {};
   const haveClaim = Boolean(claim);
   const nullClaim = claim === null;
 
   const latestContentClaim =
     featureParam === PAGES.LIVE_NOW
-      ? selectActiveLiveClaimForChannel(state, claimId)
+      ? selectActiveLiveClaimForChannel(state, channelClaimId)
       : selectLatestClaimForUri(state, canonicalUrl);
   const latestClaimUrl = latestContentClaim && latestContentClaim.canonical_url;
+  const latestClaimId = latestContentClaim && latestContentClaim.claim_id;
+
   if (latestClaimUrl) uri = latestClaimUrl;
+  if (latestClaimId & (featureParam === PAGES.LIVE_NOW)) claimId = latestClaimId;
 
   return {
     uri,
@@ -74,7 +79,7 @@ const select = (state, props) => {
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     blackListedOutpoints: haveClaim && selectBlackListedOutpoints(state),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, isNewestPath ? latestClaimUrl : canonicalUrl),
-    isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    isLivestreamClaim: featureParam === PAGES.LIVE_NOW || isStreamPlaceholderClaim(claim),
     obscurePreview: selectShouldObscurePreviewForUri(state, uri),
     claimThumbnail: getThumbnailFromClaim(claim),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
@@ -90,7 +95,6 @@ const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchActiveLivestreams,
-  setReferrer: doUserSetReferrerWithUri,
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
 };
 
