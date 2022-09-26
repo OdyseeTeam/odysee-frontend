@@ -34,8 +34,10 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   bankAccountConfirmed: ?boolean,
   myChannelClaims: ?Array<ChannelClaim>,
+  supportersList: ?SupportersList,
   doTipAccountStatus: (any) => void,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
+  doGetMembershipSupportersList: () => void,
 };
 
 const MembershipsPage = (props: Props) => {
@@ -43,8 +45,10 @@ const MembershipsPage = (props: Props) => {
     bankAccountConfirmed,
     activeChannelClaim,
     myChannelClaims,
+    supportersList,
     doTipAccountStatus,
     doListAllMyMembershipTiers,
+    doGetMembershipSupportersList,
   } = props;
 
   const [allSelected, setAllSelected] = React.useState(true);
@@ -68,6 +72,12 @@ const MembershipsPage = (props: Props) => {
       doListAllMyMembershipTiers();
     }
   }, [doListAllMyMembershipTiers, myChannelClaims]);
+
+  React.useEffect(() => {
+    if (supportersList === undefined) {
+      doGetMembershipSupportersList();
+    }
+  }, [doGetMembershipSupportersList, supportersList]);
 
   const {
     location: { search },

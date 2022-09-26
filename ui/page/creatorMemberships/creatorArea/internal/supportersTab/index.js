@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectMySupportersList, selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
-import { doGetMembershipSupportersList } from 'redux/actions/memberships';
 import SupportersTab from './view';
 
 const select = (state) => {
@@ -13,8 +12,4 @@ const select = (state) => {
   };
 };
 
-const perform = {
-  doGetMembershipSupportersList,
-};
-
-export default connect(select, perform)(SupportersTab);
+export default connect(select)(SupportersTab);

@@ -659,6 +659,9 @@ export const selectChannelNameForId = (state: State, claimId: string) => {
   return selectChannelForClaimUri(state, uri);
 };
 
+export const selectNameForClaimId = (state: State, claimId: ClaimId) =>
+  getNameFromClaim(selectClaimForClaimId(state, claimId));
+
 export const selectChannelForClaimUri = createCachedSelector(
   (state, uri, includePrefix) => includePrefix,
   selectClaimForUri,

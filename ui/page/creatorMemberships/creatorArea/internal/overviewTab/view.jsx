@@ -1,16 +1,8 @@
 // @flow
 import React from 'react';
 
-import { URL } from 'config';
-import { formatLbryUrlForWeb } from 'util/url';
-
-import * as ICONS from 'constants/icons';
-
-import CopyableText from 'component/copyableText';
-import ChannelThumbnail from 'component/channelThumbnail';
-import ButtonNavigateChannelId from 'component/buttonNavigateChannelId';
 import HelpHub from 'component/common/help-hub';
-import TruncatedText from 'component/common/truncated-text';
+import ChannelOverview from './internal/channelOverview';
 
 import './style.scss';
 
@@ -18,11 +10,13 @@ type Props = {
   onChannelSelect: () => void,
   // -- redux --
   myChannelClaims: Array<ChannelClaim>,
+  totalSupportersAmount: number,
+  totalMonthlyIncome: number,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
 };
 
 function OverviewTab(props: Props) {
-  const { onChannelSelect, myChannelClaims, doSetActiveChannel } = props;
+  const { onChannelSelect, myChannelClaims, totalSupportersAmount, totalMonthlyIncome, doSetActiveChannel } = props;
 
   function selectChannel(channelClaim) {
     doSetActiveChannel(channelClaim.claim_id, true);
@@ -33,11 +27,14 @@ function OverviewTab(props: Props) {
     <>
       <table className="table table-total">
         <tr>
+          {/* todo: allow sorting */}
           <td>
-            {__('Total Supporters:')} <span>{0}</span>
+            {/* todo: make this a link to the supporters tab with all channel set to on */}
+            {/* so they can see all their supporters */}
+            {__('Total Supporters:')} <span>{totalSupportersAmount}</span>
           </td>
           <td>
-            {__('Total Monthly Income:')} <span>${0}</span>
+            {__('Total Monthly Income:')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
           </td>
           <td>
             {__('Total Received:')} <span>${0}</span>
@@ -63,32 +60,7 @@ function OverviewTab(props: Props) {
           <tbody>
             {myChannelClaims.map((channelClaim) => (
               <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
-                <td className="channelThumbnail">
-                  <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
-                </td>
-                <td>
-                  <TruncatedText text={channelClaim.value.title || channelClaim.name} lines={1} />
-                </td>
-                <td>0</td>
-                <td>$0</td>
-                <td>$0</td>
-                <td>
-                  <ButtonNavigateChannelId
-                    button="primary"
-                    // className="membership_button"
-                    // label={__('View your membership page')}
-                    icon={ICONS.MEMBERSHIP}
-                    navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
-                  />
-                </td>
-                <td className="membership-table__url">
-                  <CopyableText
-                    onlyCopy
-                    primaryButton
-                    copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
-                    snackMessage={__('Page location copied')}
-                  />
-                </td>
+                <ChannelOverview channelClaim={channelClaim} />
               </tr>
             ))}
           </tbody>

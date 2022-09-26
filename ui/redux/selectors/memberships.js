@@ -1,7 +1,7 @@
 // @flow
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectChannelClaimIdForUri, selectMyChannelClaimIds, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import { selectChannelClaimIdForUri, selectMyChannelClaimIds, selectNameForClaimId, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
@@ -23,6 +23,42 @@ export const selectMembershipPerks = (state: State) => selectState(state).member
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 export const selectIsListingAllMyTiers = (state: State) => selectState(state).listingAllMyTiers;
+
+export const selectMyTotalSupportersAmount = (state: State) => selectMySupportersList(state)?.length || 0;
+
+export const selectMyTotalMonthlyIncome = createSelector(selectMySupportersList, (supportersList) => {
+  let value = 0;
+
+  if (supportersList) {
+    supportersList.forEach((supporter) => {
+      value += supporter.Price;
+    });
+  }
+
+  return value;
+});
+
+export const selectSupportersForChannelId = createSelector(
+  selectNameForClaimId,
+  selectMySupportersList,
+  (channelName, supportersList) =>
+    supportersList && supportersList.filter((supporter) => supporter.ChannelBeingSupported === channelName)
+);
+
+export const selectSupportersAmountForChannelId = (state: State, channelId: ClaimId) =>
+  selectSupportersForChannelId(state, channelId)?.length || 0;
+
+export const selectMonthlyIncomeForChannelId = createSelector(selectSupportersForChannelId, (channelSupporters) => {
+  let value = 0;
+
+  if (channelSupporters) {
+    channelSupporters.forEach((supporter) => {
+      value += supporter.Price;
+    });
+  }
+
+  return value;
+});
 
 export const selectMembershipMineFetched = (state: State) => selectMembershipMineData(state) !== undefined;
 

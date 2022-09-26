@@ -3,7 +3,6 @@ import React from 'react';
 import moment from 'moment';
 
 import ChannelThumbnail from 'component/channelThumbnail';
-import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
@@ -14,7 +13,6 @@ type Props = {
   // -- redux --
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
-  doGetMembershipSupportersList: () => void,
 };
 
 const SupportersTab = (props: Props) => {
@@ -24,7 +22,6 @@ const SupportersTab = (props: Props) => {
     // -- redux --
     supportersList,
     channelMembershipTiers,
-    doGetMembershipSupportersList,
   } = props;
 
   const hasAnySupporters = React.useMemo(() => {
@@ -40,20 +37,6 @@ const SupportersTab = (props: Props) => {
   }, [channelsToList, supportersList]);
 
   const isViewingSingleChannel = channelsToList && channelsToList.length === 1;
-
-  React.useEffect(() => {
-    if (supportersList === undefined) {
-      doGetMembershipSupportersList();
-    }
-  }, [doGetMembershipSupportersList, supportersList]);
-
-  if (supportersList === undefined) {
-    return (
-      <div className="main--empty">
-        <Spinner />
-      </div>
-    );
-  }
 
   if (isViewingSingleChannel && !channelMembershipTiers) {
     return (

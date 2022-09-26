@@ -15,12 +15,15 @@ type Props = {
   myChannelClaims: ?Array<ChannelClaim>,
   bankAccountConfirmed: ?boolean,
   hasTiers?: boolean,
+  supportersList: ?SupportersList,
 };
 
 const TabWrapper = (props: Props) => {
-  const { component, switchToTiersTab, myChannelClaims, bankAccountConfirmed, hasTiers } = props;
+  const { component, switchToTiersTab, myChannelClaims, bankAccountConfirmed, hasTiers, supportersList } = props;
 
-  if (myChannelClaims === undefined) {
+  const isOnTiersTab = !switchToTiersTab;
+
+  if (myChannelClaims === undefined || (supportersList === undefined && !isOnTiersTab)) {
     return (
       <div className="main--empty">
         <Spinner />
@@ -55,7 +58,7 @@ const TabWrapper = (props: Props) => {
     );
   }
 
-  if (!hasTiers && switchToTiersTab) {
+  if (!hasTiers && !isOnTiersTab) {
     return (
       <ErrorBubble
         title={__(`You don't have any Tiers`)}
