@@ -556,9 +556,11 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
             </div>
             {type !== 'small' && (
               <div className="claim-preview__actions">
-                <div className="membersgip-button-wrapper">
-                  <JoinMembershipButton uri={uri} />
-                </div>
+                {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
+                  <div className="membersgip-button-wrapper">
+                    <JoinMembershipButton uri={uri} />
+                  </div>
+                )}
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}
