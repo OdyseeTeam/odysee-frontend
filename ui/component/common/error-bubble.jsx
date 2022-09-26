@@ -2,17 +2,32 @@
 import React from 'react';
 
 type Props = {
-  children: ?string,
+  title?: string,
+  subtitle?: string,
+  action?: any,
+  children?: string,
 };
 
 const ErrorBubble = (props: Props) => {
-  const { children } = props;
+  const { children, title, subtitle, action } = props;
+
+  if (title && subtitle && action) {
+    return (
+      <div className="error-bubble">
+        <div>
+          <label>{title}</label>
+          <span>{subtitle}</span>
+        </div>
+        {action}
+      </div>
+    );
+  }
 
   if (!children) {
     return null;
   }
 
-  return <span className="error__bubble">{children}</span>;
+  return <span className="error-bubble">{children}</span>;
 };
 
 export default ErrorBubble;

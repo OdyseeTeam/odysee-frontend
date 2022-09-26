@@ -8,6 +8,7 @@ import { buildURI } from 'util/lbryURI';
 import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
 import TruncatedText from 'component/common/truncated-text';
+import Yrbl from 'component/yrbl';
 
 type Props = {
   openModal: (string, {}) => void,
@@ -79,6 +80,19 @@ function PledgesTab(props: Props) {
       setPledges(allPledges);
     }
   }, [claimsById, myPurchasedMemberships, resolved]);
+
+  if (formattedMemberships?.length === 0) {
+    return (
+      <div className="membership__mypledges-wrapper">
+        <div className="membership__mypledges-content">
+          <Yrbl
+            type="sad"
+            subtitle={__('Find creators that you like and support them. Your pledges will show up on this page.')}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="membership__mypledges-wrapper">

@@ -452,13 +452,34 @@ img {
   margin-left: 2px;
 }
 
-.error__bubble {
-  display: block;
+.error-bubble {
+  margin-top: var(--spacing-s);
   padding: var(--spacing-s);
   border-radius: var(--border-radius);
+  border: 2px solid rgba(255, 0, 0, 0.8);
   background-color: rgba(255, 0, 0, 0.1);
-  border: 1px solid red;
-  margin-top: var(--spacing-m);
+
+  div {
+    label {
+      display: block;
+      font-size: var(--font-body);
+      font-weight: var(--font-weight-bold);
+    }
+
+    span {
+      display: block;
+      font-size: var(--font-small);
+      font-weight: var(--font-weight-bold);
+      opacity: 0.8;
+    }
+  }
+
+  .button {
+    width: auto;
+    max-width: 100%;
+    margin-top: var(--spacing-s);
+    margin-bottom: 0;
+  }
 }
 
 .help--error {

@@ -13,12 +13,13 @@ import Page from 'component/page';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
+import TabWrapper from './internal/tabWrapper';
 
 import './style.scss';
 
-const OverviewTab = lazyImport(() => import('./overviewTab' /* webpackChunkName: "overviewTab" */));
-const TiersTab = lazyImport(() => import('./tiersTab' /* webpackChunkName: "tiersTab" */));
-const SupportersTab = lazyImport(() => import('./supportersTab' /* webpackChunkName: "supportersTab" */));
+const OverviewTab = lazyImport(() => import('./internal/overviewTab' /* webpackChunkName: "overviewTab" */));
+const TiersTab = lazyImport(() => import('./internal/tiersTab' /* webpackChunkName: "tiersTab" */));
+const SupportersTab = lazyImport(() => import('./internal/supportersTab' /* webpackChunkName: "supportersTab" */));
 
 const TAB_QUERY = 'tab';
 
@@ -33,7 +34,6 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   bankAccountConfirmed: ?boolean,
   myChannelClaims: ?Array<ChannelClaim>,
-  hasTiers: ?boolean,
   doTipAccountStatus: (any) => void,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
 };
@@ -43,7 +43,6 @@ const MembershipsPage = (props: Props) => {
     bankAccountConfirmed,
     activeChannelClaim,
     myChannelClaims,
-    hasTiers,
     doTipAccountStatus,
     doListAllMyMembershipTiers,
   } = props;
@@ -116,11 +115,19 @@ const MembershipsPage = (props: Props) => {
     push(url);
   }
 
+  const onChannelOverviewSelect = () => {
+    setAllSelected(false);
+    onTabChange(1);
+  };
+
+  const switchToTiersTab = () => onTabChange(1);
+
   return (
     <Page className="membershipPage-wrapper">
       <div className="membership__mychannels-header">
-        <label>Creator Portal</label>
+        <label>{__('Creator Portal')}</label>
       </div>
+
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
@@ -137,54 +144,58 @@ const MembershipsPage = (props: Props) => {
             </Tab>
           </div>
         </TabList>
+
         <TabPanels>
           <TabPanel>
-            {/*
-            <span className="section__subtitle ">{__('View information for a specific channel')}</span>
-            <ChannelSelector
-              hideAnon
-              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-              onChannelSelect={() => setAllSelected(false)}
+            <TabWrapper
+              switchToTiersTab={switchToTiersTab}
+              component={<OverviewTab onChannelSelect={onChannelOverviewSelect} />}
             />
-            */}
-            <OverviewTab channelsToList={channelsToList} onTabChange={onTabChange} hasTiers={hasTiers} />
           </TabPanel>
 
           <TabPanel>
-            <>
-              <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
-              <ChannelSelector
-                hideAnon
-                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                onChannelSelect={() => setAllSelected(false)}
-              />
-              <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
-            </>
+            <TabWrapper
+              switchToTiersTab={switchToTiersTab}
+              component={
+                <>
+                  <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
+                  <ChannelSelector
+                    hideAnon
+                    allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
+                    onChannelSelect={() => setAllSelected(false)}
+                  />
+                  <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
+                </>
+              }
+            />
           </TabPanel>
 
           <TabPanel>
-            {activeChannelClaim !== null && (
-              <>
-                <div className="create-tiers-header-buttons">
-                  <div className="create-tiers-channel-selector">
-                    <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
-                    <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+            <TabWrapper
+              component={
+                <>
+                  <div className="create-tiers-header-buttons">
+                    <div className="create-tiers-channel-selector">
+                      <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
+                      <ChannelSelector hideAnon onChannelSelect={() => setAllSelected(false)} />
+                    </div>
+
+                    <div className="create-tiers-preview-button">
+                      <span className="section__subtitle ">{__('Preview your tiers')}</span>
+                      <br />
+                      <Button
+                        navigate={`${formatLbryUrlForWeb(activeChannelClaim?.canonical_url)}?view=membership`}
+                        label={__('See Your Memberships')}
+                        icon={ICONS.SIGN_OUT}
+                        button="secondary"
+                      />
+                    </div>
                   </div>
 
-                  <div className="create-tiers-preview-button">
-                    <span className="section__subtitle ">{__('Preview your tiers')}</span>
-                    <br />
-                    <Button
-                      navigate={`${formatLbryUrlForWeb(activeChannelClaim.canonical_url)}?view=membership`}
-                      label={__('See Your Memberships')}
-                      icon={ICONS.SIGN_OUT}
-                      button="secondary"
-                    />
-                  </div>
-                </div>
-                <TiersTab />
-              </>
-            )}
+                  <TiersTab />
+                </>
+              }
+            />
           </TabPanel>
         </TabPanels>
       </Tabs>

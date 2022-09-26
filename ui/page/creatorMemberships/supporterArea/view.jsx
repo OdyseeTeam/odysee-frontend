@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // @flow
 import React from 'react';
 
@@ -14,7 +13,6 @@ import Page from 'component/page';
 import ChannelSelector from 'component/channelSelector';
 import Spinner from 'component/spinner';
 import Button from 'component/button';
-// import Icon from 'component/common/icon';
 
 import './style.scss';
 
@@ -33,30 +31,19 @@ type Props = {
   activeChannelClaim: ?ChannelClaim,
   bankAccountConfirmed: ?boolean,
   myChannelClaims: ?Array<ChannelClaim>,
-  hasTiers: ?boolean,
   doTipAccountStatus: (any) => void,
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
 };
 
 const MembershipsPage = (props: Props) => {
   const {
+    // -- redux --
     bankAccountConfirmed,
     activeChannelClaim,
     myChannelClaims,
-    // hasTiers,
     doTipAccountStatus,
     doListAllMyMembershipTiers,
   } = props;
-
-  // const [allSelected, setAllSelected] = React.useState(false);
-
-  // const channelsToList = React.useMemo(() => {
-  //   if (!myChannelClaims) return myChannelClaims;
-  //   if (!activeChannelClaim) return activeChannelClaim;
-
-  //   if (allSelected) return myChannelClaims;
-  //   return [activeChannelClaim];
-  // }, [activeChannelClaim, allSelected, myChannelClaims]);
 
   React.useEffect(() => {
     if (bankAccountConfirmed === undefined) {
@@ -119,7 +106,7 @@ const MembershipsPage = (props: Props) => {
   return (
     <Page className="membershipPage-wrapper">
       <div className="membership__mypledges-header">
-        <label>Donor Portal</label>
+        <label>{__('Donor Portal')}</label>
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
@@ -137,18 +124,9 @@ const MembershipsPage = (props: Props) => {
             </Tab>
           </div>
         </TabList>
-        <TabPanels>
-          {/* my pledges tab (creators I'm supporting) */}
-          <TabPanel>
-            {/*
-            <span className="section__subtitle ">{__('View information for a specific channel')}</span>
-            <ChannelSelector
-              hideAnon
-              allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-              onChannelSelect={() => setAllSelected(false)}
-            />
-            */}
 
+        <TabPanels>
+          <TabPanel>
             <PledgesTab />
             <HelpHub
               href="https://help.odysee.tv/category-memberships/donorportal"
@@ -157,25 +135,10 @@ const MembershipsPage = (props: Props) => {
             />
           </TabPanel>
 
-          {/* billing history tab */}
           <TabPanel>
             <>
               <span className="section__subtitle ">{__('Choose what channel to manage tiers for')}</span>
               <ChannelSelector hideAnon />
-            </>
-          </TabPanel>
-
-          {/* creators to support tab */}
-          <TabPanel>
-            <>
-              {/*
-              <span className="section__subtitle ">{__('Choose what channel to list supporters for')}</span>
-              <ChannelSelector
-                hideAnon
-                allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
-                onChannelSelect={() => setAllSelected(false)}
-              />
-              */}
             </>
           </TabPanel>
         </TabPanels>
