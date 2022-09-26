@@ -7,7 +7,6 @@ import Icon from 'component/common/icon';
 import Button from 'component/button';
 import Page from 'component/page';
 import HelpHub from 'component/common/help-hub';
-import BalanceText from 'react-balance-text';
 
 import './style.scss';
 
@@ -16,11 +15,11 @@ const MembershipsLandingPage = () => (
     <div>
       <h1 className="membership-wrapper-title">
         <Icon icon={ICONS.MEMBERSHIP} size={10} />
-        <label>{__('Creator Memberships')}</label>
+        <label>{__('Memberships')}</label>
       </h1>
     </div>
 
-    <div className="membership-wrapper-b supporter">
+    <div className="membership-wrapper supporter">
       <div className="membership-content">
         <div>
           <h2>{__('Donor Portal')}</h2>
@@ -30,61 +29,13 @@ const MembershipsLandingPage = () => (
       </div>
     </div>
 
-    <div className="membership-wrapper-b memberships">
+    <div className="membership-wrapper memberships">
       <div className="membership-content">
         <div>
           <h2>{__('Membership Portal')}</h2>
           <p className="portal-tagline">{__('Create memberships and have users subscribe to them to support you.')}</p>
           <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
         </div>
-      </div>
-    </div>
-    <HelpHub
-      href="https://help.odysee.tv/category-memberships/"
-      image="lady_fungus.png"
-      text="What are Memberships? Lady Fungus can explain it in the %help_hub%."
-    />
-
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <h1>Version B</h1>
-    <div className="membership-wrapper">
-      <img src="/public/img/my_pledges.jpg" />
-
-      <div className="membership-content supporter">
-        <h2>{__('Donor Portal')}</h2>
-        <div className="separator">
-          <div />
-        </div>
-        <p className="portal-tagline">{__('Find creators you like and support them.')}</p>
-        <Button button="primary" navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} label={__('Enter Donor Portal')} />
-      </div>
-    </div>
-
-    <div className="membership-wrapper">
-      <img src="/public/img/my_channels.jpg" />
-
-      <div className="membership-content memberships">
-        <h2>{__('Membership Portal')}</h2>
-        <div className="separator">
-          <div />
-        </div>
-
-        <p className="portal-tagline">
-          <BalanceText>{__('Create memberships and have users subscribe to them to support you.')}</BalanceText>
-        </p>
-
-        <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
       </div>
     </div>
     <HelpHub
