@@ -83,7 +83,7 @@ function PledgesTab(props: Props) {
   return (
     <div className="membership__mypledges-wrapper">
       <div className="membership__mypledges-content">
-        {pledges && pledges.length > 0 && (
+        {pledges && pledges.length > 0 && formattedMemberships && formattedMemberships.length > 0 && (
           <div className="membership-table__wrapper">
             <table className="table table--pledges">
               <thead>
