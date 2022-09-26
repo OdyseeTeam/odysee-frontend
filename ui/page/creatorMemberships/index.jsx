@@ -40,7 +40,7 @@ const MembershipsLandingPage = () => (
     </div>
     <HelpHub
       href="https://help.odysee.tv/category-memberships/"
-      image="lady_fungus.png"
+      image="LadyFungus"
       text="What are Memberships? Lady Fungus can explain it in the %help_hub%."
     />
   </Page>

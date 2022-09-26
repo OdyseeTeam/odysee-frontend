@@ -50,7 +50,7 @@ h1 {
 
   .membership-content {
     text-align: center;
-    padding: 2% 26%;
+    padding: 4% 26%;
 
     div:first-of-type {
       background: var(--color-header-background);
@@ -82,8 +82,8 @@ h1 {
   }
 
   &.supporter {
-    background-image: url('/public/img/my_pledges.jpg');
-    background-position: 20% -90px;
+    background-image: url('https://static.odycdn.com/images/banner_DonorPortal.jpg');
+    background-position: 20% -190px;
     transition: background-position 0.4s;
     .membership-content {
       background-color: rgba(0, 208, 217, 0.3);
@@ -91,8 +91,8 @@ h1 {
   }
 
   &.memberships {
-    background-image: url('/public/img/my_channels.jpg');
-    background-position: 60% -50px;
+    background-image: url('https://static.odycdn.com/images/banner_creatorPortal.jpg');
+    background-position: 60% -170px;
     transition: background-position 0.4s;
     .membership-content {
       background-color: rgba(230, 25, 112, 0.3);
@@ -113,14 +113,14 @@ h1 {
     }
 
     &.supporter {
-      background-position: 22% -91px;
+      background-position: 18% -196px;
       .membership-content {
         background-color: rgba(0, 208, 217, 0.5);
       }
     }
 
     &.memberships {
-      background-position: 58% -51px;
+      background-position: 58% -176px;
       .membership-content {
         background-color: rgba(230, 25, 112, 0.5);
       }

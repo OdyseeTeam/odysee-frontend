@@ -140,7 +140,7 @@ function OverviewTab(props: Props) {
 
       <HelpHub
         href="https://help.odysee.tv/category-memberships/"
-        image="spaceman.png"
+        image="Spaceman"
         text="Want to increase your channel growth? Spaceman has whipped up some marketing concepts in the %help_hub%."
       />
     </>

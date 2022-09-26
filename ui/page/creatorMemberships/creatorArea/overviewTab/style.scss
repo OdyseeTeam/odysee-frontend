@@ -30,15 +30,6 @@
   }
 }
 
-.membership__mychannels-wrapper {
-  // border-radius: var(--border-radius);
-  // background: rgba(239, 25, 112, 0.2);
-
-  .membership__mychannels-content {
-    // padding: var(--spacing-s);
-  }
-}
-
 .ugly-alien-box {
   margin-top: var(--spacing-l);
   width: 100%;
@@ -59,44 +50,6 @@
     background-color: #650f7c;
     border-radius: 50%;
     margin-left: var(--spacing-s);
-  }
-}
-
-.membership__mychannels-header {
-  position: relative;
-  width: 100%;
-  background-size: cover;
-  background-position: top -120px left 0px;
-  background-image: url('/public/img/my_channels.jpg');
-  border-radius: var(--border-radius) var(--border-radius) 0 0;
-  overflow: hidden;
-  height: 146px;
-
-  div {
-    position: absolute;
-    height: 400px;
-    left: -130px;
-    top: -210px;
-    width: 40%;
-    background-color: rgba(184, 55, 105, 0.6);
-    transform: rotate(38deg);
-  }
-
-  label {
-    position: absolute;
-    background-color: var(--color-header-background);
-    padding: var(--spacing-m);
-    border-radius: var(--border-radius);
-    bottom: var(--spacing-m);
-    left: var(--spacing-m);
-    padding: var(--spacing-m);
-    font-size: var(--font-large);
-    font-weight: var(--font-weight-bold);
-    color: var(--color-text);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    background-position: unset;
   }
 }
 

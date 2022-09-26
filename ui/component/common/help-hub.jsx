@@ -32,7 +32,15 @@ export default function HelpHub(props: Props) {
   return (
     <div className="help-hub__wrapper">
       <span>{hubMessage(text, href)}</span>
-      {image && <img src={'/public/img/' + image} />}
+      {image && (
+        <img
+          src={
+            'https://thumbnails.odycdn.com/optimize/s:46:0/quality:95/plain/https://static.odycdn.com/images/helpHub_' +
+            image +
+            '.png'
+          }
+        />
+      )}
     </div>
   );
 }

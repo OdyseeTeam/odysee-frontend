@@ -119,7 +119,6 @@ const MembershipsPage = (props: Props) => {
   return (
     <Page className="membershipPage-wrapper">
       <div className="membership__mypledges-header">
-        <div />
         <label>Donor Portal</label>
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
@@ -151,7 +150,11 @@ const MembershipsPage = (props: Props) => {
             */}
 
             <PledgesTab />
-            <HelpHub href="https://help.odysee.tv/category-memberships/donorportal" image="lady_fungus.png" text="What are these donations? Lady Fungus can explain it in the %help_hub%." />
+            <HelpHub
+              href="https://help.odysee.tv/category-memberships/donorportal"
+              image="LadyFungus"
+              text="What are these donations? Lady Fungus can explain it in the %help_hub%."
+            />
           </TabPanel>
 
           {/* billing history tab */}

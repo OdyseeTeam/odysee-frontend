@@ -72,22 +72,11 @@
   position: relative;
   width: 100%;
   background-size: cover;
-  background-position: top -150px left 0px;
-  background-image: url('/public/img/my_pledges.jpg');
   border-radius: var(--border-radius) var(--border-radius) 0 0;
   margin-bottom: 0;
   overflow: hidden;
-  height: 146px;
+  height: 210px;
 
-  div {
-    position: absolute;
-    height: 400px;
-    left: -130px;
-    top: -210px;
-    width: 40%;
-    background-color: rgba(0, 208, 217, 0.6);
-    transform: rotate(38deg);
-  }
   label {
     position: absolute;
     background-color: var(--color-header-background);
@@ -102,7 +91,27 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    background-position: unset;
+    background-image: url('https://thumbnails.odycdn.com/optimize/s:600:0/quality:95/plain/https://static.odycdn.com/images/banner_DonorPortal.jpg');
+  }
+
+  @media (min-width: $breakpoint-small) {
+    background-image: url('https://thumbnails.odycdn.com/optimize/s:900:0/quality:95/plain/https://static.odycdn.com/images/banner_DonorPortal.jpg');
+    background-position: top -80px left 0px;
+  }
+
+  @media (min-width: $breakpoint-medium) {
+    background-image: url('https://thumbnails.odycdn.com/optimize/s:1150:0/quality:95/plain/https://static.odycdn.com/images/banner_DonorPortal.jpg');
+    background-position: top -160px left 0px;
+  }
+
+  @media (min-width: $breakpoint-large) {
+    background-image: url('https://thumbnails.odycdn.com/optimize/s:1600:0/quality:95/plain/https://static.odycdn.com/images/banner_DonorPortal.jpg');
+    background-position: top -170px left 0px;
+  }
+
+  @media (min-width: $breakpoint-xlarge) {
+    background-image: url('https://static.odycdn.com/images/banner_creatorPortal.jpg');
+    background-position: top -170px left 0px;
   }
 }
 

@@ -119,7 +119,6 @@ const MembershipsPage = (props: Props) => {
   return (
     <Page className="membershipPage-wrapper">
       <div className="membership__mychannels-header">
-        <div />
         <label>Creator Portal</label>
       </div>
       <Tabs onChange={onTabChange} index={tabIndex}>
