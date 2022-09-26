@@ -157,7 +157,7 @@ function PublishProtectedContent(props: Props) {
 
       {membershipsToUse && membershipsToUse.length > 0 && (
         <>
-          <h2 className="card__title">{__('Restrictions')}</h2>
+          <h2 className="card__title">{__('Restrict Content')}</h2>
 
           <Card
             className="card--restrictions"
@@ -189,18 +189,18 @@ function PublishProtectedContent(props: Props) {
                   </div>
                 )}
 
-                <FormField
-                  type="checkbox"
-                  defaultChecked={commentsChatAlreadyRestricted}
-                  disabled={myMembershipTiersWithMembersOnlyChatPerk.length === 0}
-                  label={'Restrict comments and chats to memberships with members-only chat perk'}
-                  name={'toggleRestrictCommentsChat'}
-                  className="restrict-comments-chat_checkbox"
-                  onChange={() => handleChangeRestrictCommentsChat()}
-                />
-                {myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (
-                  <span className="error__bubble">{__('You have no tiers with members only chat')}</span>
-                )}
+                {/*<FormField*/}
+                {/*  type="checkbox"*/}
+                {/*  defaultChecked={commentsChatAlreadyRestricted}*/}
+                {/*  disabled={myMembershipTiersWithMembersOnlyChatPerk.length === 0}*/}
+                {/*  label={'Restrict comments and chats to memberships with members-only chat perk'}*/}
+                {/*  name={'toggleRestrictCommentsChat'}*/}
+                {/*  className="restrict-comments-chat_checkbox"*/}
+                {/*  onChange={() => handleChangeRestrictCommentsChat()}*/}
+                {/*/>*/}
+                {/*{myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (*/}
+                {/*  <span className="error__bubble">{__('You have no tiers with members only chat')}</span>*/}
+                {/*)}*/}
               </>
             }
           />

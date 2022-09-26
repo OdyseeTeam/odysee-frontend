@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
 import { selectClaimForUri, selectedRestrictedCommentsChatTagForUri } from 'redux/selectors/claims';
-import { doCommentList, doHyperChatList } from 'redux/actions/comments';
+import { doCommentList, doHyperChatList, setLivestreamChatMembersOnlyCreatorSetting } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
   selectHyperChatsForUri,
@@ -25,6 +25,7 @@ const select = (state, props) => {
   const activeChannelId = activeChannelClaim?.claim_id;
 
   return {
+    activeChannelClaim,
     activeChannelId,
     claimId: claim && claim.claim_id,
     comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
@@ -41,6 +42,7 @@ const perform = {
   doResolveUris,
   doFetchOdyseeMembershipForChannelIds,
   doFetchChannelMembershipsForChannelIds,
+  setLivestreamChatMembersOnlyCreatorSetting,
 };
 
 export default connect(select, perform)(ChatLayout);

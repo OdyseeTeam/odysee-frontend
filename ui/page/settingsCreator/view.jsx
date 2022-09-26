@@ -59,6 +59,7 @@ export default function SettingsCreatorPage(props: Props) {
   } = props;
 
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
+  const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
   const [mutedWordTags, setMutedWordTags] = React.useState([]);
   const [moderatorUris, setModeratorUris] = React.useState([]);
   const [minTip, setMinTip] = React.useState(0);
@@ -99,6 +100,7 @@ export default function SettingsCreatorPage(props: Props) {
       setMinSuper(settings.min_tip_amount_super_chat || 0);
       setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
+      setLivestreamChatMembersOnly(settings.livestream_chat_members_only || false);
       doSetMutedWordTags(settings.words || []);
     } else {
       if (settings.comments_enabled !== undefined) {
@@ -115,6 +117,9 @@ export default function SettingsCreatorPage(props: Props) {
       }
       if (settings.time_since_first_comment) {
         setMinChannelAgeMinutes(settings.time_since_first_comment);
+      }
+      if (settings.livestream_chat_members_only !== undefined) {
+        setLivestreamChatMembersOnly(settings.livestream_chat_members_only);
       }
       if (settings.words) {
         doSetMutedWordTags(settings.words);
@@ -270,6 +275,14 @@ export default function SettingsCreatorPage(props: Props) {
               isBodyList
               body={
                 <>
+                  <SettingsRow title={__('Make livestream chat members-only')}>
+                    <FormField
+                      type="checkbox"
+                      name="livestream_chat_members_only"
+                      checked={livestreamChatMembersOnly}
+                      onChange={() => setSettings({ livestream_chat_members_only: !livestreamChatMembersOnly })}
+                    />
+                  </SettingsRow>
                   <SettingsRow title={__('Enable comments for channel.')}>
                     <FormField
                       type="checkbox"

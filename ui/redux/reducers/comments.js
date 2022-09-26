@@ -301,15 +301,15 @@ export default handleActions(
       const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
 
       // save an array of claim ids of members-only chats to check during list
-      let membersOnlyChats = settingsByChannelId[creatorClaimId].members_only_chat || [];
-      if (restrictedToMembersOnly) {
-        membersOnlyChats.push(claimId);
-      }
+      let membersOnlyChats = settingsByChannelId[creatorClaimId].livestream_chat_members_only || false;
+      // if (restrictedToMembersOnly) {
+      //   membersOnlyChats.push(claimId);
+      // }
 
       settingsByChannelId[creatorClaimId] = {
         ...(settingsByChannelId[creatorClaimId] || {}),
-        comments_enabled: !disabled,
-        members_only_chats: membersOnlyChats,
+        // comments_enabled: !disabled,
+        livestream_chat_members_only: membersOnlyChats,
       };
 
       if (parentId) {

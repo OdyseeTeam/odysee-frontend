@@ -130,9 +130,9 @@ export default function FilePage(props: Props) {
   const isLandscapeRotated = useIsMobileLandscape();
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
+
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
-  const membersOnlyChat =
-    channelSettings && channelSettings.members_only_chats && channelSettings.members_only_chats.includes(claimId);
+  const livestreamChatMembersOnly = channelSettings?.livestream_chat_members_only;
 
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
@@ -314,11 +314,12 @@ export default function FilePage(props: Props) {
 
               {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
 
+              {/* TODO: don't show comments if it's members only */}
               <React.Suspense fallback={null}>
                 {contentCommentsDisabled ? (
                   // content disabled based on tag for content
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : membersOnlyChat ? (
+                ) : livestreamChatMembersOnly ? (
                   // user has comments disabled for entire channel
                   <Empty
                     {...emptyMsgProps}

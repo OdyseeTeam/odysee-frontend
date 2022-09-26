@@ -17,6 +17,7 @@ import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
+import { setLivestreamChatMembersOnlyCreatorSetting } from '../../redux/actions/comments';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -55,6 +56,8 @@ type Props = {
   superChats: Array<Comment>,
   chatCommentsRestrictedToChannelMembers: boolean,
   activeChannelId: string,
+  activeChannelClaim: ChannelClaim,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 export default function ChatLayout(props: Props) {
@@ -79,6 +82,8 @@ export default function ChatLayout(props: Props) {
     setLayountRendered,
     superChats: hyperChatsByAmount,
     uri,
+    activeChannelClaim,
+    setLivestreamChatMembersOnlyCreatorSetting,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -359,6 +364,8 @@ export default function ChatLayout(props: Props) {
             isCompact={isCompact}
             hyperchatsHidden={hideHyperchats}
             noHyperchats={!hyperChatsByAmount}
+            activeChannelClaim={activeChannelClaim}
+            setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
           />
         </div>
       )}

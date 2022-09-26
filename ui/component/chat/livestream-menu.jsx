@@ -19,16 +19,20 @@ type Props = {
   setPopoutWindow?: (any) => void,
   toggleHyperchats?: () => void,
   toggleIsCompact?: () => void,
+  activeChannelClaim: ChannelClaim,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 export default function LivestreamMenu(props: Props) {
   const {
-    isPopoutWindow,
-    hyperchatsHidden,
-    noHyperchats,
-    isMobile,
-    isCompact,
+    activeChannelClaim,
+    setLivestreamChatMembersOnlyCreatorSetting,
     hideChat,
+    hyperchatsHidden,
+    isCompact,
+    isMobile,
+    isPopoutWindow,
+    noHyperchats,
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
@@ -41,6 +45,16 @@ export default function LivestreamMenu(props: Props) {
   const initialPopoutUnload = React.useRef(false);
 
   const [showTimestamps, setShowTimestamps] = usePersistedState('live-timestamps', false);
+
+  const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
+
+  function updateLivestreamMembersOnlyChat() {
+    setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, !livestreamChatMembersOnly);
+    setLivestreamChatMembersOnly(!livestreamChatMembersOnly);
+  }
+
+  let toggleLivestreamChatMembersOnlyText = 'Enable Members-Only Chat';
+  if (livestreamChatMembersOnly) toggleLivestreamChatMembersOnlyText = 'Disable Members-Only Chat';
 
   function handlePopout() {
     if (setPopoutWindow) {
@@ -77,6 +91,12 @@ export default function LivestreamMenu(props: Props) {
         </MenuButton>
 
         <MenuList className="menu__list">
+          <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
+            <span className="menu__link">
+              <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
+              {__(toggleLivestreamChatMembersOnlyText)}
+            </span>
+          </MenuItem>
           <MenuItem className="comment__menu-option" onSelect={() => setShowTimestamps(!showTimestamps)}>
             <span className="menu__link">
               <Icon aria-hidden icon={ICONS.TIME} />
