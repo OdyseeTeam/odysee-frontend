@@ -65,7 +65,9 @@ const PreviewPage = (props: Props) => {
   }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   React.useEffect(() => {
-    setSelectedMembershipName(creatorMemberships[selectedMembershipIndex].Membership.name);
+    creatorMemberships &&
+      selectedMembershipIndex &&
+      setSelectedMembershipName(creatorMemberships[selectedMembershipIndex].Membership.name);
   }, [selectedMembershipIndex]);
 
   if (!creatorHasMemberships) {
