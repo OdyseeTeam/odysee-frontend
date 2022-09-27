@@ -247,7 +247,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
 }
 
 export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispatch: Dispatch, getState: () => {}) => {
-  const publishPreview = (previewResponse) => {
+  const publishPreviewFn = (previewResponse) => {
     dispatch(
       doOpenModal(MODALS.PUBLISH_PREVIEW, {
         previewResponse,
@@ -338,7 +338,7 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
   };
 
   if (preview) {
-    dispatch(doPublish(publishSuccess, publishFail, publishPreview));
+    dispatch(doPublish(publishSuccess, publishFail, publishPreviewFn));
     return;
   }
 
@@ -354,7 +354,7 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
   dispatch(doPublish(publishSuccess, publishFail));
 };
 
-export const doPublishResume = (publishPayload: any) => (dispatch: Dispatch, getState: () => {}) => {
+export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: () => {}) => {
   const publishSuccess = (successResponse, lbryFirstError) => {
     const state = getState();
     const myClaimIds: Set<string> = selectMyActiveClaims(state);
@@ -407,7 +407,7 @@ export const doPublishResume = (publishPayload: any) => (dispatch: Dispatch, get
     dispatch(batchActions(...actions));
   };
 
-  dispatch(doPublish(publishSuccess, publishFail, false, publishPayload));
+  dispatch(doPublish(publishSuccess, publishFail, null, publishPayload));
 };
 
 export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
@@ -690,11 +690,11 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
   }
 };
 
-export const doPublish = (success: Function, fail: Function, preview: Function, payload: any) => (
+export const doPublish = (success: Function, fail: Function, previewFn?: Function, payload?: FileUploadSdkParams) => (
   dispatch: Dispatch,
   getState: () => {}
 ) => {
-  if (!preview) {
+  if (!previewFn) {
     dispatch({ type: ACTIONS.PUBLISH_START });
   }
 
@@ -708,13 +708,14 @@ export const doPublish = (success: Function, fail: Function, preview: Function, 
   /** protected content and members-only chat functionality **/
   const { restrictedToMemberships, channelClaimId } = publishData;
 
-  const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, preview);
+  const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
 
   // return
 
-  if (preview) {
+  if (previewFn) {
     return Lbry.publish(publishPayload).then((previewResponse: PublishResponse) => {
-      return preview(previewResponse);
+      // $FlowIgnore
+      return previewFn(previewResponse);
     }, fail);
   }
 
@@ -845,7 +846,7 @@ export function doUpdateUploadAdd(
   };
 }
 
-export const doUpdateUploadProgress = (props: { guid: string, progress?: string, status?: string }) => (
+export const doUpdateUploadProgress = (props: { guid: string, progress?: string, status?: UploadStatus }) => (
   dispatch: Dispatch
 ) =>
   dispatch({

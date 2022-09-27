@@ -93,6 +93,7 @@ type Props = {
   isAChannelMember: boolean,
   channelTiersWithMembersOnlyChatPerk: ?Array<string>,
   myValidMembershipIds: ?Array<string>,
+  commentSettingDisabled: ?boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -138,6 +139,7 @@ export function CommentCreate(props: Props) {
     textInjection,
     tipChannelName,
     uri,
+    commentSettingDisabled,
   } = props;
 
   const myValidMembershipIdsSet = new Set(myValidMembershipIds);
@@ -177,7 +179,13 @@ export function CommentCreate(props: Props) {
 
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
-  const disabled = deletedComment || isSubmitting || isFetchingChannels || hasNothingToSumbit || disableInput;
+  const disabled =
+    commentSettingDisabled ||
+    deletedComment ||
+    isSubmitting ||
+    isFetchingChannels ||
+    hasNothingToSumbit ||
+    disableInput;
   const channelSettings = channelClaimId ? settingsByChannelId[channelClaimId] : undefined;
   const livestreamChatMembersOnlyEnabled = channelSettings?.public_show_protected;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;

@@ -11,6 +11,7 @@ import React from 'react';
 
 type Props = {
   isPopoutWindow?: boolean,
+  claimIsMine?: boolean,
   hyperchatsHidden?: boolean,
   noHyperchats?: boolean,
   isMobile?: boolean,
@@ -19,8 +20,10 @@ type Props = {
   setPopoutWindow?: (any) => void,
   toggleHyperchats?: () => void,
   toggleIsCompact?: () => void,
-  activeChannelClaim: ChannelClaim,
-  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
+  activeChannelClaim?: ChannelClaim,
+  setLivestreamChatMembersOnlyCreatorSetting?: any,
+  // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
+  settingsByChannelId?: { [string]: PerChannelSettings },
 };
 
 export default function LivestreamMenu(props: Props) {
@@ -51,13 +54,17 @@ export default function LivestreamMenu(props: Props) {
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
 
   function updateLivestreamMembersOnlyChat() {
-    setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, !livestreamChatMembersOnly);
-    setLivestreamChatMembersOnly(!livestreamChatMembersOnly);
+    if (activeChannelClaim && setLivestreamChatMembersOnlyCreatorSetting) {
+      // $FlowFixMe
+      setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, !livestreamChatMembersOnly);
+      setLivestreamChatMembersOnly(!livestreamChatMembersOnly);
+    }
   }
 
   React.useEffect(() => {
-    if (settingsByChannelId) {
-      const channelSettings = settingsByChannelId?.[activeChannelClaim?.claim_id];
+    if (settingsByChannelId && activeChannelClaim) {
+      // $FlowFixMe
+      const channelSettings = settingsByChannelId?.[activeChannelClaim.claim_id];
       const livestreamChatMembersOnlyInSettings = channelSettings?.public_show_protected;
       if (livestreamChatMembersOnlyInSettings) {
         setLivestreamChatMembersOnly(true);
@@ -108,10 +115,10 @@ export default function LivestreamMenu(props: Props) {
           {/* TODO: would be nice if there was a toast here to say "chat is now members-only" */}
           {claimIsMine && (
             <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
-            <span className="menu__link">
-              <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
-              {__(toggleLivestreamChatMembersOnlyText)}
-            </span>
+              <span className="menu__link">
+                <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
+                {__(toggleLivestreamChatMembersOnlyText)}
+              </span>
             </MenuItem>
           )}
           <MenuItem className="comment__menu-option" onSelect={() => setShowTimestamps(!showTimestamps)}>

@@ -37,7 +37,6 @@ type Props = {
   claimWasPurchased: boolean,
   clearPosition: (uri: string) => void,
   commentsListTitle: string,
-  contentCommentsDisabled: boolean,
   costInfo: ?{ includesData: boolean, cost: number },
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doClearPlayingUri: () => void,
@@ -63,6 +62,7 @@ type Props = {
   renderMode: string,
   rentalTag: string,
   settingsByChannelId: { [channelId: string]: PerChannelSettings },
+  commentSettingDisabled: ?boolean,
   threadCommentId?: string,
   uri: string,
   videoTheaterMode: boolean,
@@ -87,14 +87,13 @@ export default function FilePage(props: Props) {
     linkedCommentId,
     threadCommentId,
     videoTheaterMode,
-
+    commentSettingDisabled,
     audioVideoDuration,
     claimId,
     claimIsMine,
     claimWasPurchased,
     clearPosition,
     commentsListTitle,
-    contentCommentsDisabled,
     doCheckIfPurchasedClaimId,
     doFetchCostInfoForUri,
     doFileGet,
@@ -136,7 +135,6 @@ export default function FilePage(props: Props) {
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
 
-  const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
   const livestreamChatMembersOnly = channelSettings?.public_show_protected;
 
   const cost = costInfo ? costInfo.cost : null;
@@ -321,8 +319,7 @@ export default function FilePage(props: Props) {
               {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
 
               <React.Suspense fallback={null}>
-                {contentCommentsDisabled ? (
-                  // content disabled based on tag for content
+                {commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
                 ) : livestreamChatMembersOnly ? (
                   // user has comments disabled for entire channel
@@ -330,24 +327,19 @@ export default function FilePage(props: Props) {
                     {...emptyMsgProps}
                     text={__('Comments are members-only, please join a membership to access comments.')}
                   />
-                ) : commentSettingDisabled ? (
-                  // user has comments disabled for entire channel
-                  <Empty {...emptyMsgProps} text={__('This channel has disabled comments on their page.')} />
                 ) : isMobile && !isLandscapeRotated ? (
-                  // mobile mode comments
-                  <>
+                  <React.Fragment>
                     <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
-                      {!unauthorizedForContent && (<CommentsList {...commentsListProps} />)}
+                      {!unauthorizedForContent && <CommentsList {...commentsListProps} />}
                     </SwipeableDrawer>
 
                     <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
-                  </>
+                  </React.Fragment>
                 ) : (
                   <>
                     {/* normal comments list */}
-                    {!unauthorizedForContent && (<CommentsList {...commentsListProps} notInDrawer />)}
+                    {!unauthorizedForContent && <CommentsList {...commentsListProps} notInDrawer />}
                   </>
-
                 )}
               </React.Suspense>
             </section>
@@ -359,11 +351,11 @@ export default function FilePage(props: Props) {
 
       {!isMarkdown
         ? !theaterMode && <RightSideContent {...rightSideProps} />
-        : !contentCommentsDisabled && (
+        : !commentSettingDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
                 <>
-                  {!unauthorizedForContent && (<CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />)}
+                  {!unauthorizedForContent && <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />}
                 </>
               </React.Suspense>
             </div>

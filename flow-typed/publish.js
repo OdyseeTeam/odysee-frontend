@@ -73,15 +73,20 @@ declare type FileUploadSdkParams = {
   // Temporary values; remove when passing to SDK
   guid: string,
   uploadUrl?: string,
+  sdkRan?: boolean,
   isMarkdown: boolean,
 };
+
+declare type UploadStatus = 'error' | 'retry' | 'notify_ok' | 'notify_failed' | 'conflict';
+// declare type PublishStage = '1_uploading' | '2_upload_done' | '3_sdk_publishing' | '4_skd_publish_done';
 
 declare type FileUploadItem = {
   params: FileUploadSdkParams,
   file: File,
   fileFingerprint: string,
   progress: string,
-  status?: string,
+  status?: UploadStatus,
+  sdkRan?: boolean,
   uploader?: TusUploader | XMLHttpRequest,
   resumable: boolean,
 };

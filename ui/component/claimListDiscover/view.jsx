@@ -85,6 +85,7 @@ type Props = {
   meta?: Node,
   subSection?: Node, // Additional section below [Header|Meta]
   renderProperties?: (Claim) => Node,
+  csOptionsHook?: (options: any) => any, // Final client-side tweak of Claim Search options.
 
   history: { action: string, push: (string) => void, replace: (string) => void },
   location: { search: string, pathname: string },
@@ -155,6 +156,7 @@ function ClaimListDiscover(props: Props) {
     freshness,
     defaultFreshness = CS.FRESH_WEEK,
     renderProperties,
+    csOptionsHook,
     includeSupportAction,
     repostedClaimId,
     hideAdvancedFilter,
@@ -446,6 +448,10 @@ function ClaimListDiscover(props: Props) {
     } else {
       options.claim_type = ['stream', 'channel'];
     }
+  }
+
+  if (csOptionsHook) {
+    options = csOptionsHook(options);
   }
 
   const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));

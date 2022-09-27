@@ -1,9 +1,6 @@
 import { connect } from 'react-redux';
-import { makeSelectTagInClaimOrChannelForUri, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { doSetPrimaryUri } from 'redux/actions/content';
-import { doUserSetReferrer } from 'redux/actions/user';
-import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getChannelIdFromClaim } from 'util/claim';
 import {
@@ -16,7 +13,7 @@ import * as SETTINGS from 'constants/settings';
 import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { doGetMembershipTiersForContentClaimId } from 'redux/actions/memberships';
-
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import LivestreamPage from './view';
 
 const select = (state, props) => {
@@ -27,11 +24,10 @@ const select = (state, props) => {
   const channelClaimId = getChannelIdFromClaim(claim);
 
   return {
+    chatDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     channelClaimId,
-    chatDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
-    isAuthenticated: selectUserVerifiedEmail(state),
     isStreamPlaying: selectIsUriCurrentlyPlaying(state, uri),
     socketConnection: selectSocketConnectionForId(state, claimId),
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
@@ -42,7 +38,6 @@ const select = (state, props) => {
 
 const perform = {
   doSetPrimaryUri,
-  doUserSetReferrer,
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchChannelLiveStatus,

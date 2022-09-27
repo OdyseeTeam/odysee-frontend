@@ -10,7 +10,7 @@ type Props = {
   closeModal: () => void,
   error: ?string,
   rewardIsPending: boolean,
-  setReferrer: (string, boolean) => void,
+  doUserSetReferrerForUri: (referrerUri: string) => void,
   referrerSetPending: boolean,
   referrerSetError?: string,
   resetReferrerError: () => void,
@@ -35,8 +35,8 @@ class ModalSetReferrer extends React.PureComponent<Props, State> {
 
   handleSubmit() {
     const { referrer } = this.state;
-    const { setReferrer } = this.props;
-    setReferrer(referrer, true);
+    const { doUserSetReferrerForUri } = this.props;
+    doUserSetReferrerForUri(referrer);
   }
 
   handleClose() {

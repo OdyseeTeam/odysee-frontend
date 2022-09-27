@@ -22,6 +22,7 @@ import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
+import { platform } from 'util/platform';
 import AdBlockTester from 'web/component/adBlockTester';
 import AdsSticky from 'web/component/adsSticky';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
@@ -76,7 +77,7 @@ type Props = {
   syncError: ?string,
   prefsReady: boolean,
   rewards: Array<Reward>,
-  setReferrer: (string, boolean) => void,
+  doUserSetReferrerForUri: (referrerUri: string) => void,
   isAuthenticated: boolean,
   syncLoop: (?boolean) => void,
   currentModal: any,
@@ -116,7 +117,7 @@ function App(props: Props) {
     setLanguage,
     fetchLanguage,
     rewards,
-    setReferrer,
+    doUserSetReferrerForUri,
     isAuthenticated,
     syncLoop,
     currentModal,
@@ -162,7 +163,7 @@ function App(props: Props) {
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const renderFiledrop = !isMobile && isAuthenticated;
+  const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
   const connectionStatus = useConnectionStatus();
 
   const urlPath = pathname + hash;
@@ -200,6 +201,8 @@ function App(props: Props) {
 
     if (!path.startsWith('$/') && match && match.index) {
       uri = `lbry://${path.slice(0, match.index)}`;
+    } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
+      uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
     }
   }
 
@@ -307,13 +310,11 @@ function App(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (referredRewardAvailable && sanitizedReferrerParam && isRewardApproved) {
-      setReferrer(sanitizedReferrerParam, true);
-    } else if (referredRewardAvailable && sanitizedReferrerParam) {
-      setReferrer(sanitizedReferrerParam, false);
+    if (referredRewardAvailable && sanitizedReferrerParam) {
+      doUserSetReferrerForUri(sanitizedReferrerParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sanitizedReferrerParam, isRewardApproved, referredRewardAvailable]);
+  }, [sanitizedReferrerParam, referredRewardAvailable]);
 
   useEffect(() => {
     // @if TARGET='app'
@@ -565,7 +566,7 @@ function App(props: Props) {
         <React.Fragment>
           <AdBlockTester />
           <AdsSticky uri={uri} />
-          <Router uri={uri} embedLatestPath={embedLatestPath} />
+          <Router uri={uri} />
           <ModalRouter />
 
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>

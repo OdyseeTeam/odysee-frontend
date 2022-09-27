@@ -81,7 +81,14 @@ type Props = {
   firstCollectionItemUrl: ?string,
   isMature: boolean,
   location: { state?: { overrideFloating?: boolean } },
-  doCommentSocketConnect: (string, string, string) => void,
+  isProtectedContent: boolean,
+  doCommentSocketConnect: (
+    uri: string,
+    channelName: string,
+    claimId: string,
+    subCategory: ?string,
+    protectedEndpoint: boolean
+  ) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doClearPlayingUri: () => void,
   doClearQueueList: () => void,

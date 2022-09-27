@@ -2,11 +2,10 @@ import { connect } from 'react-redux';
 import { doSetContentHistoryItem, doSetPrimaryUri, clearPosition } from 'redux/actions/content';
 import { withRouter } from 'react-router-dom';
 import {
-  makeSelectTagInClaimOrChannelForUri,
-  selectClaimForUri,
   selectClaimIsNsfwForUri,
-  selectClaimWasPurchasedForUri,
   selectIsStreamPlaceholderForUri,
+  selectClaimForUri,
+  selectClaimWasPurchasedForUri,
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
@@ -22,8 +21,11 @@ import {
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
 } from 'redux/selectors/content';
-import { selectCommentsListTitleForUri, selectSettingsByChannelId } from 'redux/selectors/comments';
-import { DISABLE_COMMENTS_TAG } from 'constants/tags';
+import {
+  selectCommentsListTitleForUri,
+  selectCommentsDisabledSettingForChannelId,
+  selectSettingsByChannelId,
+} from 'redux/selectors/comments';
 import { doToggleAppDrawer, doSetMainPlayerDimension } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doFileGet } from 'redux/actions/file';
@@ -31,10 +33,7 @@ import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import FilePage from './view';
 import { doGetMembershipTiersForContentClaimId, doMembershipMine } from 'redux/actions/memberships';
-import {
-  selectMembershipMineData,
-  selectIfUnauthorizedForContent,
-} from 'redux/selectors/memberships';
+import { selectMembershipMineData, selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -43,17 +42,16 @@ const select = (state, props) => {
   const urlParams = new URLSearchParams(search);
   const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
-
   const channelId = getChannelIdFromClaim(claim);
+
   const claimId = claim.claim_id;
 
   return {
-    audioVideoDuration: claim?.value?.video?.duration || claim?.value?.audio?.duration,
+    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelId),
     channelId,
     claimId,
     claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
-    contentCommentsDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
     costInfo: selectCostInfoForUri(state, uri),
     fileInfo: makeSelectFileInfoForUri(uri)(state),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),

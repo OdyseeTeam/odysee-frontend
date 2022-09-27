@@ -17,7 +17,7 @@ import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
-import { setLivestreamChatMembersOnlyCreatorSetting } from '../../redux/actions/comments';
+// import { setLivestreamChatMembersOnlyCreatorSetting } from '../../redux/actions/comments';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -27,6 +27,7 @@ const COMMENT_SCROLL_TIMEOUT = 25;
 
 type Props = {
   customViewMode?: string,
+  claimIsMine: boolean,
   embed?: boolean,
   hideHeader?: boolean,
   hyperchatsHidden?: boolean,
@@ -57,6 +58,9 @@ type Props = {
   chatCommentsRestrictedToChannelMembers: boolean,
   activeChannelId: string,
   activeChannelClaim: ChannelClaim,
+  settingsByChannelId: { [string]: PerChannelSettings }, // ChannelID -> settings
+  unauthorizedForContent: any,
+  setLivestreamChatMembersOnlyCreatorSetting: any,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 

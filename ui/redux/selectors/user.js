@@ -108,6 +108,7 @@ export const selectYouTubeImportPending = (state) => selectState(state).youtubeC
 export const selectYouTubeImportError = (state) => selectState(state).youtubeChannelImportErrorMessage;
 export const selectSetReferrerPending = (state) => selectState(state).referrerSetIsPending;
 export const selectSetReferrerError = (state) => selectState(state).referrerSetError;
+export const selectReferrer = (state) => selectState(state).referrerSet;
 
 export const selectYouTubeImportVideosComplete = createSelector(selectState, (state) => {
   const total = state.youtubeChannelImportTotal;
