@@ -5,14 +5,15 @@ import JoinMembershipCard from 'component/joinMembershipCard';
 
 type Props = {
   uri: string,
+  passedTier?: CreatorMembership,
   // -- redux --
   doHideModal: () => void,
   membershipIndex: ?number,
-  protectedMembershipIds: ?Array<number>
+  protectedMembershipIds: ?Array<number>,
 };
 class ModalJoinMembership extends React.PureComponent<Props> {
   render() {
-    const { uri, doHideModal, membershipIndex, protectedMembershipIds } = this.props;
+    const { uri, passedTier, doHideModal, membershipIndex, protectedMembershipIds } = this.props;
 
     return (
       <Modal onAborted={doHideModal} isOpen type="card">
@@ -21,6 +22,7 @@ class ModalJoinMembership extends React.PureComponent<Props> {
           doHideModal={doHideModal}
           membershipIndex={membershipIndex}
           protectedMembershipIds={protectedMembershipIds}
+          passedTier={passedTier}
         />
       </Modal>
     );

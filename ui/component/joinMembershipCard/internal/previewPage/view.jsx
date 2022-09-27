@@ -139,8 +139,7 @@ const PreviewPage = (props: Props) => {
               membership={membership}
               handleSelect={() => {
                 setMembershipIndex(index);
-                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index });
-                // handleSelect();
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTier: membership });
               }}
               index={index}
               length={creatorMemberships.length}

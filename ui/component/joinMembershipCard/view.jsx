@@ -12,6 +12,7 @@ type Props = {
   doHideModal: () => void,
   membershipIndex: number,
   protectedMembershipIds: Array<number>,
+  passedTier?: CreatorMembership,
   // -- redux --
   activeChannelClaim: ChannelClaim,
   channelName: ?string,
@@ -31,6 +32,7 @@ const JoinMembershipCard = (props: Props) => {
     doHideModal,
     membershipIndex,
     protectedMembershipIds,
+    passedTier,
     // -- redux --
     activeChannelClaim,
     channelName,
@@ -44,9 +46,11 @@ const JoinMembershipCard = (props: Props) => {
     doToast,
   } = props;
 
-  const [isOnConfirmationPage, setConfirmationPage] = React.useState(false);
+  const skipToConfirmation = Boolean(passedTier);
+
+  const [isOnConfirmationPage, setConfirmationPage] = React.useState(skipToConfirmation);
   const [selectedMembershipIndex, setMembershipIndex] = React.useState(0);
-  const selectedTier = creatorMemberships && creatorMemberships[selectedMembershipIndex];
+  const selectedTier = passedTier || (creatorMemberships && creatorMemberships[selectedMembershipIndex]);
 
   function handleJoinMembership() {
     if (!selectedTier) return;
