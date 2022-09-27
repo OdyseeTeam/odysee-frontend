@@ -5,7 +5,7 @@ import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import PreviewPage from './view';
-import { getChannelTitleFromClaim } from 'util/claim';
+import { getChannelFromClaim, getChannelTitleFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -14,10 +14,7 @@ const select = (state, props) => {
 
   const channelTitle = getChannelTitleFromClaim(claim);
 
-  let channelUri = null;
-  if (claim) {
-    channelUri = claim.canonical_url;
-  }
+  const { canonical_url: channelUri } = getChannelFromClaim(claim) || {};
 
   return {
     canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
