@@ -25,6 +25,7 @@ export default function PopoutChatPage(props: Props) {
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelClaim.canonical_url);
 
+    // TODO: replace here
     if (claimId && channelName) doCommentSocketConnectAsCommenter(uri, channelName, claimId);
 
     return () => {

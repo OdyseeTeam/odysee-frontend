@@ -149,6 +149,7 @@ export default function EmbedWrapperPage(props: Props) {
 
     const channelName = formatLbryChannelName(channelUrl);
 
+    // TODO: here
     doCommentSocketConnect(canonicalUrl, channelName, claimId);
 
     return () => {

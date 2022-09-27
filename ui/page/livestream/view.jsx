@@ -51,6 +51,7 @@ export default function LivestreamPage(props: Props) {
     doUserSetReferrer,
     theaterMode,
     doGetMembershipTiersForContentClaimId,
+    isProtectedContent,
   } = props;
 
   const isMobile = useIsMobile();
@@ -88,8 +89,11 @@ export default function LivestreamPage(props: Props) {
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
+    const reversedClaimId = claimId.split('').reverse().join('');
+    const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
+
     if (claimId && channelName && !socketConnection?.connected) {
-      doCommentSocketConnect(uri, channelName, claimId);
+      doCommentSocketConnect(uri, channelName, claimIdToUse, undefined, isProtectedContent);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
   }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri]);

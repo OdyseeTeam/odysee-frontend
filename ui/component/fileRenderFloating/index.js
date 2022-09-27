@@ -5,6 +5,7 @@ import {
   selectClaimWasPurchasedForUri,
   selectGeoRestrictionForUri,
   selectClaimIsNsfwForUri,
+  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
@@ -85,6 +86,7 @@ const select = (state, props) => {
     mainPlayerDimensions: selectMainPlayerDimensions(state),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     isMature: selectClaimIsNsfwForUri(state, uri),
+    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
   };
 };
 

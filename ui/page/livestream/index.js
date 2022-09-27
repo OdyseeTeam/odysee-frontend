@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { makeSelectTagInClaimOrChannelForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { makeSelectTagInClaimOrChannelForUri, selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { doSetPrimaryUri } from 'redux/actions/content';
 import { doUserSetReferrer } from 'redux/actions/user';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -27,15 +27,16 @@ const select = (state, props) => {
   const channelClaimId = getChannelIdFromClaim(claim);
 
   return {
-    uri: canonical_url || '',
-    isAuthenticated: selectUserVerifiedEmail(state),
-    channelClaimId,
-    chatDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
-    socketConnection: selectSocketConnectionForId(state, claimId),
+    channelClaimId,
+    chatDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
+    isAuthenticated: selectUserVerifiedEmail(state),
     isStreamPlaying: selectIsUriCurrentlyPlaying(state, uri),
+    socketConnection: selectSocketConnectionForId(state, claimId),
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    uri: canonical_url || '',
+    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
   };
 };
 

@@ -105,7 +105,7 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
   );
 };
 
-export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch) => {
+export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, protectedEndpoint) => (dispatch) => {
   const url =
     subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
       ? getCommentSocketUrlForCommenter(claimId, channelName)
@@ -116,9 +116,14 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) =
     (response) => {
       if (response.type === 'delta') {
         const newComment = response.data.comment;
+
+        // for the protected livechat endpoints endpoint
+        const reversedClaimId = claimId.split('').reverse().join('');
+        const claimIdToUse = protectedEndpoint ? reversedClaimId : claimId;
+
         dispatch({
           type: ACTIONS.COMMENT_RECEIVED,
-          data: { comment: newComment, claimId, uri },
+          data: { comment: newComment, claimId: claimIdToUse, uri },
         });
       }
       if (response.type === 'viewers') {

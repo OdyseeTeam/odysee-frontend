@@ -128,6 +128,7 @@ export default function FileRenderFloating(props: Props) {
     doClearQueueList,
     doOpenModal,
     doClearPlayingSource,
+    isProtectedContent,
   } = props;
 
   const { state } = location;
@@ -260,10 +261,13 @@ export default function FileRenderFloating(props: Props) {
 
     const channelName = formatLbryChannelName(channelUrl);
 
+    const reversedClaimId = claimId.split('').reverse().join('');
+    const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
+
     // Only connect if not yet connected, so for example clicked on an embed instead of accessing
     // from the Livestream page
     if (!socketConnection?.connected) {
-      doCommentSocketConnect(uri, channelName, claimId);
+      doCommentSocketConnect(uri, channelName, claimIdToUse, undefined, isProtectedContent);
     }
 
     // This will be used to disconnect for every case, since this is the main player component
