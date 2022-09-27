@@ -14,7 +14,7 @@ type Props = {
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 export default function PreviewOverlayProtectedContent(props: Props) {
   const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
-  console.log('props: ', props);
+  // console.log('props: ', props);
 
   const userIsAMember = React.useMemo(() => {
     return (

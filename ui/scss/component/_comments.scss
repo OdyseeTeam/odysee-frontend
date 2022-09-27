@@ -283,6 +283,10 @@ $thumbnailWidthSmall: 2rem;
     }
   }
 
+  .icon {
+    color: var(--color-text);
+  }
+
   .comment__author--creator {
     margin-top: 0;
     &:hover {

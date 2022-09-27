@@ -12,6 +12,11 @@ const select = (state, props) => {
   const claimId = claim && claim.claim_id;
   const channelId = claim && claim?.signing_channel?.claim_id;
 
+  console.log('channelId: ', channelId);
+  console.log('claimId: ', claimId);
+  const test = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
+  if (test) console.log('test: ', test);
+
   return {
     claimIsMine: selectClaimIsMine(state, claim),
     claim,
