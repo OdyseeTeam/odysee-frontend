@@ -89,10 +89,6 @@ export default function ChatLayout(props: Props) {
     settingsByChannelId,
   } = props;
 
-  // TODO: replace this with creator setting
-  l('chatCommentsRestrictedToChannelMembers');
-  l(chatCommentsRestrictedToChannelMembers);
-
   const isMobile = useIsMobile() && !isPopoutWindow;
   const isLimitedPopout = useIsMobile() && isPopoutWindow;
 
