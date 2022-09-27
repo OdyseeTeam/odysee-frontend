@@ -18,6 +18,8 @@ export const selectUserEmail = createSelector(selectUser, (user) =>
 
 export const selectUserPhone = createSelector(selectUser, (user) => (user ? user.phone_number : null));
 
+export const selectUserCreationDate = (state) => selectUser(state)?.created_at || null;
+
 export const selectUserCountryCode = createSelector(selectUser, (user) => (user ? user.country_code : null));
 
 export const selectEmailToVerify = createSelector(
@@ -33,6 +35,7 @@ export const selectPhoneToVerify = createSelector(
 );
 
 export const selectYoutubeChannels = createSelector(selectUser, (user) => (user ? user.youtube_channels : null));
+export const selectHasYoutubeChannels = (state) => Number.isInteger(selectYoutubeChannels(state)?.length);
 
 export const selectUserIsRewardApproved = createSelector(selectUser, (user) => user && user.is_reward_approved);
 
@@ -106,6 +109,7 @@ export const selectYouTubeImportPending = (state) => selectState(state).youtubeC
 export const selectYouTubeImportError = (state) => selectState(state).youtubeChannelImportErrorMessage;
 export const selectSetReferrerPending = (state) => selectState(state).referrerSetIsPending;
 export const selectSetReferrerError = (state) => selectState(state).referrerSetError;
+export const selectReferrer = (state) => selectState(state).referrerSet;
 
 // undefined = not fetched
 // '' = no membership

@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import TopPage from './view';
-import { doClearPublish, doPrepareEdit } from 'redux/actions/publish';
-import { doResolveUris } from 'redux/actions/claims';
+// import { doClearPublish, doPrepareEdit } from 'redux/actions/publish';
+import { doClearPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 import { push } from 'connected-react-router';
 import * as PAGES from 'constants/pages';
@@ -19,10 +19,9 @@ const select = (state, props) => {
 const perform = (dispatch) => ({
   beginPublish: (name) => {
     dispatch(doClearPublish());
-    dispatch(doPrepareEdit({ name }));
+    // dispatch(doPrepareEdit({ name }));
     dispatch(push(`/$/${PAGES.UPLOAD}`));
   },
-  doResolveUris: (uris) => dispatch(doResolveUris(uris)),
   doOpenModal: (id, props) => dispatch(doOpenModal(id, props)),
 });
 

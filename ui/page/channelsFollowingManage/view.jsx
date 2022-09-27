@@ -56,8 +56,7 @@ export default function ChannelsFollowingManage(props: Props) {
     } else {
       setFilteredUris(filteredUris);
     }
-    // (only need to respond to 'filterQuery')
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only need to respond to 'filterQuery'
   }, [filterQuery]);
 
   React.useEffect(() => {
@@ -75,7 +74,7 @@ export default function ChannelsFollowingManage(props: Props) {
           <Spinner delayed />
         </div>
       ) : uris && uris.length === 0 ? (
-        <Empty padded text="No followed channels." />
+        <Empty padded text={__('No followed channels.')} />
       ) : (
         <>
           <DebouncedInput icon={ICONS.SEARCH} placeholder={__('Filter')} onChange={setFilterQuery} inline />
@@ -123,6 +122,7 @@ export default function ChannelsFollowingManage(props: Props) {
                 pageSize={FOLLOW_PAGE_SIZE}
                 loading={isLoadingPage}
                 useLoadingSpinner
+                showHiddenByUser
               />
             </>
           )}

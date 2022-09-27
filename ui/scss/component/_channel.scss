@@ -3,6 +3,20 @@ $metadata-z-index: 1;
 $actions-z-index: 2;
 
 .channelPage-wrapper {
+  .section__header--actions {
+    @media (max-width: $breakpoint-small) {
+      .section__actions {
+        width: 100%;
+      }
+    }
+  }
+
+  .emoji-categories {
+    margin-bottom: -47.5px;
+  }
+  #emoji-code-preview {
+    left: 18px;
+  }
   .button-group {
     .button__content {
       .icon {
@@ -254,6 +268,20 @@ $actions-z-index: 2;
   width: 3rem;
 }
 
+.playlist-channel {
+  .channel-thumbnail--xsmall {
+    height: 2.1rem !important;
+    width: 2.1rem !important;
+
+    div,
+    img,
+    canvas {
+      max-width: 100%;
+      max-height: 100%;
+    }
+  }
+}
+
 .channel-thumbnail--xsmall {
   height: 2.1rem;
   width: 2.1rem;
@@ -441,10 +469,6 @@ $actions-z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-
-  .button {
-    // height: auto;
-  }
 }
 
 .channel__quick-actions {
@@ -559,7 +583,6 @@ $actions-z-index: 2;
     margin: 0;
 
     &[data-selected] {
-      // background: transparent;
       .channel__list-item,
       .channel-staked__wrapper {
         background-color: var(--color-primary);
@@ -586,6 +609,27 @@ $actions-z-index: 2;
         }
       }
 
+      .claim-preview__title {
+        margin-right: var(--spacing-xs);
+      }
+      .claim-preview__title,
+      .channel__list-text {
+        margin-bottom: -3px;
+      }
+      .comment__badge {
+        svg {
+          width: 1.4rem;
+          height: 1.4rem;
+          margin-bottom: -2px;
+        }
+      }
+
+      .icon__wrapper {
+        width: 1.4rem;
+        height: 1.4rem;
+        margin-right: var(--spacing-xs);
+      }
+
       &:hover {
         .icon__wrapper {
           .icon {
@@ -603,19 +647,37 @@ $actions-z-index: 2;
   background-color: var(--color-header-background);
   padding: var(--spacing-s);
   overflow: hidden;
+  height: var(--height-button);
 
   .comment__badge {
     padding-right: 0px;
 
     svg {
-      height: 2rem;
-      width: 2rem;
+      width: 1.4rem;
+      height: 1.4rem;
     }
   }
 
   .channel-thumbnail {
-    height: 2rem;
-    width: 2rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    .channel-thumbnail__custom {
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+    .ff-container {
+      margin-right: unset !important;
+      canvas {
+        width: 1.4rem !important;
+        height: 1.4rem !important;
+        border-radius: 50%;
+      }
+      .freezeframe-img {
+        width: 1.4rem !important;
+        height: 1.4rem !important;
+        border-radius: 50%;
+      }
+    }
   }
 
   .icon {
@@ -624,13 +686,14 @@ $actions-z-index: 2;
 
   .icon__wrapper {
     padding: 0;
-    height: 2rem;
-    width: 2rem;
-    margin-right: var(--spacing-m);
+    height: 1.4rem;
+    width: 1.4rem;
+    margin-right: var(--spacing-xs);
     border-radius: var(--border-radius);
   }
 
   .ff-container {
+    margin-right: var(--spacing-xs) !important;
     canvas {
       border-radius: 50%;
     }
@@ -647,19 +710,37 @@ $actions-z-index: 2;
     .channel__list-text {
       color: var(--color-menu-icon-active);
     }
+
+    .icon__wrapper {
+      background-color: var(--color-header-background) !important;
+      .icon {
+        stroke: var(--color-text) !important;
+      }
+    }
+    .channel__list-text {
+      color: var(--color-primary-contrast);
+    }
   }
 }
 
 .channel__list-item--selected {
   border-radius: var(--border-radius);
 
+  .ff-container {
+    position: unset;
+  }
+
   .icon--ChevronDown {
     margin-left: var(--spacing-l);
   }
 
+  .claim-preview__title {
+    margin-bottom: -3px;
+  }
+
   &:hover {
     .claim-preview__title {
-      color: white;
+      color: var(--color-primary-contrast);
     }
   }
 }
@@ -677,6 +758,7 @@ $actions-z-index: 2;
   }
 
   .ff-container {
+    margin-right: var(--spacing-xs) !important;
     canvas {
       border-radius: 50%;
     }
@@ -688,11 +770,80 @@ $actions-z-index: 2;
   }
 }
 
+.channel__selector--publish {
+  display: inline-block;
+  margin-bottom: 0;
+  margin-top: -2px;
+  width: unset !important;
+
+  .channel-thumbnail {
+    width: 1.4rem;
+    height: 1.4rem;
+    .channel-thumbnail__custom {
+      width: 1.4rem;
+      height: 1.4rem;
+    }
+  }
+  .ff-container {
+    margin-right: var(--spacing-xs) !important;
+    canvas {
+      width: 1.4rem !important;
+      height: 1.4rem !important;
+      border-radius: 50%;
+    }
+    .freezeframe-img {
+      width: 1.4rem !important;
+      height: 1.4rem !important;
+      border-radius: 50%;
+    }
+  }
+
+  .claim-preview__title {
+    margin-right: var(--spacing-xs);
+  }
+  .comment__badge {
+    svg {
+      width: 1.4rem;
+      height: 1.4rem;
+      margin-bottom: -2px;
+    }
+  }
+
+  .channel__list-item {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  .icon--ChevronDown {
+    margin-left: var(--spacing-s);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    margin-top: -2px !important;
+    margin-bottom: 0 !important;
+    width: unset !important;
+    button {
+      padding: 0 !important;
+    }
+  }
+}
+
+.channel__selector--tabHeader {
+  @extend .channel__selector--publish;
+  float: right;
+  margin-left: var(--spacing-xxs);
+  margin-top: 0 !important;
+
+  .channel__list-item {
+    border-radius: var(--border-radius);
+    display: flex !important;
+    align-items: center;
+  }
+}
+
 .channel-staked__wrapper {
   display: flex;
   position: absolute;
   text-align: center;
-  //width: 116%;
   width: 128%;
   left: -14%;
   bottom: -16%;

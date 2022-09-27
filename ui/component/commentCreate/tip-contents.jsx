@@ -1,5 +1,5 @@
 // @flow
-import 'scss/component/_comment-selectors.scss';
+import './style.scss';
 
 import Button from 'component/button';
 import React from 'react';
@@ -60,12 +60,7 @@ export const TipActionButton = (tipButtonProps: TipButtonProps) => {
 
   return (
     (!tipSelectorOpen || activeTab !== tab) && (
-      <Button
-        {...buttonProps}
-        title={name}
-        label={tipSelectorOpen ? __('Switch to %tip_method%', { tip_method: name }) : undefined}
-        onClick={() => onClick(tab)}
-      />
+      <Button {...buttonProps} title={name} label={tipSelectorOpen ? name : undefined} onClick={() => onClick(tab)} />
     )
   );
 };

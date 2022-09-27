@@ -260,7 +260,6 @@ body {
   }
 
   .file-page__recommended {
-    height: 0%;
     width: 32rem;
     margin-left: var(--spacing-l);
 
@@ -290,6 +289,11 @@ body {
             margin-top: 0;
             .channel-name {
               margin-top: 0;
+              p {
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+              }
             }
           }
           span,
@@ -307,11 +311,6 @@ body {
         display: none;
         width: 1.4rem;
         height: 1.4rem;
-        /*
-        @media (max-width: $breakpoint-small) {
-          display: flex;
-          margin-right: var(--spacing-xs);
-        }*/
       }
     }
 
@@ -339,41 +338,6 @@ body {
 
     .card__title-section--body-list {
       width: 100%;
-    }
-
-    .card__header--between {
-      align-items: flex-start !important;
-
-      .card__title-actions {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-end;
-        padding: var(--spacing-s);
-
-        button {
-          margin-top: var(--spacing-xxs);
-        }
-      }
-    }
-
-    .card__title-actions-container {
-      position: absolute;
-      top: 0;
-      right: 0;
-      height: unset;
-      display: unset;
-      flex-direction: unset;
-      .card__title-actions {
-        padding: 0;
-        .button {
-          height: 2rem;
-          padding: 0.5rem;
-        }
-      }
-
-      @media (max-width: $breakpoint-small) {
-        top: calc(var(--spacing-s) * -1);
-      }
     }
 
     .file-page__recommended-collection__row {
@@ -439,30 +403,6 @@ body {
     }
   }
 
-  .file-page__playlist-collection {
-    @extend .file-page__recommended-collection;
-
-    .card__first-pane {
-      .card__header--between {
-        .card__title-section {
-          display: unset !important;
-        }
-      }
-    }
-
-    .file-page__playlist-collection__row {
-      @extend .file-page__recommended-collection__row;
-
-      .button--file-action {
-        &:hover {
-          .icon {
-            stroke: white !important;
-          }
-        }
-      }
-    }
-  }
-
   @media (max-width: $breakpoint-medium) {
     flex-direction: column;
     > :first-child {
@@ -505,18 +445,22 @@ body {
     gap: var(--spacing-l);
 
     .file-page__recommended,
-    .file-page__playlist-collection {
-      margin: 0 !important;
-      height: 100% !important;
-      width: 100% !important;
+    .playlist-card {
+      margin-left: 0px;
+      height: 100%;
+      width: 100%;
       overflow: hidden;
     }
   }
 }
 
+.file-page__secondary-content {
+  @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+    padding-right: calc(var(--spacing-s) + 12px) !important;
+  }
+}
 .card__title-section--body-list {
   display: unset !important;
-  // width: 100%;
   div {
     flex: auto;
   }
@@ -619,16 +563,6 @@ body {
 
   @media (max-width: $breakpoint-medium) {
     padding: 0 var(--spacing-s);
-
-    .card__main-actions {
-      .claim-preview__wrapper {
-        a {
-          .button__content {
-            // align-items: unset;
-          }
-        }
-      }
-    }
   }
 
   @media (max-width: $breakpoint-small) {
@@ -655,6 +589,88 @@ body {
   }
 }
 
+.main--livestream--theater-mode {
+  .livestream__chat {
+    resize: none;
+    position: relative;
+    top: unset !important;
+    margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-m);
+    margin-right: var(--spacing-s);
+  }
+
+  .chat-resize {
+    display: none !important;
+  }
+
+  .livestreamDiscussion__header {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+  }
+
+  .livestream__comment-create {
+    border-radius: 0 0 var(--border-radius) var(--border-radius);
+  }
+
+  .file-page__media-actions {
+    flex: 1;
+  }
+
+  .file-page__secondary-content {
+    display: flex;
+    flex-direction: row;
+    margin-left: auto;
+    margin-right: auto;
+    justify-content: center;
+    width: 100%;
+    max-width: var(--page-max-width--filepage);
+  }
+
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  width: 100vw;
+  max-width: none;
+
+  > :first-child {
+    margin-right: 0;
+  }
+
+  .file-page__info {
+    padding: 0 var(--spacing-m);
+    margin-top: var(--spacing-m);
+    max-width: var(--page-max-width--filepage);
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .file-page__video-container {
+    max-height: unset;
+  }
+
+  .file-page__recommended {
+    @media (max-width: $breakpoint-medium) {
+      width: 100%;
+    }
+  }
+
+  .file-page__secondary-content {
+    padding: 0 var(--spacing-s);
+    flex-direction: row;
+
+    @media (max-width: $breakpoint-medium) {
+      flex-direction: column;
+    }
+  }
+
+  .file-page__recommended {
+    margin-top: 10px;
+  }
+}
+
 .main--full-width {
   @extend .main;
   max-width: none;
@@ -666,6 +682,34 @@ body {
   padding: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+
+  .livestream-hyperchats__wrapper {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .livestream__chat--popout {
+      border-radius: 0;
+      .livestreamComments__wrapper {
+        height: calc(100vh - 50px) !important;
+        .livestream__comment-create {
+          padding: 0 var(--spacing-xxs);
+        }
+      }
+    }
+  }
+  @media (min-width: $breakpoint-small) {
+    .livestream__chat--popout {
+      border-radius: 0;
+      .livestreamComments__wrapper {
+        height: calc(100vh - 55px) !important;
+        .livestream__comment-create {
+          padding-bottom: var(--spacing-s);
+        }
+      }
+    }
+  }
 }
 
 .main--auth-page {
@@ -970,6 +1014,12 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
+
+    .claim-preview__wrapper {
+      .claim-tile__info {
+        margin-top: var(--spacing-xxxs) !important;
+      }
+    }
   }
 }
 
@@ -1138,6 +1188,14 @@ body {
   max-width: 27rem;
   margin-left: auto;
   margin-right: auto;
+
+  .nag--error {
+    border: 2px solid red;
+    background-color: rgba(255, 0, 0, 0.1);
+    left: 0;
+    bottom: unset;
+    top: var(--spacing-s);
+  }
 
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-m);

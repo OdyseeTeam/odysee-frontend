@@ -17,10 +17,14 @@ export default function FileViewCountInline(props: Props) {
   const { isLivestream, claim, viewCount, lang } = props;
   const formattedViewCount = toCompactNotation(viewCount, lang);
 
-  // Limit the view-count visibility to specific pages for now. We'll eventually
+  // Limit the view-count visibili ty to specific pages for now. We'll eventually
   // show it everywhere, so this band-aid would be the easiest to clean up
   // (only one place edit/remove).
-  const pathname: string = window.location.pathname;
+
+  // const pathname: string = window.location.pathname;
+  const pathname: string =
+    window?.odysee?.functions?.history?.entries[window?.odysee?.functions?.history?.index].pathname;
+
   const isOnAllowedPage =
     (pathname && pathname.startsWith('/@') && pathname.indexOf('/', 1) === -1) || // Channel Page
     pathname === `/$/${PAGES.UPLOADS}`;

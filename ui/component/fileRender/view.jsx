@@ -48,12 +48,17 @@ class FileRender extends React.PureComponent<Props> {
 
   componentDidMount() {
     const { renderMode, embedded } = this.props;
+    analytics.event.playerLoaded(renderMode, embedded);
+
+    // @if TARGET='app'
     window.addEventListener('keydown', this.escapeListener, true);
-    analytics.playerLoadedEvent(renderMode, embedded);
+    // @endif
   }
 
   componentWillUnmount() {
+    // @if TARGET='app'
     window.removeEventListener('keydown', this.escapeListener, true);
+    // @endif
   }
 
   escapeListener(e: SyntheticKeyboardEvent<*>) {

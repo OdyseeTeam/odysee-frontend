@@ -1,200 +1,79 @@
 // @flow
 import React from 'react';
-import ClaimList from 'component/claimList';
+import CollectionItemsList from 'component/collectionItemsList';
 import Page from 'component/page';
+import { SECTION_TAGS } from 'constants/collections';
 import * as PAGES from 'constants/pages';
+import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
-import CollectionEdit from 'component/collectionEdit';
-import Card from 'component/common/card';
-import Button from 'component/button';
-import CollectionActions from 'component/collectionActions';
-import classnames from 'classnames';
-import ClaimAuthor from 'component/claimAuthor';
-import FileDescription from 'component/fileDescription';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
-import Icon from 'component/common/icon';
-import * as ICONS from 'constants/icons';
-import Spinner from 'component/spinner';
-
-// prettier-ignore
-const Lazy = {
-  // $FlowFixMe
-  DragDropContext: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.DragDropContext }))),
-  // $FlowFixMe
-  Droppable: React.lazy(() => import('react-beautiful-dnd' /* webpackChunkName: "dnd" */).then((module) => ({ default: module.Droppable }))),
-};
-
-export const PAGE_VIEW_QUERY = 'view';
-export const EDIT_PAGE = 'edit';
+import CollectionPublish from './internal/collectionPublish';
+import CollectionPrivateEdit from './internal/collectionPrivateEdit';
+import CollectionHeader from './internal/collectionHeader';
 
 type Props = {
   collectionId: string,
   uri: string,
-  claim: Claim,
-  title: string,
-  thumbnail: string,
   collection: Collection,
   collectionUrls: Array<string>,
-  collectionCount: number,
+  brokenUrls: ?Array<any>,
   isResolvingCollection: boolean,
-  isMyClaim: boolean,
-  isMyCollection: boolean,
-  claimIsPending: boolean,
-  collectionHasEdits: boolean,
-  deleteCollection: (string, string) => void,
-  editCollection: (string, CollectionEditParams) => void,
-  fetchCollectionItems: (string, () => void) => void,
-  resolveUris: (string) => void,
-  user: ?User,
+  doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
 };
 
 export default function CollectionPage(props: Props) {
   const {
     collectionId,
     uri,
-    claim,
     collection,
     collectionUrls,
-    collectionCount,
-    collectionHasEdits,
-    claimIsPending,
+    brokenUrls,
     isResolvingCollection,
-    editCollection,
-    fetchCollectionItems,
-    deleteCollection,
+    doFetchItemsInCollection,
   } = props;
 
   const {
     replace,
-    location: { search },
+    location: { search, state },
   } = useHistory();
+  const { showEdit: pageShowEdit } = state || {};
 
-  const [didTryResolve, setDidTryResolve] = React.useState(false);
-  const [showInfo, setShowInfo] = React.useState(false);
-  const [showEdit, setShowEdit] = React.useState(false);
-  const [unavailableUris, setUnavailable] = React.useState([]);
+  const [showEdit, setShowEdit] = React.useState(pageShowEdit);
+  const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
   const { name, totalItems } = collection || {};
-  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_LISTS.includes(collectionId);
-
-  function handleOnDragEnd(result) {
-    const { source, destination } = result;
-
-    if (!destination) return;
-
-    const { index: from } = source;
-    const { index: to } = destination;
-
-    editCollection(collectionId, { order: { from, to } });
-  }
 
   const urlParams = new URLSearchParams(search);
-  const editing = urlParams.get(PAGE_VIEW_QUERY) === EDIT_PAGE;
+  const publishing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.PUBLISH;
+  const editing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.EDIT;
+  const returnPath = urlParams.get('redirect');
 
+  const editPage = editing || publishing;
   const urlsReady =
     collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
 
-  React.useEffect(() => {
-    if (collectionId && !urlsReady && !didTryResolve && !collection) {
-      fetchCollectionItems(collectionId, () => setDidTryResolve(true));
+  function handlePreSubmit(params) {
+    if (urlParams.get(CP.QUERIES.TYPE) === CP.TYPES.FEATURED) {
+      const channelId = collection.featuredChannelsParams?.channelId;
+      console.assert(channelId, 'Featured-channels without a parent channel ID'); // eslint-disable-line no-console
+
+      return {
+        ...params,
+        // Inject SECTION_TAGS.FEATURED_CHANNELS as the first tag:
+        tags: [{ name: SECTION_TAGS.FEATURED_CHANNELS }, ...params.tags],
+        // The channel must not be changed:
+        channel_id: channelId,
+      };
     }
-  }, [collectionId, urlsReady, didTryResolve, setDidTryResolve, fetchCollectionItems, collection]);
-
-  const pending = (
-    <div className="help card__title--help">
-      <Spinner type={'small'} />
-      {__('Your publish is being confirmed and will be live soon')}
-    </div>
-  );
-
-  const unpublished = (
-    <Button
-      button="close"
-      icon={ICONS.REFRESH}
-      label={__('Clear Edits')}
-      onClick={() => deleteCollection(collectionId, COLLECTIONS_CONSTS.COL_KEY_EDITED)}
-    />
-  );
-
-  const removeUnavailable = (
-    <Button
-      button="close"
-      icon={ICONS.DELETE}
-      label={__('Remove all unavailable claims')}
-      onClick={() => {
-        editCollection(collectionId, { uris: unavailableUris, remove: true });
-        setUnavailable([]);
-      }}
-    />
-  );
-
-  let titleActions;
-  if (collectionHasEdits) {
-    titleActions = unpublished;
-  } else if (claimIsPending) {
-    titleActions = pending;
+    return params;
   }
 
-  const subTitle = (
-    <div>
-      <span className="collection__subtitle">
-        {collectionCount === 1 ? __('1 item') : __('%collectionCount% items', { collectionCount })}
-      </span>
-      {uri && <ClaimAuthor uri={uri} />}
-    </div>
-  );
+  React.useEffect(() => {
+    if (collectionId && !urlsReady && !collection) {
+      doFetchItemsInCollection({ collectionId });
+    }
+  }, [collectionId, urlsReady, doFetchItemsInCollection, collection]);
 
-  const listName = claim ? claim.value.title || claim.name : collection && collection.name;
-
-  const info = (
-    <Card
-      title={
-        <span>
-          <Icon
-            icon={
-              (collectionId === COLLECTIONS_CONSTS.WATCH_LATER_ID && ICONS.TIME) ||
-              (collectionId === COLLECTIONS_CONSTS.FAVORITES_ID && ICONS.STAR) ||
-              ICONS.STACK
-            }
-            className="icon--margin-right"
-          />
-          {isBuiltin ? __(listName) : listName}
-        </span>
-      }
-      titleActions={unavailableUris.length > 0 ? removeUnavailable : titleActions}
-      subtitle={subTitle}
-      body={
-        <CollectionActions
-          uri={uri}
-          collectionId={collectionId}
-          setShowInfo={setShowInfo}
-          showInfo={showInfo}
-          isBuiltin={isBuiltin}
-          collectionUrls={collectionUrls}
-          setShowEdit={setShowEdit}
-          showEdit={showEdit}
-        />
-      }
-      actions={
-        showInfo &&
-        uri && (
-          <div className="section">
-            <FileDescription uri={uri} expandOverride />
-          </div>
-        )
-      }
-    />
-  );
-
-  if (!collection && (isResolvingCollection || !didTryResolve)) {
-    return (
-      <Page>
-        <h2 className="main--empty empty">{__('Loading...')}</h2>
-      </Page>
-    );
-  }
-
-  if (!collection && !isResolvingCollection && didTryResolve) {
+  if (!collection && !isResolvingCollection) {
     return (
       <Page>
         <h2 className="main--empty empty">{__('Nothing here')}</h2>
@@ -202,50 +81,50 @@ export default function CollectionPage(props: Props) {
     );
   }
 
-  if (editing) {
+  if (editPage) {
+    const getReturnPath = (id) => returnPath || `/$/${PAGES.PLAYLIST}/${id || collectionId}`;
+    const onDone = (id) => replace(getReturnPath(id));
+
     return (
       <Page
         noFooter
-        noSideNavigation={editing}
+        noSideNavigation={editPage}
         backout={{
-          title: __('%action% %collection%', { collection: name, action: uri ? __('Editing') : __('Publishing') }),
-          simpleTitle: uri ? __('Editing') : __('Publishing'),
+          title: __('%action% %collection%', {
+            collection: name,
+            action: uri || editing ? __('Editing') : __('Publishing'),
+          }),
+          simpleTitle: uri || editing ? __('Editing') : __('Publishing'),
+          backNavDefault: getReturnPath(collectionId),
         }}
       >
-        <CollectionEdit
-          uri={uri}
-          collectionId={collectionId}
-          onDone={(id) => {
-            replace(`/$/${PAGES.LIST}/${id}`);
-          }}
-        />
+        {editing ? (
+          <CollectionPrivateEdit collectionId={collectionId} />
+        ) : (
+          <CollectionPublish uri={uri} collectionId={collectionId} onPreSubmit={handlePreSubmit} onDone={onDone} />
+        )}
       </Page>
     );
   }
 
-  if (urlsReady) {
-    return (
-      <Page className="playlistPage-wrapper">
-        {editing}
-        <div className={classnames('section card-stack')}>
-          {info}
-          <React.Suspense fallback={null}>
-            <Lazy.DragDropContext onDragEnd={handleOnDragEnd}>
-              <Lazy.Droppable droppableId="list__ordering">
-                {(DroppableProvided) => (
-                  <ClaimList
-                    uris={collectionUrls}
-                    collectionId={collectionId}
-                    showEdit={showEdit}
-                    droppableProvided={DroppableProvided}
-                    unavailableUris={unavailableUris}
-                  />
-                )}
-              </Lazy.Droppable>
-            </Lazy.DragDropContext>
-          </React.Suspense>
-        </div>
-      </Page>
-    );
-  }
+  return (
+    <Page className="playlists-page-wrapper">
+      <div className="section card-stack">
+        <CollectionHeader
+          collectionId={collectionId}
+          showEdit={showEdit}
+          setShowEdit={setShowEdit}
+          unavailableUris={unavailableUris}
+          setUnavailable={setUnavailable}
+        />
+
+        <CollectionItemsList
+          collectionId={collectionId}
+          showEdit={showEdit}
+          unavailableUris={unavailableUris}
+          showNullPlaceholder
+        />
+      </div>
+    </Page>
+  );
 }

@@ -4,6 +4,7 @@ import 'scss/component/_header.scss';
 // $FlowFixMe
 import { Global } from '@emotion/react';
 
+import { Menu } from '@reach/menu-button';
 import { Menu as MuiMenu, MenuItem as MuiMenuItem } from '@mui/material';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
@@ -15,9 +16,18 @@ import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
 import ChannelSelector from 'component/channelSelector';
 import Button from 'component/button';
-import ClickAwayListener from '@mui/material/ClickAwayListener';
+// import ClickAwayListener from '@mui/material/ClickAwayListener';
+import Tooltip from 'component/common/tooltip';
+import NotificationHeaderButton from 'component/headerNotificationButton';
+import { ENABLE_UI_NOTIFICATIONS } from 'config';
+import { useIsMobile } from 'effects/use-screensize';
 
 type HeaderMenuButtonProps = {
+  currentTheme: string,
+  automaticDarkModeEnabled: boolean,
+  handleThemeToggle: (boolean, string) => void,
+
+  user: ?User,
   myChannelClaimIds: ?Array<string>,
   activeChannelClaim: ?ChannelClaim,
   authenticated: boolean,
@@ -26,10 +36,25 @@ type HeaderMenuButtonProps = {
 };
 
 export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
-  const { myChannelClaimIds, activeChannelClaim, authenticated, email, signOut } = props;
+  const {
+    // Theme
+    currentTheme,
+    automaticDarkModeEnabled,
+    handleThemeToggle,
+
+    // User
+    user,
+    myChannelClaimIds,
+    activeChannelClaim,
+    authenticated,
+    email,
+    signOut,
+  } = props;
+
+  const notificationsEnabled = ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
-  const [clicked, setClicked] = React.useState(false);
+  // const [clicked, setClicked] = React.useState(false);
   const open = Boolean(anchorEl);
   const handleClick = (event) => setAnchorEl(!anchorEl ? event.currentTarget : null);
   const handleClose = () => setAnchorEl(null);
@@ -38,19 +63,9 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
   // activeChannel will be: undefined = fetching, null = nothing, or { channel claim }
   const noActiveChannel = activeChannelUrl === null;
   const pendingChannelFetch = !noActiveChannel && myChannelClaimIds === undefined;
+  const uploadProps = { requiresAuth: !authenticated };
 
-  const handleClickAway = () => {
-    if (!clicked) {
-      if (open) setClicked(true);
-    } else {
-      setAnchorEl(null);
-      setClicked(false);
-    }
-  };
-
-  React.useEffect(() => {
-    if (!open) setClicked(false);
-  }, [open]);
+  const isMobile = useIsMobile();
 
   const menuProps = {
     id: 'basic-menu',
@@ -81,6 +96,20 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
       )}
 
       <div className="header__buttons">
+        {authenticated && !isMobile && (
+          <Menu>
+            <Tooltip title={currentTheme === 'light' ? __('Dark') : __('Light')}>
+              <Button
+                className="header__navigationItem--icon"
+                onClick={() => handleThemeToggle(automaticDarkModeEnabled, currentTheme)}
+              >
+                <Icon icon={currentTheme === 'light' ? ICONS.DARK : ICONS.LIGHT} />
+              </Button>
+            </Tooltip>
+          </Menu>
+        )}
+        {notificationsEnabled && !isMobile && <NotificationHeaderButton />}
+
         {pendingChannelFetch ? (
           <Skeleton variant="circular" animation="wave" className="header__navigationItem--iconSkeleton" />
         ) : (
@@ -114,6 +143,13 @@ export default function HeaderProfileMenuButton(props: HeaderMenuButtonProps) {
               page={PAGES.CREATOR_DASHBOARD}
               icon={ICONS.ANALYTICS}
               name={__('Creator Analytics')}
+            />
+            <HeaderMenuLink
+              useMui
+              {...uploadProps}
+              page={PAGES.YOUTUBE_SYNC}
+              icon={ICONS.YOUTUBE}
+              name={__('Sync YouTube Channel')}
             />
 
             <hr className="menu__separator" />

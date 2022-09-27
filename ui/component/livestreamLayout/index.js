@@ -1,9 +1,9 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, makeSelectTagInClaimOrChannelForUri, selectThumbnailForUri } from 'redux/selectors/claims';
-import { selectSuperChatsForUri } from 'redux/selectors/comments';
+import { selectClaimForUri, selectThumbnailForUri } from 'redux/selectors/claims';
+import { selectHyperChatsForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import LivestreamLayout from './view';
-import { DISABLE_COMMENTS_TAG } from 'constants/tags';
 import { selectViewersForId } from 'redux/selectors/livestream';
+import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -14,8 +14,8 @@ const select = (state, props) => {
   return {
     claim,
     thumbnail: selectThumbnailForUri(state, uri),
-    chatDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
-    superChats: selectSuperChatsForUri(state, uri),
+    chatDisabled: selectCommentsDisabledSettingForChannelId(uri, getChannelIdFromClaim(claim)),
+    superChats: selectHyperChatsForUri(state, uri),
     activeViewers: claimId && selectViewersForId(state, claimId),
   };
 };

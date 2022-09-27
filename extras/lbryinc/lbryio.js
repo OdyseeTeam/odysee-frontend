@@ -18,7 +18,7 @@ Lbryio.setLocalApi = (endpoint) => {
   Lbryio.CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
 };
 
-Lbryio.call = (resource, action, params = {}, method = 'get') => {
+Lbryio.call = (resource, action, params = {}, method = 'post') => {
   if (!Lbryio.enabled) {
     return Promise.reject(new Error(__('LBRY internal API is disabled')));
   }
@@ -81,10 +81,15 @@ Lbryio.call = (resource, action, params = {}, method = 'get') => {
       url = `${Lbryio.CONNECTION_STRING}${resource}/${action}`;
     }
 
-    return makeRequest(url, options).then((response) => {
-      sendCallAnalytics(resource, action, params);
-      return response.data;
-    });
+    return makeRequest(url, options)
+      .then((response) => {
+        sendCallAnalytics(resource, action, params);
+        return response.data;
+      })
+      .catch((error) => {
+        sendFailedCallAnalytics(resource, action, params, error);
+        throw error;
+      });
   });
 };
 
@@ -155,6 +160,11 @@ Lbryio.authenticate = (domain, language) => {
             return user;
           }
 
+          const appId =
+            window.odysee && window.odysee.build.googlePlay
+              ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
+              : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
+
           return new Promise((res, rej) => {
             Lbryio.call(
               'user',
@@ -162,7 +172,7 @@ Lbryio.authenticate = (domain, language) => {
               {
                 auth_token: '',
                 language: language || 'en',
-                app_id: 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V',
+                app_id: appId,
               },
               'post'
             )
@@ -231,7 +241,7 @@ function sendCallAnalytics(resource, action, params) {
   switch (resource) {
     case 'customer':
       if (action === 'tip') {
-        analytics.reportEvent('spend_virtual_currency', {
+        analytics.event.report('spend_virtual_currency', {
           // https://developers.google.com/analytics/devguides/collection/ga4/reference/events#spend_virtual_currency
           value: params.amount,
           virtual_currency_name: params.currency.toLowerCase(),
@@ -244,6 +254,21 @@ function sendCallAnalytics(resource, action, params) {
       // Do nothing
       break;
   }
+}
+
+function sendFailedCallAnalytics(resource, action, params, error) {
+  if ((resource === 'customer' && action === 'status') || (resource === 'user' && action === 'referral')) {
+    // Ignore commands that we use the error as a value, or don't care if it fails.
+    return;
+  }
+
+  const options = {
+    fingerprint: 'internal-api-failures',
+    tags: { analytics: true, method: `${resource}/${action}` },
+    extra: { error, params },
+  };
+
+  analytics.log('Internal API failures', options, 'analytics');
 }
 
 export default Lbryio;

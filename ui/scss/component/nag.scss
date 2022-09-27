@@ -1,6 +1,6 @@
 $nag-z-index: 997;
 $nag-helpful-z-index: 998;
-$nag-error-z-index: 999;
+$nag-error-z-index: 99999999999;
 
 .nag {
   z-index: $nag-z-index;
@@ -41,17 +41,21 @@ $nag-error-z-index: 999;
   background-color: var(--color-primary);
   color: var(--color-white);
   z-index: $nag-helpful-z-index;
-  // border-radius: var(--border-radius);
   margin-top: var(--spacing-s);
 }
 
 .nag--error {
-  background-color: #000;
+  background-color: rgba(0, 0, 0, 0.9);
   color: var(--color-text-error);
   z-index: $nag-error-z-index;
   border-radius: var(--border-radius);
-  margin-top: var(--spacing-s);
-  margin-bottom: var(--spacing-s);
+  left: var(--spacing-s);
+  right: var(--spacing-s);
+  bottom: var(--spacing-s);
+  width: unset;
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  box-sizing: border-box;
 }
 
 .nag__message {
@@ -104,12 +108,18 @@ $nag-error-z-index: 999;
 
 .nag__close {
   margin-left: auto;
+  top: var(--spacing-xs);
   right: var(--spacing-m);
   position: absolute;
   border: none;
 
   svg {
     stroke-width: 4px;
+  }
+
+  @media (max-width: $breakpoint-small) {
+    top: 0;
+    right: 0;
   }
 }
 

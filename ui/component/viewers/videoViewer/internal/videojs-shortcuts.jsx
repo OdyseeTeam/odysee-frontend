@@ -46,6 +46,11 @@ function seekVideo(stepSize: number, playerRef, containerRef, jumpTo?: boolean) 
 
   const duration = videoNode.duration;
   const currentTime = videoNode.currentTime;
+
+  if (isNaN(duration) || isNaN(currentTime)) {
+    return;
+  }
+
   const newDuration = jumpTo ? duration * stepSize : currentTime + stepSize;
   if (newDuration < 0) {
     videoNode.currentTime = 0;
@@ -110,13 +115,11 @@ const VideoJsShorcuts = ({
   playPrevious,
   toggleVideoTheaterMode,
   isMobile,
-  isLivestreamClaim,
 }: {
   playNext: any, // function
   playPrevious: any, // function
   toggleVideoTheaterMode: any, // function
   isMobile: boolean,
-  isLivestreamClaim: boolean,
 }) => {
   function toggleTheaterMode(playerRef) {
     const player = playerRef.current;
@@ -157,7 +160,7 @@ const VideoJsShorcuts = ({
     if (e.keyCode === KEYCODES.M) toggleMute(containerRef);
     if (e.keyCode === KEYCODES.UP) volumeUp(e, playerRef);
     if (e.keyCode === KEYCODES.DOWN) volumeDown(e, playerRef);
-    if (e.keyCode === KEYCODES.T && !isMobile && !isLivestreamClaim) toggleTheaterMode(playerRef);
+    if (e.keyCode === KEYCODES.T && !isMobile) toggleTheaterMode(playerRef);
     if (e.keyCode === KEYCODES.L) seekVideo(SEEK_STEP, playerRef, containerRef);
     if (e.keyCode === KEYCODES.J) seekVideo(-SEEK_STEP, playerRef, containerRef);
     if (e.keyCode === KEYCODES.RIGHT) seekVideo(SEEK_STEP_5, playerRef, containerRef);

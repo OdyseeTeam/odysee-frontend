@@ -3,37 +3,43 @@ import { doSetContentHistoryItem, doSetPrimaryUri, clearPosition } from 'redux/a
 import { withRouter } from 'react-router-dom';
 import {
   selectClaimIsNsfwForUri,
-  makeSelectTagInClaimOrChannelForUri,
   selectIsStreamPlaceholderForUri,
   selectClaimForUri,
   selectClaimWasPurchasedForUri,
+  selectPurchaseTagForUri,
+  selectPreorderTagForUri,
+  selectRentalTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
-import { makeSelectCollectionForId } from 'redux/selectors/collections';
-import * as COLLECTIONS_CONSTS from 'constants/collections';
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
+// import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri, doFetchCostInfoForUri } from 'lbryinc';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
-import { makeSelectFileRenderModeForUri, selectContentPositionForUri, selectPlayingUri } from 'redux/selectors/content';
-import { selectCommentsListTitleForUri, selectSettingsByChannelId } from 'redux/selectors/comments';
-import { DISABLE_COMMENTS_TAG } from 'constants/tags';
-import { doToggleAppDrawer } from 'redux/actions/app';
+import {
+  makeSelectFileRenderModeForUri,
+  selectContentPositionForUri,
+  selectPlayingCollectionId,
+  selectIsUriCurrentlyPlaying,
+} from 'redux/selectors/content';
+import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { doToggleAppDrawer, doSetMainPlayerDimension } from 'redux/actions/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doFileGet } from 'redux/actions/file';
+import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import FilePage from './view';
 
 const select = (state, props) => {
   const { uri } = props;
-  const { search } = location;
+  // const { search } = location;
 
-  const urlParams = new URLSearchParams(search);
-  const playingUri = selectPlayingUri(state);
-  const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || (playingUri && playingUri.collectionId);
+  // const urlParams = new URLSearchParams(search);
+  const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
+  const channelId = getChannelIdFromClaim(claim);
 
   return {
+    playingCollectionId,
     channelId: getChannelIdFromClaim(claim),
     // linkedCommentId: urlParams.get(LINKED_COMMENT_QUERY_PARAM),
     // threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
@@ -43,15 +49,17 @@ const select = (state, props) => {
     fileInfo: makeSelectFileInfoForUri(uri)(state),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
-    contentCommentsDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
+    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelId),
     isLivestream: selectIsStreamPlaceholderForUri(state, uri),
-    hasCollectionById: Boolean(makeSelectCollectionForId(collectionId)(state)),
-    collectionId,
     position: selectContentPositionForUri(state, uri),
     audioVideoDuration: claim?.value?.video?.duration || claim?.value?.audio?.duration,
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
+    isUriPlaying: selectIsUriCurrentlyPlaying(state, uri),
+    purchaseTag: selectPurchaseTagForUri(state, props.uri),
+    preorderTag: selectPreorderTagForUri(state, props.uri),
+    rentalTag: selectRentalTagForUri(state, props.uri),
+    claimId: claim.claim_id,
   };
 };
 
@@ -62,6 +70,8 @@ const perform = {
   clearPosition,
   doToggleAppDrawer,
   doFileGet,
+  doSetMainPlayerDimension,
+  doCheckIfPurchasedClaimId,
 };
 
 export default withRouter(connect(select, perform)(FilePage));

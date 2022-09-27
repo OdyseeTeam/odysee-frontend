@@ -27,7 +27,7 @@ export default function SearchPage(props: Props) {
   const { push } = useHistory();
   const [from, setFrom] = React.useState(0);
 
-  const modifiedUrlQuery = urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
+  const modifiedUrlQuery = urlQuery && urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
   const uriFromQuery = `lbry://${modifiedUrlQuery}`;
 
   let streamName;
@@ -48,7 +48,7 @@ export default function SearchPage(props: Props) {
 
   let claimId;
   // Navigate directly to a claim if a claim_id is pasted into the search bar
-  if (!/\s/.test(urlQuery) && urlQuery.length === 40) {
+  if (!/\s/.test(urlQuery) && urlQuery?.length === 40) {
     try {
       const dummyUrlForClaimId = `x#${urlQuery}`;
       ({ claimId } = parseURI(dummyUrlForClaimId));
@@ -84,31 +84,22 @@ export default function SearchPage(props: Props) {
   return (
     <Page className="searchPage-wrapper">
       <section className="search">
-        {urlQuery && (
-          <>
-            {isValid && <SearchTopClaim query={modifiedUrlQuery} isSearching={isSearching} />}
-            <ClaimList
-              uris={uris}
-              loading={isSearching}
-              useLoadingSpinner
-              onScrollBottom={loadMore}
-              // 'page' is 1-indexed; It's not the same as 'from', but it just
-              // needs to be unique to indicate when a fetch is needed.
-              page={from + 1}
-              pageSize={SEARCH_PAGE_SIZE}
-              header={
-                <SearchOptions
-                  simple={SIMPLE_SITE}
-                  additionalOptions={searchOptions}
-                  onSearchOptionsChanged={resetPage}
-                />
-              }
-              // injectedItem={SHOW_ADS && IS_WEB ? (SIMPLE_SITE ? false : !isAuthenticated && <Ads small type={'video'} />) : false}
-            />
-
-            <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
-          </>
-        )}
+        {urlQuery && isValid && <SearchTopClaim query={modifiedUrlQuery} isSearching={isSearching} />}
+        <ClaimList
+          uris={uris || []}
+          loading={isSearching}
+          useLoadingSpinner
+          onScrollBottom={loadMore}
+          // 'page' is 1-indexed; It's not the same as 'from', but it just
+          // needs to be unique to indicate when a fetch is needed.
+          page={from + 1}
+          pageSize={SEARCH_PAGE_SIZE}
+          header={
+            <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
+          }
+          // injectedItem={!hasPremiumPlus && { node: <Ads small type="video" />, index: 3 }}
+        />
+        <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
       </section>
     </Page>
   );

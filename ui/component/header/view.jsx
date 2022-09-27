@@ -21,6 +21,7 @@ import WunderBar from 'component/wunderbar';
 type Props = {
   authenticated: boolean,
   authHeader: boolean,
+  authRedirect?: string, // Redirects to '/' by default.
   backout: {
     backLabel?: string,
     backNavDefault?: string,
@@ -56,6 +57,7 @@ const Header = (props: Props) => {
   const {
     authenticated,
     authHeader,
+    authRedirect,
     backout,
     balance,
     emailToVerify,
@@ -106,6 +108,8 @@ const Header = (props: Props) => {
     ? __('Close sidebar - hide channels you are following.')
     : __('Expand sidebar - view channels you are following.');
 
+  const authRedirectParam = authRedirect ? `?redirect=${authRedirect}` : '';
+
   const onBackout = React.useCallback(
     (e: any) => {
       const { hasNavigated } = props;
@@ -152,7 +156,10 @@ const Header = (props: Props) => {
                 ) : (
                   <Button
                     navigate={`/$/${PAGES.WALLET}`}
-                    className="button--file-action header__navigationItem--balance"
+                    className={classnames('button--file-action header__navigationItem--balance', {
+                      'header__navigationItem--balance-round':
+                        hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady,
+                    })}
                     label={
                       hideBalance || Number(roundedTotalBalance) === 0 || !prefsReady
                         ? __(isMobile ? 'Wallet' : 'Your Wallet')
@@ -169,8 +176,18 @@ const Header = (props: Props) => {
         </>
       ) : !isMobile ? (
         <div className="header__authButtons">
-          <Button navigate={`/$/${PAGES.AUTH_SIGNIN}`} button="link" label={__('Log In')} disabled={user === null} />
-          <Button navigate={`/$/${PAGES.AUTH}`} button="primary" label={__('Sign Up')} disabled={user === null} />
+          <Button
+            navigate={`/$/${PAGES.AUTH_SIGNIN}${authRedirectParam}`}
+            button="link"
+            label={__('Log In')}
+            disabled={user === null}
+          />
+          <Button
+            navigate={`/$/${PAGES.AUTH}${authRedirectParam}`}
+            button="primary"
+            label={__('Sign Up')}
+            disabled={user === null}
+          />
         </div>
       ) : (
         <HeaderProfileMenuButton />
@@ -247,7 +264,7 @@ const Header = (props: Props) => {
             {!authHeader && !isMobile && (
               <div className="header__center">
                 <WunderBar />
-                <HeaderMenuButtons />
+                <HeaderMenuButtons authRedirect={authRedirect} />
               </div>
             )}
 

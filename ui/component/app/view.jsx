@@ -1,11 +1,11 @@
 // @flow
 import * as PAGES from 'constants/pages';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { lazyImport } from 'util/lazyImport';
 import { tusUnlockAndNotify, tusHandleTabUpdates } from 'util/tus';
 import analytics from 'analytics';
 import { setSearchUserId } from 'redux/actions/search';
-import { normalizeURI } from 'util/lbryURI';
+import { parseURI, buildURI } from 'util/lbryURI';
 import { generateGoogleCacheUrl } from 'util/url';
 import Router from 'component/router/index';
 import ModalRouter from 'modal/modalRouter';
@@ -16,12 +16,14 @@ import FileRenderFloating from 'component/fileRenderFloating';
 import { withRouter } from 'react-router';
 // import useAdOutbrain from 'effects/use-ad-outbrain';
 import usePrevious from 'effects/use-previous';
-import Nag from 'component/common/nag';
+import Nag from 'component/nag';
 import REWARDS from 'rewards';
 import usePersistedState from 'effects/use-persisted-state';
 import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
+import { BeforeUnload, Unload } from 'util/beforeUnload';
+import AdBlockTester from 'web/component/adBlockTester';
 import AdsSticky from 'web/component/adsSticky';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
 import {
@@ -33,12 +35,9 @@ import {
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
 import { useIsMobile } from 'effects/use-screensize';
-import getLanguagesForCountry from 'constants/country_languages';
-import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 
 const FileDrop = lazyImport(() => import('component/fileDrop' /* webpackChunkName: "fileDrop" */));
 const NagContinueFirstRun = lazyImport(() => import('component/nagContinueFirstRun' /* webpackChunkName: "nagCFR" */));
-const NagLocaleSwitch = lazyImport(() => import('component/nagLocaleSwitch' /* webpackChunkName: "nagLocaleSwitch" */));
 const NagDegradedPerformance = lazyImport(() =>
   import('web/component/nag-degraded-performance' /* webpackChunkName: "NagDegradedPerformance" */)
 );
@@ -70,6 +69,7 @@ type Props = {
   fetchCollectionListMine: () => void,
   signIn: () => void,
   setLanguage: (string) => void,
+  fetchLanguage: (string) => void,
   isReloadRequired: boolean,
   uploadCount: number,
   balance: ?number,
@@ -77,7 +77,7 @@ type Props = {
   syncError: ?string,
   prefsReady: boolean,
   rewards: Array<Reward>,
-  setReferrer: (string, boolean) => void,
+  doUserSetReferrer: (referrerUri: string) => void,
   isAuthenticated: boolean,
   syncLoop: (?boolean) => void,
   currentModal: any,
@@ -90,9 +90,12 @@ type Props = {
   fetchModAmIList: () => void,
   homepageFetched: boolean,
   defaultChannelClaim: ?any,
+  nagsShown: boolean,
+  announcement: string,
   doOpenAnnouncements: () => void,
   doSetLastViewedAnnouncement: (hash: string) => void,
   doSetDefaultChannel: (claimId: string) => void,
+  doSetGdprConsentList: (csv: string) => void,
 };
 
 function App(props: Props) {
@@ -113,8 +116,9 @@ function App(props: Props) {
     language,
     languages,
     setLanguage,
+    fetchLanguage,
     rewards,
-    setReferrer,
+    doUserSetReferrer,
     isAuthenticated,
     syncLoop,
     currentModal,
@@ -125,15 +129,16 @@ function App(props: Props) {
     fetchModBlockedList,
     // hasPremiumPlus,
     fetchModAmIList,
-    homepageFetched,
     defaultChannelClaim,
+    nagsShown,
+    announcement,
     doOpenAnnouncements,
     doSetLastViewedAnnouncement,
     doSetDefaultChannel,
+    doSetGdprConsentList,
   } = props;
 
   const isMobile = useIsMobile();
-  const appRef = useRef();
   const isEnhancedLayout = useKonamiListener();
   const [hasSignedIn, setHasSignedIn] = useState(false);
   const hasVerifiedEmail = user && Boolean(user.has_verified_email);
@@ -141,9 +146,8 @@ function App(props: Props) {
   const previousHasVerifiedEmail = usePrevious(hasVerifiedEmail);
   const previousRewardApproved = usePrevious(isRewardApproved);
 
-  const [localeLangs, setLocaleLangs] = React.useState();
-  const [localeSwitchDismissed] = usePersistedState('locale-switch-dismissed', false);
   const [lbryTvApiStatus, setLbryTvApiStatus] = useState(STATUS_OK);
+  // const [sidebarOpen] = usePersistedState('sidebar', false);
 
   const { pathname, hash, search, hostname } = location;
   const [retryingSync, setRetryingSync] = useState(false);
@@ -190,7 +194,10 @@ function App(props: Props) {
 
   let uri;
   try {
-    uri = normalizeURI(path);
+    // here queryString and startTime are "removed" from the buildURI process
+    // to build only the uri itself
+    const { queryString, startTime, ...parsedUri } = parseURI(path);
+    uri = buildURI({ ...parsedUri });
   } catch (e) {
     const match = path.match(/[#/:]/);
 
@@ -241,11 +248,6 @@ function App(props: Props) {
         />
       );
     }
-
-    if (localeLangs && !embedPath && !localeSwitchDismissed && homepageFetched) {
-      const noLanguageSet = language === 'en' && languages.length === 1;
-      return <NagLocaleSwitch localeLangs={localeLangs} noLanguageSet={noLanguageSet} onFrontPage={pathname === '/'} />;
-    }
   }
 
   useEffect(() => {
@@ -257,30 +259,33 @@ function App(props: Props) {
 
   useEffect(() => {
     if (syncIsLocked) {
+      const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
       const handleBeforeUnload = (event) => {
         event.preventDefault();
-        event.returnValue = __('There are unsaved settings. Exit the Settings Page to finalize them.');
+        event.returnValue = msg;
       };
-      window.addEventListener('beforeunload', handleBeforeUnload);
-      return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+
+      BeforeUnload.register(handleBeforeUnload, msg);
+      return () => BeforeUnload.unregister(handleBeforeUnload);
     }
   }, [syncIsLocked]);
 
   useEffect(() => {
     if (!uploadCount) return;
 
+    const msg = 'Unfinished uploads.';
     const handleUnload = (event) => tusUnlockAndNotify();
     const handleBeforeUnload = (event) => {
       event.preventDefault();
-      event.returnValue = __('There are pending uploads.'); // without setting this to something it doesn't work
+      event.returnValue = __(msg); // without setting this to something it doesn't work in some browsers.
     };
 
-    window.addEventListener('unload', handleUnload);
-    window.addEventListener('beforeunload', handleBeforeUnload);
+    Unload.register(handleUnload);
+    BeforeUnload.register(handleBeforeUnload, msg);
 
     return () => {
-      window.removeEventListener('unload', handleUnload);
-      window.removeEventListener('beforeunload', handleBeforeUnload);
+      Unload.unregister(handleUnload);
+      BeforeUnload.unregister(handleBeforeUnload);
     };
   }, [uploadCount]);
 
@@ -305,25 +310,18 @@ function App(props: Props) {
   }, []);
 
   useEffect(() => {
-    if (referredRewardAvailable && sanitizedReferrerParam && isRewardApproved) {
-      setReferrer(sanitizedReferrerParam, true);
-    } else if (referredRewardAvailable && sanitizedReferrerParam) {
-      setReferrer(sanitizedReferrerParam, false);
+    if (referredRewardAvailable && sanitizedReferrerParam) {
+      doUserSetReferrer(sanitizedReferrerParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sanitizedReferrerParam, isRewardApproved, referredRewardAvailable]);
+  }, [sanitizedReferrerParam, referredRewardAvailable]);
 
   useEffect(() => {
-    const { current: wrapperElement } = appRef;
-    if (wrapperElement) {
-      ReactModal.setAppElement(wrapperElement);
-    }
-
     // @if TARGET='app'
     fetchChannelListMine(); // This is fetched after a user is signed in on web
     fetchCollectionListMine();
     // @endif
-  }, [appRef, fetchChannelListMine, fetchCollectionListMine]);
+  }, [fetchChannelListMine, fetchCollectionListMine]);
 
   useEffect(() => {
     // $FlowFixMe
@@ -360,7 +358,7 @@ function App(props: Props) {
 
   useEffect(() => {
     if (!languages.includes(language)) {
-      setLanguage(language);
+      fetchLanguage(language);
 
       if (document && document.documentElement && LANGUAGES[language].length >= 3) {
         document.documentElement.dir = LANGUAGES[language][2];
@@ -379,13 +377,13 @@ function App(props: Props) {
     // Check that previousHasVerifiedEmail was not undefined instead of just not truthy
     // This ensures we don't fire the emailVerified event on the initial user fetch
     if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
-      analytics.emailVerifiedEvent();
+      analytics.event.emailVerified();
     }
   }, [previousHasVerifiedEmail, hasVerifiedEmail, signIn]);
 
   useEffect(() => {
     if (previousRewardApproved === false && isRewardApproved) {
-      analytics.rewardEligibleEvent();
+      analytics.event.rewardEligible();
     }
   }, [previousRewardApproved, isRewardApproved]);
 
@@ -437,7 +435,15 @@ function App(props: Props) {
 
     const secondScript = document.createElement('script');
     // OneTrust asks to add this
-    secondScript.innerHTML = 'function OptanonWrapper() { }';
+    secondScript.innerHTML = 'function OptanonWrapper() { window.gdprCallback() }';
+
+    window.gdprCallback = () => {
+      doSetGdprConsentList(window.OnetrustActiveGroups);
+      if (window.OnetrustActiveGroups.indexOf('C0002') !== -1) {
+        const ad = document.getElementsByClassName('OUTBRAIN')[0];
+        if (ad && !window.nagsShown) ad.classList.add('VISIBLE');
+      }
+    };
 
     // $FlowFixMe
     document.head.appendChild(script);
@@ -455,21 +461,19 @@ function App(props: Props) {
         // console.log(err); <-- disabling this ... it's clogging up Sentry logs.
       }
     };
-    // (one time after locale is fetched)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- one time after locale is fetched
   }, [locale]);
 
   useEffect(() => {
-    if (locale) {
-      const countryCode = locale.country;
-      const langs = getLanguagesForCountry(countryCode) || [];
-      const supportedLangs = langs.filter((lang) => lang !== 'en' && SUPPORTED_LANGUAGES[lang]);
-
-      if (supportedLangs.length > 0) {
-        setLocaleLangs(supportedLangs);
-      }
+    window.nagsShown = nagsShown;
+    if (nagsShown) {
+      const ad = document.getElementsByClassName('VISIBLE')[0];
+      if (ad) ad.classList.remove('VISIBLE');
+    } else {
+      const ad = document.getElementsByClassName('OUTBRAIN')[0];
+      if (ad) ad.classList.add('VISIBLE');
     }
-  }, [locale]);
+  }, [nagsShown]);
 
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
@@ -493,15 +497,15 @@ function App(props: Props) {
   }, [syncError, pathname, isAuthenticated]);
 
   useEffect(() => {
-    if (prefsReady) {
+    if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
       doOpenAnnouncements();
     }
-  }, [prefsReady]);
+  }, [announcement, isAuthenticated, pathname, prefsReady]);
 
   useEffect(() => {
     window.clearLastViewedAnnouncement = () => {
-      console.log('Clearing history. Please wait ...');
-      doSetLastViewedAnnouncement('');
+      console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
+      doSetLastViewedAnnouncement('clear');
     };
   }, []);
 
@@ -518,9 +522,18 @@ function App(props: Props) {
   // useAdOutbrain(Boolean(hasPremiumPlus), isAuthenticated, history?.location?.pathname);
 
   useEffect(() => {
-    // When language is changed or translations are fetched, we render.
-    setLangRenderKey(Date.now());
+    if (!syncIsLocked) {
+      // When language is changed or translations are fetched, we render.
+      setLangRenderKey(Date.now());
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- don't respond to syncIsLocked, but skip action when locked.
   }, [language, languages]);
+
+  const appRef = React.useCallback((wrapperElement) => {
+    if (wrapperElement) {
+      ReactModal.setAppElement(wrapperElement);
+    }
+  }, []);
 
   // Require an internal-api user on lbry.tv
   // This also prevents the site from loading in the un-authed state while we wait for internal-apis to return for the first time
@@ -552,7 +565,9 @@ function App(props: Props) {
         />
       ) : (
         <React.Fragment>
-          <Router uri={uri} embedLatestPath={embedLatestPath} />
+          <AdBlockTester />
+          <AdsSticky uri={uri} />
+          <Router uri={uri} />
           <ModalRouter />
 
           <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
@@ -569,8 +584,6 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
-
-          <AdsSticky uri={uri} />
         </React.Fragment>
       )}
     </div>

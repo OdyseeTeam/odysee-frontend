@@ -144,9 +144,7 @@ export function doClaimEligiblePurchaseRewards() {
     if (unclaimedRewards.find((ur) => ur.reward_type === rewards.TYPE_FIRST_STREAM)) {
       dispatch(doClaimRewardType(rewards.TYPE_FIRST_STREAM));
     } else {
-      dispatch(doClaimRewardType(rewards.TYPE_MANY_DOWNLOADS, { failSilently: true }));
-
-      if (!selectWeeklyWatchClaimedThisWeek(state)) {
+      if (selectWeeklyWatchClaimedThisWeek(state) === false) {
         dispatch(doClaimRewardType(rewards.TYPE_WEEKLY_WATCH, { failSilently: true }));
       }
     }
@@ -187,3 +185,9 @@ export function doFetchRewardedContent() {
     Lbryio.call('reward', 'list_featured').then(success, failure);
   };
 }
+
+// @flow
+export const doUserViewRateList = () => async (dispatch: Dispatch) =>
+  await Lbryio.call('user_rewards', 'view_rate').then((data) =>
+    dispatch({ type: ACTIONS.USER_VIEW_RATE_COMPLETED, data })
+  );

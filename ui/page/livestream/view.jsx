@@ -8,9 +8,9 @@ import moment from 'moment';
 import Page from 'component/page';
 import React from 'react';
 import useFetchLiveStatus from 'effects/use-fetch-live';
+import Spinner from 'component/spinner';
 
-const LivestreamChatLayout = lazyImport(() => import('component/livestreamChatLayout' /* webpackChunkName: "chat" */));
-// const LIVESTREAM_STATUS_CHECK_INTERVAL = 30000;
+const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
 type Props = {
   activeLivestreamForChannel: any,
@@ -26,7 +26,8 @@ type Props = {
   doCommentSocketConnect: (uri: string, channelName: string, claimId: string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
-  doUserSetReferrer: (string) => void,
+  doUserSetReferrer: (referrerUri: string) => void,
+  theaterMode?: Boolean,
 };
 
 export const LivestreamContext = React.createContext<any>();
@@ -47,6 +48,7 @@ export default function LivestreamPage(props: Props) {
     doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
     doUserSetReferrer,
+    theaterMode,
   } = props;
 
   const streamPlayingRef = React.useRef();
@@ -66,9 +68,11 @@ export default function LivestreamPage(props: Props) {
   const releaseTime: moment = moment.unix(claim?.value?.release_time || 0);
   const stringifiedClaim = JSON.stringify(claim);
 
+  const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
+
   React.useEffect(() => {
     // TODO: This should not be needed once we unify the livestream player (?)
-    analytics.playerLoadedEvent('livestream', false);
+    analytics.event.playerLoaded('livestream', false);
   }, []);
 
   const { signing_channel: channelClaim } = claim || {};
@@ -83,8 +87,7 @@ export default function LivestreamPage(props: Props) {
     if (claimId && channelName && !socketConnection?.connected) {
       doCommentSocketConnect(uri, channelName, claimId);
     }
-    // willAutoplay mount only
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
   }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri]);
 
   React.useEffect(() => {
@@ -101,8 +104,7 @@ export default function LivestreamPage(props: Props) {
         if (claimId && channelName) doCommentSocketDisconnect(claimId, channelName);
       }
     };
-    // only on unmount -> leave page
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
   }, []);
 
   useFetchLiveStatus(isStreamPlaying ? undefined : livestreamChannelId, doFetchChannelLiveStatus);
@@ -163,12 +165,9 @@ export default function LivestreamPage(props: Props) {
   }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
 
   React.useEffect(() => {
-    if (!layountRendered) return;
-
     doSetPrimaryUri(uri);
-
     return () => doSetPrimaryUri(null);
-  }, [doSetPrimaryUri, layountRendered, uri]);
+  }, [doSetPrimaryUri, uri, isStreamPlaying]);
 
   return (
     <Page
@@ -178,15 +177,21 @@ export default function LivestreamPage(props: Props) {
       chatDisabled={hideComments}
       // whether to display livestream chat
       rightSide={
+        !theaterMode &&
         !hideComments &&
         isInitialized && (
           <React.Suspense fallback={null}>
-            <LivestreamChatLayout uri={uri} setLayountRendered={setLayountRendered} />
+            <ChatLayout
+              uri={uri}
+              hyperchatsHidden={hyperchatsHidden}
+              toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}
+              setLayountRendered={setLayountRendered}
+            />
           </React.Suspense>
         )
       }
     >
-      {isInitialized && (
+      {isInitialized ? (
         <LivestreamContext.Provider value={{ livestreamPage: true, layountRendered }}>
           <LivestreamLayout
             uri={uri}
@@ -196,8 +201,13 @@ export default function LivestreamPage(props: Props) {
             showLivestream={showLivestream}
             showScheduledInfo={showScheduledInfo}
             activeStreamUri={activeStreamUri}
+            theaterMode={theaterMode}
           />
         </LivestreamContext.Provider>
+      ) : (
+        <div className="main--empty">
+          <Spinner />
+        </div>
       )}
     </Page>
   );

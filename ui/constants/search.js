@@ -2,6 +2,7 @@ export const FILE = 'file';
 export const CHANNEL = 'channel';
 export const SEARCH = 'search';
 export const DEBOUNCE_WAIT_DURATION_MS = 250;
+export const LIGHTHOUSE_MIN_CHARACTERS = 3;
 
 export const SEARCH_TYPES = {
   FILE: 'file',
@@ -28,6 +29,7 @@ export const SEARCH_OPTIONS = {
   SORT_DESCENDING: 'release_time',
   EXACT: 'exact',
   PRICE_FILTER_FREE: 'free_only',
+  LANGUAGE: 'language',
   TIME_FILTER: 'time_filter',
   TIME_FILTER_LAST_HOUR: 'lasthour',
   TIME_FILTER_TODAY: 'today',

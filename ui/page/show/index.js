@@ -9,21 +9,23 @@ import {
   selectLatestClaimForUri,
 } from 'redux/selectors/claims';
 import {
-  makeSelectCollectionForId,
-  makeSelectUrlsForCollectionId,
-  makeSelectIsResolvingCollectionForId,
+  selectCollectionForId,
+  selectUrlsForCollectionId,
+  selectIsResolvingCollectionForId,
 } from 'redux/selectors/collections';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
-import { isStreamPlaceholderClaim } from 'util/claim';
+import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
-import { selectBlacklistedOutpointMap } from 'lbryinc';
+import { selectBlacklistedOutpointMap, selectFilteredOutpointMap } from 'lbryinc';
 import { selectActiveLiveClaimForChannel } from 'redux/selectors/livestream';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { doFetchCreatorSettings } from 'redux/actions/comments';
+import { selectSettingsForChannelId } from 'redux/selectors/comments';
 import ShowPage from './view';
 
 const select = (state, props) => {
@@ -33,6 +35,7 @@ const select = (state, props) => {
   const urlParams = new URLSearchParams(search);
 
   const claim = selectClaimForUri(state, uri);
+  const channelClaimId = getChannelIdFromClaim(claim);
   const collectionId =
     urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) ||
     (claim && claim.value_type === 'collection' && claim.claim_id) ||
@@ -47,20 +50,23 @@ const select = (state, props) => {
   return {
     uri,
     claim,
+    channelClaimId,
     latestClaimUrl,
     isResolvingUri: selectIsUriResolving(state, uri),
     blackListedOutpointMap: selectBlacklistedOutpointMap(state),
+    filteredOutpointMap: selectFilteredOutpointMap(state),
     isSubscribed: selectIsSubscribedForUri(state, uri),
     claimIsMine: selectClaimIsMine(state, claim),
     claimIsPending: makeSelectClaimIsPending(uri)(state),
     isLivestream: isStreamPlaceholderClaim(claim),
-    collection: makeSelectCollectionForId(collectionId)(state),
+    collection: selectCollectionForId(state, collectionId),
     collectionId,
-    collectionUrls: makeSelectUrlsForCollectionId(collectionId)(state),
-    isResolvingCollection: makeSelectIsResolvingCollectionForId(collectionId)(state),
+    collectionUrls: selectUrlsForCollectionId(state, collectionId),
+    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     homepageFetched: selectHomepageFetched(state),
+    creatorSettings: selectSettingsForChannelId(state, channelClaimId),
   };
 };
 
@@ -71,6 +77,7 @@ const perform = {
   doOpenModal,
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
   fetchChannelLiveStatus: doFetchChannelLiveStatus,
+  doFetchCreatorSettings,
 };
 
 export default withRouter(connect(select, perform)(ShowPage));

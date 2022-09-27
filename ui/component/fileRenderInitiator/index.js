@@ -1,6 +1,14 @@
 import { connect } from 'react-redux';
 import { doUriInitiatePlay } from 'redux/actions/content';
-import { selectClaimWasPurchasedForUri, selectClaimForUri } from 'redux/selectors/claims';
+import {
+  selectClaimWasPurchasedForUri,
+  selectClaimForUri,
+  selectPurchaseTagForUri,
+  selectPurchaseMadeForClaimId,
+  selectClaimIsMine,
+  selectRentalTagForUri,
+  selectValidRentalPurchaseForClaimId,
+} from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
 import { selectCostInfoForUri } from 'lbryinc';
@@ -8,7 +16,7 @@ import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { withRouter } from 'react-router';
 import {
-  makeSelectIsPlaying,
+  selectFileIsPlayingOnPage,
   selectShouldObscurePreviewForUri,
   selectInsufficientCreditsForUri,
   makeSelectFileRenderModeForUri,
@@ -26,20 +34,25 @@ const select = (state, props) => {
   const { claim_id: channelClaimId } = channelClaim || {};
 
   return {
-    claimId,
-    channelClaimId,
-    claimThumbnail: getThumbnailFromClaim(claim),
-    fileInfo: makeSelectFileInfoForUri(uri)(state),
-    obscurePreview: selectShouldObscurePreviewForUri(state, uri),
-    isPlaying: makeSelectIsPlaying(uri)(state),
-    insufficientCredits: selectInsufficientCreditsForUri(state, uri),
-    autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
-    costInfo: selectCostInfoForUri(state, uri),
-    renderMode: makeSelectFileRenderModeForUri(uri)(state),
-    claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
     authenticated: selectUserVerifiedEmail(state),
+    autoplay: selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA),
+    channelClaimId,
+    claimId,
+    claimIsMine: selectClaimIsMine(state, claim),
+    claimThumbnail: getThumbnailFromClaim(claim),
+    claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
+    costInfo: selectCostInfoForUri(state, uri),
+    fileInfo: makeSelectFileInfoForUri(uri)(state),
+    insufficientCredits: selectInsufficientCreditsForUri(state, uri),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, uri),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
+    isPlaying: selectFileIsPlayingOnPage(state, uri),
+    obscurePreview: selectShouldObscurePreviewForUri(state, uri),
+    purchaseContentTag: selectPurchaseTagForUri(state, uri),
+    purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claimId),
+    renderMode: makeSelectFileRenderModeForUri(uri)(state),
+    rentalTag: selectRentalTagForUri(state, uri),
+    validRentalPurchase: selectValidRentalPurchaseForClaimId(state, claimId),
   };
 };
 

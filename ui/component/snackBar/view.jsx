@@ -5,6 +5,7 @@ import Button from 'component/button';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
 import LbcMessage from 'component/common/lbc-message';
+import I18nMessage from 'component/i18nMessage';
 
 type Props = {
   removeSnack: (any) => void,
@@ -46,7 +47,18 @@ class SnackBar extends React.PureComponent<Props, State> {
       return null;
     }
 
-    const { message, subMessage, duration, linkText, linkTarget, isError } = snack;
+    const {
+      message,
+      subMessage,
+      duration,
+      linkText,
+      linkTarget,
+      actionText,
+      action,
+      secondaryActionText,
+      secondaryAction,
+      isError,
+    } = snack;
 
     if (this.intervalId) {
       // TODO: render should be pure
@@ -62,16 +74,24 @@ class SnackBar extends React.PureComponent<Props, State> {
       );
     }
 
+    function handleAction(passedAction) {
+      if (passedAction) passedAction();
+      removeSnack();
+    }
+
     return (
       <div
         className={classnames('snack-bar', {
           'snack-bar--error': isError,
-          'snack-bar--stacked-error': snackCount > 1 && isError,
-          'snack-bar--stacked-non-error': snackCount > 1 && !isError,
         })}
         onMouseEnter={this.handleMouseEnter}
         onMouseLeave={this.handleMouseLeave}
       >
+        {snackCount > 1 && (
+          <div className="snack-bar-counter-bubble">
+            <span className="notification__count">{snackCount}</span>
+          </div>
+        )}
         <div className="snack-bar__message">
           <Icon icon={isError ? ICONS.ALERT : ICONS.COMPLETED} size={18} />
           <p className="snack-bar__messageText">
@@ -93,6 +113,18 @@ class SnackBar extends React.PureComponent<Props, State> {
           // This is a little weird because of `linkTarget` code in `lbry-redux`
           // Any navigation code should happen in the app, and that should be removed from lbry-redux
           <Button navigate={`/$${linkTarget}`} className="snack-bar__action" label={linkText} />
+        )}
+        {actionText && action && (
+          <div className="snack-bar__action">
+            <I18nMessage
+              tokens={{
+                firstAction: <Button onClick={() => handleAction(action)} label={actionText} />,
+                secondAction: <Button onClick={() => handleAction(secondaryAction)} label={secondaryActionText} />,
+              }}
+            >
+              {secondaryAction ? '%firstAction% / %secondAction%' : '%firstAction%'}
+            </I18nMessage>
+          </div>
         )}
       </div>
     );

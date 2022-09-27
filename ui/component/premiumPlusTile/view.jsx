@@ -13,7 +13,7 @@ const PremiumPlusTile = (props: Props) => {
 
   const title = __('No ads and access to exclusive features!');
   const channel = __('Get Odysee Premium+');
-  const time = __('Now');
+  const time = '';
 
   return tileLayout ? (
     <li className="card claim-preview--tile claim-preview--premium-plus">
@@ -54,7 +54,7 @@ const PremiumPlusTile = (props: Props) => {
                     <span className="channel-name">{channel}</span>
                     <br />
                   </div>
-                  <span sclassName="view_count">{time}</span>
+                  <span className="view_count">{time}</span>
                 </div>
               </div>
             </div>

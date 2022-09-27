@@ -2,39 +2,76 @@
 import * as ACTIONS from 'constants/action_types';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
-import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
+import { doClaimSearch, doAbandonClaim, doCollectionPublishUpdate, doCollectionPublish } from 'redux/actions/claims';
 import {
-  makeSelectCollectionForId,
-  // makeSelectPublishedCollectionForId, // for "save" or "copy" action
-  makeSelectPublishedCollectionForId,
-  makeSelectUnpublishedCollectionForId,
-  makeSelectEditedCollectionForId,
+  selectClaimForClaimId,
+  selectPermanentUrlForUri,
+  selectClaimForId,
+  makeSelectMetadataItemForUri,
+} from 'redux/selectors/claims';
+import {
+  selectCollectionForId,
+  selectPublishedCollectionForId,
+  selectUnpublishedCollectionForId,
+  selectEditedCollectionForId,
+  selectHasItemsInQueue,
+  selectCollectionHasEditsForId,
+  selectUrlsForCollectionId,
+  selectCollectionSavedForId,
+  selectFeaturedChannelsByChannelId,
+  selectMyUnpublishedCollections,
+  selectMyEditedCollections,
+  selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
-
-const getTimestamp = () => {
-  return Math.floor(Date.now() / 1000);
-};
+import { resolveAuxParams, resolveCollectionType } from 'util/collections';
+import { isPermanentUrl, getThumbnailFromClaim } from 'util/claim';
+import { sanitizeName } from 'util/lbryURI';
+import { parseClaimIdFromPermanentUrl } from 'util/url';
+import { doError, doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
 
-export const doLocalCollectionCreate = (
-  name: string,
-  collectionItems: Array<string>,
-  type: string,
-  sourceId: string
-) => (dispatch: Dispatch) => {
+export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id: any) => void) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const { items, sourceId } = params;
+
+  const id = uuid(); // start with a uuid, this becomes a claimId after publish
+  if (cb) cb(id);
+
+  if (sourceId) {
+    const state = getState();
+    const sourceCollectionItems = selectUrlsForCollectionId(state, sourceId);
+    const sourceCollection = selectCollectionForId(state, sourceId);
+    const sourceCollectionClaim = selectClaimForId(state, sourceId);
+    const sourceDescription =
+      sourceCollection.description ||
+      makeSelectMetadataItemForUri(sourceCollectionClaim?.canonical_url, 'description')(state);
+    const thumbnailUrl = sourceCollection.thumbnail?.url || getThumbnailFromClaim(sourceCollectionClaim);
+
+    return dispatch({
+      type: ACTIONS.COLLECTION_NEW,
+      data: {
+        entry: {
+          ...params,
+          id: id,
+          items: sourceCollectionItems,
+          description: sourceDescription,
+          thumbnail: { url: thumbnailUrl },
+        },
+      },
+    });
+  }
+
   return dispatch({
     type: ACTIONS.COLLECTION_NEW,
     data: {
       entry: {
-        id: uuid(), // start with a uuid, this becomes a claimId after publish
-        name: name,
-        updatedAt: getTimestamp(),
-        items: collectionItems || [],
-        sourceId: sourceId,
-        type: type,
+        id: id,
+        items: items || [],
+        ...params,
       },
     },
   });
@@ -45,7 +82,7 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
   getState: GetState
 ) => {
   const state = getState();
-  const claim = makeSelectClaimForClaimId(id)(state);
+  const claim = selectClaimForClaimId(state, id);
   const collectionDelete = () =>
     dispatch({
       type: ACTIONS.COLLECTION_DELETE,
@@ -54,44 +91,31 @@ export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
         collectionKey: colKey,
       },
     });
-  if (claim && !colKey) {
-    // could support "abandon collection claim, but keep private collection" later
+
+  if (claim) {
     return dispatch(doAbandonClaim(claim, collectionDelete));
   }
+
   return collectionDelete();
 };
 
-// Given a collection, save its collectionId to be resolved and displayed in Library
-// export const doCollectionSave = (
-//   id: string,
-// ) => (dispatch: Dispatch) => {
-//   return dispatch({
-//     type: ACTIONS.COLLECTION_SAVE,
-//     data: {
-//       id: id,
-//     },
-//   });
-// };
+export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const isSaved = selectCollectionSavedForId(state, collectionId);
 
-// Given a collection and name, copy it to a local private collection with a name
-// export const doCollectionCopy = (
-//   id: string,
-// ) => (dispatch: Dispatch) => {
-//   return dispatch({
-//     type: ACTIONS.COLLECTION_COPY,
-//     data: {
-//       id: id,
-//     },
-//   });
-// };
+  dispatch(doToast({ message: !isSaved ? __('Added to saved Playlists!') : __('Removed from saved Playlists.') }));
+  dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: { collectionId } });
+};
 
-export const doFetchItemsInCollections = (
-  resolveItemsOptions: {
-    collectionIds: Array<string>,
-    pageSize?: number,
-  },
-  resolveStartedCallback?: () => void
-) => async (dispatch: Dispatch, getState: GetState) => {
+function isPrivateCollectionId(collectionId: string) {
+  // Private (unpublished) collections uses UUID.
+  return collectionId.includes('-');
+}
+
+export const doFetchItemsInCollections = (resolveItemsOptions: {
+  collectionIds: Array<string>,
+  pageSize?: number,
+}) => async (dispatch: Dispatch, getState: GetState) => {
   /*
   1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
   2) get the item claims for each
@@ -102,26 +126,37 @@ export const doFetchItemsInCollections = (
   let state = getState();
   const { collectionIds, pageSize } = resolveItemsOptions;
 
-  dispatch({
-    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED,
-    data: { ids: collectionIds },
+  dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED, data: { ids: collectionIds } });
+
+  const privateCollectionIds = [];
+  const collectionIdsToSearch = [];
+
+  // -- Fill up 'privateCollectionIds' and 'collectionIdsToSearch':
+  collectionIds.forEach((id) => {
+    if (isPrivateCollectionId(id)) {
+      privateCollectionIds.push(id);
+    } else if (!selectClaimForId(state, id)) {
+      collectionIdsToSearch.push(id);
+    }
   });
 
-  if (resolveStartedCallback) resolveStartedCallback();
-
-  const collectionIdsToSearch = collectionIds.filter((claimId) => !state.claims.byId[claimId]);
-
+  // -- Resolve collections:
   if (collectionIdsToSearch.length) {
-    await dispatch(doClaimSearch({ claim_ids: collectionIdsToSearch, page: 1, page_size: 9999 }));
+    await dispatch(
+      doClaimSearch(
+        { claim_ids: collectionIdsToSearch, page: 1, page_size: 50, no_totals: true },
+        { useAutoPagination: true }
+      )
+    );
+    state = getState();
   }
 
-  const stateAfterClaimSearch = getState();
-
-  async function fetchItemsForCollectionClaim(claim: CollectionClaim, pageSize?: number) {
-    const totalItems = claim.value.claims && claim.value.claims.length;
-    const claimId = claim.claim_id;
-    const itemOrder = claim.value.claims;
-
+  async function fetchItemsForCollectionClaim(
+    collectionId: string,
+    totalItems: number,
+    itemIdsInOrder: Array<string>,
+    pageSize?: number
+  ) {
     const sortResults = (items: Array<Claim>, claimList) => {
       const newItems: Array<Claim> = [];
       claimList.forEach((id) => {
@@ -160,17 +195,17 @@ export const doFetchItemsInCollections = (
 
       for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
         batches[i] = Lbry.claim_search({
-          claim_ids: claim.value.claims.slice(i * batchSize, (i + 1) * batchSize),
+          claim_ids: itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize),
           page: 1,
           page_size: batchSize,
           no_totals: true,
         });
       }
       const itemsInBatches = await Promise.all(batches);
-      const result = mergeBatches(itemsInBatches, itemOrder);
+      const result = mergeBatches(itemsInBatches, itemIdsInOrder);
 
       // $FlowFixMe
-      const itemsById: { claimId: string, items?: ?Array<GenericClaim> } = { claimId: claimId };
+      const itemsById: { claimId: string, items?: ?Array<GenericClaim> } = { claimId: collectionId };
       if (result.items) {
         itemsById.items = result.items;
       } else {
@@ -179,7 +214,7 @@ export const doFetchItemsInCollections = (
       return itemsById;
     } catch (e) {
       return {
-        claimId: claimId,
+        claimId: collectionId,
         items: null,
       };
     }
@@ -187,38 +222,70 @@ export const doFetchItemsInCollections = (
 
   const invalidCollectionIds = [];
   const promisedCollectionItemFetches = [];
+  let collectionItemsById: Array<CollectionItemFetchResult> = [];
+
+  // -- Collect requests for resolving items in each collection:
   collectionIds.forEach((collectionId) => {
-    const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
+    const hasEdits = selectCollectionHasEditsForId(state, collectionId);
+
+    if (isPrivateCollectionId(collectionId) || hasEdits) {
+      const collection = selectCollectionForId(state, collectionId);
+      if (collection?.items.length > 0) {
+        promisedCollectionItemFetches.push(
+          fetchItemsForCollectionClaim(
+            collectionId,
+            collection.items.length,
+            collection.items.map((url) => parseClaimIdFromPermanentUrl(url, 'junk')),
+            pageSize
+          )
+        );
+      } else {
+        const collectionItem: CollectionItemFetchResult = { claimId: collectionId, items: [] };
+        collectionItemsById.push(collectionItem);
+      }
+    }
+
+    const claim = selectClaimForClaimId(state, collectionId);
     if (!claim) {
       invalidCollectionIds.push(collectionId);
     } else {
-      promisedCollectionItemFetches.push(fetchItemsForCollectionClaim(claim, pageSize));
+      promisedCollectionItemFetches.push(
+        fetchItemsForCollectionClaim(
+          collectionId,
+          claim.value.claims && claim.value.claims.length,
+          claim.value.claims,
+          pageSize
+        )
+      );
     }
   });
 
-  // $FlowFixMe
-  const collectionItemsById: Array<{
-    claimId: string,
-    items: ?Array<GenericClaim>,
-  }> = await Promise.all(promisedCollectionItemFetches);
+  // -- Await results:
+  if (promisedCollectionItemFetches.length > 0) collectionItemsById = await Promise.all(promisedCollectionItemFetches);
 
   const newCollectionObjectsById = {};
   const resolvedItemsByUrl = {};
+
+  // -- Process results:
   collectionItemsById.forEach((entry) => {
     // $FlowFixMe
     const collectionItems: Array<any> = entry.items;
     const collectionId = entry.claimId;
-    if (collectionItems) {
-      const claim = makeSelectClaimForClaimId(collectionId)(stateAfterClaimSearch);
 
-      const editedCollection = makeSelectEditedCollectionForId(collectionId)(stateAfterClaimSearch);
+    if (isPrivateCollectionId(collectionId) && collectionItems) {
+      // Nothing to do for now. We are only interested in getting the resolved
+      // data for each item in the private collection.
+    } else if (collectionItems) {
+      const claim = selectClaimForClaimId(state, collectionId);
+
+      const { items: editedCollectionItems } = selectEditedCollectionForId(state, collectionId) || {};
       const { name, timestamp, value } = claim || {};
-      const { title } = value;
+      const { title, description, thumbnail } = value;
       const valueTypes = new Set();
       const streamTypes = new Set();
 
       let newItems = [];
-      let isPlaylist;
+      let collectionType;
 
       if (collectionItems) {
         collectionItems.forEach((collectionItem) => {
@@ -229,11 +296,8 @@ export const doFetchItemsInCollections = (
           }
           resolvedItemsByUrl[collectionItem.canonical_url] = collectionItem;
         });
-        isPlaylist =
-          valueTypes.size === 1 &&
-          valueTypes.has('stream') &&
-          ((streamTypes.size === 1 && (streamTypes.has('audio') || streamTypes.has('video'))) ||
-            (streamTypes.size === 2 && streamTypes.has('audio') && streamTypes.has('video')));
+
+        collectionType = resolveCollectionType(value.tags, valueTypes, streamTypes);
       }
 
       newCollectionObjectsById[collectionId] = {
@@ -241,19 +305,14 @@ export const doFetchItemsInCollections = (
         id: collectionId,
         name: title || name,
         itemCount: claim.value.claims.length,
-        type: isPlaylist ? 'playlist' : 'collection',
+        type: collectionType,
+        createdAt: claim.meta?.creation_timestamp,
         updatedAt: timestamp,
+        description,
+        thumbnail,
+        key: editedCollectionItems === collectionItems ? 'edited' : undefined,
+        ...resolveAuxParams(collectionType, claim),
       };
-
-      if (editedCollection && timestamp > editedCollection['updatedAt']) {
-        dispatch({
-          type: ACTIONS.COLLECTION_DELETE,
-          data: {
-            id: collectionId,
-            collectionKey: 'edited',
-          },
-        });
-      }
     } else {
       invalidCollectionIds.push(collectionId);
     }
@@ -272,14 +331,12 @@ export const doFetchItemsInCollections = (
       });
   });
 
-  dispatch({
-    type: ACTIONS.RESOLVE_URIS_COMPLETED,
-    data: { resolveInfo },
-  });
+  dispatch({ type: ACTIONS.RESOLVE_URIS_COMPLETED, data: { resolveInfo } });
 
   dispatch({
     type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
     data: {
+      resolvedPrivateCollectionIds: privateCollectionIds,
       resolvedCollections: newCollectionObjectsById,
       failedCollectionIds: invalidCollectionIds,
     },
@@ -324,43 +381,81 @@ function processResult(result, resolveInfo = {}, checkReposts = false) {
   });
 }
 
-export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }, cb?: () => void) => {
+export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }) => {
   const { collectionId, pageSize } = options;
   const newOptions: { collectionIds: Array<string>, pageSize?: number } = {
     collectionIds: [collectionId],
   };
   if (pageSize) newOptions.pageSize = pageSize;
-  return doFetchItemsInCollections(newOptions, cb);
+
+  return doFetchItemsInCollections(newOptions);
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
+export const doCollectionEdit = (
+  collectionId: string,
+  params: CollectionEditParams,
+  skipSanitization: boolean = false
+) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
-  const collection: Collection = makeSelectCollectionForId(collectionId)(state);
+  const collection: Collection = selectCollectionForId(state, collectionId);
 
-  if (!collection) return dispatch({ type: ACTIONS.COLLECTION_ERROR, data: { message: 'collection does not exist' } });
+  if (!collection) {
+    return dispatch({
+      type: ACTIONS.COLLECTION_ERROR,
+      data: { message: 'collection does not exist' },
+    });
+  }
 
-  const editedCollection: Collection = makeSelectEditedCollectionForId(collectionId)(state);
-  const unpublishedCollection: Collection = makeSelectUnpublishedCollectionForId(collectionId)(state);
-  const publishedCollection: Collection = makeSelectPublishedCollectionForId(collectionId)(state); // needs to be published only
+  const editedCollection: Collection = selectEditedCollectionForId(state, collectionId);
+  const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
+  const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
 
-  const { uris, order, remove, type } = params;
+  const { uris: anyUris, remove, replace, order, type } = params;
 
-  const collectionType = type || collection.type;
+  // -- sanitization --
+  // only permanent urls can be added to collections
+  let uris;
+
+  if (anyUris) {
+    if (skipSanitization) {
+      uris = anyUris;
+    } else {
+      uris = [];
+      anyUris.forEach(async (uri) => {
+        // related to selectBrokenUrlsForCollectionId
+        const isDeletingBrokenUris = typeof uri !== 'string';
+
+        // $FlowFixMe
+        if (isPermanentUrl(uri) || isDeletingBrokenUris) return uris.push(uri);
+
+        const url = selectPermanentUrlForUri(state, uri);
+        // $FlowFixMe
+        return uris.push(url);
+      });
+    }
+  }
+
+  // -------------------
+
   const currentUrls = collection.items ? collection.items.concat() : [];
   let newItems = currentUrls;
 
   // Passed uris to add/remove:
   if (uris) {
-    if (remove) {
+    if (replace) {
+      newItems = uris;
+    } else if (remove) {
       // Filters (removes) the passed uris from the current list items
-      newItems = currentUrls.filter((url) => url && !uris.includes(url));
+      // $FlowFixMe
+      newItems = currentUrls.filter((url) => url && !uris?.includes(url));
     } else {
       // Pushes (adds to the end) the passed uris to the current list items
-      uris.forEach((url) => newItems.push(url));
+      // (only if item not already in currentUrls, avoid duplicates)
+      uris.forEach((url) => !currentUrls.includes(url) && newItems.push(url));
     }
+  } else if (remove) {
+    // no uris and remove === true: clear the list
+    newItems = [];
   }
 
   // Passed an ordering to change: (doesn't need the uris here since
@@ -370,28 +465,104 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     currentUrls.splice(order.to, 0, movedItem);
   }
 
-  // Delete 'edited' if newItems are the same as publishedItems
-  if (editedCollection && newItems && publishedCollection.items.join(',') === newItems.join(',')) {
-    dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id: collectionId, collectionKey: 'edited' } });
-  } else {
-    dispatch({
-      type: ACTIONS.COLLECTION_EDIT,
-      data: {
-        id: collectionId,
-        collectionKey:
-          ((editedCollection || publishedCollection) && 'edited') ||
-          (COLS.BUILTIN_LISTS.includes(collectionId) && 'builtin') ||
-          (unpublishedCollection && 'unpublished'),
-        collection: {
-          items: newItems,
-          id: collectionId,
-          name: params.name || collection.name,
-          updatedAt: getTimestamp(),
-          type: collectionType,
-        },
-      },
-    });
-  }
+  const isQueue = collectionId === COLS.QUEUE_ID;
+  const collectionKey =
+    (isQueue && COLS.QUEUE_ID) ||
+    ((editedCollection || publishedCollection) && COLS.COL_KEY_EDITED) ||
+    (COLS.BUILTIN_PLAYLISTS.includes(collectionId) && COLS.COL_KEY_BUILTIN) ||
+    (unpublishedCollection && COLS.COL_KEY_UNPUBLISHED);
 
-  return true;
+  return dispatch({
+    type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
+    data: {
+      collectionKey,
+      collection: {
+        ...collection,
+        items: newItems,
+        ...(type ? { type } : {}),
+        ...(params.name ? { name: params.name } : {}),
+        ...(params.description ? { description: params.description } : {}),
+        ...(params.thumbnail ? { thumbnail: params.thumbnail } : {}),
+      },
+    },
+  });
+};
+
+export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'edited' } });
+
+  dispatch({
+    type: ACTIONS.COLLECTION_EDIT,
+    data: { collectionKey: COLS.COL_KEY_UPDATED, collection: { id } },
+  });
+};
+
+export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const hasItemsInQueue = selectHasItemsInQueue(state);
+
+  if (hasItemsInQueue) {
+    return dispatch(doCollectionEdit(COLS.QUEUE_ID, { remove: true, type: COLS.COL_TYPES.PLAYLIST }));
+  }
+};
+
+export const doClearCollectionErrors = () => (dispatch: Dispatch) =>
+  dispatch({ type: ACTIONS.CLEAR_COLLECTION_ERRORS });
+
+export const doPublishFeaturedChannels = (channelId: ChannelId) => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const featuredChannelsIds = selectFeaturedChannelsByChannelId(state)[channelId];
+  const eList = selectMyEditedCollections(state);
+  const uList = selectMyUnpublishedCollections(state);
+
+  const errors: Array<Error> = [];
+
+  if (featuredChannelsIds) {
+    dispatch({ type: ACTIONS.COLLECTION_FC_PUBLISH_STARTED });
+    let useDelay = false;
+
+    for (let i = 0; i < featuredChannelsIds.length; ++i) {
+      const fcId = featuredChannelsIds[i];
+      const fcCollection = selectCollectionForId(state, fcId);
+
+      const common = {
+        channel_id: channelId,
+        tags: [{ name: COLS.SECTION_TAGS.FEATURED_CHANNELS }],
+        bid: '0.0001',
+        claims: selectClaimIdsForCollectionId(state, fcId).filter(Boolean), // remove falseys.
+        title: fcCollection.name,
+        blocking: true,
+      };
+
+      if (eList[fcId]) {
+        const fcClaim = selectClaimForClaimId(state, fcId);
+        const options = { name: fcClaim.name, claim_id: fcClaim.claim_id, ...common };
+        await dispatch(doCollectionPublishUpdate(options)).catch((err) => errors.push(err));
+      } else if (uList[fcId]) {
+        const options = { name: `${sanitizeName(fcCollection.name)}--${fcId}`, ...common };
+        await dispatch(doCollectionPublish(options, fcId)).catch((err) => errors.push(err));
+        useDelay = true;
+      }
+    }
+
+    if (errors.length) {
+      dispatch(
+        doError({
+          message: 'Failed to create/update Featured Channels list.',
+          cause: {
+            list: errors.map((x) => x.message).join(','),
+          },
+        })
+      );
+    }
+
+    if (useDelay) {
+      // TODO: batch-action problem?
+      setTimeout(() => dispatch({ type: ACTIONS.COLLECTION_FC_PUBLISH_COMPLETED }), 5000);
+    } else {
+      dispatch({ type: ACTIONS.COLLECTION_FC_PUBLISH_COMPLETED });
+    }
+
+    return errors;
+  }
 };

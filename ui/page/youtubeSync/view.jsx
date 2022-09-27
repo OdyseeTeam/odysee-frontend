@@ -13,7 +13,7 @@ import { isNameValid } from 'util/lbryURI';
 import { Lbryio } from 'lbryinc';
 import { useHistory } from 'react-router';
 import YoutubeTransferStatus from 'component/youtubeTransferStatus';
-import Nag from 'component/common/nag';
+import Nag from 'component/nag';
 import { getDefaultLanguage, sortLanguageMap } from 'util/default-languages';
 
 const STATUS_TOKEN_PARAM = 'status_token';
@@ -73,10 +73,10 @@ export default function YoutubeSync(props: Props) {
       channel_language: language,
       desired_lbry_channel_name: `@${channel}`,
       return_url: `https://${DOMAIN}/$/${inSignUpFlow ? PAGES.AUTH : PAGES.YOUTUBE_SYNC}`,
-    }).then((ytAuthUrl) => {      
+    }).then((ytAuthUrl) => {
       if (window.cordova) {
         window.odysee.functions.initBrowser(ytAuthUrl);
-      }else{
+      } else {
         // react-router isn't needed since it's a different domain
         window.location.href = ytAuthUrl;
       }
@@ -201,6 +201,7 @@ export default function YoutubeSync(props: Props) {
                 <div className="help--card-actions">
                   <I18nMessage
                     tokens={{
+                      count: 100,
                       learn_more: (
                         <Button
                           button="link"
@@ -210,8 +211,8 @@ export default function YoutubeSync(props: Props) {
                       ),
                     }}
                   >
-                    This will verify you are an active YouTuber with over 300 subscribers and original content. Channel
-                    names cannot be changed once chosen, please be extra careful. %learn_more%.
+                    This will verify you are an active YouTuber with over %count% subscribers and original content.
+                    Channel names cannot be changed once chosen, please be extra careful. %learn_more%.
                   </I18nMessage>
                 </div>
               </Form>

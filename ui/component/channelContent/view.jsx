@@ -1,5 +1,6 @@
 // @flow
 import { SIMPLE_SITE } from 'config';
+import { SECTION_TAGS } from 'constants/collections';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
 import React, { Fragment } from 'react';
@@ -13,9 +14,11 @@ import Icon from 'component/common/icon';
 import LivestreamLink from 'component/livestreamLink';
 import { Form, FormField } from 'component/common/form';
 import ScheduledStreams from 'component/scheduledStreams';
+import { ClaimSearchFilterContext } from 'contexts/claimSearchFilterContext';
 import { SearchResults } from './internal/searchResults';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import { useIsLargeScreen } from 'effects/use-screensize';
+import usePersistedState from 'effects/use-persisted-state';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -72,6 +75,15 @@ function ChannelContent(props: Props) {
   const {
     location: { pathname, search },
   } = useHistory();
+
+  // In Channel Page, ignore SETTINGS.HIDE_REPOSTS and show reposts by default:
+  const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
+
+  const claimSearchFilterCtx = {
+    contentTypes: CS.CONTENT_TYPES,
+    repost: { hideReposts, setHideReposts },
+  };
+
   const url = `${pathname}${search}`;
   const claimId = claim && claim.claim_id;
   const isChannelEmpty = !claim || !claim.meta;
@@ -83,6 +95,10 @@ function ChannelContent(props: Props) {
   const isLargeScreen = useIsLargeScreen();
   const dynamicPageSize = isLargeScreen ? Math.ceil(defaultPageSize * 3) : defaultPageSize;
 
+  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
+  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
+  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
+
   function handleInputChange(e) {
     const { value } = e.target;
     setSearchQuery(value);
@@ -92,12 +108,7 @@ function ChannelContent(props: Props) {
     setSearchQuery('');
   }, [url]);
 
-  const isInitialized = Boolean(activeLivestreamForChannel) || activeLivestreamInitialized;
-  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
-
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
-
-  const showScheduledLiveStreams = claimType !== 'collection'; // ie. not on the playlist page.
 
   return (
     <Fragment>
@@ -144,54 +155,56 @@ function ChannelContent(props: Props) {
       {!channelIsMine && claimsInChannel > 0 && <HiddenNsfwClaims uri={uri} />}
 
       {!fetching && (
-        <ClaimListDiscover
-          ignoreSearchInLanguage
-          hasSource
-          defaultFreshness={CS.FRESH_ALL}
-          showHiddenByUser={viewHiddenChannels}
-          forceShowReposts
-          fetchViewCount
-          hideFilters={!showFilters}
-          hideAdvancedFilter={!showFilters}
-          tileLayout={tileLayout}
-          uris={isSearching ? [] : null}
-          streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
-          channelIds={[claimId]}
-          claimType={claimType}
-          feeAmount={CS.FEE_AMOUNT_ANY}
-          defaultOrderBy={CS.ORDER_BY_NEW}
-          pageSize={dynamicPageSize}
-          infiniteScroll={defaultInfiniteScroll}
-          // injectedItem={SHOW_ADS && !isAuthenticated && IS_WEB && <Ads type="video" />}
-          meta={
-            showFilters && (
-              <Form onSubmit={() => {}} className="wunderbar--inline">
-                <Icon icon={ICONS.SEARCH} />
-                <FormField
-                  name="channel_search"
-                  className="wunderbar__input--inline"
-                  value={searchQuery}
-                  onChange={handleInputChange}
-                  type="text"
-                  placeholder={__('Search')}
-                />
-              </Form>
-            )
-          }
-          subSection={
-            <SearchResults
-              searchQuery={searchQuery}
-              claimId={claimId}
-              showMature={showMature}
-              tileLayout={tileLayout}
-              onResults={(results) => setIsSearching(results !== null)}
-              doResolveUris={doResolveUris}
-            />
-          }
-          isChannel
-          channelIsMine={channelIsMine}
-          empty={isSearching ? ' ' : empty}
-        />
+        <ClaimSearchFilterContext.Provider value={claimSearchFilterCtx}>
+          <ClaimListDiscover
+            ignoreSearchInLanguage
+            hasSource
+            defaultFreshness={CS.FRESH_ALL}
+            showHiddenByUser={viewHiddenChannels}
+            hideRepostsOverride={hideReposts}
+            fetchViewCount
+            hideFilters={!showFilters}
+            hideAdvancedFilter={!showFilters}
+            tileLayout={tileLayout}
+            uris={isSearching ? [] : null}
+            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+            channelIds={[claimId]}
+            claimType={claimType}
+            feeAmount={undefined}
+            defaultOrderBy={CS.ORDER_BY_NEW}
+            pageSize={dynamicPageSize}
+            infiniteScroll={defaultInfiniteScroll}
+            meta={
+              showFilters && (
+                <Form onSubmit={() => {}} className="wunderbar--inline">
+                  <Icon icon={ICONS.SEARCH} />
+                  <FormField
+                    name="channel_search"
+                    className="wunderbar__input--inline"
+                    value={searchQuery}
+                    onChange={handleInputChange}
+                    type="text"
+                    placeholder={__('Search')}
+                  />
+                </Form>
+              )
+            }
+            subSection={
+              <SearchResults
+                searchQuery={searchQuery}
+                claimId={claimId}
+                showMature={showMature}
+                tileLayout={tileLayout}
+                onResults={(results) => setIsSearching(results !== null)}
+                doResolveUris={doResolveUris}
+              />
+            }
+            isChannel
+            channelIsMine={channelIsMine}
+            empty={isSearching ? ' ' : empty}
+            notTags={claimType === 'collection' ? SECTION_TAGS.FEATURED_CHANNELS : undefined}
+          />
+        </ClaimSearchFilterContext.Provider>
       )}
     </Fragment>
   );

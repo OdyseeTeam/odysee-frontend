@@ -2,7 +2,8 @@ const { URL, THUMBNAIL_CARDS_CDN_URL } = require('../../config');
 
 const CONTINENT_COOKIE = 'continent';
 
-function generateEmbedUrl(claimName, claimId, startTime, referralLink, newestType) {
+function generateEmbedUrl(claimUri, startTime, referralLink, newestType) {
+  const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
   let urlParams = new URLSearchParams();
 
   if (startTime) {
@@ -13,21 +14,22 @@ function generateEmbedUrl(claimName, claimId, startTime, referralLink, newestTyp
     urlParams.append('r', escapeHtmlProperty(referralLink));
   }
 
-  const encodedUriName = encodeURIComponent(claimName).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
-
   let embedUrl;
   if (newestType) {
-    embedUrl = `${URL}/$/embed/${escapeHtmlProperty(encodedUriName)}?feature=${newestType}`;
+    embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}?feature=${newestType}`;
   } else {
-    embedUrl = `${URL}/$/embed/${escapeHtmlProperty(encodedUriName)}/${escapeHtmlProperty(claimId)}`;
+    embedUrl = `${URL}/$/embed/${escapeHtmlProperty(uriPath)}`;
   }
   const embedUrlParams = urlParams.toString() ? `?${urlParams.toString()}` : '';
 
   return `${embedUrl}${embedUrlParams}`;
 }
 
-function generateEmbedUrlEncoded(claimName, claimId, startTime, referralLink) {
-  return generateEmbedUrl(claimName, claimId, startTime, referralLink).replace(/\$/g, '%24');
+function generateEmbedUrlEncoded(claimUri, startTime, referralLink) {
+  const uriPath = claimUri.replace('lbry://', '').replace(/#/g, ':');
+  const encodedUri = encodeURIComponent(uriPath).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
+
+  return generateEmbedUrl(encodedUri, startTime, referralLink).replace(/\$/g, '%24');
 }
 
 function generateEmbedIframeData(src) {
@@ -50,18 +52,17 @@ function generateNewestUrl(channelName, newestType) {
   return `${URL}/$/${newestType}/${channelName}`;
 }
 
-function getThumbnailCdnUrl(url) {
+function getThumbnailCardCdnUrl(url) {
   if (
     !THUMBNAIL_CARDS_CDN_URL ||
     !url ||
-    (url && (url.includes('https://twitter-card') || url.includes('https://cards.odysee.com')))
+    (url && (url.includes('https://twitter-card') || url.includes('https://cards.odycdn.com')))
   ) {
     return url;
   }
 
   if (url && !url.startsWith('data:image')) {
-    const encodedURL = Buffer.from(url).toString('base64');
-    return `${THUMBNAIL_CARDS_CDN_URL}${encodedURL}.jpg`;
+    return `${THUMBNAIL_CARDS_CDN_URL}${url}`;
   }
 }
 
@@ -101,7 +102,7 @@ module.exports = {
   generateEmbedUrl,
   generateEmbedUrlEncoded,
   getParameterByName,
-  getThumbnailCdnUrl,
+  getThumbnailCardCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
   generateNewestUrl,

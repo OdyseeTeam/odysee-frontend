@@ -1,9 +1,9 @@
 // @flow
 import React from 'react';
+import { useHistory } from 'react-router-dom';
 import Button from 'component/button';
 import I18nMessage from 'component/i18nMessage';
 import * as PAGES from 'constants/pages';
-import useShouldShowAds from 'effects/use-should-show-ads';
 import { useIsMobile } from 'effects/use-screensize';
 
 const AD_SCRIPT_URL = 'https://widgets.outbrain.com/outbrain.js';
@@ -33,47 +33,40 @@ const adsSignInDriver = (
 // AdsBanner
 // ****************************************************************************
 
-let gReferenceCounter = 0;
+let gScript;
 
 type Props = {
-  isAdBlockerFound: ?boolean,
-  userHasPremiumPlus: boolean,
-  userCountry: string,
   currentTheme: string,
-  doSetAdBlockerFound: (boolean) => void,
+  shouldShowAds: boolean,
 };
 
 export default function AdsBanner(props: Props) {
-  const { isAdBlockerFound, userHasPremiumPlus, userCountry, currentTheme, doSetAdBlockerFound } = props;
-  const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, isAdBlockerFound, doSetAdBlockerFound);
+  const { currentTheme, shouldShowAds } = props;
+  const { location } = useHistory();
+
+  const shouldLoadScript = shouldShowAds && !gScript;
   const isMobile = useIsMobile();
 
   React.useEffect(() => {
-    if (shouldShowAds) {
+    // Must check `!gScript` again here since we have multiple instances of the
+    // component. The first one will load the script.
+    if (shouldLoadScript && !gScript) {
       try {
-        const script = document.createElement('script');
-        script.src = AD_SCRIPT_URL;
-        script.async = true;
-        script.onload = () => {
-          ++gReferenceCounter;
-        };
-
+        gScript = document.createElement('script');
+        gScript.src = AD_SCRIPT_URL;
+        gScript.async = true;
         // $FlowFixMe
-        document.body.appendChild(script);
-        return () => {
-          // $FlowFixMe
-          document.body.removeChild(script);
-
-          if (--gReferenceCounter <= 0) {
-            // Note: This method has the bad requirement of the parent having to
-            // mount and dismount all banners in the same cycle.
-            delete window.OBR;
-            // TODO: clear styles after the team adds an ID or class for us to query.
-          }
-        };
+        document.body.appendChild(gScript);
       } catch (e) {}
     }
-  }, [shouldShowAds]);
+  }, [shouldLoadScript]);
+
+  React.useEffect(() => {
+    if (window?.OBR?.extern) {
+      window.OBR.extern.reloadWidget();
+      window.OBR.extern.refreshWidget();
+    }
+  }, [location.pathname]);
 
   if (!shouldShowAds) {
     return null;
@@ -86,7 +79,7 @@ export default function AdsBanner(props: Props) {
         <div className="banner-ad__driver-value">{adsSignInDriver}</div>
       </div>
       <div
-        className="banner-ad__container OUTBRAIN"
+        className="banner-ad__container OUTBRAIN xx"
         data-ob-contenturl="DROP_PERMALINK_HERE"
         data-widget-id={!isMobile ? AD_CONFIG.AR_60 : AD_CONFIG.AR_18}
         data-ob-installation-key="ADNIMKAJDGAG4GAO6AGG6H5KP"

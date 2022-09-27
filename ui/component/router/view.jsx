@@ -19,6 +19,24 @@ import HomePage from 'page/home';
 const Code2257Page = lazyImport(() => import('web/page/code2257' /* webpackChunkName: "code2257" */));
 const PrivacyPolicyPage = lazyImport(() => import('web/page/privacypolicy' /* webpackChunkName: "privacypolicy" */));
 const TOSPage = lazyImport(() => import('web/page/tos' /* webpackChunkName: "tos" */));
+const CareersPage = lazyImport(() => import('web/page/careers' /* webpackChunkName: "careers" */));
+const CareersITProjectManagerPage = lazyImport(() =>
+  import('web/page/careers/itProjectManager' /* webpackChunkName: "itProjectManager" */)
+);
+const SeniorBackendEngineerPage = lazyImport(() =>
+  import('web/page/careers/seniorBackendEngineer' /* webpackChunkName: "seniorBackendEngineer" */)
+);
+
+const SoftwareSecurityEngineerPage = lazyImport(() =>
+  import('web/page/careers/securityEngineer' /* webpackChunkName: "securityEngineer" */)
+);
+const SeniorAndroidDeveloperPage = lazyImport(() =>
+  import('web/page/careers/seniorAndroidDeveloper' /* webpackChunkName: "seniorAndroidDeveloper" */)
+);
+const SeniorIosDeveloperPage = lazyImport(() =>
+  import('web/page/careers/seniorIosDeveloper' /* webpackChunkName: "seniorIosDeveloper" */)
+);
+
 const FypPage = lazyImport(() => import('web/page/fyp' /* webpackChunkName: "fyp" */));
 const YouTubeTOSPage = lazyImport(() => import('web/page/youtubetos' /* webpackChunkName: "youtubetos" */));
 
@@ -62,12 +80,14 @@ const InvitePage = lazyImport(() => import('page/invite' /* webpackChunkName: "i
 const InvitedPage = lazyImport(() => import('page/invited' /* webpackChunkName: "invited" */));
 const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: "library" */));
 const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChunkName: "listBlocked" */));
-const ListsPage = lazyImport(() => import('page/lists' /* webpackChunkName: "lists" */));
-const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "lists" */));
+const PlaylistsPage = lazyImport(() => import('page/playlists/view' /* webpackChunkName: "playlists" */));
 const WatchHistoryPage = lazyImport(() => import('page/watchHistory' /* webpackChunkName: "history" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
 const LivestreamCurrentPage = lazyImport(() =>
   import('page/livestreamCurrent' /* webpackChunkName: "livestreamCurrent" */)
+);
+const LivestreamCreatePage = lazyImport(() =>
+  import('page/livestreamCreate' /* webpackChunkName: "livestreamCreate" */)
 );
 const OdyseeMembershipPage = lazyImport(() =>
   import('page/odyseeMembership' /* webpackChunkName: "odyseeMembership" */)
@@ -75,7 +95,8 @@ const OdyseeMembershipPage = lazyImport(() =>
 const OwnComments = lazyImport(() => import('page/ownComments' /* webpackChunkName: "ownComments" */));
 const PasswordResetPage = lazyImport(() => import('page/passwordReset' /* webpackChunkName: "passwordReset" */));
 const PasswordSetPage = lazyImport(() => import('page/passwordSet' /* webpackChunkName: "passwordSet" */));
-const PublishPage = lazyImport(() => import('page/publish' /* webpackChunkName: "publish" */));
+const UploadPage = lazyImport(() => import('page/upload' /* webpackChunkName: "publish" */));
+const PostPage = lazyImport(() => import('page/post' /* webpackChunkName: "post" */));
 const ReportContentPage = lazyImport(() => import('page/reportContent' /* webpackChunkName: "reportContent" */));
 const ReportPage = lazyImport(() => import('page/report' /* webpackChunkName: "report" */));
 const RepostNew = lazyImport(() => import('page/repost' /* webpackChunkName: "repost" */));
@@ -125,10 +146,11 @@ type Props = {
     listen: (any) => () => void,
   },
   uri: string,
+  hasClaim: ?boolean,
   title: string,
   hasNavigated: boolean,
   setHasNavigated: () => void,
-  setReferrer: (?string) => void,
+  doUserSetReferrer: (referrerUri: string) => void,
   hasUnclaimedRefereeReward: boolean,
   homepageData: any,
   wildWestDisabled: boolean,
@@ -136,7 +158,6 @@ type Props = {
   hideTitleNotificationCount: boolean,
   hasDefaultChannel: boolean,
   doSetActiveChannel: (claimId: ?string, override?: boolean) => void,
-  embedLatestPath: ?boolean,
 };
 
 type PrivateRouteProps = Props & {
@@ -169,18 +190,18 @@ function AppRouter(props: Props) {
     isAuthenticated,
     history,
     uri,
+    hasClaim,
     title,
     hasNavigated,
     setHasNavigated,
     hasUnclaimedRefereeReward,
-    setReferrer,
+    doUserSetReferrer,
     homepageData,
     wildWestDisabled,
     unseenCount,
     hideTitleNotificationCount,
     hasDefaultChannel,
     doSetActiveChannel,
-    embedLatestPath,
   } = props;
 
   const defaultChannelRef = React.useRef(hasDefaultChannel);
@@ -218,14 +239,14 @@ function AppRouter(props: Props) {
   }, [listen, hasNavigated, setHasNavigated]);
 
   useEffect(() => {
-    if (!hasNavigated && hasUnclaimedRefereeReward && !isAuthenticated) {
+    if (!hasNavigated && hasUnclaimedRefereeReward && isAuthenticated === false && hasClaim) {
       const valid = isURIValid(uri);
       if (valid) {
         const { path } = parseURI(uri);
-        if (path !== 'undefined') setReferrer(path);
+        if (typeof path === 'string') doUserSetReferrer(path);
       }
     }
-  }, [hasNavigated, uri, hasUnclaimedRefereeReward, setReferrer, isAuthenticated]);
+  }, [hasNavigated, uri, hasUnclaimedRefereeReward, doUserSetReferrer, isAuthenticated, hasClaim]);
 
   useEffect(() => {
     const getDefaultTitle = (pathname: string) => {
@@ -286,13 +307,13 @@ function AppRouter(props: Props) {
       defaultChannelRef.current &&
       pathname !== `/$/${PAGES.UPLOAD}` &&
       !pathname.includes(`/$/${PAGES.LIST}/`) &&
+      !pathname.includes(`/$/${PAGES.PLAYLIST}/`) &&
       pathname !== `/$/${PAGES.CREATOR_DASHBOARD}` &&
       pathname !== `/$/${PAGES.LIVESTREAM}`
     ) {
       doSetActiveChannel(null, true);
     }
-    // only on pathname change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on 'pathname' change
   }, [pathname]);
 
   // react-router doesn't decode pathanmes before doing the route matching check
@@ -332,6 +353,12 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.CODE_2257}`} exact component={Code2257Page} />
         <Route path={`/$/${PAGES.PRIVACY_POLICY}`} exact component={PrivacyPolicyPage} />
         <Route path={`/$/${PAGES.TOS}`} exact component={TOSPage} />
+        <Route path={`/$/${PAGES.CAREERS}`} exact component={CareersPage} />
+        <Route path={`/$/${PAGES.CAREERS_IT_PROJECT_MANAGER}`} exact component={CareersITProjectManagerPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_BACKEND_ENGINEER}`} exact component={SeniorBackendEngineerPage} />
+        <Route path={`/$/${PAGES.CAREERS_SOFTWARE_SECURITY_ENGINEER}`} exact component={SoftwareSecurityEngineerPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_ANDROID_DEVELOPER}`} exact component={SeniorAndroidDeveloperPage} />
+        <Route path={`/$/${PAGES.CAREERS_SENIOR_IOS_DEVELOPER}`} exact component={SeniorIosDeveloperPage} />
         <Route path={`/$/${PAGES.FYP}`} exact component={FypPage} />
         <Route path={`/$/${PAGES.YOUTUBE_TOS}`} exact component={YouTubeTOSPage} />
 
@@ -343,6 +370,7 @@ function AppRouter(props: Props) {
         <Route path={`/$/${PAGES.CHECKOUT}`} exact component={CheckoutPage} />
         <Route path={`/$/${PAGES.REPORT_CONTENT}`} exact component={ReportContentPage} />
         <Route {...props} path={`/$/${PAGES.LIST}/:collectionId`} component={CollectionPage} />
+        <Route {...props} path={`/$/${PAGES.PLAYLIST}/:collectionId`} component={CollectionPage} />
 
         <PrivateRoute {...props} exact path={`/$/${PAGES.YOUTUBE_SYNC}`} component={YoutubeSyncPage} />
         <PrivateRoute {...props} exact path={`/$/${PAGES.TAGS_FOLLOWING}`} component={TagsFollowingPage} />
@@ -353,8 +381,12 @@ function AppRouter(props: Props) {
           component={isAuthenticated || !IS_WEB ? ChannelsFollowingPage : DiscoverPage}
         />
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_NOTIFICATIONS}`} component={SettingsNotificationsPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} component={SettingsStripeCard} />
-        <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} component={SettingsStripeAccount} />
+        {window.odysee && !window.odysee.build.googlePlay && (
+          <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_CARD}`} component={SettingsStripeCard} />
+        )}
+        {window.odysee && !window.odysee.build.googlePlay && (
+          <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} component={SettingsStripeAccount} />
+        )}
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_UPDATE_PWD}`} component={UpdatePasswordPage} />
         <PrivateRoute
           {...props}
@@ -373,12 +405,13 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.REPOST_NEW}`} component={RepostNew} />
         <PrivateRoute {...props} path={`/$/${PAGES.UPLOADS}`} component={FileListPublished} />
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_DASHBOARD}`} component={CreatorDashboard} />
-        <PrivateRoute {...props} path={`/$/${PAGES.UPLOAD}`} component={PublishPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.UPLOAD}`} component={UploadPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.POST}`} component={PostPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.REPORT}`} component={ReportPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.REWARDS}`} exact component={RewardsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.REWARDS_VERIFY}`} component={RewardsVerifyPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIBRARY}`} component={LibraryPage} />
-        <PrivateRoute {...props} path={`/$/${PAGES.LISTS}`} component={ListsPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.LISTS}`} component={PlaylistsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.PLAYLISTS}`} component={PlaylistsPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.WATCH_HISTORY}`} component={WatchHistoryPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`} component={TagsFollowingManagePage} />
@@ -386,6 +419,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.SETTINGS_CREATOR}`} component={SettingsCreatorPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.WALLET}`} exact component={WalletPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.CHANNELS}`} component={ChannelsPage} />
+        <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CREATE}`} component={LivestreamCreatePage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM}`} component={LiveStreamSetupPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.LIVESTREAM_CURRENT}`} component={LivestreamCurrentPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.BUY}`} component={BuyPage} />
@@ -399,11 +433,7 @@ function AppRouter(props: Props) {
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 
-        <Route
-          path={`/$/${PAGES.EMBED}/:claimName`}
-          exact
-          component={embedLatestPath ? () => <EmbedWrapperPage uri={uri} /> : EmbedWrapperPage}
-        />
+        <Route path={`/$/${PAGES.EMBED}/:claimName`} exact component={EmbedWrapperPage} />
         <Route path={`/$/${PAGES.EMBED}/:claimName/:claimId`} exact component={EmbedWrapperPage} />
 
         {/* Below need to go at the end to make sure we don't match any of our pages first */}

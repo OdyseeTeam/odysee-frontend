@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
+import analytics from 'analytics';
 import FilePrice from 'component/filePrice';
 import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
@@ -19,22 +20,17 @@ type Props = {
   metadata: StreamMetadata,
   analyticsPurchaseEvent: (GetResponse) => void,
   playingUri: PlayingUri,
-  setPlayingUri: (?string) => void,
+  setPlayingUri: (params: PlayingUri) => void,
+  cancelCb?: () => void,
 };
 
 function ModalAffirmPurchase(props: Props) {
-  const {
-    closeModal,
-    loadVideo,
-    metadata: { title },
-    uri,
-    analyticsPurchaseEvent,
-    playingUri,
-    setPlayingUri,
-  } = props;
+  const { closeModal, loadVideo, metadata, uri, analyticsPurchaseEvent, playingUri, setPlayingUri, cancelCb } = props;
   const [success, setSuccess] = React.useState(false);
   const [purchasing, setPurchasing] = React.useState(false);
   const modalTitle = __('Confirm Purchase');
+  const title = metadata?.title;
+  const renderedTitle = title ? `"${title}"` : uri;
 
   function onAffirmPurchase() {
     setPurchasing(true);
@@ -44,16 +40,17 @@ function ModalAffirmPurchase(props: Props) {
       analyticsPurchaseEvent(fileInfo);
 
       if (playingUri.uri !== uri) {
-        setPlayingUri(uri);
+        setPlayingUri({ ...playingUri, uri });
       }
     });
   }
 
   function cancelPurchase() {
-    if (playingUri.uri && isURIEqual(uri, playingUri.uri)) {
-      setPlayingUri(null);
+    if (playingUri.uri && isURIEqual(uri, playingUri.uri) && !playingUri.collection.collectionId) {
+      setPlayingUri({ ...playingUri, uri: null });
     }
 
+    if (cancelCb) cancelCb();
     closeModal();
   }
 
@@ -73,34 +70,46 @@ function ModalAffirmPurchase(props: Props) {
     };
   }, [success, uri]);
 
+  React.useEffect(() => {
+    if (!metadata) {
+      analytics.log(new Error('ModalAffirmPurchase: null claim'), {
+        fingerprint: ['ModalAffirmPurchase-null-claim'],
+        tags: { uri, callbackExists: cancelCb ? 'yes' : 'no' },
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount
+  }, []);
+
   return (
     <Modal type="card" isOpen contentLabel={modalTitle} onAborted={cancelPurchase}>
       <Card
         title={modalTitle}
         subtitle={
-          <div className={classnames('purchase-stuff', { 'purchase-stuff--purchased': success })}>
-            <div>
-              {success && (
-                <div className="purchase-stuff__text--purchased">
-                  {__('Purchased!')}
-                  <div className="purchase_stuff__subtext--purchased">
-                    {__('This content will now be in your Library.')}
-                  </div>
+          <>
+            <div className={classnames('purchase-stuff', { 'purchase-stuff--purchased': success })}>
+              <div>
+                {/* Keep this message rendered but hidden so the width doesn't change */}
+                <I18nMessage
+                  tokens={{
+                    claim_title: <strong>{renderedTitle}</strong>,
+                  }}
+                >
+                  Are you sure you want to purchase %claim_title%?
+                </I18nMessage>
+              </div>
+              <div>
+                <FilePrice uri={uri} showFullPrice type="modal" />
+              </div>
+            </div>
+            {success && (
+              <div className="purchase-stuff__text--purchased">
+                {__('Purchased!')}
+                <div className="purchase_stuff__subtext--purchased">
+                  {__('This content will now be in your Library.')}
                 </div>
-              )}
-              {/* Keep this message rendered but hidden so the width doesn't change */}
-              <I18nMessage
-                tokens={{
-                  claim_title: <strong>{title ? `"${title}"` : uri}</strong>,
-                }}
-              >
-                Are you sure you want to purchase %claim_title%?
-              </I18nMessage>
-            </div>
-            <div>
-              <FilePrice uri={uri} showFullPrice type="modal" />
-            </div>
-          </div>
+              </div>
+            )}
+          </>
         }
         actions={
           <div className="section__actions" style={success ? { visibility: 'hidden' } : undefined}>

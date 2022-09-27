@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import Button from 'component/button';
 import { SIMPLE_SITE } from 'config';
+// import * as PAGES from 'constants/pages';
 
 export default function Footer() {
   useEffect(() => {
@@ -30,22 +31,31 @@ export default function Footer() {
     <footer className="footer">
       <ul className="navigation__tertiary footer__links">
         <li className="footer__link">
-          <Button label={__('Community Guidelines')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c') } />
+          <Button
+            label={__('Community Guidelines')}
+            onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c')}
+          />
         </li>
         <li className="footer__link">
-          <Button label={__('FAQ')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b') } />
+          <Button label={__('FAQ')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b')} />
         </li>
         <li className="footer__link">
           <Button
             label={__('Support --[used in footer; general help/support]--')}
-            onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b') }
+            onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b')}
           />
         </li>
         <li className="footer__link">
-          <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos') } />
+          <Button label={__('Careers')} onClick={() => window.odysee.functions.history.push('/$/careers')} />
         </li>
         <li className="footer__link">
-          <Button label={__('Privacy Policy')} onClick={() => window.odysee.functions.history.push('/$/privacypolicy') } />
+          <Button label={__('Terms')} onClick={() => window.odysee.functions.history.push('/$/tos')} />
+        </li>
+        <li className="footer__link">
+          <Button
+            label={__('Privacy Policy')}
+            onClick={() => window.odysee.functions.history.push('/$/privacypolicy')}
+          />
         </li>
         <li className="footer__link" id="gdprPrivacyFooter">
           <Button label={__('Cookie Settings')} onClick={() => window.Optanon && window.Optanon.ToggleInfoDisplay()} />

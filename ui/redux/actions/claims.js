@@ -14,6 +14,7 @@ import {
   selectIsMyChannelCountOverLimit,
   selectById,
   selectMyChannelClaimIds,
+  selectFetchingMyChannels,
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
@@ -22,7 +23,7 @@ import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { PAGE_SIZE } from 'constants/claim';
-import { makeSelectClaimIdsForCollectionId } from 'redux/selectors/collections';
+import { selectClaimIdsForCollectionId } from 'redux/selectors/collections';
 import { doFetchItemsInCollections } from 'redux/actions/collections';
 
 let onChannelConfirmCallback;
@@ -135,7 +136,7 @@ export function doResolveUris(
       });
 
       if (collectionIds.length) {
-        dispatch(doFetchItemsInCollections({ collectionIds: collectionIds, pageSize: 5 }));
+        dispatch(doFetchItemsInCollections({ collectionIds, pageSize: 50 }));
       }
 
       return result;
@@ -184,6 +185,21 @@ export function doResolveUri(
   additionalOptions: any = {}
 ) {
   return doResolveUris([uri], returnCachedClaims, resolveReposts, additionalOptions);
+}
+
+export function doGetClaimFromUriResolve(uri: string) {
+  return async (dispatch: Dispatch) => {
+    let claim;
+    await dispatch(doResolveUri(uri, true))
+      .then((response) =>
+        Object.values(response).forEach((resposne) => {
+          claim = resposne;
+        })
+      )
+      .catch((e) => {});
+
+    return claim;
+  };
 }
 
 export function doFetchClaimListMine(
@@ -443,19 +459,7 @@ export function doCreateChannel(name: string, amount: number, optionalParams: an
       return;
     }
 
-    const createParams: {
-      name: string,
-      bid: string,
-      blocking: true,
-      title?: string,
-      cover_url?: string,
-      thumbnail_url?: string,
-      description?: string,
-      website_url?: string,
-      email?: string,
-      tags?: Array<Tag>,
-      languages?: Array<string>,
-    } = {
+    const createParams: ChannelCreateParam = {
       name,
       bid: creditsToString(amount),
       blocking: true,
@@ -598,60 +602,74 @@ export function doImportChannel(certificate: string) {
   };
 }
 
-export function doFetchChannelListMine(page: number = 1, pageSize: number = 99999, resolve: boolean = true) {
-  return (dispatch: Dispatch) => {
-    dispatch({
-      type: ACTIONS.FETCH_CHANNEL_LIST_STARTED,
-    });
+export const doFetchChannelListMine = (page: number = 1, pageSize: number = 99999, resolve: boolean = true) => (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const state = getState();
+  const isFetching = selectFetchingMyChannels(state);
 
-    const callback = (response: ChannelListResponse) => {
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED,
-        data: { claims: response.items },
-      });
-    };
+  if (isFetching) return;
 
-    const failure = (error) => {
-      dispatch({
-        type: ACTIONS.FETCH_CHANNEL_LIST_FAILED,
-        data: error,
-      });
-    };
+  dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_STARTED });
 
-    Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
+  const callback = (response: ChannelListResponse) => {
+    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_COMPLETED, data: { claims: response.items } });
   };
-}
 
-export function doFetchCollectionListMine(page: number = 1, pageSize: number = 99999) {
-  return (dispatch: Dispatch) => {
-    dispatch({
-      type: ACTIONS.FETCH_COLLECTION_LIST_STARTED,
-    });
-
-    const callback = (response: CollectionListResponse) => {
-      const { items } = response;
-      dispatch({
-        type: ACTIONS.FETCH_COLLECTION_LIST_COMPLETED,
-        data: { claims: items },
-      });
-      dispatch(
-        doFetchItemsInCollections({
-          collectionIds: items.map((claim) => claim.claim_id),
-          page_size: 5,
-        })
-      );
-    };
-
-    const failure = (error) => {
-      dispatch({
-        type: ACTIONS.FETCH_COLLECTION_LIST_FAILED,
-        data: error,
-      });
-    };
-
-    Lbry.collection_list({ page, page_size: pageSize, resolve_claims: 1, resolve: true }).then(callback, failure);
+  const failure = (error) => {
+    dispatch({ type: ACTIONS.FETCH_CHANNEL_LIST_FAILED, data: error });
   };
-}
+
+  Lbry.channel_list({ page, page_size: pageSize, resolve }).then(callback, failure);
+};
+
+export const doFetchCollectionListMine = (page: number = 1, pageSize: number = 50) => async (dispatch: Dispatch) => {
+  dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_STARTED });
+
+  let options = {
+    page: page,
+    page_size: pageSize,
+    resolve_claims: 1,
+    resolve: true,
+  };
+
+  const success = (response: CollectionListResponse) => {
+    const { items } = response;
+    const collectionIds = items.map(({ claim_id }) => claim_id);
+
+    dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_COMPLETED, data: { claims: items } });
+    dispatch(doFetchItemsInCollections({ collectionIds, page_size: 5 }));
+  };
+
+  const failure = (error) => dispatch({ type: ACTIONS.FETCH_COLLECTION_LIST_FAILED, data: error });
+
+  const autoPaginate = () => {
+    let allClaims = [];
+
+    const next = async (response: CollectionListResponse) => {
+      const moreData = response.items.length === options.page_size;
+      allClaims = allClaims.concat(response.items);
+      options.page++;
+
+      if (!moreData) {
+        // $FlowIgnore: the callback doesn't need all data anyway.
+        return success({ items: allClaims });
+      }
+
+      try {
+        const data = await Lbry.collection_list(options);
+        return next(data);
+      } catch (err) {
+        failure(err);
+      }
+    };
+
+    return next;
+  };
+
+  return await Lbry.collection_list(options).then(autoPaginate(), failure);
+};
 
 export function doClearClaimSearch() {
   return (dispatch: Dispatch) => {
@@ -848,7 +866,11 @@ export function doCollectionPublish(
       params['channel_id'] = options.channel_id;
     }
 
-    return new Promise((resolve) => {
+    if (params.description && typeof params.description !== 'string') {
+      delete params.description;
+    }
+
+    return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_STARTED,
       });
@@ -887,6 +909,7 @@ export function doCollectionPublish(
             error: error.message,
           },
         });
+        return reject(error);
       }
 
       return Lbry.collection_create(params).then(success, failure);
@@ -947,7 +970,7 @@ export function doCollectionPublishUpdate(
 
     if (isBackgroundUpdate && updateParams.claim_id) {
       const state = getState();
-      updateParams['claims'] = makeSelectClaimIdsForCollectionId(updateParams.claim_id)(state);
+      updateParams['claims'] = selectClaimIdsForCollectionId(state, updateParams.claim_id);
     } else if (options.claims) {
       updateParams['claims'] = options.claims;
     }
@@ -960,7 +983,11 @@ export function doCollectionPublishUpdate(
       updateParams['channel_id'] = options.channel_id;
     }
 
-    return new Promise((resolve) => {
+    if (updateParams.description && typeof updateParams.description !== 'string') {
+      delete updateParams.description;
+    }
+
+    return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,
       });
@@ -994,6 +1021,7 @@ export function doCollectionPublishUpdate(
             error: error.message,
           },
         });
+        return reject(error);
       }
 
       return Lbry.collection_update(updateParams).then(success, failure);
@@ -1109,11 +1137,7 @@ export const doCheckPendingClaims = (onChannelConfirmed: Function) => (dispatch:
                 },
               });
               if (collectionIds.length) {
-                dispatch(
-                  doFetchItemsInCollections({
-                    collectionIds,
-                  })
-                );
+                dispatch(doFetchItemsInCollections({ collectionIds }));
               }
               const channelClaims = claims.filter((claim) => claim.value_type === 'channel');
               if (channelClaims.length && onChannelConfirmCallback) {

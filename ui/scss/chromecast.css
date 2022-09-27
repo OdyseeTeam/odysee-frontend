@@ -1,0 +1,20 @@
+.background {
+  background: center no-repeat url('https://thumbnails.odycdn.com/optimize/plain/https://player.odycdn.com/speech/2e9a7dc6c99f0fb9.jpg');
+}
+
+.logo {
+  background-image: url(logo.png);
+}
+
+.progressBar {
+  background-color: rgb(238, 255, 65);
+}
+
+.splash {
+  background-image: url(splash.png);
+}
+
+.watermark {
+  background-image: url(watermark.png);
+  background-size: 57px 57px;
+}

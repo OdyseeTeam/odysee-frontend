@@ -1,49 +1,60 @@
 // @flow
 import { handleActions } from 'util/redux-utils';
+import { getCurrentTimeInSec } from 'util/time';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
-
-const getTimestamp = () => {
-  return Math.floor(Date.now() / 1000);
-};
 
 const defaultState: CollectionState = {
   builtin: {
     watchlater: {
       items: [],
       id: COLS.WATCH_LATER_ID,
-      name: 'Watch Later',
-      updatedAt: getTimestamp(),
-      type: COLS.COL_TYPE_PLAYLIST,
+      name: COLS.WATCH_LATER_NAME,
+      createdAt: undefined,
+      updatedAt: getCurrentTimeInSec(),
+      type: COLS.COL_TYPES.PLAYLIST,
     },
     favorites: {
       items: [],
       id: COLS.FAVORITES_ID,
-      name: 'Favorites',
-      type: COLS.COL_TYPE_PLAYLIST,
-      updatedAt: getTimestamp(),
+      name: COLS.FAVORITES_NAME,
+      createdAt: undefined,
+      updatedAt: getCurrentTimeInSec(),
+      type: COLS.COL_TYPES.PLAYLIST,
     },
   },
   resolved: {},
   unpublished: {}, // sync
   lastUsedCollection: undefined,
   edited: {},
+  updated: {},
   pending: {},
-  saved: [],
-  isResolvingCollectionById: {},
+  savedIds: [],
+  resolvingById: {},
   error: null,
+  queue: {
+    items: [],
+    id: COLS.QUEUE_ID,
+    name: COLS.QUEUE_NAME,
+    updatedAt: getCurrentTimeInSec(),
+    type: COLS.COL_TYPES.PLAYLIST,
+  },
+  featuredChannelsPublishing: false,
 };
 
 const collectionsReducer = handleActions(
   {
     [ACTIONS.COLLECTION_NEW]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<string>}
+      const currentTime = getCurrentTimeInSec();
+
       // entry
-      const newListTemplate = {
+      const newListTemplate: Collection = {
         id: params.id,
         name: params.name,
         items: [],
-        updatedAt: getTimestamp(),
+        createdAt: currentTime,
+        updatedAt: currentTime,
         type: params.type,
       };
 
@@ -58,17 +69,30 @@ const collectionsReducer = handleActions(
       };
     },
 
+    [ACTIONS.COLLECTION_TOGGLE_SAVE]: (state, action) => {
+      const { savedIds } = state;
+      const { collectionId } = action.data;
+
+      if (savedIds.includes(collectionId)) {
+        return { ...state, savedIds: savedIds.filter((savedId) => savedId !== collectionId) };
+      } else {
+        return { ...state, savedIds: [...savedIds, collectionId] };
+      }
+    },
+
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {
-      const { lastUsedCollection } = state;
+      const { edited: editList, unpublished: unpublishedList, pending: pendingList, lastUsedCollection } = state;
       const { id, collectionKey } = action.data;
-      const { edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
+
       const newEditList = Object.assign({}, editList);
+      const newPendingList = Object.assign({}, pendingList);
       const newUnpublishedList = Object.assign({}, unpublishedList);
+
+      const collectionsForKey = state[collectionKey];
+      const collectionForId = collectionsForKey && collectionsForKey[id];
       const isDeletingLastUsedCollection = lastUsedCollection === id;
 
-      const newPendingList = Object.assign({}, pendingList);
-
-      if (collectionKey && state[collectionKey] && state[collectionKey][id]) {
+      if (collectionForId) {
         const newList = Object.assign({}, state[collectionKey]);
         delete newList[id];
         return {
@@ -76,6 +100,10 @@ const collectionsReducer = handleActions(
           [collectionKey]: newList,
           lastUsedCollection: isDeletingLastUsedCollection ? undefined : lastUsedCollection,
         };
+      } else if (collectionKey === 'all') {
+        delete newEditList[id];
+        delete newUnpublishedList[id];
+        delete newPendingList[id];
       } else {
         if (newEditList[id]) {
           delete newEditList[id];
@@ -122,30 +150,26 @@ const collectionsReducer = handleActions(
       };
     },
 
+    [ACTIONS.QUEUE_EDIT]: (state, action) => {
+      const { collectionKey, collection } = action.data;
+
+      const { [collectionKey]: currentQueue } = state;
+
+      return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInSec() } };
+    },
+
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
-      const { id, collectionKey, collection } = action.data;
+      const { collectionKey, collection } = action.data;
+      const id = collection.id;
 
-      if (COLS.BUILTIN_LISTS.includes(id)) {
-        const { builtin: lists } = state;
-        return {
-          ...state,
-          [collectionKey]: { ...lists, [id]: collection },
-          lastUsedCollection: id,
-        };
-      }
+      const { [collectionKey]: currentCollections } = state;
 
-      if (collectionKey === 'edited') {
-        const { edited: lists } = state;
-        return {
-          ...state,
-          edited: { ...lists, [id]: collection },
-          lastUsedCollection: id,
-        };
-      }
-      const { unpublished: lists } = state;
+      const newCollection = Object.assign({}, collection);
+      newCollection.updatedAt = getCurrentTimeInSec();
+
       return {
         ...state,
-        unpublished: { ...lists, [id]: collection },
+        [collectionKey]: { ...currentCollections, [id]: newCollection },
         lastUsedCollection: id,
       };
     },
@@ -156,43 +180,69 @@ const collectionsReducer = handleActions(
       });
     },
 
+    [ACTIONS.COLLECTION_FC_PUBLISH_STARTED]: (state, action) => {
+      return { ...state, featuredChannelsPublishing: true };
+    },
+
+    [ACTIONS.COLLECTION_FC_PUBLISH_COMPLETED]: (state, action) => {
+      return { ...state, featuredChannelsPublishing: false };
+    },
+
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED]: (state, action) => {
       const { ids } = action.data;
-      const { isResolvingCollectionById } = state;
-      const newResolving = Object.assign({}, isResolvingCollectionById);
+      const { resolvingById } = state;
+
+      const newResolving = Object.assign({}, resolvingById);
       ids.forEach((id) => {
         newResolving[id] = true;
       });
-      return Object.assign({}, state, {
-        ...state,
-        error: '',
-        isResolvingCollectionById: newResolving,
-      });
+
+      return { ...state, error: '', resolvingById: newResolving };
     },
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
-      const { builtinCollections, savedCollections, unpublishedCollections, editedCollections } = action.data;
+      const {
+        builtinCollections,
+        savedCollectionIds,
+        unpublishedCollections,
+        editedCollections,
+        updatedCollections,
+      } = action.data;
+
       return {
         ...state,
         edited: editedCollections || state.edited,
+        updated: updatedCollections || state.updated,
         unpublished: unpublishedCollections || state.unpublished,
         builtin: builtinCollections || state.builtin,
-        saved: savedCollections || state.saved,
+        savedIds: savedCollectionIds || state.savedIds,
       };
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
-      const { resolvedCollections, failedCollectionIds } = action.data;
-      const { pending, edited, isResolvingCollectionById, resolved } = state;
+      const { resolvedPrivateCollectionIds, resolvedCollections, failedCollectionIds } = action.data;
+      const { pending, edited, resolvingById, resolved, updated } = state;
+
+      const resolvedFiltered = {};
+      const editedResolved = {};
+      Object.entries(resolvedCollections).forEach(([key, val]) => {
+        // $FlowFixMe
+        if (val.key !== 'edited') {
+          resolvedFiltered[key] = val;
+        } else {
+          editedResolved[key] = val;
+        }
+      });
+
       const newPending = Object.assign({}, pending);
-      const newEdited = Object.assign({}, edited);
-      const newResolved = Object.assign({}, resolved, resolvedCollections);
+      const newResolved = Object.assign({}, resolved, resolvedFiltered);
+      const newEdited = Object.assign({}, edited, editedResolved);
 
       const resolvedIds = Object.keys(resolvedCollections);
-      const newResolving = Object.assign({}, isResolvingCollectionById);
+      const newResolving = Object.assign({}, resolvingById);
       if (resolvedCollections && Object.keys(resolvedCollections).length) {
         resolvedIds.forEach((resolvedId) => {
-          if (newEdited[resolvedId]) {
-            if (newEdited[resolvedId]['updatedAt'] < resolvedCollections[resolvedId]['updatedAt']) {
-              delete newEdited[resolvedId];
+          if (updated[resolvedId]) {
+            if (updated[resolvedId]['updatedAt'] < resolvedCollections[resolvedId]['updatedAt']) {
+              delete updated[resolvedId];
             }
           }
           delete newResolving[resolvedId];
@@ -208,24 +258,30 @@ const collectionsReducer = handleActions(
         });
       }
 
+      if (resolvedPrivateCollectionIds && resolvedPrivateCollectionIds.length > 0) {
+        resolvedPrivateCollectionIds.forEach((id) => {
+          delete newResolving[id];
+        });
+      }
+
       return Object.assign({}, state, {
         ...state,
         pending: newPending,
         resolved: newResolved,
         edited: newEdited,
-        isResolvingCollectionById: newResolving,
+        resolvingById: newResolving,
       });
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {
       const { ids } = action.data;
-      const { isResolvingCollectionById } = state;
-      const newResolving = Object.assign({}, isResolvingCollectionById);
+      const { resolvingById } = state;
+      const newResolving = Object.assign({}, resolvingById);
       ids.forEach((id) => {
         delete newResolving[id];
       });
       return Object.assign({}, state, {
         ...state,
-        isResolvingCollectionById: newResolving,
+        resolvingById: newResolving,
         error: action.data.message,
       });
     },

@@ -14,6 +14,10 @@
     color: var(--color-primary-contrast);
   }
 
+  .icon--Key {
+    margin-right: var(--spacing-m);
+  }
+
   &::before {
     position: absolute;
     content: '';
@@ -29,7 +33,6 @@
   font-size: var(--font-body);
   top: calc(var(--spacing-xxs) * -1);
   margin-left: var(--spacing-m);
-  margin-right: var(--spacing-m);
   height: 2.4rem;
 
   .credit-amount {
@@ -38,8 +41,8 @@
   }
 
   &::before {
-    height: 250%;
-    left: calc(var(--spacing-m) * -1);
+    // height: 250%;
+    // left: calc(var(--spacing-m) * -1);
     border-radius: 0;
     border-bottom-left-radius: var(--border-radius);
     border-width: 5px;

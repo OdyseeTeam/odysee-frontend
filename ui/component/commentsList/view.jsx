@@ -40,10 +40,9 @@ type Props = {
   topLevelTotalPages: number,
   uri: string,
   claimId?: string,
-  channelId?: string,
   claimIsMine: boolean,
   isFetchingComments: boolean,
-  isFetchingCommentsById: boolean,
+  isFetchingTopLevelComments: boolean,
   isFetchingReacts: boolean,
   linkedCommentId?: string,
   totalComments: number,
@@ -51,7 +50,7 @@ type Props = {
   myReactsByCommentId: ?{ [string]: Array<string> }, // "CommentId:MyChannelId" -> reaction array (note the ID concatenation)
   othersReactsById: ?{ [string]: { [REACTION_TYPES.LIKE | REACTION_TYPES.DISLIKE]: number } },
   activeChannelId: ?string,
-  settingsByChannelId: { [channelId: string]: PerChannelSettings },
+  commentsEnabledSetting: ?boolean,
   commentsAreExpanded?: boolean,
   threadCommentId: ?string,
   threadComment: ?Comment,
@@ -64,6 +63,7 @@ type Props = {
   resetComments: (claimId: string) => void,
   claimsByUri: { [string]: any },
   doFetchUserMemberships: (claimIdCsv: string) => void,
+  doPopOutInlinePlayer: (param: { source: string }) => void,
 };
 
 export default function CommentList(props: Props) {
@@ -74,9 +74,9 @@ export default function CommentList(props: Props) {
     topLevelComments,
     topLevelTotalPages,
     claimId,
-    channelId,
     claimIsMine,
     isFetchingComments,
+    isFetchingTopLevelComments,
     isFetchingReacts,
     linkedCommentId,
     totalComments,
@@ -84,7 +84,7 @@ export default function CommentList(props: Props) {
     myReactsByCommentId,
     othersReactsById,
     activeChannelId,
-    settingsByChannelId,
+    commentsEnabledSetting,
     commentsAreExpanded,
     threadCommentId,
     threadComment,
@@ -97,6 +97,7 @@ export default function CommentList(props: Props) {
     resetComments,
     claimsByUri,
     doFetchUserMemberships,
+    doPopOutInlinePlayer,
   } = props;
 
   const threadRedirect = React.useRef(false);
@@ -121,7 +122,6 @@ export default function CommentList(props: Props) {
   const [debouncedUri, setDebouncedUri] = React.useState();
 
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
-  const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
   const moreBelow = page < topLevelTotalPages;
   const title = getCommentsListTitle(totalComments);
   const threadDepthLevel = isMobile ? 3 : 10;
@@ -163,12 +163,14 @@ export default function CommentList(props: Props) {
   function refreshComments() {
     // Invalidate existing comments
     setPage(0);
+    doPopOutInlinePlayer({ source: 'comment' });
   }
 
   function changeSort(newSort) {
     if (sort !== newSort) {
       setSort(newSort);
       refreshComments();
+      doPopOutInlinePlayer({ source: 'comment' });
     }
   }
 
@@ -197,8 +199,7 @@ export default function CommentList(props: Props) {
       setPage(page + 1);
       setDebouncedUri(undefined);
     }
-    // only for comparing uri with debounced uri
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only for comparing uri with debounced uri
   }, [debouncedUri, uri]);
 
   // Force comments reset
@@ -219,8 +220,7 @@ export default function CommentList(props: Props) {
   // so set the current page as the fetched page to start fetching new pages from there
   useEffect(() => {
     if (page < currentFetchedPage) setPage(currentFetchedPage > 0 ? currentFetchedPage : 1);
-    // only on uri change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only on uri change
   }, [uri]);
 
   // Fetch top-level comments
@@ -400,11 +400,9 @@ export default function CommentList(props: Props) {
             </span>
           )}
 
-          {channelSettings &&
-            channelSettings.comments_enabled &&
-            !isFetchingComments &&
-            !totalComments &&
-            !threadCommentId && <Empty padded text={__('That was pretty deep. What do you think?')} />}
+          {commentsEnabledSetting && !isFetchingComments && !totalComments && !threadCommentId && (
+            <Empty padded text={__('That was pretty deep. What do you think?')} />
+          )}
 
           <ul
             ref={commentListRef}
@@ -451,7 +449,9 @@ export default function CommentList(props: Props) {
             </div>
           )}
 
-          {(threadCommentId ? !readyToDisplayComments : isFetchingComments || (hasDefaultExpansion && moreBelow)) && (
+          {(threadCommentId
+            ? !readyToDisplayComments
+            : isFetchingTopLevelComments || (hasDefaultExpansion && moreBelow)) && (
             <div className="main--empty" ref={spinnerRef}>
               <Spinner type="small" />
             </div>

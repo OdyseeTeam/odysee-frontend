@@ -1,10 +1,8 @@
 // @flow
 import * as MODALS from 'constants/modal_types';
-import * as ICONS from 'constants/icons';
+import * as STRIPE from 'constants/stripe';
 import React from 'react';
-import classnames from 'classnames';
-import Button from 'component/button';
-import Tooltip from 'component/common/tooltip';
+import FileActionButton from 'component/common/file-action-button';
 
 type Props = {
   uri: string,
@@ -14,35 +12,41 @@ type Props = {
   isRepost?: boolean,
   doOpenModal: (id: string, {}) => void,
   preferredCurrency: string,
+  doTipAccountCheckForUri: (uri: string) => void,
+  canReceiveFiatTips: ?boolean,
 };
 
 export default function ClaimSupportButton(props: Props) {
-  const { uri, fileAction, isRepost, disableSupport, doOpenModal, preferredCurrency } = props;
+  const {
+    uri,
+    fileAction,
+    isRepost,
+    disableSupport,
+    doOpenModal,
+    preferredCurrency,
+    canReceiveFiatTips,
+    doTipAccountCheckForUri,
+  } = props;
 
-  const currencyToUse = preferredCurrency;
+  React.useEffect(() => {
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
-  const iconToUse = {
-    EUR: {
-      icon: ICONS.EURO,
-      iconSize: 16,
-    },
-    USD: {
-      icon: ICONS.FINANCE,
-      iconSize: fileAction ? 22 : undefined,
-    },
-  };
+  if (disableSupport) return null;
 
-  return disableSupport ? null : (
-    <Tooltip title={__('Support this claim')} arrow={false}>
-      <Button
-        button={!fileAction ? 'alt' : undefined}
-        className={classnames('support-claim-button', { 'button--file-action': fileAction })}
-        icon={iconToUse[currencyToUse].icon}
-        iconSize={iconToUse[currencyToUse].iconSize}
-        label={isRepost ? __('Support Repost') : __('Support --[button to support a claim]--')}
-        requiresAuth
-        onClick={() => doOpenModal(MODALS.SEND_TIP, { uri, isSupport: true })}
-      />
-    </Tooltip>
+  const iconSizes = { [STRIPE.CURRENCIES.EUR]: 16, [STRIPE.CURRENCIES.USD]: fileAction ? 22 : undefined };
+
+  return (
+    <FileActionButton
+      className={canReceiveFiatTips ? 'approved-bank-account__button' : undefined}
+      title={__('Support this content')}
+      label={isRepost ? __('Support Repost') : __('Support --[button to support a claim]--')}
+      icon={STRIPE.CURRENCY[preferredCurrency].icon}
+      iconSize={iconSizes[preferredCurrency]}
+      onClick={() => doOpenModal(MODALS.SEND_TIP, { uri, isSupport: true })}
+      noStyle={!fileAction}
+    />
   );
 }

@@ -11,14 +11,13 @@ const {
   URL,
 } = require('../../config.js');
 const {
-  generateEmbedUrl,
+  generateEmbedUrlEncoded,
   getParameterByName,
-  getThumbnailCdnUrl,
+  getThumbnailCardCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
 } = require('../../ui/util/web');
 const { fetchStreamUrl } = require('./fetchStreamUrl');
-const { getJsBundleId } = require('../bundle-id.js');
 const { lbryProxy: Lbry } = require('../lbry');
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
 const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
@@ -28,24 +27,30 @@ const path = require('path');
 const removeMd = require('remove-markdown');
 const { buildGoogleVideoMetadata } = require('./metadata/googleVideo');
 
-const jsBundleId = getJsBundleId();
 Lbry.setDaemonConnectionString(PROXY_URL);
 
 const BEGIN_STR = '<!-- VARIABLE_HEAD_BEGIN -->';
 const FINAL_STR = '<!-- VARIABLE_HEAD_END -->';
+const DOUBLE_TAB = '    ';
 
 // ****************************************************************************
 // Helpers
 // ****************************************************************************
 
-function insertToHead(fullHtml, htmlToInsert) {
+function insertToHead(fullHtml, htmlToInsert, buildRev = '') {
   const beginIndex = fullHtml.indexOf(BEGIN_STR);
   const finalIndex = fullHtml.indexOf(FINAL_STR);
 
   if (beginIndex > -1 && finalIndex > -1 && finalIndex > beginIndex) {
-    return `${fullHtml.slice(0, beginIndex)}${
-      htmlToInsert || buildOgMetadata()
-    }<script src="/public/ui-${jsBundleId}.js" async></script>${fullHtml.slice(finalIndex + FINAL_STR.length)}`;
+    const uiScript = buildRev ? `<script src="/public/ui-${buildRev}.js" async></script>` : '';
+
+    return (
+      `${fullHtml.slice(0, beginIndex)}` +
+      `${htmlToInsert || buildOgMetadata()}\n` +
+      `${DOUBLE_TAB}` +
+      `${uiScript}` +
+      `${fullHtml.slice(finalIndex + FINAL_STR.length)}`
+    );
   }
 }
 
@@ -98,7 +103,7 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:site_name" content="${SITE_NAME || SITE_TITLE}"/>\n` +
     `<meta property="og:description" content="${cleanDescription}" />\n` +
     `<meta property="og:image" content="${
-      getThumbnailCdnUrl(image) || getThumbnailCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
+      getThumbnailCardCdnUrl(image) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
     }" />\n` +
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
@@ -107,7 +112,7 @@ function buildOgMetadata(overrideOptions = {}) {
     }" />\n` +
     `<meta name="twitter:description" content="${cleanDescription}" />\n` +
     `<meta name="twitter:image" content="${
-      getThumbnailCdnUrl(image) || getThumbnailCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
+      getThumbnailCardCdnUrl(image) || getThumbnailCardCdnUrl(OG_IMAGE_URL) || `${URL}/public/v2-og.png`
     }"/>\n` +
     '<meta property="fb:app_id" content="1673146449633983" />\n' +
     `<link rel="canonical" content="${SITE_CANONICAL_URL || URL}"/>` +
@@ -136,9 +141,14 @@ function addFavicon() {
 }
 
 function buildHead() {
-  var head;
-  head = BEGIN_STR + addFavicon() + addPWA() + buildOgMetadata() + FINAL_STR;
-  return head;
+  return (
+    `${BEGIN_STR}\n` +
+    `${addFavicon()}\n` +
+    `${addPWA()}\n` +
+    `${buildOgMetadata()}\n` +
+    `${DOUBLE_TAB}` +
+    `${FINAL_STR}\n`
+  );
 }
 
 function buildBasicOgMetadata() {
@@ -159,7 +169,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const media = value && (value.video || value.audio || value.image);
   const source = value && value.source;
   const channel = signing_channel && signing_channel.name;
-  let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCdnUrl(value.thumbnail.url);
+  let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const mediaType = source && source.media_type;
   const mediaDuration = media && media.duration;
   const claimTitle = escapeHtmlProperty((value && value.title) || claimName);
@@ -185,8 +195,8 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
 
   const claimThumbnail =
     escapeHtmlProperty(thumbnail) ||
-    getThumbnailCdnUrl(imageThumbnail) ||
-    getThumbnailCdnUrl(OG_IMAGE_URL) ||
+    getThumbnailCardCdnUrl(imageThumbnail) ||
+    getThumbnailCardCdnUrl(OG_IMAGE_URL) ||
     `${URL}/public/v2-og.png`;
 
   const getOgType = (streamType, liveStream) => {
@@ -206,7 +216,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
-  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '').replace('#', ':')}`;
+  const claimPath = `${URL}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
 
   let head = '';
 
@@ -242,7 +252,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
 
   if ((mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) || liveStream) {
-    const videoUrl = generateEmbedUrl(claim.name, claim.claim_id);
+    const videoUrl = generateEmbedUrlEncoded(claim.canonical_url);
     head += `<meta property="og:video" content="${videoUrl}" />`;
     head += `<meta property="og:video:secure_url" content="${videoUrl}" />`;
     // type text/html since we use embeds
@@ -377,7 +387,7 @@ async function getHtml(ctx) {
   }
 
   if (requestPath === `/$/${PAGES.SEARCH}` || requestPath === `/$/${PAGES.SEARCH}/`) {
-    return buildSearchPageHead(html, requestPath, query.q);
+    return buildSearchPageHead(html, requestPath, encodeURIComponent(escapeHtmlProperty(query.q)));
   }
 
   if (!requestPath.includes('$')) {

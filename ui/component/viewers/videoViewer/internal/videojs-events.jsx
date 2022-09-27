@@ -1,5 +1,4 @@
 // @flow
-import { useEffect } from 'react';
 import analytics from 'analytics';
 
 const isDev = process.env.NODE_ENV !== 'production';
@@ -15,7 +14,6 @@ const VideoJsEvents = ({
   tapToRetryRef,
   setReload,
   playerRef,
-  replay,
   claimId,
   userId,
   claimValues,
@@ -32,7 +30,6 @@ const VideoJsEvents = ({
   tapToRetryRef: any, // DOM element
   setReload: any, // react hook
   playerRef: any, // DOM element
-  replay: boolean,
   claimId: ?string,
   userId: ?number,
   claimValues: any,
@@ -51,7 +48,7 @@ const VideoJsEvents = ({
     data.playPoweredBy = playerPoweredBy;
     data.isLivestream = isLivestreamClaim;
     // $FlowFixMe
-    data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH;
+    data.bitrateAsBitsPerSecond = this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH;
     doAnalyticsBuffer(uri, data);
   }
   /**
@@ -65,7 +62,7 @@ const VideoJsEvents = ({
     // how long until the video starts
     let timeToStartVideo = data.secondsToLoad;
 
-    analytics.playerVideoStartedEvent(embedded);
+    analytics.event.playerVideoStarted(embedded);
 
     // don't send this data on livestream
     if (!isLivestreamClaim) {
@@ -78,7 +75,7 @@ const VideoJsEvents = ({
       }
 
       // populates data for watchman, sends prom and matomo event
-      analytics.videoStartEvent(
+      analytics.video.videoStartEvent(
         claimId,
         timeToStartVideo,
         playerPoweredBy,
@@ -90,7 +87,7 @@ const VideoJsEvents = ({
       );
     } else {
       // populates data for watchman, sends prom and matomo event
-      analytics.videoStartEvent(
+      analytics.video.videoStartEvent(
         claimId,
         0,
         playerPoweredBy,
@@ -98,7 +95,7 @@ const VideoJsEvents = ({
         uri,
         this, // pass the player
         // $FlowFixMe
-        this.tech(true).vhs?.playlists?.media?.().attributes?.BANDWIDTH,
+        this.tech(true).vhs?.playlists?.media?.()?.attributes?.BANDWIDTH,
         isLivestreamClaim
       );
     }
@@ -229,13 +226,6 @@ const VideoJsEvents = ({
     }, 1000 * 2); // wait 2 seconds to hide control bar
   }
 
-  useEffect(() => {
-    const player = playerRef.current;
-    if (replay && player) {
-      player.play();
-    }
-  }, [replay]);
-
   function initializeEvents() {
     const player = playerRef.current;
 
@@ -267,19 +257,39 @@ const VideoJsEvents = ({
     });
     // player.on('ended', onEnded);
 
-    if (isLivestreamClaim && player) {
-      player.liveTracker.on('liveedgechange', async () => {
-        // Only respond to when we fall behind
-        if (player.liveTracker.atLiveEdge()) return;
-        // Don't respond to when user has paused the player
-        if (player.paused()) return;
+    if (isLivestreamClaim) {
+      player.liveTracker.on('liveedgechange', () => {
+        if (player.paused()) {
+          // when liveedge changes, add the window variable so that the timeout isn't triggered
+          // when it's changed back again
+          window.liveEdgePaused = true;
+          return;
+        } else {
+          if (window.liveEdgePaused) delete window.liveEdgePaused;
+        }
 
         setTimeout(() => {
           // Do not jump ahead if user has paused the player
-          if (player.paused()) return;
+          if (window.liveEdgePaused) return;
+
           player.liveTracker.seekToLiveEdge();
         }, 5 * 1000);
       });
+      player.on('timeupdate', liveEdgeRestoreSpeed);
+    }
+  }
+
+  function liveEdgeRestoreSpeed() {
+    const player = playerRef.current;
+
+    if (player.playbackRate() !== 1) {
+      player.liveTracker.handleSeeked_();
+
+      // Only respond to when we fall behind
+      if (player.liveTracker.atLiveEdge()) {
+        player.playbackRate(1);
+        player.liveTracker.seekToLiveEdge();
+      }
     }
   }
 

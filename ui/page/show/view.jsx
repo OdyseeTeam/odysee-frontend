@@ -13,15 +13,15 @@ import Yrbl from 'component/yrbl';
 import { formatLbryUrlForWeb } from 'util/url';
 import { parseURI } from 'util/lbryURI';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COL_TYPES } from 'constants/collections';
 import * as MODALS from 'constants/modal_types';
+import PAGES from 'constants/pages';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
 );
-import FilePage from 'page/file';
-// const FilePage = lazyImport(() => import('page/file' /* webpackChunkName: "filePage" */));
-import LivestreamPage from 'page/livestream';
-// const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
+const FilePage = lazyImport(() => import('page/file' /* webpackChunkName: "filePage" */));
+const LivestreamPage = lazyImport(() => import('page/livestream' /* webpackChunkName: "livestream" */));
 const isDev = false;
 
 type Props = {
@@ -29,8 +29,10 @@ type Props = {
   isSubscribed: boolean,
   uri: string,
   claim: StreamClaim,
+  channelClaimId: ?string,
   location: UrlLocation,
   blackListedOutpointMap: { [string]: number },
+  filteredOutpointMap: { [string]: number },
   claimIsMine: boolean,
   claimIsPending: boolean,
   isLivestream: boolean,
@@ -44,6 +46,8 @@ type Props = {
   latestContentPath?: boolean,
   liveContentPath?: boolean,
   latestClaimUrl: ?string,
+  creatorSettings: { [string]: PerChannelSettings },
+  doFetchCreatorSettings: (channelId: string) => Promise<any>,
   fetchLatestClaimForChannel: (uri: string) => void,
   fetchChannelLiveStatus: (channelId: string) => void,
   doResolveUri: (uri: string, returnCached?: boolean, resolveReposts?: boolean, options?: any) => void,
@@ -57,7 +61,9 @@ export default function ShowPage(props: Props) {
     isResolvingUri,
     uri,
     claim,
+    channelClaimId,
     blackListedOutpointMap,
+    filteredOutpointMap,
     location,
     claimIsMine,
     isSubscribed,
@@ -73,6 +79,8 @@ export default function ShowPage(props: Props) {
     latestContentPath,
     liveContentPath,
     latestClaimUrl,
+    creatorSettings,
+    doFetchCreatorSettings,
     fetchLatestClaimForChannel,
     fetchChannelLiveStatus,
     doResolveUri,
@@ -100,13 +108,12 @@ export default function ShowPage(props: Props) {
   const isCollection = claim && claim.value_type === 'collection';
   const resolvedCollection = collection && collection.id; // not null
   const showLiveStream = isLivestream && ENABLE_NO_SOURCE_CLAIMS;
-  const isClaimBlackListed =
-    claim &&
-    blackListedOutpointMap &&
-    Boolean(
-      (signingChannel && blackListedOutpointMap[`${signingChannel.txid}:${signingChannel.nout}`]) ||
-        blackListedOutpointMap[`${claim.txid}:${claim.nout}`]
-    );
+
+  const channelOutpoint = signingChannel ? `${signingChannel.txid}:${signingChannel.nout}` : '';
+  const claimOutpoint = claim ? `${claim.txid}:${claim.nout}` : '';
+
+  const isClaimBlackListed = Boolean(blackListedOutpointMap[channelOutpoint] || blackListedOutpointMap[claimOutpoint]);
+  const isClaimFiltered = Boolean(filteredOutpointMap[channelOutpoint] || filteredOutpointMap[claimOutpoint]);
 
   const shouldResolveUri =
     (doResolveUri && !isResolvingUri && uri && haventFetchedYet) ||
@@ -116,8 +123,7 @@ export default function ShowPage(props: Props) {
     if (!canonicalUrl && isNewestPath) {
       doResolveUri(uri);
     }
-    // only for mount on a latest content page
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only for mount on a latest content page
   }, []);
 
   useEffect(() => {
@@ -141,29 +147,37 @@ export default function ShowPage(props: Props) {
 
   useEffect(() => {
     if (canonicalUrl) {
-      const urlPath = pathname + hash;
-      const fullParams =
-        urlPath.indexOf('?') > 0 ? urlPath.substring(urlPath.indexOf('?')) : search.length > 0 ? search : '';
-      const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':') + fullParams;
+      const statePos =
+        hash.indexOf('#state') > -1
+          ? hash.indexOf('#state')
+          : hash.indexOf('&state') > -1
+          ? hash.indexOf('&state')
+          : undefined;
+      const pageHash = statePos === undefined ? hash : hash.substring(0, statePos);
+      const urlPath = pathname + pageHash;
+      const path = urlPath.slice(1).replace(/:/g, '#');
+      // parseURI can parse queries and hashes when they are mixed with the uri
+      let queryString, pathHash;
+      try {
+        ({ queryString, pathHash } = parseURI(path));
+      } catch (e) {}
+      const canonicalUrlPath = '/' + canonicalUrl.replace(/^lbry:\/\//, '').replace(/#/g, ':');
 
       // replaceState will fail if on a different domain (like webcache.googleusercontent.com)
       const hostname = isDev ? 'localhost' : DOMAIN;
 
-      if (canonicalUrlPath !== pathname && hostname === window.location.hostname && fullParams !== search) {
-        const urlParams = new URLSearchParams(search);
-        let replaceUrl = canonicalUrlPath;
+      let replaceUrl = canonicalUrlPath;
+      if (canonicalUrlPath !== urlPath && hostname === window.location.hostname) {
+        const urlParams = new URLSearchParams(search || queryString);
         if (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID)) {
           const listId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || '';
           urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, listId);
-          replaceUrl += `?${urlParams.toString()}`;
         }
-        history.replaceState(history.state, '', replaceUrl);
-      }
 
-      const windowHref = window.location.href;
-      const noUrlParams = search.length === 0;
-      if (windowHref.includes('?') && noUrlParams) {
-        history.replaceState(history.state, '', windowHref.substring(0, windowHref.length - 1));
+        if (urlParams.toString()) replaceUrl += `?${urlParams.toString()}`;
+        if (pathHash || (!pathHash && !queryString && pageHash)) replaceUrl += String(pathHash || pageHash);
+
+        history.replaceState(history.state, '', replaceUrl);
       }
     }
   }, [canonicalUrl, pathname, hash, search]);
@@ -178,6 +192,12 @@ export default function ShowPage(props: Props) {
       );
     }
   }, [shouldResolveUri, doResolveUri, uri, isMine, isAuthenticated]);
+
+  React.useEffect(() => {
+    if (creatorSettings === undefined && channelClaimId) {
+      doFetchCreatorSettings(channelClaimId);
+    }
+  }, [channelClaimId, creatorSettings, doFetchCreatorSettings]);
 
   // Wait for latest claim fetch
   if (isNewestPath && latestClaimUrl === undefined) {
@@ -203,11 +223,20 @@ export default function ShowPage(props: Props) {
 
   let urlForCollectionZero;
   if (claim && isCollection && collectionUrls && collectionUrls.length) {
-    urlForCollectionZero = collectionUrls && collectionUrls[0];
-    const claimId = claim.claim_id;
-    urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claimId);
-    const newUrl = formatLbryUrlForWeb(`${urlForCollectionZero}?${urlParams.toString()}`);
-    return <Redirect to={newUrl} />;
+    switch (collection?.type) {
+      case COL_TYPES.PLAYLIST:
+        urlForCollectionZero = collectionUrls && collectionUrls[0];
+        urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
+        const newUrl = formatLbryUrlForWeb(`${urlForCollectionZero}?${urlParams.toString()}`);
+        return <Redirect to={newUrl} />;
+
+      case COL_TYPES.FEATURED_CHANNELS:
+        return <Redirect to={`/$/${PAGES.PLAYLIST}/${claim.claim_id}`} />;
+
+      default:
+        // Do nothing
+        break;
+    }
   }
 
   if (!claim || !claim.name) {
@@ -220,7 +249,8 @@ export default function ShowPage(props: Props) {
           shouldResolveUri || // covers the initial mount case where we haven't run doResolveUri, so 'isResolvingUri' is not true yet.
           isResolvingUri ||
           isResolvingCollection || // added for collection
-          (isCollection && !urlForCollectionZero)) && ( // added for collection - make sure we accept urls = []
+          (isCollection && !urlForCollectionZero) || // added for collection - make sure we accept urls = []
+          creatorSettings === undefined) && (
           <div className="main--empty">
             <Spinner />
           </div>
@@ -291,6 +321,17 @@ export default function ShowPage(props: Props) {
               <Button button="link" href="https://odysee.com/@OdyseeHelp:b/copyright:f" label={__('Read More')} />
             </div>
           }
+        />
+      </Page>
+    );
+  }
+
+  if (isClaimFiltered && !claimIsMine) {
+    return (
+      <Page className="custom-wrapper">
+        <Card
+          title={uri}
+          subtitle={__('This content violates the terms and conditions of Odysee and has been filtered.')}
         />
       </Page>
     );

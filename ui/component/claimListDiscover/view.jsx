@@ -3,7 +3,6 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import type { Node } from 'react';
 import * as CS from 'constants/claim_search';
 import React from 'react';
-import usePersistedState from 'effects/use-persisted-state';
 import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
@@ -21,6 +20,8 @@ import useFetchViewCount from 'effects/use-fetch-view-count';
 import useResolvePins from 'effects/use-resolve-pins';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import useGetUserMemberships from 'effects/use-get-user-memberships';
+import usePersistentUserParam from 'effects/use-persistent-user-param';
+import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
   uris: Array<string>,
@@ -31,7 +32,7 @@ type Props = {
   pageSize?: number,
 
   fetchViewCount?: boolean,
-  forceShowReposts?: boolean,
+  hideRepostsOverride?: boolean, // undefined = use SETTINGS.HIDE_REPOSTS; true/false: use this.
   hasNoSource?: boolean,
   hasSource?: boolean,
   hideAdvancedFilter?: boolean,
@@ -54,6 +55,7 @@ type Props = {
   defaultFreshness?: string,
 
   tags: string, // these are just going to be string. pass a CSV if you want multi
+  notTags?: Array<string>,
   defaultTags: string,
 
   claimType?: string | Array<string>,
@@ -124,6 +126,7 @@ function ClaimListDiscover(props: Props) {
     type,
     claimSearchByQueryLastPageReached,
     tags,
+    notTags,
     defaultTags,
     loading,
     meta,
@@ -165,7 +168,7 @@ function ClaimListDiscover(props: Props) {
     hideFilters = false,
     claimIds,
     maxPages,
-    forceShowReposts = false,
+    hideRepostsOverride,
     languageSetting,
     searchLanguages,
     searchInLanguage,
@@ -200,8 +203,6 @@ function ClaimListDiscover(props: Props) {
   const [page, setPage] = React.useState(1);
   const [forceRefresh, setForceRefresh] = React.useState();
   const isLargeScreen = useIsLargeScreen();
-  const [orderParamEntry, setOrderParamEntry] = usePersistedState(`entry-${location.pathname}`, CS.ORDER_BY_TRENDING);
-  const [orderParamUser, setOrderParamUser] = usePersistedState(`orderUser-${location.pathname}`, CS.ORDER_BY_TRENDING);
   const followed = (followedTags && followedTags.map((t) => t.name)) || [];
   const urlParams = new URLSearchParams(search);
   const tagsParam = // can be 'x,y,z' or 'x' or ['x','y'] or CS.CONSTANT
@@ -214,6 +215,7 @@ function ClaimListDiscover(props: Props) {
     new Set(mutedUris.concat(blockedUris).map((uri) => splitBySeparator(uri)[1]))
   );
   const [hiddenBuffer, setHiddenBuffer] = React.useState([]);
+  const hideRepostsEffective = resolveHideReposts(hideReposts, hideRepostsOverride);
 
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const searchInSelectedLang = searchInLanguage && !ignoreSearchInLanguage;
@@ -258,38 +260,19 @@ function ClaimListDiscover(props: Props) {
     }
   }
 
-  const durationParam = urlParams.get(CS.DURATION_KEY) || null;
+  const durationParam = usePersistentUserParam([urlParams.get(CS.DURATION_KEY) || CS.DURATION_ALL], 'durUser', null);
+  const [durationMinutes] = usePersistedState(`durUserMinutes-${location.pathname}`, 5);
   const channelIdsInUrl = urlParams.get(CS.CHANNEL_IDS_KEY);
   const channelIdsParam = channelIdsInUrl ? channelIdsInUrl.split(',') : channelIds;
   const excludedIdsParam = excludedChannelIds;
   const feeAmountParam = urlParams.get('fee_amount') || feeAmount;
   const originalPageSize = 12;
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
-  const historyAction = history.action;
-
-  let orderParam = orderBy || urlParams.get(CS.ORDER_BY_KEY) || defaultOrderBy || orderParamEntry;
-
-  if (!orderParam) {
-    if (historyAction === 'POP') {
-      // Reaching here means user have popped back to the page's entry point (e.g. '/$/tags' without any '?order=').
-      orderParam = orderParamEntry;
-    } else {
-      // This is the direct entry into the page, so we load the user's previous value.
-      orderParam = orderParamUser;
-    }
-  }
-
-  React.useEffect(() => {
-    setOrderParamUser(orderParam);
-  }, [orderParam, setOrderParamUser]);
-
-  React.useEffect(() => {
-    // One-time update to stash the finalized 'orderParam' at entry.
-    if (historyAction !== 'POP') {
-      setOrderParamEntry(orderParam);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [historyAction, setOrderParamEntry]);
+  const orderParam = usePersistentUserParam(
+    [orderBy, urlParams.get(CS.ORDER_BY_KEY), defaultOrderBy],
+    'orderUser',
+    CS.ORDER_BY_TRENDING
+  );
 
   let options: {
     page_size: number,
@@ -365,6 +348,10 @@ function ClaimListDiscover(props: Props) {
     }
   }
 
+  if (notTags) {
+    options.not_tags = options.not_tags.concat(notTags);
+  }
+
   if (repostedClaimId) {
     // SDK chokes on reposted_claim_id of null or false, needs to not be present if no value
     options.reposted_claim_id = repostedClaimId;
@@ -399,10 +386,25 @@ function ClaimListDiscover(props: Props) {
   }
 
   if (durationParam) {
-    if (durationParam === CS.DURATION_SHORT) {
-      options.duration = '<=240';
-    } else if (durationParam === CS.DURATION_LONG) {
-      options.duration = '>=1200';
+    switch (durationParam) {
+      case CS.DURATION_ALL:
+        // Do nothing (no options needed)
+        break;
+      case CS.DURATION_SHORT:
+        options.duration = '<=240';
+        break;
+      case CS.DURATION_LONG:
+        options.duration = '>=1200';
+        break;
+      case CS.DURATION_GT_EQ:
+        options.duration = `>=${(durationMinutes || 0) * 60}`;
+        break;
+      case CS.DURATION_LT_EQ:
+        options.duration = `<=${(durationMinutes || 0) * 60}`;
+        break;
+      default:
+        console.error('Unhandled duration: ' + durationParam);
+        break;
     }
   }
 
@@ -438,7 +440,7 @@ function ClaimListDiscover(props: Props) {
     }
   }
 
-  if (hideReposts && !options.reposted_claim_id && !forceShowReposts) {
+  if (hideRepostsEffective && !options.reposted_claim_id) {
     if (Array.isArray(options.claim_type)) {
       if (options.claim_type.length > 1) {
         options.claim_type = options.claim_type.filter((claimType) => claimType !== 'repost');
@@ -599,6 +601,14 @@ function ClaimListDiscover(props: Props) {
       if (claimSearchResult && !claimSearchResultLastPageReached) {
         setPage(page + 1);
       }
+    }
+  }
+
+  function resolveHideReposts(hideRepostSetting, hideRepostOverride) {
+    if (hideRepostOverride === undefined || hideRepostOverride === null) {
+      return hideRepostSetting;
+    } else {
+      return hideRepostOverride;
     }
   }
 

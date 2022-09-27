@@ -3,16 +3,19 @@ import React from 'react';
 import { withRouter } from 'react-router';
 import LoadingBarOneOff from 'component/loadingBarOneOff';
 import * as MODALS from 'constants/modal_types';
+import ModalError from 'modal/modalError';
 import { lazyImport } from 'util/lazyImport';
 
 // prettier-ignore
 const MAP = Object.freeze({
+  [MODALS.ADD_CARD]: lazyImport(() => import('modal/modalStripeCard' /* webpackChunkName: "modalStripeCard" */)),
   [MODALS.ANNOUNCEMENTS]: lazyImport(() => import('modal/modalAnnouncements' /* webpackChunkName: "modalAnnouncements" */)),
   [MODALS.AFFIRM_PURCHASE]: lazyImport(() => import('modal/modalAffirmPurchase' /* webpackChunkName: "modalAffirmPurchase" */)),
   [MODALS.AUTO_GENERATE_THUMBNAIL]: lazyImport(() => import('modal/modalAutoGenerateThumbnail' /* webpackChunkName: "modalAutoGenerateThumbnail" */)),
   [MODALS.AUTO_UPDATE_DOWNLOADED]: lazyImport(() => import('modal/modalAutoUpdateDownloaded' /* webpackChunkName: "modalAutoUpdateDownloaded" */)),
   [MODALS.BLOCK_CHANNEL]: lazyImport(() => import('modal/modalBlockChannel' /* webpackChunkName: "modalBlockChannel" */)),
   [MODALS.COLLECTION_ADD]: lazyImport(() => import('modal/modalClaimCollectionAdd' /* webpackChunkName: "modalClaimCollectionAdd" */)),
+  [MODALS.COLLECTION_CREATE]: lazyImport(() => import('modal/modalCollectionCreate/index' /* webpackChunkName: "modalCollectionCreate" */)),
   [MODALS.COLLECTION_DELETE]: lazyImport(() => import('modal/modalRemoveCollection' /* webpackChunkName: "modalRemoveCollection" */)),
   [MODALS.CONFIRM]: lazyImport(() => import('modal/modalConfirm' /* webpackChunkName: "modalConfirm" */)),
   [MODALS.CONFIRM_AGE]: lazyImport(() => import('modal/modalConfirmAge' /* webpackChunkName: "modalConfirmAge" */)),
@@ -20,13 +23,13 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_EXTERNAL_RESOURCE]: lazyImport(() => import('modal/modalOpenExternalResource' /* webpackChunkName: "modalOpenExternalResource" */)),
   [MODALS.CONFIRM_FILE_REMOVE]: lazyImport(() => import('modal/modalRemoveFile' /* webpackChunkName: "modalRemoveFile" */)),
   [MODALS.CONFIRM_ODYSEE_MEMBERSHIP]: lazyImport(() => import('modal/modalConfirmOdyseeMembership' /* webpackChunkName: "modalConfirmOdyseeMembership" */)),
-  [MODALS.CONFIRM_REMOVE_CARD]: lazyImport(() => import('modal/modalRemoveCard' /* webpackChunkName: "modalRemoveCard" */)),
   [MODALS.CONFIRM_REMOVE_COMMENT]: lazyImport(() => import('modal/modalRemoveComment' /* webpackChunkName: "modalRemoveComment" */)),
   [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload' /* webpackChunkName: "modalConfirmThumbnailUpload" */)),
   [MODALS.CONFIRM_TRANSACTION]: lazyImport(() => import('modal/modalConfirmTransaction' /* webpackChunkName: "modalConfirmTransaction" */)),
   [MODALS.CUSTOMIZE_HOMEPAGE]: lazyImport(() => import('modal/modalCustomizeHomepage' /* webpackChunkName: "modalCustomizeHomepage" */)),
   [MODALS.DOWNLOADING]: lazyImport(() => import('modal/modalDownloading' /* webpackChunkName: "modalDownloading" */)),
-  [MODALS.ERROR]: lazyImport(() => import('modal/modalError' /* webpackChunkName: "modalError" */)),
+  [MODALS.ERROR]: ModalError,
+  [MODALS.FEATURED_CHANNELS_EDIT]: lazyImport(() => import('modal/modalFeaturedChannelsEdit' /* webpackChunkName: "modalFeaturedChannelsEdit" */)),
   [MODALS.FILE_SELECTION]: lazyImport(() => import('modal/modalFileSelection' /* webpackChunkName: "modalFileSelection" */)),
   [MODALS.FILE_TIMEOUT]: lazyImport(() => import('modal/modalFileTimeout' /* webpackChunkName: "modalFileTimeout" */)),
   [MODALS.FIRST_REWARD]: lazyImport(() => import('modal/modalFirstReward' /* webpackChunkName: "modalFirstReward" */)),
@@ -38,12 +41,14 @@ const MAP = Object.freeze({
   [MODALS.MIN_CHANNEL_AGE]: lazyImport(() => import('modal/modalMinChannelAge' /* webpackChunkName: "modalMinChannelAge" */)),
   [MODALS.MOBILE_SEARCH]: lazyImport(() => import('modal/modalMobileSearch' /* webpackChunkName: "modalMobileSearch" */)),
   [MODALS.PHONE_COLLECTION]: lazyImport(() => import('modal/modalPhoneCollection' /* webpackChunkName: "modalPhoneCollection" */)),
+  [MODALS.PREORDER_AND_PURCHASE_CONTENT]: lazyImport(() => import('modal/modalPreorderAndPurchaseContent' /* webpackChunkName: "modalPreorderAndPurchaseContent" */)),
   [MODALS.PUBLISH]: lazyImport(() => import('modal/modalPublish' /* webpackChunkName: "modalPublish" */)),
   [MODALS.PUBLISH_PREVIEW]: lazyImport(() => import('modal/modalPublishPreview' /* webpackChunkName: "modalPublishPreview" */)),
   [MODALS.REPOST]: lazyImport(() => import('modal/modalRepost' /* webpackChunkName: "modalRepost" */)),
   [MODALS.REWARD_GENERATED_CODE]: lazyImport(() => import('modal/modalRewardCode' /* webpackChunkName: "modalRewardCode" */)),
   [MODALS.SEND_TIP]: lazyImport(() => import('modal/modalSendTip' /* webpackChunkName: "modalSendTip" */)),
   [MODALS.SET_REFERRER]: lazyImport(() => import('modal/modalSetReferrer' /* webpackChunkName: "modalSetReferrer" */)),
+  [MODALS.SIGN_OUT]: lazyImport(() => import('modal/modalSignOut' /* webpackChunkName: "modalSignOut" */)),
   [MODALS.SOCIAL_SHARE]: lazyImport(() => import('modal/modalSocialShare' /* webpackChunkName: "modalSocialShare" */)),
   [MODALS.SYNC_ENABLE]: lazyImport(() => import('modal/modalSyncEnable' /* webpackChunkName: "modalSyncEnable" */)),
   [MODALS.TRANSACTION_FAILED]: lazyImport(() => import('modal/modalTransactionFailed' /* webpackChunkName: "modalTransactionFailed" */)),
@@ -54,22 +59,17 @@ const MAP = Object.freeze({
   [MODALS.WALLET_PASSWORD_UNSAVE]: lazyImport(() => import('modal/modalPasswordUnsave' /* webpackChunkName: "modalPasswordUnsave" */)),
   [MODALS.WALLET_UNLOCK]: lazyImport(() => import('modal/modalWalletUnlock' /* webpackChunkName: "modalWalletUnlock" */)),
   [MODALS.YOUTUBE_WELCOME]: lazyImport(() => import('modal/modalYoutubeWelcome' /* webpackChunkName: "modalYoutubeWelcome" */)),
+  // [MODALS.GUIDELINES]: lazyImport(() => import('modal/modalGuidelines' /* webpackChunkName: "modalGuidelines" */)),
 });
 
 type Props = {
   modal: { id: string, modalProps: {} },
   error: { message: string },
-  location: { pathname: string },
-  hideModal: () => void,
+  doHideModal: () => void,
 };
 
 function ModalRouter(props: Props) {
-  const { modal, error, location, hideModal } = props;
-  const { pathname } = location;
-
-  React.useEffect(() => {
-    hideModal();
-  }, [pathname, hideModal]);
+  const { modal, error, doHideModal } = props;
 
   if (error) {
     const ModalError = MAP[MODALS.ERROR];
@@ -93,7 +93,7 @@ function ModalRouter(props: Props) {
 
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
-      <SelectedModal {...modalProps} />
+      <SelectedModal {...modalProps} doHideModal={doHideModal} />
     </React.Suspense>
   );
 }

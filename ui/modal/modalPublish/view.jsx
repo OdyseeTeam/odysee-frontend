@@ -5,7 +5,7 @@ import { Modal } from 'modal/modal';
 import ClaimPreview from 'component/claimPreview';
 import Button from 'component/button';
 import Card from 'component/common/card';
-import Nag from 'component/common/nag';
+import Nag from 'component/nag';
 
 type Props = {
   closeModal: () => void,
@@ -89,10 +89,10 @@ class ModalPublishSuccess extends React.PureComponent<Props> {
               {livestream && (
                 <Button
                   button="primary"
-                  label={__('View My Dashboard')}
+                  label={__('View Livestream Settings')}
                   onClick={() => {
                     clearPublish();
-                    navigate(`/$/${PAGES.LIVESTREAM}`);
+                    navigate(`/$/${PAGES.LIVESTREAM}?t=Setup`);
                     closeModal();
                   }}
                 />

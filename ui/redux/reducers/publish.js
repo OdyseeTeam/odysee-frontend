@@ -54,6 +54,7 @@ type PublishState = {
   currentUploads: { [key: string]: FileUploadItem },
   isMarkdownPost: boolean,
   isLivestreamPublish: boolean,
+  publishError?: boolean,
 };
 
 const defaultState: PublishState = {
@@ -78,6 +79,7 @@ const defaultState: PublishState = {
   language: '',
   releaseTime: undefined,
   releaseTimeEdited: undefined,
+  releaseTimeError: false,
   releaseAnytime: false,
   nsfw: false,
   channel: CHANNEL_ANONYMOUS,
@@ -184,7 +186,11 @@ export const publishReducer = handleActions(
       }
 
       if (!currentUploads[key]) {
-        return state;
+        if (status === 'error' || status === 'conflict') {
+          return { ...state, publishError: true };
+        } else {
+          return state;
+        }
       }
 
       if (progress) {
@@ -238,8 +244,14 @@ export const publishReducer = handleActions(
             uploadKeys.forEach((key) => {
               const params = newPublish.currentUploads[key].params;
               if (!params || Object.keys(params).length === 0) {
+                // The intended payload for the API is corrupted, so no point
+                // retaining. Remove from the pending-uploads list.
                 delete newPublish.currentUploads[key];
               } else {
+                // The data is still good, so we can resume upload. We just need
+                // to delete the previous reference of the tus-uploader (no
+                // longer functional, will be re-created). An empty 'uploader'
+                // also tells the GUI that we just rebooted.
                 delete newPublish.currentUploads[key].uploader;
               }
             });

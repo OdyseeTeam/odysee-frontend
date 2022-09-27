@@ -12,6 +12,7 @@ import * as ICONS from 'constants/icons';
 import * as KEYCODES from 'constants/keycodes';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
+import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './comment-selectors';
@@ -54,6 +55,7 @@ type Props = {
   supportDisabled: boolean,
   uri: string,
   disableInput?: boolean,
+  canReceiveFiatTips: ?boolean,
   onSlimInputClose?: () => void,
   setQuickReply: (any) => void,
   onCancelReplying?: () => void,
@@ -85,6 +87,9 @@ type Props = {
   myChannelClaimIds: ?Array<string>,
   myCommentedChannelIds: ?Array<string>,
   doFetchMyCommentedChannels: (claimId: ?string) => void,
+  doTipAccountCheckForUri: (uri: string) => void,
+  textInjection?: string,
+  commentSettingDisabled: ?boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -109,6 +114,7 @@ export function CommentCreate(props: Props) {
     supportDisabled,
     uri,
     disableInput,
+    canReceiveFiatTips,
     onSlimInputClose,
     doCommentCreate,
     doFetchCreatorSettings,
@@ -124,6 +130,9 @@ export function CommentCreate(props: Props) {
     myChannelClaimIds,
     myCommentedChannelIds,
     doFetchMyCommentedChannels,
+    doTipAccountCheckForUri,
+    textInjection,
+    commentSettingDisabled,
   } = props;
 
   const isMobile = useIsMobile();
@@ -154,12 +163,17 @@ export function CommentCreate(props: Props) {
   const [showSelectors, setShowSelectors] = React.useState({ tab: undefined, open: false });
   const [disableReviewButton, setDisableReviewButton] = React.useState();
   const [exchangeRate, setExchangeRate] = React.useState();
-  const [canReceiveFiatTip, setCanReceiveFiatTip] = React.useState(undefined);
   const [tipModalOpen, setTipModalOpen] = React.useState(undefined);
 
   const charCount = commentValue ? commentValue.length : 0;
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
-  const disabled = deletedComment || isSubmitting || isFetchingChannels || hasNothingToSumbit || disableInput;
+  const disabled =
+    commentSettingDisabled ||
+    deletedComment ||
+    isSubmitting ||
+    isFetchingChannels ||
+    hasNothingToSumbit ||
+    disableInput;
   const channelSettings = channelClaimId ? settingsByChannelId[channelClaimId] : undefined;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
@@ -167,19 +181,74 @@ export function CommentCreate(props: Props) {
   const minAmountMet = activeTab !== TAB_LBC || minAmount === 0 || tipAmount >= minAmount;
   const stickerPrice = selectedSticker && selectedSticker.price;
   const tipSelectorError = tipError || disableReviewButton;
+  const fiatIcon = STRIPE.CURRENCY[preferredCurrency].icon;
 
   const minAmountRef = React.useRef(minAmount);
   minAmountRef.current = minAmount;
 
+  const addEmoteToComment = React.useCallback((emote: string) => {
+    setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
+  }, []);
+
+  const handleSelectSticker = React.useCallback(
+    (sticker: any) => {
+      // $FlowFixMe
+      setSelectedSticker(sticker);
+      setReviewingStickerComment(true);
+      setTipAmount(sticker.price || 0);
+      setShowSelectors((prev) => ({ tab: prev.tab || undefined, open: false }));
+
+      // added this here since selecting a sticker can cause scroll issues
+      if (onSlimInputClose) onSlimInputClose();
+
+      if (sticker.price && sticker.price > 0) {
+        setActiveTab(canReceiveFiatTips ? TAB_FIAT : TAB_LBC);
+        setTipSelector(true);
+      }
+    },
+    [canReceiveFiatTips, onSlimInputClose]
+  );
+
+  const commentSelectorsProps = React.useMemo(() => {
+    return {
+      claimIsMine,
+      addEmoteToComment,
+      handleSelectSticker,
+      isOpen: showSelectors.open,
+      openTab: showSelectors.tab || undefined,
+    };
+  }, [claimIsMine, addEmoteToComment, handleSelectSticker, showSelectors.open, showSelectors.tab]);
+
+  const submitButtonProps = { button: 'primary', type: 'submit', requiresAuth: true };
+  const actionButtonProps = { button: 'alt' };
+  const tipButtonProps = {
+    ...actionButtonProps,
+    disabled: !commentValue.length && !selectedSticker,
+    tipSelectorOpen,
+    activeTab,
+    onClick: handleSelectTipComment,
+  };
+  const cancelButtonProps = { button: 'link', label: __('Cancel') };
+  const stickerReviewProps = {
+    activeChannelUrl,
+    src: selectedSticker ? selectedSticker.url : '',
+    price: selectedSticker ? selectedSticker.price : 0,
+    exchangeRate,
+  };
+
+  const commentSelectorElem = React.useMemo(
+    () => (
+      <CommentSelectors
+        {...commentSelectorsProps}
+        closeSelector={() => setShowSelectors((prev) => ({ tab: prev.tab || undefined, open: false }))}
+      />
+    ),
+    [commentSelectorsProps]
+  );
+
   // **************************************************************************
   // Functions
   // **************************************************************************
-
-  function addEmoteToComment(emote: string) {
-    setCommentValue(
-      commentValue + (commentValue && commentValue.charAt(commentValue.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `)
-    );
-  }
 
   function handleSelectTipComment(tab: string) {
     setActiveTab(tab);
@@ -215,26 +284,10 @@ export function CommentCreate(props: Props) {
     setTipSelector(false);
   }
 
-  function handleSelectSticker(sticker: any) {
-    // $FlowFixMe
-    setSelectedSticker(sticker);
-    setReviewingStickerComment(true);
-    setTipAmount(sticker.price || 0);
-    setShowSelectors({ tab: showSelectors.tab || undefined, open: false });
-
-    // added this here since selecting a sticker can cause scroll issues
-    if (onSlimInputClose) onSlimInputClose();
-
-    if (sticker.price && sticker.price > 0) {
-      setActiveTab(canReceiveFiatTip ? TAB_FIAT : TAB_LBC);
-      setTipSelector(true);
-    }
-  }
-
   function handleCancelSticker() {
     setReviewingStickerComment(false);
     setSelectedSticker(null);
-
+    setShowSelectors({ tab: undefined, open: false });
     if (onSlimInputClose) onSlimInputClose();
   }
 
@@ -314,7 +367,7 @@ export function CommentCreate(props: Props) {
             message: __('Tip successfully sent.'),
             subMessage: __("I'm sure they appreciate it!"),
             linkText: `${tipAmount} LBC ⇒ ${tipChannelName}`, // force show decimal places
-            linkTarget: '/wallet',
+            linkTarget: `/${PAGES.WALLET}?tab=fiat-payment-history`,
           });
 
           setSuccessTip({ txid, tipAmount });
@@ -414,9 +467,6 @@ export function CommentCreate(props: Props) {
     setTipSelector(false);
   }
 
-  let fiatIconToUse = ICONS.FINANCE;
-  if (preferredCurrency === 'EUR') fiatIconToUse = ICONS.EURO;
-
   // **************************************************************************
   // Effects
   // **************************************************************************
@@ -449,30 +499,11 @@ export function CommentCreate(props: Props) {
     if (stickerPrice && !exchangeRate) Lbryio.getExchangeRates().then(({ LBC_USD }) => setExchangeRate(LBC_USD));
   }, [exchangeRate, stickerPrice]);
 
-  // Stickers: Check if creator has a tip account saved (on selector so that if a paid sticker is selected,
-  // it defaults to LBC tip instead of USD)
   React.useEffect(() => {
-    if (!stripeEnvironment || canReceiveFiatTip !== undefined || !tipChannelName) return;
-
-    Lbryio.call(
-      'account',
-      'check',
-      {
-        channel_claim_id: channelClaimId,
-        channel_name: tipChannelName,
-        environment: stripeEnvironment,
-      },
-      'post'
-    )
-      .then((accountCheckResponse) => {
-        if (accountCheckResponse === true && canReceiveFiatTip !== true) {
-          setCanReceiveFiatTip(true);
-        } else {
-          setCanReceiveFiatTip(false);
-        }
-      })
-      .catch(() => {});
-  }, [canReceiveFiatTip, channelClaimId, tipChannelName]);
+    if (canReceiveFiatTips === undefined) {
+      doTipAccountCheckForUri(uri);
+    }
+  }, [canReceiveFiatTips, doTipAccountCheckForUri, uri]);
 
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {
@@ -509,6 +540,20 @@ export function CommentCreate(props: Props) {
     }
   }, [claimId, myCommentedChannelIds, myChannelClaimIds]);
 
+  React.useEffect(() => {
+    if (textInjection) {
+      setCommentValue(
+        commentValue === ''
+          ? commentValue + textInjection + ' '
+          : commentValue.substring(commentValue.length - 1) === ' '
+          ? commentValue + textInjection + ' '
+          : commentValue + ' ' + textInjection + ' '
+      );
+      // $FlowFixMe
+      return formFieldRef?.current?.input?.current?.focus();
+    }
+  }, [textInjection]);
+
   // **************************************************************************
   // Render
   // **************************************************************************
@@ -544,35 +589,12 @@ export function CommentCreate(props: Props) {
 
         {!isMobile && (
           <div className="section__actions--no-margin">
-            <Button disabled button="primary" label={__('Post --[button to submit something]--')} requiresAuth />
+            <Button disabled button="primary" label={__('Send --[button to submit something]--')} requiresAuth />
           </div>
         )}
       </div>
     );
   }
-
-  const commentSelectorsProps = {
-    claimIsMine,
-    addEmoteToComment,
-    handleSelectSticker,
-    openTab: showSelectors.tab || undefined,
-  };
-  const submitButtonProps = { button: 'primary', type: 'submit', requiresAuth: true };
-  const actionButtonProps = { button: 'alt' };
-  const tipButtonProps = {
-    ...actionButtonProps,
-    disabled: !commentValue.length && !selectedSticker,
-    tipSelectorOpen,
-    activeTab,
-    onClick: handleSelectTipComment,
-  };
-  const cancelButtonProps = { button: 'link', label: __('Cancel') };
-  const stickerReviewProps = {
-    activeChannelUrl,
-    src: selectedSticker ? selectedSticker.url : '',
-    price: selectedSticker ? selectedSticker.price : 0,
-    exchangeRate,
-  };
 
   return (
     <Form
@@ -599,13 +621,6 @@ export function CommentCreate(props: Props) {
         activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
       ) : (
         <>
-          {!isMobile && showSelectors.open && (
-            <CommentSelectors
-              {...commentSelectorsProps}
-              closeSelector={() => setShowSelectors({ tab: showSelectors.tab || undefined, open: false })}
-            />
-          )}
-
           <FormField
             autoFocus={isReply}
             charCount={charCount}
@@ -641,6 +656,7 @@ export function CommentCreate(props: Props) {
             value={commentValue}
             uri={uri}
           />
+          {!isMobile && commentSelectorElem}
         </>
       )}
 
@@ -682,7 +698,7 @@ export function CommentCreate(props: Props) {
             <Button
               {...submitButtonProps}
               disabled={disabled || tipSelectorError || !minAmountMet}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIconToUse}
+              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
               label={__('Review')}
               onClick={() => {
                 setReviewingSupportComment(true);
@@ -697,7 +713,11 @@ export function CommentCreate(props: Props) {
                 ref={buttonRef}
                 disabled={disabled}
                 label={
-                  isReply
+                  isLivestream
+                    ? isSubmitting
+                      ? __('Sending...')
+                      : __('Send --[button to send chat message]--')
+                    : isReply
                     ? isSubmitting
                       ? __('Replying...')
                       : __('Reply')
@@ -717,14 +737,15 @@ export function CommentCreate(props: Props) {
                 isReviewingStickerComment={isReviewingStickerComment}
                 icon={ICONS.STICKER}
                 onClick={handleStickerComment}
+                onChange={() => {}}
               />
 
               {!supportDisabled && !claimIsMine && (
                 <>
                   <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
-                  {!window.odysee.build.googlePlay && stripeEnvironment && (
-                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIconToUse} tab={TAB_FIAT} />
+                  {window.odysee && !window?.odysee?.build?.googlePlay && stripeEnvironment && (
+                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                   )}
                 </>
               )}
@@ -742,6 +763,11 @@ export function CommentCreate(props: Props) {
           <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
         </div>
       )}
+      <div className="chat-resize">
+        <div />
+        <div />
+        <div />
+      </div>
     </Form>
   );
 }

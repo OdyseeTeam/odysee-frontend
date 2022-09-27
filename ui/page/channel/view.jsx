@@ -2,11 +2,12 @@
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
+import { getChannelSubCountStr } from 'util/formatMediaDuration';
 import { parseURI } from 'util/lbryURI';
 import { YOUTUBE_STATUSES } from 'lbryinc';
 import Page from 'component/page';
 import SubscribeButton from 'component/subscribeButton';
-import ShareButton from 'component/shareButton';
+import ClaimShareButton from 'component/claimShareButton';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { useHistory } from 'react-router';
 import Button from 'component/button';
@@ -16,6 +17,7 @@ import ChannelAbout from 'component/channelAbout';
 import ChannelDiscussion from 'component/channelDiscussion';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ChannelEdit from 'component/channelEdit';
+import SectionList from 'component/channelSections/SectionList';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import ClaimSupportButton from 'component/claimSupportButton';
@@ -28,7 +30,7 @@ import TruncatedText from 'component/common/truncated-text';
 import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
-import PremiumBadge from 'component/common/premium-badge';
+import PremiumBadge from 'component/premiumBadge';
 
 export const PAGE_VIEW_QUERY = `view`;
 export const DISCUSSION_PAGE = `discussion`;
@@ -36,8 +38,9 @@ export const DISCUSSION_PAGE = `discussion`;
 const PAGE = {
   CONTENT: 'content',
   LISTS: 'lists',
-  ABOUT: 'about',
+  CHANNELS: 'channels',
   DISCUSSION: DISCUSSION_PAGE,
+  ABOUT: 'about',
   EDIT: 'edit',
 };
 
@@ -61,7 +64,6 @@ type Props = {
   mutedChannels: Array<string>,
   unpublishedCollections: CollectionGroup,
   lang: string,
-  odyseeMembership: string,
 };
 
 function ChannelPage(props: Props) {
@@ -82,7 +84,6 @@ function ChannelPage(props: Props) {
     mutedChannels,
     unpublishedCollections,
     lang,
-    odyseeMembership,
   } = props;
   const {
     push,
@@ -120,8 +121,7 @@ function ChannelPage(props: Props) {
 
     return discussionWasMounted && currentView === PAGE.DISCUSSION;
 
-    // only re-calculate on discussionWasMounted or uri change
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only re-calculate on discussionWasMounted or uri change
   }, [discussionWasMounted, uri]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
@@ -134,7 +134,7 @@ function ChannelPage(props: Props) {
           <p>
             <I18nMessage
               tokens={{
-                pick: <Button button="link" navigate={`/$/${PAGES.LISTS}`} label={__('Pick')} />,
+                pick: <Button button="link" navigate={`/$/${PAGES.PLAYLISTS}`} label={__('Pick')} />,
               }}
             >
               You have unpublished lists! %pick% one and publish it!
@@ -166,11 +166,14 @@ function ChannelPage(props: Props) {
     case PAGE.LISTS:
       tabIndex = 1;
       break;
-    case PAGE.ABOUT:
+    case PAGE.CHANNELS:
       tabIndex = 2;
       break;
     case PAGE.DISCUSSION:
       tabIndex = 3;
+      break;
+    case PAGE.ABOUT:
+      tabIndex = 4;
       break;
     default:
       tabIndex = 0;
@@ -178,17 +181,25 @@ function ChannelPage(props: Props) {
   }
 
   function onTabChange(newTabIndex) {
-    let url = formatLbryUrlForWeb(uri);
+    const url = formatLbryUrlForWeb(uri);
     let search = '?';
 
-    if (newTabIndex === 0) {
-      search += `${PAGE_VIEW_QUERY}=${PAGE.CONTENT}`;
-    } else if (newTabIndex === 1) {
-      search += `${PAGE_VIEW_QUERY}=${PAGE.LISTS}`;
-    } else if (newTabIndex === 2) {
-      search += `${PAGE_VIEW_QUERY}=${PAGE.ABOUT}`;
-    } else {
-      search += `${PAGE_VIEW_QUERY}=${PAGE.DISCUSSION}`;
+    switch (newTabIndex) {
+      case 0:
+        search += `${PAGE_VIEW_QUERY}=${PAGE.CONTENT}`;
+        break;
+      case 1:
+        search += `${PAGE_VIEW_QUERY}=${PAGE.LISTS}`;
+        break;
+      case 2:
+        search += `${PAGE_VIEW_QUERY}=${PAGE.CHANNELS}`;
+        break;
+      case 3:
+        search += `${PAGE_VIEW_QUERY}=${PAGE.DISCUSSION}`;
+        break;
+      case 4:
+        search += `${PAGE_VIEW_QUERY}=${PAGE.ABOUT}`;
+        break;
     }
 
     push(`${url}${search}`);
@@ -231,7 +242,7 @@ function ChannelPage(props: Props) {
               navigate={`/$/${PAGES.CHANNELS}`}
             />
           )}
-          {!channelIsBlackListed && <ShareButton uri={uri} />}
+          {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
           {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
           {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && <SubscribeButton uri={permanentUrl} />}
           <Button
@@ -254,16 +265,18 @@ function ChannelPage(props: Props) {
             hideStakedIndicator
           />
           <h1 className="channel__title">
-            <TruncatedText lines={2} showTooltip>
-              {title || (channelName && '@' + channelName)}
-            </TruncatedText>
-            <PremiumBadge membership={odyseeMembership} />
+            <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
+            <PremiumBadge uri={uri} />
           </h1>
           <div className="channel__meta">
             <Tooltip title={formattedSubCount} followCursor placement="top">
               <span>
-                {compactSubCount} {subCount !== 1 ? __('Followers') : __('Follower')}
-                <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+                {getChannelSubCountStr(subCount, compactSubCount)}
+                {Number.isInteger(subCount) ? (
+                  <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+                ) : (
+                  '\u00A0'
+                )}
               </span>
             </Tooltip>
             {channelIsMine && (
@@ -312,8 +325,9 @@ function ChannelPage(props: Props) {
           <TabList className="tabs__list--channel-page">
             <Tab disabled={editing}>{__('Content')}</Tab>
             <Tab disabled={editing}>{__('Playlists')}</Tab>
-            <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+            <Tab disabled={editing}>{__('Channels')}</Tab>
             <Tab disabled={editing}>{__('Community')}</Tab>
+            <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
           </TabList>
           <TabPanels>
             <TabPanel>
@@ -338,11 +352,12 @@ function ChannelPage(props: Props) {
                 />
               )}
             </TabPanel>
-            <TabPanel>
-              <ChannelAbout uri={uri} />
-            </TabPanel>
+            <TabPanel>{currentView === PAGE.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}</TabPanel>
             <TabPanel>
               {(showDiscussion || currentView === PAGE.DISCUSSION) && <ChannelDiscussion uri={uri} />}
+            </TabPanel>
+            <TabPanel>
+              <ChannelAbout uri={uri} />
             </TabPanel>
           </TabPanels>
         </Tabs>

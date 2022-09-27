@@ -56,6 +56,7 @@ type Props = {
   submitButtonRef?: any,
   tipModalOpen?: boolean,
   noticeLabel?: any,
+  inputElem?: any,
   onSlimInputClose?: () => void,
   onChange?: (any) => any,
   setShowSelectors?: ({ tab?: string, open: boolean }) => void,
@@ -120,12 +121,14 @@ export class FormField extends React.PureComponent<Props, State> {
       submitButtonRef,
       tipModalOpen,
       noticeLabel,
+      inputElem,
       onSlimInputClose,
       quickActionHandler,
       setShowSelectors,
       render,
       handleTip,
       handleSubmit,
+      max,
       ...inputProps
     } = this.props;
 
@@ -368,12 +371,27 @@ export class FormField extends React.PureComponent<Props, State> {
           </FormFieldWrapper>
         );
       default:
-        const inputElementProps = { type, name, ref: this.input, ...inputProps };
+        const inputElementProps = { type, name, maxLength: max, ref: this.input, ...inputProps };
 
         return (
           <FormFieldWrapper {...wrapperProps}>
             <fieldset-section>
-              {(label || errorMessage) && <Label {...labelProps} errorMessage={errorMessage} />}
+              {(label || errorMessage) && (
+                <div>
+                  <Label {...labelProps} errorMessage={errorMessage} />
+                  {inputElementProps.maxLength && inputElementProps.value && (
+                    <label
+                      className={
+                        Number(inputElementProps.maxLength) - String(inputElementProps.value).length > 0
+                          ? 'input-max-counter'
+                          : 'input-max-counter-error'
+                      }
+                    >
+                      {Number(inputElementProps.maxLength) - String(inputElementProps.value).length}
+                    </label>
+                  )}
+                </div>
+              )}
 
               {prefix && <label htmlFor={name}>{prefix}</label>}
 
@@ -383,7 +401,7 @@ export class FormField extends React.PureComponent<Props, State> {
                   {inputButton}
                 </input-submit>
               ) : (
-                <input {...inputElementProps} />
+                inputElem || <input {...inputElementProps} />
               )}
             </fieldset-section>
           </FormFieldWrapper>

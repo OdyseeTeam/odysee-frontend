@@ -64,7 +64,7 @@ $control-bar-popup-font-size: 0.8rem;
     }
 
     .vjs-vtt-thumbnail-display {
-      margin-top: -37px;
+      margin-top: -16px;
       border: 1px solid white;
       background-color: black !important;
       visibility: hidden;
@@ -88,7 +88,7 @@ $control-bar-popup-font-size: 0.8rem;
       }
       .vjs-progress-holder {
         margin-top: -0.1em !important;
-        height: 0.4em !important;
+        height: 0.35em !important;
       }
     }
 
@@ -211,6 +211,7 @@ $control-bar-popup-font-size: 0.8rem;
     // overflow-y:scroll;
     .vjs-menu-content {
       max-height: 176px !important;
+      right: var(--spacing-s);
     }
   }
 }
@@ -236,8 +237,8 @@ $control-bar-popup-font-size: 0.8rem;
   .vjs-menu-item {
     color: var(--color-text);
     margin: 2px;
-    margin-left: var(--spacing-s);
-    margin-right: var(--spacing-s);
+    margin-left: var(--spacing-xxs);
+    margin-right: var(--spacing-xxs);
     &:first-child {
       margin-top: var(--spacing-xxs);
     }
@@ -251,7 +252,7 @@ $control-bar-popup-font-size: 0.8rem;
     }
 
     @media (max-width: $breakpoint-small) {
-      padding: 0.1em 0;
+      padding: 0.1em var(--spacing-xxs);
       margin-left: var(--spacing-xxs);
       margin-right: var(--spacing-xxs);
       &:first-child {
@@ -438,10 +439,10 @@ button.vjs-big-play-button {
 .vjs-button--autoplay-next {
   order: 11 !important;
 }
-.vjs-playback-rate {
+.vjs-chapters-button {
   order: 12 !important;
 }
-.vjs-chapters-button {
+.vjs-playback-rate {
   order: 13 !important;
 }
 .vjs-quality-selector {
@@ -470,11 +471,7 @@ button.vjs-big-play-button {
   .vjs-current-time,
   .vjs-duration,
   .vjs-time-divider,
-  .vjs-button--theater-mode,
-  //.vjs-quality-selector,
-  .vjs-button--autoplay-next
-  //,.vjs-progress-control
-  {
+  .vjs-button--autoplay-next {
     // hiding progress control for now
     display: none !important;
   }
@@ -498,4 +495,9 @@ button.vjs-big-play-button {
   opacity: 1 !important;
   display: flex !important;
   visibility: visible !important;
+}
+
+// add padding to the progress bar to make hover easier
+.vjs-progress-control.vjs-control {
+  padding-top: 21px;
 }

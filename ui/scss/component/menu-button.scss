@@ -26,7 +26,7 @@ reach-portal {
 [data-reach-menu] {
   display: block;
   position: absolute;
-  z-index: 2;
+  z-index: calc(var(--floating-player-z-index) + 1);
   font-size: var(--font-body);
   max-width: calc(100% - var(--height-button) - var(--spacing-xs));
 }
@@ -187,6 +187,10 @@ reach-portal {
   }
 }
 
+.menu__chat-comment {
+  padding: 0 0 var(--spacing-xxs) 0;
+}
+
 .menu__list--comments {
   @extend .menu__list;
 }
@@ -216,7 +220,7 @@ reach-portal {
 
   .menu__list--notifications-list {
     overflow-y: scroll;
-    height: 388px;
+    max-height: 388px;
     .menu__list--notification {
       position: relative;
       overflow: hidden !important;
@@ -327,6 +331,9 @@ reach-portal {
           display: inline-block;
           font-size: var(--font-xxsmall);
           margin-right: var(--spacing-xxxs);
+          &.dot {
+            font-size: var(--font-small);
+          }
         }
         .sticker__comment {
           margin-left: 0;
@@ -339,6 +346,12 @@ reach-portal {
       &:hover {
         cursor: pointer;
         background-color: rgba(var(--color-header-background-base), 1);
+        .notification__icon {
+          .icon__wrapper {
+            background-color: var(--color-header-button);
+          }
+        }
+
         .menu__list--notification-info {
           .menu__list--notification-title {
             .notification__text {

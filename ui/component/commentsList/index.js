@@ -9,18 +9,19 @@ import {
   selectTopLevelCommentsForUri,
   makeSelectTopLevelTotalPagesForUri,
   selectIsFetchingComments,
-  selectIsFetchingCommentsById,
+  selectIsFetchingTopLevelComments,
   selectIsFetchingReacts,
   selectTotalCommentsCountForUri,
   selectOthersReacts,
   selectMyReacts,
   selectCommentIdsForUri,
-  selectSettingsByChannelId,
+  selectCommentsEnabledSettingForChannelId,
   selectPinnedCommentsForUri,
   selectCommentForCommentId,
   selectCommentAncestorsForId,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
+import { doPopOutInlinePlayer } from 'redux/actions/content';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doFetchUserMemberships } from 'redux/actions/user';
@@ -30,6 +31,7 @@ const select = (state, props) => {
   const { uri, threadCommentId, linkedCommentId } = props;
 
   const claim = selectClaimForUri(state, uri);
+  const channelId = getChannelIdFromClaim(claim);
   const activeChannelClaim = selectActiveChannelClaim(state);
   const threadComment = selectCommentForCommentId(state, threadCommentId);
 
@@ -41,13 +43,12 @@ const select = (state, props) => {
     topLevelTotalPages: makeSelectTopLevelTotalPagesForUri(uri)(state),
     totalComments: selectTotalCommentsCountForUri(state, uri),
     claimId: claim && claim.claim_id,
-    channelId: getChannelIdFromClaim(claim),
     claimIsMine: selectClaimIsMine(state, claim),
     isFetchingComments: selectIsFetchingComments(state),
-    isFetchingCommentsById: selectIsFetchingCommentsById(state),
+    isFetchingTopLevelComments: selectIsFetchingTopLevelComments(state),
     isFetchingReacts: selectIsFetchingReacts(state),
     fetchingChannels: selectFetchingMyChannels(state),
-    settingsByChannelId: selectSettingsByChannelId(state),
+    commentsEnabledSetting: selectCommentsEnabledSettingForChannelId(state, channelId),
     myReactsByCommentId: selectMyReacts(state),
     othersReactsById: selectOthersReacts(state),
     activeChannelId: activeChannelClaim && activeChannelClaim.claim_id,
@@ -63,6 +64,7 @@ const perform = {
   fetchReacts: doCommentReactList,
   resetComments: doCommentReset,
   doFetchUserMemberships,
+  doPopOutInlinePlayer,
 };
 
 export default connect(select, perform)(CommentsList);

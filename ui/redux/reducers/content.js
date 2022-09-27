@@ -4,7 +4,7 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 const defaultState: ContentState = {
   primaryUri: null, // Top level content uri triggered from the file page
-  playingUri: {},
+  playingUri: { uri: undefined, collection: {} },
   channelClaimCounts: {},
   positions: {},
   history: [],
@@ -12,8 +12,7 @@ const defaultState: ContentState = {
   recommendationParentId: {},
   recommendationUrls: {},
   recommendationClicks: {},
-  loopList: undefined,
-  lastViewedAnnouncement: '',
+  lastViewedAnnouncement: [],
   recsysEntries: {},
 };
 
@@ -23,32 +22,7 @@ reducers[ACTIONS.SET_PRIMARY_URI] = (state, action) =>
   });
 
 reducers[ACTIONS.SET_PLAYING_URI] = (state, action) =>
-  Object.assign({}, state, {
-    playingUri: {
-      uri: action.data.uri,
-      source: action.data.source,
-      pathname: action.data.pathname,
-      commentId: action.data.commentId,
-      collectionId: action.data.collectionId,
-      primaryUri: state.primaryUri,
-    },
-  });
-
-reducers[ACTIONS.TOGGLE_LOOP_LIST] = (state, action) =>
-  Object.assign({}, state, {
-    loopList: {
-      collectionId: action.data.collectionId,
-      loop: action.data.loop,
-    },
-  });
-
-reducers[ACTIONS.TOGGLE_SHUFFLE_LIST] = (state, action) =>
-  Object.assign({}, state, {
-    shuffleList: {
-      collectionId: action.data.collectionId,
-      newUrls: action.data.newUrls,
-    },
-  });
+  Object.assign({}, state, { playingUri: { ...action.data, primaryUri: state.primaryUri } });
 
 reducers[ACTIONS.SET_CONTENT_POSITION] = (state, action) => {
   const { claimId, outpoint, position } = action.data;
@@ -120,7 +94,22 @@ reducers[ACTIONS.CLEAR_CONTENT_HISTORY_URI] = (state, action) => {
 
 reducers[ACTIONS.CLEAR_CONTENT_HISTORY_ALL] = (state) => ({ ...state, history: [] });
 
-reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => ({ ...state, lastViewedAnnouncement: action.data });
+reducers[ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT] = (state, action) => {
+  // Since homepages fall back to English if undefined, use an array instead of
+  // an object to simplify the logic and overall code-changes.
+  // The only flaw is when a particular homepage keeps producing new
+  // announcements, the history of other homepages will be pushed out. This
+  // scenario is unlikely, so just keep a reasonably large history size to
+  // account for this scenario.
+  const N_ENTRIES_TO_KEEP = 25;
+  const hash = action.data;
+
+  if (hash === 'clear') {
+    return { ...state, lastViewedAnnouncement: [] };
+  }
+
+  return { ...state, lastViewedAnnouncement: [hash].concat(state.lastViewedAnnouncement).slice(0, N_ENTRIES_TO_KEEP) };
+};
 
 reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state, recsysEntries: action.data });
 
@@ -133,7 +122,9 @@ reducers[ACTIONS.SET_RECSYS_ENTRIES] = (state, action) => ({ ...state, recsysEnt
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state, action) => {
   const { lastViewedAnnouncement } = action.data;
-  return { ...state, lastViewedAnnouncement };
+  // Convert legacy string format to an array:
+  const newValue = typeof lastViewedAnnouncement === 'string' ? [lastViewedAnnouncement] : lastViewedAnnouncement || [];
+  return { ...state, lastViewedAnnouncement: newValue };
 };
 
 export default function reducer(state: ContentState = defaultState, action: any) {

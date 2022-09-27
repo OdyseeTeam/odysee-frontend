@@ -1,8 +1,7 @@
 // @flow
 import React from 'react';
 import { useHistory } from 'react-router-dom';
-import useShouldShowAds from 'effects/use-should-show-ads';
-import { platform } from 'util/platform';
+import analytics from 'analytics';
 
 // ****************************************************************************
 // AdsSticky
@@ -17,11 +16,10 @@ type Props = {
   isContentClaim: boolean,
   isChannelClaim: boolean,
   authenticated: ?boolean,
-  isAdBlockerFound: ?boolean,
-  userHasPremiumPlus: boolean,
-  userCountry: string,
+  shouldShowAds: boolean,
   homepageData: any,
-  doSetAdBlockerFound: (boolean) => void,
+  locale: ?LocaleInfo,
+  nagsShown: boolean,
 };
 
 export default function AdsSticky(props: Props) {
@@ -29,37 +27,41 @@ export default function AdsSticky(props: Props) {
     isContentClaim,
     isChannelClaim,
     authenticated,
-    isAdBlockerFound,
-    userHasPremiumPlus,
-    userCountry,
+    shouldShowAds, // Global condition on whether ads should be activated
     homepageData,
-    doSetAdBlockerFound,
+    locale,
+    nagsShown,
   } = props;
 
   const { location } = useHistory();
   const [refresh, setRefresh] = React.useState(0);
 
-  // Global condition on whether ads should be activated:
-  const shouldShowAds = useShouldShowAds(userHasPremiumPlus, userCountry, isAdBlockerFound, doSetAdBlockerFound);
   // Global conditions aside, should the Sticky be shown for this path:
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   // Final answer:
-  const shouldLoadSticky = shouldShowAds && inAllowedPath && !gScript && !inIFrame() && !platform.isMobile();
+  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
     // $FlowIssue: mixed type
     const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return pathIsCategory || isChannelClaim || (isContentClaim && !authenticated);
+    return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
   React.useEffect(() => {
     if (shouldLoadSticky) {
+      window.googletag = window.googletag || { cmd: [] };
+
       gScript = document.createElement('script');
-      gScript.src = 'https://adncdnend.azureedge.net/adtags/odysee.adn.js';
+      gScript.src = 'https://adncdnend.azureedge.net/adtags/odyseeKp.js';
       gScript.async = true;
       gScript.addEventListener('load', () => setRefresh(Date.now()));
-      // $FlowFixMe
-      document.body.appendChild(gScript);
+
+      try {
+        const head = document.head || document.getElementsByTagName('head')[0];
+        head.appendChild(gScript); // Vendor's desired location, although I don't think location matters.
+      } catch (e) {
+        analytics.log(e, { fingerprint: ['adsSticky::scriptAppendFailed'] }, 'adsSticky::scriptAppendFailed');
+      }
     }
   }, [shouldLoadSticky]);
 
@@ -68,6 +70,8 @@ export default function AdsSticky(props: Props) {
     if (container) {
       container.style.display = inAllowedPath ? '' : 'none';
     }
+    const ad = document.getElementsByClassName('OUTBRAIN')[0];
+    if (ad && locale && !locale.gdpr_required && !nagsShown) ad.classList.add('VISIBLE');
   }, [inAllowedPath, refresh]);
 
   return null; // Nothing for us to mount; the ad script will handle everything.

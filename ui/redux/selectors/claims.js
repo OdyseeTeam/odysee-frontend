@@ -1,6 +1,6 @@
 // @flow
 import { CHANNEL_CREATION_LIMIT } from 'config';
-import { normalizeURI, parseURI, isURIValid } from 'util/lbryURI';
+import { normalizeURI, parseURI, isURIValid, buildURI } from 'util/lbryURI';
 import { selectGeoBlockLists } from 'redux/selectors/blocked';
 import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
@@ -12,6 +12,11 @@ import {
   getChannelIdFromClaim,
   isStreamPlaceholderClaim,
   getThumbnailFromClaim,
+  getClaimRepostedAmount,
+  getNameFromClaim,
+  getChannelFromClaim,
+  getChannelTitleFromClaim,
+  getChannelNameFromClaim,
 } from 'util/claim';
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS } from 'constants/tags';
@@ -24,9 +29,11 @@ const selectState = (state: State) => state.claims || {};
 export const selectById = (state: State) => selectState(state).byId || {};
 export const selectPendingClaimsById = (state: State) => selectState(state).pendingById || {};
 
-export const selectClaimsById = createSelector(selectById, selectPendingClaimsById, (byId, pendingById) => {
+export const selectClaimsById = (state: State) => {
+  const byId = selectById(state);
+  const pendingById = selectPendingClaimsById(state);
   return Object.assign(byId, pendingById); // do I need merged to keep metadata?
-});
+};
 
 export const selectClaimIdsByUri = (state: State) => selectState(state).claimsByUri || {};
 export const selectCurrentChannelPage = (state: State) => selectState(state).currentChannelPage || 1;
@@ -75,9 +82,14 @@ export const selectClaimsByUri = createSelector(selectClaimIdsByUri, selectClaim
  * @param claimId
  * @returns {*}
  */
-export const selectClaimWithId = (state: State, claimId: string) => {
+export const selectClaimForId = (state: State, claimId: string) => {
   const byId = selectClaimsById(state);
   return byId[claimId];
+};
+
+export const selectClaimUriForId = (state: State, claimId: string) => {
+  const claim = selectClaimForId(state, claimId);
+  return claim && (claim.canonical_url || claim.permanent_url);
 };
 
 export const selectAllClaimsByChannel = createSelector(selectState, (state) => state.paginatedClaimsByChannel || {});
@@ -85,6 +97,10 @@ export const selectAllClaimsByChannel = createSelector(selectState, (state) => s
 export const selectPendingIds = createSelector(selectState, (state) => Object.keys(state.pendingById) || []);
 
 export const selectPendingClaims = createSelector(selectPendingClaimsById, (pendingById) => Object.values(pendingById));
+
+export const selectClaimIsPendingForId = (state: State, claimId: string) => {
+  return Boolean(selectPendingClaimsById(state)[claimId]);
+};
 
 export const makeSelectClaimIsPending = (uri: string) =>
   createSelector(selectClaimIdsByUri, selectPendingClaimsById, (idsByUri, pendingById) => {
@@ -147,6 +163,24 @@ export const selectClaimForUri = createCachedSelector(
     }
   }
 )((state, uri, returnRepost = true) => `${String(uri)}:${returnRepost ? '1' : '0'}`);
+
+export const selectChannelClaimIdForUri = (state: State, uri: string) =>
+  getChannelIdFromClaim(selectClaimForUri(state, uri));
+export const selectChannelNameForUri = (state: State, uri: string) =>
+  getChannelNameFromClaim(selectClaimForUri(state, uri));
+
+export const selectHasClaimForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  return Boolean(claim);
+};
+
+export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
+  // This selector assumes that `uri` is never null and is valid. It
+  // cannot differentiate whether the undefined claim is due to being
+  // unresolved or an invalid `uri`. Client beware.
+  const claim = selectClaimForUri(state, uri);
+  return claim !== undefined;
+};
 
 // Note: this is deprecated. Use "selectClaimForUri(state, uri)" instead.
 export const makeSelectClaimForUri = (uri: string, returnRepost: boolean = true) =>
@@ -416,9 +450,15 @@ export const makeSelectContentTypeForUri = (uri: string) =>
     return source ? source.media_type : undefined;
   });
 
-export const selectThumbnailForUri = createCachedSelector(selectClaimForUri, (claim) => {
+export const selectThumbnailForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
   return getThumbnailFromClaim(claim);
-})((state, uri) => String(uri));
+};
+
+export const selectThumbnailForId = (state: State, claimId: string) => {
+  const claim = selectClaimForId(state, claimId);
+  return getThumbnailFromClaim(claim);
+};
 
 export const makeSelectCoverForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
@@ -512,41 +552,25 @@ export const selectMyClaimsOutpoints = createSelector(selectMyClaims, (myClaims)
 });
 
 export const selectFetchingMyChannels = (state: State) => selectState(state).fetchingMyChannels;
-export const selectFetchingMyCollections = (state: State) => selectState(state).fetchingMyCollections;
+export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 
-export const selectMyChannelClaimIds = (state: State) => selectState(state).myChannelClaims;
+export const selectMyChannelClaimsById = (state: State) => selectState(state).myChannelClaimsById;
+export const selectMyChannelClaims = createSelector(
+  selectMyChannelClaimsById,
+  (myChannelClaimsById) => myChannelClaimsById && Object.values(myChannelClaimsById)
+);
+export const selectMyChannelClaimIds = createSelector(
+  selectMyChannelClaimsById,
+  (myChannelClaimsById) => myChannelClaimsById && Object.keys(myChannelClaimsById)
+);
+export const selectIsChannelMineForClaimId = (state: State, channelId: string) => {
+  const myChannelClaimIds = selectMyChannelClaimIds(state);
+  return Boolean(myChannelClaimIds && myChannelClaimIds.includes(channelId));
+};
 
-export const selectMyChannelClaims = createSelector(selectMyChannelClaimIds, (myChannelClaimIds) => {
-  if (!myChannelClaimIds) {
-    return myChannelClaimIds;
-  }
-
-  if (!window || !window.store) {
-    return undefined;
-  }
-
-  // Note: Grabbing the store and running the selector this way is anti-pattern,
-  // but it is _needed_ and works only because we know for sure that 'byId[]'
-  // will be populated with the same claims as when 'myChannelClaimIds' is populated.
-  // If we put 'state' or 'byId' as the input selector, it essentially
-  // recalculates every time. Putting 'state' as input to createSelector() is
-  // always wrong from a memoization standpoint.
-  const state = window.store.getState();
-  const byId = selectClaimsById(state);
-
-  const claims = [];
-  myChannelClaimIds.forEach((id) => {
-    if (byId[id]) {
-      // I'm not sure why this check is necessary, but it ought to be a quick fix for https://github.com/lbryio/lbry-desktop/issues/544
-      claims.push(byId[id]);
-    }
-  });
-
-  return claims;
-});
-
-export const selectMyChannelUrls = createSelector(selectMyChannelClaims, (claims) =>
-  claims ? claims.map((claim) => claim.canonical_url || claim.permanent_url) : undefined
+export const selectMyChannelClaimUrls = createSelector(
+  selectMyChannelClaims,
+  (myChannelClaims) => myChannelClaims && myChannelClaims.map(({ permanent_url }) => permanent_url)
 );
 
 export const selectHasChannels = (state: State) => {
@@ -564,8 +588,6 @@ export const selectIsUriResolving = (state: State, uri: string) => {
   const resolvingUris = selectResolvingUris(state);
   return resolvingUris && resolvingUris.includes(uri);
 };
-
-export const selectPlayingUri = (state: State) => selectState(state).playingUri;
 
 export const selectChannelClaimCounts = createSelector(selectState, (state) => state.channelClaimCounts || {});
 
@@ -627,6 +649,20 @@ export const selectClaimIsNsfwForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export const selectChannelForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  return getChannelFromClaim(claim);
+};
+export const selectChannelTitleForUri = (state: State, uri: string) => {
+  const channel = selectChannelForUri(state, uri);
+  return getChannelTitleFromClaim(channel);
+};
+
+export const selectChannelNameForId = (state: State, claimId: string) => {
+  const uri = selectClaimUriForId(state, claimId);
+  return selectChannelForClaimUri(state, uri);
+};
+
 export const selectChannelForClaimUri = createCachedSelector(
   (state, uri, includePrefix) => includePrefix,
   selectClaimForUri,
@@ -644,6 +680,11 @@ export const selectChannelForClaimUri = createCachedSelector(
     }
   }
 )((state, uri, includePrefix) => `${String(uri)}:${String(includePrefix)}`);
+
+export const selectChannelNameForClaimUri = (state: State, uri: string) => {
+  const channel = selectChannelForClaimUri(state, uri);
+  return getNameFromClaim(channel);
+};
 
 // Returns the associated channel uri for a given claim uri
 // accepts a regular claim uri lbry://something
@@ -683,6 +724,40 @@ export const makeSelectMyChannelPermUrlForName = (name: string) =>
 export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return metadata && metadata.tags ? metadata.tags.filter((tag) => !INTERNAL_TAGS.includes(tag)) : [];
 })((state, uri) => String(uri));
+
+export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('purchase:'));
+  if (matchingTag) return matchingTag.slice(9);
+})((state, uri) => String(uri));
+
+export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('preorder:'));
+  if (matchingTag) return matchingTag.slice(9);
+})((state, uri) => String(uri));
+
+export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
+  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('rental:'));
+  if (matchingTag) {
+    const trimmedTag = matchingTag.slice(7);
+
+    const tags = trimmedTag.split(':');
+
+    if (tags && tags.length === 2) {
+      return {
+        price: tags[0],
+        expirationTimeInSeconds: tags[1],
+      };
+    }
+  }
+})((state, uri) => String(uri));
+
+export const selectPreorderContentClaimIdForUri = createCachedSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => {
+    const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('full upload:'));
+    if (matchingTag) return matchingTag.slice(12);
+  }
+)((state, uri) => String(uri));
 
 export const selectFetchingClaimSearchByQuery = (state: State) => selectState(state).fetchingClaimSearchByQuery || {};
 
@@ -821,41 +896,26 @@ export const selectIsMyChannelCountOverLimit = createSelector(
 );
 
 /**
- * Given a uri of a channel, check if there an Odysee membership value
+ * Given a uri of a channel, check if there is an Odysee membership value.
  * @param state
  * @param uri
  * @returns {*}
  */
 export const selectOdyseeMembershipForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
-
-  const uploaderChannelClaimId = getChannelIdFromClaim(claim);
-
-  // looks for the uploader id
-  if (uploaderChannelClaimId) {
-    const matchingMembershipOfUser =
-      state.user &&
-      state.user.odyseeMembershipsPerClaimIds &&
-      state.user.odyseeMembershipsPerClaimIds[uploaderChannelClaimId];
-
-    return matchingMembershipOfUser;
-  }
-
-  return undefined;
+  const channelId = getChannelIdFromClaim(claim);
+  return channelId ? selectOdyseeMembershipForChannelId(state, channelId) : undefined;
 };
 
 /**
- * Given a uri of a channel, check if there an Odysee membership value
+ * Given a channel ID, check if there is an Odysee membership value.
  * @param state
  * @param channelId
  * @returns {*}
  */
 export const selectOdyseeMembershipForChannelId = (state: State, channelId: string) => {
-  // looks for the uploader id
-  const matchingMembershipOfUser =
-    state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
-
-  return matchingMembershipOfUser;
+  // TODO: should access via selector, not from `state` directly.
+  return state.user && state.user.odyseeMembershipsPerClaimIds && state.user.odyseeMembershipsPerClaimIds[channelId];
 };
 
 export const selectGeoRestrictionForUri = createCachedSelector(
@@ -866,3 +926,43 @@ export const selectGeoRestrictionForUri = createCachedSelector(
     return getGeoRestrictionForClaim(claim, locale, geoBlockLists);
   }
 )((state, uri) => String(uri));
+
+export const selectClaimRepostedAmountForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state);
+  return getClaimRepostedAmount(claim);
+};
+
+export const selectTakeOverAmountForName = (state: State, name: string) => {
+  if (!name) {
+    return null;
+  }
+
+  const shortUri = buildURI({ streamName: name });
+  const winningClaim = selectClaimForUri(state, shortUri);
+
+  return winningClaim ? winningClaim.meta.effective_amount || winningClaim.amount : null;
+};
+
+export const selectMyPurchasedClaims = createSelector(selectState, (state) => state.myPurchasedClaims || []);
+
+export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
+  const purchasedClaims = selectMyPurchasedClaims(state);
+
+  return purchasedClaims.some(
+    (p) => (p.reference_claim_id === claimId || p.target_claim_id === claimId) && p.type !== 'rental'
+  );
+};
+
+export const selectValidRentalPurchaseForClaimId = (state: State, claimId: string) => {
+  const purchasedClaims = selectMyPurchasedClaims(state);
+
+  const validRentalClaimForClaimId = purchasedClaims.find((purchase) => {
+    return (
+      purchase.target_claim_id === claimId &&
+      purchase.type === 'rental' &&
+      new Date(purchase.valid_through) > new Date() // expiry date is sometime in the future
+    );
+  });
+
+  return validRentalClaimForClaimId;
+};

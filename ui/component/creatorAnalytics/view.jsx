@@ -11,6 +11,7 @@ import Button from 'component/button';
 import Yrbl from 'component/yrbl';
 import { useHistory } from 'react-router-dom';
 import analytics from 'analytics';
+import { getChannelSubCountStr } from 'util/formatMediaDuration';
 
 type Props = {
   claim: ?ChannelClaim,
@@ -39,16 +40,16 @@ export default function CreatorAnalytics(props: Props) {
   React.useEffect(() => {
     if (claimId && channelForEffect && channelHasClaims) {
       setFetchingStats(true);
-      Lbryio.call('reports', 'content', { claim_id: claimId })
+      Lbryio.call('channel', 'stats', { claim_id: claimId })
         .then((res) => {
           setFetchingStats(false);
           setStats(res);
         })
         .catch((error) => {
-          if (error.response.status === 401) {
+          if (error.response?.status === 401) {
             setError(UNAUTHENTICATED_ERROR);
             const channelToSend = JSON.parse(channelForEffect);
-            analytics.apiLogPublish(channelToSend);
+            analytics.apiLog.publish(channelToSend);
           } else {
             setError(GENERIC_ERROR);
           }
@@ -127,7 +128,7 @@ export default function CreatorAnalytics(props: Props) {
           <div className="columns">
             <Card
               iconColor
-              title={<span>{__('%follower_count% followers', { follower_count: stats.ChannelSubs })}</span>}
+              title={<span>{getChannelSubCountStr(stats.ChannelSubs)}</span>}
               icon={ICONS.SUBSCRIBE}
               subtitle={
                 <div className="card__data-subtitle">

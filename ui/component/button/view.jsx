@@ -35,11 +35,14 @@ type Props = {
   onMouseLeave: ?(any) => any,
   pathname: string,
   emailVerified: boolean,
-  requiresAuth: ?boolean,
+  requiresAuth?: boolean,
+  requiresChannel?: boolean,
+  hasChannels: boolean,
   myref: any,
   dispatch: any,
   'aria-label'?: string,
   user: ?User,
+  doHideModal: () => void,
 };
 
 // use forwardRef to allow consumers to pass refs to the button content if they want to
@@ -69,11 +72,14 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     activeClass,
     emailVerified,
     requiresAuth,
+    requiresChannel,
+    hasChannels,
     myref,
     dispatch, // <button> doesn't know what to do with dispatch
     pathname,
     user,
     authSrc,
+    doHideModal,
     ...otherProps
   } = props;
 
@@ -217,8 +223,12 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }
 
-  if (requiresAuth && !emailVerified) {
-    let redirectUrl = `/$/${PAGES.AUTH}?redirect=${pathname}`;
+  if ((requiresAuth && !emailVerified) || (requiresChannel && !hasChannels)) {
+    // requiresChannel can be used for both requiresAuth and requiresChannel,
+    // since if the button requiresChannel, it also implies it requiresAuth in order to proceed
+    // so using requiresChannel means: unauth users are sent to signup, auth users to create channel
+    const page = !emailVerified ? PAGES.AUTH : PAGES.CHANNEL_NEW;
+    let redirectUrl = `/$/${page}?redirect=${pathname}`;
 
     if (authSrc) {
       redirectUrl += `&src=${authSrc}`;
@@ -229,6 +239,9 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
         exact
         onClick={(e) => {
           e.stopPropagation();
+          // in case the redirect came from a modal, it will stay open on the
+          // sign up page, so close it to make the sign up form seen
+          doHideModal();
         }}
         to={redirectUrl}
         title={title || defaultTooltip}

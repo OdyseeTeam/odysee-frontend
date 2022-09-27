@@ -18,11 +18,16 @@ import {
 import { doSendTip, doSendCashTip } from 'redux/actions/wallet';
 import { doToast } from 'redux/actions/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectMyCommentedChannelIdsForId, selectSettingsByChannelId } from 'redux/selectors/comments';
+import {
+  selectMyCommentedChannelIdsForId,
+  selectSettingsByChannelId,
+  selectCommentsDisabledSettingForChannelId,
+} from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
-import { selectClientSetting } from 'redux/selectors/settings';
-import * as SETTINGS from 'constants/settings';
+import { selectPreferredCurrency } from 'redux/selectors/settings';
+import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
+import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -50,9 +55,11 @@ const select = (state, props) => {
     isFetchingChannels: selectFetchingMyChannels(state),
     settingsByChannelId: selectSettingsByChannelId(state),
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
-    preferredCurrency: selectClientSetting(state, SETTINGS.PREFERRED_CURRENCY),
+    preferredCurrency: selectPreferredCurrency(state),
     myChannelClaimIds: selectMyChannelClaimIds(state),
     myCommentedChannelIds: selectMyCommentedChannelIdsForId(state, claim?.claim_id),
+    canReceiveFiatTips: selectCanReceiveFiatTipsForUri(state, uri),
+    commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
   };
 };
 
@@ -65,6 +72,7 @@ const perform = {
   doSendCashTip,
   doSendTip,
   doOpenModal,
+  doTipAccountCheckForUri,
 };
 
 export default connect(select, perform)(CommentCreate);

@@ -50,6 +50,7 @@ type Props = {
   isLivestreamClaim: boolean,
   remoteFile: string,
   appLanguage: string,
+  // isLivestreamPublish?: boolean,
 };
 
 // class ModalPublishPreview extends React.PureComponent<Props> {
@@ -85,6 +86,7 @@ const ModalPublishPreview = (props: Props) => {
     isLivestreamClaim,
     remoteFile,
     appLanguage,
+    // isLivestreamPublish,
   } = props;
 
   const maxCharsBeforeOverflow = 128;
@@ -106,7 +108,7 @@ const ModalPublishPreview = (props: Props) => {
   const livestream =
     (uri && isLivestreamClaim) ||
     //   $FlowFixMe
-    (previewResponse.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source);
+    (previewResponse?.outputs[0] && previewResponse.outputs[0].value && !previewResponse.outputs[0].value.source);
   // leave the confirm modal up if we're not going straight to upload/reflecting
   // @if TARGET='web'
   React.useEffect(() => {
@@ -117,6 +119,7 @@ const ModalPublishPreview = (props: Props) => {
     }
   }, [publishSuccess, publishing, livestream]);
   // @endif
+
   function onConfirmed() {
     // Publish for real:
     publish(getFilePathName(filePath), false);
@@ -151,36 +154,32 @@ const ModalPublishPreview = (props: Props) => {
   const txFee = previewResponse ? previewResponse['total_fee'] : null;
   //   $FlowFixMe add outputs[0] etc to PublishResponse type
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
-  let modalTitle;
+
+  let modalTitle = 'Upload';
+  let confirmBtnText = 'Save';
+
   if (isStillEditing) {
-    if (livestream) {
+    if (livestream || isLivestreamClaim) {
       modalTitle = __('Confirm Update');
     } else {
       modalTitle = __('Confirm Edit');
     }
-  } else if (livestream) {
-    modalTitle = releasesInFuture ? __('Schedule Livestream') : __('Create Livestream');
+  } else if (livestream || isLivestreamClaim || remoteFile) {
+    modalTitle = releasesInFuture
+      ? __('Schedule Livestream')
+      : (!livestream || !isLivestreamClaim) && remoteFile
+      ? __('Publish Replay')
+      : __('Create Livestream');
+  } else if (isMarkdownPost) {
+    modalTitle = __('Confirm Post');
   } else {
     modalTitle = __('Confirm Upload');
   }
 
-  let confirmBtnText;
   if (!publishing) {
-    if (isStillEditing) {
-      confirmBtnText = __('Save');
-    } else if (livestream) {
-      confirmBtnText = __('Create');
-    } else {
-      confirmBtnText = __('Upload');
-    }
+    confirmBtnText = __('Confirm');
   } else {
-    if (isStillEditing) {
-      confirmBtnText = __('Saving');
-    } else if (livestream) {
-      confirmBtnText = __('Creating');
-    } else {
-      confirmBtnText = __('Uploading');
-    }
+    confirmBtnText = __('Confirming...');
   }
 
   const releaseDateText = releasesInFuture ? __('Scheduled for') : __('Release date');
@@ -260,6 +259,7 @@ const ModalPublishPreview = (props: Props) => {
                   <tbody>
                     {!livestream && !isMarkdownPost && createRow(__('File'), getFilePathName(filePath))}
                     {livestream && remoteFile && createRow(__('Replay'), __('Remote File Selected'))}
+                    {livestream && filePath && createRow(__('Replay'), __('Manual Upload'))}
                     {isOptimizeAvail && createRow(__('Transcode'), optimize ? __('Yes') : __('No'))}
                     {createRow(__('Title'), formattedTitle)}
                     {createRow(__('Description'), descriptionValue)}
