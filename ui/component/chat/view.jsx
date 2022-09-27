@@ -66,6 +66,7 @@ export default function ChatLayout(props: Props) {
     channelId,
     chatCommentsRestrictedToChannelMembers,
     claimId,
+    claimIsMine,
     comments: commentsByChronologicalOrder,
     customViewMode,
     doCommentList,
@@ -84,7 +85,12 @@ export default function ChatLayout(props: Props) {
     uri,
     activeChannelClaim,
     setLivestreamChatMembersOnlyCreatorSetting,
+    unauthorizedForContent,
   } = props;
+
+  // TODO: replace this with creator setting
+  l('chatCommentsRestrictedToChannelMembers');
+  l(chatCommentsRestrictedToChannelMembers);
 
   const isMobile = useIsMobile() && !isPopoutWindow;
   const isLimitedPopout = useIsMobile() && isPopoutWindow;
@@ -281,6 +287,8 @@ export default function ChatLayout(props: Props) {
 
   if (!claimId) return null;
 
+  if (unauthorizedForContent && !claimIsMine) return <></>;
+
   if (openedPopoutWindow || chatHidden) {
     return (
       <div className="card livestream__chat">
@@ -366,6 +374,7 @@ export default function ChatLayout(props: Props) {
             noHyperchats={!hyperChatsByAmount}
             activeChannelClaim={activeChannelClaim}
             setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
+            claimIsMine={claimIsMine}
           />
         </div>
       )}

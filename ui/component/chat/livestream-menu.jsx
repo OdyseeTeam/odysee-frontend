@@ -26,13 +26,14 @@ type Props = {
 export default function LivestreamMenu(props: Props) {
   const {
     activeChannelClaim,
-    setLivestreamChatMembersOnlyCreatorSetting,
+    claimIsMine,
     hideChat,
     hyperchatsHidden,
     isCompact,
     isMobile,
     isPopoutWindow,
     noHyperchats,
+    setLivestreamChatMembersOnlyCreatorSetting,
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
@@ -91,12 +92,15 @@ export default function LivestreamMenu(props: Props) {
         </MenuButton>
 
         <MenuList className="menu__list">
-          <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
+          {/* TODO: would be nice if there was a toast here to say "chat is now members-only" */}
+          {claimIsMine && (
+            <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
             <span className="menu__link">
               <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
               {__(toggleLivestreamChatMembersOnlyText)}
             </span>
-          </MenuItem>
+            </MenuItem>
+          )}
           <MenuItem className="comment__menu-option" onSelect={() => setShowTimestamps(!showTimestamps)}>
             <span className="menu__link">
               <Icon aria-hidden icon={ICONS.TIME} />
