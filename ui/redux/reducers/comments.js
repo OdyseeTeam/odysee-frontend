@@ -301,7 +301,7 @@ export default handleActions(
       const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
 
       // save an array of claim ids of members-only chats to check during list
-      let membersOnlyChats = settingsByChannelId[creatorClaimId].livestream_chat_members_only || false;
+      let membersOnlyChats = settingsByChannelId[creatorClaimId].public_show_protected || false;
       // if (restrictedToMembersOnly) {
       //   membersOnlyChats.push(claimId);
       // }
@@ -309,7 +309,7 @@ export default handleActions(
       settingsByChannelId[creatorClaimId] = {
         ...(settingsByChannelId[creatorClaimId] || {}),
         // comments_enabled: !disabled,
-        livestream_chat_members_only: membersOnlyChats,
+        public_show_protected: membersOnlyChats,
       };
 
       if (parentId) {

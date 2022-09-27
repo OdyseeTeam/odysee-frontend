@@ -1789,7 +1789,7 @@ export const setLivestreamChatMembersOnlyCreatorSetting = (channelClaim: Channel
       channel_id: channelClaim.claim_id,
       signature: channelSignature.signature,
       signing_ts: channelSignature.signing_ts,
-      livestream_chat_members_only: livestreamChatMembersOnly,
+      public_show_protected: livestreamChatMembersOnly,
     }).catch((err) => {
       dispatch(doToast({ message: err.message, isError: true }));
     });

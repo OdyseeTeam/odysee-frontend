@@ -137,7 +137,7 @@ export default function FilePage(props: Props) {
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
 
   const commentSettingDisabled = channelSettings && !channelSettings.comments_enabled;
-  const livestreamChatMembersOnly = channelSettings?.livestream_chat_members_only;
+  const livestreamChatMembersOnly = channelSettings?.public_show_protected;
 
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
