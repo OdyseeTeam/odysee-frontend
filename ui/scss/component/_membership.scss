@@ -1414,6 +1414,10 @@
       }
     }
   }
+  .help {
+    margin-top: calc(var(--spacing-s) * -1);
+    margin-bottom: var(--spacing-s);
+  }
 }
 
 .tier-edit-functionality {

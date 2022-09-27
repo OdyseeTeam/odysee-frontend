@@ -6,7 +6,6 @@ import { useIsMobile } from 'effects/use-screensize';
 
 import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
-import ErrorBubble from 'component/common/error-bubble';
 
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
@@ -199,25 +198,6 @@ function MembershipTier(props: Props) {
         disabled={hasSubscribers}
       />
 
-      <ErrorBubble>
-        {nameError
-          ? __('A membership name is required.')
-          : descriptionError
-          ? __('A membership description is required.')
-          : undefined}
-      </ErrorBubble>
-      <ErrorBubble>
-        {hasSubscribers
-          ? __("This membership has subscribers, you can't update the price currently.")
-          : priceLowerThanMin
-          ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
-          : priceHigherThanMax
-          ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
-          : !editTierParams.editTierPrice
-          ? __('A price is required.')
-          : undefined}
-      </ErrorBubble>
-
       <div className="section__actions">
         <Button
           disabled={nameError || descriptionError || priceError || isSubmitting}
@@ -226,6 +206,28 @@ function MembershipTier(props: Props) {
           onClick={() => saveMembership(membership)}
         />
         <Button button="link" label={__('Cancel')} onClick={onCancel} />
+      </div>
+      <div className="section__actions">
+        <p className="help">
+          <div className="error__text">
+            {nameError
+              ? __('A membership name is required.')
+              : descriptionError
+              ? __('A membership description is required.')
+              : undefined}
+          </div>
+          <div className="error__text">
+            {hasSubscribers
+              ? __("This membership has subscribers, you can't update the price currently.")
+              : priceLowerThanMin
+              ? __('Price must be greater or equal than %min%.', { min: MIN_PRICE })
+              : priceHigherThanMax
+              ? __('Price must be lower or equal than %max%.', { max: MAX_PRICE })
+              : !editTierParams.editTierPrice
+              ? __('A price is required.')
+              : undefined}
+          </div>
+        </p>
       </div>
     </div>
   );
