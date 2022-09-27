@@ -1198,6 +1198,13 @@
       transform: translate(-150%, 125%);
     }
   }
+  thead {
+    tr {
+      th {
+        padding: 0.8rem;
+      }
+    }
+  }
   tbody {
     tr {
       &:hover {

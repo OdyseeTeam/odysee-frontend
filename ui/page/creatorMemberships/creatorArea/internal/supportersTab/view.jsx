@@ -78,35 +78,37 @@ const SupportersTab = (props: Props) => {
                       (listedChannelClaim.value.title || listedChannelClaim.name)}
                   </div>
 
-                  <table className="table">
-                    <thead>
-                      <tr>
-                        <th>{__('Channel Name')}</th>
-                        <th className="channelName-header">{__('Tier')}</th>
-                        <th>{__('Amount')}</th>
-                        <th>{__('Joined On')}</th>
-                        <th>{__('Months Supporting')}</th>
-                      </tr>
-                    </thead>
-
-                    <tbody>
-                      {supportersForChannel.map((supporter, i) => (
-                        <tr key={i}>
-                          <td>
-                            <span dir="auto" className="button__label">
-                              {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
-                            </span>
-                          </td>
-                          <td>{supporter.MembershipName}</td>
-                          <td>${supporter.Price / 100} USD / Month</td>
-                          <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
-                          <td>
-                            {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
-                          </td>
+                  <div className="membership-table__wrapper">
+                    <table className="table">
+                      <thead>
+                        <tr>
+                          <th>{__('Channel Name')}</th>
+                          <th className="channelName-header">{__('Tier')}</th>
+                          <th>{__('Amount')}</th>
+                          <th>{__('Joined On')}</th>
+                          <th>{__('Months Supporting')}</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+
+                      <tbody>
+                        {supportersForChannel.map((supporter, i) => (
+                          <tr key={i}>
+                            <td>
+                              <span dir="auto" className="button__label">
+                                {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
+                              </span>
+                            </td>
+                            <td>{supporter.MembershipName}</td>
+                            <td>${supporter.Price / 100} USD / Month</td>
+                            <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
+                            <td>
+                              {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 </React.Fragment>
               )
             );
