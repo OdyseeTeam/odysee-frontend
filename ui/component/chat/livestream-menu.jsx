@@ -37,6 +37,7 @@ export default function LivestreamMenu(props: Props) {
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
+    settingsByChannelId,
   } = props;
 
   const {
@@ -53,6 +54,18 @@ export default function LivestreamMenu(props: Props) {
     setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, !livestreamChatMembersOnly);
     setLivestreamChatMembersOnly(!livestreamChatMembersOnly);
   }
+
+  React.useEffect(() => {
+    if (settingsByChannelId) {
+      const channelSettings = settingsByChannelId?.[activeChannelClaim?.claim_id];
+      const livestreamChatMembersOnlyInSettings = channelSettings?.public_show_protected;
+      if (livestreamChatMembersOnlyInSettings) {
+        setLivestreamChatMembersOnly(true);
+      } else {
+        setLivestreamChatMembersOnly(false);
+      }
+    }
+  }, [settingsByChannelId]);
 
   let toggleLivestreamChatMembersOnlyText = 'Enable Members-Only Chat';
   if (livestreamChatMembersOnly) toggleLivestreamChatMembersOnlyText = 'Disable Members-Only Chat';

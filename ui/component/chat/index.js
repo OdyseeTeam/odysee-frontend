@@ -7,6 +7,7 @@ import {
   selectTopLevelCommentsForUri,
   selectHyperChatsForUri,
   selectPinnedCommentsForUri,
+  selectSettingsByChannelId,
 } from 'redux/selectors/comments';
 import {
   doFetchOdyseeMembershipForChannelIds,
@@ -38,6 +39,7 @@ const select = (state, props) => {
     channelId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
     unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
+    settingsByChannelId: selectSettingsByChannelId(state),
   };
 };
 

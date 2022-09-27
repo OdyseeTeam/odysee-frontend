@@ -86,6 +86,7 @@ export default function ChatLayout(props: Props) {
     activeChannelClaim,
     setLivestreamChatMembersOnlyCreatorSetting,
     unauthorizedForContent,
+    settingsByChannelId,
   } = props;
 
   // TODO: replace this with creator setting
@@ -375,6 +376,7 @@ export default function ChatLayout(props: Props) {
             activeChannelClaim={activeChannelClaim}
             setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
             claimIsMine={claimIsMine}
+            settingsByChannelId={settingsByChannelId}
           />
         </div>
       )}
