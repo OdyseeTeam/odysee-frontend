@@ -284,7 +284,7 @@ export default handleActions(
         uri,
         disabled,
         creatorClaimId,
-        restrictedToMembersOnly,
+        // restrictedToMembersOnly,
       } = action.data;
 
       const commentById = Object.assign({}, state.commentById);

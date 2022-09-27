@@ -36,11 +36,11 @@ function PublishProtectedContent(props: Props) {
     myMembershipTiers,
     myMembershipTiersWithExclusiveContentPerk,
     myMembershipTiersWithExclusiveLivestreamPerk,
-    myMembershipTiersWithMembersOnlyChatPerk,
+    // myMembershipTiersWithMembersOnlyChatPerk,
     location,
   } = props;
 
-  const [commentsChatAlreadyRestricted, setCommentsChatAlreadyRestricted] = React.useState(false);
+  // const [commentsChatAlreadyRestricted, setCommentsChatAlreadyRestricted] = React.useState(false);
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
 
   const claimId = claim?.claim_id;
@@ -60,7 +60,7 @@ function PublishProtectedContent(props: Props) {
     if (claim) {
       const alreadyRestricted = new Set(claim?.value?.tags).has(RESTRICTED_CHAT_COMMENTS_TAG);
       if (alreadyRestricted) {
-        setCommentsChatAlreadyRestricted(alreadyRestricted);
+        // setCommentsChatAlreadyRestricted(alreadyRestricted);
         const restrictionCheckbox = document.getElementById('toggleRestrictCommentsChat');
         // $FlowFixMe
         if (restrictionCheckbox) restrictionCheckbox.checked = true;
@@ -107,18 +107,18 @@ function PublishProtectedContent(props: Props) {
     setIsRestrictingContent(!isRestrictingContent);
   }
 
-  function handleChangeRestrictCommentsChat() {
-    if (commentsChatAlreadyRestricted) {
-      updatePublishForm({
-        restrictCommentsAndChat: false,
-      });
-    } else {
-      updatePublishForm({
-        restrictCommentsAndChat: true,
-      });
-    }
-    setCommentsChatAlreadyRestricted(!commentsChatAlreadyRestricted);
-  }
+  // function handleChangeRestrictCommentsChat() {
+  //   if (commentsChatAlreadyRestricted) {
+  //     updatePublishForm({
+  //       restrictCommentsAndChat: false,
+  //     });
+  //   } else {
+  //     updatePublishForm({
+  //       restrictCommentsAndChat: true,
+  //     });
+  //   }
+  //   setCommentsChatAlreadyRestricted(!commentsChatAlreadyRestricted);
+  // }
 
   useEffect(() => {
     if (activeChannel) {
@@ -190,18 +190,18 @@ function PublishProtectedContent(props: Props) {
                   </div>
                 )}
 
-                {/*<FormField*/}
-                {/*  type="checkbox"*/}
-                {/*  defaultChecked={commentsChatAlreadyRestricted}*/}
-                {/*  disabled={myMembershipTiersWithMembersOnlyChatPerk.length === 0}*/}
-                {/*  label={'Restrict comments and chats to memberships with members-only chat perk'}*/}
-                {/*  name={'toggleRestrictCommentsChat'}*/}
-                {/*  className="restrict-comments-chat_checkbox"*/}
-                {/*  onChange={() => handleChangeRestrictCommentsChat()}*/}
-                {/*/>*/}
-                {/*{myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (*/}
-                {/*  <span className="error-bubble">{__('You have no tiers with members only chat')}</span>*/}
-                {/*)}*/}
+                {/* <FormField */}
+                {/*  type="checkbox" */}
+                {/*  defaultChecked={commentsChatAlreadyRestricted} */}
+                {/*  disabled={myMembershipTiersWithMembersOnlyChatPerk.length === 0} */}
+                {/*  label={'Restrict comments and chats to memberships with members-only chat perk'} */}
+                {/*  name={'toggleRestrictCommentsChat'} */}
+                {/*  className="restrict-comments-chat_checkbox" */}
+                {/*  onChange={() => handleChangeRestrictCommentsChat()} */}
+                {/* /> */}
+                {/* {myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (* /}
+                {/*  <span className="error-bubble">{__('You have no tiers with members only chat')}</span> */}
+                {/* )} */}
               </>
             }
           />
