@@ -14,6 +14,7 @@ type Props = {
 // eslint-disable-next-line flowtype/no-types-missing-file-annotation
 export default function PreviewOverlayProtectedContent(props: Props) {
   const { protectedMembershipIds, validMembershipIds, claimIsMine, channelMemberships } = props;
+  console.log('props: ', props);
 
   const userIsAMember = React.useMemo(() => {
     return (
@@ -22,6 +23,12 @@ export default function PreviewOverlayProtectedContent(props: Props) {
       protectedMembershipIds.some((id) => validMembershipIds.includes(id))
     );
   }, [protectedMembershipIds, validMembershipIds]);
+
+  /*
+  React.useEffect(() => {
+    if(protectedMembershipIds) console.log('protectedMembershipIds: ', protectedMembershipIds)
+  }, [protectedMembershipIds])
+  */
 
   const protectedMembershipIdsSet = new Set(protectedMembershipIds);
 
