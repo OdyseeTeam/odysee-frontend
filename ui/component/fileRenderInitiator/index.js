@@ -8,7 +8,6 @@ import {
   selectClaimIsMine,
   selectRentalTagForUri,
   selectValidRentalPurchaseForClaimId,
-  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import * as SETTINGS from 'constants/settings';
@@ -26,7 +25,7 @@ import FileRenderInitiator from './view';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { getThumbnailFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { selectProtectedContentMembershipsForClaimId, selectMyValidMembershipIds } from 'redux/selectors/memberships';
+import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -50,14 +49,12 @@ const select = (state, props) => {
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     isPlaying: selectFileIsPlayingOnPage(state, uri),
     obscurePreview: selectShouldObscurePreviewForUri(state, uri),
-    protectedContentTag: selectProtectedContentTagForUri(state, uri),
-    protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelClaimId, claimId),
     purchaseContentTag: selectPurchaseTagForUri(state, uri),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claimId),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     rentalTag: selectRentalTagForUri(state, uri),
-    validMembershipIds: selectMyValidMembershipIds(state),
     validRentalPurchase: selectValidRentalPurchaseForClaimId(state, claimId),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelClaimId, claimId, uri),
   };
 };
 

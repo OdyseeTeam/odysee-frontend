@@ -2,13 +2,13 @@ import { connect } from 'react-redux';
 import { doSetContentHistoryItem, doSetPrimaryUri, clearPosition } from 'redux/actions/content';
 import { withRouter } from 'react-router-dom';
 import {
-  selectClaimIsNsfwForUri,
   makeSelectTagInClaimOrChannelForUri,
-  selectIsStreamPlaceholderForUri,
   selectClaimForUri,
+  selectClaimIsNsfwForUri,
   selectClaimWasPurchasedForUri,
-  selectPurchaseTagForUri,
+  selectIsStreamPlaceholderForUri,
   selectPreorderTagForUri,
+  selectPurchaseTagForUri,
   selectRentalTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
@@ -31,7 +31,10 @@ import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import FilePage from './view';
 import { doGetMembershipTiersForContentClaimId, doMembershipMine } from 'redux/actions/memberships';
-import { selectMembershipMineData } from 'redux/selectors/memberships';
+import {
+  selectMembershipMineData,
+  selectIfUnauthorizedForContent,
+} from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -41,10 +44,13 @@ const select = (state, props) => {
   const playingCollectionId = selectPlayingCollectionId(state);
   const claim = selectClaimForUri(state, uri);
 
+  const channelId = getChannelIdFromClaim(claim);
+  const claimId = claim.claim_id;
+
   return {
     audioVideoDuration: claim?.value?.video?.duration || claim?.value?.audio?.duration,
-    channelId: getChannelIdFromClaim(claim),
-    claimId: claim.claim_id,
+    channelId,
+    claimId,
     claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
     commentsListTitle: selectCommentsListTitleForUri(state, uri),
     contentCommentsDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_COMMENTS_TAG)(state),
@@ -65,6 +71,7 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
   };
 };
 

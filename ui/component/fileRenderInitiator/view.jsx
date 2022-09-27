@@ -57,12 +57,12 @@ type Props = {
   claimIsMine: boolean,
   protectedMembershipIds?: Array<number>,
   validMembershipIds?: Array<number>,
-  protectedContentTag?: string
+  protectedContentTag?: string,
+  unauthorizedForContent: boolean,
 };
 
 export default function FileRenderInitiator(props: Props) {
   const {
-    validMembershipIds,
     authenticated,
     autoplay,
     channelClaimId,
@@ -85,21 +85,15 @@ export default function FileRenderInitiator(props: Props) {
     location,
     obscurePreview,
     parentCommentId,
-    protectedMembershipIds,
     purchaseContentTag,
     purchaseMadeForClaimId,
-    protectedContentTag,
     renderMode,
     rentalTag,
     uri,
     validRentalPurchase,
     videoTheaterMode,
+    unauthorizedForContent,
   } = props;
-
-  const isAnAuthorizedMember  =
-    protectedMembershipIds && validMembershipIds && protectedMembershipIds.filter(m => validMembershipIds.includes(m)).length;
-
-  const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
   const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
@@ -124,7 +118,7 @@ export default function FileRenderInitiator(props: Props) {
   const stillNeedsToBePurchased = purchaseContentTag && !purchaseMadeForClaimId && !hasBeenRented;
   const stillNeedsToBeRented = rentalTag && !validRentalPurchase && !hasBeenPurchased;
 
-  const notAuthedToView = (stillNeedsToBePurchased || stillNeedsToBeRented || isNotAuthorizedForProtectedContent) && !claimIsMine;
+  const notAuthedToView = (stillNeedsToBePurchased || stillNeedsToBeRented || unauthorizedForContent) && !claimIsMine;
 
   const shouldAutoplay =
     !notAuthedToView && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);

@@ -1,7 +1,7 @@
 // @flow
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectChannelClaimIdForUri, selectMyChannelClaimIds } from 'redux/selectors/claims';
+import { selectChannelClaimIdForUri, selectMyChannelClaimIds, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
@@ -198,11 +198,12 @@ export const selectUserValidMembershipForChannelUri = createSelector(
   }
 );
 
-export const selectProtectedContentClaimsForId = (state: State, id: string) =>
-  selectProtectedContentClaimsById(state)[id];
+export const selectProtectedContentClaimsForId = (state: State, channelId: string) =>
+  selectProtectedContentClaimsById(state)[channelId];
 
 export const selectProtectedContentMembershipsForClaimId = (state: State, channelId: string, claimId: string) => {
   const protectedClaimsById = selectProtectedContentClaimsForId(state, channelId);
+
   return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
 };
 
@@ -253,4 +254,17 @@ export const selectMembershipTierIdsWithMembersOnlyChatPerk = (state: State, cha
   const membershipIds: Array<number> = memberships.map((membership: MembershipTier) => membership.Membership.id);
 
   return membershipIds;
+};
+
+export const selectIfUnauthorizedForContent = (state: State, channelId: string, claimId: string, uri: string) => {
+  const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
+  const myValidMembershipIds = selectMyValidMembershipIds(state);
+  const protectedContentTag = selectProtectedContentTagForUri(state, uri);
+
+  const isAnAuthorizedMember  =
+    protectedMembershipIdsForClaim && myValidMembershipIds && protectedMembershipIdsForClaim.filter(m => myValidMembershipIds.includes(m)).length;
+
+  const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
+
+  return isNotAuthorizedForProtectedContent || false;
 };

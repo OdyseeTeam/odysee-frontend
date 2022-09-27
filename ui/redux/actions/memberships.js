@@ -310,6 +310,10 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
 export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
   // dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
 
+  if (!contentClaimId) {
+    throw new Error('Claim id is not passed');
+  }
+
   await Lbryio.call('membership', 'content', { environment: stripeEnvironment, claim_id: contentClaimId }, 'post')
     .then((response) => {
       dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });

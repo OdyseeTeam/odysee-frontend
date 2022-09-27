@@ -68,6 +68,10 @@ type Props = {
   videoTheaterMode: boolean,
   myActiveMemberships: ?MembershipMineDataByKey,
   doMembershipMine: () => void,
+  protectedMembershipIds?: Array<number>,
+  validMembershipIds?: Array<number>,
+  protectedContentTag?: string,
+  unauthorizedForContent: boolean,
 };
 
 export default function FilePage(props: Props) {
@@ -84,31 +88,32 @@ export default function FilePage(props: Props) {
     threadCommentId,
     videoTheaterMode,
 
-    claimIsMine,
-    contentCommentsDisabled,
-    isLivestream,
-    position,
     audioVideoDuration,
-    commentsListTitle,
-    settingsByChannelId,
-    claimWasPurchased,
-    location,
-    isUriPlaying,
-    doFetchCostInfoForUri,
-    doSetContentHistoryItem,
-    doSetPrimaryUri,
-    clearPosition,
-    doToggleAppDrawer,
-    doFileGet,
-    doSetMainPlayerDimension,
-    doCheckIfPurchasedClaimId,
-    purchaseTag,
-    preorderTag,
-    rentalTag,
     claimId,
+    claimIsMine,
+    claimWasPurchased,
+    clearPosition,
+    commentsListTitle,
+    contentCommentsDisabled,
+    doCheckIfPurchasedClaimId,
+    doFetchCostInfoForUri,
+    doFileGet,
     doGetMembershipTiersForContentClaimId,
     doMembershipMine,
+    doSetContentHistoryItem,
+    doSetMainPlayerDimension,
+    doSetPrimaryUri,
+    doToggleAppDrawer,
+    isLivestream,
+    isUriPlaying,
+    location,
     myActiveMemberships,
+    position,
+    preorderTag,
+    purchaseTag,
+    rentalTag,
+    settingsByChannelId,
+    unauthorizedForContent,
   } = props;
 
   const { search } = location;
@@ -171,8 +176,9 @@ export default function FilePage(props: Props) {
   }, [purchaseTag, preorderTag, rentalTag, claimId]);
 
   React.useEffect(() => {
-    doGetMembershipTiersForContentClaimId(claimId);
-
+    if (claimId) {
+      doGetMembershipTiersForContentClaimId(claimId);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimId]);
 
@@ -314,7 +320,6 @@ export default function FilePage(props: Props) {
 
               {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
 
-              {/* TODO: don't show comments if it's members only */}
               <React.Suspense fallback={null}>
                 {contentCommentsDisabled ? (
                   // content disabled based on tag for content
@@ -332,14 +337,17 @@ export default function FilePage(props: Props) {
                   // mobile mode comments
                   <>
                     <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
-                      <CommentsList {...commentsListProps} />
+                      {!unauthorizedForContent && (<CommentsList {...commentsListProps} />)}
                     </SwipeableDrawer>
 
                     <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
                   </>
                 ) : (
-                  // normal comments list
-                  <CommentsList {...commentsListProps} notInDrawer />
+                  <>
+                    {/* normal comments list */}
+                    {!unauthorizedForContent && (<CommentsList {...commentsListProps} notInDrawer />)}
+                  </>
+
                 )}
               </React.Suspense>
             </section>
@@ -354,7 +362,9 @@ export default function FilePage(props: Props) {
         : !contentCommentsDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
-                <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />
+                <>
+                  {!unauthorizedForContent && (<CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />)}
+                </>
               </React.Suspense>
             </div>
           )}
