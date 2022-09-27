@@ -135,7 +135,7 @@ function HomePage(props: Props) {
       <ClaimTilesDiscover
         {...options}
         showNoSourceClaims={ENABLE_NO_SOURCE_CLAIMS}
-        hideMembersOnly
+        hideMembersOnly={id !== 'FOLLOWING'}
         hasSource
         prefixUris={getLivestreamUris(activeLivestreams, options.channelIds).slice(
           0,
