@@ -140,9 +140,6 @@ export function CommentCreate(props: Props) {
     uri,
   } = props;
 
-  // TODO: change this to check the creator setting
-  const chatCommentsRestrictedToChannelMembers = '';
-
   const myValidMembershipIdsSet = new Set(myValidMembershipIds);
   const userHasMembersOnlyChatPerk =
     channelTiersWithMembersOnlyChatPerk &&
@@ -182,6 +179,7 @@ export function CommentCreate(props: Props) {
   const hasNothingToSumbit = !commentValue.length && !selectedSticker;
   const disabled = deletedComment || isSubmitting || isFetchingChannels || hasNothingToSumbit || disableInput;
   const channelSettings = channelClaimId ? settingsByChannelId[channelClaimId] : undefined;
+  const livestreamChatMembersOnlyEnabled = channelSettings?.public_show_protected;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
@@ -563,11 +561,11 @@ export function CommentCreate(props: Props) {
     }
   }, [textInjection]);
 
-  const notAuthedToChat = chatCommentsRestrictedToChannelMembers && !userHasMembersOnlyChatPerk && !claimIsMine;
+  const notAuthedToChat = livestreamChatMembersOnlyEnabled && !userHasMembersOnlyChatPerk && !claimIsMine;
 
   let commentLabelText = 'Say something about this...';
   if (notAuthedToChat) {
-    commentLabelText = 'Only members of a tier with members-only chat can access this perk';
+    commentLabelText = 'The creator has made this chat members-only';
   }
 
   // **************************************************************************
