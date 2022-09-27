@@ -1201,7 +1201,10 @@
   thead {
     tr {
       th {
-        padding: 0.8rem;
+        @media (min-width: $breakpoint-small) {
+          padding: 0.8rem;
+          white-space: nowrap;
+        }
       }
     }
   }
