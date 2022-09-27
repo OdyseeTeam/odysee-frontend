@@ -71,7 +71,6 @@ const SupportersTab = (props: Props) => {
               supportersForChannel.length > 0 && (
                 <React.Fragment key={listedChannelClaim.claim_id}>
                   <div className="table-channel-header">
-                    {__('Supporters for:')}
                     {(!isViewingSingleChannel || !channelMembershipTiers) && (
                       <ChannelThumbnail xsmall uri={listedChannelClaim.canonical_url} />
                     )}

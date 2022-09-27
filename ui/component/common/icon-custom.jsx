@@ -3446,7 +3446,6 @@ export const icons = {
         height={size}
         strokeLinecap="round"
         strokeLinejoin="round"
-        // stroke={color}
         style={{ overflow: 'visible' }}
         {...otherProps}
       >

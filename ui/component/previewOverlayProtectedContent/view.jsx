@@ -24,12 +24,6 @@ export default function PreviewOverlayProtectedContent(props: Props) {
     );
   }, [protectedMembershipIds, validMembershipIds]);
 
-  /*
-  React.useEffect(() => {
-    if(protectedMembershipIds) console.log('protectedMembershipIds: ', protectedMembershipIds)
-  }, [protectedMembershipIds])
-  */
-
   const protectedMembershipIdsSet = new Set(protectedMembershipIds);
 
   const channelsWithContentAccess =

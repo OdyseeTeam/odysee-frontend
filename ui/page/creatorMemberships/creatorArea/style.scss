@@ -151,6 +151,10 @@
 
 .table-channel-header {
   margin-bottom: 6px;
+  .channel-thumbnail {
+    margin-right: var(--spacing-s);
+    margin-bottom: var(--spacing-s);
+  }
 }
 
 .membership__mychannels-header {
