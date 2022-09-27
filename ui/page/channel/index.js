@@ -5,6 +5,7 @@ import {
   makeSelectCoverForUri,
   selectCurrentChannelPage,
   selectClaimForUri,
+  selectIsClaimOdyseeChannelForUri,
   makeSelectClaimIsPending,
 } from 'redux/selectors/claims';
 import { selectMyUnpublishedCollections } from 'redux/selectors/collections';
@@ -41,6 +42,7 @@ const select = (state, props) => {
     lang: selectLanguage(state),
     odyseeMembership: selectOdyseeMembershipForChannelId(state, claim.claim_id),
     myActiveMemberships: selectMembershipMineData(state),
+    isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, props.uri),
   };
 };
 

@@ -21,6 +21,7 @@ type Props = {
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
   creatorTiers: CreatorMemberships,
+  isOdyseeChannel: boolean,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
 };
@@ -32,6 +33,7 @@ const JoinMembershipButton = (props: Props) => {
     validUserMembershipForChannel,
     creatorHasMemberships,
     creatorMembershipsFetched,
+    isOdyseeChannel,
     doOpenModal,
     doMembershipList,
     creatorTiers,
@@ -48,6 +50,8 @@ const JoinMembershipButton = (props: Props) => {
       doMembershipList({ channel_name: `@${channelName || ''}`, channel_id: channelClaimId || '' }).catch((e) => {});
     }
   }, [creatorMembershipsFetched, doMembershipList, permanentUrl]);
+
+  if (isOdyseeChannel) return null;
 
   if (userIsActiveMember) {
     // build link to membership tab of user's channel

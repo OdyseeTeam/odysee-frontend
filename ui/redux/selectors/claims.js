@@ -6,6 +6,7 @@ import { selectUserLocale, selectYoutubeChannels } from 'redux/selectors/user';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
+import { ODYSEE_CHANNEL } from 'constants/channels';
 import {
   isClaimNsfw,
   filterClaims,
@@ -956,4 +957,10 @@ export const selectValidRentalPurchaseForClaimId = (state: State, claimId: strin
   });
 
   return validRentalClaimForClaimId;
+};
+
+export const selectIsClaimOdyseeChannelForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  const claimId = getChannelIdFromClaim(claim);
+  return claimId === ODYSEE_CHANNEL.ID;
 };

@@ -7,7 +7,7 @@ import {
   selectCreatorMembershipsFetchedByUri,
   selectMembershipTiersForChannelId,
 } from 'redux/selectors/memberships';
-import { selectPermanentUrlForUri } from 'redux/selectors/claims';
+import { selectPermanentUrlForUri, selectIsClaimOdyseeChannelForUri } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
 import ShareButton from './view';
 
@@ -22,6 +22,7 @@ const select = (state, props) => {
     creatorHasMemberships: selectCreatorHasMembershipsByUri(state, uri),
     creatorMembershipsFetched: selectCreatorMembershipsFetchedByUri(state, uri),
     creatorTiers: selectMembershipTiersForChannelId(state, channelClaimId),
+    isOdyseeChannel: selectIsClaimOdyseeChannelForUri(state, uri),
   };
 };
 

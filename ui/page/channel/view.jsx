@@ -59,6 +59,7 @@ type Props = {
   getMembershipTiersForChannel: any,
   doMembershipMine: () => void,
   myActiveMemberships: ?MembershipMineDataByKey,
+  isOdyseeChannel: boolean,
 };
 
 export const ChannelPageContext = React.createContext<any>();
@@ -85,6 +86,7 @@ function ChannelPage(props: Props) {
     getMembershipTiersForChannel,
     doMembershipMine,
     myActiveMemberships,
+    isOdyseeChannel,
   } = props;
   const {
     push,
@@ -171,7 +173,7 @@ function ChannelPage(props: Props) {
       tabIndex = 2;
       break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
-      tabIndex = 3;
+      if (!isOdyseeChannel) tabIndex = 3;
       break;
     case CHANNEL_PAGE.VIEWS.DISCUSSION:
       tabIndex = 4;
@@ -199,7 +201,7 @@ function ChannelPage(props: Props) {
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
         break;
       case 3:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+        if (!isOdyseeChannel) search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         break;
       case 4:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
@@ -233,18 +235,6 @@ function ChannelPage(props: Props) {
       doMembershipMine();
     }
   }, [doMembershipMine, myActiveMemberships]);
-
-  // hides the membership button for Odysee
-  // the tab creator thing is very finicky better to just use JS, though this isn't react optimized
-  const channelIsOdysee = claim && claim.short_url === 'lbry://@Odysee#8';
-  if (channelIsOdysee) {
-    const tabButtons = document.querySelectorAll('button[data-reach-tab]');
-    for (const tabButton of tabButtons) {
-      if (tabButton.innerHTML === 'Membership') {
-        tabButton.style.display = 'none';
-      }
-    }
-  }
 
   if (editing) {
     return (
@@ -355,7 +345,9 @@ function ChannelPage(props: Props) {
               <Tab disabled={editing}>{__('Content')}</Tab>
               <Tab disabled={editing}>{__('Playlists')}</Tab>
               <Tab disabled={editing}>{__('Channels')}</Tab>
-              <Tab className="tab--membership" disabled={editing}>{__('Membership')}</Tab>
+              <Tab className="tab--membership" disabled={editing || isOdyseeChannel}>
+                {__('Membership')}
+              </Tab>
               <Tab disabled={editing}>{__('Community')}</Tab>
               <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
             </TabList>
@@ -385,7 +377,11 @@ function ChannelPage(props: Props) {
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
               </TabPanel>
-              <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && <MembershipChannelTab uri={uri} />}</TabPanel>
+              <TabPanel>
+                {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && (
+                  <MembershipChannelTab uri={uri} />
+                )}
+              </TabPanel>
               <TabPanel>
                 {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <ChannelDiscussion uri={uri} />}
               </TabPanel>
