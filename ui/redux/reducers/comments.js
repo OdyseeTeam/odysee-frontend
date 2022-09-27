@@ -301,7 +301,7 @@ export default handleActions(
       const settingsByChannelId = Object.assign({}, state.settingsByChannelId);
 
       // save an array of claim ids of members-only chats to check during list
-      let membersOnlyChats = settingsByChannelId[creatorClaimId].public_show_protected || false;
+      let membersOnlyChats = settingsByChannelId[creatorClaimId]?.public_show_protected || false;
       // if (restrictedToMembersOnly) {
       //   membersOnlyChats.push(claimId);
       // }

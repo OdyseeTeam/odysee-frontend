@@ -746,7 +746,7 @@ export function CommentCreate(props: Props) {
                 onClick={() =>
                   selectedSticker
                     ? handleSubmitSticker()
-                    : handleCreateComment(undefined, undefined, undefined, chatCommentsRestrictedToChannelMembers)
+                    : handleCreateComment(undefined, undefined, undefined, livestreamChatMembersOnlyEnabled)
                 }
               />
             )
