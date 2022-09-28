@@ -17,14 +17,24 @@ import {
   selectFetchingBlockedWords,
   selectModerationDelegatesById,
 } from 'redux/selectors/comments';
+import { selectIfChannelHasMembershipTiers } from 'redux/selectors/memberships';
+import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
+import { selectMyChannelClaims } from 'redux/selectors/claims';
 
-const select = (state) => ({
-  activeChannelClaim: selectActiveChannelClaim(state),
-  settingsByChannelId: selectSettingsByChannelId(state),
-  fetchingCreatorSettings: selectFetchingCreatorSettings(state),
-  fetchingBlockedWords: selectFetchingBlockedWords(state),
-  moderationDelegatesById: selectModerationDelegatesById(state),
-});
+const select = (state, props) => {
+  const activeChannelClaim = selectActiveChannelClaim(state);
+  const activeChannelId = activeChannelClaim?.claim_id;
+
+  return {
+    activeChannelClaim: selectActiveChannelClaim(state),
+    channelHasMembershipTiers: selectIfChannelHasMembershipTiers(state, activeChannelId),
+    fetchingBlockedWords: selectFetchingBlockedWords(state),
+    fetchingCreatorSettings: selectFetchingCreatorSettings(state),
+    moderationDelegatesById: selectModerationDelegatesById(state),
+    myChannelClaims: selectMyChannelClaims(state),
+    settingsByChannelId: selectSettingsByChannelId(state),
+  };
+};
 
 const perform = (dispatch) => ({
   commentBlockWords: (channelClaim, words) => dispatch(doCommentBlockWords(channelClaim, words)),
@@ -37,6 +47,7 @@ const perform = (dispatch) => ({
     dispatch(doCommentModRemoveDelegate(modChanId, modChanName, creatorChannelClaim)),
   commentModListDelegates: (creatorChannelClaim) => dispatch(doCommentModListDelegates(creatorChannelClaim)),
   doOpenModal: (modal, props) => dispatch(doOpenModal(modal, props)),
+  listAllMyMembershipTiers: (channelId) => dispatch(doListAllMyMembershipTiers()),
 });
 
 export default connect(select, perform)(SettingsCreatorPage);

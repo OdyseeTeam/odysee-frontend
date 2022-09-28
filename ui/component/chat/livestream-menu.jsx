@@ -43,6 +43,7 @@ export default function LivestreamMenu(props: Props) {
     toggleHyperchats,
     toggleIsCompact,
     settingsByChannelId,
+    channelHasMembershipTiers,
   } = props;
 
   const {
@@ -115,7 +116,7 @@ export default function LivestreamMenu(props: Props) {
 
         <MenuList className="menu__list">
           {/* TODO: would be nice if there was a toast here to say "chat is now members-only" */}
-          {claimIsMine && (
+          {channelHasMembershipTiers && claimIsMine && (
             <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
               <span className="menu__link">
                 <Icon aria-hidden icon={ICONS.MEMBERSHIP} />

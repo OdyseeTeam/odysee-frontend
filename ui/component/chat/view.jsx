@@ -91,6 +91,9 @@ export default function ChatLayout(props: Props) {
     setLivestreamChatMembersOnlyCreatorSetting,
     unauthorizedForContent,
     settingsByChannelId,
+    myChannelClaims,
+    doListAllMyMembershipTiers,
+    channelHasMembershipTiers,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -139,6 +142,12 @@ export default function ChatLayout(props: Props) {
     doFetchChannelMembershipsForChannelIds,
     doFetchOdyseeMembershipForChannelIds,
   ]);
+
+  React.useEffect(() => {
+    if (myChannelClaims !== undefined) {
+      doListAllMyMembershipTiers();
+    }
+  }, [doListAllMyMembershipTiers, myChannelClaims]);
 
   const commentsToDisplay =
     viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByChronologicalOrder;
@@ -378,6 +387,7 @@ export default function ChatLayout(props: Props) {
             setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
             claimIsMine={claimIsMine}
             settingsByChannelId={settingsByChannelId}
+            channelHasMembershipTiers={channelHasMembershipTiers}
           />
         </div>
       )}

@@ -56,6 +56,9 @@ export default function SettingsCreatorPage(props: Props) {
     fetchCreatorSettings,
     updateCreatorSettings,
     doOpenModal,
+    channelHasMembershipTiers,
+    listAllMyMembershipTiers,
+    myChannelClaims,
   } = props;
 
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
@@ -204,6 +207,12 @@ export default function SettingsCreatorPage(props: Props) {
   }, [activeChannelClaim, commentModListDelegates]);
 
   React.useEffect(() => {
+    if (myChannelClaims !== undefined) {
+      listAllMyMembershipTiers();
+    }
+  }, [listAllMyMembershipTiers, myChannelClaims]);
+
+  React.useEffect(() => {
     if (activeChannelClaim) {
       const delegates = moderationDelegatesById[activeChannelClaim.claim_id];
       if (delegates) {
@@ -275,14 +284,14 @@ export default function SettingsCreatorPage(props: Props) {
               isBodyList
               body={
                 <>
-                  <SettingsRow title={__('Make livestream chat members-only')}>
+                  {channelHasMembershipTiers && (<SettingsRow title={__('Make livestream chat members-only')} subtitle={__(HELP.MEMBERS_ONLY_CHAT)}>
                     <FormField
                       type="checkbox"
                       name="livestream_chat_members_only"
                       checked={livestreamChatMembersOnly}
                       onChange={() => setSettings({ livestream_chat_members_only: !livestreamChatMembersOnly })}
                     />
-                  </SettingsRow>
+                  </SettingsRow>)}
                   <SettingsRow title={__('Enable comments for channel.')}>
                     <FormField
                       type="checkbox"
@@ -452,4 +461,5 @@ const HELP = {
   BLOCKED_WORDS: 'Comments and livestream chat containing these words will be blocked.',
   MODERATORS: 'Moderators can block channels on your behalf. Blocked channels will appear in your "Blocked and Muted" list.',
   MODERATOR_SEARCH: 'Enter a channel name or URL to add as a moderator.\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8',
+  MEMBERS_ONLY_CHAT: 'Only channel members with "Members-only chat" perk can participate in public livestream chats',
 };
