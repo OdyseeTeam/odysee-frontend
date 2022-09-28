@@ -144,6 +144,7 @@ const PreviewPage = (props: Props) => {
               index={index}
               length={creatorMemberships.length}
               key={index}
+              disabled={creatorPurchaseDisabled}
             />
           ))}
         </div>

@@ -9,11 +9,12 @@ type Props = {
   disabled?: boolean,
   index?: number,
   length?: number,
+  disabled?: boolean,
   handleSelect: () => void,
 };
 
 const MembershipTier = (props: Props) => {
-  const { membership, index, length, handleSelect } = props;
+  const { membership, index, length, disabled, handleSelect } = props;
 
   return (
     <div
@@ -33,6 +34,7 @@ const MembershipTier = (props: Props) => {
               membership_price: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
             })}
             onClick={handleSelect}
+            disabled={disabled}
           />
         }
       />
