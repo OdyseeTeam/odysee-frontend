@@ -1,7 +1,12 @@
 // @flow
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { selectChannelClaimIdForUri, selectMyChannelClaimIds, selectNameForClaimId, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import {
+  selectChannelClaimIdForUri,
+  selectMyChannelClaimIds,
+  selectNameForClaimId,
+  selectProtectedContentTagForUri,
+} from 'redux/selectors/claims';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
@@ -147,7 +152,13 @@ export const selectMembershipForCreatorIdAndChannelId = createCachedSelector(
     const channelIsMine = new Set(myChannelClaimIds).has(channelId);
 
     if (channelIsMine && myValidCreatorMemberships) {
-      return myValidCreatorMemberships[0].MembershipDetails.name;
+      // -- For checking my own memberships, it is better to use the result of the 'mine'
+      // call, which is cached and will be more up to date.
+      const myMembership = myValidCreatorMemberships.find(
+        (membership: MembershipTier) => membership.Membership.channel_id === channelId
+      );
+
+      return myMembership && myMembership.MembershipDetails.name;
     }
 
     return creatorMemberships && creatorMemberships[channelId];
@@ -297,8 +308,10 @@ export const selectIfUnauthorizedForContent = (state: State, channelId: string, 
   const myValidMembershipIds = selectMyValidMembershipIds(state);
   const protectedContentTag = selectProtectedContentTagForUri(state, uri);
 
-  const isAnAuthorizedMember  =
-    protectedMembershipIdsForClaim && myValidMembershipIds && protectedMembershipIdsForClaim.filter(m => myValidMembershipIds.includes(m)).length;
+  const isAnAuthorizedMember =
+    protectedMembershipIdsForClaim &&
+    myValidMembershipIds &&
+    protectedMembershipIdsForClaim.filter((m) => myValidMembershipIds.includes(m)).length;
 
   const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
 
