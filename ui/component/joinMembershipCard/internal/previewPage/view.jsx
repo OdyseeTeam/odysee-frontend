@@ -82,7 +82,7 @@ const PreviewPage = (props: Props) => {
               "Unfortunately you haven't activated your memberships functionality for this channel yet, but you can do so now at the link below."
             )}
           </p>
-          <div className="button--create-tiers">
+          <div>
             <ButtonNavigateChannelId
               icon={ICONS.MEMBERSHIP}
               button="primary"
@@ -104,7 +104,7 @@ const PreviewPage = (props: Props) => {
             "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers with the link below!"
           )}
         </h2>
-        <div className="button--create-tiers">
+        <div>
           <Button
             icon={ICONS.MEMBERSHIP}
             button="primary"
