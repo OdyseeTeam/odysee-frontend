@@ -133,9 +133,6 @@ export default function FilePage(props: Props) {
   const isMediumScreen = useIsMediumScreen() && !isMobile;
   const isLandscapeRotated = useIsMobileLandscape();
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
-  const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
-
-  const livestreamChatMembersOnly = channelSettings?.livestream_chat_members_only;
 
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;
@@ -241,6 +238,7 @@ export default function FilePage(props: Props) {
     if (isMarkdown) {
       return (
         <React.Suspense fallback={null}>
+          <ProtectedContentOverlay uri={uri} />
           <PostViewer uri={uri} />
         </React.Suspense>
       );
@@ -250,6 +248,7 @@ export default function FilePage(props: Props) {
       return (
         <>
           <FileRenderInline uri={uri} />
+          <ProtectedContentOverlay uri={uri} />
           <FileRenderInitiator uri={uri} />
           <FileTitleSection uri={uri} />
         </>
@@ -260,6 +259,7 @@ export default function FilePage(props: Props) {
       return (
         <>
           <div className={PRIMARY_IMAGE_WRAPPER_CLASS}>
+            <ProtectedContentOverlay uri={uri} />
             <FileRenderInitiator uri={uri} />
             <FileRenderInline uri={uri} />
           </div>
@@ -321,11 +321,11 @@ export default function FilePage(props: Props) {
               <React.Suspense fallback={null}>
                 {commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : livestreamChatMembersOnly ? (
+                ) : 1 == 2 ? (
                   // user has comments disabled for entire channel
                   <Empty
                     {...emptyMsgProps}
-                    text={__('Comments are members-only, please join a membership to access comments.')}
+                    text={__('Chat are members-only, please join a membership to access comments.')}
                   />
                 ) : isMobile && !isLandscapeRotated ? (
                   <React.Fragment>

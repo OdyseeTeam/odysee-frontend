@@ -17,6 +17,7 @@ import DateTime from 'component/dateTime';
 import Button from 'component/button';
 import LbcSymbol from 'component/common/lbc-symbol';
 import classnames from 'classnames';
+import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const EXPAND = {
   NONE: 'none',
@@ -105,6 +106,7 @@ function PostViewer(props: Props) {
       <ClaimAuthor uri={uri} />
 
       <div className="file-render--post-container">
+        <ProtectedContentOverlay uri={uri} />
         <FileRenderInitiator uri={uri} />
         <FileRenderInline uri={uri} />
       </div>

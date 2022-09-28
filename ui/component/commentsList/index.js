@@ -3,7 +3,7 @@ import {
   selectClaimForUri,
   selectClaimIsMine,
   selectFetchingMyChannels,
-  selectedRestrictedCommentsChatTagForUri,
+  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import {
   selectTopLevelCommentsForUri,
@@ -45,7 +45,7 @@ const select = (state, props) => {
     activeChannelId,
     allCommentIds: selectCommentIdsForUri(state, uri),
     channelId,
-    chatCommentsRestrictedToChannelMembers: Boolean(selectedRestrictedCommentsChatTagForUri(state, uri)),
+    chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
     claimId: claim && claim.claim_id,
     claimIsMine: selectClaimIsMine(state, claim),
     fetchingChannels: selectFetchingMyChannels(state),

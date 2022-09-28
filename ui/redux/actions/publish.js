@@ -222,23 +222,14 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   const publishPayloadTags = new Set(publishPayload.tags);
 
   const publishTagsHaveRestrictedMemberships = publishPayloadTags.has(MEMBERS_ONLY_CONTENT_TAG);
-  const publishTagsHaveRestrictedChatComments = publishPayloadTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
 
   // add members only tag if it's restricted to memberships and tag doesn't exist
   if (restrictedToMemberships && !publishTagsHaveRestrictedMemberships && publishPayload.channel_id) {
     publishPayloadTags.add(MEMBERS_ONLY_CONTENT_TAG);
   }
 
-  if (restrictCommentsAndChat && !publishTagsHaveRestrictedChatComments && publishPayload.channel_id) {
-    publishPayloadTags.add(RESTRICTED_CHAT_COMMENTS_TAG);
-  }
-
   if (!publishPayload.channel_id || (!restrictedToMemberships && publishTagsHaveRestrictedMemberships)) {
     publishPayloadTags.delete(MEMBERS_ONLY_CONTENT_TAG);
-  }
-
-  if (!publishPayload.channel_id || (!restrictCommentsAndChat && publishTagsHaveRestrictedChatComments)) {
-    publishPayloadTags.delete(RESTRICTED_CHAT_COMMENTS_TAG);
   }
 
   publishPayload.tags = Array.from(publishPayloadTags);

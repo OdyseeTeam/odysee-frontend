@@ -28,6 +28,7 @@ import { useHistory } from 'react-router';
 import Spinner from 'component/spinner';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 type Props = {
   disabled: boolean,
@@ -415,6 +416,8 @@ function PostForm(props: Props) {
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
           <Card actions={<SelectThumbnail />} />
+
+          <PublishProtectedContent claim={myClaimForUri} location={'post'} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}

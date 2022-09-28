@@ -199,7 +199,7 @@ export default function FileRenderInitiator(props: Props) {
     if (
       (canViewFile || forceAutoplayParam) &&
       ((shouldAutoplay && (!videoOnPage || forceAutoplayParam) && isPlayable) ||
-        (!embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode)))
+        (!notAuthedToView && !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode)))
     ) {
       viewFile();
     }
@@ -209,7 +209,7 @@ export default function FileRenderInitiator(props: Props) {
   once content is playing, let the appropriate <FileRender> take care of it...
   but for playables, always render so area can be used to fill with floating player
    */
-  if (isPlaying && !isPlayable && canViewFile && !collectionId) {
+  if (isPlaying && !isPlayable && canViewFile && !collectionId && !notAuthedToView) {
     return null;
   }
 
