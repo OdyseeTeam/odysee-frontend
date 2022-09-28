@@ -24,6 +24,7 @@
         }
         &:hover {
           .button--secondary {
+            background-color: unset !important;
             .button__label {
               color: var(--color-primary) !important;
             }

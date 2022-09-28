@@ -118,7 +118,7 @@ const MembershipsPage = (props: Props) => {
               <Button
                 navigate={`/$/${PAGES.MEMBERSHIPS_LANDING}`}
                 label={__('Back To Memberships')}
-                icon={ICONS.SIGN_OUT}
+                icon={ICONS.BACK}
                 button="secondary"
               />
             </Tab>

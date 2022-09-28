@@ -728,6 +728,16 @@ export const icons = {
       <line x1="21" y1="12" x2="9" y2="12" />
     </g>
   ),
+  [ICONS.BACK]: buildIcon(
+    <g transform="scale(1.3)">
+      <path d="M5 4.00014L2 7.00024L5 10.4287" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2.5 7H9.25H12.1429C14.2731 7 16 8.7269 16 10.8571V10.8571C16 12.9874 14.2731 14.7143 12.1429 14.7143H9.57143"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
+    </g>
+  ),
   [ICONS.PHONE]: buildIcon(
     <g>
       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />

@@ -102,6 +102,7 @@ export const EYE_OFF = 'EyeOff';
 export const SIGN_OUT = 'SignOut';
 export const SIGN_IN = 'SignIn';
 export const SIGN_UP = 'Key';
+export const BACK = 'Back';
 export const TRENDING = 'Trending';
 export const TOP = 'Top';
 export const NEW = 'New';
