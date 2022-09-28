@@ -128,10 +128,10 @@ export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async 
       if (e.message === 'user needs to be linked to a setup customer first') {
         return dispatch(
           doToast({
-            message: __('You need to link a bank account in order to purchase.'),
+            message: __('You need to link a credit card in order to purchase.'),
             isError: true,
             linkText: __('Take me there'),
-            linkTarget: '/settings/tip_account',
+            linkTarget: '/settings/card',
           })
         );
       }
