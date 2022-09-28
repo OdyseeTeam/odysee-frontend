@@ -19,6 +19,7 @@ import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import usePersistedState from 'effects/use-persisted-state';
 import { getTipValues } from 'util/livestream';
+import ProtectedContentOverlay from 'component/protectedContentOverlay';
 
 const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 
@@ -70,6 +71,7 @@ export default function LivestreamLayout(props: Props) {
   return (
     <section className="card-stack file-page__video">
       <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
+        <ProtectedContentOverlay uri={uri} />
         <FileRenderInitiator
           videoTheaterMode={theaterMode}
           uri={claim.canonical_url}
