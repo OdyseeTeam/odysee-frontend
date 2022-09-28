@@ -7,7 +7,7 @@ import {
   selectGeoRestrictionForUri,
   selectLatestClaimForUri,
 } from 'redux/selectors/claims';
-import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doPlayUri } from 'redux/actions/content';
@@ -75,7 +75,7 @@ const select = (state, props) => {
     latestClaimUrl,
     isNewestPath,
     costInfo: uri && selectCostInfoForUri(state, uri),
-    streamingUrl: uri && makeSelectStreamingUrlForUri(uri)(state),
+    streamingUrl: selectStreamingUrlForUri(state, uri),
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     blackListedOutpoints: haveClaim && selectBlackListedOutpoints(state),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, isNewestPath ? latestClaimUrl : canonicalUrl),

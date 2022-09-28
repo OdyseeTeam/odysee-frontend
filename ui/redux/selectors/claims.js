@@ -49,8 +49,13 @@ export const selectLatestClaimForUri = createSelector(
   selectLatestByUri,
   (uri, latestByUri) => {
     const latestClaim = latestByUri[uri];
+    if (!latestClaim) return latestClaim;
+
+    const latestClaims = Object.values(latestClaim);
+    if (!latestClaims.length) return null;
+
     // $FlowFixMe
-    return latestClaim && Object.values(latestClaim)[0].stream;
+    return latestClaims[0].stream;
   }
 );
 
@@ -167,6 +172,14 @@ export const selectClaimForUri = createCachedSelector(
     }
   }
 )((state, uri, returnRepost = true) => `${String(uri)}:${returnRepost ? '1' : '0'}`);
+
+export const selectClaimOutpointForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  if (!claim) return claim;
+
+  const outpoint = `${claim.txid}:${claim.nout}`;
+  return outpoint;
+};
 
 export const selectChannelClaimIdForUri = (state: State, uri: string) =>
   getChannelIdFromClaim(selectClaimForUri(state, uri));
