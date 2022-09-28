@@ -18,7 +18,7 @@
     width: 30px;
     height: 30px;
     margin-bottom: var(--spacing-xs);
-    @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+    @media (min-width: $breakpoint-small) and (max-width: $breakpoint-large) {
       margin-top: -18px;
     }
   }
