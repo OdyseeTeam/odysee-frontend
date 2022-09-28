@@ -165,7 +165,7 @@ function TiersTab(props: Props) {
 
             const newestMembership = {
               HasSubscribers: false,
-              Membership: { id: newestId, name: 'Example Plan', description: '' },
+              Membership: { id: newestId, name: __('Example Plan'), description: '' },
               NewPrices: [{ Price: { amount: 500 } }],
               saved: false,
             };
@@ -211,7 +211,7 @@ function TiersTab(props: Props) {
       <HelpHub
         href="https://help.odysee.tv/category-memberships/category-creatorportal/creatingtiers/"
         image="h264"
-        text="Need some ideas on what tiers to make? Ms. H.264 has lots of ideas in the %help_hub%."
+        text={__('Need some ideas on what tiers to make? Ms. H.264 has lots of ideas in the %help_hub%.')}
       />
     </div>
   );
