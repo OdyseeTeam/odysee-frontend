@@ -111,8 +111,8 @@ const MembershipsPage = (props: Props) => {
       <Tabs onChange={onTabChange} index={tabIndex}>
         <TabList className="tabs__list--collection-edit-page">
           <Tab>{__('Overview')}</Tab>
-          <Tab>{__('Billing History')}</Tab>
-          <Tab> {__('Creators To Support')}</Tab>
+          {/* <Tab>{__('Billing History')}</Tab> */}
+          {/* <Tab> {__('Creators To Support')}</Tab> */}
           <div className="no-after">
             <Tab>
               <Button
