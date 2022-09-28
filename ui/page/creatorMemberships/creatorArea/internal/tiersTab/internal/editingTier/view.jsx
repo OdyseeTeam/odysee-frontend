@@ -9,8 +9,8 @@ import BusyIndicator from 'component/common/busy-indicator';
 
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
-const MIN_PRICE = '1';
-const MAX_PRICE = '99999999'; // -- the value that fails on the backend, not sure the actual limit
+const MIN_PRICE = '4';
+const MAX_PRICE = '1000'; // -- the value that fails on the backend, not sure the actual limit
 
 // custom emojis should be changed to channel member badge
 const PERMANENT_TIER_PERKS = new Set([4]); // -- perk name: Member Badge
