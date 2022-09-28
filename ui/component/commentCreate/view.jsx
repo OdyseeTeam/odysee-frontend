@@ -25,6 +25,8 @@ import { StickerReviewBox, StickerActionButton } from './sticker-contents';
 import { TipReviewBox, TipActionButton } from './tip-contents';
 import { FormChannelSelector, HelpText } from './extra-contents';
 
+import withCreditCard from 'hocs/withCreditCard';
+
 import { getStripeEnvironment } from 'util/stripe';
 const stripeEnvironment = getStripeEnvironment();
 
@@ -707,7 +709,7 @@ export function CommentCreate(props: Props) {
         <div className="section__actions">
           {/* Submit Button */}
           {isReviewingSupportComment ? (
-            <Button
+            <SubmitTipButton
               {...submitButtonProps}
               autoFocus
               disabled={disabled || !minAmountMet}
@@ -802,3 +804,5 @@ export function CommentCreate(props: Props) {
     </Form>
   );
 }
+
+const SubmitTipButton = withCreditCard((props: any) => <Button {...props} />);

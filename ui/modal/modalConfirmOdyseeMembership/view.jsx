@@ -12,6 +12,8 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
 
+import withCreditCard from 'hocs/withCreditCard';
+
 type Props = {
   membership: CreatorMembership,
   price: StripePriceDetails,
@@ -118,13 +120,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
           <div className="section__actions">
             {!purchasePending ? (
               <>
-                <Button
-                  className="stripe__confirm-remove-card"
-                  button="primary"
-                  icon={ICONS.FINANCE}
-                  label={__('Confirm Purchase')}
-                  onClick={handlePurchase}
-                />
+                <SubmitPurchaseButton handlePurchase={handlePurchase} />
                 <Button button="link" label={__('Cancel')} onClick={doHideModal} />
               </>
             ) : (
@@ -136,3 +132,13 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     </Modal>
   );
 }
+
+const SubmitPurchaseButton = withCreditCard((props: any) => (
+  <Button
+    className="stripe__confirm-remove-card"
+    button="primary"
+    icon={ICONS.FINANCE}
+    label={__('Confirm Purchase')}
+    onClick={props.handlePurchase}
+  />
+));
