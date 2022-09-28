@@ -196,7 +196,7 @@ const MembershipsPage = (props: Props) => {
                       <Button
                         navigate={`${formatLbryUrlForWeb(activeChannelClaim?.canonical_url)}?view=membership`}
                         label={__('See Your Memberships')}
-                        icon={ICONS.SIGN_OUT}
+                        icon={ICONS.BACK}
                         button="secondary"
                       />
                     </div>
