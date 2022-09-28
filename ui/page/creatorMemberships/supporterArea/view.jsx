@@ -131,7 +131,7 @@ const MembershipsPage = (props: Props) => {
             <HelpHub
               href="https://help.odysee.tv/category-memberships/donorportal"
               image="LadyFungus"
-              text="What are these donations? Lady Fungus can explain it in the %help_hub%."
+              text={__('What are these donations? Lady Fungus can explain it in the %help_hub%.')}
             />
           </TabPanel>
 

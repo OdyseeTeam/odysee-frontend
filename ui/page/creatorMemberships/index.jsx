@@ -41,7 +41,7 @@ const MembershipsLandingPage = () => (
     <HelpHub
       href="https://help.odysee.tv/category-memberships/"
       image="LadyFungus"
-      text="What are Memberships? Lady Fungus can explain it in the %help_hub%."
+      text={__('What are Memberships? Lady Fungus can explain it in the %help_hub%.')}
     />
   </Page>
 );

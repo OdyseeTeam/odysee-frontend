@@ -103,13 +103,13 @@ function PledgesTab(props: Props) {
               <thead>
                 <tr>
                   <th className="channelName-header" colSpan="2">
-                    Channel Name
+                    {__('Channel Name')}
                   </th>
-                  <th>Tier</th>
-                  <th>Time Total</th>
-                  <th>Amount</th>
-                  <th>Status</th>
-                  <th className="membership-table__page">Page</th>
+                  <th>{__('Tier')}</th>
+                  <th>{__('Time Total')}</th>
+                  <th>{__('Amount')}</th>
+                  <th>{__('Status')}</th>
+                  <th className="membership-table__page">{__('Page')}</th>
                 </tr>
               </thead>
               <tbody>
