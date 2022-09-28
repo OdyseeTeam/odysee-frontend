@@ -65,7 +65,7 @@ export default function LivestreamMenu(props: Props) {
     if (settingsByChannelId && activeChannelClaim) {
       // $FlowFixMe
       const channelSettings = settingsByChannelId?.[activeChannelClaim.claim_id];
-      const livestreamChatMembersOnlyInSettings = channelSettings?.public_show_protected;
+      const livestreamChatMembersOnlyInSettings = channelSettings?.livestream_chat_members_only;
       if (livestreamChatMembersOnlyInSettings) {
         setLivestreamChatMembersOnly(true);
       } else {

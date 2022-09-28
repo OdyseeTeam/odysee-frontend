@@ -135,7 +135,7 @@ export default function FilePage(props: Props) {
   const theaterMode = renderMode === 'video' || renderMode === 'audio' ? videoTheaterMode : false;
   const channelSettings = channelId ? settingsByChannelId[channelId] : undefined;
 
-  const livestreamChatMembersOnly = channelSettings?.public_show_protected;
+  const livestreamChatMembersOnly = channelSettings?.livestream_chat_members_only;
 
   const cost = costInfo ? costInfo.cost : null;
   const hasFileInfo = fileInfo !== undefined;

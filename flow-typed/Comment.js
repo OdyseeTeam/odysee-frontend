@@ -39,7 +39,8 @@ declare type PerChannelSettings = {
   min_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
-  public_show_protected?: boolean,
+  livestream_chat_members_only?: boolean,
+  comments_members_only?: boolean,
 };
 
 // todo: relate individual comments to their commentId
@@ -311,7 +312,8 @@ declare type SettingsResponse = {
   slow_mode_min_gap: number,
   curse_jar_amount: number,
   filters_enabled?: boolean,
-  public_show_protected?: boolean,
+  livestream_chat_members_only?: boolean,
+  comments_members_only?: boolean,
 };
 
 declare type UpdateSettingsParams = {
@@ -324,7 +326,8 @@ declare type UpdateSettingsParams = {
   min_tip_amount_super_chat?: number,
   slow_mode_min_gap?: number,
   time_since_first_comment?: number,
-  public_show_protected?: boolean,
+  livestream_chat_members_only?: boolean,
+  comments_members_only?: boolean,
 };
 
 declare type BlockWordParams = {

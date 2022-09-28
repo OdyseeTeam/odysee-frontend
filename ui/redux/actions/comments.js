@@ -1776,7 +1776,10 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
   };
 };
 
-export const setLivestreamChatMembersOnlyCreatorSetting = (channelClaim: ChannelClaim, livestreamChatMembersOnly: boolean) => {
+export const setLivestreamChatMembersOnlyCreatorSetting = (
+  channelClaim: ChannelClaim,
+  livestreamChatMembersOnly: boolean
+) => {
   return async (dispatch: Dispatch, getState: GetState) => {
     const channelSignature = await channelSignName(channelClaim.claim_id, channelClaim.name);
     if (!channelSignature) {
@@ -1789,7 +1792,7 @@ export const setLivestreamChatMembersOnlyCreatorSetting = (channelClaim: Channel
       channel_id: channelClaim.claim_id,
       signature: channelSignature.signature,
       signing_ts: channelSignature.signing_ts,
-      public_show_protected: livestreamChatMembersOnly,
+      livestream_chat_members_only: livestreamChatMembersOnly,
     }).catch((err) => {
       dispatch(doToast({ message: err.message, isError: true }));
     });

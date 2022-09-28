@@ -100,7 +100,7 @@ export default function SettingsCreatorPage(props: Props) {
       setMinSuper(settings.min_tip_amount_super_chat || 0);
       setSlowModeMin(settings.slow_mode_min_gap || 0);
       setMinChannelAgeMinutes(settings.time_since_first_comment || 0);
-      setLivestreamChatMembersOnly(settings.public_show_protected || false);
+      setLivestreamChatMembersOnly(settings.livestream_chat_members_only || false);
       doSetMutedWordTags(settings.words || []);
     } else {
       if (settings.comments_enabled !== undefined) {
@@ -118,8 +118,8 @@ export default function SettingsCreatorPage(props: Props) {
       if (settings.time_since_first_comment) {
         setMinChannelAgeMinutes(settings.time_since_first_comment);
       }
-      if (settings.public_show_protected !== undefined) {
-        setLivestreamChatMembersOnly(settings.public_show_protected);
+      if (settings.livestream_chat_members_only !== undefined) {
+        setLivestreamChatMembersOnly(settings.livestream_chat_members_only);
       }
       if (settings.words) {
         doSetMutedWordTags(settings.words);
@@ -278,9 +278,9 @@ export default function SettingsCreatorPage(props: Props) {
                   <SettingsRow title={__('Make livestream chat members-only')}>
                     <FormField
                       type="checkbox"
-                      name="public_show_protected"
+                      name="livestream_chat_members_only"
                       checked={livestreamChatMembersOnly}
-                      onChange={() => setSettings({ public_show_protected: !livestreamChatMembersOnly })}
+                      onChange={() => setSettings({ livestream_chat_members_only: !livestreamChatMembersOnly })}
                     />
                   </SettingsRow>
                   <SettingsRow title={__('Enable comments for channel.')}>
