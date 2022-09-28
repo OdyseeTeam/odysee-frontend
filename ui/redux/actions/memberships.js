@@ -202,7 +202,7 @@ export const doOpenCancelationModalForMembership = (membership: MembershipTier) 
 
   return dispatch(
     doOpenModal(MODALS.CONFIRM, {
-      title: __('Confirm %membership_name% Cancelation', { membership_name: MembershipDetails.name }),
+      title: __('Confirm %membership_name% Cancellation', { membership_name: MembershipDetails.name }),
       subtitle: __(
         'Are you sure you want to cancel your %creator_name%\'s "%membership_name%" membership? ' +
           'You will still have all your features until %end_date% at which point your purchase will not be renewed ' +
