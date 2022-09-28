@@ -11,7 +11,6 @@ type Props = {
   uri: string,
   doHideModal: () => void,
   membershipIndex: number,
-  protectedMembershipIds: Array<number>,
   passedTier?: CreatorMembership,
   // -- redux --
   activeChannelClaim: ChannelClaim,
@@ -20,6 +19,8 @@ type Props = {
   creatorMemberships: ?CreatorMemberships,
   hasSavedCard: ?boolean,
   incognito: boolean,
+  protectedMembershipIds: Array<number>,
+  cheapestMembership: ?CreatorMembership,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doGetCustomerStatus: () => void,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
@@ -30,8 +31,7 @@ const JoinMembershipCard = (props: Props) => {
   const {
     uri,
     doHideModal,
-    membershipIndex,
-    protectedMembershipIds,
+    membershipIndex = 0,
     passedTier,
     // -- redux --
     activeChannelClaim,
@@ -40,6 +40,8 @@ const JoinMembershipCard = (props: Props) => {
     creatorMemberships,
     hasSavedCard,
     incognito,
+    protectedMembershipIds,
+    cheapestMembership,
     doMembershipList,
     doGetCustomerStatus,
     doMembershipBuy,
@@ -48,8 +50,17 @@ const JoinMembershipCard = (props: Props) => {
 
   const skipToConfirmation = Boolean(passedTier);
 
+  const cheapestPlanIndex = React.useMemo(() => {
+    if (cheapestMembership) {
+      return (
+        creatorMemberships &&
+        creatorMemberships.findIndex((membership) => membership.Membership.id === cheapestMembership.Membership.id)
+      );
+    }
+  }, [cheapestMembership, creatorMemberships]);
+
   const [isOnConfirmationPage, setConfirmationPage] = React.useState(skipToConfirmation);
-  const [selectedMembershipIndex, setMembershipIndex] = React.useState(0);
+  const [selectedMembershipIndex, setMembershipIndex] = React.useState(cheapestPlanIndex || membershipIndex);
   const selectedTier = passedTier || (creatorMemberships && creatorMemberships[selectedMembershipIndex]);
 
   function handleJoinMembership() {
@@ -89,12 +100,6 @@ const JoinMembershipCard = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (membershipIndex) {
-      setMembershipIndex(membershipIndex);
-    }
-  }, [membershipIndex]);
-
-  React.useEffect(() => {
     if (channelClaimId && channelName && creatorMemberships === undefined) {
       doMembershipList({ channel_name: channelName, channel_id: channelClaimId });
     }
@@ -117,20 +122,6 @@ const JoinMembershipCard = (props: Props) => {
       </div>
     );
   }
-
-  // let commaSeparatedMembershipNames;
-  // let membershipNames = [];
-  // if (creatorMemberships && protectedMembershipIds) {
-  //   for (const membership of creatorMemberships) {
-  //     const membershipId = membership.Membership.id;
-
-  //     if (protectedMembershipIds.includes(membershipId)) {
-  //       membershipNames.push(membership.Membership.name);
-  //     }
-
-  //     commaSeparatedMembershipNames = membershipNames.join(', ');
-  //   }
-  // }
 
   return (
     <Form onSubmit={handleJoinMembership}>

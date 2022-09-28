@@ -1,6 +1,10 @@
 import { connect } from 'react-redux';
-import { selectMembershipTiersForChannelUri } from 'redux/selectors/memberships';
-import { selectChannelNameForUri, selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import {
+  selectMembershipTiersForChannelUri,
+  selectProtectedContentMembershipsForContentClaimId,
+  selectCheapestProtectedContentMembershipForId,
+} from 'redux/selectors/memberships';
+import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimIdForUri } from 'redux/selectors/claims';
 import { selectHasSavedCard } from 'redux/selectors/stripe';
 import { doMembershipList, doMembershipBuy } from 'redux/actions/memberships';
 import { doGetCustomerStatus } from 'redux/actions/stripe';
@@ -9,7 +13,9 @@ import { doToast } from 'redux/actions/notifications';
 import PreviewPage from './view';
 
 const select = (state, props) => {
-  const { uri } = props;
+  const { uri, fileUri } = props;
+
+  const fileClaimId = selectClaimIdForUri(state, fileUri);
 
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
@@ -18,6 +24,8 @@ const select = (state, props) => {
     channelClaimId: selectChannelClaimIdForUri(state, uri),
     hasSavedCard: selectHasSavedCard(state),
     incognito: selectIncognito(state),
+    protectedMembershipIds: fileClaimId && selectProtectedContentMembershipsForContentClaimId(state, fileClaimId),
+    cheapestMembership: fileClaimId && selectCheapestProtectedContentMembershipForId(state, fileClaimId),
   };
 };
 

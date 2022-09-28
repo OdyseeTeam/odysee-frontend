@@ -6,7 +6,9 @@ import {
   selectMyChannelClaimIds,
   selectNameForClaimId,
   selectProtectedContentTagForUri,
+  selectClaimForId,
 } from 'redux/selectors/claims';
+import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import * as MEMBERSHIP_CONSTS from 'constants/memberships';
 
@@ -252,6 +254,54 @@ export const selectProtectedContentMembershipsForClaimId = (state: State, channe
   const protectedClaimsById = selectProtectedContentClaimsForId(state, channelId);
 
   return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
+};
+export const selectProtectedContentMembershipsForContentClaimId = (state: State, claimId: string) => {
+  const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
+  const protectedClaimsById = claimChannelId && selectProtectedContentClaimsForId(state, claimChannelId);
+
+  return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
+};
+
+export const selectProtectedContentMembershipsForId = (state: State, claimId: ClaimId) => {
+  const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
+  const protectedContentMembershipIds = new Set(
+    claimChannelId && selectProtectedContentMembershipsForClaimId(state, claimChannelId, claimId)
+  );
+  const creatorMemberships = claimChannelId && selectMembershipTiersForChannelId(state, claimChannelId);
+
+  return (
+    creatorMemberships &&
+    creatorMemberships.filter((membership) => protectedContentMembershipIds.has(membership.Membership.id))
+  );
+};
+
+export const selectMyProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
+  const validMembershipIds = new Set(selectMyValidMembershipIds(state));
+  const protectedContentMemberships = selectProtectedContentMembershipsForId(state, claimId);
+
+  return (
+    protectedContentMemberships &&
+    protectedContentMemberships.find((membership) => validMembershipIds.has(membership.Membership.id))
+  );
+};
+
+export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId: ClaimId) =>
+  Boolean(selectMyProtectedContentMembershipForId(state, claimId));
+
+export const selectProtectedContentMembershipsSortedByPriceForId = (state: State, claimId: ClaimId) => {
+  const protectedContentMembershipsForId = selectProtectedContentMembershipsForId(state, claimId);
+
+  return (
+    protectedContentMembershipsForId &&
+    protectedContentMembershipsForId.sort(
+      (a, b) => (a.NewPrices ? a.NewPrices[0].Price.amount : 0) - (b.NewPrices ? b.NewPrices[0].Price.amount : 0)
+    )
+  );
+};
+
+export const selectCheapestProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
+  const protectedContentMembershipsSortedByPrice = selectProtectedContentMembershipsSortedByPriceForId(state, claimId);
+  return protectedContentMembershipsSortedByPrice && protectedContentMembershipsSortedByPrice[0];
 };
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {

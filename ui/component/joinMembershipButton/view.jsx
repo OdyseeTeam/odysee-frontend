@@ -11,6 +11,8 @@ import * as MODALS from 'constants/modal_types';
 
 import Button from 'component/button';
 
+import { AppContext } from 'component/app/view';
+
 const DEFAULT_PROPS = { button: 'alt', icon: ICONS.MEMBERSHIP };
 
 type Props = {
@@ -39,6 +41,7 @@ const JoinMembershipButton = (props: Props) => {
     creatorTiers,
   } = props;
 
+  const fileUri = React.useContext(AppContext)?.uri;
   const isChannelPage = React.useContext(ChannelPageContext);
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
@@ -86,7 +89,7 @@ const JoinMembershipButton = (props: Props) => {
       className="button--membership"
       label={__('Join')}
       title={__('Become A Member')}
-      onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri })}
+      onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
       style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
     />
   );
