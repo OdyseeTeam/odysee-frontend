@@ -88,7 +88,7 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     isLivestreamPublish,
     remoteFileUrl,
     restrictedToMemberships,
-    restrictCommentsAndChat,
+    // restrictCommentsAndChat,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.

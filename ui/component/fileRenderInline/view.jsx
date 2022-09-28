@@ -5,6 +5,7 @@ import LoadingScreen from 'component/common/loading-screen';
 import { NON_STREAM_MODES } from 'constants/file_render_modes';
 
 type Props = {
+  claimIsMine: boolean,
   isPlaying: boolean,
   fileInfo: FileListItem,
   uri: string,
@@ -14,6 +15,7 @@ type Props = {
   claimRewards: () => void,
   costInfo: any,
   claimWasPurchased: boolean,
+  unauthorizedForContent: any,
 };
 
 export default function FileRenderInline(props: Props) {
