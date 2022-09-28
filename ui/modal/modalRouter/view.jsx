@@ -70,6 +70,8 @@ type Props = {
   doHideModal: () => void,
 };
 
+export const ModalContext = React.createContext<any>();
+
 function ModalRouter(props: Props) {
   const { modal, error, location, doHideModal } = props;
   const { pathname } = location;
@@ -100,7 +102,9 @@ function ModalRouter(props: Props) {
 
   return (
     <React.Suspense fallback={<LoadingBarOneOff />}>
-      <SelectedModal {...modalProps} doHideModal={doHideModal} />
+      <ModalContext.Provider value={{ modal }}>
+        <SelectedModal {...modalProps} doHideModal={doHideModal} />
+      </ModalContext.Provider>
     </React.Suspense>
   );
 }

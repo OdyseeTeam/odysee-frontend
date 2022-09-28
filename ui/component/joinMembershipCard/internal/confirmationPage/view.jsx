@@ -6,6 +6,8 @@ import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import { Submit } from 'component/common/form';
 
+import withCreditCard from 'hocs/withCreditCard';
+
 type Props = {
   selectedTier: CreatorMembership,
   onCancel: () => void,
@@ -14,7 +16,7 @@ type Props = {
   purchasePending: boolean,
 };
 
-export default function ConfirmationPage(props: Props) {
+const ConfirmationPage = (props: Props) => {
   const { selectedTier, onCancel, channelName, purchasePending } = props;
 
   return (
@@ -45,13 +47,13 @@ export default function ConfirmationPage(props: Props) {
         <BusyIndicator message={__('Processing payment...')} />
       ) : (
         <div className="section__actions">
-          <Submit autoFocus button="primary" label={__('Confirm')} />
+          <SubmitButton />
           <Button button="link" label={__('Cancel')} onClick={onCancel} />
         </div>
       )}
     </div>
   );
-}
+};
 
 type GroupProps = {
   className?: string,
@@ -70,3 +72,7 @@ const ConfirmationSection = (props: GroupProps) => {
     </section>
   );
 };
+
+const SubmitButton = withCreditCard(() => <Submit autoFocus button="primary" label={__('Confirm')} />);
+
+export default ConfirmationPage;
