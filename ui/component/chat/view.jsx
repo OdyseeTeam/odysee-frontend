@@ -374,6 +374,7 @@ export default function ChatLayout(props: Props) {
             hyperchatsHidden={hideHyperchats}
             noHyperchats={!hyperChatsByAmount}
             activeChannelClaim={activeChannelClaim}
+            activeClaimId={claimId}
             setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
             claimIsMine={claimIsMine}
             settingsByChannelId={settingsByChannelId}

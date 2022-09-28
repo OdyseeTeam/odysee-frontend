@@ -1778,6 +1778,7 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
 
 export const setLivestreamChatMembersOnlyCreatorSetting = (
   channelClaim: ChannelClaim,
+  activeClaimId: string,
   livestreamChatMembersOnly: boolean
 ) => {
   return async (dispatch: Dispatch, getState: GetState) => {
@@ -1793,6 +1794,7 @@ export const setLivestreamChatMembersOnlyCreatorSetting = (
       signature: channelSignature.signature,
       signing_ts: channelSignature.signing_ts,
       livestream_chat_members_only: livestreamChatMembersOnly,
+      active_claim_id: activeClaimId,
     }).catch((err) => {
       dispatch(doToast({ message: err.message, isError: true }));
     });

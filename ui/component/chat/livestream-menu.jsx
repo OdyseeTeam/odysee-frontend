@@ -21,6 +21,7 @@ type Props = {
   toggleHyperchats?: () => void,
   toggleIsCompact?: () => void,
   activeChannelClaim?: ChannelClaim,
+  activeClaimId?: string,
   setLivestreamChatMembersOnlyCreatorSetting?: any,
   // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   settingsByChannelId?: { [string]: PerChannelSettings },
@@ -29,6 +30,7 @@ type Props = {
 export default function LivestreamMenu(props: Props) {
   const {
     activeChannelClaim,
+    activeClaimId,
     claimIsMine,
     hideChat,
     hyperchatsHidden,
@@ -56,7 +58,7 @@ export default function LivestreamMenu(props: Props) {
   function updateLivestreamMembersOnlyChat() {
     if (activeChannelClaim && setLivestreamChatMembersOnlyCreatorSetting) {
       // $FlowFixMe
-      setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, !livestreamChatMembersOnly);
+      setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, activeClaimId, !livestreamChatMembersOnly);
       setLivestreamChatMembersOnly(!livestreamChatMembersOnly);
     }
   }
