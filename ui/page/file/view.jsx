@@ -5,6 +5,7 @@ import * as React from 'react';
 import classnames from 'classnames';
 import { lazyImport } from 'util/lazyImport';
 import Page from 'component/page';
+import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -222,6 +223,11 @@ export default function FilePage(props: Props) {
           <ProtectedContentOverlay uri={uri} />
           {/* playables will be rendered and injected by <FileRenderFloating> */}
           <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
+          <div className="unlocked-membership-content">
+            <div>
+              <Icon icon={ICONS.UNLOCK} />
+            </div>
+          </div>
         </div>
       );
     }

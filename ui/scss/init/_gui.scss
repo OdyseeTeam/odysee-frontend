@@ -2430,3 +2430,22 @@ video {
     }
   }
 }
+
+.unlocked-membership-content {
+  float: right;
+  height: 38px;
+  padding-left: var(--spacing-m);
+  padding-right: var(--spacing-m);
+  padding-top: var(--spacing-xxs);
+  margin-bottom: -38px;
+  background-image: linear-gradient(147deg, var(--color-primary), #f77937);
+  border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+  div {
+    .icon {
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+    }
+  }
+}
