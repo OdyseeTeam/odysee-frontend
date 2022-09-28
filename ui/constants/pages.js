@@ -97,7 +97,6 @@ exports.ODYSEE_MEMBERSHIP = 'premium';
 exports.CREATOR_MEMBERSHIPS = 'memberships/creator';
 exports.MEMBERSHIPS_SUPPORTER = 'memberships/supporter';
 exports.MEMBERSHIPS_LANDING = 'memberships';
-exports.MEMBERSHIP_BILLING_HISTORY = 'membership_history';
 exports.POPOUT = 'popout';
 exports.LATEST = 'latest';
 exports.LIVE_NOW = 'livenow';
