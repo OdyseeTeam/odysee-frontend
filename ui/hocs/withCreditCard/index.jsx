@@ -37,7 +37,7 @@ const withCreditCard = (Component) => {
           ...(modal ? { previousModal: modal.id, previousProps: modal.modalProps } : {}),
         });
 
-      return <Button button="primary" label={__('Add a Credit Card')} onClick={handleOpenAddCardModal} />;
+      return <Button requiresAuth button="primary" label={__('Add a Credit Card')} onClick={handleOpenAddCardModal} />;
     }
 
     return <Component {...componentProps} />;
