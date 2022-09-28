@@ -41,7 +41,7 @@ type Props = {
   doCheckIfPurchasedClaimId: (claimId: string) => void,
   doClearPlayingUri: () => void,
   doFetchCostInfoForUri: (uri: string) => void,
-  doFileGet: (uri: string) => void,
+  doFileGetForUri: (uri: string) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
   doSetPrimaryUri: (uri: ?string) => void,
@@ -78,7 +78,7 @@ export default function FilePage(props: Props) {
   const {
     playingCollectionId,
     uri,
-    channelId,
+    // channelId,
     renderMode,
     fileInfo,
     obscureNsfw,
@@ -96,7 +96,7 @@ export default function FilePage(props: Props) {
     commentsListTitle,
     doCheckIfPurchasedClaimId,
     doFetchCostInfoForUri,
-    doFileGet,
+    doFileGetForUri,
     doGetMembershipTiersForContentClaimId,
     doMembershipMine,
     doSetContentHistoryItem,
@@ -111,7 +111,7 @@ export default function FilePage(props: Props) {
     preorderTag,
     purchaseTag,
     rentalTag,
-    settingsByChannelId,
+    // settingsByChannelId,
     unauthorizedForContent,
   } = props;
 
@@ -188,7 +188,7 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri(uri);
     doSetContentHistoryItem(uri);
     doSetPrimaryUri(uri);
-    if (claimWasPurchased && !hasFileInfo) doFileGet(uri);
+    if (claimWasPurchased && !hasFileInfo) doFileGetForUri(uri);
 
     return () => doSetPrimaryUri(null);
   }, [
@@ -201,7 +201,7 @@ export default function FilePage(props: Props) {
     doFetchCostInfoForUri,
     doSetContentHistoryItem,
     doSetPrimaryUri,
-    doFileGet,
+    doFileGetForUri,
     claimWasPurchased,
   ]);
 
@@ -292,6 +292,7 @@ export default function FilePage(props: Props) {
 
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const emptyMsgProps = { padded: !isMobile };
+  const enabled = false;
 
   return (
     <Page className="file-page" filePage isMarkdown={isMarkdown}>
@@ -321,7 +322,7 @@ export default function FilePage(props: Props) {
               <React.Suspense fallback={null}>
                 {commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : 1 == 2 ? (
+                ) : enabled ? (
                   // user has comments disabled for entire channel
                   <Empty
                     {...emptyMsgProps}

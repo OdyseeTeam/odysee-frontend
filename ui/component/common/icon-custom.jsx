@@ -3485,7 +3485,6 @@ export const icons = {
         width={size}
         height={size}
         fill={color}
-        strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
         stroke={color}
@@ -3493,10 +3492,11 @@ export const icons = {
         {...otherProps}
       >
         <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
-          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: 'none' }} />
-          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} />
+          <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: 'none' }} strokeWidth="1" />
+          <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} strokeWidth="1" />
           <path
             d="M3.75,7.64V3.86a.36.36,0,0,1,.55-.31L7.57,5.44a.36.36,0,0,1,0,.62L4.3,8A.36.36,0,0,1,3.75,7.64Z"
+            strokeWidth="1"
             style={{ fill: 'none' }}
           />
         </g>
@@ -3509,18 +3509,18 @@ export const icons = {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 48 48"
+        viewBox="0 0 64 64"
         width={size}
         height={size}
         fill="none"
         stroke={color}
-        strokeWidth="1.5"
+        strokeWidth="1"
         strokeLinecap="round"
         strokeLinejoin="round"
         style={{ overflow: 'visible' }}
         {...otherProps}
       >
-        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+        <g transform="translate(8, 8),matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
           <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" />
           <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" />
           <line x1="5.75" y1="3" x2="5.75" y2="8.5" />
@@ -3535,18 +3535,18 @@ export const icons = {
     return (
       <svg
         xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 48 48"
+        viewBox="0 0 64 64"
         width={size}
         height={size}
         fill={color}
         stroke={color}
-        strokeWidth="1.5"
+        strokeWidth="1"
         strokeLinecap="round"
         strokeLinejoin="round"
         style={{ overflow: 'visible' }}
         {...otherProps}
       >
-        <g transform="matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
+        <g transform="translate(8, 8),matrix(3.4285714285714284,0,0,3.4285714285714284,0,0)">
           <rect x="0.5" y="0.5" width="10.5" height="10.5" rx="1" style={{ fill: color }} />
           <path d="M13.5,3.5v9a1,1,0,0,1-1,1h-9" style={{ fill: 'none' }} />
           <path

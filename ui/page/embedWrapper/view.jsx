@@ -162,7 +162,7 @@ export default function EmbedWrapperPage(props: Props) {
   }, [doPlayUri, isLivestreamClaim, doResolveUri, haveClaim, costInfo, uri, isNewestPath, latestClaimUrl]);
 
   React.useEffect(() => {
-    if (haveClaim && uri && doFetchCostInfoForUri) {
+    if (haveClaim && uri) {
       doFetchCostInfoForUri(uri);
     }
   }, [uri, haveClaim, doFetchCostInfoForUri]);
