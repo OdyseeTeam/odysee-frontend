@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .protected-content-holder {
   position: absolute;
   display: flex;
@@ -16,6 +18,9 @@
     width: 30px;
     height: 30px;
     margin-bottom: var(--spacing-xs);
+    @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
+      margin-top: -18px;
+    }
   }
 
   div {
@@ -73,6 +78,11 @@
     -webkit-backdrop-filter: blur(0);
     backdrop-filter: blur(0);
     background-color: rgba(0, 0, 0, 0);
+
+    div {
+      background-color: rgba(var(--color-header-background-base), 1);
+      // background-color: red;
+    }
   }
 }
 
