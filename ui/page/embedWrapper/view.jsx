@@ -141,7 +141,7 @@ export default function EmbedWrapperPage(props: Props) {
 
     const channelName = formatLbryChannelName(channelUrl);
 
-    // TODO: here
+    // TODO: reverse claim ID if it's a protected stream
     doCommentSocketConnect(canonicalUrl, channelName, claimId);
 
     return () => {

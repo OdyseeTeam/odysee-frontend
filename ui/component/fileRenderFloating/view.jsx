@@ -82,6 +82,7 @@ type Props = {
   isMature: boolean,
   location: { state?: { overrideFloating?: boolean } },
   isProtectedContent: boolean,
+  unauthorizedForContent: any,
   doCommentSocketConnect: (
     uri: string,
     channelName: string,
@@ -136,6 +137,7 @@ export default function FileRenderFloating(props: Props) {
     doOpenModal,
     doClearPlayingSource,
     isProtectedContent,
+    unauthorizedForContent,
   } = props;
 
   const { state } = location;
@@ -273,13 +275,13 @@ export default function FileRenderFloating(props: Props) {
 
     // Only connect if not yet connected, so for example clicked on an embed instead of accessing
     // from the Livestream page
-    if (!socketConnection?.connected) {
+    if (!socketConnection?.connected && !unauthorizedForContent) {
       doCommentSocketConnect(uri, channelName, claimIdToUse, undefined, isProtectedContent);
     }
 
     // This will be used to disconnect for every case, since this is the main player component
     return () => {
-      if (socketConnection?.connected) {
+      if (socketConnection?.connected && !unauthorizedForContent) {
         doCommentSocketDisconnect(claimId, channelName);
       }
     };

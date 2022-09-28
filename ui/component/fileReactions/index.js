@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri } from 'redux/selectors/reactions';
 import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 import FileReactions from './view';
-import { selectClaimForUri, selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 
@@ -21,6 +21,7 @@ const select = (state, props) => {
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     claimId,
     unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
+    claimIsMine: selectClaimIsMine(state, claim),
   };
 };
 

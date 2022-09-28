@@ -292,7 +292,6 @@ export default function FilePage(props: Props) {
 
   const commentsListProps = { uri, linkedCommentId, threadCommentId };
   const emptyMsgProps = { padded: !isMobile };
-  const enabled = false;
 
   return (
     <Page className="file-page" filePage isMarkdown={isMarkdown}>
@@ -322,12 +321,6 @@ export default function FilePage(props: Props) {
               <React.Suspense fallback={null}>
                 {commentSettingDisabled ? (
                   <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : enabled ? (
-                  // user has comments disabled for entire channel
-                  <Empty
-                    {...emptyMsgProps}
-                    text={__('Chat are members-only, please join a membership to access comments.')}
-                  />
                 ) : isMobile && !isLandscapeRotated ? (
                   <React.Fragment>
                     <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>

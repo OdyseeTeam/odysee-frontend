@@ -304,6 +304,7 @@ export const selectMembershipTierIdsWithMembersOnlyChatPerk = (state: State, cha
 };
 
 export const selectIfUnauthorizedForContent = (state: State, channelId: string, claimId: string, uri: string) => {
+  // TODO: add a check for claimIsMine here
   const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
   const myValidMembershipIds = selectMyValidMembershipIds(state);
   const protectedContentTag = selectProtectedContentTagForUri(state, uri);

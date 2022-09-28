@@ -34,6 +34,7 @@ import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'red
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { isStreamPlaceholderClaim, getVideoClaimAspectRatio } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
+import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 import FileRenderFloating from './view';
 
 const select = (state, props) => {
@@ -55,6 +56,8 @@ const select = (state, props) => {
   const { canonical_url: channelUrl } = channelClaim || {};
   const playingFromQueue = playingUri.source === COLLECTIONS_CONSTS.QUEUE_ID;
   const isInlinePlayer = Boolean(playingUri.source) && !isFloating;
+
+  const { claim_id: channelClaimId } = channelClaim || {};
 
   return {
     claimId,
@@ -87,6 +90,7 @@ const select = (state, props) => {
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelClaimId, claimId, uri),
   };
 };
 
