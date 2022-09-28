@@ -66,6 +66,7 @@ const SupportersTab = (props: Props) => {
               supportersList &&
               supportersList.filter((supporter) => listedChannelClaim.name === supporter.ChannelBeingSupported);
 
+            supportersForChannel && console.log('supportersForChannel: ', supportersForChannel);
             return (
               supportersForChannel &&
               supportersForChannel.length > 0 && (
@@ -82,8 +83,10 @@ const SupportersTab = (props: Props) => {
                     <table className="table">
                       <thead>
                         <tr>
-                          <th>{__('Channel Name')}</th>
-                          <th className="channelName-header">{__('Tier')}</th>
+                          <th className="channelName-header" colSpan="2">
+                            {__('Channel Name')}
+                          </th>
+                          <th>{__('Tier')}</th>
                           <th>{__('Amount')}</th>
                           <th>{__('Joined On')}</th>
                           <th>{__('Months Supporting')}</th>
@@ -93,6 +96,9 @@ const SupportersTab = (props: Props) => {
                       <tbody>
                         {supportersForChannel.map((supporter, i) => (
                           <tr key={i}>
+                            <td className="channelThumbnail">
+                              <ChannelThumbnail xsmall uri={undefined} />
+                            </td>
                             <td>
                               <span dir="auto" className="button__label">
                                 {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
