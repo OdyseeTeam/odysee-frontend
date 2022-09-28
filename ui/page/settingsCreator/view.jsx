@@ -41,6 +41,9 @@ type Props = {
   updateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   doToast: ({ message: string }) => void,
   doOpenModal: (id: string, {}) => void,
+  myChannelClaims: any,
+  listAllMyMembershipTiers: any,
+  channelHasMembershipTiers: any,
 };
 
 export default function SettingsCreatorPage(props: Props) {

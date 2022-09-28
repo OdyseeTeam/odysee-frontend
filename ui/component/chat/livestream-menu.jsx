@@ -25,6 +25,7 @@ type Props = {
   setLivestreamChatMembersOnlyCreatorSetting?: any,
   // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   settingsByChannelId?: { [string]: PerChannelSettings },
+  channelHasMembershipTiers: any,
 };
 
 export default function LivestreamMenu(props: Props) {

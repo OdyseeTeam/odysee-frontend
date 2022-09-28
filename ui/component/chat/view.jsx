@@ -62,6 +62,9 @@ type Props = {
   unauthorizedForContent: any,
   setLivestreamChatMembersOnlyCreatorSetting: any,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
+  myChannelClaims: any,
+  doListAllMyMembershipTiers: any,
+  channelHasMembershipTiers: any,
 };
 
 export default function ChatLayout(props: Props) {
