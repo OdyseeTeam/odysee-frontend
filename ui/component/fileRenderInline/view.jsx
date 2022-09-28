@@ -18,15 +18,17 @@ type Props = {
 
 export default function FileRenderInline(props: Props) {
   const {
-    isPlaying,
+    claimIsMine,
+    claimRewards,
+    claimWasPurchased,
+    costInfo,
     fileInfo,
-    uri,
+    isPlaying,
+    renderMode,
     streamingUrl,
     triggerAnalyticsView,
-    claimRewards,
-    renderMode,
-    costInfo,
-    claimWasPurchased,
+    unauthorizedForContent,
+    uri,
   } = props;
   const [playTime, setPlayTime] = useState();
   const isFree = !costInfo || (costInfo.cost !== undefined && costInfo.cost === 0);
@@ -68,6 +70,8 @@ export default function FileRenderInline(props: Props) {
   if (!isFree && !claimWasPurchased) {
     return null;
   }
+
+  if (unauthorizedForContent && !claimIsMine) return null;
 
   return renderContent ? <FileRender uri={uri} /> : <LoadingScreen isDocument />;
 }
