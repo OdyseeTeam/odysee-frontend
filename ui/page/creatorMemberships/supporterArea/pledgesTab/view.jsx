@@ -86,7 +86,7 @@ function PledgesTab(props: Props) {
       <div className="membership__mypledges-wrapper">
         <div className="membership__mypledges-content">
           <Yrbl
-            type="sad"
+            type="happy"
             subtitle={__('Find creators that you like and support them. Your pledges will show up on this page.')}
           />
         </div>
