@@ -55,8 +55,10 @@ function MembershipTier(props: Props) {
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState([
-    ...Array.from(PERMANENT_TIER_PERKS),
-    ...(membership.Perks ? membership.Perks.map((perk) => perk.id) : []),
+    ...new Set([
+      ...Array.from(PERMANENT_TIER_PERKS),
+      ...(membership.Perks ? membership.Perks.map((perk) => perk.id) : []),
+    ]),
   ]);
 
   const nameError = getIsInputEmpty(editTierParams.editTierName);
