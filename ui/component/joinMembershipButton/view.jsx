@@ -12,6 +12,7 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 
 import { AppContext } from 'component/app/view';
+import { LivestreamContext } from 'page/livestream/view';
 
 const DEFAULT_PROPS = { button: 'alt', icon: ICONS.MEMBERSHIP };
 
@@ -43,6 +44,7 @@ const JoinMembershipButton = (props: Props) => {
 
   const fileUri = React.useContext(AppContext)?.uri;
   const isChannelPage = React.useContext(ChannelPageContext);
+  const isLivestream = React.useContext(LivestreamContext)?.livestreamPage;
 
   const userIsActiveMember = Boolean(validUserMembershipForChannel);
   const membershipName = validUserMembershipForChannel?.MembershipDetails?.name;
@@ -89,7 +91,7 @@ const JoinMembershipButton = (props: Props) => {
       className="button--membership"
       label={__('Join')}
       title={__('Become A Member')}
-      onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
+      onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, membersOnly: !!isLivestream })}
       style={{ filter: !creatorHasMemberships ? 'brightness(50%)' : undefined }}
     />
   );

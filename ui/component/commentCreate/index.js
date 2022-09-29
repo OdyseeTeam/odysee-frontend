@@ -30,7 +30,7 @@ import { selectPreferredCurrency } from 'redux/selectors/settings';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import {
-  selectMembershipTierIdsWithMembersOnlyChatPerk,
+  selectUserIsMemberOfMembersOnlyChatForCreatorId,
   selectMyValidMembershipIds,
 } from 'redux/selectors/memberships';
 
@@ -65,7 +65,7 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     supportDisabled: makeSelectTagInClaimOrChannelForUri(uri, DISABLE_SUPPORT_TAG)(state),
     tipChannelName,
-    channelTiersWithMembersOnlyChatPerk: selectMembershipTierIdsWithMembersOnlyChatPerk(state, channelClaimId),
+    userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
     myValidMembershipIds: selectMyValidMembershipIds(state),
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
   };

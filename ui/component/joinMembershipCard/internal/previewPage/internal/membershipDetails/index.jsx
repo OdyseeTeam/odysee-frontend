@@ -5,16 +5,16 @@ import './style.scss';
 type Props = {
   membership: CreatorMembership,
   headerAction?: any,
-  protectedMembershipIds?: Array<number>,
+  unlockableTierIds?: Array<number>,
 };
 
 const MembershipDetails = (props: Props) => {
-  const { membership, headerAction, protectedMembershipIds } = props;
+  const { membership, headerAction, unlockableTierIds } = props;
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
 
   let accessText = __('This Tier does not grant you access to the currently selected content.');
-  if (new Set(protectedMembershipIds).has(membership.Membership.id)) {
+  if (new Set(unlockableTierIds).has(membership.Membership.id)) {
     // accessText = 'This membership has access to the current content.';
     accessText = undefined;
   }
@@ -26,7 +26,7 @@ const MembershipDetails = (props: Props) => {
       </section>
 
       <section className="membership-tier__infos">
-        {protectedMembershipIds && accessText && (
+        {unlockableTierIds && accessText && (
           <div className="access-status">
             <label>{accessText}</label>
           </div>

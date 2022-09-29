@@ -19,7 +19,7 @@ type Props = {
   creatorMemberships: ?CreatorMemberships,
   hasSavedCard: ?boolean,
   incognito: boolean,
-  protectedMembershipIds: Array<number>,
+  unlockableTierIds: Array<number>,
   cheapestMembership: ?CreatorMembership,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doGetCustomerStatus: () => void,
@@ -40,7 +40,7 @@ const JoinMembershipCard = (props: Props) => {
     creatorMemberships,
     hasSavedCard,
     incognito,
-    protectedMembershipIds,
+    unlockableTierIds,
     cheapestMembership,
     doMembershipList,
     doGetCustomerStatus,
@@ -144,7 +144,7 @@ const JoinMembershipCard = (props: Props) => {
                 handleSelect={() => setConfirmationPage(true)}
                 selectedMembershipIndex={selectedMembershipIndex}
                 setMembershipIndex={setMembershipIndex}
-                protectedMembershipIds={protectedMembershipIds}
+                unlockableTierIds={unlockableTierIds}
               />
             )}
           </>

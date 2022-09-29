@@ -174,6 +174,24 @@ export const selectOdyseeMembershipIsPremiumPlus = (state: State, channelId: str
 
 export const selectMembershipTiersForChannelId = (state: State, channelId: string) => selectById(state)[channelId];
 
+export const selectMembershipsById = createSelector(selectById, (byId) => {
+  const membershipsById = {};
+
+  for (const creatorId in byId) {
+    const memberships = byId[creatorId];
+
+    if (memberships) {
+      memberships.forEach((membership) => {
+        membershipsById[membership.Membership.id] = membership;
+      });
+    }
+  }
+
+  return membershipsById;
+});
+
+export const selectMembershipForId = (state: State, id: string) => selectMembershipsById(state)[id];
+
 export const selectMembershipsByIdForChannelIds = createSelector(
   (state, ids) => ids,
   selectById,
@@ -288,6 +306,23 @@ export const selectMyProtectedContentMembershipForId = (state: State, claimId: C
 export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId: ClaimId) =>
   Boolean(selectMyProtectedContentMembershipForId(state, claimId));
 
+export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
+  (state, restrictedIds) => restrictedIds,
+  selectMembershipsById,
+  (restrictedIds, byId) => {
+    const memberships = restrictedIds.map((id) => byId[id]);
+
+    return memberships.sort(
+      (a, b) => (a.NewPrices ? a.NewPrices[0].Price.amount : 0) - (b.NewPrices ? b.NewPrices[0].Price.amount : 0)
+    );
+  }
+);
+
+export const selectCheapestPlanForRestrictedIds = (state: State, restrictedIds: Array<string>) => {
+  const sortedMemberships = selectMembershipsSortedByPriceForRestrictedIds(state, restrictedIds);
+  return sortedMemberships && sortedMemberships[0];
+};
+
 export const selectProtectedContentMembershipsSortedByPriceForId = (state: State, claimId: ClaimId) => {
   const protectedContentMembershipsForId = selectProtectedContentMembershipsForId(state, claimId);
 
@@ -346,12 +381,40 @@ export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, cha
   return tiers;
 };
 
-export const selectMembershipTierIdsWithMembersOnlyChatPerk = (state: State, channelId: string) => {
-  const memberships: CreatorMemberships = selectMembershipTiersForChannelId(state, channelId);
-  if (!memberships) return memberships;
-  const membershipIds: Array<number> = memberships.map((membership: CreatorMembership) => membership.Membership.id);
+export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
+  selectMembershipTiersForChannelId,
+  (memberships: CreatorMemberships) => {
+    if (!memberships) return memberships;
 
-  return membershipIds;
+    const membershipIds = new Set([]);
+
+    memberships.forEach(
+      (membership: CreatorMembership) =>
+        membership.Perks &&
+        membership.Perks.some((perk: MembershipPerk) => {
+          if (perk.id === 3) {
+            membershipIds.add(membership.Membership.id);
+            return true;
+          }
+        })
+    );
+
+    return Array.from(membershipIds);
+  }
+);
+
+export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
+  selectMyValidMembershipsForCreatorId,
+  (myValidMemberships: MembershipTiers) =>
+    myValidMemberships &&
+    myValidMemberships.filter(
+      (membership: MembershipTier) => membership.Perks && membership.Perks.some((perk: MembershipPerk) => perk.id === 3)
+    )
+);
+
+export const selectUserIsMemberOfMembersOnlyChatForCreatorId = (state: State, creatorId: ClaimId) => {
+  const myMembersOnlyChatMemberships = selectMyMembersOnlyChatMembershipsForCreatorId(state, creatorId);
+  return !!myMembersOnlyChatMemberships && myMembersOnlyChatMemberships.length > 0;
 };
 
 export const selectIfUnauthorizedForContent = (state: State, channelId: string, claimId: string, uri: string) => {

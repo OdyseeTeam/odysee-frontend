@@ -29,7 +29,7 @@ type Props = {
   channelUri: string,
   channelName: string,
   doOpenModal: (id: string, props: {}) => void,
-  protectedMembershipIds: Array<number>,
+  unlockableTierIds: Array<number>,
 };
 
 const PreviewPage = (props: Props) => {
@@ -39,7 +39,7 @@ const PreviewPage = (props: Props) => {
     selectedMembershipIndex,
     setMembershipIndex,
     handleSelect,
-    protectedMembershipIds,
+    unlockableTierIds,
     // -- redux --
     channelId,
     canReceiveFiatTips,
@@ -154,9 +154,9 @@ const PreviewPage = (props: Props) => {
 
   function pickIconToUse(membershipId) {
     let icon = '';
-    if (protectedMembershipIds && !protectedMembershipIds.includes(membershipId)) {
+    if (unlockableTierIds && !unlockableTierIds.includes(membershipId)) {
       icon = ICONS.LOCK;
-    } else if (protectedMembershipIds && protectedMembershipIds.includes(membershipId)) {
+    } else if (unlockableTierIds && unlockableTierIds.includes(membershipId)) {
       icon = ICONS.UNLOCK;
     }
     return icon;
@@ -186,8 +186,8 @@ const PreviewPage = (props: Props) => {
             onClick={() => setMembershipIndex(index)}
             className={classnames('button-toggle', {
               'button-toggle--active': index === selectedMembershipIndex,
-              'no-access-button': protectedMembershipIds && !protectedMembershipIds.includes(Membership.id),
-              'access-button': protectedMembershipIds && protectedMembershipIds.includes(Membership.id),
+              'no-access-button': unlockableTierIds && !unlockableTierIds.includes(Membership.id),
+              'access-button': unlockableTierIds && unlockableTierIds.includes(Membership.id),
             })}
           />
         ))}
@@ -195,7 +195,7 @@ const PreviewPage = (props: Props) => {
 
       <div className="selected-membership">{selectedMembershipName}</div>
       <div className="join-membership__modal-content">
-        <MembershipDetails membership={selectedTier} protectedMembershipIds={protectedMembershipIds} />
+        <MembershipDetails membership={selectedTier} unlockableTierIds={unlockableTierIds} />
       </div>
 
       <div className="join-membership__modal-action">

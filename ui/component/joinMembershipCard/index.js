@@ -2,20 +2,33 @@ import { connect } from 'react-redux';
 import {
   selectMembershipTiersForChannelUri,
   selectProtectedContentMembershipsForContentClaimId,
-  selectCheapestProtectedContentMembershipForId,
+  selectMembersOnlyChatMembershipIdsForCreatorId,
+  selectCheapestPlanForRestrictedIds,
 } from 'redux/selectors/memberships';
-import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimIdForUri } from 'redux/selectors/claims';
+import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectHasSavedCard } from 'redux/selectors/stripe';
 import { doMembershipList, doMembershipBuy } from 'redux/actions/memberships';
 import { doGetCustomerStatus } from 'redux/actions/stripe';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { doToast } from 'redux/actions/notifications';
+import { getChannelIdFromClaim } from 'util/claim';
 import PreviewPage from './view';
 
 const select = (state, props) => {
-  const { uri, fileUri } = props;
+  const { uri, fileUri, membersOnly } = props;
 
-  const fileClaimId = selectClaimIdForUri(state, fileUri);
+  const claim = selectClaimForUri(state, fileUri);
+  const fileClaimId = claim && claim.claim_id;
+  const channelId = getChannelIdFromClaim(claim);
+
+  let unlockableTierIds = [];
+  if (fileClaimId) {
+    if (membersOnly) {
+      unlockableTierIds = selectMembersOnlyChatMembershipIdsForCreatorId(state, channelId);
+    } else {
+      unlockableTierIds = selectProtectedContentMembershipsForContentClaimId(state, channelId);
+    }
+  }
 
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
@@ -24,8 +37,8 @@ const select = (state, props) => {
     channelClaimId: selectChannelClaimIdForUri(state, uri),
     hasSavedCard: selectHasSavedCard(state),
     incognito: selectIncognito(state),
-    protectedMembershipIds: fileClaimId && selectProtectedContentMembershipsForContentClaimId(state, fileClaimId),
-    cheapestMembership: fileClaimId && selectCheapestProtectedContentMembershipForId(state, fileClaimId),
+    unlockableTierIds,
+    cheapestMembership: unlockableTierIds && selectCheapestPlanForRestrictedIds(state, unlockableTierIds),
   };
 };
 

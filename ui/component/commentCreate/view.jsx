@@ -96,9 +96,8 @@ type Props = {
   textInjection?: string,
   chatCommentsRestrictedToChannelMembers: boolean,
   isAChannelMember: boolean,
-  channelTiersWithMembersOnlyChatPerk: ?Array<string>,
-  myValidMembershipIds: ?Array<string>,
   commentSettingDisabled: ?boolean,
+  userHasMembersOnlyChatPerk: boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -110,7 +109,6 @@ export function CommentCreate(props: Props) {
     bottom,
     canReceiveFiatTips,
     channelClaimId,
-    channelTiersWithMembersOnlyChatPerk,
     claimId,
     claimIsMine,
     disableInput,
@@ -131,7 +129,6 @@ export function CommentCreate(props: Props) {
     isReply,
     myChannelClaimIds,
     myCommentedChannelIds,
-    myValidMembershipIds,
     onCancelReplying,
     onDoneReplying,
     onSlimInputClose,
@@ -145,14 +142,10 @@ export function CommentCreate(props: Props) {
     tipChannelName,
     uri,
     commentSettingDisabled,
+    userHasMembersOnlyChatPerk,
   } = props;
 
   const fileUri = React.useContext(AppContext)?.uri;
-
-  const myValidMembershipIdsSet = new Set(myValidMembershipIds);
-  const userHasMembersOnlyChatPerk =
-    channelTiersWithMembersOnlyChatPerk &&
-    channelTiersWithMembersOnlyChatPerk.some((tierName) => myValidMembershipIdsSet.has(tierName));
 
   const isMobile = useIsMobile();
 
@@ -269,6 +262,10 @@ export function CommentCreate(props: Props) {
   // **************************************************************************
   // Functions
   // **************************************************************************
+
+  function handleJoinMembersOnlyChat() {
+    return doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, membersOnly: true });
+  }
 
   function handleSelectTipComment(tab: string) {
     setActiveTab(tab);
@@ -435,7 +432,7 @@ export function CommentCreate(props: Props) {
   function handleCreateComment(txid, payment_intent_id, environment, is_protected) {
     if (isSubmitting || disableInput || !claimId) return;
 
-    if (notAuthedToChat) return doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri });
+    if (notAuthedToChat) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
 
@@ -633,13 +630,7 @@ export function CommentCreate(props: Props) {
         <ErrorBubble
           title={__('This chat is in members-only mode')}
           subtitle={__('To participate, consider buying a membership from this creator!')}
-          action={
-            <Button
-              button="primary"
-              label={__('Join')}
-              onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
-            />
-          }
+          action={<Button button="primary" label={__('Join')} onClick={handleJoinMembersOnlyChat} />}
         />
       )}
 
