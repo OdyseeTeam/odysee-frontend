@@ -250,6 +250,8 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
   const state = getState();
   const editingUri = selectPublishFormValue(state, 'editingURI') || '';
   const remoteUrl = selectPublishFormValue(state, 'remoteFileUrl');
+  const restrictedToMemberships = selectPublishFormValue(state, 'restrictedToMemberships');
+
   const claim = makeSelectClaimForUri(editingUri)(state) || {};
   const hasSourceFile = claim.value && claim.value.source;
   const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
@@ -322,6 +324,10 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
 
     if (message.endsWith(ERRORS.SDK_FETCH_TIMEOUT)) {
       message = ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL;
+    }
+
+    if (restrictedToMemberships && message === ERRORS.PUBLISH_TIMEOUT_BUT_LIKELY_SUCCESSFUL) {
+      message = ERRORS.RESTRICTED_CONTENT_PUBLISHING_FAILED;
     }
 
     actions.push(doError({ message, cause: error.cause }));
