@@ -21,12 +21,12 @@ const select = (state, props) => {
   const fileClaimId = claim && claim.claim_id;
   const channelId = getChannelIdFromClaim(claim);
 
-  let unlockableTierIds = [];
+  let unlockableTierIds;
   if (fileClaimId) {
     if (membersOnly) {
       unlockableTierIds = selectMembersOnlyChatMembershipIdsForCreatorId(state, channelId);
     } else {
-      unlockableTierIds = selectProtectedContentMembershipsForContentClaimId(state, channelId);
+      unlockableTierIds = selectProtectedContentMembershipsForContentClaimId(state, fileClaimId);
     }
   }
 
