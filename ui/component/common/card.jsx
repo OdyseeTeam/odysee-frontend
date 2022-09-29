@@ -6,6 +6,7 @@ import Icon from 'component/common/icon';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import twemoji from 'twemoji';
+import Tooltip from 'component/common/tooltip';
 
 type Props = {
   title?: string | Node,
@@ -182,15 +183,17 @@ const TitleWrapper = (props: TitleProps) => {
 
   const AccessIndicator = (par: any) => {
     return (
-      <div
-        className={classnames('content-access-indicator', {
-          locked: par.status === 'locked',
-          unlocked: par.status === 'unlocked',
-          purchased: par.status === 'purchased',
-        })}
-      >
-        <Icon icon={par.status === 'locked' ? ICONS.LOCK : ICONS.UNLOCK} />
-      </div>
+      <Tooltip title={__('This is a members-only content')}>
+        <div
+          className={classnames('content-access-indicator', {
+            locked: par.status === 'locked',
+            unlocked: par.status === 'unlocked',
+            purchased: par.status === 'purchased',
+          })}
+        >
+          <Icon icon={par.status === 'locked' ? ICONS.LOCK : ICONS.UNLOCK} />
+        </div>
+      </Tooltip>
     );
   };
 
