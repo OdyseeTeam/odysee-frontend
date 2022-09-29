@@ -24,7 +24,7 @@ type Props = {
   activeClaimId?: string,
   setLivestreamChatMembersOnlyCreatorSetting?: any,
   // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
-  livestreamChatMembersOnly: boolean,
+  livestreamChatMembersOnly?: boolean,
   channelHasMembershipTiers?: any,
 };
 

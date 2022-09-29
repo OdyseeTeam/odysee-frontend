@@ -349,7 +349,7 @@ export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, cha
 export const selectMembershipTierIdsWithMembersOnlyChatPerk = (state: State, channelId: string) => {
   const memberships: CreatorMemberships = selectMembershipTiersForChannelId(state, channelId);
   if (!memberships) return memberships;
-  const membershipIds: Array<number> = memberships.map((membership: MembershipTier) => membership.Membership.id);
+  const membershipIds: Array<number> = memberships.map((membership: CreatorMembership) => membership.Membership.id);
 
   return membershipIds;
 };
