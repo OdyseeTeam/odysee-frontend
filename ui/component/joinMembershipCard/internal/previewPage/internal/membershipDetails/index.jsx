@@ -13,7 +13,7 @@ const MembershipDetails = (props: Props) => {
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
 
-  let accessText = 'This Tier does not grant you access to the currently selected content.';
+  let accessText = __('This Tier does not grant you access to the currently selected content.');
   if (new Set(protectedMembershipIds).has(membership.Membership.id)) {
     // accessText = 'This membership has access to the current content.';
     accessText = undefined;
