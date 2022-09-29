@@ -2458,4 +2458,14 @@ video {
       color: var(--color-slime);
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    margin-right: var(--spacing-xxs) !important;
+
+    .icon {
+      margin-bottom: -4px;
+      width: 22px;
+      height: 22px;
+    }
+  }
 }
