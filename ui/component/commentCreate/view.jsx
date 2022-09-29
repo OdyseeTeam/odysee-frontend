@@ -432,7 +432,7 @@ export function CommentCreate(props: Props) {
   function handleCreateComment(txid, payment_intent_id, environment, is_protected) {
     if (isSubmitting || disableInput || !claimId) return;
 
-    if (notAuthedToChat) return handleJoinMembersOnlyChat();
+    if (notAuthedToLiveChat) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
 
@@ -575,10 +575,10 @@ export function CommentCreate(props: Props) {
     }
   }, [textInjection]);
 
-  const notAuthedToChat = livestreamChatMembersOnlyEnabled && !userHasMembersOnlyChatPerk && !claimIsMine;
+  const notAuthedToLiveChat = isLivestream && livestreamChatMembersOnlyEnabled && !userHasMembersOnlyChatPerk && !claimIsMine;
 
   let commentLabelText = 'Say something about this...';
-  if (notAuthedToChat) {
+  if (notAuthedToLiveChat) {
     commentLabelText = 'The creator has made this chat members-only';
   }
 
@@ -626,7 +626,7 @@ export function CommentCreate(props: Props) {
 
   return (
     <>
-      {isLivestream && notAuthedToChat && (
+      {notAuthedToLiveChat && (
         <ErrorBubble
           title={__('This chat is in members-only mode')}
           subtitle={__('To participate, consider buying a membership from this creator!')}
@@ -664,7 +664,7 @@ export function CommentCreate(props: Props) {
               className={classnames('', {
                 create__reply: isReply,
                 create__comment: !isReply,
-                disabled_chat_comments: notAuthedToChat,
+                disabled_chat_comments: notAuthedToLiveChat,
               })}
               disabled={isFetchingChannels || disableInput}
               isLivestream={isLivestream}
@@ -784,7 +784,7 @@ export function CommentCreate(props: Props) {
                   icon={ICONS.STICKER}
                   onClick={handleStickerComment}
                   onChange={() => {}}
-                  disabled={notAuthedToChat}
+                  disabled={notAuthedToLiveChat}
                 />
 
                 {!supportDisabled && !claimIsMine && (
