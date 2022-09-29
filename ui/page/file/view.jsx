@@ -71,6 +71,7 @@ type Props = {
   protectedMembershipIds?: Array<number>,
   validMembershipIds?: Array<number>,
   protectedContentTag?: string,
+  isProtectedContent?: boolean,
   unauthorizedForContent: boolean,
 };
 
@@ -112,6 +113,7 @@ export default function FilePage(props: Props) {
     purchaseTag,
     rentalTag,
     // settingsByChannelId,
+    isProtectedContent,
     unauthorizedForContent,
   } = props;
 
@@ -147,7 +149,7 @@ export default function FilePage(props: Props) {
 
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
   }, [audioVideoDuration, fileInfo, position]);
-  const accessStatus = unauthorizedForContent ? 'unlocked' : undefined;
+  const accessStatus = !isProtectedContent ? undefined : unauthorizedForContent ? 'locked' : 'unlocked';
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {

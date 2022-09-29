@@ -9,6 +9,7 @@ import {
   selectPreorderTagForUri,
   selectPurchaseTagForUri,
   selectRentalTagForUri,
+  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
@@ -69,6 +70,7 @@ const select = (state, props) => {
     settingsByChannelId: selectSettingsByChannelId(state),
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
+    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
     unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
   };
 };
