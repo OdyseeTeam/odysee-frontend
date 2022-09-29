@@ -469,6 +469,10 @@ $recent-msg-button__height: 2rem;
   margin-top: auto;
   border-radius: 0 0 var(--border-radius) var(--border-radius);
 
+  .error-bubble {
+    margin-bottom: var(--spacing-s);
+  }
+
   .commentCreate {
     select,
     textarea,

@@ -58,7 +58,7 @@ type Props = {
   chatCommentsRestrictedToChannelMembers: boolean,
   activeChannelId: string,
   activeChannelClaim: ChannelClaim,
-  settingsByChannelId: { [string]: PerChannelSettings }, // ChannelID -> settings
+  livestreamChatMembersOnly: boolean,
   unauthorizedForContent: any,
   setLivestreamChatMembersOnlyCreatorSetting: any,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
@@ -93,7 +93,7 @@ export default function ChatLayout(props: Props) {
     activeChannelClaim,
     setLivestreamChatMembersOnlyCreatorSetting,
     unauthorizedForContent,
-    settingsByChannelId,
+    livestreamChatMembersOnly,
     myChannelClaims,
     doListAllMyMembershipTiers,
     channelHasMembershipTiers,
@@ -389,7 +389,7 @@ export default function ChatLayout(props: Props) {
             activeClaimId={claimId}
             setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
             claimIsMine={claimIsMine}
-            settingsByChannelId={settingsByChannelId}
+            livestreamChatMembersOnly={livestreamChatMembersOnly}
             channelHasMembershipTiers={channelHasMembershipTiers}
           />
         </div>

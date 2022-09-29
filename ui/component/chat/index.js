@@ -1,13 +1,18 @@
 import { connect } from 'react-redux';
 import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
-import { selectClaimForUri, selectProtectedContentTagForUri, selectClaimIsMine, selectMyChannelClaims } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectProtectedContentTagForUri,
+  selectClaimIsMine,
+  selectMyChannelClaims,
+} from 'redux/selectors/claims';
 import { doCommentList, doHyperChatList, setLivestreamChatMembersOnlyCreatorSetting } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
   selectHyperChatsForUri,
   selectPinnedCommentsForUri,
-  selectSettingsByChannelId,
+  selectLivestreamChatMembersOnlyForChannelId,
 } from 'redux/selectors/comments';
 import {
   doFetchOdyseeMembershipForChannelIds,
@@ -40,7 +45,7 @@ const select = (state, props) => {
     channelId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
     unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
-    settingsByChannelId: selectSettingsByChannelId(state),
+    livestreamChatMembersOnly: selectLivestreamChatMembersOnlyForChannelId(state, channelId),
     myChannelClaims: selectMyChannelClaims(state),
     channelHasMembershipTiers: selectIfChannelHasMembershipTiers(state, activeChannelId),
   };

@@ -337,3 +337,7 @@ declare type BlockWordParams = {
   signing_ts: string,
   words: string, // CSV list of containing words to block comment on content
 };
+
+declare type WebsocketSettingDataResponse = {
+  LivestreamChatMembersOnly: boolean,
+};

@@ -2,6 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
+import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 import { SOCKETY_SERVER_API } from 'config';
 
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
@@ -105,7 +106,10 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
   );
 };
 
-export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, protectedEndpoint) => (dispatch) => {
+export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, protectedEndpoint) => (
+  dispatch,
+  getState
+) => {
   const url =
     subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
       ? getCommentSocketUrlForCommenter(claimId, channelName)
@@ -153,13 +157,11 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
       }
 
       if (response.type === 'setting') {
-        // const membersOnlyChatEnabled = response.data.LivestreamChatMembersOnly;
-
-        // l('running here');
-        // l(membersOnlyChatEnabled);
+        const state = getState();
+        const creatorId = selectChannelClaimIdForUri(state, uri);
         dispatch({
-          type: ACTIONS.COMMENT_MEMBERS_ONLY_CHAT_TOGGLED,
-          data: { test: 'hello' },
+          type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+          data: { responseData: response.data, creatorId },
         });
       }
 

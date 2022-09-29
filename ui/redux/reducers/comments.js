@@ -733,20 +733,15 @@ export default handleActions(
       };
     },
 
-    // [ACTIONS.MEMBERS_ONLY_CHAT_TOGGLED]: (state: CommentsState, action: any) => {
-    //   l('action');
-    //   l(action)
-    //   return state;
-    //   // const { membersOnlyChatEnabled } = action.data;
-    //   // const commentById = Object.assign({}, state.commentById);
-    //   //
-    //   // if (!commentById[comment_id]) {
-    //   //   return state;
-    //   // }
-    //   //
-    //   // commentById[comment_id] = { ...commentById[comment_id], removed: true };
-    //   // return { ...state, commentById };
-    // },
+    [ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE]: (state: CommentsState, action: any) => {
+      const { responseData, creatorId } = action.data;
+      const { LivestreamChatMembersOnly }: WebsocketSettingDataResponse = responseData;
+
+      const newSettingsByChannelId = Object.assign({}, state.settingsByChannelId);
+      Object.assign(newSettingsByChannelId[creatorId], { livestream_chat_members_only: LivestreamChatMembersOnly });
+
+      return { ...state, settingsByChannelId: newSettingsByChannelId };
+    },
 
     [ACTIONS.COMMENT_MARK_AS_REMOVED]: (state: CommentsState, action: any) => {
       const { comment_id } = action.data;

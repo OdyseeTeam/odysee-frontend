@@ -156,7 +156,6 @@
   }
 }
 
-
 .MuiOutlinedInput-input {
   border: 0 !important;
   font-size: var(--font-body);
@@ -165,7 +164,7 @@
   height: 22px !important;
 
   &::placeholder {
-    color: #ffffff !important;
+    color: var(--color-text) !important;
     font-size: var(--font-body);
   }
   &:focus-visible {

@@ -24,6 +24,9 @@ import { useIsMobile } from 'effects/use-screensize';
 import { StickerReviewBox, StickerActionButton } from './sticker-contents';
 import { TipReviewBox, TipActionButton } from './tip-contents';
 import { FormChannelSelector, HelpText } from './extra-contents';
+import ErrorBubble from 'component/common/error-bubble';
+
+import { AppContext } from 'component/app/view';
 
 import withCreditCard from 'hocs/withCreditCard';
 
@@ -143,6 +146,8 @@ export function CommentCreate(props: Props) {
     uri,
     commentSettingDisabled,
   } = props;
+
+  const fileUri = React.useContext(AppContext)?.uri;
 
   const myValidMembershipIdsSet = new Set(myValidMembershipIds);
   const userHasMembersOnlyChatPerk =
@@ -430,6 +435,8 @@ export function CommentCreate(props: Props) {
   function handleCreateComment(txid, payment_intent_id, environment, is_protected) {
     if (isSubmitting || disableInput || !claimId) return;
 
+    if (notAuthedToChat) return doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri });
+
     setSubmitting(true);
 
     const stickerValue = selectedSticker && buildValidSticker(selectedSticker.name);
@@ -621,187 +628,204 @@ export function CommentCreate(props: Props) {
   }
 
   return (
-    <Form
-      onSubmit={() => {}}
-      className={classnames('commentCreate', {
-        'commentCreate--reply': isReply,
-        'commentCreate--nestedReply': isNested,
-        'commentCreate--bottom': bottom,
-      })}
-    >
-      {isReviewingSupportComment ? (
-        activeChannelUrl &&
-        activeTab && (
-          <TipReviewBox
-            activeChannelUrl={activeChannelUrl}
-            tipAmount={tipAmount}
-            activeTab={activeTab}
-            message={commentValue}
-            isReviewingStickerComment={isReviewingStickerComment}
-            stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
-          />
-        )
-      ) : selectedSticker ? (
-        activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
-      ) : (
-        <>
-          <FormField
-            autoFocus={isReply}
-            charCount={charCount}
-            className={classnames('', {
-              create__reply: isReply,
-              create__comment: !isReply,
-              disabled_chat_comments: notAuthedToChat,
-            })}
-            disabled={isFetchingChannels || disableInput || notAuthedToChat}
-            isLivestream={isLivestream}
-            label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
-            noticeLabel={
-              isMobile && (
-                <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
-              )
-            }
-            name={isReply ? 'create__reply' : 'create__comment'}
-            onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
-            handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_FIAT)}
-            handleSubmit={handleCreateComment}
-            slimInput={isMobile && uri} // "uri": make sure it's on a file page
-            slimInputButtonRef={slimInputButtonRef}
-            onSlimInputClose={onSlimInputClose}
-            commentSelectorsProps={commentSelectorsProps}
-            submitButtonRef={buttonRef}
-            setShowSelectors={setShowSelectors}
-            showSelectors={showSelectors}
-            tipModalOpen={tipModalOpen}
-            placeholder={__(commentLabelText)}
-            quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
-            quickActionLabel={
-              !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
-            }
-            ref={formFieldRef}
-            textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
-            type={!SIMPLE_SITE && advancedEditor && !isReply ? 'markdown' : 'textarea'}
-            value={commentValue}
-            uri={uri}
-          />
-          {!isMobile && commentSelectorElem}
-        </>
-      )}
-
-      {(!isMobile || isReviewingStickerComment) && (tipSelectorOpen || (isReviewingStickerComment && stickerPrice)) && (
-        <WalletTipAmountSelector
-          activeTab={activeTab}
-          amount={tipAmount}
-          uri={uri}
-          convertedAmount={convertedAmount}
-          customTipAmount={stickerPrice}
-          exchangeRate={exchangeRate}
-          fiatConversion={selectedSticker && !!selectedSticker.price}
-          onChange={(amount) => setTipAmount(amount)}
-          setConvertedAmount={setConvertedAmount}
-          setDisableSubmitButton={setDisableReviewButton}
-          setTipError={setTipError}
-          tipError={tipError}
+    <>
+      {notAuthedToChat && (
+        <ErrorBubble
+          title={__('This chat is in members-only mode')}
+          subtitle={__('To participate, consider buying a membership from this creator!')}
+          action={
+            <Button
+              button="primary"
+              label={__('Join')}
+              onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
+            />
+          }
         />
       )}
 
-      {(!isMobile || isReviewingStickerComment || isReviewingSupportComment) && (
-        <div className="section__actions">
-          {/* Submit Button */}
-          {isReviewingSupportComment ? (
-            <SubmitTipButton
-              {...submitButtonProps}
-              autoFocus
-              disabled={disabled || !minAmountMet}
-              label={
-                isSubmitting
-                  ? __('Sending...')
-                  : commentFailure && tipAmount === successTip.tipAmount
-                  ? __('Re-submit')
-                  : __('Send')
+      <Form
+        onSubmit={() => {}}
+        className={classnames('commentCreate', {
+          'commentCreate--reply': isReply,
+          'commentCreate--nestedReply': isNested,
+          'commentCreate--bottom': bottom,
+        })}
+      >
+        {isReviewingSupportComment ? (
+          activeChannelUrl &&
+          activeTab && (
+            <TipReviewBox
+              activeChannelUrl={activeChannelUrl}
+              tipAmount={tipAmount}
+              activeTab={activeTab}
+              message={commentValue}
+              isReviewingStickerComment={isReviewingStickerComment}
+              stickerPreviewComponent={selectedSticker && <StickerReviewBox {...stickerReviewProps} />}
+            />
+          )
+        ) : selectedSticker ? (
+          activeChannelUrl && <StickerReviewBox {...stickerReviewProps} />
+        ) : (
+          <>
+            <FormField
+              autoFocus={isReply}
+              charCount={charCount}
+              className={classnames('', {
+                create__reply: isReply,
+                create__comment: !isReply,
+                disabled_chat_comments: notAuthedToChat,
+              })}
+              disabled={isFetchingChannels || disableInput}
+              isLivestream={isLivestream}
+              label={<FormChannelSelector isReply={Boolean(isReply)} isLivestream={Boolean(isLivestream)} />}
+              noticeLabel={
+                isMobile && (
+                  <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+                )
               }
-              onClick={handleSupportComment}
+              name={isReply ? 'create__reply' : 'create__comment'}
+              onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
+              handleTip={(isLBC) => handleSelectTipComment(isLBC ? TAB_LBC : TAB_FIAT)}
+              handleSubmit={handleCreateComment}
+              slimInput={isMobile && uri} // "uri": make sure it's on a file page
+              slimInputButtonRef={slimInputButtonRef}
+              onSlimInputClose={onSlimInputClose}
+              commentSelectorsProps={commentSelectorsProps}
+              submitButtonRef={buttonRef}
+              setShowSelectors={setShowSelectors}
+              showSelectors={showSelectors}
+              tipModalOpen={tipModalOpen}
+              placeholder={__(commentLabelText)}
+              quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
+              quickActionLabel={
+                !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
+              }
+              ref={formFieldRef}
+              textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
+              type={!SIMPLE_SITE && advancedEditor && !isReply ? 'markdown' : 'textarea'}
+              value={commentValue}
+              uri={uri}
             />
-          ) : tipSelectorOpen ? (
-            <Button
-              {...submitButtonProps}
-              disabled={disabled || tipSelectorError || !minAmountMet}
-              icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
-              label={__('Review')}
-              onClick={() => {
-                setReviewingSupportComment(true);
-                if (onSlimInputClose) onSlimInputClose();
-              }}
+            {!isMobile && commentSelectorElem}
+          </>
+        )}
+
+        {(!isMobile || isReviewingStickerComment) &&
+          (tipSelectorOpen || (isReviewingStickerComment && stickerPrice)) && (
+            <WalletTipAmountSelector
+              activeTab={activeTab}
+              amount={tipAmount}
+              uri={uri}
+              convertedAmount={convertedAmount}
+              customTipAmount={stickerPrice}
+              exchangeRate={exchangeRate}
+              fiatConversion={selectedSticker && !!selectedSticker.price}
+              onChange={(amount) => setTipAmount(amount)}
+              setConvertedAmount={setConvertedAmount}
+              setDisableSubmitButton={setDisableReviewButton}
+              setTipError={setTipError}
+              tipError={tipError}
             />
-          ) : (
-            (!isMobile || selectedSticker) &&
-            (!minTip || claimIsMine) && (
+          )}
+
+        {(!isMobile || isReviewingStickerComment || isReviewingSupportComment) && (
+          <div className="section__actions">
+            {/* Submit Button */}
+            {isReviewingSupportComment ? (
+              <SubmitTipButton
+                {...submitButtonProps}
+                autoFocus
+                disabled={disabled || !minAmountMet}
+                label={
+                  isSubmitting
+                    ? __('Sending...')
+                    : commentFailure && tipAmount === successTip.tipAmount
+                    ? __('Re-submit')
+                    : __('Send')
+                }
+                onClick={handleSupportComment}
+              />
+            ) : tipSelectorOpen ? (
               <Button
                 {...submitButtonProps}
-                ref={buttonRef}
-                disabled={disabled}
-                label={
-                  isLivestream
-                    ? isSubmitting
-                      ? __('Sending...')
-                      : __('Send --[button to send chat message]--')
-                    : isReply
-                    ? isSubmitting
-                      ? __('Replying...')
-                      : __('Reply')
-                    : isSubmitting
-                    ? __('Commenting...')
-                    : __('Comment --[button to submit something]--')
-                }
-                onClick={() =>
-                  selectedSticker
-                    ? handleSubmitSticker()
-                    : handleCreateComment(undefined, undefined, undefined, livestreamChatMembersOnlyEnabled)
-                }
+                disabled={disabled || tipSelectorError || !minAmountMet}
+                icon={activeTab === TAB_LBC ? ICONS.LBC : fiatIcon}
+                label={__('Review')}
+                onClick={() => {
+                  setReviewingSupportComment(true);
+                  if (onSlimInputClose) onSlimInputClose();
+                }}
               />
-            )
-          )}
+            ) : (
+              (!isMobile || selectedSticker) &&
+              (!minTip || claimIsMine) && (
+                <Button
+                  {...submitButtonProps}
+                  ref={buttonRef}
+                  disabled={disabled}
+                  label={
+                    isLivestream
+                      ? isSubmitting
+                        ? __('Sending...')
+                        : __('Send --[button to send chat message]--')
+                      : isReply
+                      ? isSubmitting
+                        ? __('Replying...')
+                        : __('Reply')
+                      : isSubmitting
+                      ? __('Commenting...')
+                      : __('Comment --[button to submit something]--')
+                  }
+                  onClick={() =>
+                    selectedSticker
+                      ? handleSubmitSticker()
+                      : handleCreateComment(undefined, undefined, undefined, livestreamChatMembersOnlyEnabled)
+                  }
+                />
+              )
+            )}
 
-          {(!isMobile || isReviewingStickerComment) && (
-            <>
-              <StickerActionButton
-                {...actionButtonProps}
-                isReviewingStickerComment={isReviewingStickerComment}
-                icon={ICONS.STICKER}
-                onClick={handleStickerComment}
-                onChange={() => {}}
-                disabled={notAuthedToChat}
-              />
+            {(!isMobile || isReviewingStickerComment) && (
+              <>
+                <StickerActionButton
+                  {...actionButtonProps}
+                  isReviewingStickerComment={isReviewingStickerComment}
+                  icon={ICONS.STICKER}
+                  onClick={handleStickerComment}
+                  onChange={() => {}}
+                  disabled={notAuthedToChat}
+                />
 
-              {!supportDisabled && !claimIsMine && (
-                <>
-                  <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
+                {!supportDisabled && !claimIsMine && (
+                  <>
+                    <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
-                  {stripeEnvironment && (
-                    <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
-                  )}
-                </>
-              )}
-            </>
-          )}
+                    {stripeEnvironment && (
+                      <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
+                    )}
+                  </>
+                )}
+              </>
+            )}
 
-          {tipSelectorOpen || isReviewingSupportComment ? (
-            <Button {...cancelButtonProps} disabled={isSubmitting} onClick={handleCancelSupport} />
-          ) : isReviewingStickerComment ? (
-            <Button {...cancelButtonProps} onClick={handleCancelSticker} />
-          ) : (
-            onCancelReplying && <Button {...cancelButtonProps} onClick={onCancelReplying} />
-          )}
+            {tipSelectorOpen || isReviewingSupportComment ? (
+              <Button {...cancelButtonProps} disabled={isSubmitting} onClick={handleCancelSupport} />
+            ) : isReviewingStickerComment ? (
+              <Button {...cancelButtonProps} onClick={handleCancelSticker} />
+            ) : (
+              onCancelReplying && <Button {...cancelButtonProps} onClick={onCancelReplying} />
+            )}
 
-          <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+            <HelpText deletedComment={deletedComment} minAmount={minAmount} minSuper={minSuper} minTip={minTip} />
+          </div>
+        )}
+        <div className="chat-resize">
+          <div />
+          <div />
+          <div />
         </div>
-      )}
-      <div className="chat-resize">
-        <div />
-        <div />
-        <div />
-      </div>
-    </Form>
+      </Form>
+    </>
   );
 }
 

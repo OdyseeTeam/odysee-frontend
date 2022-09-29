@@ -24,7 +24,7 @@ type Props = {
   activeClaimId?: string,
   setLivestreamChatMembersOnlyCreatorSetting?: any,
   // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
-  settingsByChannelId?: { [string]: PerChannelSettings },
+  livestreamChatMembersOnly: boolean,
   channelHasMembershipTiers?: any,
 };
 
@@ -43,7 +43,7 @@ export default function LivestreamMenu(props: Props) {
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
-    settingsByChannelId,
+    livestreamChatMembersOnly,
     channelHasMembershipTiers,
   } = props;
 
@@ -55,28 +55,11 @@ export default function LivestreamMenu(props: Props) {
 
   const [showTimestamps, setShowTimestamps] = usePersistedState('live-timestamps', false);
 
-  const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
-
   function updateLivestreamMembersOnlyChat() {
     if (activeChannelClaim && setLivestreamChatMembersOnlyCreatorSetting) {
-      // $FlowFixMe
       setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, activeClaimId, !livestreamChatMembersOnly);
-      setLivestreamChatMembersOnly(!livestreamChatMembersOnly);
     }
   }
-
-  React.useEffect(() => {
-    if (settingsByChannelId && activeChannelClaim) {
-      // $FlowFixMe
-      const channelSettings = settingsByChannelId?.[activeChannelClaim.claim_id];
-      const livestreamChatMembersOnlyInSettings = channelSettings?.livestream_chat_members_only;
-      if (livestreamChatMembersOnlyInSettings) {
-        setLivestreamChatMembersOnly(true);
-      } else {
-        setLivestreamChatMembersOnly(false);
-      }
-    }
-  }, [settingsByChannelId]);
 
   let toggleLivestreamChatMembersOnlyText = 'Enable Members-Only Chat';
   if (livestreamChatMembersOnly) toggleLivestreamChatMembersOnlyText = 'Disable Members-Only Chat';
