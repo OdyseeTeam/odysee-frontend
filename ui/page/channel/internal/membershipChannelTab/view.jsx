@@ -2,7 +2,6 @@
 import React from 'react';
 import { formatDateToMonthAndDay } from 'util/time';
 import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import Card from 'component/common/card';
 import JoinMembershipCard from 'component/joinMembershipCard';
 // import moment from 'moment';
@@ -26,7 +25,6 @@ const MembershipChannelTab = (props: Props) => {
     // -- redux --
     purchasedChannelMembership,
     doOpenCancelationModalForMembership,
-    navigate,
   } = props;
 
   if (!purchasedChannelMembership) {
@@ -81,14 +79,6 @@ const MembershipChannelTab = (props: Props) => {
                   <Icon size={18} icon={ICONS.SETTINGS} />
                 </MenuButton>
                 <MenuList className={'menu__list membership-tier' + membershipIndex}>
-                  <MenuItem
-                    className="comment__menu-option"
-                    onSelect={() => navigate(`/$/${PAGES.MEMBERSHIP_BILLING_HISTORY}`)}
-                  >
-                    <div className="menu__link">
-                      <Icon size={16} icon={ICONS.FINANCE} /> Membership History
-                    </div>
-                  </MenuItem>
                   {membershipIsActive && (
                     <MenuItem
                       className="comment__menu-option"
