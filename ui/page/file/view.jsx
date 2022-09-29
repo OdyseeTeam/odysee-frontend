@@ -147,6 +147,7 @@ export default function FilePage(props: Props) {
 
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
   }, [audioVideoDuration, fileInfo, position]);
+  const accessStatus = unauthorizedForContent ? 'unlocked' : undefined;
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
@@ -316,7 +317,9 @@ export default function FilePage(props: Props) {
 
               {isMediumScreen && <PlaylistCard id={collectionId} uri={uri} colorHeader useDrawer={isMobile} />}
 
-              {RENDER_MODES.FLOATING_MODES.includes(renderMode) && <FileTitleSection uri={uri} />}
+              {RENDER_MODES.FLOATING_MODES.includes(renderMode) && (
+                <FileTitleSection uri={uri} accessStatus={accessStatus} />
+              )}
 
               <React.Suspense fallback={null}>
                 {commentSettingDisabled ? (

@@ -27,6 +27,7 @@ type Props = {
   singlePane?: boolean,
   headerActions?: Node,
   gridHeader?: boolean,
+  accessStatus?: string,
 };
 
 function Card(props: Props) {
@@ -49,6 +50,7 @@ function Card(props: Props) {
     secondPane,
     singlePane,
     headerActions,
+    accessStatus,
   } = props;
 
   const [expanded, setExpanded] = useState(defaultExpand);
@@ -79,7 +81,7 @@ function Card(props: Props) {
               {icon && <Icon sectionIcon icon={icon} />}
 
               <div className="card__title-text">
-                <TitleWrapper isPageTitle={isPageTitle} smallTitle={smallTitle}>
+                <TitleWrapper isPageTitle={isPageTitle} smallTitle={smallTitle} accessStatus={accessStatus}>
                   {title}
                 </TitleWrapper>
 
@@ -161,12 +163,11 @@ type TitleProps = {
   smallTitle?: boolean,
   children?: any,
   emoji?: any,
+  accessStatus?: string,
 };
 
 const TitleWrapper = (props: TitleProps) => {
-  const { isPageTitle, smallTitle, children } = props;
-
-  const accessStatus = 'unlocked';
+  const { isPageTitle, smallTitle, children, accessStatus } = props;
 
   const Twemoji = ({ emoji }) => (
     <span
