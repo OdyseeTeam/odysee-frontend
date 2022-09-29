@@ -26,7 +26,7 @@ type Props = {
   // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   livestreamChatMembersOnly?: boolean,
   channelHasMembershipTiers?: any,
-  doToast: ({ message: string }) => void,
+  doToast?: ({ message: string }) => void,
 };
 
 export default function LivestreamMenu(props: Props) {

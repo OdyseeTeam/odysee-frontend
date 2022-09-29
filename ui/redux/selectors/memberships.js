@@ -422,7 +422,7 @@ export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
   if (!claim) return false;
 
   const claimId = claim.claim_id;
-  const channelId = claim.signing_channel.claim_id;
+  const channelId = getChannelIdFromClaim(claim);
   const uri = claim.canonical_url;
   const claimIsMine = selectClaimIsMine(state, claim);
   const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
