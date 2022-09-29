@@ -34,7 +34,7 @@ const TabWrapper = (props: Props) => {
   if (!myChannelClaims || myChannelClaims.length === 0) {
     return (
       <ErrorBubble
-        title={__(`You don't have any channels`)}
+        title={__("You don't have any channels")}
         subtitle={__('To be able to begin receiving payments you have to have at least 1 channel.')}
         action={<Button button="primary" navigate={`/$/${PAGES.CHANNEL_NEW}`} label={__('Create A Channel')} />}
       />
@@ -44,7 +44,7 @@ const TabWrapper = (props: Props) => {
   if (!bankAccountConfirmed) {
     return (
       <ErrorBubble
-        title={__(`Bank Account Status`)}
+        title={__('Bank Account Status')}
         subtitle={__('To be able to begin receiving payments you must connect a Bank Account first.')}
         action={
           <Button
@@ -61,7 +61,7 @@ const TabWrapper = (props: Props) => {
   if (!hasTiers && !isOnTiersTab) {
     return (
       <ErrorBubble
-        title={__(`You don't have any Tiers`)}
+        title={__("You don't have any Tiers")}
         subtitle={__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}
         action={<Button requiresChannel button="primary" label={__('Add a Tier')} onClick={switchToTiersTab} />}
       />

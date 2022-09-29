@@ -173,7 +173,7 @@ function PledgesTab(props: Props) {
           </div>
         )}
         {formattedMemberships?.length === 0 && (
-          <p>{__(`Find creators that you like and support them. Your pledges will show up on this page.`)}</p>
+          <p>{__('Find creators that you like and support them. Your pledges will show up on this page.')}</p>
         )}
       </div>
     </div>
