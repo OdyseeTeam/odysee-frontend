@@ -75,7 +75,7 @@ export default function UnlockedContentSymbol(props: Props) {
       </div>
       <div className="protected-content-overlay">
         <div>
-          <span>Only channel members can view this content</span>
+          <span>{__('Only channel members can view this content')}</span>
           <Button
             button="primary"
             icon={ICONS.MEMBERSHIP}

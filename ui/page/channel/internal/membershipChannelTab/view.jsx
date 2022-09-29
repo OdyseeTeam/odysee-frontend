@@ -85,7 +85,7 @@ const MembershipChannelTab = (props: Props) => {
                       onSelect={() => doOpenCancelationModalForMembership(purchasedChannelMembership)}
                     >
                       <div className="menu__link">
-                        <Icon size={16} icon={ICONS.DELETE} /> Cancel Membership
+                        <Icon size={16} icon={ICONS.DELETE} /> {__('Cancel Membership')}
                       </div>
                     </MenuItem>
                   )}

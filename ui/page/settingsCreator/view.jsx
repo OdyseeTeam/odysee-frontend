@@ -287,14 +287,16 @@ export default function SettingsCreatorPage(props: Props) {
               isBodyList
               body={
                 <>
-                  {channelHasMembershipTiers && (<SettingsRow title={__('Make livestream chat members-only')} subtitle={__(HELP.MEMBERS_ONLY_CHAT)}>
-                    <FormField
-                      type="checkbox"
-                      name="livestream_chat_members_only"
-                      checked={livestreamChatMembersOnly}
-                      onChange={() => setSettings({ livestream_chat_members_only: !livestreamChatMembersOnly })}
-                    />
-                  </SettingsRow>)}
+                  {channelHasMembershipTiers && (
+                    <SettingsRow title={__('Make livestream chat members-only')} subtitle={__(HELP.MEMBERS_ONLY_CHAT)}>
+                      <FormField
+                        type="checkbox"
+                        name="livestream_chat_members_only"
+                        checked={livestreamChatMembersOnly}
+                        onChange={() => setSettings({ livestream_chat_members_only: !livestreamChatMembersOnly })}
+                      />
+                    </SettingsRow>
+                  )}
                   <SettingsRow title={__('Enable comments for channel.')}>
                     <FormField
                       type="checkbox"
@@ -464,5 +466,5 @@ const HELP = {
   BLOCKED_WORDS: 'Comments and livestream chat containing these words will be blocked.',
   MODERATORS: 'Moderators can block channels on your behalf. Blocked channels will appear in your "Blocked and Muted" list.',
   MODERATOR_SEARCH: 'Enter a channel name or URL to add as a moderator.\nExamples:\n - @channel\n - @channel#3\n - https://odysee.com/@Odysee:8\n - lbry://@Odysee#8',
-  MEMBERS_ONLY_CHAT: 'Only channel members with "Members-only chat" perk can participate in public livestream chats',
+  MEMBERS_ONLY_CHAT: 'Only channel members with "Members-only chat" perk can participate in public livestream chats.',
 };
