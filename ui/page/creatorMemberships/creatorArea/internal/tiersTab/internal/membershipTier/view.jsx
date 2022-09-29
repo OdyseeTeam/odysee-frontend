@@ -108,7 +108,7 @@ function MembershipTier(props: Props) {
           <div className="membership-tier__perks-content">
             <label>{__('Odysee Perks')}</label>
             <ul>
-              {membership.Perks && membership.Perks.map((tierPerk, i) => <li key={i}>{tierPerk.description}</li>)}
+              {membership.Perks && membership.Perks.map((tierPerk, i) => <li key={i}>{__(tierPerk.description)}</li>)}
             </ul>
           </div>
         </div>

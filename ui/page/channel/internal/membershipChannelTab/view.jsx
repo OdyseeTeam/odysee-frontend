@@ -105,7 +105,7 @@ const MembershipChannelTab = (props: Props) => {
                 <ul>
                   {Perks.map((tierPerk, i) => (
                     <li key={i} className="membership__perk-item">
-                      {tierPerk.name}
+                      {__(tierPerk.name)}
                     </li>
                   ))}
                 </ul>

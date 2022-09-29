@@ -159,7 +159,7 @@ function MembershipTier(props: Props) {
             key={tierPerk.id}
             type="checkbox"
             defaultChecked={isPermanent || isSelected}
-            label={tierPerk.description}
+            label={__(tierPerk.description)}
             name={'perk_' + tierPerk.id + ' ' + 'membership_' + membership.Membership.id}
             className="membership_perks"
             disabled={isPermanent}
