@@ -733,20 +733,20 @@ export default handleActions(
       };
     },
 
-    [ACTIONS.MEMBERS_ONLY_CHAT_TOGGLED]: (state: CommentsState, action: any) => {
-      l('action');
-      l(action)
-      return state;
-      // const { membersOnlyChatEnabled } = action.data;
-      // const commentById = Object.assign({}, state.commentById);
-      //
-      // if (!commentById[comment_id]) {
-      //   return state;
-      // }
-      //
-      // commentById[comment_id] = { ...commentById[comment_id], removed: true };
-      // return { ...state, commentById };
-    },
+    // [ACTIONS.MEMBERS_ONLY_CHAT_TOGGLED]: (state: CommentsState, action: any) => {
+    //   l('action');
+    //   l(action)
+    //   return state;
+    //   // const { membersOnlyChatEnabled } = action.data;
+    //   // const commentById = Object.assign({}, state.commentById);
+    //   //
+    //   // if (!commentById[comment_id]) {
+    //   //   return state;
+    //   // }
+    //   //
+    //   // commentById[comment_id] = { ...commentById[comment_id], removed: true };
+    //   // return { ...state, commentById };
+    // },
 
     [ACTIONS.COMMENT_MARK_AS_REMOVED]: (state: CommentsState, action: any) => {
       const { comment_id } = action.data;

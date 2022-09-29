@@ -153,10 +153,10 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
       }
 
       if (response.type === 'setting') {
-        const membersOnlyChatEnabled = response.data.LivestreamChatMembersOnly;
+        // const membersOnlyChatEnabled = response.data.LivestreamChatMembersOnly;
 
-        l('running here');
-        l(membersOnlyChatEnabled);
+        // l('running here');
+        // l(membersOnlyChatEnabled);
         dispatch({
           type: ACTIONS.COMMENT_MEMBERS_ONLY_CHAT_TOGGLED,
           data: { test: 'hello' },
