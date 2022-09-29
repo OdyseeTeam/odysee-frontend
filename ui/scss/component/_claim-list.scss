@@ -1215,6 +1215,8 @@
 }
 
 .protected-content-overlay {
+  @include font-sans;
+
   position: absolute;
   display: flex;
   justify-content: center;

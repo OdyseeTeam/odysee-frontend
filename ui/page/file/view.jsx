@@ -241,7 +241,6 @@ export default function FilePage(props: Props) {
     if (isMarkdown) {
       return (
         <React.Suspense fallback={null}>
-          <ProtectedContentOverlay uri={uri} />
           <PostViewer uri={uri} />
         </React.Suspense>
       );
