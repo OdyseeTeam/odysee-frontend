@@ -4,15 +4,13 @@ import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actio
 import FileReactions from './view';
 import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
-import { getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
-  const { claim_id: claimId } = claim || {};
 
-  const channelId = getChannelIdFromClaim(claim);
+  const { claim_id: claimId } = claim || {};
 
   return {
     myReaction: selectMyReactionForUri(state, uri),
@@ -20,7 +18,7 @@ const select = (state, props) => {
     dislikeCount: selectDislikeCountForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     claimId,
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
     claimIsMine: selectClaimIsMine(state, claim),
   };
 };

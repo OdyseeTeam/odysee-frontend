@@ -13,8 +13,6 @@ const select = (state, props) => {
   const { uri } = props;
 
   const claim = selectClaimForUri(state, uri);
-  const { claim_id: claimId, signing_channel: channelClaim } = claim || {};
-  const { claim_id: channelClaimId } = channelClaim || {};
 
   return {
     claimIsMine: selectClaimIsMine(state, claim),
@@ -24,7 +22,7 @@ const select = (state, props) => {
     isPlaying: selectFileIsPlayingOnPage(state, uri),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     streamingUrl: selectStreamingUrlForUri(state, uri),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelClaimId, claimId, uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
   };
 };
 

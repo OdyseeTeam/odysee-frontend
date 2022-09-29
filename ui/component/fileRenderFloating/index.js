@@ -57,8 +57,6 @@ const select = (state, props) => {
   const playingFromQueue = playingUri.source === COLLECTIONS_CONSTS.QUEUE_ID;
   const isInlinePlayer = Boolean(playingUri.source) && !isFloating;
 
-  const { claim_id: channelClaimId } = channelClaim || {};
-
   return {
     claimId,
     channelUrl,
@@ -90,7 +88,7 @@ const select = (state, props) => {
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     isMature: selectClaimIsNsfwForUri(state, uri),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelClaimId, claimId, uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
   };
 };
 

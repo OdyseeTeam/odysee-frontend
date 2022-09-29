@@ -7,6 +7,7 @@ import {
   selectNameForClaimId,
   selectProtectedContentTagForUri,
   selectClaimForId,
+  selectClaimIsMine,
 } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -417,8 +418,13 @@ export const selectUserIsMemberOfMembersOnlyChatForCreatorId = (state: State, cr
   return !!myMembersOnlyChatMemberships && myMembersOnlyChatMemberships.length > 0;
 };
 
-export const selectIfUnauthorizedForContent = (state: State, channelId: string, claimId: string, uri: string) => {
-  // TODO: add a check for claimIsMine here
+export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
+  if (!claim) return false;
+
+  const claimId = claim.claim_id;
+  const channelId = claim.signing_channel.claim_id;
+  const uri = claim.canonical_url;
+  const claimIsMine = selectClaimIsMine(state, claim);
   const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
   const myValidMembershipIds = selectMyValidMembershipIds(state);
   const protectedContentTag = selectProtectedContentTagForUri(state, uri);
@@ -428,7 +434,7 @@ export const selectIfUnauthorizedForContent = (state: State, channelId: string, 
     myValidMembershipIds &&
     protectedMembershipIdsForClaim.filter((m) => myValidMembershipIds.includes(m)).length;
 
-  const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember;
+  const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember && !claimIsMine;
 
   return isNotAuthorizedForProtectedContent || false;
 };

@@ -54,7 +54,7 @@ const select = (state, props) => {
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     rentalTag: selectRentalTagForUri(state, uri),
     validRentalPurchase: selectValidRentalPurchaseForClaimId(state, claimId),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelClaimId, claimId, uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
   };
 };
 

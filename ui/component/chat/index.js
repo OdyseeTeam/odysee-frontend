@@ -44,7 +44,7 @@ const select = (state, props) => {
     superChats: selectHyperChatsForUri(state, uri),
     channelId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
     livestreamChatMembersOnly: selectLivestreamChatMembersOnlyForChannelId(state, channelId),
     myChannelClaims: selectMyChannelClaims(state),
     channelHasMembershipTiers: selectIfChannelHasMembershipTiers(state, activeChannelId),

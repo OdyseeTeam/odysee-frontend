@@ -71,7 +71,7 @@ const select = (state, props) => {
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, channelId, claimId, uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
   };
 };
 
