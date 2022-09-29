@@ -2431,21 +2431,31 @@ video {
   }
 }
 
-.unlocked-membership-content {
-  float: right;
-  height: 38px;
-  padding-left: var(--spacing-m);
-  padding-right: var(--spacing-m);
-  padding-top: var(--spacing-xxs);
-  margin-bottom: -38px;
-  background-image: linear-gradient(147deg, var(--color-primary), #f77937);
-  border-radius: 0 0 var(--border-radius) var(--border-radius);
+.content-access-indicator {
+  display: inline-block;
+  margin-right: var(--spacing-s) !important;
 
-  div {
+  .icon {
+    margin-bottom: -6px;
+    width: 26px;
+    height: 26px;
+    overflow: visible;
+
+    background-color: var(--color-text);
+    border-radius: 50%;
+    padding: 5px;
+    stroke-width: 4;
+  }
+
+  &.locked {
     .icon {
-      display: inline-block;
-      width: 22px;
-      height: 22px;
+      color: var(--color-fire);
+    }
+  }
+
+  &.unlocked {
+    .icon {
+      color: var(--color-slime);
     }
   }
 }

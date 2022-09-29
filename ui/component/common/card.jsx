@@ -166,6 +166,8 @@ type TitleProps = {
 const TitleWrapper = (props: TitleProps) => {
   const { isPageTitle, smallTitle, children } = props;
 
+  const accessStatus = 'unlocked';
+
   const Twemoji = ({ emoji }) => (
     <span
       dangerouslySetInnerHTML={{
@@ -177,6 +179,20 @@ const TitleWrapper = (props: TitleProps) => {
     />
   );
 
+  const AccessIndicator = (par: any) => {
+    return (
+      <div
+        className={classnames('content-access-indicator', {
+          locked: par.status === 'locked',
+          unlocked: par.status === 'unlocked',
+          purchased: par.status === 'purchased',
+        })}
+      >
+        <Icon icon={par.status === 'locked' ? ICONS.LOCK : ICONS.UNLOCK} />
+      </div>
+    );
+  };
+
   function transformer(children) {
     for (let child in children?.props?.children) {
       if (typeof children?.props?.children[child] === 'string') {
@@ -187,7 +203,10 @@ const TitleWrapper = (props: TitleProps) => {
   }
 
   return isPageTitle ? (
-    <h1 className="card__title">{transformer(children)}</h1>
+    <h1 className="card__title">
+      {accessStatus && <AccessIndicator status={accessStatus} />}
+      {transformer(children)}
+    </h1>
   ) : (
     <h2 className={classnames('card__title', { 'card__title--small': smallTitle })}>{children}</h2>
   );
