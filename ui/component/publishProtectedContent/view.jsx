@@ -1,7 +1,6 @@
 // @flow
 import React, { useEffect } from 'react';
 import { FormField } from 'component/common/form';
-import { RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Button from 'component/button';
@@ -20,7 +19,6 @@ type Props = {
   myMembershipTiers: CreatorMemberships,
   myMembershipTiersWithExclusiveContentPerk: CreatorMemberships,
   myMembershipTiersWithExclusiveLivestreamPerk: CreatorMemberships,
-  myMembershipTiersWithMembersOnlyChatPerk: CreatorMemberships,
   location: string,
 };
 
@@ -36,11 +34,9 @@ function PublishProtectedContent(props: Props) {
     myMembershipTiers,
     myMembershipTiersWithExclusiveContentPerk,
     myMembershipTiersWithExclusiveLivestreamPerk,
-    // myMembershipTiersWithMembersOnlyChatPerk,
     location,
   } = props;
 
-  // const [commentsChatAlreadyRestricted, setCommentsChatAlreadyRestricted] = React.useState(false);
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
 
   const claimId = claim?.claim_id;
@@ -55,19 +51,6 @@ function PublishProtectedContent(props: Props) {
     }
   }, [claimId]);
 
-  // update frontend is restricted chat tag is already present
-  React.useEffect(() => {
-    if (claim) {
-      const alreadyRestricted = new Set(claim?.value?.tags).has(RESTRICTED_CHAT_COMMENTS_TAG);
-      if (alreadyRestricted) {
-        // setCommentsChatAlreadyRestricted(alreadyRestricted);
-        const restrictionCheckbox = document.getElementById('toggleRestrictCommentsChat');
-        // $FlowFixMe
-        if (restrictionCheckbox) restrictionCheckbox.checked = true;
-      }
-    }
-  }, [claim]);
-
   // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
     if (activeChannel && protectedMembershipIds && protectedMembershipIds.length) {
@@ -76,7 +59,7 @@ function PublishProtectedContent(props: Props) {
       // $FlowFixMe
       if (restrictionCheckbox) restrictionCheckbox.checked = true;
     }
-  }, [protectedMembershipIds, activeChannel]);
+  }, [protectedMembershipIds, activeChannel, claim]);
 
   function handleRestrictedMembershipChange(event) {
     let matchedMemberships;
@@ -106,19 +89,6 @@ function PublishProtectedContent(props: Props) {
 
     setIsRestrictingContent(!isRestrictingContent);
   }
-
-  // function handleChangeRestrictCommentsChat() {
-  //   if (commentsChatAlreadyRestricted) {
-  //     updatePublishForm({
-  //       restrictCommentsAndChat: false,
-  //     });
-  //   } else {
-  //     updatePublishForm({
-  //       restrictCommentsAndChat: true,
-  //     });
-  //   }
-  //   setCommentsChatAlreadyRestricted(!commentsChatAlreadyRestricted);
-  // }
 
   useEffect(() => {
     if (activeChannel) {
@@ -189,19 +159,6 @@ function PublishProtectedContent(props: Props) {
                     ))}
                   </div>
                 )}
-
-                {/* <FormField */}
-                {/*  type="checkbox" */}
-                {/*  defaultChecked={commentsChatAlreadyRestricted} */}
-                {/*  disabled={myMembershipTiersWithMembersOnlyChatPerk.length === 0} */}
-                {/*  label={'Restrict comments and chats to memberships with members-only chat perk'} */}
-                {/*  name={'toggleRestrictCommentsChat'} */}
-                {/*  className="restrict-comments-chat_checkbox" */}
-                {/*  onChange={() => handleChangeRestrictCommentsChat()} */}
-                {/* /> */}
-                {/* {myMembershipTiersWithMembersOnlyChatPerk.length === 0 && (* /}
-                {/*  <span className="error-bubble">{__('You have no tiers with members only chat')}</span> */}
-                {/* )} */}
               </>
             }
           />

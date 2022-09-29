@@ -522,7 +522,7 @@ function UploadForm(props: Props) {
           <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
           <ChannelSelect disabled={isFormIncomplete} autoSet channelToSet={claimChannelId} isPublishMenu />
         </div>
-        <p className="help">
+        <span className="help">
           {!formDisabled && !formValid ? (
             <PublishFormErrors title={title} mode={mode} waitForFile={waitingForFile} overMaxBitrate={overMaxBitrate} />
           ) : (
@@ -547,7 +547,7 @@ function UploadForm(props: Props) {
               By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
             </I18nMessage>
           )}
-        </p>
+        </span>
       </section>
     </div>
   );
