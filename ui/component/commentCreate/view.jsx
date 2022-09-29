@@ -626,7 +626,7 @@ export function CommentCreate(props: Props) {
 
   return (
     <>
-      {notAuthedToChat && (
+      {isLivestream && notAuthedToChat && (
         <ErrorBubble
           title={__('This chat is in members-only mode')}
           subtitle={__('To participate, consider buying a membership from this creator!')}
