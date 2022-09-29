@@ -22,6 +22,7 @@ import {
 import { selectIfUnauthorizedForContent, selectIfChannelHasMembershipTiers } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelIdFromClaim } from 'util/claim';
+import { doToast } from 'redux/actions/notifications';
 
 import ChatLayout from './view';
 
@@ -59,6 +60,7 @@ const perform = {
   doFetchChannelMembershipsForChannelIds,
   setLivestreamChatMembersOnlyCreatorSetting,
   doListAllMyMembershipTiers,
+  doToast,
 };
 
 export default connect(select, perform)(ChatLayout);

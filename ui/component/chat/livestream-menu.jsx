@@ -26,6 +26,7 @@ type Props = {
   // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   livestreamChatMembersOnly?: boolean,
   channelHasMembershipTiers?: any,
+  doToast: ({ message: string }) => void,
 };
 
 export default function LivestreamMenu(props: Props) {
@@ -45,6 +46,7 @@ export default function LivestreamMenu(props: Props) {
     toggleIsCompact,
     livestreamChatMembersOnly,
     channelHasMembershipTiers,
+    doToast,
   } = props;
 
   const {
@@ -58,6 +60,12 @@ export default function LivestreamMenu(props: Props) {
   function updateLivestreamMembersOnlyChat() {
     if (activeChannelClaim && setLivestreamChatMembersOnlyCreatorSetting) {
       setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, activeClaimId, !livestreamChatMembersOnly);
+    }
+
+    if (livestreamChatMembersOnly) {
+      doToast({ message: __('Members-only chat is now disabled.') });
+    } else {
+      doToast({ message: __('Members-only chat is now enabled.') });
     }
   }
 
@@ -99,7 +107,6 @@ export default function LivestreamMenu(props: Props) {
         </MenuButton>
 
         <MenuList className="menu__list">
-          {/* TODO: would be nice if there was a toast here to say "chat is now members-only" */}
           {channelHasMembershipTiers && claimIsMine && (
             <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
               <span className="menu__link">

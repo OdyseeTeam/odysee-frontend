@@ -65,6 +65,7 @@ type Props = {
   myChannelClaims: any,
   doListAllMyMembershipTiers: any,
   channelHasMembershipTiers: any,
+  doToast: ({ message: string }) => void,
 };
 
 export default function ChatLayout(props: Props) {
@@ -97,6 +98,7 @@ export default function ChatLayout(props: Props) {
     myChannelClaims,
     doListAllMyMembershipTiers,
     channelHasMembershipTiers,
+    doToast,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -391,6 +393,7 @@ export default function ChatLayout(props: Props) {
             claimIsMine={claimIsMine}
             livestreamChatMembersOnly={livestreamChatMembersOnly}
             channelHasMembershipTiers={channelHasMembershipTiers}
+            doToast={doToast}
           />
         </div>
       )}
