@@ -6,15 +6,18 @@ type Props = {
   membership: CreatorMembership,
   headerAction?: any,
   unlockableTierIds?: Array<number>,
+  userHasACreatorMembership?: boolean,
 };
 
 const MembershipDetails = (props: Props) => {
-  const { membership, headerAction, unlockableTierIds } = props;
+  const { membership, headerAction, unlockableTierIds, userHasACreatorMembership } = props;
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
 
   let accessText = __('This Tier does not grant you access to the currently selected content.');
-  if (new Set(unlockableTierIds).has(membership.Membership.id)) {
+  if (userHasACreatorMembership) {
+    accessText = __("You can't upgrade or downgrade plans at the moment, coming soon!");
+  } else if (new Set(unlockableTierIds).has(membership.Membership.id)) {
     // accessText = 'This membership has access to the current content.';
     accessText = undefined;
   }

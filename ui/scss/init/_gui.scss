@@ -453,6 +453,7 @@ img {
 }
 
 .error-bubble {
+  display: block;
   margin-top: var(--spacing-s);
   padding: var(--spacing-s);
   border-radius: var(--border-radius);

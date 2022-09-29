@@ -1,11 +1,15 @@
 import { connect } from 'react-redux';
 import { selectCanReceiveFiatTipsForUri } from 'redux/selectors/stripe';
-import { selectMembershipTiersForChannelUri, selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
+import {
+  selectMembershipTiersForChannelUri,
+  selectMembershipTiersForChannelId,
+  selectUserHasValidMembershipForCreatorId,
+} from 'redux/selectors/memberships';
 import { doTipAccountCheckForUri } from 'redux/actions/stripe';
 import { selectIsChannelMineForClaimId, selectClaimForUri } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import PreviewPage from './view';
-import { getChannelFromClaim, getChannelTitleFromClaim } from 'util/claim';
+import { getChannelFromClaim, getChannelTitleFromClaim, getChannelIdFromClaim } from 'util/claim';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -13,6 +17,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
 
   const channelTitle = getChannelTitleFromClaim(claim);
+  const channelId = getChannelIdFromClaim(claim);
 
   const { canonical_url: channelUri } = getChannelFromClaim(claim) || {};
 
@@ -25,6 +30,7 @@ const select = (state, props) => {
     channelUri,
     channelId: claimId,
     channelName: claim.name,
+    userHasACreatorMembership: selectUserHasValidMembershipForCreatorId(state, channelId),
   };
 };
 

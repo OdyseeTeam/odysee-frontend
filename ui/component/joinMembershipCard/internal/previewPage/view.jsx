@@ -17,6 +17,8 @@ type Props = {
   uri: string,
   selectedTier: CreatorMembership,
   selectedMembershipIndex: number,
+  unlockableTierIds: Array<number>,
+  userHasACreatorMembership: boolean,
   setMembershipIndex: (index: number) => void,
   handleSelect: () => void,
   // -- redux --
@@ -29,7 +31,6 @@ type Props = {
   channelUri: string,
   channelName: string,
   doOpenModal: (id: string, props: {}) => void,
-  unlockableTierIds: Array<number>,
 };
 
 const PreviewPage = (props: Props) => {
@@ -37,9 +38,10 @@ const PreviewPage = (props: Props) => {
     uri,
     selectedTier,
     selectedMembershipIndex,
+    unlockableTierIds,
+    userHasACreatorMembership,
     setMembershipIndex,
     handleSelect,
-    unlockableTierIds,
     // -- redux --
     channelId,
     canReceiveFiatTips,
@@ -195,7 +197,11 @@ const PreviewPage = (props: Props) => {
 
       <div className="selected-membership">{selectedMembershipName}</div>
       <div className="join-membership__modal-content">
-        <MembershipDetails membership={selectedTier} unlockableTierIds={unlockableTierIds} />
+        <MembershipDetails
+          membership={selectedTier}
+          unlockableTierIds={unlockableTierIds}
+          userHasACreatorMembership={userHasACreatorMembership}
+        />
       </div>
 
       <div className="join-membership__modal-action">
@@ -203,7 +209,7 @@ const PreviewPage = (props: Props) => {
           icon={ICONS.MEMBERSHIP}
           button="primary"
           type="submit"
-          disabled={creatorPurchaseDisabled}
+          disabled={userHasACreatorMembership || creatorPurchaseDisabled}
           label={__('Signup for $%membership_price% a month', {
             membership_price: selectedTier.NewPrices && selectedTier.NewPrices[0].Price.amount / 100,
           })}
