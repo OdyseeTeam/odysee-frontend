@@ -425,6 +425,7 @@ export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
   const channelId = getChannelIdFromClaim(claim);
   const uri = claim.canonical_url;
   const claimIsMine = selectClaimIsMine(state, claim);
+  if (!channelId) return false;
   const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
   const myValidMembershipIds = selectMyValidMembershipIds(state);
   const protectedContentTag = selectProtectedContentTagForUri(state, uri);

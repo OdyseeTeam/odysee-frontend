@@ -62,10 +62,12 @@ export default function LivestreamMenu(props: Props) {
       setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, activeClaimId, !livestreamChatMembersOnly);
     }
 
-    if (livestreamChatMembersOnly) {
-      doToast({ message: __('Members-only chat is now disabled.') });
-    } else {
-      doToast({ message: __('Members-only chat is now enabled.') });
+    if (doToast) {
+      doToast({
+        message: __(
+          livestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.'
+        ),
+      });
     }
   }
 
