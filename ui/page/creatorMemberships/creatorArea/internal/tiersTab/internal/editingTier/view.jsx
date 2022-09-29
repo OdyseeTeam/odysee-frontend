@@ -12,8 +12,14 @@ const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(val
 const MIN_PRICE = '4';
 const MAX_PRICE = '1000'; // -- the value that fails on the backend, not sure the actual limit
 
+// -- this is not actually used, but helps checking --
+// export const ODYSEE_PERKS = Object.freeze({
+//   3: 'Access to members-only chat',
+//   4: 'Badge shown in chat',
+// });
+
 // custom emojis should be changed to channel member badge
-const PERMANENT_TIER_PERKS = new Set([4]); // -- perk name: Member Badge
+const PERMANENT_TIER_PERKS = new Set([3, 4]); // -- perk name: Member Badge
 
 type Props = {
   membership: CreatorMembership,
