@@ -25,21 +25,19 @@ export default function ProtectedContentOverlay(props: Props) {
 
   return (
     <div className="protected-content-overlay">
-      <div>
-        <Icon icon={ICONS.LOCK} />
-        <span>{__('Only channel members can view this content.')}</span>
-        <Button
-          button="primary"
-          icon={ICONS.MEMBERSHIP}
-          label={
-            cheapestPlanPrice
-              ? __('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })
-              : __('Membership options')
-          }
-          title={__('Become a member')}
-          onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
-        />
-      </div>
+      <Icon icon={ICONS.LOCK} />
+      <span>{__('Only channel members can view this content.')}</span>
+      <Button
+        button="primary"
+        icon={ICONS.MEMBERSHIP}
+        label={
+          cheapestPlanPrice
+            ? __('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })
+            : __('Membership options')
+        }
+        title={__('Become a member')}
+        onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
+      />
     </div>
   );
 }

@@ -1232,6 +1232,8 @@
 .protected-content-overlay {
   @include font-sans;
 
+  background-color: rgba(0, 0, 0, 0.5);
+
   position: absolute;
   display: flex;
   justify-content: center;
@@ -1243,59 +1245,33 @@
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(4px);
 
-  div {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-direction: column;
-    width: 400px;
-    height: 200px;
-    // background-color: var(--color-header-background);
-    background-image: linear-gradient(147deg, var(--color-primary), #f77937);
-    padding: var(--spacing-m);
-    border-radius: var(--border-radius);
-    border: 2px solid var(--color-text);
+  .icon.icon--Lock {
+    overflow: visible;
+    stroke-width: 3;
+    width: 60px;
+    height: 60px;
+    margin-bottom: var(--spacing-xxxs);
+    background: var(--color-text);
+    border-radius: 50%;
+    color: var(--color-text-inverse);
+    padding: var(--spacing-s);
+  }
 
-    .icon.icon--Lock {
-      overflow: visible;
-      stroke-width: 3;
-      width: 60px;
-      height: 60px;
-      margin-bottom: var(--spacing-xxxs);
-      background: var(--color-text);
-      border-radius: 50%;
-      color: var(--color-fire);
-      padding: var(--spacing-s);
-    }
-    .button {
-      margin-top: var(--spacing-s);
-      background-color: rgba(var(--color-header-background-base), 0.8) !important;
-      .icon,
-      .button__label {
-        color: var(--color-text);
-      }
-      &:hover {
-        .icon,
-        .button__label {
-          color: var(--color-primary);
-        }
-        background-color: rgba(var(--color-header-background-base), 1) !important;
-      }
+  .button {
+    margin-top: var(--spacing-s);
+    background-image: var(--color-odysee-memberships);
+
+    .icon,
+    .button__label {
+      color: var(--color-text);
     }
   }
 
   @media (max-width: $breakpoint-small) {
-    div {
-      width: unset;
-      height: unset;
+    width: 94%;
+    height: 90%;
+    span {
       text-align: center;
-      max-width: 80%;
-      max-height: 90%;
-
-      .icon.icon--Lock {
-        width: 40px;
-        height: 40px;
-      }
     }
   }
 }

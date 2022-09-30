@@ -41,7 +41,7 @@
     color: var(--color-text);
     font-size: var(--font-body);
     border: 2px solid var(--color-text);
-    background-image: linear-gradient(147deg, var(--color-primary), #f77937);
+    background-image: var(--color-odysee-memberships);
 
     span {
       display: block;
