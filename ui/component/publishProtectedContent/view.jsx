@@ -51,6 +51,9 @@ function PublishProtectedContent(props: Props) {
     }
   }, [claimId]);
 
+  // $FlowIssue
+  const commaSeparatedValues = protectedMembershipIds?.join(',') || '';
+
   // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
     if (activeChannel && protectedMembershipIds && protectedMembershipIds.length) {
@@ -58,6 +61,21 @@ function PublishProtectedContent(props: Props) {
       const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
       // $FlowFixMe
       if (restrictionCheckbox) restrictionCheckbox.checked = true;
+
+      updatePublishForm({
+        restrictedToMemberships: commaSeparatedValues,
+        channelClaimId: activeChannel.claim_id,
+      });
+    } else {
+      setIsRestrictingContent(false);
+      const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
+      // $FlowFixMe
+      if (restrictionCheckbox) restrictionCheckbox.checked = false;
+
+      updatePublishForm({
+        restrictedToMemberships: commaSeparatedValues,
+        channelClaimId: activeChannel.claim_id,
+      });
     }
   }, [protectedMembershipIds, activeChannel, claim]);
 
@@ -103,6 +121,7 @@ function PublishProtectedContent(props: Props) {
 
   return (
     <>
+      <h2 className="card__title">{__('Restrict Content')}</h2>
       {(!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) && (
         <Card
           className="card--restrictions"
@@ -127,42 +146,38 @@ function PublishProtectedContent(props: Props) {
       {/* to-do: add some logic to say "none of your tiers have the perk" */}
 
       {membershipsToUse && membershipsToUse.length > 0 && (
-        <>
-          <h2 className="card__title">{__('Restrict Content')}</h2>
+        <Card
+          className="card--restrictions"
+          body={
+            <>
+              <FormField
+                type="checkbox"
+                defaultChecked={isRestrictingContent}
+                label={__('Restrict content to only allow subscribers to certain memberships to view it')}
+                name={'toggleRestrictedContent'}
+                className="restrict-content__checkbox"
+                onChange={() => handleChangeRestriction()}
+              />
 
-          <Card
-            className="card--restrictions"
-            body={
-              <>
-                <FormField
-                  type="checkbox"
-                  defaultChecked={isRestrictingContent}
-                  label={__('Restrict content to only allow subscribers to certain memberships to view it')}
-                  name={'toggleRestrictedContent'}
-                  className="restrict-content__checkbox"
-                  onChange={() => handleChangeRestriction()}
-                />
-
-                {isRestrictingContent && (
-                  <div className="tier-list">
-                    {membershipsToUse.map((membership) => (
-                      <FormField
-                        key={membership.Membership.id}
-                        type="checkbox"
-                        defaultChecked={
-                          protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)
-                        }
-                        label={membership.Membership.name}
-                        name={'restrictToMembership:' + membership.Membership.id}
-                        onChange={handleRestrictedMembershipChange}
-                      />
-                    ))}
-                  </div>
-                )}
-              </>
-            }
-          />
-        </>
+              {isRestrictingContent && (
+                <div className="tier-list">
+                  {membershipsToUse.map((membership) => (
+                    <FormField
+                      key={membership.Membership.id}
+                      type="checkbox"
+                      defaultChecked={
+                        protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)
+                      }
+                      label={membership.Membership.name}
+                      name={'restrictToMembership:' + membership.Membership.id}
+                      onChange={handleRestrictedMembershipChange}
+                    />
+                  ))}
+                </div>
+              )}
+            </>
+          }
+        />
       )}
     </>
   );
