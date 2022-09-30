@@ -1272,14 +1272,6 @@
         background-color: rgba(var(--color-header-background-base), 1) !important;
       }
     }
-
-    @media (max-width: $breakpoint-small) {
-      width: 94%;
-      height: 90%;
-      span {
-        text-align: center;
-      }
-    }
   }
 }
 
