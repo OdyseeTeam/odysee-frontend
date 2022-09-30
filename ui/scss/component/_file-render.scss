@@ -68,7 +68,6 @@
                   margin-top: var(--spacing-xxs);
                   margin-bottom: 0;
                   margin-right: var(--spacing-xxs);
-                  margin-left: var(--spacing-xxs);
                   .button--membership {
                     width: 100%;
                   }
@@ -86,14 +85,24 @@
                   }
                 }
 
+                @media (max-width: $breakpoint-small) {
+                  width: calc(100% + calc(2.7rem + var(--spacing-s)));
+                  margin-left: calc(-2.7rem + calc(var(--spacing-s) * -1));
+                }
+
                 @media (max-width: $breakpoint-xsmall) {
-                  width: calc(100% + calc(2.5rem + var(--spacing-xs)));
-                  margin-left: calc(-2.5rem + calc(var(--spacing-xs) * -1));
+                  width: calc(100% + calc(2.75rem + var(--spacing-s)));
+                  margin-left: calc(-2.75rem + calc(var(--spacing-s) * -1));
                 }
               }
             }
           }
         }
+      }
+    }
+    @media (max-width: $breakpoint-small) {
+      .membership-button-wrapper {
+        margin-left: var(--spacing-xs) !important;
       }
     }
   }
