@@ -56,7 +56,8 @@ function PublishProtectedContent(props: Props) {
 
   // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
-    if (activeChannel && protectedMembershipIds && protectedMembershipIds.length) {
+    if (!activeChannel) return;
+    if (protectedMembershipIds && protectedMembershipIds.length) {
       setIsRestrictingContent(true);
       const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
       // $FlowFixMe
