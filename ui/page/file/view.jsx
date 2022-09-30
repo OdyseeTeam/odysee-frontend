@@ -232,7 +232,7 @@ export default function FilePage(props: Props) {
     if (RENDER_MODES.UNRENDERABLE_MODES.includes(renderMode) && !isMature) {
       return (
         <>
-          <FileTitleSection uri={uri} />
+          <FileTitleSection uri={uri} accessStatus={accessStatus} />
           <FileRenderDownload uri={uri} isFree={cost === 0} />
         </>
       );
@@ -254,7 +254,7 @@ export default function FilePage(props: Props) {
             <FileRenderInline uri={uri} />
             <FileRenderInitiator uri={uri} />
           </div>
-          <FileTitleSection uri={uri} />
+          <FileTitleSection uri={uri} accessStatus={accessStatus} />
         </>
       );
     }
@@ -267,7 +267,7 @@ export default function FilePage(props: Props) {
             <FileRenderInitiator uri={uri} />
             <FileRenderInline uri={uri} />
           </div>
-          <FileTitleSection uri={uri} />
+          <FileTitleSection uri={uri} accessStatus={accessStatus} />
         </>
       );
     }
@@ -276,7 +276,7 @@ export default function FilePage(props: Props) {
       <>
         <FileRenderInitiator uri={uri} videoTheaterMode={theaterMode} />
         <FileRenderInline uri={uri} />
-        <FileTitleSection uri={uri} />
+        <FileTitleSection uri={uri} accessStatus={accessStatus} />
       </>
     );
   }
@@ -287,7 +287,7 @@ export default function FilePage(props: Props) {
     return (
       <Page className="file-page" filePage isMarkdown={isMarkdown}>
         <div className={classnames('section card-stack', `file-page__${renderMode}`)}>
-          <FileTitleSection uri={uri} isNsfwBlocked />
+          <FileTitleSection uri={uri} accessStatus={accessStatus} isNsfwBlocked />
         </div>
         {!isMarkdown && !theaterMode && <RightSideContent {...rightSideProps} />}
       </Page>
