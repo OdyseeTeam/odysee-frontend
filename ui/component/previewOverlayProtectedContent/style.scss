@@ -50,6 +50,17 @@
       margin-top: -6px;
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .protected-content-holder-label {
+      padding: var(--spacing-xs) var(--spacing-s);
+      font-size: var(--font-large);
+      font-weight: var(--font-bold);
+      span {
+        font-size: var(--font-body);
+      }
+    }
+  }
 }
 
 .protected-content-unlocked {
