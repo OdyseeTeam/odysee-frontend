@@ -297,6 +297,10 @@
   max-height: var(--desktop-portrait-player-max-height);
 }
 
+.file-page__pdf-wrapper {
+  position: relative;
+}
+
 .file-render {
   width: 100%;
   height: 100%;

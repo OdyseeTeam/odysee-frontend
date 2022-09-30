@@ -249,9 +249,11 @@ export default function FilePage(props: Props) {
     if (RENDER_MODES.TEXT_MODES.includes(renderMode)) {
       return (
         <>
-          <FileRenderInline uri={uri} />
-          <ProtectedContentOverlay uri={uri} />
-          <FileRenderInitiator uri={uri} />
+          <div className="file-page__pdf-wrapper">
+            <ProtectedContentOverlay uri={uri} />
+            <FileRenderInline uri={uri} />
+            <FileRenderInitiator uri={uri} />
+          </div>
           <FileTitleSection uri={uri} />
         </>
       );
