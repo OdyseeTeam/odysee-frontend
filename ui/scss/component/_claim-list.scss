@@ -1034,6 +1034,11 @@
         opacity: 1;
         transition: 0.3s;
       }
+
+      .protected-content-holder-lock,
+      .protected-content-unlocked {
+        opacity: 1;
+      }
     }
   }
 
