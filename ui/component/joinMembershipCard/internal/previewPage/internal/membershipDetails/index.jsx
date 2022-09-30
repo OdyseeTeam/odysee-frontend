@@ -7,10 +7,11 @@ type Props = {
   headerAction?: any,
   unlockableTierIds?: Array<number>,
   userHasACreatorMembership?: boolean,
+  isChannelTab?: boolean,
 };
 
 const MembershipDetails = (props: Props) => {
-  const { membership, headerAction, unlockableTierIds, userHasACreatorMembership } = props;
+  const { membership, headerAction, unlockableTierIds, userHasACreatorMembership, isChannelTab } = props;
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
   const selectedMembershipName = membership.Membership.name;
@@ -33,7 +34,7 @@ const MembershipDetails = (props: Props) => {
         </div>
       )}
 
-      <div className="selected-membership">{selectedMembershipName}</div>
+      {!isChannelTab && <div className="selected-membership">{selectedMembershipName}</div>}
 
       <section className="membership-tier__header">
         <span>{membership.Membership.name}</span>

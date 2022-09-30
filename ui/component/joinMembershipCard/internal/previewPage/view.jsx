@@ -140,6 +140,7 @@ const PreviewPage = (props: Props) => {
               length={creatorMemberships.length}
               key={index}
               disabled={creatorPurchaseDisabled}
+              isChannelTab
             />
           ))}
         </div>
