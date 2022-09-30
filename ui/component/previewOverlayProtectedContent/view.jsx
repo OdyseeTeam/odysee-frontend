@@ -47,8 +47,10 @@ export default function PreviewOverlayProtectedContent(props: Props) {
   if (channelMemberships && protectedMembershipIds && userIsAMember !== undefined) {
     return (
       <div className="protected-content-holder">
-        <Icon icon={ICONS.LOCK} className="protected-content-locked" />
-        <div>
+        <div className="protected-content-holder-lock">
+          <Icon icon={ICONS.LOCK} />
+        </div>
+        <div className="protected-content-holder-label">
           Members Only
           <span>Join for ${cheapestPlan?.NewPrices[0]?.Price.amount / 100} per month</span>
         </div>

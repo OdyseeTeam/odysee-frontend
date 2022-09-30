@@ -14,83 +14,42 @@
   transition: all 0.2s;
   background-color: rgba(0, 0, 0, 0.6);
 
-  .icon {
-    width: 24px;
-    height: 24px;
-    margin-bottom: 2px;
-    margin-top: -18px;
+  .protected-content-holder-lock {
+    position: absolute;
+    bottom: var(--spacing-xxs);
+    left: var(--spacing-xxs);
+    background: var(--color-black);
+    border-radius: var(--border-radius);
+    opacity: 0.85;
+
+    .icon {
+      width: 14px;
+      height: 14px;
+      padding: 0;
+      margin: 0;
+      stroke: var(--color-fire);
+      margin: 0.3rem;
+      margin-bottom: -2px;
+    }
   }
 
-  div {
+  .protected-content-holder-label {
     background-color: var(--color-header-background);
-    padding: 2px var(--spacing-xxxs);
+    padding: 0 var(--spacing-xxxs);
     border-radius: var(--border-radius);
     text-align: center;
     color: var(--color-text);
-    font-size: var(--font-small);
-
-    &:nth-of-type(2) {
-      margin-top: 10px;
-    }
+    font-size: var(--font-body);
+    border: 2px solid var(--color-text);
+    background-image: linear-gradient(147deg, var(--color-primary), #f77937);
 
     span {
       display: block;
-      font-size: var(--font-xxsmall);
+      font-size: var(--font-xsmall);
       opacity: 0.8;
-      margin-top: -4px;
-    }
-
-    .dot {
-      width: 16px;
-      height: 16px;
-      display: inline-block;
-      border-radius: 50%;
-      margin: 0 2px;
-      opacity: 0.2;
-
-      &:nth-of-type(1) {
-        background-color: rgba(var(--color-membership-1), 1);
-      }
-      &:nth-of-type(2) {
-        background-color: rgba(var(--color-membership-2), 1);
-      }
-      &:nth-of-type(3) {
-        background-color: rgba(var(--color-membership-3), 1);
-      }
-      &:nth-of-type(4) {
-        background-color: rgba(var(--color-membership-4), 1);
-      }
-      &:nth-of-type(5) {
-        background-color: rgba(var(--color-membership-5), 1);
-      }
-      &:nth-of-type(6) {
-        background-color: rgba(var(--color-membership-6), 1);
-      }
+      margin-top: -6px;
     }
   }
-
-  .active {
-    opacity: 1 !important;
-  }
-
-  &:hover {
-    -webkit-backdrop-filter: blur(0);
-    backdrop-filter: blur(0);
-    background-color: rgba(0, 0, 0, 0);
-
-    div {
-      background-color: rgba(var(--color-header-background-base), 1);
-      // background-color: red;
-    }
-  }
-}
-
-.protected-content-locked {
-  stroke: white;
-  width: 61px;
-  height: 61px;
-  text-align: center;
-  margin: 0 auto;
 }
 
 .protected-content-unlocked {
@@ -108,6 +67,6 @@
     margin: 0;
     stroke: #91f92d;
     margin: 0.3rem;
-    margin-bottom: 0;
+    margin-bottom: -2px;
   }
 }
