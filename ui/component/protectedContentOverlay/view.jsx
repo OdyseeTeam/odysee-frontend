@@ -26,7 +26,7 @@ export default function ProtectedContentOverlay(props: Props) {
   return (
     <div className="protected-content-overlay">
       <Icon icon={ICONS.LOCK} />
-      <span>{__('Only channel members can view this content.')}</span>
+      <span className="protected-content-overlay--subheader">{__('Only channel members can view this content.')}</span>
       <Button
         button="primary"
         icon={ICONS.MEMBERSHIP}

@@ -1244,27 +1244,25 @@
   height: 100%;
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(4px);
+  color: white;
+
+  .protected-content-overlay--subheader{
+    font-size: 21px;
+  }
 
   .icon.icon--Lock {
     overflow: visible;
     stroke-width: 3;
-    width: 60px;
-    height: 60px;
+    width: 100px;
+    height: 100px;
     margin-bottom: var(--spacing-xxxs);
-    background: var(--color-text);
-    border-radius: 50%;
-    color: var(--color-text-inverse);
     padding: var(--spacing-s);
+    margin-top: -54px;
   }
 
   .button {
     margin-top: var(--spacing-s);
     background-image: var(--color-odysee-memberships);
-
-    .icon,
-    .button__label {
-      color: var(--color-text);
-    }
   }
 
   @media (max-width: $breakpoint-small) {
