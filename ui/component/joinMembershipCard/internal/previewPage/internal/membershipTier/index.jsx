@@ -10,11 +10,12 @@ type Props = {
   index?: number,
   length?: number,
   disabled?: boolean,
+  isChannelTab?: boolean,
   handleSelect: () => void,
 };
 
 const MembershipTier = (props: Props) => {
-  const { membership, index, length, disabled, handleSelect } = props;
+  const { membership, index, length, disabled, isChannelTab, handleSelect } = props;
 
   return (
     <div
@@ -25,6 +26,7 @@ const MembershipTier = (props: Props) => {
       }
     >
       <MembershipDetails
+        isChannelTab={isChannelTab}
         membership={membership}
         headerAction={
           <Button
