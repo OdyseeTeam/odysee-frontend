@@ -1240,17 +1240,37 @@
     flex-direction: column;
     width: 400px;
     height: 200px;
-    background-color: var(--color-header-background);
+    // background-color: var(--color-header-background);
+    background-image: linear-gradient(147deg, var(--color-primary), #f77937);
     padding: var(--spacing-m);
     border-radius: var(--border-radius);
+    border: 2px solid var(--color-text);
 
     .icon.icon--Lock {
-      width: 80px;
-      height: 80px;
+      overflow: visible;
+      stroke-width: 3;
+      width: 60px;
+      height: 60px;
       margin-bottom: var(--spacing-xxxs);
+      background: var(--color-text);
+      border-radius: 50%;
+      color: var(--color-fire);
+      padding: var(--spacing-s);
     }
     .button {
-      margin-top: var(--spacing-m);
+      margin-top: var(--spacing-s);
+      background-color: rgba(var(--color-header-background-base), 0.8) !important;
+      .icon,
+      .button__label {
+        color: var(--color-text);
+      }
+      &:hover {
+        .icon,
+        .button__label {
+          color: var(--color-primary);
+        }
+        background-color: rgba(var(--color-header-background-base), 1) !important;
+      }
     }
 
     @media (max-width: $breakpoint-small) {
