@@ -15,7 +15,7 @@ const MembershipDetails = (props: Props) => {
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
   const selectedMembershipName = membership.Membership.name;
-  const membershipIsUnlockable = new Set(unlockableTierIds).has(membership.Membership.id);
+  const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.Membership.id);
 
   let accessText = __('This Tier does not grant you access to the currently selected content.');
   if (userHasACreatorMembership) {

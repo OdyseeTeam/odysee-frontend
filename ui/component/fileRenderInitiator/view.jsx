@@ -131,6 +131,7 @@ export default function FileRenderInitiator(props: Props) {
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
   const disabled =
+    notAuthedToView ||
     (isLivestreamClaim && !isCurrentClaimLive) ||
     renderUnsupported ||
     (!fileInfo && insufficientCredits && !claimWasPurchased);
