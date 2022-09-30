@@ -229,6 +229,11 @@
           }
         }
       }
+      @media (max-width: $breakpoint-small) {
+        .membership-button-wrapper {
+          margin-bottom: 0;
+        }
+      }
     }
   }
 
