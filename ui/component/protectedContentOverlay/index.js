@@ -1,7 +1,10 @@
 import { connect } from 'react-redux';
 import ProtectedContentOverlay from './view';
 import { selectClaimForUri, selectClaimIsMine, selectProtectedContentTagForUri } from 'redux/selectors/claims';
-import { selectUserIsMemberOfProtectedContentForId } from 'redux/selectors/memberships';
+import {
+  selectUserIsMemberOfProtectedContentForId,
+  selectPriceOfCheapestPlanForClaimId,
+} from 'redux/selectors/memberships';
 import { doOpenModal } from 'redux/actions/app';
 
 const select = (state, props) => {
@@ -13,6 +16,7 @@ const select = (state, props) => {
     claim,
     isProtected: Boolean(selectProtectedContentTagForUri(state, props.uri)),
     userIsAMember: selectUserIsMemberOfProtectedContentForId(state, claimId),
+    cheapestPlanPrice: selectPriceOfCheapestPlanForClaimId(state, claimId),
   };
 };
 

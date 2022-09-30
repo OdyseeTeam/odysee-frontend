@@ -12,11 +12,12 @@ type Props = {
   isProtected: boolean,
   uri: string,
   userIsAMember: boolean,
+  cheapestPlanPrice: ?Membership,
   doOpenModal: (string, {}) => void,
 };
 
 export default function ProtectedContentOverlay(props: Props) {
-  const { claimIsMine, uri, isProtected, userIsAMember, doOpenModal } = props;
+  const { claimIsMine, uri, isProtected, userIsAMember, cheapestPlanPrice, doOpenModal } = props;
 
   const fileUri = React.useContext(AppContext)?.uri;
 
@@ -26,12 +27,16 @@ export default function ProtectedContentOverlay(props: Props) {
     <div className="protected-content-overlay">
       <div>
         <Icon icon={ICONS.LOCK} />
-        <span>{__('Only channel members can view this content')}</span>
+        <span>{__('Only channel members can view this content.')}</span>
         <Button
           button="primary"
           icon={ICONS.MEMBERSHIP}
-          label={__('Membership Options')}
-          title={__('Become A Member')}
+          label={
+            cheapestPlanPrice
+              ? __('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })
+              : __('Membership options')
+          }
+          title={__('Become a member')}
           onClick={() => doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri })}
         />
       </div>

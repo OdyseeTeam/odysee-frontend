@@ -324,20 +324,19 @@ export const selectCheapestPlanForRestrictedIds = (state: State, restrictedIds: 
   return sortedMemberships && sortedMemberships[0];
 };
 
-export const selectProtectedContentMembershipsSortedByPriceForId = (state: State, claimId: ClaimId) => {
-  const protectedContentMembershipsForId = selectProtectedContentMembershipsForId(state, claimId);
+export const selectCheapestProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
+  const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
+  const protectedContentMembershipIds =
+    claimChannelId && selectProtectedContentMembershipsForClaimId(state, claimChannelId, claimId);
 
-  return (
-    protectedContentMembershipsForId &&
-    protectedContentMembershipsForId.sort(
-      (a, b) => (a.NewPrices ? a.NewPrices[0].Price.amount : 0) - (b.NewPrices ? b.NewPrices[0].Price.amount : 0)
-    )
-  );
+  return protectedContentMembershipIds && selectCheapestPlanForRestrictedIds(state, protectedContentMembershipIds);
 };
 
-export const selectCheapestProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
-  const protectedContentMembershipsSortedByPrice = selectProtectedContentMembershipsSortedByPriceForId(state, claimId);
-  return protectedContentMembershipsSortedByPrice && protectedContentMembershipsSortedByPrice[0];
+export const selectPriceOfCheapestPlanForClaimId = (state: State, claimId: ClaimId) => {
+  const cheapestMembership = selectCheapestProtectedContentMembershipForId(state, claimId);
+  if (!cheapestMembership || !cheapestMembership.NewPrices) return undefined;
+
+  return (cheapestMembership.NewPrices[0].Price.amount / 100).toFixed(2);
 };
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {

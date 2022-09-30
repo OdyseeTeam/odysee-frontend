@@ -51,8 +51,12 @@ export default function PreviewOverlayProtectedContent(props: Props) {
           <Icon icon={ICONS.LOCK} />
         </div>
         <div className="protected-content-holder-label">
-          Members Only
-          <span>Join for ${cheapestPlan?.NewPrices[0]?.Price.amount / 100} per month</span>
+          {__('Members Only')}
+          <span>
+            {__('Join for $%membership_price% per month', {
+              membership_price: cheapestPlan?.NewPrices[0]?.Price.amount / 100,
+            })}
+          </span>
         </div>
       </div>
     );
