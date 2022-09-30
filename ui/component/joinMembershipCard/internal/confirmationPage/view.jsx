@@ -47,7 +47,7 @@ const ConfirmationPage = (props: Props) => {
         <BusyIndicator message={__('Processing payment...')} />
       ) : (
         <div className="section__actions">
-          <SubmitButton />
+          <SubmitButton modalState={{ passedTier: selectedTier }} />
           <Button button="link" label={__('Cancel')} onClick={onCancel} />
         </div>
       )}

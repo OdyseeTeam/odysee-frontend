@@ -2,10 +2,13 @@ import React from 'react';
 
 import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
+import Spinner from 'component/spinner';
 
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import { selectHasSavedCard } from 'redux/selectors/stripe';
+
+import { doGetCustomerStatus } from 'redux/actions/stripe';
 
 import { ModalContext } from 'modal/modalRouter/view';
 
@@ -23,21 +26,37 @@ const withCreditCard = (Component) => {
 
   const perform = {
     doOpenModal,
+    doGetCustomerStatus,
   };
 
   const CreditCardPrompt = (props) => {
     // eslint-disable-next-line react/prop-types
-    const { hasSavedCard, doOpenModal, ...componentProps } = props;
+    const { hasSavedCard, doOpenModal, doGetCustomerStatus, modalState, ...componentProps } = props;
+    const fetching = hasSavedCard === undefined;
 
     const modal = React.useContext(ModalContext)?.modal;
+
+    React.useEffect(() => {
+      if (hasSavedCard === undefined) {
+        doGetCustomerStatus();
+      }
+    }, [doGetCustomerStatus, hasSavedCard]);
 
     if (!hasSavedCard) {
       const handleOpenAddCardModal = () =>
         doOpenModal(MODALS.ADD_CARD, {
-          ...(modal ? { previousModal: modal.id, previousProps: modal.modalProps } : {}),
+          ...(modal ? { previousModal: modal.id, previousProps: { ...modal.modalProps, ...modalState } } : {}),
         });
 
-      return <Button requiresAuth button="primary" label={__('Add a Credit Card')} onClick={handleOpenAddCardModal} />;
+      return (
+        <Button
+          disabled={fetching}
+          requiresAuth
+          button="primary"
+          label={fetching ? <Spinner type="small" /> : __('Add a Credit Card')}
+          onClick={handleOpenAddCardModal}
+        />
+      );
     }
 
     return <Component {...componentProps} />;
