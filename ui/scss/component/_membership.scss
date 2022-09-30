@@ -1469,3 +1469,9 @@ svg.icon--Upgrade {
 .membership-tier__description {
   word-break: break-word;
 }
+
+.membership-tier__infos-description {
+  display: block;
+  max-height: 140px;
+  overflow: scroll;
+}

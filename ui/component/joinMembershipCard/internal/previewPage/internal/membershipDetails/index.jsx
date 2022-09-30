@@ -41,7 +41,7 @@ const MembershipDetails = (props: Props) => {
       </section>
 
       <section className="membership-tier__infos">
-        <span>
+        <span className="membership-tier__infos-description">
           {descriptionParagraphs.map((descriptionLine, i) =>
             descriptionLine === '' ? <br /> : <p key={i}>{descriptionLine}</p>
           )}
