@@ -10,7 +10,7 @@ import BusyIndicator from 'component/common/busy-indicator';
 const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(value);
 
 const MIN_PRICE = '4';
-const MAX_PRICE = '1000'; // -- the value that fails on the backend, not sure the actual limit
+const MAX_PRICE = '1000';
 
 // -- this is not actually used, but helps checking --
 // export const ODYSEE_PERKS = Object.freeze({
@@ -71,7 +71,7 @@ function MembershipTier(props: Props) {
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
 
   const priceLowerThanMin = parseFloat(editTierParams.editTierPrice) < parseFloat(MIN_PRICE);
-  const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > Number(MAX_PRICE) / 100;
+  const priceHigherThanMax = parseFloat(editTierParams.editTierPrice) > parseFloat(MAX_PRICE);
   const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
 
   /**
