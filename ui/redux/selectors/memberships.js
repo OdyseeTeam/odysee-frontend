@@ -18,6 +18,7 @@ type State = { claims: any, user: any, memberships: any };
 const selectState = (state: State) => state.memberships || {};
 
 export const selectMembershipMineData = (state: State) => selectState(state).membershipMineByKey;
+export const selectMembershipMineFetching = (state: State) => selectState(state).membershipMineFetching;
 export const selectMyActiveMembershipsById = (state: State) => selectMembershipMineData(state)?.activeById;
 export const selectMyCanceledMembershipsById = (state: State) => selectMembershipMineData(state)?.canceledById;
 export const selectMyPurchasedMembershipsById = (state: State) => selectMembershipMineData(state)?.purchasedById;
@@ -31,6 +32,11 @@ export const selectMembershipPerks = (state: State) => selectState(state).member
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 export const selectIsListingAllMyTiers = (state: State) => selectState(state).listingAllMyTiers;
+export const selectClaimMembershipTiersFetchingIds = (state: State) =>
+  selectState(state).claimMembershipTiersFetchingIds;
+
+export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) =>
+  new Set(selectClaimMembershipTiersFetchingIds(state)).has(claimId);
 
 export const selectMyTotalSupportersAmount = (state: State) => selectMySupportersList(state)?.length || 0;
 

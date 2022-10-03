@@ -5,6 +5,7 @@ const reducers = {};
 
 type MembershipsState = {
   membershipMineByKey: ?MembershipMineDataByKey,
+  membershipMineFetching: boolean,
   membershipListById: { [channelId: string]: MembershipTiers },
   channelMembershipsByCreatorId: ChannelMembershipsByCreatorId,
   fetchingIdsByCreatorId: { [creatorId: string]: ClaimIds },
@@ -16,10 +17,12 @@ type MembershipsState = {
   mySupportersList: ?SupportersList,
   membershipPerks: Array<MembershipPerk>,
   listingAllMyTiers: ?boolean,
+  claimMembershipTiersFetchingIds: Array<string>,
 };
 
 const defaultState: MembershipsState = {
   membershipMineByKey: undefined,
+  membershipMineFetching: false,
   membershipListById: {},
   channelMembershipsByCreatorId: {},
   fetchingIdsByCreatorId: {},
@@ -31,6 +34,7 @@ const defaultState: MembershipsState = {
   mySupportersList: undefined,
   membershipPerks: [],
   listingAllMyTiers: undefined,
+  claimMembershipTiersFetchingIds: [],
 };
 
 reducers[ACTIONS.CHANNEL_MEMBERSHIP_CHECK_STARTED] = (state, action) => {
@@ -115,7 +119,13 @@ reducers[ACTIONS.DELETE_MEMBERSHIP_FAILED] = (state, action) => {
   return { ...state, pendingDeleteIds: Array.from(newPendingDeleteIds) };
 };
 
-reducers[ACTIONS.SET_MEMBERSHIP_MINE_DATA] = (state, action) => ({ ...state, membershipMineByKey: action.data });
+reducers[ACTIONS.GET_MEMBERSHIP_MINE_START] = (state, action) => ({ ...state, membershipMineFetching: true });
+reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => ({
+  ...state,
+  membershipMineByKey: action.data,
+  membershipMineFetching: false,
+});
+reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL] = (state, action) => ({ ...state, membershipMineFetching: false });
 
 reducers[ACTIONS.MEMBERSHIP_LIST_COMPLETE] = (state, action) => {
   const { channelId, list } = action.data;
@@ -127,33 +137,62 @@ reducers[ACTIONS.MEMBERSHIP_LIST_COMPLETE] = (state, action) => {
 
 reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, membershipPerks: action.data });
 
-// reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED] = (state, action) => {
-//   return { ...state };
-// };
+reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START] = (state, action) => {
+  const claimIds = action.data;
 
-reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS] = (state, action) => {
+  const newClaimMembershipTiersFetchingIds = [...state.claimMembershipTiersFetchingIds, ...claimIds];
+
+  return { ...state, claimMembershipTiersFetchingIds: newClaimMembershipTiersFetchingIds };
+};
+reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS] = (state, action) => {
+  const response: MembershipContentResponse = action.data;
+
   const newProtectedContentClaims = Object.assign({}, state.protectedContentClaimsByCreatorId);
+  const newClaimMembershipTiersFetchingIds = new Set(state.claimMembershipTiersFetchingIds);
 
-  if (action.data && action.data.length) {
-    const channelId = action.data[0].channel_id;
-    const claimId = action.data[0].claim_id;
+  if (response && response.length > 0) {
+    response.forEach((membershipContent: MembershipContentResponseItem) => {
+      const { channel_id: creatorId, claim_id: claimId, membership_id: membershipId } = membershipContent;
 
-    if (!newProtectedContentClaims[channelId]) newProtectedContentClaims[channelId] = {};
-    const thisContentChannel = newProtectedContentClaims[channelId];
-    if (!thisContentChannel[claimId]) thisContentChannel[claimId] = {};
+      newClaimMembershipTiersFetchingIds.delete(claimId);
 
-    let membershipIds = [];
-    for (const content of action.data) {
-      membershipIds.push(content.membership_id);
-    }
-    thisContentChannel[claimId]['memberships'] = membershipIds;
+      const creatorContentMemberships = newProtectedContentClaims[creatorId];
+      const newCreatorContentMemberships = Object.assign({}, creatorContentMemberships);
+
+      if (!creatorContentMemberships) {
+        Object.assign(newProtectedContentClaims, { [creatorId]: newCreatorContentMemberships });
+      }
+
+      const contentClaimMemberships = newProtectedContentClaims[creatorId][claimId];
+      const newContentClaimMemberships = Object.assign({}, contentClaimMemberships);
+
+      if (!contentClaimMemberships) {
+        Object.assign(newProtectedContentClaims[creatorId], { [claimId]: newContentClaimMemberships });
+      }
+
+      const contentClaimMembershipIds = new Set(newContentClaimMemberships.memberships);
+      contentClaimMembershipIds.add(membershipId);
+
+      Object.assign(newProtectedContentClaims[creatorId][claimId], {
+        memberships: Array.from(contentClaimMembershipIds),
+      });
+    });
   }
 
-  return { ...state, protectedContentClaimsByCreatorId: newProtectedContentClaims };
+  return {
+    ...state,
+    protectedContentClaimsByCreatorId: newProtectedContentClaims,
+    claimMembershipTiersFetchingIds: Array.from(newClaimMembershipTiersFetchingIds),
+  };
 };
+reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_FAIL] = (state, action) => {
+  const claimIds = new Set(action.data);
 
-reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED] = (state, action) => {
-  return { ...state };
+  const newClaimMembershipTiersFetchingIds = state.claimMembershipTiersFetchingIds.filter(
+    (fetchingId) => !claimIds.has(fetchingId)
+  );
+
+  return { ...state, claimMembershipTiersFetchingIds: newClaimMembershipTiersFetchingIds };
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CHANNEL_SUCCESS] = (state, action) => {

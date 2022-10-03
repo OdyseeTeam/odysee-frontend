@@ -18,6 +18,7 @@ import {
 } from 'redux/selectors/claims';
 
 import { doFetchTxoPage } from 'redux/actions/wallet';
+import { doGetMembershipTiersForContentClaimIds } from 'redux/actions/memberships';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
@@ -712,10 +713,14 @@ export function doClaimSearch(
     const success = (data: ClaimSearchResponse) => {
       const resolveInfo = {};
       const urls = [];
+      const claimIds = [];
       data.items.forEach((stream: Claim) => {
         resolveInfo[stream.canonical_url] = { stream };
         urls.push(stream.canonical_url);
+        claimIds.push(stream.claim_id);
       });
+
+      dispatch(doGetMembershipTiersForContentClaimIds(claimIds));
 
       dispatch({
         type: ACTIONS.CLAIM_SEARCH_COMPLETED,
