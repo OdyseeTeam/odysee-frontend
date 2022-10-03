@@ -1246,18 +1246,17 @@
   backdrop-filter: blur(4px);
   color: white;
 
-  .protected-content-overlay--subheader{
-    font-size: 21px;
-  }
-
   .icon.icon--Lock {
     overflow: visible;
     stroke-width: 3;
-    width: 100px;
-    height: 100px;
+    width: 60px;
+    height: 60px;
     margin-bottom: var(--spacing-xxxs);
     padding: var(--spacing-s);
-    margin-top: -54px;
+    background-color: white;
+    color: var(--color-fire);
+    border-radius: 50%;
+    // margin-top: -54px;
   }
 
   .button {
@@ -1266,8 +1265,8 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    width: 94%;
-    height: 90%;
+    // width: 94%;
+    // height: 90%;
     span {
       text-align: center;
     }
