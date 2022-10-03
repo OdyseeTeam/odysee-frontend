@@ -78,6 +78,7 @@ export function doResolveUris(
         claimsInChannel: null,
         channel: null,
       };
+      const claimIds = new Set([]);
 
       function processResult(result, resolveInfo = {}, checkReposts = false) {
         Object.entries(result).forEach(([uri, uriResolveInfo]) => {
@@ -88,6 +89,9 @@ export function doResolveUris(
               // $FlowFixMe
               resolveInfo[uri] = { ...fallbackResolveInfo };
             } else {
+              // $FlowFixMe
+              claimIds.add(uriResolveInfo.claim_id);
+
               if (checkReposts) {
                 if (uriResolveInfo.reposted_claim) {
                   // $FlowFixMe
@@ -139,6 +143,8 @@ export function doResolveUris(
       if (collectionIds.length) {
         dispatch(doFetchItemsInCollections({ collectionIds, pageSize: 50 }));
       }
+
+      dispatch(doGetMembershipTiersForContentClaimIds(Array.from(claimIds)));
 
       return result;
     });
