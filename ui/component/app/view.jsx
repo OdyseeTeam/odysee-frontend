@@ -565,8 +565,8 @@ function App(props: Props) {
         />
       ) : (
         <React.Fragment>
-          <AdBlockTester />
-          <AdsSticky uri={uri} />
+          {/* <AdBlockTester /> */}
+          {/* <AdsSticky uri={uri} /> */}
           <Router uri={uri} />
           <ModalRouter />
 
@@ -577,7 +577,7 @@ function App(props: Props) {
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
 
-            <YoutubeWelcome />
+            {/* <YoutubeWelcome /> */}
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />

@@ -736,7 +736,7 @@ function ClaimListDiscover(props: Props) {
             timedOutMessage={timedOutMessage}
             renderProperties={renderProperties}
             includeSupportAction={includeSupportAction}
-            injectedItem={injectedItem}
+            // injectedItem={injectedItem}
             showHiddenByUser={showHiddenByUser}
             searchOptions={options}
             showNoSourceClaims={showNoSourceClaims}
@@ -777,7 +777,7 @@ function ClaimListDiscover(props: Props) {
             timedOutMessage={timedOutMessage}
             renderProperties={renderProperties}
             includeSupportAction={includeSupportAction}
-            injectedItem={injectedItem}
+            // injectedItem={injectedItem}
             showHiddenByUser={showHiddenByUser}
             searchOptions={options}
             showNoSourceClaims={hasNoSource || showNoSourceClaims}
