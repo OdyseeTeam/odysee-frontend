@@ -40,7 +40,7 @@ type Props = {
   doGetMembershipSupportersList: () => void,
 };
 
-const MembershipsPage = (props: Props) => {
+const CreatorArea = (props: Props) => {
   const {
     bankAccountConfirmed,
     activeChannelClaim,
@@ -213,4 +213,4 @@ const MembershipsPage = (props: Props) => {
   );
 };
 
-export default MembershipsPage;
+export default CreatorArea;

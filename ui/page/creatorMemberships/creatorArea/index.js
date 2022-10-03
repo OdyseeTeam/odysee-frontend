@@ -8,7 +8,7 @@ import { selectMySupportersList } from 'redux/selectors/memberships';
 import { doTipAccountStatus } from 'redux/actions/stripe';
 import { doListAllMyMembershipTiers, doGetMembershipSupportersList } from 'redux/actions/memberships';
 
-import MembershipsPage from './view';
+import CreatorArea from './view';
 
 const select = (state, props) => ({
   bankAccountConfirmed: selectAccountChargesEnabled(state),
@@ -23,4 +23,4 @@ const perform = {
   doGetMembershipSupportersList,
 };
 
-export default connect(select, perform)(MembershipsPage);
+export default connect(select, perform)(CreatorArea);

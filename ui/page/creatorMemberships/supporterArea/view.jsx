@@ -35,7 +35,7 @@ type Props = {
   doListAllMyMembershipTiers: () => Promise<CreatorMemberships>,
 };
 
-const MembershipsPage = (props: Props) => {
+const SupporterArea = (props: Props) => {
   const {
     // -- redux --
     bankAccountConfirmed,
@@ -147,4 +147,4 @@ const MembershipsPage = (props: Props) => {
   );
 };
 
-export default MembershipsPage;
+export default SupporterArea;
