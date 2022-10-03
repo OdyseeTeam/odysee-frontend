@@ -4,7 +4,12 @@ import * as MODALS from 'constants/modal_types';
 
 import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
-import { selectFetchingIdsForMembershipChannelId, selectIsListingAllMyTiers } from 'redux/selectors/memberships';
+import {
+  selectMembershipMineFetching,
+  selectFetchingIdsForMembershipChannelId,
+  selectIsListingAllMyTiers,
+  selectIsClaimMembershipTierFetchingForId,
+} from 'redux/selectors/memberships';
 import { selectChannelTitleForUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -80,8 +85,15 @@ export const doMembershipList = (params: MembershipListParams) => async (dispatc
       dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId: params.channel_id, list: null } })
     );
 
-export const doMembershipMine = () => async (dispatch: Dispatch) =>
-  await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
+export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const isFetching = selectMembershipMineFetching(state);
+
+  if (isFetching) return Promise.resolve();
+
+  dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
+
+  return await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
     .then((response) => {
       const membershipMine: MembershipMineDataByKey = { activeById: {}, canceledById: {}, purchasedById: {} };
 
@@ -103,9 +115,10 @@ export const doMembershipMine = () => async (dispatch: Dispatch) =>
         purchasedById[creatorClaimId] = currentPurchased ? [...currentPurchased, membership] : [membership];
       }
 
-      dispatch({ type: ACTIONS.SET_MEMBERSHIP_MINE_DATA, data: membershipMine });
+      dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: membershipMine });
     })
-    .catch((err) => dispatch({ type: ACTIONS.SET_MEMBERSHIP_MINE_DATA_ERROR, data: err }));
+    .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
+};
 
 export const doMembershipBuy = (membershipParams: MembershipBuyParams) => async (dispatch: Dispatch) => {
   const { membership_id: membershipId } = membershipParams;
@@ -307,22 +320,43 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
     });
 };
 
-export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (dispatch: Dispatch) => {
-  // dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED, data: contentClaimId });
+export const doGetMembershipTiersForContentClaimIds = (contentClaimIds: ClaimIds) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const state = getState();
+  const idsToFetch = contentClaimIds.filter((claimId) => {
+    const isFetching = selectIsClaimMembershipTierFetchingForId(state, claimId);
+    return !isFetching;
+  });
 
-  if (!contentClaimId) {
-    throw new Error('Claim id is not passed');
-  }
+  if (idsToFetch.length === 0) return Promise.resolve();
 
-  await Lbryio.call('membership', 'content', { environment: stripeEnvironment, claim_id: contentClaimId }, 'post')
-    .then((response) => {
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_SUCCESS, data: response });
+  const claimIdsCsv = idsToFetch.toString();
+
+  dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START, data: idsToFetch });
+
+  await Lbryio.call('membership', 'content', { environment: stripeEnvironment, validate: claimIdsCsv }, 'post')
+    .then((response: MembershipContentResponse) => {
+      dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_SUCCESS, data: response });
       return response;
     })
     .catch((e) => {
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_TIERS_FOR_CONTENT_FAILED, data: contentClaimId });
+      dispatch({ type: ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_FAIL, data: idsToFetch });
       return e;
     });
+};
+
+export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const state = getState();
+  const isFetching = selectIsClaimMembershipTierFetchingForId(state, contentClaimId);
+
+  if (isFetching) return Promise.resolve();
+
+  return dispatch(doGetMembershipTiersForContentClaimIds([contentClaimId]));
 };
 
 export const doSaveMembershipRestrictionsForContent = (

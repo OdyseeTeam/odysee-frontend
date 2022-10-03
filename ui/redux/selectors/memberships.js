@@ -18,6 +18,7 @@ type State = { claims: any, user: any, memberships: any };
 const selectState = (state: State) => state.memberships || {};
 
 export const selectMembershipMineData = (state: State) => selectState(state).membershipMineByKey;
+export const selectMembershipMineFetching = (state: State) => selectState(state).membershipMineFetching;
 export const selectMyActiveMembershipsById = (state: State) => selectMembershipMineData(state)?.activeById;
 export const selectMyCanceledMembershipsById = (state: State) => selectMembershipMineData(state)?.canceledById;
 export const selectMyPurchasedMembershipsById = (state: State) => selectMembershipMineData(state)?.purchasedById;
@@ -31,6 +32,11 @@ export const selectMembershipPerks = (state: State) => selectState(state).member
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 export const selectIsListingAllMyTiers = (state: State) => selectState(state).listingAllMyTiers;
+export const selectClaimMembershipTiersFetchingIds = (state: State) =>
+  selectState(state).claimMembershipTiersFetchingIds;
+
+export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) =>
+  new Set(selectClaimMembershipTiersFetchingIds(state)).has(claimId);
 
 export const selectMyTotalSupportersAmount = (state: State) => selectMySupportersList(state)?.length || 0;
 
@@ -294,18 +300,36 @@ export const selectProtectedContentMembershipsForId = (state: State, claimId: Cl
   );
 };
 
-export const selectMyProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
-  const validMembershipIds = new Set(selectMyValidMembershipIds(state));
-  const protectedContentMemberships = selectProtectedContentMembershipsForId(state, claimId);
+export const selectMyProtectedContentMembershipForId = createSelector(
+  selectProtectedContentMembershipsForId,
+  selectMyValidMembershipIds,
+  (protectedContentMemberships, validMembershipIds) => {
+    if (!protectedContentMemberships) return protectedContentMemberships;
 
-  return (
-    protectedContentMemberships &&
-    protectedContentMemberships.find((membership) => validMembershipIds.has(membership.Membership.id))
-  );
-};
+    const validMembershipIdsSet = new Set(validMembershipIds);
+    const myMembership = protectedContentMemberships.find((membership) =>
+      validMembershipIdsSet.has(membership.Membership.id)
+    );
+    if (!myMembership) return null;
+
+    return myMembership;
+  }
+);
 
 export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId: ClaimId) =>
   Boolean(selectMyProtectedContentMembershipForId(state, claimId));
+
+export const selectNoRestrictionOrUserIsMemberForContentClaimId = (state: State, claimId: ClaimId) => {
+  const claim = selectClaimForId(state, claimId);
+  if (!claim) return claim;
+  const claimChannelId = getChannelIdFromClaim(claim);
+  if (!claimChannelId) return claimChannelId;
+
+  const protectedContentMemberships = selectProtectedContentMembershipsForContentClaimId(state, claimId);
+  const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
+
+  return Boolean(!protectedContentMemberships || userHasAccess);
+};
 
 export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
   (state, restrictedIds) => restrictedIds,

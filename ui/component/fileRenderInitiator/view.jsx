@@ -59,6 +59,7 @@ type Props = {
   validMembershipIds?: Array<number>,
   protectedContentTag?: string,
   unauthorizedForContent: boolean,
+  myMembership: ?Membership,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -93,6 +94,7 @@ export default function FileRenderInitiator(props: Props) {
     validRentalPurchase,
     videoTheaterMode,
     unauthorizedForContent,
+    myMembership,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
@@ -118,15 +120,18 @@ export default function FileRenderInitiator(props: Props) {
   const stillNeedsToBePurchased = purchaseContentTag && !purchaseMadeForClaimId && !hasBeenRented;
   const stillNeedsToBeRented = rentalTag && !validRentalPurchase && !hasBeenPurchased;
 
-  const notAuthedToView = (stillNeedsToBePurchased || stillNeedsToBeRented || unauthorizedForContent) && !claimIsMine;
+  const notAuthedToView =
+    (stillNeedsToBePurchased || stillNeedsToBeRented || (unauthorizedForContent && myMembership !== undefined)) &&
+    !claimIsMine;
 
   const shouldAutoplay =
     !notAuthedToView && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
 
   const isFree = costInfo && costInfo.cost === 0;
-  const canViewFile = isLivestreamClaim
-    ? (layountRendered || isMobile) && isCurrentClaimLive
-    : isFree || claimWasPurchased;
+  const canViewFile =
+    !unauthorizedForContent &&
+    myMembership !== undefined &&
+    (isLivestreamClaim ? (layountRendered || isMobile) && isCurrentClaimLive : isFree || claimWasPurchased);
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
@@ -252,7 +257,7 @@ export default function FileRenderInitiator(props: Props) {
         )
       )}
 
-      {(!disabled || (embedded && isLivestreamClaim)) && (
+      {canViewFile && (!disabled || (embedded && isLivestreamClaim)) && (
         <Button
           requiresAuth={shouldRedirect}
           onClick={handleClick}

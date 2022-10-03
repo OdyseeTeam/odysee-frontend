@@ -7,6 +7,7 @@ import {
   selectMyMembershipTiersWithExclusiveContentPerk,
   selectMyMembershipTiersWithExclusiveLivestreamPerk,
 } from 'redux/selectors/memberships';
+import { selectIsStillEditing } from 'redux/selectors/publish';
 import { doGetMembershipTiersForContentClaimId, doMembershipList } from 'redux/actions/memberships';
 import PublishProtectedContent from './view';
 
@@ -31,6 +32,7 @@ const select = (state, props) => {
       state,
       activeChannel?.claim_id
     ),
+    isStillEditing: selectIsStillEditing(state),
   };
 };
 

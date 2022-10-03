@@ -219,3 +219,10 @@ declare type MembershipSupporter = {
   Price: number,
 };
 declare type SupportersList = Array<MembershipSupporter>;
+
+declare type MembershipContentResponse = Array<MembershipContentResponseItem>;
+declare type MembershipContentResponseItem = {
+  channel_id: string,
+  claim_id: string,
+  membership_id: number,
+};

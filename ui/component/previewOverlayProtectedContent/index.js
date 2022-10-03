@@ -1,23 +1,34 @@
 import { connect } from 'react-redux';
-import PreviewOverlayProtectedContent from './view';
+import { getChannelFromClaim } from 'util/claim';
+
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
 import {
+  selectUserIsMemberOfProtectedContentForId,
+  selectPriceOfCheapestPlanForClaimId,
   selectProtectedContentMembershipsForClaimId,
-  selectMyValidMembershipIds,
-  selectMembershipTiersForChannelId,
 } from 'redux/selectors/memberships';
 
+import { doMembershipList } from 'redux/actions/memberships';
+
+import PreviewOverlayProtectedContent from './view';
+
 const select = (state, props) => {
-  const claim = selectClaimForUri(state, props.uri);
+  const { uri } = props;
+  const claim = selectClaimForUri(state, uri);
   const claimId = claim && claim.claim_id;
-  const channelId = claim && claim?.signing_channel?.claim_id;
+  const channel = getChannelFromClaim(claim);
 
   return {
+    channel,
     claimIsMine: selectClaimIsMine(state, claim),
-    protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channelId, claimId),
-    channelMemberships: selectMembershipTiersForChannelId(state, channelId),
-    validMembershipIds: selectMyValidMembershipIds(state),
+    protectedMembershipIds: channel && selectProtectedContentMembershipsForClaimId(state, channel.claim_id, claimId),
+    userIsAMember: selectUserIsMemberOfProtectedContentForId(state, claimId),
+    cheapestPlanPrice: selectPriceOfCheapestPlanForClaimId(state, claimId),
   };
 };
 
-export default connect(select, null)(PreviewOverlayProtectedContent);
+const perform = {
+  doMembershipList,
+};
+
+export default connect(select, perform)(PreviewOverlayProtectedContent);

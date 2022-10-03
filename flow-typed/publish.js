@@ -32,7 +32,6 @@ declare type UpdatePublishFormData = {
   isMarkdownPost?: boolean,
   tags?: Array<Tag>,
   restrictedToMemberships?: Array<string>,
-  restrictCommentsAndChat?: boolean,
 };
 
 declare type PublishParams = {
