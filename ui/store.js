@@ -16,7 +16,10 @@ import { sharedStateMiddleware } from 'redux/setup/sharedState';
 import { tabStateSyncMiddleware } from 'redux/setup/tabState';
 
 const history = createMemoryHistory();
-if (window.cordova) window.odysee.functions.history = history;
+if (window.cordova) {
+  window.odysee.functions.history = history;
+  window.odysee.functions.checkPayload();
+}
 const rootReducer = createRootReducer(history);
 const persistedReducer = persistReducer(persistOptions, rootReducer);
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
