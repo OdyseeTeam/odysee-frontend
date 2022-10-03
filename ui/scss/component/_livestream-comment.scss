@@ -118,6 +118,10 @@
       width: calc(var(--font-body) + 2px);
       margin-bottom: -4px;
     }
+    .icon--Membership {
+      color: var(--color-text);
+      margin-bottom: -4px;
+    }
   }
 }
 
@@ -148,6 +152,13 @@
 
   .livestreamComment__info {
     margin-top: calc(var(--spacing-xxs) / 2);
+
+    .comment__badge {
+      .icon--Membership {
+        color: var(--color-text);
+        margin-bottom: -4px;
+      }
+    }
   }
 
   .button__content {

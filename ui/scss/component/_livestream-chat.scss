@@ -1104,6 +1104,10 @@ $recent-msg-button__height: 2rem;
     }
     .comment__badge {
       margin-top: -2px !important;
+      .icon--Membership {
+        color: var(--color-text);
+        margin-bottom: -4px;
+      }
     }
   }
 }
