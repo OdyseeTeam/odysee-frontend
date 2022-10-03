@@ -319,6 +319,18 @@ export const selectMyProtectedContentMembershipForId = createSelector(
 export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId: ClaimId) =>
   Boolean(selectMyProtectedContentMembershipForId(state, claimId));
 
+export const selectNoRestrictionOrUserIsMemberForContentClaimId = (state: State, claimId: ClaimId) => {
+  const claim = selectClaimForId(state, claimId);
+  if (!claim) return claim;
+  const claimChannelId = getChannelIdFromClaim(claim);
+  if (!claimChannelId) return claimChannelId;
+
+  const protectedContentMemberships = selectProtectedContentMembershipsForContentClaimId(state, claimId);
+  const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
+
+  return Boolean(!protectedContentMemberships || userHasAccess);
+};
+
 export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
   (state, restrictedIds) => restrictedIds,
   selectMembershipsById,

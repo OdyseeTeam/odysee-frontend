@@ -21,7 +21,7 @@ const select = (state, props) => {
   return {
     channel,
     claimIsMine: selectClaimIsMine(state, claim),
-    protectedMembershipIds: selectProtectedContentMembershipsForClaimId(state, channel.claim_id, claimId),
+    protectedMembershipIds: channel && selectProtectedContentMembershipsForClaimId(state, channel.claim_id, claimId),
     userIsAMember: selectUserIsMemberOfProtectedContentForId(state, claimId),
     cheapestPlanPrice: selectPriceOfCheapestPlanForClaimId(state, claimId),
   };
