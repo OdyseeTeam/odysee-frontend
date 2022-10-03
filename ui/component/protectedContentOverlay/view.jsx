@@ -12,16 +12,18 @@ type Props = {
   isProtected: boolean,
   uri: string,
   userIsAMember: boolean,
+  myMembership: ?Membership,
   cheapestPlanPrice: ?Membership,
   doOpenModal: (string, {}) => void,
 };
 
-export default function ProtectedContentOverlay(props: Props) {
-  const { claimIsMine, uri, isProtected, userIsAMember, cheapestPlanPrice, doOpenModal } = props;
+const ProtectedContentOverlay = (props: Props) => {
+  const { claimIsMine, uri, isProtected, myMembership, userIsAMember, cheapestPlanPrice, doOpenModal } = props;
 
   const fileUri = React.useContext(AppContext)?.uri;
+  const membershipFetching = myMembership === undefined;
 
-  if (!isProtected || userIsAMember || claimIsMine) return null;
+  if (membershipFetching || !isProtected || userIsAMember || claimIsMine) return null;
 
   return (
     <div className="protected-content-overlay">
@@ -40,4 +42,6 @@ export default function ProtectedContentOverlay(props: Props) {
       />
     </div>
   );
-}
+};
+
+export default ProtectedContentOverlay;

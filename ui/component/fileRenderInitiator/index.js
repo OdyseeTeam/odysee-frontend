@@ -25,7 +25,7 @@ import FileRenderInitiator from './view';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { getThumbnailFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import { selectIfUnauthorizedForContent, selectMyProtectedContentMembershipForId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -55,6 +55,7 @@ const select = (state, props) => {
     rentalTag: selectRentalTagForUri(state, uri),
     validRentalPurchase: selectValidRentalPurchaseForClaimId(state, claimId),
     unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
+    myMembership: selectMyProtectedContentMembershipForId(state, claimId),
   };
 };
 

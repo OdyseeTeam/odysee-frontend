@@ -294,15 +294,21 @@ export const selectProtectedContentMembershipsForId = (state: State, claimId: Cl
   );
 };
 
-export const selectMyProtectedContentMembershipForId = (state: State, claimId: ClaimId) => {
-  const validMembershipIds = new Set(selectMyValidMembershipIds(state));
-  const protectedContentMemberships = selectProtectedContentMembershipsForId(state, claimId);
+export const selectMyProtectedContentMembershipForId = createSelector(
+  selectProtectedContentMembershipsForId,
+  selectMyValidMembershipIds,
+  (protectedContentMemberships, validMembershipIds) => {
+    if (!protectedContentMemberships) return protectedContentMemberships;
 
-  return (
-    protectedContentMemberships &&
-    protectedContentMemberships.find((membership) => validMembershipIds.has(membership.Membership.id))
-  );
-};
+    const validMembershipIdsSet = new Set(validMembershipIds);
+    const myMembership = protectedContentMemberships.find((membership) =>
+      validMembershipIdsSet.has(membership.Membership.id)
+    );
+    if (!myMembership) return null;
+
+    return myMembership;
+  }
+);
 
 export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId: ClaimId) =>
   Boolean(selectMyProtectedContentMembershipForId(state, claimId));
