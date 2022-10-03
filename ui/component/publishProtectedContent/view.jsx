@@ -20,6 +20,7 @@ type Props = {
   myMembershipTiersWithExclusiveContentPerk: CreatorMemberships,
   myMembershipTiersWithExclusiveLivestreamPerk: CreatorMemberships,
   location: string,
+  isStillEditing: boolean,
 };
 
 function PublishProtectedContent(props: Props) {
@@ -35,6 +36,7 @@ function PublishProtectedContent(props: Props) {
     myMembershipTiersWithExclusiveContentPerk,
     myMembershipTiersWithExclusiveLivestreamPerk,
     location,
+    isStillEditing,
   } = props;
 
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
@@ -52,12 +54,13 @@ function PublishProtectedContent(props: Props) {
   }, [claimId]);
 
   // $FlowIssue
-  const commaSeparatedValues = protectedMembershipIds?.join(',') || '';
+  const commaSeparatedValues = (isStillEditing && protectedMembershipIds?.join(',')) || '';
 
   // if there are already restricted memberships for this content, setup state
   React.useEffect(() => {
     if (!activeChannel) return;
-    if (protectedMembershipIds && protectedMembershipIds.length) {
+    // we check isStillEditing because otherwise the restriction values will load when a claim matches
+    if (protectedMembershipIds && protectedMembershipIds.length && isStillEditing) {
       setIsRestrictingContent(true);
       const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
       // $FlowFixMe
@@ -68,17 +71,17 @@ function PublishProtectedContent(props: Props) {
         channelClaimId: activeChannel.claim_id,
       });
     } else {
-      setIsRestrictingContent(false);
-      const restrictionCheckbox = document.getElementById('toggleRestrictedContent');
       // $FlowFixMe
-      if (restrictionCheckbox) restrictionCheckbox.checked = false;
-
-      updatePublishForm({
-        restrictedToMemberships: commaSeparatedValues,
-        channelClaimId: activeChannel.claim_id,
-      });
+      const restrictionCheckbox: HTMLInputElement = document.getElementById('toggleRestrictedContent');
+      // clear out data unless user has already checked that they are restricting
+      if (restrictionCheckbox?.checked !== true) {
+        updatePublishForm({
+          restrictedToMemberships: commaSeparatedValues,
+          channelClaimId: activeChannel.claim_id,
+        });
+      }
     }
-  }, [protectedMembershipIds, activeChannel, claim]);
+  }, [protectedMembershipIds, activeChannel, isStillEditing]);
 
   function handleRestrictedMembershipChange(event) {
     let matchedMemberships;
@@ -166,9 +169,8 @@ function PublishProtectedContent(props: Props) {
                     <FormField
                       key={membership.Membership.id}
                       type="checkbox"
-                      defaultChecked={
-                        protectedMembershipIds && protectedMembershipIds.includes(membership.Membership.id)
-                      }
+                      // $FlowIssue
+                      defaultChecked={isStillEditing && protectedMembershipIds?.includes(membership.Membership.id)}
                       label={membership.Membership.name}
                       name={'restrictToMembership:' + membership.Membership.id}
                       onChange={handleRestrictedMembershipChange}

@@ -35,7 +35,7 @@ import {
   LBRY_FIRST_TAG,
   SCHEDULED_LIVESTREAM_TAG,
   MEMBERS_ONLY_CONTENT_TAG,
-  RESTRICTED_CHAT_COMMENTS_TAG,
+  // RESTRICTED_CHAT_COMMENTS_TAG,
 } from 'constants/tags';
 
 function resolveClaimTypeForAnalytics(claim) {
@@ -636,7 +636,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
   const publishDataTags = new Set(publishData.tags && publishData.tags.map((tag) => tag.name));
 
   const publishTagsHaveRestrictedMemberships = publishDataTags.has(MEMBERS_ONLY_CONTENT_TAG);
-  const publishTagsHaveRestrictedChatComments = publishDataTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
+  // const publishTagsHaveRestrictedChatComments = publishDataTags.has(RESTRICTED_CHAT_COMMENTS_TAG);
 
   if (publishTagsHaveRestrictedMemberships) {
     if (channelId) {
@@ -656,15 +656,15 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
     }
   }
 
-  if (publishTagsHaveRestrictedChatComments) {
-    if (channelId) {
-      publishData['restrictCommentsAndChat'] = true;
-    } else {
-      publishData.tags = publishData.tags
-        ? publishData.tags.filter((tag) => tag.name === RESTRICTED_CHAT_COMMENTS_TAG)
-        : [];
-    }
-  }
+  // if (publishTagsHaveRestrictedChatComments) {
+  //   if (channelId) {
+  //     publishData['restrictCommentsAndChat'] = true;
+  //   } else {
+  //     publishData.tags = publishData.tags
+  //       ? publishData.tags.filter((tag) => tag.name === RESTRICTED_CHAT_COMMENTS_TAG)
+  //       : [];
+  //   }
+  // }
 
   dispatch({ type: ACTIONS.DO_PREPARE_EDIT, data: publishData });
 
@@ -726,7 +726,6 @@ export const doPublish = (success: Function, fail: Function, previewFn?: Functio
     dispatch(
       doUpdatePublishForm({
         restrictedToMemberships: undefined,
-        restrictCommentsAndChat: undefined,
       })
     );
 
