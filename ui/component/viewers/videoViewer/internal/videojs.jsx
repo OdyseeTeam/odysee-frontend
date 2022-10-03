@@ -506,10 +506,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
             window.odysee.chromecast.setMediaPayload(payload);
           }
         } else {
-          vjsPlayer.src(source);
+          let fix = source + '#.mp4';
+          vjsPlayer.src(fix);
           if (window.cordova) {
             let payload = {
-              uri: vjsPlayer.claimSrcOriginal.src,
+              uri: vjsPlayer.claimSrcOriginal,
               claim: claimValues,
               fileType: sourceType,
               channel: channelTitle,
@@ -523,28 +524,6 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (typeof vjsPlayer.vttThumbnails.detach === 'function') {
         vjsPlayer.vttThumbnails.detach();
       }
-
-      /*
-      // initialize hover thumbnails
-      if (contentUrl) {
-        const trimmedPath = contentUrl.substring(0, contentUrl.lastIndexOf('/'));
-        const thumbnailPath = trimmedPath + '/stream_sprite.vtt';
-
-        // progress bar hover thumbnails
-        if (!IS_MOBILE) {
-          // if src is a function, it's already been initialized
-          if (typeof vjsPlayer.vttThumbnails.src === 'function') {
-            vjsPlayer.vttThumbnails.src(thumbnailPath);
-          } else {
-            // otherwise, initialize plugin
-            vjsPlayer.vttThumbnails({
-              src: thumbnailPath,
-              showTimestamp: true,
-            });
-          }
-        }
-      }
-      */
 
       vjsPlayer.load();
 
