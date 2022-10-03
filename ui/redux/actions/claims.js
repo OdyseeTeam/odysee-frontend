@@ -233,6 +233,12 @@ export function doFetchClaimListMine(
           resolve,
         },
       });
+
+      const claimIds = new Set([]);
+      result.items.forEach((item) => {
+        claimIds.add(item.claim_id);
+      });
+      dispatch(doGetMembershipTiersForContentClaimIds(Array.from(claimIds)));
     });
   };
 }
