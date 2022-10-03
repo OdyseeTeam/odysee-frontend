@@ -1104,10 +1104,6 @@ $recent-msg-button__height: 2rem;
     }
     .comment__badge {
       margin-top: -2px !important;
-      .icon--Membership {
-        color: var(--color-text);
-        margin-bottom: -4px;
-      }
     }
   }
 }
@@ -1206,6 +1202,10 @@ $recent-msg-button__height: 2rem;
     margin-top: -1px !important;
     .icon {
       margin-bottom: -3px;
+    }
+    .icon--Membership {
+      color: var(--color-text);
+      margin-bottom: -4px;
     }
   }
 
