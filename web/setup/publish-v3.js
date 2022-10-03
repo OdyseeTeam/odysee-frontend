@@ -5,13 +5,15 @@ import analytics from '../../ui/analytics';
 import { ERR_GRP } from '../../ui/constants/errors';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import { doUpdateUploadAdd, doUpdateUploadProgress, doUpdateUploadRemove } from '../../ui/redux/actions/publish';
+import { doToast } from '../../ui/redux/actions/notifications';
 import { generateError } from './publish-error';
 import { LBRY_WEB_PUBLISH_API_V3 } from 'config';
 
 const RESUMABLE_ENDPOINT = LBRY_WEB_PUBLISH_API_V3;
 const UPLOAD_CHUNK_SIZE_BYTE = 25 * 1024 * 1024;
 
-const SDK_STATUS_RETRY_COUNT = 12;
+const RETRY_INDEFINITELY = -1;
+const SDK_STATUS_RETRY_COUNT = RETRY_INDEFINITELY;
 const SDK_STATUS_RETRY_INTERVAL = 10000;
 
 const STATUS_FILE_NOT_FOUND = 404;
@@ -30,6 +32,12 @@ function inStatusCategory(status, category) {
 }
 
 function isTusStillInProcess(xhr) {
+  try {
+    if (xhr?.response?.error?.message) {
+      analytics.log(xhr.response.error.message, { extra: { xhr } }, 'notify-error-msg');
+    }
+  } catch {}
+
   return xhr?.response?.error?.message === 'upload is still in process'; // String needs to match backend (not good).
 }
 
@@ -57,14 +65,19 @@ function sendStatusRequest(url, guid, token, params, jsonPayload, retryCount, re
 
       case 202:
         // Upload is currently being processed.
-        if (retryCount > 0) {
+        if (retryCount) {
+          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'notify_ok' }));
           setTimeout(() => {
             sendStatusRequest(url, guid, token, params, jsonPayload, retryCount - 1, resolve, reject);
           }, SDK_STATUS_RETRY_INTERVAL);
         } else {
-          window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-          reject(
-            generateError('The file is still being processed. Check back later after a few minutes.', params, xhr)
+          window.store.dispatch(
+            doToast({
+              message: __('The file is still being processed. Check again later.'),
+              subMessage: __('Please be patient, the process may take a while.'),
+              duration: 'long',
+              isError: false,
+            })
           );
         }
         break;
@@ -72,6 +85,7 @@ function sendStatusRequest(url, guid, token, params, jsonPayload, retryCount, re
       case 403:
       case 404:
         // Upload not found or does not belong to the user.
+        analytics.log(new Error('The upload does not exist.'), { extra: { params, xhr } });
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
         reject(generateError('The upload does not exist.', params, xhr));
         break;
@@ -140,7 +154,7 @@ export function makeResumableUploadRequest(
     }
 
     if (params.sdkRan) {
-      sendStatusRequest(params.uploadUrl, guid, token, params, jsonPayload, 0, resolve, reject);
+      sendStatusRequest(params.uploadUrl, guid, token, params, jsonPayload, SDK_STATUS_RETRY_COUNT, resolve, reject);
       return;
     }
 
@@ -165,6 +179,7 @@ export function makeResumableUploadRequest(
       onError: (err) => {
         const status = err.originalResponse ? err.originalResponse.getStatus() : 0;
         const errMsg = typeof err === 'string' ? err : err.message;
+        analytics.log(err, { extra: { params } }, ERR_GRP.TUS);
 
         let customErr;
         if (status === STATUS_LOCKED || errMsg === 'file currently locked') {
@@ -178,8 +193,6 @@ export function makeResumableUploadRequest(
         }
 
         window.store.dispatch(doUpdateUploadProgress({ guid, status: 'error' }));
-        analytics.log(err, {}, ERR_GRP.TUS);
-
         reject(generateError(customErr || err, params, null, uploader, customErr ? err : null));
       },
       onProgress: (bytesUploaded, bytesTotal) => {
