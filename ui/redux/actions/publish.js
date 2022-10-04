@@ -7,10 +7,7 @@ import { batchActions } from 'util/batch-actions';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { doCheckPendingClaims } from 'redux/actions/claims';
 import { selectProtectedContentMembershipsForClaimId } from 'redux/selectors/memberships';
-import {
-  doSaveMembershipRestrictionsForContent,
-  doGetMembershipTiersForContentClaimId,
-} from 'redux/actions/memberships';
+import { doSaveMembershipRestrictionsForContent, doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import {
   makeSelectClaimForUri,
   selectMyActiveClaims,
@@ -643,7 +640,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
       let protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
 
       if (protectedMembershipIds === undefined) {
-        await dispatch(doGetMembershipTiersForContentClaimId(claim.claim_id));
+        await dispatch(doMembershipContentforStreamClaimId(claim.claim_id));
         state = getState();
         protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
       }

@@ -33,7 +33,7 @@ type Props = {
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   theaterMode?: Boolean,
-  doGetMembershipTiersForContentClaimId: (type: string) => void,
+  doMembershipContentforStreamClaimId: (type: string) => void,
   isProtectedContent: boolean,
 };
 
@@ -54,7 +54,7 @@ export default function LivestreamPage(props: Props) {
     doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
     theaterMode,
-    doGetMembershipTiersForContentClaimId,
+    doMembershipContentforStreamClaimId,
     isProtectedContent,
   } = props;
 
@@ -107,7 +107,7 @@ export default function LivestreamPage(props: Props) {
   }, [isStreamPlaying]);
 
   React.useEffect(() => {
-    doGetMembershipTiersForContentClaimId(claimId);
+    doMembershipContentforStreamClaimId(claimId);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimId]);

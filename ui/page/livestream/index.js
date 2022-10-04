@@ -12,7 +12,7 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { doGetMembershipTiersForContentClaimId } from 'redux/actions/memberships';
+import { doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import LivestreamPage from './view';
 
@@ -41,7 +41,7 @@ const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchChannelLiveStatus,
-  doGetMembershipTiersForContentClaimId,
+  doMembershipContentforStreamClaimId,
 };
 
 export default connect(select, perform)(LivestreamPage);

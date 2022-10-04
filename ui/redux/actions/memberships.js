@@ -320,7 +320,7 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
     });
 };
 
-export const doGetMembershipTiersForContentClaimIds = (contentClaimIds: ClaimIds) => async (
+export const doMembershipContentforStreamClaimIds = (contentClaimIds: ClaimIds) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -347,7 +347,7 @@ export const doGetMembershipTiersForContentClaimIds = (contentClaimIds: ClaimIds
     });
 };
 
-export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) => async (
+export const doMembershipContentforStreamClaimId = (contentClaimId: string) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -356,7 +356,7 @@ export const doGetMembershipTiersForContentClaimId = (contentClaimId: string) =>
 
   if (isFetching) return Promise.resolve();
 
-  return dispatch(doGetMembershipTiersForContentClaimIds([contentClaimId]));
+  return dispatch(doMembershipContentforStreamClaimIds([contentClaimId]));
 };
 
 export const doSaveMembershipRestrictionsForContent = (

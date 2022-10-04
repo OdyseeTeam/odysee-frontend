@@ -46,7 +46,7 @@ type Props = {
   doSetMainPlayerDimension: (dimensions: { height: number, width: number }) => void,
   doSetPrimaryUri: (uri: ?string) => void,
   doToggleAppDrawer: (type: string) => void,
-  doGetMembershipTiersForContentClaimId: (type: string) => void,
+  doMembershipContentforStreamClaimId: (type: string) => void,
   fileInfo: FileListItem,
   isLivestream: boolean,
   isMature: boolean,
@@ -98,7 +98,7 @@ export default function FilePage(props: Props) {
     doCheckIfPurchasedClaimId,
     doFetchCostInfoForUri,
     doFileGetForUri,
-    doGetMembershipTiersForContentClaimId,
+    doMembershipContentforStreamClaimId,
     doMembershipMine,
     doSetContentHistoryItem,
     doSetMainPlayerDimension,
@@ -175,7 +175,7 @@ export default function FilePage(props: Props) {
 
   React.useEffect(() => {
     if (claimId) {
-      doGetMembershipTiersForContentClaimId(claimId);
+      doMembershipContentforStreamClaimId(claimId);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimId]);

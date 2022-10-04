@@ -8,7 +8,7 @@ import {
   selectMyMembershipTiersWithExclusiveLivestreamPerk,
 } from 'redux/selectors/memberships';
 import { selectIsStillEditing } from 'redux/selectors/publish';
-import { doGetMembershipTiersForContentClaimId, doMembershipList } from 'redux/actions/memberships';
+import { doMembershipContentforStreamClaimId, doMembershipList } from 'redux/actions/memberships';
 import PublishProtectedContent from './view';
 
 const select = (state, props) => {
@@ -38,7 +38,7 @@ const select = (state, props) => {
 
 const perform = (dispatch) => ({
   updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
-  getMembershipTiersForContentClaimId: (claimId) => dispatch(doGetMembershipTiersForContentClaimId(claimId)),
+  getMembershipTiersForContentClaimId: (claimId) => dispatch(doMembershipContentforStreamClaimId(claimId)),
   getExistingTiers: (doMembershipListParams) => dispatch(doMembershipList(doMembershipListParams)),
 });
 

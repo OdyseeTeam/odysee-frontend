@@ -33,7 +33,7 @@ import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import FilePage from './view';
-import { doGetMembershipTiersForContentClaimId, doMembershipMine } from 'redux/actions/memberships';
+import { doMembershipContentforStreamClaimId, doMembershipMine } from 'redux/actions/memberships';
 import { selectMembershipMineData, selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
@@ -84,7 +84,7 @@ const perform = {
   doFileGetForUri,
   doSetMainPlayerDimension,
   doCheckIfPurchasedClaimId,
-  doGetMembershipTiersForContentClaimId,
+  doMembershipContentforStreamClaimId,
   doMembershipMine,
 };
 
