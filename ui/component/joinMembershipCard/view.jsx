@@ -1,6 +1,8 @@
 // @flow
 import React from 'react';
 import { Form } from 'component/common/form';
+import { useHistory } from 'react-router-dom';
+import { formatLbryUrlForWeb } from 'util/url';
 import Card from 'component/common/card';
 import ConfirmationPage from './internal/confirmationPage';
 import PreviewPage from './internal/previewPage';
@@ -12,6 +14,7 @@ type Props = {
   doHideModal: () => void,
   membershipIndex: number,
   passedTier?: CreatorMembership,
+  shouldNavigate?: boolean,
   // -- redux --
   activeChannelClaim: ChannelClaim,
   channelName: ?string,
@@ -33,6 +36,7 @@ const JoinMembershipCard = (props: Props) => {
     doHideModal,
     membershipIndex = 0,
     passedTier,
+    shouldNavigate,
     // -- redux --
     activeChannelClaim,
     channelName,
@@ -47,6 +51,8 @@ const JoinMembershipCard = (props: Props) => {
     doMembershipBuy,
     doToast,
   } = props;
+
+  const { push } = useHistory();
 
   const skipToConfirmation = Boolean(passedTier);
 
@@ -96,6 +102,10 @@ const JoinMembershipCard = (props: Props) => {
           }
         ),
       });
+
+      if (shouldNavigate) {
+        push(formatLbryUrlForWeb(uri));
+      }
     });
   }
 

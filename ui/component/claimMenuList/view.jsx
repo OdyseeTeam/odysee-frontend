@@ -81,6 +81,7 @@ type Props = {
     collectionId: string,
     push: (uri: string) => void,
   }) => void,
+  hasProtectedContentMembershipIds: boolean,
 };
 
 function ClaimMenuList(props: Props) {
@@ -129,6 +130,7 @@ function ClaimMenuList(props: Props) {
     doRemovePersonalRecommendation,
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
+    hasProtectedContentMembershipIds,
   } = props;
 
   const isChannelPage = React.useContext(ChannelPageContext);
@@ -453,6 +455,20 @@ function ClaimMenuList(props: Props) {
             )
           )}
         </>
+
+        {contentClaim && hasProtectedContentMembershipIds && (
+          <MenuItem
+            className="comment__menu-option"
+            onSelect={() =>
+              openModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri: contentClaim.permanent_url, shouldNavigate: true })
+            }
+          >
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
+              {__('Join')}
+            </div>
+          </MenuItem>
+        )}
 
         {isAuthenticated && (
           <>

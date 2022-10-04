@@ -287,6 +287,11 @@ export const selectProtectedContentMembershipsForContentClaimId = (state: State,
   return protectedClaimsById && protectedClaimsById[claimId] && protectedClaimsById[claimId].memberships;
 };
 
+export const selectContentHasProtectedMembershipIds = (state: State, claimId: string) => {
+  const protectedContentMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claimId);
+  return Boolean(protectedContentMembershipIds && protectedContentMembershipIds.length > 0);
+};
+
 export const selectProtectedContentMembershipsForId = (state: State, claimId: ClaimId) => {
   const claimChannelId = getChannelIdFromClaim(selectClaimForId(state, claimId));
   const protectedContentMembershipIds = new Set(
