@@ -71,7 +71,7 @@ function PledgesTab(props: Props) {
 
         const startDate = membership.Subscription.current_period_start * 1000;
         const endDate = membership.Subscription.current_period_end * 1000;
-        const amountOfMonths = moment(endDate).diff(moment(startDate), 'months', true);
+        const amountOfMonths = Math.ceil(moment(endDate).diff(moment(startDate), 'months', true));
         pledgeData.timeAgoInMonths = amountOfMonths === 1 ? '1 Month' : amountOfMonths + ' Months';
 
         return pledgeData;
@@ -106,7 +106,7 @@ function PledgesTab(props: Props) {
                     {__('Channel Name')}
                   </th>
                   <th>{__('Tier')}</th>
-                  <th>{__('Time Total')}</th>
+                  <th>{__('Total Supporting Time')}</th>
                   <th>{__('Amount')}</th>
                   <th>{__('Status')}</th>
                   <th className="membership-table__page">{__('Page')}</th>
