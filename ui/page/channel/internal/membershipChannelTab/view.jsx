@@ -59,12 +59,13 @@ const MembershipChannelTab = (props: Props) => {
           <div className={'membership__body membership-tier' + membershipIndex}>
             <div className="membership__plan-header">
               <span>{membershipName}</span>
-              <Menu>
-                <MenuButton className="menu__button">
-                  <Icon size={18} icon={ICONS.SETTINGS} />
-                </MenuButton>
-                <MenuList className={'menu__list membership-tier' + membershipIndex}>
-                  {membershipIsActive && (
+
+              {membershipIsActive && (
+                <Menu>
+                  <MenuButton className="menu__button">
+                    <Icon size={18} icon={ICONS.SETTINGS} />
+                  </MenuButton>
+                  <MenuList className={'menu__list membership-tier' + membershipIndex}>
                     <MenuItem
                       className="comment__menu-option"
                       onSelect={() => doOpenCancelationModalForMembership(purchasedChannelMembership)}
@@ -73,9 +74,9 @@ const MembershipChannelTab = (props: Props) => {
                         <Icon size={16} icon={ICONS.DELETE} /> {__('Cancel Membership')}
                       </div>
                     </MenuItem>
-                  )}
-                </MenuList>
-              </Menu>
+                  </MenuList>
+                </Menu>
+              )}
             </div>
 
             <div className="membership__plan-description">
