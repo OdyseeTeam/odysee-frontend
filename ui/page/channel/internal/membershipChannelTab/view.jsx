@@ -53,22 +53,7 @@ const MembershipChannelTab = (props: Props) => {
 
   return (
     <Card
-      // title={__('Your %creator_channel_name% membership', { creator_channel_name: creatorChannel })}
       className="membership membership-tab"
-      /*
-      subtitle={
-        <>
-          <span className="join-membership-support-time__header">
-            {__(
-              membershipIsActive
-                ? "You're supporting %channel_name% for %membership_duration%."
-                : 'You supported %channel_name% for %membership_duration%.',
-              { channel_name: creatorChannel, membership_duration: timeAgo }
-            )}
-          </span>
-        </>
-      }
-      */
       body={
         <>
           <div className={'membership__body membership-tier' + membershipIndex}>

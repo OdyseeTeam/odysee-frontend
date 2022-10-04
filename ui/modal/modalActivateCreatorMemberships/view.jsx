@@ -43,7 +43,7 @@ export default function ModalRemoveCard(props: Props) {
     '            Once you have linked your bank account you can click this button again and launch your memberships!';
 
   return (
-    <Modal className="activate-memberships__modal" ariaHideApp={false} isOpen type="card" onAborted={closeModal}>
+    <Modal ariaHideApp={false} isOpen type="card" onAborted={closeModal}>
       <Card
         className="stripe__confirm-remove-membership"
         title={__('Activate Memberships')}

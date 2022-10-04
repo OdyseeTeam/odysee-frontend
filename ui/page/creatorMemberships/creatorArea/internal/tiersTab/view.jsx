@@ -179,35 +179,6 @@ function TiersTab(props: Props) {
         />
       )}
 
-      {/* ** show additional info checkboxes, activate memberships button ***/}
-      {/* ** disabling until the backend is ready ** */}
-      {/* /!** additional options checkboxes **!/ */}
-      {/* <div className="show-additional-membership-info__div"> */}
-      {/*  <h2 className="show-additional-membership-info__header">Additional Info</h2> */}
-      {/*  <FormField */}
-      {/*    type="checkbox" */}
-      {/*    defaultChecked={false} */}
-      {/*    label={'Show the amount of supporters on your Become A Member page'} */}
-      {/*    name={'showSupporterAmount'} */}
-      {/*  /> */}
-      {/*  <FormField */}
-      {/*    type="checkbox" */}
-      {/*    defaultChecked={false} */}
-      {/*    label={'Show the amount you make monthly on your Become A Member page'} */}
-      {/*    name={'showMonthlyIncomeAmount'} */}
-      {/*  /> */}
-      {/* </div> */}
-
-      {/* /!* activate memberships button *!/ */}
-      {/* <div className="activate-memberships-button__div"> */}
-      {/*  <Button */}
-      {/*    button="primary" */}
-      {/*    onClick={(e) => openActivateMembershipsModal()} */}
-      {/*    className="activate-memberships__button" */}
-      {/*    label={__('Activate Memberships')} */}
-      {/*    icon={ICONS.ADD} */}
-      {/* /> */}
-      {/* {/*</div> */}
       <HelpHub
         href="https://help.odysee.tv/category-memberships/category-creatorportal/creatingtiers/"
         image="h264"
