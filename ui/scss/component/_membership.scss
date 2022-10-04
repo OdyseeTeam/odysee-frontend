@@ -1305,6 +1305,7 @@
   input,
   textarea {
     border: 2px solid var(--color-border);
+    overflow: auto !important;
   }
   fieldset-section {
     margin-top: var(--spacing-m);
