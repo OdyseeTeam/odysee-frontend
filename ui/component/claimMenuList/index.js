@@ -31,7 +31,7 @@ import {
 import { doToast } from 'redux/actions/notifications';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
-import { selectContentHasProtectedMembershipIds } from 'redux/selectors/memberships';
+import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectListShuffleForId, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { doToggleShuffleList, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
@@ -89,8 +89,8 @@ const select = (state, props) => {
       lastUsedCollectionId !== COLLECTIONS_CONSTS.WATCH_LATER_ID &&
       lastUsedCollectionId !== COLLECTIONS_CONSTS.FAVORITES_ID,
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
-    hasProtectedContentMembershipIds:
-      contentClaim && selectContentHasProtectedMembershipIds(state, contentClaim.claim_id),
+    isContentProtectedAndLocked:
+      contentClaim && selectIsProtectedContentLockedFromUserForId(state, contentClaim.claim_id),
   };
 };
 

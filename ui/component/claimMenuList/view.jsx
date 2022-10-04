@@ -81,7 +81,7 @@ type Props = {
     collectionId: string,
     push: (uri: string) => void,
   }) => void,
-  hasProtectedContentMembershipIds: boolean,
+  isContentProtectedAndLocked: boolean,
 };
 
 function ClaimMenuList(props: Props) {
@@ -130,7 +130,7 @@ function ClaimMenuList(props: Props) {
     doRemovePersonalRecommendation,
     collectionEmpty,
     doPlaylistAddAndAllowPlaying,
-    hasProtectedContentMembershipIds,
+    isContentProtectedAndLocked,
   } = props;
 
   const isChannelPage = React.useContext(ChannelPageContext);
@@ -456,7 +456,7 @@ function ClaimMenuList(props: Props) {
           )}
         </>
 
-        {contentClaim && hasProtectedContentMembershipIds && (
+        {contentClaim && isContentProtectedAndLocked && (
           <MenuItem
             className="comment__menu-option"
             onSelect={() =>
