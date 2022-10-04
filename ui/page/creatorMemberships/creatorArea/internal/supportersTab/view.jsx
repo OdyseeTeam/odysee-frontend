@@ -9,7 +9,7 @@ import ErrorBubble from 'component/common/error-bubble';
 
 type Props = {
   channelsToList: ?Array<ChannelClaim>,
-  onTabChange: (tabIndex: number) => void,
+  switchToTiersTab: () => void,
   // -- redux --
   supportersList: ?SupportersList,
   channelMembershipTiers: ?CreatorMemberships,
@@ -18,7 +18,7 @@ type Props = {
 const SupportersTab = (props: Props) => {
   const {
     channelsToList,
-    onTabChange,
+    switchToTiersTab,
     // -- redux --
     supportersList,
     channelMembershipTiers,
@@ -43,7 +43,7 @@ const SupportersTab = (props: Props) => {
       <ErrorBubble
         title={__(`This channel doesn't have any Tiers`)}
         subtitle={__('To be able to begin receiving payments you have to add at least 1 Tier to your channel.')}
-        action={<Button button="primary" label={__('Add a Tier')} onClick={() => onTabChange(2)} />}
+        action={<Button button="primary" label={__('Add a Tier')} onClick={switchToTiersTab} />}
       />
     );
   }

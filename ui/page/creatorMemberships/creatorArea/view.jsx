@@ -130,7 +130,7 @@ const CreatorArea = (props: Props) => {
     onTabChange(1);
   };
 
-  const switchToTiersTab = () => onTabChange(1);
+  const switchToTiersTab = () => onTabChange(2);
 
   return (
     <Page className="membershipPage-wrapper">
@@ -174,7 +174,7 @@ const CreatorArea = (props: Props) => {
                     allOptionProps={{ onSelectAll: () => setAllSelected(true), isSelected: allSelected }}
                     onChannelSelect={() => setAllSelected(false)}
                   />
-                  <SupportersTab channelsToList={channelsToList} onTabChange={onTabChange} />
+                  <SupportersTab channelsToList={channelsToList} switchToTiersTab={switchToTiersTab} />
                 </>
               }
             />
