@@ -976,6 +976,18 @@ body {
         margin-top: -8px;
       }
     }
+    .claim-preview__actions {
+      .claim-preview__primary-actions {
+        margin: 0;
+      }
+      .membership-button-wrapper {
+        margin: 0;
+        margin-right: var(--spacing-s);
+        @media (max-width: $breakpoint-small) {
+          margin-right: var(--spacing-xxs);
+        }
+      }
+    }
   }
   .post__info--grouped {
     .button__content {
