@@ -282,7 +282,7 @@ export default function FileRenderFloating(props: Props) {
     // This will be used to disconnect for every case, since this is the main player component
     return () => {
       if (socketConnection?.connected && !unauthorizedForContent) {
-        doCommentSocketDisconnect(claimId, channelName);
+        doCommentSocketDisconnect(claimIdToUse, channelName);
       }
     };
   }, [

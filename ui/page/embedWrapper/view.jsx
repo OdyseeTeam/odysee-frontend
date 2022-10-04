@@ -44,9 +44,11 @@ type Props = {
   doPlayUri: (uri: string) => void,
   doFetchCostInfoForUri: (uri: string) => void,
   doFetchChannelLiveStatus: (string) => void,
-  doCommentSocketConnect: (string, string, string) => void,
+  doCommentSocketConnect: (string, string, string, ?string, ?boolean) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doFetchActiveLivestreams: () => void,
+  unauthorizedForContent: boolean,
+  isProtectedContent: boolean,
 };
 
 export const EmbedContext = React.createContext<any>();
@@ -84,6 +86,8 @@ export default function EmbedWrapperPage(props: Props) {
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doFetchActiveLivestreams,
+    unauthorizedForContent,
+    isProtectedContent,
   } = props;
 
   const {
@@ -141,12 +145,16 @@ export default function EmbedWrapperPage(props: Props) {
 
     const channelName = formatLbryChannelName(channelUrl);
 
-    // TODO: reverse claim ID if it's a protected stream
-    doCommentSocketConnect(canonicalUrl, channelName, claimId);
+    const reversedClaimId = claimId.split('').reverse().join('');
+    const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
+
+    if (!unauthorizedForContent) {
+      doCommentSocketConnect(canonicalUrl, channelName, claimIdToUse, undefined, isProtectedContent);
+    }
 
     return () => {
-      if (claimId) {
-        doCommentSocketDisconnect(claimId, channelName);
+      if (claimId && !unauthorizedForContent) {
+        doCommentSocketDisconnect(claimIdToUse, channelName);
       }
     };
   }, [canonicalUrl, channelUrl, claimId, doCommentSocketConnect, doCommentSocketDisconnect, isLivestreamClaim]);

@@ -115,15 +115,15 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
       ? getCommentSocketUrlForCommenter(claimId, channelName)
       : getCommentSocketUrl(claimId, channelName);
 
+  // have to reverse here if protected, because the comments list expects the claim id to be proper
+  const reversedClaimId = claimId.split('').reverse().join('');
+  const claimIdToUse = protectedEndpoint ? reversedClaimId : claimId;
+
   doSocketConnect(
     url,
     (response) => {
       if (response.type === 'delta') {
         const newComment = response.data.comment;
-
-        // for the protected livechat endpoints endpoint
-        const reversedClaimId = claimId.split('').reverse().join('');
-        const claimIdToUse = protectedEndpoint ? reversedClaimId : claimId;
 
         dispatch({
           type: ACTIONS.COMMENT_RECEIVED,
@@ -134,7 +134,7 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
         const connected = response.data.connected;
         dispatch({
           type: ACTIONS.VIEWERS_RECEIVED,
-          data: { connected, claimId },
+          data: { connected, claimId: claimIdToUse },
         });
       }
       if (response.type === 'pinned') {
@@ -143,7 +143,7 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
           type: ACTIONS.COMMENT_PIN_COMPLETED,
           data: {
             pinnedComment: pinnedComment,
-            claimId,
+            claimId: claimIdToUse,
             unpin: !pinnedComment.is_pinned,
           },
         });
@@ -188,8 +188,8 @@ export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => 
   dispatch(doSetSocketConnection(false, claimId, subCategory));
 };
 
-export const doCommentSocketConnectAsCommenter = (uri, channelName, claimId) => (dispatch) =>
-  dispatch(doCommentSocketConnect(uri, channelName, claimId, COMMENT_WS_SUBCATEGORIES.COMMENTER));
+export const doCommentSocketConnectAsCommenter = (uri, channelName, claimId, isProtected) => (dispatch) =>
+  dispatch(doCommentSocketConnect(uri, channelName, claimId, COMMENT_WS_SUBCATEGORIES.COMMENTER, isProtected));
 
 export const doCommentSocketDisconnectAsCommenter = (claimId, channelName) => (dispatch) =>
   dispatch(doCommentSocketDisconnect(claimId, channelName, COMMENT_WS_SUBCATEGORIES.COMMENTER));

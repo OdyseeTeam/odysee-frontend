@@ -14,6 +14,8 @@ import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+
 import LivestreamPage from './view';
 
 const select = (state, props) => {
@@ -33,6 +35,7 @@ const select = (state, props) => {
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     uri: canonical_url || '',
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
   };
 };
 

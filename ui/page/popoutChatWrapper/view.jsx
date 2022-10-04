@@ -7,13 +7,23 @@ import React from 'react';
 type Props = {
   claim: StreamClaim,
   uri: string,
-  doCommentSocketConnectAsCommenter: (string, string, string) => void,
+  doCommentSocketConnectAsCommenter: (string, string, string, ?boolean) => void,
   doCommentSocketDisconnectAsCommenter: (string, string) => void,
   doResolveUri: (string, boolean) => void,
+  isProtectedContent: boolean,
+  isUnauthorized: boolean,
 };
 
 export default function PopoutChatPage(props: Props) {
-  const { claim, uri, doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter, doResolveUri } = props;
+  const {
+    claim,
+    uri,
+    doCommentSocketConnectAsCommenter,
+    doCommentSocketDisconnectAsCommenter,
+    doResolveUri,
+    isProtectedContent,
+    isUnauthorized,
+  } = props;
 
   React.useEffect(() => {
     if (!claim) doResolveUri(uri, true);
@@ -25,11 +35,15 @@ export default function PopoutChatPage(props: Props) {
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelClaim.canonical_url);
 
-    // TODO: replace here
-    if (claimId && channelName) doCommentSocketConnectAsCommenter(uri, channelName, claimId);
+    const reversedClaimId = claimId.split('').reverse().join('');
+    const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
+
+    if (claimId && channelName && !isUnauthorized) {
+      doCommentSocketConnectAsCommenter(uri, channelName, claimIdToUse, isProtectedContent);
+    }
 
     return () => {
-      if (claimId && channelName) doCommentSocketDisconnectAsCommenter(claimId, channelName);
+      if (claimId && channelName && !isUnauthorized) doCommentSocketDisconnectAsCommenter(claimIdToUse, channelName);
     };
   }, [claim, doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter, uri]);
 
