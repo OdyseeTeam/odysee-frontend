@@ -23,7 +23,7 @@ type Props = {
   validUserMembershipForChannel: ?any,
   creatorHasMemberships: boolean,
   creatorMembershipsFetched: boolean,
-  creatorTiers: CreatorMemberships,
+  creatorTiers: ?CreatorMemberships,
   isOdyseeChannel: boolean,
   doOpenModal: (id: string, {}) => void,
   doMembershipList: ({ channel_name: string, channel_id: string }) => Promise<CreatorMemberships>,
@@ -58,7 +58,7 @@ const JoinMembershipButton = (props: Props) => {
 
   if (isOdyseeChannel) return null;
 
-  if (userIsActiveMember) {
+  if (userIsActiveMember && creatorTiers) {
     // build link to membership tab of user's channel
     let channelPath = formatLbryUrlForWeb(uri);
     const urlParams = new URLSearchParams();
@@ -67,11 +67,8 @@ const JoinMembershipButton = (props: Props) => {
     if (isChannelPage) channelPath = channelPath.substr(1);
 
     const membershipIndex =
-      (creatorTiers
-        ? creatorTiers.findIndex(
-            (res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id
-          )
-        : 0) + 1;
+      creatorTiers.findIndex((res) => res.Membership.id === validUserMembershipForChannel?.Membership?.membership_id) +
+      1;
 
     return (
       <Button
