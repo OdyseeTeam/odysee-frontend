@@ -474,8 +474,7 @@ export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
   return isNotAuthorizedForProtectedContent || false;
 };
 
-export const selectIfChannelHasMembershipTiers = (state: State, channelId: string) => {
+export const selectChannelHasMembershipTiersForId = (state: State, channelId: string) => {
   const memberships = selectMembershipTiersForChannelId(state, channelId);
-
-  return memberships && memberships.length;
+  return memberships && memberships.length > 0;
 };

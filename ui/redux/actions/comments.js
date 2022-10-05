@@ -7,7 +7,13 @@ import Lbry from 'lbry';
 import { resolveApiMessage } from 'util/api-message';
 import { parseURI, buildURI, isURIEqual } from 'util/lbryURI';
 import { devToast, dispatchToast, doFailedSignatureToast } from 'util/toast-wrappers';
-import { selectClaimForUri, selectClaimsById, selectClaimsByUri, selectMyChannelClaims } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectClaimsById,
+  selectClaimsByUri,
+  selectMyChannelClaims,
+  selectClaimForClaimId,
+} from 'redux/selectors/claims';
 import { doResolveUris, doClaimSearch, doResolveClaimIds } from 'redux/actions/claims';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
 import {
@@ -17,6 +23,7 @@ import {
   selectModerationBlockList,
   selectModerationDelegatorsById,
   selectMyCommentedChannelIdsForId,
+  selectLivestreamChatMembersOnlyForChannelId,
 } from 'redux/selectors/comments';
 import { makeSelectNotificationForCommentId } from 'redux/selectors/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -1776,29 +1783,42 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
   };
 };
 
-export const setLivestreamChatMembersOnlyCreatorSetting = (
-  channelClaim: ChannelClaim,
-  activeClaimId: string,
-  livestreamChatMembersOnly: boolean
+export const doToggleLiveChatMembersOnlySettingForClaimId = (claimId: ClaimId) => async (
+  dispatch: Dispatch,
+  getState: GetState
 ) => {
-  return async (dispatch: Dispatch, getState: GetState) => {
-    const channelSignature = await channelSignName(channelClaim.claim_id, channelClaim.name);
-    if (!channelSignature) {
-      devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
-      return;
-    }
+  const state = getState();
 
-    return Comments.setting_update({
-      channel_name: channelClaim.name,
-      channel_id: channelClaim.claim_id,
-      signature: channelSignature.signature,
-      signing_ts: channelSignature.signing_ts,
-      livestream_chat_members_only: livestreamChatMembersOnly,
-      active_claim_id: activeClaimId,
-    }).catch((err) => {
+  const claim = selectClaimForClaimId(state, claimId);
+  const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
+  const channelSignature = await channelSignName(channelId, channelName);
+
+  if (!channelSignature) {
+    devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
+    return;
+  }
+
+  const isLivestreamChatMembersOnly = selectLivestreamChatMembersOnlyForChannelId(state, channelId);
+  const value = !isLivestreamChatMembersOnly;
+
+  return Comments.setting_update({
+    channel_name: channelName,
+    channel_id: channelId,
+    signature: channelSignature.signature,
+    signing_ts: channelSignature.signing_ts,
+    livestream_chat_members_only: value,
+    active_claim_id: claimId,
+  })
+    .then(() =>
+      dispatch({
+        type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+        data: { responseData: { LivestreamChatMembersOnly: value }, creatorId: channelId },
+      })
+    )
+    .catch((err) => {
       dispatch(doToast({ message: err.message, isError: true }));
+      throw new Error(err);
     });
-  };
 };
 
 export const doCommentWords = (channelClaim: ChannelClaim, words: Array<string>, isUnblock: boolean) => {

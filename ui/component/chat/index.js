@@ -7,22 +7,20 @@ import {
   selectClaimIsMine,
   selectMyChannelClaims,
 } from 'redux/selectors/claims';
-import { doCommentList, doHyperChatList, setLivestreamChatMembersOnlyCreatorSetting } from 'redux/actions/comments';
+import { doCommentList, doHyperChatList } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
   selectHyperChatsForUri,
   selectPinnedCommentsForUri,
-  selectLivestreamChatMembersOnlyForChannelId,
 } from 'redux/selectors/comments';
 import {
   doFetchOdyseeMembershipForChannelIds,
   doFetchChannelMembershipsForChannelIds,
   doListAllMyMembershipTiers,
 } from 'redux/actions/memberships';
-import { selectIfUnauthorizedForContent, selectIfChannelHasMembershipTiers } from 'redux/selectors/memberships';
+import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { getChannelIdFromClaim } from 'util/claim';
-import { doToast } from 'redux/actions/notifications';
 
 import ChatLayout from './view';
 
@@ -36,7 +34,6 @@ const select = (state, props) => {
   const activeChannelId = activeChannelClaim?.claim_id;
 
   return {
-    activeChannelClaim,
     activeChannelId,
     claimId,
     claimIsMine: props.uri && selectClaimIsMine(state, claim),
@@ -46,9 +43,7 @@ const select = (state, props) => {
     channelId,
     chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
     unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
-    livestreamChatMembersOnly: selectLivestreamChatMembersOnlyForChannelId(state, channelId),
     myChannelClaims: selectMyChannelClaims(state),
-    channelHasMembershipTiers: selectIfChannelHasMembershipTiers(state, activeChannelId),
   };
 };
 
@@ -58,9 +53,7 @@ const perform = {
   doResolveUris,
   doFetchOdyseeMembershipForChannelIds,
   doFetchChannelMembershipsForChannelIds,
-  setLivestreamChatMembersOnlyCreatorSetting,
   doListAllMyMembershipTiers,
-  doToast,
 };
 
 export default connect(select, perform)(ChatLayout);

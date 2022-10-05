@@ -11,13 +11,12 @@ import CreditAmount from 'component/common/credit-amount';
 import ChatComment from 'component/chat/chatComment';
 import ChatComments from 'component/chat/chatComments';
 import LivestreamHyperchats from './livestream-hyperchats';
-import LivestreamMenu from './livestream-menu';
+import LivestreamMenu from 'component/livestreamMenu';
 import React from 'react';
 import Yrbl from 'component/yrbl';
 import { getTipValues } from 'util/livestream';
 import Slide from '@mui/material/Slide';
 import usePersistedState from 'effects/use-persisted-state';
-// import { setLivestreamChatMembersOnlyCreatorSetting } from '../../redux/actions/comments';
 
 export const VIEW_MODES = {
   CHAT: 'chat',
@@ -57,15 +56,10 @@ type Props = {
   superChats: Array<Comment>,
   chatCommentsRestrictedToChannelMembers: boolean,
   activeChannelId: string,
-  activeChannelClaim: ChannelClaim,
-  livestreamChatMembersOnly: boolean,
   unauthorizedForContent: any,
-  setLivestreamChatMembersOnlyCreatorSetting: any,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   myChannelClaims: any,
   doListAllMyMembershipTiers: any,
-  channelHasMembershipTiers: any,
-  doToast: ({ message: string }) => void,
 };
 
 export default function ChatLayout(props: Props) {
@@ -91,14 +85,9 @@ export default function ChatLayout(props: Props) {
     setLayountRendered,
     superChats: hyperChatsByAmount,
     uri,
-    activeChannelClaim,
-    setLivestreamChatMembersOnlyCreatorSetting,
     unauthorizedForContent,
-    livestreamChatMembersOnly,
     myChannelClaims,
     doListAllMyMembershipTiers,
-    channelHasMembershipTiers,
-    doToast,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -378,6 +367,7 @@ export default function ChatLayout(props: Props) {
           </div>
 
           <LivestreamMenu
+            uri={uri}
             isPopoutWindow={isPopoutWindow}
             hideChat={() => setChatHidden(true)}
             setPopoutWindow={(v) => setPopoutWindow(v)}
@@ -387,13 +377,6 @@ export default function ChatLayout(props: Props) {
             isCompact={isCompact}
             hyperchatsHidden={hideHyperchats}
             noHyperchats={!hyperChatsByAmount}
-            activeChannelClaim={activeChannelClaim}
-            activeClaimId={claimId}
-            setLivestreamChatMembersOnlyCreatorSetting={setLivestreamChatMembersOnlyCreatorSetting}
-            claimIsMine={claimIsMine}
-            livestreamChatMembersOnly={livestreamChatMembersOnly}
-            channelHasMembershipTiers={channelHasMembershipTiers}
-            doToast={doToast}
           />
         </div>
       )}

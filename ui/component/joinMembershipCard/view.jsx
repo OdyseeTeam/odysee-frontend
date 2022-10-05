@@ -15,6 +15,7 @@ type Props = {
   membershipIndex: number,
   passedTier?: CreatorMembership,
   shouldNavigate?: boolean,
+  membersOnly?: boolean,
   // -- redux --
   activeChannelClaim: ChannelClaim,
   channelName: ?string,
@@ -37,6 +38,7 @@ const JoinMembershipCard = (props: Props) => {
     membershipIndex = 0,
     passedTier,
     shouldNavigate,
+    membersOnly,
     // -- redux --
     activeChannelClaim,
     channelName,
@@ -155,6 +157,7 @@ const JoinMembershipCard = (props: Props) => {
                 selectedMembershipIndex={selectedMembershipIndex}
                 setMembershipIndex={setMembershipIndex}
                 unlockableTierIds={unlockableTierIds}
+                membersOnly={membersOnly}
               />
             )}
           </>

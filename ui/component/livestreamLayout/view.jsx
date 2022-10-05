@@ -14,7 +14,7 @@ import * as ICONS from 'constants/icons';
 import * as DRAWERS from 'constants/drawer_types';
 import SwipeableDrawer from 'component/swipeableDrawer';
 import DrawerExpandButton from 'component/swipeableDrawerExpand';
-import LivestreamMenu from 'component/chat/livestream-menu';
+import LivestreamMenu from 'component/livestreamMenu';
 import Icon from 'component/common/icon';
 import CreditAmount from 'component/common/credit-amount';
 import usePersistedState from 'effects/use-persisted-state';
@@ -122,6 +122,7 @@ export default function LivestreamLayout(props: Props) {
                   hasSubtitle={activeViewers}
                   actions={
                     <LivestreamMenu
+                      uri={uri}
                       noHyperchats={!superChats || superChats.length === 0}
                       hyperchatsHidden={hyperchatsHidden}
                       toggleHyperchats={() => setHyperchatsHidden(!hyperchatsHidden)}

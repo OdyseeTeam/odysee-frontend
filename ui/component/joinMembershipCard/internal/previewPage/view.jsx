@@ -19,6 +19,7 @@ type Props = {
   selectedMembershipIndex: number,
   unlockableTierIds: Array<number>,
   userHasACreatorMembership: boolean,
+  membersOnly?: boolean,
   setMembershipIndex: (index: number) => void,
   handleSelect: () => void,
   // -- redux --
@@ -40,6 +41,7 @@ const PreviewPage = (props: Props) => {
     selectedMembershipIndex,
     unlockableTierIds,
     userHasACreatorMembership,
+    membersOnly,
     setMembershipIndex,
     handleSelect,
     // -- redux --
@@ -194,6 +196,7 @@ const PreviewPage = (props: Props) => {
           membership={selectedTier}
           unlockableTierIds={unlockableTierIds}
           userHasACreatorMembership={userHasACreatorMembership}
+          membersOnly={membersOnly}
         />
       </div>
 

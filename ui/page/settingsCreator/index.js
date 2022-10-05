@@ -17,7 +17,7 @@ import {
   selectFetchingBlockedWords,
   selectModerationDelegatesById,
 } from 'redux/selectors/comments';
-import { selectIfChannelHasMembershipTiers } from 'redux/selectors/memberships';
+import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
 import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
 
@@ -27,7 +27,7 @@ const select = (state, props) => {
 
   return {
     activeChannelClaim: selectActiveChannelClaim(state),
-    channelHasMembershipTiers: selectIfChannelHasMembershipTiers(state, activeChannelId),
+    channelHasMembershipTiers: selectChannelHasMembershipTiersForId(state, activeChannelId),
     fetchingBlockedWords: selectFetchingBlockedWords(state),
     fetchingCreatorSettings: selectFetchingCreatorSettings(state),
     moderationDelegatesById: selectModerationDelegatesById(state),

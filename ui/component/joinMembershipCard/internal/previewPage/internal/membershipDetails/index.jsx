@@ -8,22 +8,31 @@ type Props = {
   unlockableTierIds?: Array<number>,
   userHasACreatorMembership?: boolean,
   isChannelTab?: boolean,
+  membersOnly?: boolean,
 };
 
 const MembershipDetails = (props: Props) => {
-  const { membership, headerAction, unlockableTierIds, userHasACreatorMembership, isChannelTab } = props;
+  const { membership, headerAction, unlockableTierIds, userHasACreatorMembership, isChannelTab, membersOnly } = props;
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
   const selectedMembershipName = membership.Membership.name;
   const membershipIsUnlockable = !userHasACreatorMembership && new Set(unlockableTierIds).has(membership.Membership.id);
 
-  let accessText = __('This Tier does not grant you access to the currently selected content.');
+  let accessText = __(
+    membersOnly
+      ? 'This membership does not give you access to the members-only chat mode.'
+      : 'This Tier does not grant you access to the currently selected content.'
+  );
   if (userHasACreatorMembership) {
     accessText = __("You can't upgrade or downgrade plans at the moment, coming soon!");
   } else if (membershipIsUnlockable) {
     // This is the green alert, only used to prevent the modal from moving when moving tiers from one that
     // has access to one that doesn't
-    accessText = 'This membership gives you access to the current content.';
+    accessText = __(
+      membersOnly
+        ? 'This membership gives you access to the members-only chat mode.'
+        : 'This membership gives you access to the current content.'
+    );
   }
 
   return (

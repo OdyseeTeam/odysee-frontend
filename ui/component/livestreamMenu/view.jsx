@@ -11,7 +11,6 @@ import React from 'react';
 
 type Props = {
   isPopoutWindow?: boolean,
-  claimIsMine?: boolean,
   hyperchatsHidden?: boolean,
   noHyperchats?: boolean,
   isMobile?: boolean,
@@ -20,32 +19,32 @@ type Props = {
   setPopoutWindow?: (any) => void,
   toggleHyperchats?: () => void,
   toggleIsCompact?: () => void,
-  activeChannelClaim?: ChannelClaim,
-  activeClaimId?: string,
-  setLivestreamChatMembersOnlyCreatorSetting?: any,
-  // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
-  livestreamChatMembersOnly?: boolean,
-  channelHasMembershipTiers?: any,
-  doToast?: ({ message: string }) => void,
+  // -- redux --
+  claimId: ?string,
+  claimIsMine: boolean,
+  channelHasMembershipTiers: boolean,
+  isLivestreamChatMembersOnly?: boolean,
+  doToggleLiveChatMembersOnlySettingForClaimId: (claimId: ClaimId) => Promise<any>,
+  doToast: ({ message: string }) => void,
 };
 
-export default function LivestreamMenu(props: Props) {
+const LivestreamMenu = (props: Props) => {
   const {
-    activeChannelClaim,
-    activeClaimId,
-    claimIsMine,
     hideChat,
     hyperchatsHidden,
     isCompact,
     isMobile,
     isPopoutWindow,
     noHyperchats,
-    setLivestreamChatMembersOnlyCreatorSetting,
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
-    livestreamChatMembersOnly,
+    // -- redux --
+    claimId,
+    claimIsMine,
     channelHasMembershipTiers,
+    isLivestreamChatMembersOnly,
+    doToggleLiveChatMembersOnlySettingForClaimId,
     doToast,
   } = props;
 
@@ -58,21 +57,16 @@ export default function LivestreamMenu(props: Props) {
   const [showTimestamps, setShowTimestamps] = usePersistedState('live-timestamps', false);
 
   function updateLivestreamMembersOnlyChat() {
-    if (activeChannelClaim && setLivestreamChatMembersOnlyCreatorSetting) {
-      setLivestreamChatMembersOnlyCreatorSetting(activeChannelClaim, activeClaimId, !livestreamChatMembersOnly);
-    }
-
-    if (doToast) {
-      doToast({
-        message: __(
-          livestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.'
-        ),
-      });
+    if (claimId) {
+      doToggleLiveChatMembersOnlySettingForClaimId(claimId).then(() =>
+        doToast({
+          message: __(
+            isLivestreamChatMembersOnly ? 'Members-only chat is now disabled.' : 'Members-only chat is now enabled.'
+          ),
+        })
+      );
     }
   }
-
-  let toggleLivestreamChatMembersOnlyText = 'Enable Members-Only Chat';
-  if (livestreamChatMembersOnly) toggleLivestreamChatMembersOnlyText = 'Disable Members-Only Chat';
 
   function handlePopout() {
     if (setPopoutWindow) {
@@ -113,7 +107,7 @@ export default function LivestreamMenu(props: Props) {
             <MenuItem className="comment__menu-option" onSelect={() => updateLivestreamMembersOnlyChat()}>
               <span className="menu__link">
                 <Icon aria-hidden icon={ICONS.MEMBERSHIP} />
-                {__(toggleLivestreamChatMembersOnlyText)}
+                {__(isLivestreamChatMembersOnly ? 'Disable Members-Only Chat' : 'Enable Members-Only Chat')}
               </span>
             </MenuItem>
           )}
@@ -171,7 +165,9 @@ export default function LivestreamMenu(props: Props) {
       </Menu>
     </>
   );
-}
+};
+
+export default LivestreamMenu;
 
 type GlobalStylesProps = {
   showTimestamps?: boolean,
