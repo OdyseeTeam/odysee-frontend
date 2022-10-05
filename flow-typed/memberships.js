@@ -16,7 +16,7 @@ declare type CreatorMembership = {
   Membership: MembershipDetails,
   Perks: ?MembershipPerks,
   Prices?: Array<StripePriceDetails>,
-  NewPrices?: Array<MembershipNewStripePriceDetails>,
+  NewPrices: Array<MembershipNewStripePriceDetails>,
 };
 declare type CreatorMemberships = Array<CreatorMembership>;
 
