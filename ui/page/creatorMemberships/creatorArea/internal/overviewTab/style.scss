@@ -55,6 +55,8 @@
 
 .table-total {
   margin-bottom: var(--spacing-l);
+  background-color: var(--color-header-background);
+  border-radius: var(--border-radius);
 
   td {
     font-weight: var(--font-weight-bold);
@@ -66,10 +68,7 @@
     }
   }
   span {
+    display: block;
     color: var(--color-primary);
-
-    @media (max-width: $breakpoint-small) {
-      display: block;
-    }
   }
 }

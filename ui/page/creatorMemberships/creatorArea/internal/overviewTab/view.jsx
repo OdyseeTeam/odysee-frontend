@@ -31,13 +31,13 @@ function OverviewTab(props: Props) {
           <td>
             {/* todo: make this a link to the supporters tab with all channel set to on */}
             {/* so they can see all their supporters */}
-            {__('Total Supporters:')} <span>{totalSupportersAmount}</span>
+            {__('Total Supporters')} <span>{totalSupportersAmount}</span>
           </td>
           <td>
-            {__('Total Monthly Income:')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
+            {__('Total Monthly Income')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
           </td>
           <td>
-            {__('Total Received:')} <span>${0}</span>
+            {__('Total Received')} <span>${0}</span>
           </td>
         </tr>
       </table>
