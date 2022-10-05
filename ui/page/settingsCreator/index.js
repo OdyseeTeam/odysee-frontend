@@ -16,6 +16,7 @@ import {
   selectFetchingCreatorSettings,
   selectFetchingBlockedWords,
   selectModerationDelegatesById,
+  selectMembersOnlyCommentsForChannelId,
 } from 'redux/selectors/comments';
 import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
 import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
@@ -33,6 +34,7 @@ const select = (state, props) => {
     moderationDelegatesById: selectModerationDelegatesById(state),
     myChannelClaims: selectMyChannelClaims(state),
     settingsByChannelId: selectSettingsByChannelId(state),
+    areCommentsMembersOnly: selectMembersOnlyCommentsForChannelId(state, activeChannelId),
   };
 };
 

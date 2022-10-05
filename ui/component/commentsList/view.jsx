@@ -21,6 +21,7 @@ import React, { useEffect } from 'react';
 import Spinner from 'component/spinner';
 import usePersistedState from 'effects/use-persisted-state';
 import { useHistory } from 'react-router-dom';
+import CommentListMenu from './internal/commentListMenu';
 
 const DEBOUNCE_SCROLL_HANDLER_MS = 200;
 
@@ -397,6 +398,7 @@ export default function CommentList(props: Props) {
     threadDepthLevel,
   };
   const actionButtonsProps = {
+    uri,
     totalComments,
     sort,
     changeSort,
@@ -511,6 +513,7 @@ const CommentElements = (commentProps: CommentProps) => {
 };
 
 type ActionButtonsProps = {
+  uri: string,
   totalComments: number,
   sort: string,
   changeSort: (string) => void,
@@ -518,12 +521,12 @@ type ActionButtonsProps = {
 };
 
 const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
-  const { totalComments, sort, changeSort, handleRefresh } = actionButtonsProps;
+  const { uri, totalComments, sort, changeSort, handleRefresh } = actionButtonsProps;
 
   const sortButtonProps = { activeSort: sort, changeSort };
 
   return (
-    <>
+    <div className="comment__actions">
       {totalComments > 1 && ENABLE_COMMENT_REACTIONS && (
         <span className="comment__sort">
           <SortButton {...sortButtonProps} label={__('Best')} icon={ICONS.BEST} sortOption={SORT_BY.POPULARITY} />
@@ -537,8 +540,11 @@ const CommentActionButtons = (actionButtonsProps: ActionButtonsProps) => {
         </span>
       )}
 
-      <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={handleRefresh} />
-    </>
+      <div className="comment__settings">
+        <Button button="alt" icon={ICONS.REFRESH} title={__('Refresh')} onClick={handleRefresh} />
+        <CommentListMenu uri={uri} />
+      </div>
+    </div>
   );
 };
 

@@ -98,6 +98,8 @@ type Props = {
   isAChannelMember: boolean,
   commentSettingDisabled: ?boolean,
   userHasMembersOnlyChatPerk: boolean,
+  isLivestreamChatMembersOnly: ?boolean,
+  areCommentsMembersOnly: ?boolean,
 };
 
 export function CommentCreate(props: Props) {
@@ -143,6 +145,8 @@ export function CommentCreate(props: Props) {
     uri,
     commentSettingDisabled,
     userHasMembersOnlyChatPerk,
+    isLivestreamChatMembersOnly,
+    areCommentsMembersOnly,
   } = props;
 
   const fileUri = React.useContext(AppContext)?.uri;
@@ -187,7 +191,6 @@ export function CommentCreate(props: Props) {
     hasNothingToSumbit ||
     disableInput;
   const channelSettings = channelClaimId ? settingsByChannelId[channelClaimId] : undefined;
-  const livestreamChatMembersOnlyEnabled = channelSettings?.livestream_chat_members_only;
   const minSuper = (channelSettings && channelSettings.min_tip_amount_super_chat) || 0;
   const minTip = (channelSettings && channelSettings.min_tip_amount_comment) || 0;
   const minAmount = minTip || minSuper || 0;
@@ -429,7 +432,7 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [is_protected] Whether are not the content has a protected chat
    */
-  function handleCreateComment(txid, payment_intent_id, environment, is_protected) {
+  function handleCreateComment(txid, payment_intent_id, environment) {
     if (isSubmitting || disableInput || !claimId) return;
 
     if (notAuthedToLiveChat) return handleJoinMembersOnlyChat();
@@ -446,7 +449,7 @@ export function CommentCreate(props: Props) {
       payment_intent_id,
       environment,
       sticker: !!stickerValue,
-      is_protected,
+      is_protected: Boolean(isLivestreamChatMembersOnly || areCommentsMembersOnly),
     })
       .then((res) => {
         setSubmitting(false);
@@ -575,7 +578,9 @@ export function CommentCreate(props: Props) {
     }
   }, [textInjection]);
 
-  const notAuthedToLiveChat = isLivestream && livestreamChatMembersOnlyEnabled && !userHasMembersOnlyChatPerk && !claimIsMine;
+  const notAuthedToLiveChat = Boolean(
+    (isLivestream ? isLivestreamChatMembersOnly : areCommentsMembersOnly) && !userHasMembersOnlyChatPerk && !claimIsMine
+  );
 
   let commentLabelText = 'Say something about this...';
   if (notAuthedToLiveChat) {
@@ -628,8 +633,12 @@ export function CommentCreate(props: Props) {
     <>
       {notAuthedToLiveChat && (
         <ErrorBubble
-          title={__('This chat is in members-only mode')}
-          subtitle={__('To participate, consider buying a membership from this creator!')}
+          title={
+            isLivestreamChatMembersOnly
+              ? __('This chat is in members-only mode')
+              : __('This comment section is in members-only mode')
+          }
+          subtitle={__('To participate, consider buying a membership with the members-only perk from this creator!')}
           action={<Button button="primary" label={__('Join')} onClick={handleJoinMembersOnlyChat} />}
         />
       )}
@@ -768,9 +777,7 @@ export function CommentCreate(props: Props) {
                       : __('Comment --[button to submit something]--')
                   }
                   onClick={() =>
-                    selectedSticker
-                      ? handleSubmitSticker()
-                      : handleCreateComment(undefined, undefined, undefined, livestreamChatMembersOnlyEnabled)
+                    selectedSticker ? handleSubmitSticker() : handleCreateComment(undefined, undefined, undefined)
                   }
                 />
               )

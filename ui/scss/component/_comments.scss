@@ -63,6 +63,15 @@ $thumbnailWidthSmall: 2rem;
   }
 }
 
+.comment__settings {
+  display: flex;
+  gap: var(--spacing-xs);
+
+  .menu__button {
+    opacity: 1;
+  }
+}
+
 .comment {
   width: 100%;
   display: flex;

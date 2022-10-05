@@ -24,6 +24,7 @@ import {
   selectModerationDelegatorsById,
   selectMyCommentedChannelIdsForId,
   selectLivestreamChatMembersOnlyForChannelId,
+  selectMembersOnlyCommentsForChannelId,
 } from 'redux/selectors/comments';
 import { makeSelectNotificationForCommentId } from 'redux/selectors/notifications';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
@@ -1781,6 +1782,44 @@ export const doUpdateCreatorSettings = (channelClaim: ChannelClaim, settings: Pe
       dispatch(doToast({ message: err.message, isError: true }));
     });
   };
+};
+
+export const doToggleMembersOnlyCommentsSettingForClaimId = (claimId: ClaimId) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
+  const state = getState();
+
+  const claim = selectClaimForClaimId(state, claimId);
+  const { name: channelName, claim_id: channelId } = getChannelFromClaim(claim) || {};
+  const channelSignature = await channelSignName(channelId, channelName);
+
+  if (!channelSignature) {
+    devToast(dispatch, 'doUpdateCreatorSettings: failed to sign channel name');
+    return;
+  }
+
+  const areCommentsMembersOnly = selectMembersOnlyCommentsForChannelId(state, channelId);
+  const value = !areCommentsMembersOnly;
+
+  return Comments.setting_update({
+    channel_name: channelName,
+    channel_id: channelId,
+    signature: channelSignature.signature,
+    signing_ts: channelSignature.signing_ts,
+    comments_members_only: value,
+    active_claim_id: claimId,
+  })
+    .then(() =>
+      dispatch({
+        type: ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE,
+        data: { responseData: { CommentsMembersOnly: value }, creatorId: channelId },
+      })
+    )
+    .catch((err) => {
+      dispatch(doToast({ message: err.message, isError: true }));
+      throw new Error(err);
+    });
 };
 
 export const doToggleLiveChatMembersOnlySettingForClaimId = (claimId: ClaimId) => async (

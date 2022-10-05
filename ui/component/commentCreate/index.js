@@ -23,6 +23,8 @@ import {
   selectMyCommentedChannelIdsForId,
   selectSettingsByChannelId,
   selectCommentsDisabledSettingForChannelId,
+  selectLivestreamChatMembersOnlyForChannelId,
+  selectMembersOnlyCommentsForChannelId,
 } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
@@ -68,6 +70,8 @@ const select = (state, props) => {
     userHasMembersOnlyChatPerk: selectUserIsMemberOfMembersOnlyChatForCreatorId(state, channelClaimId),
     myValidMembershipIds: selectMyValidMembershipIds(state),
     commentSettingDisabled: selectCommentsDisabledSettingForChannelId(state, channelClaimId),
+    isLivestreamChatMembersOnly: channelClaimId && selectLivestreamChatMembersOnlyForChannelId(state, channelClaimId),
+    areCommentsMembersOnly: channelClaimId && selectMembersOnlyCommentsForChannelId(state, channelClaimId),
   };
 };
 

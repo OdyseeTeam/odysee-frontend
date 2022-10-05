@@ -244,6 +244,11 @@ export const selectLivestreamChatMembersOnlyForChannelId = (state: State, channe
   return channelSettings && channelSettings.livestream_chat_members_only;
 };
 
+export const selectMembersOnlyCommentsForChannelId = (state: State, channelId: ClaimId) => {
+  const channelSettings = selectSettingsForChannelId(state, channelId);
+  return channelSettings && channelSettings.comments_members_only;
+};
+
 export const selectCommentsForUri = createCachedSelector(
   (state, uri) => uri,
   selectCommentsByClaimId,

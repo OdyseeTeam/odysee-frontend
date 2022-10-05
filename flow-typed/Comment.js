@@ -339,5 +339,6 @@ declare type BlockWordParams = {
 };
 
 declare type WebsocketSettingDataResponse = {
-  LivestreamChatMembersOnly: boolean,
+  LivestreamChatMembersOnly?: boolean,
+  CommentsMembersOnly?: boolean,
 };

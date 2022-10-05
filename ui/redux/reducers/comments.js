@@ -735,10 +735,15 @@ export default handleActions(
 
     [ACTIONS.WEBSOCKET_MEMBERS_ONLY_TOGGLE_COMPLETE]: (state: CommentsState, action: any) => {
       const { responseData, creatorId } = action.data;
-      const { LivestreamChatMembersOnly }: WebsocketSettingDataResponse = responseData;
+      const { LivestreamChatMembersOnly, CommentsMembersOnly }: WebsocketSettingDataResponse = responseData;
 
       const newSettingsByChannelId = Object.assign({}, state.settingsByChannelId);
-      Object.assign(newSettingsByChannelId[creatorId], { livestream_chat_members_only: LivestreamChatMembersOnly });
+      if (LivestreamChatMembersOnly !== undefined) {
+        Object.assign(newSettingsByChannelId[creatorId], { livestream_chat_members_only: LivestreamChatMembersOnly });
+      }
+      if (CommentsMembersOnly !== undefined) {
+        Object.assign(newSettingsByChannelId[creatorId], { comments_members_only: CommentsMembersOnly });
+      }
 
       return { ...state, settingsByChannelId: newSettingsByChannelId };
     },
