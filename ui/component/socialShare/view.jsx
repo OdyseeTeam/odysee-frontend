@@ -38,7 +38,7 @@ type Props = {
   doFetchInviteStatus: (boolean) => void,
   disableDownloadButton: boolean,
   isMature: boolean,
-  userHasMemberAccess: boolean,
+  isMembershipProtected: boolean,
 };
 
 function SocialShare(props: Props) {
@@ -54,7 +54,7 @@ function SocialShare(props: Props) {
     doFetchInviteStatus,
     disableDownloadButton,
     isMature,
-    userHasMemberAccess,
+    isMembershipProtected,
   } = props;
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
@@ -237,7 +237,7 @@ function SocialShare(props: Props) {
             }}
           />
         )}
-        {(showDownloadLink || rssUrl || isChannel) && (!isStream || userHasMemberAccess) && (
+        {!isMembershipProtected && (showDownloadLink || rssUrl || isChannel) && (
           <Button
             className="share"
             iconSize={24}
