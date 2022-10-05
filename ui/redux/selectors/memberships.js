@@ -115,6 +115,9 @@ export const selectUserHasValidMembershipForCreatorId = (state: State, id: strin
   return Boolean(validMemberships && validMemberships.length > 0);
 };
 
+export const selectUserHasValidOdyseeMembership = (state: State) =>
+  selectUserHasValidMembershipForCreatorId(state, ODYSEE_CHANNEL.ID);
+
 export const selectMyValidMembershipIds = (state: State) => {
   const validMembershipsById = selectMyValidMembershipsById(state);
 

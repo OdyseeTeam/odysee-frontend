@@ -16,10 +16,21 @@ type Props = {
   bankAccountConfirmed: ?boolean,
   hasTiers?: boolean,
   supportersList: ?SupportersList,
+  userHasExperimentalUi: boolean,
+  userHasOdyseeMembership: boolean,
 };
 
 const TabWrapper = (props: Props) => {
-  const { component, switchToTiersTab, myChannelClaims, bankAccountConfirmed, hasTiers, supportersList } = props;
+  const {
+    component,
+    switchToTiersTab,
+    myChannelClaims,
+    bankAccountConfirmed,
+    hasTiers,
+    supportersList,
+    userHasExperimentalUi,
+    userHasOdyseeMembership,
+  } = props;
 
   const isOnTiersTab = !switchToTiersTab;
 
@@ -28,6 +39,16 @@ const TabWrapper = (props: Props) => {
       <div className="main--empty">
         <Spinner />
       </div>
+    );
+  }
+
+  if (!userHasExperimentalUi && !userHasOdyseeMembership) {
+    return (
+      <ErrorBubble
+        title={__('Premium Beta')}
+        subtitle={__('Sorry, this functionality is only available for Odysee Premium users currently.')}
+        action={<Button button="primary" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} label={__('Join Premium')} />}
+      />
     );
   }
 
