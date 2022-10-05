@@ -19,7 +19,6 @@ type Props = {
 const ConfirmationPage = (props: Props) => {
   const { selectedTier, onCancel, channelName, purchasePending } = props;
 
-  console.log('selectedTier.Membership.name: ', selectedTier.Membership.name);
   const totalCost =
     `$${(selectedTier.NewPrices[0].Price.amount / 100).toFixed(2)}` +
     ' (' +
