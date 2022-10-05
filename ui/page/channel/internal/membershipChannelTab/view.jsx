@@ -2,6 +2,8 @@
 import React from 'react';
 import { formatDateToMonthAndDay } from 'util/time';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import Button from 'component/button';
 import Card from 'component/common/card';
 import JoinMembershipCard from 'component/joinMembershipCard';
 // import moment from 'moment';
@@ -106,6 +108,17 @@ const MembershipChannelTab = (props: Props) => {
               </label>
             </div>
           </div>
+
+          <div className="button--view-memberships">
+            <Button
+              icon={ICONS.MEMBERSHIP}
+              button="primary"
+              type="submit"
+              label={__('See all my memberships')}
+              navigate={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`}
+            />
+          </div>
+
           <ClearMembershipDataButton />
         </>
       }
