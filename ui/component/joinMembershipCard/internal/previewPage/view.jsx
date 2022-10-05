@@ -206,7 +206,7 @@ const PreviewPage = (props: Props) => {
           button="primary"
           type="submit"
           disabled={userHasACreatorMembership || creatorPurchaseDisabled}
-          label={__('Send $%membership_price% to the creator every month', {
+          label={__('Join for $%membership_price% per month', {
             membership_price: selectedTier?.NewPrices[0]?.creator_receives_amount / 100,
           })}
           requiresAuth
