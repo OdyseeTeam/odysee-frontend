@@ -57,7 +57,7 @@ function MembershipTier(props: Props) {
   const [editTierParams, setEditTierParams] = React.useState({
     editTierDescription: membership.Membership.description || '',
     editTierName: membership.Membership.name || '',
-    editTierPrice: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
+    editTierPrice: membership.NewPrices && membership.NewPrices[0].creator_receives_amount / 100,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState([
