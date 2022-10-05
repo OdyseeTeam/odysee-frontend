@@ -32,8 +32,8 @@ const MembershipTier = (props: Props) => {
           <Button
             icon={ICONS.MEMBERSHIP}
             button="primary"
-            label={__('Signup for $%membership_price% a month', {
-              membership_price: membership.NewPrices && membership.NewPrices[0].Price.amount / 100,
+            label={__('Send $%membership_price% to the creator every month', {
+              membership_price: membership?.NewPrices[0]?.creator_receives_amount / 100,
             })}
             onClick={handleSelect}
             disabled={disabled}

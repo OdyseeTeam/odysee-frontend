@@ -34,7 +34,7 @@ const ProtectedContentOverlay = (props: Props) => {
         icon={ICONS.MEMBERSHIP}
         label={
           cheapestPlanPrice
-            ? __('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })
+            ? __('Send $%membership_price% to the creator every month', { membership_price: cheapestPlanPrice })
             : __('Membership options')
         }
         title={__('Become a member')}

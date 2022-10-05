@@ -101,7 +101,15 @@ export default function LivestreamPage(props: Props) {
       doCommentSocketConnect(uri, channelName, claimIdToUse, undefined, isProtectedContent);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
-  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri]);
+  }, [
+    channelUrl,
+    claim,
+    doCommentSocketConnect,
+    doCommentSocketDisconnect,
+    socketConnection,
+    uri,
+    unauthorizedForContent,
+  ]);
 
   React.useEffect(() => {
     // use for unmount case without triggering render

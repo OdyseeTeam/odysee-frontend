@@ -38,7 +38,9 @@ const PreviewOverlayProtectedContent = (props: Props) => {
         </div>
         <div className="protected-content-holder-label">
           {__('Members Only')}
-          <span>{__('Join for $%membership_price% per month', { membership_price: cheapestPlanPrice })}</span>
+          <span>
+            {__('Send $%membership_price% to the creator every month', { membership_price: cheapestPlanPrice })}
+          </span>
         </div>
       </div>
     );

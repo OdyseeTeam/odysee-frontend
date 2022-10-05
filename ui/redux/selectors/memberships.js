@@ -371,7 +371,7 @@ export const selectPriceOfCheapestPlanForClaimId = (state: State, claimId: Claim
   const cheapestMembership = selectCheapestProtectedContentMembershipForId(state, claimId);
   if (!cheapestMembership || !cheapestMembership.NewPrices) return undefined;
 
-  return (cheapestMembership.NewPrices[0].Price.amount / 100).toFixed(2);
+  return (cheapestMembership.NewPrices[0]?.creator_receives_amount / 100).toFixed(2);
 };
 
 export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, activeChannelClaimId: string) => {

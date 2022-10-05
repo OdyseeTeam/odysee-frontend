@@ -123,6 +123,11 @@ declare type MembershipPerks = Array<MembershipPerk>;
 declare type MembershipNewStripePriceDetails = {
   Price: MembershipPriceDetails,
   StripePrice: StripePriceDetails,
+  creator_receives_amount: number,
+  fees: {
+    stripe_fee: number,
+    odysee_fee: number,
+  }
 };
 
 declare type MembershipPriceDetails = {

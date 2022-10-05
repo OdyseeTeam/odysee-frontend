@@ -32,8 +32,20 @@ const ConfirmationPage = (props: Props) => {
       </section>
       <ConfirmationSection label={__('Description')} value={selectedTier.Membership.description} />
       <ConfirmationSection
-        label={__('Monthly Cost')}
-        value={`$${selectedTier.NewPrices ? selectedTier.NewPrices[0].Price.amount / 100 : 0}`}
+        label={__('Creator Receives Monthly')}
+        value={`$${(selectedTier?.NewPrices[0]?.creator_receives_amount / 100).toFixed(2)}`}
+      />
+      <ConfirmationSection
+        label={__('Payment Processing Fee')}
+        value={`$${(selectedTier?.NewPrices[0]?.fees.stripe_fee / 100).toFixed(2)}`}
+      />
+      <ConfirmationSection
+        label={__('Odysee Platform Fee')}
+        value={`$${(selectedTier?.NewPrices[0]?.fees.odysee_fee / 100).toFixed(2)}`}
+      />
+      <ConfirmationSection
+        label={__('Total Monthly Cost')}
+        value={`$${(selectedTier?.NewPrices[0]?.Price.amount / 100).toFixed(2)}`}
       />
       {selectedTier.Perks && selectedTier.Perks.length > 0 && (
         <ConfirmationSection
