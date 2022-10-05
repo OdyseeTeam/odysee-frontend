@@ -19,10 +19,28 @@ type Props = {
 const ConfirmationPage = (props: Props) => {
   const { selectedTier, onCancel, channelName, purchasePending } = props;
 
+  const totalCost =
+    `$${(selectedTier.NewPrices[0].Price.amount / 100).toFixed(2)}` +
+    ' (' +
+    __(
+      'Creator revenue' +
+        ': ' +
+        `$${(selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2)}` +
+        ', ' +
+        ' ' +
+        __('Payment processing fee') +
+        ': ' +
+        `$${(selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2)}` +
+        ', ' +
+        __('Odysee platform fee') +
+        ': ' +
+        `$${(selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2)}` +
+        ')'
+    );
   return (
     <div className="confirm__wrapper">
-      <ConfirmationSection label={__('Subscribing As')} value={<ChannelSelector />} />
-      <ConfirmationSection label={__('Subscribing To')} value={channelName} />
+      <ConfirmationSection label={__('Join Membership As')} value={<ChannelSelector />} />
+      <ConfirmationSection label={__('Joining Membership')} value={channelName} />
       <section>
         <label>{__('Membership Tier')}</label>
         <span>
@@ -31,22 +49,7 @@ const ConfirmationPage = (props: Props) => {
         </span>
       </section>
       <ConfirmationSection label={__('Description')} value={selectedTier.Membership.description} />
-      <ConfirmationSection
-        label={__('Creator Receives Monthly')}
-        value={`$${(selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2)}`}
-      />
-      <ConfirmationSection
-        label={__('Payment Processing Fee')}
-        value={`$${(selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2)}`}
-      />
-      <ConfirmationSection
-        label={__('Odysee Platform Fee')}
-        value={`$${(selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2)}`}
-      />
-      <ConfirmationSection
-        label={__('Total Monthly Cost')}
-        value={`$${(selectedTier.NewPrices[0].Price.amount / 100).toFixed(2)}`}
-      />
+      <ConfirmationSection label={__('Total Monthly Cost')} value={totalCost} />
       {selectedTier.Perks && selectedTier.Perks.length > 0 && (
         <ConfirmationSection
           label={__('Features and Perks')}
