@@ -6,6 +6,7 @@ import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
 import {
   selectMembershipMineFetching,
+  selecIsMembershipListFetchingForId,
   selectFetchingIdsForMembershipChannelId,
   selectIsListingAllMyTiers,
   selectIsClaimMembershipTierFetchingForId,
@@ -76,14 +77,21 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
 export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
-export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch) =>
-  await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
+export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch, getState: GetState) => {
+  const { channel_id: channelId } = params;
+  const state = getState();
+  const isFetching = selecIsMembershipListFetchingForId(state, channelId);
+
+  if (isFetching) return Promise.resolve();
+
+  dispatch({ type: ACTIONS.MEMBERSHIP_LIST_START, data: channelId });
+
+  return await Lbryio.call('membership', 'list', { environment: stripeEnvironment, ...params }, 'post')
     .then((response: MembershipTiers) =>
-      dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId: params.channel_id, list: response } })
+      dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: response } })
     )
-    .catch(() =>
-      dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId: params.channel_id, list: null } })
-    );
+    .catch(() => dispatch({ type: ACTIONS.MEMBERSHIP_LIST_COMPLETE, data: { channelId, list: null } }));
+};
 
 export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetState) => {
   const state = getState();

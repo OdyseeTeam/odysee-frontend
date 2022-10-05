@@ -27,6 +27,7 @@ export const selectPendingBuyMembershipIds = (state: State) => selectState(state
 export const selectPendingCancelMembershipIds = (state: State) => selectState(state).pendingCancelIds;
 export const selectChannelMembershipsByCreatorId = (state: State) => selectState(state).channelMembershipsByCreatorId;
 export const selectById = (state: State) => selectState(state).membershipListById || {};
+export const selectMembershipListFetchingIds = (state: State) => selectState(state).membershipListFetchingIds;
 export const selectDidFetchMembershipsDataById = (state: State) => selectState(state).didFetchMembershipsDataById;
 export const selectMembershipPerks = (state: State) => selectState(state).membershipPerks;
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
@@ -37,6 +38,9 @@ export const selectClaimMembershipTiersFetchingIds = (state: State) =>
 
 export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) =>
   new Set(selectClaimMembershipTiersFetchingIds(state)).has(claimId);
+
+export const selecIsMembershipListFetchingForId = (state: State, claimId: ClaimId) =>
+  new Set(selectMembershipListFetchingIds(state)).has(claimId);
 
 export const selectMyTotalSupportersAmount = (state: State) => selectMySupportersList(state)?.length || 0;
 
