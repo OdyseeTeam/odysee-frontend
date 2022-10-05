@@ -37,6 +37,7 @@ export default function ModalConfirm(props: Props) {
         title={title}
         subtitle={subtitle}
         body={body}
+        className="confirm__wrapper"
         actions={
           <div className="section__actions">
             {isBusy && busyMsg ? (
