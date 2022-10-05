@@ -99,7 +99,7 @@ function MembershipTier(props: Props) {
 
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
-        <span>${membership.NewPrices && membership.NewPrices[0].Price.amount / 100}</span>
+        <span>${(membership.NewPrices[0].creator_receives_amount / 100).toFixed(2)}</span>
 
         <label>{__('Description ')}</label>
         <span className="membership-tier__description">{membership.Membership.description}</span>
