@@ -86,6 +86,8 @@ export default function FileActions(props: Props) {
   const collectionId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
 
   const unauthorizedToDownload = isPurchasableContent || isRentableContent || isProtectedContent;
+  const showDownload = !isLivestreamClaim && !disableDownloadButton && !isMature && !unauthorizedToDownload;
+  const showRepost = !hideRepost && !isLivestreamClaim;
 
   // We want to use the short form uri for editing
   // This is what the user is used to seeing, they don't care about the claim id
@@ -144,7 +146,7 @@ export default function FileActions(props: Props) {
         </>
       )}
 
-      {(!isLivestreamClaim || !claimIsMine || isMobile) && (
+      {((isMobile && (showRepost || claimIsMine)) || showDownload || !claimIsMine) && (
         <Menu>
           <MenuButton
             className="button--file-action--menu"
@@ -159,7 +161,7 @@ export default function FileActions(props: Props) {
           <MenuList className="menu__list">
             {isMobile && (
               <>
-                {!hideRepost && !isLivestreamClaim && (
+                {showRepost && (
                   <MenuItem className="comment__menu-option" onSelect={handleRepostClick}>
                     <div className="menu__link">
                       <Icon aria-hidden icon={ICONS.REPOST} />
@@ -199,7 +201,7 @@ export default function FileActions(props: Props) {
               </>
             )}
 
-            {!isLivestreamClaim && !disableDownloadButton && !isMature && !unauthorizedToDownload && (
+            {showDownload && (
               <MenuItem className="comment__menu-option" onSelect={handleWebDownload}>
                 <div className="menu__link">
                   <Icon aria-hidden icon={ICONS.DOWNLOAD} />
