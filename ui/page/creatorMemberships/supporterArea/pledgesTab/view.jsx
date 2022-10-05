@@ -23,7 +23,7 @@ function PledgesTab(props: Props) {
   const { myPurchasedMemberships, claimsById, doMembershipMine, doResolveClaimIds } = props;
   // TODO: this should probably be fixed in the selector
   let formattedMemberships = [];
-  if (myPurchasedMemberships.length) {
+  if (myPurchasedMemberships && myPurchasedMemberships.length) {
     for (const creator of myPurchasedMemberships) {
       // filter out odysee, probably also to be fixed in selector
       if (creator[0].MembershipDetails.channel_name !== '@odysee') {
