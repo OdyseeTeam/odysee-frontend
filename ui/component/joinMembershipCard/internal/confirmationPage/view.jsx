@@ -40,7 +40,10 @@ const ConfirmationPage = (props: Props) => {
     );
   return (
     <div className="confirm__wrapper">
-      <ConfirmationSection label={__('Join ') + channelName + __(`'s Membership As`)} value={<ChannelSelector />} />
+      <ConfirmationSection
+        label={__(`Join %channelName%'s Membership As`, { channelName })}
+        value={<ChannelSelector />}
+      />
       <section>
         <label>{__('Membership Tier')}</label>
         <span>
