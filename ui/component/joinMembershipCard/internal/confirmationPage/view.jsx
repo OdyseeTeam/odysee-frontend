@@ -19,6 +19,7 @@ type Props = {
 const ConfirmationPage = (props: Props) => {
   const { selectedTier, onCancel, channelName, purchasePending } = props;
 
+  console.log('selectedTier.Membership.name: ', selectedTier.Membership.name);
   const totalCost =
     `$${(selectedTier.NewPrices[0].Price.amount / 100).toFixed(2)}` +
     ' (' +
@@ -39,8 +40,7 @@ const ConfirmationPage = (props: Props) => {
     );
   return (
     <div className="confirm__wrapper">
-      <ConfirmationSection label={__('Join Membership As')} value={<ChannelSelector />} />
-      <ConfirmationSection label={__('Joining Membership')} value={channelName} />
+      <ConfirmationSection label={__('Join ') + channelName + __(`'s Membership As`)} value={<ChannelSelector />} />
       <section>
         <label>{__('Membership Tier')}</label>
         <span>
