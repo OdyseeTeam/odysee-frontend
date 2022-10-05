@@ -105,7 +105,9 @@ const JoinMembershipCard = (props: Props) => {
         ),
       });
 
-      if (shouldNavigate) {
+      const purchasingUnlockableContentTier = unlockableTierIds.includes(selectedTier.Membership.id);
+
+      if (shouldNavigate && purchasingUnlockableContentTier) {
         push(formatLbryUrlForWeb(uri));
       }
     });
