@@ -65,7 +65,7 @@ const MembershipDetails = (props: Props) => {
                 <ul>
                   {/* $FlowFixMe -- already handled above */}
                   {membership.Perks.map((tierPerk, i) => (
-                    <li key={i}>{tierPerk.name}</li>
+                    <li key={i}>{__(tierPerk.name)}</li>
                   ))}
                 </ul>
               </>
