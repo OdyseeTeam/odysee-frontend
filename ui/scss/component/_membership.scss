@@ -731,6 +731,17 @@
         list-style-position: inside !important;
       }
     }
+    .busy-indicator {
+      display: inline-block;
+      margin-top: var(--spacing-s);
+      border: 2px solid var(--color-border);
+      border-radius: var(--border-radius);
+      padding: var(--spacing-xxs);
+      .busy-indicator__loader {
+        margin-left: var(--spacing-s);
+        margin-right: var(--spacing-s);
+      }
+    }
   }
   .help--no-card {
     color: var(--color-danger) !important;
