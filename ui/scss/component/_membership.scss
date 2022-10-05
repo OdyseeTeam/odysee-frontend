@@ -724,6 +724,14 @@
         margin-top: 0px;
         font-size: var(--font-base);
         opacity: 0.8;
+        .dot {
+          display: inline-block;
+          width: var(--font-base);
+          height: var(--font-base);
+          border-radius: 50%;
+          margin-bottom: -1.5px;
+          margin-right: var(--spacing-xxs);
+        }
       }
 
       .section__subtitle--join-membership__perk {
