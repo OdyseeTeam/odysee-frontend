@@ -21,6 +21,7 @@ type Props = {
   myMembershipTiersWithExclusiveLivestreamPerk: CreatorMemberships,
   location: string,
   isStillEditing: boolean,
+  contentIsFree: boolean,
 };
 
 function PublishProtectedContent(props: Props) {
@@ -37,6 +38,7 @@ function PublishProtectedContent(props: Props) {
     myMembershipTiersWithExclusiveLivestreamPerk,
     location,
     isStillEditing,
+    contentIsFree,
   } = props;
 
   const [isRestrictingContent, setIsRestrictingContent] = React.useState(false);
@@ -161,6 +163,7 @@ function PublishProtectedContent(props: Props) {
             <>
               <FormField
                 type="checkbox"
+                disabled={!contentIsFree}
                 defaultChecked={isRestrictingContent}
                 label={__('Restrict content to only allow subscribers to certain memberships to view it')}
                 name={'toggleRestrictedContent'}
@@ -172,6 +175,7 @@ function PublishProtectedContent(props: Props) {
                 <div className="tier-list">
                   {membershipsToUse.map((membership) => (
                     <FormField
+                      disabled={!contentIsFree}
                       key={membership.Membership.id}
                       type="checkbox"
                       // $FlowIssue
@@ -181,6 +185,12 @@ function PublishProtectedContent(props: Props) {
                       onChange={handleRestrictedMembershipChange}
                     />
                   ))}
+                </div>
+              )}
+
+              {!contentIsFree && (
+                <div className="error__text">
+                  {__('This file has an attached price, disabled it in order to add content restrictions.')}
                 </div>
               )}
             </>

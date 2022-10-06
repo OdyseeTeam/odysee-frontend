@@ -7,7 +7,7 @@ import {
   selectMyMembershipTiersWithExclusiveContentPerk,
   selectMyMembershipTiersWithExclusiveLivestreamPerk,
 } from 'redux/selectors/memberships';
-import { selectIsStillEditing } from 'redux/selectors/publish';
+import { selectIsStillEditing, selectPublishFormValue } from 'redux/selectors/publish';
 import { doMembershipContentforStreamClaimId, doMembershipList } from 'redux/actions/memberships';
 import PublishProtectedContent from './view';
 
@@ -33,6 +33,7 @@ const select = (state, props) => {
       activeChannel?.claim_id
     ),
     isStillEditing: selectIsStillEditing(state),
+    contentIsFree: selectPublishFormValue(state, 'contentIsFree'),
   };
 };
 
