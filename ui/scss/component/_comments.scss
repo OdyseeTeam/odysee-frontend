@@ -43,6 +43,10 @@ $thumbnailWidthSmall: 2rem;
       }
     }
   }
+  .error-bubble {
+    margin-top: 0;
+    margin-bottom: var(--spacing-s);
+  }
 }
 
 .comment__list .card__first-pane > .button {
