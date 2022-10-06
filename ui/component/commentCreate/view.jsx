@@ -345,7 +345,7 @@ export function CommentCreate(props: Props) {
     }
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = notAuthedToLiveChat && await getMembersOnlyCreatorSetting();
     if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     // if comment post didn't work, but tip was already made, try again to create comment
@@ -449,7 +449,7 @@ export function CommentCreate(props: Props) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = notAuthedToLiveChat && await getMembersOnlyCreatorSetting();
     if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
