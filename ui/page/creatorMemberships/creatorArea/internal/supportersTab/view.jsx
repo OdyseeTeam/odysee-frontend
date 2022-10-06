@@ -2,10 +2,13 @@
 import React from 'react';
 import moment from 'moment';
 
+import { buildURI } from 'util/lbryURI';
+
 import ChannelThumbnail from 'component/channelThumbnail';
 import Yrbl from 'component/yrbl';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
+import UriIndicator from 'component/uriIndicator';
 
 type Props = {
   channelsToList: ?Array<ChannelClaim>,
@@ -66,7 +69,6 @@ const SupportersTab = (props: Props) => {
               supportersList &&
               supportersList.filter((supporter) => listedChannelClaim.name === supporter.ChannelBeingSupported);
 
-            supportersForChannel && console.log('supportersForChannel: ', supportersForChannel);
             return (
               supportersForChannel &&
               supportersForChannel.length > 0 && (
@@ -94,24 +96,44 @@ const SupportersTab = (props: Props) => {
                       </thead>
 
                       <tbody>
-                        {supportersForChannel.map((supporter, i) => (
-                          <tr key={i}>
-                            <td className="channelThumbnail">
-                              <ChannelThumbnail xsmall uri={undefined} />
-                            </td>
-                            <td>
-                              <span dir="auto" className="button__label">
-                                {supporter.ChannelName === '' ? __('Anonymous') : supporter.ChannelName}
-                              </span>
-                            </td>
-                            <td>{supporter.MembershipName}</td>
-                            <td>${supporter.Price / 100} USD / Month</td>
-                            <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
-                            <td>
-                              {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
-                            </td>
-                          </tr>
-                        ))}
+                        {supportersForChannel.map((supporter, i) => {
+                          const supporterUri =
+                            supporter.ChannelName === ''
+                              ? undefined
+                              : buildURI({
+                                  channelName: supporter.ChannelName,
+                                  channelClaimId: supporter.ChannelID,
+                                });
+
+                          return (
+                            <tr key={i}>
+                              <td className="channelThumbnail">
+                                {supporterUri ? (
+                                  <UriIndicator focusable={false} uri={supporterUri} link>
+                                    <ChannelThumbnail xsmall link uri={supporterUri} />
+                                  </UriIndicator>
+                                ) : (
+                                  <ChannelThumbnail xsmall uri={supporterUri} />
+                                )}
+                              </td>
+                              <td>
+                                <span dir="auto" className="button__label">
+                                  {supporter.ChannelName === '' ? (
+                                    __('Anonymous')
+                                  ) : (
+                                    <UriIndicator link uri={supporterUri} />
+                                  )}
+                                </span>
+                              </td>
+                              <td>{supporter.MembershipName}</td>
+                              <td>${supporter.Price / 100} USD / Month</td>
+                              <td>{moment(new Date(supporter.JoinedAtTime)).format('MMMM Do YYYY')}</td>
+                              <td>
+                                {Math.ceil(moment(new Date()).diff(new Date(supporter.JoinedAtTime), 'months', true))}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>

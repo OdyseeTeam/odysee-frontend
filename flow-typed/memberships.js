@@ -223,6 +223,7 @@ declare type ChannelMembershipsByCreatorId = {
 declare type MembershipSupporter = {
   ChannelBeingSupported: string,
   ChannelName: string,
+  ChannelID: string,
   Interval: string,
   JoinedAtTime: string,
   MembershipName: string,
