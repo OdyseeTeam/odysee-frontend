@@ -257,7 +257,21 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const state = getState();
     const myClaims = selectMyClaims(state);
     const pendingClaim = successResponse.outputs[0];
-    analytics.apiLog.publish(pendingClaim);
+    const publishData = selectPublishFormValues(state);
+
+    const { restrictedToMemberships, channelClaimId } = publishData;
+
+    const apiLogSuccessCb = () => {
+      // hit backend to save restricted memberships
+      if (restrictedToMemberships || restrictedToMemberships === '') {
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, pendingClaim.claim_id, restrictedToMemberships)
+        );
+      }
+    };
+
+    analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
+
     const { permanent_url: url } = pendingClaim;
     const actions = [];
 
