@@ -35,9 +35,6 @@ function MembershipTier(props: Props) {
     doMembershipList,
   } = props;
 
-  // const membershipId = membership.Membership.id;
-  // const isLocalMembership = typeof membershipId === 'string'; // --> local = creating (not called membership_add yet)
-
   return (
     <>
       <div className="membership-tier__header">
@@ -100,6 +97,9 @@ function MembershipTier(props: Props) {
       <div className="membership-tier__infos">
         <label>{__('Pledge')}</label>
         <span>${(membership.NewPrices[0].creator_receives_amount / 100).toFixed(2)}</span>
+
+        <label>{__('Price with Platform and Service fee')}</label>
+        <span>${(membership.NewPrices[0].client_pays / 100).toFixed(2)}</span>
 
         <label>{__('Description ')}</label>
         <span className="membership-tier__description">{membership.Membership.description}</span>

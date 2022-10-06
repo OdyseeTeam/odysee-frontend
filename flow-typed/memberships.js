@@ -124,6 +124,7 @@ declare type MembershipNewStripePriceDetails = {
   Price: MembershipPriceDetails,
   StripePrice: StripePriceDetails,
   creator_receives_amount: number,
+  client_pays: number,
   fees: {
     stripe_fee: number,
     odysee_fee: number,
