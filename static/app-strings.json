@@ -658,6 +658,8 @@
   "Year": "Year",
   "year": "year",
   "Yearly": "Yearly",
+  "1 Month": "1 Month",
+  "%time_ago% Months": "%time_ago% Months",
   "Month": "Month",
   "month": "month",
   "Monthly": "Monthly",

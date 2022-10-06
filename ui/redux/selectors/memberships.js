@@ -107,6 +107,20 @@ export const selectMyValidMembershipsById = createSelector(
   }
 );
 
+export const selectMyPurchasedMembershipsFromCreatorsById = (state: State) => {
+  const purchasedMembershipsById = selectMyPurchasedMembershipsById(state);
+  if (!purchasedMembershipsById) return purchasedMembershipsById;
+
+  const purchasedMembershipsFromCreatorsById = Object.assign({}, purchasedMembershipsById);
+  delete purchasedMembershipsFromCreatorsById[ODYSEE_CHANNEL.ID];
+
+  return purchasedMembershipsFromCreatorsById;
+};
+export const selectMyPurchasedMembershipsFromCreators = createSelector(
+  selectMyPurchasedMembershipsFromCreatorsById,
+  (myPurchasedCreatorMemberships) => myPurchasedCreatorMemberships && Object.values(myPurchasedCreatorMemberships)
+);
+
 export const selectMyValidMembershipsForCreatorId = (state: State, id: string) =>
   selectMyValidMembershipsById(state)[id];
 

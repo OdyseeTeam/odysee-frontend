@@ -99,7 +99,11 @@ declare type MembershipSubscriptionDetails = {
   pending_invoice_item_interval: {},
   pending_setup_intent: ?{},
   pending_update: ?{},
-  plan: {},
+  plan: {
+    currency: string,
+    amount: number,
+    interval: string,
+  },
   quantity: number,
   schedule: ?{},
   start_date: number,
