@@ -17,7 +17,8 @@ type Props = {
   bankAccountConfirmed: boolean,
   channelMemberships: CreatorMemberships,
   activeChannelClaim: ?ChannelClaim,
-  doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipPerks>,
+  membershipOdyseePermanentPerks: MembershipOdyseePerks,
+  doGetMembershipPerks: (params: MembershipListParams) => Promise<MembershipOdyseePerks>,
 };
 
 function TiersTab(props: Props) {
@@ -26,6 +27,7 @@ function TiersTab(props: Props) {
     bankAccountConfirmed,
     channelMemberships: fetchedMemberships,
     activeChannelClaim,
+    membershipOdyseePermanentPerks,
     doGetMembershipPerks,
   } = props;
 
@@ -166,7 +168,8 @@ function TiersTab(props: Props) {
             const newestMembership = {
               HasSubscribers: false,
               Membership: { id: newestId, name: __('Example Plan'), description: '' },
-              NewPrices: [{ Price: { amount: 500 } }],
+              NewPrices: [{ creator_receives_amount: 500 }],
+              Perks: membershipOdyseePermanentPerks,
               saved: false,
             };
 

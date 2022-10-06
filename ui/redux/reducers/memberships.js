@@ -16,7 +16,7 @@ type MembershipsState = {
   pendingDeleteIds: Array<string>,
   protectedContentClaimsByCreatorId: { [channelId: string]: any },
   mySupportersList: ?SupportersList,
-  membershipPerks: Array<MembershipPerk>,
+  membershipOdyseePerks: Array<MembershipOdyseePerk>,
   listingAllMyTiers: ?boolean,
   claimMembershipTiersFetchingIds: Array<string>,
 };
@@ -34,7 +34,7 @@ const defaultState: MembershipsState = {
   pendingDeleteIds: [],
   protectedContentClaimsByCreatorId: {},
   mySupportersList: undefined,
-  membershipPerks: [],
+  membershipOdyseePerks: [],
   listingAllMyTiers: undefined,
   claimMembershipTiersFetchingIds: [],
 };
@@ -152,7 +152,7 @@ reducers[ACTIONS.MEMBERSHIP_LIST_COMPLETE] = (state, action) => {
   };
 };
 
-reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, membershipPerks: action.data });
+reducers[ACTIONS.MEMBERSHIP_PERK_LIST_COMPLETE] = (state, action) => ({ ...state, membershipOdyseePerks: action.data });
 
 reducers[ACTIONS.GET_CLAIM_MEMBERSHIP_TIERS_START] = (state, action) => {
   const claimIds = action.data;

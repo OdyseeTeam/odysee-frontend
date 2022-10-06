@@ -29,12 +29,18 @@ export const selectChannelMembershipsByCreatorId = (state: State) => selectState
 export const selectById = (state: State) => selectState(state).membershipListById || {};
 export const selectMembershipListFetchingIds = (state: State) => selectState(state).membershipListFetchingIds;
 export const selectDidFetchMembershipsDataById = (state: State) => selectState(state).didFetchMembershipsDataById;
-export const selectMembershipPerks = (state: State) => selectState(state).membershipPerks;
+export const selectMembershipOdyseePerks = (state: State) => selectState(state).membershipOdyseePerks;
 export const selectMySupportersList = (state: State) => selectState(state).mySupportersList;
 export const selectProtectedContentClaimsById = (state: State) => selectState(state).protectedContentClaimsByCreatorId;
 export const selectIsListingAllMyTiers = (state: State) => selectState(state).listingAllMyTiers;
 export const selectClaimMembershipTiersFetchingIds = (state: State) =>
   selectState(state).claimMembershipTiersFetchingIds;
+
+export const selectMembershipOdyseePermanentPerks = createSelector(
+  selectMembershipOdyseePerks,
+  (membershipOdyseePerks) =>
+    membershipOdyseePerks.filter((perk) => MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS.includes(perk.id))
+);
 
 export const selectIsClaimMembershipTierFetchingForId = (state: State, claimId: string) =>
   new Set(selectClaimMembershipTiersFetchingIds(state)).has(claimId);
@@ -399,7 +405,7 @@ export const selectMyMembershipTiersWithExclusiveContentPerk = (state: State, ac
   const perkName = 'Exclusive content';
 
   const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipPerk) => perk.name === perkName);
+    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
   });
 
   return tiers;
@@ -413,7 +419,7 @@ export const selectMyMembershipTiersWithExclusiveLivestreamPerk = (state: State,
   const perkName = 'Exclusive livestreams';
 
   const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipPerk) => perk.name === perkName);
+    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
   });
 
   return tiers;
@@ -427,7 +433,7 @@ export const selectMyMembershipTiersWithMembersOnlyChatPerk = (state: State, cha
   const perkName = 'Members-only chat';
 
   const tiers: MembershipTiers = membershipTiers.filter((membershipTier: MembershipTier) => {
-    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipPerk) => perk.name === perkName);
+    return membershipTier.Perks && membershipTier.Perks.some((perk: MembershipOdyseePerk) => perk.name === perkName);
   });
 
   return tiers;
@@ -443,7 +449,7 @@ export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
     memberships.forEach(
       (membership: CreatorMembership) =>
         membership.Perks &&
-        membership.Perks.some((perk: MembershipPerk) => {
+        membership.Perks.some((perk: MembershipOdyseePerk) => {
           if (perk.id === 3) {
             membershipIds.add(membership.Membership.id);
             return true;
@@ -460,7 +466,8 @@ export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
   (myValidMemberships: MembershipTiers) =>
     myValidMemberships &&
     myValidMemberships.filter(
-      (membership: MembershipTier) => membership.Perks && membership.Perks.some((perk: MembershipPerk) => perk.id === 3)
+      (membership: MembershipTier) =>
+        membership.Perks && membership.Perks.some((perk: MembershipOdyseePerk) => perk.id === 3)
     )
 );
 

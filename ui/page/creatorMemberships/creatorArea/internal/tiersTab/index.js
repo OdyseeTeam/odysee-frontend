@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
 import { selectAccountChargesEnabled } from 'redux/selectors/stripe';
-import { selectMembershipTiersForChannelId } from 'redux/selectors/memberships';
+import { selectMembershipTiersForChannelId, selectMembershipOdyseePermanentPerks } from 'redux/selectors/memberships';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doGetMembershipPerks, doMembershipAddTier, doDeactivateMembershipForId } from 'redux/actions/memberships';
 import { doToast } from 'redux/actions/notifications';
@@ -14,6 +14,7 @@ const select = (state, props) => {
     bankAccountConfirmed: selectAccountChargesEnabled(state),
     channelMemberships: activeChannelClaim && selectMembershipTiersForChannelId(state, activeChannelClaim.claim_id),
     activeChannelClaim,
+    membershipOdyseePermanentPerks: selectMembershipOdyseePermanentPerks(state),
   };
 };
 

@@ -14,7 +14,7 @@ declare type MembershipListParams = {
 declare type CreatorMembership = {
   HasSubscribers: boolean,
   Membership: MembershipDetails,
-  Perks: ?MembershipPerks,
+  Perks: MembershipOdyseePerks,
   Prices?: Array<StripePriceDetails>,
   NewPrices: Array<MembershipNewStripePriceDetails>,
 };
@@ -25,7 +25,7 @@ declare type MembershipTier = {
   Membership: Membership,
   MembershipDetails: MembershipDetails,
   Subscription: MembershipSubscriptionDetails,
-  Perks: ?MembershipPerks,
+  Perks: MembershipOdyseePerks,
 };
 declare type MembershipTiers = Array<MembershipTier>;
 
@@ -113,7 +113,7 @@ declare type MembershipSubscriptionDetails = {
   trial_start: number,
 };
 
-declare type MembershipPerk = {
+declare type MembershipOdyseePerk = {
   created_at: string,
   description: string,
   id: number,
@@ -122,7 +122,7 @@ declare type MembershipPerk = {
   name: string,
   updated_at: string,
 };
-declare type MembershipPerks = Array<MembershipPerk>;
+declare type MembershipOdyseePerks = Array<MembershipOdyseePerk>;
 
 declare type MembershipNewStripePriceDetails = {
   Price: MembershipPriceDetails,

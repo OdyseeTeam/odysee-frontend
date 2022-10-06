@@ -4,6 +4,8 @@ import React from 'react';
 import { FormField } from 'component/common/form';
 import { useIsMobile } from 'effects/use-screensize';
 
+import * as MEMBERSHIP_CONSTS from 'constants/memberships';
+
 import Button from 'component/button';
 import BusyIndicator from 'component/common/busy-indicator';
 
@@ -12,22 +14,13 @@ const getIsInputEmpty = (value) => !value || value.length <= 2 || !/\S/.test(val
 const MIN_PRICE = '4';
 const MAX_PRICE = '1000';
 
-// -- this is not actually used, but helps checking --
-// export const ODYSEE_PERKS = Object.freeze({
-//   3: 'Access to members-only chat',
-//   4: 'Badge shown in chat',
-// });
-
-// custom emojis should be changed to channel member badge
-const PERMANENT_TIER_PERKS = new Set([3, 4]); // -- perk name: Member Badge
-
 type Props = {
   membership: CreatorMembership,
   hasSubscribers: ?boolean,
   removeEditing: () => void,
   onCancel: () => void,
   // -- redux --
-  membershipPerks: MembershipPerks,
+  membershipOdyseePerks: MembershipOdyseePerks,
   activeChannelClaim: ChannelClaim,
   doMembershipAddTier: (params: MembershipAddTierParams) => Promise<MembershipDetails>,
   addChannelMembership: (membership: any) => Promise<CreatorMemberships>,
@@ -41,7 +34,7 @@ function MembershipTier(props: Props) {
     removeEditing,
     onCancel,
     // -- redux --
-    membershipPerks,
+    membershipOdyseePerks,
     activeChannelClaim,
     doMembershipAddTier,
     addChannelMembership,
@@ -54,18 +47,20 @@ function MembershipTier(props: Props) {
   const nameRef = React.useRef();
   const contributionRef = React.useRef();
 
+  const initialState = React.useRef({
+    name: membership.Membership.name || '',
+    description: membership.Membership.description || '',
+    price: membership.NewPrices[0].creator_receives_amount / 100,
+    perks: Array.from(new Set([...MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS, ...membership.Perks.map((perk) => perk.id)])),
+  });
+
   const [editTierParams, setEditTierParams] = React.useState({
-    editTierDescription: membership.Membership.description || '',
-    editTierName: membership.Membership.name || '',
-    editTierPrice: membership.NewPrices && membership.NewPrices[0].creator_receives_amount / 100,
+    editTierName: initialState.current.name,
+    editTierDescription: initialState.current.description,
+    editTierPrice: initialState.current.price,
   });
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [selectedPerkIds, setSelectedPerkIds] = React.useState([
-    ...new Set([
-      ...Array.from(PERMANENT_TIER_PERKS),
-      ...(membership.Perks ? membership.Perks.map((perk) => perk.id) : []),
-    ]),
-  ]);
+  const [selectedPerkIds, setSelectedPerkIds] = React.useState(initialState.current.perks);
 
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
@@ -76,10 +71,25 @@ function MembershipTier(props: Props) {
 
   /**
    * When someone hits the 'Save' button from the edit functionality
-   * @param membershipTier - If an existing tier, use the old price and id
+   * @param membership - If an existing tier, use the old price and id
    * @returns {Promise<void>}
    */
-  async function saveMembership(membershipTier) {
+  async function saveMembership() {
+    const initialObj = initialState.current;
+    const newObj = {
+      name: editTierParams.editTierName,
+      description: editTierParams.editTierDescription,
+      price: editTierParams.editTierPrice,
+      perks: selectedPerkIds,
+    };
+
+    const membershipObjDidNotChange = JSON.stringify(initialObj) === JSON.stringify(newObj);
+
+    if (membershipObjDidNotChange) {
+      // Simply "exit" here since there are no changes to save
+      return removeEditing();
+    }
+
     setIsSubmitting(true);
 
     const newTierMonthlyContribution = contributionRef.current?.input?.current?.value || 0;
@@ -87,7 +97,7 @@ function MembershipTier(props: Props) {
     const selectedPerksAsArray = selectedPerkIds.toString();
 
     if (activeChannelClaim) {
-      const isCreatingAMembership = typeof membershipTier.Membership.id === 'string';
+      const isCreatingAMembership = typeof membership.Membership.id === 'string';
       const price = Number(newTierMonthlyContribution) * 100; // multiply to turn into cents
 
       doMembershipAddTier({
@@ -98,18 +108,22 @@ function MembershipTier(props: Props) {
         amount: price,
         currency: 'usd', // hardcoded for now
         perks: selectedPerksAsArray,
-        old_stripe_price: membershipTier.Prices ? membershipTier.Prices[0].id : undefined,
-        membership_id: isCreatingAMembership ? undefined : membershipTier.Membership.id,
+        old_stripe_price: membership.Prices ? membership.Prices[0].id : undefined,
+        membership_id: isCreatingAMembership ? undefined : membership.Membership.id,
       })
         .then((response: MembershipDetails) => {
           setIsSubmitting(false);
           removeEditing();
 
+          const selectedPerks = membershipOdyseePerks.filter((perk) => selectedPerkIds.includes(perk.id));
+
           const newMembershipObj = {
             HasSubscribers: false,
             Membership: response,
-            NewPrices: [{ Price: { amount: price } }],
+            NewPrices: [{ creator_receives_amount: price }],
+            Perks: selectedPerks,
           };
+
           addChannelMembership(newMembershipObj);
           doMembershipList({ channel_name: activeChannelClaim.name, channel_id: activeChannelClaim.claim_id });
         })
@@ -158,8 +172,8 @@ function MembershipTier(props: Props) {
         <label htmlFor="tier_name">{__('Odysee Perks')}</label>
       </fieldset-section>
 
-      {membershipPerks.map((tierPerk) => {
-        const isPermanent = PERMANENT_TIER_PERKS.has(tierPerk.id);
+      {membershipOdyseePerks.map((tierPerk) => {
+        const isPermanent = MEMBERSHIP_CONSTS.PERMANENT_TIER_PERKS.includes(tierPerk.id);
         const isSelected = new Set(selectedPerkIds).has(tierPerk.id);
 
         return (
@@ -211,7 +225,7 @@ function MembershipTier(props: Props) {
           disabled={nameError || descriptionError || priceError || isSubmitting}
           button="primary"
           label={isSubmitting ? <BusyIndicator message={__('Saving')} /> : __('Save Tier')}
-          onClick={() => saveMembership(membership)}
+          onClick={saveMembership}
         />
         <Button button="link" label={__('Cancel')} onClick={onCancel} />
       </div>
