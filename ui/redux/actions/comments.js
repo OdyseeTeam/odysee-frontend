@@ -373,7 +373,7 @@ export function doCommentReset(claimId: string) {
 }
 
 export function doHyperChatList(uri: string, is_protected: boolean, channel_id: string) {
-  return (dispatch: Dispatch, getState: GetState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
     const claimId = claim ? claim.claim_id : null;
@@ -383,6 +383,27 @@ export function doHyperChatList(uri: string, is_protected: boolean, channel_id: 
       return;
     }
 
+    const myChannelClaims = selectMyChannelClaims(state);
+
+    let channelSignature = {};
+    let myChannelClaim;
+    if (is_protected) {
+      if (!myChannelClaims) {
+        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
+      }
+
+      myChannelClaim = myChannelClaims.find((x) => x.claim_id === channel_id);
+      if (!myChannelClaim) {
+        return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
+      }
+
+      channelSignature = await channelSignName(myChannelClaim.claim_id, myChannelClaim.name);
+      if (!channelSignature) {
+        console.error('Failed to sign channel name.'); // eslint-disable-line
+        return;
+      }
+    }
+
     dispatch({
       type: ACTIONS.COMMENT_SUPER_CHAT_LIST_STARTED,
     });
@@ -390,7 +411,15 @@ export function doHyperChatList(uri: string, is_protected: boolean, channel_id: 
     return Comments.super_list({
       claim_id: claimId,
       is_protected: is_protected || undefined,
-      requestor_channel_id: channel_id || undefined,
+      ...(is_protected
+        ? {
+            is_protected: true, // in case undefined is passed
+            requestor_channel_id: channel_id, // typo (requestor vs requester) is on backend atm
+            requestor_channel_name: myChannelClaim?.name,
+            signature: channelSignature.signature,
+            signing_ts: channelSignature.signing_ts,
+          }
+        : {}),
     })
       .then((result: SuperListResponse) => {
         const { items: comments, total_amount: totalAmount } = result;
