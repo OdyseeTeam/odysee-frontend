@@ -123,10 +123,11 @@ function PublishProtectedContent(props: Props) {
 
   if (incognito) return null;
 
-  return (
-    <>
-      <h2 className="card__title">{__('Restrict Content')}</h2>
-      {(!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) && (
+  if (!myMembershipTiers || (myMembershipTiers && myMembershipTiers.length === 0)) {
+    return (
+      <>
+        <h2 className="card__title">{__('Restrict Content')}</h2>
+
         <Card
           className="card--restrictions"
           body={
@@ -145,11 +146,15 @@ function PublishProtectedContent(props: Props) {
             </I18nMessage>
           }
         />
-      )}
+      </>
+    );
+  }
 
-      {/* to-do: add some logic to say "none of your tiers have the perk" */}
+  if (membershipsToUse && membershipsToUse.length > 0) {
+    return (
+      <>
+        <h2 className="card__title">{__('Restrict Content')}</h2>
 
-      {membershipsToUse && membershipsToUse.length > 0 && (
         <Card
           className="card--restrictions"
           body={
@@ -160,7 +165,7 @@ function PublishProtectedContent(props: Props) {
                 label={__('Restrict content to only allow subscribers to certain memberships to view it')}
                 name={'toggleRestrictedContent'}
                 className="restrict-content__checkbox"
-                onChange={() => handleChangeRestriction()}
+                onChange={handleChangeRestriction}
               />
 
               {isRestrictingContent && (
@@ -181,9 +186,11 @@ function PublishProtectedContent(props: Props) {
             </>
           }
         />
-      )}
-    </>
-  );
+      </>
+    );
+  }
+
+  return null;
 }
 
 export default PublishProtectedContent;

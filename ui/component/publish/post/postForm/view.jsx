@@ -83,6 +83,7 @@ type Props = {
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
+  restrictedToMemberships: ?string,
 };
 
 function PostForm(props: Props) {
@@ -123,6 +124,7 @@ function PostForm(props: Props) {
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
+    restrictedToMemberships,
   } = props;
 
   const inEditMode = Boolean(editingURI);
@@ -161,6 +163,7 @@ function PostForm(props: Props) {
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
 
   const formValidLessFile =
+    restrictedToMemberships !== null &&
     name &&
     isNameValid(name) &&
     title &&
