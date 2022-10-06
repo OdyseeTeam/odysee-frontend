@@ -36,9 +36,6 @@ function OverviewTab(props: Props) {
           <td>
             {__('Total Monthly Income')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
           </td>
-          <td>
-            {__('Total Received')} <span>${0}</span>
-          </td>
         </tr>
       </table>
 
