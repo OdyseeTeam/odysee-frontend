@@ -15,7 +15,7 @@ export type ApiLog = {
   setState: (enable: boolean) => void,
   view: (string, string, string, ?number, ?() => void) => Promise<any>,
   search: () => void,
-  publish: (ChannelClaim | StreamClaim) => void,
+  publish: (ChannelClaim | StreamClaim, successCb?: () => void) => void,
 };
 
 let gApiLogOn = false;
