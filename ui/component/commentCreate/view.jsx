@@ -266,6 +266,15 @@ export function CommentCreate(props: Props) {
   // Functions
   // **************************************************************************
 
+  function getMembersOnlyCreatorSetting() {
+    return (
+      channelClaimId &&
+      doFetchCreatorSettings(channelClaimId).then(
+        ({ comments_members_only: commentsMembersOnly }: SettingsResponse) => commentsMembersOnly
+      )
+    );
+  }
+
   function handleJoinMembersOnlyChat() {
     return doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, fileUri, membersOnly: true });
   }
@@ -324,7 +333,7 @@ export function CommentCreate(props: Props) {
     if (onSlimInputClose) onSlimInputClose();
   }
 
-  function handleSupportComment() {
+  async function handleSupportComment() {
     if (!activeChannelClaimId) return;
 
     if (!channelClaimId) {
@@ -334,6 +343,10 @@ export function CommentCreate(props: Props) {
       });
       return;
     }
+
+    // do another creator settings fetch here to make sure that on submit, the setting did not change
+    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     // if comment post didn't work, but tip was already made, try again to create comment
     if (commentFailure && tipAmount === successTip.tipAmount) {
@@ -432,10 +445,12 @@ export function CommentCreate(props: Props) {
    * @param {string} [environment] Optional environment for Stripe (test|live)
    * @param {boolean} [is_protected] Whether are not the content has a protected chat
    */
-  function handleCreateComment(txid, payment_intent_id, environment) {
+  async function handleCreateComment(txid, payment_intent_id, environment) {
     if (isSubmitting || disableInput || !claimId) return;
 
-    if (notAuthedToLiveChat) return handleJoinMembersOnlyChat();
+    // do another creator settings fetch here to make sure that on submit, the setting did not change
+    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
 

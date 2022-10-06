@@ -1736,6 +1736,8 @@ export const doFetchCreatorSettings = (channelId: string) => {
             partialUpdate: !signedName,
           },
         });
+
+        return response;
       })
       .catch((err) => {
         if (err.message === 'validation is disallowed for non controlling channels') {
@@ -1753,6 +1755,8 @@ export const doFetchCreatorSettings = (channelId: string) => {
             type: ACTIONS.COMMENT_FETCH_SETTINGS_FAILED,
           });
         }
+
+        throw new Error(err);
       });
   };
 };
