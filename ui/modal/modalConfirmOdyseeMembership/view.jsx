@@ -55,8 +55,12 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
       channel_id: activeChannelId,
       channel_name: activeChannelName,
       price_id: price.id,
-    }).then(() => {
-      doToast({ message: __('Purchase was successful. Enjoy the perks and special features!') });
+    }).then((response) => {
+      // this isn't the best pattern, should be passed as a callback
+      if (response?.created_at) {
+        doToast({ message: __('Purchase was successful. Enjoy the perks and special features!') });
+      }
+
       doHideModal();
     });
   }
@@ -78,7 +82,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             <I18nMessage
               tokens={{
                 time_interval_bold: (
-                  <b className="membershipDetails-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
+                  <b className="membershipDetails-bolded">
+                    {__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}
+                  </b>
                 ),
                 time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
                 price_bold: (
