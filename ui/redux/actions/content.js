@@ -203,6 +203,12 @@ export function doPurchaseUriWrapper(uri: string, cost: number, cb: ?(GetRespons
   return (dispatch: Dispatch, getState: () => any) => {
     function onSuccess(fileInfo) {
       if (cb) {
+        l('uri');
+        l(uri);
+        l('fileInfo');
+        l(fileInfo);
+        l('cb');
+        l(cb);
         cb(fileInfo);
       }
     }
@@ -454,6 +460,7 @@ export function doPlayUri(
     const instantPurchaseMax = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX);
 
     function beginGetFile() {
+      l('running here!');
       dispatch(doPurchaseUriWrapper(uri, cost, cb));
     }
 

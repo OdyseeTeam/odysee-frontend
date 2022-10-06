@@ -50,6 +50,9 @@ reducers[ACTIONS.FETCH_FILE_INFO_COMPLETED] = (state, action) => {
   const newByOutpoint = Object.assign({}, state.byOutpoint);
   newByOutpoint[outpoint] = fileInfo;
 
+  l('new by outpoint');
+  l(newByOutpoint);
+
   return { ...state, fetchingOutpoints: Array.from(newFetchingOutpoints), byOutpoint: newByOutpoint };
 };
 

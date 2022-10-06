@@ -339,7 +339,7 @@ export const selectMyProtectedContentMembershipForId = createSelector(
     if (!protectedContentMemberships) return protectedContentMemberships;
 
     const validMembershipIdsSet = new Set(validMembershipIds);
-    const myMembership = protectedContentMemberships.find((membership) =>
+    const myMembership = protectedContentMemberships.find(membership =>
       validMembershipIdsSet.has(membership.Membership.id)
     );
     if (!myMembership) return null;
@@ -477,16 +477,22 @@ export const selectUserIsMemberOfMembersOnlyChatForCreatorId = (state: State, cr
 };
 
 export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
-  if (!claim) return false;
+  // if (!claim) return false;
 
-  const claimId = claim.claim_id;
+  const claimId = claim?.claim_id;
   const channelId = getChannelIdFromClaim(claim);
-  const uri = claim.canonical_url;
+  const uri = claim?.canonical_url;
   const claimIsMine = selectClaimIsMine(state, claim);
   if (!channelId) return false;
   const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
   const myValidMembershipIds = selectMyValidMembershipIds(state);
   const protectedContentTag = selectProtectedContentTagForUri(state, uri);
+
+  // l('protectedMembershipIdsForClaim')
+  // l(protectedMembershipIdsForClaim);
+  //
+  // l('myValidMembershipIds')
+  // l(myValidMembershipIds);
 
   const isAnAuthorizedMember =
     protectedMembershipIdsForClaim &&
@@ -495,7 +501,7 @@ export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
 
   const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember && !claimIsMine;
 
-  return isNotAuthorizedForProtectedContent || false;
+  return Boolean(isNotAuthorizedForProtectedContent);
 };
 
 export const selectChannelHasMembershipTiersForId = (state: State, channelId: string) => {

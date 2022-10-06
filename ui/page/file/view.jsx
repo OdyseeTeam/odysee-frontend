@@ -117,6 +117,9 @@ export default function FilePage(props: Props) {
     unauthorizedForContent,
   } = props;
 
+  l('unauthorizedForContent');
+  l(unauthorizedForContent);
+
   const { search } = location;
   const urlParams = new URLSearchParams(search);
   const colParam = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);

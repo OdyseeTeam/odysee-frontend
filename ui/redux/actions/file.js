@@ -17,6 +17,7 @@ import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectOutpointFetchingForUri } from 'redux/selectors/file_info';
 import { isStreamPlaceholderClaim } from 'util/claim';
+import { success } from 'mammoth/lib/results';
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, file: FileState, content: any, user: UserState };
@@ -131,6 +132,12 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
 
   Lbry.get({ uri })
     .then((streamInfo: GetResponse) => {
+
+      l('stream info');
+      l(streamInfo);
+      l(onSuccess)
+      // return;
+
       const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
       if (timeout) {
         dispatch({
@@ -155,9 +162,9 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
           },
         });
 
-        if (onSuccess) {
-          onSuccess(streamInfo);
-        }
+        // if (onSuccess) {
+        //   onSuccess(streamInfo);
+        // }
       }
     })
     .catch((error) => {
@@ -196,6 +203,10 @@ export function doPurchaseUri(uri: string, costInfo: { cost: number }, onSuccess
     const balance = selectBalance(state);
 
     const { cost } = costInfo;
+
+    l('cost info');
+    l(costInfo);
+
     if (parseFloat(cost) > balance) {
       dispatch({
         type: ACTIONS.PURCHASE_URI_FAILED,

@@ -7,6 +7,7 @@ import Icon from 'component/common/icon';
 import Button from 'component/button';
 import Page from 'component/page';
 import HelpHub from 'component/common/help-hub';
+import BalanceText from 'react-balance-text';
 
 import './style.scss';
 import { useHistory } from 'react-router-dom';
@@ -40,9 +41,11 @@ const MembershipsLandingPage = () => {
         <div className="membership-content">
           <div>
             <h2>{__('Membership Portal')}</h2>
-            <p className="portal-tagline">
-              {__('Create memberships and have users subscribe to them to support you.')}
-            </p>
+              <p className="portal-tagline">
+                <BalanceText>
+                  {__('Create memberships and have users subscribe to them to support you.')}
+                </BalanceText>
+              </p>
             <Button button="primary" navigate={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} label={__('Manage Memberships')} />
           </div>
         </div>

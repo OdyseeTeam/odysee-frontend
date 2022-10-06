@@ -9,6 +9,7 @@ import {
 import { selectCostInfoForUri } from 'lbryinc';
 import { doOpenModal } from 'redux/actions/app';
 import { doClearPlayingUri, doDownloadUri } from 'redux/actions/content';
+import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 import FileDownloadLink from './view';
 
 const select = (state, props) => {
@@ -22,6 +23,7 @@ const select = (state, props) => {
     claim,
     costInfo: selectCostInfoForUri(state, props.uri),
     streamingUrl: selectStreamingUrlForUri(state, props.uri),
+    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
   };
 };
 

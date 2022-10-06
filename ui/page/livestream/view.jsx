@@ -57,8 +57,13 @@ export default function LivestreamPage(props: Props) {
     theaterMode,
     doMembershipContentforStreamClaimId,
     isProtectedContent,
-    unauthorizedForContent,
+    contentIsLocked,
   } = props;
+
+  l('contentIsLocked');
+  l(contentIsLocked);
+
+  const unauthorizedForContent = contentIsLocked;
 
   const isMobile = useIsMobile();
 
@@ -88,6 +93,9 @@ export default function LivestreamPage(props: Props) {
   const { signing_channel: channelClaim } = claim || {};
   const { canonical_url: channelUrl } = channelClaim || {};
 
+  l('unauthorizedForContent')
+  l(unauthorizedForContent);
+
   // On livestream page, only connect, fileRenderFloating will handle disconnect.
   // (either by leaving page with floating player off, or by closing the player)
   React.useEffect(() => {
@@ -101,6 +109,7 @@ export default function LivestreamPage(props: Props) {
       doCommentSocketConnect(uri, channelName, claimIdToUse, undefined, isProtectedContent);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
+<<<<<<< Updated upstream
   }, [
     channelUrl,
     claim,
@@ -110,6 +119,9 @@ export default function LivestreamPage(props: Props) {
     uri,
     unauthorizedForContent,
   ]);
+=======
+  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri, unauthorizedForContent]);
+>>>>>>> Stashed changes
 
   React.useEffect(() => {
     // use for unmount case without triggering render

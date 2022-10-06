@@ -119,6 +119,11 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
   const reversedClaimId = claimId.split('').reverse().join('');
   const claimIdToUse = protectedEndpoint ? reversedClaimId : claimId;
 
+  l('claimId');
+  l(claimId);
+  l('claimIdToUse');
+  l(claimIdToUse);
+
   doSocketConnect(
     url,
     (response) => {

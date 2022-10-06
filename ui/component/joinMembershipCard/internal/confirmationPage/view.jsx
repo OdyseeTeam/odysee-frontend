@@ -32,6 +32,7 @@ const ConfirmationPage = (props: Props) => {
     <div className="confirm__wrapper">
       <h1>{__('Almost done')}</h1>
       <ConfirmationSection
+<<<<<<< Updated upstream
         label={__(`Join %channelName%'s Membership As`, { channelName })}
         value={<ChannelSelector />}
       />
@@ -63,6 +64,15 @@ const ConfirmationPage = (props: Props) => {
           <span className="hide-on-mobile">{')'}</span>
         </span>
       </section>
+=======
+        label={__('Creator Receives Monthly')}
+        value={`$${selectedTier.NewPrices ? selectedTier.NewPrices[0].Price.amount / 100 : 0}`}
+      />
+      <ConfirmationSection
+        label={__('Total Monthly Cost')}
+        value={`$6.79 ($6 For Creator, $0.50 Stripe Cut, $0.30 Odysee Cut)`}
+      />
+>>>>>>> Stashed changes
       {selectedTier.Perks && selectedTier.Perks.length > 0 && (
         <ConfirmationSection
           label={__('Features and Perks')}

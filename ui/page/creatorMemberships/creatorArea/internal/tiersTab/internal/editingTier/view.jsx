@@ -39,7 +39,17 @@ function MembershipTier(props: Props) {
     doMembershipAddTier,
     addChannelMembership,
     doMembershipList,
+    doSaveMembershipRestrictionsForContent,
   } = props;
+
+  const exclusiveContentPerk = 'Exclusive content';
+  const exclusiveContentPerkId = membershipPerks.find(function(perk) {
+    return perk.name === exclusiveContentPerk;
+  })?.id;
+
+  const hadExclusiveContentPark = membership.Perks.some(perk => {
+    return perk.name === exclusiveContentPerk;
+  });
 
   const isMobile = useIsMobile();
   const roughHeaderHeight = (isMobile ? 56 : 60) + 10; // @see: --header-height
@@ -107,11 +117,28 @@ function MembershipTier(props: Props) {
         description: editTierParams.editTierDescription,
         amount: price,
         currency: 'usd', // hardcoded for now
+<<<<<<< Updated upstream
         perks: selectedPerksAsArray,
         old_stripe_price: membership.Prices ? membership.Prices[0].id : undefined,
         membership_id: isCreatingAMembership ? undefined : membership.Membership.id,
+=======
+        perks: selectedPerksAsArray, // misnamed, it's as a csv string
+        old_stripe_price: membershipTier.Prices ? membershipTier.Prices[0].id : undefined,
+        membership_id: isCreatingAMembership ? undefined : membershipTier.Membership.id,
+>>>>>>> Stashed changes
       })
         .then((response: MembershipDetails) => {
+          const currentlyHasExclusiveContentPerk = selectedPerkIds.includes(exclusiveContentPerkId);
+          const userRemovedExclusiveContentPerk = hadExclusiveContentPark && !currentlyHasExclusiveContentPerk
+
+          if (userRemovedExclusiveContentPerk) {
+            // channelClaimId: string,
+            //   contentClaimId: string,
+            //   commaSeperatedMembershipIds: string
+            doSaveMembershipRestrictionsForContent(channelClaimId, contentClaimId, '');
+            // TODO: empty call modify here
+          }
+
           setIsSubmitting(false);
           removeEditing();
 
