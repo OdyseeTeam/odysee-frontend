@@ -26,7 +26,7 @@ const ConfirmationPage = (props: Props) => {
 
   return (
     <div className="confirm__wrapper">
-      <h1>{__('Summary')}</h1>
+      <h1>{__('Almost done')}</h1>
       <ConfirmationSection
         label={__(`Join %channelName%'s Membership As`, { channelName })}
         value={<ChannelSelector />}
