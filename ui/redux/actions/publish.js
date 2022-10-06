@@ -651,7 +651,7 @@ export const doPrepareEdit = (claim: StreamClaim, uri: string, claimType: string
         protectedMembershipIds = selectProtectedContentMembershipsForClaimId(state, channelId, claim.claim_id);
       }
 
-      publishData['restrictedToMemberships'] = protectedMembershipIds?.join(',');
+      publishData['restrictedToMemberships'] = protectedMembershipIds && protectedMembershipIds.join(',');
     } else {
       publishData.tags = publishData.tags
         ? publishData.tags.filter((tag) => tag.name === MEMBERS_ONLY_CONTENT_TAG)
