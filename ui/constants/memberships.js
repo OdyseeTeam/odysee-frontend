@@ -16,4 +16,4 @@ export const PRICES = Object.freeze({
   [ODYSEE_TIER_NAMES.PREMIUM_PLUS]: { [STRIPE.CURRENCIES.EUR]: '€2.68', [STRIPE.CURRENCIES.USD]: '$2.99' },
 });
 
-export const PERMANENT_TIER_PERKS = [3, 4];
+export const PERMANENT_TIER_PERKS = [4];

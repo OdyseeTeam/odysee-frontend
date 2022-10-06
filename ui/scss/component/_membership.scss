@@ -757,6 +757,7 @@
   .total-membership-price {
     .total {
       opacity: 1 !important;
+      font-weight: 1000;
     }
     @media (max-width: $breakpoint-small) {
       span {
