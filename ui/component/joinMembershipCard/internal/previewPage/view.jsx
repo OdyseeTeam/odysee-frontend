@@ -20,6 +20,7 @@ type Props = {
   unlockableTierIds: Array<number>,
   userHasACreatorMembership: boolean,
   membersOnly?: boolean,
+  isLivestream: ?boolean,
   setMembershipIndex: (index: number) => void,
   handleSelect: () => void,
   // -- redux --
@@ -42,6 +43,7 @@ const PreviewPage = (props: Props) => {
     unlockableTierIds,
     userHasACreatorMembership,
     membersOnly,
+    isLivestream,
     setMembershipIndex,
     handleSelect,
     // -- redux --
@@ -197,6 +199,7 @@ const PreviewPage = (props: Props) => {
           unlockableTierIds={unlockableTierIds}
           userHasACreatorMembership={userHasACreatorMembership}
           membersOnly={membersOnly}
+          isLivestream={isLivestream}
         />
       </div>
 

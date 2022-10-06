@@ -9,10 +9,19 @@ type Props = {
   userHasACreatorMembership?: boolean,
   isChannelTab?: boolean,
   membersOnly?: boolean,
+  isLivestream?: ?boolean,
 };
 
 const MembershipDetails = (props: Props) => {
-  const { membership, headerAction, unlockableTierIds, userHasACreatorMembership, isChannelTab, membersOnly } = props;
+  const {
+    membership,
+    headerAction,
+    unlockableTierIds,
+    userHasACreatorMembership,
+    isChannelTab,
+    membersOnly,
+    isLivestream,
+  } = props;
 
   const descriptionParagraphs = membership.Membership.description.split('\n');
   const selectedMembershipName = membership.Membership.name;
@@ -20,7 +29,9 @@ const MembershipDetails = (props: Props) => {
 
   let accessText = __(
     membersOnly
-      ? 'This membership does not give you access to the members-only chat mode.'
+      ? !isLivestream
+        ? 'This membership does not give you access to the members-only comment section.'
+        : 'This membership does not give you access to the members-only chat mode.'
       : 'This Tier does not grant you access to the currently selected content.'
   );
   if (userHasACreatorMembership) {
@@ -30,7 +41,9 @@ const MembershipDetails = (props: Props) => {
     // has access to one that doesn't
     accessText = __(
       membersOnly
-        ? 'This membership gives you access to the members-only chat mode.'
+        ? !isLivestream
+          ? 'This membership gives you access to the members-only comment section.'
+          : 'This membership gives you access to the members-only chat mode.'
         : 'This membership gives you access to the current content.'
     );
   }

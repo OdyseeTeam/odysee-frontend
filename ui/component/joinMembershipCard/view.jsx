@@ -25,6 +25,7 @@ type Props = {
   incognito: boolean,
   unlockableTierIds: Array<number>,
   cheapestMembership: ?CreatorMembership,
+  isLivestream: ?boolean,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
   doGetCustomerStatus: () => void,
   doMembershipBuy: (membershipParams: MembershipBuyParams) => Promise<Membership>,
@@ -48,6 +49,7 @@ const JoinMembershipCard = (props: Props) => {
     incognito,
     unlockableTierIds,
     cheapestMembership,
+    isLivestream,
     doMembershipList,
     doGetCustomerStatus,
     doMembershipBuy,
@@ -160,6 +162,7 @@ const JoinMembershipCard = (props: Props) => {
                 setMembershipIndex={setMembershipIndex}
                 unlockableTierIds={unlockableTierIds}
                 membersOnly={membersOnly}
+                isLivestream={isLivestream}
               />
             )}
           </>

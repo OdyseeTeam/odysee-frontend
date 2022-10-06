@@ -11,7 +11,7 @@ import { doMembershipList, doMembershipBuy } from 'redux/actions/memberships';
 import { doGetCustomerStatus } from 'redux/actions/stripe';
 import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { doToast } from 'redux/actions/notifications';
-import { getChannelIdFromClaim } from 'util/claim';
+import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import PreviewPage from './view';
 
 const select = (state, props) => {
@@ -20,6 +20,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, fileUri);
   const fileClaimId = claim && claim.claim_id;
   const channelId = getChannelIdFromClaim(claim);
+  const isLivestream = isStreamPlaceholderClaim(claim);
 
   let unlockableTierIds;
   if (fileClaimId) {
@@ -39,6 +40,7 @@ const select = (state, props) => {
     incognito: selectIncognito(state),
     unlockableTierIds,
     cheapestMembership: unlockableTierIds && selectCheapestPlanForRestrictedIds(state, unlockableTierIds),
+    isLivestream,
   };
 };
 

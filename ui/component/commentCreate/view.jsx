@@ -634,9 +634,7 @@ export function CommentCreate(props: Props) {
       {notAuthedToLiveChat && (
         <ErrorBubble
           title={
-            isLivestreamChatMembersOnly
-              ? __('This chat is in members-only mode')
-              : __('This comment section is in members-only mode')
+            isLivestream ? __('This chat is in members-only mode') : __('This comment section is in members-only mode')
           }
           className="comment-restriction"
           subtitle={__('To participate, consider buying a membership with the members-only perk from this creator!')}
