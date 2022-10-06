@@ -1308,7 +1308,6 @@
   }
 
   .membership__perk-item {
-    // color: var(--color-text-subtitle);
     font-size: var(--font-base);
     opacity: 0.8;
   }
@@ -1325,23 +1324,26 @@
     }
   }
 
-  .membership__plan-description {
+  .membership__plan-content {
     padding: var(--spacing-m);
-    span {
-      display: block;
-      font-size: var(--font-base);
-      opacity: 0.8;
+    div {
+      margin-bottom: var(--spacing-s);
+
+      &:last-of-type {
+        margin-bottom: 0;
+      }
+
+      span {
+        display: block;
+        font-size: var(--font-base);
+        opacity: 0.8;
+      }
     }
   }
 
-  .membership-tier__perks {
-    padding: var(--spacing-m);
-    padding-top: 0;
-  }
-
   .membership__plan-actions {
-    padding: var(--spacing-m);
-    padding-top: 0;
+    margin-top: var(--spacing-l);
+
     label {
       display: block;
     }

@@ -81,34 +81,37 @@ const MembershipChannelTab = (props: Props) => {
               )}
             </div>
 
-            <div className="membership__plan-description">
-              <label>{__('Description')}</label>
-              <span>{membershipDescription}</span>
-            </div>
-
-            {Perks && (
-              <div className="membership-tier__perks">
-                <label>{__('Odysee Perks')}</label>
-
-                <ul>
-                  {Perks.map((tierPerk, i) => (
-                    <li key={i} className="membership__perk-item">
-                      {__(tierPerk.name)}
-                    </li>
-                  ))}
-                </ul>
+            <div className="membership__plan-content">
+              <div>
+                <label>{__('Description')}</label>
+                <span>{membershipDescription}</span>
               </div>
-            )}
 
-            <div className="membership__plan-actions">
-              <label>
-                {membershipIsActive
-                  ? __('This membership will renew on %renewal_date%', { renewal_date: formattedEndOfMembershipDate })
-                  : __('Your cancelled membership will end on %end_date%', { end_date: formattedEndOfMembershipDate })}
-              </label>
+              {Perks && (
+                <div className="membership-tier__perks">
+                  <label>{__('Odysee Perks')}</label>
+
+                  <ul>
+                    {Perks.map((tierPerk, i) => (
+                      <li key={i} className="membership__perk-item">
+                        {__(tierPerk.name)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              <div className="membership__plan-actions">
+                <label>
+                  {membershipIsActive
+                    ? __('This membership will renew on %renewal_date%', { renewal_date: formattedEndOfMembershipDate })
+                    : __('Your cancelled membership will end on %end_date%', {
+                        end_date: formattedEndOfMembershipDate,
+                      })}
+                </label>
+              </div>
             </div>
           </div>
-
           <div className="button--view-memberships">
             <Button
               icon={ICONS.MEMBERSHIP}
