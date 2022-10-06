@@ -135,19 +135,19 @@ const PurchaseFields = (props: PurchaseProps) => {
     currency === preferredCurrency && (
       <React.Fragment key={membership.Membership.id}>
         <h4 className="membership_info">
-          <b>{__('Interval')}:</b> {MEMBERSHIP_CONSTS.INTERVALS[interval]}
+          <b>{__('Interval')}:</b> {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
         </h4>
 
         <h4 className="membership_info">
           <b>{__('Price')}:</b> {currency + ' ' + STRIPE.CURRENCY[currency].symbol}
-          {amount / 100} / {MEMBERSHIP_CONSTS.INTERVALS[interval]}
+          {amount / 100} / {__(MEMBERSHIP_CONSTS.INTERVALS[interval])}
         </h4>
 
         <Button
           button="primary"
           onClick={() => doOpenModal(MODALS.CONFIRM_ODYSEE_MEMBERSHIP, { membership, price: stripePrice })}
           className="membership_button"
-          label={__('Join via %interval% membership', { interval })}
+          label={__('Join via %interval% membership', { interval: __(interval) })}
           icon={ICONS.FINANCE}
         />
       </React.Fragment>

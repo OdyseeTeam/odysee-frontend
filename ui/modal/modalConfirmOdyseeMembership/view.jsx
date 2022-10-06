@@ -78,9 +78,9 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             <I18nMessage
               tokens={{
                 time_interval_bold: (
-                  <b className="membershipDetails-bolded">{MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]}</b>
+                  <b className="membershipDetails-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
                 ),
-                time_interval: MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval],
+                time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
                 price_bold: (
                   <b className="membershipDetails-bolded">{`${preferredCurrency.toUpperCase()} ${
                     STRIPE.CURRENCY[price.currency.toUpperCase()].symbol
