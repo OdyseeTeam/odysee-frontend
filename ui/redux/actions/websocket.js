@@ -175,7 +175,7 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
   );
 
-  dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
+  dispatch(doSetSocketConnection(true, claimIdToUse, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
 };
 
 export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => (dispatch) => {
