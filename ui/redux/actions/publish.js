@@ -355,8 +355,20 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
 
     const pendingClaim = successResponse.outputs[0];
     const { permanent_url: url } = pendingClaim;
+    const publishData = selectPublishFormValues(state);
 
-    analytics.apiLog.publish(pendingClaim);
+    const { restrictedToMemberships, channelClaimId } = publishData;
+
+    const apiLogSuccessCb = () => {
+      // hit backend to save restricted memberships
+      if (restrictedToMemberships || restrictedToMemberships === '') {
+        dispatch(
+          doSaveMembershipRestrictionsForContent(channelClaimId, pendingClaim.claim_id, restrictedToMemberships)
+        );
+      }
+    };
+
+    analytics.apiLog.publish(pendingClaim, apiLogSuccessCb);
 
     // We have to fake a temp claim until the new pending one is returned by claim_list_mine
     // We can't rely on claim_list_mine because there might be some delay before the new claims are returned

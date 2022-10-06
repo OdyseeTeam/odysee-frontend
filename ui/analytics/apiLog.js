@@ -56,7 +56,7 @@ export const apiLog: ApiLog = {
     }
   },
 
-  publish: (claimResult: ChannelClaim | StreamClaim) => {
+  publish: (claimResult: ChannelClaim | StreamClaim, successCb?: () => void) => {
     // Don't check if this is production so channels created on localhost are still linked to user
     if (gApiLogOn) {
       const { permanent_url: uri, claim_id: claimId, txid, nout, signing_channel: signingChannel } = claimResult;
@@ -70,7 +70,9 @@ export const apiLog: ApiLog = {
         params['channel_claim_id'] = channelClaimId;
       }
 
-      Lbryio.call('event', 'publish', params);
+      Lbryio.call('event', 'publish', params).then(() => {
+        if (successCb) successCb();
+      });
     }
   },
 };
