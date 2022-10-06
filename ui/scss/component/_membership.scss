@@ -695,6 +695,15 @@
 /** JOIN CARD ON CHANNEL PAGE **/
 .card--join-membership,
 .membership {
+  h1 {
+    font-size: var(--font-title);
+    font-weight: var(--font-bold);
+    margin-bottom: var(--spacing-l);
+    display: none;
+    @media (max-width: $breakpoint-small) {
+      display: block;
+    }
+  }
   .section__actions {
     display: block;
   }
@@ -740,6 +749,33 @@
       }
     }
   }
+
+  label {
+    margin-bottom: var(--spacing-xxs);
+  }
+
+  .total-membership-price {
+    .total {
+      opacity: 1 !important;
+    }
+    @media (max-width: $breakpoint-small) {
+      span {
+        display: block !important;
+        margin-bottom: var(--spacing-xxs);
+        &:not(.total) {
+          opacity: 0.6 !important;
+        }
+      }
+      .hide-on-mobile {
+        display: none !important;
+      }
+    }
+  }
+
+  .section__actions {
+    margin-top: var(--spacing-m);
+  }
+
   .help--no-card {
     color: var(--color-danger) !important;
     font-size: var(--font-base);

@@ -19,26 +19,14 @@ type Props = {
 const ConfirmationPage = (props: Props) => {
   const { selectedTier, onCancel, channelName, purchasePending } = props;
 
-  const totalCost =
-    `$${(selectedTier.NewPrices[0].Price.amount / 100).toFixed(2)}` +
-    ' (' +
-    __(
-      'Creator revenue' +
-        ': ' +
-        `$${(selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2)}` +
-        ', ' +
-        ' ' +
-        __('Payment processing fee') +
-        ': ' +
-        `$${(selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2)}` +
-        ', ' +
-        __('Odysee platform fee') +
-        ': ' +
-        `$${(selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2)}` +
-        ')'
-    );
+  const total = (selectedTier.NewPrices[0].Price.amount / 100).toFixed(2);
+  const creatorRevenue = (selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2);
+  const processingFee = (selectedTier.NewPrices[0].fees.stripe_fee / 100).toFixed(2);
+  const odyseeFee = (selectedTier.NewPrices[0].fees.odysee_fee / 100).toFixed(2);
+
   return (
     <div className="confirm__wrapper">
+      <h1>{__('Summary')}</h1>
       <ConfirmationSection
         label={__(`Join %channelName%'s Membership As`, { channelName })}
         value={<ChannelSelector />}
@@ -51,7 +39,26 @@ const ConfirmationPage = (props: Props) => {
         </span>
       </section>
       <ConfirmationSection label={__('Description')} value={selectedTier.Membership.description} />
-      <ConfirmationSection label={__('Total Monthly Cost')} value={totalCost} />
+
+      <section>
+        <label>{__('Total Monthly Cost')}</label>
+        <span className="total-membership-price">
+          <span className="total">${total}</span>
+          <span className="hide-on-mobile">{' ('}</span>
+          <span>
+            {__('Creator revenue')}: ${creatorRevenue}
+          </span>
+          <span className="hide-on-mobile">{', '}</span>
+          <span>
+            {__('Payment processing fee')}: ${processingFee}
+          </span>
+          <span className="hide-on-mobile">{', '}</span>
+          <span>
+            {__('Odysee platform fee')}: ${odyseeFee}
+          </span>
+          <span className="hide-on-mobile">{')'}</span>
+        </span>
+      </section>
       {selectedTier.Perks && selectedTier.Perks.length > 0 && (
         <ConfirmationSection
           label={__('Features and Perks')}
