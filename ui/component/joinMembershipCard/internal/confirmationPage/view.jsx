@@ -1,9 +1,12 @@
 // @flow
 import React from 'react';
 
+import * as STRIPE from 'constants/stripe';
+
 import BusyIndicator from 'component/common/busy-indicator';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
+import ErrorBubble from 'component/common/error-bubble';
 import { Submit } from 'component/common/form';
 
 import withCreditCard from 'hocs/withCreditCard';
@@ -14,10 +17,11 @@ type Props = {
   // -- redux --
   channelName: string,
   purchasePending: boolean,
+  preferredCurrency: ?string,
 };
 
 const ConfirmationPage = (props: Props) => {
-  const { selectedTier, onCancel, channelName, purchasePending } = props;
+  const { selectedTier, onCancel, channelName, purchasePending, preferredCurrency } = props;
 
   const total = (selectedTier.NewPrices[0].Price.amount / 100).toFixed(2);
   const creatorRevenue = (selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2);
@@ -73,7 +77,17 @@ const ConfirmationPage = (props: Props) => {
         />
       )}
 
-      {purchasePending ? (
+      {preferredCurrency && preferredCurrency === STRIPE.CURRENCIES.EUR ? (
+        <>
+          <ErrorBubble>
+            {__('You currently have EUR selected as your preferred currency, currently only USD is supported.')}
+          </ErrorBubble>
+
+          <div className="section__actions">
+            <Button button="primary" label={__('Change Settings')} navigate="/$/settings/card" />
+          </div>
+        </>
+      ) : purchasePending ? (
         <BusyIndicator message={__('Processing payment...')} />
       ) : (
         <div className="section__actions">
