@@ -983,8 +983,38 @@ body {
       .membership-button-wrapper {
         margin: 0;
         margin-right: var(--spacing-s);
-        @media (max-width: $breakpoint-small) {
-          margin-right: var(--spacing-xxs);
+      }
+    }
+
+    @media (max-width: $breakpoint-small) {
+      a.button {
+        align-self: start;
+      }
+      .claim-preview__text {
+        overflow: visible !important;
+        flex-direction: column;
+        .claim-preview__actions {
+          overflow: visible;
+          margin-left: calc((2rem + (2 * var(--spacing-s))) * -1);
+          margin-top: var(--spacing-s);
+          width: calc(100% + (2rem + (2 * var(--spacing-s))));
+          .membership-button-wrapper {
+            margin-right: var(--spacing-xxs);
+            margin-bottom: 0;
+            width: 50%;
+            .button {
+              width: 100%;
+            }
+          }
+          .claim-preview__primary-actions {
+            width: 50%;
+            .button-group {
+              width: 100%;
+              .button:first-of-type {
+                width: 100%;
+              }
+            }
+          }
         }
       }
     }
@@ -1033,7 +1063,6 @@ body {
 
   @media (max-width: $breakpoint-small) {
     padding: var(--spacing-xxxs);
-
     .claim-preview__wrapper {
       .claim-tile__info {
         margin-top: var(--spacing-xxxs) !important;
