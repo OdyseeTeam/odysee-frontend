@@ -456,7 +456,7 @@ function ClaimMenuList(props: Props) {
           )}
         </>
 
-        {contentClaim && isContentProtectedAndLocked && (
+        {contentClaim && isContentProtectedAndLocked && !claimIsMine && (
           <MenuItem
             className="comment__menu-option"
             onSelect={() =>
