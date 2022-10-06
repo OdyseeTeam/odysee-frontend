@@ -194,8 +194,17 @@
   .search__header {
     .claim-preview__wrapper--channel {
       .claim-preview__repost-author {
-        top: calc(var(--spacing-m) * -1) !important;
-        left: calc(var(--spacing-m) * -1) !important;
+        margin-top: calc(var(--spacing-m) * -1) !important;
+        margin-left: calc(var(--spacing-m) * -1) !important;
+        .claim-preview__repost-ribbon {
+          span {
+            margin-left: 0;
+            color: white;
+            &:hover {
+              opacity: 0.8;
+            }
+          }
+        }
       }
       .claim__menu-button {
         right: calc(var(--spacing-m) - 8px) !important;
@@ -273,6 +282,28 @@
         .icon {
           stroke: var(--color-primary);
         }
+      }
+    }
+  }
+
+  .ads__claim-item {
+    margin-top: 0;
+    margin-bottom: var(--spacing-xxs);
+
+    @media (max-width: $breakpoint-small) {
+      .ads__claim-text {
+        margin-top: 0;
+        margin-bottom: 0;
+        br {
+          display: inline;
+          content: '•';
+          padding: 0 3px;
+        }
+      }
+    }
+    @media (max-width: $breakpoint-xxsmall) {
+      .icon {
+        display: none;
       }
     }
   }
