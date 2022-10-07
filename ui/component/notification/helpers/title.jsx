@@ -3,7 +3,7 @@ import React from 'react';
 import LbcMessage from 'component/common/lbc-message';
 import I18nMessage from 'component/i18nMessage';
 import UriIndicator from 'component/uriIndicator';
-import { RULE } from 'constants/notifications';
+import { RULE, CHANNEL_NAME_AT_SENTENCE_START_REGEX } from 'constants/notifications';
 
 function getChannelNameLink(channelUrl: string, channelName: ?string) {
   return <UriIndicator link showAtSign uri={channelUrl} channelInfo={{ uri: channelUrl, name: channelName }} />;
@@ -100,6 +100,12 @@ export function generateNotificationTitle(rule: string, notificationParams: any,
       );
     }
 
+    case RULE.NEW_MEMBER: {
+      const creatorNameMatch = notificationParams.device.title.match(CHANNEL_NAME_AT_SENTENCE_START_REGEX);
+      const creatorName = creatorNameMatch && creatorNameMatch[0];
+      return <I18nMessage tokens={{ creator_name: creatorName }}>%creator_name%, you have a new member!</I18nMessage>;
+    }
+
     case RULE.CREATOR_SUBSCRIBER:
     case RULE.DAILY_WATCH_AVAILABLE:
     case RULE.DAILY_WATCH_REMIND:
@@ -107,7 +113,6 @@ export function generateNotificationTitle(rule: string, notificationParams: any,
     case RULE.MISSED_OUT:
     case RULE.REWARDS_APPROVAL_PROMPT:
     case RULE.FIAT_TIP:
-    case RULE.NEW_MEMBER:
       // Use Commentron default
       return __(notificationParams.device.title);
 

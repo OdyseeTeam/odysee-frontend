@@ -15,3 +15,9 @@ export const RULE = {
 };
 
 export const NOTIFICATION_NAME_ALL = 'All';
+
+// -- Regex that matches a channel name "@something" when at the beginning of the sentence
+export const CHANNEL_NAME_AT_SENTENCE_START_REGEX = /^@\w+/gm;
+
+// -- Regex that matches a membership name after a ": " at the end of the sentence
+export const MEMBERSHIP_NAME_AT_SENTENCE_END_REGEX = /: .+$/gm;
