@@ -1181,6 +1181,7 @@
     border-radius: var(--border-radius);
     background-color: var(--color-header-background);
     overflow: hidden;
+    max-width: 100%;
 
     .membership__plan-header {
       .menu__button {

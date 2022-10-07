@@ -312,6 +312,12 @@ $thumbnailWidthSmall: 2rem;
   .comment__badge svg {
     height: 1.4rem;
     width: 1.4rem;
+
+    &.icon--Membership {
+      height: 0.96rem;
+      width: 0.96rem;
+      margin-bottom: -1.5px;
+    }
   }
 }
 
