@@ -60,6 +60,7 @@
 
   td {
     font-weight: var(--font-weight-bold);
+    width: 50%;
     &:nth-child(2) {
       text-align: right;
     }
@@ -68,7 +69,6 @@
     display: block;
     background-color: var(--color-header-background);
     padding: var(--spacing-xxs);
-    // padding-bottom: 4px;
     width: auto;
     color: var(--color-primary);
     border: 2px solid var(--color-border);
