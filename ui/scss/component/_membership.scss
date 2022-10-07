@@ -7,22 +7,12 @@
   max-width: 600px;
   padding: var(--spacing-m) var(--spacing-l) !important;
 
-  .card__subtitle {
-    line-height: 1.8;
-    margin-top: 5px;
-    margin-bottom: -1px;
-  }
-
   .section__actions {
     display: block;
   }
 
   .card__main-actions {
-    padding-top: 2px;
-  }
-
-  .card__subtitle {
-    text-wrap: balance;
+    padding-top: var(--spacing-xxs);
   }
 }
 
