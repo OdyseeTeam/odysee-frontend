@@ -1465,7 +1465,7 @@ svg.icon--Upgrade {
 .membership-tier__infos-description {
   display: block;
   max-height: 140px;
-  overflow: scroll;
+  overflow-y: scroll;
 }
 
 .button--view-memberships {
