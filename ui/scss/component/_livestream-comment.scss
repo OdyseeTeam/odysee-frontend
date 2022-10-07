@@ -120,7 +120,9 @@
     }
     .icon--Membership {
       color: var(--color-text);
-      margin-bottom: -4px;
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -1.5px;
     }
   }
 }

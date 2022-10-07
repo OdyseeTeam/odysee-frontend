@@ -1111,7 +1111,6 @@ $recent-msg-button__height: 2rem;
 .livestreamComment--minimal {
   width: 100%;
   .date_time {
-    // width: 64px;
     float: left;
     margin-right: var(--spacing-xxxs);
     font-family: 'Courier New', Courier, monospace;
@@ -1205,7 +1204,10 @@ $recent-msg-button__height: 2rem;
     }
     .icon--Membership {
       color: var(--color-text);
-      margin-bottom: -4px;
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -2px;
+      margin-left: -4px;
     }
   }
 
