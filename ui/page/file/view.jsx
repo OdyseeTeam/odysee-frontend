@@ -149,7 +149,7 @@ export default function FilePage(props: Props) {
 
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
   }, [audioVideoDuration, fileInfo, position]);
-  const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'locked' : 'unlocked';
+  const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
