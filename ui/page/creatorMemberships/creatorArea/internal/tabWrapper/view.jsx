@@ -67,10 +67,6 @@ const TabWrapper = (props: Props) => {
     );
   }
 
-  if (accountDefaultCurrency !== 'usd') {
-    return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
-  }
-
   if (!myChannelClaims || myChannelClaims.length === 0) {
     return (
       <ErrorBubble
@@ -96,6 +92,10 @@ const TabWrapper = (props: Props) => {
         }
       />
     );
+  }
+
+  if (accountDefaultCurrency !== 'usd') {
+    return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
   }
 
   if (!hasTiers && !isOnTiersTab) {
