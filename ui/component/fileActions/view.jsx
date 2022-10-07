@@ -42,6 +42,7 @@ type Props = {
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
+  contentRestrictedFromUser: boolean,
 };
 
 export default function FileActions(props: Props) {
@@ -66,6 +67,7 @@ export default function FileActions(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    contentRestrictedFromUser,
   } = props;
 
   const {
@@ -129,7 +131,7 @@ export default function FileActions(props: Props) {
 
   return (
     <div className="media__actions">
-      {ENABLE_FILE_REACTIONS && <FileReactions uri={uri} />}
+      {ENABLE_FILE_REACTIONS && !contentRestrictedFromUser && <FileReactions uri={uri} />}
 
       {!isAPreorder && !isPurchasableContent && !isRentableContent && <ClaimSupportButton uri={uri} fileAction />}
 

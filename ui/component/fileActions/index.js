@@ -18,6 +18,7 @@ import { doToast } from 'redux/actions/notifications';
 import { doOpenModal } from 'redux/actions/app';
 import FileActions from './view';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 import { DISABLE_DOWNLOAD_BUTTON_TAG } from 'constants/tags';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
@@ -44,6 +45,7 @@ const select = (state, props) => {
     isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
   };
 };
 
