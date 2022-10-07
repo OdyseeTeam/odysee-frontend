@@ -14,27 +14,42 @@ type Props = {
   // -- redux --
   myChannelClaims: ?Array<ChannelClaim>,
   bankAccountConfirmed: ?boolean,
+  accountDefaultCurrency: ?string,
   hasTiers?: boolean,
   supportersList: ?SupportersList,
   userHasExperimentalUi: boolean,
   userHasOdyseeMembership: boolean,
+  doTipAccountStatus: () => Promise<StripeAccountStatus>,
 };
 
 const TabWrapper = (props: Props) => {
   const {
     component,
     switchToTiersTab,
+    // -- redux --
     myChannelClaims,
     bankAccountConfirmed,
+    accountDefaultCurrency,
     hasTiers,
     supportersList,
     userHasExperimentalUi,
     userHasOdyseeMembership,
+    doTipAccountStatus,
   } = props;
 
   const isOnTiersTab = !switchToTiersTab;
 
-  if (myChannelClaims === undefined || (supportersList === undefined && !isOnTiersTab)) {
+  React.useEffect(() => {
+    if (bankAccountConfirmed === undefined) {
+      doTipAccountStatus();
+    }
+  }, [bankAccountConfirmed, doTipAccountStatus]);
+
+  if (
+    myChannelClaims === undefined ||
+    bankAccountConfirmed === undefined ||
+    (supportersList === undefined && !isOnTiersTab)
+  ) {
     return (
       <div className="main--empty">
         <Spinner />
@@ -50,6 +65,10 @@ const TabWrapper = (props: Props) => {
         action={<Button button="primary" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} label={__('Join Premium')} />}
       />
     );
+  }
+
+  if (accountDefaultCurrency !== 'usd') {
+    return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
   }
 
   if (!myChannelClaims || myChannelClaims.length === 0) {
