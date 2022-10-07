@@ -43,30 +43,25 @@ type Props = {
     page: number,
     pageSize: number,
     sortBy: ?number,
-    isLivestream: boolean,
-    chatCommentsRestrictedToChannelMembers: ?boolean,
-    activeChannelId: ?string
+    isLivestream: boolean
   ) => void,
   doFetchChannelMembershipsForChannelIds: (channelId: string, claimIds: ClaimIds) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
-  doHyperChatList: (uri: string, is_protected: boolean, channel_id: string) => void,
+  doHyperChatList: (uri: string) => void,
   doResolveUris: (uris: Array<string>, cache: boolean) => void,
   pinnedComments: Array<Comment>,
   setLayountRendered: (boolean) => void,
   superChats: Array<Comment>,
-  chatCommentsRestrictedToChannelMembers: boolean,
-  activeChannelId: string,
   unauthorizedForContent: any,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   myChannelClaims: any,
   doListAllMyMembershipTiers: any,
+  contentUnlocked: boolean,
 };
 
 export default function ChatLayout(props: Props) {
   const {
-    activeChannelId,
     channelId,
-    chatCommentsRestrictedToChannelMembers,
     claimId,
     claimIsMine,
     comments: commentsByChronologicalOrder,
@@ -88,6 +83,7 @@ export default function ChatLayout(props: Props) {
     unauthorizedForContent,
     myChannelClaims,
     doListAllMyMembershipTiers,
+    contentUnlocked,
   } = props;
 
   const isMobile = useIsMobile() && !isPopoutWindow;
@@ -205,21 +201,11 @@ export default function ChatLayout(props: Props) {
   }, [customViewMode, viewMode]);
 
   React.useEffect(() => {
-    if (claimId) {
-      doCommentList(
-        uri,
-        undefined,
-        1,
-        75,
-        undefined,
-        true,
-        // protected comments params
-        chatCommentsRestrictedToChannelMembers,
-        activeChannelId
-      );
-      doHyperChatList(uri, chatCommentsRestrictedToChannelMembers, activeChannelId);
+    if (claimId && contentUnlocked) {
+      doCommentList(uri, undefined, 1, 75, undefined, true);
+      doHyperChatList(uri);
     }
-  }, [claimId, uri, doCommentList, doHyperChatList]);
+  }, [claimId, contentUnlocked, doCommentList, doHyperChatList, uri]);
 
   React.useEffect(() => {
     if (isMobile && !didInitialScroll) {

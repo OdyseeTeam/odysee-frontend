@@ -13,6 +13,7 @@ import {
   selectClaimsByUri,
   selectMyChannelClaims,
   selectClaimForClaimId,
+  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { doResolveUris, doClaimSearch, doResolveClaimIds } from 'redux/actions/claims';
 import { doToast, doSeeNotifications } from 'redux/actions/notifications';
@@ -45,9 +46,7 @@ export function doCommentList(
   page: number = 1,
   pageSize: number = 99999,
   sortBy: ?number = SORT_BY.NEWEST,
-  isLivestream?: boolean,
-  isProtected?: boolean,
-  requesterChannelId?: string
+  isLivestream?: boolean
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -61,6 +60,10 @@ export function doCommentList(
 
     dispatch({ type: ACTIONS.COMMENT_LIST_STARTED, data: { parentId } });
 
+    const activeChannelClaim = selectActiveChannelClaim(state);
+    const activeChannelId = activeChannelClaim?.claim_id;
+    const isProtected = Boolean(selectProtectedContentTagForUri(state, uri));
+
     // Adding 'channel_id' and 'channel_name' enables "CreatorSettings > commentsEnabled".
     const creatorChannelClaim = getChannelFromClaim(claim);
     const { claim_id: creatorClaimId, name: channelName } = creatorChannelClaim || {};
@@ -72,7 +75,7 @@ export function doCommentList(
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
       }
 
-      myChannelClaim = myChannelClaims.find((x) => x.claim_id === requesterChannelId);
+      myChannelClaim = myChannelClaims.find((x) => x.claim_id === activeChannelId);
       if (!myChannelClaim) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
@@ -96,7 +99,7 @@ export function doCommentList(
       ...(isProtected
         ? {
             is_protected: true, // in case undefined is passed
-            requestor_channel_id: requesterChannelId, // typo (requestor vs requester) is on backend atm
+            requestor_channel_id: activeChannelId, // typo (requestor vs requester) is on backend atm
             requestor_channel_name: myChannelClaim?.name,
             signature: channelSignature.signature,
             signing_ts: channelSignature.signing_ts,
@@ -372,7 +375,7 @@ export function doCommentReset(claimId: string) {
   };
 }
 
-export function doHyperChatList(uri: string, is_protected: boolean, channel_id: string) {
+export function doHyperChatList(uri: string) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimsByUri(state)[uri];
@@ -384,15 +387,18 @@ export function doHyperChatList(uri: string, is_protected: boolean, channel_id: 
     }
 
     const myChannelClaims = selectMyChannelClaims(state);
+    const activeChannelClaim = selectActiveChannelClaim(state);
+    const activeChannelId = activeChannelClaim?.claim_id;
+    const isProtected = Boolean(selectProtectedContentTagForUri(state, uri));
 
     let channelSignature = {};
     let myChannelClaim;
-    if (is_protected) {
+    if (isProtected) {
       if (!myChannelClaims) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('Failed to fetch channel list.') });
       }
 
-      myChannelClaim = myChannelClaims.find((x) => x.claim_id === channel_id);
+      myChannelClaim = myChannelClaims.find((x) => x.claim_id === activeChannelId);
       if (!myChannelClaim) {
         return dispatch({ type: ACTIONS.COMMENT_LIST_FAILED, data: __('You do not own this channel.') });
       }
@@ -410,11 +416,11 @@ export function doHyperChatList(uri: string, is_protected: boolean, channel_id: 
 
     return Comments.super_list({
       claim_id: claimId,
-      is_protected: is_protected || undefined,
-      ...(is_protected
+      is_protected: isProtected || undefined,
+      ...(isProtected
         ? {
             is_protected: true, // in case undefined is passed
-            requestor_channel_id: channel_id, // typo (requestor vs requester) is on backend atm
+            requestor_channel_id: activeChannelId, // typo (requestor vs requester) is on backend atm
             requestor_channel_name: myChannelClaim?.name,
             signature: channelSignature.signature,
             signing_ts: channelSignature.signing_ts,

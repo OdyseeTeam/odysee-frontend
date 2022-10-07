@@ -1,12 +1,7 @@
 import { connect } from 'react-redux';
 import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
 import { doResolveUris } from 'redux/actions/claims';
-import {
-  selectClaimForUri,
-  selectProtectedContentTagForUri,
-  selectClaimIsMine,
-  selectMyChannelClaims,
-} from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimIsMine, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doCommentList, doHyperChatList } from 'redux/actions/comments';
 import {
   selectTopLevelCommentsForUri,
@@ -18,8 +13,10 @@ import {
   doFetchChannelMembershipsForChannelIds,
   doListAllMyMembershipTiers,
 } from 'redux/actions/memberships';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
+import {
+  selectIfUnauthorizedForContent,
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+} from 'redux/selectors/memberships';
 import { getChannelIdFromClaim } from 'util/claim';
 
 import ChatLayout from './view';
@@ -30,20 +27,16 @@ const select = (state, props) => {
   const claimId = claim && claim.claim_id;
   const channelId = getChannelIdFromClaim(claim);
 
-  const activeChannelClaim = selectActiveChannelClaim(state);
-  const activeChannelId = activeChannelClaim?.claim_id;
-
   return {
-    activeChannelId,
     claimId,
     claimIsMine: props.uri && selectClaimIsMine(state, claim),
     comments: selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS),
     pinnedComments: selectPinnedCommentsForUri(state, uri),
     superChats: selectHyperChatsForUri(state, uri),
     channelId,
-    chatCommentsRestrictedToChannelMembers: Boolean(selectProtectedContentTagForUri(state, uri)),
     unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
     myChannelClaims: selectMyChannelClaims(state),
+    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
   };
 };
 

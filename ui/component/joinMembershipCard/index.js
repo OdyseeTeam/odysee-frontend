@@ -4,6 +4,7 @@ import {
   selectProtectedContentMembershipsForContentClaimId,
   selectMembersOnlyChatMembershipIdsForCreatorId,
   selectCheapestPlanForRestrictedIds,
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
 } from 'redux/selectors/memberships';
 import { selectChannelNameForUri, selectChannelClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectHasSavedCard } from 'redux/selectors/stripe';
@@ -15,12 +16,15 @@ import { getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import PreviewPage from './view';
 
 const select = (state, props) => {
-  const { uri, fileUri, membersOnly } = props;
+  const { uri, fileUri } = props;
 
   const claim = selectClaimForUri(state, fileUri);
   const fileClaimId = claim && claim.claim_id;
   const channelId = getChannelIdFromClaim(claim);
   const isLivestream = isStreamPlaceholderClaim(claim);
+
+  const membersOnly =
+    props.membersOnly && claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id);
 
   let unlockableTierIds;
   if (fileClaimId) {

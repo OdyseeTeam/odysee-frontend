@@ -269,8 +269,13 @@ export function CommentCreate(props: Props) {
   function getMembersOnlyCreatorSetting() {
     return (
       channelClaimId &&
-      doFetchCreatorSettings(channelClaimId).then(
-        ({ comments_members_only: commentsMembersOnly }: SettingsResponse) => commentsMembersOnly
+      doFetchCreatorSettings(
+        channelClaimId
+      ).then(
+        ({
+          comments_members_only: commentsMembersOnly,
+          livestream_chat_members_only: liveChatMembersOnly,
+        }: SettingsResponse) => (isLivestream ? liveChatMembersOnly : commentsMembersOnly)
       )
     );
   }
@@ -345,8 +350,8 @@ export function CommentCreate(props: Props) {
     }
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = notAuthedToLiveChat && (await getMembersOnlyCreatorSetting());
-    if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
+    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     // if comment post didn't work, but tip was already made, try again to create comment
     if (commentFailure && tipAmount === successTip.tipAmount) {
@@ -449,8 +454,8 @@ export function CommentCreate(props: Props) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = notAuthedToLiveChat && (await getMembersOnlyCreatorSetting());
-    if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
+    const commentsAreMembersOnly = await getMembersOnlyCreatorSetting();
+    if (notAuthedToLiveChat && commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
 

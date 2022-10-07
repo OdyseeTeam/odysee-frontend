@@ -450,7 +450,7 @@ export const selectMembersOnlyChatMembershipIdsForCreatorId = createSelector(
       (membership: CreatorMembership) =>
         membership.Perks &&
         membership.Perks.some((perk: MembershipOdyseePerk) => {
-          if (perk.id === 3) {
+          if (perk.id === MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id) {
             membershipIds.add(membership.Membership.id);
             return true;
           }
@@ -467,7 +467,10 @@ export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
     myValidMemberships &&
     myValidMemberships.filter(
       (membership: MembershipTier) =>
-        membership.Perks && membership.Perks.some((perk: MembershipOdyseePerk) => perk.id === 3)
+        membership.Perks &&
+        membership.Perks.some(
+          (perk: MembershipOdyseePerk) => perk.id === MEMBERSHIP_CONSTS.ODYSEE_PERKS.MEMBERS_ONLY_CHAT.id
+        )
     )
 );
 
