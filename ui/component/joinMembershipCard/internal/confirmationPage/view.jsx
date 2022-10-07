@@ -70,7 +70,7 @@ const ConfirmationPage = (props: Props) => {
             <ul className="ul--no-style membership-tier__perks">
               {/* $FlowFixMe -- already handled above */}
               {selectedTier.Perks.map((tierPerk, i) => (
-                <li key={i}>{tierPerk.name}</li>
+                <li key={i}>{__(tierPerk.name)}</li>
               ))}
             </ul>
           }
