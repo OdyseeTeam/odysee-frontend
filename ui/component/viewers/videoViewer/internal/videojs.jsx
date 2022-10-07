@@ -24,11 +24,13 @@ import qualityLevels from 'videojs-contrib-quality-levels';
 import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
+import watchdog from './plugins/videojs-watchdog/plugin';
 // import runAds from './ads';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import usePersistedState from 'effects/use-persisted-state';
+import Lbry from 'lbry';
 
 const canAutoplayVideo = require('./plugins/canAutoplay');
 
@@ -54,6 +56,7 @@ export type Player = {
   loadingSpinner: any,
   autoplay: (any) => boolean,
   tech: (?boolean) => { vhs: ?any },
+  clearInterval: (id: number) => void,
   currentTime: (?number) => number,
   dispose: () => void,
   duration: () => number,
@@ -70,6 +73,7 @@ export type Player = {
   playbackRate: (?number) => number,
   readyState: () => number,
   requestFullscreen: () => boolean,
+  setInterval: (any, number) => number,
   src: ({ src: string, type: string }) => ?string,
   currentSrc: () => string,
   userActive: (?boolean) => boolean,
@@ -82,7 +86,7 @@ type Props = {
   autoplay: boolean,
   claimId: ?string,
   title: ?string,
-  channelName: string,
+  // channelName: string,
   channelTitle: string,
   embedded: boolean, // `/$/embed`
   embeddedInternal: boolean, // Markdown (Posts and Comments)
@@ -110,11 +114,14 @@ type Props = {
   doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   isPurchasableContent: boolean,
   isRentableContent: boolean,
+  isProtectedContent: boolean,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
 
 const IS_IOS = platform.isIOS();
+
+const HLS_FILETYPE = 'application/x-mpegURL';
 
 const PLUGIN_MAP = {
   eventTracking: eventTracking,
@@ -122,6 +129,7 @@ const PLUGIN_MAP = {
   qualityLevels: qualityLevels,
   recsys: recsys,
   i18n: i18n,
+  watchdog: watchdog,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
@@ -144,7 +152,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     autoplay,
     claimId,
     // title,
-    channelName,
+    // channelName,
     channelTitle,
     embedded,
     embeddedInternal,
@@ -172,6 +180,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     doToast,
     isPurchasableContent,
     isRentableContent,
+    isProtectedContent,
   } = props;
 
   // used to notify about default quality setting
@@ -342,14 +351,11 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
       adapter.ready();
 
-      // sometimes video doesnt start properly, this addresses the edge case
-      if (autoplay) {
-        const videoDiv = window.player.children_[0];
-        if (videoDiv) {
-          videoDiv.click();
-        }
-        window.player.userActive(true);
-      }
+      player.watchdog({
+        timeoutMs: 30000,
+        livestreamsOnly: true,
+        action: () => setReload(Date.now()),
+      });
     });
 
     // fixes #3498 (https://github.com/lbryio/lbry-desktop/issues/3498)
@@ -478,7 +484,18 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (isLivestream) {
         vjsPlayer.isLivestream = true;
         vjsPlayer.addClass('livestreamPlayer');
-        vjsPlayer.src({ type: 'application/x-mpegURL', src: livestreamVideoUrl });
+
+        // get the protected url if needed
+        if (isProtectedContent) {
+          const protectedLivestreamResponse = await Lbry.get({
+            uri: activeLivestreamForChannel.claimUri,
+            base_streaming_url: activeLivestreamForChannel.url,
+          });
+
+          vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
+        } else {
+          vjsPlayer.src({ HLS_FILETYPE, src: livestreamVideoUrl });
+        }
       } else {
         vjsPlayer.isLivestream = false;
         vjsPlayer.removeClass('livestreamPlayer');
@@ -495,7 +512,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
 
         // change to m3u8 if applicable
         if (response && response.redirected && response.url && trimmedUrl.endsWith('m3u8')) {
-          vjsPlayer.claimSrcVhs = { type: 'application/x-mpegURL', src: response.url };
+          vjsPlayer.claimSrcVhs = { type: HLS_FILETYPE, src: response.url };
           vjsPlayer.src(vjsPlayer.claimSrcVhs);
           if (window.cordova) {
             let payload = {
@@ -555,7 +572,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // disable right-click (context-menu) for purchased content
-      if (isPurchasableContent || isRentableContent) {
+      if (isPurchasableContent || isRentableContent || isProtectedContent) {
         const player = document.querySelector('video.vjs-tech');
         if (player) player.setAttribute('oncontextmenu', 'return false;');
       }

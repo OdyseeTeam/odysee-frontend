@@ -35,6 +35,7 @@ import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { SOURCE_SELECT } from 'constants/publish_sources';
 import { useIsMobile } from 'effects/use-screensize';
 import Tooltip from 'component/common/tooltip';
+import PublishProtectedContent from 'component/publishProtectedContent';
 
 type Props = {
   tags: Array<Tag>,
@@ -92,6 +93,7 @@ type Props = {
   // disabled?: boolean,
   remoteFileUrl?: string,
   urlSource?: string,
+  restrictedToMemberships: ?string,
 };
 
 function LivestreamForm(props: Props) {
@@ -134,6 +136,7 @@ function LivestreamForm(props: Props) {
     setClearStatus,
     remoteFileUrl,
     urlSource,
+    restrictedToMemberships,
   } = props;
 
   const isMobile = useIsMobile();
@@ -181,6 +184,7 @@ function LivestreamForm(props: Props) {
   const waitingForFile = waitForFile && !remoteUrl && !filePath;
   // If they are editing, they don't need a new file chosen
   const formValidLessFile =
+    restrictedToMemberships !== null &&
     name &&
     isNameValid(name) &&
     title &&
@@ -534,6 +538,8 @@ function LivestreamForm(props: Props) {
 
             <Card actions={<SelectThumbnail livestreamData={livestreamData} />} />
 
+            <PublishProtectedContent claim={myClaimForUri} location={'livestream'} />
+
             <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
               {__('Tags')}
             </h2>
@@ -597,7 +603,8 @@ function LivestreamForm(props: Props) {
                   odysee_community_guidelines: (
                     <Button
                       button="link"
-                      href="https://odysee.com/@OdyseeHelp:b/Community-Guidelines:c"
+                      href="https://help.odysee.tv/communityguidelines"
+                      target="_blank"
                       label={__('Community Guidelines')}
                     />
                   ),

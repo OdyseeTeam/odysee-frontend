@@ -7,7 +7,7 @@ import {
   selectGeoRestrictionForUri,
   selectLatestClaimForUri,
 } from 'redux/selectors/claims';
-import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { buildURI, normalizeURI } from 'util/lbryURI';
 import { doPlayUri } from 'redux/actions/content';
@@ -20,8 +20,8 @@ import {
   selectActiveLivestreamInitialized,
   selectActiveLiveClaimForChannel,
 } from 'redux/selectors/livestream';
-import { getThumbnailFromClaim, isStreamPlaceholderClaim } from 'util/claim';
-import { doUserSetReferrerWithUri } from 'redux/actions/user';
+import { getThumbnailFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { search } = state.router.location;
@@ -43,19 +43,23 @@ const select = (state, props) => {
   const isNewestPath = featureParam === PAGES.LIVE_NOW || featureParam === PAGES.LATEST;
 
   const claim = selectClaimForUri(state, uri);
-  const { canonical_url: canonicalUrl, signing_channel: channelClaim, txid, nout } = claim || {};
-  if (isNewestPath) claimId = claim?.claim_id;
+  const { canonical_url: canonicalUrl, txid, nout } = claim || {};
+  if (!claimId) claimId = claim?.claim_id;
 
+  const channelClaim = getChannelFromClaim(claim);
   const { claim_id: channelClaimId, canonical_url: channelUri, txid: channelTxid, channelNout } = channelClaim || {};
   const haveClaim = Boolean(claim);
   const nullClaim = claim === null;
 
   const latestContentClaim =
     featureParam === PAGES.LIVE_NOW
-      ? selectActiveLiveClaimForChannel(state, claimId)
+      ? selectActiveLiveClaimForChannel(state, channelClaimId)
       : selectLatestClaimForUri(state, canonicalUrl);
   const latestClaimUrl = latestContentClaim && latestContentClaim.canonical_url;
+  const latestClaimId = latestContentClaim && latestContentClaim.claim_id;
+
   if (latestClaimUrl) uri = latestClaimUrl;
+  if (latestClaimId & (featureParam === PAGES.LIVE_NOW)) claimId = latestClaimId;
 
   return {
     uri,
@@ -72,7 +76,7 @@ const select = (state, props) => {
     latestClaimUrl,
     isNewestPath,
     costInfo: uri && selectCostInfoForUri(state, uri),
-    streamingUrl: uri && makeSelectStreamingUrlForUri(uri)(state),
+    streamingUrl: selectStreamingUrlForUri(state, uri),
     isResolvingUri: uri && selectIsUriResolving(state, uri),
     blackListedOutpoints: haveClaim && selectBlackListedOutpoints(state),
     isCurrentClaimLive: selectIsActiveLivestreamForUri(state, isNewestPath ? latestClaimUrl : canonicalUrl),
@@ -81,6 +85,7 @@ const select = (state, props) => {
     claimThumbnail: getThumbnailFromClaim(claim),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
+    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
   };
 };
 
@@ -92,7 +97,6 @@ const perform = {
   doCommentSocketConnect,
   doCommentSocketDisconnect,
   doFetchActiveLivestreams,
-  setReferrer: doUserSetReferrerWithUri,
   fetchLatestClaimForChannel: doFetchLatestClaimForChannel,
 };
 

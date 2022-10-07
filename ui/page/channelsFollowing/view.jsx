@@ -12,7 +12,9 @@ import Button from 'component/button';
 import Icon from 'component/common/icon';
 import { splitBySeparator } from 'util/lbryURI';
 import { getLivestreamUris } from 'util/livestream';
+import { tagSearchCsOptionsHook } from 'util/search';
 import ScheduledStreams from 'component/scheduledStreams';
+import usePersistedState from 'effects/use-persisted-state';
 
 type Props = {
   subscribedChannels: Array<Subscription>,
@@ -35,6 +37,7 @@ function ChannelsFollowingPage(props: Props) {
 
   const hasSubscribedChannels = subscribedChannels.length > 0;
   const channelIds = subscribedChannels.map((sub) => splitBySeparator(sub.uri)[1]);
+  const [hideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
   React.useEffect(() => {
     doFetchActiveLivestreams();
@@ -64,6 +67,7 @@ function ChannelsFollowingPage(props: Props) {
                 {__('Following')}
               </span>
             }
+            hideMembersOnly={hideMembersOnly}
             defaultOrderBy={CS.ORDER_BY_NEW}
             channelIds={channelIds}
             meta={
@@ -91,6 +95,7 @@ function ChannelsFollowingPage(props: Props) {
               />
             }
             hasSource
+            csOptionsHook={tagSearchCsOptionsHook}
           />
         </>
       )}

@@ -18,16 +18,16 @@ type Props = {
   channelClaimId: ?string,
   chatDisabled: boolean,
   claim: StreamClaim,
-  isAuthenticated: boolean,
   uri: string,
   socketConnection: { connected: ?boolean },
   isStreamPlaying: boolean,
   doSetPrimaryUri: (uri: ?string) => void,
-  doCommentSocketConnect: (uri: string, channelName: string, claimId: string) => void,
+  doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
-  doUserSetReferrer: (referrerUri: string) => void,
   theaterMode?: Boolean,
+  doMembershipContentforStreamClaimId: (type: string) => void,
+  contentUnlocked: boolean,
 };
 
 export const LivestreamContext = React.createContext<any>();
@@ -39,7 +39,6 @@ export default function LivestreamPage(props: Props) {
     channelClaimId,
     chatDisabled,
     claim,
-    isAuthenticated,
     uri,
     socketConnection,
     isStreamPlaying,
@@ -47,8 +46,9 @@ export default function LivestreamPage(props: Props) {
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doFetchChannelLiveStatus,
-    doUserSetReferrer,
     theaterMode,
+    doMembershipContentforStreamClaimId,
+    contentUnlocked,
   } = props;
 
   const streamPlayingRef = React.useRef();
@@ -66,7 +66,6 @@ export default function LivestreamPage(props: Props) {
   const livestreamChannelId = channelClaimId || '';
 
   const releaseTime: moment = moment.unix(claim?.value?.release_time || 0);
-  const stringifiedClaim = JSON.stringify(claim);
 
   const [hyperchatsHidden, setHyperchatsHidden] = React.useState(false);
 
@@ -84,11 +83,10 @@ export default function LivestreamPage(props: Props) {
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
-    if (claimId && channelName && !socketConnection?.connected) {
-      doCommentSocketConnect(uri, channelName, claimId);
+    if (claimId && channelName && !socketConnection?.connected && contentUnlocked) {
+      doCommentSocketConnect(uri, channelName, claimId, undefined);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
-  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri]);
+  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri, contentUnlocked]);
 
   React.useEffect(() => {
     // use for unmount case without triggering render
@@ -96,12 +94,18 @@ export default function LivestreamPage(props: Props) {
   }, [isStreamPlaying]);
 
   React.useEffect(() => {
+    doMembershipContentforStreamClaimId(claimId);
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimId]);
+
+  React.useEffect(() => {
     return () => {
       if (!streamPlayingRef.current) {
         const { claim_id: claimId, signing_channel: channelClaim } = claim;
         const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
-        if (claimId && channelName) doCommentSocketDisconnect(claimId, channelName);
+        if (claimId && channelName && contentUnlocked) doCommentSocketDisconnect(claimId, channelName);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
@@ -155,16 +159,6 @@ export default function LivestreamPage(props: Props) {
   }, [chatDisabled, isChannelBroadcasting, releaseTime, isCurrentClaimLive, isInitialized]);
 
   React.useEffect(() => {
-    if (uri && stringifiedClaim) {
-      const jsonClaim = JSON.parse(stringifiedClaim);
-      if (!isAuthenticated) {
-        const uri = jsonClaim.signing_channel && jsonClaim.signing_channel.permanent_url;
-        if (uri) doUserSetReferrer(uri.replace('lbry://', ''));
-      }
-    }
-  }, [uri, stringifiedClaim, isAuthenticated, doUserSetReferrer]);
-
-  React.useEffect(() => {
     doSetPrimaryUri(uri);
     return () => doSetPrimaryUri(null);
   }, [doSetPrimaryUri, uri, isStreamPlaying]);
@@ -179,7 +173,8 @@ export default function LivestreamPage(props: Props) {
       rightSide={
         !theaterMode &&
         !hideComments &&
-        isInitialized && (
+        isInitialized &&
+        contentUnlocked && (
           <React.Suspense fallback={null}>
             <ChatLayout
               uri={uri}

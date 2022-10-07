@@ -1,6 +1,6 @@
 import { createSelector } from 'reselect';
 import {
-  selectClaimsByUri,
+  selectClaimOutpointForUri,
   selectIsFetchingClaimListMine,
   selectMyClaims,
   makeSelectContentTypeForUri,
@@ -13,8 +13,8 @@ import { PAGE_SIZE } from 'constants/claim';
 export const selectState = (state) => state.fileInfo || {};
 
 export const selectFileInfosByOutpoint = createSelector(selectState, (state) => state.byOutpoint || {});
-
 export const selectIsFetchingFileList = (state) => selectState(state).isFetchingFileList;
+export const selectFetchingOutpoints = (state) => selectState(state).fetchingOutpoints;
 
 export const selectIsFetchingFileListDownloadedOrPublished = createSelector(
   selectIsFetchingFileList,
@@ -22,12 +22,13 @@ export const selectIsFetchingFileListDownloadedOrPublished = createSelector(
   (isFetchingFileList, isFetchingClaimListMine) => isFetchingFileList || isFetchingClaimListMine
 );
 
-export const makeSelectFileInfoForUri = (uri) =>
-  createSelector(selectClaimsByUri, selectFileInfosByOutpoint, (claims, byOutpoint) => {
-    const claim = claims[uri];
-    const outpoint = claim ? `${claim.txid}:${claim.nout}` : undefined;
-    return outpoint ? byOutpoint[outpoint] : undefined;
-  });
+export const selectFileInfoForUri = (state, uri) => {
+  const outpoint = selectClaimOutpointForUri(state, uri);
+  if (!outpoint) return outpoint;
+
+  return selectFileInfosByOutpoint(state)[outpoint];
+};
+export const makeSelectFileInfoForUri = (uri) => (state) => selectFileInfoForUri(state, uri);
 
 export const selectDownloadingByOutpoint = createSelector(selectState, (state) => state.downloadingByOutpoint || {});
 
@@ -36,6 +37,13 @@ export const makeSelectDownloadingForUri = (uri) =>
     if (!fileInfo) return false;
     return byOutpoint[fileInfo.outpoint];
   });
+
+export const selectOutpointFetchingForUri = (state, uri) => {
+  const outpoint = selectClaimOutpointForUri(state, uri);
+  if (!outpoint) return false;
+
+  return selectFetchingOutpoints(state).includes(outpoint);
+};
 
 export const selectUrisLoading = createSelector(selectState, (state) => state.urisLoading || {});
 
@@ -179,7 +187,9 @@ export const makeSelectSearchDownloadUrlsCount = (query) =>
     return fileInfos && fileInfos.length ? filterFileInfos(fileInfos, query).length : 0;
   });
 
-export const makeSelectStreamingUrlForUri = (uri) =>
-  createSelector(makeSelectFileInfoForUri(uri), (fileInfo) => {
-    return fileInfo && fileInfo.streaming_url;
-  });
+export const selectStreamingUrlForUri = (state, uri) => {
+  const fileInfo = selectFileInfoForUri(state, uri);
+  if (!fileInfo) return fileInfo;
+
+  return fileInfo.streaming_url;
+};

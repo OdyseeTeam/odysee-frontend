@@ -127,7 +127,7 @@ export function getChannelNameFromClaim(claim: ?Claim) {
 export function getChannelTitleFromClaim(claim: ?Claim) {
   const channelFromClaim = getChannelFromClaim(claim);
   const value = getClaimMetadata(channelFromClaim);
-  return value && value.title;
+  return (value && value.title) || getNameFromClaim(channelFromClaim);
 }
 
 export function getChannelFromClaim(claim: ?Claim) {
@@ -138,6 +138,11 @@ export function getChannelFromClaim(claim: ?Claim) {
     : claim.signing_channel && claim.is_channel_signature_valid
     ? claim.signing_channel
     : null;
+}
+
+export function getChannelPermanentUrlFromClaim(claim: ?Claim) {
+  const channelFromClaim = getChannelFromClaim(claim);
+  return channelFromClaim && channelFromClaim.permanent_url;
 }
 
 export function getClaimMetadata(claim: ?Claim) {

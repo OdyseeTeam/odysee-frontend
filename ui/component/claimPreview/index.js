@@ -9,11 +9,11 @@ import {
   selectDateForUri,
   selectGeoRestrictionForUri,
 } from 'redux/selectors/claims';
-import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectCollectionIsMine } from 'redux/selectors/collections';
 
 import { doResolveUri } from 'redux/actions/claims';
-import { doFileGet } from 'redux/actions/file';
+import { doFileGetForUri } from 'redux/actions/file';
 import { selectBanStateForUri } from 'lbryinc';
 import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
 import { selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
@@ -32,33 +32,33 @@ const select = (state, props) => {
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
 
   return {
-    claim,
-    mediaDuration,
-    date: props.uri && selectDateForUri(state, props.uri),
-    title: props.uri && selectTitleForUri(state, props.uri),
-    pending: props.uri && makeSelectClaimIsPending(props.uri)(state),
-    reflectingProgress: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
-    obscureNsfw: selectShowMatureContent(state) === false,
-    claimIsMine: props.uri && selectClaimIsMine(state, claim),
-    isResolvingUri: props.uri && selectIsUriResolving(state, props.uri),
-    isResolvingRepost: props.uri && selectIsUriResolving(state, props.repostUrl),
-    nsfw: claim ? isClaimNsfw(claim) : false,
     banState: selectBanStateForUri(state, props.uri),
+    claim,
+    claimIsMine: props.uri && selectClaimIsMine(state, claim),
+    date: props.uri && selectDateForUri(state, props.uri),
     geoRestriction: selectGeoRestrictionForUri(state, props.uri),
     hasVisitedUri: props.uri && makeSelectHasVisitedUri(props.uri)(state),
-    isSubscribed: props.uri && selectIsSubscribedForUri(state, props.uri),
-    streamingUrl: (repostSrcUri || props.uri) && makeSelectStreamingUrlForUri(repostSrcUri || props.uri)(state),
+    isCollectionMine: selectCollectionIsMine(state, props.collectionId),
     isLivestream,
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
-    livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
-    isCollectionMine: selectCollectionIsMine(state, props.collectionId),
+    isResolvingRepost: props.uri && selectIsUriResolving(state, props.repostUrl),
+    isResolvingUri: props.uri && selectIsUriResolving(state, props.uri),
+    isSubscribed: props.uri && selectIsSubscribedForUri(state, props.uri),
     lang: selectLanguage(state),
+    livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
+    mediaDuration,
+    nsfw: claim ? isClaimNsfw(claim) : false,
+    obscureNsfw: selectShowMatureContent(state) === false,
+    pending: props.uri && makeSelectClaimIsPending(props.uri)(state),
+    reflectingProgress: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
+    streamingUrl: (repostSrcUri || props.uri) && selectStreamingUrlForUri(state, repostSrcUri || props.uri),
+    title: props.uri && selectTitleForUri(state, props.uri),
   };
 };
 
 const perform = (dispatch) => ({
   resolveUri: (uri) => dispatch(doResolveUri(uri)),
-  getFile: (uri) => dispatch(doFileGet(uri, false)),
+  getFile: (uri) => dispatch(doFileGetForUri(uri)),
   doClearContentHistoryUri: (uri) => dispatch(doClearContentHistoryUri(uri)),
   doUriInitiatePlay: (playingOptions, isPlayable, isFloating) =>
     dispatch(doUriInitiatePlay(playingOptions, isPlayable, isFloating)),

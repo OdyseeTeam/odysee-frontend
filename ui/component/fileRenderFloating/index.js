@@ -6,7 +6,7 @@ import {
   selectGeoRestrictionForUri,
   selectClaimIsNsfwForUri,
 } from 'redux/selectors/claims';
-import { makeSelectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   selectCollectionForId,
   selectNextUrlForCollectionAndUrl,
@@ -33,6 +33,7 @@ import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'red
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { isStreamPlaceholderClaim, getVideoClaimAspectRatio } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import FileRenderFloating from './view';
 
 const select = (state, props) => {
@@ -63,7 +64,7 @@ const select = (state, props) => {
     primaryUri: selectPrimaryUri(state),
     title: selectTitleForUri(state, uri),
     isFloating,
-    streamingUrl: makeSelectStreamingUrlForUri(uri)(state),
+    streamingUrl: selectStreamingUrlForUri(state, uri),
     floatingPlayerEnabled: playingFromQueue || isInlinePlayer || selectClientSetting(state, SETTINGS.FLOATING_PLAYER),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
@@ -85,6 +86,7 @@ const select = (state, props) => {
     mainPlayerDimensions: selectMainPlayerDimensions(state),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     isMature: selectClaimIsNsfwForUri(state, uri),
+    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
   };
 };
 
