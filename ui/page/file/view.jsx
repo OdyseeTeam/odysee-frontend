@@ -324,24 +324,26 @@ export default function FilePage(props: Props) {
                 <FileTitleSection uri={uri} accessStatus={accessStatus} />
               )}
 
-              <React.Suspense fallback={null}>
-                {commentSettingDisabled ? (
-                  <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
-                ) : isMobile && !isLandscapeRotated ? (
-                  <React.Fragment>
-                    <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
-                      {!unauthorizedForContent && <CommentsList {...commentsListProps} />}
-                    </SwipeableDrawer>
+              {!unauthorizedForContent && (
+                <React.Suspense fallback={null}>
+                  {commentSettingDisabled ? (
+                    <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
+                  ) : isMobile && !isLandscapeRotated ? (
+                    <React.Fragment>
+                      <SwipeableDrawer type={DRAWERS.CHAT} title={commentsListTitle}>
+                        <CommentsList {...commentsListProps} />
+                      </SwipeableDrawer>
 
-                    <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
-                  </React.Fragment>
-                ) : (
-                  <>
-                    {/* normal comments list */}
-                    {!unauthorizedForContent && <CommentsList {...commentsListProps} notInDrawer />}
-                  </>
-                )}
-              </React.Suspense>
+                      <DrawerExpandButton icon={ICONS.CHAT} label={commentsListTitle} type={DRAWERS.CHAT} />
+                    </React.Fragment>
+                  ) : (
+                    <>
+                      {/* normal comments list */}
+                      {!unauthorizedForContent && <CommentsList {...commentsListProps} notInDrawer />}
+                    </>
+                  )}
+                </React.Suspense>
+              )}
             </section>
 
             {theaterMode && <RightSideContent {...rightSideProps} />}
