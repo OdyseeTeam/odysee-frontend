@@ -71,9 +71,8 @@
 }
 
 .cancel-membership-button {
-  margin-top: 13px;
+  margin-top: var(--spacing-s);
   display: inline;
-  margin-left: 10px;
 }
 
 .edit-membership-button {
