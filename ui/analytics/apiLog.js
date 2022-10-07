@@ -15,7 +15,7 @@ export type ApiLog = {
   setState: (enable: boolean) => void,
   view: (string, string, string, ?number, ?() => void) => Promise<any>,
   search: () => void,
-  publish: (ChannelClaim | StreamClaim, successCb?: () => void) => void,
+  publish: (ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => void,
 };
 
 let gApiLogOn = false;
@@ -56,7 +56,7 @@ export const apiLog: ApiLog = {
     }
   },
 
-  publish: (claimResult: ChannelClaim | StreamClaim, successCb?: () => void) => {
+  publish: (claimResult: ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => {
     // Don't check if this is production so channels created on localhost are still linked to user
     if (gApiLogOn) {
       const { permanent_url: uri, claim_id: claimId, txid, nout, signing_channel: signingChannel } = claimResult;
@@ -71,7 +71,7 @@ export const apiLog: ApiLog = {
       }
 
       Lbryio.call('event', 'publish', params).then(() => {
-        if (successCb) successCb();
+        if (successCb) successCb(claimResult);
       });
     }
   },

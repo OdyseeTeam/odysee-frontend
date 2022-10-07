@@ -27,7 +27,7 @@ import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { creditsToString } from 'util/format-credits';
 import Lbry from 'lbry';
 // import LbryFirst from 'extras/lbry-first/lbry-first';
-import { isClaimNsfw } from 'util/claim';
+import { isClaimNsfw, getChannelIdFromClaim } from 'util/claim';
 import {
   LBRY_FIRST_TAG,
   SCHEDULED_LIVESTREAM_TAG,
@@ -259,14 +259,14 @@ export const doPublishDesktop = (filePath: string, preview?: boolean) => (dispat
     const pendingClaim = successResponse.outputs[0];
     const publishData = selectPublishFormValues(state);
 
-    const { restrictedToMemberships, channelClaimId } = publishData;
+    const { restrictedToMemberships } = publishData;
 
-    const apiLogSuccessCb = () => {
+    const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
+      const channelClaimId = getChannelIdFromClaim(claimResult);
+
       // hit backend to save restricted memberships
-      if (restrictedToMemberships || restrictedToMemberships === '') {
-        dispatch(
-          doSaveMembershipRestrictionsForContent(channelClaimId, pendingClaim.claim_id, restrictedToMemberships)
-        );
+      if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
+        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, restrictedToMemberships));
       }
     };
 
@@ -371,14 +371,14 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
     const { permanent_url: url } = pendingClaim;
     const publishData = selectPublishFormValues(state);
 
-    const { restrictedToMemberships, channelClaimId } = publishData;
+    const { restrictedToMemberships } = publishData;
 
-    const apiLogSuccessCb = () => {
+    const apiLogSuccessCb = (claimResult: ChannelClaim | StreamClaim) => {
+      const channelClaimId = getChannelIdFromClaim(claimResult);
+
       // hit backend to save restricted memberships
-      if (restrictedToMemberships || restrictedToMemberships === '') {
-        dispatch(
-          doSaveMembershipRestrictionsForContent(channelClaimId, pendingClaim.claim_id, restrictedToMemberships)
-        );
+      if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
+        dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimResult.claim_id, restrictedToMemberships));
       }
     };
 
@@ -725,9 +725,6 @@ export const doPublish = (success: Function, fail: Function, previewFn?: Functio
   // get redux publish form
   const publishData = selectPublishFormValues(state);
 
-  /** protected content and members-only chat functionality **/
-  const { restrictedToMemberships, channelClaimId } = publishData;
-
   const publishPayload = payload || resolvePublishPayload(publishData, myClaimForUri, myChannels, previewFn);
 
   // return
@@ -741,22 +738,11 @@ export const doPublish = (success: Function, fail: Function, previewFn?: Functio
 
   return Lbry.publish(publishPayload).then((response: PublishResponse) => {
     // get the upload's claim id
-    const claimId = response.outputs.find((obj) => {
-      // $FlowFixMe
-      return obj.claim_id;
-      // $FlowFixMe
-    }).claim_id;
-
-    // hit backend to save restricted memberships
-    if (restrictedToMemberships || restrictedToMemberships === '') {
-      dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, claimId, restrictedToMemberships));
-    }
-
-    dispatch(
-      doUpdatePublishForm({
-        restrictedToMemberships: undefined,
-      })
-    );
+    // const claimId = response.outputs.find((obj) => {
+    //   // $FlowFixMe
+    //   return obj.claim_id;
+    //   // $FlowFixMe
+    // }).claim_id;
 
     // TODO: Restore LbryFirst
     // if (!useLBRYUploader) {
