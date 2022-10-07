@@ -99,7 +99,9 @@ function MembershipTier(props: Props) {
         <span>${(membership.NewPrices[0].creator_receives_amount / 100).toFixed(2)}</span>
 
         <label>{__("User's price with Platform and Service fee")}</label>
-        <span>${(membership.NewPrices[0].client_pays / 100).toFixed(2)}</span>
+        <span>
+          {membership.NewPrices[0].client_pays ? `$${(membership.NewPrices[0].client_pays / 100).toFixed(2)}` : '...'}
+        </span>
 
         <label>{__('Description ')}</label>
         <span className="membership-tier__description">{membership.Membership.description}</span>
