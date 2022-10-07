@@ -18,7 +18,7 @@ const select = (state, props) => {
 
   const claim = selectClaimForUri(state, uri);
   const claimId = claim && claim.claim_id;
-  const { claim_id: channelId, name: channelName } = getChannelFromClaim(claim);
+  const { claim_id: channelId, name: channelName } = getChannelFromClaim(claim) || {};
 
   return {
     claimId,
@@ -26,7 +26,7 @@ const select = (state, props) => {
     channelName,
     claimIsMine: selectClaimIsMineForUri(state, uri),
     channelHasMembershipTiers: channelId && selectChannelHasMembershipTiersForId(state, channelId),
-    areCommentsMembersOnly: selectMembersOnlyCommentsForChannelId(state, channelId),
+    areCommentsMembersOnly: channelId && selectMembersOnlyCommentsForChannelId(state, channelId),
     creatorMembershipsFetched: selectCreatorMembershipsFetchedByUri(state, uri),
   };
 };
