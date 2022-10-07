@@ -43,6 +43,8 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     doToast,
   } = props;
 
+  const isPurchasing = React.useRef(false);
+
   const { Membership } = membership;
 
   const { name: activeChannelName, claim_id: activeChannelId } = activeChannelClaim || {};
@@ -50,19 +52,29 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
   const plan = Membership.name;
 
   function handlePurchase() {
+    if (isPurchasing.current) return;
+
+    isPurchasing.current = true;
+
     doMembershipBuy({
       membership_id: Membership.id,
       channel_id: activeChannelId,
       channel_name: activeChannelName,
       price_id: price.id,
-    }).then((response) => {
-      // this isn't the best pattern, should be passed as a callback
-      if (response?.created_at) {
-        doToast({ message: __('Purchase was successful. Enjoy the perks and special features!') });
-      }
+    })
+      .then((response) => {
+        isPurchasing.current = false;
 
-      doHideModal();
-    });
+        // this isn't the best pattern, should be passed as a callback
+        if (response?.created_at) {
+          doToast({ message: __('Purchase was successful. Enjoy the perks and special features!') });
+        }
+
+        doHideModal();
+      })
+      .catch(() => {
+        isPurchasing.current = false;
+      });
   }
 
   return (
@@ -82,9 +94,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
             <I18nMessage
               tokens={{
                 time_interval_bold: (
-                  <b className="membership-bolded">
-                    {__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}
-                  </b>
+                  <b className="membership-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
                 ),
                 time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
                 price_bold: (
@@ -95,15 +105,11 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
                 plan,
               }}
             >
-              You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will
-              renew %time_interval% at a price of %price_bold%.
-            </I18nMessage>
-
-            {' '}
-
+              You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will renew
+              %time_interval% at a price of %price_bold%.
+            </I18nMessage>{' '}
             {plan === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS &&
               __('The no ads feature applies site-wide for all channels.')}
-
             {!noChannelsOrIncognitoMode ? (
               <I18nMessage tokens={{ channel_name: <b className="membership-bolded">{activeChannelName}</b> }}>
                 Your badge will be shown for your %channel_name% channel in all areas of the app, and can be added to
@@ -117,10 +123,7 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
               __(
                 'You currently have no channel selected and will not have a badge be visible, if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.'
               )
-            ) : undefined}
-
-            {' '}
-
+            ) : undefined}{' '}
             {__(
               'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
             )}

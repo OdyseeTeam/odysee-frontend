@@ -56,6 +56,8 @@ const JoinMembershipCard = (props: Props) => {
     doToast,
   } = props;
 
+  const isPurchasing = React.useRef(false);
+
   const { push } = useHistory();
 
   const skipToConfirmation = Boolean(passedTier);
@@ -74,12 +76,13 @@ const JoinMembershipCard = (props: Props) => {
   const selectedTier = passedTier || (creatorMemberships && creatorMemberships[selectedMembershipIndex]);
 
   function handleJoinMembership() {
-    if (!selectedTier) return;
-    if (!selectedTier.NewPrices) return;
+    if (!selectedTier || isPurchasing.current) return;
+
+    isPurchasing.current = true;
 
     const membershipBuyParams: MembershipBuyParams = {
       membership_id: selectedTier.Membership.id,
-      price_id: selectedTier.NewPrices ? selectedTier.NewPrices[0].Price.stripe_price_id : '',
+      price_id: selectedTier.NewPrices[0].Price.stripe_price_id,
     };
 
     if (activeChannelClaim && !incognito) {
@@ -89,30 +92,36 @@ const JoinMembershipCard = (props: Props) => {
       });
     }
 
-    doMembershipBuy(membershipBuyParams).then(() => {
-      if (doHideModal) {
-        doHideModal();
-      } else {
-        window.pendingMembership = true;
-        setConfirmationPage(false);
-      }
+    doMembershipBuy(membershipBuyParams)
+      .then(() => {
+        isPurchasing.current = false;
 
-      doToast({
-        message: __(
-          "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
-          {
-            membership_tier_name: selectedTier.Membership.name,
-            creator_channel_name: selectedTier.Membership.channel_name,
-          }
-        ),
+        if (doHideModal) {
+          doHideModal();
+        } else {
+          window.pendingMembership = true;
+          setConfirmationPage(false);
+        }
+
+        doToast({
+          message: __(
+            "You are now a '%membership_tier_name%' member for %creator_channel_name%, enjoy the perks and special features!",
+            {
+              membership_tier_name: selectedTier.Membership.name,
+              creator_channel_name: selectedTier.Membership.channel_name,
+            }
+          ),
+        });
+
+        const purchasingUnlockableContentTier = unlockableTierIds.includes(selectedTier.Membership.id);
+
+        if (shouldNavigate && purchasingUnlockableContentTier) {
+          push(formatLbryUrlForWeb(uri));
+        }
+      })
+      .catch(() => {
+        isPurchasing.current = false;
       });
-
-      const purchasingUnlockableContentTier = unlockableTierIds.includes(selectedTier.Membership.id);
-
-      if (shouldNavigate && purchasingUnlockableContentTier) {
-        push(formatLbryUrlForWeb(uri));
-      }
-    });
   }
 
   React.useEffect(() => {
