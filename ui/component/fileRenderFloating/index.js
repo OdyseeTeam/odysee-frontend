@@ -5,7 +5,6 @@ import {
   selectClaimWasPurchasedForUri,
   selectGeoRestrictionForUri,
   selectClaimIsNsfwForUri,
-  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
@@ -34,7 +33,7 @@ import { selectIsActiveLivestreamForUri, selectSocketConnectionForId } from 'red
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { isStreamPlaceholderClaim, getVideoClaimAspectRatio } from 'util/claim';
 import { doOpenModal } from 'redux/actions/app';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import FileRenderFloating from './view';
 
 const select = (state, props) => {
@@ -87,8 +86,7 @@ const select = (state, props) => {
     mainPlayerDimensions: selectMainPlayerDimensions(state),
     firstCollectionItemUrl: selectFirstItemUrlForCollection(state, collectionId),
     isMature: selectClaimIsNsfwForUri(state, uri),
-    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
+    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
   };
 };
 

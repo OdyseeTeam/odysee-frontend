@@ -2,7 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
+import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { SOCKETY_SERVER_API } from 'config';
 
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
@@ -106,18 +106,20 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
   );
 };
 
-export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, protectedEndpoint) => (
-  dispatch,
-  getState
-) => {
-  const url =
-    subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
-      ? getCommentSocketUrlForCommenter(claimId, channelName)
-      : getCommentSocketUrl(claimId, channelName);
-
+export const doCommentSocketConnect = (uri, channelName, claimId, subCategory) => (dispatch, getState) => {
+  const state = getState();
+  const claim = selectClaimForId(state, claimId);
+  const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
   // have to reverse here if protected, because the comments list expects the claim id to be proper
   const reversedClaimId = claimId.split('').reverse().join('');
-  const claimIdToUse = protectedEndpoint ? reversedClaimId : claimId;
+
+  // -- this will NOT be used for redux states since everywhere else, the regular claimId will be used on selectors
+  const claimIdForSocketUrl = isProtectedContent ? reversedClaimId : claimId;
+
+  const url =
+    subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
+      ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
+      : getCommentSocketUrl(claimIdForSocketUrl, channelName);
 
   doSocketConnect(
     url,
@@ -127,14 +129,14 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
 
         dispatch({
           type: ACTIONS.COMMENT_RECEIVED,
-          data: { comment: newComment, claimId: claimIdToUse, uri },
+          data: { comment: newComment, claimId, uri },
         });
       }
       if (response.type === 'viewers') {
         const connected = response.data.connected;
         dispatch({
           type: ACTIONS.VIEWERS_RECEIVED,
-          data: { connected, claimId: claimIdToUse },
+          data: { connected, claimId },
         });
       }
       if (response.type === 'pinned') {
@@ -143,7 +145,7 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
           type: ACTIONS.COMMENT_PIN_COMPLETED,
           data: {
             pinnedComment: pinnedComment,
-            claimId: claimIdToUse,
+            claimId,
             unpin: !pinnedComment.is_pinned,
           },
         });
@@ -175,14 +177,23 @@ export const doCommentSocketConnect = (uri, channelName, claimId, subCategory, p
     `${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER} comment`
   );
 
-  dispatch(doSetSocketConnection(true, claimIdToUse, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
+  dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
 };
 
-export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => (dispatch) => {
+export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => (dispatch, getState) => {
+  const state = getState();
+  const claim = selectClaimForId(state, claimId);
+  const isProtectedContent = Boolean(claim && selectProtectedContentTagForUri(state, claim.permanent_url));
+  // have to reverse here if protected, because the comments list expects the claim id to be proper
+  const reversedClaimId = claimId.split('').reverse().join('');
+
+  // -- this will NOT be used for redux states since everywhere else, the regular claimId will be used on selectors
+  const claimIdForSocketUrl = isProtectedContent ? reversedClaimId : claimId;
+
   const url =
     subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
-      ? getCommentSocketUrlForCommenter(claimId, channelName)
-      : getCommentSocketUrl(claimId, channelName);
+      ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
+      : getCommentSocketUrl(claimIdForSocketUrl, channelName);
 
   dispatch(doSocketDisconnect(url));
   dispatch(doSetSocketConnection(false, claimId, subCategory));

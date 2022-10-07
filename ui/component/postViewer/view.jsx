@@ -29,12 +29,12 @@ type Props = {
   uri: string,
   claim: ?StreamClaim,
   claimIsMine: boolean,
-  contentRestrictedFromUser: boolean,
+  contentUnlocked: boolean,
   doOpenModal: (id: string, {}) => void,
 };
 
 function PostViewer(props: Props) {
-  const { uri, claim, claimIsMine, contentRestrictedFromUser, doOpenModal } = props;
+  const { uri, claim, claimIsMine, contentUnlocked, doOpenModal } = props;
   const [expand, setExpand] = React.useState(EXPAND.NONE);
 
   if (!claim) {
@@ -64,7 +64,7 @@ function PostViewer(props: Props) {
       >
         <span className="post__date">
           <DateTime uri={uri} type="date" />
-          {!contentRestrictedFromUser && <FileViewCount uri={uri} />}
+          {contentUnlocked && <FileViewCount uri={uri} />}
         </span>
         <div className="post__info--grouped">
           <Button

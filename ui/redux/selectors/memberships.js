@@ -7,7 +7,7 @@ import {
   selectNameForClaimId,
   selectProtectedContentTagForUri,
   selectClaimForId,
-  selectClaimIsMine,
+  selectClaimIsMineForId,
 } from 'redux/selectors/claims';
 import { getChannelIdFromClaim } from 'util/claim';
 import { ODYSEE_CHANNEL } from 'constants/channels';
@@ -316,7 +316,12 @@ export const selectProtectedContentMembershipsForContentClaimId = (state: State,
 
 export const selectContentHasProtectedMembershipIds = (state: State, claimId: string) => {
   const protectedContentMembershipIds = selectProtectedContentMembershipsForContentClaimId(state, claimId);
-  return Boolean(protectedContentMembershipIds && protectedContentMembershipIds.length > 0);
+  const claim = selectClaimForId(state, claimId);
+  const protectedContentTag = claim && selectProtectedContentTagForUri(state, claim.permanent_url);
+
+  if (!protectedContentTag) return false;
+
+  return protectedContentMembershipIds && protectedContentMembershipIds.length > 0;
 };
 
 export const selectProtectedContentMembershipsForId = (state: State, claimId: ClaimId) => {
@@ -353,16 +358,20 @@ export const selectUserIsMemberOfProtectedContentForId = (state: State, claimId:
 
 export const selectNoRestrictionOrUserIsMemberForContentClaimId = (state: State, claimId: ClaimId) => {
   const protectedContentMemberships = selectContentHasProtectedMembershipIds(state, claimId);
-  const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
+  if (protectedContentMemberships === undefined) return false;
 
-  return Boolean(!protectedContentMemberships || userHasAccess);
+  const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
+  const claimIsMine = selectClaimIsMineForId(state, claimId);
+
+  return Boolean(claimIsMine || !protectedContentMemberships || userHasAccess);
 };
 
 export const selectIsProtectedContentLockedFromUserForId = (state: State, claimId: ClaimId) => {
   const protectedContentMemberships = selectContentHasProtectedMembershipIds(state, claimId);
   const userHasAccess = selectUserIsMemberOfProtectedContentForId(state, claimId);
+  const claimIsMine = selectClaimIsMineForId(state, claimId);
 
-  return Boolean(protectedContentMemberships && !userHasAccess);
+  return Boolean(!claimIsMine && protectedContentMemberships && !userHasAccess);
 };
 
 export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
@@ -477,28 +486,6 @@ export const selectMyMembersOnlyChatMembershipsForCreatorId = createSelector(
 export const selectUserIsMemberOfMembersOnlyChatForCreatorId = (state: State, creatorId: ClaimId) => {
   const myMembersOnlyChatMemberships = selectMyMembersOnlyChatMembershipsForCreatorId(state, creatorId);
   return !!myMembersOnlyChatMemberships && myMembersOnlyChatMemberships.length > 0;
-};
-
-export const selectIfUnauthorizedForContent = (state: State, claim: Claim) => {
-  if (!claim) return false;
-
-  const claimId = claim.claim_id;
-  const channelId = getChannelIdFromClaim(claim);
-  const uri = claim.canonical_url;
-  const claimIsMine = selectClaimIsMine(state, claim);
-  if (!channelId) return false;
-  const protectedMembershipIdsForClaim = selectProtectedContentMembershipsForClaimId(state, channelId, claimId);
-  const myValidMembershipIds = selectMyValidMembershipIds(state);
-  const protectedContentTag = selectProtectedContentTagForUri(state, uri);
-
-  const isAnAuthorizedMember =
-    protectedMembershipIdsForClaim &&
-    myValidMembershipIds &&
-    protectedMembershipIdsForClaim.filter((m) => myValidMembershipIds.includes(m)).length;
-
-  const isNotAuthorizedForProtectedContent = protectedContentTag && !isAnAuthorizedMember && !claimIsMine;
-
-  return isNotAuthorizedForProtectedContent || false;
 };
 
 export const selectChannelHasMembershipTiersForId = (state: State, channelId: string) => {

@@ -26,7 +26,6 @@ const COMMENT_SCROLL_TIMEOUT = 25;
 
 type Props = {
   customViewMode?: string,
-  claimIsMine: boolean,
   embed?: boolean,
   hideHeader?: boolean,
   hyperchatsHidden?: boolean,
@@ -52,7 +51,6 @@ type Props = {
   pinnedComments: Array<Comment>,
   setLayountRendered: (boolean) => void,
   superChats: Array<Comment>,
-  unauthorizedForContent: any,
   doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
   myChannelClaims: any,
   doListAllMyMembershipTiers: any,
@@ -63,7 +61,6 @@ export default function ChatLayout(props: Props) {
   const {
     channelId,
     claimId,
-    claimIsMine,
     comments: commentsByChronologicalOrder,
     customViewMode,
     doCommentList,
@@ -80,7 +77,6 @@ export default function ChatLayout(props: Props) {
     setLayountRendered,
     superChats: hyperChatsByAmount,
     uri,
-    unauthorizedForContent,
     myChannelClaims,
     doListAllMyMembershipTiers,
     contentUnlocked,
@@ -276,8 +272,6 @@ export default function ChatLayout(props: Props) {
   }, [textInjection]);
 
   if (!claimId) return null;
-
-  if (unauthorizedForContent && !claimIsMine) return <></>;
 
   if (openedPopoutWindow || chatHidden) {
     return (

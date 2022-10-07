@@ -3,7 +3,10 @@ import { connect } from 'react-redux';
 import { doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter } from 'redux/actions/websocket';
 import { doResolveUri } from 'redux/actions/claims';
 import { selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import {
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+  selectIsProtectedContentLockedFromUserForId,
+} from 'redux/selectors/memberships';
 
 import PopoutChatPage from './view';
 
@@ -20,7 +23,8 @@ const select = (state, props) => {
     claim,
     uri,
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
+    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
+    contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
   };
 };
 

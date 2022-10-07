@@ -21,8 +21,6 @@ type Props = {
   doFetchReactions: (claimId: ?string) => void,
   doReactionLike: (uri: string) => void,
   doReactionDislike: (uri: string) => void,
-  unauthorizedForContent?: boolean,
-  claimIsMine: boolean,
 };
 
 export default function FileReactions(props: Props) {
@@ -36,11 +34,7 @@ export default function FileReactions(props: Props) {
     doFetchReactions,
     doReactionLike,
     doReactionDislike,
-    unauthorizedForContent,
-    claimIsMine,
   } = props;
-
-  const unauthedToReact = unauthorizedForContent && !claimIsMine;
 
   React.useEffect(() => {
     function fetchReactions() {
@@ -64,7 +58,7 @@ export default function FileReactions(props: Props) {
   }, [claimId, doFetchReactions, isLivestreamClaim]);
 
   return (
-    <div className={classnames('ratio-wrapper', { 'comment__actions--disabled': unauthedToReact })}>
+    <div className="ratio-wrapper">
       <LikeButton myReaction={myReaction} reactionCount={likeCount} onClick={() => doReactionLike(uri)} />
       <DislikeButton myReaction={myReaction} reactionCount={dislikeCount} onClick={() => doReactionDislike(uri)} />
       <RatioBar likeCount={likeCount} dislikeCount={dislikeCount} />

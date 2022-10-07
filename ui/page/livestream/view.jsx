@@ -23,19 +23,12 @@ type Props = {
   socketConnection: { connected: ?boolean },
   isStreamPlaying: boolean,
   doSetPrimaryUri: (uri: ?string) => void,
-  doCommentSocketConnect: (
-    uri: string,
-    channelName: string,
-    claimId: string,
-    subCategory: ?string,
-    protectedEndpoint: boolean
-  ) => void,
+  doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (claimId: string, channelName: string) => void,
   doFetchChannelLiveStatus: (string) => void,
   theaterMode?: Boolean,
   doMembershipContentforStreamClaimId: (type: string) => void,
-  isProtectedContent: boolean,
-  unauthorizedForContent: boolean,
+  contentUnlocked: boolean,
 };
 
 export const LivestreamContext = React.createContext<any>();
@@ -56,8 +49,7 @@ export default function LivestreamPage(props: Props) {
     doFetchChannelLiveStatus,
     theaterMode,
     doMembershipContentforStreamClaimId,
-    isProtectedContent,
-    unauthorizedForContent,
+    contentUnlocked,
   } = props;
 
   const isMobile = useIsMobile();
@@ -94,22 +86,10 @@ export default function LivestreamPage(props: Props) {
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
-    const reversedClaimId = claimId.split('').reverse().join('');
-    const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
-
-    if (claimId && channelName && !socketConnection?.connected && !unauthorizedForContent) {
-      doCommentSocketConnect(uri, channelName, claimIdToUse, undefined, isProtectedContent);
+    if (claimId && channelName && !socketConnection?.connected && contentUnlocked) {
+      doCommentSocketConnect(uri, channelName, claimId, undefined);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- willAutoplay mount only
-  }, [
-    channelUrl,
-    claim,
-    doCommentSocketConnect,
-    doCommentSocketDisconnect,
-    socketConnection,
-    uri,
-    unauthorizedForContent,
-  ]);
+  }, [channelUrl, claim, doCommentSocketConnect, doCommentSocketDisconnect, socketConnection, uri, contentUnlocked]);
 
   React.useEffect(() => {
     // use for unmount case without triggering render
@@ -128,10 +108,7 @@ export default function LivestreamPage(props: Props) {
         const { claim_id: claimId, signing_channel: channelClaim } = claim;
         const channelName = channelClaim && formatLbryChannelName(channelUrl);
 
-        const reversedClaimId = claimId.split('').reverse().join('');
-        const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
-
-        if (claimId && channelName && !unauthorizedForContent) doCommentSocketDisconnect(claimIdToUse, channelName);
+        if (claimId && channelName && contentUnlocked) doCommentSocketDisconnect(claimId, channelName);
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on unmount -> leave page
@@ -198,7 +175,8 @@ export default function LivestreamPage(props: Props) {
       rightSide={
         !theaterMode &&
         !hideComments &&
-        isInitialized && (
+        isInitialized &&
+        contentUnlocked && (
           <React.Suspense fallback={null}>
             <ChatLayout
               uri={uri}

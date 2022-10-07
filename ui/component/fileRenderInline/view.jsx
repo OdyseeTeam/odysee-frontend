@@ -5,7 +5,6 @@ import LoadingScreen from 'component/common/loading-screen';
 import { NON_STREAM_MODES } from 'constants/file_render_modes';
 
 type Props = {
-  claimIsMine: boolean,
   isPlaying: boolean,
   fileInfo: FileListItem,
   uri: string,
@@ -15,12 +14,11 @@ type Props = {
   claimRewards: () => void,
   costInfo: any,
   claimWasPurchased: boolean,
-  unauthorizedForContent: any,
+  contentRestrictedFromUser: boolean,
 };
 
 export default function FileRenderInline(props: Props) {
   const {
-    claimIsMine,
     claimRewards,
     claimWasPurchased,
     costInfo,
@@ -29,9 +27,10 @@ export default function FileRenderInline(props: Props) {
     renderMode,
     streamingUrl,
     triggerAnalyticsView,
-    unauthorizedForContent,
     uri,
+    contentRestrictedFromUser,
   } = props;
+
   const [playTime, setPlayTime] = useState();
   const isFree = !costInfo || (costInfo.cost !== undefined && costInfo.cost === 0);
   const isReadyToView = fileInfo && fileInfo.completed;
@@ -65,15 +64,9 @@ export default function FileRenderInline(props: Props) {
     }
   }, [setPlayTime, claimRewards, triggerAnalyticsView, isReadyToPlay, playTime, uri]);
 
-  if (!isPlaying) {
+  if (!isPlaying || (!isFree && !claimWasPurchased) || contentRestrictedFromUser) {
     return null;
   }
-
-  if (!isFree && !claimWasPurchased) {
-    return null;
-  }
-
-  if (unauthorizedForContent && !claimIsMine) return null;
 
   return renderContent ? <FileRender uri={uri} /> : <LoadingScreen isDocument />;
 }

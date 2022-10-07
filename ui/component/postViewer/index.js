@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
-import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import PostViewer from './view';
 import { doOpenModal } from 'redux/actions/app';
 
@@ -11,7 +11,7 @@ const select = (state, props) => {
   return {
     claim,
     claimIsMine: selectClaimIsMineForUri(state, uri),
-    contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
+    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
   };
 };
 

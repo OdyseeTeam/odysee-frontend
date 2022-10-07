@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri } from 'redux/selectors/claims';
-import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import FileSubtitle from './view';
 
@@ -9,7 +9,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, uri);
 
   return {
-    contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
+    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
   };
 };
 

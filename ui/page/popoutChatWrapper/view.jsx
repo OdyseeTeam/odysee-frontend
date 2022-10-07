@@ -3,6 +3,7 @@ import { formatLbryChannelName } from 'util/url';
 import ChatLayout from 'component/chat';
 import Page from 'component/page';
 import React from 'react';
+import Yrbl from 'component/yrbl';
 
 type Props = {
   claim: StreamClaim,
@@ -11,7 +12,8 @@ type Props = {
   doCommentSocketDisconnectAsCommenter: (string, string) => void,
   doResolveUri: (string, boolean) => void,
   isProtectedContent: boolean,
-  isUnauthorized: boolean,
+  contentUnlocked: boolean,
+  contentRestrictedFromUser: boolean,
 };
 
 export default function PopoutChatPage(props: Props) {
@@ -22,7 +24,8 @@ export default function PopoutChatPage(props: Props) {
     doCommentSocketDisconnectAsCommenter,
     doResolveUri,
     isProtectedContent,
-    isUnauthorized,
+    contentUnlocked,
+    contentRestrictedFromUser,
   } = props;
 
   React.useEffect(() => {
@@ -38,14 +41,29 @@ export default function PopoutChatPage(props: Props) {
     const reversedClaimId = claimId.split('').reverse().join('');
     const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
 
-    if (claimId && channelName && !isUnauthorized) {
+    if (claimId && channelName && contentUnlocked) {
       doCommentSocketConnectAsCommenter(uri, channelName, claimIdToUse, isProtectedContent);
     }
 
     return () => {
-      if (claimId && channelName && !isUnauthorized) doCommentSocketDisconnectAsCommenter(claimIdToUse, channelName);
+      if (claimId && channelName && contentUnlocked) doCommentSocketDisconnectAsCommenter(claimIdToUse, channelName);
     };
-  }, [claim, doCommentSocketConnectAsCommenter, doCommentSocketDisconnectAsCommenter, uri]);
+  }, [
+    claim,
+    contentUnlocked,
+    doCommentSocketConnectAsCommenter,
+    doCommentSocketDisconnectAsCommenter,
+    isProtectedContent,
+    uri,
+  ]);
+
+  if (contentRestrictedFromUser) {
+    return (
+      <div className="main--empty">
+        <Yrbl type="sad" subtitle={__('No results')} />
+      </div>
+    );
+  }
 
   return (
     <Page noSideNavigation noFooter noHeader isPopoutWindow>

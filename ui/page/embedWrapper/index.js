@@ -6,7 +6,6 @@ import {
   selectIsUriResolving,
   selectGeoRestrictionForUri,
   selectLatestClaimForUri,
-  selectProtectedContentTagForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
@@ -22,7 +21,7 @@ import {
   selectActiveLiveClaimForChannel,
 } from 'redux/selectors/livestream';
 import { getThumbnailFromClaim, isStreamPlaceholderClaim, getChannelFromClaim } from 'util/claim';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { search } = state.router.location;
@@ -86,8 +85,7 @@ const select = (state, props) => {
     claimThumbnail: getThumbnailFromClaim(claim),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
-    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
+    contentUnlocked: claim && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claim.claim_id),
   };
 };
 

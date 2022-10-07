@@ -58,7 +58,8 @@ type Props = {
   protectedMembershipIds?: Array<number>,
   validMembershipIds?: Array<number>,
   protectedContentTag?: string,
-  unauthorizedForContent: boolean,
+  contentRestrictedFromUser: boolean,
+  contentUnlocked: boolean,
   myMembership: ?Membership,
 };
 
@@ -93,7 +94,8 @@ export default function FileRenderInitiator(props: Props) {
     uri,
     validRentalPurchase,
     videoTheaterMode,
-    unauthorizedForContent,
+    contentRestrictedFromUser,
+    contentUnlocked,
     myMembership,
   } = props;
 
@@ -121,7 +123,7 @@ export default function FileRenderInitiator(props: Props) {
   const stillNeedsToBeRented = rentalTag && !validRentalPurchase && !hasBeenPurchased;
 
   const notAuthedToView =
-    (stillNeedsToBePurchased || stillNeedsToBeRented || (unauthorizedForContent && myMembership !== undefined)) &&
+    (stillNeedsToBePurchased || stillNeedsToBeRented || (contentRestrictedFromUser && myMembership !== undefined)) &&
     !claimIsMine;
 
   const shouldAutoplay =
@@ -129,7 +131,7 @@ export default function FileRenderInitiator(props: Props) {
 
   const isFree = costInfo && costInfo.cost === 0;
   const canViewFile =
-    !unauthorizedForContent &&
+    contentUnlocked &&
     myMembership !== undefined &&
     (isLivestreamClaim ? (layountRendered || isMobile) && isCurrentClaimLive : isFree || claimWasPurchased);
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;

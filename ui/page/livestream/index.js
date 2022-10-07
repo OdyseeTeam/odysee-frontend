@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
+import { selectClaimForUri } from 'redux/selectors/claims';
 import { doSetPrimaryUri } from 'redux/actions/content';
 import { doCommentSocketConnect, doCommentSocketDisconnect } from 'redux/actions/websocket';
 import { getChannelIdFromClaim } from 'util/claim';
@@ -14,7 +14,7 @@ import { selectIsUriCurrentlyPlaying } from 'redux/selectors/content';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { doMembershipContentforStreamClaimId } from 'redux/actions/memberships';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 
 import LivestreamPage from './view';
 
@@ -34,8 +34,7 @@ const select = (state, props) => {
     socketConnection: selectSocketConnectionForId(state, claimId),
     theaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     uri: canonical_url || '',
-    isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
+    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
   };
 };
 

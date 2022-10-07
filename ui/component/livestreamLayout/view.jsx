@@ -40,6 +40,7 @@ type Props = {
   superChats: Array<Comment>,
   activeViewers?: number,
   theaterMode: boolean,
+  contentUnlocked: boolean,
 };
 
 export default function LivestreamLayout(props: Props) {
@@ -55,6 +56,7 @@ export default function LivestreamLayout(props: Props) {
     superChats,
     activeViewers,
     theaterMode,
+    contentUnlocked,
   } = props;
 
   const isMobile = useIsMobile();
@@ -106,7 +108,7 @@ export default function LivestreamLayout(props: Props) {
               />
             )}
 
-            {isMobile && !isLandscapeRotated && !hideComments && (
+            {isMobile && !isLandscapeRotated && !hideComments && contentUnlocked && (
               <React.Suspense fallback={null}>
                 <SwipeableDrawer
                   // startOpen

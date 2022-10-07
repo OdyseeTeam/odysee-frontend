@@ -3,7 +3,6 @@ import { selectMyReactionForUri, selectLikeCountForUri, selectDislikeCountForUri
 import { doFetchReactions, doReactionLike, doReactionDislike } from 'redux/actions/reactions';
 import FileReactions from './view';
 import { selectClaimForUri, selectIsStreamPlaceholderForUri, selectClaimIsMine } from 'redux/selectors/claims';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -18,7 +17,6 @@ const select = (state, props) => {
     dislikeCount: selectDislikeCountForUri(state, uri),
     isLivestreamClaim: selectIsStreamPlaceholderForUri(state, uri),
     claimId,
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
     claimIsMine: selectClaimIsMine(state, claim),
   };
 };

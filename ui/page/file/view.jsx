@@ -72,7 +72,7 @@ type Props = {
   validMembershipIds?: Array<number>,
   protectedContentTag?: string,
   isProtectedContent?: boolean,
-  unauthorizedForContent: boolean,
+  contentUnlocked: boolean,
 };
 
 export default function FilePage(props: Props) {
@@ -114,7 +114,7 @@ export default function FilePage(props: Props) {
     rentalTag,
     // settingsByChannelId,
     isProtectedContent,
-    unauthorizedForContent,
+    contentUnlocked,
   } = props;
 
   const { search } = location;
@@ -149,7 +149,7 @@ export default function FilePage(props: Props) {
 
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
   }, [audioVideoDuration, fileInfo, position]);
-  const accessStatus = !isProtectedContent ? undefined : unauthorizedForContent ? 'locked' : 'unlocked';
+  const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'locked' : 'unlocked';
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
@@ -324,7 +324,7 @@ export default function FilePage(props: Props) {
                 <FileTitleSection uri={uri} accessStatus={accessStatus} />
               )}
 
-              {!unauthorizedForContent && (
+              {contentUnlocked && (
                 <React.Suspense fallback={null}>
                   {commentSettingDisabled ? (
                     <Empty {...emptyMsgProps} text={__('The creator of this content has disabled comments.')} />
@@ -339,7 +339,7 @@ export default function FilePage(props: Props) {
                   ) : (
                     <>
                       {/* normal comments list */}
-                      {!unauthorizedForContent && <CommentsList {...commentsListProps} notInDrawer />}
+                      {contentUnlocked && <CommentsList {...commentsListProps} notInDrawer />}
                     </>
                   )}
                 </React.Suspense>
@@ -356,9 +356,7 @@ export default function FilePage(props: Props) {
         : !commentSettingDisabled && (
             <div className="file-page__post-comments">
               <React.Suspense fallback={null}>
-                <>
-                  {!unauthorizedForContent && <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />}
-                </>
+                <>{contentUnlocked && <CommentsList {...commentsListProps} commentsAreExpanded notInDrawer />}</>
               </React.Suspense>
             </div>
           )}

@@ -7,7 +7,7 @@ import { withRouter } from 'react-router';
 import { doAnalyticsView } from 'redux/actions/app';
 import FileRenderInline from './view';
 import { selectCostInfoForUri } from 'lbryinc';
-import { selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -22,7 +22,7 @@ const select = (state, props) => {
     isPlaying: selectFileIsPlayingOnPage(state, uri),
     renderMode: makeSelectFileRenderModeForUri(uri)(state),
     streamingUrl: selectStreamingUrlForUri(state, uri),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
+    contentRestrictedFromUser: claim && selectIsProtectedContentLockedFromUserForId(state, claim.claim_id),
   };
 };
 

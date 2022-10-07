@@ -34,7 +34,10 @@ import { doCheckIfPurchasedClaimId } from 'redux/actions/stripe';
 
 import FilePage from './view';
 import { doMembershipContentforStreamClaimId, doMembershipMine } from 'redux/actions/memberships';
-import { selectMembershipMineData, selectIfUnauthorizedForContent } from 'redux/selectors/memberships';
+import {
+  selectMembershipMineData,
+  selectNoRestrictionOrUserIsMemberForContentClaimId,
+} from 'redux/selectors/memberships';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -71,7 +74,7 @@ const select = (state, props) => {
     threadCommentId: urlParams.get(THREAD_COMMENT_QUERY_PARAM),
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     isProtectedContent: Boolean(selectProtectedContentTagForUri(state, uri)),
-    unauthorizedForContent: selectIfUnauthorizedForContent(state, claim),
+    contentUnlocked: claimId && selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId),
   };
 };
 

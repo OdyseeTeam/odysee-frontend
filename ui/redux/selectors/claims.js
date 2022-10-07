@@ -315,6 +315,9 @@ export const selectClaimIsMine = (state: State, claim: ?Claim) => {
   return false;
 };
 
+export const selectClaimIsMineForId = (state: State, claimId: string) =>
+  selectClaimIsMine(state, selectClaimForClaimId(state, claimId));
+
 export const selectClaimIsMineForUri = (state: State, rawUri: string) => {
   // Not memoizing this selector because:
   // (1) The workload is somewhat lightweight.
