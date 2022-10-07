@@ -3,10 +3,13 @@ import React from 'react';
 
 import * as STRIPE from 'constants/stripe';
 
+import { SITE_NAME } from 'config';
+
 import BusyIndicator from 'component/common/busy-indicator';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
 import ErrorBubble from 'component/common/error-bubble';
+import I18nMessage from 'component/i18nMessage';
 import { Submit } from 'component/common/form';
 
 import withCreditCard from 'hocs/withCreditCard';
@@ -90,10 +93,36 @@ const ConfirmationPage = (props: Props) => {
       ) : purchasePending ? (
         <BusyIndicator message={__('Processing payment...')} />
       ) : (
-        <div className="section__actions">
-          <SubmitButton modalState={{ passedTier: selectedTier }} />
-          <Button button="link" label={__('Cancel')} onClick={onCancel} />
-        </div>
+        <>
+          <div className="section__actions">
+            <SubmitButton modalState={{ passedTier: selectedTier }} />
+            <Button button="link" label={__('Cancel')} onClick={onCancel} />
+          </div>
+
+          <p className="help">
+            <I18nMessage
+              tokens={{
+                odysee_terms_of_service: (
+                  <Button
+                    button="link"
+                    href="https://odysee.com/$/tos"
+                    label={__('%site_name% Terms of Service', { site_name: SITE_NAME })}
+                  />
+                ),
+                odysee_community_guidelines: (
+                  <Button
+                    button="link"
+                    href="https://help.odysee.tv/communityguidelines"
+                    target="_blank"
+                    label={__('Community Guidelines')}
+                  />
+                ),
+              }}
+            >
+              By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
+            </I18nMessage>
+          </p>
+        </>
       )}
     </div>
   );

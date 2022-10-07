@@ -141,6 +141,10 @@
 /** MEMBERSHIP TAB SECTION **/
 .modal--card-internal {
   .card--join-membership {
+    .button--link {
+      margin-left: 0 !important;
+    }
+
     .join-membership__modal-tabs {
       &:hover {
         button.button-toggle {
