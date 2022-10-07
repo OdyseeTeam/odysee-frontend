@@ -345,7 +345,7 @@ export function CommentCreate(props: Props) {
     }
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = notAuthedToLiveChat && await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = notAuthedToLiveChat && (await getMembersOnlyCreatorSetting());
     if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     // if comment post didn't work, but tip was already made, try again to create comment
@@ -449,7 +449,7 @@ export function CommentCreate(props: Props) {
     if (isSubmitting || disableInput || !claimId) return;
 
     // do another creator settings fetch here to make sure that on submit, the setting did not change
-    const commentsAreMembersOnly = notAuthedToLiveChat && await getMembersOnlyCreatorSetting();
+    const commentsAreMembersOnly = notAuthedToLiveChat && (await getMembersOnlyCreatorSetting());
     if (commentsAreMembersOnly) return handleJoinMembersOnlyChat();
 
     setSubmitting(true);
@@ -652,7 +652,9 @@ export function CommentCreate(props: Props) {
             isLivestream ? __('This chat is in members-only mode') : __('This comment section is in members-only mode')
           }
           className="comment-restriction"
-          subtitle={__('To participate, consider buying a membership with the members-only perk from this creator!')}
+          subtitle={__(
+            'To participate, consider buying a membership with the members-only chat perk from this creator!'
+          )}
           action={<Button button="primary" label={__('Join')} onClick={handleJoinMembersOnlyChat} />}
         />
       )}
