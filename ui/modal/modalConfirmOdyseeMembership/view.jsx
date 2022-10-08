@@ -88,58 +88,72 @@ export default function ConfirmOdyseeMembershipPurchase(props: Props) {
     >
       <Card
         className="stripe__confirm-remove-membership"
-        title={__('Confirm %plan% Membership', { plan })}
+        title={
+          window.cordova && !window.odysee.build.googlePlay
+            ? __('Confirm %plan% Membership', { plan })
+            : __("We're sorry")
+        }
         subtitle={
-          <>
-            <I18nMessage
-              tokens={{
-                time_interval_bold: (
-                  <b className="membership-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
-                ),
-                time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
-                price_bold: (
-                  <b className="membership-bolded">{`${preferredCurrency.toUpperCase()} ${
-                    STRIPE.CURRENCY[price.currency.toUpperCase()].symbol
-                  }${price.unit_amount / 100}`}</b>
-                ),
-                plan,
-              }}
-            >
-              You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will renew
-              %time_interval% at a price of %price_bold%.
-            </I18nMessage>{' '}
-            {plan === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS &&
-              __('The no ads feature applies site-wide for all channels.')}
-            {!noChannelsOrIncognitoMode ? (
-              <I18nMessage tokens={{ channel_name: <b className="membership-bolded">{activeChannelName}</b> }}>
-                Your badge will be shown for your %channel_name% channel in all areas of the app, and can be added to
-                two additional channels in the future for free.
-              </I18nMessage>
-            ) : !channels ? (
-              __(
-                'You currently have no channels. To show your badge on a channel, please create a channel first. If you register a channel later you will be able to show a badge for up to three channels.'
-              )
-            ) : incognito ? (
-              __(
-                'You currently have no channel selected and will not have a badge be visible, if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.'
-              )
-            ) : undefined}{' '}
-            {__(
-              'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
-            )}
-          </>
+          window.cordova && !window.odysee.build.googlePlay ? (
+            <>
+              <I18nMessage
+                tokens={{
+                  time_interval_bold: (
+                    <b className="membership-bolded">{__(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval])}</b>
+                  ),
+                  time_interval: __(MEMBERSHIP_CONSTS.INTERVALS[price.recurring.interval]),
+                  price_bold: (
+                    <b className="membership-bolded">{`${preferredCurrency.toUpperCase()} ${
+                      STRIPE.CURRENCY[price.currency.toUpperCase()].symbol
+                    }${price.unit_amount / 100}`}</b>
+                  ),
+                  plan,
+                }}
+              >
+                You are purchasing a %time_interval_bold% %plan% membership that is active immediately and will renew
+                %time_interval% at a price of %price_bold%.
+              </I18nMessage>{' '}
+              {plan === MEMBERSHIP_CONSTS.ODYSEE_TIER_NAMES.PREMIUM_PLUS &&
+                __('The no ads feature applies site-wide for all channels.')}
+              {!noChannelsOrIncognitoMode ? (
+                <I18nMessage tokens={{ channel_name: <b className="membership-bolded">{activeChannelName}</b> }}>
+                  Your badge will be shown for your %channel_name% channel in all areas of the app, and can be added to
+                  two additional channels in the future for free.
+                </I18nMessage>
+              ) : !channels ? (
+                __(
+                  'You currently have no channels. To show your badge on a channel, please create a channel first. If you register a channel later you will be able to show a badge for up to three channels.'
+                )
+              ) : incognito ? (
+                __(
+                  'You currently have no channel selected and will not have a badge be visible, if you want to show a badge you can select a channel now, or you can show a badge for up to three channels in the future for free.'
+                )
+              ) : undefined}{' '}
+              {__(
+                'You can cancel Premium at any time (no refunds) and you can also close this window and choose a different membership option.'
+              )}
+            </>
+          ) : (
+            __(
+              'Unfortunately Google does not allow us to process payments in this version of the app. You can get a more open version of the app at https://apk.odysee.tv or F-Droid. Alternatively you can also just visit Odysee.com in a browser.'
+            )
+          )
         }
         actions={
-          <div className="section__actions">
-            {!purchasePending ? (
-              <>
-                <SubmitPurchaseButton handlePurchase={handlePurchase} />
-                <Button button="link" label={__('Cancel')} onClick={doHideModal} />
-              </>
-            ) : (
-              <BusyIndicator message={__('Completing your purchase...')} />
-            )}
-          </div>
+          window.cordova && !window.odysee.build.googlePlay ? (
+            <div className="section__actions">
+              {!purchasePending ? (
+                <>
+                  <SubmitPurchaseButton handlePurchase={handlePurchase} />
+                  <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+                </>
+              ) : (
+                <BusyIndicator message={__('Completing your purchase...')} />
+              )}
+            </div>
+          ) : (
+            <Button button="link" label={__('Cancel')} onClick={doHideModal} />
+          )
         }
       />
     </Modal>

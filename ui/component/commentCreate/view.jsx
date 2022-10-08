@@ -835,7 +835,7 @@ export function CommentCreate(props: Props) {
                   <>
                     <TipActionButton {...tipButtonProps} name={__('Credits')} icon={ICONS.LBC} tab={TAB_LBC} />
 
-                    {window.odysee && !window?.odysee?.build?.googlePlay && stripeEnvironment && (
+                    {window.cordova && !window?.odysee?.build?.googlePlay && stripeEnvironment && (
                       <TipActionButton {...tipButtonProps} name={__('Cash')} icon={fiatIcon} tab={TAB_FIAT} />
                     )}
                   </>

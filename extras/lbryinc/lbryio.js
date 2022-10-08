@@ -161,7 +161,7 @@ Lbryio.authenticate = (domain, language) => {
           }
 
           const appId =
-            window.odysee && window.odysee.build.googlePlay
+            window.cordova && window.odysee.build.googlePlay
               ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
               : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
 
