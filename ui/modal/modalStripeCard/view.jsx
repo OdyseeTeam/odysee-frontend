@@ -31,11 +31,27 @@ const ModalStripeCard = (props: Props) => {
   return (
     <Modal onAborted={isBusy ? undefined : doHideModal} isOpen type="card" className="modal--add-card">
       <Card
-        title={hasSavedCard ? __('Card Details') : __('Add your Card')}
-        body={<StripeCard setIsBusy={setIsBusy} isModal />}
+        title={
+          hasSavedCard
+            ? __('Card Details')
+            : window.cordova && !window.odysee.build.googlePlay
+            ? __('Add your Card')
+            : __("We're sorry")
+        }
+        body={
+          window.cordova && !window.odysee.build.googlePlay ? (
+            <StripeCard setIsBusy={setIsBusy} isModal />
+          ) : (
+            __(
+              'Unfortunately Google does not allow us to process payments in this version of the app. You can get a more open version of the app at https://apk.odysee.tv or F-Droid. Alternatively you can also just visit Odysee.com in a browser.'
+            )
+          )
+        }
         actions={
           <div className="section__actions">
-            <Button button="primary" label={__('OK')} onClick={handleConfirm} disabled={isBusy || !hasSavedCard} />
+            {window.cordova && !window.odysee.build.googlePlay && (
+              <Button button="primary" label={__('OK')} onClick={handleConfirm} disabled={isBusy || !hasSavedCard} />
+            )}
             <Button button="link" label={__('Cancel')} onClick={doHideModal} disabled={isBusy} />
           </div>
         }
