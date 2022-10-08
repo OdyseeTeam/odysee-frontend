@@ -569,9 +569,7 @@ function App(props: Props) {
           subtitle={__('My wheel broke, but the good news is that someone from LBRY is working on it.')}
         />
       ) : (
-        <React.Fragment>
-          {/* <AdBlockTester /> */}
-          {/* <AdsSticky uri={uri} /> */}
+        <AppContext.Provider value={{ uri }}>
           <Router uri={uri} />
           <ModalRouter />
 
@@ -582,7 +580,7 @@ function App(props: Props) {
           <React.Suspense fallback={null}>
             {isEnhancedLayout && <Yrbl className="yrbl--enhanced" />}
 
-            {/* <YoutubeWelcome /> */}
+            <YoutubeWelcome />
             {!shouldHideNag && <NagContinueFirstRun />}
             {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
               <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />
