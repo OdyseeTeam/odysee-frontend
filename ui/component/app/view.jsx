@@ -23,6 +23,7 @@ import useConnectionStatus from 'effects/use-connection-status';
 import Spinner from 'component/spinner';
 import LANGUAGES from 'constants/languages';
 import { BeforeUnload, Unload } from 'util/beforeUnload';
+import { platform } from 'util/platform';
 import AdBlockTester from 'web/component/adBlockTester';
 import AdsSticky from 'web/component/adsSticky';
 import YoutubeWelcome from 'web/component/youtubeReferralWelcome';
@@ -77,7 +78,7 @@ type Props = {
   syncError: ?string,
   prefsReady: boolean,
   rewards: Array<Reward>,
-  doUserSetReferrer: (referrerUri: string) => void,
+  doUserSetReferrerForUri: (referrerUri: string) => void,
   isAuthenticated: boolean,
   syncLoop: (?boolean) => void,
   currentModal: any,
@@ -97,6 +98,8 @@ type Props = {
   doSetDefaultChannel: (claimId: string) => void,
   doSetGdprConsentList: (csv: string) => void,
 };
+
+export const AppContext = React.createContext<any>();
 
 function App(props: Props) {
   const {
@@ -118,7 +121,7 @@ function App(props: Props) {
     setLanguage,
     fetchLanguage,
     rewards,
-    doUserSetReferrer,
+    doUserSetReferrerForUri,
     isAuthenticated,
     syncLoop,
     currentModal,
@@ -165,7 +168,7 @@ function App(props: Props) {
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const renderFiledrop = !isMobile && isAuthenticated;
+  const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
   const connectionStatus = useConnectionStatus();
 
   const urlPath = pathname + hash;
@@ -203,6 +206,8 @@ function App(props: Props) {
 
     if (!path.startsWith('$/') && match && match.index) {
       uri = `lbry://${path.slice(0, match.index)}`;
+    } else if (path.startsWith(`$/${PAGES.EMBED}/`)) {
+      uri = `lbry://${path.replace(`$/${PAGES.EMBED}/`, '')}`;
     }
   }
 
@@ -311,7 +316,7 @@ function App(props: Props) {
 
   useEffect(() => {
     if (referredRewardAvailable && sanitizedReferrerParam) {
-      doUserSetReferrer(sanitizedReferrerParam);
+      doUserSetReferrerForUri(sanitizedReferrerParam);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanitizedReferrerParam, referredRewardAvailable]);
@@ -584,7 +589,7 @@ function App(props: Props) {
             )}
             {getStatusNag()}
           </React.Suspense>
-        </React.Fragment>
+        </AppContext.Provider>
       )}
     </div>
   );

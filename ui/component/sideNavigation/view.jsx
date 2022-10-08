@@ -20,7 +20,7 @@ import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
 import { GetLinksData } from 'util/buildHomepage';
 import { platform } from 'util/platform';
 import { DOMAIN, ENABLE_UI_NOTIFICATIONS } from 'config';
-import PremiumBadge from 'component/premiumBadge';
+import MembershipBadge from 'component/membershipBadge';
 
 // TODO: move to selector for memoization
 import { getSortedRowData } from 'page/home/helper';
@@ -548,12 +548,15 @@ function SideNavigation(props: Props) {
   const helpLinks = (
     <ul className="navigation__tertiary navigation-links--small">
       <li className="navigation-link">
-        <Button label={__('FAQ and Support')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b')} />
+        <Button
+          label={__('FAQ and Support')}
+          onClick={() => window.odysee.functions.initBrowser('https://help.odysee.tv/', 'external')}
+        />
       </li>
       <li className="navigation-link">
         <Button
           label={__('Community Guidelines')}
-          onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c')}
+          onClick={() => window.odysee.functions.initBrowser('https://help.odysee.tv/communityguidelines', 'external')}
         />
       </li>
       <li className="navigation-link">
@@ -688,7 +691,7 @@ function SubscriptionListItem(props: SubItemProps) {
           <ClaimPreviewTitle uri={uri} />
           <span dir="auto" className="channel-name">
             {channelName}
-            <PremiumBadge uri={uri} />
+            <MembershipBadge uri={uri} />
           </span>
         </div>
       </Button>

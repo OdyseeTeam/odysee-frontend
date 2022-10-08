@@ -7,6 +7,7 @@ import {
   makeSelectTotalPagesInChannelSearch,
   selectClaimForUri,
 } from 'redux/selectors/claims';
+// import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import { doResolveUris } from 'redux/actions/claims';
 import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
@@ -37,6 +38,7 @@ const select = (state, props) => {
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, channelClaimId),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     adBlockerFound: selectAdBlockerFound(state),
+    // hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 

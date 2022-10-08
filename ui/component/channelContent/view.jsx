@@ -19,6 +19,7 @@ import { SearchResults } from './internal/searchResults';
 import useFetchLiveStatus from 'effects/use-fetch-live';
 import { useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
+import { tagSearchCsOptionsHook } from 'util/search';
 
 const TYPES_TO_ALLOW_FILTER = ['stream', 'repost'];
 
@@ -76,12 +77,14 @@ function ChannelContent(props: Props) {
     location: { pathname, search },
   } = useHistory();
 
-  // In Channel Page, ignore SETTINGS.HIDE_REPOSTS and show reposts by default:
+  // In Channel Page, ignore the global settings for these 2:
   const [hideReposts, setHideReposts] = usePersistedState('hideRepostsChannelPage', false);
+  const [hideMembersOnly, setHideMembersOnly] = usePersistedState('channelPage-hideMembersOnly', false);
 
   const claimSearchFilterCtx = {
     contentTypes: CS.CONTENT_TYPES,
     repost: { hideReposts, setHideReposts },
+    membersOnly: { hideMembersOnly, setHideMembersOnly },
   };
 
   const url = `${pathname}${search}`;
@@ -162,6 +165,7 @@ function ChannelContent(props: Props) {
             defaultFreshness={CS.FRESH_ALL}
             showHiddenByUser={viewHiddenChannels}
             hideRepostsOverride={hideReposts}
+            hideMembersOnly={hideMembersOnly}
             fetchViewCount
             hideFilters={!showFilters}
             hideAdvancedFilter={!showFilters}
@@ -203,6 +207,7 @@ function ChannelContent(props: Props) {
             channelIsMine={channelIsMine}
             empty={isSearching ? ' ' : empty}
             notTags={claimType === 'collection' ? SECTION_TAGS.FEATURED_CHANNELS : undefined}
+            csOptionsHook={tagSearchCsOptionsHook}
           />
         </ClaimSearchFilterContext.Provider>
       )}

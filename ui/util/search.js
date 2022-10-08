@@ -2,6 +2,7 @@
 
 import { isNameValid, isURIValid, normalizeURI, parseURI } from 'util/lbryURI';
 import { URL as SITE_URL, URL_LOCAL, URL_DEV, SIMPLE_SITE } from 'config';
+import * as CS from 'constants/claim_search';
 import { SEARCH_OPTIONS } from 'constants/search';
 import { getSearchQueryString } from 'util/query-params';
 
@@ -137,4 +138,16 @@ export function getRecommendationSearchOptions(
 export function getRecommendationSearchKey(title: string, options: {}) {
   const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
   return createNormalizedSearchKey(searchQuery);
+}
+
+export function tagSearchCsOptionsHook(options: any) {
+  if (options.any_tags && options.any_tags.length > 0) {
+    // -- When doing a specific tag search, these restrictions should be lifted to make sense.
+    delete options.limit_claims_per_channel;
+
+    if (JSON.stringify(options.order_by) !== JSON.stringify(CS.ORDER_BY_TOP_VALUE)) {
+      delete options.release_time;
+    }
+  }
+  return options;
 }

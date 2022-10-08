@@ -97,12 +97,14 @@ const copyWebpackCommands = [
     from: `${WEB_STATIC_ROOT}/pwa/`,
     to: `${output.PATH}/public/pwa/`,
   },
-  /*
   {
     from: `${STATIC_ROOT}/../custom/homepages/v2/announcement`,
     to: `${output.PATH}/announcement`,
   },
-  */
+  {
+    from: `${STATIC_ROOT}/img/spaceman_pattern.png`,
+    to: `${output.PATH}/public/img/spaceman_pattern.png`,
+  },
 ];
 
 const CUSTOM_OG_PATH = `${CUSTOM_ROOT}/v2-og.png`;

@@ -6,6 +6,7 @@ import * as SETTINGS from 'constants/settings';
 import { doFetchActiveLivestreams } from 'redux/actions/livestream';
 import { selectActiveLivestreams } from 'redux/selectors/livestream';
 import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
+// import { selectUserHasOdyseePremiumPlus } from 'redux/selectors/memberships';
 import DiscoverPage from './view';
 
 const select = (state, props) => {
@@ -20,6 +21,7 @@ const select = (state, props) => {
     activeLivestreams: selectActiveLivestreams(state),
     languageSetting: selectLanguage(state),
     searchInLanguage: selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
+    // hasPremiumPlus: selectUserHasOdyseePremiumPlus(state),
   };
 };
 

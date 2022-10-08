@@ -16,6 +16,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import moment from 'moment';
 import LivestreamSection from './livestreamSection';
+import { tagSearchCsOptionsHook } from 'util/search';
 
 const CATEGORY_CONTENT_TYPES_FILTER = CS.CONTENT_TYPES.filter((x) => x !== CS.CLAIM_REPOST);
 
@@ -55,11 +56,11 @@ function DiscoverPage(props: Props) {
   const langParam = urlParams.get(CS.LANGUAGE_KEY) || null;
   const claimType = urlParams.get('claim_type');
   const tagsQuery = urlParams.get('t') || null;
-  const freshnessParam = urlParams.get(CS.FRESH_KEY);
   const orderParam = urlParams.get(CS.ORDER_BY_KEY);
   const tags = tagsQuery ? tagsQuery.split(',') : null;
   const repostedClaimIsResolved = repostedUri && repostedClaim;
   const hideRepostRibbon = isCategory && !isWildWest;
+  const hideMembersOnlyContent = isCategory && !isWildWest;
 
   // Eventually allow more than one tag on this page
   // Restricting to one to make follow/unfollow simpler
@@ -105,6 +106,7 @@ function DiscoverPage(props: Props) {
           languageSetting={languageSetting}
           searchInLanguage={searchInLanguage}
           langParam={langParam}
+          hideMembersOnlyContent={hideMembersOnlyContent}
         />
       );
     }
@@ -167,18 +169,29 @@ function DiscoverPage(props: Props) {
   }
   */
 
+  function getDefaultOrderBy() {
+    // We were passing undefined to 'ClaimListDiscover::defaultOrderBy', so we
+    // don't know what the fallback actually is for our remaining logic (i.e.
+    // getReleaseTime()) to work correctly.
+    // Make it explicit here rather than depending on the component's default.
+
+    return isWildWest || tags ? CS.ORDER_BY_TRENDING : CS.ORDER_BY_TOP;
+  }
+
   function getReleaseTime() {
+    const defaultOrder = getDefaultOrderBy();
+    const order = orderParam || defaultOrder;
+    const isOrderTop = order === CS.ORDER_BY_TOP;
     const categoryReleaseTime = dynamicRouteProps?.options?.releaseTime;
 
     if (isWildWest) {
       // The homepage definition currently does not support 'start-of-week', so
       // continue to hardcode here for now.
       return `>${Math.floor(moment().subtract(0, 'hour').startOf('week').unix())}`;
-    } else if (categoryReleaseTime) {
-      const hasFreshnessOverride = orderParam === CS.ORDER_BY_TOP && freshnessParam !== null;
-      if (!hasFreshnessOverride) {
-        return categoryReleaseTime;
-      }
+    }
+
+    if (categoryReleaseTime && !isOrderTop) {
+      return categoryReleaseTime;
     }
 
     return undefined;
@@ -209,7 +222,7 @@ function DiscoverPage(props: Props) {
           header={repostedUri ? <span /> : undefined}
           subSection={getSubSection()}
           tileLayout={repostedUri ? false : tileLayout}
-          defaultOrderBy={isWildWest || tags ? CS.ORDER_BY_TRENDING : undefined}
+          defaultOrderBy={getDefaultOrderBy()}
           claimType={claimType ? [claimType] : undefined}
           defaultStreamType={undefined}
           // defaultStreamType={isCategory && !isWildWest ? [CS.FILE_VIDEO, CS.FILE_AUDIO, CS.FILE_DOCUMENT] : undefined} remove due to claim search bug with reposts
@@ -235,7 +248,9 @@ function DiscoverPage(props: Props) {
           meta={getMeta()}
           hasSource
           hideRepostsOverride={dynamicRouteProps ? false : undefined}
+          hideMembersOnlyContent={hideMembersOnlyContent}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
+          csOptionsHook={tagSearchCsOptionsHook}
         />
       </ClaimSearchFilterContext.Provider>
     </Page>

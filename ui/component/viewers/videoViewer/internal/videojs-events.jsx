@@ -1,5 +1,7 @@
 // @flow
 import analytics from 'analytics';
+import { THUMBNAIL_HEIGHT_POSTER, THUMBNAIL_WIDTH_POSTER } from 'config';
+import { getThumbnailCdnUrl } from 'util/thumbnail';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -169,6 +171,10 @@ const VideoJsEvents = ({
   }
 
   function showTapButton(tapButton) {
+    // Note: This is not a good design by me (inf.persistence) -- do not copy
+    // this style. I didn't know how to avoid renders back then.
+    // But the button should probably be implemented on the videojs side (as a
+    // plugin), and not one level up in React.
     const setButtonVisibility = (theRef, newState) => {
       // Use the DOM to control the state of the button to prevent re-renders.
       if (theRef.current) {
@@ -201,11 +207,17 @@ const VideoJsEvents = ({
   function updateMediaSession() {
     if ('mediaSession' in navigator) {
       const player = playerRef.current;
+      const thumbnail = getThumbnailCdnUrl({
+        thumbnail: claimValues?.thumbnail?.url,
+        width: THUMBNAIL_WIDTH_POSTER,
+        height: THUMBNAIL_HEIGHT_POSTER,
+      });
+
       // $FlowFixMe
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: claimValues.title,
         artist: channelTitle,
-        artwork: claimValues?.thumbnail?.url ? [{ src: claimValues.thumbnail.url }] : undefined,
+        artwork: thumbnail ? [{ src: thumbnail }] : undefined,
       });
 
       // $FlowFixMe

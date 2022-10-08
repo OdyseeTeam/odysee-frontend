@@ -33,11 +33,17 @@ export default function Footer() {
         <li className="footer__link">
           <Button
             label={__('Community Guidelines')}
-            onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b/Community-Guidelines:c')}
+            onClick={() =>
+              window.odysee.functions.initBrowser(`https://help.odysee.tv/communityguidelines`, 'external')
+            }
+            target="_blank"
           />
         </li>
         <li className="footer__link">
-          <Button label={__('FAQ')} onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b')} />
+          <Button
+            label={__('FAQ')}
+            onClick={() => window.odysee.functions.initBrowser(`https://help.odysee.tv/`, 'external')}
+          />
         </li>
         <li className="footer__link">
           <Button

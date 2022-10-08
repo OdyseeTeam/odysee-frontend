@@ -82,7 +82,8 @@ type Props = {
   firstCollectionItemUrl: ?string,
   isMature: boolean,
   location: { state?: { overrideFloating?: boolean } },
-  doCommentSocketConnect: (string, string, string) => void,
+  contentUnlocked: boolean,
+  doCommentSocketConnect: (uri: string, channelName: string, claimId: string, subCategory: ?string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doClearPlayingUri: () => void,
   // doClearQueueList: () => void,
@@ -130,6 +131,7 @@ export default function FileRenderFloating(props: Props) {
     // doClearQueueList,
     // doOpenModal,
     // doClearPlayingSource,
+    contentUnlocked,
   } = props;
 
   const { state } = location;
@@ -264,8 +266,8 @@ export default function FileRenderFloating(props: Props) {
 
     // Only connect if not yet connected, so for example clicked on an embed instead of accessing
     // from the Livestream page
-    if (!socketConnection?.connected) {
-      doCommentSocketConnect(uri, channelName, claimId);
+    if (!socketConnection?.connected && contentUnlocked) {
+      doCommentSocketConnect(uri, channelName, claimId, undefined);
     }
 
     // This will be used to disconnect for every case, since this is the main player component
@@ -277,6 +279,7 @@ export default function FileRenderFloating(props: Props) {
   }, [
     channelUrl,
     claimId,
+    contentUnlocked,
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     isCurrentClaimLive,

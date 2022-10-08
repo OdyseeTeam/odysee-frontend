@@ -84,6 +84,7 @@ type Props = {
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   purchaseMadeForClaimId: boolean,
+  isProtectedContent: boolean,
 };
 
 /*
@@ -136,6 +137,7 @@ function VideoViewer(props: Props) {
     currentPlaylistItemIndex,
     isPurchasableContent,
     isRentableContent,
+    isProtectedContent,
     // purchaseMadeForClaimId,
   } = props;
 
@@ -509,8 +511,8 @@ function VideoViewer(props: Props) {
     const moveToPosition = () => {
       // update current time based on previous position
       if (position && !isLivestreamClaim) {
-        // $FlowFixMe
-        player.currentTime(position >= claim.value.video.duration - 100 ? 0 : position);
+        const avDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
+        player.currentTime(avDuration && position >= avDuration - 100 ? 0 : position);
       }
     };
 
@@ -645,6 +647,7 @@ function VideoViewer(props: Props) {
         doToast={doToast}
         isPurchasableContent={isPurchasableContent}
         isRentableContent={isRentableContent}
+        isProtectedContent={isProtectedContent}
       />
     </div>
   );

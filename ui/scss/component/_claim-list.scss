@@ -21,8 +21,15 @@
     .media__thumb {
       width: var(--file-list-thumbnail-width) !important;
     }
-    .channel-thumbnail--xsmall {
-      margin-right: var(--spacing-xxs) !important;
+    .claim-preview__text {
+      overflow: visible !important;
+      .claim-preview__actions {
+        overflow: visible;
+        .membership-button-wrapper {
+          margin-bottom: 0;
+          margin-left: calc((4rem + (2 * var(--spacing-xs))) * -1);
+        }
+      }
     }
   }
 }
@@ -322,7 +329,7 @@
           .button__content {
             height: auto;
             span {
-              display: block;
+              // display: block;
               width: 100%;
               text-overflow: ellipsis;
               white-space: nowrap;
@@ -427,7 +434,7 @@
     left: 0px;
     top: 0px;
     font-size: var(--font-small);
-    opacity: 0.8;
+    // opacity: 0.8;
     z-index: 5;
 
     svg {
@@ -515,7 +522,7 @@
 .claim-preview--premium-plus {
   .media__thumb {
     background-color: #283263;
-    background-image: url('~ui/component/membershipSplash/astronaut_n_friends.png');
+    background-image: url('~ui/component/membershipSplash/internal/assets/astronaut_n_friends.png');
     background-size: 100%;
   }
 
@@ -680,6 +687,11 @@
 .claim-preview--channel {
   .claim-preview__actions {
     margin-top: 0px;
+    flex-direction: row;
+    justify-content: unset;
+    .claim-preview__custom-properties {
+      margin-left: auto;
+    }
   }
   @media (max-width: $breakpoint-small) {
     a.button--no-style:first-of-type {
@@ -784,6 +796,10 @@
     background-color: var(--color-primary);
   }
 
+  .claim__tags {
+    margin-left: auto;
+  }
+
   @media (min-width: $breakpoint-small) {
     flex-direction: row;
   }
@@ -791,7 +807,8 @@
 
 .claim-preview__primary-actions {
   @extend .section__actions;
-  margin-right: 0;
+  margin-right: var(--spacing-s);
+  margin-bottom: 0 !important;
 
   &:first-child {
     .button {
@@ -1030,6 +1047,11 @@
         opacity: 1;
         transition: 0.3s;
       }
+
+      .protected-content-holder-lock,
+      .protected-content-unlocked {
+        opacity: 1;
+      }
     }
   }
 
@@ -1210,6 +1232,50 @@
   }
 }
 
+.protected-content-overlay {
+  @include font-sans;
+
+  background-color: rgba(0, 0, 0, 0.5);
+
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  z-index: 5;
+  width: 100%;
+  height: 100%;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
+  color: white;
+
+  .icon.icon--Lock {
+    overflow: visible;
+    stroke-width: 3;
+    width: 60px;
+    height: 60px;
+    margin-bottom: var(--spacing-xxxs);
+    padding: var(--spacing-s);
+    background-color: white;
+    color: var(--color-fire);
+    border-radius: 50%;
+    // margin-top: -54px;
+  }
+
+  .button {
+    margin-top: var(--spacing-s);
+    background-image: var(--color-odysee-memberships);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    // width: 94%;
+    // height: 90%;
+    span {
+      text-align: center;
+    }
+  }
+}
+
 .claim-grid {
   .claim-preview__file-purchase-overlay {
     @media (min-width: $breakpoint-large) {
@@ -1229,7 +1295,7 @@
   background-color: var(--color-black);
   padding: 0.3rem;
   border-radius: var(--border-radius);
-  z-index: 2;
+  z-index: 6;
   opacity: 0.7;
 
   // show full opacity for touch devices

@@ -38,6 +38,7 @@ type Props = {
   doFetchInviteStatus: (boolean) => void,
   disableDownloadButton: boolean,
   isMature: boolean,
+  isMembershipProtected: boolean,
 };
 
 function SocialShare(props: Props) {
@@ -53,6 +54,7 @@ function SocialShare(props: Props) {
     doFetchInviteStatus,
     disableDownloadButton,
     isMature,
+    isMembershipProtected,
   } = props;
   const [showEmbed, setShowEmbed] = React.useState(false);
   const [includeCollectionId, setIncludeCollectionId] = React.useState(Boolean(collectionId)); // unless it *is* a collection?
@@ -107,6 +109,8 @@ function SocialShare(props: Props) {
     includedCollectionId
   );
   const downloadUrl = `${generateDownloadUrl(name, claimId)}`;
+
+  const showDownloadLink = Boolean(isStream) && !disableDownloadButton && !isMature;
 
   // Tweet params
   let tweetIntentParams = {
@@ -177,14 +181,21 @@ function SocialShare(props: Props) {
           iconSize={24}
           icon={ICONS.FACEBOOK}
           title={__('Share on Facebook')}
-          href={`https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`}
+          onClick={() =>
+            window.odysee.functions.initBrowser(
+              `https://facebook.com/sharer/sharer.php?u=${encodedLbryURL}`,
+              'external'
+            )
+          }
         />
         <Button
           className="share"
           iconSize={24}
           icon={ICONS.REDDIT}
           title={__('Share on Reddit')}
-          href={`https://reddit.com/submit?url=${encodedLbryURL}`}
+          onClick={() =>
+            window.odysee.functions.initBrowser(`https://reddit.com/submit?url=${encodedLbryURL}`, 'external')
+          }
         />
         {!isMobile ? (
           <Button
@@ -192,7 +203,9 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.WHATSAPP}
             title={__('Share on WhatsApp')}
-            href={`https://web.whatsapp.com/send?text=${encodedLbryURL}`}
+            onClick={() =>
+              window.odysee.functions.initBrowser(`https://web.whatsapp.com/send?text=${encodedLbryURL}`, 'external')
+            }
           />
         ) : (
           <Button
@@ -200,7 +213,7 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.WHATSAPP}
             title={__('Share on WhatsApp')}
-            href={`whatsapp://send?text=${encodedLbryURL}`}
+            onClick={() => window.odysee.functions.initBrowser(`whatsapp://send?text=${encodedLbryURL}`, 'external')}
           />
         )}
         {!IOS ? (
@@ -209,7 +222,9 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.TELEGRAM}
             title={__('Share on Telegram')}
-            href={`https://t.me/share/url?url=${encodedLbryURL}`}
+            onClick={() =>
+              window.odysee.functions.initBrowser(`https://t.me/share/url?url=${encodedLbryURL}`, 'external')
+            }
           />
         ) : (
           // Only ios client supports share urls
@@ -218,7 +233,9 @@ function SocialShare(props: Props) {
             iconSize={24}
             icon={ICONS.TELEGRAM}
             title={__('Share on Telegram')}
-            href={`tg://msg_url?url=${encodedLbryURL}&amp;text=text`}
+            onClick={() =>
+              window.odysee.functions.initBrowser(`tg://msg_url?url=${encodedLbryURL}&amp;text=text`, 'external')
+            }
           />
         )}
         {webShareable && !isCollection && (
@@ -233,16 +250,18 @@ function SocialShare(props: Props) {
             }}
           />
         )}
-        <Button
-          className="share"
-          iconSize={24}
-          icon={ICONS.SHARE_LINK}
-          title={__('Links')}
-          onClick={() => {
-            setShowClaimLinks(!showClaimLinks);
-            setShowEmbed(false);
-          }}
-        />
+        {!isMembershipProtected && (showDownloadLink || rssUrl || isChannel) && (
+          <Button
+            className="share"
+            iconSize={24}
+            icon={ICONS.SHARE_LINK}
+            title={__('Links')}
+            onClick={() => {
+              setShowClaimLinks(!showClaimLinks);
+              setShowEmbed(false);
+            }}
+          />
+        )}
       </div>
 
       {SUPPORTS_SHARE_API && isMobile && (

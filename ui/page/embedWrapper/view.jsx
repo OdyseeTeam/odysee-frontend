@@ -44,10 +44,10 @@ type Props = {
   doPlayUri: (uri: string) => void,
   doFetchCostInfoForUri: (uri: string) => void,
   doFetchChannelLiveStatus: (string) => void,
-  doCommentSocketConnect: (string, string, string) => void,
+  doCommentSocketConnect: (string, string, string, ?string) => void,
   doCommentSocketDisconnect: (string, string) => void,
   doFetchActiveLivestreams: () => void,
-  setReferrer: (uri: string) => void,
+  contentUnlocked: boolean,
 };
 
 export const EmbedContext = React.createContext<any>();
@@ -85,7 +85,7 @@ export default function EmbedWrapperPage(props: Props) {
     doCommentSocketConnect,
     doCommentSocketDisconnect,
     doFetchActiveLivestreams,
-    setReferrer,
+    contentUnlocked,
   } = props;
 
   const {
@@ -99,8 +99,6 @@ export default function EmbedWrapperPage(props: Props) {
   const featureParam = urlParams.get('feature');
   const latestContentPath = featureParam === PAGES.LATEST;
   const liveContentPath = featureParam === PAGES.LIVE_NOW;
-  const rawReferrerParam = urlParams.get('r');
-  const sanitizedReferrerParam = rawReferrerParam && rawReferrerParam.replace(':', '#');
   const embedLightBackground = urlParams.get('embedBackgroundLight');
   const readyToDisplay = isCurrentClaimLive || (haveClaim && streamingUrl);
   const isLiveClaimFetching = isLivestreamClaim && !activeLivestreamInitialized;
@@ -121,20 +119,16 @@ export default function EmbedWrapperPage(props: Props) {
   const thumbnail = useGetPoster(claimThumbnail);
 
   React.useEffect(() => {
-    if (!latestClaimUrl && liveContentPath && claimId) {
-      doFetchChannelLiveStatus(claimId);
+    if (!latestClaimUrl && liveContentPath && channelClaimId) {
+      doFetchChannelLiveStatus(channelClaimId);
     }
-  }, [claimId, doFetchChannelLiveStatus, latestClaimUrl, liveContentPath]);
+  }, [channelClaimId, doFetchChannelLiveStatus, latestClaimUrl, liveContentPath]);
 
   React.useEffect(() => {
     if (!latestClaimUrl && latestContentPath && canonicalUrl) {
       fetchLatestClaimForChannel(canonicalUrl, true);
     }
   }, [canonicalUrl, fetchLatestClaimForChannel, latestClaimUrl, latestContentPath]);
-
-  React.useEffect(() => {
-    if (!sanitizedReferrerParam) setReferrer(uri);
-  }, [sanitizedReferrerParam, setReferrer, uri]);
 
   React.useEffect(() => {
     if (doFetchActiveLivestreams && isLivestreamClaim) {
@@ -149,27 +143,37 @@ export default function EmbedWrapperPage(props: Props) {
 
     const channelName = formatLbryChannelName(channelUrl);
 
-    doCommentSocketConnect(canonicalUrl, channelName, claimId);
+    if (contentUnlocked) {
+      doCommentSocketConnect(canonicalUrl, channelName, claimId, undefined);
+    }
 
     return () => {
       if (claimId) {
         doCommentSocketDisconnect(claimId, channelName);
       }
     };
-  }, [canonicalUrl, channelUrl, claimId, doCommentSocketConnect, doCommentSocketDisconnect, isLivestreamClaim]);
+  }, [
+    canonicalUrl,
+    channelUrl,
+    claimId,
+    doCommentSocketConnect,
+    doCommentSocketDisconnect,
+    isLivestreamClaim,
+    contentUnlocked,
+  ]);
 
   React.useEffect(() => {
     if (doResolveUri && uri && !haveClaim) {
       doResolveUri(uri);
     }
 
-    if (uri && (isNewestPath ? latestClaimUrl : haveClaim) && costInfo && costInfo.cost === 0) {
+    if (uri && !isLivestreamClaim && (isNewestPath ? latestClaimUrl : haveClaim) && costInfo && costInfo.cost === 0) {
       doPlayUri(uri);
     }
-  }, [doPlayUri, doResolveUri, haveClaim, costInfo, uri, isNewestPath, latestClaimUrl]);
+  }, [doPlayUri, isLivestreamClaim, doResolveUri, haveClaim, costInfo, uri, isNewestPath, latestClaimUrl]);
 
   React.useEffect(() => {
-    if (haveClaim && uri && doFetchCostInfoForUri) {
+    if (haveClaim && uri) {
       doFetchCostInfoForUri(uri);
     }
   }, [uri, haveClaim, doFetchCostInfoForUri]);
