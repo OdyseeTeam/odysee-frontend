@@ -81,7 +81,7 @@ type Props = {
   header?: Node,
   headerLabel?: string | Node,
   hiddenNsfwMessage?: Node,
-  injectedItem?: ListInjectedItem,
+  // injectedItem?: ListInjectedItem,
   meta?: Node,
   subSection?: Node, // Additional section below [Header|Meta]
   renderProperties?: (Claim) => Node,
@@ -163,7 +163,7 @@ function ClaimListDiscover(props: Props) {
     hideMembersOnly,
     infiniteScroll = true,
     followedTags,
-    injectedItem,
+    // injectedItem,
     feeAmount,
     uris,
     prefixUris,
