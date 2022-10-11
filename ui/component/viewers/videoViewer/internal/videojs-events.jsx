@@ -27,6 +27,10 @@ const VideoJsEvents = ({
   claimRewards,
   playerServerRef,
   isLivestreamClaim,
+  nextPlaylistUri,
+  collectionName,
+  doPlayNext,
+  doPlayPrevious,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
@@ -43,6 +47,10 @@ const VideoJsEvents = ({
   claimRewards: () => void,
   playerServerRef: any,
   isLivestreamClaim: boolean,
+  nextPlaylistUri: ?string,
+  collectionName: ?string,
+  doPlayNext: () => void,
+  doPlayPrevious: () => void,
 }) => {
   function doTrackingBuffered(e: Event, data: any) {
     const playerPoweredBy = isLivestreamClaim ? 'lvs' : playerServerRef.current;
@@ -213,21 +221,22 @@ const VideoJsEvents = ({
         height: THUMBNAIL_HEIGHT_POSTER,
       });
 
-      // $FlowFixMe
       navigator.mediaSession.metadata = new window.MediaMetadata({
         title: claimValues.title,
         artist: channelTitle,
         artwork: thumbnail ? [{ src: thumbnail }] : undefined,
+        album: collectionName,
       });
 
-      // $FlowFixMe
-      navigator.mediaSession.setActionHandler('seekbackward', function () {
+      navigator.mediaSession.setActionHandler('seekbackward', () => {
         player.currentTime(Math.max(0, player.currentTime() - 10));
       });
-      // $FlowFixMe
-      navigator.mediaSession.setActionHandler('seekforward', function () {
+      navigator.mediaSession.setActionHandler('seekforward', () => {
         player.currentTime(Math.max(0, player.currentTime() + 10));
       });
+
+      navigator.mediaSession.setActionHandler('previoustrack', doPlayPrevious);
+      navigator.mediaSession.setActionHandler('nexttrack', doPlayNext);
     }
   }
 

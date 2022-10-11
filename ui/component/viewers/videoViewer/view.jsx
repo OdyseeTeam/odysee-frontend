@@ -66,8 +66,9 @@ type Props = {
   isFloating: boolean,
   doPlayUri: (params: { uri: string, collection: { collectionId: ?string } }) => void,
   collectionId: string,
+  collectionName: ?string,
   nextRecommendedUri: string,
-  nextPlaylistUri: string,
+  nextPlaylistUri: ?string,
   previousListUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
@@ -122,6 +123,7 @@ function VideoViewer(props: Props) {
     isFloating,
     doPlayUri,
     collectionId,
+    collectionName,
     nextRecommendedUri,
     nextPlaylistUri,
     previousListUri,
@@ -643,6 +645,16 @@ function VideoViewer(props: Props) {
         isPurchasableContent={isPurchasableContent}
         isRentableContent={isRentableContent}
         isProtectedContent={isProtectedContent}
+        nextPlaylistUri={nextPlaylistUri}
+        collectionName={collectionName}
+        doPlayNext={() => {
+          doPlay(nextPlaylistItem, true);
+          push(formatLbryUrlForWeb(nextPlaylistItem));
+        }}
+        doPlayPrevious={() => {
+          doPlay(previousPlaylistItem);
+          push(formatLbryUrlForWeb(previousPlaylistItem));
+        }}
       />
     </div>
   );

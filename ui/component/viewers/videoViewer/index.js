@@ -13,6 +13,7 @@ import {
   selectNextUrlForCollectionAndUrl,
   selectPreviousUrlForCollectionAndUrl,
   selectIndexForUrlInCollection,
+  selectCollectionNameForId,
 } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
@@ -62,6 +63,7 @@ const select = (state, props) => {
     userId,
     internalFeature,
     collectionId,
+    collectionName: selectCollectionNameForId(state, collectionId),
     nextPlaylistUri,
     nextRecommendedUri,
     previousListUri: previousPlaylistUri,

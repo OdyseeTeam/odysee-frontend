@@ -115,6 +115,10 @@ type Props = {
   isPurchasableContent: boolean,
   isRentableContent: boolean,
   isProtectedContent: boolean,
+  nextPlaylistUri: ?string,
+  collectionName: ?string,
+  doPlayNext: () => void,
+  doPlayPrevious: () => void,
 };
 
 const VIDEOJS_VOLUME_PANEL_CLASS = 'VolumePanel';
@@ -181,6 +185,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     isPurchasableContent,
     isRentableContent,
     isProtectedContent,
+    nextPlaylistUri,
+    collectionName,
+    doPlayNext,
+    doPlayPrevious,
   } = props;
 
   // used to notify about default quality setting
@@ -240,6 +248,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
     playerServerRef,
     isLivestreamClaim,
     channelTitle,
+    nextPlaylistUri,
+    collectionName,
+    doPlayNext,
+    doPlayPrevious,
   });
 
   const videoJsOptions = {
