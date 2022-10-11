@@ -707,10 +707,7 @@ $recent-msg-button__height: 2rem;
   position: relative;
 
   font-size: var(--font-small);
-  // border-radius: var(--border-radius);
-  // background: linear-gradient(180deg, var(--color-header-background) 0%, transparent 100%);
   background: var(--color-header-background);
-  // border:2px solid var(--color-border);
   padding-bottom: var(--spacing-s) !important;
 
   .livestream__comment {
@@ -724,10 +721,18 @@ $recent-msg-button__height: 2rem;
         background-color: var(--color-primary);
         color: var(--color-primary-contrast) !important;
       }
+      .comment__badge {
+        margin-bottom: -2px;
+        .icon--BadgeStreamer {
+          margin-top: 4px;
+        }
+      }
       .comment__pin {
+        flex: unset;
         font-weight: var(--font-weight-bold);
         margin: var(--spacing-xs);
         margin-left: 0;
+        margin-bottom: 2px;
         @media (max-width: $breakpoint-small) {
           margin: 0;
           margin-top: var(--spacing-xxs);
@@ -736,7 +741,6 @@ $recent-msg-button__height: 2rem;
         }
       }
       .date_time {
-        // opacity: 0.8;
         display: none;
       }
     }
@@ -760,8 +764,9 @@ $recent-msg-button__height: 2rem;
   .comment__pin {
     width: unset;
     margin-right: calc(var(--spacing-s) + var(--spacing-xs));
+    padding-top: 1px;
     .icon {
-      margin-bottom: -1px;
+      margin-bottom: -3px;
     }
   }
 
