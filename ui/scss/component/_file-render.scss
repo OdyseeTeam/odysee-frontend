@@ -387,6 +387,9 @@
   .button--uri-indicator {
     .channel-name {
       display: unset;
+      p {
+        display: unset;
+      }
     }
   }
 }

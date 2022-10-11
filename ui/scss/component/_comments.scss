@@ -302,6 +302,7 @@ $thumbnailWidthSmall: 2rem;
 
   .comment__author--creator {
     margin-top: 0;
+    margin-bottom: -1px;
     &:hover {
       .channel-name {
         color: var(--color-primary-contrast);
@@ -312,6 +313,12 @@ $thumbnailWidthSmall: 2rem;
   .comment__badge svg {
     height: 1.4rem;
     width: 1.4rem;
+
+    &.icon--PremiumPlus {
+      height: 1.2rem;
+      width: 1.2rem;
+      margin-bottom: -1.5px;
+    }
 
     &.icon--Membership,
     &.icon--BadgeSprout {
@@ -328,7 +335,25 @@ $thumbnailWidthSmall: 2rem;
     border-radius: var(--border-radius);
     font-size: var(--font-xsmall);
     svg {
-      margin-bottom: 0;
+      margin-bottom: -1.5px;
+    }
+  }
+
+  .comment__pin {
+    background: var(--color-header-background);
+    padding: 1px 3px;
+    font-weight: var(--font-weight-bold);
+    // padding-bottom:1px;
+    border-radius: 10px var(--border-radius) var(--border-radius) 10px;
+    margin-left: 0;
+    margin-bottom: -1px;
+    svg {
+      margin-bottom: -3px;
+      background: var(--color-background);
+      border-radius: 50%;
+      padding: 1px;
+      padding-left: 2px;
+      margin-right: var(--spacing-xxs);
     }
   }
 }

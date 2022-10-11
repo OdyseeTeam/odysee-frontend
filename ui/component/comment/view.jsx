@@ -432,7 +432,7 @@ function CommentView(props: Props) {
                   <div className={classnames('comment__actions', { 'comment__actions--disabled': disabled })}>
                     <Button
                       requiresAuth={IS_WEB}
-                      label={commentingEnabled ? __('Reply') : __('Log in to reply')}
+                      label={commentingEnabled ? __('Replys') : __('Log in to reply')}
                       className="comment__action"
                       onClick={handleCommentReply}
                       icon={ICONS.REPLY}
