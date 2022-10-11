@@ -153,6 +153,11 @@
       width: calc(var(--font-body) + 2px);
       margin-bottom: -4px;
     }
+    .icon--BadgeMod {
+      height: calc(var(--font-body) - 3px);
+      width: calc(var(--font-body) - 3px);
+      margin-bottom: -4px;
+    }
     .icon--Premium,
     .icon--PremiumPlus {
       margin-bottom: -5px;
