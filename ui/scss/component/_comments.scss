@@ -856,3 +856,23 @@ $thumbnailWidthSmall: 2rem;
     max-height: 1.25rem;
   }
 }
+
+.comment-preview {
+  margin-top: var(--spacing-s);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius);
+  padding: var(--spacing-s);
+  background-color: var(--color-header-background);
+
+  .comment__thumbnail-wrapper {
+    grid-gap: unset;
+  }
+
+  .comment__pin {
+    padding-top: 1px;
+    background-color: var(--color-background);
+    svg {
+      background-color: var(--color-header-background);
+    }
+  }
+}
