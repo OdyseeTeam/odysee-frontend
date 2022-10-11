@@ -313,7 +313,8 @@ $thumbnailWidthSmall: 2rem;
     height: 1.4rem;
     width: 1.4rem;
 
-    &.icon--Membership {
+    &.icon--Membership,
+    &.icon--BadgeSprout {
       height: 0.96rem;
       width: 0.96rem;
       margin-bottom: -1.5px;
