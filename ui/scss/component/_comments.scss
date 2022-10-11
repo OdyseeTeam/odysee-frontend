@@ -324,20 +324,30 @@ $thumbnailWidthSmall: 2rem;
       margin-bottom: -1.5px;
     }
 
-    &.icon--Membership,
     &.icon--BadgeSprout {
       height: 0.96rem;
       width: 0.96rem;
       margin-bottom: -2px;
     }
+
+    &.icon--Membership {
+      height: 0.9rem;
+      width: 0.9rem;
+      margin-bottom: -2px;
+    }
   }
 
+  .credit-amount-wrapper {
+    margin-right: var(--spacing-xxs);
+    margin-top: -2px;
+  }
   .credit-amount {
     background-color: var(--color-primary);
-    padding: 2px 4px;
-    padding-bottom: 1px;
+    padding: 3px 4px 3px 4px;
     border-radius: var(--border-radius);
     font-size: var(--font-xsmall);
+    font-weight: var(--font-weight-bold);
+    color: white;
     svg {
       margin-bottom: -1.5px;
     }
@@ -347,7 +357,6 @@ $thumbnailWidthSmall: 2rem;
     background: var(--color-header-background);
     padding: 0 3px;
     font-weight: var(--font-weight-bold);
-    // padding-bottom:1px;
     border-radius: 10px var(--border-radius) var(--border-radius) 10px;
     margin-left: 0;
     margin-bottom: 0;
