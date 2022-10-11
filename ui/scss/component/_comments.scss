@@ -287,6 +287,7 @@ $thumbnailWidthSmall: 2rem;
   align-items: center;
   height: 100%;
   width: calc(100% - var(--spacing-m) - var(--spacing-s));
+  padding-top: 1px;
 
   @media (max-width: $breakpoint-small) {
     width: calc(100% - 100px - var(--spacing-m) - var(--spacing-s));
@@ -355,14 +356,15 @@ $thumbnailWidthSmall: 2rem;
 
   .comment__pin {
     background: var(--color-header-background);
-    padding: 0 3px;
+    padding: 0 3px 0 2px;
     font-weight: var(--font-weight-bold);
     border-radius: 10px var(--border-radius) var(--border-radius) 10px;
     margin-left: 0;
-    margin-bottom: 0;
+    border: 2px solid var(--color-border);
+    margin-top: -1px;
     svg {
       margin-bottom: -3px;
-      background: var(--color-background);
+      background: var(--color-border);
       border-radius: 50%;
       padding: 1px;
       padding-left: 2px;
