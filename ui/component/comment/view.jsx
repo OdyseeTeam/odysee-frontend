@@ -190,7 +190,7 @@ function CommentView(props: Props) {
   const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
   const stickerFromMessage = parseSticker(message);
 
-  const isSprout = channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7;
+  const isSprout = !channelAge || (channelAge && Math.round((new Date() - channelAge) / (1000 * 60 * 60 * 24)) < 7);
 
   let channelOwnerOfContent;
   try {
@@ -432,7 +432,7 @@ function CommentView(props: Props) {
                   <div className={classnames('comment__actions', { 'comment__actions--disabled': disabled })}>
                     <Button
                       requiresAuth={IS_WEB}
-                      label={commentingEnabled ? __('Replys') : __('Log in to reply')}
+                      label={commentingEnabled ? __('Reply') : __('Log in to reply')}
                       className="comment__action"
                       onClick={handleCommentReply}
                       icon={ICONS.REPLY}

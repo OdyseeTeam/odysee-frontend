@@ -736,7 +736,8 @@ $recent-msg-button__height: 2rem;
         }
       }
       .date_time {
-        opacity: 0.8;
+        // opacity: 0.8;
+        display: none;
       }
     }
     .livestreamComment__menu {
@@ -1127,6 +1128,7 @@ $recent-msg-button__height: 2rem;
     height: var(--font-small) !important;
     margin-right: 4px;
     margin-top: 2px;
+    margin-bottom: -1px;
     .ff-canvas,
     .freezeframe-img {
       width: var(--font-small) !important;
