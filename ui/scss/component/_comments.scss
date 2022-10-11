@@ -302,7 +302,7 @@ $thumbnailWidthSmall: 2rem;
 
   .comment__author--creator {
     margin-top: 0;
-    margin-bottom: -1px;
+    margin-bottom: 0;
     &:hover {
       .channel-name {
         color: var(--color-primary-contrast);
@@ -324,7 +324,7 @@ $thumbnailWidthSmall: 2rem;
     &.icon--BadgeSprout {
       height: 0.96rem;
       width: 0.96rem;
-      margin-bottom: -1.5px;
+      margin-bottom: -2px;
     }
   }
 
@@ -341,12 +341,12 @@ $thumbnailWidthSmall: 2rem;
 
   .comment__pin {
     background: var(--color-header-background);
-    padding: 1px 3px;
+    padding: 0 3px;
     font-weight: var(--font-weight-bold);
     // padding-bottom:1px;
     border-radius: 10px var(--border-radius) var(--border-radius) 10px;
     margin-left: 0;
-    margin-bottom: -1px;
+    margin-bottom: 0;
     svg {
       margin-bottom: -3px;
       background: var(--color-background);
@@ -405,9 +405,12 @@ $thumbnailWidthSmall: 2rem;
   height: 100%;
 
   .button__content {
-    max-width: 10rem;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    p {
+      max-width: 16rem;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
   }
 }
 
