@@ -320,6 +320,17 @@ $thumbnailWidthSmall: 2rem;
       margin-bottom: -1.5px;
     }
   }
+
+  .credit-amount {
+    background-color: var(--color-primary);
+    padding: 2px 4px;
+    padding-bottom: 1px;
+    border-radius: var(--border-radius);
+    font-size: var(--font-xsmall);
+    svg {
+      margin-bottom: 0;
+    }
+  }
 }
 
 .comment__pin {
