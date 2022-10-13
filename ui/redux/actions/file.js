@@ -1,9 +1,6 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
-// @if TARGET='app'
-import { shell } from 'electron';
-// @endif
 import Lbry from 'lbry';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { doAbandonClaim, doGetClaimFromUriResolve } from 'redux/actions/claims';
@@ -20,20 +17,6 @@ import { isStreamPlaceholderClaim } from 'util/claim';
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, file: FileState, content: any, user: UserState };
-export function doOpenFileInFolder(path: string) {
-  return () => {
-    shell.showItemInFolder(path);
-  };
-}
-
-export function doOpenFileInShell(path: string) {
-  return (dispatch: Dispatch) => {
-    const success = shell.openPath(path);
-    if (!success) {
-      dispatch(doOpenFileInFolder(path));
-    }
-  };
-}
 
 export function doDeleteFile(
   outpoint: string,
