@@ -6,21 +6,25 @@ $actions-z-index: 2;
   width: 100% !important;
   margin-top: calc(var(--spacing-l) * -1);
 
-  .tabs__list {
+  .tab__wrapper {
+    padding-left: 11rem;
+    transition: padding-left 0.2s, background-color 0.2s;
+    background-color: var(--color-header-background);
     position: sticky;
     top: 60px;
     z-index: 10;
-    .tab__wrapper {
-      width: calc(100% - 2 * var(--spacing-l));
-      max-width: var(--page-max-width);
-      margin-right: auto;
-      margin-left: auto;
-      padding-left: 11rem;
-      transition: padding-left 0.2s;
-    }
-    .tab__wrapper-fixed {
-      padding-left: 5rem;
-    }
+  }
+  .tab__wrapper-fixed {
+    padding-left: 5rem;
+    background-color: rgba(var(--color-header-background-base), 0.99);
+  }
+
+  .tabs__list {
+    width: calc(100% - 2 * var(--spacing-l));
+    max-width: var(--page-max-width);
+    margin-right: auto;
+    margin-left: auto;
+    background-color: unset;
   }
   .tab__panel {
     width: calc(100% - 2 * var(--spacing-l));

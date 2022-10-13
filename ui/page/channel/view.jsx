@@ -131,8 +131,8 @@ function ChannelPage(props: Props) {
 
   const [scrollPast, setScrollPast] = React.useState(0);
   const onScroll = () => {
-    const position = window.pageYOffset;
-    if (window.pageYOffset > 240) {
+    // const position = window.pageYOffset;
+    if (window.pageYOffset > 200) {
       // console.log(position)
       setScrollPast(true);
     } else {
@@ -368,11 +368,8 @@ function ChannelPage(props: Props) {
           </div>
         ) : (
           <Tabs onChange={onTabChange} index={tabIndex}>
-            <TabList>
-              <div
-                className="tab__wrapper"
-                className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}
-              >
+            <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+              <TabList>
                 <Tab disabled={editing}>{__('Home')}</Tab>
                 <Tab disabled={editing}>{__('Content')}</Tab>
                 <Tab disabled={editing}>{__('Playlists')}</Tab>
@@ -382,8 +379,8 @@ function ChannelPage(props: Props) {
                 </Tab>
                 <Tab disabled={editing}>{__('Community')}</Tab>
                 <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
-              </div>
-            </TabList>
+              </TabList>
+            </div>
             <TabPanels>
               <TabPanel>
                 <h1>Home</h1>
