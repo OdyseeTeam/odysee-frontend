@@ -131,9 +131,7 @@ function ChannelPage(props: Props) {
 
   const [scrollPast, setScrollPast] = React.useState(0);
   const onScroll = () => {
-    // const position = window.pageYOffset;
-    if (window.pageYOffset > 200) {
-      // console.log(position)
+    if (window.pageYOffset > 220) {
       setScrollPast(true);
     } else {
       setScrollPast(false);
@@ -279,16 +277,6 @@ function ChannelPage(props: Props) {
       <ChannelPageContext.Provider value>
         <header className="channel-cover">
           <div className="channel-header-content">
-            <ChannelThumbnail
-              className={classnames('channel__thumbnail--channel-page', {
-                'channel__thumbnail--channel-page-fixed': scrollPast,
-              })}
-              uri={uri}
-              allowGifs
-              isChannel
-              hideStakedIndicator
-            />
-
             <div className="channel__quick-actions">
               {isMyYouTubeChannel && (
                 <Button
@@ -369,6 +357,15 @@ function ChannelPage(props: Props) {
         ) : (
           <Tabs onChange={onTabChange} index={tabIndex}>
             <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+              <ChannelThumbnail
+                className={classnames('channel__thumbnail--channel-page', {
+                  'channel__thumbnail--channel-page-fixed': scrollPast,
+                })}
+                uri={uri}
+                allowGifs
+                isChannel
+                hideStakedIndicator
+              />
               <TabList>
                 <Tab disabled={editing}>{__('Home')}</Tab>
                 <Tab disabled={editing}>{__('Content')}</Tab>

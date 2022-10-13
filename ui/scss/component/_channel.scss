@@ -7,24 +7,27 @@ $actions-z-index: 2;
   margin-top: calc(var(--spacing-l) * -1);
 
   .tab__wrapper {
-    padding-left: 11rem;
-    transition: padding-left 0.2s, background-color 0.2s;
+    transition: background-color 0.2s;
     background-color: var(--color-header-background);
     position: sticky;
     top: 60px;
     z-index: 10;
   }
   .tab__wrapper-fixed {
-    padding-left: 5rem;
     background-color: rgba(var(--color-header-background-base), 0.99);
+    .tabs__list {
+      padding-left: 5rem;
+    }
   }
 
   .tabs__list {
+    padding-left: 11rem;
     width: calc(100% - 2 * var(--spacing-l));
     max-width: var(--page-max-width);
     margin-right: auto;
     margin-left: auto;
     background-color: unset;
+    transition: padding-left 0.2s;
   }
   .tab__panel {
     width: calc(100% - 2 * var(--spacing-l));
@@ -377,12 +380,13 @@ $actions-z-index: 2;
   position: absolute;
   height: var(--channel-thumbnail-width);
   width: var(--channel-thumbnail-width);
-  left: 0;
-  top: 5.2rem;
+  // left: 0;
+  left: calc((100% - (var(--page-max-width))) / 2);
+  top: -9.2rem;
   margin-top: var(--spacing-l);
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 1), 0 6px 16px 0 rgba(0, 0, 0, 0.6);
   z-index: 11;
-  transition: width 0.2s, height 0.2s;
+  transition: width 0.2s, height 0.2s, top 0.2s;
 
   @media (max-width: $breakpoint-small) {
     top: 0;
@@ -407,9 +411,8 @@ $actions-z-index: 2;
 .channel__thumbnail--channel-page-fixed {
   height: 50px;
   width: 50px;
-  position: fixed;
-  left: calc((100% - (var(--page-max-width) - var(--side-nav-width--micro))) / 2);
-  top: 34px;
+  left: calc((100% - var(--page-max-width)) / 2);
+  top: -1.6rem;
 }
 
 .claim-preview .channel-thumbnail .comment__badge {
