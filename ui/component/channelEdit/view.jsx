@@ -348,7 +348,6 @@ function ChannelForm(props: Props) {
               {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
             </h1>
           </div>
-          <div className="channel-cover__gradient" />
         </header>
 
         <Tabs className="channelPage-wrapper">

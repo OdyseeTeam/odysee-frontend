@@ -95,7 +95,7 @@ function ChannelPage(props: Props) {
   } = useHistory();
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
   const urlParams = new URLSearchParams(search);
-  const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || CHANNEL_PAGE.VIEWS.CONTENT;
+  const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || CHANNEL_PAGE.VIEWS.HOME;
   const [discussionWasMounted, setDiscussionWasMounted] = React.useState(false);
   const editing = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) === CHANNEL_PAGE.VIEWS.EDIT;
   const { channelName } = parseURI(uri);
@@ -128,6 +128,23 @@ function ChannelPage(props: Props) {
   }, [discussionWasMounted, uri]);
 
   const hasUnpublishedCollections = unpublishedCollections && Object.keys(unpublishedCollections).length;
+
+  const [scrollPast, setScrollPast] = React.useState(0);
+  const onScroll = () => {
+    const position = window.pageYOffset;
+    if (window.pageYOffset > 240) {
+      // console.log(position)
+      setScrollPast(true);
+    } else {
+      setScrollPast(false);
+    }
+  };
+  React.useEffect(() => {
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   let collectionEmpty;
   if (channelIsMine) {
@@ -163,23 +180,26 @@ function ChannelPage(props: Props) {
   // would alter the Tab label's role attribute, which should stay role="tab" to work with keyboards/screen readers.
   let tabIndex;
   switch (currentView) {
-    case CHANNEL_PAGE.VIEWS.CONTENT:
+    case CHANNEL_PAGE.VIEWS.HOME:
       tabIndex = 0;
       break;
-    case CHANNEL_PAGE.VIEWS.LISTS:
+    case CHANNEL_PAGE.VIEWS.CONTENT:
       tabIndex = 1;
       break;
-    case CHANNEL_PAGE.VIEWS.CHANNELS:
+    case CHANNEL_PAGE.VIEWS.LISTS:
       tabIndex = 2;
       break;
+    case CHANNEL_PAGE.VIEWS.CHANNELS:
+      tabIndex = 3;
+      break;
     case CHANNEL_PAGE.VIEWS.MEMBERSHIP:
-      if (!isOdyseeChannel) tabIndex = 3;
+      if (!isOdyseeChannel) tabIndex = 4;
       break;
     case CHANNEL_PAGE.VIEWS.DISCUSSION:
-      tabIndex = 4;
+      tabIndex = 5;
       break;
     case CHANNEL_PAGE.VIEWS.ABOUT:
-      tabIndex = 5;
+      tabIndex = 6;
       break;
     default:
       tabIndex = 0;
@@ -192,21 +212,24 @@ function ChannelPage(props: Props) {
 
     switch (newTabIndex) {
       case 0:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.HOME}`;
         break;
       case 1:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.LISTS}`;
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
       case 2:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.LISTS}`;
         break;
       case 3:
-        if (!isOdyseeChannel) search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
         break;
       case 4:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        if (!isOdyseeChannel) search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.MEMBERSHIP}`;
         break;
       case 5:
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.DISCUSSION}`;
+        break;
+      case 6:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
         break;
     }
@@ -252,71 +275,75 @@ function ChannelPage(props: Props) {
   }
 
   return (
-    <Page className="channelPage-wrapper" noFooter>
+    <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
         <header className="channel-cover">
-          <div className="channel__quick-actions">
-            {isMyYouTubeChannel && (
-              <Button
-                button="alt"
-                label={__('Claim Your Channel')}
-                icon={ICONS.YOUTUBE}
-                navigate={`/$/${PAGES.CHANNELS}`}
-              />
-            )}
-            <JoinMembershipButton uri={uri} />
-            {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
-            {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
-            {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && (
-              <SubscribeButton uri={permanentUrl} />
-            )}
-            {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
-            <ClaimMenuList uri={claim.permanent_url} inline />
-          </div>
-          {cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} />}
-          {cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} />}
-          <div className="channel__primary-info">
+          <div className="channel-header-content">
             <ChannelThumbnail
-              className="channel__thumbnail--channel-page"
+              className={classnames('channel__thumbnail--channel-page', {
+                'channel__thumbnail--channel-page-fixed': scrollPast,
+              })}
               uri={uri}
               allowGifs
               isChannel
               hideStakedIndicator
             />
-            <h1 className="channel__title">
-              <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
-              {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
-            </h1>
-            <div className="channel__meta">
-              <Tooltip title={formattedSubCount} followCursor placement="top">
-                <span>
-                  {getChannelSubCountStr(subCount, compactSubCount)}
-                  {Number.isInteger(subCount) ? (
-                    <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
-                  ) : (
-                    '\u00A0'
-                  )}
-                </span>
-              </Tooltip>
-              {channelIsMine && (
-                <>
-                  {pending ? (
-                    <span>{__('Your changes will be live in a few minutes')}</span>
-                  ) : (
-                    <Button
-                      button="alt"
-                      title={__('Edit')}
-                      onClick={() => push(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
-                      icon={ICONS.EDIT}
-                      iconSize={18}
-                      disabled={pending}
-                    />
-                  )}
-                </>
+
+            <div className="channel__quick-actions">
+              {isMyYouTubeChannel && (
+                <Button
+                  button="alt"
+                  label={__('Claim Your Channel')}
+                  icon={ICONS.YOUTUBE}
+                  navigate={`/$/${PAGES.CHANNELS}`}
+                />
               )}
+              <JoinMembershipButton uri={uri} />
+              {!channelIsBlackListed && <ClaimShareButton uri={uri} webShareable />}
+              {!(isBlocked || isMuted) && <ClaimSupportButton uri={uri} />}
+              {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && (
+                <SubscribeButton uri={permanentUrl} />
+              )}
+              {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
+              <ClaimMenuList uri={claim.permanent_url} inline />
+            </div>
+            {/* cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} /> */}
+            {/* cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} /> */}
+            <div className="channel__primary-info">
+              <h1 className="channel__title">
+                <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
+                {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} />}
+              </h1>
+              <div className="channel__meta">
+                <Tooltip title={formattedSubCount} followCursor placement="top">
+                  <span>
+                    {getChannelSubCountStr(subCount, compactSubCount)}
+                    {Number.isInteger(subCount) ? (
+                      <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+                    ) : (
+                      '\u00A0'
+                    )}
+                  </span>
+                </Tooltip>
+                {channelIsMine && (
+                  <>
+                    {pending ? (
+                      <span>{__('Your changes will be live in a few minutes')}</span>
+                    ) : (
+                      <Button
+                        button="alt"
+                        title={__('Edit')}
+                        onClick={() => push(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
+                        icon={ICONS.EDIT}
+                        iconSize={18}
+                        disabled={pending}
+                      />
+                    )}
+                  </>
+                )}
+              </div>
             </div>
           </div>
-          <div className="channel-cover__gradient" />
         </header>
 
         {(isBlocked || isMuted) && !viewBlockedChannel ? (
@@ -341,17 +368,26 @@ function ChannelPage(props: Props) {
           </div>
         ) : (
           <Tabs onChange={onTabChange} index={tabIndex}>
-            <TabList className="tabs__list--channel-page">
-              <Tab disabled={editing}>{__('Content')}</Tab>
-              <Tab disabled={editing}>{__('Playlists')}</Tab>
-              <Tab disabled={editing}>{__('Channels')}</Tab>
-              <Tab className="tab--membership" disabled={editing || isOdyseeChannel}>
-                {__('Membership')}
-              </Tab>
-              <Tab disabled={editing}>{__('Community')}</Tab>
-              <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+            <TabList>
+              <div
+                className="tab__wrapper"
+                className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}
+              >
+                <Tab disabled={editing}>{__('Home')}</Tab>
+                <Tab disabled={editing}>{__('Content')}</Tab>
+                <Tab disabled={editing}>{__('Playlists')}</Tab>
+                <Tab disabled={editing}>{__('Channels')}</Tab>
+                <Tab className="tab--membership" disabled={editing || isOdyseeChannel}>
+                  {__('Membership')}
+                </Tab>
+                <Tab disabled={editing}>{__('Community')}</Tab>
+                <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+              </div>
             </TabList>
             <TabPanels>
+              <TabPanel>
+                <h1>Home</h1>
+              </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
                   <ChannelContent

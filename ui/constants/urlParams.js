@@ -3,6 +3,7 @@ export const FYP_ID = 'fypId';
 export const CHANNEL_PAGE = Object.freeze({
   QUERIES: { VIEW: 'view' },
   VIEWS: {
+    HOME: 'home',
     CONTENT: 'content',
     LISTS: 'lists',
     CHANNELS: 'channels',
