@@ -367,15 +367,15 @@ function ChannelPage(props: Props) {
                 hideStakedIndicator
               />
               <TabList>
-                <Tab disabled={editing}>{__('Home')}</Tab>
-                <Tab disabled={editing}>{__('Content')}</Tab>
-                <Tab disabled={editing}>{__('Playlists')}</Tab>
-                <Tab disabled={editing}>{__('Channels')}</Tab>
-                <Tab className="tab--membership" disabled={editing || isOdyseeChannel}>
+                <Tab disabled={editing} onClick={() => onTabChange(0)}>{__('Home')}</Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(1)}>{__('Content')}</Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(2)}>{__('Playlists')}</Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(3)}>{__('Channels')}</Tab>
+                <Tab className="tab--membership" disabled={editing || isOdyseeChannel} onClick={() => onTabChange(4)}>
                   {__('Membership')}
                 </Tab>
-                <Tab disabled={editing}>{__('Community')}</Tab>
-                <Tab>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(5)}>{__('Community')}</Tab>
+                <Tab onClick={() => onTabChange(6)}>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
               </TabList>
             </div>
             <TabPanels>
