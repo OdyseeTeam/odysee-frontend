@@ -62,6 +62,8 @@ body {
   @media (max-width: $breakpoint-small) {
     // transform: translateX(0);
     // width: calc(100% - var(--spacing-m));
+    padding-left: 0;
+    margin-left: calc(var(--spacing-xs) * -1);
   }
 
   @media (min-width: $breakpoint-small) {
