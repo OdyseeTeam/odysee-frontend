@@ -4,6 +4,7 @@ import FileThumbnail from 'component/fileThumbnail';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
+import ChannelContent from 'component/channelContent';
 
 import './style.scss';
 
@@ -49,6 +50,17 @@ function ChannelHome(props: Props) {
       </div>
       <section>
         <label className="home-segment-title">Playlists</label>
+        <ChannelContent
+          claimType={'collection'}
+          uri={uri}
+          // channelIsBlackListed={channelIsBlackListed}
+          viewHiddenChannels
+          // empty={collectionEmpty}
+          totalPages={1}
+          defaultPageSize={1}
+          defaultInfiniteScroll={false}
+          params={{ page: 1 }}
+        />
       </section>
       <section>
         <label>Channels</label>
