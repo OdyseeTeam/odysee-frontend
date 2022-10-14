@@ -1,0 +1,21 @@
+/*
+.claim-preview__featured{
+  width:100% !important;
+  margin-top:var(--spacing-s);
+  background:rgba(255,0,0,0.2);
+  display:flex;
+
+  .media__thumb{
+    width:350px;
+    height:200px;
+  }
+
+  .claim-tile__header{
+    flex:1;
+  }
+}
+*/
+section {
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: var(--spacing-s);
+}

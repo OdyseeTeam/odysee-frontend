@@ -13,6 +13,7 @@ import { useHistory } from 'react-router';
 import Button from 'component/button';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
+import ChannelHome from 'component/channelHome';
 import ChannelContent from 'component/channelContent';
 import ChannelAbout from 'component/channelAbout';
 import ChannelDiscussion from 'component/channelDiscussion';
@@ -275,7 +276,7 @@ function ChannelPage(props: Props) {
   return (
     <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
-        <header className="channel-cover" style={{ 'backgroundImage': 'url(' + cover + ')' }}>
+        <header className="channel-cover" style={{ backgroundImage: 'url(' + cover + ')' }}>
           <div className="channel-header-content">
             <div className="channel__quick-actions">
               {isMyYouTubeChannel && (
@@ -367,20 +368,32 @@ function ChannelPage(props: Props) {
                 hideStakedIndicator
               />
               <TabList>
-                <Tab disabled={editing} onClick={() => onTabChange(0)}>{__('Home')}</Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(1)}>{__('Content')}</Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(2)}>{__('Playlists')}</Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(3)}>{__('Channels')}</Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(0)}>
+                  {__('Home')}
+                </Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(1)}>
+                  {__('Content')}
+                </Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(2)}>
+                  {__('Playlists')}
+                </Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(3)}>
+                  {__('Channels')}
+                </Tab>
                 <Tab className="tab--membership" disabled={editing || isOdyseeChannel} onClick={() => onTabChange(4)}>
                   {__('Membership')}
                 </Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(5)}>{__('Community')}</Tab>
-                <Tab onClick={() => onTabChange(6)}>{editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}</Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(5)}>
+                  {__('Community')}
+                </Tab>
+                <Tab onClick={() => onTabChange(6)}>
+                  {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
+                </Tab>
               </TabList>
             </div>
             <TabPanels>
               <TabPanel>
-                <h1>Home</h1>
+                <ChannelHome uri={uri} />
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
