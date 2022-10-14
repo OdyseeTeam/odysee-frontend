@@ -48,7 +48,7 @@ function ChannelHome(props: Props) {
           // uris={[]}
         />
       </div>
-      <section>
+      <div>
         <label className="home-segment-title">Playlists</label>
         <ChannelContent
           claimType={'collection'}
@@ -60,8 +60,9 @@ function ChannelHome(props: Props) {
           defaultPageSize={1}
           defaultInfiniteScroll={false}
           params={{ page: 1 }}
+          hasPremiumPlus={true}
         />
-      </section>
+      </div>
       <section>
         <label>Channels</label>
       </section>
