@@ -18,6 +18,7 @@ import ChannelContent from 'component/channelContent';
 import ChannelAbout from 'component/channelAbout';
 import ChannelDiscussion from 'component/channelDiscussion';
 import ChannelThumbnail from 'component/channelThumbnail';
+import SettingsCreatorPage from 'page/settingsCreator';
 import ChannelEdit from 'component/channelEdit';
 import SectionList from 'component/channelSections/SectionList';
 import classnames from 'classnames';
@@ -439,7 +440,7 @@ function ChannelPage(props: Props) {
               </TabPanel>
               <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <ChannelAbout uri={uri} />}</TabPanel>
               <TabPanel>
-                <h1>Settings</h1>
+                <SettingsCreatorPage />
               </TabPanel>
             </TabPanels>
           </Tabs>

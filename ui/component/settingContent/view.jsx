@@ -185,6 +185,7 @@ export default function SettingContent(props: Props) {
                   />
                 </SettingsRow>
 
+                {/* 
                 {myChannelUrls && myChannelUrls.length > 0 && (
                   <SettingsRow title={__('Creator settings')}>
                     <Button
@@ -195,6 +196,7 @@ export default function SettingContent(props: Props) {
                     />
                   </SettingsRow>
                 )}
+                */}
               </>
             )}
 

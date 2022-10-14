@@ -265,12 +265,12 @@ export default function SettingsCreatorPage(props: Props) {
     activeChannelClaim && settingsByChannelId && settingsByChannelId[activeChannelClaim.claim_id] === null;
 
   return (
-    <Page
+    <div
       noFooter
-      noSideNavigation
-      settingsPage
-      backout={{ title: __('Creator settings'), backLabel: __('Back') }}
-      className="card-stack"
+      // noSideNavigation
+      // settingsPage
+      // backout={{ title: __('Creator settings'), backLabel: __('Back') }}
+      // className="card-stack"
     >
       <div className="card-stack">
         <ChannelSelector hideAnon />
@@ -473,7 +473,7 @@ export default function SettingsCreatorPage(props: Props) {
           </>
         )}
       </div>
-    </Page>
+    </div>
   );
 }
 
