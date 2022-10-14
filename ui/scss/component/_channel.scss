@@ -427,6 +427,7 @@ $actions-z-index: 2;
   width: 100%;
   object-fit: cover;
   font-size: 1px; // To hide the alt text on firefox;
+  background-color: var(--color-header-background);
 }
 
 .channel-thumbnail__default {
@@ -481,6 +482,7 @@ $actions-z-index: 2;
   bottom: 0;
   position: absolute;
   box-sizing: border-box;
+  color: white;
 
   .channel__edit-thumb {
     z-index: 5;

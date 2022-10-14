@@ -22,9 +22,7 @@ import ChannelHome from './view';
 const select = (state, props) => {
   const { search } = props.location;
   const urlParams = new URLSearchParams(search);
-  const page = urlParams.get('page') || 0;
   const claim = props.uri && selectClaimForUri(state, props.uri);
-  const channelClaimId = getChannelIdFromClaim(claim);
 
   return {
     // pageOfClaimsInChannel: makeSelectClaimsInChannelForPage(props.uri, page)(state),
