@@ -28,11 +28,12 @@ function ChannelHome(props: Props) {
           hideLayoutButton
           channelIds={[claimId]}
           infiniteScroll={false}
+          useSkeletonScreen={false}
           maxClaimRender={1}
         />
       </div>
       <div>
-        <label className="home-segment-title">Uploads</label>
+        <label className="home-segment-title">Content</label>
         <ClaimListDiscover
           fetchViewCount
           hideFilters
@@ -42,17 +43,18 @@ function ChannelHome(props: Props) {
           channelIds={[claimId]}
           infiniteScroll={false}
           maxClaimRender={6}
+          useSkeletonScreen={false}
           // uris={[]}
         />
       </div>
       <section>
-        <label className="home-segment-title">Livestreams</label>
+        <label className="home-segment-title">Playlists</label>
       </section>
       <section>
-        <label>Shorts</label>
+        <label>Channels</label>
       </section>
       <section>
-        <label>Playlists</label>
+        <label>Members</label>
       </section>
       <br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-
       <br />-<br />-
