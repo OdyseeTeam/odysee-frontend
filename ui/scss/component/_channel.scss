@@ -211,7 +211,7 @@ $actions-z-index: 2;
   // background-image: linear-gradient(to right, #637ad2, #318794 80%);
   background-image: url('https://thumbnails.odycdn.com/optimize/s:0:0/quality:95/plain/https://thumbs.odycdn.com/28910ac9cc58feced571d1e83e1e47d5.webp');
   background-repeat: no-repeat;
-  background-size: 100%;
+  background-size: contain;
   background-attachment: fixed;
 
   .channel-header-content {

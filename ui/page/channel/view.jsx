@@ -131,7 +131,7 @@ function ChannelPage(props: Props) {
 
   const [scrollPast, setScrollPast] = React.useState(0);
   const onScroll = () => {
-    if (window.pageYOffset > 220) {
+    if (window.pageYOffset > 240) {
       setScrollPast(true);
     } else {
       setScrollPast(false);
