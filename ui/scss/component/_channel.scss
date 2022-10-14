@@ -6,13 +6,20 @@ $actions-z-index: 2;
   width: 100% !important;
   margin-top: calc(var(--spacing-l) * -1);
 
+  @media(max-width: $breakpoint-small){
+    margin-top:calc(var(--spacing-xs) * -1);
+  }
+
   .tab__wrapper {
     transition: background-color 0.2s;
     background-color: var(--color-header-background);
     position: sticky;
-    top: 60px;
+    top: var(--header-height);
     z-index: 10;
     margin-bottom: var(--spacing-l);
+    @media(max-width: $breakpoint-small){
+      top: var(--header-height-mobile);
+    }
   }
   .tab__wrapper-fixed {
     background-color: rgba(var(--color-header-background-base), 0.99);
@@ -29,6 +36,10 @@ $actions-z-index: 2;
     margin-left: auto;
     background-color: unset;
     transition: padding-left 0.2s;
+
+    @media(max-width: $breakpoint-small){
+      padding-left:0;
+    }
   }
   .tab__panel {
     width: calc(100% - 2 * var(--spacing-l));
@@ -212,9 +223,14 @@ $actions-z-index: 2;
   // background-image: linear-gradient(to right, #637ad2, #318794 80%);
   // background-image: url('https://thumbnails.odycdn.com/optimize/s:0:0/quality:95/plain/https://thumbs.odycdn.com/28910ac9cc58feced571d1e83e1e47d5.webp');
   background-repeat: no-repeat;
-  // background-size: contain;
+  background-size: contain;
   background-size: auto;
   background-attachment: fixed;
+  background-position-y: var(--header-height);
+
+  @media(max-width: $breakpoint-small){
+    background-position-y: var(--header-height-mobile);
+  }
 
   .channel-header-content {
     position: relative;
@@ -390,12 +406,11 @@ $actions-z-index: 2;
   @media (max-width: $breakpoint-large) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
-  /*
   @media (max-width: $breakpoint-small) {
-    top: 0;
-    margin-top: var(--spacing-xl);
+    width:5rem;
+    height:5rem;
+    top: -7.2rem;
   }
-  */
 
   .comment__badge {
     position: absolute;
@@ -514,7 +529,8 @@ $actions-z-index: 2;
 
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
-    margin-top: calc(var(--channel-thumbnail-width) + var(--spacing-xxl) + var(--spacing-l));
+    padding-left: calc(((100% - calc(100% - 2 * var(--spacing-l))) / 2) + 5rem);
+    // margin-top: calc(var(--channel-thumbnail-width) + var(--spacing-xxl) + var(--spacing-l));
   }
 }
 
