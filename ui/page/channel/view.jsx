@@ -200,6 +200,9 @@ function ChannelPage(props: Props) {
     case CHANNEL_PAGE.VIEWS.ABOUT:
       tabIndex = 6;
       break;
+    case CHANNEL_PAGE.VIEWS.SETTINGS:
+      tabIndex = 7;
+      break;
     default:
       tabIndex = 0;
       break;
@@ -230,6 +233,9 @@ function ChannelPage(props: Props) {
         break;
       case 6:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.ABOUT}`;
+        break;
+      case 7:
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.SETTINGS}`;
         break;
     }
 
@@ -389,6 +395,9 @@ function ChannelPage(props: Props) {
                 <Tab onClick={() => onTabChange(6)}>
                   {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
                 </Tab>
+                <Tab disabled={editing} onClick={() => onTabChange(7)}>
+                  {__('Settings')}
+                </Tab>
               </TabList>
             </div>
             <TabPanels>
@@ -429,6 +438,9 @@ function ChannelPage(props: Props) {
                 {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <ChannelDiscussion uri={uri} />}
               </TabPanel>
               <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <ChannelAbout uri={uri} />}</TabPanel>
+              <TabPanel>
+                <h1>Settings</h1>
+              </TabPanel>
             </TabPanels>
           </Tabs>
         )}

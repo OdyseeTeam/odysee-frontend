@@ -10,6 +10,7 @@ export const CHANNEL_PAGE = Object.freeze({
     MEMBERSHIP: 'membership',
     DISCUSSION: 'discussion',
     ABOUT: 'about',
+    SETTINGS: 'settings',
     EDIT: 'edit',
   },
 });
