@@ -209,7 +209,7 @@ $actions-z-index: 2;
 .channel-cover {
   position: relative;
   // background-image: linear-gradient(to right, #637ad2, #318794 80%);
-  background-image: url('https://thumbnails.odycdn.com/optimize/s:0:0/quality:95/plain/https://thumbs.odycdn.com/28910ac9cc58feced571d1e83e1e47d5.webp');
+  // background-image: url('https://thumbnails.odycdn.com/optimize/s:0:0/quality:95/plain/https://thumbs.odycdn.com/28910ac9cc58feced571d1e83e1e47d5.webp');
   background-repeat: no-repeat;
   background-size: contain;
   background-attachment: fixed;
@@ -254,12 +254,8 @@ $actions-z-index: 2;
 .channel-cover,
 .channel-cover__custom {
   min-height: var(--cover-photo-height);
-  // height: 100%;
   height: 240px;
   width: 100%;
-  // border-top-left-radius: var(--card-radius);
-  // border-top-right-radius: var(--card-radius);
-  // border: 1px sold var(--color-border);
   border-bottom: none;
 
   @media (max-width: $breakpoint-small) {

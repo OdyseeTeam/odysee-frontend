@@ -275,7 +275,7 @@ function ChannelPage(props: Props) {
   return (
     <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
-        <header className="channel-cover">
+        <header className="channel-cover" style={{ 'backgroundImage': 'url(' + cover + ')' }}>
           <div className="channel-header-content">
             <div className="channel__quick-actions">
               {isMyYouTubeChannel && (
