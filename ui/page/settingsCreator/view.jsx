@@ -266,11 +266,11 @@ export default function SettingsCreatorPage(props: Props) {
 
   return (
     <div
-      noFooter
-      // noSideNavigation
-      // settingsPage
-      // backout={{ title: __('Creator settings'), backLabel: __('Back') }}
-      // className="card-stack"
+    // noFooter
+    // noSideNavigation
+    // settingsPage
+    // backout={{ title: __('Creator settings'), backLabel: __('Back') }}
+    // className="card-stack"
     >
       <div className="card-stack">
         <ChannelSelector hideAnon />

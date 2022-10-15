@@ -440,7 +440,7 @@ function ChannelPage(props: Props) {
               </TabPanel>
               <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <ChannelAbout uri={uri} />}</TabPanel>
               <TabPanel>
-                <SettingsCreatorPage />
+                <SettingsCreatorPage activeChannelClaim={claim} />
               </TabPanel>
             </TabPanels>
           </Tabs>
