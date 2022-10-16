@@ -20,7 +20,7 @@ type Props = {
   navigate: (string) => void,
 };
 
-const MembershipChannelTab = (props: Props) => {
+const MembershipTab = (props: Props) => {
   const {
     uri,
     membershipIndex,
@@ -135,4 +135,4 @@ const MembershipChannelTab = (props: Props) => {
   );
 };
 
-export default MembershipChannelTab;
+export default MembershipTab;

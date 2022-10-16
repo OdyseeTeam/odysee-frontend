@@ -4,7 +4,7 @@ import FileThumbnail from 'component/fileThumbnail';
 import ClaimPreviewTile from 'component/claimPreviewTile';
 import ClaimList from 'component/claimList';
 import ClaimListDiscover from 'component/claimListDiscover';
-import ChannelContent from 'component/channelContent';
+import ContentTab from 'page/channel/tabs/contentTab';
 
 import './style.scss';
 
@@ -13,7 +13,7 @@ type Props = {
   claim: Claim,
 };
 
-function ChannelHome(props: Props) {
+function HomeTab(props: Props) {
   const { uri, claim } = props;
   const claimId = claim && claim.claim_id;
   // console.log('props: ', props);
@@ -50,7 +50,7 @@ function ChannelHome(props: Props) {
       </div>
       <div>
         <label className="home-segment-title">Playlists</label>
-        <ChannelContent
+        <ContentTab
           claimType={'collection'}
           uri={uri}
           // channelIsBlackListed={channelIsBlackListed}
@@ -77,4 +77,4 @@ function ChannelHome(props: Props) {
   );
 }
 
-export default ChannelHome;
+export default HomeTab;

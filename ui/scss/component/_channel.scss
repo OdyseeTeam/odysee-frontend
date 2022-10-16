@@ -216,30 +216,6 @@ $actions-z-index: 2;
   .media__info-text:first-of-type {
     opacity: 1;
   }
-
-  .card__body {
-    background-color: rgba(var(--color-header-background-base), 0.4);
-    border-radius: var(--border-radius);
-    border-top: unset;
-  }
-
-  .settings-row {
-    margin-top: 0;
-    padding: var(--spacing-s);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .card__main-actions {
-    border-top: unset;
-  }
-
-  .settings-row__subtitle {
-    margin-bottom: 0;
-  }
-
-  .tag--remove {
-    color: black !important;
-  }
 }
 
 .channel-cover {
@@ -433,6 +409,11 @@ $actions-z-index: 2;
     width: 5rem;
     height: 5rem;
     top: -7.2rem;
+  }
+
+  &:active {
+    box-shadow: 0 0 0 0 rgba(0, 0, 0, 1), 0 0 0 0 rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(0, 0, 0, 0.6);
   }
 
   .comment__badge {

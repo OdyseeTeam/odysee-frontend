@@ -49,7 +49,7 @@ type Props = {
   hasPremiumPlus: boolean,
 };
 
-function ChannelContent(props: Props) {
+function ContentTab(props: Props) {
   const {
     uri,
     fetching,
@@ -228,4 +228,4 @@ function ChannelContent(props: Props) {
   );
 }
 
-export default ChannelContent;
+export default ContentTab;

@@ -14,6 +14,7 @@ import LbcSymbol from 'component/common/lbc-symbol';
 import I18nMessage from 'component/i18nMessage';
 import { parseURI } from 'util/lbryURI';
 import debounce from 'util/debounce';
+import './style.scss';
 
 const DEBOUNCE_REFRESH_MS = 1000;
 
@@ -265,7 +266,7 @@ export default function CreatorSettingsTab(props: Props) {
     activeChannelClaim && settingsByChannelId && settingsByChannelId[activeChannelClaim.claim_id] === null;
 
   return (
-    <div>
+    <div className="creator-settings-tab">
       <div className="card-stack">
         {isBusy && (
           <div className="main--empty">

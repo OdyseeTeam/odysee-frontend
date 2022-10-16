@@ -17,7 +17,7 @@ import { selectAdBlockerFound } from 'redux/selectors/app';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
-import ChannelHome from './view';
+import HomeTab from './view';
 
 const select = (state, props) => {
   const { search } = props.location;
@@ -35,4 +35,4 @@ const perform = (dispatch) => ({
   doFetchChannelLiveStatus: (channelID) => dispatch(doFetchChannelLiveStatus(channelID)),
 });
 
-export default withRouter(connect(select, perform)(ChannelHome));
+export default withRouter(connect(select, perform)(HomeTab));

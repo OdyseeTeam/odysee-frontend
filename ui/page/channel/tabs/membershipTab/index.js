@@ -6,7 +6,7 @@ import {
 import { selectChannelClaimIdForUri } from 'redux/selectors/claims';
 import { doOpenCancelationModalForMembership } from 'redux/actions/memberships';
 import { push } from 'connected-react-router';
-import MembershipChannelTab from './view';
+import MembershipTab from './view';
 
 const select = (state, props) => {
   const { uri } = props;
@@ -35,4 +35,4 @@ const perform = (dispatch) => ({
   navigate: (path) => dispatch(push(path)),
 });
 
-export default connect(select, perform)(MembershipChannelTab);
+export default connect(select, perform)(MembershipTab);

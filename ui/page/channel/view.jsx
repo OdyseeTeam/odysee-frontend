@@ -13,10 +13,11 @@ import { useHistory } from 'react-router';
 import Button from 'component/button';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
-import ChannelHome from 'component/channelHome';
-import ChannelContent from 'component/channelContent';
-import ChannelAbout from 'component/channelAbout';
+import HomeTab from './tabs/homeTab';
+import ContentTab from './tabs/contentTab';
+import MembershipTab from './tabs/membershipTab';
 import ChannelDiscussion from 'component/channelDiscussion';
+import ChannelAbout from 'component/channelAbout';
 import ChannelThumbnail from 'component/channelThumbnail';
 import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import ChannelEdit from 'component/channelEdit';
@@ -35,7 +36,6 @@ import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import MembershipBadge from 'component/membershipBadge';
 import JoinMembershipButton from 'component/joinMembershipButton';
-import MembershipChannelTab from './internal/membershipChannelTab';
 
 type Props = {
   uri: string,
@@ -367,15 +367,17 @@ function ChannelPage(props: Props) {
         ) : (
           <Tabs onChange={onTabChange} index={tabIndex}>
             <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
-              <ChannelThumbnail
-                className={classnames('channel__thumbnail--channel-page', {
-                  'channel__thumbnail--channel-page-fixed': scrollPast,
-                })}
-                uri={uri}
-                allowGifs
-                isChannel
-                hideStakedIndicator
-              />
+              <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                <ChannelThumbnail
+                  className={classnames('channel__thumbnail--channel-page', {
+                    'channel__thumbnail--channel-page-fixed': scrollPast,
+                  })}
+                  uri={uri}
+                  allowGifs
+                  isChannel
+                  hideStakedIndicator
+                />
+              </div>
               <TabList>
                 <Tab disabled={editing} onClick={() => onTabChange(0)}>
                   {__('Home')}
@@ -405,11 +407,11 @@ function ChannelPage(props: Props) {
             </div>
             <TabPanels>
               <TabPanel>
-                <ChannelHome uri={uri} />
+                <HomeTab uri={uri} />
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
-                  <ChannelContent
+                  <ContentTab
                     uri={uri}
                     channelIsBlackListed={channelIsBlackListed}
                     viewHiddenChannels
@@ -420,7 +422,7 @@ function ChannelPage(props: Props) {
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.LISTS && (
-                  <ChannelContent
+                  <ContentTab
                     claimType={'collection'}
                     uri={uri}
                     channelIsBlackListed={channelIsBlackListed}
@@ -433,9 +435,7 @@ function ChannelPage(props: Props) {
                 {currentView === CHANNEL_PAGE.VIEWS.CHANNELS && <SectionList uri={uri} editMode={channelIsMine} />}
               </TabPanel>
               <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && (
-                  <MembershipChannelTab uri={uri} />
-                )}
+                {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
               </TabPanel>
               <TabPanel>
                 {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <ChannelDiscussion uri={uri} />}
