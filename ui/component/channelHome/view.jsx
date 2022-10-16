@@ -16,7 +16,7 @@ type Props = {
 function ChannelHome(props: Props) {
   const { uri, claim } = props;
   const claimId = claim && claim.claim_id;
-  console.log('props: ', props);
+  // console.log('props: ', props);
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
   return (

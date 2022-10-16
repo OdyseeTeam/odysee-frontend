@@ -1,5 +1,4 @@
 import { connect } from 'react-redux';
-import SettingsCreatorPage from './view';
 import { doOpenModal } from 'redux/actions/app';
 import {
   doCommentBlockWords,
@@ -10,7 +9,6 @@ import {
   doFetchCreatorSettings,
   doUpdateCreatorSettings,
 } from 'redux/actions/comments';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectSettingsByChannelId,
   selectFetchingCreatorSettings,
@@ -21,20 +19,17 @@ import {
 import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
 import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
+import CreatorSettingsTab from './view';
 
 const select = (state, props) => {
-  const activeChannelClaim = selectActiveChannelClaim(state);
-  const activeChannelId = activeChannelClaim?.claim_id;
-
   return {
-    activeChannelClaim: selectActiveChannelClaim(state),
-    channelHasMembershipTiers: selectChannelHasMembershipTiersForId(state, activeChannelId),
+    channelHasMembershipTiers: selectChannelHasMembershipTiersForId(state, props.activeChannelClaim.claim_id),
     fetchingBlockedWords: selectFetchingBlockedWords(state),
     fetchingCreatorSettings: selectFetchingCreatorSettings(state),
     moderationDelegatesById: selectModerationDelegatesById(state),
     myChannelClaims: selectMyChannelClaims(state),
     settingsByChannelId: selectSettingsByChannelId(state),
-    areCommentsMembersOnly: selectMembersOnlyCommentsForChannelId(state, activeChannelId),
+    areCommentsMembersOnly: selectMembersOnlyCommentsForChannelId(state, props.activeChannelClaim.claim_id),
   };
 };
 
@@ -52,4 +47,4 @@ const perform = (dispatch) => ({
   listAllMyMembershipTiers: (channelId) => dispatch(doListAllMyMembershipTiers()),
 });
 
-export default connect(select, perform)(SettingsCreatorPage);
+export default connect(select, perform)(CreatorSettingsTab);

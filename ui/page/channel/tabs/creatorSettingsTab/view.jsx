@@ -6,8 +6,6 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import TagsSearch from 'component/tagsSearch';
-import Page from 'component/page';
-import ChannelSelector from 'component/channelSelector';
 import SearchChannelField from 'component/searchChannelField';
 import SettingsRow from 'component/settingsRow';
 import Spinner from 'component/spinner';
@@ -47,7 +45,7 @@ type Props = {
   areCommentsMembersOnly: boolean,
 };
 
-export default function SettingsCreatorPage(props: Props) {
+export default function CreatorSettingsTab(props: Props) {
   const {
     activeChannelClaim,
     settingsByChannelId,
@@ -65,6 +63,8 @@ export default function SettingsCreatorPage(props: Props) {
     myChannelClaims,
     areCommentsMembersOnly,
   } = props;
+
+  console.log('aaaaaaaaa: ', props);
 
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
   const [commentsMembersOnly, setCommentsMembersOnly] = React.useState(areCommentsMembersOnly);
@@ -265,16 +265,8 @@ export default function SettingsCreatorPage(props: Props) {
     activeChannelClaim && settingsByChannelId && settingsByChannelId[activeChannelClaim.claim_id] === null;
 
   return (
-    <div
-    // noFooter
-    // noSideNavigation
-    // settingsPage
-    // backout={{ title: __('Creator settings'), backLabel: __('Back') }}
-    // className="card-stack"
-    >
+    <div>
       <div className="card-stack">
-        <ChannelSelector hideAnon />
-
         {isBusy && (
           <div className="main--empty">
             <Spinner />

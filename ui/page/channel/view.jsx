@@ -18,7 +18,7 @@ import ChannelContent from 'component/channelContent';
 import ChannelAbout from 'component/channelAbout';
 import ChannelDiscussion from 'component/channelDiscussion';
 import ChannelThumbnail from 'component/channelThumbnail';
-import SettingsCreatorPage from 'page/settingsCreator';
+import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import ChannelEdit from 'component/channelEdit';
 import SectionList from 'component/channelSections/SectionList';
 import classnames from 'classnames';
@@ -90,6 +90,8 @@ function ChannelPage(props: Props) {
     myMembershipsFetched,
     isOdyseeChannel,
   } = props;
+
+  console.log('fffffffffff: ', props);
   const {
     push,
     goBack,
@@ -397,7 +399,7 @@ function ChannelPage(props: Props) {
                   {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
                 </Tab>
                 <Tab disabled={editing} onClick={() => onTabChange(7)}>
-                  {__('Settings')}
+                  {channelIsMine && __('Settings')}
                 </Tab>
               </TabList>
             </div>
@@ -439,9 +441,7 @@ function ChannelPage(props: Props) {
                 {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <ChannelDiscussion uri={uri} />}
               </TabPanel>
               <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <ChannelAbout uri={uri} />}</TabPanel>
-              <TabPanel>
-                <SettingsCreatorPage activeChannelClaim={claim} />
-              </TabPanel>
+              <TabPanel>{channelIsMine && <CreatorSettingsTab activeChannelClaim={claim} />}</TabPanel>
             </TabPanels>
           </Tabs>
         )}
