@@ -415,6 +415,9 @@ $actions-z-index: 2;
     box-shadow: 0 0 0 0 rgba(0, 0, 0, 1), 0 0 0 0 rgba(0, 0, 0, 0.6);
     border: 2px solid rgba(0, 0, 0, 0.6);
   }
+  &:hover {
+    cursor: pointer;
+  }
 
   .comment__badge {
     position: absolute;
