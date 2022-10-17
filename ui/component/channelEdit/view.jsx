@@ -288,65 +288,64 @@ function ChannelForm(props: Props) {
   return (
     <>
       <div className={classnames({ 'card--disabled': disabled })}>
-        <header className="channel-cover">
-          <div className="channel__quick-actions">
-            <Button
-              button="alt"
-              title={__('Cover')}
-              onClick={() =>
-                openModal(MODALS.IMAGE_UPLOAD, {
-                  onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
-                  title: __('Edit Cover Image'),
-                  helpText: __('(6.25:1 ratio, %max_size%MB max)', {
-                    max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                  }),
-                  assetName: __('Cover Image'),
-                  currentValue: params.coverUrl,
-                })
-              }
-              icon={ICONS.CAMERA}
-              iconSize={18}
-            />
-          </div>
-          {params.coverUrl &&
-            (coverError && isUpload.cover ? (
-              <div className="channel-cover__custom--waiting">
-                <p>{__('Uploaded image will be visible in a few minutes after you submit this form.')}</p>
-              </div>
-            ) : (
-              <img className="channel-cover__custom" src={coverSrc} onError={() => setCoverError(true)} />
-            ))}
-          <div className="channel__primary-info">
-            <div className="channel__edit-thumb">
+        <header className="channel-cover" style={{ backgroundImage: 'url(' + coverSrc + ')' }}>
+          <div className="channel-header-content">
+            <div className="channel__quick-actions">
               <Button
                 button="alt"
-                title={__('Edit')}
+                title={__('Cover')}
                 onClick={() =>
                   openModal(MODALS.IMAGE_UPLOAD, {
-                    onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-                    title: __('Edit Thumbnail Image'),
-                    helpText: __('(1:1 ratio, %max_size%MB max)', {
+                    onUpdate: (coverUrl, isUpload) => handleCoverChange(coverUrl, isUpload),
+                    title: __('Edit Cover Image'),
+                    helpText: __('(6.25:1 ratio)', {
                       max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
                     }),
-                    assetName: __('Thumbnail'),
-                    currentValue: params.thumbnailUrl,
+                    assetName: __('Cover Image'),
+                    currentValue: params.coverUrl,
                   })
                 }
                 icon={ICONS.CAMERA}
                 iconSize={18}
               />
             </div>
-            <ChannelThumbnail
-              className="channel__thumbnail--channel-page"
-              uri={uri}
-              thumbnailPreview={thumbnailPreview}
-              allowGifs
-              setThumbUploadError={setThumbError}
-              thumbUploadError={thumbError}
-            />
-            <h1 className="channel__title">
-              {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
-            </h1>
+            {params.coverUrl && coverError && isUpload.cover && (
+              <div className="channel-cover__custom--waiting">
+                <p>{__('Uploaded image will be visible in a few minutes after you submit this form.')}</p>
+              </div>
+            )}
+            <div className="channel__primary-info">
+              <div className="channel__edit-thumb">
+                <Button
+                  button="alt"
+                  title={__('Edit')}
+                  onClick={() =>
+                    openModal(MODALS.IMAGE_UPLOAD, {
+                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                      title: __('Edit Thumbnail Image'),
+                      helpText: __('(1:1 ratio)', {
+                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                      }),
+                      assetName: __('Thumbnail'),
+                      currentValue: params.thumbnailUrl,
+                    })
+                  }
+                  icon={ICONS.CAMERA}
+                  iconSize={18}
+                />
+              </div>
+              <ChannelThumbnail
+                className="channel__thumbnail--channel-page"
+                uri={uri}
+                thumbnailPreview={thumbnailPreview}
+                allowGifs
+                setThumbUploadError={setThumbError}
+                thumbUploadError={thumbError}
+              />
+              <h1 className="channel__title">
+                {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
+              </h1>
+            </div>
           </div>
         </header>
 
