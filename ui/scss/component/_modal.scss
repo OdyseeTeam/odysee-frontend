@@ -222,9 +222,11 @@
 
     .form-field--copyable {
       background: rgba(var(--color-primary-dynamic), 0.1);
-      border-top: 1px solid var(--color-border);
-      border-bottom: 1px solid var(--color-border);
-      border-left: 1px solid var(--color-border);
+      /*
+      border-top: 2px solid var(--color-border);
+      border-bottom: 2px solid var(--color-border);
+      border-left: 2px solid var(--color-border);
+      */
     }
 
     button.button-toggle {

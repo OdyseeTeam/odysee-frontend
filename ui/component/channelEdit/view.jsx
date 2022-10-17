@@ -114,7 +114,7 @@ function ChannelForm(props: Props) {
     if (isClaimingInitialRewards) {
       return __('Claiming credits...');
     }
-    return creatingChannel || updatingChannel ? __('Submitting...') : __('Submit');
+    return creatingChannel || updatingChannel ? __('Saving...') : __('Save');
   }, [isClaimingInitialRewards, creatingChannel, updatingChannel]);
 
   const submitDisabled = React.useMemo(() => {
@@ -344,28 +344,30 @@ function ChannelForm(props: Props) {
 
         <Tabs index={tabIndex}>
           <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+            <div className="channel__edit-thumb">
+              <Button
+                button="alt"
+                title={__('Edit')}
+                onClick={() =>
+                  openModal(MODALS.IMAGE_UPLOAD, {
+                    onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                    title: __('Edit Thumbnail Image'),
+                    helpText: __('(1:1 ratio)', {
+                      max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                    }),
+                    assetName: __('Thumbnail'),
+                    currentValue: params.thumbnailUrl,
+                  })
+                }
+                icon={ICONS.CAMERA}
+                iconSize={18}
+              />
+            </div>
             <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-              <div className="channel__edit-thumb">
-                <Button
-                  button="alt"
-                  title={__('Edit')}
-                  onClick={() =>
-                    openModal(MODALS.IMAGE_UPLOAD, {
-                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-                      title: __('Edit Thumbnail Image'),
-                      helpText: __('(1:1 ratio)', {
-                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                      }),
-                      assetName: __('Thumbnail'),
-                      currentValue: params.thumbnailUrl,
-                    })
-                  }
-                  icon={ICONS.CAMERA}
-                  iconSize={18}
-                />
-              </div>
               <ChannelThumbnail
-                className="channel__thumbnail--channel-page"
+                className={classnames('channel__thumbnail--channel-page', {
+                  'channel__thumbnail--channel-page-fixed': scrollPast,
+                })}
                 uri={uri}
                 thumbnailPreview={thumbnailPreview}
                 allowGifs
@@ -373,11 +375,12 @@ function ChannelForm(props: Props) {
                 thumbUploadError={thumbError}
               />
             </div>
+
             <TabList className="tabs__list--channel-page">
-              <Tab onClick={() => onTabChange(0)}>{__('General')}</Tab>
+              <Tab onClick={() => onTabChange(0)}>{__('About')}</Tab>
               <Tab onClick={() => onTabChange(1)}>{__('Credit Details')}</Tab>
-              <Tab onClick={() => onTabChange(2)}>{__('Tags')}</Tab>
-              <Tab onClick={() => onTabChange(3)}>{__('Other')}</Tab>
+              {/* <Tab onClick={() => onTabChange(2)}>{__('Tags')}</Tab> */}
+              {/* <Tab onClick={() => onTabChange(3)}>{__('Other')}</Tab> */}
             </TabList>
           </div>
           <TabPanels>
@@ -394,24 +397,25 @@ function ChannelForm(props: Props) {
                       />
                     )}
 
-                    <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
-                      <fieldset-section>
-                        <label htmlFor="channel_name">{__('Name')}</label>
-                        <div className="form-field__prefix">@</div>
-                      </fieldset-section>
+                    {isNewChannel && (
+                      <fieldset-group class="fieldset-group--smushed fieldset-group--disabled-prefix">
+                        <fieldset-section>
+                          <label htmlFor="channel_name">{__('Name')}</label>
+                          <div className="form-field__prefix">@</div>
+                        </fieldset-section>
 
-                      <FormField
-                        autoFocus={isNewChannel}
-                        type="text"
-                        name="channel_name"
-                        placeholder={__('MyAwesomeChannel')}
-                        value={params.name || channelName}
-                        error={nameError}
-                        disabled={!isNewChannel}
-                        onChange={(e) => setParams({ ...params, name: e.target.value })}
-                      />
-                    </fieldset-group>
-                    {!isNewChannel && <span className="form-field__help">{__('This field cannot be changed.')}</span>}
+                        <FormField
+                          autoFocus={isNewChannel}
+                          type="text"
+                          name="channel_name"
+                          placeholder={__('MyAwesomeChannel')}
+                          value={params.name || channelName}
+                          error={nameError}
+                          disabled={!isNewChannel}
+                          onChange={(e) => setParams({ ...params, name: e.target.value })}
+                        />
+                      </fieldset-group>
+                    )}
 
                     <FormField
                       type="text"
@@ -430,89 +434,6 @@ function ChannelForm(props: Props) {
                       onChange={(text) => setParams({ ...params, description: text })}
                       textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
                     />
-                  </>
-                }
-              />
-            </TabPanel>
-            <TabPanel>
-              <Card
-                body={
-                  <FormField
-                    className="form-field--price-amount"
-                    type="number"
-                    name="content_bid2"
-                    step="any"
-                    label={<LbcSymbol postfix={__('Deposit')} size={14} />}
-                    value={params.amount}
-                    error={bidError}
-                    min="0.0"
-                    disabled={false}
-                    onChange={(event) => handleBidChange(parseFloat(event.target.value))}
-                    placeholder={0.1}
-                    helper={
-                      <>
-                        {__('Increasing your deposit can help your channel be discovered more easily.')}
-                        <WalletSpendableBalanceHelp inline />
-                      </>
-                    }
-                  />
-                }
-              />
-            </TabPanel>
-            <TabPanel>
-              <Card
-                body={
-                  <TagsSearch
-                    suggestMature={!SIMPLE_SITE}
-                    disableAutoFocus
-                    disableControlTags
-                    limitSelect={MAX_TAG_SELECT}
-                    tagsPassedIn={params.tags || []}
-                    label={__('Selected Tags')}
-                    onRemove={(clickedTag) => {
-                      const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                      setParams({ ...params, tags: newTags });
-                    }}
-                    onSelect={(newTags) => {
-                      newTags.forEach((newTag) => {
-                        if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
-                          setParams({ ...params, tags: [...params.tags, newTag] });
-                        } else {
-                          // If it already exists and the user types it in, remove it
-                          setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
-                        }
-                      });
-                    }}
-                  />
-                }
-              />
-            </TabPanel>
-            <TabPanel>
-              <Card
-                body={
-                  <>
-                    {NEKODEV && (
-                      <fieldset-section class>
-                        <label htmlFor="channel-color">{__('Channel color')}</label>
-                        <FormField
-                          name="manual-channel-color"
-                          type="checkbox"
-                          label="Pick color manually"
-                          checked={overrideColor}
-                          onChange={() => toggleColorOverride(!overrideColor)}
-                        />
-                        <ColorPicker disabled={!overrideColor} />
-                      </fieldset-section>
-                    )}
-                    <FormField
-                      type="text"
-                      name="channel_website2"
-                      label={__('Website')}
-                      placeholder={__('aprettygoodsite.com')}
-                      disabled={false}
-                      value={params.website}
-                      onChange={(e) => setParams({ ...params, website: e.target.value })}
-                    />
                     <FormField
                       type="text"
                       name="content_email2"
@@ -522,6 +443,46 @@ function ChannelForm(props: Props) {
                       value={params.email}
                       onChange={(e) => setParams({ ...params, email: e.target.value })}
                     />
+                    <FormField
+                      type="text"
+                      name="channel_website2"
+                      label={__('Website')}
+                      placeholder={__('aprettygoodsite.com')}
+                      disabled={false}
+                      value={params.website}
+                      onChange={(e) => setParams({ ...params, website: e.target.value })}
+                    />
+
+                    <fieldset-section>
+                      <label>{__('Tags')}</label>
+                      <Card
+                        className="channelpage-edit-tags"
+                        body={
+                          <TagsSearch
+                            suggestMature={!SIMPLE_SITE}
+                            disableAutoFocus
+                            disableControlTags
+                            limitSelect={MAX_TAG_SELECT}
+                            tagsPassedIn={params.tags || []}
+                            label={__('Selected Tags')}
+                            onRemove={(clickedTag) => {
+                              const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                              setParams({ ...params, tags: newTags });
+                            }}
+                            onSelect={(newTags) => {
+                              newTags.forEach((newTag) => {
+                                if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
+                                  setParams({ ...params, tags: [...params.tags, newTag] });
+                                } else {
+                                  // If it already exists and the user types it in, remove it
+                                  setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
+                                }
+                              });
+                            }}
+                          />
+                        }
+                      />
+                    </fieldset-section>
                     <FormField
                       name="language_select"
                       type="select"
@@ -561,6 +522,59 @@ function ChannelForm(props: Props) {
                 }
               />
             </TabPanel>
+            <TabPanel>
+              <Card
+                body={
+                  <FormField
+                    className="form-field--price-amount"
+                    type="number"
+                    name="content_bid2"
+                    step="any"
+                    label={<LbcSymbol postfix={__('Deposit')} size={14} />}
+                    value={params.amount}
+                    error={bidError}
+                    min="0.0"
+                    disabled={false}
+                    onChange={(event) => handleBidChange(parseFloat(event.target.value))}
+                    placeholder={0.1}
+                    helper={
+                      <>
+                        {__('Increasing your deposit can help your channel be discovered more easily.')}
+                        <WalletSpendableBalanceHelp inline />
+                      </>
+                    }
+                  />
+                }
+              />
+            </TabPanel>
+            {/*
+            <TabPanel>
+              
+            </TabPanel>
+                  
+            <TabPanel>
+              <Card
+                body={
+                  <>
+                    {NEKODEV && (
+                      <fieldset-section class>
+                        <label htmlFor="channel-color">{__('Channel color')}</label>
+                        <FormField
+                          name="manual-channel-color"
+                          type="checkbox"
+                          label="Pick color manually"
+                          checked={overrideColor}
+                          onChange={() => toggleColorOverride(!overrideColor)}
+                        />
+                        <ColorPicker disabled={!overrideColor} />
+                      </fieldset-section>
+                    )}
+
+                  </>
+                }
+              />
+            </TabPanel>
+            */}
           </TabPanels>
         </Tabs>
 

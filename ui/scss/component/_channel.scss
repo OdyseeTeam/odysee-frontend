@@ -216,6 +216,12 @@ $actions-z-index: 2;
   .media__info-text:first-of-type {
     opacity: 1;
   }
+
+  .channelpage-edit-tags {
+    padding: 0 var(--spacing-s);
+    background: var(--color-input-bg);
+    border-radius: var(--border-radius);
+  }
 }
 
 .channel-cover {
@@ -646,18 +652,25 @@ $actions-z-index: 2;
 }
 
 .channel__edit-thumb {
-  background: red;
   position: absolute;
-  top: 0;
-  left: var(--spacing-l);
-  margin-top: calc(var(--spacing-m) * 7);
-  z-index: $metadata-z-index;
+  bottom: calc(var(--channel-thumbnail-width) / 2);
+  left: calc(((100% - (var(--page-max-width))) / 2) + ((var(--channel-thumbnail-width) / 2) - 17px));
+  z-index: 12;
 
   > * {
     padding: 0 var(--spacing-xs);
 
     &:not(:last-child) {
       margin-right: var(--spacing-m);
+    }
+  }
+
+  .button--alt {
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 1);
+      .icon {
+        stroke: var(--color-primary);
+      }
     }
   }
 

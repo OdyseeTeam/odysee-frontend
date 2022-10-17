@@ -28,12 +28,10 @@ function SelectAsset(props: Props) {
   const [fileSelected, setFileSelected] = React.useState<any>(null);
   const [uploadStatus, setUploadStatus] = React.useState(STATUS.READY);
   const [imagePreview, setImagePreview] = React.useState(null);
-  
+
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
-
-  console.log('aaaaaaaaa: ', props);
 
   React.useEffect(() => {
     if (useUrl) {
@@ -92,7 +90,7 @@ function SelectAsset(props: Props) {
   const label = `${__(assetName)} ${__(recommended)}`;
   const selectFileLabel = __('Select File');
   const selectedLabel = pathSelected ? __('URL Selected') : __('File Selected');
-  
+
   let fileSelectorLabel;
   if (uploadStatus === STATUS.UPLOADING) {
     fileSelectorLabel = __('Uploading...');
@@ -101,8 +99,7 @@ function SelectAsset(props: Props) {
     fileSelectorLabel = `${label} ${fileSelected || pathSelected ? __(selectedLabel) : __(selectFileLabel)}`;
   }
 
-  const cover = pathSelected ? imagePreview : currentValue
-  console.log('cover: ', cover)
+  const cover = pathSelected ? imagePreview : currentValue;
   const ChannelPreview = () => {
     return (
       <div className="channel-preview-wrapper">
@@ -111,27 +108,69 @@ function SelectAsset(props: Props) {
         <div className="channel-preview-thumbnail" />
         <div className="channel-preview-grid">
           <div class="channel-preview-grid-tile">
-            <div/><div/><div/><div/><div><div/><div/></div>
+            <div />
+            <div />
+            <div />
+            <div />
+            <div>
+              <div />
+              <div />
+            </div>
           </div>
           <div class="channel-preview-grid-tile">
-            <div/><div/><div/><div/><div><div/><div/></div>
+            <div />
+            <div />
+            <div />
+            <div />
+            <div>
+              <div />
+              <div />
+            </div>
           </div>
           <div class="channel-preview-grid-tile">
-            <div/><div/><div/><div/><div><div/><div/></div>
+            <div />
+            <div />
+            <div />
+            <div />
+            <div>
+              <div />
+              <div />
+            </div>
           </div>
           <div class="channel-preview-grid-tile">
-            <div/><div/><div/><div/><div><div/><div/></div>
+            <div />
+            <div />
+            <div />
+            <div />
+            <div>
+              <div />
+              <div />
+            </div>
           </div>
           <div class="channel-preview-grid-tile">
-            <div/><div/><div/><div/><div><div/><div/></div>
+            <div />
+            <div />
+            <div />
+            <div />
+            <div>
+              <div />
+              <div />
+            </div>
           </div>
           <div class="channel-preview-grid-tile">
-            <div/><div/><div/><div/><div><div/><div/></div>
+            <div />
+            <div />
+            <div />
+            <div />
+            <div>
+              <div />
+              <div />
+            </div>
           </div>
         </div>
       </div>
-    )
-    }
+    );
+  };
 
   const formBody = (
     <>
@@ -159,14 +198,13 @@ function SelectAsset(props: Props) {
               name="assetSelector"
               currentPath={pathSelected}
               onFileChosen={(file) => {
-                console.log('file: ', file)
                 if (file.name) {
                   setFileSelected(file);
                   // what why? why not target=WEB this?
                   // file.path is undefined in web but available in electron
                   setPathSelected(file.name || file.path);
                   setUploadErrorMsg('');
-                  setImagePreview(URL.createObjectURL(file))
+                  setImagePreview(URL.createObjectURL(file));
 
                   if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
                     const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
@@ -178,9 +216,7 @@ function SelectAsset(props: Props) {
               }}
               accept={accept}
             />
-            {assetName === 'Cover Image' && (
-              <ChannelPreview />
-            )}
+            {assetName === 'Cover Image' && <ChannelPreview />}
           </>
         )}
       </fieldset-section>
