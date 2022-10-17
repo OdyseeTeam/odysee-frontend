@@ -7,6 +7,7 @@ import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import usePersistedState from 'effects/use-persisted-state';
+import './style.scss';
 
 const accept = '.png, .jpg, .jpeg, .gif';
 const STATUS = { READY: 'READY', UPLOADING: 'UPLOADING' };
@@ -30,6 +31,7 @@ function SelectAsset(props: Props) {
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
 
+  console.log('aaaaaaaaa: ', props);
   React.useEffect(() => {
     if (useUrl) {
       setUploadErrorMsg('');
@@ -113,30 +115,39 @@ function SelectAsset(props: Props) {
             }}
           />
         ) : (
-          <FileSelector
-            autoFocus
-            disabled={uploadStatus === STATUS.UPLOADING}
-            label={fileSelectorLabel}
-            name="assetSelector"
-            currentPath={pathSelected}
-            onFileChosen={(file) => {
-              if (file.name) {
-                setFileSelected(file);
-                // what why? why not target=WEB this?
-                // file.path is undefined in web but available in electron
-                setPathSelected(file.name || file.path);
-                setUploadErrorMsg('');
+          <>
+            <FileSelector
+              autoFocus
+              disabled={uploadStatus === STATUS.UPLOADING}
+              label={fileSelectorLabel}
+              name="assetSelector"
+              currentPath={pathSelected}
+              onFileChosen={(file) => {
+                if (file.name) {
+                  setFileSelected(file);
+                  // what why? why not target=WEB this?
+                  // file.path is undefined in web but available in electron
+                  setPathSelected(file.name || file.path);
+                  setUploadErrorMsg('');
 
-                if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
-                  const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
-                  setUploadErrorMsg(
-                    __('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB })
-                  );
+                  if (file.size >= THUMBNAIL_CDN_SIZE_LIMIT_BYTES) {
+                    const maxSizeMB = THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024);
+                    setUploadErrorMsg(
+                      __('Thumbnail size over %max_size%MB, please edit and reupload.', { max_size: maxSizeMB })
+                    );
+                  }
                 }
-              }
-            }}
-            accept={accept}
-          />
+              }}
+              accept={accept}
+            />
+            {assetName === 'Cover Image' && (
+              <div className="channel-preview-wrapper">
+                <div className="channel-preview-header" style={{ backgroundImage: 'url(' + currentValue + ')' }}></div>
+                <div className="channel-preview-tabs" />
+                <div className="channel-preview-thumbnail" />
+              </div>
+            )}
+          </>
         )}
       </fieldset-section>
 

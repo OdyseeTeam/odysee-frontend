@@ -223,12 +223,19 @@ $actions-z-index: 2;
   // background-image: linear-gradient(to right, #637ad2, #318794 80%);
   // background-image: url('https://thumbnails.odycdn.com/optimize/s:0:0/quality:95/plain/https://thumbs.odycdn.com/28910ac9cc58feced571d1e83e1e47d5.webp');
   background-repeat: no-repeat;
-  background-size: contain;
-  background-size: auto;
+  background-size: 100vw auto;
   background-attachment: fixed;
-  background-position-y: var(--header-height);
 
+  background-position-y: var(--header-height);
+  background-position-x: var(--side-nav-width--micro);
+
+  @media (max-width: $breakpoint-large) {
+    background-size: auto 240px;
+    background-position-x: 50%;
+  }
   @media (max-width: $breakpoint-small) {
+    background-size: auto 322px;
+    background-position-x: 50%;
     background-position-y: var(--header-height-mobile);
   }
 
@@ -639,6 +646,7 @@ $actions-z-index: 2;
 }
 
 .channel__edit-thumb {
+  background: red;
   position: absolute;
   top: 0;
   left: var(--spacing-l);

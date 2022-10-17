@@ -132,6 +132,21 @@ function ChannelForm(props: Props) {
   const coverSrc = coverError ? ThumbnailBrokenImage : params.coverUrl;
   const thumbnailPreview = resolveThumbnailPreview();
 
+  const [scrollPast, setScrollPast] = React.useState(0);
+  const onScroll = () => {
+    if (window.pageYOffset > 240) {
+      setScrollPast(true);
+    } else {
+      setScrollPast(false);
+    }
+  };
+  React.useEffect(() => {
+    window.addEventListener('scroll', onScroll, {
+      passive: true,
+    });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   function getChannelParams() {
     // fill this in with sdk data
     const channelParams: {
@@ -284,6 +299,11 @@ function ChannelForm(props: Props) {
     }
   }, [hasClaimedInitialRewards, claimInitialRewards]);
 
+  const [tabIndex, setTabIndex] = React.useState(0);
+  function onTabChange(index) {
+    setTabIndex(index);
+  }
+
   // TODO clear and bail after submit
   return (
     <>
@@ -315,6 +335,16 @@ function ChannelForm(props: Props) {
               </div>
             )}
             <div className="channel__primary-info">
+              <h1 className="channel__title">
+                {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
+              </h1>
+            </div>
+          </div>
+        </header>
+
+        <Tabs index={tabIndex}>
+          <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+            <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <div className="channel__edit-thumb">
                 <Button
                   button="alt"
@@ -342,20 +372,14 @@ function ChannelForm(props: Props) {
                 setThumbUploadError={setThumbError}
                 thumbUploadError={thumbError}
               />
-              <h1 className="channel__title">
-                {params.title || (channelName && '@' + channelName) || (params.name && '@' + params.name)}
-              </h1>
             </div>
+            <TabList className="tabs__list--channel-page">
+              <Tab onClick={() => onTabChange(0)}>{__('General')}</Tab>
+              <Tab onClick={() => onTabChange(1)}>{__('Credit Details')}</Tab>
+              <Tab onClick={() => onTabChange(2)}>{__('Tags')}</Tab>
+              <Tab onClick={() => onTabChange(3)}>{__('Other')}</Tab>
+            </TabList>
           </div>
-        </header>
-
-        <Tabs className="channelPage-wrapper">
-          <TabList className="tabs__list--channel-page">
-            <Tab>{__('General')}</Tab>
-            <Tab>{__('Credit Details')}</Tab>
-            <Tab>{__('Tags')}</Tab>
-            <Tab>{__('Other')}</Tab>
-          </TabList>
           <TabPanels>
             <TabPanel>
               <Card
