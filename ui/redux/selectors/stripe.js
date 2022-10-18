@@ -33,6 +33,11 @@ export const selectAccountId = (state: State) => {
   return accountStatus && accountStatus.account_info?.id;
 };
 
+export const selectAccountEmail = (state: State) => {
+  const accountStatus = selectAccountStatus(state);
+  return accountStatus && accountStatus.account_info?.email;
+};
+
 export const selectAccountChargesEnabled = (state: State) => {
   const accountStatus = selectAccountStatus(state);
   return accountStatus && accountStatus.charges_enabled;

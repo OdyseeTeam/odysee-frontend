@@ -3,11 +3,14 @@ import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Page from 'component/page';
+import I18nMessage from 'component/i18nMessage';
 import BusyIndicator from 'component/common/busy-indicator';
 
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
+
+import './style.scss';
 
 type Props = {
   // -- redux --
@@ -17,6 +20,7 @@ type Props = {
   chargesEnabled: ?boolean,
   doGetAndSetAccountLink: () => Promise<StripeAccountLink>,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
+  email: string,
   unpaidBalance: number,
 };
 
@@ -28,6 +32,7 @@ const StripeAccountConnection = (props: Props) => {
     chargesEnabled,
     doGetAndSetAccountLink,
     doTipAccountStatus,
+    email,
     unpaidBalance,
   } = props;
 
@@ -83,8 +88,13 @@ const StripeAccountConnection = (props: Props) => {
         isBodyList
         body={
           chargesEnabled ? (
-            <div className="card__body-actions">
+            <div className="card__body-actions connected-account-information">
               <h3>{__('Congratulations! Your account has been connected with Odysee.')}</h3>
+              <h3>
+                <I18nMessage tokens={{ email: <span className="bolded-email">{email}</span> }}>
+                  {__('The email you registered with Stripe is %email%')}
+                </I18nMessage>
+              </h3>
 
               {accountRequiresVerification && (
                 <>

@@ -7,6 +7,7 @@ import {
   selectAccountRequiresVerification,
   selectAccountLinkResponse,
   selectAccountId,
+  selectAccountEmail,
 } from 'redux/selectors/stripe';
 
 import StripeAccountConnection from './view';
@@ -17,6 +18,7 @@ const select = (state) => ({
   accountRequiresVerification: selectAccountRequiresVerification(state),
   accountLinkResponse: selectAccountLinkResponse(state),
   accountId: selectAccountId(state),
+  email: selectAccountEmail(state),
 });
 
 const perform = {
