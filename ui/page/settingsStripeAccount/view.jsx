@@ -9,22 +9,24 @@ import BusyIndicator from 'component/common/busy-indicator';
 
 type Props = {
   // -- redux --
-  unpaidBalance: number,
-  chargesEnabled: ?boolean,
-  accountRequiresVerification: ?boolean,
+  accountId: ?string,
   accountLinkResponse: StripeAccountLink,
-  doTipAccountStatus: () => Promise<StripeAccountStatus>,
+  accountRequiresVerification: ?boolean,
+  chargesEnabled: ?boolean,
   doGetAndSetAccountLink: () => Promise<StripeAccountLink>,
+  doTipAccountStatus: () => Promise<StripeAccountStatus>,
+  unpaidBalance: number,
 };
 
 const StripeAccountConnection = (props: Props) => {
   const {
-    unpaidBalance,
-    chargesEnabled,
-    accountRequiresVerification,
+    accountId,
     accountLinkResponse,
-    doTipAccountStatus,
+    accountRequiresVerification,
+    chargesEnabled,
     doGetAndSetAccountLink,
+    doTipAccountStatus,
+    unpaidBalance,
   } = props;
 
   const bankAccountNotFetched = chargesEnabled === undefined;
@@ -44,6 +46,8 @@ const StripeAccountConnection = (props: Props) => {
       doGetAndSetAccountLink();
     }
   }, [doGetAndSetAccountLink, linkNotFetched]);
+
+  const STRIPE_ACCOUNT_DASHBOARD_URL = 'https://dashboard.stripe.com';
 
   if (bankAccountNotFetched || linkNotFetched) {
     return (
@@ -125,12 +129,23 @@ const StripeAccountConnection = (props: Props) => {
               className="stripe__complete-verification-button"
             />
           ) : chargesEnabled ? (
-            <Button
-              button="secondary"
-              label={__('View Transactions')}
-              icon={ICONS.SETTINGS}
-              navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
-            />
+            <>
+              <Button
+                button="secondary"
+                label={__('View Transactions')}
+                icon={ICONS.SETTINGS}
+                navigate={`/$/${PAGES.WALLET}?fiatType=incoming&tab=fiat-payment-history&currency=fiat`}
+              />
+              {accountId && (
+                <Button
+                  button="secondary"
+                  icon={ICONS.SETTINGS}
+                  label={__('View Account On Stripe')}
+                  navigate={`${STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
+                  style={{ marginLeft: '10px' }}
+                />
+              )}
+            </>
           ) : (
             <Button
               button="primary"
