@@ -283,8 +283,9 @@ export default function CreatorSettingsTab(props: Props) {
 
         {!isBusy && !isDisabled && (
           <>
+            <h2 class="card__title">{__('General')}</h2>
             <Card
-              isBodyList
+              // isBodyList
               body={
                 <>
                   {channelHasMembershipTiers && (
@@ -432,35 +433,45 @@ export default function CreatorSettingsTab(props: Props) {
                       onBlur={() => setLastUpdated(Date.now())}
                     />
                   </SettingsRow>
-
-                  <SettingsRow title={__('Moderators')} subtitle={__(HELP.MODERATORS)} multirow>
-                    <SearchChannelField
-                      label={__('Moderators')}
-                      labelAddNew={__('Add moderator')}
-                      labelFoundAction={__('Add')}
-                      values={moderatorUris}
-                      onAdd={handleModeratorAdded}
-                      onRemove={handleModeratorRemoved}
-                    />
-                  </SettingsRow>
-
-                  <SettingsRow title={__('Filter')} subtitle={__(HELP.BLOCKED_WORDS)} multirow>
-                    <div className="tag--blocked-words">
-                      <TagsSearch
-                        label={__('Muted words')}
-                        labelAddNew={__('Add words')}
-                        labelSuggestions={__('Suggestions')}
-                        onRemove={removeMutedWord}
-                        onSelect={addMutedWords}
-                        disableAutoFocus
-                        tagsPassedIn={mutedWordTags}
-                        placeholder={__('Add words to block')}
-                        hideSuggestions
-                        disableControlTags
-                      />
-                    </div>
-                  </SettingsRow>
                 </>
+              }
+            />
+
+            <h2 class="card__title">{__('Moderators')}</h2>
+            <Card
+              body={
+                <SettingsRow subtitle={__(HELP.MODERATORS)} multirow>
+                  <SearchChannelField
+                    label={__('Current Moderators')}
+                    labelAddNew={__('Add moderator')}
+                    labelFoundAction={__('Add')}
+                    values={moderatorUris}
+                    onAdd={handleModeratorAdded}
+                    onRemove={handleModeratorRemoved}
+                  />
+                </SettingsRow>
+              }
+            />
+
+            <h2 class="card__title">{__('Filters')}</h2>
+            <Card
+              body={
+                <SettingsRow subtitle={__(HELP.BLOCKED_WORDS)} multirow>
+                  <div className="tag--blocked-words">
+                    <TagsSearch
+                      label={__('Muted words')}
+                      labelAddNew={__('Add words')}
+                      labelSuggestions={__('Suggestions')}
+                      onRemove={removeMutedWord}
+                      onSelect={addMutedWords}
+                      disableAutoFocus
+                      tagsPassedIn={mutedWordTags}
+                      placeholder={__('Add words to block')}
+                      hideSuggestions
+                      disableControlTags
+                    />
+                  </div>
+                </SettingsRow>
               }
             />
           </>
