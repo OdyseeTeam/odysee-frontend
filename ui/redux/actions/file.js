@@ -14,6 +14,8 @@ import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectOutpointFetchingForUri } from 'redux/selectors/file_info';
 import { isStreamPlaceholderClaim } from 'util/claim';
+import { getStripeEnvironment } from 'util/stripe';
+const stripeEnvironment = getStripeEnvironment();
 
 type Dispatch = (action: any) => any;
 type GetState = () => { claims: any, file: FileState, content: any, user: UserState };
@@ -112,7 +114,7 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
 
   dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
 
-  Lbry.get({ uri })
+  Lbry.get({ uri, stripeEnvironment })
     .then((streamInfo: GetResponse) => {
       const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
       if (timeout) {
