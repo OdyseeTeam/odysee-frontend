@@ -42,9 +42,12 @@ export default function AdsSticky(props: Props) {
   const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
+    const pathIsSensitive = ['reset', 'resetpassword', 'verify', 'walletpassword'].some((path) =>
+      pathname.includes(path)
+    );
     // $FlowIssue: mixed type
     const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
+    return !pathIsSensitive && (pathIsCategory || isChannelClaim || isContentClaim || pathname === '/');
   }
 
   React.useEffect(() => {
