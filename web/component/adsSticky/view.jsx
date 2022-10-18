@@ -1,6 +1,5 @@
 // @flow
 import React from 'react';
-import * as PAGES from 'constants/pages';
 import { useHistory } from 'react-router-dom';
 import analytics from 'analytics';
 
@@ -40,18 +39,12 @@ export default function AdsSticky(props: Props) {
   // Global conditions aside, should the Sticky be shown for this path:
   const inAllowedPath = shouldShowAdsForPath(location.pathname, isContentClaim, isChannelClaim, authenticated);
   // Final answer:
-  const shouldLoadSticky = shouldShowAds && !gScript && !inIFrame();
+  const shouldLoadSticky = shouldShowAds && !gScript && inAllowedPath && !inIFrame();
 
   function shouldShowAdsForPath(pathname, isContentClaim, isChannelClaim, authenticated) {
-    const pathIsSensitive = [
-      PAGES.AUTH_PASSWORD_SET,
-      PAGES.AUTH_PASSWORD_RESET,
-      PAGES.AUTH_VERIFY,
-      PAGES.AUTH_WALLET_PASSWORD,
-    ].some((path) => pathname.startsWith(`/$/${path}`));
     // $FlowIssue: mixed type
     const pathIsCategory = Object.values(homepageData).some((x) => pathname.startsWith(`/$/${x?.name}`));
-    return !pathIsSensitive && (pathIsCategory || isChannelClaim || isContentClaim || pathname === '/');
+    return pathIsCategory || isChannelClaim || isContentClaim || pathname === '/';
   }
 
   React.useEffect(() => {
