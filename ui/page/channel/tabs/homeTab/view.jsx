@@ -63,16 +63,6 @@ function HomeTab(props: Props) {
           hasPremiumPlus={true}
         />
       </div>
-      <section>
-        <label>Channels</label>
-      </section>
-      <section>
-        <label>Members</label>
-      </section>
-      <br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-
-      <br />-<br />-
-      <br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-<br />-
-      <br />-<br />-
     </div>
   );
 }

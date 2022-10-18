@@ -28,6 +28,10 @@ $actions-z-index: 2;
     }
   }
 
+  .tab__panel {
+    margin-bottom: calc(var(--spacing-xxl) * 2);
+  }
+
   .tabs__list {
     padding-left: 11rem;
     width: calc(100% - 2 * var(--spacing-l));
@@ -240,13 +244,6 @@ $actions-z-index: 2;
       padding: 0;
       label:first-of-type {
         margin-top: 0;
-      }
-    }
-  }
-  .tab__panel {
-    .card {
-      &:last-of-type {
-        margin-bottom: calc(var(--spacing-xxl) * 2);
       }
     }
   }

@@ -28,10 +28,6 @@
     }
   }
 
-  .card:last-of-type {
-    margin-bottom: calc(var(--spacing-xxl) * 2);
-  }
-
   .card__main-actions {
     border-top: unset;
   }
