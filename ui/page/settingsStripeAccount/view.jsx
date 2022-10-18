@@ -1,11 +1,13 @@
 // @flow
-import * as ICONS from 'constants/icons';
-import * as PAGES from 'constants/pages';
 import React from 'react';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import Page from 'component/page';
 import BusyIndicator from 'component/common/busy-indicator';
+
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as STRIPE from 'constants/stripe';
 
 type Props = {
   // -- redux --
@@ -46,8 +48,6 @@ const StripeAccountConnection = (props: Props) => {
       doGetAndSetAccountLink();
     }
   }, [doGetAndSetAccountLink, linkNotFetched]);
-
-  const STRIPE_ACCOUNT_DASHBOARD_URL = 'https://dashboard.stripe.com';
 
   if (bankAccountNotFetched || linkNotFetched) {
     return (
@@ -141,7 +141,7 @@ const StripeAccountConnection = (props: Props) => {
                   button="secondary"
                   icon={ICONS.SETTINGS}
                   label={__('View Account On Stripe')}
-                  navigate={`${STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
+                  navigate={`${STRIPE.STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
                   style={{ marginLeft: '10px' }}
                 />
               )}

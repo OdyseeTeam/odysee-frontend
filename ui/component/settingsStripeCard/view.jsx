@@ -67,8 +67,6 @@ const SettingsStripeCard = (props: Props) => {
   const stripe = useStripe();
   const elements = useElements();
 
-  const STRIPE_BILLING_URL = 'https://billing.stripe.com/p/login/4gw14s1bLbBfdmoaEE';
-
   const [cardNameValue, setCardNameValue] = React.useState('');
   const [isLoading, setLoading] = React.useState(false);
   const [formError, setFormError] = React.useState();
@@ -243,7 +241,7 @@ const SettingsStripeCard = (props: Props) => {
             className="stripe-billing-history__button"
             button="secondary"
             label={__('Visit Stripe')}
-            navigate={`${STRIPE_BILLING_URL}?prefilled_email=${stripeBillingEmail}`}
+            navigate={`${STRIPE.STRIPE_BILLING_URL}?prefilled_email=${stripeBillingEmail}`}
           />
         </div>
       </div>
