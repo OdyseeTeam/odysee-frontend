@@ -26,6 +26,7 @@ import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
+import Icon from 'component/common/icon';
 
 const NEKODEV = false; // Temporary flag to hide unfinished progress
 const MAX_TAG_SELECT = 5;
@@ -380,11 +381,12 @@ function ChannelForm(props: Props) {
               <Tab onClick={() => onTabChange(0)}>{__('About')}</Tab>
               <Tab onClick={() => onTabChange(1)}>{__('Credit Details')}</Tab>
               {/* <Tab onClick={() => onTabChange(2)}>{__('Tags')}</Tab> */}
-              {/* <Tab onClick={() => onTabChange(3)}>{__('Other')}</Tab> */}
+              {!isNewChannel && <Tab onClick={() => onTabChange(2)}>{__('Other')}</Tab>}
             </TabList>
           </div>
           <TabPanels>
             <TabPanel>
+              <h2 className="card__title">{__('General')}</h2>
               <Card
                 body={
                   <>
@@ -434,6 +436,14 @@ function ChannelForm(props: Props) {
                       onChange={(text) => setParams({ ...params, description: text })}
                       textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
                     />
+                  </>
+                }
+              />
+
+              <h2 className="card__title">{__('Contact')}</h2>
+              <Card
+                body={
+                  <>
                     <FormField
                       type="text"
                       name="content_email2"
@@ -452,37 +462,42 @@ function ChannelForm(props: Props) {
                       value={params.website}
                       onChange={(e) => setParams({ ...params, website: e.target.value })}
                     />
-
-                    <fieldset-section>
-                      <label>{__('Tags')}</label>
-                      <Card
-                        className="channelpage-edit-tags"
-                        body={
-                          <TagsSearch
-                            suggestMature={!SIMPLE_SITE}
-                            disableAutoFocus
-                            disableControlTags
-                            limitSelect={MAX_TAG_SELECT}
-                            tagsPassedIn={params.tags || []}
-                            label={__('Selected Tags')}
-                            onRemove={(clickedTag) => {
-                              const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                              setParams({ ...params, tags: newTags });
-                            }}
-                            onSelect={(newTags) => {
-                              newTags.forEach((newTag) => {
-                                if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
-                                  setParams({ ...params, tags: [...params.tags, newTag] });
-                                } else {
-                                  // If it already exists and the user types it in, remove it
-                                  setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
-                                }
-                              });
-                            }}
-                          />
+                  </>
+                }
+              />
+              <h2 className="card__title">{__('Tags')}</h2>
+              <Card
+                className="channelpage-edit-tags"
+                body={
+                  <TagsSearch
+                    suggestMature={!SIMPLE_SITE}
+                    disableAutoFocus
+                    disableControlTags
+                    limitSelect={MAX_TAG_SELECT}
+                    tagsPassedIn={params.tags || []}
+                    label={__('Selected Tags')}
+                    onRemove={(clickedTag) => {
+                      const newTags = params.tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                      setParams({ ...params, tags: newTags });
+                    }}
+                    onSelect={(newTags) => {
+                      newTags.forEach((newTag) => {
+                        if (!params.tags.map((savedTag) => savedTag.name).includes(newTag.name)) {
+                          setParams({ ...params, tags: [...params.tags, newTag] });
+                        } else {
+                          // If it already exists and the user types it in, remove it
+                          setParams({ ...params, tags: params.tags.filter((tag) => tag.name !== newTag.name) });
                         }
-                      />
-                    </fieldset-section>
+                      });
+                    }}
+                  />
+                }
+              />
+
+              <h2 className="card__title">{__('Languages')}</h2>
+              <Card
+                body={
+                  <>
                     <FormField
                       name="language_select"
                       type="select"
@@ -547,60 +562,38 @@ function ChannelForm(props: Props) {
                 }
               />
             </TabPanel>
-            {/*
             <TabPanel>
-              
+              <h1>dfasdf</h1>
+              {!isNewChannel && (
+                <Card
+                  body={<ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />}
+                />
+              )}
             </TabPanel>
-                  
-            <TabPanel>
-              <Card
-                body={
-                  <>
-                    {NEKODEV && (
-                      <fieldset-section class>
-                        <label htmlFor="channel-color">{__('Channel color')}</label>
-                        <FormField
-                          name="manual-channel-color"
-                          type="checkbox"
-                          label="Pick color manually"
-                          checked={overrideColor}
-                          onChange={() => toggleColorOverride(!overrideColor)}
-                        />
-                        <ColorPicker disabled={!overrideColor} />
-                      </fieldset-section>
-                    )}
-
-                  </>
-                }
-              />
-            </TabPanel>
-            */}
           </TabPanels>
         </Tabs>
 
-        <Card
-          className="card--after-tabs"
-          actions={
-            <>
-              <div className="section__actions">
-                <Button button="primary" disabled={submitDisabled} label={submitLabel} onClick={handleSubmit} />
-                <Button button="link" label={__('Cancel')} onClick={onDone} />
-              </div>
-              {errorMsg ? (
-                <ErrorText>{errorMsg}</ErrorText>
-              ) : (
-                <p className="help">
-                  {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
-                </p>
-              )}
-              {!isNewChannel && (
+        <div className="card-fixed-bottom">
+          <Card
+            className="card--after-tabs tab__panel"
+            actions={
+              <>
                 <div className="section__actions">
-                  <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                  <Button button="primary" disabled={submitDisabled} label={submitLabel} onClick={handleSubmit} />
+                  <Button button="link" label={__('Cancel')} onClick={onDone} />
+                  {errorMsg ? (
+                    <ErrorText>{errorMsg}</ErrorText>
+                  ) : (
+                    <p className="help">
+                      <Icon icon={ICONS.INFO} />
+                      {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
+                    </p>
+                  )}
                 </div>
-              )}
-            </>
-          }
-        />
+              </>
+            }
+          />
+        </div>
       </div>
     </>
   );

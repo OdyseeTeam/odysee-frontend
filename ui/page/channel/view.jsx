@@ -269,7 +269,7 @@ function ChannelPage(props: Props) {
 
   if (editing) {
     return (
-      <Page className="channelPage-wrapper" noFooter fullWidthPage>
+      <Page className="channelPage-wrapper channelPage-edit-wrapper" noFooter fullWidthPage>
         <ChannelEdit uri={uri} onDone={() => goBack()} />
       </Page>
     );
