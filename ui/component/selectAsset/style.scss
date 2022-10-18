@@ -8,6 +8,12 @@
   border: 2px solid var(--color-border);
   position: relative;
 
+  user-select: none;
+  -moz-user-select: none;
+  -khtml-user-select: none;
+  -webkit-user-select: none;
+  -o-user-select: none;
+
   .channel-preview-header {
     width: 100%;
     height: 56px;
