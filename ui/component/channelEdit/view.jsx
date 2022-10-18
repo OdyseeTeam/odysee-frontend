@@ -6,7 +6,6 @@ import classnames from 'classnames';
 import { FormField } from 'component/common/form';
 import Button from 'component/button';
 import TagsSearch from 'component/tagsSearch';
-import ColorPicker from 'component/colorPicker';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -28,7 +27,6 @@ import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png
 import Gerbil from 'component/channelThumbnail/gerbil.png';
 import Icon from 'component/common/icon';
 
-const NEKODEV = false; // Temporary flag to hide unfinished progress
 const MAX_TAG_SELECT = 5;
 
 type Props = {
@@ -98,7 +96,6 @@ function ChannelForm(props: Props) {
   const [isUpload, setIsUpload] = React.useState({ cover: false, thumbnail: false });
   const [coverError, setCoverError] = React.useState(false);
   const [thumbError, setThumbError] = React.useState(false);
-  const [overrideColor, toggleColorOverride] = React.useState(false);
 
   const { claim_id: claimId } = claim || {};
   const [params, setParams]: [any, (any) => void] = React.useState(getChannelParams());
@@ -324,6 +321,7 @@ function ChannelForm(props: Props) {
                     }),
                     assetName: __('Cover Image'),
                     currentValue: params.coverUrl,
+                    otherValue: params.thumbnailUrl,
                   })
                 }
                 icon={ICONS.CAMERA}
@@ -344,7 +342,7 @@ function ChannelForm(props: Props) {
         </header>
 
         <Tabs index={tabIndex}>
-          <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+          <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
             <div className="channel__edit-thumb">
               <Button
                 button="alt"
@@ -358,6 +356,7 @@ function ChannelForm(props: Props) {
                     }),
                     assetName: __('Thumbnail'),
                     currentValue: params.thumbnailUrl,
+                    otherValue: params.coverUrl,
                   })
                 }
                 icon={ICONS.CAMERA}

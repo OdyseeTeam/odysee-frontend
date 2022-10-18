@@ -23,10 +23,16 @@
     position: absolute;
     width: 50px;
     height: 50px;
-    background: black;
+    background: var(--color-header-background);
     border-radius: 50%;
     top: 21px;
     left: 20%;
+    box-shadow: 0 1px 2px 0 black, 0 2px 5px 0 rgb(0 0 0 / 60%);
+    img {
+      border-radius: 50%;
+      width: 100%;
+      height: 100%;
+    }
   }
 
   .channel-preview-grid {

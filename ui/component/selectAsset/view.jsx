@@ -15,6 +15,7 @@ const STATUS = { READY: 'READY', UPLOADING: 'UPLOADING' };
 type Props = {
   assetName: string,
   currentValue: ?string,
+  otherValue: ?string,
   onUpdate: (string, boolean) => void,
   recommended: string,
   title: string,
@@ -23,7 +24,7 @@ type Props = {
 };
 
 function SelectAsset(props: Props) {
-  const { onUpdate, onDone, assetName, currentValue, recommended, title, inline } = props;
+  const { onUpdate, onDone, assetName, currentValue, otherValue, recommended, title, inline } = props;
   const [pathSelected, setPathSelected] = React.useState('');
   const [fileSelected, setFileSelected] = React.useState<any>(null);
   const [uploadStatus, setUploadStatus] = React.useState(STATUS.READY);
@@ -32,6 +33,8 @@ function SelectAsset(props: Props) {
   const [useUrl, setUseUrl] = usePersistedState('thumbnail-upload:mode', false);
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
+
+  console.log('assetName: ', assetName);
 
   React.useEffect(() => {
     if (useUrl) {
@@ -99,74 +102,34 @@ function SelectAsset(props: Props) {
     fileSelectorLabel = `${label} ${fileSelected || pathSelected ? __(selectedLabel) : __(selectFileLabel)}`;
   }
 
-  const cover = pathSelected ? imagePreview : currentValue;
+  const currentPlaceholder = pathSelected ? imagePreview : currentValue;
   const ChannelPreview = () => {
+    console.log('ffffffff');
     return (
       <div className="channel-preview-wrapper">
-        <div className="channel-preview-header" style={{ backgroundImage: 'url(' + cover + ')' }}></div>
+        <div
+          className="channel-preview-header"
+          style={{ backgroundImage: 'url(' + (assetName === 'Cover Image' ? currentPlaceholder : otherValue) + ')' }}
+        />
         <div className="channel-preview-tabs" />
-        <div className="channel-preview-thumbnail" />
+        <div className="channel-preview-thumbnail">
+          {otherValue && <img src={assetName === 'Cover Image' ? otherValue : currentPlaceholder} />}
+        </div>
         <div className="channel-preview-grid">
-          <div class="channel-preview-grid-tile">
-            <div />
-            <div />
-            <div />
-            <div />
-            <div>
-              <div />
-              <div />
-            </div>
-          </div>
-          <div class="channel-preview-grid-tile">
-            <div />
-            <div />
-            <div />
-            <div />
-            <div>
-              <div />
-              <div />
-            </div>
-          </div>
-          <div class="channel-preview-grid-tile">
-            <div />
-            <div />
-            <div />
-            <div />
-            <div>
-              <div />
-              <div />
-            </div>
-          </div>
-          <div class="channel-preview-grid-tile">
-            <div />
-            <div />
-            <div />
-            <div />
-            <div>
-              <div />
-              <div />
-            </div>
-          </div>
-          <div class="channel-preview-grid-tile">
-            <div />
-            <div />
-            <div />
-            <div />
-            <div>
-              <div />
-              <div />
-            </div>
-          </div>
-          <div class="channel-preview-grid-tile">
-            <div />
-            <div />
-            <div />
-            <div />
-            <div>
-              <div />
-              <div />
-            </div>
-          </div>
+          {Array.from(Array(6), (e, i) => {
+            return (
+              <div className="channel-preview-grid-tile">
+                <div />
+                <div />
+                <div />
+                <div />
+                <div>
+                  <div />
+                  <div />
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     );
@@ -216,7 +179,7 @@ function SelectAsset(props: Props) {
               }}
               accept={accept}
             />
-            {assetName === 'Cover Image' && <ChannelPreview />}
+            {(assetName === 'Cover Image' || assetName === 'Thumbnail') && <ChannelPreview />}
           </>
         )}
       </fieldset-section>

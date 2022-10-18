@@ -6,6 +6,7 @@ import SelectAsset from 'component/selectAsset';
 type Props = {
   closeModal: () => void,
   currentValue: string,
+  otherValue: ?string,
   title: string,
   helpText: string,
   onUpdate: (string, boolean) => void,
@@ -13,13 +14,14 @@ type Props = {
 };
 
 function ModalImageUpload(props: Props) {
-  const { closeModal, currentValue, title, assetName, helpText, onUpdate } = props;
+  const { closeModal, currentValue, otherValue, title, assetName, helpText, onUpdate } = props;
 
   return (
     <Modal isOpen type="card" onAborted={closeModal} contentLabel={title}>
       <SelectAsset
         onUpdate={(a, b) => onUpdate(a, b)}
         currentValue={currentValue}
+        otherValue={otherValue}
         assetName={assetName}
         recommended={helpText}
         onDone={closeModal}
