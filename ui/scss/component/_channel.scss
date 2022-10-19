@@ -312,15 +312,19 @@ $actions-z-index: 2;
   background-position-y: var(--header-height);
   background-position-x: var(--side-nav-width--micro);
 
-  @media (max-width: $breakpoint-xlarge) {
-    background-size: auto 480px;
+  @media (min-width: $breakpoint-large) {
     background-position-x: 50%;
+    // background-position-y: 50%;
+    background-size: 100%;
+    //background-position: 50% 380%;
+    // background-size:contain;
   }
 
   @media (max-width: $breakpoint-large) {
-    background-size: auto 240px;
     background-position-x: 50%;
+    background-size: auto 240px;
   }
+
   @media (max-width: $breakpoint-small) {
     background-size: auto 322px;
     background-position-x: 50%;
@@ -381,7 +385,7 @@ $actions-z-index: 2;
   border-bottom: none;
 
   @media (min-width: $breakpoint-xlarge) {
-    height: 480px;
+    height: 420px;
   }
   @media (max-width: $breakpoint-small) {
     min-height: calc(var(--cover-photo-height) + 2 * var(--spacing-xl) + var(--spacing-m));
@@ -683,6 +687,18 @@ $actions-z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+}
+
+.channel__edit {
+  position: absolute;
+  right: 0;
+  bottom: var(--spacing-m);
+  .button {
+    &:hover {
+      background-color: rgba(var(--color-header-background-base), 0.95);
+      color: var(--color-primary);
+    }
+  }
 }
 
 .channel__quick-actions {
