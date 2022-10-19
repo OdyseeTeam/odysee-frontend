@@ -1,14 +1,14 @@
 // @flow
 import React, { Fragment } from 'react';
-import FileThumbnail from 'component/fileThumbnail';
-import ClaimPreviewTile from 'component/claimPreviewTile';
-import ClaimList from 'component/claimList';
+import classnames from 'classnames';
+
 import ClaimListDiscover from 'component/claimListDiscover';
 import ContentTab from 'page/channel/tabs/contentTab';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
 import PlaylistSection from './internal/playlistSection';
+import CollectionEditButtons from 'component/collectionEditButtons';
 
 import './style.scss';
 
@@ -24,36 +24,45 @@ function HomeTab(props: Props) {
   // console.log('props: ', props);
   // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
+  const [edit, setEdit] = React.useState(false);
   const home = {
     enabled: true,
     entries: [
       {
         type: 'featured',
+        fileType: undefined,
         order: undefined,
-        position: 0,
+        claimId: undefined,
       },
       {
         type: 'content',
-        files: CS.CONTENT_ALL,
+        fileTypes: CS.FILE_VIDEO,
         order: CS.ORDER_BY_TOP_VALUE,
-        position: 1,
+        claimId: undefined,
       },
       {
         type: 'playlists',
-        order: 'new',
-        position: 2,
+        fileType: undefined,
+        order: CS.ORDER_BY_TOP_NEW,
+        claimId: undefined,
       },
       {
         type: 'playlist',
+        fileType: undefined,
         order: undefined,
+        claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
+      },
+      {
+        type: 'content',
+        fileType: CS.FILE_DOCUMENT,
+        order: CS.ORDER_BY_NEW,
         claimId: undefined,
-        position: 2,
       },
     ],
   };
 
-  function getSegment(type, order, files) {
-    switch (type) {
+  function getSegment(section) {
+    switch (section.type) {
       case 'featured':
         return (
           <ClaimListDiscover
@@ -67,19 +76,18 @@ function HomeTab(props: Props) {
             maxClaimRender={1}
           />
         );
-        break;
       case 'content':
         return (
           <>
-            <label className="home-segment-title">{order} Publications</label>
+            <label className="home-segment-title">Publications</label>
             <ClaimListDiscover
               fetchViewCount
               hideFilters
               hideAdvancedFilter
               hideLayoutButton
               tileLayout
-              orderBy={order}
-              // claimType={files}
+              orderBy={section.order}
+              // claimType={section.files}
               channelIds={[claimId]}
               infiniteScroll={false}
               maxClaimRender={6}
@@ -87,7 +95,6 @@ function HomeTab(props: Props) {
             />
           </>
         );
-        break;
       case 'playlists':
         return (
           <>
@@ -96,7 +103,6 @@ function HomeTab(props: Props) {
               claimType={'collection'}
               uri={uri}
               viewHiddenChannels
-              // empty={collectionEmpty}
               totalPages={1}
               defaultPageSize={1}
               defaultInfiniteScroll={false}
@@ -105,35 +111,43 @@ function HomeTab(props: Props) {
             />
           </>
         );
-        break;
       case 'playlist':
         return (
           <>
-            <PlaylistSection collectionId="384b6ed88f6f6fa633f9f869c6696b0d1e183644" />
+            <PlaylistSection collectionId={section.claimId} />
           </>
         );
-        break;
     }
   }
 
   return (
     <>
-      {false && editMode && (
-        <div className="channel_sections__actions">
-          <Button
-            label={__('Edit Home Tab')}
-            button="secondary"
-            icon={ICONS.EDIT}
-            // disabled={sectionCount > 0}
-            // onClick={handleAddFeaturedChannels}
-          />
-        </div>
-      )}
       <div className="home-tab">
+        {editMode && (
+          <div className="channel_sections__actions">
+            <Button
+              label={__('Edit Home Tab')}
+              button="secondary"
+              icon={ICONS.EDIT}
+              // disabled={sectionCount > 0}
+              onClick={() => {
+                console.log('fdsgfd');
+                setEdit(!edit);
+              }}
+            />
+          </div>
+        )}
         {home &&
           home.enabled &&
           home.entries.map((section) => {
-            return getSegment(section.type, section.order, section.files);
+            return (
+              <div className={classnames('segment-wrapper', { 'segment-wrapper--edit': edit })}>
+                <div className="order">
+                  <CollectionEditButtons />
+                </div>
+                <div className="segment">{getSegment(section)}</div>
+              </div>
+            );
           })}
         <Button
           label={__('Add New Section')}
