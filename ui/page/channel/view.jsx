@@ -402,7 +402,7 @@ function ChannelPage(props: Props) {
             </div>
             <TabPanels>
               <TabPanel>
-                <HomeTab uri={uri} />
+                <HomeTab uri={uri} editMode={channelIsMine} />
               </TabPanel>
               <TabPanel>
                 {currentView === CHANNEL_PAGE.VIEWS.CONTENT && (
