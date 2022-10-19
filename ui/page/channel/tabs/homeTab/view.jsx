@@ -7,6 +7,8 @@ import ClaimListDiscover from 'component/claimListDiscover';
 import ContentTab from 'page/channel/tabs/contentTab';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+import * as CS from 'constants/claim_search';
+import PlaylistSection from './internal/playlistSection';
 
 import './style.scss';
 
@@ -32,7 +34,8 @@ function HomeTab(props: Props) {
       },
       {
         type: 'content',
-        order: 'new',
+        files: CS.CONTENT_ALL,
+        order: CS.ORDER_BY_TOP_VALUE,
         position: 1,
       },
       {
@@ -40,10 +43,16 @@ function HomeTab(props: Props) {
         order: 'new',
         position: 2,
       },
+      {
+        type: 'playlist',
+        order: undefined,
+        claimId: undefined,
+        position: 2,
+      },
     ],
   };
 
-  function getSegment(type, order) {
+  function getSegment(type, order, files) {
     switch (type) {
       case 'featured':
         return (
@@ -62,18 +71,19 @@ function HomeTab(props: Props) {
       case 'content':
         return (
           <>
-            <label className="home-segment-title">New Publications</label>
+            <label className="home-segment-title">{order} Publications</label>
             <ClaimListDiscover
               fetchViewCount
               hideFilters
               hideAdvancedFilter
               hideLayoutButton
               tileLayout
+              orderBy={order}
+              // claimType={files}
               channelIds={[claimId]}
               infiniteScroll={false}
               maxClaimRender={6}
               useSkeletonScreen={false}
-              // uris={[]}
             />
           </>
         );
@@ -85,7 +95,6 @@ function HomeTab(props: Props) {
             <ContentTab
               claimType={'collection'}
               uri={uri}
-              // channelIsBlackListed={channelIsBlackListed}
               viewHiddenChannels
               // empty={collectionEmpty}
               totalPages={1}
@@ -94,6 +103,13 @@ function HomeTab(props: Props) {
               params={{ page: 1 }}
               hasPremiumPlus={true}
             />
+          </>
+        );
+        break;
+      case 'playlist':
+        return (
+          <>
+            <PlaylistSection collectionId="384b6ed88f6f6fa633f9f869c6696b0d1e183644" />
           </>
         );
         break;
@@ -117,7 +133,7 @@ function HomeTab(props: Props) {
         {home &&
           home.enabled &&
           home.entries.map((section) => {
-            return getSegment(section.type);
+            return getSegment(section.type, section.order, section.files);
           })}
         <Button
           label={__('Add New Section')}

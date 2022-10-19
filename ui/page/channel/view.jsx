@@ -91,7 +91,6 @@ function ChannelPage(props: Props) {
     isOdyseeChannel,
   } = props;
 
-  console.log('fffffffffff: ', props);
   const {
     push,
     goBack,

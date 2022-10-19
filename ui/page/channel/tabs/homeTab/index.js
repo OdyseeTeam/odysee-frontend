@@ -17,6 +17,7 @@ import { selectAdBlockerFound } from 'redux/selectors/app';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
 import { getChannelIdFromClaim } from 'util/claim';
+import { selectUrlsForCollectionId, selectNameForCollectionId } from 'redux/selectors/collections';
 import HomeTab from './view';
 
 const select = (state, props) => {
@@ -33,6 +34,7 @@ const select = (state, props) => {
 const perform = (dispatch) => ({
   doResolveUris: (uris, returnCachedUris) => dispatch(doResolveUris(uris, returnCachedUris)),
   doFetchChannelLiveStatus: (channelID) => dispatch(doFetchChannelLiveStatus(channelID)),
+  // doFetchCollectionUrls: (collectionId) => dispatch(selectUrlsForCollectionId(collectionId)),
 });
 
 export default withRouter(connect(select, perform)(HomeTab));

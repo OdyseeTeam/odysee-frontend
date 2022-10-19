@@ -65,8 +65,6 @@ export default function CreatorSettingsTab(props: Props) {
     areCommentsMembersOnly,
   } = props;
 
-  console.log('aaaaaaaaa: ', props);
-
   const [commentsEnabled, setCommentsEnabled] = React.useState(true);
   const [commentsMembersOnly, setCommentsMembersOnly] = React.useState(areCommentsMembersOnly);
   const [livestreamChatMembersOnly, setLivestreamChatMembersOnly] = React.useState(false);
