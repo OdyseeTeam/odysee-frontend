@@ -313,16 +313,17 @@ $actions-z-index: 2;
   background-position-x: var(--side-nav-width--micro);
 
   @media (min-width: $breakpoint-large) {
-    background-position-x: 50%;
+    background-position-x: calc(50% + (var(--side-nav-width--micro) / 2));
     // background-position-y: 50%;
-    background-size: 100%;
+    background-size: calc(100% - var(--side-nav-width--micro));
     //background-position: 50% 380%;
     // background-size:contain;
   }
 
   @media (max-width: $breakpoint-large) {
-    background-position-x: 50%;
-    background-size: auto 240px;
+    background-position-x: calc(50% + var(--side-nav-width--micro));
+    // background-size: auto 240px;
+    background-size: auto 290px;
   }
 
   @media (max-width: $breakpoint-small) {
@@ -380,12 +381,13 @@ $actions-z-index: 2;
 .channel-cover,
 .channel-cover__custom {
   min-height: var(--cover-photo-height);
-  height: 240px;
+  // height: 240px;
+  height: 290px;
   width: 100%;
   border-bottom: none;
 
   @media (min-width: $breakpoint-xlarge) {
-    height: 420px;
+    height: 390px;
   }
   @media (max-width: $breakpoint-small) {
     min-height: calc(var(--cover-photo-height) + 2 * var(--spacing-xl) + var(--spacing-m));

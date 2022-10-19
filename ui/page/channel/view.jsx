@@ -316,6 +316,8 @@ function ChannelPage(props: Props) {
                     )}
                   </span>
                 </Tooltip>
+              </div>
+              <div className="channel__edit">
                 {channelIsMine && (
                   <>
                     {pending ? (
