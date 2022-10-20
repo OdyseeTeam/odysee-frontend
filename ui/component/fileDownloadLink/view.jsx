@@ -111,7 +111,7 @@ function FileDownloadLink(props: Props) {
     <>
       {contentRestrictedFromUser && (
         <h2 className="protected-download-header">
-          This download is protected content, join a membership to gain access
+          {__('This download is protected content, join a membership to gain access')}
         </h2>
       )}
       <Button
