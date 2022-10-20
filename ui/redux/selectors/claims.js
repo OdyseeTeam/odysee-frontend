@@ -935,7 +935,6 @@ export const selectGeoRestrictionForUri = createCachedSelector(
   selectGeoBlockLists,
   selectUserLocale,
   (claim, geoBlockLists, locale: LocaleInfo) => {
-    // console.log('locale: ', locale && locale.country);
     return getGeoRestrictionForClaim(claim, locale, geoBlockLists);
   }
 )((state, uri) => String(uri));
