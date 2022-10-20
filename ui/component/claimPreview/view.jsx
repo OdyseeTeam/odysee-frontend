@@ -368,7 +368,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     return null;
   }
 
-  console.log('geoRestriction: ', geoRestriction);
   if (geoRestriction && !claimIsMine) {
     return null; // Ignore 'showNullPlaceholder'
   }
