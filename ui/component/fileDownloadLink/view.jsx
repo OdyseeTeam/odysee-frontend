@@ -51,13 +51,15 @@ function FileDownloadLink(props: Props) {
   const [didClickDownloadButton, setDidClickDownloadButton] = useState(false);
   const fileName = claim && claim.value && claim.value.source && claim.value.source.name;
 
+  // @if TARGET='web'
   // initiate download when streamingUrl is available
   React.useEffect(() => {
     if (didClickDownloadButton && streamingUrl) {
       webDownloadClaim(streamingUrl, fileName, isProtectedContent);
       setDidClickDownloadButton(false);
     }
-  }, [streamingUrl, didClickDownloadButton, fileName]);
+  }, [streamingUrl, didClickDownloadButton, fileName, isProtectedContent]);
+  // @endif
 
   function handleDownload(e) {
     setDidClickDownloadButton(true);
