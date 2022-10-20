@@ -140,7 +140,6 @@ export function doAuthenticate(
             }
           }
 
-          console.log('AAAAAAAAAAAAAAAAaa');
           dispatch(doFetchGeoBlockedList());
         });
       })
