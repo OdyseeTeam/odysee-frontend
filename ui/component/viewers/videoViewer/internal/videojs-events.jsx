@@ -2,6 +2,9 @@
 import analytics from 'analytics';
 import { THUMBNAIL_HEIGHT_POSTER, THUMBNAIL_WIDTH_POSTER } from 'config';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
+import { platform } from 'util/platform';
+
+const IS_MOBILE = platform.isMobile();
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -294,7 +297,7 @@ const VideoJsEvents = ({
     player.on('tracking:buffered', doTrackingBuffered);
 
     // need this method to calculate FPS client side
-    if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
+    if ('requestVideoFrameCallback' in HTMLVideoElement.prototype && !IS_MOBILE) {
       player.one('playing', determineVideoFps);
     }
 
