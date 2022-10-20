@@ -28,16 +28,6 @@ export const selectAccountDefaultCurrency = (state: State) => {
 
 export const selectAccountUnpaidBalance = (state: State) => selectAccountStatus(state)?.total_received_unpaid || 0;
 
-export const selectAccountId = (state: State) => {
-  const accountStatus = selectAccountStatus(state);
-  return accountStatus && accountStatus.account_info?.id;
-};
-
-export const selectAccountEmail = (state: State) => {
-  const accountStatus = selectAccountStatus(state);
-  return accountStatus && accountStatus.account_info?.email;
-};
-
 export const selectAccountChargesEnabled = (state: State) => {
   const accountStatus = selectAccountStatus(state);
   return accountStatus && accountStatus.charges_enabled;
