@@ -132,7 +132,6 @@ export function doAuthenticate(
           });
 
           dispatch(doMembershipMine());
-          console.log('Fetch geo list');
           dispatch(doFetchGeoBlockedList());
 
           if (shareUsageData) {

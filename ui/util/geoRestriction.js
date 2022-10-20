@@ -38,7 +38,7 @@ export function getGeoRestrictionForClaim(claim: ?StreamClaim, locale: LocaleInf
       const continents = geoConfig.continents || [];
 
       return (
-        specials.find((x: GeoRestriction) => x.id === 'EU-ONLY' || (x.id === 'EU-GOOGLE' && locale.is_eu_member)) ||
+        specials.find((x: GeoRestriction) => (x.id === 'EU-ONLY' || x.id === 'EU-GOOGLE') && locale.is_eu_member) ||
         countries.find((x: GeoRestriction) => x.id === locale.country) ||
         continents.find((x: GeoRestriction) => x.id === locale.continent)
       );
