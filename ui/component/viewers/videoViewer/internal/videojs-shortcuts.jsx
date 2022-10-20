@@ -168,13 +168,15 @@ const VideoJsShorcuts = ({
     if (e.keyCode === KEYCODES.NINE) seekVideo(90 / 100, playerRef, containerRef, true);
     if (e.keyCode === KEYCODES.COMMA) {
       const videoPlayer = document.querySelector('video');
-      if (!window.videoFps || !videoPlayer) return;
+      // $FlowIssue
+      if (!window.videoFps || !videoPlayer || !playerRef?.current?.paused()) return;
       const currentTime = videoPlayer.currentTime;
       videoPlayer.currentTime = currentTime - 1 / window.videoFps;
     }
     if (e.keyCode === KEYCODES.PERIOD && window.videoFps) {
       const videoPlayer = document.querySelector('video');
-      if (!window.videoFps || !videoPlayer) return;
+      // $FlowIssue
+      if (!window.videoFps || !videoPlayer || !playerRef?.current?.paused()) return;
       const currentTime = videoPlayer.currentTime;
       videoPlayer.currentTime = currentTime + 1 / window.videoFps;
     }

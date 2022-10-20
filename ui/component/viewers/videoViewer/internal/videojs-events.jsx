@@ -295,7 +295,7 @@ const VideoJsEvents = ({
 
     // need this method to calculate FPS client side
     if ('requestVideoFrameCallback' in HTMLVideoElement.prototype) {
-      player.on('playing', determineVideoFps);
+      player.one('playing', determineVideoFps);
     }
 
     player.on('loadstart', function () {
