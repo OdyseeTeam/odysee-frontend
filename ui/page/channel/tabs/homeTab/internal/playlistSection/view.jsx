@@ -1,5 +1,5 @@
 // @flow
-import React, { Fragment } from 'react';
+import React from 'react';
 import ClaimListDiscover from 'component/claimListDiscover';
 
 type Props = {
@@ -9,7 +9,6 @@ type Props = {
 
 function PlaylistSection(props: Props) {
   const { collectionName, collectionUrls } = props;
-  console.log('AAA: ', props);
   return (
     <>
       <label className="home-segment-title">{collectionName}</label>

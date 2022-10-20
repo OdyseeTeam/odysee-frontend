@@ -26,6 +26,7 @@
 
   .home-segment-title {
     margin-bottom: var(--spacing-s);
+    margin-top: 0;
   }
 
   .claim-tile__info {
@@ -37,12 +38,23 @@
     transition: background 0.2s;
     .order {
       display: none;
+      align-self: center;
+
+      .collection-preview__edit-buttons {
+        height: 100px;
+        width: 20px;
+        // border:2px solid var(--color-border);
+      }
     }
     .segment {
       transform: scale(1);
       background: none;
       padding: 0;
-      transition: transform 0.2s, background 0.2s, padding 0.2s;
+      transition: all 0.2s;
+      margin-right: 0;
+      padding-bottom: var(--spacing-m);
+      margin-bottom: var(--spacing-m);
+      border-bottom: 1px solid var(--color-border);
     }
   }
 
@@ -56,10 +68,8 @@
     width: 100%;
     .order {
       display: inline-block;
-      width: 200px;
-      height: 150px;
-      margin: var(--spacing-xs);
-      background: var(--color-header-background);
+      width: 160px;
+      margin: var(--spacing-s);
       border-radius: var(--border-radius);
     }
     .segment {
@@ -67,8 +77,13 @@
       margin-left: auto;
       background: var(--color-header-background);
       padding: var(--spacing-xs) var(--spacing-m);
-      transform: scale(0.9);
+      transform: scale(0.8);
+      margin: 0;
+      // margin-right:calc(-10% + (var(--spacing-s) * 2));
       border-radius: var(--border-radius);
+      border-bottom: none;
+
+      align-self: flex-end;
       pointer-events: none;
       -webkit-touch-callout: none;
       -webkit-user-select: none;
@@ -76,6 +91,10 @@
       -moz-user-select: none;
       -ms-user-select: none;
       user-select: none;
+
+      .claim-preview__wrapper {
+        background-color: unset;
+      }
     }
   }
 }

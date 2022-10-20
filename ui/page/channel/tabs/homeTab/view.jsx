@@ -1,5 +1,5 @@
 // @flow
-import React, { Fragment } from 'react';
+import React from 'react';
 import classnames from 'classnames';
 
 import ClaimListDiscover from 'component/claimListDiscover';
@@ -21,11 +21,9 @@ type Props = {
 function HomeTab(props: Props) {
   const { uri, claim, editMode } = props;
   const claimId = claim && claim.claim_id;
-  // console.log('props: ', props);
-  // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
   const [edit, setEdit] = React.useState(false);
-  const home = {
+  const homeTemplate = {
     enabled: true,
     entries: [
       {
@@ -60,6 +58,7 @@ function HomeTab(props: Props) {
       },
     ],
   };
+  const [home, setHome] = React.useState(homeTemplate.entries);
 
   function getSegment(section) {
     switch (section.type) {
@@ -107,7 +106,7 @@ function HomeTab(props: Props) {
               defaultPageSize={1}
               defaultInfiniteScroll={false}
               params={{ page: 1 }}
-              hasPremiumPlus={true}
+              hasPremiumPlus
             />
           </>
         );
@@ -118,6 +117,24 @@ function HomeTab(props: Props) {
           </>
         );
     }
+  }
+
+  function editCollection(e) {
+    console.log('e: ', e);
+    let newHome = [...home];
+    if (e.order) {
+      if (e.order.to >= newHome.length) {
+        var k = e.order.to - newHome.length + 1;
+        while (k--) {
+          newHome.push(undefined);
+        }
+      }
+      newHome.splice(e.order.to, 0, newHome.splice(e.order.from, 1)[0]);
+    } else if (e.delete) {
+      newHome.splice(e.delete.index, 1);
+    }
+
+    setHome(newHome);
   }
 
   return (
@@ -131,19 +148,24 @@ function HomeTab(props: Props) {
               icon={ICONS.EDIT}
               // disabled={sectionCount > 0}
               onClick={() => {
-                console.log('fdsgfd');
                 setEdit(!edit);
               }}
             />
           </div>
         )}
         {home &&
-          home.enabled &&
-          home.entries.map((section) => {
+          // home.enabled &&
+          home.map((section, i) => {
             return (
-              <div className={classnames('segment-wrapper', { 'segment-wrapper--edit': edit })}>
+              <div key={i} className={classnames('segment-wrapper', { 'segment-wrapper--edit': edit })}>
                 <div className="order">
-                  <CollectionEditButtons />
+                  {edit && (
+                    <CollectionEditButtons
+                      altIndex={i}
+                      altCollection={home}
+                      altEditCollection={(e) => editCollection(e)}
+                    />
+                  )}
                 </div>
                 <div className="segment">{getSegment(section)}</div>
               </div>
