@@ -14,28 +14,27 @@ import './style.scss';
 
 type Props = {
   // -- redux --
-  accountId: ?string,
+  accountInfo: ?StripeAccountInfo,
   accountLinkResponse: StripeAccountLink,
   accountRequiresVerification: ?boolean,
   chargesEnabled: ?boolean,
   doGetAndSetAccountLink: () => Promise<StripeAccountLink>,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
-  email: string,
   unpaidBalance: number,
 };
 
 const StripeAccountConnection = (props: Props) => {
   const {
-    accountId,
+    accountInfo,
     accountLinkResponse,
     accountRequiresVerification,
     chargesEnabled,
     doGetAndSetAccountLink,
     doTipAccountStatus,
-    email,
     unpaidBalance,
   } = props;
 
+  const { email, id: accountId } = accountInfo || {};
   const bankAccountNotFetched = chargesEnabled === undefined;
   const noBankAccount = !chargesEnabled && !bankAccountNotFetched;
   const stripeConnectionUrl = accountLinkResponse?.url;
@@ -92,7 +91,7 @@ const StripeAccountConnection = (props: Props) => {
               <h3>{__('Congratulations! Your account has been connected with Odysee.')}</h3>
               <h3>
                 <I18nMessage tokens={{ email: <span className="bolded-email">{email}</span> }}>
-                  {__('The email you registered with Stripe is %email%')}
+                  The email you registered with Stripe is %email%
                 </I18nMessage>
               </h3>
 
@@ -152,7 +151,7 @@ const StripeAccountConnection = (props: Props) => {
                   icon={ICONS.SETTINGS}
                   label={__('View Account On Stripe')}
                   navigate={`${STRIPE.STRIPE_ACCOUNT_DASHBOARD_URL}/${accountId}`}
-                  style={{ marginLeft: '10px' }}
+                  className="stripe__view-account-button"
                 />
               )}
             </>
