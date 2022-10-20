@@ -229,7 +229,7 @@ const SettingsStripeCard = (props: Props) => {
         </div>
 
         <div className="stripe-billing-history">
-          <h2 className="stripe-billing-history__header">View billing history on Stripe</h2>
+          <h2 className="stripe-billing-history__header">{__('View billing history on Stripe')}</h2>
           <Button
             className="stripe-billing-history__button"
             button="secondary"
