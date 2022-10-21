@@ -1,19 +1,8 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri } from 'redux/selectors/claims';
-import { selectMyClaimsPage } from 'redux/selectors/claims';
-import { doFetchClaimListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { createNormalizedClaimSearchKey } from 'util/claim';
-import {
-  selectById,
-  selectClaimsByUri,
-  selectClaimSearchByQuery,
-  selectClaimSearchByQueryLastPageReached,
-  selectFetchingClaimSearch,
-  selectFetchingClaimSearchByQuery,
-} from 'redux/selectors/claims';
+import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from 'redux/selectors/claims';
 
-import { withRouter } from 'react-router';
 import HomeTabSection from './view';
 
 const select = (state, props) => {
@@ -34,15 +23,8 @@ const select = (state, props) => {
     claimSearchResults: selectClaimSearchByQuery(state),
     // urls: selectMyClaimsPage(state),
     optionsStringified: JSON.stringify(options),
+    doClaimSearch,
   };
 };
 
-const perform = (dispatch) => ({
-  /*
-  fetchClaimListMine: (page, pageSize, resolve, filterBy) =>
-    dispatch(doFetchClaimListMine(page, pageSize, resolve, filterBy)),
-  */
-  doClaimSearch,
-});
-
-export default withRouter(connect(select, perform)(HomeTabSection));
+export default connect(select)(HomeTabSection);
