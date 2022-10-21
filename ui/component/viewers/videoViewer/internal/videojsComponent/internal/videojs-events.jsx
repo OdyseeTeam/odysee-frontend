@@ -18,7 +18,6 @@ const VideoJsEvents = ({
   tapToUnmuteRef,
   tapToRetryRef,
   setReload,
-  playerRef,
   claimId,
   userId,
   claimValues,
@@ -27,23 +26,22 @@ const VideoJsEvents = ({
   uri,
   doAnalyticsView,
   doAnalyticsBuffer,
-  claimRewards,
+  doClaimEligiblePurchaseRewards,
   playerServerRef,
   isLivestreamClaim,
 }: {
   tapToUnmuteRef: any, // DOM element
   tapToRetryRef: any, // DOM element
   setReload: any, // react hook
-  playerRef: any, // DOM element
   claimId: ?string,
   userId: ?number,
   claimValues: any,
-  channelTitle: string,
+  channelTitle: ?string,
   embedded: boolean,
   uri: string,
   doAnalyticsView: (string, number) => any,
   doAnalyticsBuffer: (string, any) => void,
-  claimRewards: () => void,
+  doClaimEligiblePurchaseRewards: () => void,
   playerServerRef: any,
   isLivestreamClaim: boolean,
 }) => {
@@ -107,13 +105,12 @@ const VideoJsEvents = ({
 
     // hit backend to mark a view
     doAnalyticsView(uri, timeToStartVideo).then(() => {
-      claimRewards();
+      doClaimEligiblePurchaseRewards();
     });
   }
 
-  function onInitialPlay() {
-    const player = playerRef.current;
-    updateMediaSession();
+  function onInitialPlay(player) {
+    updateMediaSession(player);
 
     // $FlowIssue
     player.bigPlayButton?.hide();
@@ -127,20 +124,18 @@ const VideoJsEvents = ({
     }
   }
 
-  function onVolumeChange() {
-    const player = playerRef.current;
+  function onVolumeChange(player) {
     if (player && !player.muted()) {
       showTapButton(TAP.NONE);
     }
   }
 
-  function onError() {
-    const player = playerRef.current;
+  function onError(player) {
     showTapButton(TAP.RETRY);
 
     // reattach initial play listener in case we recover from error successfully
     // $FlowFixMe
-    player.one('play', onInitialPlay);
+    player.one('play', () => onInitialPlay(player));
 
     if (player && player.loadingSpinner) {
       player.loadingSpinner.hide();
@@ -154,8 +149,7 @@ const VideoJsEvents = ({
   // }, [adUrl]);
 
   // when user clicks 'Unmute' button, turn audio on and hide unmute button
-  function unmuteAndHideHint() {
-    const player = playerRef.current;
+  function unmuteAndHideHint(player) {
     if (player) {
       player.muted(false);
       if (player.volume() === 0) {
@@ -165,8 +159,7 @@ const VideoJsEvents = ({
     showTapButton(TAP.NONE);
   }
 
-  function retryVideoAfterFailure() {
-    const player = playerRef.current;
+  function retryVideoAfterFailure(player) {
     if (player) {
       setReload(Date.now());
       showTapButton(TAP.NONE);
@@ -207,9 +200,8 @@ const VideoJsEvents = ({
     }
   }
 
-  function updateMediaSession() {
+  function updateMediaSession(player) {
     if ('mediaSession' in navigator) {
-      const player = playerRef.current;
       const thumbnail = getThumbnailCdnUrl({
         thumbnail: claimValues?.thumbnail?.url,
         width: THUMBNAIL_WIDTH_POSTER,
@@ -234,10 +226,10 @@ const VideoJsEvents = ({
     }
   }
 
-  function removeControlBar() {
-    setTimeout(function () {
-      window.player.controlBar.el().classList.remove('vjs-transitioning-video');
-      window.player.controlBar.show();
+  function removeControlBar(player) {
+    setTimeout(() => {
+      player.controlBar.el().classList.remove('vjs-transitioning-video');
+      player.controlBar.show();
     }, 1000 * 2); // wait 2 seconds to hide control bar
   }
 
@@ -285,12 +277,10 @@ const VideoJsEvents = ({
     });
   }
 
-  function initializeEvents() {
-    const player = playerRef.current;
-
-    player.one('play', onInitialPlay);
-    player.on('volumechange', onVolumeChange);
-    player.on('error', onError);
+  function initializeEvents(player) {
+    player.one('play', () => onInitialPlay(player));
+    player.on('volumechange', () => onVolumeChange(player));
+    player.on('error', () => onError(player));
     // custom tracking plugin, event used for watchman data, and marking view/getting rewards
     player.on('tracking:firstplay', doTrackingFirstPlay);
     // used for tracking buffering for watchman
@@ -301,23 +291,23 @@ const VideoJsEvents = ({
       player.one('playing', determineVideoFps);
     }
 
-    player.on('loadstart', function () {
+    player.on('loadstart', () => {
       if (embedded) {
         // $FlowIssue
         player.bigPlayButton?.show();
       }
     });
 
-    player.on('playing', removeControlBar);
+    player.on('playing', () => removeControlBar(player));
     player.on('playerClosed', () => {
-      player.off('play', onInitialPlay);
-      player.off('volumechange', onVolumeChange);
-      player.off('error', onError);
+      player.off('play', () => onInitialPlay(player));
+      player.off('volumechange', () => onVolumeChange(player));
+      player.off('error', () => onError(player));
       // custom tracking plugin, event used for watchman data, and marking view/getting rewards
       player.off('tracking:firstplay', doTrackingFirstPlay);
       // used for tracking buffering for watchman
       player.off('tracking:buffered', doTrackingBuffered);
-      player.off('playing', removeControlBar);
+      player.off('playing', () => removeControlBar(player));
       player.off('playing', determineVideoFps);
     });
     // player.on('ended', onEnded);
@@ -340,13 +330,11 @@ const VideoJsEvents = ({
           player.liveTracker.seekToLiveEdge();
         }, 5 * 1000);
       });
-      player.on('timeupdate', liveEdgeRestoreSpeed);
+      player.on('timeupdate', () => liveEdgeRestoreSpeed(player));
     }
   }
 
-  function liveEdgeRestoreSpeed() {
-    const player = playerRef.current;
-
+  function liveEdgeRestoreSpeed(player) {
     if (player.playbackRate() !== 1) {
       player.liveTracker.handleSeeked_();
 

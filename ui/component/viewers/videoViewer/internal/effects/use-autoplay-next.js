@@ -22,7 +22,6 @@
 // @flow
 import React from 'react';
 import videojs from 'video.js';
-import type { Player } from '../videojs';
 
 // ****************************************************************************
 // AutoplayNextButton
