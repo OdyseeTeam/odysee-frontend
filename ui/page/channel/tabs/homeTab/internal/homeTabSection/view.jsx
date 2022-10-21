@@ -1,55 +1,84 @@
 // @flow
 import React from 'react';
-import ClaimListDiscover from 'component/claimListDiscover';
-import { CsOptions } from 'util/claim-search';
+import ClaimList from 'component/claimList';
+// import { CsOptions } from 'util/claim-search';
 
 type Props = {
+  channelClaimId: string,
+  section: any,  
   // --- select ---
-  // urls: Array<string>,
   claimSearchResults: { [string]: Array<string> },
+  collectionUrls: ?Array<string>,
+  collectionName: string,
   optionsStringified: string,
   fetchingClaimSearch: boolean,
-
-  // --- perform ---
   doClaimSearch: ({}) => void,
 };
 
 function HomeTabSection(props: Props) {
   const {
-    // urls,
+    section,
     claimSearchResults,
+    collectionUrls,
+    collectionName,
     optionsStringified,
     fetchingClaimSearch,
     doClaimSearch,
   } = props;
 
-  // console.log('urls: ', urls)
-  // console.log('CsOptions: ', CsOptions)
-  console.log('claimSearchResults: ', claimSearchResults);
-
-  /*
-  React.useEffect(() => {
-    fetchClaimListMine(1, 6, true, 'stream,repost'.split(','));
-  }, []);  
-  */
-
   const timedOut = claimSearchResults === null;
-  // const shouldPerformSearch = !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0;
-  const shouldPerformSearch = !fetchingClaimSearch && !timedOut;
-
-  // let shouldPerformSearch = true
+  const shouldPerformSearch = !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      console.log('searchOptions: ', searchOptions);
+      // console.log('searchOptions: ', searchOptions);
       doClaimSearch(searchOptions);
     }
   }, [doClaimSearch, shouldPerformSearch]);
 
+  function getTitle(){
+    switch(section.type){
+      case 'content':
+        switch(section.fileType){
+          case 'video':
+            switch(section.order_by[0]){
+              case 'release_time':
+                return 'New Videos'
+              case 'trending_group':
+                return 'Trending Videos'
+              case 'effective_amount':
+                return 'Top Videos'
+            }            
+          case 'audio':
+            switch(section.order_by[0]){
+              case 'release_time':
+                return 'New Audio'
+              case 'trending_group':
+                return 'Trending Audio'
+              case 'effective_amount':
+                return 'Top Audio'
+            }  
+          case 'document':
+            switch(section.order_by[0]){
+              case 'release_time':
+                return 'New Posts'
+              case 'trending_group':
+                return 'Trending Posts'
+              case 'effective_amount':
+                return 'Top Posts'
+            }  
+          default:
+            return 'Content'
+        }        
+      case 'playlists':
+        return 'Playlists'
+    }
+  }
+
   return (
     <>
-      <label className="home-segment-title">AAAAAAAAAAAAAA</label>
-      <ClaimListDiscover
+      <label className="home-segment-title">{collectionName ? collectionName : getTitle()}</label>
+      <ClaimList
         fetchViewCount
         hideFilters
         hideAdvancedFilter
@@ -58,7 +87,7 @@ function HomeTabSection(props: Props) {
         infiniteScroll={false}
         maxClaimRender={6}
         useSkeletonScreen={false}
-        // uris={urls}
+        uris={collectionUrls || claimSearchResults}
       />
     </>
   );

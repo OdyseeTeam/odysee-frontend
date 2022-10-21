@@ -38,35 +38,38 @@ function HomeTab(props: Props) {
       {
         type: 'featured',
         fileType: undefined,
-        order: undefined,
+        order_by: undefined,
         claimId: undefined,
       },
       {
         type: 'content',
-        fileTypes: CS.FILE_VIDEO,
-        order: CS.ORDER_BY_TOP_VALUE,
+        fileType: CS.FILE_VIDEO,
+        order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
       },
       {
         type: 'playlists',
         fileType: undefined,
-        order: CS.ORDER_BY_TOP_NEW,
+        order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
       },
       {
         type: 'playlist',
         fileType: undefined,
-        order: undefined,
+        order_by: undefined,
         claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
       },
       {
         type: 'content',
         fileType: CS.FILE_DOCUMENT,
-        order: CS.ORDER_BY_NEW,
+        order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
       },
     ],
   };
+
+  console.log('CS.FILE_VIDEO: ', CS.ORDER_BY_TRENDING_VALUE)
+
   const [home, setHome] = React.useState(homeTemplate.entries);
 
   function getSection(section) {
@@ -83,6 +86,7 @@ function HomeTab(props: Props) {
                 <option value="content">Content</option>
                 <option value="playlists">Playlists</option>
                 <option value="playlist">Playlist</option>
+                <option value="reposts">Reposts</option>
               </select>
             </div>
             {newSectionType === 'content' && (
@@ -241,11 +245,13 @@ function HomeTab(props: Props) {
                     />
                   )}
                 </div>
-                <div className="segment">{getSection(section)}</div>
+                <div className="segment">
+                  {/* getSection(section) */}
+                  <HomeTabSection channelClaimId={claimId} section={section} />
+                </div>
               </div>
             );
-          })}
-        <HomeTabSection />
+          })}        
         <Button
           label={__('Add New Section')}
           button="primary"
