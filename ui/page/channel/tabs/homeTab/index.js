@@ -12,20 +12,18 @@ import { doResolveUris } from 'redux/actions/claims';
 import * as SETTINGS from 'constants/settings';
 import { makeSelectChannelIsMuted } from 'redux/selectors/blocked';
 import { withRouter } from 'react-router';
-import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
-import { selectAdBlockerFound } from 'redux/selectors/app';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
-import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
-import { getChannelIdFromClaim } from 'util/claim';
-import { selectUrlsForCollectionId, selectNameForCollectionId } from 'redux/selectors/collections';
+import { selectClaimSearchByQuery } from 'redux/selectors/claims';
 import HomeTab from './view';
 
 const select = (state, props) => {
   const { search } = props.location;
-  const urlParams = new URLSearchParams(search);
+  // const urlParams = new URLSearchParams(search);
   const claim = props.uri && selectClaimForUri(state, props.uri);
 
   return {
+    claimSearchByQuery: selectClaimSearchByQuery(state),
+
     // pageOfClaimsInChannel: makeSelectClaimsInChannelForPage(props.uri, page)(state),
     claim,
   };

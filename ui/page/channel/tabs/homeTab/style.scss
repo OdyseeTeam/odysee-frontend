@@ -1,20 +1,3 @@
-/*
-.claim-preview__featured{
-  width:100% !important;
-  margin-top:var(--spacing-s);
-  background:rgba(255,0,0,0.2);
-  display:flex;
-
-  .media__thumb{
-    width:350px;
-    height:200px;
-  }
-
-  .claim-tile__header{
-    flex:1;
-  }
-}
-*/
 .home-tab {
   .section__header--actions {
     display: none;
@@ -94,6 +77,31 @@
 
       .claim-preview__wrapper {
         background-color: unset;
+      }
+    }
+  }
+
+  .segment-add-wrapper {
+    display: flex;
+    padding: var(--spacing-s);
+    background-color: rgba(var(--color-header-background-base), 0.4);
+    border-radius: var(--border-radius);
+    width: 100%;
+
+    .segment-add-option {
+      padding-right: var(--spacing-s);
+      label {
+        display: block;
+      }
+
+      &:last-of-type {
+        display: flex;
+        align-items: flex-end;
+        justify-content: end;
+        width: 100%;
+        .button {
+          //margin-bottom:var(--spacing-s);
+        }
       }
     }
   }
