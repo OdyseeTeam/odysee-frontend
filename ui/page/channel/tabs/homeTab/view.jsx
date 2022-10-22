@@ -82,6 +82,10 @@ function HomeTab(props: Props) {
     setHome(newHome);
   }
 
+  function handleCancelChanges() {
+    setEdit(false);
+  }
+
   return (
     <>
       <div className="home-tab">
@@ -91,6 +95,7 @@ function HomeTab(props: Props) {
               label={__('Edit Home Tab')}
               button="secondary"
               icon={ICONS.EDIT}
+              disabled={edit}
               onClick={() => {
                 setEdit(!edit);
               }}
@@ -117,13 +122,26 @@ function HomeTab(props: Props) {
               </>
             );
           })}
+        {edit && (
+          <div className="home-tab-edit">
+            <Button
+              label={__('Save Changes')}
+              button="primary"
+              disabled={true}
+              onClick={() => handleSaveHomeSection()}
+            />
+            <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
+          </div>
+        )}
+        {/*
         <Button
           label={__('Add New Section')}
           button="primary"
           icon={ICONS.ADD}
-          // disabled={sectionCount > 0}
+          disabled={true}
           onClick={handleAddHomeSection}
-        />
+        />        
+        */}
       </div>
     </>
   );

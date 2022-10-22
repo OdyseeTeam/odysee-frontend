@@ -4,7 +4,7 @@ import ClaimList from 'component/claimList';
 import Button from 'component/button';
 
 type Props = {
-  channelClaimId: string,
+  // channelClaimId: string,
   section: any,
   editMode: boolean,
   // --- select ---
@@ -85,7 +85,10 @@ function HomeTabSection(props: Props) {
     }
   }
 
-  function handleChangeNewSectionType(e) {}
+  function handleSectionUpdate(e) {
+    console.log('aaaaaaaaa: ', e.type);
+    console.log('aaaaaaaaa: ', e.target.value);
+  }
   function handleSaveHomeSection() {}
 
   const SectionHeader = (e) => {
@@ -94,7 +97,7 @@ function HomeTabSection(props: Props) {
       <div className="home-section-header-wrapper">
         <div className="home-section-header-option">
           <label>{__('Type')}</label>
-          <select value={e.section.type} defaultValue="select" onChange={(e) => handleChangeNewSectionType(e)}>
+          <select value={e.section.type} defaultValue="select" onChange={(e) => handleSectionUpdate(e)}>
             <option value="select" disabled="disabled">
               {__('Select')}
             </option>
@@ -136,14 +139,6 @@ function HomeTabSection(props: Props) {
             </select>
           </div>
         )}
-        <div className="home-section-header-option">
-          <Button
-            label={__('Save Section')}
-            button="primary"
-            // disabled={sectionCount > 0}
-            onClick={() => handleSaveHomeSection()}
-          />
-        </div>
       </div>
     );
   };
