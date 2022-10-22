@@ -1,13 +1,9 @@
 // @flow
 import React from 'react';
 import classnames from 'classnames';
-
-import ClaimListDiscover from 'component/claimListDiscover';
-import ContentTab from 'page/channel/tabs/contentTab';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
-import PlaylistSection from './internal/playlistSection';
 import HomeTabSection from './internal/homeTabSection';
 import CollectionEditButtons from 'component/collectionEditButtons';
 
@@ -20,16 +16,8 @@ type Props = {
 };
 
 function HomeTab(props: Props) {
-  const { uri, claim, editMode } = props;
+  const { claim, editMode } = props;
   const claimId = claim && claim.claim_id;
-
-  const [newSectionType, setNewSectionType] = React.useState('select');
-  console.log('newSectionType: ', newSectionType);
-
-  function handleChangeNewSectionType(e) {
-    console.log('AA: ', e.target.value);
-    setNewSectionType(e.target.value);
-  }
 
   const [edit, setEdit] = React.useState(false);
   const homeTemplate = {
@@ -37,154 +25,32 @@ function HomeTab(props: Props) {
     entries: [
       {
         type: 'featured',
-        fileType: undefined,
+        file_type: undefined,
         order_by: undefined,
         claimId: undefined,
       },
       {
         type: 'content',
-        fileType: CS.FILE_VIDEO,
+        file_type: CS.FILE_VIDEO,
         order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
       },
       {
         type: 'playlists',
-        fileType: undefined,
+        file_type: undefined,
         order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
       },
       {
         type: 'playlist',
-        fileType: undefined,
+        file_type: undefined,
         order_by: undefined,
         claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
-      },
-      {
-        type: 'content',
-        fileType: CS.FILE_DOCUMENT,
-        order_by: CS.ORDER_BY_NEW_VALUE,
-        claimId: undefined,
       },
     ],
   };
 
-  console.log('CS.FILE_VIDEO: ', CS.ORDER_BY_TRENDING_VALUE)
-
   const [home, setHome] = React.useState(homeTemplate.entries);
-
-  function getSection(section) {
-    switch (section.type) {
-      case undefined:
-        return (
-          <div className="segment-add-wrapper">
-            <div className="segment-add-option">
-              <label>Type</label>
-              <select value={newSectionType} defaultValue="Select" onChange={handleChangeNewSectionType}>
-                <option value="select" disabled="disabled">
-                  Select
-                </option>
-                <option value="content">Content</option>
-                <option value="playlists">Playlists</option>
-                <option value="playlist">Playlist</option>
-                <option value="reposts">Reposts</option>
-              </select>
-            </div>
-            {newSectionType === 'content' && (
-              <div className="segment-add-option">
-                <label>File Type</label>
-                <select>
-                  <option>{__('Show All')}</option>
-                  <option>{__('Videos')}</option>
-                  <option>{__('Audio')}</option>
-                  <option>{__('Posts')}</option>
-                  <option>{__('Images')}</option>
-                </select>
-              </div>
-            )}
-            {newSectionType === 'playlist' && (
-              <div className="segment-add-option">
-                <label>Playlist</label>
-                <select>
-                  <option>My Playlists...</option>
-                </select>
-              </div>
-            )}
-            {(newSectionType === 'content' || newSectionType === 'playlists' || newSectionType === 'playlist') && (
-              <div className="segment-add-option">
-                <label>Order By</label>
-                <select>
-                  <option>New</option>
-                  <option>Trending</option>
-                  <option>Top</option>
-                </select>
-              </div>
-            )}
-            <div className="segment-add-option">
-              <Button
-                label={__('Save Section')}
-                button="primary"
-                // disabled={sectionCount > 0}
-                onClick={handleAddHomeSection}
-              />
-            </div>
-          </div>
-        );
-      case 'featured':
-        return (
-          <ClaimListDiscover
-            fetchViewCount
-            hideFilters
-            hideAdvancedFilter
-            hideLayoutButton
-            channelIds={[claimId]}
-            infiniteScroll={false}
-            useSkeletonScreen={false}
-            maxClaimRender={1}
-          />
-        );
-      case 'content':
-        return (
-          <>
-            <label className="home-segment-title">Publications</label>
-            <ClaimListDiscover
-              fetchViewCount
-              hideFilters
-              hideAdvancedFilter
-              hideLayoutButton
-              tileLayout
-              orderBy={section.order}
-              // claimType={section.files}
-              channelIds={[claimId]}
-              infiniteScroll={false}
-              maxClaimRender={6}
-              useSkeletonScreen={false}
-            />
-          </>
-        );
-      case 'playlists':
-        return (
-          <>
-            <label className="home-segment-title">Playlists</label>
-            <ContentTab
-              claimType={'collection'}
-              uri={uri}
-              viewHiddenChannels
-              totalPages={1}
-              defaultPageSize={1}
-              defaultInfiniteScroll={false}
-              params={{ page: 1 }}
-              hasPremiumPlus
-            />
-          </>
-        );
-      case 'playlist':
-        return (
-          <>
-            <PlaylistSection collectionId={section.claimId} />
-          </>
-        );
-    }
-  }
 
   function handleEditCollection(e) {
     console.log('e: ', e);
@@ -209,7 +75,7 @@ function HomeTab(props: Props) {
     let newHome = [...home];
     newHome.push({
       type: undefined,
-      fileType: undefined,
+      file_type: undefined,
       order: undefined,
       claimId: undefined,
     });
@@ -235,23 +101,22 @@ function HomeTab(props: Props) {
           // home.enabled &&
           home.map((section, i) => {
             return (
-              <div key={i} className={classnames('segment-wrapper', { 'segment-wrapper--edit': edit })}>
-                <div className="order">
-                  {edit && (
-                    <CollectionEditButtons
-                      altIndex={i}
-                      altCollection={home}
-                      altEditCollection={(e) => handleEditCollection(e)}
-                    />
-                  )}
+              <>
+                <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
+                  <div className="order">
+                    {edit && (
+                      <CollectionEditButtons
+                        altIndex={i}
+                        altCollection={home}
+                        altEditCollection={(e) => handleEditCollection(e)}
+                      />
+                    )}
+                  </div>
+                  <HomeTabSection channelClaimId={claimId} section={section} editMode={edit} />
                 </div>
-                <div className="segment">
-                  {/* getSection(section) */}
-                  <HomeTabSection channelClaimId={claimId} section={section} />
-                </div>
-              </div>
+              </>
             );
-          })}        
+          })}
         <Button
           label={__('Add New Section')}
           button="primary"

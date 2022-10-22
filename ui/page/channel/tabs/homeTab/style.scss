@@ -7,7 +7,7 @@
     margin-bottom: var(--spacing-s);
   }
 
-  .home-segment-title {
+  .home-section-title {
     margin-bottom: var(--spacing-s);
     margin-top: 0;
   }
@@ -16,20 +16,24 @@
     padding-bottom: 0;
   }
 
-  .segment-wrapper {
+  .home-section-wrapper {
     background: none;
     transition: background 0.2s;
     .order {
       display: none;
-      align-self: center;
+      margin: calc(var(--spacing-s) * 2) !important;
 
       .collection-preview__edit-buttons {
         height: 100px;
-        width: 20px;
-        // border:2px solid var(--color-border);
+        border: 2px solid var(--color-border);
+        border-radius: var(--border-radius);
       }
     }
-    .segment {
+    .home-section-content {
+      width: 100%;
+    }
+
+    .section {
       transform: scale(1);
       background: none;
       padding: 0;
@@ -41,7 +45,7 @@
     }
   }
 
-  .segment-wrapper--edit {
+  .home-section-wrapper--edit {
     position: relative;
     display: flex;
     flex-flow: row;
@@ -55,16 +59,16 @@
       margin: var(--spacing-s);
       border-radius: var(--border-radius);
     }
-    .segment {
+    .section {
       width: 100%;
       margin-left: auto;
       background: var(--color-header-background);
       padding: var(--spacing-xs) var(--spacing-m);
       transform: scale(0.8);
       margin: 0;
-      // margin-right:calc(-10% + (var(--spacing-s) * 2));
+      border: 2px solid var(--color-border);
       border-radius: var(--border-radius);
-      border-bottom: none;
+      margin-top: calc(var(--spacing-s) * -1);
 
       align-self: flex-end;
       pointer-events: none;
@@ -81,17 +85,20 @@
     }
   }
 
-  .segment-add-wrapper {
+  .home-section-header-wrapper {
     display: flex;
-    padding: var(--spacing-s);
-    background-color: rgba(var(--color-header-background-base), 0.4);
-    border-radius: var(--border-radius);
-    width: 100%;
+    margin-left: 10%;
+    padding-top: var(--spacing-s);
+    width: 80%;
 
-    .segment-add-option {
+    .home-section-header-option {
       padding-right: var(--spacing-s);
+
       label {
         display: block;
+      }
+      select {
+        border: 2px solid var(--color-border);
       }
 
       &:last-of-type {
@@ -99,9 +106,7 @@
         align-items: flex-end;
         justify-content: end;
         width: 100%;
-        .button {
-          //margin-bottom:var(--spacing-s);
-        }
+        padding-right: 0;
       }
     }
   }
