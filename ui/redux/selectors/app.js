@@ -151,6 +151,7 @@ export const selectShouldShowAds = (state) => {
 
 export const selectAppDrawerOpen = (state) => selectState(state).appDrawerOpen;
 export const selectMainPlayerDimensions = (state) => selectState(state).mainPlayerDimensions;
+export const selectWindowPlayerObj = (state) => selectState(state).windowPlayerObj;
 export const selectHasAppDrawerOpen = (state) => Boolean(selectAppDrawerOpen(state));
 
 export const selectIsDrawerOpenForType = (state, type) => {

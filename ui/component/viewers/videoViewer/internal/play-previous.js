@@ -1,5 +1,4 @@
 // @flow
-import type { Player } from './videojs';
 import videojs from 'video.js';
 
 class PlayPreviousButton extends videojs.getComponent('Button') {

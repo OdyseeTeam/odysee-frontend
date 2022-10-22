@@ -18,10 +18,11 @@ type Props = {
   uri: string,
   isAuthenticated: boolean,
   preferEmbed: boolean,
+  windowPlayerObj: any,
 };
 
 function FileViewerEmbeddedEnded(props: Props) {
-  const { uri, isAuthenticated, preferEmbed } = props;
+  const { uri, isAuthenticated, preferEmbed, windowPlayerObj } = props;
 
   const prompts = isAuthenticated
     ? {
@@ -39,7 +40,7 @@ function FileViewerEmbeddedEnded(props: Props) {
   // $FlowFixMe
   const prompt = prompts[promptKey];
   const odyseeLink = `${URL}${formatLbryUrlForWeb(uri)}?src=${promptKey}`;
-  const showReplay = Boolean(window.player);
+  const showReplay = Boolean(windowPlayerObj);
 
   return (
     <div className="file-viewer__overlay">
@@ -61,7 +62,7 @@ function FileViewerEmbeddedEnded(props: Props) {
               label={preferEmbed ? __('Replay') : undefined}
               iconRight={ICONS.REPLAY}
               onClick={() => {
-                if (window.player) window.player.play();
+                if (windowPlayerObj) windowPlayerObj.play();
               }}
             />
           )}

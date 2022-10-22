@@ -205,7 +205,7 @@
     "react-hot-loader": "^4.11.1",
     "react-modal": "^3.1.7",
     "react-paginate": "^5.2.1",
-    "react-redux": "^6.0.1",
+    "react-redux": "^8.0.4",
     "react-router": "^5.1.0",
     "react-router-dom": "^5.1.0",
     "react-simplemde-editor": "^4.1.3",

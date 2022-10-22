@@ -22,6 +22,7 @@ type Props = {
   activeChannelClaim: any,
   setUserMention?: (boolean) => void,
   isComment?: boolean,
+  windowPlayerObj: any,
 };
 
 function MarkdownLink(props: Props) {
@@ -36,6 +37,7 @@ function MarkdownLink(props: Props) {
     setUserMention,
     isComment,
     activeChannelClaim,
+    windowPlayerObj,
   } = props;
 
   const isMobile = useIsMobile();
@@ -113,8 +115,8 @@ function MarkdownLink(props: Props) {
         label={children}
         className="button--external-link"
         onClick={() => {
-          if (window.player) {
-            window.player.currentTime(parseInt(href.substr(3)));
+          if (windowPlayerObj) {
+            windowPlayerObj.currentTime(parseInt(href.substr(3)));
             window.scrollTo(0, 0);
           }
         }}

@@ -1,10 +1,11 @@
 import { connect } from 'react-redux';
 import { doOpenModal } from 'redux/actions/app';
-import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectActiveChannelClaim, selectWindowPlayerObj } from 'redux/selectors/app';
 import MarkdownLink from './view';
 
 const select = (state, props) => ({
   activeChannelClaim: selectActiveChannelClaim(state),
+  windowPlayerObj: selectWindowPlayerObj(state),
 });
 
 const perform = (dispatch) => ({

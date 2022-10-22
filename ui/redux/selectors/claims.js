@@ -469,6 +469,20 @@ export const makeSelectContentTypeForUri = (uri: string) =>
     return source ? source.media_type : undefined;
   });
 
+export const selectContentTypeForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  const isLivestreamClaim = isStreamPlaceholderClaim(claim);
+  if (isLivestreamClaim) return 'livestream';
+
+  const source = claim && claim.value && claim.value.source;
+  return source ? source.media_type : undefined;
+};
+
+export const selectContentTypeIsAudioForUri = (state: State, uri: string) => {
+  const contentType = selectContentTypeForUri(state, uri);
+  return contentType && contentType.includes('audio');
+};
+
 export const selectThumbnailForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return getThumbnailFromClaim(claim);

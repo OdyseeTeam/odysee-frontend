@@ -109,7 +109,7 @@ const VideoJsEvents = ({
     });
   }
 
-  function onInitialPlay(player) {
+  function onInitialPlay(player: any) {
     updateMediaSession(player);
 
     // $FlowIssue
@@ -124,13 +124,13 @@ const VideoJsEvents = ({
     }
   }
 
-  function onVolumeChange(player) {
+  function onVolumeChange(player: any) {
     if (player && !player.muted()) {
       showTapButton(TAP.NONE);
     }
   }
 
-  function onError(player) {
+  function onError(player: any) {
     showTapButton(TAP.RETRY);
 
     // reattach initial play listener in case we recover from error successfully
@@ -149,7 +149,7 @@ const VideoJsEvents = ({
   // }, [adUrl]);
 
   // when user clicks 'Unmute' button, turn audio on and hide unmute button
-  function unmuteAndHideHint(player) {
+  function unmuteAndHideHint(player: any) {
     if (player) {
       player.muted(false);
       if (player.volume() === 0) {
@@ -159,7 +159,7 @@ const VideoJsEvents = ({
     showTapButton(TAP.NONE);
   }
 
-  function retryVideoAfterFailure(player) {
+  function retryVideoAfterFailure(player: any) {
     if (player) {
       setReload(Date.now());
       showTapButton(TAP.NONE);
@@ -200,7 +200,7 @@ const VideoJsEvents = ({
     }
   }
 
-  function updateMediaSession(player) {
+  function updateMediaSession(player: any) {
     if ('mediaSession' in navigator) {
       const thumbnail = getThumbnailCdnUrl({
         thumbnail: claimValues?.thumbnail?.url,
@@ -226,7 +226,7 @@ const VideoJsEvents = ({
     }
   }
 
-  function removeControlBar(player) {
+  function removeControlBar(player: any) {
     setTimeout(() => {
       player.controlBar.el().classList.remove('vjs-transitioning-video');
       player.controlBar.show();
@@ -277,7 +277,7 @@ const VideoJsEvents = ({
     });
   }
 
-  function initializeEvents(player) {
+  function initializeEvents(player: any) {
     player.one('play', () => onInitialPlay(player));
     player.on('volumechange', () => onVolumeChange(player));
     player.on('error', () => onError(player));
@@ -334,7 +334,7 @@ const VideoJsEvents = ({
     }
   }
 
-  function liveEdgeRestoreSpeed(player) {
+  function liveEdgeRestoreSpeed(player: any) {
     if (player.playbackRate() !== 1) {
       player.liveTracker.handleSeeked_();
 

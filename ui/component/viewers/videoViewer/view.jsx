@@ -1,17 +1,15 @@
 // @flow
 import { ENABLE_PREROLL_ADS } from 'config';
+import { PLAY_POSITION_SAVE_INTERVAL_MS } from 'constants/player';
 import { ERR_GRP } from 'constants/errors';
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import React, { useEffect, useState, useContext, useCallback } from 'react';
 import { stopContextMenu } from 'util/context-menu';
 import * as Chapters from './internal/chapters';
-import type { Player } from './internal/videojs';
-import VideoJs from './internal/videojs';
 import analytics from 'analytics';
 import { EmbedContext } from 'page/embedWrapper/view';
 import classnames from 'classnames';
-import { FORCE_CONTENT_TYPE_PLAYER } from 'constants/claim';
 import AutoplayCountdown from 'component/autoplayCountdown';
 import usePrevious from 'effects/use-previous';
 import FileViewerEmbeddedEnded from 'web/component/fileViewerEmbeddedEnded';
@@ -29,12 +27,10 @@ import type { HomepageCat } from 'util/buildHomepage';
 import debounce from 'util/debounce';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import useInterval from 'effects/use-interval';
-import { lastBandwidthSelector } from './internal/plugins/videojs-http-streaming--override/playlist-selectors';
+import { lastBandwidthSelector } from './internal/videojsComponent/internal/plugins/videojs-http-streaming--override/playlist-selectors';
 import { platform } from 'util/platform';
 
-// const PLAY_TIMEOUT_ERROR = 'play_timeout_error';
-// const PLAY_TIMEOUT_LIMIT = 2000;
-const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
+import VideoJs from './internal/videojsComponent';
 
 const IS_IOS = platform.isIOS();
 
@@ -42,9 +38,6 @@ type Props = {
   position: number,
   changeVolume: (number) => void,
   changeMute: (boolean) => void,
-  source: string,
-  contentType: string,
-  thumbnail: string,
   claim: StreamClaim,
   muted: boolean,
   videoPlaybackRate: number,
@@ -52,17 +45,13 @@ type Props = {
   uri: string,
   autoplayNext: boolean,
   autoplayIfEmbedded: boolean,
-  doAnalyticsBuffer: (string, any) => void,
   savePosition: (string, number) => void,
   clearPosition: (string) => void,
   toggleVideoTheaterMode: () => void,
   toggleAutoplayNext: () => void,
   setVideoPlaybackRate: (number) => void,
   authenticated: boolean,
-  userId: number,
-  internalFeature: boolean,
   homepageData?: { [string]: HomepageCat },
-  shareTelemetry: boolean,
   isFloating: boolean,
   doPlayUri: (params: { uri: string, collection: { collectionId: ?string } }) => void,
   collectionId: string,
@@ -71,19 +60,10 @@ type Props = {
   previousListUri: string,
   videoTheaterMode: boolean,
   isMarkdownOrComment: boolean,
-  doAnalyticsView: (string, number) => void,
-  claimRewards: () => void,
   isLivestreamClaim: boolean,
-  activeLivestreamForChannel: any,
-  defaultQuality: ?string,
-  doToast: ({ message: string, linkText: string, linkTarget: string }) => void,
   doSetContentHistoryItem: (uri: string) => void,
   doClearContentHistoryUri: (uri: string) => void,
   currentPlaylistItemIndex: ?number,
-  isPurchasableContent: boolean,
-  isRentableContent: boolean,
-  purchaseMadeForClaimId: boolean,
-  isProtectedContent: boolean,
 };
 
 /*
@@ -93,12 +73,9 @@ https://codesandbox.io/s/71z2lm4ko6
 
 function VideoViewer(props: Props) {
   const {
-    contentType,
-    source,
     changeVolume,
     changeMute,
     videoPlaybackRate,
-    thumbnail,
     position,
     claim,
     uri,
@@ -106,9 +83,6 @@ function VideoViewer(props: Props) {
     volume,
     autoplayNext,
     autoplayIfEmbedded,
-    doAnalyticsBuffer,
-    doAnalyticsView,
-    claimRewards,
     savePosition,
     clearPosition,
     toggleVideoTheaterMode,
@@ -116,9 +90,6 @@ function VideoViewer(props: Props) {
     setVideoPlaybackRate,
     homepageData,
     authenticated,
-    userId,
-    internalFeature,
-    shareTelemetry,
     isFloating,
     doPlayUri,
     collectionId,
@@ -128,15 +99,8 @@ function VideoViewer(props: Props) {
     videoTheaterMode,
     isMarkdownOrComment,
     isLivestreamClaim,
-    activeLivestreamForChannel,
-    defaultQuality,
-    doToast,
     doSetContentHistoryItem,
     currentPlaylistItemIndex,
-    isPurchasableContent,
-    isRentableContent,
-    isProtectedContent,
-    // purchaseMadeForClaimId,
   } = props;
 
   const playerEndedDuration = React.useRef();
@@ -171,12 +135,7 @@ function VideoViewer(props: Props) {
 
   const permanentUrl = claim && claim.permanent_url;
   const adApprovedChannelIds = homepageData ? getAllIds(homepageData) : [];
-  const claimId = claim && claim.claim_id;
   const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
-  const channelTitle =
-    (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
-  const isAudio = contentType.includes('audio');
-  const forcePlayer = FORCE_CONTENT_TYPE_PLAYER.includes(contentType);
   const {
     push,
     location: { pathname },
@@ -610,39 +569,11 @@ function VideoViewer(props: Props) {
       )}
 
       <VideoJs
-        adUrl={adUrl}
-        source={adUrl || source}
-        sourceType={forcePlayer || adUrl ? 'video/mp4' : contentType}
-        isAudio={isAudio}
-        poster={isAudio || (embedded && !autoplayIfEmbedded) ? thumbnail : ''}
+        uri={uri}
         onPlayerReady={onPlayerReady}
-        startMuted={autoplayIfEmbedded}
         toggleVideoTheaterMode={toggleVideoTheaterMode}
-        autoplay={!embedded || autoplayIfEmbedded}
-        claimId={claimId}
-        title={claim && ((claim.value && claim.value.title) || claim.name)}
-        channelTitle={channelTitle}
-        userId={userId}
-        allowPreRoll={!authenticated} // TODO: pull this into ads functionality so it's self contained
-        internalFeatureEnabled={internalFeature}
-        shareTelemetry={shareTelemetry}
         playNext={doPlayNext}
         playPrevious={doPlayPrevious}
-        embedded={embedded}
-        embeddedInternal={isMarkdownOrComment}
-        claimValues={claim.value}
-        doAnalyticsView={doAnalyticsView}
-        doAnalyticsBuffer={doAnalyticsBuffer}
-        claimRewards={claimRewards}
-        uri={uri}
-        userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
-        isLivestreamClaim={isLivestreamClaim}
-        activeLivestreamForChannel={activeLivestreamForChannel}
-        defaultQuality={defaultQuality}
-        doToast={doToast}
-        isPurchasableContent={isPurchasableContent}
-        isRentableContent={isRentableContent}
-        isProtectedContent={isProtectedContent}
       />
     </div>
   );

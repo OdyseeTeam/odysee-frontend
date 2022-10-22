@@ -69,6 +69,7 @@ type Props = {
   error: string,
   activeChannelClaim: ?ChannelClaim,
   incognito: boolean,
+  windowPlayerObj: any,
   doClaimSearch: (any) => Promise<any>,
   doCommentById: (string, boolean) => Promise<any>,
   doReportContent: (string, string) => void,
@@ -84,6 +85,7 @@ export default function ReportContent(props: Props) {
     commentId,
     claim,
     comment,
+    windowPlayerObj,
     doClaimSearch,
     doCommentById,
     doReportContent,
@@ -123,10 +125,10 @@ export default function ReportContent(props: Props) {
 
   // On mount, pause player and get the timestamp, if applicable.
   React.useEffect(() => {
-    if (window.player) {
-      window.player.pause();
+    if (windowPlayerObj) {
+      windowPlayerObj.pause();
 
-      const seconds = window.player.currentTime();
+      const seconds = windowPlayerObj.currentTime();
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       const s = Math.floor((seconds % 3600) % 60);

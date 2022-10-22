@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { doCommentById } from 'redux/actions/comments';
 import { doReportContent } from 'redux/actions/reportContent';
-import { selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
+import { selectActiveChannelClaim, selectIncognito, selectWindowPlayerObj } from 'redux/selectors/app';
 import { selectCommentForCommentId } from 'redux/selectors/comments';
 import { selectIsReportingContent, selectReportContentError } from 'redux/selectors/reportContent';
 import { doClaimSearch } from 'redux/actions/claims';
@@ -24,6 +24,7 @@ const select = (state, props) => {
     incognito: selectIncognito(state),
     claim: selectClaimForClaimId(state, claimId),
     comment: selectCommentForCommentId(state, commentId),
+    windowPlayerObj: selectWindowPlayerObj(state),
   };
 };
 

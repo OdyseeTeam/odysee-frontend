@@ -802,5 +802,8 @@ export function doToggleAppDrawer(type) {
   };
 }
 
+export const doSetWindowPlayerObj = (player) => (dispatch) =>
+  dispatch({ type: ACTIONS.SET_WINDOW_PLAYER_OBJ, data: player });
+
 export const doSetMainPlayerDimension = (dimensions) => (dispatch) =>
   dispatch({ type: ACTIONS.SET_MAIN_PLAYER_DIMENSIONS, data: dimensions });
