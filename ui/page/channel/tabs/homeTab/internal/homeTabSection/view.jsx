@@ -7,6 +7,7 @@ type Props = {
   // channelClaimId: string,
   section: any,
   editMode: boolean,
+  handleEditCollection: (any) => void,
   // --- select ---
   claimSearchResults: { [string]: Array<string> },
   collectionUrls: ?Array<string>,
@@ -20,6 +21,7 @@ function HomeTabSection(props: Props) {
   const {
     section,
     editMode,
+    handleEditCollection,
     claimSearchResults,
     collectionUrls,
     collectionName,
@@ -28,12 +30,13 @@ function HomeTabSection(props: Props) {
     doClaimSearch,
   } = props;
 
+  // const [_section, setSection] = React.useState(section);
+
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch = !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringified);
-      // console.log('searchOptions: ', searchOptions);
       doClaimSearch(searchOptions);
     }
   }, [doClaimSearch, shouldPerformSearch]);
@@ -43,7 +46,7 @@ function HomeTabSection(props: Props) {
       case 'featured':
         return null;
       case 'content':
-        switch (section.fileType) {
+        switch (section.file_type) {
           case 'video':
             switch (section.order_by[0]) {
               case 'release_time':
@@ -85,19 +88,18 @@ function HomeTabSection(props: Props) {
     }
   }
 
-  function handleSectionUpdate(e) {
-    console.log('aaaaaaaaa: ', e.type);
-    console.log('aaaaaaaaa: ', e.target.value);
-  }
-  function handleSaveHomeSection() {}
-
   const SectionHeader = (e) => {
     // console.log('e: ', e);
     return (
       <div className="home-section-header-wrapper">
         <div className="home-section-header-option">
           <label>{__('Type')}</label>
-          <select value={e.section.type} defaultValue="select" onChange={(e) => handleSectionUpdate(e)}>
+          <select
+            name="type"
+            value={e.section.type}
+            defaultValue="select"
+            onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+          >
             <option value="select" disabled="disabled">
               {__('Select')}
             </option>
@@ -111,7 +113,12 @@ function HomeTabSection(props: Props) {
         {e.section.type === 'content' && (
           <div className="home-section-header-option">
             <label>{__('File Type')}</label>
-            <select value={e.section.file_type}>
+            <select
+              name="file_type"
+              value={e.section.file_type || 'all'}
+              defaultValue="all"
+              onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+            >
               <option value="all">{__('Show All')}</option>
               <option value="video">{__('Videos')}</option>
               <option value="audio">{__('Audio')}</option>
@@ -123,19 +130,29 @@ function HomeTabSection(props: Props) {
         {e.section.type === 'playlist' && (
           <div className="home-section-header-option">
             <label>{__('Playlist')}</label>
-            <select>
-              <option>Select a Playlist</option>
+            <select
+              name="claimId"
+              value={e.section.claimId || 'select'}
+              defaultValue="select"
+              onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+            >
+              <option value="select">Select a Playlist</option>
               <option>My Playlists...</option>
             </select>
           </div>
         )}
-        {(e.section.type === 'content' || e.section.type === 'playlists' || e.section.type === 'playlist') && (
+        {(e.section.type === 'content' || e.section.type === 'playlists') && (
           <div className="home-section-header-option">
             <label>{__('Order By')}</label>
-            <select value={e.section.order_by}>
-              <option value="new">{__('New')}</option>
-              <option value="trending">{__('Trending')}</option>
-              <option value="top">{__('Top')}</option>
+            <select
+              name="order_by"
+              value={(e.section.order_by && e.section.order_by[0]) || 'release_time'}
+              defaultValue="release_time"
+              onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+            >
+              <option value="release_time">{__('New')}</option>
+              <option value="trending_group">{__('Trending')}</option>
+              <option value="effective_amount">{__('Top')}</option>
             </select>
           </div>
         )}
@@ -147,18 +164,37 @@ function HomeTabSection(props: Props) {
     <div className="home-section-content">
       {editMode && <SectionHeader section={section} />}
       <div className="section">
-        <label className="home-section-title">{collectionName || getTitle()}</label>
-        <ClaimList
-          fetchViewCount
-          hideFilters
-          hideAdvancedFilter
-          hideLayoutButton
-          tileLayout
-          infiniteScroll={false}
-          maxClaimRender={6}
-          useSkeletonScreen={false}
-          uris={collectionUrls || claimSearchResults}
-        />
+        {section.type !== 'featured' ? (
+          <>
+            <label className="home-section-title">{collectionName || getTitle()}</label>
+            <ClaimList
+              fetchViewCount
+              hideFilters
+              hideAdvancedFilter
+              hideLayoutButton
+              tileLayout
+              infiniteScroll={false}
+              maxClaimRender={6}
+              useSkeletonScreen={false}
+              uris={collectionUrls || claimSearchResults}
+            />
+          </>
+        ) : (
+          <>
+            <label className="home-section-title">{collectionName || getTitle()}</label>
+            <ClaimList
+              fetchViewCount
+              hideFilters
+              hideAdvancedFilter
+              hideLayoutButton
+              // tileLayout
+              infiniteScroll={false}
+              maxClaimRender={6}
+              useSkeletonScreen={false}
+              uris={collectionUrls || claimSearchResults}
+            />
+          </>
+        )}
       </div>
     </div>
   );

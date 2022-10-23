@@ -52,8 +52,7 @@ function HomeTab(props: Props) {
 
   const [home, setHome] = React.useState(homeTemplate.entries);
 
-  function handleEditCollection(e) {
-    console.log('e: ', e);
+  function handleEditCollection(e, index) {
     let newHome = [...home];
     if (e.order) {
       if (e.order.to >= newHome.length) {
@@ -65,8 +64,13 @@ function HomeTab(props: Props) {
       newHome.splice(e.order.to, 0, newHome.splice(e.order.from, 1)[0]);
     } else if (e.delete) {
       newHome.splice(e.delete.index, 1);
+    } else if (e.change) {
+      if (e.change.field !== 'order_by') {
+        newHome[index][e.change.field] = e.change.value;
+      } else {
+        newHome[index][e.change.field] = [e.change.value];
+      }
     }
-
     setHome(newHome);
   }
 
@@ -114,22 +118,24 @@ function HomeTab(props: Props) {
                         altIndex={i}
                         altCollection={home}
                         altEditCollection={(e) => handleEditCollection(e)}
+                        // dragHandleProps={dragHandleProps}
+                        // doDisablePlayerDrag={doDisablePlayerDrag}
                       />
                     )}
                   </div>
-                  <HomeTabSection channelClaimId={claimId} section={section} editMode={edit} />
+                  <HomeTabSection
+                    channelClaimId={claimId}
+                    section={section}
+                    editMode={edit}
+                    handleEditCollection={(e) => handleEditCollection(e, i)}
+                  />
                 </div>
               </>
             );
           })}
         {edit && (
           <div className="home-tab-edit">
-            <Button
-              label={__('Save Changes')}
-              button="primary"
-              disabled={true}
-              onClick={() => handleSaveHomeSection()}
-            />
+            <Button label={__('Save')} button="primary" disabled={true} onClick={() => handleSaveHomeSection()} />
             <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
           </div>
         )}

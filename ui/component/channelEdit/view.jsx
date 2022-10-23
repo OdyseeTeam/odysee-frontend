@@ -378,9 +378,9 @@ function ChannelForm(props: Props) {
 
             <TabList className="tabs__list--channel-page">
               <Tab onClick={() => onTabChange(0)}>{__('About')}</Tab>
-              <Tab onClick={() => onTabChange(1)}>{__('Credit Details')}</Tab>
+              {/* <Tab onClick={() => onTabChange(1)}>{__('Credit Details')}</Tab >*/}
               {/* <Tab onClick={() => onTabChange(2)}>{__('Tags')}</Tab> */}
-              {!isNewChannel && <Tab onClick={() => onTabChange(2)}>{__('Other')}</Tab>}
+              {!isNewChannel && <Tab onClick={() => onTabChange(1)}>{__('Other')}</Tab>}
             </TabList>
           </div>
           <TabPanels>
@@ -537,6 +537,7 @@ function ChannelForm(props: Props) {
               />
             </TabPanel>
             <TabPanel>
+              <h2 className="card__title">{__('Credit Details')}</h2>
               <Card
                 body={
                   <FormField
@@ -560,13 +561,15 @@ function ChannelForm(props: Props) {
                   />
                 }
               />
-            </TabPanel>
-            <TabPanel>
-              <h1>dfasdf</h1>
               {!isNewChannel && (
-                <Card
-                  body={<ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />}
-                />
+                <>
+                  <h2 className="card__title">{__('Delete Channel')}</h2>
+                  <Card
+                    body={
+                      <ClaimAbandonButton uri={uri} abandonActionCallback={() => replace(`/$/${PAGES.CHANNELS}`)} />
+                    }
+                  />
+                </>
               )}
             </TabPanel>
           </TabPanels>
