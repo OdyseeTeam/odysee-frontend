@@ -87,6 +87,7 @@ function HomeTab(props: Props) {
   }
 
   function handleCancelChanges() {
+    setHome(homeTemplate.entries);
     setEdit(false);
   }
 

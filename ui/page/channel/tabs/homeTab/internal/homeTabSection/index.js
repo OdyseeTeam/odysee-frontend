@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import { doClaimSearch } from 'redux/actions/claims';
-import { createNormalizedClaimSearchKey } from 'util/claim';
+import { createNormalizedClaimSearchKey, getClaimMetadata } from 'util/claim';
 import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from 'redux/selectors/claims';
 import { selectUrlsForCollectionId, selectNameForCollectionId } from 'redux/selectors/collections';
 
@@ -17,7 +17,6 @@ const select = (state, props) => {
     no_totals: true,
   };
 
-  // console.log('options: ', options)
   const searchKey = createNormalizedClaimSearchKey(options);
   return {
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
@@ -25,6 +24,7 @@ const select = (state, props) => {
     optionsStringified: JSON.stringify(options),
     collectionUrls: props.section.claimId ? selectUrlsForCollectionId(state, props.section.claimId) : undefined,
     collectionName: selectNameForCollectionId(state, props.section.claimId),
+    // description,
   };
 };
 

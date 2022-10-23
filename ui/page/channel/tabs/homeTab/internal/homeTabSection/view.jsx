@@ -1,6 +1,7 @@
 // @flow
 import React from 'react';
 import ClaimList from 'component/claimList';
+import FeaturedSection from '../featuredSection';
 import Button from 'component/button';
 
 type Props = {
@@ -181,18 +182,7 @@ function HomeTabSection(props: Props) {
           </>
         ) : (
           <>
-            <label className="home-section-title">{collectionName || getTitle()}</label>
-            <ClaimList
-              fetchViewCount
-              hideFilters
-              hideAdvancedFilter
-              hideLayoutButton
-              // tileLayout
-              infiniteScroll={false}
-              maxClaimRender={6}
-              useSkeletonScreen={false}
-              uris={collectionUrls || claimSearchResults}
-            />
+            <FeaturedSection uri={claimSearchResults && claimSearchResults[0]} />
           </>
         )}
       </div>

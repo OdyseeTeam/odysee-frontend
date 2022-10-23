@@ -9,7 +9,6 @@ const select = (state, props) => {
   const { uri } = props;
 
   const pendingAmount = makeSelectPendingAmountByUri(uri)(state);
-
   const claim = selectClaimForUri(state, uri);
   const metadata = getClaimMetadata(claim);
   const description = metadata && metadata.description;
