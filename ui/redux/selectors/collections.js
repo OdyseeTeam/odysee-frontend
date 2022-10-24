@@ -57,7 +57,7 @@ export const selectSavedCollections = createSelector(
 export const selectHasCollections = createSelector(
   selectUnpublishedCollectionsList,
   selectMyCollectionIds,
-  (unpublished, publishedIds) => Boolean(unpublished.length > 0 || publishedIds.length > 0)
+  (unpublished, publishedIds) => Boolean(unpublished?.length > 0 || publishedIds?.length > 0)
 );
 
 export const selectEditedCollectionForId = (state: State, id: string) => {
@@ -73,9 +73,9 @@ export const selectUpdatedCollectionForId = (state: State, id: string) => {
   return updatedCollections[id];
 };
 
-export const selectCollectionNameForId = (state: State, id: string) => {
+export const selectCollectionTitleForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
-  return collection?.name;
+  return collection?.title || collection?.name;
 };
 
 export const selectCollectionDescriptionForId = (state: State, id: string) => {
@@ -131,8 +131,11 @@ export const selectCollectionIsMine = createSelector(
   selectMyUnpublishedCollections,
   selectBuiltinCollections,
   selectCurrentQueueList,
-  (id, publicIds, privateIds, builtinIds, queue) =>
-    Boolean(publicIds.includes(id) || privateIds[id] || builtinIds[id] || queue[id])
+  (id, publicIds, privateIds, builtinIds, queue) => {
+    if (!publicIds) return publicIds;
+
+    return Boolean(publicIds.includes(id) || privateIds[id] || builtinIds[id] || queue[id]);
+  }
 );
 
 export const selectMyPublishedCollections = createSelector(
@@ -420,11 +423,6 @@ export const selectNextUrlForCollectionAndUrl = createCachedSelector(
     }
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);
-
-export const selectNameForCollectionId = createSelector(
-  selectCollectionForId,
-  (collection) => (collection && collection.name) || ''
-);
 
 export const selectThumbnailForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);

@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { selectIsUriResolving, selectTitleForUri, selectClaimIdForUri } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectCollectionTitleForId,
   selectCountForCollectionId,
   selectIsResolvingCollectionForId,
   selectFirstItemUrlForCollection,
@@ -38,7 +38,7 @@ const select = (state, props) => {
     collectionId,
     uri: collectionUri,
     collectionCount: selectCountForCollectionId(state, collectionId),
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectCollectionTitleForId(state, collectionId),
     collectionItemUrls: selectUrlsForCollectionId(state, collectionId), // ForId || ForUri
     collectionType: selectCollectionTypeForId(state, collectionId),
     isResolvingCollectionClaims: selectIsResolvingCollectionForId(state, collectionId),

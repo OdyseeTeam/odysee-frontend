@@ -1,19 +1,21 @@
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
-import { COL_TYPES } from 'constants/collections';
 import { parseURI, buildURI, sanitizeName } from 'util/lbryURI';
-import { dedupeLanguages } from 'util/publish';
 import {
   selectClaimsById,
   selectMyClaimsWithoutChannels,
   selectResolvingUris,
   selectClaimsByUri,
-  selectClaimForUri,
-  makeSelectMetadataItemForUri,
+  selectCollectionClaimPublishUpdateMetadataForId,
 } from 'redux/selectors/claims';
-import { getChannelIdFromClaim, getClaimTitle, getThumbnailFromClaim } from 'util/claim';
 import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
-import { selectCollectionForId, selectClaimIdsForCollectionId } from 'redux/selectors/collections';
+import {
+  selectCollectionForId,
+  selectClaimIdsForCollectionId,
+  selectIsCollectionPrivateForId,
+  selectCollectionHasEditsForId,
+  selectCollectionTitleForId,
+} from 'redux/selectors/collections';
 import { selectActiveChannelClaimId } from 'redux/selectors/app';
 
 const selectState = (state) => state.publish || {};
@@ -152,38 +154,44 @@ export const selectUploadCount = createSelector(
 export const selectIsScheduled = (state) => selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);
 
 // @flow
-export const selectCollectionClaimParamsForUri = (state: State, uri: string, collectionId: string) => {
-  const claim = selectClaimForUri(state, uri);
+export const selectCollectionClaimUploadParamsForId = (state: State, collectionId: string) => {
+  const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
   const collection = selectCollectionForId(state, collectionId);
+  const collectionTitle = selectCollectionTitleForId(state, collectionId);
+  const collectionClaimIds = selectClaimIdsForCollectionId(state, collectionId);
   const activeChannelId = selectActiveChannelClaimId(state);
 
-  const { claim_id: claimId, name: collectionName, amount } = claim || collection || {};
-
-  // Covers edited titles as well. It is separated out from collectionName as it
-  // seems like collectionName wants to favor the claim's value for cases
-  // outside of COL_TYPES.FEATURED_CHANNELS (not sure).
-  const featuredTitle = collection?.type === COL_TYPES.FEATURED_CHANNELS ? collection.name : '';
-
-  const title = getClaimTitle(claim);
-  const collectionChannelId = getChannelIdFromClaim(claim);
-  const tags = makeSelectMetadataItemForUri(uri, 'tags')(state);
-  const languages = makeSelectMetadataItemForUri(uri, 'languages')(state);
-  // removes falsey values from string array
-  const collectionClaimIds = selectClaimIdsForCollectionId(state, collectionId).filter(Boolean);
-
-  const collectionParams: CollectionPublishParams = {
-    thumbnail_url: collection ? collection.thumbnail?.url : getThumbnailFromClaim(claim),
-    name: collectionName ? sanitizeName(collectionName) : undefined,
-    description: collection ? collection.description : makeSelectMetadataItemForUri(uri, 'description')(state),
-    title: featuredTitle || (collection ? collectionName : title),
-    bid: String(amount || 0.001),
-    languages: languages ? dedupeLanguages(languages) : [],
-    locations: makeSelectMetadataItemForUri(uri, 'locations')(state) || [],
-    tags: tags ? tags.map((tag) => ({ name: tag })) : [],
-    claim_id: claimId,
-    channel_id: claim ? collectionChannelId : activeChannelId || undefined,
-    claims: collectionClaimIds,
+  const collectionParams = {
+    title: collectionTitle,
+    description: collection.description,
+    thumbnail_url: collection.thumbnail?.url,
   };
 
-  return collectionParams;
+  if (isPrivate) {
+    const collectionPublishCreateParams: CollectionPublishCreateParams = {
+      ...collectionParams,
+      bid: 0.0001,
+      channel_id: activeChannelId,
+      name: sanitizeName(collectionTitle),
+      claims: collectionClaimIds,
+      tags: [],
+    };
+
+    return collectionPublishCreateParams;
+  }
+
+  const collectionClaimMetadata = selectCollectionClaimPublishUpdateMetadataForId(state, collectionId);
+
+  const collectionClaimUploadParams: CollectionPublishCreateParams & CollectionPublishUpdateParams = {
+    channel_id: activeChannelId,
+    ...(collectionClaimMetadata || {}),
+  };
+
+  const hasEdits = selectCollectionHasEditsForId(state, collectionId);
+
+  if (hasEdits) {
+    Object.assign(collectionClaimUploadParams, collectionParams);
+  }
+
+  return collectionClaimUploadParams;
 };

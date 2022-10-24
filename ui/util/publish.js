@@ -62,5 +62,5 @@ export function handleLanguageChange(index, code, languageParam, setParams, para
       langs[index] = code;
     }
   }
-  setParams({ ...params, languages: langs });
+  setParams(params ? { ...params, languages: langs } : { languages: langs });
 }

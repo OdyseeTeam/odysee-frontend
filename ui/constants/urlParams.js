@@ -14,16 +14,12 @@ export const CHANNEL_PAGE = Object.freeze({
 });
 
 export const COLLECTION_PAGE = Object.freeze({
-  QUERIES: {
-    VIEW: 'view',
-    TYPE: 'type',
-  },
+  QUERIES: { VIEW: 'view' },
   VIEWS: {
+    // edit === private/local edits
     EDIT: 'edit',
+    // public === public edits/publish playlist
     PUBLISH: 'publish',
-  },
-  TYPES: {
-    FEATURED: 'featuredChannels',
   },
 });
 

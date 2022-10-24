@@ -2419,7 +2419,6 @@
   "Deleted content": "Deleted content",
   "Added to Watch Later": "Added to Watch Later",
   "%firstAction%": "%firstAction%",
-  "%action% %collection%": "%action% %collection%",
   "This won't be able to be changed in the future.": "This won't be able to be changed in the future.",
   "Thumbnail (Optional)": "Thumbnail (Optional)",
   "Publish Updates": "Publish Updates",
@@ -2653,6 +2652,7 @@
   "Purchase completed successfully": "Purchase completed successfully",
   "Rental completed successfully": "Rental completed successfully",
   "Enjoy!": "Enjoy!",
+  "Collection does not exist.": "Collection does not exist.",
 
   "--end--": "--end--"
 }

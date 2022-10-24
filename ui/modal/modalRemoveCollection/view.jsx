@@ -16,7 +16,7 @@ type Props = {
   collectionName: string,
   uri: ?string,
   redirect: ?string,
-  collectionParams: CollectionPublishParams,
+  collectionParams: CollectionPublishCreateParams & CollectionPublishUpdateParams,
   collectionUrls: Array<string>,
   doHideModal: () => void,
   doCollectionDelete: (string, ?string) => void,
@@ -91,9 +91,10 @@ function ModalRemoveCollection(props: Props) {
                   if (redirect) replace(redirect);
                   doCollectionDelete(collectionId, uri ? (keepPrivate ? 'resolved' : 'all') : undefined);
                   if (uri && keepPrivate) {
-                    const { name, description, thumbnail_url } = collectionParams;
+                    const { name, title, description, thumbnail_url } = collectionParams;
                     const createParams = {
-                      name,
+                      name: title || name,
+                      title: title || name,
                       description,
                       items: collectionUrls,
                       thumbnail: { url: thumbnail_url },

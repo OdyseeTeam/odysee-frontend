@@ -9,12 +9,12 @@ type Props = {
   collectionId: string,
   noIcon?: boolean,
   // -- redux --
-  collectionName?: string,
+  collectionTitle?: string,
   collectionHasEdits: boolean,
 };
 
 const CollectionTitle = (props: Props) => {
-  const { collectionId, noIcon, collectionName, collectionHasEdits } = props;
+  const { collectionId, noIcon, collectionTitle, collectionHasEdits } = props;
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
@@ -24,11 +24,11 @@ const CollectionTitle = (props: Props) => {
         <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId] || ICONS.PLAYLIST} className="icon--margin-right" />
       )}
 
-      {collectionName ? (
+      {collectionTitle ? (
         isBuiltin ? (
-          __(collectionName)
+          __(collectionTitle)
         ) : (
-          collectionName
+          collectionTitle
         )
       ) : (
         <Skeleton

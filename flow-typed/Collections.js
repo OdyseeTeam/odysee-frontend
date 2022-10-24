@@ -2,6 +2,7 @@ declare type Collection = {
   id: string,
   items: Array<string>,
   name: string,
+  title?: string,
   description?: string,
   thumbnail?: {
     url?: string,
@@ -49,6 +50,7 @@ declare type CollectionList = Array<Collection>;
 
 declare type CollectionCreateParams = {
   name: string,
+  title?: string,
   description?: string,
   thumbnail?: {
     url?: string,
@@ -68,10 +70,9 @@ declare type CollectionEditParams = {
   order?: { from: number, to: number },
   type?: CollectionType,
   name?: string,
+  title?: string,
   description?: string,
-  thumbnail?: {
-    url?: string,
-  },
+  thumbnail_url?: string,
 };
 
 declare type CollectionFetchParams = {
