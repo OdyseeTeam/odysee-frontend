@@ -281,7 +281,7 @@ export default function CreatorSettingsTab(props: Props) {
 
         {!isBusy && !isDisabled && (
           <>
-            <h2 class="card__title">{__('General')}</h2>
+            <h2 className="card__title">{__('General')}</h2>
             <Card
               // isBodyList
               body={
@@ -435,7 +435,7 @@ export default function CreatorSettingsTab(props: Props) {
               }
             />
 
-            <h2 class="card__title">{__('Moderators')}</h2>
+            <h2 className="card__title">{__('Moderators')}</h2>
             <Card
               body={
                 <SettingsRow subtitle={__(HELP.MODERATORS)} multirow>
@@ -451,7 +451,7 @@ export default function CreatorSettingsTab(props: Props) {
               }
             />
 
-            <h2 class="card__title">{__('Filters')}</h2>
+            <h2 className="card__title">{__('Filters')}</h2>
             <Card
               body={
                 <SettingsRow subtitle={__(HELP.BLOCKED_WORDS)} multirow>

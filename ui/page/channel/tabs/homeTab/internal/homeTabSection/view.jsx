@@ -55,39 +55,46 @@ function HomeTabSection(props: Props) {
           case 'video':
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
-                return 'New Videos';
+                return __('New Videos');
               case 'trending_group':
-                return 'Trending Videos';
+                return __('Trending Videos');
               case 'effective_amount':
-                return 'Top Videos';
+                return __('Top Videos');
             }
             break;
           case 'audio':
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
-                return 'New Audio';
+                return __('New Audio');
               case 'trending_group':
-                return 'Trending Audio';
+                return __('Trending Audio');
               case 'effective_amount':
-                return 'Top Audio';
+                return __('Top Audio');
             }
             break;
           case 'document':
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
-                return 'New Posts';
+                return __('New Posts');
               case 'trending_group':
-                return 'Trending Posts';
+                return __('Trending Posts');
               case 'effective_amount':
-                return 'Top Posts';
+                return __('Top Posts');
             }
             break;
           default:
-            return 'Content';
+            switch (section.order_by ? section.order_by[0] : 'release_time') {
+              case 'release_time':
+                return __('New Content');
+              case 'trending_group':
+                return __('Trending Content');
+              case 'effective_amount':
+                return __('Top Content');
+            }
         }
         break;
       case 'playlists':
-        return 'Playlists';
+        return __('Playlists');
       default:
         return section && SectionHeader();
     }
@@ -142,10 +149,14 @@ function HomeTabSection(props: Props) {
                 defaultValue="select"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
-                <option value="select">Select a Playlist</option>
+                <option value="select">{__('Select a Playlist')}</option>
                 {publishedList &&
-                  publishedList.map((list) => {
-                    return <option value={publishedCollections[list].id}>{publishedCollections[list].name}</option>;
+                  publishedList.map((list, i) => {
+                    return (
+                      <option key={i} value={publishedCollections[list].id}>
+                        {publishedCollections[list].name}
+                      </option>
+                    );
                   })}
               </select>
             </div>

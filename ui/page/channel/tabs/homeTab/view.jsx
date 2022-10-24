@@ -31,10 +31,12 @@ function HomeTab(props: Props) {
       },
       {
         type: 'content',
-        file_type: CS.FILE_VIDEO,
+        // file_type: CS.FILE_VIDEO,
+        file_type: CS.FILE_ALL,
         order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
-      } /*
+      },
+      /*
       {
         type: 'playlists',
         file_type: undefined,
@@ -46,7 +48,8 @@ function HomeTab(props: Props) {
         file_type: undefined,
         order_by: undefined,
         claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
-      },*/,
+      },
+      */
     ],
   };
 
@@ -76,7 +79,6 @@ function HomeTab(props: Props) {
   }
 
   function handleAddHomeSection(e) {
-    console.log('handle add: ', e);
     let newHome = [...home];
     newHome.push({
       type: undefined,
@@ -117,27 +119,25 @@ function HomeTab(props: Props) {
           // home.enabled &&
           home.map((section, i) => {
             return (
-              <>
-                <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
-                  <div className="order">
-                    {edit && (
-                      <CollectionEditButtons
-                        altIndex={i}
-                        altCollection={home}
-                        altEditCollection={(e) => handleEditCollection(e)}
-                        // dragHandleProps={dragHandleProps}
-                        // doDisablePlayerDrag={doDisablePlayerDrag}
-                      />
-                    )}
-                  </div>
-                  <HomeTabSection
-                    channelClaimId={claimId}
-                    section={section}
-                    editMode={edit}
-                    handleEditCollection={(e) => handleEditCollection(e, i)}
-                  />
+              <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
+                <div className="order">
+                  {edit && (
+                    <CollectionEditButtons
+                      altIndex={i}
+                      altCollection={home}
+                      altEditCollection={(e) => handleEditCollection(e)}
+                      // dragHandleProps={dragHandleProps}
+                      // doDisablePlayerDrag={doDisablePlayerDrag}
+                    />
+                  )}
                 </div>
-              </>
+                <HomeTabSection
+                  channelClaimId={claimId}
+                  section={section}
+                  editMode={edit}
+                  handleEditCollection={(e) => handleEditCollection(e, i)}
+                />
+              </div>
             );
           })}
         {edit && (
