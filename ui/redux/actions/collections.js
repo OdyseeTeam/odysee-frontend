@@ -389,10 +389,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const collection: Collection = selectCollectionForId(state, collectionId);
 
   if (!collection) {
-    return dispatch({
-      type: ACTIONS.COLLECTION_ERROR,
-      data: { message: 'collection does not exist' },
-    });
+    return dispatch({ type: ACTIONS.COLLECTION_ERROR, data: { message: __('Collection does not exist.') } });
   }
 
   const editedCollection: Collection = selectEditedCollectionForId(state, collectionId);
@@ -435,6 +432,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
     ((editedCollection || publishedCollection) && COLS.COL_KEY_EDITED) ||
     (COLS.BUILTIN_PLAYLISTS.includes(collectionId) && COLS.COL_KEY_BUILTIN) ||
     (unpublishedCollection && COLS.COL_KEY_UNPUBLISHED);
+  const title = params.title || params.name;
 
   return dispatch({
     type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
@@ -443,10 +441,10 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       collection: {
         ...collection,
         items: newItems,
+        description: params.description,
+        ...(title ? { name: title, title } : {}),
         ...(type ? { type } : {}),
-        ...(params.name ? { name: params.name } : {}),
-        ...(params.description ? { description: params.description } : {}),
-        ...(params.thumbnail ? { thumbnail: params.thumbnail } : {}),
+        ...(params.thumbnail_url ? { thumbnail: { url: params.thumbnail_url } } : {}),
       },
     },
   });

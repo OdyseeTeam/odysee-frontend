@@ -193,6 +193,7 @@ export const selectHasClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return Boolean(claim);
 };
+export const selectHasClaimForId = (state: State, id: ClaimId) => Boolean(selectClaimForId(state, id));
 
 export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   // This selector assumes that `uri` is never null and is valid. It
@@ -294,27 +295,25 @@ const selectNormalizedAndVerifiedUri = createCachedSelector(
 )((state, rawUri) => String(rawUri));
 
 export const selectClaimIsMine = (state: State, claim: ?Claim) => {
-  if (claim) {
-    if (claim.is_my_output) {
-      return true;
-    }
+  if (!claim) return claim;
 
-    const signingChannelId = getChannelIdFromClaim(claim);
-    const myChannelIds = selectMyChannelClaimIds(state);
-
-    if (signingChannelId && myChannelIds) {
-      if (myChannelIds.includes(signingChannelId)) {
-        return true;
-      }
-    } else {
-      const myActiveClaims = selectMyActiveClaims(state);
-      if (claim.claim_id && myActiveClaims.has(claim.claim_id)) {
-        return true;
-      }
-    }
+  if (claim.is_my_output) {
+    return true;
   }
 
-  return false;
+  const signingChannelId = getChannelIdFromClaim(claim);
+  const myChannelIds = selectMyChannelClaimIds(state);
+
+  if (signingChannelId && myChannelIds) {
+    if (myChannelIds.includes(signingChannelId)) {
+      return true;
+    }
+  } else {
+    const myActiveClaims = selectMyActiveClaims(state);
+    if (claim.claim_id && myActiveClaims.has(claim.claim_id)) {
+      return true;
+    }
+  }
 };
 
 export const selectClaimIsMineForId = (state: State, claimId: string) =>
@@ -410,6 +409,66 @@ export const selectMetadataForUri = (state: State, uri: string) => {
   return metadata || (claim === undefined ? undefined : null);
 };
 
+export const selectMetadataForClaimId = (state: State, claimId: ClaimId) => {
+  const claim = selectClaimForClaimId(state, claimId);
+  if (!claim) return claim;
+
+  const { value: metadata } = claim;
+  return metadata;
+};
+
+export const selectMetadataItemForClaimIdAndKey = (
+  state: State,
+  claimId: ClaimId,
+  key: ChannelMetadataKey | StreamMetadataKey | CollectionMetadataKey
+) => selectMetadataForClaimId(state, claimId)[key];
+
+export const selectTagNamesForClaimId = createSelector(
+  (state, claimId) => selectMetadataItemForClaimIdAndKey(state, claimId, 'tags'),
+  (tags) => tags && tags.map((tag) => tag.name || tag)
+);
+
+export const selectGenericClaimPublishUpdateMetadataForId = (state: State, claimId: ClaimId) => {
+  const claim = selectClaimForClaimId(state, claimId);
+  if (!claim) return claim;
+
+  const thumbnail = selectMetadataItemForClaimIdAndKey(state, claimId, 'thumbnail');
+  const tags = selectMetadataItemForClaimIdAndKey(state, claimId, 'tags');
+
+  const genericUploadMetadata: GenericPublishCreateParams & GenericPublishUpdateParams = {
+    claim_id: claim.claim_id,
+    // $FlowFixMe
+    name: getNameFromClaim(claim),
+    channel_id: getChannelIdFromClaim(claim) || null,
+    title: selectMetadataItemForClaimIdAndKey(state, claimId, 'title'),
+    description: selectMetadataItemForClaimIdAndKey(state, claimId, 'description'),
+    languages: selectMetadataItemForClaimIdAndKey(state, claimId, 'languages') || [],
+    locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations'),
+    bid: selectClaimBidAmountForId(state, claimId) || 0.001,
+    tags: tags ? tags.map((tag) => ({ name: tag })) : [],
+    ...(thumbnail ? { thumbnail_url: thumbnail.url } : {}),
+  };
+
+  return genericUploadMetadata;
+};
+
+export const selectCollectionClaimPublishUpdateMetadataForId = (state: State, claimId: ClaimId) => {
+  const claimMetadata = selectGenericClaimPublishUpdateMetadataForId(state, claimId);
+  if (!claimMetadata) return claimMetadata;
+
+  const collectionClaims = selectClaimForClaimId(state, claimId).claims;
+  if (!collectionClaims) return collectionClaims;
+
+  const collectionClaimIds = collectionClaims.map((claim) => claim.claim_id);
+
+  const collectionPublishUpdateMetadata: CollectionPublishUpdateParams = {
+    ...claimMetadata,
+    claims: collectionClaimIds,
+  };
+
+  return collectionPublishUpdateMetadata;
+};
+
 export const makeSelectMetadataForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     const metadata = claim && claim.value;
@@ -452,6 +511,11 @@ export const makeSelectAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     return claim && claim.amount;
   });
+
+export const selectClaimBidAmountForId = (state: State, id: ClaimId) => {
+  const claim = selectClaimForClaimId(state, id);
+  return claim && claim.amount;
+};
 
 export const makeSelectEffectiveAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri, false), (claim) => {
@@ -607,6 +671,9 @@ export const selectIsUriResolving = (state: State, uri: string) => {
   const resolvingUris = selectResolvingUris(state);
   return resolvingUris && resolvingUris.includes(uri);
 };
+
+export const selectIsResolvingForId = (state: State, claimId: ClaimId) =>
+  new Set(selectResolvingUris(state)).has(claimId);
 
 export const selectChannelClaimCounts = createSelector(selectState, (state) => state.channelClaimCounts || {});
 
@@ -894,8 +961,13 @@ export const selectStakedLevelForChannelUri = createCachedSelector(selectTotalSt
   return level;
 })((state, uri) => String(uri));
 
-export const selectUpdatingCollection = (state: State) => selectState(state).updatingCollection;
-export const selectCreatingCollection = (state: State) => selectState(state).creatingCollection;
+export const selectCreatingCollectionIds = (state: State) => selectState(state).creatingCollectionIds;
+export const selectUpdatingCollectionIds = (state: State) => selectState(state).updatingCollectionIds;
+
+export const selectIsCreatingCollectionForId = (state: State, collectionId: string) =>
+  new Set(selectCreatingCollectionIds(state)).has(collectionId);
+export const selectIsUpdatingCollectionForId = (state: State, collectionId: string) =>
+  new Set(selectUpdatingCollectionIds(state)).has(collectionId);
 
 export const selectIsMyChannelCountOverLimit = createSelector(
   selectMyChannelClaimIds,

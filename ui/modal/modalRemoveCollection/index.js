@@ -5,9 +5,9 @@ import {
   makeSelectClaimForClaimId,
 } from 'redux/selectors/claims';
 import { doCollectionDelete, doLocalCollectionCreate } from 'redux/actions/collections';
-import { selectNameForCollectionId, selectUrlsForCollectionId } from 'redux/selectors/collections';
+import { selectCollectionTitleForId, selectUrlsForCollectionId } from 'redux/selectors/collections';
 import { doHideModal } from 'redux/actions/app';
-import { selectCollectionClaimParamsForUri } from 'redux/selectors/publish';
+import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
 import ModalRemoveCollection from './view';
 
 const select = (state, props) => {
@@ -20,8 +20,8 @@ const select = (state, props) => {
     uri,
     claimIsMine: selectClaimIsMineForUri(state, uri),
     isAbandoning: makeSelectIsAbandoningClaimForUri(uri)(state),
-    collectionName: selectNameForCollectionId(state, collectionId),
-    collectionParams: selectCollectionClaimParamsForUri(state, uri, collectionId),
+    collectionName: selectCollectionTitleForId(state, collectionId),
+    collectionParams: selectCollectionClaimUploadParamsForId(state, collectionId),
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
   };
 };

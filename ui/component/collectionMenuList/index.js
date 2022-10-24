@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import {
-  selectNameForCollectionId,
+  selectCollectionTitleForId,
   selectIsCollectionBuiltInForId,
   selectPublishedCollectionNotEditedForId,
   selectCollectionIsEmptyForId,
@@ -17,7 +17,7 @@ const select = (state, props) => {
   const playNextUri = shuffleList && shuffleList.newUrls[0];
 
   return {
-    collectionName: selectNameForCollectionId(state, collectionId),
+    collectionName: selectCollectionTitleForId(state, collectionId),
     playNextUri,
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
     publishedNotEdited: selectPublishedCollectionNotEditedForId(state, collectionId),

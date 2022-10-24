@@ -1,15 +1,14 @@
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 
-import { makeSelectClaimForClaimId } from 'redux/selectors/claims';
-
+import { selectHasClaimForId, selectIsResolvingForId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectUrlsForCollectionId,
   selectIsResolvingCollectionForId,
   selectBrokenUrlsForCollectionId,
-  selectMyEditedCollections,
+  selectCollectionIsMine,
 } from 'redux/selectors/collections';
+
 import { doFetchItemsInCollection } from 'redux/actions/collections';
 
 import CollectionPage from './view';
@@ -19,17 +18,15 @@ const select = (state, props) => {
   const { params } = match;
   const { collectionId } = params;
 
-  const claim = collectionId && makeSelectClaimForClaimId(collectionId)(state);
-  const uri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
-
   return {
     collectionId,
-    uri,
+    hasClaim: selectHasClaimForId(state, collectionId),
     collection: selectCollectionForId(state, collectionId),
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
-    editedCollections: selectMyEditedCollections(state),
     isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isResolving: selectIsResolvingForId(state, collectionId),
+    isCollectionMine: selectCollectionIsMine(state, collectionId),
   };
 };
 
@@ -37,4 +34,4 @@ const perform = {
   doFetchItemsInCollection,
 };
 
-export default withRouter(connect(select, perform)(CollectionPage));
+export default connect(select, perform)(CollectionPage);

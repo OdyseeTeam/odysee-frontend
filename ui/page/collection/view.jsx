@@ -2,37 +2,45 @@
 import React from 'react';
 import CollectionItemsList from 'component/collectionItemsList';
 import Page from 'component/page';
-import { SECTION_TAGS } from 'constants/collections';
 import * as PAGES from 'constants/pages';
-import { COLLECTION_PAGE as CP } from 'constants/urlParams';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import { COLLECTION_PAGE } from 'constants/urlParams';
 import { useHistory } from 'react-router-dom';
-import CollectionPublish from './internal/collectionPublish';
-import CollectionPrivateEdit from './internal/collectionPrivateEdit';
+import CollectionPublishForm from './internal/collectionPublishForm';
 import CollectionHeader from './internal/collectionHeader';
+import Spinner from 'component/spinner';
 
 type Props = {
+  // -- path match --
   collectionId: string,
-  uri: string,
+  // -- redux --
+  hasClaim: boolean,
   collection: Collection,
   collectionUrls: Array<string>,
   brokenUrls: ?Array<any>,
   isResolvingCollection: boolean,
+  isResolving: boolean,
+  isCollectionMine: boolean,
   doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
 };
 
 export default function CollectionPage(props: Props) {
   const {
+    // -- path match --
     collectionId,
-    uri,
+    // -- redux --
+    hasClaim,
     collection,
     collectionUrls,
     brokenUrls,
     isResolvingCollection,
+    isResolving,
+    isCollectionMine,
     doFetchItemsInCollection,
   } = props;
 
   const {
-    replace,
+    push,
     location: { search, state },
   } = useHistory();
   const { showEdit: pageShowEdit } = state || {};
@@ -43,29 +51,13 @@ export default function CollectionPage(props: Props) {
   const { name, totalItems } = collection || {};
 
   const urlParams = new URLSearchParams(search);
-  const publishing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.PUBLISH;
-  const editing = urlParams.get(CP.QUERIES.VIEW) === CP.VIEWS.EDIT;
-  const returnPath = urlParams.get('redirect');
-
+  const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
+  const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
   const editPage = editing || publishing;
+  const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
+
   const urlsReady =
     collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
-
-  function handlePreSubmit(params) {
-    if (urlParams.get(CP.QUERIES.TYPE) === CP.TYPES.FEATURED) {
-      const channelId = collection.featuredChannelsParams?.channelId;
-      console.assert(channelId, 'Featured-channels without a parent channel ID'); // eslint-disable-line no-console
-
-      return {
-        ...params,
-        // Inject SECTION_TAGS.FEATURED_CHANNELS as the first tag:
-        tags: [{ name: SECTION_TAGS.FEATURED_CHANNELS }, ...params.tags],
-        // The channel must not be changed:
-        channel_id: channelId,
-      };
-    }
-    return params;
-  }
 
   React.useEffect(() => {
     if (collectionId && !urlsReady && !collection) {
@@ -73,36 +65,36 @@ export default function CollectionPage(props: Props) {
     }
   }, [collectionId, urlsReady, doFetchItemsInCollection, collection]);
 
+  if (isResolving || isCollectionMine === undefined) {
+    return (
+      <div className="main--empty">
+        <Spinner />
+      </div>
+    );
+  }
+
   if (!collection && !isResolvingCollection) {
     return (
       <Page>
-        <h2 className="main--empty empty">{__('Nothing here')}</h2>
+        <div className="main--empty empty">{__('Nothing here')}</div>
       </Page>
     );
   }
 
-  if (editPage) {
-    const getReturnPath = (id) => returnPath || `/$/${PAGES.PLAYLIST}/${id || collectionId}`;
-    const onDone = (id) => replace(getReturnPath(id));
+  if (editPage && !isBuiltin && isCollectionMine) {
+    const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
+    const doReturnForId = (id) => push(getPagePath(id));
 
     return (
       <Page
         noFooter
-        noSideNavigation={editPage}
+        noSideNavigation
         backout={{
-          title: __('%action% %collection%', {
-            collection: name,
-            action: uri || editing ? __('Editing') : __('Publishing'),
-          }),
-          simpleTitle: uri || editing ? __('Editing') : __('Publishing'),
-          backNavDefault: getReturnPath(collectionId),
+          title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name,
+          backNavDefault: getPagePath(collectionId),
         }}
       >
-        {editing ? (
-          <CollectionPrivateEdit collectionId={collectionId} />
-        ) : (
-          <CollectionPublish uri={uri} collectionId={collectionId} onPreSubmit={handlePreSubmit} onDone={onDone} />
-        )}
+        <CollectionPublishForm collectionId={collectionId} doReturnForId={doReturnForId} />
       </Page>
     );
   }

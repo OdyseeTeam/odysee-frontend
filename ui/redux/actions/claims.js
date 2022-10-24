@@ -927,9 +927,7 @@ export function doCollectionPublish(
     }
 
     return new Promise((resolve, reject) => {
-      dispatch({
-        type: ACTIONS.COLLECTION_PUBLISH_STARTED,
-      });
+      dispatch({ type: ACTIONS.COLLECTION_PUBLISH_STARTED, data: { collectionId: localId } });
 
       function success(response) {
         const collectionClaim = response.outputs[0];
@@ -937,7 +935,7 @@ export function doCollectionPublish(
           batchActions(
             {
               type: ACTIONS.COLLECTION_PUBLISH_COMPLETED,
-              data: { claimId: collectionClaim.claim_id },
+              data: { claimId: collectionClaim.claim_id, localId },
             },
             // move unpublished collection to pending collection with new publish id
             // recent publish won't resolve this second. handle it in checkPending
@@ -959,7 +957,7 @@ export function doCollectionPublish(
       }
 
       function failure(error) {
-        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_FAILED });
+        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_FAILED, data: { collectionId: localId } });
         dispatch(doToast({ message: error.message, isError: true }));
         return reject(error);
       }
@@ -1042,16 +1040,17 @@ export function doCollectionPublishUpdate(
     return new Promise((resolve, reject) => {
       dispatch({
         type: ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED,
+        data: { collectionId: updateParams.claim_id },
       });
 
       function success(response) {
         const collectionClaim = response.outputs[0];
+
         dispatch({
           type: ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED,
-          data: {
-            collectionClaim,
-          },
+          data: { collectionId: updateParams.claim_id },
         });
+
         dispatch({
           type: ACTIONS.COLLECTION_PENDING,
           data: { claimId: collectionClaim.claim_id },
@@ -1067,7 +1066,11 @@ export function doCollectionPublishUpdate(
       }
 
       function failure(error) {
-        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED });
+        dispatch({
+          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED,
+          data: { collectionId: updateParams.claim_id },
+        });
+
         dispatch(doToast({ message: error.message }));
         return reject(error);
       }
