@@ -740,6 +740,7 @@ export function doClaimSearch(
       const streamClaimIds = new Set([]);
       const channelClaimIds = new Set([]);
       const fiatClaimIds = [];
+      let collectionResolveInfo;
       const shouldFetchPurchases = settings.fetchStripeTransactions && !options.has_no_source;
 
       data.items.forEach((stream: Claim) => {
@@ -748,6 +749,11 @@ export function doClaimSearch(
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           streamClaimIds.add(stream.claim_id);
+        }
+
+        if (stream.value_type === 'collection') {
+          if (!collectionResolveInfo) collectionResolveInfo = {};
+          collectionResolveInfo[stream.canonical_url] = { stream };
         }
 
         const channelId = getChannelIdFromClaim(stream);
@@ -768,6 +774,10 @@ export function doClaimSearch(
           pageSize: options.page_size,
         },
       });
+
+      if (collectionResolveInfo) {
+        dispatch({ type: ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED, data: { resolveInfo: collectionResolveInfo } });
+      }
 
       if (streamClaimIds.size > 0) {
         dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));

@@ -100,7 +100,7 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
 
 function isPrivateCollectionId(collectionId: string) {
   // Private (unpublished) collections uses UUID.
-  return collectionId.includes('-');
+  return collectionId.includes('-') || COLS.BUILTIN_PLAYLISTS.includes(collectionId) || collectionId === COLS.QUEUE_ID;
 }
 
 export const doFetchItemsInCollections = (resolveItemsOptions: {
@@ -131,8 +131,6 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       collectionIdsToSearch.push(id);
     }
   });
-
-  if (privateCollectionIds.length === 0 && collectionIdsToSearch.length === 0) return;
 
   dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED, data: { ids: collectionIds } });
 
