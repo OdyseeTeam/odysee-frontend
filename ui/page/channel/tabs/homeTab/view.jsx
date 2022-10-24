@@ -34,7 +34,7 @@ function HomeTab(props: Props) {
         file_type: CS.FILE_VIDEO,
         order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
-      },/*
+      } /*
       {
         type: 'playlists',
         file_type: undefined,
@@ -46,13 +46,12 @@ function HomeTab(props: Props) {
         file_type: undefined,
         order_by: undefined,
         claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
-      },*/
+      },*/,
     ],
   };
 
   const [home, setHome] = React.useState(homeTemplate.entries);
   const hasUnsavedChanges = homeTemplate.entries !== home;
-  // console.log('hasUnsavedChanges: ', hasUnsavedChanges)
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
@@ -67,7 +66,6 @@ function HomeTab(props: Props) {
     } else if (e.delete) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
-      console.log('change: ', e.change);
       if (e.change.field !== 'order_by') {
         newHome[index][e.change.field] = e.change.value;
       } else {
@@ -87,6 +85,11 @@ function HomeTab(props: Props) {
       claimId: undefined,
     });
     setHome(newHome);
+  }
+
+  function handleSaveHomeSection() {
+    setHome(home);
+    setEdit(false);
   }
 
   function handleCancelChanges() {
@@ -148,15 +151,9 @@ function HomeTab(props: Props) {
             <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
           </div>
         )}
-        {/*
-        <Button
-          label={__('Add New Section')}
-          button="primary"
-          icon={ICONS.ADD}
-          disabled={true}
-          onClick={handleAddHomeSection}
-        />        
-        */}
+        {edit && (
+          <Button label={__('Add New Section')} button="primary" icon={ICONS.ADD} onClick={handleAddHomeSection} />
+        )}
       </div>
     </>
   );

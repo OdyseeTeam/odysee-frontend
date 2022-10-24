@@ -13,7 +13,6 @@ import FileValues from 'component/fileValues';
 type Props = {
   uri: string,
   expandOverride: boolean,
-  allowMore: boolean,
   // redux
   description?: string,
   amount: number,
@@ -25,7 +24,7 @@ type Props = {
 };
 
 export default function FileDescription(props: Props) {
-  const { uri, description, amount, hasSupport, isEmpty, doOpenModal, claimIsMine, expandOverride, allowMore } = props;
+  const { uri, description, amount, hasSupport, isEmpty, doOpenModal, claimIsMine, expandOverride } = props;
 
   const [expanded, setExpanded] = React.useState(false);
   const [showCreditDetails, setShowCreditDetails] = React.useState(false);
@@ -49,33 +48,31 @@ export default function FileDescription(props: Props) {
             <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />
           )}
           <ClaimTags uri={uri} type="large" />
-          {allowMore && <FileDetails uri={uri} />}
+          <FileDetails uri={uri} />
         </div>
       </div>
 
-      {allowMore && (
-        <div className="card__bottom-actions">
-          {!expandOverride && (
-            <Button button="link" label={expanded ? __('Less') : __('More')} onClick={() => setExpanded(!expanded)} />
+      <div className="card__bottom-actions">
+        {!expandOverride && (
+          <Button button="link" label={expanded ? __('Less') : __('More')} onClick={() => setExpanded(!expanded)} />
+        )}
+
+        <div className="section__actions--no-margin">
+          {claimIsMine && hasSupport && (
+            <Button
+              button="link"
+              className="expandable__button"
+              icon={ICONS.UNLOCK}
+              aria-label={__('Unlock tips')}
+              onClick={() => doOpenModal(MODALS.LIQUIDATE_SUPPORTS, { uri })}
+            />
           )}
 
-          <div className="section__actions--no-margin">
-            {claimIsMine && hasSupport && (
-              <Button
-                button="link"
-                className="expandable__button"
-                icon={ICONS.UNLOCK}
-                aria-label={__('Unlock tips')}
-                onClick={() => doOpenModal(MODALS.LIQUIDATE_SUPPORTS, { uri })}
-              />
-            )}
-
-            <Button button="link" onClick={() => setShowCreditDetails(!showCreditDetails)}>
-              <LbcSymbol postfix={showCreditDetails ? __('Hide') : formattedAmount} />
-            </Button>
-          </div>
+          <Button button="link" onClick={() => setShowCreditDetails(!showCreditDetails)}>
+            <LbcSymbol postfix={showCreditDetails ? __('Hide') : formattedAmount} />
+          </Button>
         </div>
-      )}
+      </div>
 
       {showCreditDetails && showMore && <FileValues uri={uri} />}
     </>

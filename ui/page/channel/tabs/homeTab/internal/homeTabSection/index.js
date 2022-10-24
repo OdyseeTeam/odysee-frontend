@@ -12,10 +12,10 @@ import HomeTabSection from './view';
 
 const select = (state, props) => {
   let options: ClaimSearchOptions = {
-    page_size: props.section.type !== 'featured' ? 6 : 1,
+    page_size: props.section.type !== 'featured' ? 12 : 1,
     page: 1,
     channel_ids: [props.channelClaimId],
-    stream_types: props.section.fileType ? [props.section.fileType] : undefined,
+    stream_types: props.section.file_type ? [props.section.file_type] : undefined,
     claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
     order_by: props.section.order_by,
     no_totals: true,

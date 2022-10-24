@@ -50,7 +50,7 @@ function HomeTabSection(props: Props) {
       case 'content':
         switch (section.file_type) {
           case 'video':
-            switch (section.order_by[0]) {
+            switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
                 return 'New Videos';
               case 'trending_group':
@@ -60,7 +60,7 @@ function HomeTabSection(props: Props) {
             }
             break;
           case 'audio':
-            switch (section.order_by[0]) {
+            switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
                 return 'New Audio';
               case 'trending_group':
@@ -70,7 +70,7 @@ function HomeTabSection(props: Props) {
             }
             break;
           case 'document':
-            switch (section.order_by[0]) {
+            switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
                 return 'New Posts';
               case 'trending_group':
@@ -170,28 +170,29 @@ function HomeTabSection(props: Props) {
   return (
     <div className="home-section-content">
       {editMode && <SectionHeader section={section} />}
-      <div className="section">
-        {section.type !== 'featured' ? (
-          <>
-            <label className="home-section-title">{collectionName || getTitle()}</label>
-            <ClaimList
-              fetchViewCount
-              hideFilters
-              hideAdvancedFilter
-              hideLayoutButton
-              tileLayout
-              infiniteScroll={false}
-              maxClaimRender={6}
-              useSkeletonScreen={false}
-              uris={collectionUrls || claimSearchResults}
-            />
-          </>
-        ) : (
-          <>
-            <FeaturedSection uri={claimSearchResults && claimSearchResults[0]} />
-          </>
-        )}
-      </div>
+      {section.type && (
+        <div className="section">
+          {section.type !== 'featured' ? (
+            <>
+              <label className="home-section-title">{collectionName || getTitle()}</label>
+              <ClaimList
+                hideFilters
+                hideAdvancedFilter
+                hideLayoutButton
+                tileLayout
+                infiniteScroll={false}
+                maxClaimRender={6}
+                useSkeletonScreen={false}
+                uris={collectionUrls || claimSearchResults}
+              />
+            </>
+          ) : (
+            <>
+              <FeaturedSection uri={claimSearchResults && claimSearchResults[0]} />
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
