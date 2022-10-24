@@ -14,10 +14,10 @@ import { COLLECTION_PAGE } from 'constants/urlParams';
 import Button from 'component/button';
 import ClaimAbandonButton from 'component/claimAbandonButton';
 import CollectionItemsList from 'component/collectionItemsList';
-import CollectionGeneralTab from 'component/collectionGeneralTab';
 import Spinner from 'component/spinner';
 import BusyIndicator from 'component/common/busy-indicator';
 import Tooltip from 'component/common/tooltip';
+import CollectionGeneralTab from './internal/collectionGeneralTab';
 
 export const PAGE_TAB_QUERY = `tab`;
 
