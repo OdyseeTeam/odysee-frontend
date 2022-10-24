@@ -23,7 +23,6 @@ const select = (state, props) => {
 
   const searchKey = createNormalizedClaimSearchKey(options);
   const publishedCollections = selectMyPublishedCollections(state);
-  // console.log('props.channelClaimId: ', publishedCollections)
 
   return {
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],

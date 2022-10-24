@@ -10,16 +10,24 @@
   .media__thumb {
     width: calc(var(--file-list-thumbnail-width) * 2) !important;
     margin-right: 0 !important;
+
+    .claim-preview__overlay-properties{
+      position:absolute;
+      background-color:black;
+      padding: 0.3rem;
+      border-radius: var(--border-radius);
+      right:var(--spacing-s);
+      bottom:var(--spacing-s);
+      opacity: 0.85;
+    }
   }
   .claim-preview__text {
     justify-content: flex-start;
-    padding-left: var(--spacing-s);
-    //max-width:100%;
+    padding-left: var(--spacing-m);
     min-width: 0;
     .claim-preview-info {
       font-size: var(--font-large);
       max-width: 100%;
-      // width:100%;
       margin-right: var(--spacing-l);
       span {
         width: 100%;
@@ -38,28 +46,35 @@
         }
       }
     }
-    .claim-preview--channel {
-      margin-top: var(--spacing-xs);
-      .channel-thumbnail {
-        width: 2.1rem;
-        height: 2.1rem;
-        margin-right: 0;
-      }
-    }
+    .claim-preview-author{
+      display:flex;
+        .channel-thumbnail {
+          width: 1.1rem;
+          height: 1.1rem;
+          margin-top:1px;
+        }
+        .channel-name{
+          &:after{
+            content: '∙';
+            padding-left:var(--spacing-xs);
+            padding-right:4px;
+          }
+        }
+    }    
     .claim-preview-metadata {
       .claim-tile__info {
         margin-top: -7px;
       }
     }
     .claim-preview-description {
-      margin-top: var(--spacing-xs);
-      max-height: 9rem;
+      max-height: 10.2rem;
       overflow: hidden;
       overflow-wrap: anywhere;
       -webkit-mask-image: -webkit-gradient(linear, left 55%, left bottom, from(black), to(rgba(0, 0, 0, 0)));
       mask-image: -webkit-gradient(linear, left 55%, left bottom, from(black), to(rgba(0, 0, 0, 0)));
       p {
         font-size: var(--font-small);
+        margin-top:0;
       }
     }
     .membership-button-wrapper {
@@ -73,6 +88,11 @@
     }
     .menu__button.claim__menu-button {
       opacity: 1;
+    }
+    .media__thumb {
+      .claim-preview__overlay-properties{
+        opacity:1;
+      }
     }
   }
 }

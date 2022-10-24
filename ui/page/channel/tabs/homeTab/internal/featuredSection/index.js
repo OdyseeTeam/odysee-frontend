@@ -8,6 +8,7 @@ const select = (state, props) => {
   const claim = selectClaimForUri(state, props.uri);
   const metadata = getClaimMetadata(claim);
   const description = metadata && metadata.description;
+  console.log('claim: ', claim)
   return {
     claim,
     description,

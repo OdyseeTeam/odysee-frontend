@@ -34,7 +34,7 @@ function HomeTab(props: Props) {
         file_type: CS.FILE_VIDEO,
         order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
-      },
+      },/*
       {
         type: 'playlists',
         file_type: undefined,
@@ -46,7 +46,7 @@ function HomeTab(props: Props) {
         file_type: undefined,
         order_by: undefined,
         claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
-      },
+      },*/
     ],
   };
 
