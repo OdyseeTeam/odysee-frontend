@@ -1,3 +1,5 @@
+@import '~ui/scss/init/breakpoints';
+
 .claim-preview-featured {
   width: 100%;
   position: relative;
@@ -11,17 +13,22 @@
     width: calc(var(--file-list-thumbnail-width) * 2) !important;
     margin-right: 0 !important;
 
-    .claim-preview__overlay-properties{
-      position:absolute;
-      background-color:black;
+    .claim-preview__overlay-properties {
+      position: absolute;
+      background-color: black;
       padding: 0.3rem;
       border-radius: var(--border-radius);
-      right:var(--spacing-s);
-      bottom:var(--spacing-s);
+      right: var(--spacing-s);
+      bottom: var(--spacing-s);
       opacity: 0.85;
+    }
+
+    @media (max-width: $breakpoint-small) {
+      width: 100% !important;
     }
   }
   .claim-preview__text {
+    position: relative;
     justify-content: flex-start;
     padding-left: var(--spacing-m);
     min-width: 0;
@@ -46,21 +53,21 @@
         }
       }
     }
-    .claim-preview-author{
-      display:flex;
-        .channel-thumbnail {
-          width: 1.1rem;
-          height: 1.1rem;
-          margin-top:1px;
+    .claim-preview-author {
+      display: flex;
+      .channel-thumbnail {
+        width: 1.1rem;
+        height: 1.1rem;
+        margin-top: 1px;
+      }
+      .channel-name {
+        &:after {
+          content: '∙';
+          padding-left: var(--spacing-xs);
+          padding-right: 4px;
         }
-        .channel-name{
-          &:after{
-            content: '∙';
-            padding-left:var(--spacing-xs);
-            padding-right:4px;
-          }
-        }
-    }    
+      }
+    }
     .claim-preview-metadata {
       .claim-tile__info {
         margin-top: -7px;
@@ -74,7 +81,7 @@
       mask-image: -webkit-gradient(linear, left 55%, left bottom, from(black), to(rgba(0, 0, 0, 0)));
       p {
         font-size: var(--font-small);
-        margin-top:0;
+        margin-top: 0;
       }
     }
     .membership-button-wrapper {
@@ -90,9 +97,23 @@
       opacity: 1;
     }
     .media__thumb {
-      .claim-preview__overlay-properties{
-        opacity:1;
+      .claim-preview__overlay-properties {
+        opacity: 1;
       }
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    flex-flow: column;
+
+    .menu__button.claim__menu-button {
+      top: 16px;
+      opacity: 1;
+    }
+
+    .claim-preview__text {
+      padding-left: 0;
+      padding-top: var(--spacing-s);
     }
   }
 }

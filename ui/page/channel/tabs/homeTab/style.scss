@@ -1,4 +1,5 @@
 .home-tab {
+  margin-bottom: calc(var(--spacing-xxl) * 3);
   .section__header--actions {
     display: none;
   }
@@ -100,16 +101,6 @@
       select {
         border: 2px solid var(--color-border);
       }
-
-      /*
-      &:last-of-type {
-        display: flex;
-        align-items: flex-end;
-        justify-content: end;
-        width: 100%;
-        padding-right: 0;
-      }
-      */
     }
   }
 }
@@ -119,7 +110,6 @@
   bottom: 0;
   width: calc(100% - 2 * var(--spacing-l));
   max-width: var(--page-max-width);
-  // height:80px;
   background-color: var(--color-header-background);
   border: 2px solid var(--color-border);
   border-bottom: none;
@@ -130,6 +120,7 @@
   animation-name: moveUp;
   animation-duration: 0.2s;
   padding: var(--spacing-s);
+  z-index: 1;
 
   .button {
     margin-right: var(--spacing-m);

@@ -2,7 +2,7 @@
 import React from 'react';
 import ClaimList from 'component/claimList';
 import FeaturedSection from '../featuredSection';
-// import Button from 'component/button';
+import { useWindowSize } from 'effects/use-screensize';
 
 type Props = {
   section: any,
@@ -35,6 +35,9 @@ function HomeTabSection(props: Props) {
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch = !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
   const publishedList = (Object.keys(publishedCollections || {}): any);
+
+  const windowSize = useWindowSize();
+  const maxTilesPerRow = windowSize >= 1600 ? 6 : windowSize > 1150 ? 4 : windowSize > 900 ? 3 : 2;
 
   React.useEffect(() => {
     if (shouldPerformSearch) {
@@ -110,7 +113,7 @@ function HomeTabSection(props: Props) {
               <option value="content">{__('Content')}</option>
               <option value="playlists">{__('Playlists')}</option>
               <option value="playlist">{__('Playlist')}</option>
-              <option value="reposts">{__('Reposts')}</option>
+              {/* <option value="reposts">{__('Reposts')}</option> */}
             </select>
           </div>
           {e.section.type === 'content' && (
@@ -181,7 +184,7 @@ function HomeTabSection(props: Props) {
                 hideLayoutButton
                 tileLayout
                 infiniteScroll={false}
-                maxClaimRender={6}
+                maxClaimRender={maxTilesPerRow}
                 useSkeletonScreen={false}
                 uris={collectionUrls || claimSearchResults}
               />

@@ -33,7 +33,6 @@ function FeaturedSection(props: Props) {
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
       <div className="claim-preview claim-preview-featured">
-        <ClaimMenuList uri={uri} />
         <FileThumbnail thumbnail={claim.value.thumbnail.url} uri={uri}>
           <PreviewOverlayProperties
             uri={uri}
@@ -43,6 +42,7 @@ function FeaturedSection(props: Props) {
           />
         </FileThumbnail>
         <div className="claim-preview__text">
+          <ClaimMenuList uri={uri} />
           <div className="claim-preview-info">
             <span>{claim.value.title}</span>
           </div>
