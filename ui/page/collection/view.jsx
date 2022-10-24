@@ -89,12 +89,9 @@ export default function CollectionPage(props: Props) {
       <Page
         noFooter
         noSideNavigation
-        backout={{
-          title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name,
-          backNavDefault: getPagePath(collectionId),
-        }}
+        backout={{ title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name }}
       >
-        <CollectionPublishForm collectionId={collectionId} doReturnForId={doReturnForId} />
+        <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} />
       </Page>
     );
   }
