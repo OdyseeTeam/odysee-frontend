@@ -195,7 +195,7 @@ function ClaimMenuList(props: Props) {
     (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
-    const itemUrl = contentClaim?.canonical_url;
+    const itemUrl = contentClaim?.permanent_url;
 
     if (itemUrl) {
       const urlParams = new URLSearchParams(search);
