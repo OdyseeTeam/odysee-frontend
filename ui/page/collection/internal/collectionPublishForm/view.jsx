@@ -28,7 +28,7 @@ const TAB = {
 
 type Props = {
   collectionId: string,
-  doReturnForId: (string) => void,
+  onDoneForId: (string) => void,
   // -- redux -
   hasClaim: boolean,
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
@@ -48,7 +48,7 @@ export const CollectionFormContext = React.createContext<any>();
 const CollectionPublishForm = (props: Props) => {
   const {
     collectionId,
-    doReturnForId,
+    onDoneForId,
     // -- redux -
     hasClaim,
     collectionParams,
@@ -68,6 +68,7 @@ const CollectionPublishForm = (props: Props) => {
 
   const {
     push,
+    goBack,
     location: { search },
   } = useHistory();
 
@@ -84,25 +85,27 @@ const CollectionPublishForm = (props: Props) => {
 
   const hasClaims = claims && claims.length;
   const itemError = publishing && !hasClaims ? __('Cannot publish empty list') : undefined;
+  const hasChanges = JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
 
   function updateFormParams(newParams: {}) {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
   }
 
   function handleSubmitForm() {
-    if (editing) {
-      const hasChanges = JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
+    if (!hasChanges) goBack();
 
+    if (editing) {
       // $FlowFixMe
-      if (hasChanges) doCollectionEdit(collectionId, formParams);
-      return doReturnForId(collectionId);
+      doCollectionEdit(collectionId, formParams);
+
+      return onDoneForId(collectionId);
     }
 
     const successCb = (pendingClaim) => {
       if (pendingClaim) {
         const claimId = pendingClaim.claim_id;
         analytics.apiLog.publish(pendingClaim);
-        doReturnForId(claimId);
+        onDoneForId(claimId);
       }
     };
 
@@ -191,12 +194,12 @@ const CollectionPublishForm = (props: Props) => {
         <div className="section__actions">
           <Submit
             button="primary"
-            disabled={creatingCollection || updatingCollection}
+            disabled={(publishing && !collectionHasEdits && !hasChanges) || creatingCollection || updatingCollection}
             label={
               creatingCollection || updatingCollection ? <BusyIndicator message={__('Submitting')} /> : __('Submit')
             }
           />
-          <Button button="link" label={__('Cancel')} onClick={() => doReturnForId(collectionId)} />
+          <Button button="link" label={__('Cancel')} onClick={goBack} />
 
           {collectionHasEdits && (
             <Tooltip title={__('Delete all edits from this published playlist')}>
