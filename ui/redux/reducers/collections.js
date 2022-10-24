@@ -210,6 +210,36 @@ const collectionsReducer = handleActions(
         savedIds: savedCollectionIds || state.savedIds,
       };
     },
+
+    // TODO: collections claims should be handled like regular claims to avoid copy pasting code across reducers
+    [ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED]: (state, action) => {
+      const { resolveInfo } = action.data;
+
+      const newResolved = Object.assign({}, state.resolved);
+
+      Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
+        // $FlowFixMe
+        const claim = resolveResponse.stream;
+
+        if (newResolved[claim.claim_id]) return;
+
+        const { name, timestamp, value } = claim || {};
+        const { title, description, thumbnail, claims } = value || {};
+
+        newResolved[claim.claim_id] = {
+          items: claims,
+          id: claim.claim_id,
+          name: title || name,
+          itemCount: claims.length,
+          createdAt: claim.meta?.creation_timestamp,
+          updatedAt: timestamp,
+          description,
+          thumbnail,
+        };
+      });
+
+      return { ...state, resolved: newResolved };
+    },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
       const { resolvedPrivateCollectionIds, resolvedCollections, failedCollectionIds } = action.data;
       const { pending, edited, collectionItemsFetchingIds, resolved, updated } = state;

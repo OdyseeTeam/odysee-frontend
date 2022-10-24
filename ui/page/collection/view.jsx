@@ -24,6 +24,8 @@ type Props = {
   doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
 };
 
+export const CollectionPageContext = React.createContext<any>();
+
 export default function CollectionPage(props: Props) {
   const {
     // -- path match --
@@ -91,7 +93,9 @@ export default function CollectionPage(props: Props) {
         noSideNavigation
         backout={{ title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name }}
       >
-        <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} />
+        <CollectionPageContext.Provider value={{}}>
+          <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} />
+        </CollectionPageContext.Provider>
       </Page>
     );
   }
@@ -99,20 +103,22 @@ export default function CollectionPage(props: Props) {
   return (
     <Page className="playlists-page-wrapper">
       <div className="section card-stack">
-        <CollectionHeader
-          collectionId={collectionId}
-          showEdit={showEdit}
-          setShowEdit={setShowEdit}
-          unavailableUris={unavailableUris}
-          setUnavailable={setUnavailable}
-        />
+        <CollectionPageContext.Provider value={{}}>
+          <CollectionHeader
+            collectionId={collectionId}
+            showEdit={showEdit}
+            setShowEdit={setShowEdit}
+            unavailableUris={unavailableUris}
+            setUnavailable={setUnavailable}
+          />
 
-        <CollectionItemsList
-          collectionId={collectionId}
-          showEdit={showEdit}
-          unavailableUris={unavailableUris}
-          showNullPlaceholder
-        />
+          <CollectionItemsList
+            collectionId={collectionId}
+            showEdit={showEdit}
+            unavailableUris={unavailableUris}
+            showNullPlaceholder
+          />
+        </CollectionPageContext.Provider>
       </div>
     </Page>
   );

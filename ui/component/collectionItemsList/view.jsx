@@ -1,5 +1,8 @@
 // @flow
 import React from 'react';
+
+import { CollectionPageContext } from 'page/collection/context';
+
 import ClaimList from 'component/claimList';
 import Spinner from 'component/spinner';
 
@@ -36,11 +39,12 @@ const CollectionItemsList = (props: Props) => {
     ...claimListProps
   } = props;
 
+  const isCollectionPage = React.useContext(CollectionPageContext);
+
   const { totalItems } = collection || {};
 
   const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
   const shouldFetchItems = isPrivateCollection || isEditedCollection || (!urlsReady && collectionId && !collection);
-  const didInitialFetch = React.useRef(!shouldFetchItems);
 
   function handleOnDragEnd(result: any) {
     const { source, destination } = result;
@@ -52,12 +56,12 @@ const CollectionItemsList = (props: Props) => {
 
     doCollectionEdit(collectionId, { order: { from, to } });
   }
+
   React.useEffect(() => {
-    if (shouldFetchItems && !didInitialFetch.current) {
+    if (shouldFetchItems && !isCollectionPage) {
       doFetchItemsInCollection({ collectionId });
-      didInitialFetch.current = true;
     }
-  }, [collectionId, doFetchItemsInCollection, shouldFetchItems]);
+  }, [collectionId, doFetchItemsInCollection, isCollectionPage, shouldFetchItems]);
 
   return (
     <React.Suspense fallback={null}>
