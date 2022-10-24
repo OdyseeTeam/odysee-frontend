@@ -456,10 +456,8 @@ export const selectCollectionClaimPublishUpdateMetadataForId = (state: State, cl
   const claimMetadata = selectGenericClaimPublishUpdateMetadataForId(state, claimId);
   if (!claimMetadata) return claimMetadata;
 
-  const collectionClaims = selectClaimForClaimId(state, claimId).claims;
-  if (!collectionClaims) return collectionClaims;
-
-  const collectionClaimIds = collectionClaims.map((claim) => claim.claim_id);
+  const collectionClaimIds = selectClaimForClaimId(state, claimId).value?.claims;
+  if (!collectionClaimIds) return collectionClaimIds;
 
   const collectionPublishUpdateMetadata: CollectionPublishUpdateParams = {
     ...claimMetadata,
