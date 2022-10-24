@@ -65,7 +65,7 @@ export default function CollectionPage(props: Props) {
     }
   }, [collectionId, urlsReady, doFetchItemsInCollection, collection]);
 
-  if (isResolving || isCollectionMine === undefined) {
+  if (isResolving || isResolving === undefined || isResolvingCollection || isCollectionMine === undefined) {
     return (
       <div className="main--empty">
         <Spinner />
