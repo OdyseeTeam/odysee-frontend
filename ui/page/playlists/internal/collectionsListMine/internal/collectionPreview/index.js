@@ -4,7 +4,7 @@ import {
   selectUrlsForCollectionId,
   selectCollectionTitleForId,
   selectCountForCollectionId,
-  selectIsResolvingCollectionForId,
+  selectAreCollectionItemsFetchingForId,
   selectFirstItemUrlForCollection,
   selectUpdatedAtForCollectionId,
   selectCreatedAtForCollectionId,
@@ -41,7 +41,7 @@ const select = (state, props) => {
     collectionName: selectCollectionTitleForId(state, collectionId),
     collectionItemUrls: selectUrlsForCollectionId(state, collectionId), // ForId || ForUri
     collectionType: selectCollectionTypeForId(state, collectionId),
-    isResolvingCollectionClaims: selectIsResolvingCollectionForId(state, collectionId),
+    isResolvingCollectionClaims: selectAreCollectionItemsFetchingForId(state, collectionId),
     isResolvingUri: collectionUri && selectIsUriResolving(state, collectionUri),
     title: collectionUri && selectTitleForUri(state, collectionUri),
     channel,

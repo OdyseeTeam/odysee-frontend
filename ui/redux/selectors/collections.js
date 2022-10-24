@@ -30,7 +30,7 @@ export const selectMyUnpublishedCollections = (state: State) => selectState(stat
 export const selectMyEditedCollections = (state: State) => selectState(state).edited;
 export const selectMyUpdatedCollections = (state: State) => selectState(state).updated;
 export const selectPendingCollections = (state: State) => selectState(state).pending;
-export const selectIsResolvingCollectionById = (state: State) => selectState(state).resolvingById;
+export const selectCollectionItemsFetchingIds = (state: State) => selectState(state).collectionItemsFetchingIds;
 export const selectQueueCollection = (state: State) => selectState(state).queue;
 
 export const selectCurrentQueueList = createSelector(selectQueueCollection, (queue) => ({ queue }));
@@ -244,10 +244,8 @@ export const selectMyPublishedCollectionCountForId = (state: State, id: string) 
   return count;
 };
 
-export const selectIsResolvingCollectionForId = (state: State, id: string) => {
-  const resolvingById = selectIsResolvingCollectionById(state);
-  return resolvingById[id];
-};
+export const selectAreCollectionItemsFetchingForId = (state: State, id: string) =>
+  new Set(selectCollectionItemsFetchingIds(state)).has(id);
 
 export const selectCollectionForId = createSelector(
   (state, id) => id,

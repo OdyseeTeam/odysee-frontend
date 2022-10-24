@@ -30,7 +30,7 @@ const defaultState: CollectionState = {
   updated: {},
   pending: {},
   savedIds: [],
-  resolvingById: {},
+  collectionItemsFetchingIds: [],
   error: null,
   queue: {
     items: [],
@@ -181,14 +181,16 @@ const collectionsReducer = handleActions(
 
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED]: (state, action) => {
       const { ids } = action.data;
-      const { resolvingById } = state;
+      const { collectionItemsFetchingIds } = state;
 
-      const newResolving = Object.assign({}, resolvingById);
-      ids.forEach((id) => {
-        newResolving[id] = true;
-      });
+      const newIds = new Set(ids);
+      const newCollectionItemsFetchingIds = new Set(collectionItemsFetchingIds);
 
-      return { ...state, error: '', resolvingById: newResolving };
+      return {
+        ...state,
+        error: '',
+        collectionItemsFetchingIds: [...Array.from(newCollectionItemsFetchingIds), ...Array.from(newIds)],
+      };
     },
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
       const {
@@ -210,7 +212,7 @@ const collectionsReducer = handleActions(
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
       const { resolvedPrivateCollectionIds, resolvedCollections, failedCollectionIds } = action.data;
-      const { pending, edited, resolvingById, resolved, updated } = state;
+      const { pending, edited, collectionItemsFetchingIds, resolved, updated } = state;
 
       const resolvedFiltered = {};
       const editedResolved = {};
@@ -228,7 +230,7 @@ const collectionsReducer = handleActions(
       const newEdited = Object.assign({}, edited, editedResolved);
 
       const resolvedIds = Object.keys(resolvedCollections);
-      const newResolving = Object.assign({}, resolvingById);
+      const newCollectionItemsFetchingIds = new Set(collectionItemsFetchingIds);
       if (resolvedCollections && Object.keys(resolvedCollections).length) {
         resolvedIds.forEach((resolvedId) => {
           if (updated[resolvedId]) {
@@ -236,7 +238,7 @@ const collectionsReducer = handleActions(
               delete updated[resolvedId];
             }
           }
-          delete newResolving[resolvedId];
+          newCollectionItemsFetchingIds.delete(resolvedId);
           if (newPending[resolvedId]) {
             delete newPending[resolvedId];
           }
@@ -245,13 +247,13 @@ const collectionsReducer = handleActions(
 
       if (failedCollectionIds && Object.keys(failedCollectionIds).length) {
         failedCollectionIds.forEach((failedId) => {
-          delete newResolving[failedId];
+          newCollectionItemsFetchingIds.delete(failedId);
         });
       }
 
       if (resolvedPrivateCollectionIds && resolvedPrivateCollectionIds.length > 0) {
         resolvedPrivateCollectionIds.forEach((id) => {
-          delete newResolving[id];
+          newCollectionItemsFetchingIds.delete(id);
         });
       }
 
@@ -260,19 +262,19 @@ const collectionsReducer = handleActions(
         pending: newPending,
         resolved: newResolved,
         edited: newEdited,
-        resolvingById: newResolving,
+        collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds),
       });
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {
       const { ids } = action.data;
-      const { resolvingById } = state;
-      const newResolving = Object.assign({}, resolvingById);
-      ids.forEach((id) => {
-        delete newResolving[id];
-      });
+      const { collectionItemsFetchingIds } = state;
+
+      const newCollectionItemsFetchingIds = new Set(collectionItemsFetchingIds);
+      ids.forEach((id) => newCollectionItemsFetchingIds.delete(id));
+
       return Object.assign({}, state, {
         ...state,
-        resolvingById: newResolving,
+        collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds),
         error: action.data.message,
       });
     },
