@@ -3,6 +3,7 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
+import TextField from '@mui/material/TextField';
 
 type Props = {
   section: any,
@@ -176,10 +177,38 @@ function HomeTabSection(props: Props) {
               </select>
             </div>
           )}
+          {e.section.type === 'featured' && (
+            <div className="home-section-header-option">
+              <label>{__('Search')}</label>
+              <input
+                id="featured"
+                name="claimId"
+                value={searchQuery}
+                onChange={handleInputChange}
+                // onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+                placeholder={__('Search')}
+              />
+            </div>
+          )}
         </div>
       )
     );
   };
+
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [isSearching, setIsSearching] = React.useState(false);
+  /*
+  function handleInputChange(e) {
+    const { value } = e.target;
+    setSearchQuery(value);
+  }*/
+  const handleInputChange = (e) => {
+    setSearchQuery(e.value);
+  };
+
+  React.useEffect(() => {
+    console.log('Search...');
+  }, [searchQuery]);
 
   return (
     <div className="home-section-content">

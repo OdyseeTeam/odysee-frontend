@@ -17,7 +17,7 @@ const select = (state, props) => {
     channel_ids: [props.channelClaimId],
     stream_types: props.section.file_type ? [props.section.file_type] : undefined,
     claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
-    order_by: props.section.order_by,
+    order_by: props.section.type !== 'featured' ? props.section.order_by : ['effective_amount'],
     no_totals: true,
   };
 

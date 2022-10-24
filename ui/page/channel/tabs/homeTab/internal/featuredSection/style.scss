@@ -62,8 +62,14 @@
       }
       .channel-name {
         &:after {
-          content: '∙';
+          content: '•';
           padding-left: var(--spacing-xs);
+          padding-right: 4px;
+        }
+      }
+      .view_count {
+        &:after {
+          padding-left: 4px;
           padding-right: 4px;
         }
       }

@@ -18,6 +18,7 @@ type Props = {
 function HomeTab(props: Props) {
   const { claim, editMode } = props;
   const claimId = claim && claim.claim_id;
+  console.log('claim: ', claim);
 
   const [edit, setEdit] = React.useState(false);
   const homeTemplate = {
