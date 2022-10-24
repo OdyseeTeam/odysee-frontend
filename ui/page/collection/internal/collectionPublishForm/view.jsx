@@ -228,7 +228,9 @@ const CollectionPublishForm = (props: Props) => {
         <FormErrors />
 
         <p className="help">
-          {__('After submitting, it will take a few minutes for your changes to be live for everyone.')}
+          {publishing
+            ? __('After submitting, it will take a few minutes for your changes to be live for everyone.')
+            : __('After submitting, all changes will remain private')}
         </p>
 
         {hasClaim && (
