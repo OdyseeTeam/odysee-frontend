@@ -29,7 +29,7 @@ const select = (state, props) => {
     claimSearchResults: !props.section.claimId ? selectClaimSearchByQuery(state)[searchKey] : undefined,
     optionsStringified: JSON.stringify(options),
     collectionUrls: props.section.claimId ? selectUrlsForCollectionId(state, props.section.claimId) : undefined,
-    collectionName: selectNameForCollectionId(state, props.section.claimId),
+    collectionName: selectNameForCollectionId(state, props.section.claimId),    
     publishedCollections,
   };
 };

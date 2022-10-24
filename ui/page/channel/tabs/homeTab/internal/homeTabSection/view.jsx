@@ -16,7 +16,7 @@ type Props = {
   optionsStringified: string,
   fetchingClaimSearch: boolean,
   doClaimSearch: ({}) => void,
-  publishedCollections: CollectionGroup,
+  publishedCollections: CollectionGroup,  
 };
 
 function HomeTabSection(props: Props) {
@@ -212,7 +212,7 @@ function HomeTabSection(props: Props) {
 
   return (
     <div className="home-section-content">
-      {editMode && <SectionHeader section={section} />}
+      {editMode && <SectionHeader section={section} />}      
       {section.type && (
         <div className="section">
           {section.type !== 'featured' ? (

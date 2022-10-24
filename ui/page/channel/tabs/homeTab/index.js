@@ -1,16 +1,21 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectClaimSearchByQuery } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimSearchByQuery, makeSelectFetchingChannelClaims } from 'redux/selectors/claims';
 import { doResolveUris } from 'redux/actions/claims';
 import { withRouter } from 'react-router';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import {} from 'redux/selectors/claims';
+import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
 import HomeTab from './view';
 
 const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
+  // const fetching = makeSelectFetchingChannelClaims(props.uri)(state);
 
+  console.log(claim)
   return {
-    claimSearchByQuery: selectClaimSearchByQuery(state),
+    claimSearchByQuery: selectClaimSearchByQuery(state),    
+    activeLivestreamForChannel: selectActiveLivestreamForChannel(state, claim.claim_id),
+    activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     claim,
   };
 };

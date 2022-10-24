@@ -6,6 +6,8 @@ import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
 import HomeTabSection from './internal/homeTabSection';
 import CollectionEditButtons from 'component/collectionEditButtons';
+import LivestreamLink from 'component/livestreamLink';
+import useFetchLiveStatus from 'effects/use-fetch-live';
 
 import './style.scss';
 
@@ -13,12 +15,19 @@ type Props = {
   uri: string,
   claim: Claim,
   editMode: boolean,
+  activeLivestreamForChannel: any,
+  doFetchChannelLiveStatus: (string) => void,
 };
 
 function HomeTab(props: Props) {
-  const { claim, editMode } = props;
+  const { claim, editMode, activeLivestreamForChannel, doFetchChannelLiveStatus } = props;
   const claimId = claim && claim.claim_id;
-  console.log('claim: ', claim);
+  // console.log('claim: ', claim)
+
+  const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
+  console.log('isChannelBroadcasting: ', isChannelBroadcasting)
+
+  useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   const [edit, setEdit] = React.useState(false);
   const homeTemplate = {
@@ -32,7 +41,6 @@ function HomeTab(props: Props) {
       },
       {
         type: 'content',
-        // file_type: CS.FILE_VIDEO,
         file_type: CS.FILE_ALL,
         order_by: CS.ORDER_BY_NEW_VALUE,
         claimId: undefined,
@@ -100,6 +108,11 @@ function HomeTab(props: Props) {
     setEdit(false);
   }
 
+  const fetching = false
+  const isInitialized = true
+  // const isChannelBroadcasting = false
+  const isChannelEmpty = false
+
   return (
     <>
       <div className="home-tab">
@@ -114,6 +127,11 @@ function HomeTab(props: Props) {
                 setEdit(!edit);
               }}
             />
+          </div>
+        )}
+        {!editMode && !fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
+          <div className="home-section-live">
+            <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
           </div>
         )}
         {home &&
