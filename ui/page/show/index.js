@@ -12,7 +12,7 @@ import {
 import {
   selectCollectionForId,
   selectUrlsForCollectionId,
-  selectIsResolvingCollectionForId,
+  selectAreCollectionItemsFetchingForId,
 } from 'redux/selectors/collections';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveUri, doFetchLatestClaimForChannel } from 'redux/actions/claims';
@@ -66,7 +66,7 @@ const select = (state, props) => {
     collection: selectCollectionForId(state, collectionId),
     collectionId,
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
-    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
     isAuthenticated: selectUserVerifiedEmail(state),
     geoRestriction: selectGeoRestrictionForUri(state, uri),
     homepageFetched: selectHomepageFetched(state),

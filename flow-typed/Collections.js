@@ -28,7 +28,7 @@ declare type CollectionState = {
   updated: UpdatedCollectionGroup,
   builtin: CollectionGroup,
   savedIds: Array<string>,
-  resolvingById: { [id: string]: boolean },
+  collectionItemsFetchingIds: Array<string>,
   error?: string | null,
   queue: Collection,
 };

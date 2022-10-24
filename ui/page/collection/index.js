@@ -4,7 +4,7 @@ import { selectHasClaimForId, selectIsResolvingForId } from 'redux/selectors/cla
 import {
   selectCollectionForId,
   selectUrlsForCollectionId,
-  selectIsResolvingCollectionForId,
+  selectAreCollectionItemsFetchingForId,
   selectBrokenUrlsForCollectionId,
   selectCollectionIsMine,
 } from 'redux/selectors/collections';
@@ -24,7 +24,7 @@ const select = (state, props) => {
     collection: selectCollectionForId(state, collectionId),
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
-    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
     isResolving: selectIsResolvingForId(state, collectionId),
     isCollectionMine: selectCollectionIsMine(state, collectionId),
   };

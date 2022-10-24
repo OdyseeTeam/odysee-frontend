@@ -92,7 +92,7 @@ const CollectionPublishForm = (props: Props) => {
   }
 
   function handleSubmitForm() {
-    if (!hasChanges) goBack();
+    if (!hasChanges) return goBack();
 
     if (editing) {
       // $FlowFixMe

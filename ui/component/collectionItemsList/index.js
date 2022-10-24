@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import { doCollectionEdit, doFetchItemsInCollection } from 'redux/actions/collections';
 import {
   selectUrlsForCollectionId,
-  selectIsResolvingCollectionForId,
+  selectAreCollectionItemsFetchingForId,
   selectIsCollectionPrivateForId,
   selectCollectionForId,
   selectCollectionHasEditsForId,
@@ -16,7 +16,7 @@ const select = (state, props) => {
   return {
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collection: selectCollectionForId(state, collectionId),
-    isResolvingCollection: selectIsResolvingCollectionForId(state, collectionId),
+    isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
     isEditedCollection: selectCollectionHasEditsForId(state, collectionId),
   };

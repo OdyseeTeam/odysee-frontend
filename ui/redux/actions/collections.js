@@ -13,6 +13,7 @@ import {
   selectCollectionHasEditsForId,
   selectUrlsForCollectionId,
   selectCollectionSavedForId,
+  selectAreCollectionItemsFetchingForId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType } from 'util/collections';
@@ -116,19 +117,24 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
   let state = getState();
   const { collectionIds, pageSize } = resolveItemsOptions;
 
-  dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED, data: { ids: collectionIds } });
-
   const privateCollectionIds = [];
   const collectionIdsToSearch = [];
 
   // -- Fill up 'privateCollectionIds' and 'collectionIdsToSearch':
   collectionIds.forEach((id) => {
+    const isAlreadyFetching = selectAreCollectionItemsFetchingForId(state, id);
+    if (isAlreadyFetching) return;
+
     if (isPrivateCollectionId(id)) {
       privateCollectionIds.push(id);
     } else if (!selectClaimForId(state, id)) {
       collectionIdsToSearch.push(id);
     }
   });
+
+  if (privateCollectionIds.length === 0 && collectionIdsToSearch.length === 0) return;
+
+  dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED, data: { ids: collectionIds } });
 
   // -- Resolve collections:
   if (collectionIdsToSearch.length) {
