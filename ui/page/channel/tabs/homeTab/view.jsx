@@ -51,6 +51,8 @@ function HomeTab(props: Props) {
   };
 
   const [home, setHome] = React.useState(homeTemplate.entries);
+  const hasUnsavedChanges = homeTemplate.entries !== home;
+  // console.log('hasUnsavedChanges: ', hasUnsavedChanges)
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
@@ -65,6 +67,7 @@ function HomeTab(props: Props) {
     } else if (e.delete) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
+      console.log('change: ', e.change);
       if (e.change.field !== 'order_by') {
         newHome[index][e.change.field] = e.change.value;
       } else {
@@ -136,7 +139,12 @@ function HomeTab(props: Props) {
           })}
         {edit && (
           <div className="home-tab-edit">
-            <Button label={__('Save')} button="primary" disabled={true} onClick={() => handleSaveHomeSection()} />
+            <Button
+              label={__('Save')}
+              button="primary"
+              disabled={!hasUnsavedChanges}
+              onClick={() => handleSaveHomeSection()}
+            />
             <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
           </div>
         )}

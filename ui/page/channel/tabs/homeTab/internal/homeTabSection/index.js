@@ -1,8 +1,12 @@
 import { connect } from 'react-redux';
 import { doClaimSearch } from 'redux/actions/claims';
-import { createNormalizedClaimSearchKey, getClaimMetadata } from 'util/claim';
+import { createNormalizedClaimSearchKey } from 'util/claim';
 import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from 'redux/selectors/claims';
-import { selectUrlsForCollectionId, selectNameForCollectionId } from 'redux/selectors/collections';
+import {
+  selectUrlsForCollectionId,
+  selectNameForCollectionId,
+  selectMyPublishedCollections,
+} from 'redux/selectors/collections';
 
 import HomeTabSection from './view';
 
@@ -18,13 +22,16 @@ const select = (state, props) => {
   };
 
   const searchKey = createNormalizedClaimSearchKey(options);
+  const publishedCollections = selectMyPublishedCollections(state);
+  // console.log('props.channelClaimId: ', publishedCollections)
+
   return {
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
     claimSearchResults: !props.section.claimId ? selectClaimSearchByQuery(state)[searchKey] : undefined,
     optionsStringified: JSON.stringify(options),
     collectionUrls: props.section.claimId ? selectUrlsForCollectionId(state, props.section.claimId) : undefined,
     collectionName: selectNameForCollectionId(state, props.section.claimId),
-    // description,
+    publishedCollections,
   };
 };
 

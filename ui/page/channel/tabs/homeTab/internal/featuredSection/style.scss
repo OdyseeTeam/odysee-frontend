@@ -1,34 +1,78 @@
 .claim-preview-featured {
-  // background-color:rgba(0,0,0,0.1);
+  width: 100%;
+  position: relative;
   border-radius: var(--border-radius);
   color: var(--color-text);
+  .menu__button.claim__menu-button {
+    top: 6px;
+    right: 2px;
+  }
   .media__thumb {
     width: calc(var(--file-list-thumbnail-width) * 2) !important;
     margin-right: 0 !important;
   }
   .claim-preview__text {
     justify-content: flex-start;
-    padding: 0 var(--spacing-s);
+    padding-left: var(--spacing-s);
+    //max-width:100%;
+    min-width: 0;
     .claim-preview-info {
       font-size: var(--font-large);
+      max-width: 100%;
+      // width:100%;
+      margin-right: var(--spacing-l);
+      span {
+        width: 100%;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+      }
     }
-    .mediaInfo__description {
+    .claim-preview__title {
+      span {
+        color: rgba(var(--color-text-base), 0.6);
+      }
+      &:hover {
+        span {
+          color: var(--color-text);
+        }
+      }
+    }
+    .claim-preview--channel {
+      margin-top: var(--spacing-xs);
+      .channel-thumbnail {
+        width: 2.1rem;
+        height: 2.1rem;
+        margin-right: 0;
+      }
+    }
+    .claim-preview-metadata {
+      .claim-tile__info {
+        margin-top: -7px;
+      }
+    }
+    .claim-preview-description {
+      margin-top: var(--spacing-xs);
+      max-height: 9rem;
+      overflow: hidden;
+      overflow-wrap: anywhere;
+      -webkit-mask-image: -webkit-gradient(linear, left 55%, left bottom, from(black), to(rgba(0, 0, 0, 0)));
+      mask-image: -webkit-gradient(linear, left 55%, left bottom, from(black), to(rgba(0, 0, 0, 0)));
       p {
         font-size: var(--font-small);
       }
     }
-    .media__info-text--contracted {
-      max-height: 7rem;
-      margin-top: 0;
-      .mediaInfo__description {
-        max-height: 7rem;
-      }
+    .membership-button-wrapper {
+      display: none;
     }
   }
 
   &:hover {
     .claim-preview-info {
       color: var(--color-primary);
+    }
+    .menu__button.claim__menu-button {
+      opacity: 1;
     }
   }
 }
