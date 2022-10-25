@@ -5,6 +5,7 @@ import {
   selectClaimBidAmountForId,
   selectIsCreatingCollectionForId,
   selectIsUpdatingCollectionForId,
+  selectClaimUriForId,
 } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
@@ -21,6 +22,7 @@ const select = (state, props) => {
   const { collectionId } = props;
 
   return {
+    uri: selectClaimUriForId(state, collectionId),
     hasClaim: selectHasClaimForId(state, collectionId),
     amount: selectClaimBidAmountForId(state, collectionId),
     creatingCollection: selectIsCreatingCollectionForId(state, collectionId),

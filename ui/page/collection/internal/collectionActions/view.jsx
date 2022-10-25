@@ -15,7 +15,7 @@ import { ENABLE_FILE_REACTIONS } from 'config';
 // import ClaimRepostButton from 'component/claimRepostButton';
 import PlayButton from './internal/playButton';
 import ShuffleButton from './internal/shuffleButton';
-import CollectionDeleteButton from './internal/deleteButton';
+import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionPublishButton from './internal/publishButton';
 import CollectionReportButton from './internal/report-button';
 
