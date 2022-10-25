@@ -85,7 +85,11 @@ const CollectionPublishForm = (props: Props) => {
 
   const hasClaims = claims && claims.length;
   const itemError = publishing && !hasClaims ? __('Cannot publish empty list') : undefined;
-  const hasChanges = JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
+  const hasChanges =
+    (publishing && !hasClaim) ||
+    collectionHasEdits ||
+    JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
+  const publishingClaimWithNoChanges = publishing && hasClaim && !collectionHasEdits && !hasChanges;
 
   function updateFormParams(newParams: {}) {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
@@ -194,7 +198,7 @@ const CollectionPublishForm = (props: Props) => {
         <div className="section__actions">
           <Submit
             button="primary"
-            disabled={(publishing && !collectionHasEdits && !hasChanges) || creatingCollection || updatingCollection}
+            disabled={publishingClaimWithNoChanges || creatingCollection || updatingCollection}
             label={
               creatingCollection || updatingCollection ? <BusyIndicator message={__('Submitting')} /> : __('Submit')
             }
