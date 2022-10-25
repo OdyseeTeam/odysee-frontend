@@ -6,6 +6,7 @@ import {
   selectCountForCollectionId,
   selectCollectionHasEditsForId,
   selectMyPublishedCollectionCountForId,
+  selectSourceIdForCollectionId,
 } from 'redux/selectors/collections';
 
 import CollectionHeader from './view';
@@ -22,6 +23,7 @@ const select = (state, props) => {
     collectionCount: selectCountForCollectionId(state, collectionId),
     publishedCollectionCount: selectMyPublishedCollectionCountForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    sourceId: selectSourceIdForCollectionId(state, collectionId),
   };
 };
 

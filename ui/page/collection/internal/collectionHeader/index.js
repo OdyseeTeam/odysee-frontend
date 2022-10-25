@@ -6,7 +6,6 @@ import {
   selectCountForCollectionId,
   selectCollectionHasEditsForId,
   selectMyPublishedCollectionCountForId,
-  selectCollectionIsMine,
 } from 'redux/selectors/collections';
 import { doCollectionEdit } from 'redux/actions/collections';
 
@@ -26,7 +25,6 @@ const select = (state, props) => {
     claimIsPending: selectClaimIsPendingForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     publishedCollectionCount: selectMyPublishedCollectionCountForId(state, collectionId),
-    isMyCollection: selectCollectionIsMine(state, collectionId),
   };
 };
 

@@ -5,6 +5,8 @@ import { COL_TYPES } from 'constants/collections';
 import React from 'react';
 import Button from 'component/button';
 import { useIsMobile } from 'effects/use-screensize';
+import { COLLECTION_PAGE } from 'constants/urlParams';
+import { useHistory } from 'react-router-dom';
 import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimShareButton from 'component/claimShareButton';
 import FileReactions from 'component/fileReactions';
@@ -48,8 +50,14 @@ function CollectionActions(props: Props) {
     doToggleCollectionSavedForId,
   } = props;
 
+  const {
+    location: { search },
+  } = useHistory();
+
   const isMobile = useIsMobile();
   const showPlaybackButtons = !collectionEmpty && collectionType === COL_TYPES.PLAYLIST;
+  const urlParams = new URLSearchParams(search);
+  const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
   return (
     <div className={classnames('media__actions justify-space-between', { stretch: isMobile })}>
@@ -68,46 +76,49 @@ function CollectionActions(props: Props) {
               </>
             )}
 
-            {isMyCollection ? (
-              <>
-                <CollectionPublishButton uri={uri} collectionId={collectionId} />
-                <CollectionDeleteButton uri={uri} collectionId={collectionId} />
-              </>
-            ) : (
-              claimId && <CollectionReportButton claimId={claimId} />
-            )}
+            {!isOnPublicView &&
+              (isMyCollection ? (
+                <>
+                  <CollectionPublishButton uri={uri} collectionId={collectionId} />
+                  <CollectionDeleteButton uri={uri} collectionId={collectionId} />
+                </>
+              ) : (
+                claimId && <CollectionReportButton claimId={claimId} />
+              ))}
           </>
         )}
       </SectionElement>
 
-      <div className="section">
-        <Button
-          requiresAuth
-          title={__('Copy')}
-          className="button-toggle"
-          icon={ICONS.COPY}
-          onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: collectionId })}
-        />
-
-        {isMyCollection ? (
-          !collectionEmpty && (
-            <Button
-              title={__('Arrange')}
-              className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
-              icon={ICONS.ARRANGE}
-              onClick={() => setShowEdit(!showEdit)}
-            />
-          )
-        ) : (
+      {!isOnPublicView && (
+        <div className="section">
           <Button
             requiresAuth
-            title={__('Save')}
+            title={__('Copy')}
             className="button-toggle"
-            icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
-            onClick={() => doToggleCollectionSavedForId(collectionId)}
+            icon={ICONS.COPY}
+            onClick={() => doOpenModal(MODALS.COLLECTION_CREATE, { sourceId: collectionId })}
           />
-        )}
-      </div>
+
+          {isMyCollection ? (
+            !collectionEmpty && (
+              <Button
+                title={__('Arrange')}
+                className={classnames('button-toggle', { 'button-toggle--active': showEdit })}
+                icon={ICONS.ARRANGE}
+                onClick={() => setShowEdit(!showEdit)}
+              />
+            )
+          ) : (
+            <Button
+              requiresAuth
+              title={__('Save')}
+              className="button-toggle"
+              icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+              onClick={() => doToggleCollectionSavedForId(collectionId)}
+            />
+          )}
+        </div>
+      )}
     </div>
   );
 }

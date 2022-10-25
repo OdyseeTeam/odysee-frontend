@@ -20,6 +20,7 @@ export const COLLECTION_PAGE = Object.freeze({
     EDIT: 'edit',
     // public === public edits/publish playlist
     PUBLISH: 'publish',
+    PUBLIC: 'public',
   },
 });
 

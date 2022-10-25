@@ -1,6 +1,10 @@
 import { connect } from 'react-redux';
 
-import { selectCollectionTitleForId, selectCollectionHasEditsForId } from 'redux/selectors/collections';
+import {
+  selectCollectionTitleForId,
+  selectCollectionHasEditsForId,
+  selectCollectionIsMine,
+} from 'redux/selectors/collections';
 
 import CollectionHeader from './view';
 
@@ -10,6 +14,7 @@ const select = (state, props) => {
   return {
     collectionTitle: selectCollectionTitleForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
+    isMyCollection: selectCollectionIsMine(state, collectionId),
   };
 };
 

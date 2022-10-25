@@ -3,6 +3,7 @@ import fromEntries from '@ungap/from-entries';
 import { createSelector } from 'reselect';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COL_TYPES } from 'constants/collections';
+import { COLLECTION_PAGE } from 'constants/urlParams';
 import moment from 'moment';
 import {
   selectMyCollectionIds,
@@ -257,6 +258,12 @@ export const selectCollectionForId = createSelector(
   selectCurrentQueueList,
   (id, bLists, rLists, uLists, eLists, pLists, queue) => {
     const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
+
+    if (isOnPublicView) return rLists[id] || collection;
+
     return collection;
   }
 );
@@ -544,4 +551,9 @@ export const selectFeaturedChannelsIds = createSelector(selectFeaturedChannelsBy
 export const selectCollectionTypeForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
   return collection?.type;
+};
+
+export const selectSourceIdForCollectionId = (state: State, id: string) => {
+  const collection = selectCollectionForId(state, id);
+  return collection && collection.sourceId;
 };
