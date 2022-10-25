@@ -11,8 +11,8 @@ import {
   selectChannelNameForId,
   selectPermanentUrlForUri,
   selectClaimsById,
+  selectClaimsByUri,
 } from 'redux/selectors/claims';
-import { parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
@@ -175,7 +175,7 @@ export const selectMyPublishedOnlyCollections = createSelector(
   selectPendingCollections,
   selectMyCollectionIds,
   (resolved, pending, myIds) => {
-    // all resolved in myIds, plus those in pending and edited
+    // all resolved in myIds, plus those in pending
     const myPublishedCollections = fromEntries(
       Object.entries(pending).concat(
         Object.entries(resolved).filter(
@@ -335,16 +335,22 @@ export const selectAreBuiltinCollectionsEmpty = (state: State) => {
   return !notEmpty;
 };
 
-export const selectClaimIdsForCollectionId = createSelector(selectCollectionForId, (collection) => {
-  const items = (collection && collection.items) || [];
+export const selectClaimIdsForCollectionId = createSelector(
+  selectCollectionForId,
+  selectClaimsByUri,
+  (collection, claimsByUri) => {
+    const items = (collection && collection.items) || [];
 
-  const ids = items.map((item) => {
-    const { claimId } = parseURI(item);
-    return claimId;
-  });
+    const ids = items
+      .map((item) => {
+        const claim = claimsByUri[item];
+        return claim && claim.claim_id;
+      })
+      .filter(Boolean);
 
-  return ids;
-});
+    return ids;
+  }
+);
 
 export const selectIndexForUrlInCollection = createSelector(
   (state, url, id, ignoreShuffle) => ignoreShuffle,

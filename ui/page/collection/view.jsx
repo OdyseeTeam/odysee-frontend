@@ -21,6 +21,7 @@ type Props = {
   isResolvingCollection: boolean,
   isResolving: boolean,
   isCollectionMine: boolean,
+  collectionClaimsIds: Array<string>,
   doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
 };
 
@@ -38,6 +39,7 @@ export default function CollectionPage(props: Props) {
     isResolvingCollection,
     isResolving,
     isCollectionMine,
+    collectionClaimsIds,
     doFetchItemsInCollection,
   } = props;
 
@@ -50,7 +52,7 @@ export default function CollectionPage(props: Props) {
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
-  const { name, totalItems } = collection || {};
+  const { name, totalItems, items } = collection || {};
 
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
@@ -61,11 +63,13 @@ export default function CollectionPage(props: Props) {
   const urlsReady =
     collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
 
+  const privateColItemsToBeFetched = !hasClaim && items && items.length !== collectionClaimsIds.length;
+
   React.useEffect(() => {
-    if (collectionId && !urlsReady && !collection) {
+    if (((!urlsReady && !collection) || privateColItemsToBeFetched)) {
       doFetchItemsInCollection({ collectionId });
     }
-  }, [collectionId, urlsReady, doFetchItemsInCollection, collection]);
+  }, [collection, collectionId, doFetchItemsInCollection, privateColItemsToBeFetched, urlsReady]);
 
   if (isResolving || isResolving === undefined || isResolvingCollection || isCollectionMine === undefined) {
     return (

@@ -7,6 +7,7 @@ import {
   selectAreCollectionItemsFetchingForId,
   selectBrokenUrlsForCollectionId,
   selectCollectionIsMine,
+  selectClaimIdsForCollectionId,
 } from 'redux/selectors/collections';
 
 import { doFetchItemsInCollection } from 'redux/actions/collections';
@@ -27,6 +28,7 @@ const select = (state, props) => {
     isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
     isResolving: selectIsResolvingForId(state, collectionId),
     isCollectionMine: selectCollectionIsMine(state, collectionId),
+    collectionClaimsIds: selectClaimIdsForCollectionId(state, collectionId),
   };
 };
 
