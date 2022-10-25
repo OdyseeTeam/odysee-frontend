@@ -1748,7 +1748,7 @@ img {
     }
 
     .section__header--actions {
-      @media (max-width: $breakpoint-small) {
+      @media (max-width: $breakpoint-medium) {
         .claim-search__menu-group {
           .button-toggle {
             flex: auto;
@@ -1847,7 +1847,7 @@ img {
     }
   }
 
-  @media (max-width: $breakpoint-small) {
+  @media (max-width: $breakpoint-medium) {
     .card__subtitle {
       p {
         margin-bottom: var(--spacing-m);
@@ -1910,9 +1910,14 @@ img {
     }
   }
   .section__header--actions {
-    @media (max-width: $breakpoint-small) {
+    @media (max-width: $breakpoint-medium) {
       .claim-search__wrapper--wrap {
         width: 100%;
+
+        &:last-of-type {
+          margin-top: var(--spacing-s);
+        }
+
         .claim-search__menu-group:last-child {
           display: inline-block;
           width: auto;
