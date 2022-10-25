@@ -2,7 +2,6 @@
 import React from 'react';
 import analytics from 'analytics';
 
-import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
 
@@ -12,7 +11,7 @@ import { Form, Submit, FormErrors } from 'component/common/form';
 import { COLLECTION_PAGE } from 'constants/urlParams';
 
 import Button from 'component/button';
-import ClaimAbandonButton from 'component/claimAbandonButton';
+import CollectionDeleteButton from 'component/collectionDeleteButton';
 import CollectionItemsList from 'component/collectionItemsList';
 import Spinner from 'component/spinner';
 import BusyIndicator from 'component/common/busy-indicator';
@@ -30,6 +29,7 @@ type Props = {
   collectionId: string,
   onDoneForId: (string) => void,
   // -- redux -
+  uri: ?string,
   hasClaim: boolean,
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
   updatingCollection: boolean,
@@ -50,6 +50,7 @@ const CollectionPublishForm = (props: Props) => {
     collectionId,
     onDoneForId,
     // -- redux -
+    uri,
     hasClaim,
     collectionParams,
     updatingCollection,
@@ -67,7 +68,6 @@ const CollectionPublishForm = (props: Props) => {
   const collectionResetPending = React.useRef(false);
 
   const {
-    push,
     goBack,
     location: { search },
   } = useHistory();
@@ -237,11 +237,9 @@ const CollectionPublishForm = (props: Props) => {
             : __('After submitting, all changes will remain private')}
         </p>
 
-        {hasClaim && (
-          <div className="section__actions">
-            <ClaimAbandonButton claimId={collectionId} abandonActionCallback={() => push(`/$/${PAGES.LIBRARY}`)} />
-          </div>
-        )}
+        <div className="section__actions">
+          <CollectionDeleteButton uri={uri} collectionId={collectionId} />
+        </div>
       </CollectionFormContext.Provider>
     </Form>
   );
