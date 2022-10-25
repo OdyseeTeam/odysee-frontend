@@ -185,7 +185,7 @@ const CollectionPublishForm = (props: Props) => {
 
             <TabPanel>
               {tabIndex === TAB.ITEMS && (
-                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} />
+                <CollectionItemsList collectionId={collectionId} empty={__('This playlist has no items.')} showEdit />
               )}
             </TabPanel>
           </TabPanels>
