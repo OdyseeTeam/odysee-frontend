@@ -274,7 +274,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
 
       const { items: editedCollectionItems } = selectEditedCollectionForId(state, collectionId) || {};
       const { name, timestamp, value } = claim || {};
-      const { title, description, thumbnail } = value;
+      const { title, description, thumbnail } = value || {};
       const valueTypes = new Set();
       const streamTypes = new Set();
 
