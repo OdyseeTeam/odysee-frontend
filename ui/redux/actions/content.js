@@ -318,7 +318,7 @@ export function doPlaylistAddAndAllowPlaying({
       } else {
         dispatch(
           doUriInitiatePlay(
-            { uri: createNew ? uri : firstItemUri, collection: { collectionId } },
+            { uri: firstItemUri || uri, collection: { collectionId } },
             true,
             true,
             !floatingPlayerEnabled && pushPlay ? (url) => pushPlay(url) : undefined
