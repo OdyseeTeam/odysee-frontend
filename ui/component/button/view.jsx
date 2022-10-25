@@ -196,6 +196,8 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
         onClick={onClick}
         aria-label={ariaLabel}
         disabled={disabled} // is there a reason this wasn't here before?
+        ref={combinedRef}
+        {...otherProps}
       >
         {content}
       </a>
@@ -250,6 +252,8 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
         className={combinedClassName}
         activeClassName={activeClass}
         aria-label={ariaLabel}
+        ref={combinedRef}
+        {...otherProps}
       >
         {content}
       </NavLink>
@@ -271,6 +275,7 @@ const Button = forwardRef<any, {}>((props: Props, ref: any) => {
       className={combinedClassName}
       activeClassName={activeClass}
       aria-label={ariaLabel}
+      ref={combinedRef}
       {...otherProps}
     >
       {content}

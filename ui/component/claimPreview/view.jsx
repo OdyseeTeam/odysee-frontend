@@ -40,7 +40,6 @@ import CollectionEditButtons from 'component/collectionEditButtons';
 import * as ICONS from 'constants/icons';
 import { useIsMobile } from 'effects/use-screensize';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
-import PreviewTilePurchaseOverlay from 'component/previewTilePurchaseOverlay';
 
 const AbandonedChannelPreview = lazyImport(() =>
   import('component/abandonedChannelPreview' /* webpackChunkName: "abandonedChannelPreview" */)
@@ -80,6 +79,7 @@ type Props = {
   showNullPlaceholder?: boolean,
   includeSupportAction?: boolean,
   hideActions?: boolean,
+  hideJoin?: boolean,
   renderActions?: (Claim) => ?Node,
   wrapperElement?: string,
   hideRepostLabel?: boolean,
@@ -100,7 +100,6 @@ type Props = {
   showEdit?: boolean,
   dragHandleProps?: any,
   unavailableUris?: Array<string>,
-  showMemberBadge?: boolean,
   inWatchHistory?: boolean,
   smallThumbnail?: boolean,
   showIndexes?: boolean,
@@ -160,6 +159,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     includeSupportAction,
     renderActions,
     hideMenu = false,
+    hideJoin = false,
     // repostUrl,
     isLivestream,
     isLivestreamActive,
@@ -174,7 +174,6 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     showEdit,
     dragHandleProps,
     unavailableUris,
-    showMemberBadge,
     inWatchHistory,
     smallThumbnail,
     showIndexes,
@@ -361,6 +360,19 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
     }
   }, [isValid, uri, isResolvingUri, shouldFetch, resolveUri]);
 
+  const JoinButton = React.useMemo(
+    () => () =>
+      isChannelUri &&
+      !claimIsMine &&
+      !hideJoin &&
+      (!banState.muted || showUserBlocked) && (
+        <div className={'membership-button-wrapper' + (type ? ' ' + type : '')}>
+          <JoinMembershipButton uri={uri} />
+        </div>
+      ),
+    [banState.muted, claimIsMine, hideJoin, isChannelUri, showUserBlocked, type, uri]
+  );
+
   // **************************************************************************
   // **************************************************************************
 
@@ -481,19 +493,13 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
           {isChannelUri && claim ? (
             <UriIndicator focusable={false} uri={uri} link>
-              <ChannelThumbnail
-                uri={uri}
-                small={type === 'inline'}
-                showMemberBadge={showMemberBadge}
-                checkMembership={false}
-              />
+              <ChannelThumbnail uri={uri} small={type === 'inline'} checkMembership={false} />
             </UriIndicator>
           ) : (
             <>
               {!pending ? (
                 <NavLink aria-hidden tabIndex={-1} {...navLinkProps}>
                   <FileThumbnail thumbnail={thumbnailUrl} small={smallThumbnail} uri={uri}>
-                    <PreviewTilePurchaseOverlay uri={uri} />
                     {isPlayable && !smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
                         <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
@@ -535,32 +541,19 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                 {!isChannelUri && signingChannel && (
                   <div className="claim-preview__channel-staked">
                     <UriIndicator focusable={false} uri={uri} link hideAnonymous>
-                      <ChannelThumbnail
-                        uri={signingChannel.permanent_url}
-                        xsmall
-                        showMemberBadge={showMemberBadge}
-                        checkMembership={false}
-                      />
+                      <ChannelThumbnail uri={signingChannel.permanent_url} xsmall checkMembership={false} />
                     </UriIndicator>
                   </div>
                 )}
-                <ClaimPreviewSubtitle
-                  uri={uri}
-                  type={type}
-                  showAtSign={isChannelUri}
-                  showMemberBadge={!showMemberBadge}
-                />
+                <ClaimPreviewSubtitle uri={uri} type={type} showAtSign={isChannelUri} />
                 {(pending || !!reflectingProgress) && <PublishPending uri={uri} />}
                 {channelSubscribers}
               </div>
             </div>
             {type !== 'small' && (
               <div className="claim-preview__actions">
-                {isChannelUri && !claimIsMine && (!banState.muted || showUserBlocked) && (
-                  <div className="membership-button-wrapper">
-                    <JoinMembershipButton uri={uri} />
-                  </div>
-                )}
+                {type && <JoinButton />}
+
                 {!pending && (
                   <>
                     {renderActions && claim && renderActions(claim)}
@@ -583,6 +576,9 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
                     )}
                   </>
                 )}
+
+                {!type && <JoinButton />}
+
                 {claim && (
                   <React.Fragment>
                     {typeof properties === 'function'

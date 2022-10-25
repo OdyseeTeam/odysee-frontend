@@ -23,6 +23,8 @@ import {
 import * as CLAIM from 'constants/claim';
 import { INTERNAL_TAGS, MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG } from 'constants/tags';
 import { getGeoRestrictionForClaim } from 'util/geoRestriction';
+import { parsePurchaseTag, parseRentalTag } from 'util/stripe';
+import { removeInternalStringTags } from 'util/tags';
 
 type State = { claims: any, user: UserState };
 
@@ -747,12 +749,11 @@ export const makeSelectMyChannelPermUrlForName = (name: string) =>
 
 // CAUTION: this is purely meant for the GUI now, as it filters out INTERNAL_TAGS.
 export const selectTagsForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  return metadata && metadata.tags ? metadata.tags.filter((tag) => !INTERNAL_TAGS.includes(tag)) : [];
+  return metadata && metadata.tags ? removeInternalStringTags(metadata.tags) : [];
 })((state, uri) => String(uri));
 
 export const selectPurchaseTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('purchase:'));
-  if (matchingTag) return matchingTag.slice(9);
+  return parsePurchaseTag(metadata?.tags);
 })((state, uri) => String(uri));
 
 export const selectPreorderTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
@@ -771,19 +772,7 @@ export const selectedRestrictedCommentsChatTagForUri = createSelector(
 );
 
 export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
-  const matchingTag = metadata && metadata.tags && metadata.tags.find((tag) => tag.includes('rental:'));
-  if (matchingTag) {
-    const trimmedTag = matchingTag.slice(7);
-
-    const tags = trimmedTag.split(':');
-
-    if (tags && tags.length === 2) {
-      return {
-        price: tags[0],
-        expirationTimeInSeconds: tags[1],
-      };
-    }
-  }
+  return parseRentalTag(metadata?.tags);
 })((state, uri) => String(uri));
 
 export const selectPreorderContentClaimIdForUri = createCachedSelector(
@@ -910,9 +899,7 @@ export const selectStakedLevelForChannelUri = createCachedSelector(selectTotalSt
 })((state, uri) => String(uri));
 
 export const selectUpdatingCollection = (state: State) => selectState(state).updatingCollection;
-export const selectUpdateCollectionError = (state: State) => selectState(state).updateCollectionError;
 export const selectCreatingCollection = (state: State) => selectState(state).creatingCollection;
-export const selectCreateCollectionError = (state: State) => selectState(state).createCollectionError;
 
 export const selectIsMyChannelCountOverLimit = createSelector(
   selectMyChannelClaimIds,
@@ -955,13 +942,14 @@ export const selectTakeOverAmountForName = (state: State, name: string) => {
   return winningClaim ? winningClaim.meta.effective_amount || winningClaim.amount : null;
 };
 
+export const selectIsFetchingPurchases = (state: State) => selectState(state).fetchingMyPurchasedClaims;
+
 export const selectMyPurchasedClaims = createSelector(selectState, (state) => state.myPurchasedClaims || []);
 
 export const selectPurchaseMadeForClaimId = (state: State, claimId: string) => {
   const purchasedClaims = selectMyPurchasedClaims(state);
-
   return purchasedClaims.some(
-    (p) => (p.reference_claim_id === claimId || p.target_claim_id === claimId) && p.type !== 'rental'
+    (p) => (p.reference_claim_id === claimId || p.target_claim_id === claimId) && p.type === 'purchase'
   );
 };
 
@@ -977,6 +965,20 @@ export const selectValidRentalPurchaseForClaimId = (state: State, claimId: strin
   });
 
   return validRentalClaimForClaimId;
+};
+
+export const selectIsFiatRequiredForUri = (state: State, uri: string) => {
+  return Boolean(selectPurchaseTagForUri(state, uri)) || Boolean(selectRentalTagForUri(state, uri));
+};
+
+export const selectIsFiatPaidForUri = (state: State, uri: string) => {
+  const claimId = (selectClaimForUri(state, uri) || {}).claim_id;
+  if (claimId) {
+    return (
+      Boolean(selectPurchaseMadeForClaimId(state, claimId)) ||
+      Boolean(selectValidRentalPurchaseForClaimId(state, claimId))
+    );
+  }
 };
 
 export const selectIsClaimOdyseeChannelForUri = (state: State, uri: string) => {

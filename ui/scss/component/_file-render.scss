@@ -1,7 +1,8 @@
-.membership-button-wrapper {
+.membership-button-wrapper.inline {
   margin: var(--spacing-s);
   margin-bottom: 0;
   margin-left: 0;
+
   @media (max-width: $breakpoint-small) {
     margin-top: var(--spacing-xxs);
     margin-bottom: var(--spacing-s);
@@ -40,12 +41,6 @@
               min-width: 60px;
               .icon {
                 margin-bottom: 0;
-              }
-            }
-            .filePrice__key {
-              .icon {
-                margin-left: 0;
-                margin-right: var(--spacing-m);
               }
             }
           }
@@ -373,7 +368,6 @@
   width: 100%;
   aspect-ratio: 16 / 9;
   background-color: var(--color-placeholder-background);
-  // background-color: rgba(25,25,25,0.4);
   border-radius: var(--border-radius);
   position: relative;
 }
@@ -387,6 +381,9 @@
   .button--uri-indicator {
     .channel-name {
       display: unset;
+      p {
+        display: unset;
+      }
     }
   }
 }

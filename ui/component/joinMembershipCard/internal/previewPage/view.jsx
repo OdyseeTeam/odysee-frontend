@@ -98,11 +98,11 @@ const PreviewPage = (props: Props) => {
     return (
       <div className="join-membership__empty">
         <h2 className="header--no-memberships">{__('Channel Has No Memberships')}</h2>
-        <h2>
+        <p>
           {__(
             "Unfortunately, this creator hasn't activated their membership functionality yet, but you can create your own tiers with the link below!"
           )}
-        </h2>
+        </p>
         <div>
           <Button
             icon={ICONS.MEMBERSHIP}
@@ -138,7 +138,7 @@ const PreviewPage = (props: Props) => {
               membership={membership}
               handleSelect={() => {
                 setMembershipIndex(index);
-                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTier: membership });
+                doOpenModal(MODALS.JOIN_MEMBERSHIP, { uri, membershipIndex: index, passedTierIndex: index });
               }}
               index={index}
               length={creatorMemberships.length}

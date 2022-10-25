@@ -48,6 +48,7 @@ type Props = {
   tileLayout?: boolean,
   searchInLanguage: boolean,
   hideMenu?: boolean,
+  hideJoin?: boolean,
   claimSearchByQuery: { [string]: Array<string> },
   claimsByUri: { [string]: any },
   collectionId?: string,
@@ -61,7 +62,6 @@ type Props = {
   showEdit?: boolean,
   droppableProvided?: any,
   unavailableUris?: Array<string>,
-  showMemberBadge?: boolean,
   inWatchHistory?: boolean,
   smallThumbnail?: boolean,
   showIndexes?: boolean,
@@ -101,6 +101,7 @@ export default function ClaimList(props: Props) {
     renderProperties,
     searchInLanguage,
     hideMenu,
+    hideJoin,
     collectionId,
     fypId,
     showNoSourceClaims,
@@ -112,7 +113,6 @@ export default function ClaimList(props: Props) {
     showEdit,
     droppableProvided,
     unavailableUris,
-    showMemberBadge,
     inWatchHistory,
     smallThumbnail,
     showIndexes,
@@ -211,6 +211,7 @@ export default function ClaimList(props: Props) {
       type={type}
       active={activeUri && uri === activeUri}
       hideMenu={hideMenu}
+      hideJoin={hideJoin}
       includeSupportAction={includeSupportAction}
       showUnresolvedClaim={showUnresolvedClaims}
       properties={renderProperties || (type !== 'small' ? undefined : false)}
@@ -226,7 +227,6 @@ export default function ClaimList(props: Props) {
       dragHandleProps={draggableProvided && draggableProvided.dragHandleProps}
       wrapperElement={draggableProvided ? 'div' : undefined}
       unavailableUris={unavailableUris}
-      showMemberBadge={showMemberBadge}
       inWatchHistory={inWatchHistory}
       smallThumbnail={smallThumbnail}
       showIndexes={showIndexes}

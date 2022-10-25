@@ -20,6 +20,7 @@ import analytics from 'analytics';
 import CollectionGeneralTab from 'component/collectionGeneralTab';
 import PublishBidTab from 'component/publishBidField';
 import Spinner from 'component/spinner';
+import BusyIndicator from 'component/common/busy-indicator';
 
 export const PAGE_TAB_QUERY = `tab`;
 const MAX_TAG_SELECT = 5;
@@ -43,12 +44,10 @@ type Props = {
   collectionParams: CollectionPublishParams,
   collectionClaimIds: Array<string>,
   updatingCollection: boolean,
-  updateError: string,
-  createError: string,
   creatingCollection: boolean,
+  activeChannelClaim: ?ChannelClaim,
   doCollectionPublishUpdate: (CollectionUpdateParams) => Promise<any>,
   doCollectionPublish: (CollectionPublishParams, string) => Promise<any>,
-  doClearCollectionErrors: () => void,
   // onPreSubmit: Hook to allow clients to change/finalize the params before the form is submitted.
   onPreSubmit: (params: {}) => {},
   onDone: (string) => void,
@@ -66,12 +65,10 @@ function CollectionForm(props: Props) {
     collectionParams,
     collectionClaimIds,
     updatingCollection,
-    updateError,
-    createError,
     creatingCollection,
+    activeChannelClaim,
     doCollectionPublishUpdate,
     doCollectionPublish,
-    doClearCollectionErrors,
     onPreSubmit,
     onDone,
   } = props;
@@ -82,7 +79,6 @@ function CollectionForm(props: Props) {
   const [thumbailError, setThumbnailError] = React.useState('');
   const [bidError, setBidError] = React.useState('');
   const [params, setParams] = React.useState({});
-  const [loading, setLoading] = React.useState(false);
   const [tabIndex, setTabIndex] = React.useState(0);
   const [showItemsSpinner, setShowItemsSpinner] = React.useState(false);
 
@@ -96,7 +92,7 @@ function CollectionForm(props: Props) {
   const hasClaims = claims && claims.length;
   const collectionClaimIdsString = JSON.stringify(collectionClaimIds);
   const itemError = !hasClaims ? __('Cannot publish empty list') : '';
-  const submitError = nameError || bidError || itemError || updateError || createError || thumbailError;
+  const submitError = nameError || bidError || itemError || thumbailError;
 
   function updateParams(newParams) {
     // $FlowFixMe
@@ -131,7 +127,6 @@ function CollectionForm(props: Props) {
     const collectionClaimIds = JSON.parse(collectionClaimIdsString);
     // $FlowFixMe
     updateParams({ claims: collectionClaimIds });
-    doClearCollectionErrors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [collectionClaimIdsString]);
 
@@ -195,7 +190,6 @@ function CollectionForm(props: Props) {
                 nameError={nameError}
                 setThumbnailError={setThumbnailError}
                 updateParams={updateParams}
-                setLoading={setLoading}
                 collectionType={collection?.type}
               />
             )}
@@ -308,7 +302,7 @@ function CollectionForm(props: Props) {
         </TabPanels>
       </Tabs>
 
-      {!loading && (
+      {activeChannelClaim !== undefined && (
         <Card
           className="card--after-tabs"
           actions={
@@ -317,7 +311,13 @@ function CollectionForm(props: Props) {
                 <Button
                   button="primary"
                   disabled={isBuiltin || creatingCollection || updatingCollection || Boolean(submitError) || !hasClaims}
-                  label={creatingCollection || updatingCollection ? __('Submitting') : __('Submit')}
+                  label={
+                    creatingCollection || updatingCollection ? (
+                      <BusyIndicator message={__('Submitting')} />
+                    ) : (
+                      __('Submit')
+                    )
+                  }
                   onClick={handleSubmit}
                 />
                 <Button button="link" label={__('Cancel')} onClick={() => onDone(collectionId)} />

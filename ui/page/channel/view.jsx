@@ -58,7 +58,7 @@ type Props = {
   odyseeMembership: ?string,
   getMembershipTiersForChannel: any,
   doMembershipMine: () => void,
-  myActiveMemberships: ?MembershipMineDataByKey,
+  myMembershipsFetched: boolean,
   isOdyseeChannel: boolean,
 };
 
@@ -85,7 +85,7 @@ function ChannelPage(props: Props) {
     odyseeMembership,
     getMembershipTiersForChannel,
     doMembershipMine,
-    myActiveMemberships,
+    myMembershipsFetched,
     isOdyseeChannel,
   } = props;
   const {
@@ -231,10 +231,10 @@ function ChannelPage(props: Props) {
   }, [uri, fetchSubCount, claimId]);
 
   React.useEffect(() => {
-    if (myActiveMemberships === undefined) {
+    if (!myMembershipsFetched) {
       doMembershipMine();
     }
-  }, [doMembershipMine, myActiveMemberships]);
+  }, [doMembershipMine, myMembershipsFetched]);
 
   if (editing) {
     return (
@@ -292,7 +292,7 @@ function ChannelPage(props: Props) {
                 <span>
                   {getChannelSubCountStr(subCount, compactSubCount)}
                   {Number.isInteger(subCount) ? (
-                    <HelpLink href="https://odysee.com/@OdyseeHelp:b/OdyseeBasics:c" />
+                    <HelpLink href="https://help.odysee.tv/category-interaction/following/" />
                   ) : (
                     '\u00A0'
                   )}

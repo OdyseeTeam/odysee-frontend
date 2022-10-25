@@ -30,6 +30,7 @@ type Props = {
   name?: string,
   type: string,
   pageSize?: number,
+  duration?: string,
 
   fetchViewCount?: boolean,
   hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
@@ -126,6 +127,7 @@ function ClaimListDiscover(props: Props) {
     claimSearchByQuery,
     showHeader = true,
     type,
+    duration,
     claimSearchByQueryLastPageReached,
     tags,
     notTags,
@@ -278,29 +280,7 @@ function ClaimListDiscover(props: Props) {
     CS.ORDER_BY_TRENDING
   );
 
-  let options: {
-    page_size: number,
-    page: number,
-    no_totals: boolean,
-    any_tags?: Array<string>,
-    any_languages?: Array<string>,
-    not_tags: Array<string>,
-    channel_ids?: Array<string>,
-    claim_ids?: Array<string>,
-    not_channel_ids?: Array<string>,
-    order_by: Array<string>,
-    release_time?: string,
-    claim_type?: string | Array<string>,
-    name?: string,
-    duration?: string,
-    reposted_claim_id?: string,
-    stream_types?: any,
-    fee_amount?: string,
-    has_source?: boolean,
-    has_no_source?: boolean,
-    limit_claims_per_channel?: number,
-    remove_duplicates?: boolean,
-  } = {
+  let options: ClaimSearchOptions = {
     page_size: dynamicPageSize,
     page,
     name,
@@ -388,7 +368,7 @@ function ClaimListDiscover(props: Props) {
   if (durationParam) {
     switch (durationParam) {
       case CS.DURATION_ALL:
-        // Do nothing (no options needed)
+        options.duration = duration || undefined;
         break;
       case CS.DURATION_SHORT:
         options.duration = '<=240';
@@ -504,6 +484,7 @@ function ClaimListDiscover(props: Props) {
         !claimSearchResultLastPageReached &&
         claimSearchResult &&
         claimSearchResult.length &&
+        // $FlowIgnore: page is always defined in this component
         claimSearchResult.length < dynamicPageSize * options.page &&
         claimSearchResult.length % dynamicPageSize === 0));
 
@@ -530,9 +511,7 @@ function ClaimListDiscover(props: Props) {
       <p>
         <I18nMessage
           tokens={{
-            contact_support: (
-              <Button button="link" label={__('contact support')} href="https://odysee.com/@OdyseeHelp:b?view=about" />
-            ),
+            contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />,
           }}
         >
           If you continue to have issues, please %contact_support%.

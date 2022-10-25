@@ -48,7 +48,7 @@ export default function Footer() {
         <li className="footer__link">
           <Button
             label={__('Support --[used in footer; general help/support]--')}
-            onClick={() => window.odysee.functions.history.push('/@OdyseeHelp:b')}
+            onClick={() => window.odysee.functions.initBrowser(`https://help.odysee.tv/`, 'external')}
           />
         </li>
         <li className="footer__link">

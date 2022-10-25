@@ -187,8 +187,13 @@ function CommentMenuList(props: Props) {
       .then(() => doToast({ message: __('Link copied.') }));
   }
 
-  function reduceUriToChannelName(uri: ?string) {
+  function reduceUriToChannelName(uri: ?string, fallback: ?string) {
     try {
+      if (!uri && fallback) {
+        let fallbackUri = fallback.substring('lbry://'.length);
+        fallbackUri = fallbackUri.substring(0, fallbackUri.indexOf('#') + 4);
+        uri = fallbackUri;
+      }
       return uri && uri.substring(uri.indexOf('@'), uri.length).replace('#', ':');
     } catch {
       return uri;
@@ -215,7 +220,7 @@ function CommentMenuList(props: Props) {
         <>
           <MenuItem
             className="comment__menu-option menu__link"
-            onSelect={() => setQuickReply(reduceUriToChannelName(authorCanonicalUri))}
+            onSelect={() => setQuickReply(reduceUriToChannelName(authorCanonicalUri, authorUri))}
           >
             <span className={'button__content'}>
               <Icon aria-hidden icon={ICONS.REPLY} className={'icon'} />

@@ -54,9 +54,11 @@ type Props = {
   forceShowReposts?: boolean, // overrides SETTINGS.HIDE_REPOSTS
   hideMembersOnly?: boolean, // undefined = use SETTING.HIDE_MEMBERS_ONLY_CONTENT; true/false: use this override.
   loading: boolean,
+  duration?: string,
   // --- select ---
   location: { search: string },
   claimSearchResults: Array<string>,
+  claimSearchLastPageReached: ?boolean,
   claimsByUri: { [string]: any },
   claimsById: { [string]: any },
   fetchingClaimSearch: boolean,
@@ -75,6 +77,7 @@ function ClaimTilesDiscover(props: Props) {
   const {
     doClaimSearch,
     claimSearchResults,
+    claimSearchLastPageReached,
     claimsByUri,
     claimsById,
     fetchViewCount,
@@ -107,7 +110,8 @@ function ClaimTilesDiscover(props: Props) {
   const uriBuffer = useRef([]);
 
   const timedOut = claimSearchResults === null;
-  const shouldPerformSearch = !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0;
+  const shouldPerformSearch =
+    !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0 && !claimSearchLastPageReached;
 
   const uris = (prefixUris || []).concat(claimSearchUris);
   if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
@@ -185,13 +189,7 @@ function ClaimTilesDiscover(props: Props) {
         <p>
           <I18nMessage
             tokens={{
-              contact_support: (
-                <Button
-                  button="link"
-                  label={__('contact support')}
-                  href="https://odysee.com/@OdyseeHelp:b?view=about"
-                />
-              ),
+              contact_support: <Button button="link" label={__('contact support')} href="https://help.odysee.tv/" />,
             }}
           >
             If you continue to have issues, please %contact_support%.
@@ -199,6 +197,10 @@ function ClaimTilesDiscover(props: Props) {
         </p>
       </div>
     );
+  }
+
+  if (!timedOut && finalUris && finalUris.length === 0 && !loading && claimSearchLastPageReached) {
+    return <div className="empty empty--centered">{__('No results')}</div>;
   }
 
   return (

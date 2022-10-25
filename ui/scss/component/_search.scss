@@ -243,7 +243,8 @@
           overflow: visible;
           .claim-preview__actions {
             overflow: visible;
-            .membership-button-wrapper {
+
+            .claim-preview__primary-actions {
               margin-bottom: 0;
               margin-left: calc((4rem + (2 * var(--spacing-xs))) * -1);
             }
@@ -310,5 +311,18 @@
 
   .help {
     color: var(--color-text);
+  }
+
+  @media (max-width: $breakpoint-small) {
+    .section__actions--no-margin {
+      max-width: 100%;
+      .search__top-link {
+        max-width: 100%;
+        .button__content {
+          max-width: 100%;
+          margin-right: var(--spacing-xs);
+        }
+      }
+    }
   }
 }

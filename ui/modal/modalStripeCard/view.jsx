@@ -1,6 +1,8 @@
 // @flow
 import React from 'react';
 
+import * as ICONS from 'constants/icons';
+
 import { Modal } from 'modal/modal';
 
 import Card from 'component/common/card';
@@ -21,6 +23,13 @@ const ModalStripeCard = (props: Props) => {
 
   const [isBusy, setIsBusy] = React.useState();
 
+  function handleGoBack() {
+    doHideModal();
+    // makes sense to open previous and continue only on confirm,
+    // in case I give up, close/cancel will just abort
+    if (previousModal) doOpenModal(previousModal, previousProps);
+  }
+
   function handleConfirm() {
     doHideModal();
     // makes sense to open previous and continue only on confirm,
@@ -30,6 +39,8 @@ const ModalStripeCard = (props: Props) => {
 
   return (
     <Modal onAborted={isBusy ? undefined : doHideModal} isOpen type="card" className="modal--add-card">
+      <Button button="link" className="padding-small" label={__('Go Back')} icon={ICONS.BACK} onClick={handleGoBack} />
+
       <Card
         title={
           hasSavedCard
