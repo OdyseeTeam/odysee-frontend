@@ -445,6 +445,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       collection: {
         ...collection,
         items: newItems,
+        totalItems: newItems.length,
         // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
         ...('description' in params ? { description: params.description } : {}),
         ...(title ? { name: title, title } : {}),
