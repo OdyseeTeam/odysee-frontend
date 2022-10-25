@@ -932,7 +932,7 @@ export const selectIsStreamPlaceholderForUri = (state: State, uri: string) => {
   return isStreamPlaceholderClaim(claim);
 };
 
-export const selectTotalStakedAmountForChannelUri = createCachedSelector(selectClaimForUri, (claim) => {
+export const selectTotalStakedAmountForUri = createCachedSelector(selectClaimForUri, (claim) => {
   if (!claim || !claim.amount || !claim.meta || !claim.meta.support_amount) {
     return 0;
   }
@@ -940,7 +940,7 @@ export const selectTotalStakedAmountForChannelUri = createCachedSelector(selectC
   return parseFloat(claim.amount) + parseFloat(claim.meta.support_amount) || 0;
 })((state, uri) => String(uri));
 
-export const selectStakedLevelForChannelUri = createCachedSelector(selectTotalStakedAmountForChannelUri, (amount) => {
+export const selectStakedLevelForChannelUri = createCachedSelector(selectTotalStakedAmountForUri, (amount) => {
   let level = 1;
   switch (true) {
     case amount >= CLAIM.LEVEL_2_STAKED_AMOUNT && amount < CLAIM.LEVEL_3_STAKED_AMOUNT:
@@ -1051,4 +1051,11 @@ export const selectIsClaimOdyseeChannelForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   const claimId = getChannelIdFromClaim(claim);
   return claimId === ODYSEE_CHANNEL.ID;
+};
+
+export const selectClaimHasSupportsForUri = (state: State, uri: string) => {
+  const claim = selectClaimForUri(state, uri);
+  const hasSupport = claim && claim.meta && claim.meta.support_amount && Number(claim.meta.support_amount) > 0;
+
+  return hasSupport;
 };
