@@ -2,9 +2,12 @@
 import React, { useState } from 'react';
 import BusyIndicator from 'component/common/busy-indicator';
 import FileSelector from 'component/common/file-selector';
+import Icon from 'component/common/icon';
 import Button from 'component/button';
 import FileThumbnail from 'component/fileThumbnail';
+import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import { MEMBERS_ONLY_TAGS } from 'constants/tags';
 import { serializeFileObj } from 'util/file';
 import { tusIsSessionLocked } from 'util/tus';
 
@@ -82,6 +85,43 @@ export default function WebUploadItem(props: Props) {
         closeModal();
       },
     });
+  }
+
+  function getTierRestrictionWarning() {
+    const tags = uploadItem?.params?.tags;
+    const hasTierRestrictions = tags && tags.some((t) => MEMBERS_ONLY_TAGS.includes(t));
+
+    if (hasTierRestrictions) {
+      return (
+        <div className="web-upload-item__tier-warning">
+          <Icon icon={ICONS.ALERT} size={18} />
+          <span>{__('Tier restrictions might not be applied correctly if upload is interrupted.')}</span>
+          <Button
+            label={__('Learn more')}
+            button="link"
+            onClick={() => {
+              doOpenModal(MODALS.CONFIRM, {
+                title: __('Verify restriction status'),
+                body: (
+                  <>
+                    <p className="section__subtitle">
+                      {__(
+                        'Upon successful upload, please verify the tier restrictions (e.g. through an Incognito window), as it might not be applied correctly if the process was interrupted.'
+                      )}
+                    </p>
+                    <p className="section__subtitle">
+                      {__('Tier restrictions can be re-applied by editing the uploaded item.')}
+                    </p>
+                  </>
+                ),
+                onConfirm: (closeModal) => closeModal(),
+                hideCancel: true,
+              });
+            }}
+          />
+        </div>
+      );
+    }
   }
 
   function getProgressElem() {
@@ -210,7 +250,7 @@ export default function WebUploadItem(props: Props) {
     return (
       <>
         <div className="claim-upload__progress--label">lbry://{params.name}</div>
-        <div className={'claim-upload__progress--outer card--inline'}>
+        <div className="claim-upload__progress--outer">
           <div className={'claim-upload__progress--inner'} style={{ width: `${progress}%` }}>
             <span className="claim-upload__progress--inner-text">{getProgressElem()}</span>
           </div>
@@ -238,6 +278,7 @@ export default function WebUploadItem(props: Props) {
         </div>
         {showFileSelector && getFileSelector()}
         {!showFileSelector && getProgressBar()}
+        {getTierRestrictionWarning()}
       </div>
     </li>
   );

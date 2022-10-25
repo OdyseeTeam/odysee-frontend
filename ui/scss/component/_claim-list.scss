@@ -1732,6 +1732,19 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
+.web-upload-item__tier-warning {
+  display: flex;
+  align-items: center;
+
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  margin-top: var(--spacing-xs);
+
+  > * {
+    margin-right: var(--spacing-xxxs);
+  }
+}
+
 .claim-list__scroll-to-recent {
   margin-bottom: var(--spacing-xxs);
   position: absolute;
