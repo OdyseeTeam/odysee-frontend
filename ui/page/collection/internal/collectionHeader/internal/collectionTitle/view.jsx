@@ -1,9 +1,16 @@
 // @flow
 import React from 'react';
+
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as ICONS from 'constants/icons';
+
+import { useHistory } from 'react-router';
+import { COLLECTION_PAGE } from 'constants/urlParams';
+import { CollectionPageContext } from 'page/collection/context';
+
 import Icon from 'component/common/icon';
 import Skeleton from '@mui/material/Skeleton';
+import Button from 'component/button';
 
 type Props = {
   collectionId: string,
@@ -11,36 +18,72 @@ type Props = {
   // -- redux --
   collectionTitle?: string,
   collectionHasEdits: boolean,
+  isMyCollection: boolean,
 };
 
 const CollectionTitle = (props: Props) => {
-  const { collectionId, noIcon, collectionTitle, collectionHasEdits } = props;
+  const { collectionId, noIcon, collectionTitle, collectionHasEdits, isMyCollection } = props;
+
+  const {
+    push,
+    location: { search },
+  } = useHistory();
+  const { togglePublicCollection } = React.useContext(CollectionPageContext);
 
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
+  const urlParams = new URLSearchParams(search);
+  const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
+  const showEditButton = isMyCollection && !isBuiltin && !isOnPublicView;
 
   return (
-    <span>
-      {!noIcon && (
-        <Icon icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId] || ICONS.PLAYLIST} className="icon--margin-right" />
-      )}
+    <div className="card__title card__title--with-actions">
+      <h2 className="card-title__text card-title__text--with-icon">
+        {!noIcon && (
+          <Icon
+            icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[collectionId] || ICONS.PLAYLIST}
+            className="icon--margin-right"
+          />
+        )}
 
-      {collectionTitle ? (
-        isBuiltin ? (
-          __(collectionTitle)
+        {collectionTitle ? (
+          isBuiltin ? (
+            __(collectionTitle)
+          ) : (
+            collectionTitle
+          )
         ) : (
-          collectionTitle
-        )
-      ) : (
-        <Skeleton
-          variant="text"
-          animation="wave"
-          className="header__navigationItem--balanceLoading"
-          style={{ display: 'inline-block' }}
-        />
-      )}
+          <Skeleton
+            variant="text"
+            animation="wave"
+            className="header__navigationItem--balanceLoading"
+            style={{ display: 'inline-block' }}
+          />
+        )}
+      </h2>
 
-      {collectionHasEdits ? ' ' + __('(Published playlist with pending changes)') : undefined}
-    </span>
+      {(collectionHasEdits || showEditButton) && (
+        <div className="card-title__action-buttons">
+          {collectionHasEdits && (
+            <Button
+              label={isOnPublicView ? __('View pending changes') : __('View public version')}
+              iconColor={isOnPublicView && 'red'}
+              className="button-toggle"
+              icon={ICONS.EYE}
+              onClick={togglePublicCollection}
+            />
+          )}
+
+          {showEditButton && (
+            <Button
+              title={__('Edit')}
+              className="button-toggle"
+              icon={ICONS.EDIT}
+              onClick={() => push(`?${COLLECTION_PAGE.QUERIES.VIEW}=${COLLECTION_PAGE.VIEWS.EDIT}`)}
+            />
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 

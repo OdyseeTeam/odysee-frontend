@@ -65,8 +65,20 @@ export default function CollectionPage(props: Props) {
 
   const privateColItemsToBeFetched = !hasClaim && items && items.length !== collectionClaimsIds.length;
 
+  function togglePublicCollection() {
+    const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
+
+    if (isOnPublicView) {
+      return push(`/$/${PAGES.PLAYLIST}/${collectionId}`);
+    }
+
+    const newUrlParams = new URLSearchParams();
+    newUrlParams.append(COLLECTION_PAGE.QUERIES.VIEW, COLLECTION_PAGE.VIEWS.PUBLIC);
+    push(`/$/${PAGES.PLAYLIST}/${collectionId}?${newUrlParams.toString()}`);
+  }
+
   React.useEffect(() => {
-    if (((!urlsReady && !collection) || privateColItemsToBeFetched)) {
+    if ((!urlsReady && !collection) || privateColItemsToBeFetched) {
       doFetchItemsInCollection({ collectionId });
     }
   }, [collection, collectionId, doFetchItemsInCollection, privateColItemsToBeFetched, urlsReady]);
@@ -107,7 +119,7 @@ export default function CollectionPage(props: Props) {
   return (
     <Page className="playlists-page-wrapper">
       <div className="section card-stack">
-        <CollectionPageContext.Provider value={{}}>
+        <CollectionPageContext.Provider value={{ togglePublicCollection }}>
           <CollectionHeader
             collectionId={collectionId}
             showEdit={showEdit}
