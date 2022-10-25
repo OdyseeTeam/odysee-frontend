@@ -22,10 +22,7 @@ type Props = {
 function HomeTab(props: Props) {
   const { claim, editMode, activeLivestreamForChannel, doFetchChannelLiveStatus } = props;
   const claimId = claim && claim.claim_id;
-  // console.log('claim: ', claim)
-
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
-  console.log('isChannelBroadcasting: ', isChannelBroadcasting)
 
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
@@ -37,28 +34,14 @@ function HomeTab(props: Props) {
         type: 'featured',
         file_type: undefined,
         order_by: undefined,
-        claimId: undefined,
+        claim_id: undefined,
       },
       {
         type: 'content',
         file_type: CS.FILE_ALL,
         order_by: CS.ORDER_BY_NEW_VALUE,
-        claimId: undefined,
+        claim_id: undefined,
       },
-      /*
-      {
-        type: 'playlists',
-        file_type: undefined,
-        order_by: CS.ORDER_BY_NEW_VALUE,
-        claimId: undefined,
-      },
-      {
-        type: 'playlist',
-        file_type: undefined,
-        order_by: undefined,
-        claimId: '384b6ed88f6f6fa633f9f869c6696b0d1e183644',
-      },
-      */
     ],
   };
 
@@ -79,6 +62,7 @@ function HomeTab(props: Props) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
       if (e.change.field !== 'order_by') {
+        // console.log('change: ', e)
         newHome[index][e.change.field] = e.change.value;
       } else {
         newHome[index][e.change.field] = [e.change.value];
@@ -93,7 +77,7 @@ function HomeTab(props: Props) {
       type: undefined,
       file_type: undefined,
       order: undefined,
-      claimId: undefined,
+      claim_id: undefined,
     });
     setHome(newHome);
   }
@@ -108,73 +92,71 @@ function HomeTab(props: Props) {
     setEdit(false);
   }
 
-  const fetching = false
-  const isInitialized = true
+  const fetching = false;
+  const isInitialized = true;
   // const isChannelBroadcasting = false
-  const isChannelEmpty = false
+  const isChannelEmpty = false;
 
   return (
-    <>
-      <div className="home-tab">
-        {editMode && (
-          <div className="channel_sections__actions">
-            <Button
-              label={__('Edit Home Tab')}
-              button="secondary"
-              icon={ICONS.EDIT}
-              disabled={edit}
-              onClick={() => {
-                setEdit(!edit);
-              }}
-            />
-          </div>
-        )}
-        {!editMode && !fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
-          <div className="home-section-live">
-            <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
-          </div>
-        )}
-        {home &&
-          // home.enabled &&
-          home.map((section, i) => {
-            return (
-              <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
-                <div className="order">
-                  {edit && (
-                    <CollectionEditButtons
-                      altIndex={i}
-                      altCollection={home}
-                      altEditCollection={(e) => handleEditCollection(e)}
-                      // dragHandleProps={dragHandleProps}
-                      // doDisablePlayerDrag={doDisablePlayerDrag}
-                    />
-                  )}
-                </div>
-                <HomeTabSection
-                  channelClaimId={claimId}
-                  section={section}
-                  editMode={edit}
-                  handleEditCollection={(e) => handleEditCollection(e, i)}
-                />
+    <div className="home-tab">
+      {editMode && (
+        <div className="channel_sections__actions">
+          <Button
+            label={__('Edit Home Tab')}
+            button="secondary"
+            icon={ICONS.EDIT}
+            disabled={edit}
+            onClick={() => {
+              setEdit(!edit);
+            }}
+          />
+        </div>
+      )}
+      {!editMode && !fetching && isInitialized && isChannelBroadcasting && !isChannelEmpty && (
+        <div className="home-section-live">
+          <LivestreamLink claimUri={activeLivestreamForChannel.claimUri} />
+        </div>
+      )}
+      {home &&
+        home.map((section, i) => {
+          return (
+            <div key={i} className={classnames('home-section-wrapper', { 'home-section-wrapper--edit': edit })}>
+              <div className="order">
+                {edit && (
+                  <CollectionEditButtons
+                    altIndex={i}
+                    altCollection={home}
+                    altEditCollection={(e) => handleEditCollection(e)}
+                    // dragHandleProps={dragHandleProps}
+                    // doDisablePlayerDrag={doDisablePlayerDrag}
+                  />
+                )}
               </div>
-            );
-          })}
-        {edit && (
-          <div className="home-tab-edit">
-            <Button
-              label={__('Save')}
-              button="primary"
-              disabled={!hasUnsavedChanges}
-              onClick={() => handleSaveHomeSection()}
-            />
-            <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
-          </div>
-        )}
-        {edit && (
-          <Button label={__('Add New Section')} button="primary" icon={ICONS.ADD} onClick={handleAddHomeSection} />
-        )}
-      </div>
-    </>
+              <HomeTabSection
+                channelClaimId={claimId}
+                section={section}
+                editMode={edit}
+                index={i}
+                handleEditCollection={(e) => handleEditCollection(e, i)}
+              />
+            </div>
+          );
+        })}
+      {edit && (
+        <div className="home-tab-edit">
+          <Button
+            label={__('Save')}
+            button="primary"
+            disabled={!hasUnsavedChanges}
+            onClick={() => handleSaveHomeSection()}
+          />
+          <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
+        </div>
+      )}
+      {edit && (
+        <Button label={__('Add New Section')} button="primary" icon={ICONS.ADD} onClick={handleAddHomeSection} />
+      )}
+    </div>
   );
 }
 

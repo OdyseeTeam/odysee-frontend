@@ -1,12 +1,17 @@
 import { connect } from 'react-redux';
 import { doClaimSearch } from 'redux/actions/claims';
 import { createNormalizedClaimSearchKey } from 'util/claim';
-import { selectClaimSearchByQuery, selectFetchingClaimSearchByQuery } from 'redux/selectors/claims';
+import {
+  selectClaimSearchByQuery,
+  selectFetchingClaimSearchByQuery,
+  selectClaimUriForId,
+} from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
   selectNameForCollectionId,
   selectMyPublishedCollections,
 } from 'redux/selectors/collections';
+import { doResolveUris } from 'redux/actions/claims';
 
 import HomeTabSection from './view';
 
@@ -23,19 +28,22 @@ const select = (state, props) => {
 
   const searchKey = createNormalizedClaimSearchKey(options);
   const publishedCollections = selectMyPublishedCollections(state);
+  const singleClaimUri = props.section.claim_id ? selectClaimUriForId(state, props.section.claim_id) : undefined;
 
   return {
     fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
-    claimSearchResults: !props.section.claimId ? selectClaimSearchByQuery(state)[searchKey] : undefined,
+    claimSearchResults: !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined,
     optionsStringified: JSON.stringify(options),
-    collectionUrls: props.section.claimId ? selectUrlsForCollectionId(state, props.section.claimId) : undefined,
-    collectionName: selectNameForCollectionId(state, props.section.claimId),    
+    collectionUrls: props.section.claim_id ? selectUrlsForCollectionId(state, props.section.claim_id) : undefined,
+    collectionName: selectNameForCollectionId(state, props.section.claim_id),
     publishedCollections,
+    singleClaimUri,
   };
 };
 
 const perform = {
   doClaimSearch,
+  // doResolveUris: (uris, returnCachedUris) => dispatch(doResolveUris(uris, returnCachedUris)),
 };
 
 export default connect(select, perform)(HomeTabSection);

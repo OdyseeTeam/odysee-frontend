@@ -11,9 +11,8 @@ const select = (state, props) => {
   const claim = props.uri && selectClaimForUri(state, props.uri);
   // const fetching = makeSelectFetchingChannelClaims(props.uri)(state);
 
-  console.log(claim)
   return {
-    claimSearchByQuery: selectClaimSearchByQuery(state),    
+    claimSearchByQuery: selectClaimSearchByQuery(state),
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, claim.claim_id),
     activeLivestreamInitialized: selectActiveLivestreamInitialized(state),
     claim,

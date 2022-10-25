@@ -3,9 +3,11 @@ import React from 'react';
 import ClaimList from 'component/claimList';
 import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
-import TextField from '@mui/material/TextField';
+import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
+import { lighthouse } from 'redux/actions/search';
 
 type Props = {
+  channelClaimId: any,
   section: any,
   editMode: boolean,
   handleEditCollection: (any) => void,
@@ -16,11 +18,15 @@ type Props = {
   optionsStringified: string,
   fetchingClaimSearch: boolean,
   doClaimSearch: ({}) => void,
-  publishedCollections: CollectionGroup,  
+  publishedCollections: CollectionGroup,
+  singleClaimUri: string,
+  // --- perform ---
+  // doResolveUris: (Array<string>, boolean) => void,
 };
 
 function HomeTabSection(props: Props) {
   const {
+    channelClaimId,
     section,
     editMode,
     handleEditCollection,
@@ -31,10 +37,13 @@ function HomeTabSection(props: Props) {
     fetchingClaimSearch,
     doClaimSearch,
     publishedCollections,
+    // doResolveUris,
+    singleClaimUri,
   } = props;
 
   const timedOut = claimSearchResults === null;
-  const shouldPerformSearch = !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
+  const shouldPerformSearch =
+    !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
   const publishedList = (Object.keys(publishedCollections || {}): any);
 
   const windowSize = useWindowSize();
@@ -46,6 +55,47 @@ function HomeTabSection(props: Props) {
       doClaimSearch(searchOptions);
     }
   }, [doClaimSearch, shouldPerformSearch]);
+
+  const [searchQuery, setSearchQuery] = React.useState('');
+  const [isSearching, setIsSearching] = React.useState(false);
+  const [searchResults, setSearchResults] = React.useState(undefined);
+
+  function handleInputChange(e) {
+    const { value } = e.target;
+    setSearchQuery(value);
+  }
+
+  React.useEffect(() => {
+    console.log('query change');
+    const timer = setTimeout(() => {
+      if (searchQuery.trim().length < 3 || !channelClaimId) {
+        return setSearchResults(null);
+      }
+
+      setIsSearching(true);
+
+      lighthouse
+        .search(
+          // `from=${SEARCH_PAGE_SIZE}` +
+          `&s=${encodeURIComponent(searchQuery)}` +
+            `&channel_id=${encodeURIComponent(channelClaimId)}` +
+            `&nsfw=${'false'}` +
+            `&resolve=${'true'}` +
+            `&size=${SEARCH_PAGE_SIZE}`
+        )
+        .then(({ body: results }) => {
+          setSearchResults(results);
+        })
+        .catch(() => {
+          setSearchResults(null);
+        })
+        .finally(() => {
+          setIsSearching(false);
+        });
+    }, DEBOUNCE_WAIT_DURATION_MS);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
 
   function getTitle() {
     switch (section.type) {
@@ -101,16 +151,15 @@ function HomeTabSection(props: Props) {
     }
   }
 
-  const SectionHeader = (e) => {
-    // console.log('AAA e: ', e);
-    return (
-      e && (
+  return (
+    <div className="home-section-content">
+      {editMode && (
         <div className="home-section-header-wrapper">
           <div className="home-section-header-option">
             <label>{__('Type')}</label>
             <select
               name="type"
-              value={e.section.type || 'select'}
+              value={section.type || 'select'}
               defaultValue="select"
               onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
             >
@@ -124,12 +173,12 @@ function HomeTabSection(props: Props) {
               {/* <option value="reposts">{__('Reposts')}</option> */}
             </select>
           </div>
-          {e.section.type === 'content' && (
+          {section.type === 'content' && (
             <div className="home-section-header-option">
               <label>{__('File Type')}</label>
               <select
                 name="file_type"
-                value={e.section.file_type || 'all'}
+                value={section.file_type || 'all'}
                 defaultValue="all"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
@@ -141,12 +190,12 @@ function HomeTabSection(props: Props) {
               </select>
             </div>
           )}
-          {e.section.type === 'playlist' && (
+          {section.type === 'playlist' && (
             <div className="home-section-header-option">
               <label>{__('Playlist')}</label>
               <select
                 name="claimId"
-                value={e.section.claimId || 'select'}
+                value={section.claimId || 'select'}
                 defaultValue="select"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
@@ -162,12 +211,12 @@ function HomeTabSection(props: Props) {
               </select>
             </div>
           )}
-          {(e.section.type === 'content' || e.section.type === 'playlists') && (
+          {(section.type === 'content' || section.type === 'playlists') && (
             <div className="home-section-header-option">
               <label>{__('Order By')}</label>
               <select
                 name="order_by"
-                value={(e.section.order_by && e.section.order_by[0]) || 'release_time'}
+                value={(section.order_by && section.order_by[0]) || 'release_time'}
                 defaultValue="release_time"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
@@ -177,42 +226,44 @@ function HomeTabSection(props: Props) {
               </select>
             </div>
           )}
-          {e.section.type === 'featured' && (
-            <div className="home-section-header-option">
-              <label>{__('Search')}</label>
-              <input
-                id="featured"
-                name="claimId"
-                value={searchQuery}
-                onChange={handleInputChange}
-                // onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
-                placeholder={__('Search')}
-              />
-            </div>
+          {section.type === 'featured' && (
+            <>
+              <div className="home-section-header-option">
+                <label>{__('Search')}</label>
+                <input
+                  id="featured"
+                  name="search"
+                  value={searchQuery}
+                  onChange={handleInputChange}
+                  // onChange={(e) => handleEditCollection({ change: { field: target.name, value: target.value } })}
+                  placeholder={__('Search')}
+                />
+              </div>
+              <div className="home-section-header-option">
+                <label>{__('Results')}</label>
+                <select
+                  name="claim_id"
+                  value={section.claim_id || 'select'}
+                  defaultValue="select"
+                  disabled={!searchResults}
+                  onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
+                >
+                  <option disabled="disabled" value="select">
+                    {__('Select')}
+                  </option>
+                  {searchResults ? (
+                    searchResults.map((result) => {
+                      return <option value={result.claimId}>{result.title}</option>;
+                    })
+                  ) : (
+                    <option>{__('No Results...')}</option>
+                  )}
+                </select>
+              </div>
+            </>
           )}
         </div>
-      )
-    );
-  };
-
-  const [searchQuery, setSearchQuery] = React.useState('');
-  const [isSearching, setIsSearching] = React.useState(false);
-  /*
-  function handleInputChange(e) {
-    const { value } = e.target;
-    setSearchQuery(value);
-  }*/
-  const handleInputChange = (e) => {
-    setSearchQuery(e.value);
-  };
-
-  React.useEffect(() => {
-    console.log('Search...');
-  }, [searchQuery]);
-
-  return (
-    <div className="home-section-content">
-      {editMode && <SectionHeader section={section} />}      
+      )}
       {section.type && (
         <div className="section">
           {section.type !== 'featured' ? (
@@ -230,9 +281,7 @@ function HomeTabSection(props: Props) {
               />
             </>
           ) : (
-            <>
-              <FeaturedSection uri={claimSearchResults && claimSearchResults[0]} />
-            </>
+            <FeaturedSection uri={singleClaimUri || (claimSearchResults && claimSearchResults[0])} />
           )}
         </div>
       )}
