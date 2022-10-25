@@ -66,7 +66,6 @@ function HomeTabSection(props: Props) {
   }
 
   React.useEffect(() => {
-    console.log('query change');
     const timer = setTimeout(() => {
       if (searchQuery.trim().length < 3 || !channelClaimId) {
         return setSearchResults(null);

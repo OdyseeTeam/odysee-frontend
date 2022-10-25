@@ -8,7 +8,6 @@ import HomeTabSection from './internal/homeTabSection';
 import CollectionEditButtons from 'component/collectionEditButtons';
 import LivestreamLink from 'component/livestreamLink';
 import useFetchLiveStatus from 'effects/use-fetch-live';
-
 import './style.scss';
 
 type Props = {
@@ -16,14 +15,24 @@ type Props = {
   claim: Claim,
   editMode: boolean,
   activeLivestreamForChannel: any,
+  settingsByChannelId: { [string]: PerChannelSettings },
   doFetchChannelLiveStatus: (string) => void,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 function HomeTab(props: Props) {
-  const { claim, editMode, activeLivestreamForChannel, doFetchChannelLiveStatus } = props;
+  const { 
+    claim, 
+    editMode, 
+    activeLivestreamForChannel, 
+    settingsByChannelId,
+    doFetchChannelLiveStatus,
+    doUpdateCreatorSettings,
+  } = props;
   const claimId = claim && claim.claim_id;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
 
+  console.log('settingsByChannelId: ', settingsByChannelId)
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   const [edit, setEdit] = React.useState(false);
@@ -85,6 +94,10 @@ function HomeTab(props: Props) {
   function handleSaveHomeSection() {
     setHome(home);
     setEdit(false);
+
+    // settingsToStates(newSettings, false);
+    doUpdateCreatorSettings(claim, { home: home});
+    // setLastUpdated(Date.now());
   }
 
   function handleCancelChanges() {
