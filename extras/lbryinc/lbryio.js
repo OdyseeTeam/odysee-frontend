@@ -257,6 +257,7 @@ function sendFailedCallAnalytics(resource, action, params, error) {
     return;
   }
 
+  // @if TARGET='DISABLE_FOR_NOW'
   const options = {
     fingerprint: 'internal-api-failures',
     tags: { analytics: true, method: `${resource}/${action}` },
@@ -264,6 +265,7 @@ function sendFailedCallAnalytics(resource, action, params, error) {
   };
 
   analytics.log('Internal API failures', options, 'analytics');
+  // @endif
 }
 
 export default Lbryio;

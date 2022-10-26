@@ -81,7 +81,7 @@ function DiscoverPage(props: Props) {
       return (
         <a
           className="help"
-          href="https://odysee.com/@OdyseeHelp:b/trending:50"
+          href="https://help.odysee.tv/category-blockchain/category-staking/increase/"
           title={__('Learn more about Credits on %DOMAIN%', { DOMAIN })}
         >
           <I18nMessage tokens={{ lbc: <LbcSymbol /> }}>Results boosted by %lbc%</I18nMessage>
@@ -250,6 +250,7 @@ function DiscoverPage(props: Props) {
           hideRepostsOverride={dynamicRouteProps ? false : undefined}
           hideMembersOnlyContent={hideMembersOnlyContent}
           searchLanguages={dynamicRouteProps?.options?.searchLanguages}
+          duration={dynamicRouteProps?.options?.duration}
           csOptionsHook={tagSearchCsOptionsHook}
         />
       </ClaimSearchFilterContext.Provider>

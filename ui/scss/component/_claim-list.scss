@@ -25,10 +25,6 @@
       overflow: visible !important;
       .claim-preview__actions {
         overflow: visible;
-        .membership-button-wrapper {
-          margin-bottom: 0;
-          margin-left: calc((4rem + (2 * var(--spacing-xs))) * -1);
-        }
       }
     }
   }
@@ -1218,20 +1214,6 @@
   margin-top: -3px;
 }
 
-// used for purchase/preorder/rental claim preview overlay
-.claim-preview__file-purchase-overlay {
-  position: absolute;
-  background-color: #679a28;
-  padding: 0.3rem;
-  border-radius: var(--border-radius);
-  bottom: var(--spacing-xxs);
-  left: var(--spacing-xxs);
-
-  span {
-    color: #faf6f6;
-  }
-}
-
 .protected-content-overlay {
   @include font-sans;
 
@@ -1272,18 +1254,6 @@
     // height: 90%;
     span {
       text-align: center;
-    }
-  }
-}
-
-.claim-grid {
-  .claim-preview__file-purchase-overlay {
-    @media (min-width: $breakpoint-large) {
-      left: 2px;
-    }
-
-    span {
-      font-size: 11px;
     }
   }
 }
@@ -1670,7 +1640,7 @@ $claim-preview-progress-bar-height: 5px;
   }
 
   & > *:not(:last-child) {
-    margin-right: var(--spacing-xxs);
+    margin-right: calc(var(--spacing-xxs) / 2);
   }
 }
 

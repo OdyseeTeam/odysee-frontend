@@ -13,7 +13,7 @@ import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doFetchCollectionListMine, doCheckPendingClaims } from 'redux/actions/claims';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
-import { doFetchFileInfos } from 'redux/actions/file_info';
+// import { doFetchFileInfos } from 'redux/actions/file_info';
 import { doClearSupport, doBalanceSubscribe } from 'redux/actions/wallet';
 import { doClearPublish } from 'redux/actions/publish';
 import { Lbryio } from 'lbryinc';
@@ -21,11 +21,11 @@ import { doToast, doError, doNotificationList } from 'redux/actions/notification
 
 import Native from 'native';
 import {
-  doFetchDaemonSettings,
-  doSetAutoLaunch,
+  // doFetchDaemonSettings,
+  // doSetAutoLaunch,
   doSetDaemonSetting,
-  doFindFFmpeg,
-  doGetDaemonStatus,
+  // doFindFFmpeg,
+  // doGetDaemonStatus,
 } from 'redux/actions/settings';
 import {
   selectIsUpgradeSkipped,
@@ -377,7 +377,7 @@ export function doAlertWaitingForSync() {
 
 export function doDaemonReady() {
   return (dispatch, getState) => {
-    const state = getState();
+    // const state = getState();
 
     // TODO: call doFetchDaemonSettings, then get usage data, and call doAuthenticate once they are loaded into the store
     const shareUsageData = IS_WEB || LocalStorage.getItem(LS.SHARE_INTERNAL) === 'true';
@@ -401,19 +401,6 @@ export function doDaemonReady() {
       )
     );
     dispatch({ type: ACTIONS.DAEMON_READY });
-
-    // @if TARGET='app'
-    dispatch(doBalanceSubscribe());
-    dispatch(doSetAutoLaunch());
-    dispatch(doFindFFmpeg());
-    dispatch(doGetDaemonStatus());
-    dispatch(doFetchDaemonSettings());
-    dispatch(doFetchFileInfos());
-    if (!selectIsUpgradeSkipped(state)) {
-      dispatch(doCheckUpgradeAvailable());
-    }
-    dispatch(doCheckUpgradeSubscribe());
-    // @endif
   };
 }
 

@@ -36,7 +36,7 @@ export default function NotificationSettingsPage(props: Props) {
   );
 
   React.useEffect(() => {
-    if (isAuthenticated) {
+    if (lbryIoParams || isAuthenticated) {
       Lbryio.call('tag', 'list', lbryIoParams)
         .then(setTags)
         .catch((e) => {
@@ -59,7 +59,7 @@ export default function NotificationSettingsPage(props: Props) {
           setError(true);
         });
     }
-  }, [isAuthenticated]);
+  }, []);
 
   function handleChangeTag(name, newIsEnabled) {
     const tagParams = newIsEnabled ? { add: name } : { remove: name };

@@ -31,9 +31,9 @@ import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
 import usePersistedState from 'effects/use-persisted-state';
 import Lbry from 'lbry';
-
+import { getStripeEnvironment } from 'util/stripe';
 const canAutoplayVideo = require('./plugins/canAutoplay');
-
+const stripeEnvironment = getStripeEnvironment();
 // require('@neko/videojs-chromecast')(videojs);
 
 export type Player = {
@@ -490,6 +490,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
           const protectedLivestreamResponse = await Lbry.get({
             uri: activeLivestreamForChannel.claimUri,
             base_streaming_url: activeLivestreamForChannel.url,
+            environment: stripeEnvironment,
           });
 
           vjsPlayer.src({ HLS_FILETYPE, src: protectedLivestreamResponse.streaming_url });
@@ -557,7 +558,7 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       }
 
       // allow tap to unmute if no perms on iOS
-      if (autoplay && !embedded) {
+      if (autoplay) {
         const promise = vjsPlayer.play();
 
         window.player.userActive(true);
@@ -665,6 +666,8 @@ export default React.memo<Props>(function VideoJs(props: Props) {
         window.player.trigger('timeupdate');
 
         window.player.claimSrcVhs = null;
+
+        delete window.videoFps;
       }
     };
   }, [isAudio, source, reload, userClaimId, isLivestreamClaim]);

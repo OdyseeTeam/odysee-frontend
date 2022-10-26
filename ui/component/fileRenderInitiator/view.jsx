@@ -9,6 +9,7 @@ import * as PAGES from 'constants/pages';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import Button from 'component/button';
 import Nag from 'component/nag';
+import PaidContentOverlay from 'component/paidContentOverlay';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { LivestreamContext } from 'page/livestream/view';
 import { formatLbryUrlForWeb } from 'util/url';
@@ -17,6 +18,8 @@ import useFetchLiveStatus from 'effects/use-fetch-live';
 import useGetPoster from 'effects/use-get-poster';
 import { ChatCommentContext } from 'component/chat/chatComment/view';
 import { ExpandableContext } from 'component/common/expandable';
+
+type Action = 'default_button' | 'paid_overlay' | 'membership_overlay' | '';
 
 type Props = {
   channelClaimId: ?string,
@@ -37,7 +40,10 @@ type Props = {
   costInfo: any,
   inline: boolean,
   renderMode: string,
-  claimWasPurchased: boolean,
+  sdkPaid: boolean,
+  fiatPaid: boolean,
+  fiatRequired: boolean,
+  isFetchingPurchases: boolean,
   authenticated: boolean,
   videoTheaterMode: boolean,
   isCurrentClaimLive?: boolean,
@@ -47,10 +53,6 @@ type Props = {
   parentCommentId?: string,
   isMarkdownPost?: boolean,
   claimLinkId?: string,
-  purchaseContentTag?: boolean,
-  rentalTag?: { price: number, expirationTimeInSeconds: number },
-  validRentalPurchase?: boolean,
-  purchaseMadeForClaimId?: boolean,
   doUriInitiatePlay: (playingOptions: PlayingUri, isPlayable: boolean) => void,
   doFetchChannelLiveStatus: (string) => void,
   claimIsMine: boolean,
@@ -59,7 +61,6 @@ type Props = {
   protectedContentTag?: string,
   contentRestrictedFromUser: boolean,
   contentUnlocked: boolean,
-  myMembership: ?Membership,
 };
 
 export default function FileRenderInitiator(props: Props) {
@@ -70,7 +71,10 @@ export default function FileRenderInitiator(props: Props) {
     claimIsMine,
     claimLinkId,
     claimThumbnail,
-    claimWasPurchased,
+    sdkPaid,
+    fiatPaid,
+    fiatRequired,
+    isFetchingPurchases,
     costInfo,
     customAction,
     doFetchChannelLiveStatus,
@@ -86,16 +90,11 @@ export default function FileRenderInitiator(props: Props) {
     location,
     obscurePreview,
     parentCommentId,
-    purchaseContentTag,
-    purchaseMadeForClaimId,
     renderMode,
-    rentalTag,
     uri,
-    validRentalPurchase,
     videoTheaterMode,
-    contentRestrictedFromUser,
+    // contentRestrictedFromUser,
     contentUnlocked,
-    myMembership,
   } = props;
 
   const { isLiveComment } = React.useContext(ChatCommentContext) || {};
@@ -115,33 +114,30 @@ export default function FileRenderInitiator(props: Props) {
   // check if there is a time or autoplay parameter, if so force autoplay
   const urlTimeParam = href && href.indexOf('t=') > -1;
 
-  const hasBeenPurchased = purchaseContentTag && purchaseMadeForClaimId;
-  const hasBeenRented = rentalTag && validRentalPurchase;
+  const shouldAutoplay = !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
+  const sdkFeeRequired = costInfo === undefined || (costInfo && costInfo.cost !== 0);
+  const isFree = costInfo && costInfo.cost === 0 && !fiatRequired;
+  const isAnonymousFiatContent = fiatRequired && !channelClaimId;
 
-  // purchased and rental content
-  const stillNeedsToBePurchased = purchaseContentTag && !purchaseMadeForClaimId && !hasBeenRented;
-  const stillNeedsToBeRented = rentalTag && !validRentalPurchase && !hasBeenPurchased;
+  const cannotViewFile =
+    (!claimIsMine &&
+      ((fiatRequired && (!fiatPaid || isFetchingPurchases)) || (sdkFeeRequired && !sdkPaid) || !contentUnlocked)) ||
+    (isLivestreamClaim && isCurrentClaimLive && !layountRendered && !isMobile);
+  const canViewFile = !cannotViewFile;
 
-  const notAuthedToView =
-    (stillNeedsToBePurchased || stillNeedsToBeRented || (contentRestrictedFromUser && myMembership !== undefined)) &&
-    !claimIsMine;
-
-  const shouldAutoplay =
-    !notAuthedToView && !forceDisableAutoplay && !embedded && (forceAutoplayParam || urlTimeParam || autoplay);
-
-  const isFree = costInfo && costInfo.cost === 0;
-  const canViewFile =
-    contentUnlocked &&
-    myMembership !== undefined &&
-    (isLivestreamClaim ? (layountRendered || isMobile) && isCurrentClaimLive : isFree || claimWasPurchased);
   const isPlayable = RENDER_MODES.FLOATING_MODES.includes(renderMode) || isCurrentClaimLive;
 
   const renderUnsupported = RENDER_MODES.UNSUPPORTED_IN_THIS_APP.includes(renderMode);
+
   const disabled =
-    notAuthedToView ||
+    !contentUnlocked ||
+    isAnonymousFiatContent ||
     (isLivestreamClaim && !isCurrentClaimLive) ||
     renderUnsupported ||
-    (!fileInfo && insufficientCredits && !claimWasPurchased);
+    (!fileInfo && insufficientCredits && !sdkPaid);
+
+  const action: Action = getActionType();
+
   const shouldRedirect = !authenticated && !isFree;
 
   function doAuthRedirect() {
@@ -152,6 +148,22 @@ export default function FileRenderInitiator(props: Props) {
   useFetchLiveStatus(isLivestreamClaim && !livestreamPage ? channelClaimId : undefined, doFetchChannelLiveStatus);
 
   const thumbnail = useGetPoster(claimThumbnail);
+
+  function getActionType() {
+    if (fiatRequired) {
+      if (isFetchingPurchases) {
+        return '';
+      } else if (!fiatPaid && !claimIsMine) {
+        return channelClaimId ? 'paid_overlay' : '';
+      } else {
+        return 'default_button';
+      }
+    } else if (!contentUnlocked) {
+      return 'membership_overlay';
+    } else {
+      return 'default_button';
+    }
+  }
 
   function handleClick() {
     if (isLiveComment || (embedded && !isPlayable)) {
@@ -207,7 +219,7 @@ export default function FileRenderInitiator(props: Props) {
     if (
       (canViewFile || forceAutoplayParam) &&
       ((shouldAutoplay && (!videoOnPage || forceAutoplayParam) && isPlayable) ||
-        (!notAuthedToView && !embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode)))
+        (!embedded && RENDER_MODES.AUTO_RENDER_MODES.includes(renderMode)))
     ) {
       viewFile();
     }
@@ -217,7 +229,7 @@ export default function FileRenderInitiator(props: Props) {
   once content is playing, let the appropriate <FileRender> take care of it...
   but for playables, always render so area can be used to fill with floating player
    */
-  if (isPlaying && !isPlayable && canViewFile && !collectionId && !notAuthedToView) {
+  if (isPlaying && !isPlayable && canViewFile && !collectionId) {
     return null;
   }
 
@@ -232,7 +244,6 @@ export default function FileRenderInitiator(props: Props) {
               'content__cover--disabled': disabled,
               'content__cover--theater-mode': theaterMode && !isMobile,
               'card__media--nsfw': obscurePreview,
-              'content__cover--purchasable': notAuthedToView,
             })
       }
     >
@@ -247,7 +258,7 @@ export default function FileRenderInitiator(props: Props) {
           href="https://lbry.com/get"
         />
       ) : (
-        !claimWasPurchased &&
+        !sdkPaid &&
         insufficientCredits && (
           <Nag
             type="helpful"
@@ -259,18 +270,26 @@ export default function FileRenderInitiator(props: Props) {
         )
       )}
 
-      {canViewFile && (!disabled || (embedded && isLivestreamClaim)) && (
-        <Button
-          requiresAuth={shouldRedirect}
-          onClick={handleClick}
-          iconSize={30}
-          title={isPlayable ? __('Play') : __('View')}
-          className={classnames('button--icon', {
-            'button--play': isPlayable,
-            'button--view': !isPlayable,
-          })}
-        />
-      )}
+      {action === 'paid_overlay' ? (
+        <PaidContentOverlay uri={uri} />
+      ) : action === 'membership_overlay' ? (
+        <>{/* Should bring membership overlay here instead of as a peer */}</>
+      ) : action === 'default_button' ? (
+        <>
+          {(!disabled || (embedded && isLivestreamClaim)) && (
+            <Button
+              requiresAuth={shouldRedirect}
+              onClick={handleClick}
+              iconSize={30}
+              title={isPlayable ? __('Play') : __('View')}
+              className={classnames('button--icon', {
+                'button--play': isPlayable,
+                'button--view': !isPlayable,
+              })}
+            />
+          )}
+        </>
+      ) : null}
 
       {customAction}
     </div>

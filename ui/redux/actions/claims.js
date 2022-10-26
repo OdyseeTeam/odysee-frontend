@@ -16,13 +16,14 @@ import {
   selectMyChannelClaimIds,
   selectFetchingMyChannels,
 } from 'redux/selectors/claims';
-
+import { doCheckIfPurchasedClaimIds } from 'redux/actions/stripe';
 import { doFetchTxoPage } from 'redux/actions/wallet';
-import { doMembershipContentforStreamClaimIds } from 'redux/actions/memberships';
+import { doMembershipContentForStreamClaimIds, doFetchOdyseeMembershipForChannelIds } from 'redux/actions/memberships';
 import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { batchActions } from 'util/batch-actions';
-import { createNormalizedClaimSearchKey } from 'util/claim';
+import { createNormalizedClaimSearchKey, getChannelIdFromClaim } from 'util/claim';
+import { hasFiatTags } from 'util/tags';
 import { PAGE_SIZE } from 'constants/claim';
 import { selectClaimIdsForCollectionId } from 'redux/selectors/collections';
 import { doFetchItemsInCollections } from 'redux/actions/collections';
@@ -61,6 +62,7 @@ export function doResolveUris(
         const collectionIds = new Set([]);
         const repostsToResolve = new Set([]);
         const streamClaimIds = new Set([]);
+        const channelClaimIds = new Set([]);
 
         const resolveInfo: {
           [uri: string]: {
@@ -128,6 +130,9 @@ export function doResolveUris(
               }
             }
 
+            const channelId = getChannelIdFromClaim(uriResolveInfo);
+            if (channelId) channelClaimIds.add(channelId);
+
             resolveInfo[uri] = resultResponse;
           }
         }
@@ -139,7 +144,11 @@ export function doResolveUris(
         }
 
         if (streamClaimIds.size > 0) {
-          dispatch(doMembershipContentforStreamClaimIds(Array.from(streamClaimIds)));
+          dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+        }
+
+        if (channelClaimIds.size > 0) {
+          dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
         }
 
         if (repostsToResolve.size > 0) {
@@ -242,15 +251,23 @@ export function doFetchClaimListMine(
       });
 
       const streamClaimIds = new Set([]);
+      const channelClaimIds = new Set([]);
 
       result.items.forEach((item) => {
         if (item.value_type !== 'channel' && item.value_type !== 'collection') {
           streamClaimIds.add(item.claim_id);
         }
+
+        const channelId = getChannelIdFromClaim(item);
+        if (channelId) channelClaimIds.add(channelId);
       });
 
       if (streamClaimIds.size > 0) {
-        dispatch(doMembershipContentforStreamClaimIds(Array.from(streamClaimIds)));
+        dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+      }
+
+      if (channelClaimIds.size > 0) {
+        dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
       }
     });
   };
@@ -670,6 +687,8 @@ export const doFetchCollectionListMine = (page: number = 1, pageSize: number = 5
     const next = async (response: CollectionListResponse) => {
       const moreData = response.items.length === options.page_size;
       allClaims = allClaims.concat(response.items);
+
+      // $FlowIgnore
       options.page++;
 
       if (!moreData) {
@@ -698,28 +717,14 @@ export function doClearClaimSearch() {
 }
 
 export function doClaimSearch(
-  options: {
-    page_size?: number,
-    page: number,
-    no_totals?: boolean,
-    any_tags?: Array<string>,
-    claim_ids?: Array<string>,
-    channel_ids?: Array<string>,
-    not_channel_ids?: Array<string>,
-    not_tags?: Array<string>,
-    order_by?: Array<string>,
-    release_time?: string,
-    has_source?: boolean,
-    has_no_source?: boolean,
-  } = {
+  options: ClaimSearchOptions = {
     no_totals: true,
     page_size: 10,
     page: 1,
   },
-  settings: {
-    useAutoPagination?: boolean,
-  } = {
+  settings: DoClaimSearchSettings = {
     useAutoPagination: false,
+    fetchStripeTransactions: true,
   }
 ) {
   const query = createNormalizedClaimSearchKey(options);
@@ -733,6 +738,9 @@ export function doClaimSearch(
       const resolveInfo = {};
       const urls = [];
       const streamClaimIds = new Set([]);
+      const channelClaimIds = new Set([]);
+      const fiatClaimIds = [];
+      const shouldFetchPurchases = settings.fetchStripeTransactions && !options.has_no_source;
 
       data.items.forEach((stream: Claim) => {
         resolveInfo[stream.canonical_url] = { stream };
@@ -740,6 +748,13 @@ export function doClaimSearch(
 
         if (stream.value_type !== 'channel' && stream.value_type !== 'collection') {
           streamClaimIds.add(stream.claim_id);
+        }
+
+        const channelId = getChannelIdFromClaim(stream);
+        if (channelId) channelClaimIds.add(channelId);
+
+        if (shouldFetchPurchases && hasFiatTags(stream) && stream.claim_id) {
+          fiatClaimIds.push(stream.claim_id);
         }
       });
 
@@ -755,7 +770,15 @@ export function doClaimSearch(
       });
 
       if (streamClaimIds.size > 0) {
-        dispatch(doMembershipContentforStreamClaimIds(Array.from(streamClaimIds)));
+        dispatch(doMembershipContentForStreamClaimIds(Array.from(streamClaimIds)));
+      }
+
+      if (channelClaimIds.size > 0) {
+        dispatch(doFetchOdyseeMembershipForChannelIds(Array.from(channelClaimIds)));
+      }
+
+      if (fiatClaimIds.length > 0) {
+        dispatch(doCheckIfPurchasedClaimIds(fiatClaimIds));
       }
 
       return resolveInfo;
@@ -778,8 +801,10 @@ export function doClaimSearch(
 
         const moreData = data.items.length === options.page_size;
 
+        // $FlowIgnore
         options.page++;
 
+        // $FlowIgnore
         if (options.page > 3 || !moreData) {
           // Flow doesn't understand that page_size is an optional property with a guaranteed default value.
           // $FlowFixMe
@@ -934,12 +959,8 @@ export function doCollectionPublish(
       }
 
       function failure(error) {
-        dispatch({
-          type: ACTIONS.COLLECTION_PUBLISH_FAILED,
-          data: {
-            error: error.message,
-          },
-        });
+        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_FAILED });
+        dispatch(doToast({ message: error.message, isError: true }));
         return reject(error);
       }
 
@@ -1046,12 +1067,8 @@ export function doCollectionPublishUpdate(
       }
 
       function failure(error) {
-        dispatch({
-          type: ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED,
-          data: {
-            error: error.message,
-          },
-        });
+        dispatch({ type: ACTIONS.COLLECTION_PUBLISH_UPDATE_FAILED });
+        dispatch(doToast({ message: error.message }));
         return reject(error);
       }
 

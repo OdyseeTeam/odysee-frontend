@@ -113,6 +113,7 @@ export function doAuthenticate(
   callInstall = true
 ) {
   return (dispatch) => {
+    console.log('doAuthenticate');
     dispatch({
       type: ACTIONS.AUTHENTICATION_STARTED,
     });
@@ -129,6 +130,7 @@ export function doAuthenticate(
           });
 
           dispatch(doMembershipMine());
+          dispatch(doFetchGeoBlockedList());
 
           if (shareUsageData) {
             dispatch(doRewardList());
@@ -137,13 +139,10 @@ export function doAuthenticate(
               doInstallNew(appVersion, callbackForUsersWhoAreSharingData, DOMAIN);
             }
           }
-
-          dispatch(doFetchGeoBlockedList());
         });
       })
       .catch((error) => {
         LocalStorage.removeItem(LS.AUTH_IN_PROGRESS);
-
         dispatch({
           type: ACTIONS.AUTHENTICATION_FAILURE,
           data: { error },

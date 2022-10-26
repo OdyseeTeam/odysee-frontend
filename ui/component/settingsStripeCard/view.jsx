@@ -28,7 +28,6 @@ type WrapperProps = {
   preferredCurrency: string,
   customerStatusFetching: ?boolean,
   cardDetails: StripeCardDetails,
-  customerSetupResponse: StripeCustomerSetupResponse,
   doSetPreferredCurrency: (value: string) => void,
   doGetCustomerStatus: () => void,
   doToast: (params: { message: string }) => void,
@@ -55,7 +54,6 @@ const SettingsStripeCard = (props: Props) => {
     preferredCurrency,
     customerStatusFetching,
     cardDetails,
-    customerSetupResponse,
     doSetPreferredCurrency,
     doGetCustomerStatus,
     doToast,
@@ -71,21 +69,9 @@ const SettingsStripeCard = (props: Props) => {
   const [isLoading, setLoading] = React.useState(false);
   const [formError, setFormError] = React.useState();
 
-  const clientSecret = customerSetupResponse?.client_secret;
-
-  function handleSubmit(event) {
-    if (!stripe || !elements) return;
-
-    event.preventDefault();
-    setLoading(true);
-
-    // if client secret wasn't loaded properly
-    if (!clientSecret) {
-      setFormError(__('There was an error in generating your payment method. Please contact a developer'));
-      return;
-    }
-
+  function confirmCardSetup(clientSecret) {
     const cardElement = elements.getElement(CardElement);
+
     stripe
       .confirmCardSetup(clientSecret, {
         payment_method: { card: cardElement, billing_details: { email, name: cardNameValue } },
@@ -102,6 +88,19 @@ const SettingsStripeCard = (props: Props) => {
       });
   }
 
+  function handleSubmit(event) {
+    if (!stripe || !elements) return;
+
+    event.preventDefault();
+    setLoading(true);
+
+    doCustomerSetup()
+      .then((customerSetupResponse: StripeCustomerSetupResponse) => {
+        confirmCardSetup(customerSetupResponse.client_secret);
+      })
+      .catch(() => setLoading(false));
+  }
+
   React.useEffect(() => {
     if (stripeError) {
       setFormError(stripeError);
@@ -113,12 +112,6 @@ const SettingsStripeCard = (props: Props) => {
       doGetCustomerStatus();
     }
   }, [cardDetails, doGetCustomerStatus]);
-
-  React.useEffect(() => {
-    if (cardDetails === null) {
-      doCustomerSetup();
-    }
-  }, [cardDetails, doCustomerSetup]);
 
   React.useEffect(() => {
     if (cardDetails) {
@@ -164,7 +157,7 @@ const SettingsStripeCard = (props: Props) => {
         )}
         <Card
           title={isModal ? undefined : __('Card Details')}
-          className="add-payment-card-div"
+          className="add-payment-card"
           body={
             <>
               <Plastic
@@ -175,7 +168,16 @@ const SettingsStripeCard = (props: Props) => {
               />
               <br />
               <Button
-                button="primary"
+                className="view-transactions__button"
+                button="secondary"
+                label={__('View Transactions')}
+                icon={ICONS.SETTINGS}
+                navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
+                style={{ marginLeft: '10px' }}
+              />
+              <Button
+                className="remove-card__button"
+                button="secondary"
                 label={__('Remove Card')}
                 icon={ICONS.DELETE}
                 onClick={(e) =>
@@ -193,18 +195,12 @@ const SettingsStripeCard = (props: Props) => {
                   })
                 }
               />
-              <Button
-                button="secondary"
-                label={__('View Transactions')}
-                icon={ICONS.SETTINGS}
-                navigate={`/$/${PAGES.WALLET}?fiatType=outgoing&tab=fiat-payment-history&currency=fiat`}
-                style={{ marginLeft: '10px' }}
-              />
             </>
           }
         />
         <br />
 
+        {/* currency to use toggler (USD/EUR) */}
         <div className="currency-to-use-div">
           <h1 className="currency-to-use-header">{__('Currency To Use')}:</h1>
 
@@ -223,6 +219,16 @@ const SettingsStripeCard = (props: Props) => {
               ))}
             </FormField>
           </fieldset-section>
+        </div>
+
+        <div className="stripe-billing-history">
+          <h2 className="stripe-billing-history__header">{__('View billing history on Stripe')}</h2>
+          <Button
+            className="stripe-billing-history__button"
+            button="secondary"
+            label={__('Visit Stripe')}
+            navigate={`${STRIPE.STRIPE_BILLING_URL}?prefilled_email=${encodeURIComponent(cardDetails?.email)}`}
+          />
         </div>
       </div>
     );

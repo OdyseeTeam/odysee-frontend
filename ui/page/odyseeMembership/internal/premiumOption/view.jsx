@@ -14,7 +14,6 @@ import MembershipBadge from 'component/membershipBadge';
 type Props = {
   membershipPurchase?: CreatorMembership,
   membershipView?: MembershipTier,
-  isCancelled: boolean,
   // -- redux --
   preferredCurrency: CurrencyOption,
   doOpenModal: (modalId: string, {}) => void,
@@ -25,7 +24,6 @@ const PremiumOption = (props: Props) => {
   const {
     membershipPurchase,
     membershipView,
-    isCancelled,
     preferredCurrency,
     doOpenModal,
     doOpenCancelationModalForMembership,
@@ -33,21 +31,15 @@ const PremiumOption = (props: Props) => {
 
   if (membershipPurchase) {
     const membership = membershipPurchase;
-    const { Membership, Prices, NewPrices } = membership;
+    const { Membership, NewPrices } = membership;
 
     const purchaseFieldsProps = { preferredCurrency, membership, doOpenModal };
 
     return (
       <Wrapper name={Membership.name}>
-        {NewPrices
-          ? NewPrices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
-              <PurchaseFields key={Membership.id} {...purchaseFieldsProps} stripePrice={StripePrice} />
-            ))
-          : Prices
-          ? Prices.map((price: StripePriceDetails) => (
-              <PurchaseFields key={Membership.id} {...purchaseFieldsProps} stripePrice={price} />
-            ))
-          : undefined}
+        {NewPrices.map(({ Price, StripePrice }: MembershipNewStripePriceDetails) => (
+          <PurchaseFields key={Membership.id} {...purchaseFieldsProps} stripePrice={StripePrice} />
+        ))}
       </Wrapper>
     );
   }
@@ -55,6 +47,9 @@ const PremiumOption = (props: Props) => {
   if (membershipView) {
     const membership = membershipView;
     const { Membership, MembershipDetails, Subscription } = membership;
+
+    const isCancelled = Subscription.status === 'canceled';
+    const membershipStillValid = isCancelled && Subscription.current_period_end * 1000 > Date.now();
 
     return (
       <Wrapper name={MembershipDetails.name}>
@@ -69,13 +64,12 @@ const PremiumOption = (props: Props) => {
           )}
         </h4>
 
-        {!isCancelled && (
-          <h4 className="membership_info">
-            <b>{__('Still Valid Until')}:</b> {formatDateToMonthDayAndYear(Subscription.current_period_end * 1000)}
-          </h4>
-        )}
+        <h4 className="membership_info">
+          <b>{__(membershipStillValid ? 'Still Valid Until' : 'Ended on')}:</b>{' '}
+          {formatDateToMonthDayAndYear(Subscription.current_period_end * 1000)}
+        </h4>
 
-        {!isCancelled && Subscription.canceled_at === 0 && (
+        {(!isCancelled ? Subscription.canceled_at === 0 : !membershipStillValid) && (
           <Button
             button="alt"
             membership-id={Membership.membership_id}

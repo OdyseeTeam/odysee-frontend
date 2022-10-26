@@ -4,9 +4,9 @@ import * as ACTIONS from 'constants/action_types';
 const reducers = {};
 
 type MembershipsState = {
-  membershipMineByKey: ?MembershipMineDataByKey,
+  membershipMineByCreatorId: ?MembershipMineDataByCreatorId,
   membershipMineFetching: boolean,
-  membershipListById: { [channelId: string]: MembershipTiers },
+  membershipListByCreatorId: { [creatorId: string]: MembershipTiers },
   membershipListFetchingIds: ClaimIds,
   channelMembershipsByCreatorId: ChannelMembershipsByCreatorId,
   fetchingIdsByCreatorId: { [creatorId: string]: ClaimIds },
@@ -22,9 +22,9 @@ type MembershipsState = {
 };
 
 const defaultState: MembershipsState = {
-  membershipMineByKey: undefined,
+  membershipMineByCreatorId: undefined,
   membershipMineFetching: false,
-  membershipListById: {},
+  membershipListByCreatorId: {},
   membershipListFetchingIds: [],
   channelMembershipsByCreatorId: {},
   fetchingIdsByCreatorId: {},
@@ -122,12 +122,25 @@ reducers[ACTIONS.DELETE_MEMBERSHIP_FAILED] = (state, action) => {
 };
 
 reducers[ACTIONS.GET_MEMBERSHIP_MINE_START] = (state, action) => ({ ...state, membershipMineFetching: true });
-reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => ({
+reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS] = (state, action) => {
+  const myPurchasedMembershipTiers: MembershipTiers = action.data;
+
+  const newMembershipMineByCreatorId = {};
+
+  for (const membership of myPurchasedMembershipTiers) {
+    const creatorClaimId = membership.MembershipDetails.channel_id;
+
+    const currentMemberships = newMembershipMineByCreatorId[creatorClaimId] || [];
+    newMembershipMineByCreatorId[creatorClaimId] = [...currentMemberships, membership];
+  }
+
+  return { ...state, membershipMineByCreatorId: newMembershipMineByCreatorId, membershipMineFetching: false };
+};
+reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL] = (state, action) => ({
   ...state,
-  membershipMineByKey: action.data,
+  membershipMineByCreatorId: {},
   membershipMineFetching: false,
 });
-reducers[ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL] = (state, action) => ({ ...state, membershipMineFetching: false });
 
 reducers[ACTIONS.MEMBERSHIP_LIST_START] = (state, action) => {
   const channelId = action.data;
@@ -142,13 +155,13 @@ reducers[ACTIONS.MEMBERSHIP_LIST_COMPLETE] = (state, action) => {
 
   const newMembershipListFetchingIds = new Set(state.membershipListFetchingIds);
   newMembershipListFetchingIds.delete(channelId);
-  const newMembershipListById = Object.assign({}, state.membershipListById);
+  const newMembershipListById = Object.assign({}, state.membershipListByCreatorId);
   newMembershipListById[channelId] = list;
 
   return {
     ...state,
     membershipListFetchingIds: Array.from(newMembershipListFetchingIds),
-    membershipListById: newMembershipListById,
+    membershipListByCreatorId: newMembershipListById,
   };
 };
 

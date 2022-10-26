@@ -14,15 +14,25 @@ import withCreditCard from 'hocs/withCreditCard';
 
 type Props = {
   selectedTier: CreatorMembership,
+  selectedMembershipIndex: number,
   onCancel: () => void,
   // -- redux --
   channelName: string,
   purchasePending: boolean,
   preferredCurrency: ?string,
+  incognito: boolean,
 };
 
 const ConfirmationPage = (props: Props) => {
-  const { selectedTier, onCancel, channelName, purchasePending, preferredCurrency } = props;
+  const {
+    selectedTier,
+    selectedMembershipIndex,
+    onCancel,
+    channelName,
+    purchasePending,
+    preferredCurrency,
+    incognito,
+  } = props;
 
   const total = (selectedTier.NewPrices[0].Price.amount / 100).toFixed(2);
   const creatorRevenue = (selectedTier.NewPrices[0].creator_receives_amount / 100).toFixed(2);
@@ -93,7 +103,15 @@ const ConfirmationPage = (props: Props) => {
       ) : (
         <>
           <div className="section__actions">
-            <SubmitButton modalState={{ passedTier: selectedTier }} />
+            {incognito && (
+              <p className="help">
+                <div className="error__text">
+                  {__("You are about to join as Anonymous, you won't be able to view or comment on chat at this time")}
+                </div>
+              </p>
+            )}
+
+            <SubmitButton modalState={{ passedTierIndex: selectedMembershipIndex }} />
             <Button button="link" label={__('Cancel')} onClick={onCancel} />
           </div>
 

@@ -172,7 +172,7 @@ export default function YoutubeSync(props: Props) {
                           <Button
                             button="link"
                             label={__('how the program works')}
-                            href="https://odysee.com/@OdyseeHelp:b/youtube-sync:b"
+                            href="https://help.odysee.tv/category-syncprogram/"
                           />
                         ),
                         site_name: SITE_NAME,
@@ -206,7 +206,7 @@ export default function YoutubeSync(props: Props) {
                         <Button
                           button="link"
                           label={__('Learn more')}
-                          href="https://odysee.com/@OdyseeHelp:b/youtube-sync:b"
+                          href="https://help.odysee.tv/category-syncprogram/"
                         />
                       ),
                     }}

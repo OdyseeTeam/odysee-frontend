@@ -6,10 +6,12 @@ import { Lbryio } from 'lbryinc';
 import { doToast } from 'redux/actions/notifications';
 import {
   selectMembershipMineFetching,
-  selecIsMembershipListFetchingForId,
+  selectIsMembershipListFetchingForId,
   selectFetchingIdsForMembershipChannelId,
   selectIsListingAllMyTiers,
   selectIsClaimMembershipTierFetchingForId,
+  selectMembershipTiersForCreatorId,
+  selectChannelMembershipsForCreatorId,
 } from 'redux/selectors/memberships';
 import { selectChannelTitleForUri, selectMyChannelClaims } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
@@ -32,11 +34,14 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
   // check if channel id is fetching
   const state = getState();
   const fetchingForChannel = selectFetchingIdsForMembershipChannelId(state, channelId);
-  const fetchingSet = fetchingForChannel && new Set(fetchingForChannel);
+  const fetchingSet = new Set(fetchingForChannel);
+  const creatorMemberships = selectChannelMembershipsForCreatorId(state, channelId);
 
   const channelsToFetch = dedupedChannelIds.filter((dedupedChannelId) => {
-    const notFetching = !fetchingSet || !fetchingSet.has(dedupedChannelId);
-    return notFetching;
+    const isFetching = fetchingSet.has(dedupedChannelId);
+    const alreadyFetched =
+      creatorMemberships && (creatorMemberships[dedupedChannelId] || creatorMemberships[dedupedChannelId] === null);
+    return !isFetching && !alreadyFetched;
   });
 
   if (channelsToFetch.length === 0) return;
@@ -77,12 +82,18 @@ export const doFetchChannelMembershipsForChannelIds = (channelId: string, channe
 export const doFetchOdyseeMembershipForChannelIds = (channelIds: ClaimIds) => async (dispatch: Dispatch) =>
   dispatch(doFetchChannelMembershipsForChannelIds(ODYSEE_CHANNEL.ID, channelIds));
 
-export const doMembershipList = (params: MembershipListParams) => async (dispatch: Dispatch, getState: GetState) => {
+export const doMembershipList = (params: MembershipListParams, forceUpdate: ?boolean) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => {
   const { channel_id: channelId } = params;
   const state = getState();
-  const isFetching = selecIsMembershipListFetchingForId(state, channelId);
+  const isFetching = selectIsMembershipListFetchingForId(state, channelId);
+  const alreadyFetched = selectMembershipTiersForCreatorId(state, channelId);
 
-  if (isFetching) return Promise.resolve();
+  if ((isFetching || alreadyFetched) && !forceUpdate) {
+    return Promise.resolve();
+  }
 
   dispatch({ type: ACTIONS.MEMBERSHIP_LIST_START, data: channelId });
 
@@ -102,29 +113,7 @@ export const doMembershipMine = () => async (dispatch: Dispatch, getState: GetSt
   dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_START });
 
   return await Lbryio.call('v2/membership', 'mine', { environment: stripeEnvironment }, 'post')
-    .then((response) => {
-      const membershipMine: MembershipMineDataByKey = { activeById: {}, canceledById: {}, purchasedById: {} };
-
-      for (const membership of response) {
-        const creatorClaimId = membership.MembershipDetails.channel_id;
-
-        const isActive = membership.Membership.auto_renew;
-        const { activeById, canceledById, purchasedById } = membershipMine;
-
-        if (isActive) {
-          const currentActive = activeById[creatorClaimId];
-          activeById[creatorClaimId] = currentActive ? [...currentActive, membership] : [membership];
-        } else {
-          const currentCanceled = canceledById[creatorClaimId];
-          canceledById[creatorClaimId] = currentCanceled ? [...currentCanceled, membership] : [membership];
-        }
-
-        const currentPurchased = purchasedById[creatorClaimId];
-        purchasedById[creatorClaimId] = currentPurchased ? [...currentPurchased, membership] : [membership];
-      }
-
-      dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: membershipMine });
-    })
+    .then((response: MembershipTiers) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_SUCCESS, data: response }))
     .catch((err) => dispatch({ type: ACTIONS.GET_MEMBERSHIP_MINE_DATA_FAIL, data: err }));
 };
 
@@ -334,7 +323,7 @@ export const doGetMembershipTiersForChannelClaimId = (channelClaimId: string) =>
     });
 };
 
-export const doMembershipContentforStreamClaimIds = (contentClaimIds: ClaimIds) => async (
+export const doMembershipContentForStreamClaimIds = (contentClaimIds: ClaimIds) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -370,7 +359,7 @@ export const doMembershipContentforStreamClaimId = (contentClaimId: string) => a
 
   if (isFetching) return Promise.resolve();
 
-  return dispatch(doMembershipContentforStreamClaimIds([contentClaimId]));
+  return dispatch(doMembershipContentForStreamClaimIds([contentClaimId]));
 };
 
 export const doSaveMembershipRestrictionsForContent = (

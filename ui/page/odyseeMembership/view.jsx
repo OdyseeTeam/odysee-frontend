@@ -20,11 +20,11 @@ import PremiumOption from './internal/premiumOption';
 type Props = {
   // -- redux --
   mineFetched: boolean,
+  validMemberships: ?MembershipTiers,
   activeMemberships: ?MembershipTiers,
   purchasedMemberships: ?MembershipTiers,
   canceledMemberships: ?MembershipTiers,
   membershipOptions: ?CreatorMemberships,
-  doGetCustomerStatus: () => void,
   doMembershipList: (params: MembershipListParams) => Promise<CreatorMemberships>,
 };
 
@@ -32,11 +32,11 @@ const OdyseeMembershipPage = (props: Props) => {
   const {
     // -- redux --
     mineFetched,
+    validMemberships,
     activeMemberships,
     purchasedMemberships,
     canceledMemberships,
     membershipOptions,
-    doGetCustomerStatus,
     doMembershipList,
   } = props;
 
@@ -44,9 +44,8 @@ const OdyseeMembershipPage = (props: Props) => {
   const [showHelp, setShowHelp] = usePersistedState('premium-help-seen', true);
 
   React.useEffect(() => {
-    doGetCustomerStatus();
     doMembershipList({ channel_name: ODYSEE_CHANNEL.NAME, channel_id: ODYSEE_CHANNEL.ID });
-  }, [doGetCustomerStatus, doMembershipList]);
+  }, [doMembershipList]);
 
   // we are still waiting from the backend if any of these are undefined
   const stillWaitingFromBackend = membershipOptions === undefined || !mineFetched;
@@ -121,7 +120,7 @@ const OdyseeMembershipPage = (props: Props) => {
             body={showHelp && <HelpText />}
           />
 
-          {membershipOptions && (!activeMemberships || activeMemberships.length === 0) && (
+          {membershipOptions && (!validMemberships || validMemberships.length === 0) && (
             <Card title={__('Available Memberships')}>
               {membershipOptions.map((membership) => (
                 <PremiumOption key={membership.Membership.name} membershipPurchase={membership} />
@@ -129,32 +128,24 @@ const OdyseeMembershipPage = (props: Props) => {
             </Card>
           )}
 
-          {activeMemberships && (
+          {activeMemberships && activeMemberships.length > 0 && (
             <Card title={__('Your Active Memberships')}>
-              {activeMemberships.length === 0 ? (
-                <h4>{__('You currently have no active memberships')}</h4>
-              ) : (
-                activeMemberships.map((membership) => (
-                  <PremiumOption key={membership.MembershipDetails.name} membershipView={membership} />
-                ))
-              )}
+              {activeMemberships.map((membership) => (
+                <PremiumOption key={membership.MembershipDetails.name} membershipView={membership} />
+              ))}
             </Card>
           )}
 
           {canceledMemberships && (
-            <Card
-              className="premium-explanation-text"
-              title={__('Canceled Memberships')}
-              body={
-                canceledMemberships.length === 0 ? (
-                  <h4>{__('You currently have no canceled memberships')}</h4>
-                ) : (
-                  canceledMemberships.map((membership) => (
-                    <PremiumOption key={membership.MembershipDetails.name} membershipView={membership} isCancelled />
-                  ))
-                )
-              }
-            />
+            <Card title={__('Canceled Memberships')}>
+              {canceledMemberships.length === 0 ? (
+                <h4>{__('You currently have no canceled memberships')}</h4>
+              ) : (
+                canceledMemberships.map((membership) => (
+                  <PremiumOption key={membership.MembershipDetails.name} membershipView={membership} />
+                ))
+              )}
+            </Card>
           )}
         </div>
       </Card>

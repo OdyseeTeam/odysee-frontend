@@ -2,11 +2,11 @@
 import React from 'react';
 
 import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
 
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
+import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 
 type Props = {
   component: any,
@@ -17,8 +17,6 @@ type Props = {
   accountDefaultCurrency: ?string,
   hasTiers?: boolean,
   supportersList: ?SupportersList,
-  userHasExperimentalUi: boolean,
-  userHasOdyseeMembership: boolean,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
 };
 
@@ -32,8 +30,6 @@ const TabWrapper = (props: Props) => {
     accountDefaultCurrency,
     hasTiers,
     supportersList,
-    userHasExperimentalUi,
-    userHasOdyseeMembership,
     doTipAccountStatus,
   } = props;
 
@@ -57,16 +53,7 @@ const TabWrapper = (props: Props) => {
     );
   }
 
-  if (!userHasExperimentalUi && !userHasOdyseeMembership) {
-    return (
-      <ErrorBubble
-        title={__('Premium Beta')}
-        subtitle={__('Sorry, this functionality is only available for Odysee Premium users currently.')}
-        action={<Button button="primary" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} label={__('Join Premium')} />}
-      />
-    );
-  }
-
+  // FIRST: needs a channel
   if (!myChannelClaims || myChannelClaims.length === 0) {
     return (
       <ErrorBubble
@@ -77,27 +64,23 @@ const TabWrapper = (props: Props) => {
     );
   }
 
+  // SECOND: verify bank account
   if (!bankAccountConfirmed) {
     return (
       <ErrorBubble
         title={__('Bank Account Status')}
         subtitle={__('To be able to begin receiving payments you must connect a Bank Account first.')}
-        action={
-          <Button
-            button="primary"
-            label={__('Connect a bank account')}
-            icon={ICONS.FINANCE}
-            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-          />
-        }
+        action={<ButtonStripeConnectAccount />}
       />
     );
   }
 
+  // THIRD: only USD supported. This will be the final message for some.
   if (accountDefaultCurrency !== 'usd') {
     return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
   }
 
+  // FOURTH: all that's left for the tabs to be filled in, is some tiers to be created
   if (!hasTiers && !isOnTiersTab) {
     return (
       <ErrorBubble

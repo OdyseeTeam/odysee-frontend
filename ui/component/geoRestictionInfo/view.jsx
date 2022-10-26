@@ -17,6 +17,7 @@ type Props = {
 export default function GeoRestrictionInfo(props: Props) {
   const { uri, geoRestriction, doOpenModal } = props;
 
+  console.log('props_ ', props);
   if (!geoRestriction) {
     return null;
   }
