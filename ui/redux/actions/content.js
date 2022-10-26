@@ -14,8 +14,12 @@ import {
   selectClaimIsMineForUri,
   selectClaimWasPurchasedForUri,
   selectPermanentUrlForUri,
-  selectCanonicalUrlForUri,
   selectClaimForUri,
+  selectClaimIsNsfwForUri,
+  selectPurchaseMadeForClaimId,
+  selectValidRentalPurchaseForClaimId,
+  selectClaimIdForUri,
+  selectIsFiatRequiredForUri,
 } from 'redux/selectors/claims';
 import { makeSelectFileInfoForUri, selectFileInfosByOutpoint } from 'redux/selectors/file_info';
 import {
@@ -27,7 +31,6 @@ import { doCollectionEdit, doLocalCollectionCreate } from 'redux/actions/collect
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
-import { doGetClaimFromUriResolve } from 'redux/actions/claims';
 import Lbry from 'lbry';
 import RecSys from 'recsys';
 import * as SETTINGS from 'constants/settings';
@@ -43,7 +46,6 @@ import {
   selectIsUriCurrentlyPlaying,
   makeSelectIsPlayerFloating,
 } from 'redux/selectors/content';
-import { isCanonicalUrl } from 'util/claim';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
 
@@ -121,29 +123,8 @@ export function doUpdateLoadStatus(uri: string, outpoint: string) {
   // @endif
 }
 
-export function doSetPrimaryUri(uri: ?string) {
-  return async (dispatch: Dispatch, getState: GetState) => {
-    let url = uri;
-
-    if (uri && !isCanonicalUrl(uri)) {
-      // -- sanitization --
-      // only set canonical urls
-      const state = getState();
-      url = selectCanonicalUrlForUri(state, uri);
-
-      if (!url) {
-        const claim = await dispatch(doGetClaimFromUriResolve(url));
-        if (claim) url = claim.canonical_url;
-      }
-      // -------------------
-    }
-
-    dispatch({
-      type: ACTIONS.SET_PRIMARY_URI,
-      data: { uri: url },
-    });
-  };
-}
+export const doSetPrimaryUri = (uri: ?string) => async (dispatch: Dispatch, getState: GetState) =>
+  dispatch({ type: ACTIONS.SET_PRIMARY_URI, data: { uri } });
 
 export const doClearPlayingUri = () => (dispatch: Dispatch) => dispatch(doSetPlayingUri({ uri: null, collection: {} }));
 export const doClearPlayingSource = () => (dispatch: Dispatch) => dispatch(doChangePlayingUriParam({ source: null }));
@@ -164,31 +145,10 @@ export const doPopOutInlinePlayer = ({ source }: { source: string }) => (dispatc
   }
 };
 
-export function doSetPlayingUri({ uri, source, sourceId, location, commentId, collection }: PlayingUri) {
-  return async (dispatch: Dispatch, getState: GetState) => {
-    const state = getState();
-    let url = uri;
-
-    if (uri && !isCanonicalUrl(uri)) {
-      // -- sanitization --
-      // only set canonical urls
-      if (uri) {
-        url = selectCanonicalUrlForUri(state, uri);
-
-        if (!url) {
-          const claim = await dispatch(doGetClaimFromUriResolve(url));
-          if (claim) url = claim.canonical_url;
-        }
-      }
-      // -------------------
-    }
-
-    dispatch({
-      type: ACTIONS.SET_PLAYING_URI,
-      data: { uri: url, source, sourceId, location, commentId, collection },
-    });
-  };
-}
+export const doSetPlayingUri = ({ uri, source, sourceId, location, commentId, collection }: PlayingUri) => async (
+  dispatch: Dispatch,
+  getState: GetState
+) => dispatch({ type: ACTIONS.SET_PLAYING_URI, data: { uri, source, sourceId, location, commentId, collection } });
 
 export function doChangePlayingUriParam(newParams: any) {
   return (dispatch: Dispatch, getState: GetState) => {
@@ -222,24 +182,14 @@ export function doUriInitiatePlay(
   cb?: (url: string) => void
 ) {
   return async (dispatch: Dispatch, getState: () => any) => {
-    const { uri: url, source, collection } = playingOptions;
-
-    const state = getState();
-
-    let uri = url;
-    if (url && !isCanonicalUrl(url)) {
-      // -- sanitization --
-      // only set canonical urls
-      uri = selectCanonicalUrlForUri(state, url);
-
-      if (!uri) {
-        const claim = await dispatch(doGetClaimFromUriResolve(url));
-        if (claim) uri = claim.canonical_url;
-      }
-      // -------------------
-    }
+    const { uri, source, collection } = playingOptions;
 
     if (!uri) return;
+
+    const state = getState();
+    const isMature = selectClaimIsNsfwForUri(state, uri);
+
+    if (isMature) return;
 
     if (!isFloating && (!source || source === COLLECTIONS_CONSTS.QUEUE_ID)) dispatch(doSetPrimaryUri(uri));
 
@@ -419,7 +369,7 @@ export function doPlaylistAddAndAllowPlaying({
 }
 
 export function doPlayUri(
-  url: string,
+  uri: string,
   skipCostCheck: boolean = false,
   saveFileOverride: boolean = false,
   cb?: () => void,
@@ -428,36 +378,44 @@ export function doPlayUri(
   return async (dispatch: Dispatch, getState: () => any) => {
     const state = getState();
 
-    let uri = url;
-    if (url && !isCanonicalUrl(url)) {
-      // -- sanitization --
-      // only set canonical urls
-      uri = selectCanonicalUrlForUri(state, url);
-
-      if (!uri) {
-        const claim = await dispatch(doGetClaimFromUriResolve(url));
-        if (claim) url = claim.canonical_url;
-      }
-      // -------------------
-    }
-
     const isMine = selectClaimIsMineForUri(state, uri);
     const fileInfo = makeSelectFileInfoForUri(uri)(state);
     const claimWasPurchased = selectClaimWasPurchasedForUri(state, uri);
+    const claimId = selectClaimIdForUri(state, uri);
 
     let costInfo = selectCostInfoForUri(state, uri);
     if (!costInfo) {
       costInfo = await dispatch(doFetchCostInfoForUri(uri));
     }
+
     const cost = costInfo && Number(costInfo.cost);
     const instantPurchaseEnabled = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED);
     const instantPurchaseMax = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX);
+    const fiatRequired = selectIsFiatRequiredForUri(state, uri);
+    const isFree = (!cost || cost === 0) && !fiatRequired;
+
+    const paid = {
+      sdk: selectClaimWasPurchasedForUri(state, uri),
+      fiat: selectPurchaseMadeForClaimId(state, claimId),
+      fiat_rent: selectValidRentalPurchaseForClaimId(state, claimId),
+    };
 
     function beginGetFile() {
       dispatch(doPurchaseUriWrapper(uri, cost, cb));
     }
 
     function attemptPlay(instantPurchaseMax = null) {
+      if (fiatRequired && !isMine) {
+        if (!paid.fiat && !paid.fiat_rent) {
+          if (!hideFailModal) {
+            dispatch(doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, { uri }));
+          }
+        } else {
+          beginGetFile();
+        }
+        return;
+      }
+
       // If you have a file_list entry, you have already purchased the file
       if (
         !isMine &&
@@ -471,7 +429,7 @@ export function doPlayUri(
       }
     }
 
-    if (cost === 0 || skipCostCheck) {
+    if (isFree || skipCostCheck) {
       beginGetFile();
       return;
     }

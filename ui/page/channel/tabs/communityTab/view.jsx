@@ -12,7 +12,7 @@ type Props = {
   commentSettingDisabled: ?boolean,
 };
 
-function ChannelDiscussion(props: Props) {
+function CommunityTab(props: Props) {
   const { uri, linkedCommentId, threadCommentId, commentSettingDisabled } = props;
 
   if (commentSettingDisabled) {
@@ -34,4 +34,4 @@ function ChannelDiscussion(props: Props) {
   );
 }
 
-export default ChannelDiscussion;
+export default CommunityTab;

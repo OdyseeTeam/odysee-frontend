@@ -54,6 +54,7 @@ type Props = {
   doBeginPublish: (name: ?string) => void,
   doFetchItemsInCollection: ({ collectionId: string }) => void,
   doOpenModal: (string, {}) => void,
+  preferEmbed: boolean,
 };
 
 export default function ShowPage(props: Props) {
@@ -87,6 +88,7 @@ export default function ShowPage(props: Props) {
     doBeginPublish,
     doFetchItemsInCollection,
     doOpenModal,
+    preferEmbed,
   } = props;
 
   const { search, pathname, hash } = location;
@@ -316,15 +318,14 @@ export default function ShowPage(props: Props) {
           )}
           actions={
             <div className="section__actions">
-              <Button button="link" href="https://odysee.com/@OdyseeHelp:b/copyright:f" label={__('Read More')} />
+              <Button button="link" href="https://help.odysee.tv/copyright/" label={__('Read More')} />
             </div>
           }
         />
       </Page>
     );
   }
-
-  if (isClaimFiltered && !claimIsMine) {
+  if (isClaimFiltered && !claimIsMine && !preferEmbed) {
     return (
       <Page className="custom-wrapper">
         <Card

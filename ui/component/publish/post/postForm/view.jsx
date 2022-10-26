@@ -19,6 +19,7 @@ import TagsSelect from 'component/tagsSelect';
 // import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
+import PublishPrice from 'component/publish/shared/publishPrice';
 import SelectThumbnail from 'component/selectThumbnail';
 import PublishPost from 'component/publish/post/publishPost';
 import Card from 'component/common/card';
@@ -47,7 +48,6 @@ type Props = {
   description: ?string,
   language: string,
   nsfw: boolean,
-  contentIsFree: boolean,
   fee: {
     amount: string,
     currency: string,
@@ -80,6 +80,7 @@ type Props = {
   user: ?User,
   permanentUrl: ?string,
   remoteUrl: ?string,
+  isMarkdownPost: boolean,
   isClaimingInitialRewards: boolean,
   claimInitialRewards: () => void,
   hasClaimedInitialRewards: boolean,
@@ -121,6 +122,7 @@ function PostForm(props: Props) {
     // user,
     permanentUrl,
     // remoteUrl,
+    isMarkdownPost,
     isClaimingInitialRewards,
     claimInitialRewards,
     hasClaimedInitialRewards,
@@ -300,7 +302,7 @@ function PostForm(props: Props) {
       isMarkdownPost: true,
       isLivestreamPublish: false,
     });
-  }, [mode, updatePublishForm]);
+  }, [mode, updatePublishForm, isMarkdownPost]);
 
   useEffect(() => {
     if (incognito) {
@@ -421,6 +423,8 @@ function PostForm(props: Props) {
           <Card actions={<SelectThumbnail />} />
 
           <PublishProtectedContent claim={myClaimForUri} location={'post'} />
+
+          <PublishPrice disabled={formDisabled} />
 
           <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
             {__('Tags')}

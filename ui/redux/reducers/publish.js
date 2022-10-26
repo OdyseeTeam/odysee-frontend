@@ -12,6 +12,7 @@ import {
 import * as ACTIONS from 'constants/action_types';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
+import { PAYWALL } from 'constants/publish';
 
 // This is the old key formula. Retain it for now to allow users to delete
 // any pending uploads. Can be removed from January 2022 onwards.
@@ -22,14 +23,21 @@ type PublishState = {
   fileText: ?string,
   filePath: ?string,
   remoteFileUrl: ?string,
-  contentIsFree: boolean,
+  paywall: Paywall,
   fileDur: number,
   fileSize: number,
   fileVid: boolean,
+  fileMime: string,
+  streamType: ?string,
   fee: {
     amount: number,
     currency: string,
   },
+  fiatPurchaseFee: Price,
+  fiatPurchaseEnabled: boolean,
+  fiatRentalFee: Price,
+  fiatRentalExpiration: Duration,
+  fiatRentalEnabled: boolean,
   title: string,
   thumbnail_url: string,
   thumbnailPath: string,
@@ -64,12 +72,19 @@ const defaultState: PublishState = {
   fileDur: 0,
   fileSize: 0,
   fileVid: false,
+  fileMime: '',
+  streamType: '',
   remoteFileUrl: undefined,
-  contentIsFree: true,
+  paywall: PAYWALL.FREE,
   fee: {
     amount: 1,
     currency: 'LBC',
   },
+  fiatPurchaseFee: { amount: 1, currency: 'USD' },
+  fiatPurchaseEnabled: false,
+  fiatRentalFee: { amount: 1, currency: 'USD' },
+  fiatRentalExpiration: { value: 1, unit: 'weeks' },
+  fiatRentalEnabled: false,
   title: '',
   thumbnail_url: '',
   thumbnailPath: '',

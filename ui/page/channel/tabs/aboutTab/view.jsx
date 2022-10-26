@@ -29,7 +29,7 @@ const formatEmail = (email: string) => {
   return null;
 };
 
-function ChannelAbout(props: Props) {
+function AboutTab(props: Props) {
   const { claim, uri, description, email, website, languages, user } = props;
   const claimId = claim && claim.claim_id;
   const canView = user && user.global_mod;
@@ -120,4 +120,4 @@ function ChannelAbout(props: Props) {
   );
 }
 
-export default ChannelAbout;
+export default AboutTab;

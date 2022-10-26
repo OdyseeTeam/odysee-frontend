@@ -13,29 +13,30 @@ import { useHistory } from 'react-router';
 import Button from 'component/button';
 import { formatLbryUrlForWeb } from 'util/url';
 import { CHANNEL_PAGE } from 'constants/urlParams';
-import HomeTab from './tabs/homeTab';
-import ContentTab from './tabs/contentTab';
-import MembershipTab from './tabs/membershipTab';
-import ChannelDiscussion from 'component/channelDiscussion';
-import ChannelAbout from 'component/channelAbout';
 import ChannelThumbnail from 'component/channelThumbnail';
-import CreatorSettingsTab from './tabs/creatorSettingsTab';
 import ChannelEdit from 'component/channelEdit';
 import SectionList from 'component/channelSections/SectionList';
 import classnames from 'classnames';
 import HelpLink from 'component/common/help-link';
 import ClaimSupportButton from 'component/claimSupportButton';
 import ClaimMenuList from 'component/claimMenuList';
-import OptimizedImage from 'component/optimizedImage';
+// import OptimizedImage from 'component/optimizedImage';
 import Yrbl from 'component/yrbl';
 import I18nMessage from 'component/i18nMessage';
 import TruncatedText from 'component/common/truncated-text';
 // $FlowFixMe cannot resolve ...
-import PlaceholderTx from 'static/img/placeholderTx.gif';
+// import PlaceholderTx from 'static/img/placeholderTx.gif';
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import MembershipBadge from 'component/membershipBadge';
 import JoinMembershipButton from 'component/joinMembershipButton';
+
+import HomeTab from './tabs/homeTab';
+import ContentTab from './tabs/contentTab';
+import MembershipTab from './tabs/membershipTab';
+import CommunityTab from './tabs/communityTab';
+import AboutTab from './tabs/aboutTab';
+import CreatorSettingsTab from './tabs/creatorSettingsTab';
 
 type Props = {
   uri: string,
@@ -275,7 +276,7 @@ function ChannelPage(props: Props) {
   return (
     <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
-        <header className="channel-cover" style={{ backgroundImage: 'url(' + coverUrl + ')' }}>
+        <header className="channel-cover" style={{ backgroundImage: 'url(' + String(coverUrl) + ')' }}>
           <div className="channel-header-content">
             <div className="channel__quick-actions">
               {isMyYouTubeChannel && (
@@ -358,7 +359,7 @@ function ChannelPage(props: Props) {
           </div>
         ) : (
           <Tabs onChange={onTabChange} index={tabIndex}>
-            <div className="tab__wrapper" className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
+            <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
               <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
                 <ChannelThumbnail
                   className={classnames('channel__thumbnail--channel-page', {
@@ -430,9 +431,9 @@ function ChannelPage(props: Props) {
                 {currentView === CHANNEL_PAGE.VIEWS.MEMBERSHIP && !isOdyseeChannel && <MembershipTab uri={uri} />}
               </TabPanel>
               <TabPanel>
-                {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <ChannelDiscussion uri={uri} />}
+                {(showDiscussion || currentView === CHANNEL_PAGE.VIEWS.DISCUSSION) && <CommunityTab uri={uri} />}
               </TabPanel>
-              <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <ChannelAbout uri={uri} />}</TabPanel>
+              <TabPanel>{currentView === CHANNEL_PAGE.VIEWS.ABOUT && <AboutTab uri={uri} />}</TabPanel>
               <TabPanel>{channelIsMine && <CreatorSettingsTab activeChannelClaim={claim} />}</TabPanel>
             </TabPanels>
           </Tabs>

@@ -1,6 +1,8 @@
 // @flow
 import React from 'react';
 import moment from 'moment';
+
+import './style.scss';
 import Button from 'component/button';
 import { Form, FormField } from 'component/common/form';
 import { Modal } from 'modal/modal';
@@ -14,7 +16,11 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import { NO_FILE } from 'redux/actions/publish';
-import { INTERNAL_TAGS } from 'constants/tags';
+import { PAYWALL } from 'constants/publish';
+import * as STRIPE from 'constants/stripe';
+import { TO_SECONDS } from 'util/stripe';
+import { removeInternalTags } from 'util/tags';
+import { secondsToDhms } from 'util/time';
 
 type Props = {
   filePath: string | WebFile,
@@ -25,11 +31,13 @@ type Props = {
   channel: ?string,
   bid: ?number,
   uri: ?string,
-  contentIsFree: boolean,
-  fee: {
-    amount: string,
-    currency: string,
-  },
+  paywall: Paywall,
+  fee: Price,
+  fiatPurchaseEnabled: boolean,
+  fiatPurchaseFee: Price,
+  fiatRentalEnabled: boolean,
+  fiatRentalFee: Price,
+  fiatRentalExpiration: Duration,
   language: string,
   releaseTimeEdited: ?number,
   licenseType: string,
@@ -49,6 +57,9 @@ type Props = {
   publishing: boolean,
   isLivestreamClaim: boolean,
   remoteFile: string,
+  tiersWithExclusiveContent: MembershipTiers,
+  tiersWithExclusiveLivestream: MembershipTiers,
+  restrictingTiers: string,
   appLanguage: string,
 };
 
@@ -63,8 +74,15 @@ const ModalPublishPreview = (props: Props) => {
     channel,
     bid,
     uri,
-    contentIsFree,
+    paywall,
     fee,
+
+    fiatPurchaseEnabled,
+    fiatPurchaseFee,
+    fiatRentalEnabled,
+    fiatRentalFee,
+    fiatRentalExpiration,
+
     language,
     releaseTimeEdited,
     licenseType,
@@ -84,6 +102,9 @@ const ModalPublishPreview = (props: Props) => {
     closeModal,
     isLivestreamClaim,
     remoteFile,
+    tiersWithExclusiveContent,
+    tiersWithExclusiveLivestream,
+    restrictingTiers,
     appLanguage,
   } = props;
 
@@ -100,12 +121,13 @@ const ModalPublishPreview = (props: Props) => {
   const isOptimizeAvail = filePath && filePath !== '' && isVid && ffmpegStatus.available;
   const modalTitle = getModalTitle();
   const confirmBtnText = getConfirmButtonText();
+  const tiers = livestream ? tiersWithExclusiveLivestream : tiersWithExclusiveContent; // See #2285
 
   // **************************************************************************
   // **************************************************************************
 
-  function createRow(label: string, value: any) {
-    return (
+  function createRow(label: string, value: any, hide?: boolean) {
+    return hide ? null : (
       <tr>
         <td>{label}</td>
         <td>{value}</td>
@@ -186,20 +208,63 @@ const ModalPublishPreview = (props: Props) => {
     return bid ? <LbcSymbol postfix={`${bid}`} size={14} /> : <p>---</p>;
   }
 
-  function getPrice() {
-    if (contentIsFree) {
-      return __('Free');
-    } else {
-      if (fee.currency === 'LBC') {
-        return <LbcSymbol postfix={fee.amount} />;
-      } else {
-        return `${fee.amount} ${fee.currency}`;
-      }
+  function getPriceLabel() {
+    if (paywall === PAYWALL.FIAT) {
+      return `${__('Price')} *`;
+    }
+    return __('Price');
+  }
+
+  function getPriceValue() {
+    switch (paywall) {
+      case PAYWALL.FREE:
+        return __('Free');
+
+      case PAYWALL.SDK:
+        if (fee.currency === 'LBC') {
+          return <LbcSymbol postfix={fee.amount} />;
+        } else {
+          return `${fee.amount} ${fee.currency}`;
+        }
+
+      case PAYWALL.FIAT:
+        const rentalSeconds = fiatRentalExpiration.value * (TO_SECONDS[fiatRentalExpiration.unit] || 3600);
+        return (
+          <>
+            {fiatPurchaseEnabled && fiatPurchaseFee && (
+              <div className="publish-preview__fiat-price">
+                <Icon icon={ICONS.BUY} />
+                <p>
+                  {__('Purchase for %currency%%amount%', {
+                    currency: STRIPE.CURRENCY[fiatPurchaseFee.currency].symbol,
+                    amount: fiatPurchaseFee.amount,
+                  })}
+                </p>
+              </div>
+            )}
+            {fiatRentalEnabled && fiatRentalFee && fiatRentalExpiration && (
+              <div className="publish-preview__fiat-price">
+                <Icon icon={ICONS.TIME} />
+                <p>
+                  {__('Rent %duration% for %currency%%amount%', {
+                    duration: secondsToDhms(rentalSeconds),
+                    currency: STRIPE.CURRENCY[fiatRentalFee.currency].symbol,
+                    amount: fiatRentalFee.amount,
+                  })}
+                </p>
+              </div>
+            )}
+          </>
+        );
+
+      default:
+        console.error(`Unhandled paywall type: ${paywall}`); // eslint-disable-line no-console
+        return '?';
     }
   }
 
   function getTagsValue(tags) {
-    const visibleTags = tags.filter((tag) => !INTERNAL_TAGS.includes(tag.name));
+    const visibleTags = removeInternalTags(tags);
     return visibleTags.map((tag) => (
       <Tag
         key={tag.name}
@@ -240,6 +305,34 @@ const ModalPublishPreview = (props: Props) => {
     } else {
       return '';
     }
+  }
+
+  function getTierRestrictionValue() {
+    if (tiers && restrictingTiers) {
+      const rt = restrictingTiers.split(',');
+
+      return (
+        <div className="publish-preview__tier-restrictions">
+          {tiers.map((tier: MembershipTier) => {
+            const tierId = tier?.Membership?.id || '0';
+            const tierRestrictionOn = rt.includes(tierId.toString());
+
+            return tierRestrictionOn ? (
+              <FormField
+                key={tierId}
+                name={tierId}
+                type="checkbox"
+                defaultChecked
+                label={tier?.Membership?.name || tierId}
+              />
+            ) : (
+              <div key={tierId} className="dummy-tier" />
+            );
+          })}
+        </div>
+      );
+    }
+    return null;
   }
 
   function onConfirmed() {
@@ -285,16 +378,20 @@ const ModalPublishPreview = (props: Props) => {
                     {createRow(__('Channel'), getChannelValue(channel))}
                     {createRow(__('URL'), formattedUri)}
                     {createRow(__('Deposit'), getDeposit())}
-                    {createRow(__('Price'), getPrice())}
+                    {createRow(getPriceLabel(), getPriceValue())}
                     {createRow(__('Language'), language ? getLanguageName(language) : '')}
                     {releaseTimeEdited && createRow(getReleaseTimeLabel(), getReleaseTimeValue(releaseTimeEdited))}
                     {createRow(__('License'), getLicense())}
+                    {createRow(__('Restricted to'), getTierRestrictionValue(), !tiers || !restrictingTiers)}
                     {createRow(__('Tags'), getTagsValue(tags))}
                   </tbody>
                 </table>
               </div>
+              {paywall === PAYWALL.FIAT && (
+                <div className="publish-preview__fee-footnote">{`* ${__('processing and platform fees apply')}`}</div>
+              )}
               {txFee && (
-                <div className="section" aria-label={__('Estimated transaction fee:')}>
+                <div className="publish-preview__blockchain-fee" aria-label={__('Estimated transaction fee:')}>
                   <b>{__('Est. transaction fee:')}</b>&nbsp;&nbsp;
                   <em>
                     <LbcSymbol postfix={txFee} />

@@ -1,15 +1,24 @@
 // @flow
 import * as React from 'react';
+import classnames from 'classnames';
+import moment from 'moment';
+
+import './style.scss';
+import Icon from 'component/common/icon';
+import I18nMessage from 'component/i18nMessage';
+import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as PAGES from 'constants/pages';
 import * as STRIPE from 'constants/stripe';
 import Button from 'component/button';
 import { secondsToDhms } from 'util/time';
-const moment = require('moment');
 
 type RentalTagParams = { price: number, expirationTimeInSeconds: number };
 
 type Props = {
+  uri: string,
+  type?: 'default' | 'overlay',
+  // --- redux ---
   claim: StreamClaim,
   claimIsMine: boolean,
   doCheckIfPurchasedClaimId: (string) => void,
@@ -22,16 +31,14 @@ type Props = {
   purchaseMadeForClaimId: ?boolean,
   purchaseTag: string,
   rentalTag: RentalTagParams,
-  uri: string,
   validRentalPurchase: any,
-  hasSavedCard: ?boolean,
   canReceiveFiatTips: ?boolean,
-  doGetCustomerStatus: () => void,
   doTipAccountCheckForUri: (uri: string) => void,
 };
 
 export default function PreorderAndPurchaseButton(props: Props) {
   const {
+    type = 'default',
     claim,
     claimIsMine,
     doCheckIfPurchasedClaimId,
@@ -46,15 +53,14 @@ export default function PreorderAndPurchaseButton(props: Props) {
     rentalTag,
     uri,
     validRentalPurchase,
-    hasSavedCard,
     canReceiveFiatTips,
-    doGetCustomerStatus,
     doTipAccountCheckForUri,
   } = props;
 
   const [rentExpiresTime, setRentExpiresTime] = React.useState(false);
 
   const myUpload = claimIsMine;
+  const isOverlay = type === 'overlay';
 
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
@@ -85,11 +91,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
     }
   }, [doTipAccountCheckForUri, preorderTag, purchaseTag, rentalTag, uri]);
 
-  // check if user has a payment method saved
-  React.useEffect(() => {
-    if (hasSavedCard === undefined) doGetCustomerStatus();
-  }, [doGetCustomerStatus, hasSavedCard]);
-
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
 
   let tags = {
@@ -101,49 +102,63 @@ export default function PreorderAndPurchaseButton(props: Props) {
   const canBePurchased = preorderTag || purchaseTag || rentalTag;
 
   return (
-    <>
+    <div
+      className={classnames('paid-content-prompt', {
+        'paid-content-prompt--overlay': isOverlay,
+      })}
+    >
       {canReceiveFiatTips === false && !myUpload && canBePurchased && (
-        <div>
-          <Button
-            iconColor="red"
-            className={'preorder-button non-clickable'}
-            button="primary"
-            label={__('Creator cannot receive payments yet')}
-            style={{ opacity: 0.6 }}
-          />
-        </div>
+        <div className="paid-content-prompt__notice">{__('Creator cannot receive payments yet.')}</div>
       )}
-      {canReceiveFiatTips === false && myUpload && canBePurchased && (
-        <div>
-          <Button
-            iconColor="red"
-            className={'preorder-button'}
-            button="primary"
-            label={__('Setup your account to receive payments')}
-            navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-          />
+      {canReceiveFiatTips === false && myUpload && canBePurchased && !isOverlay && (
+        <div className="paid-content-prompt__notice">
+          <I18nMessage
+            tokens={{
+              set_up_your_bank_account: (
+                <Button
+                  button="link"
+                  label={__('Set up your bank account')}
+                  navigate={`/$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`} // TODO: use the modal
+                />
+              ),
+            }}
+          >
+            %set_up_your_bank_account% to receive payments.
+          </I18nMessage>
         </div>
       )}
       {canReceiveFiatTips && (
         <>
           {/* viewer can rent or purchase */}
           {rentalTag &&
+            isOverlay &&
             purchaseTag &&
             !purchaseMadeForClaimId &&
             !validRentalPurchase &&
             !myUpload &&
             !preorderContentClaim && (
-              <div>
+              <>
+                <div className="paid-content-prompt__price">
+                  <Icon icon={ICONS.BUY} />
+                  {__('Purchase for %currency%%amount%', {
+                    currency: fiatSymbol,
+                    amount: purchaseTag,
+                  })}
+                </div>
+                <div className="paid-content-prompt__price">
+                  <Icon icon={ICONS.TIME} />
+                  {__('Rent %duration% for %currency%%amount%', {
+                    duration: secondsToDhms(rentalExpirationTimeInSeconds),
+                    currency: fiatSymbol,
+                    amount: rentalPrice,
+                  })}
+                </div>
                 <Button
                   iconColor="red"
                   className={'preorder-button'}
                   icon={fiatIconToUse}
                   button="primary"
-                  label={__('Purchase for %fiatSymbol%%purchasePrice% or Rent for %fiatSymbol%%rentalPrice%', {
-                    fiatSymbol,
-                    rentalPrice,
-                    purchasePrice: purchaseTag,
-                  })}
+                  label={__('Purchase or Rent')}
                   requiresAuth
                   onClick={() =>
                     doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
@@ -151,27 +166,30 @@ export default function PreorderAndPurchaseButton(props: Props) {
                       purchaseTag,
                       doCheckIfPurchasedClaimId,
                       claimId: claim.claim_id,
-                      hasSavedCard,
                       tags,
                       humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
                     })
                   }
                 />
-              </div>
+              </>
             )}
           {/* viewer can rent */}
-          {rentalTag && !purchaseTag && !validRentalPurchase && !myUpload && (
-            <div>
+          {rentalTag && !purchaseTag && !validRentalPurchase && !myUpload && isOverlay && (
+            <>
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.TIME} />
+                {__('Rent %duration% for %currency%%amount%', {
+                  currency: fiatSymbol,
+                  amount: rentalPrice,
+                  duration: secondsToDhms(rentalExpirationTimeInSeconds),
+                })}
+              </div>
               <Button
                 iconColor="red"
                 className={'preorder-button'}
                 icon={fiatIconToUse}
                 button="primary"
-                label={__('Rent for %humanReadableTime% for %fiatSymbol%%rentalPrice% ', {
-                  fiatSymbol,
-                  rentalPrice,
-                  humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
-                })}
+                label={__('Rent')}
                 requiresAuth
                 onClick={() =>
                   doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
@@ -179,26 +197,26 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
-                    hasSavedCard,
                     tags,
                     humanReadableTime: secondsToDhms(rentalExpirationTimeInSeconds),
                   })
                 }
               />
-            </div>
+            </>
           )}
           {/* purchasable content, not preordered and still needs to be purchased */}
-          {purchaseTag && !rentalTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
-            <div>
+          {purchaseTag && !rentalTag && !purchaseMadeForClaimId && !myUpload && !preorderContentClaim && isOverlay && (
+            <>
+              <div className="paid-content-prompt__price">
+                <Icon icon={ICONS.BUY} />
+                {__('Purchase for %currency%%amount%', { currency: fiatSymbol, amount: purchaseTag })}
+              </div>
               <Button
                 iconColor="red"
                 className={'preorder-button'}
                 icon={fiatIconToUse}
                 button="primary"
-                label={__('This content can be purchased for %fiatSymbol%%purchaseTag%', {
-                  fiatSymbol,
-                  purchaseTag,
-                })}
+                label={__('Purchase')}
                 requiresAuth
                 onClick={() =>
                   doOpenModal(MODALS.PREORDER_AND_PURCHASE_CONTENT, {
@@ -206,25 +224,16 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     purchaseTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
-                    hasSavedCard,
                     tags,
                   })
                 }
               />
-            </div>
+            </>
           )}
           {/* purchasable content, already purchased or preordered */}
           {purchaseTag && !validRentalPurchase && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button'}
-                icon={fiatIconToUse}
-                button="primary"
-                label={__('Thanks for purchasing, enjoy your content!')}
-                requiresAuth
-              />
-            </div>
+            // Unnecessary to thank the user every render? Maybe change this to just an unlocked icon.
+            <div className="paid-content-prompt__notice">{__('Thanks for purchasing, enjoy your content!')}</div>
           )}
           {/* content is available and user has ordered (redirect to content) */}
           {preorderTag && purchaseMadeForClaimId && !myUpload && preorderContentClaim && (
@@ -269,7 +278,6 @@ export default function PreorderAndPurchaseButton(props: Props) {
                     preorderTag,
                     doCheckIfPurchasedClaimId,
                     claimId: claim.claim_id,
-                    hasSavedCard,
                     tags,
                   })
                 }
@@ -278,70 +286,30 @@ export default function PreorderAndPurchaseButton(props: Props) {
           )}
           {/* viewer has preordered */}
           {preorderTag && purchaseMadeForClaimId && !myUpload && !preorderContentClaim && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('You have preordered this content')}
-                requiresAuth
-              />
-            </div>
+            <div className="paid-content-prompt__notice">{__('You have preordered this content')}</div>
           )}
           {rentalTag && validRentalPurchase && !myUpload && !preorderContentClaim && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('Your rental expires in %rentExpiresTime%', { rentExpiresTime })}
-                requiresAuth
-              />
+            <div className="paid-content-prompt__notice">
+              {__('Your rental expires in %rentExpiresTime%', { rentExpiresTime })}
             </div>
           )}
           {/* viewer owns this content */}
+          {/* @if TARGET='DISABLE_FOR_NOW' */}
           {preorderTag && myUpload && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('You cannot preorder your own content')}
-              />
-            </div>
+            <div className="paid-content-prompt__notice">{__('You cannot preorder your own content')}</div>
           )}
           {purchaseTag && !rentalTag && myUpload && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('You cannot purchase your own content')}
-              />
-            </div>
+            <div className="paid-content-prompt__notice">{__('You cannot purchase your own content')}</div>
           )}
           {rentalTag && !purchaseTag && myUpload && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('You cannot rent your own content')}
-              />
-            </div>
+            <div className="paid-content-prompt__notice">{__('You cannot rent your own content')}</div>
           )}
           {rentalTag && purchaseTag && myUpload && (
-            <div>
-              <Button
-                iconColor="red"
-                className={'preorder-button non-clickable'}
-                button="primary"
-                label={__('You cannot purchase or rent your own content')}
-              />
-            </div>
+            <div className="paid-content-prompt__notice">{__('You cannot purchase or rent your own content')}</div>
           )}
+          {/* @endif */}
         </>
       )}
-    </>
+    </div>
   );
 }

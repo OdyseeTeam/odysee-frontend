@@ -1,10 +1,10 @@
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
-import ChannelDiscussion from './view';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { getChannelIdFromClaim } from 'util/claim';
+import CommunityTab from './view';
 
 const select = (state, props) => {
   const { search } = props.location;
@@ -20,4 +20,4 @@ const select = (state, props) => {
   };
 };
 
-export default withRouter(connect(select)(ChannelDiscussion));
+export default withRouter(connect(select)(CommunityTab));

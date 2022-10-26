@@ -2,11 +2,11 @@
 import React from 'react';
 
 import * as PAGES from 'constants/pages';
-import * as ICONS from 'constants/icons';
 
 import Spinner from 'component/spinner';
 import Button from 'component/button';
 import ErrorBubble from 'component/common/error-bubble';
+import ButtonStripeConnectAccount from 'component/buttonStripeConnectAccount';
 
 type Props = {
   component: any,
@@ -17,8 +17,6 @@ type Props = {
   accountDefaultCurrency: ?string,
   hasTiers?: boolean,
   supportersList: ?SupportersList,
-  userHasExperimentalUi: boolean,
-  userHasOdyseeMembership: boolean,
   doTipAccountStatus: () => Promise<StripeAccountStatus>,
 };
 
@@ -32,8 +30,6 @@ const TabWrapper = (props: Props) => {
     accountDefaultCurrency,
     hasTiers,
     supportersList,
-    userHasExperimentalUi,
-    userHasOdyseeMembership,
     doTipAccountStatus,
   } = props;
 
@@ -74,14 +70,7 @@ const TabWrapper = (props: Props) => {
       <ErrorBubble
         title={__('Bank Account Status')}
         subtitle={__('To be able to begin receiving payments you must connect a Bank Account first.')}
-        action={
-          <Button
-            button="primary"
-            label={__('Connect a bank account')}
-            icon={ICONS.FINANCE}
-            navigate={`$/${PAGES.SETTINGS_STRIPE_ACCOUNT}`}
-          />
-        }
+        action={<ButtonStripeConnectAccount />}
       />
     );
   }
@@ -91,18 +80,7 @@ const TabWrapper = (props: Props) => {
     return <ErrorBubble>{__('Only USD banking currently supported, please check back later!')}</ErrorBubble>;
   }
 
-  // FOURTH: Premium Beta currently, so this will be the final condition: they will be able to purchase and start using then.
-  if (!userHasExperimentalUi && !userHasOdyseeMembership) {
-    return (
-      <ErrorBubble
-        title={__('Premium Beta')}
-        subtitle={__('Sorry, this functionality is only available for Odysee Premium users currently.')}
-        action={<Button button="primary" navigate={`/$/${PAGES.ODYSEE_MEMBERSHIP}`} label={__('Join Premium')} />}
-      />
-    );
-  }
-
-  // FIFTH: all that's left for the tabs to be filled in, is some tiers to be created
+  // FOURTH: all that's left for the tabs to be filled in, is some tiers to be created
   if (!hasTiers && !isOnTiersTab) {
     return (
       <ErrorBubble

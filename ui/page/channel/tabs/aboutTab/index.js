@@ -1,7 +1,7 @@
 import { connect } from 'react-redux';
 import { makeSelectMetadataItemForUri, makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectUser } from 'redux/selectors/user';
-import ChannelAbout from './view';
+import AboutTab from './view';
 
 const select = (state, props) => ({
   claim: makeSelectClaimForUri(props.uri)(state),
@@ -12,4 +12,4 @@ const select = (state, props) => ({
   user: selectUser(state),
 });
 
-export default connect(select, null)(ChannelAbout);
+export default connect(select, null)(AboutTab);
