@@ -10,7 +10,6 @@ declare type Collection = {
   type: CollectionType,
   createdAt?: ?number,
   updatedAt: number,
-  totalItems?: number,
   itemCount?: number,
   sourceId?: string, // if copied, claimId of original collection
   featuredChannelsParams?: {

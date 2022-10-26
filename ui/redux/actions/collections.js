@@ -147,7 +147,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
 
   async function fetchItemsForCollectionClaim(
     collectionId: string,
-    totalItems: number,
+    itemCount: number,
     itemIdsInOrder: Array<string>,
     pageSize?: number
   ) {
@@ -187,7 +187,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       const batchSize = pageSize || FETCH_BATCH_SIZE;
       const batches: Array<Promise<any>> = [];
 
-      for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+      for (let i = 0; i < Math.ceil(itemCount / batchSize); i++) {
         batches[i] = Lbry.claim_search({
           claim_ids: itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize),
           page: 1,
@@ -244,12 +244,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       invalidCollectionIds.push(collectionId);
     } else if (claim.value?.claims) {
       promisedCollectionItemFetches.push(
-        fetchItemsForCollectionClaim(
-          collectionId,
-          claim.value.claims.length,
-          claim.value.claims,
-          pageSize
-        )
+        fetchItemsForCollectionClaim(collectionId, claim.value.claims.length, claim.value.claims, pageSize)
       );
     }
   });
@@ -446,7 +441,7 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
       collection: {
         ...collection,
         items: newItems,
-        totalItems: newItems.length,
+        itemCount: newItems.length,
         // this means pass description even if undefined or null, but not if it's not passed at all, so it can be deleted
         ...('description' in params ? { description: params.description } : {}),
         ...(title ? { name: title, title } : {}),

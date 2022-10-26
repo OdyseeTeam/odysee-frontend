@@ -8,7 +8,7 @@ const defaultState: CollectionState = {
   builtin: {
     watchlater: {
       items: [],
-      totalItems: 0,
+      itemCount: 0,
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
       createdAt: undefined,
@@ -17,7 +17,7 @@ const defaultState: CollectionState = {
     },
     favorites: {
       items: [],
-      totalItems: 0,
+      itemCount: 0,
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
       createdAt: undefined,
@@ -36,7 +36,7 @@ const defaultState: CollectionState = {
   error: null,
   queue: {
     items: [],
-    totalItems: 0,
+    itemCount: 0,
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
     updatedAt: getCurrentTimeInSec(),
@@ -55,7 +55,7 @@ const collectionsReducer = handleActions(
         id: params.id,
         name: params.name,
         items: [],
-        totalItems: 0,
+        itemCount: 0,
         createdAt: currentTime,
         updatedAt: currentTime,
         type: params.type,
@@ -231,10 +231,9 @@ const collectionsReducer = handleActions(
         const { title, description, thumbnail, claims } = value || {};
 
         newResolved[claim.claim_id] = {
-          items: claims,
-          totalItems: claims.length,
           id: claim.claim_id,
           name: title || name,
+          items: claims,
           itemCount: claims.length,
           createdAt: claim.meta?.creation_timestamp,
           updatedAt: timestamp,

@@ -1,24 +1,12 @@
 // @flow
 import { COL_TYPES, SECTION_TAGS } from 'constants/collections';
 
-export const selectCountForCollection = (collection: Collection) => {
-  if (collection) {
-    if (collection.itemCount !== undefined) {
-      return collection.itemCount;
-    }
+export const getItemCountForCollection = (collection: Collection) => {
+  if (!collection) return collection;
 
-    let itemCount = 0;
-    if (collection.items) {
-      collection.items.forEach((item) => {
-        if (item) {
-          itemCount += 1;
-        }
-      });
-    }
-    return itemCount;
-  }
+  if (Number.isInteger(collection.itemCount)) return collection.itemCount;
 
-  return null;
+  return collection.items && collection.items.length;
 };
 
 /**
