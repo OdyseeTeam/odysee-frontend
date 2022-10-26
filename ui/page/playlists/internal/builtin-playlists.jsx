@@ -2,9 +2,9 @@
 import React from 'react';
 import classnames from 'classnames';
 import * as COLS from 'constants/collections';
-import CollectionPreview from './collectionPreview';
-import SectionLabel from './label';
-import TableHeader from './table-header';
+import CollectionPreview from './collectionsListMine/internal/collectionPreview';
+import SectionLabel from './collectionsListMine/internal/label';
+import TableHeader from './collectionsListMine/internal/table-header';
 import { useIsMobile } from 'effects/use-screensize';
 
 const BuiltinPlaylists = () => {

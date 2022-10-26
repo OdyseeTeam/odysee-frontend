@@ -1,15 +1,18 @@
 // @flow
 import React from 'react';
+import classnames from 'classnames';
+
+import * as COLS from 'constants/collections';
+
+import { useIsMobile } from 'effects/use-screensize';
+import { useHistory } from 'react-router-dom';
+import { getTitleForCollection } from 'util/collections';
+
 import CollectionPreview from './internal/collectionPreview';
 import Button from 'component/button';
 import Spinner from 'component/spinner';
-import * as MODALS from 'constants/modal_types';
-import * as COLS from 'constants/collections';
 import Yrbl from 'component/yrbl';
-import classnames from 'classnames';
-import { useIsMobile } from 'effects/use-screensize';
-import { useHistory } from 'react-router-dom';
-import BuiltinPlaylists from './internal/builtin-playlists';
+import BuiltinPlaylists from '../builtin-playlists';
 import SectionLabel from './internal/label';
 import TableHeader from './internal/table-header';
 import CollectionListHeader from './internal/collectionListHeader/index';
@@ -18,6 +21,8 @@ import usePersistedState from 'effects/use-persisted-state';
 import PageItemsLabel from './internal/page-items-label';
 
 type Props = {
+  handleCreatePlaylist: () => void,
+  // -- redux --
   publishedCollections: CollectionGroup,
   unpublishedCollections: CollectionGroup,
   editedCollections: CollectionGroup,
@@ -26,9 +31,8 @@ type Props = {
   savedCollectionIds: ClaimIds,
   featuredChannelsIds: Array<CollectionId>,
   isFetchingCollections: boolean,
-  areBuiltinCollectionsEmpty: boolean,
   hasCollections: boolean,
-  doOpenModal: (id: string) => void,
+  collectionsById: { [collectionId: string]: Collection },
   doFetchItemsInCollections: (params: { collectionIds: ClaimIds }) => void,
 };
 
@@ -37,6 +41,8 @@ export const CollectionsListContext = React.createContext<any>();
 
 export default function CollectionsListMine(props: Props) {
   const {
+    handleCreatePlaylist,
+    // -- redux --
     publishedCollections,
     unpublishedCollections,
     editedCollections,
@@ -45,16 +51,14 @@ export default function CollectionsListMine(props: Props) {
     savedCollectionIds,
     featuredChannelsIds,
     isFetchingCollections,
-    areBuiltinCollectionsEmpty,
     hasCollections,
-    doOpenModal,
+    collectionsById,
     doFetchItemsInCollections,
   } = props;
 
   const isMobile = useIsMobile();
 
   const {
-    push,
     location: { search },
   } = useHistory();
 
@@ -72,7 +76,6 @@ export default function CollectionsListMine(props: Props) {
   const editedList = (Object.keys(editedCollections || {}): any);
   const savedList = (Object.keys(savedCollections || {}): any);
   const collectionsUnresolved = unpublishedCollectionsList.length === 0 && publishedList.length === 0 && hasCollections;
-  const playlistShowCount = isMobile ? COLS.PLAYLIST_SHOW_COUNT.MOBILE : COLS.PLAYLIST_SHOW_COUNT.DEFAULT;
 
   const collectionsToShow = React.useMemo(() => {
     let collections;
@@ -96,9 +99,11 @@ export default function CollectionsListMine(props: Props) {
         collections = [];
         break;
     }
+
     return collections.filter((id) => !featuredChannelsIds.includes(id));
   }, [editedList, filterType, publishedList, savedList, unpublishedCollectionsList, featuredChannelsIds]);
 
+  const playlistShowCount = isMobile ? COLS.PLAYLIST_SHOW_COUNT.MOBILE : COLS.PLAYLIST_SHOW_COUNT.DEFAULT;
   const page = (collectionsToShow.length > playlistShowCount && Number(urlParams.get('page'))) || 1;
   const firstItemIndexForPage = playlistShowCount * (page - 1);
   const lastItemIndexForPage = playlistShowCount * page;
@@ -106,66 +111,90 @@ export default function CollectionsListMine(props: Props) {
   const filteredCollections = React.useMemo(() => {
     let result = collectionsToShow;
 
+    // First handle search
     if (searchText) {
-      result = collectionsToShow.filter(
-        (id) =>
-          (unpublishedCollections[id] &&
-            unpublishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase())) ||
-          (publishedCollections[id] &&
-            publishedCollections[id].name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
-      );
+      result = collectionsToShow.filter((id) => {
+        const collection = collectionsById[id];
+        const title = getTitleForCollection(collection) || '';
+
+        return title.toLocaleLowerCase().includes(searchText.toLocaleLowerCase());
+      });
     }
 
+    // Then the sorting selected setting
     return result.sort((a, b) => {
-      let itemA = unpublishedCollections[a] || publishedCollections[a] || editedCollections[a] || savedCollections[a];
-      let itemB = unpublishedCollections[b] || publishedCollections[b] || editedCollections[b] || savedCollections[b];
+      const collectionA = collectionsById[a];
+      const collectionB = collectionsById[b];
 
       if (updatedCollections[a]) {
-        itemA = { ...itemA, ...updatedCollections[a] };
+        Object.assign(collectionA, updatedCollections[a]);
       }
       if (updatedCollections[b]) {
-        itemB = { ...itemB, ...updatedCollections[b] };
+        Object.assign(collectionB, updatedCollections[b]);
       }
 
-      const firstItem =
-        // Timestamps are reversed since newest timestamps will be higher, so show the highest number first
-        [COLS.SORT_KEYS.UPDATED_AT, COLS.SORT_KEYS.CREATED_AT].includes(sortOption.key)
-          ? sortOption.value === COLS.SORT_ORDER.DESC
-            ? itemA
-            : itemB
-          : sortOption.value === COLS.SORT_ORDER.ASC
-          ? itemA
-          : itemB;
-      const secondItem = firstItem === itemA ? itemB : itemA;
-      const comparisonObj =
-        sortOption.key === COLS.SORT_KEYS.COUNT
-          ? { a: firstItem.items?.length || 0, b: secondItem.items?.length || 0 }
-          : { a: firstItem[sortOption.key], b: secondItem[sortOption.key] };
+      let firstComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionA : collectionB;
+      let secondComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionB : collectionA;
+      const comparisonObj = {};
 
       if (sortOption.key === COLS.SORT_KEYS.NAME) {
+        const nameComparisonObj = {
+          a: getTitleForCollection(firstComparisonItem) || '',
+          b: getTitleForCollection(secondComparisonItem) || '',
+        };
+
+        Object.assign(comparisonObj, nameComparisonObj);
+
+        // Only name (string) has a different return than when sorting numbers
         // $FlowFixMe
-        return comparisonObj.a ? comparisonObj.a.localeCompare(comparisonObj.b) : 0;
+        return comparisonObj.a.localeCompare(comparisonObj.b);
       }
 
+      function getComparisonObj() {
+        switch (sortOption.key) {
+          case COLS.SORT_KEYS.UPDATED_AT:
+          case COLS.SORT_KEYS.CREATED_AT:
+            firstComparisonItem = sortOption.value === COLS.SORT_ORDER.DESC ? collectionA : collectionB;
+            secondComparisonItem = sortOption.value === COLS.SORT_ORDER.DESC ? collectionB : collectionA;
+
+            const timestampComparisonObj = {
+              a: firstComparisonItem[sortOption.key],
+              b: secondComparisonItem[sortOption.key],
+            };
+
+            Object.assign(comparisonObj, timestampComparisonObj);
+
+            break;
+
+          case COLS.SORT_KEYS.COUNT:
+            const countComparisonObj = {
+              a: firstComparisonItem.items?.length || 0,
+              b: secondComparisonItem.items?.length || 0,
+            };
+
+            Object.assign(comparisonObj, countComparisonObj);
+
+            break;
+
+          case COLS.SORT_KEYS.NAME:
+        }
+      }
+
+      getComparisonObj();
+
+      // $FlowFixMe
       if ((comparisonObj.a || 0) > (comparisonObj.b || 0)) {
         return 1;
       }
+
+      // $FlowFixMe
       if ((comparisonObj.a || 0) < (comparisonObj.b || 0)) {
         return -1;
       }
+
       return 0;
     });
-  }, [
-    collectionsToShow,
-    editedCollections,
-    publishedCollections,
-    savedCollections,
-    searchText,
-    sortOption.key,
-    sortOption.value,
-    unpublishedCollections,
-    updatedCollections,
-  ]);
+  }, [collectionsById, collectionsToShow, searchText, sortOption, updatedCollections]);
 
   const totalLength = collectionsToShow.length;
   const filteredCollectionsLength = filteredCollections.length;
@@ -180,32 +209,6 @@ export default function CollectionsListMine(props: Props) {
       doFetchItemsInCollections({ collectionIds: savedCollectionIds });
     }
   }, [doFetchItemsInCollections, savedCollectionIds]);
-
-  function handleCreatePlaylist() {
-    doOpenModal(MODALS.COLLECTION_CREATE);
-  }
-
-  if (areBuiltinCollectionsEmpty && !hasCollections) {
-    return (
-      <div className="claim-grid__wrapper">
-        <BuiltinPlaylists />
-
-        <div className="main--empty">
-          <Yrbl
-            type="happy"
-            title={__('You can add videos to your Playlists')}
-            subtitle={__('Do you want to find some content to save for later, or create a brand new playlist?')}
-            actions={
-              <div className="section__actions">
-                <Button button="secondary" label={__('Explore!')} onClick={() => push('/')} />
-                <Button button="primary" label={__('New Playlist')} onClick={handleCreatePlaylist} />
-              </div>
-            }
-          />
-        </div>
-      </div>
-    );
-  }
 
   return (
     <>

@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import TruncatedText from 'component/common/truncated-text';
-import CollectionItemCount from './internal/collection-item-count';
+import CollectionItemCount from './internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from './internal/collection-public-icon';
 import CollectionMenuList from 'component/collectionMenuList';
@@ -38,7 +38,6 @@ type Props = {
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
   collectionCreatedAt: ?number,
-  hasEdits: boolean,
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
@@ -60,7 +59,6 @@ function CollectionPreview(props: Props) {
     channelTitle,
     collectionUpdatedAt,
     collectionCreatedAt,
-    hasEdits,
     isBuiltin,
     thumbnail,
     isEmpty,
@@ -98,7 +96,7 @@ function CollectionPreview(props: Props) {
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
           <FileThumbnail uri={firstCollectionItemUrl} thumbnail={thumbnail}>
-            <CollectionItemCount count={collectionCount} hasEdits={hasEdits} />
+            <CollectionItemCount collectionId={collectionId} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>
         </NavLink>
@@ -115,7 +113,7 @@ function CollectionPreview(props: Props) {
           <div className="claim-preview__overlay-properties--small playlist-channel">
             <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
               <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-              {channelTitle && channelTitle}
+              {channelTitle}
             </UriIndicator>
           </div>
         )}

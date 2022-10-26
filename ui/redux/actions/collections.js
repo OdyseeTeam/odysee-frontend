@@ -50,6 +50,7 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
           ...params,
           id: id,
           items: sourceCollectionItems,
+          itemCount: sourceCollectionItems.length,
           description: sourceDescription,
           thumbnail: { url: thumbnailUrl },
         },

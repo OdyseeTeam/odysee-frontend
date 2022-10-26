@@ -10,7 +10,6 @@ import {
   selectCreatedAtForCollectionId,
   selectPublishedCollectionClaimForId,
   selectIsCollectionBuiltInForId,
-  selectCollectionHasEditsForId,
   selectThumbnailForCollectionId,
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
@@ -51,7 +50,6 @@ const select = (state, props) => {
     collectionUpdatedAt: selectUpdatedAtForCollectionId(state, collectionId),
     collectionCreatedAt: selectCreatedAtForCollectionId(state, collectionId),
     isBuiltin: selectIsCollectionBuiltInForId(state, collectionId),
-    hasEdits: selectCollectionHasEditsForId(state, collectionId),
     thumbnail: selectThumbnailForCollectionId(state, collectionId),
     isEmpty: selectCollectionIsEmptyForId(state, collectionId),
   };
