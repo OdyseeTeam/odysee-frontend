@@ -139,7 +139,7 @@ export default function CollectionsListMine(props: Props) {
       const secondItem = firstItem === itemA ? itemB : itemA;
       const comparisonObj =
         sortOption.key === COLS.SORT_KEYS.COUNT
-          ? { a: firstItem.items.length, b: secondItem.items.length }
+          ? { a: firstItem.items?.length || 0, b: secondItem.items?.length || 0 }
           : { a: firstItem[sortOption.key], b: secondItem[sortOption.key] };
 
       if (sortOption.key === COLS.SORT_KEYS.NAME) {
