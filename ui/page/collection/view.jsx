@@ -52,7 +52,7 @@ export default function CollectionPage(props: Props) {
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
-  const { name, totalItems, items } = collection || {};
+  const { name, itemCount, items } = collection || {};
 
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
@@ -60,8 +60,7 @@ export default function CollectionPage(props: Props) {
   const editPage = editing || publishing;
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
 
-  const urlsReady =
-    collectionUrls && (totalItems === undefined || (totalItems && totalItems === collectionUrls.length));
+  const urlsReady = collectionUrls && (itemCount === undefined || (itemCount && itemCount === collectionUrls.length));
 
   const privateColItemsToBeFetched = !hasClaim && items && items.length !== collectionClaimsIds.length;
 

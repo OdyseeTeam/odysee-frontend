@@ -17,7 +17,7 @@ import {
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
-import { selectCountForCollection } from 'util/collections';
+import { getItemCountForCollection } from 'util/collections';
 import { getChannelIdFromClaim, isPermanentUrl } from 'util/claim';
 
 type State = { collections: CollectionState };
@@ -241,7 +241,7 @@ export const selectMyPublishedOnlyCollectionForId = (state: State, id: string) =
 
 export const selectMyPublishedCollectionCountForId = (state: State, id: string) => {
   const publishedCollection = selectMyPublishedOnlyCollectionForId(state, id);
-  const count = selectCountForCollection(publishedCollection);
+  const count = getItemCountForCollection(publishedCollection);
   return count;
 };
 
@@ -476,9 +476,8 @@ export const selectCreatedAtForCollectionId = (state: State, id: string) => {
   return null;
 };
 
-export const selectCountForCollectionId = createSelector(selectCollectionForId, (collection) =>
-  selectCountForCollection(collection)
-);
+export const selectCountForCollectionId = (state: State, id: string) =>
+  getItemCountForCollection(selectCollectionForId(state, id));
 
 export const selectIsCollectionPrivateForId = createSelector(
   (state, id) => id,

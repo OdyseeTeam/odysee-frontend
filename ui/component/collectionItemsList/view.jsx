@@ -41,9 +41,9 @@ const CollectionItemsList = (props: Props) => {
 
   const isCollectionPage = React.useContext(CollectionPageContext);
 
-  const { totalItems } = collection || {};
+  const { itemCount } = collection || {};
 
-  const urlsReady = collectionUrls && (totalItems === undefined || totalItems === collectionUrls.length);
+  const urlsReady = collectionUrls && (itemCount === undefined || itemCount === collectionUrls.length);
   const shouldFetchItems = isPrivateCollection || isEditedCollection || (!urlsReady && collectionId && !collection);
 
   function handleOnDragEnd(result: any) {
