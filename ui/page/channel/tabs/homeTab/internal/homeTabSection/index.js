@@ -15,7 +15,8 @@ import {
 import HomeTabSection from './view';
 
 const select = (state, props) => {
-  const options: ClaimSearchOptions = {
+  // const options: ClaimSearchOptions = {
+  const options = {
     page_size: props.section.type !== 'featured' ? 12 : 1,
     page: 1,
     channel_ids: [props.channelClaimId],
