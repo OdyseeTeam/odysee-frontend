@@ -14,6 +14,7 @@ import {
   selectUrlsForCollectionId,
   selectCollectionSavedForId,
   selectAreCollectionItemsFetchingForId,
+  selectClaimUrlInCollectionForIdAndUri,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType } from 'util/collections';
@@ -396,7 +397,13 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
   const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
 
-  const { uris, remove, replace, order, type } = params;
+  const { uris: passedUris, remove, replace, order, type } = params;
+
+  let uris = passedUris;
+  if (remove && uris) {
+    // selects the proper uris stored in collection items in case there's canonical vs permanent uri clash
+    uris = uris.map((uri) => selectClaimUrlInCollectionForIdAndUri(state, collectionId, uri));
+  }
 
   const currentUrls = collection.items ? collection.items.concat() : [];
   let newItems = currentUrls;
