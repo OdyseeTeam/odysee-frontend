@@ -35,7 +35,7 @@ type Props = {
   collectionName: string,
   isPrivateCollection: boolean,
   publishedCollectionName: string | boolean,
-  playingItemIndex: number,
+  playingItemIndex: ?number,
   collectionLength: number,
   disableClickNavigation?: boolean,
   useDrawer?: boolean,
@@ -60,7 +60,7 @@ export default function PlaylistCard(props: Props) {
 
   if (!hasCollectionById) return null;
 
-  const currentIndexLabel = ` - ${playingItemIndex}/${collectionLength} `;
+  const currentIndexLabel = ` - ${Number.isInteger(playingItemIndex) ? playingItemIndex + 1 : 0}/${collectionLength} `;
   const playlistCardProps = { showEdit, setShowEdit, currentIndexLabel, ...props };
 
   if (useDrawer) {
@@ -145,6 +145,8 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   const activeItemRef = React.useRef();
   const scrollRestorePending = React.useRef();
   const listHasActive = React.useRef();
+  const lengthRef = React.useRef(collectionLength);
+  const activeItemIndexRef = React.useRef(playingItemIndex);
 
   const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
   const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
@@ -176,7 +178,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
 
   const activeListItemRef = React.useCallback(
     (node) => {
-      if (node && bodyRef) {
+      if (node && bodyRef && Number.isInteger(playingItemIndex)) {
         activeItemRef.current = node;
         // without this, the list would scroll to the top of the item
         // so make it so it's approximately centered instead
@@ -243,7 +245,16 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         }
       };
 
-      if (bodyOpen && listHasActive.current) {
+      const itemWasRemoved = collectionLength < lengthRef.current;
+      const itemWasAdded =
+        collectionLength > lengthRef.current &&
+        Number.isInteger(playingItemIndex) &&
+        playingItemIndex === activeItemIndexRef.current;
+
+      lengthRef.current = collectionLength;
+      activeItemIndexRef.current = playingItemIndex;
+
+      if (bodyOpen && listHasActive.current && !itemWasRemoved && !itemWasAdded) {
         handleScroll();
         if (activeItemRef.current) activeListItemRef(activeItemRef.current);
       }
@@ -255,7 +266,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
         window.removeEventListener('resize', handleScroll);
       };
     }
-  }, [activeListItemRef, bodyOpen, bodyRef, isFloating, isMobile]);
+  }, [activeListItemRef, bodyOpen, bodyRef, collectionLength, isFloating, isMobile, playingItemIndex]);
 
   return (
     <>
