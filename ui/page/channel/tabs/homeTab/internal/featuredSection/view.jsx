@@ -17,6 +17,8 @@ type Props = {
   uri: string,
   section: any,
   description: string,
+  // --- select ---
+  claim: Claim,
 };
 
 function FeaturedSection(props: Props) {

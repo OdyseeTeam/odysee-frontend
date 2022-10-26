@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
-import { selectClaimForUri, selectClaimSearchByQuery, makeSelectFetchingChannelClaims } from 'redux/selectors/claims';
+import { selectClaimForUri, selectClaimSearchByQuery } from 'redux/selectors/claims';
 import { doResolveUris } from 'redux/actions/claims';
-// import { withRouter } from 'react-router';
 import { doFetchChannelLiveStatus } from 'redux/actions/livestream';
 import { selectActiveLivestreamForChannel, selectActiveLivestreamInitialized } from 'redux/selectors/livestream';
 import { selectSettingsByChannelId } from 'redux/selectors/comments';

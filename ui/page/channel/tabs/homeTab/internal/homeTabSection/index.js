@@ -11,12 +11,11 @@ import {
   selectNameForCollectionId,
   selectMyPublishedCollections,
 } from 'redux/selectors/collections';
-import { doResolveUris } from 'redux/actions/claims';
 
 import HomeTabSection from './view';
 
 const select = (state, props) => {
-  let options: ClaimSearchOptions = {
+  const options: ClaimSearchOptions = {
     page_size: props.section.type !== 'featured' ? 12 : 1,
     page: 1,
     channel_ids: [props.channelClaimId],

@@ -71,7 +71,6 @@ function HomeTab(props: Props) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
       if (e.change.field && e.change.field !== 'order_by') {
-        // console.log('change: ', e)
         newHome[index][e.change.field] = e.change.value;
       } else {
         newHome[index][e.change.field] = [e.change.value];
