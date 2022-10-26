@@ -71,8 +71,10 @@ function HomeTab(props: Props) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
       if (e.change.field && e.change.field !== 'order_by') {
+        // $FlowIgnore
         newHome[index][e.change.field] = e.change.value;
       } else {
+        // $FlowIgnore
         newHome[index][e.change.field] = [e.change.value];
       }
     }
@@ -84,7 +86,7 @@ function HomeTab(props: Props) {
     newHome.push({
       type: undefined,
       file_type: undefined,
-      order: undefined,
+      order_by: [],
       claim_id: undefined,
     });
     setHome(newHome);
