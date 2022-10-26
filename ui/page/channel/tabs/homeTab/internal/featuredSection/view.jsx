@@ -13,12 +13,11 @@ import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import './style.scss';
 
 type Props = {
-  // channelClaimId: string,
   uri: string,
   section: any,
   description: string,
   // --- select ---
-  claim: Claim,
+  claim: ChannelClaim,
 };
 
 function FeaturedSection(props: Props) {
@@ -35,7 +34,7 @@ function FeaturedSection(props: Props) {
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
       <div className="claim-preview claim-preview-featured">
-        <FileThumbnail thumbnail={claim.value.thumbnail.url} uri={uri}>
+        <FileThumbnail thumbnail={claim.value.thumbnail?.url} uri={uri}>
           <PreviewOverlayProperties uri={uri} small={false} xsmall={false} />
         </FileThumbnail>
         <div className="claim-preview__text">
@@ -44,7 +43,7 @@ function FeaturedSection(props: Props) {
             <span>{claim.value.title}</span>
           </div>
           <div className="claim-preview-author">
-            <ChannelThumbnail uri={claim.signing_channel.canonical_url} xsmall checkMembership={false} />
+            <ChannelThumbnail uri={claim.signing_channel?.canonical_url} xsmall checkMembership={false} />
             <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} />
           </div>
           <div className="claim-preview-description">
