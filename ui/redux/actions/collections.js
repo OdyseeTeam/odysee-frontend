@@ -242,11 +242,11 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
     const claim = selectClaimForClaimId(state, collectionId);
     if (!claim) {
       invalidCollectionIds.push(collectionId);
-    } else {
+    } else if (claim.value?.claims) {
       promisedCollectionItemFetches.push(
         fetchItemsForCollectionClaim(
           collectionId,
-          claim.value.claims && claim.value.claims.length,
+          claim.value.claims.length,
           claim.value.claims,
           pageSize
         )
@@ -266,15 +266,16 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
     const collectionItems: Array<any> = entry.items;
     const collectionId = entry.claimId;
 
+    const claim = selectClaimForClaimId(state, collectionId);
+
     if (isPrivateCollectionId(collectionId) && collectionItems) {
       // Nothing to do for now. We are only interested in getting the resolved
       // data for each item in the private collection.
-    } else if (collectionItems) {
-      const claim = selectClaimForClaimId(state, collectionId);
-
+    } else if (collectionItems && claim) {
       const { items: editedCollectionItems } = selectEditedCollectionForId(state, collectionId) || {};
-      const { name, timestamp, value } = claim || {};
-      const { title, description, thumbnail } = value || {};
+
+      const { name, timestamp, value } = claim;
+      const { title, description, thumbnail, tags, claims } = value || {};
       const valueTypes = new Set();
       const streamTypes = new Set();
 
@@ -291,14 +292,14 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
           resolvedItemsByUrl[collectionItem.canonical_url] = collectionItem;
         });
 
-        collectionType = resolveCollectionType(value.tags, valueTypes, streamTypes);
+        collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
       }
 
       newCollectionObjectsById[collectionId] = {
         items: newItems,
         id: collectionId,
         name: title || name,
-        itemCount: claim.value.claims.length,
+        itemCount: claims && claims.length,
         type: collectionType,
         createdAt: claim.meta?.creation_timestamp,
         updatedAt: timestamp,
