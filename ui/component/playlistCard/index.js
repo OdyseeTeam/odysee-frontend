@@ -28,7 +28,6 @@ const select = (state, props) => {
 
   const playingCurrentPlaylist = collectionId === playingCollectionId;
   const { permanent_url: playingItemUrl } = playingCurrentPlaylist ? selectClaimForUri(state, playingUri) || {} : {};
-  const playingItemIndex = selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true);
 
   return {
     playingItemUrl,
@@ -38,7 +37,7 @@ const select = (state, props) => {
     isMyCollection: selectCollectionIsMine(state, collectionId),
     isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
     publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
-    playingItemIndex: playingItemIndex !== null ? playingItemIndex + 1 : 0,
+    playingItemIndex: selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true),
     collectionLength: selectCollectionLengthForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),
     hasCollectionById: collectionId && Boolean(selectCollectionForId(state, collectionId)),
