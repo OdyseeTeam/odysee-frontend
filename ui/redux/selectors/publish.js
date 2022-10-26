@@ -161,19 +161,19 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   const collectionClaimIds = selectClaimIdsForCollectionId(state, collectionId);
   const activeChannelId = selectActiveChannelClaimId(state);
 
-  const collectionParams = {
+  const privateCollectionParams = {
     title: collectionTitle,
     description: collection.description,
     thumbnail_url: collection.thumbnail?.url,
+    claims: collectionClaimIds,
   };
 
   if (isPrivate) {
     const collectionPublishCreateParams: CollectionPublishCreateParams = {
-      ...collectionParams,
+      ...privateCollectionParams,
       bid: 0.0001,
       channel_id: activeChannelId,
       name: sanitizeName(collectionTitle),
-      claims: collectionClaimIds,
       tags: [],
     };
 
@@ -190,7 +190,7 @@ export const selectCollectionClaimUploadParamsForId = (state: State, collectionI
   const hasEdits = selectCollectionHasEditsForId(state, collectionId);
 
   if (hasEdits) {
-    Object.assign(collectionClaimUploadParams, collectionParams);
+    Object.assign(collectionClaimUploadParams, privateCollectionParams);
   }
 
   return collectionClaimUploadParams;
