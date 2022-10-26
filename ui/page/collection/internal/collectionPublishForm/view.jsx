@@ -200,7 +200,11 @@ const CollectionPublishForm = (props: Props) => {
             button="primary"
             disabled={publishingClaimWithNoChanges || creatingCollection || updatingCollection}
             label={
-              creatingCollection || updatingCollection ? <BusyIndicator message={__('Submitting')} /> : __('Submit')
+              creatingCollection || updatingCollection ? (
+                <BusyIndicator message={__('Submitting')} />
+              ) : (
+                __(editing ? 'Save' : 'Submit')
+              )
             }
           />
           <Button button="link" label={__('Cancel')} onClick={goBack} />
@@ -234,7 +238,7 @@ const CollectionPublishForm = (props: Props) => {
         <p className="help">
           {publishing
             ? __('After submitting, it will take a few minutes for your changes to be live for everyone.')
-            : __('After submitting, all changes will remain private')}
+            : __('After saving, all changes will remain private')}
         </p>
 
         <div className="section__actions">

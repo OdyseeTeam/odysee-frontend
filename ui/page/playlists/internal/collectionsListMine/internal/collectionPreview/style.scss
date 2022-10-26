@@ -79,11 +79,7 @@
         margin-right: var(--spacing-s);
       }
     }
-    .channel-thumbnail--xsmall {
-      width: var(--font-base) !important;
-      height: var(--font-base) !important;
-      margin-bottom: 2px;
-    }
+
     a {
       color: rgba(var(--color-text-base), 0.6);
       &:hover {

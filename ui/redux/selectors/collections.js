@@ -16,7 +16,7 @@ import {
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
-import { getItemCountForCollection } from 'util/collections';
+import { getItemCountForCollection, getTitleForCollection } from 'util/collections';
 import { getChannelIdFromClaim } from 'util/claim';
 
 type State = { collections: CollectionState };
@@ -73,10 +73,8 @@ export const selectUpdatedCollectionForId = (state: State, id: string) => {
   return updatedCollections[id];
 };
 
-export const selectCollectionTitleForId = (state: State, id: string) => {
-  const collection = selectCollectionForId(state, id);
-  return collection?.title || collection?.name;
-};
+export const selectCollectionTitleForId = (state: State, id: string) =>
+  getTitleForCollection(selectCollectionForId(state, id));
 
 export const selectCollectionDescriptionForId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
@@ -247,21 +245,30 @@ export const selectMyPublishedCollectionCountForId = (state: State, id: string) 
 export const selectAreCollectionItemsFetchingForId = (state: State, id: string) =>
   new Set(selectCollectionItemsFetchingIds(state)).has(id);
 
+export const selectCollectionsById = (state: State) => {
+  const builtin = selectBuiltinCollections(state);
+  const resolved = selectResolvedCollections(state);
+  const unpublished = selectMyUnpublishedCollections(state);
+  const edited = selectMyEditedCollections(state);
+  const pending = selectPendingCollections(state);
+  const queue = selectCurrentQueueList(state);
+
+  return { ...queue, ...resolved, ...pending, ...edited, ...unpublished, ...builtin };
+};
+
 export const selectCollectionForId = createSelector(
   (state, id) => id,
-  selectBuiltinCollections,
+  selectCollectionsById,
   selectResolvedCollections,
-  selectMyUnpublishedCollections,
-  selectMyEditedCollections,
-  selectPendingCollections,
-  selectCurrentQueueList,
-  (id, bLists, rLists, uLists, eLists, pLists, queue) => {
-    const collection = bLists[id] || uLists[id] || eLists[id] || pLists[id] || rLists[id] || queue[id];
+  (id, collectionsById, resolvedCollections) => {
+    if (!id) return id;
+
+    const collection = collectionsById[id];
 
     const urlParams = new URLSearchParams(window.location.search);
     const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
-    if (isOnPublicView) return rLists[id] || collection;
+    if (isOnPublicView) return resolvedCollections[id] || collection;
 
     return collection;
   }

@@ -67,3 +67,9 @@ export function resolveAuxParams(collectionType: ?string, collectionClaim: Claim
 
   return auxParams;
 }
+
+export function getTitleForCollection(collection: ?Collection) {
+  if (!collection) return collection;
+
+  return collection.title || collection.name;
+}
