@@ -10,7 +10,6 @@ import {
   selectClaimForUri,
   selectClaimForClaimId,
   selectChannelNameForId,
-  selectPermanentUrlForUri,
   selectClaimsById,
   selectClaimsByUri,
 } from 'redux/selectors/claims';
@@ -18,7 +17,7 @@ import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
 import { selectPlayingCollection } from 'redux/selectors/content';
 import { getItemCountForCollection } from 'util/collections';
-import { getChannelIdFromClaim, isPermanentUrl } from 'util/claim';
+import { getChannelIdFromClaim } from 'util/claim';
 
 type State = { collections: CollectionState };
 
@@ -295,13 +294,32 @@ export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
   return claimSaved && claimInQueue;
 };
 
-export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) => {
-  // $FlowFixMe
-  const url = isPermanentUrl(uri) ? uri : selectPermanentUrlForUri(state, uri);
-  const collection = selectCollectionForId(state, id);
+export const selectClaimUrlInCollectionForIdAndUri = createSelector(
+  (state: State, id: string, uri: string) => uri,
+  (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
+  selectCollectionForId,
+  selectClaimsByUri,
+  (uri, claim, collection, claimsByUri) => {
+    if (!collection) return collection;
 
-  return collection && collection.items.includes(url);
-};
+    if (collection.items.includes(uri)) return uri;
+
+    if (!claim) return false;
+
+    const permanentUri = claim.permanent_url;
+
+    if (collection.items.includes(permanentUri)) return permanentUri;
+
+    const canonicalUri = claim.canonical_url;
+
+    if (collection.items.includes(canonicalUri)) return canonicalUri;
+
+    return false;
+  }
+);
+
+export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) =>
+  Boolean(selectClaimUrlInCollectionForIdAndUri(state, id, uri));
 
 export const selectUrlsForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
