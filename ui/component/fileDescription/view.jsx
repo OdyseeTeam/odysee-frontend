@@ -74,7 +74,7 @@ export default function FileDescription(props: Props) {
         </div>
       </div>
 
-      {showCreditDetails && showMore && <FileValues uri={uri} />}
+      {showCreditDetails && <FileValues uri={uri} />}
     </>
   );
 }

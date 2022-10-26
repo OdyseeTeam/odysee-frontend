@@ -17,22 +17,22 @@ type Props = {
   activeLivestreamForChannel: any,
   settingsByChannelId: { [string]: PerChannelSettings },
   doFetchChannelLiveStatus: (string) => void,
-  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
+  // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 function HomeTab(props: Props) {
-  const { 
-    claim, 
-    editMode, 
-    activeLivestreamForChannel, 
+  const {
+    claim,
+    editMode,
+    activeLivestreamForChannel,
     settingsByChannelId,
     doFetchChannelLiveStatus,
-    doUpdateCreatorSettings,
+    // doUpdateCreatorSettings,
   } = props;
   const claimId = claim && claim.claim_id;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
 
-  console.log('settingsByChannelId: ', settingsByChannelId)
+  console.log('settingsByChannelId: ', settingsByChannelId);
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   const [edit, setEdit] = React.useState(false);
@@ -70,7 +70,7 @@ function HomeTab(props: Props) {
     } else if (e.delete) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
-      if (e.change.field !== 'order_by') {
+      if (e.change.field && e.change.field !== 'order_by') {
         // console.log('change: ', e)
         newHome[index][e.change.field] = e.change.value;
       } else {
@@ -96,7 +96,7 @@ function HomeTab(props: Props) {
     setEdit(false);
 
     // settingsToStates(newSettings, false);
-    doUpdateCreatorSettings(claim, { home: home});
+    // doUpdateCreatorSettings(claim, { home: home });
     // setLastUpdated(Date.now());
   }
 

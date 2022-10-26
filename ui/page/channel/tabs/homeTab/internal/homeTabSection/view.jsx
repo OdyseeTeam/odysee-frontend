@@ -12,7 +12,7 @@ type Props = {
   editMode: boolean,
   handleEditCollection: (any) => void,
   // --- select ---
-  claimSearchResults: { [string]: Array<string> },
+  claimSearchResults: Array<string>,
   collectionUrls: ?Array<string>,
   collectionName: string,
   optionsStringified: string,
@@ -145,8 +145,6 @@ function HomeTabSection(props: Props) {
         break;
       case 'playlists':
         return __('Playlists');
-      default:
-        return section && SectionHeader();
     }
   }
 
@@ -250,12 +248,16 @@ function HomeTabSection(props: Props) {
                   <option disabled="disabled" value="select">
                     {__('Select')}
                   </option>
-                  {searchResults ? (
-                    searchResults.map((result) => {
-                      return <option value={result.claimId}>{result.title}</option>;
+                  {!isSearching && searchResults ? (
+                    searchResults.map((result, i) => {
+                      return (
+                        <option key={i} value={result.claimId}>
+                          {result.title}
+                        </option>
+                      );
                     })
                   ) : (
-                    <option>{__('No Results...')}</option>
+                    <option value="no_results">{__('No Results...')}</option>
                   )}
                 </select>
               </div>

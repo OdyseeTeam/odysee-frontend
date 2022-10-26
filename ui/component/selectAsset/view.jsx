@@ -109,11 +109,14 @@ function SelectAsset(props: Props) {
       <div className="channel-preview-wrapper">
         <div
           className="channel-preview-header"
-          style={{ backgroundImage: 'url(' + (assetName === 'Cover Image' ? currentPlaceholder : otherValue) + ')' }}
+          style={{
+            backgroundImage:
+              'url(' + (assetName === 'Cover Image' ? String(currentPlaceholder) : String(otherValue)) + ')',
+          }}
         />
         <div className="channel-preview-tabs" />
         <div className="channel-preview-thumbnail">
-          {otherValue && <img src={assetName === 'Cover Image' ? otherValue : currentPlaceholder} />}
+          {otherValue && <img src={assetName === 'Cover Image' ? String(otherValue) : String(currentPlaceholder)} />}
         </div>
         <div className="channel-preview-grid">
           {Array.from(Array(6), (e, i) => {
