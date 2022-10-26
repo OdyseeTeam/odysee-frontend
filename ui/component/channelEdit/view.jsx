@@ -378,8 +378,6 @@ function ChannelForm(props: Props) {
 
             <TabList className="tabs__list--channel-page">
               <Tab onClick={() => onTabChange(0)}>{__('About')}</Tab>
-              {/* <Tab onClick={() => onTabChange(1)}>{__('Credit Details')}</Tab >*/}
-              {/* <Tab onClick={() => onTabChange(2)}>{__('Tags')}</Tab> */}
               {!isNewChannel && <Tab onClick={() => onTabChange(1)}>{__('Other')}</Tab>}
             </TabList>
           </div>
