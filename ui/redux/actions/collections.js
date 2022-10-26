@@ -275,7 +275,7 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       const { items: editedCollectionItems } = selectEditedCollectionForId(state, collectionId) || {};
 
       const { name, timestamp, value } = claim;
-      const { title, description, thumbnail, tags, claims } = value || {};
+      const { title, description, thumbnail, tags } = value || {};
       const valueTypes = new Set();
       const streamTypes = new Set();
 
@@ -296,10 +296,10 @@ export const doFetchItemsInCollections = (resolveItemsOptions: {
       }
 
       newCollectionObjectsById[collectionId] = {
-        items: newItems,
         id: collectionId,
         name: title || name,
-        itemCount: claims && claims.length,
+        items: newItems,
+        itemCount: newItems.length,
         type: collectionType,
         createdAt: claim.meta?.creation_timestamp,
         updatedAt: timestamp,
