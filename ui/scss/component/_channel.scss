@@ -28,7 +28,7 @@ $actions-z-index: 2;
     .tabs__list {
       padding-left: 5rem;
       @media (max-width: $breakpoint-small) {
-        padding-left: 3.6rem;
+        padding-left: 4rem;
       }
     }
   }
@@ -591,7 +591,9 @@ $actions-z-index: 2;
   @media (max-width: $breakpoint-large) {
     height: calc(var(--header-height-mobile) - var(--spacing-m));
     width: calc(var(--header-height-mobile) - var(--spacing-m));
-    // left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
+    left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
+  }
+  @media (max-width: $breakpoint-small) {
     left: var(--spacing-xs);
   }
 }
