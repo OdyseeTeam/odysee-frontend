@@ -41,6 +41,7 @@ declare type PerChannelSettings = {
   time_since_first_comment?: number,
   livestream_chat_members_only?: boolean,
   comments_members_only?: boolean,
+  homepage_settings?: any,
 };
 
 // todo: relate individual comments to their commentId
