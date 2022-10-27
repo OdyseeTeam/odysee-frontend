@@ -32,9 +32,8 @@ function HomeTab(props: Props) {
 
   const claimId = claim && claim.claim_id;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
-  const homepage_settings =
-    settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
-  if (homepage_settings) console.log('homepage_settings: ', homepage_settings[0]);
+  // const homepage_settings = settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
+  // if (homepage_settings) console.log('homepage_settings: ', homepage_settings[0]);
 
   const homeTemplate = [
     {
@@ -51,23 +50,47 @@ function HomeTab(props: Props) {
     },
   ];
 
-  const [home, setHome] = React.useState(homepage_settings || homepage_settings === null ? homeTemplate : []);
+  const [home, setHome] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
   const [hasChanges, setHasChanges] = React.useState(false);
 
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   React.useEffect(() => {
-    if (homepage_settings) {
-      setHome(homepage_settings);
-    } else if (homepage_settings === null) {
+    if (
+      settingsByChannelId &&
+      claim &&
+      settingsByChannelId[claim.claim_id] &&
+      settingsByChannelId[claim.claim_id].homepage_settings
+    ) {
+      setHome(settingsByChannelId[claim.claim_id].homepage_settings);
+    } else if (
+      settingsByChannelId &&
+      claim &&
+      settingsByChannelId[claim.claim_id] &&
+      settingsByChannelId[claim.claim_id].homepage_settings === null
+    ) {
       setHome(homeTemplate);
     }
-  }, [homepage_settings]);
+  }, [settingsByChannelId]);
 
   React.useEffect(() => {
-    setHasChanges(home !== homepage_settings);
-  }, [homepage_settings, home]);
+    if (
+      settingsByChannelId &&
+      claim &&
+      settingsByChannelId[claim.claim_id] &&
+      settingsByChannelId[claim.claim_id].homepage_settings
+    ) {
+      setHasChanges(home !== settingsByChannelId[claim.claim_id].homepage_settings[0]);
+    }
+  }, [settingsByChannelId, home]);
+
+  /*
+  React.useEffect(() => {
+    console.log('setHome')
+    setHome(settingsByChannelId && claim && settingsByChannelId[claim.claim_id].homepage_settings && settingsByChannelId[claim.claim_id].homepage_settings || settingsByChannelId[claim.claim_id].homepage_settings === null ? homeTemplate : [])
+  }, [settingsByChannelId]);
+  */
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
@@ -83,8 +106,18 @@ function HomeTab(props: Props) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
       if (e.change.field && e.change.field !== 'order_by') {
-        // $FlowIgnore
-        newHome[index][e.change.field] = e.change.value;
+        if (e.change.field === 'type') {
+          // $FlowIgnore
+          newHome[index] = {
+            type: e.change.value,
+            file_type: undefined,
+            order_by: [],
+            claim_id: undefined,
+          };
+        } else {
+          // $FlowIgnore
+          newHome[index][e.change.field] = e.change.value;
+        }
       } else {
         // $FlowIgnore
         newHome[index][e.change.field] = [e.change.value];
@@ -110,15 +143,12 @@ function HomeTab(props: Props) {
     setEdit(false);
   }
 
-  React.useEffect(() => {
-    if (homepage_settings) console.log('homepage_settings update: ', homepage_settings[0]);
-    else console.log('homepage_settings');
-  }, [homepage_settings]);
-
   function handleCancelChanges() {
     console.log('remove1: ', home[0]);
-    if (homepage_settings) console.log('remove2: ', homepage_settings[0]);
-    setHome(homepage_settings || homeTemplate);
+    if (settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) {
+      console.log('remove2: ', settingsByChannelId[claim.claim_id].homepage_settings[0]);
+    }
+    setHome((settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) || homeTemplate);
     setEdit(false);
   }
 

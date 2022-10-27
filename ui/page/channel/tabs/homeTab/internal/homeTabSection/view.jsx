@@ -39,8 +39,6 @@ function HomeTabSection(props: Props) {
     doClaimSearch,
   } = props;
 
-  console.log('collectionName: ', collectionName);
-
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
     !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
