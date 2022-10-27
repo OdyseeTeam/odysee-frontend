@@ -50,7 +50,7 @@ function HomeTab(props: Props) {
     },
   ];
 
-  const [home, setHome] = React.useState(homepage_settings || homeTemplate);
+  const [home, setHome] = React.useState(homepage_settings || homepage_settings === [] ? homeTemplate : []);
   const [edit, setEdit] = React.useState(false);
   const [hasChanges, setHasChanges] = React.useState(false);
 
@@ -63,7 +63,9 @@ function HomeTab(props: Props) {
   }, [homepage_settings]);
 
   React.useEffect(() => {
-    setHasChanges(JSON.stringify(home) !== JSON.stringify(homepage_settings));
+    console.log('home change');
+    setHasChanges(home !== homepage_settings);
+    // setHasChanges(JSON.stringify(home) !== JSON.stringify(homepage_settings));
   }, [homepage_settings, home]);
 
   function handleEditCollection(e, index) {
