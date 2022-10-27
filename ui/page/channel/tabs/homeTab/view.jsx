@@ -34,7 +34,7 @@ function HomeTab(props: Props) {
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
   const homepage_settings =
     settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
-  console.log('homepage_settings: ', homepage_settings);
+  if (homepage_settings) console.log('homepage_settings: ', homepage_settings[0]);
 
   const homeTemplate = [
     {
@@ -66,7 +66,6 @@ function HomeTab(props: Props) {
   }, [homepage_settings]);
 
   React.useEffect(() => {
-    console.log('home change');
     setHasChanges(home !== homepage_settings);
   }, [homepage_settings, home]);
 
@@ -107,12 +106,18 @@ function HomeTab(props: Props) {
 
   function handleSaveHomeSection() {
     setHome(home);
-    setEdit(false);
-
     doUpdateCreatorSettings(claim, { homepage_settings: home });
+    setEdit(false);
   }
 
+  React.useEffect(() => {
+    if (homepage_settings) console.log('homepage_settings update: ', homepage_settings[0]);
+    else console.log('homepage_settings');
+  }, [homepage_settings]);
+
   function handleCancelChanges() {
+    console.log('remove1: ', home[0]);
+    if (homepage_settings) console.log('remove2: ', homepage_settings[0]);
     setHome(homepage_settings || homeTemplate);
     setEdit(false);
   }

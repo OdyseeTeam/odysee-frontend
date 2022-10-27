@@ -15,7 +15,6 @@ import {
 import HomeTabSection from './view';
 
 const select = (state, props) => {
-  // const options: ClaimSearchOptions = {
   const options = {
     page_size: props.section.type !== 'featured' ? 12 : 1,
     page: 1,
@@ -43,7 +42,6 @@ const select = (state, props) => {
 
 const perform = {
   doClaimSearch,
-  // doResolveUris: (uris, returnCachedUris) => dispatch(doResolveUris(uris, returnCachedUris)),
 };
 
 export default connect(select, perform)(HomeTabSection);

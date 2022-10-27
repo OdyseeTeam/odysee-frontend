@@ -17,11 +17,10 @@ type Props = {
   collectionName: string,
   optionsStringified: string,
   fetchingClaimSearch: boolean,
-  doClaimSearch: ({}) => void,
   publishedCollections: CollectionGroup,
   singleClaimUri: string,
   // --- perform ---
-  // doResolveUris: (Array<string>, boolean) => void,
+  doClaimSearch: ({}) => void,
 };
 
 function HomeTabSection(props: Props) {
@@ -35,11 +34,12 @@ function HomeTabSection(props: Props) {
     collectionName,
     optionsStringified,
     fetchingClaimSearch,
-    doClaimSearch,
     publishedCollections,
-    // doResolveUris,
     singleClaimUri,
+    doClaimSearch,
   } = props;
+
+  console.log('collectionName: ', collectionName);
 
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
@@ -75,7 +75,6 @@ function HomeTabSection(props: Props) {
 
       lighthouse
         .search(
-          // `from=${SEARCH_PAGE_SIZE}` +
           `&s=${encodeURIComponent(searchQuery)}` +
             `&channel_id=${encodeURIComponent(channelClaimId)}` +
             `&nsfw=${'false'}` +
@@ -157,7 +156,6 @@ function HomeTabSection(props: Props) {
             <select
               name="type"
               value={section.type || 'select'}
-              defaultValue="select"
               onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
             >
               <option value="select" disabled="disabled">
@@ -176,7 +174,6 @@ function HomeTabSection(props: Props) {
               <select
                 name="file_type"
                 value={section.file_type || 'all'}
-                defaultValue="all"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
                 <option value="all">{__('Show All')}</option>
@@ -191,16 +188,15 @@ function HomeTabSection(props: Props) {
             <div className="home-section-header-option">
               <label>{__('Playlist')}</label>
               <select
-                name="claimId"
+                name="claim_id"
                 value={section.claimId || 'select'}
-                defaultValue="select"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
                 <option value="select">{__('Select a Playlist')}</option>
                 {publishedList &&
                   publishedList.map((list, i) => {
                     return (
-                      <option key={i} value={publishedCollections[list].id}>
+                      <option key={i} value={list}>
                         {publishedCollections[list].name}
                       </option>
                     );
@@ -214,7 +210,6 @@ function HomeTabSection(props: Props) {
               <select
                 name="order_by"
                 value={(section.order_by && section.order_by[0]) || 'release_time'}
-                defaultValue="release_time"
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
                 <option value="release_time">{__('New')}</option>
@@ -232,7 +227,6 @@ function HomeTabSection(props: Props) {
                   name="search"
                   value={searchQuery}
                   onChange={handleInputChange}
-                  // onChange={(e) => handleEditCollection({ change: { field: target.name, value: target.value } })}
                   placeholder={__('Search')}
                 />
               </div>
@@ -241,7 +235,6 @@ function HomeTabSection(props: Props) {
                 <select
                   name="claim_id"
                   value={section.claim_id || 'select'}
-                  defaultValue="select"
                   disabled={!searchResults}
                   onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
                 >
