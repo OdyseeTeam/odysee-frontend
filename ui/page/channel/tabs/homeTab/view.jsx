@@ -12,12 +12,12 @@ import './style.scss';
 
 type Props = {
   uri: string,
-  claim: Claim,
+  claim: any,
   editMode: boolean,
   activeLivestreamForChannel: any,
   settingsByChannelId: { [string]: PerChannelSettings },
   doFetchChannelLiveStatus: (string) => void,
-  // doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
+  doUpdateCreatorSettings: (ChannelClaim, PerChannelSettings) => void,
 };
 
 function HomeTab(props: Props) {
@@ -27,35 +27,44 @@ function HomeTab(props: Props) {
     activeLivestreamForChannel,
     settingsByChannelId,
     doFetchChannelLiveStatus,
-    // doUpdateCreatorSettings,
+    doUpdateCreatorSettings,
   } = props;
+
   const claimId = claim && claim.claim_id;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
+  const homepage_settings =
+    settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
 
-  console.log('settingsByChannelId: ', settingsByChannelId);
+  const homeTemplate = [
+    {
+      type: 'featured',
+      file_type: undefined,
+      order_by: undefined,
+      claim_id: undefined,
+    },
+    {
+      type: 'content',
+      file_type: CS.FILE_ALL,
+      order_by: CS.ORDER_BY_NEW_VALUE,
+      claim_id: undefined,
+    },
+  ];
+
+  const [home, setHome] = React.useState(homepage_settings || homeTemplate);
+  const [edit, setEdit] = React.useState(false);
+  const [hasChanges, setHasChanges] = React.useState(false);
+
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
-  const [edit, setEdit] = React.useState(false);
-  const homeTemplate = {
-    enabled: true,
-    entries: [
-      {
-        type: 'featured',
-        file_type: undefined,
-        order_by: undefined,
-        claim_id: undefined,
-      },
-      {
-        type: 'content',
-        file_type: CS.FILE_ALL,
-        order_by: CS.ORDER_BY_NEW_VALUE,
-        claim_id: undefined,
-      },
-    ],
-  };
+  React.useEffect(() => {
+    if (homepage_settings) {
+      setHome(homepage_settings);
+    }
+  }, [homepage_settings]);
 
-  const [home, setHome] = React.useState(homeTemplate.entries);
-  const hasUnsavedChanges = homeTemplate.entries !== home;
+  React.useEffect(() => {
+    setHasChanges(JSON.stringify(home) !== JSON.stringify(homepage_settings));
+  }, [homepage_settings, home]);
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
@@ -96,19 +105,16 @@ function HomeTab(props: Props) {
     setHome(home);
     setEdit(false);
 
-    // settingsToStates(newSettings, false);
-    // doUpdateCreatorSettings(claim, { home: home });
-    // setLastUpdated(Date.now());
+    doUpdateCreatorSettings(claim, { homepage_settings: home });
   }
 
   function handleCancelChanges() {
-    setHome(homeTemplate.entries);
+    setHome(homepage_settings || homeTemplate);
     setEdit(false);
   }
 
   const fetching = false;
   const isInitialized = true;
-  // const isChannelBroadcasting = false
   const isChannelEmpty = false;
 
   return (
@@ -158,12 +164,7 @@ function HomeTab(props: Props) {
         })}
       {edit && (
         <div className="home-tab-edit">
-          <Button
-            label={__('Save')}
-            button="primary"
-            disabled={!hasUnsavedChanges}
-            onClick={() => handleSaveHomeSection()}
-          />
+          <Button label={__('Save')} button="primary" disabled={!hasChanges} onClick={() => handleSaveHomeSection()} />
           <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
         </div>
       )}
