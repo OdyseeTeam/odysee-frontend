@@ -365,6 +365,7 @@ export const doMembershipContentforStreamClaimId = (contentClaimId: string) => a
 export const doSaveMembershipRestrictionsForContent = (
   channelClaimId: string,
   contentClaimId: string,
+  contentClaimName: string,
   commaSeperatedMembershipIds: string
 ) => async (dispatch: Dispatch) => {
   dispatch({
@@ -383,6 +384,7 @@ export const doSaveMembershipRestrictionsForContent = (
       claim_id: contentClaimId,
       membership_ids: commaSeperatedMembershipIds,
       channel_id: channelClaimId,
+      claim_name: contentClaimName,
     },
     'post'
   )
