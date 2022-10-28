@@ -93,7 +93,7 @@ function HomeTab(props: Props) {
   */
 
   function handleEditCollection(e, index) {
-    e.target.blur();
+    // e.target.blur();
     let newHome = [...home];
     if (e.order) {
       if (e.order.to >= newHome.length) {
