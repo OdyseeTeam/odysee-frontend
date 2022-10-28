@@ -366,7 +366,8 @@ export const doSaveMembershipRestrictionsForContent = (
   channelClaimId: string,
   contentClaimId: string,
   contentClaimName: string,
-  commaSeperatedMembershipIds: string
+  commaSeperatedMembershipIds: string,
+  pendingClaim: ?boolean
 ) => async (dispatch: Dispatch) => {
   dispatch({
     type: ACTIONS.SET_MEMBERSHIP_TIERS_FOR_CONTENT_STARTED,
@@ -385,6 +386,7 @@ export const doSaveMembershipRestrictionsForContent = (
       membership_ids: commaSeperatedMembershipIds,
       channel_id: channelClaimId,
       claim_name: contentClaimName,
+      pending_claim: pendingClaim,
     },
     'post'
   )
