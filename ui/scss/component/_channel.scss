@@ -46,6 +46,15 @@ $actions-z-index: 2;
     background-color: unset;
     transition: padding-left 0.2s;
 
+    .tab {
+      &[aria-selected='true'] {
+        &:after {
+          height: 8px;
+          background-color: var(--color-link);
+        }
+      }
+    }
+
     @media (max-width: $breakpoint-small) {
       width: 100%;
       padding: var(--spacing-s) var(--spacing-xs);

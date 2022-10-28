@@ -294,11 +294,8 @@ function ChannelPage(props: Props) {
               {!(isBlocked || isMuted) && (!channelIsBlackListed || isSubscribed) && (
                 <SubscribeButton uri={permanentUrl} />
               )}
-              {/* TODO: add channel collections <ClaimCollectionAddButton uri={uri} fileAction /> */}
               <ClaimMenuList uri={claim.permanent_url} inline />
             </div>
-            {/* cover && <img className={classnames('channel-cover__custom')} src={PlaceholderTx} /> */}
-            {/* cover && <OptimizedImage className={classnames('channel-cover__custom')} src={cover} /> */}
             <div className="channel__primary-info">
               <h1 className="channel__title">
                 <TruncatedText text={title || (channelName && '@' + channelName)} lines={2} showTooltip />
@@ -373,28 +370,33 @@ function ChannelPage(props: Props) {
                 />
               </div>
               <TabList>
-                <Tab disabled={editing} onClick={() => onTabChange(0)}>
+                <Tab disabled={editing} aria-selected={tabIndex === 0} onClick={() => onTabChange(0)}>
                   {__('Home')}
                 </Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(1)}>
+                <Tab disabled={editing} aria-selected={tabIndex === 1} onClick={() => onTabChange(1)}>
                   {__('Content')}
                 </Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(2)}>
+                <Tab disabled={editing} aria-selected={tabIndex === 2} onClick={() => onTabChange(2)}>
                   {__('Playlists')}
                 </Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(3)}>
+                <Tab disabled={editing} aria-selected={tabIndex === 3} onClick={() => onTabChange(3)}>
                   {__('Channels')}
                 </Tab>
-                <Tab className="tab--membership" disabled={editing || isOdyseeChannel} onClick={() => onTabChange(4)}>
+                <Tab
+                  className="tab--membership"
+                  aria-selected={tabIndex === 4}
+                  disabled={editing || isOdyseeChannel}
+                  onClick={() => onTabChange(4)}
+                >
                   {__('Membership')}
                 </Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(5)}>
+                <Tab disabled={editing} aria-selected={tabIndex === 5} onClick={() => onTabChange(5)}>
                   {__('Community')}
                 </Tab>
-                <Tab onClick={() => onTabChange(6)}>
+                <Tab aria-selected={tabIndex === 6} onClick={() => onTabChange(6)}>
                   {editing ? __('Editing Your Channel') : __('About --[tab title in Channel Page]--')}
                 </Tab>
-                <Tab disabled={editing} onClick={() => onTabChange(7)}>
+                <Tab aria-selected={tabIndex === 7} disabled={editing} onClick={() => onTabChange(7)}>
                   {channelIsMine && __('Settings')}
                 </Tab>
               </TabList>
