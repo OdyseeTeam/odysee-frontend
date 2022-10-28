@@ -585,19 +585,13 @@ $actions-z-index: 2;
 .channel__thumbnail--channel-page-fixed {
   height: 50px;
   width: 50px;
-  // left: calc((100% - var(--page-max-width)) / 2);
   top: -1.6rem;
 
-  @media (min-width: $breakpoint-large) {
-    // height: calc(var(--header-height-mobile) - var(--spacing-m));
-    // width: calc(var(--header-height-mobile) - var(--spacing-m));
-    // left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
-    // left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
-    left: calc((100% - var(--page-max-width)) / 2);
-  }
-  @media (min-width: $breakpoint-medium) and (max-width: $breakpoint-large) {
-    // left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
+  @media (min-width: 1449px) {
     left: calc((100% - (var(--page-max-width))) / 2);
+  }
+  @media (min-width: $breakpoint-medium) and (max-width: 1449px) {
+    left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
 
   @media (min-width: $breakpoint-small) and (max-width: $breakpoint-medium) {
