@@ -753,6 +753,9 @@ $actions-z-index: 2;
       color: var(--color-primary);
     }
   }
+  @media (max-width: $breakpoint-small) {
+    right: var(--spacing-xs);
+  }
 }
 
 .channel__quick-actions {
