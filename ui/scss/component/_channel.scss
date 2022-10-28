@@ -558,6 +558,7 @@ $actions-z-index: 2;
   box-shadow: 0 3px 6px 0 var(--color-shadow), 0 4px 10px 0 rgba(0, 0, 0, 0.6);
   z-index: 11;
   transition: width 0.2s, height 0.2s, top 0.2s;
+  background-color: var(--color-header-background);
 
   @media (max-width: $breakpoint-large) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
@@ -630,7 +631,6 @@ $actions-z-index: 2;
   width: 100%;
   object-fit: cover;
   font-size: 1px; // To hide the alt text on firefox;
-  background-color: var(--color-header-background);
 }
 
 .channel-thumbnail__default {
