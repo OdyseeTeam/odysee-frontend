@@ -163,6 +163,7 @@ function HomeTabSection(props: Props) {
               <option value="content">{__('Content')}</option>
               <option value="playlists">{__('Playlists')}</option>
               <option value="playlist">{__('Playlist')}</option>
+              {/* <option value="channels">{__('Channels')}</option> */}
               {/* <option value="reposts">{__('Reposts')}</option> */}
             </select>
           </div>

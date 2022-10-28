@@ -11,7 +11,8 @@ import {
   selectNameForCollectionId,
   selectMyPublishedCollections,
 } from 'redux/selectors/collections';
-
+import { SECTION_TAGS } from 'constants/collections';
+import { CsOptions } from 'util/claim-search';
 import HomeTabSection from './view';
 
 const select = (state, props) => {
@@ -22,6 +23,9 @@ const select = (state, props) => {
     stream_types: props.section.file_type ? [props.section.file_type] : undefined,
     claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
     order_by: props.section.type !== 'featured' ? props.section.order_by : ['effective_amount'],
+    not_tags:
+      props.section.type === 'playlists' ? CsOptions.not_tags([SECTION_TAGS.FEATURED_CHANNELS]) : CsOptions.not_tags(),
+    any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
   };
 

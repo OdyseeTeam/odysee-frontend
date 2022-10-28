@@ -70,7 +70,6 @@ function ContentTab(props: Props) {
     activeLivestreamInitialized,
     hasPremiumPlus,
   } = props;
-  // const claimsInChannel = (claim && claim.meta.claims_in_channel) || 0;
 
   const claimsInChannel = 9999;
   const [searchQuery, setSearchQuery] = React.useState('');
@@ -219,7 +218,7 @@ function ContentTab(props: Props) {
             isChannel
             channelIsMine={channelIsMine}
             empty={isSearching ? ' ' : empty}
-            notTags={claimType === 'collection' ? SECTION_TAGS.FEATURED_CHANNELS : undefined}
+            notTags={claimType === 'collection' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined}
             csOptionsHook={tagSearchCsOptionsHook}
           />
         </ClaimSearchFilterContext.Provider>

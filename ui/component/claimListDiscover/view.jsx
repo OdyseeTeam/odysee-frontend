@@ -669,9 +669,13 @@ function ClaimListDiscover(props: Props) {
   React.useEffect(() => {
     if (shouldPerformSearch) {
       const searchOptions = JSON.parse(optionsStringForEffect);
+      console.log('searchOptions: ', searchOptions);
       doClaimSearch(searchOptions);
     }
   }, [doClaimSearch, shouldPerformSearch, optionsStringForEffect, forceRefresh]);
+
+  // console.log('searchOptions: ', optionsStringForEffect)
+  // console.log('claimSearchByQuery: ', claimSearchByQuery)
 
   const headerToUse = header || (
     <ClaimListHeader

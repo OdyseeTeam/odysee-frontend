@@ -273,7 +273,6 @@ function ChannelPage(props: Props) {
     );
   }
 
-  console.log(window.innerWidth);
   return (
     <Page className="channelPage-wrapper" noFooter fullWidthPage>
       <ChannelPageContext.Provider value>
