@@ -1,12 +1,11 @@
 import { connect } from 'react-redux';
 import PlaylistCard from './view';
-import { selectClaimForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectChannelNameForId } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
   selectCollectionTitleForId,
   selectCollectionIsMine,
-  selectIsCollectionPrivateForId,
-  selectPublishedCollectionChannelNameForId,
+  selectHasPrivateCollectionForId,
   selectIndexForUrlInCollection,
   selectCollectionLengthForId,
   selectCollectionIsEmptyForId,
@@ -35,8 +34,8 @@ const select = (state, props) => {
     collectionUrls: selectUrlsForCollectionId(state, collectionId),
     collectionName: selectCollectionTitleForId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
-    isPrivateCollection: selectIsCollectionPrivateForId(state, collectionId),
-    publishedCollectionName: selectPublishedCollectionChannelNameForId(state, collectionId),
+    isPrivateCollection: selectHasPrivateCollectionForId(state, collectionId),
+    publishedCollectionName: selectChannelNameForId(state, collectionId),
     playingItemIndex: selectIndexForUrlInCollection(state, playingItemUrl, playingCollectionId, true),
     collectionLength: selectCollectionLengthForId(state, collectionId),
     collectionEmpty: selectCollectionIsEmptyForId(state, collectionId),

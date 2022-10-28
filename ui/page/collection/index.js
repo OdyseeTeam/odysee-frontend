@@ -1,16 +1,14 @@
 import { connect } from 'react-redux';
 
-import { selectHasClaimForId, selectIsResolvingForId } from 'redux/selectors/claims';
+import { selectHasClaimForId } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
-  selectUrlsForCollectionId,
-  selectAreCollectionItemsFetchingForId,
   selectBrokenUrlsForCollectionId,
   selectCollectionIsMine,
-  selectClaimIdsForCollectionId,
+  selectHasPrivateCollectionForId,
 } from 'redux/selectors/collections';
 
-import { doFetchItemsInCollection } from 'redux/actions/collections';
+import { doResolveClaimId } from 'redux/actions/claims';
 
 import CollectionPage from './view';
 
@@ -23,17 +21,14 @@ const select = (state, props) => {
     collectionId,
     hasClaim: selectHasClaimForId(state, collectionId),
     collection: selectCollectionForId(state, collectionId),
-    collectionUrls: selectUrlsForCollectionId(state, collectionId),
     brokenUrls: selectBrokenUrlsForCollectionId(state, collectionId),
-    isResolvingCollection: selectAreCollectionItemsFetchingForId(state, collectionId),
-    isResolving: selectIsResolvingForId(state, collectionId),
     isCollectionMine: selectCollectionIsMine(state, collectionId),
-    collectionClaimsIds: selectClaimIdsForCollectionId(state, collectionId),
+    isPrivate: selectHasPrivateCollectionForId(state, collectionId),
   };
 };
 
 const perform = {
-  doFetchItemsInCollection,
+  doResolveClaimId,
 };
 
 export default connect(select, perform)(CollectionPage);

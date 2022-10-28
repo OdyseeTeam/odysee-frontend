@@ -1,51 +1,49 @@
 // @flow
 import { handleActions } from 'util/redux-utils';
 import { getCurrentTimeInSec } from 'util/time';
+import { defaultCollectionState } from 'util/collections';
 import * as ACTIONS from 'constants/action_types';
 import * as COLS from 'constants/collections';
 
 const defaultState: CollectionState = {
+  // -- sync --
   builtin: {
     watchlater: {
-      items: [],
-      itemCount: 0,
+      ...defaultCollectionState,
       id: COLS.WATCH_LATER_ID,
       name: COLS.WATCH_LATER_NAME,
-      createdAt: undefined,
-      updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPES.PLAYLIST,
     },
     favorites: {
-      items: [],
-      itemCount: 0,
+      ...defaultCollectionState,
       id: COLS.FAVORITES_ID,
       name: COLS.FAVORITES_NAME,
-      createdAt: undefined,
-      updatedAt: getCurrentTimeInSec(),
       type: COLS.COL_TYPES.PLAYLIST,
     },
   },
-  resolved: {},
-  unpublished: {}, // sync
-  lastUsedCollection: undefined,
+  unpublished: {},
   edited: {},
   updated: {},
-  pending: {},
   savedIds: [],
+  // -- local --
+  isFetchingMyCollections: undefined,
+  lastUsedCollection: undefined,
   collectionItemsFetchingIds: [],
-  error: null,
   queue: {
-    items: [],
-    itemCount: 0,
+    ...defaultCollectionState,
     id: COLS.QUEUE_ID,
     name: COLS.QUEUE_NAME,
-    updatedAt: getCurrentTimeInSec(),
     type: COLS.COL_TYPES.PLAYLIST,
   },
+  resolvedIds: undefined,
+  shuffleListItems: null,
 };
 
 const collectionsReducer = handleActions(
   {
+    [ACTIONS.COLLECTION_LIST_MINE_STARTED]: (state) => ({ ...state, isFetchingMyCollections: true }),
+    [ACTIONS.COLLECTION_LIST_MINE_COMPLETE]: (state) => ({ ...state, isFetchingMyCollections: false }),
+
     [ACTIONS.COLLECTION_NEW]: (state, action) => {
       const { entry: params } = action.data; // { id:, items: Array<string>}
       const currentTime = getCurrentTimeInSec();
@@ -55,7 +53,7 @@ const collectionsReducer = handleActions(
         id: params.id,
         name: params.name,
         items: [],
-        itemCount: 0,
+        itemCount: params.items.length,
         createdAt: currentTime,
         updatedAt: currentTime,
         type: params.type,
@@ -73,92 +71,54 @@ const collectionsReducer = handleActions(
     },
 
     [ACTIONS.COLLECTION_TOGGLE_SAVE]: (state, action) => {
-      const { savedIds } = state;
-      const { collectionId } = action.data;
+      const collectionId = action.data;
+      const newSavedIds = new Set(state.savedIds);
 
-      if (savedIds.includes(collectionId)) {
-        return { ...state, savedIds: savedIds.filter((savedId) => savedId !== collectionId) };
+      if (newSavedIds.has(collectionId)) {
+        newSavedIds.delete(collectionId);
       } else {
-        return { ...state, savedIds: [...savedIds, collectionId] };
+        newSavedIds.add(collectionId);
       }
+
+      return { ...state, savedIds: Array.from(newSavedIds) };
     },
 
+    [ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS]: (state, action) => {
+      const collectionId = action.data;
+
+      const newEditList = Object.assign({}, state.edited);
+      const newUnpublishedList = Object.assign({}, state.unpublished);
+      const newUpdatedList = Object.assign({}, state.updated);
+      if (newEditList[collectionId]) delete newEditList[collectionId];
+      if (newUnpublishedList[collectionId]) delete newUnpublishedList[collectionId];
+      if (newUpdatedList[collectionId]) delete newUpdatedList[collectionId];
+
+      return { ...state, edited: newEditList, unpublished: newUnpublishedList, updated: newUpdatedList };
+    },
     [ACTIONS.COLLECTION_DELETE]: (state, action) => {
-      const { edited: editList, unpublished: unpublishedList, pending: pendingList, lastUsedCollection } = state;
       const { id, collectionKey } = action.data;
 
-      const newEditList = Object.assign({}, editList);
-      const newPendingList = Object.assign({}, pendingList);
-      const newUnpublishedList = Object.assign({}, unpublishedList);
-
-      const collectionsForKey = state[collectionKey];
-      const collectionForId = collectionsForKey && collectionsForKey[id];
-      const isDeletingLastUsedCollection = lastUsedCollection === id;
-
-      if (collectionForId) {
-        const newList = Object.assign({}, state[collectionKey]);
-        delete newList[id];
-        return {
-          ...state,
-          [collectionKey]: newList,
-          lastUsedCollection: isDeletingLastUsedCollection ? undefined : lastUsedCollection,
-        };
-      } else if (collectionKey === 'all') {
-        delete newEditList[id];
-        delete newUnpublishedList[id];
-        delete newPendingList[id];
-      } else {
-        if (newEditList[id]) {
-          delete newEditList[id];
-        } else if (newUnpublishedList[id]) {
-          delete newUnpublishedList[id];
-        } else if (newPendingList[id]) {
-          delete newPendingList[id];
-        }
-      }
-      return {
-        ...state,
-        edited: newEditList,
-        unpublished: newUnpublishedList,
-        pending: newPendingList,
-        lastUsedCollection: isDeletingLastUsedCollection ? undefined : lastUsedCollection,
-      };
-    },
-
-    [ACTIONS.COLLECTION_PENDING]: (state, action) => {
-      const { localId, claimId } = action.data;
-      const { resolved: resolvedList, edited: editList, unpublished: unpublishedList, pending: pendingList } = state;
-
-      const newEditList = Object.assign({}, editList);
-      const newResolvedList = Object.assign({}, resolvedList);
-      const newUnpublishedList = Object.assign({}, unpublishedList);
-      const newPendingList = Object.assign({}, pendingList);
-
-      if (localId) {
-        // new publish
-        newPendingList[claimId] = Object.assign({}, newUnpublishedList[localId] || {});
-        delete newUnpublishedList[localId];
-      } else {
-        // edit update
-        newPendingList[claimId] = Object.assign({}, newEditList[claimId] || newResolvedList[claimId]);
-        delete newEditList[claimId];
-      }
+      const collectionsByIdForKey = Object.assign({}, state[collectionKey]);
+      delete collectionsByIdForKey[id];
 
       return {
         ...state,
-        edited: newEditList,
-        unpublished: newUnpublishedList,
-        pending: newPendingList,
-        lastUsedCollection: claimId,
+        [collectionKey]: collectionsByIdForKey,
+        lastUsedCollection: state.lastUsedCollection === id ? undefined : state.lastUsedCollection,
       };
     },
 
     [ACTIONS.QUEUE_EDIT]: (state, action) => {
-      const { collectionKey, collection } = action.data;
+      const { collection } = action.data;
 
-      const { [collectionKey]: currentQueue } = state;
+      const newQueue = Object.assign({}, state.queue, collection, { updatedAt: getCurrentTimeInSec() });
 
-      return { ...state, queue: { ...currentQueue, ...collection, updatedAt: getCurrentTimeInSec() } };
+      return { ...state, queue: newQueue };
+    },
+    [ACTIONS.QUEUE_CLEAR]: (state) => {
+      const newQueue = Object.assign({}, state.queue, { items: [], updatedAt: getCurrentTimeInSec() });
+
+      return { ...state, queue: newQueue };
     },
 
     [ACTIONS.COLLECTION_EDIT]: (state, action) => {
@@ -177,25 +137,6 @@ const collectionsReducer = handleActions(
       };
     },
 
-    [ACTIONS.COLLECTION_ERROR]: (state, action) => {
-      return Object.assign({}, state, {
-        error: action.data.message,
-      });
-    },
-
-    [ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED]: (state, action) => {
-      const { ids } = action.data;
-      const { collectionItemsFetchingIds } = state;
-
-      const newIds = new Set(ids);
-      const newCollectionItemsFetchingIds = new Set(collectionItemsFetchingIds);
-
-      return {
-        ...state,
-        error: '',
-        collectionItemsFetchingIds: [...Array.from(newCollectionItemsFetchingIds), ...Array.from(newIds)],
-      };
-    },
     [ACTIONS.USER_STATE_POPULATE]: (state, action) => {
       const {
         builtinCollections,
@@ -215,102 +156,60 @@ const collectionsReducer = handleActions(
       };
     },
 
-    // TODO: collections claims should be handled like regular claims to avoid copy pasting code across reducers
-    [ACTIONS.CLAIM_SEARCH_COLLECTION_COMPLETED]: (state, action) => {
-      const { resolveInfo } = action.data;
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_START]: (state, action) => {
+      const collectionId = action.data;
 
-      const newResolved = Object.assign({}, state.resolved);
+      const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
+      newCollectionItemsFetchingIds.add(collectionId);
 
-      Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
-        // $FlowFixMe
-        const claim = resolveResponse.stream;
-
-        if (newResolved[claim.claim_id]) return;
-
-        const { name, timestamp, value } = claim || {};
-        const { title, description, thumbnail, claims } = value || {};
-
-        newResolved[claim.claim_id] = {
-          id: claim.claim_id,
-          name: title || name,
-          items: claims,
-          itemCount: claims.length,
-          createdAt: claim.meta?.creation_timestamp,
-          updatedAt: timestamp,
-          description,
-          thumbnail,
-        };
-      });
-
-      return { ...state, resolved: newResolved };
+      return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
     },
-    [ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED]: (state, action) => {
-      const { resolvedPrivateCollectionIds, resolvedCollections, failedCollectionIds } = action.data;
-      const { pending, edited, collectionItemsFetchingIds, resolved, updated } = state;
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS]: (state, action) => {
+      const { resolvedCollections } = action.data;
 
-      const resolvedFiltered = {};
-      const editedResolved = {};
-      Object.entries(resolvedCollections).forEach(([key, val]) => {
-        // $FlowFixMe
-        if (val.key !== 'edited') {
-          resolvedFiltered[key] = val;
-        } else {
-          editedResolved[key] = val;
-        }
-      });
+      const newEdited = Object.assign({}, state.edited);
+      const newUnpublished = Object.assign({}, state.unpublished);
+      const newUpdated = Object.assign({}, state.updated);
+      const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
+      const newResolvedIds = new Set(state.resolvedIds);
 
-      const newPending = Object.assign({}, pending);
-      const newResolved = Object.assign({}, resolved, resolvedFiltered);
-      const newEdited = Object.assign({}, edited, editedResolved);
+      for (const id in resolvedCollections) {
+        const collection = Object.assign({}, resolvedCollections[id]);
 
-      const resolvedIds = Object.keys(resolvedCollections);
-      const newCollectionItemsFetchingIds = new Set(collectionItemsFetchingIds);
-      if (resolvedCollections && Object.keys(resolvedCollections).length) {
-        resolvedIds.forEach((resolvedId) => {
-          if (updated[resolvedId]) {
-            if (updated[resolvedId]['updatedAt'] < resolvedCollections[resolvedId]['updatedAt']) {
-              delete updated[resolvedId];
+        if (collection.key === COLS.KEYS.EDITED) {
+          if (newEdited[id]) Object.assign(newEdited[id].items, collection.items);
+        } else if (collection.key === COLS.KEYS.UNPUBLISHED) {
+          if (newUnpublished[id]) Object.assign(newUnpublished[id].items, collection.items);
+        } else if (collection.key === COLS.KEYS.UPDATED) {
+          if (newUpdated[id]) {
+            if (newUpdated[id]['updatedAt'] < resolvedCollections[id]['updatedAt']) {
+              delete newUpdated[id];
             }
           }
-          newCollectionItemsFetchingIds.delete(resolvedId);
-          if (newPending[resolvedId]) {
-            delete newPending[resolvedId];
-          }
-        });
+        }
+
+        newCollectionItemsFetchingIds.delete(id);
+        newResolvedIds.add(id);
       }
 
-      if (failedCollectionIds && Object.keys(failedCollectionIds).length) {
-        failedCollectionIds.forEach((failedId) => {
-          newCollectionItemsFetchingIds.delete(failedId);
-        });
-      }
-
-      if (resolvedPrivateCollectionIds && resolvedPrivateCollectionIds.length > 0) {
-        resolvedPrivateCollectionIds.forEach((id) => {
-          newCollectionItemsFetchingIds.delete(id);
-        });
-      }
-
-      return Object.assign({}, state, {
+      return {
         ...state,
-        pending: newPending,
-        resolved: newResolved,
         edited: newEdited,
+        unpublished: newUnpublished,
+        updated: newUpdated,
         collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds),
-      });
+        resolvedIds: Array.from(newResolvedIds),
+      };
     },
-    [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAILED]: (state, action) => {
-      const { ids } = action.data;
-      const { collectionItemsFetchingIds } = state;
+    [ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL]: (state, action) => {
+      const collectionId = action.data;
 
-      const newCollectionItemsFetchingIds = new Set(collectionItemsFetchingIds);
-      ids.forEach((id) => newCollectionItemsFetchingIds.delete(id));
+      const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
+      if (newCollectionItemsFetchingIds.has(collectionId)) {
+        newCollectionItemsFetchingIds.delete(collectionId);
+      }
 
-      return Object.assign({}, state, {
-        ...state,
-        collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds),
-        error: action.data.message,
-      });
+      return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
     },
   },
   defaultState

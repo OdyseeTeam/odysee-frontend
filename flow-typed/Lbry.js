@@ -75,7 +75,13 @@ declare type BalanceResponse = {
 
 declare type ResolveResponse = {
   // Keys are the url(s) passed to resolve
-  [string]: { error?: {}, stream?: StreamClaim, channel?: ChannelClaim, collection?: CollectionClaim, claimsInChannel?: number },
+  [string]: {
+    error?: {},
+    stream?: StreamClaim,
+    channel?: ChannelClaim,
+    collection?: CollectionClaim,
+    claimsInChannel?: number,
+  },
 };
 
 declare type GetResponse = FileListItem & { error?: string };
@@ -113,7 +119,7 @@ declare type ClaimSearchOptions = {
   reposted?: number | string, // claims reposted this many times (supports equality constraints)
   claim_type?: string | Array<string>, // filter by 'channel', 'stream', 'repost' or 'collection'
   stream_types?: Array<string>, // filter by 'video', 'image', 'document', etc
-  media_types?: Array<string>,  // filter by 'video/mp4', 'image/png', etc
+  media_types?: Array<string>, // filter by 'video/mp4', 'image/png', etc
   fee_currency?: string, // specify fee currency: LBC, BTC, USD
   fee_amount?: number | string, // content download fee (supports equality constraints)
   duration?: number | string, // duration of video or audio in seconds (supports equality constraints)
@@ -149,7 +155,7 @@ declare type ClaimListResponse = {
 
 declare type ChannelCreateParam = {
   name: string, // name of the channel prefixed with '@'
-  bid: number,  // amount to back the claim"
+  bid: number, // amount to back the claim"
   allow_duplicate_name?: boolean, // create new channel even if one already exists with given name. default: false.
   title?: string, // title of the publication
   description?: string, // description of the publication
@@ -227,16 +233,27 @@ declare type ChannelSignResponse = {
   signing_ts: string,
 };
 
+// -- Collections --
+
+declare type CollectionPublishCreateParams = GenericPublishCreateParams & {
+  claims: Array<string>,
+};
+
+declare type CollectionPublishUpdateParams = GenericPublishUpdateParams & {
+  claims?: Array<string>,
+  clear_claims: boolean,
+};
+
 declare type CollectionCreateResponse = {
-  outputs: Array<Claim>,
+  outputs: Array<CollectionClaim>,
   page: number,
   page_size: number,
   total_items: number,
   total_pages: number,
-}
+};
 
 declare type CollectionListResponse = {
-  items: Array<Claim>,
+  items: Array<CollectionClaim>,
   page: number,
   page_size: number,
   total_items: number,
@@ -255,8 +272,11 @@ declare type CollectionResolveOptions = {
 declare type CollectionListOptions = {
   page: number,
   page_size: number,
+  resolve_claims?: number,
   resolve?: boolean,
 };
+
+// -- End Collections ---
 
 declare type FileListResponse = {
   items: Array<FileListItem>,
@@ -346,9 +366,9 @@ declare type LbryTypes = {
   alternateConnectionString: string,
   methodsUsingAlternateConnectionString: Array<string>,
   apiRequestHeaders: { [key: string]: string },
-  setDaemonConnectionString: string => void,
+  setDaemonConnectionString: (string) => void,
   setApiHeader: (string, string) => void,
-  unsetApiHeader: string => void,
+  unsetApiHeader: (string) => void,
   overrides: { [string]: ?Function },
   setOverride: (string, Function) => void,
   // getMediaType: (?string, ?string) => string,
@@ -378,8 +398,8 @@ declare type LbryTypes = {
   purchase_list: (params: PurchaseListOptions) => Promise<PurchaseListResponse>,
   collection_resolve: (params: CollectionResolveOptions) => Promise<CollectionResolveResponse>,
   collection_list: (params: CollectionListOptions) => Promise<CollectionListResponse>,
-  collection_create: (params: {}) => Promise<CollectionCreateResponse>,
-  collection_update: (params: {}) => Promise<CollectionCreateResponse>,
+  collection_create: (params: CollectionPublishCreateParams) => Promise<CollectionCreateResponse>,
+  collection_update: (params: CollectionPublishUpdateParams) => Promise<CollectionCreateResponse>,
 
   // File fetching and manipulation
   file_list: (params: {}) => Promise<FileListResponse>,

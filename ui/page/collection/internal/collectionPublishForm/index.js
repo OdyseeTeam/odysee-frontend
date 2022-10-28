@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import {
   selectHasClaimForId,
   selectClaimBidAmountForId,
-  selectIsCreatingCollectionForId,
-  selectIsUpdatingCollectionForId,
+  selectClaimIsPendingForId,
   selectClaimUriForId,
 } from 'redux/selectors/claims';
 import { selectBalance } from 'redux/selectors/wallet';
@@ -12,8 +11,7 @@ import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish'
 import { selectCollectionHasEditsForId } from 'redux/selectors/collections';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 
-import { doCollectionPublish, doCollectionPublishUpdate } from 'redux/actions/claims';
-import { doCollectionEdit, doClearEditsForCollectionId } from 'redux/actions/collections';
+import { doCollectionPublish, doCollectionEdit, doClearEditsForCollectionId } from 'redux/actions/collections';
 import { doOpenModal } from 'redux/actions/app';
 
 import CollectionPublishForm from './view';
@@ -25,8 +23,7 @@ const select = (state, props) => {
     uri: selectClaimUriForId(state, collectionId),
     hasClaim: selectHasClaimForId(state, collectionId),
     amount: selectClaimBidAmountForId(state, collectionId),
-    creatingCollection: selectIsCreatingCollectionForId(state, collectionId),
-    updatingCollection: selectIsUpdatingCollectionForId(state, collectionId),
+    isClaimPending: selectClaimIsPendingForId(state, collectionId),
     balance: selectBalance(state),
     collectionParams: selectCollectionClaimUploadParamsForId(state, collectionId),
     activeChannelClaim: selectActiveChannelClaim(state),
@@ -35,7 +32,6 @@ const select = (state, props) => {
 };
 
 const perform = {
-  doCollectionPublishUpdate,
   doCollectionPublish,
   doCollectionEdit,
   doClearEditsForCollectionId,

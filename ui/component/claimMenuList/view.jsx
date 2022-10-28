@@ -68,7 +68,6 @@ type Props = {
   isAuthenticated: boolean,
   playNextUri: string,
   resolvedList: boolean,
-  fetchCollectionItems: (string) => void,
   doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
   lastUsedCollection: ?Collection,
   hasClaimInLastUsedCollection: boolean,
@@ -122,7 +121,6 @@ function ClaimMenuList(props: Props) {
     isAuthenticated,
     playNextUri,
     resolvedList,
-    fetchCollectionItems,
     doToggleShuffleList,
     lastUsedCollection,
     hasClaimInLastUsedCollection,
@@ -155,12 +153,6 @@ function ClaimMenuList(props: Props) {
     : __('Follow');
 
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
-
-  const fetchItems = React.useCallback(() => {
-    if (collectionId) {
-      fetchCollectionItems(collectionId);
-    }
-  }, [collectionId, fetchCollectionItems]);
 
   React.useEffect(() => {
     if (doShuffle && resolvedList) {
@@ -345,7 +337,6 @@ function ClaimMenuList(props: Props) {
                 <MenuItem
                   className="comment__menu-option"
                   onSelect={() => {
-                    if (!resolvedList) fetchItems();
                     setDoShuffle(true);
                   }}
                 >
@@ -424,7 +415,9 @@ function ClaimMenuList(props: Props) {
                     {/* CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES */}
                     <MenuItem
                       className="comment__menu-option"
-                      onSelect={() => openModal(MODALS.COLLECTION_ADD, { uri, type: COL_TYPES.PLAYLIST })}
+                      onSelect={() =>
+                        openModal(MODALS.COLLECTION_ADD, { uri: contentClaim?.permanent_url, type: COL_TYPES.PLAYLIST })
+                      }
                     >
                       <div className="menu__link">
                         <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />

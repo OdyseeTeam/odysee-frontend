@@ -1,26 +1,31 @@
 import { connect } from 'react-redux';
-import { selectIsUriResolving, selectTitleForUri, selectClaimIdForUri } from 'redux/selectors/claims';
 import {
-  selectUrlsForCollectionId,
+  selectIsResolvingForId,
+  selectTitleForUri,
+  selectClaimIdForUri,
+  selectClaimForClaimId,
+} from 'redux/selectors/claims';
+import {
+  selectThumbnailClaimUrisForCollectionId,
   selectCollectionTitleForId,
   selectCountForCollectionId,
   selectAreCollectionItemsFetchingForId,
   selectFirstItemUrlForCollection,
   selectUpdatedAtForCollectionId,
   selectCreatedAtForCollectionId,
-  selectPublishedCollectionClaimForId,
   selectIsCollectionBuiltInForId,
   selectThumbnailForCollectionId,
   selectCollectionIsEmptyForId,
   selectCollectionTypeForId,
 } from 'redux/selectors/collections';
+import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { getChannelFromClaim } from 'util/claim';
 import CollectionPreview from './view';
 
 const select = (state, props) => {
   const { collectionId: propCollectionId, uri } = props;
   const collectionId = propCollectionId || (uri && selectClaimIdForUri(state, uri));
-  const claim = selectPublishedCollectionClaimForId(state, collectionId);
+  const claim = selectClaimForClaimId(state, collectionId);
   const channel = getChannelFromClaim(claim);
   const collectionUri = uri || (claim && (claim.canonical_url || claim.permanent_url)) || null;
   let channelTitle = null;
@@ -38,10 +43,10 @@ const select = (state, props) => {
     uri: collectionUri,
     collectionCount: selectCountForCollectionId(state, collectionId),
     collectionName: selectCollectionTitleForId(state, collectionId),
-    collectionItemUrls: selectUrlsForCollectionId(state, collectionId), // ForId || ForUri
+    collectionItemUrls: selectThumbnailClaimUrisForCollectionId(state, collectionId), // ForId || ForUri
     collectionType: selectCollectionTypeForId(state, collectionId),
-    isResolvingCollectionClaims: selectAreCollectionItemsFetchingForId(state, collectionId),
-    isResolvingUri: collectionUri && selectIsUriResolving(state, collectionUri),
+    isFetchingItems: selectAreCollectionItemsFetchingForId(state, collectionId),
+    isResolvingCollection: selectIsResolvingForId(state, collectionId),
     title: collectionUri && selectTitleForUri(state, collectionUri),
     channel,
     channelTitle,
@@ -55,4 +60,8 @@ const select = (state, props) => {
   };
 };
 
-export default connect(select)(CollectionPreview);
+const perform = {
+  doFetchItemsInCollection,
+};
+
+export default connect(select, perform)(CollectionPreview);

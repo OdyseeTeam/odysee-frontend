@@ -1,10 +1,46 @@
 // @flow
 import { COL_TYPES, SECTION_TAGS } from 'constants/collections';
+import { getCurrentTimeInSec } from 'util/time';
+
+export const defaultCollectionState: Collection = {
+  id: '',
+  name: '',
+  title: '',
+  items: [],
+  itemCount: 0,
+  createdAt: getCurrentTimeInSec(),
+  updatedAt: getCurrentTimeInSec(),
+  type: 'collection',
+};
+
+export function getClaimIdsInCollectionClaim(claim: ?CollectionClaim) {
+  if (!claim) return claim;
+  return claim.value.claims || (claim.claims && claim.claims.map((claim) => claim.claim_id)) || [];
+}
+
+export function claimToStoredCollection(claim: CollectionClaim) {
+  const storedCollection: Collection = Object.assign({}, defaultCollectionState);
+
+  const claimIds = getClaimIdsInCollectionClaim(claim);
+
+  Object.assign(storedCollection, {
+    id: claim.claim_id,
+    name: claim.value.title,
+    title: claim.value.title,
+    items: claimIds,
+    itemCount: claimIds.length,
+    description: claim.value.description,
+    thumbnail: claim.value.thumbnail,
+    createdAt: claim.meta.creation_timestamp,
+    updatedAt: claim.timestamp,
+    type: resolveCollectionType(claim.value.tags),
+  });
+
+  return storedCollection;
+}
 
 export const getItemCountForCollection = (collection: Collection) => {
   if (!collection) return collection;
-
-  if (Number.isInteger(collection.itemCount)) return collection.itemCount;
 
   return collection.items && collection.items.length;
 };
@@ -24,8 +60,8 @@ export const getItemCountForCollection = (collection: Collection) => {
  */
 export function resolveCollectionType(
   tags: ?Array<string>,
-  valueTypes: Set<string>,
-  streamTypes: Set<string>
+  valueTypes: Set<string> = new Set(),
+  streamTypes: Set<string> = new Set()
 ): CollectionType {
   if (
     valueTypes.size === 1 &&

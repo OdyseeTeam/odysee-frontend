@@ -11,6 +11,7 @@
 import * as ACTIONS from 'constants/action_types';
 import mergeClaim from 'util/merge-claim';
 import { getChannelIdFromClaim } from 'util/claim';
+import { claimToStoredCollection } from 'util/collections';
 
 type State = {
   createChannelError: ?string,
@@ -18,15 +19,16 @@ type State = {
   claimsByUri: { [string]: string },
   byId: { [string]: Claim },
   pendingById: { [string]: Claim }, // keep pending claims
+  resolvingIds: Array<string>,
   resolvingUris: Array<string>,
   reflectingById: { [string]: ReflectingUpdate },
   myClaims: ?Array<string>,
   myChannelClaimsById: ?{ [channelClaimId: string]: ChannelClaim },
-  myCollectionClaims: ?Array<string>,
+  resolvedCollectionsById: { [collectionClaimId: string]: Collection },
+  myCollectionClaimIds: ?Array<string>,
   abandoningById: { [string]: boolean },
   fetchingChannelClaims: { [string]: number },
   fetchingMyChannels: boolean,
-  isFetchingMyCollections: boolean,
   fetchingClaimSearchByQuery: { [string]: boolean },
   purchaseUriSuccess: boolean,
   myPurchases: ?Array<string>,
@@ -37,8 +39,6 @@ type State = {
   claimSearchByQuery: { [string]: Array<string> },
   claimSearchByQueryLastPageReached: { [string]: Array<boolean> },
   creatingChannel: boolean,
-  creatingCollectionIds: Array<string>,
-  updatingCollectionIds: Array<string>,
   paginatedClaimsByChannel: {
     [string]: {
       all: Array<string>,
@@ -74,8 +74,10 @@ const defaultState = {
   channelClaimCounts: {},
   fetchingChannelClaims: {},
   resolvingUris: [],
+  resolvingIds: [],
   myChannelClaimsById: undefined,
-  myCollectionClaims: undefined,
+  resolvedCollectionsById: {},
+  myCollectionClaimIds: undefined,
   myClaims: undefined,
   myPurchases: undefined,
   myPurchasesPageNumber: undefined,
@@ -84,7 +86,6 @@ const defaultState = {
   fetchingMyPurchases: false,
   fetchingMyPurchasesError: undefined,
   fetchingMyChannels: false,
-  isFetchingMyCollections: false,
   abandoningById: {},
   pendingById: {},
   reflectingById: {},
@@ -96,8 +97,6 @@ const defaultState = {
   updatingChannel: false,
   creatingChannel: false,
   createChannelError: undefined,
-  creatingCollectionIds: [],
-  updatingCollectionIds: [],
   pendingChannelImport: false,
   repostLoading: false,
   repostError: undefined,
@@ -231,8 +230,10 @@ function handleClaimAction(state: State, action: any): State {
   const channelClaimCounts = Object.assign({}, state.channelClaimCounts);
   const pendingById = state.pendingById;
   let newResolvingUrls = new Set(state.resolvingUris);
-  let myClaimIds = new Set(state.myClaims);
-  const newMyCollectionClaims = new Set(state.myCollectionClaims);
+  const myClaimIds = new Set(state.myClaims);
+  const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+  let newMyCollectionClaimIds =
+    state.myCollectionClaimIds && new Set(state.myCollectionClaimIds) && new Set(state.myCollectionClaimIds);
 
   Object.entries(resolveInfo).forEach(([url, resolveResponse]) => {
     // $FlowFixMe
@@ -257,11 +258,19 @@ function handleClaimAction(state: State, action: any): State {
       newResolvingUrls.delete(stream.canonical_url);
       newResolvingUrls.delete(stream.permanent_url);
 
+      if (stream.value_type === 'collection') {
+        if (!newResolvedCollectionsById[stream.claim_id]) {
+          // $FlowFixMe
+          newResolvedCollectionsById[stream.claim_id] = claimToStoredCollection(stream);
+        }
+      }
+
       if (selectClaimIsMine(state, stream)) {
         myClaimIds.add(stream.claim_id);
 
         if (stream.value_type === 'collection') {
-          newMyCollectionClaims.add(stream.claim_id);
+          if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
+          newMyCollectionClaimIds.add(stream.claim_id);
         }
       }
     }
@@ -307,9 +316,14 @@ function handleClaimAction(state: State, action: any): State {
       newResolvingUrls.delete(collection.canonical_url);
       newResolvingUrls.delete(collection.permanent_url);
 
+      // $FlowFixMe
+      newResolvedCollectionsById[collection.claim_id] = claimToStoredCollection(collection);
+
       if (selectClaimIsMine(state, collection)) {
         myClaimIds.add(collection.claim_id);
-        newMyCollectionClaims.add(stream.claim_id);
+
+        if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
+        newMyCollectionClaimIds.add(collection.claim_id);
       }
     }
 
@@ -324,7 +338,8 @@ function handleClaimAction(state: State, action: any): State {
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     channelClaimCounts,
     resolvingUris: Array.from(newResolvingUrls),
-    myCollectionClaims: Array.from(newMyCollectionClaims),
+    resolvedCollectionsById: newResolvedCollectionsById,
+    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
     ...(!state.myClaims || myClaimIds.size !== state.myClaims.length ? { myClaims: Array.from(myClaimIds) } : {}),
   });
 }
@@ -336,11 +351,20 @@ function handleClaimAction(state: State, action: any): State {
 reducers[ACTIONS.RESOLVE_URIS_START] = (state: State, action: any): State => {
   const { uris }: { uris: Array<string> } = action.data;
 
-  const newResolvingUris = new Set(state.resolvingUris);
-  uris.forEach((uri) => newResolvingUris.add(uri));
+  const oldResolving = state.resolvingUris || [];
+  const newResolving = oldResolving.slice();
 
-  return { ...state, resolvingUris: Array.from(newResolvingUris) };
+  uris.forEach((uri) => {
+    if (!newResolving.includes(uri)) {
+      newResolving.push(uri);
+    }
+  });
+
+  return Object.assign({}, state, {
+    resolvingUris: newResolving,
+  });
 };
+
 reducers[ACTIONS.RESOLVE_URIS_SUCCESS] = (state: State, action: any): State => {
   return {
     ...handleClaimAction(state, action),
@@ -370,11 +394,18 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
   const byUriDelta = {};
   const pendingByIdDelta = {};
 
-  let myClaimIds = new Set(state.myClaims);
+  const myClaimIds = new Set(state.myClaims);
+  const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+  let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
   let urlsForCurrentPage = [];
 
   claims.forEach((claim: Claim) => {
-    const { permanent_url: permanentUri, claim_id: claimId, canonical_url: canonicalUri } = claim;
+    const {
+      permanent_url: permanentUri,
+      claim_id: claimId,
+      canonical_url: canonicalUri,
+      value_type: valueType,
+    } = claim;
     if (claim.type && claim.type.match(/claim|update/)) {
       urlsForCurrentPage.push(permanentUri);
 
@@ -393,12 +424,22 @@ reducers[ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED] = (state: State, action: any):
       updateIfValueChanged(state.claimsByUri, byUriDelta, permanentUri, claimId);
       updateIfValueChanged(state.claimsByUri, byUriDelta, canonicalUri, claimId);
       myClaimIds.add(claimId);
+
+      if (valueType === 'collection') {
+        // $FlowFixMe
+        newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
+
+        if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
+        newMyCollectionClaimIds.add(claimId);
+      }
     }
   });
 
   return Object.assign({}, state, {
     isFetchingClaimListMine: false,
     myClaims: Array.from(myClaimIds),
+    resolvedCollectionsById: newResolvedCollectionsById,
+    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById: resolveDelta(state.pendingById, pendingByIdDelta),
     claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
@@ -469,60 +510,6 @@ reducers[ACTIONS.FETCH_CHANNEL_LIST_FAILED] = (state: State, action: any): State
   return Object.assign({}, state, {
     fetchingMyChannels: false,
   });
-};
-
-reducers[ACTIONS.FETCH_COLLECTION_LIST_STARTED] = (state: State): State => ({
-  ...state,
-  isFetchingMyCollections: true,
-});
-
-reducers[ACTIONS.FETCH_COLLECTION_LIST_COMPLETED] = (state: State, action: any): State => {
-  const { claims }: { claims: Array<CollectionClaim> } = action.data;
-  const pendingByIdDelta = {};
-  const byIdDelta = {};
-  const byUriDelta = {};
-
-  const newMyCollectionClaims = new Set(state.myCollectionClaims);
-  const newMyClaims = new Set(state.myCollectionClaims);
-
-  if (claims.length) {
-    claims.forEach((claim) => {
-      const { canonical_url: canonicalUrl, permanent_url: permanentUrl, claim_id: claimId, confirmations } = claim;
-
-      updateIfValueChanged(state.claimsByUri, byUriDelta, canonicalUrl, claimId);
-      updateIfValueChanged(state.claimsByUri, byUriDelta, permanentUrl, claimId);
-
-      // we don't want to overwrite a pending result with a resolve
-      if (confirmations < 1) {
-        pendingByIdDelta[claimId] = claim;
-
-        if (state.byId[claimId]) {
-          byIdDelta[claimId] = mergeClaim(claim, state.byId[claimId]);
-        } else {
-          byIdDelta[claimId] = claim;
-        }
-      } else {
-        updateIfClaimChanged(state.byId, byIdDelta, claimId, claim);
-      }
-
-      newMyCollectionClaims.add(claimId);
-      newMyClaims.add(claimId);
-    });
-  }
-
-  return {
-    ...state,
-    byId: resolveDelta(state.byId, byIdDelta),
-    pendingById: resolveDelta(state.pendingById, pendingByIdDelta),
-    claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
-    isFetchingMyCollections: false,
-    myCollectionClaims: Array.from(newMyCollectionClaims),
-    myClaims: Array.from(newMyClaims),
-  };
-};
-
-reducers[ACTIONS.FETCH_COLLECTION_LIST_FAILED] = (state: State): State => {
-  return { ...state, isFetchingMyCollections: false };
 };
 
 reducers[ACTIONS.FETCH_CHANNEL_CLAIMS_STARTED] = (state: State, action: any): State => {
@@ -608,6 +595,8 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
   const pendingById = Object.assign({}, state.pendingById);
   const byUriDelta = {};
   let myClaimIds = new Set(state.myClaims);
+  const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+  let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
   const newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
 
   // $FlowFixMe
@@ -625,6 +614,12 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
       // $FlowFixMe
       const channelClaim: ChannelClaim = claim;
       newMyChannelClaimsById[claimId] = channelClaim;
+    } else if (valueType === 'collection') {
+      // $FlowFixMe
+      newResolvedCollectionsById[claimId] = claimToStoredCollection(claim);
+
+      if (!newMyCollectionClaimIds) newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
+      newMyCollectionClaimIds.add(claimId);
     }
 
     if (type && type.match(/claim|update/)) {
@@ -635,6 +630,8 @@ reducers[ACTIONS.UPDATE_PENDING_CLAIMS] = (state: State, action: any): State => 
   });
   return Object.assign({}, state, {
     myClaims: Array.from(myClaimIds),
+    resolvedCollectionsById: newResolvedCollectionsById,
+    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
     byId: resolveDelta(state.byId, byIdDelta),
     pendingById,
     myChannelClaimsById: newMyChannelClaimsById,
@@ -675,7 +672,8 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   const newMyChannelClaimsById = Object.assign({}, state.myChannelClaimsById);
   const claimsByUri = Object.assign({}, state.claimsByUri);
   const abandoningById = Object.assign({}, state.abandoningById);
-  const newMyCollectionClaims = state.myCollectionClaims ? state.myCollectionClaims.slice() : [];
+  const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+  let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
 
   let abandonedUris = [];
 
@@ -699,14 +697,23 @@ reducers[ACTIONS.ABANDON_CLAIM_SUCCEEDED] = (state: State, action: any): State =
   }
 
   const myClaims = newMyClaims.filter((i) => i !== claimId);
-  const myCollectionClaims = newMyCollectionClaims.filter((i) => i !== claimId);
+
+  if (newMyCollectionClaimIds) {
+    newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
+    if (newMyCollectionClaimIds.has(claimId)) newMyCollectionClaimIds.delete(claimId);
+  }
+
+  if (newResolvedCollectionsById[claimId]) {
+    delete newResolvedCollectionsById[claimId];
+  }
 
   delete byId[claimId];
 
   return Object.assign({}, state, {
     myClaims,
     myChannelClaimsById: newMyChannelClaimsById,
-    myCollectionClaims,
+    resolvedCollectionsById: newResolvedCollectionsById,
+    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
     byId,
     claimsByUri,
     abandoningById,
@@ -760,62 +767,6 @@ reducers[ACTIONS.UPDATE_CHANNEL_FAILED] = (state: State, action: any): State => 
   });
 };
 
-reducers[ACTIONS.COLLECTION_PUBLISH_STARTED] = (state: State, action: any): State => {
-  const { collectionId } = action.data;
-
-  const newCreatingCollection = new Set(state.creatingCollectionIds);
-  newCreatingCollection.add(collectionId);
-
-  return { ...state, creatingCollectionIds: Array.from(newCreatingCollection) };
-};
-
-reducers[ACTIONS.COLLECTION_PUBLISH_COMPLETED] = (state: State, action: any): State => {
-  const myCollections = state.myCollectionClaims || [];
-  const myClaims = state.myClaims || [];
-  const { claimId, localId } = action.data;
-
-  const newCreatingCollection = new Set(state.creatingCollectionIds);
-  newCreatingCollection.delete(localId);
-
-  let myClaimIds = new Set(myClaims);
-  let myCollectionClaimsSet = new Set(myCollections);
-  myClaimIds.add(claimId);
-  myCollectionClaimsSet.add(claimId);
-
-  return Object.assign({}, state, {
-    creatingCollectionIds: Array.from(newCreatingCollection),
-    myClaims: Array.from(myClaimIds),
-    myCollectionClaims: Array.from(myCollectionClaimsSet),
-  });
-};
-
-reducers[ACTIONS.COLLECTION_PUBLISH_FAILED] = (state: State, action: any): State => {
-  const { collectionId } = action.data;
-
-  const newCreatingCollection = new Set(state.creatingCollectionIds);
-  newCreatingCollection.delete(collectionId);
-
-  return { ...state, creatingCollectionIds: Array.from(newCreatingCollection) };
-};
-
-reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_STARTED] = (state: State, action: any): State => {
-  const { collectionId } = action.data;
-
-  const newUpdatingCollectionIds = new Set(state.updatingCollectionIds);
-  newUpdatingCollectionIds.add(collectionId);
-
-  return { ...state, updatingCollectionIds: Array.from(newUpdatingCollectionIds) };
-};
-
-reducers[ACTIONS.COLLECTION_PUBLISH_UPDATE_COMPLETED] = (state: State, action: any): State => {
-  const { collectionId } = action.data;
-
-  const newUpdatingCollectionIds = new Set(state.updatingCollectionIds);
-  newUpdatingCollectionIds.delete(collectionId);
-
-  return { ...state, updatingCollectionIds: Array.from(newUpdatingCollectionIds) };
-};
-
 reducers[ACTIONS.IMPORT_CHANNEL_STARTED] = (state: State): State =>
   Object.assign({}, state, { pendingChannelImports: true });
 
@@ -831,18 +782,22 @@ reducers[ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY] = (state: State): State => {
 };
 
 reducers[ACTIONS.CLAIM_SEARCH_STARTED] = (state: State, action: any): State => {
+  const { query } = action.data;
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
-  fetchingClaimSearchByQuery[action.data.query] = true;
+  const newResolvingIds = new Set(state.resolvingIds);
+  fetchingClaimSearchByQuery[query] = true;
 
-  return Object.assign({}, state, {
-    fetchingClaimSearchByQuery,
-  });
+  const { claim_ids: claimIds } = JSON.parse(query);
+  if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.add(claimId));
+
+  return { ...state, fetchingClaimSearchByQuery, resolvingIds: Array.from(newResolvingIds) };
 };
 
 reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State => {
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
+  const newResolvingIds = new Set(state.resolvingIds);
   const { append, query, urls, pageSize } = action.data;
 
   if (append) {
@@ -858,11 +813,15 @@ reducers[ACTIONS.CLAIM_SEARCH_COMPLETED] = (state: State, action: any): State =>
 
   delete fetchingClaimSearchByQuery[query];
 
+  const { claim_ids: claimIds } = JSON.parse(query);
+  if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.delete(claimId));
+
   return Object.assign({}, state, {
     ...handleClaimAction(state, action),
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
     fetchingClaimSearchByQuery,
+    resolvingIds: Array.from(newResolvingIds),
   });
 };
 
@@ -871,6 +830,7 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
   const claimSearchByQuery = Object.assign({}, state.claimSearchByQuery);
   const fetchingClaimSearchByQuery = Object.assign({}, state.fetchingClaimSearchByQuery);
   const claimSearchByQueryLastPageReached = Object.assign({}, state.claimSearchByQueryLastPageReached);
+  const newResolvingIds = new Set(state.resolvingIds);
 
   delete fetchingClaimSearchByQuery[query];
 
@@ -880,10 +840,14 @@ reducers[ACTIONS.CLAIM_SEARCH_FAILED] = (state: State, action: any): State => {
     claimSearchByQuery[query] = null;
   }
 
+  const { claim_ids: claimIds } = JSON.parse(query);
+  if (claimIds?.length > 0) claimIds.forEach((claimId) => newResolvingIds.delete(claimId));
+
   return Object.assign({}, state, {
     fetchingClaimSearchByQuery,
     claimSearchByQuery,
     claimSearchByQueryLastPageReached,
+    resolvingIds: Array.from(newResolvingIds),
   });
 };
 
@@ -1103,5 +1067,39 @@ reducers[ACTIONS.CHECK_IF_PURCHASED_COMPLETED] = (state: State, action: any): St
     ...state,
     myPurchasedClaims,
     fetchingMyPurchasedClaims: false,
+  };
+};
+
+// --- Collection Claims ---
+
+reducers[ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE] = (state: State, action: any) => {
+  const collectionsObjectsById: { [collectionId: string]: Collection } = action.data;
+  const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+
+  for (const collectionId in collectionsObjectsById) {
+    const resolvedCollection = collectionsObjectsById[collectionId];
+
+    newResolvedCollectionsById[collectionId] = { ...newResolvedCollectionsById[collectionId], ...resolvedCollection };
+  }
+
+  return { ...state, resolvedCollectionsById: newResolvedCollectionsById };
+};
+
+reducers[ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS] = (state: State, action: any): State => {
+  const collectionId = action.data;
+
+  const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+  if (newResolvedCollectionsById[collectionId]) delete newResolvedCollectionsById[collectionId];
+
+  let newMyCollectionClaimIds = state.myCollectionClaimIds && new Set(state.myCollectionClaimIds);
+  if (newMyCollectionClaimIds) {
+    newMyCollectionClaimIds = new Set(newMyCollectionClaimIds);
+    newMyCollectionClaimIds.delete(collectionId);
+  }
+
+  return {
+    ...state,
+    resolvedCollectionsById: newResolvedCollectionsById,
+    myCollectionClaimIds: newMyCollectionClaimIds && Array.from(newMyCollectionClaimIds),
   };
 };

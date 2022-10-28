@@ -140,16 +140,16 @@ function ChannelPage(props: Props) {
                 pick: <Button button="link" navigate={`/$/${PAGES.PLAYLISTS}`} label={__('Pick')} />,
               }}
             >
-              You have unpublished lists! %pick% one and publish it!
+              You have unpublished playlists! %pick% one and publish it!
             </I18nMessage>
           </p>
         }
       </section>
     ) : (
-      <section className="main--empty">{__('You have no lists! Create one from any playable content.')}</section>
+      <section className="main--empty">{__('You have no playlists! Create one from any playable content.')}</section>
     );
   } else {
-    collectionEmpty = <section className="main--empty">{__('No Lists Found')}</section>;
+    collectionEmpty = <section className="main--empty">{__('No Playlists found')}</section>;
   }
 
   let channelIsBlackListed = false;
@@ -166,7 +166,7 @@ function ChannelPage(props: Props) {
     case CHANNEL_PAGE.VIEWS.CONTENT:
       tabIndex = 0;
       break;
-    case CHANNEL_PAGE.VIEWS.LISTS:
+    case CHANNEL_PAGE.VIEWS.PLAYLISTS:
       tabIndex = 1;
       break;
     case CHANNEL_PAGE.VIEWS.CHANNELS:
@@ -195,7 +195,7 @@ function ChannelPage(props: Props) {
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CONTENT}`;
         break;
       case 1:
-        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.LISTS}`;
+        search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.PLAYLISTS}`;
         break;
       case 2:
         search += `${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.CHANNELS}`;
@@ -364,7 +364,7 @@ function ChannelPage(props: Props) {
                 )}
               </TabPanel>
               <TabPanel>
-                {currentView === CHANNEL_PAGE.VIEWS.LISTS && (
+                {currentView === CHANNEL_PAGE.VIEWS.PLAYLISTS && (
                   <ChannelContent
                     claimType={'collection'}
                     uri={uri}

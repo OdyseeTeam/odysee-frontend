@@ -14,33 +14,27 @@ type Props = {
   // -- path match --
   collectionId: string,
   // -- redux --
-  hasClaim: boolean,
+  hasClaim: ?boolean,
   collection: Collection,
-  collectionUrls: Array<string>,
   brokenUrls: ?Array<any>,
-  isResolvingCollection: boolean,
-  isResolving: boolean,
   isCollectionMine: boolean,
-  collectionClaimsIds: Array<string>,
-  doFetchItemsInCollection: (params: { collectionId: string }, cb?: () => void) => void,
+  isPrivate: boolean,
+  doResolveClaimId: (claimId: string) => void,
 };
 
 export const CollectionPageContext = React.createContext<any>();
 
-export default function CollectionPage(props: Props) {
+const CollectionPage = (props: Props) => {
   const {
     // -- path match --
     collectionId,
     // -- redux --
     hasClaim,
     collection,
-    collectionUrls,
     brokenUrls,
-    isResolvingCollection,
-    isResolving,
     isCollectionMine,
-    collectionClaimsIds,
-    doFetchItemsInCollection,
+    isPrivate,
+    doResolveClaimId,
   } = props;
 
   const {
@@ -52,21 +46,18 @@ export default function CollectionPage(props: Props) {
   const [showEdit, setShowEdit] = React.useState(pageShowEdit);
   const [unavailableUris, setUnavailable] = React.useState(brokenUrls || []);
 
-  const { name, itemCount, items } = collection || {};
+  const { name } = collection || {};
 
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
-  const editPage = editing || publishing;
+  const publishPage = editing || publishing;
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
+  const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
 
-  const urlsReady = collectionUrls && (itemCount === undefined || (itemCount && itemCount === collectionUrls.length));
-
-  const privateColItemsToBeFetched = !hasClaim && items && items.length !== collectionClaimsIds.length;
+  const isResolvingCollection = hasClaim === undefined;
 
   function togglePublicCollection() {
-    const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
-
     if (isOnPublicView) {
       return push(`/$/${PAGES.PLAYLIST}/${collectionId}`);
     }
@@ -77,12 +68,12 @@ export default function CollectionPage(props: Props) {
   }
 
   React.useEffect(() => {
-    if ((!urlsReady && !collection) || privateColItemsToBeFetched) {
-      doFetchItemsInCollection({ collectionId });
+    if (!isPrivate) {
+      doResolveClaimId(collectionId, true, { include_is_my_output: true });
     }
-  }, [collection, collectionId, doFetchItemsInCollection, privateColItemsToBeFetched, urlsReady]);
+  }, [collectionId, doResolveClaimId, isPrivate]);
 
-  if (isResolving || isResolving === undefined || isResolvingCollection || isCollectionMine === undefined) {
+  if (!isPrivate && isResolvingCollection) {
     return (
       <div className="main--empty">
         <Spinner />
@@ -98,7 +89,7 @@ export default function CollectionPage(props: Props) {
     );
   }
 
-  if (editPage && !isBuiltin && isCollectionMine) {
+  if (publishPage && !isBuiltin && isCollectionMine) {
     const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
     const doReturnForId = (id) => push(getPagePath(id));
 
@@ -108,9 +99,7 @@ export default function CollectionPage(props: Props) {
         noSideNavigation
         backout={{ title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name }}
       >
-        <CollectionPageContext.Provider value={{}}>
-          <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} />
-        </CollectionPageContext.Provider>
+        <CollectionPublishForm collectionId={collectionId} onDoneForId={doReturnForId} useIds />
       </Page>
     );
   }
@@ -137,4 +126,6 @@ export default function CollectionPage(props: Props) {
       </div>
     </Page>
   );
-}
+};
+
+export default CollectionPage;

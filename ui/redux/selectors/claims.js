@@ -46,6 +46,26 @@ export const selectCreateChannelError = (state: State) => selectState(state).cre
 export const selectRepostLoading = (state: State) => selectState(state).repostLoading;
 export const selectRepostError = (state: State) => selectState(state).repostError;
 export const selectLatestByUri = (state: State) => selectState(state).latestByUri;
+export const selectResolvedCollectionsById = (state: State) => selectState(state).resolvedCollectionsById;
+export const selectMyCollectionClaimIds = (state: State) => selectState(state).myCollectionClaimIds;
+
+export const selectMyCollectionClaimsById = createSelector(
+  selectResolvedCollectionsById,
+  selectMyCollectionClaimIds,
+  (resolvedCollectionsById, myCollectionClaimIds) => {
+    if (!myCollectionClaimIds) return myCollectionClaimIds;
+
+    const myCollectionClaimsById = {};
+
+    myCollectionClaimIds.forEach((collectionId) => {
+      if (resolvedCollectionsById[collectionId]) {
+        myCollectionClaimsById[collectionId] = resolvedCollectionsById[collectionId];
+      }
+    });
+
+    return myCollectionClaimsById;
+  }
+);
 
 export const selectLatestClaimForUri = createSelector(
   (state, uri) => uri,
@@ -193,7 +213,7 @@ export const selectHasClaimForUri = (state: State, uri: string) => {
   const claim = selectClaimForUri(state, uri);
   return Boolean(claim);
 };
-export const selectHasClaimForId = (state: State, id: ClaimId) => Boolean(selectClaimForId(state, id));
+export const selectHasClaimForId = (state: State, id: ClaimId) => selectClaimForId(state, id);
 
 export const selectHasResolvedClaimForUri = (state: State, uri: string) => {
   // This selector assumes that `uri` is never null and is valid. It
@@ -633,7 +653,6 @@ export const selectMyClaimsOutpoints = createSelector(selectMyClaims, (myClaims)
 });
 
 export const selectFetchingMyChannels = (state: State) => selectState(state).fetchingMyChannels;
-export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 
 export const selectMyChannelClaimsById = (state: State) => selectState(state).myChannelClaimsById;
 export const selectMyChannelClaims = createSelector(
@@ -659,9 +678,8 @@ export const selectHasChannels = (state: State) => {
   return myChannelClaimIds ? myChannelClaimIds.length > 0 : false;
 };
 
-export const selectMyCollectionIds = (state: State) => selectState(state).myCollectionClaims;
-
-export const selectResolvingUris = createSelector(selectState, (state) => state.resolvingUris || []);
+export const selectResolvingUris = (state: State) => selectState(state).resolvingUris;
+export const selectResolvingIds = (state: State) => selectState(state).resolvingIds;
 
 export const selectChannelImportPending = (state: State) => selectState(state).pendingChannelImport;
 

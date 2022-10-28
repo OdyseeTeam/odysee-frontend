@@ -29,11 +29,11 @@ type Props = {
   updatedCollections: CollectionGroup,
   savedCollections: CollectionGroup,
   savedCollectionIds: ClaimIds,
-  featuredChannelsIds: Array<CollectionId>,
   isFetchingCollections: boolean,
   hasCollections: boolean,
   collectionsById: { [collectionId: string]: Collection },
-  doFetchItemsInCollections: (params: { collectionIds: ClaimIds }) => void,
+  doResolveClaimIds: (collectionIds: ClaimIds) => void,
+  doFetchCollectionListMine: () => void,
 };
 
 // Avoid prop drilling
@@ -49,11 +49,11 @@ export default function CollectionsListMine(props: Props) {
     updatedCollections,
     savedCollections,
     savedCollectionIds,
-    featuredChannelsIds,
     isFetchingCollections,
     hasCollections,
     collectionsById,
-    doFetchItemsInCollections,
+    doResolveClaimIds,
+    doFetchCollectionListMine,
   } = props;
 
   const isMobile = useIsMobile();
@@ -75,6 +75,7 @@ export default function CollectionsListMine(props: Props) {
   const publishedList = (Object.keys(publishedCollections || {}): any);
   const editedList = (Object.keys(editedCollections || {}): any);
   const savedList = (Object.keys(savedCollections || {}): any);
+  const hasLocalSyncLists = unpublishedCollectionsList.length > 0 || editedList.length > 0 || savedList.length > 0;
   const collectionsUnresolved = unpublishedCollectionsList.length === 0 && publishedList.length === 0 && hasCollections;
 
   const collectionsToShow = React.useMemo(() => {
@@ -100,8 +101,8 @@ export default function CollectionsListMine(props: Props) {
         break;
     }
 
-    return collections.filter((id) => !featuredChannelsIds.includes(id));
-  }, [editedList, filterType, publishedList, savedList, unpublishedCollectionsList, featuredChannelsIds]);
+    return collections;
+  }, [editedList, filterType, publishedList, savedList, unpublishedCollectionsList]);
 
   const playlistShowCount = isMobile ? COLS.PLAYLIST_SHOW_COUNT.MOBILE : COLS.PLAYLIST_SHOW_COUNT.DEFAULT;
   const page = (collectionsToShow.length > playlistShowCount && Number(urlParams.get('page'))) || 1;
@@ -205,10 +206,14 @@ export default function CollectionsListMine(props: Props) {
   );
 
   React.useEffect(() => {
+    if (isFetchingCollections === undefined) doFetchCollectionListMine();
+  }, [isFetchingCollections, doFetchCollectionListMine]);
+
+  React.useEffect(() => {
     if (savedCollectionIds.length > 0) {
-      doFetchItemsInCollections({ collectionIds: savedCollectionIds });
+      doResolveClaimIds(savedCollectionIds);
     }
-  }, [doFetchItemsInCollections, savedCollectionIds]);
+  }, [doResolveClaimIds, savedCollectionIds]);
 
   return (
     <>
@@ -217,9 +222,9 @@ export default function CollectionsListMine(props: Props) {
 
         <SectionLabel label={__('Your Playlists')} />
 
-        {isFetchingCollections ? (
+        {!hasLocalSyncLists && isFetchingCollections !== false ? (
           <div className="main--empty empty">
-            <Spinner text={__('Fetching playlists. This may take a while...')} delayed />
+            <Spinner text={__('Loading your playlists...')} />
           </div>
         ) : (
           <>

@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import {
+  selectIsFetchingMyCollections,
   selectMyPublishedCollections,
   selectMyUnpublishedCollections,
   selectMyEditedCollections,
@@ -7,11 +8,11 @@ import {
   selectSavedCollectionIds,
   selectSavedCollections,
   selectHasCollections,
-  selectFeaturedChannelsIds,
   selectCollectionsById,
 } from 'redux/selectors/collections';
-import { selectIsFetchingMyCollections } from 'redux/selectors/claims';
-import { doFetchItemsInCollections } from 'redux/actions/collections';
+import { doResolveClaimIds } from 'redux/actions/claims';
+import { doFetchCollectionListMine } from 'redux/actions/collections';
+
 import CollectionsListMine from './view';
 
 const select = (state) => ({
@@ -21,14 +22,14 @@ const select = (state) => ({
   updatedCollections: selectMyUpdatedCollections(state),
   savedCollectionIds: selectSavedCollectionIds(state),
   savedCollections: selectSavedCollections(state),
-  featuredChannelsIds: selectFeaturedChannelsIds(state),
   isFetchingCollections: selectIsFetchingMyCollections(state),
   hasCollections: selectHasCollections(state),
   collectionsById: selectCollectionsById(state),
 });
 
 const perform = {
-  doFetchItemsInCollections,
+  doResolveClaimIds,
+  doFetchCollectionListMine,
 };
 
 export default connect(select, perform)(CollectionsListMine);
