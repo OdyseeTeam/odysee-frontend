@@ -145,6 +145,9 @@ function HomeTabSection(props: Props) {
     }
   }
 
+  console.log('collectionUrls: ', collectionUrls);
+  console.log('claimSearchResults: ', claimSearchResults);
+
   return (
     <div className="home-section-content">
       {editMode && (
@@ -257,7 +260,7 @@ function HomeTabSection(props: Props) {
           )}
         </div>
       )}
-      {section.type && (
+      {section.type && (section.claim_id || collectionUrls || (claimSearchResults && claimSearchResults.length > 0)) && (
         <div className="section">
           {section.type !== 'featured' ? (
             <>
