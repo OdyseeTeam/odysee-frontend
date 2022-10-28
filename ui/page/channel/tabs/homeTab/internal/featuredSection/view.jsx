@@ -53,7 +53,27 @@ function FeaturedSection(props: Props) {
       </div>
     </NavLink>
   ) : (
-    <h1>Loading...</h1>
+    <div className="claim-preview claim-preview-featured claim-preview-featured-placeholder">
+      <div className="media__thumb" />
+      <div className="claim-preview__text">
+        <div className="claim-preview-info">
+          <span />
+        </div>
+        <div className="claim-preview-author">
+          <div className="channel-thumbnail--xsmall" />
+          <div className="media__subtitle" />
+        </div>
+        <div className="claim-preview-description">
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+          <div />
+        </div>
+      </div>
+    </div>
   );
 }
 
