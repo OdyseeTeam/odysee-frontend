@@ -5,8 +5,8 @@ import {
   selectCollectionDescriptionForId,
   selectCountForCollectionId,
   selectCollectionHasEditsForId,
-  selectMyPublishedCollectionCountForId,
   selectSourceIdForCollectionId,
+  selectIsCollectionFeaturedChannelForId,
 } from 'redux/selectors/collections';
 
 import CollectionHeader from './view';
@@ -21,11 +21,11 @@ const select = (state, props) => {
     uri,
     collectionDescription: selectCollectionDescriptionForId(state, collectionId),
     collectionCount: selectCountForCollectionId(state, collectionId),
-    publishedCollectionCount: selectMyPublishedCollectionCountForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     sourceId: selectSourceIdForCollectionId(state, collectionId),
     hasClaim: selectHasClaimForId(state, collectionId),
     claimAmount: selectTotalStakedAmountForUri(state, uri),
+    isFeaturedChannels: selectIsCollectionFeaturedChannelForId(state, collectionId),
   };
 };
 

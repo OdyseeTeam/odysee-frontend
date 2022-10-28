@@ -4,6 +4,7 @@ import {
   selectCollectionTitleForId,
   selectCollectionHasEditsForId,
   selectCollectionIsMine,
+  selectCollectionTypeForId,
 } from 'redux/selectors/collections';
 
 import CollectionHeader from './view';
@@ -15,6 +16,7 @@ const select = (state, props) => {
     collectionTitle: selectCollectionTitleForId(state, collectionId),
     collectionHasEdits: selectCollectionHasEditsForId(state, collectionId),
     isMyCollection: selectCollectionIsMine(state, collectionId),
+    collectionType: selectCollectionTypeForId(state, collectionId),
   };
 };
 

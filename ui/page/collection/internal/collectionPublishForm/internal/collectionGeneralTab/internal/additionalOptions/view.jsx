@@ -47,6 +47,20 @@ function CollectionPublishAdditionalOptions(props: Props) {
     setHideSection(!hideSection);
   }
 
+  React.useEffect(() => {
+    handleBidChange(
+      parseFloat(formParams.bid),
+      amount,
+      balance,
+      (value) => {
+        setBidError(value);
+        updateFormErrors('bid', value);
+      },
+      updateFormParams
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [amount, balance]);
+
   return (
     <>
       <h2 className="card__title">{__('Additional Options')}</h2>

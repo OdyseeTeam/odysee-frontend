@@ -21,16 +21,18 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
 import './style.scss';
 
+const THUMBNAIL_PREVIEW_AMOUNT = 3;
+
 type Props = {
   uri: string,
   collectionId: string,
   // -- redux --
   collectionCount: number,
   collectionName: string,
-  collectionItemUrls: Array<string>,
+  collectionItemUrls: ?Array<string>,
   collectionType: ?string,
-  isResolvingCollectionClaims: boolean,
-  isResolvingUri: boolean,
+  isFetchingItems: boolean,
+  isResolvingCollection: boolean,
   title?: string,
   channel: ?any,
   channelTitle?: String,
@@ -41,6 +43,7 @@ type Props = {
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
+  doFetchItemsInCollection: (options: CollectionFetchItemsParams) => void,
 };
 
 function CollectionPreview(props: Props) {
@@ -49,8 +52,8 @@ function CollectionPreview(props: Props) {
     collectionId,
     collectionName,
     collectionCount,
-    isResolvingUri,
-    isResolvingCollectionClaims,
+    isFetchingItems,
+    isResolvingCollection,
     collectionItemUrls,
     collectionType,
     hasClaim,
@@ -62,11 +65,16 @@ function CollectionPreview(props: Props) {
     isBuiltin,
     thumbnail,
     isEmpty,
+    doFetchItemsInCollection,
   } = props;
 
   const { push } = useHistory();
 
-  if (isResolvingUri || isResolvingCollectionClaims) {
+  React.useEffect(() => {
+    doFetchItemsInCollection({ collectionId, itemCount: THUMBNAIL_PREVIEW_AMOUNT });
+  }, [collectionId, doFetchItemsInCollection]);
+
+  if (isFetchingItems || isResolvingCollection || collectionItemUrls === undefined) {
     return <ClaimPreviewLoading />;
   }
 

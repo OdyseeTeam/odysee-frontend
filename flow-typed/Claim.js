@@ -212,10 +212,3 @@ declare type ChannelPublishParams = {
 };
 declare type ChannelPublishUpdateParams = GenericPublishUpdateParams & ChannelPublishParams;
 declare type ChannelPublishCreateParams = GenericPublishCreateParams & ChannelPublishParams;
-
-declare type CollectionPublishUpdateParams = GenericPublishUpdateParams & {
-  claims?: Array<string>,
-};
-declare type CollectionPublishCreateParams = GenericPublishCreateParams & {
-  claims: Array<string>,
-};

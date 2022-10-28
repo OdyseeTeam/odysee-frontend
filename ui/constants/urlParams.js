@@ -4,7 +4,7 @@ export const CHANNEL_PAGE = Object.freeze({
   QUERIES: { VIEW: 'view' },
   VIEWS: {
     CONTENT: 'content',
-    LISTS: 'lists',
+    PLAYLISTS: 'playlists',
     CHANNELS: 'channels',
     MEMBERSHIP: 'membership',
     DISCUSSION: 'discussion',

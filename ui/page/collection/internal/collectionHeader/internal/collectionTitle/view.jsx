@@ -19,10 +19,11 @@ type Props = {
   collectionTitle?: string,
   collectionHasEdits: boolean,
   isMyCollection: boolean,
+  collectionType: ?string,
 };
 
 const CollectionTitle = (props: Props) => {
-  const { collectionId, noIcon, collectionTitle, collectionHasEdits, isMyCollection } = props;
+  const { collectionId, noIcon, collectionTitle, collectionHasEdits, isMyCollection, collectionType } = props;
 
   const {
     push,
@@ -33,7 +34,11 @@ const CollectionTitle = (props: Props) => {
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const urlParams = new URLSearchParams(search);
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
-  const showEditButton = isMyCollection && !isBuiltin && !isOnPublicView;
+  const showEditButton =
+    isMyCollection &&
+    !isBuiltin &&
+    !isOnPublicView &&
+    collectionType !== COLLECTIONS_CONSTS.COL_TYPES.FEATURED_CHANNELS;
 
   return (
     <div className="card__title card__title--with-actions">

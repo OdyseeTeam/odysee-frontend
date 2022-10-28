@@ -17,6 +17,7 @@ import Spinner from 'component/spinner';
 import BusyIndicator from 'component/common/busy-indicator';
 import Tooltip from 'component/common/tooltip';
 import CollectionGeneralTab from './internal/collectionGeneralTab';
+import withCollectionItems from 'hocs/withCollectionItems';
 
 export const PAGE_TAB_QUERY = `tab`;
 
@@ -32,11 +33,9 @@ type Props = {
   uri: ?string,
   hasClaim: boolean,
   collectionParams: CollectionPublishCreateParams | CollectionPublishUpdateParams,
-  updatingCollection: boolean,
-  creatingCollection: boolean,
+  isClaimPending: boolean,
   activeChannelClaim: ?ChannelClaim,
   collectionHasEdits: boolean,
-  doCollectionPublishUpdate: (CollectionPublishUpdateParams) => Promise<any>,
   doCollectionPublish: (CollectionPublishCreateParams, string) => Promise<any>,
   doCollectionEdit: (id: string, params: CollectionEditParams) => void,
   doClearEditsForCollectionId: (id: string) => void,
@@ -47,17 +46,15 @@ export const CollectionFormContext = React.createContext<any>();
 
 const CollectionPublishForm = (props: Props) => {
   const {
+    uri,
     collectionId,
     onDoneForId,
     // -- redux -
-    uri,
     hasClaim,
     collectionParams,
-    updatingCollection,
-    creatingCollection,
+    isClaimPending,
     activeChannelClaim,
     collectionHasEdits,
-    doCollectionPublishUpdate,
     doCollectionPublish,
     doCollectionEdit,
     doClearEditsForCollectionId,
@@ -80,6 +77,7 @@ const CollectionPublishForm = (props: Props) => {
   const [formParams, setFormParams] = React.useState(collectionParams);
   const [tabIndex, setTabIndex] = React.useState(0);
   const [showItemsSpinner, setShowItemsSpinner] = React.useState(false);
+  const [publishPending, setPublishPending] = React.useState(isClaimPending);
 
   const { claims } = formParams;
 
@@ -105,7 +103,11 @@ const CollectionPublishForm = (props: Props) => {
       return onDoneForId(collectionId);
     }
 
+    setPublishPending(true);
+
     const successCb = (pendingClaim) => {
+      setPublishPending(false);
+
       if (pendingClaim) {
         const claimId = pendingClaim.claim_id;
         analytics.apiLog.publish(pendingClaim);
@@ -113,13 +115,10 @@ const CollectionPublishForm = (props: Props) => {
       }
     };
 
-    if (hasClaim) {
-      // $FlowFixMe
-      doCollectionPublishUpdate(formParams).then(successCb);
-    } else {
-      // $FlowFixMe
-      doCollectionPublish(formParams, collectionId).then(successCb);
-    }
+    // $FlowFixMe
+    doCollectionPublish(formParams, collectionId)
+      .then(successCb)
+      .catch(() => setPublishPending(false));
   }
 
   function onTabChange(newTabIndex) {
@@ -198,14 +197,8 @@ const CollectionPublishForm = (props: Props) => {
         <div className="section__actions">
           <Submit
             button="primary"
-            disabled={publishingClaimWithNoChanges || creatingCollection || updatingCollection}
-            label={
-              creatingCollection || updatingCollection ? (
-                <BusyIndicator message={__('Submitting')} />
-              ) : (
-                __(editing ? 'Save' : 'Submit')
-              )
-            }
+            disabled={publishingClaimWithNoChanges || publishPending}
+            label={publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit')}
           />
           <Button button="link" label={__('Cancel')} onClick={goBack} />
 
@@ -249,4 +242,4 @@ const CollectionPublishForm = (props: Props) => {
   );
 };
 
-export default CollectionPublishForm;
+export default withCollectionItems(CollectionPublishForm);

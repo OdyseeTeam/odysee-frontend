@@ -1,30 +1,151 @@
 // @flow
 import * as ACTIONS from 'constants/action_types';
+import { batchActions } from 'util/batch-actions';
 import { v4 as uuid } from 'uuid';
 import Lbry from 'lbry';
-import { doClaimSearch, doAbandonClaim } from 'redux/actions/claims';
-import { selectClaimForClaimId, selectClaimForId, makeSelectMetadataItemForUri } from 'redux/selectors/claims';
+import {
+  doAbandonClaim,
+  doResolveUris,
+  doResolveClaimId,
+  doResolveClaimIds,
+  doCheckPendingClaims,
+} from 'redux/actions/claims';
+import {
+  selectClaimForClaimId,
+  selectClaimForId,
+  makeSelectMetadataItemForUri,
+  selectHasClaimForId,
+} from 'redux/selectors/claims';
 import {
   selectCollectionForId,
-  selectPublishedCollectionForId,
-  selectUnpublishedCollectionForId,
-  selectEditedCollectionForId,
-  selectHasItemsInQueue,
-  selectCollectionHasEditsForId,
+  selectResolvedCollectionForId,
+  selectHasPrivateCollectionForId,
+  selectIsCollectionPrivateForId,
   selectUrlsForCollectionId,
   selectCollectionSavedForId,
   selectAreCollectionItemsFetchingForId,
-  selectClaimUrlInCollectionForIdAndUri,
+  selectCollectionKeyForId,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
-import { resolveAuxParams, resolveCollectionType } from 'util/collections';
-import { getThumbnailFromClaim } from 'util/claim';
-import { parseClaimIdFromPermanentUrl } from 'util/url';
+import { resolveAuxParams, resolveCollectionType, getClaimIdsInCollectionClaim } from 'util/collections';
+import { getThumbnailFromClaim, isPermanentUrl, isCanonicalUrl } from 'util/claim';
+import { creditsToString } from 'util/format-credits';
 import { doToast } from 'redux/actions/notifications';
 
 const FETCH_BATCH_SIZE = 50;
 
-export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id: any) => void) => (
+export const doFetchCollectionListMine = (options: CollectionListOptions = { page: 1, page_size: 50 }) => async (
+  dispatch: Dispatch
+) => {
+  dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_STARTED });
+
+  const failure = (error) => dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
+
+  const autoPaginate = () => {
+    let allClaims = [];
+
+    const next = async (response: CollectionListResponse) => {
+      const moreData = response.items.length === options.page_size;
+      allClaims = allClaims.concat(response.items);
+      options.page++;
+
+      if (!moreData) {
+        // -- Add collection claims to myClaims
+        return dispatch(
+          batchActions(
+            { type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED, data: { result: response } },
+            { type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE }
+          )
+        );
+      }
+
+      try {
+        const data = await Lbry.collection_list(options);
+        return next(data);
+      } catch (err) {
+        failure(err);
+      }
+    };
+
+    return next;
+  };
+
+  return await Lbry.collection_list(options).then(autoPaginate(), failure);
+};
+
+export function doCollectionPublish(options: CollectionPublishParams, collectionId: string, cb?: () => void) {
+  return (dispatch: Dispatch, getState: GetState): Promise<any> => {
+    const state = getState();
+    const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
+
+    const params: GenericUploadParams = {
+      channel_id: options.channel_id,
+      bid: creditsToString(options.bid),
+      blocking: true,
+      title: options.title,
+      thumbnail_url: options.thumbnail_url,
+      tags: options.tags ? options.tags.map((tag) => tag.name) : [],
+      languages: options.languages || [],
+      description: options.description,
+    };
+    const fullParams = {};
+
+    if (isPrivate) {
+      const publishParams: CollectionPublishParams = {
+        ...params,
+        name: options.name,
+        // -- avoid duplicates --
+        claims: Array.from(new Set(options.claims)),
+      };
+
+      Object.assign(fullParams, publishParams);
+    } else {
+      const updateParams: CollectionUpdateParams = {
+        ...params,
+        claim_id: collectionId,
+        clear_claims: true,
+        replace: true,
+        // -- avoid duplicates --
+        claims: Array.from(new Set(options.claims)),
+      };
+
+      Object.assign(fullParams, updateParams);
+    }
+
+    if (fullParams.description && typeof fullParams.description !== 'string') {
+      delete fullParams.description;
+    }
+
+    return new Promise((resolve, reject) => {
+      const publishFn = isPrivate ? Lbry.collection_create : Lbry.collection_update;
+
+      function success(response: CollectionCreateResponse) {
+        const collectionClaim = response.outputs[0];
+        dispatch({ type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, data: collectionId });
+
+        dispatch(
+          batchActions(
+            { type: ACTIONS.UPDATE_PENDING_CLAIMS, data: { claims: [collectionClaim] } },
+            doCheckPendingClaims()
+          )
+        );
+
+        return resolve(collectionClaim);
+      }
+
+      function failure(error) {
+        if (cb) cb();
+        dispatch(doToast({ message: error.message, isError: true }));
+        reject(error);
+        throw new Error(error);
+      }
+
+      return publishFn(fullParams).then(success, failure);
+    });
+  };
+}
+
+export const doLocalCollectionCreate = (params: CollectionLocalCreateParams, cb?: (id: any) => void) => (
   dispatch: Dispatch,
   getState: GetState
 ) => {
@@ -70,20 +191,31 @@ export const doLocalCollectionCreate = (params: CollectionCreateParams, cb?: (id
   });
 };
 
-export const doCollectionDelete = (id: string, colKey: ?string = undefined) => (
-  dispatch: Dispatch,
-  getState: GetState
-) => {
+export const doCollectionDelete = (
+  collectionId: string,
+  collectionKey: ?string = undefined,
+  keepPrivate: boolean = false
+) => (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
-  const claim = selectClaimForClaimId(state, id);
-  const collectionDelete = () =>
-    dispatch({
-      type: ACTIONS.COLLECTION_DELETE,
-      data: {
-        id: id,
-        collectionKey: colKey,
-      },
-    });
+  const claim = selectClaimForClaimId(state, collectionId);
+  const collection = selectCollectionForId(state, collectionId);
+
+  const collectionDelete = async () => {
+    // -- published collections are stored on claims redux, so there won't be a local key for it
+    // so doAbandonClaim will take care of it.
+    if (collectionKey) dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { collectionId, collectionKey } });
+
+    if (claim && keepPrivate) {
+      const newParams = Object.assign({}, collection);
+      // -- doLocalCollectionCreate will use an uuid instead. otherwise the local collection will use
+      // the same id as the (now deleted) claim id
+      delete newParams.id;
+
+      dispatch(doLocalCollectionCreate(newParams));
+    }
+
+    dispatch({ type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS, data: collectionId });
+  };
 
   if (claim) {
     return dispatch(doAbandonClaim(claim, collectionDelete));
@@ -97,290 +229,187 @@ export const doToggleCollectionSavedForId = (collectionId: string) => (dispatch:
   const isSaved = selectCollectionSavedForId(state, collectionId);
 
   dispatch(doToast({ message: !isSaved ? __('Added to saved Playlists!') : __('Removed from saved Playlists.') }));
-  dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: { collectionId } });
+  dispatch({ type: ACTIONS.COLLECTION_TOGGLE_SAVE, data: collectionId });
 };
 
-function isPrivateCollectionId(collectionId: string) {
-  // Private (unpublished) collections uses UUID.
-  return collectionId.includes('-') || COLS.BUILTIN_PLAYLISTS.includes(collectionId) || collectionId === COLS.QUEUE_ID;
-}
-
-export const doFetchItemsInCollections = (resolveItemsOptions: {
-  collectionIds: Array<string>,
+export const doFetchItemsInCollection = (params: {
+  collectionId: string,
   pageSize?: number,
+  itemCount?: number,
 }) => async (dispatch: Dispatch, getState: GetState) => {
-  /*
-  1) make sure all the collection claims are loaded into claims reducer, search/resolve if necessary.
-  2) get the item claims for each
-  3) format and make sure they're in the order as in the claim
-  4) Build the collection objects and update collections reducer
-  5) Update redux claims reducer
-   */
   let state = getState();
-  const { collectionIds, pageSize } = resolveItemsOptions;
+  const { collectionId, pageSize, itemCount } = params;
 
-  const privateCollectionIds = [];
-  const collectionIdsToSearch = [];
+  const isAlreadyFetching = selectAreCollectionItemsFetchingForId(state, collectionId);
 
-  // -- Fill up 'privateCollectionIds' and 'collectionIdsToSearch':
-  collectionIds.forEach((id) => {
-    const isAlreadyFetching = selectAreCollectionItemsFetchingForId(state, id);
-    if (isAlreadyFetching) return;
+  if (isAlreadyFetching) return Promise.resolve();
 
-    if (isPrivateCollectionId(id)) {
-      privateCollectionIds.push(id);
-    } else if (!selectClaimForId(state, id)) {
-      collectionIdsToSearch.push(id);
-    }
-  });
+  dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_START, data: collectionId });
 
-  dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_STARTED, data: { ids: collectionIds } });
+  const isPrivate = selectHasPrivateCollectionForId(state, collectionId);
+  const hasClaim = selectHasClaimForId(state, collectionId);
 
   // -- Resolve collections:
-  if (collectionIdsToSearch.length) {
-    await dispatch(
-      doClaimSearch(
-        { claim_ids: collectionIdsToSearch, page: 1, page_size: 50, no_totals: true },
-        { useAutoPagination: true }
-      )
-    );
-    state = getState();
+  if (!isPrivate && hasClaim === undefined) {
+    await dispatch(doResolveClaimId(collectionId, { include_is_my_output: true })).finally(() => {
+      // get the state after claimSearch
+      state = getState();
+    });
   }
 
-  async function fetchItemsForCollectionClaim(
-    collectionId: string,
-    itemCount: number,
-    itemIdsInOrder: Array<string>,
-    pageSize?: number
-  ) {
-    const sortResults = (items: Array<Claim>, claimList) => {
+  if (!isPrivate && hasClaim === null) {
+    return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
+  }
+
+  async function fetchItemsForCollectionClaim(collectionId: string, collectionItemsInOrder: Array<string>) {
+    const sortResults = (resultItems: Array<Claim>) => {
       const newItems: Array<Claim> = [];
-      claimList.forEach((id) => {
-        const index = items.findIndex((i) => i.claim_id === id);
+
+      collectionItemsInOrder.forEach((item) => {
+        const index = resultItems.findIndex((i) => [i.canonical_url, i.permanent_url, i.claim_id].includes(item));
+
         if (index >= 0) {
-          newItems.push(items[index]);
+          newItems.push(resultItems[index]);
         }
       });
-      /*
-        This will return newItems[] of length less than total_items below
-        if one or more of the claims has been abandoned. That's ok for now.
-      */
+
       return newItems;
     };
 
-    const mergeBatches = (
-      arrayOfResults: Array<{ items: Array<Claim>, total_items: number }>,
-      claimList: Array<string>
-    ) => {
-      const mergedResults: { items: Array<Claim>, total_items: number } = {
-        items: [],
-        total_items: 0,
-      };
-      arrayOfResults.forEach((result) => {
-        mergedResults.items = mergedResults.items.concat(result.items);
-        mergedResults.total_items = result.total_items;
+    const mergeBatches = (arrayOfResults: Array<any>) => {
+      let resultItems = [];
+
+      arrayOfResults.forEach((result: any) => {
+        const claims = result.items || Object.values(result).map((item) => item.stream || item);
+        resultItems = resultItems.concat(claims);
       });
 
-      mergedResults.items = sortResults(mergedResults.items, claimList);
-      return mergedResults;
+      return resultItems;
     };
 
     try {
       const batchSize = pageSize || FETCH_BATCH_SIZE;
-      const batches: Array<Promise<any>> = [];
+      const uriBatches: Array<Promise<any>> = [];
+      const idBatches: Array<Promise<any>> = [];
 
-      for (let i = 0; i < Math.ceil(itemCount / batchSize); i++) {
-        batches[i] = Lbry.claim_search({
-          claim_ids: itemIdsInOrder.slice(i * batchSize, (i + 1) * batchSize),
-          page: 1,
-          page_size: batchSize,
-          no_totals: true,
+      const totalItems = collectionItemsInOrder.length;
+
+      for (let i = 0; i < Math.ceil(totalItems / batchSize); i++) {
+        const batchInitialIndex = i * batchSize;
+        const batchLength = (i + 1) * batchSize;
+
+        // --> Filter in case null/undefined are collection items
+        const batchItems = collectionItemsInOrder.slice(batchInitialIndex, batchLength).filter(Boolean);
+
+        const uris = new Set([]);
+        const ids = new Set([]);
+        batchItems.forEach((item) => {
+          if (isCanonicalUrl(item) || isPermanentUrl(item)) {
+            uris.add(item);
+          } else {
+            ids.add(item);
+          }
         });
-      }
-      const itemsInBatches = await Promise.all(batches);
-      const result = mergeBatches(itemsInBatches, itemIdsInOrder);
 
-      // $FlowFixMe
-      const itemsById: { claimId: string, items?: ?Array<GenericClaim> } = { claimId: collectionId };
-      if (result.items) {
-        itemsById.items = result.items;
-      } else {
-        itemsById.items = null;
+        if (uris.size > 0) {
+          uriBatches[i] = dispatch(doResolveUris(Array.from(uris), true));
+        }
+        if (ids.size > 0) {
+          idBatches[i] = dispatch(doResolveClaimIds(Array.from(ids)));
+        }
       }
-      return itemsById;
+      const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
+      const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
+
+      if (resultItems) {
+        return resultItems;
+      } else {
+        return null;
+      }
     } catch (e) {
-      return {
-        claimId: collectionId,
-        items: null,
-      };
+      return null;
     }
   }
 
-  const invalidCollectionIds = [];
-  const promisedCollectionItemFetches = [];
-  let collectionItemsById: Array<CollectionItemFetchResult> = [];
+  let promisedCollectionItemsFetch, collectionItems;
 
-  // -- Collect requests for resolving items in each collection:
-  collectionIds.forEach((collectionId) => {
-    const hasEdits = selectCollectionHasEditsForId(state, collectionId);
+  if (isPrivate) {
+    const collection = selectCollectionForId(state, collectionId);
 
-    if (isPrivateCollectionId(collectionId) || hasEdits) {
-      const collection = selectCollectionForId(state, collectionId);
-      if (collection?.items.length > 0) {
-        promisedCollectionItemFetches.push(
-          fetchItemsForCollectionClaim(
-            collectionId,
-            collection.items.length,
-            collection.items.map((url) => parseClaimIdFromPermanentUrl(url, 'junk')),
-            pageSize
-          )
-        );
-      } else {
-        const collectionItem: CollectionItemFetchResult = { claimId: collectionId, items: [] };
-        collectionItemsById.push(collectionItem);
-      }
+    if (collection.items.length > 0) {
+      const items = itemCount ? collection.items.slice(0, itemCount) : collection.items;
+      promisedCollectionItemsFetch = fetchItemsForCollectionClaim(collectionId, items);
+    } else {
+      return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
-
+  } else {
     const claim = selectClaimForClaimId(state, collectionId);
-    if (!claim) {
-      invalidCollectionIds.push(collectionId);
-    } else if (claim.value?.claims) {
-      promisedCollectionItemFetches.push(
-        fetchItemsForCollectionClaim(collectionId, claim.value.claims.length, claim.value.claims, pageSize)
-      );
-    }
-  });
+
+    const claimIds = getClaimIdsInCollectionClaim(claim);
+    const items = itemCount ? claimIds.slice(0, itemCount) : claimIds;
+    promisedCollectionItemsFetch = fetchItemsForCollectionClaim(collectionId, items);
+  }
 
   // -- Await results:
-  if (promisedCollectionItemFetches.length > 0) collectionItemsById = await Promise.all(promisedCollectionItemFetches);
+  if (promisedCollectionItemsFetch) {
+    collectionItems = await promisedCollectionItemsFetch;
+  }
 
   const newCollectionObjectsById = {};
-  const resolvedItemsByUrl = {};
+  const privateCollectionObjectsById = {};
 
-  // -- Process results:
-  collectionItemsById.forEach((entry) => {
-    // $FlowFixMe
-    const collectionItems: Array<any> = entry.items;
-    const collectionId = entry.claimId;
+  if (!collectionItems || collectionItems.length === 0) {
+    return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
+  }
 
+  const collection = selectCollectionForId(state, collectionId);
+  const collectionKey = selectCollectionKeyForId(state, collectionId);
+
+  if (isPrivate) {
+    const newItems = collectionItems.map((item) => item.permanent_url);
+
+    privateCollectionObjectsById[collectionId] = { ...collection, items: newItems, key: collectionKey };
+  } else {
     const claim = selectClaimForClaimId(state, collectionId);
 
-    if (isPrivateCollectionId(collectionId) && collectionItems) {
-      // Nothing to do for now. We are only interested in getting the resolved
-      // data for each item in the private collection.
-    } else if (collectionItems && claim) {
-      const { items: editedCollectionItems } = selectEditedCollectionForId(state, collectionId) || {};
+    const { value } = claim;
+    const { tags } = value || {};
 
-      const { name, timestamp, value } = claim;
-      const { title, description, thumbnail, tags } = value || {};
-      const valueTypes = new Set();
-      const streamTypes = new Set();
+    const valueTypes = new Set();
+    const streamTypes = new Set();
+    const newItems = new Set();
 
-      let newItems = [];
-      let collectionType;
-
-      if (collectionItems) {
-        collectionItems.forEach((collectionItem) => {
-          newItems.push(collectionItem.permanent_url);
-          valueTypes.add(collectionItem.value_type);
-          if (collectionItem.value.stream_type) {
-            streamTypes.add(collectionItem.value.stream_type);
-          }
-          resolvedItemsByUrl[collectionItem.canonical_url] = collectionItem;
-        });
-
-        collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
+    collectionItems.forEach((collectionItem) => {
+      newItems.add(collectionItem.claim_id);
+      valueTypes.add(collectionItem.value_type);
+      if (collectionItem.value.stream_type) {
+        streamTypes.add(collectionItem.value.stream_type);
       }
+    });
 
-      newCollectionObjectsById[collectionId] = {
-        id: collectionId,
-        name: title || name,
-        items: newItems,
-        itemCount: newItems.length,
-        type: collectionType,
-        createdAt: claim.meta?.creation_timestamp,
-        updatedAt: timestamp,
-        description,
-        thumbnail,
-        key: editedCollectionItems === collectionItems ? 'edited' : undefined,
-        ...resolveAuxParams(collectionType, claim),
-      };
-    } else {
-      invalidCollectionIds.push(collectionId);
-    }
-  });
+    const collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
 
-  const resolveInfo: ClaimActionResolveInfo = {};
+    newCollectionObjectsById[collectionId] = {
+      ...collection,
+      items: Array.from(newItems),
+      itemCount: newItems.size,
+      type: collectionType,
+      key: collectionKey,
+      ...resolveAuxParams(collectionType, claim),
+    };
+  }
 
-  const resolveReposts = true;
-
-  collectionItemsById.forEach((collection) => {
-    // GenericClaim type probably needs to be updated to avoid this "Any"
-    collection.items &&
-      collection.items.forEach((result: any) => {
-        result = { [result.canonical_url]: result };
-        processResult(result, resolveInfo, resolveReposts);
-      });
-  });
-
-  dispatch({ type: ACTIONS.RESOLVE_URIS_SUCCESS, data: { resolveInfo } });
-
-  dispatch({
-    type: ACTIONS.COLLECTION_ITEMS_RESOLVE_COMPLETED,
-    data: {
-      resolvedPrivateCollectionIds: privateCollectionIds,
-      resolvedCollections: newCollectionObjectsById,
-      failedCollectionIds: invalidCollectionIds,
-    },
-  });
-};
-
-function processResult(result, resolveInfo = {}, checkReposts = false) {
-  const fallbackResolveInfo = {
-    stream: null,
-    claimsInChannel: null,
-    channel: null,
-  };
-
-  Object.entries(result).forEach(([uri, uriResolveInfo]) => {
-    // Flow has terrible Object.entries support
-    // https://github.com/facebook/flow/issues/2221
-    if (uriResolveInfo) {
-      if (uriResolveInfo.error) {
-        // $FlowFixMe
-        resolveInfo[uri] = { ...fallbackResolveInfo };
-      } else {
-        let result = {};
-        if (uriResolveInfo.value_type === 'channel') {
-          result.channel = uriResolveInfo;
-          // $FlowFixMe
-          result.claimsInChannel = uriResolveInfo.meta.claims_in_channel;
-        } else if (uriResolveInfo.value_type === 'collection') {
-          result.collection = uriResolveInfo;
-          // $FlowFixMe
-        } else {
-          result.stream = uriResolveInfo;
-          if (uriResolveInfo.signing_channel) {
-            result.channel = uriResolveInfo.signing_channel;
-            result.claimsInChannel =
-              (uriResolveInfo.signing_channel.meta && uriResolveInfo.signing_channel.meta.claims_in_channel) || 0;
-          }
-        }
-        // $FlowFixMe
-        resolveInfo[uri] = result;
-      }
-    }
-  });
-}
-
-export const doFetchItemsInCollection = (options: { collectionId: string, pageSize?: number }) => {
-  const { collectionId, pageSize } = options;
-  const newOptions: { collectionIds: Array<string>, pageSize?: number } = {
-    collectionIds: [collectionId],
-  };
-  if (pageSize) newOptions.pageSize = pageSize;
-
-  return doFetchItemsInCollections(newOptions);
+  return dispatch(
+    batchActions(
+      {
+        type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
+        data: {
+          resolvedCollections: { ...newCollectionObjectsById, ...privateCollectionObjectsById },
+        },
+      },
+      { type: ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE, data: newCollectionObjectsById }
+    )
+  );
 };
 
 export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => (
@@ -391,36 +420,31 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   const collection: Collection = selectCollectionForId(state, collectionId);
 
   if (!collection) {
-    return dispatch({ type: ACTIONS.COLLECTION_ERROR, data: { message: __('Collection does not exist.') } });
+    return dispatch(doToast({ message: __('Collection does not exist.'), isError: true }));
   }
 
-  const editedCollection: Collection = selectEditedCollectionForId(state, collectionId);
-  const unpublishedCollection: Collection = selectUnpublishedCollectionForId(state, collectionId);
-  const publishedCollection: Collection = selectPublishedCollectionForId(state, collectionId); // needs to be published only
+  const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
 
-  const { uris: passedUris, remove, replace, order, type } = params;
+  const { uris, remove, replace, order, type } = params;
 
-  let uris = passedUris;
-  if (remove && uris) {
-    // selects the proper uris stored in collection items in case there's canonical vs permanent uri clash
-    uris = uris.map((uri) => selectClaimUrlInCollectionForIdAndUri(state, collectionId, uri));
-  }
-
-  const currentUrls = collection.items ? collection.items.concat() : [];
+  const collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  const currentUrls = collectionUrls ? collectionUrls.concat() : [];
+  const currentUrlsSet = new Set(currentUrls);
   let newItems = currentUrls;
 
   // Passed uris to add/remove:
   if (uris) {
+    const urisSet = new Set(uris);
+
     if (replace) {
       newItems = uris;
     } else if (remove) {
       // Filters (removes) the passed uris from the current list items
-      // $FlowFixMe
-      newItems = currentUrls.filter((url) => url && !uris?.includes(url));
+      newItems = currentUrls.filter((url) => url && (!uris || !urisSet.has(url)));
     } else {
       // Pushes (adds to the end) the passed uris to the current list items
       // (only if item not already in currentUrls, avoid duplicates)
-      uris.forEach((url) => !currentUrls.includes(url) && newItems.push(url));
+      uris.forEach((url) => !currentUrlsSet.has(url) && newItems.push(url));
     }
   } else if (remove) {
     // no uris and remove === true: clear the list
@@ -435,17 +459,13 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
   }
 
   const isQueue = collectionId === COLS.QUEUE_ID;
-  const collectionKey =
-    (isQueue && COLS.QUEUE_ID) ||
-    ((editedCollection || publishedCollection) && COLS.COL_KEY_EDITED) ||
-    (COLS.BUILTIN_PLAYLISTS.includes(collectionId) && COLS.COL_KEY_BUILTIN) ||
-    (unpublishedCollection && COLS.COL_KEY_UNPUBLISHED);
   const title = params.title || params.name;
 
   return dispatch({
+    // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
     type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
     data: {
-      collectionKey,
+      collectionKey: isPublic ? COLS.KEYS.EDITED : selectCollectionKeyForId(state, collectionId),
       collection: {
         ...collection,
         items: newItems,
@@ -462,18 +482,8 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
 export const doClearEditsForCollectionId = (id: String) => (dispatch: Dispatch) => {
   dispatch({ type: ACTIONS.COLLECTION_DELETE, data: { id, collectionKey: 'edited' } });
-
-  dispatch({
-    type: ACTIONS.COLLECTION_EDIT,
-    data: { collectionKey: COLS.COL_KEY_UPDATED, collection: { id } },
-  });
+  dispatch({ type: ACTIONS.COLLECTION_EDIT, data: { collectionKey: COLS.KEYS.UPDATED, collection: { id } } });
 };
 
-export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) => {
-  const state = getState();
-  const hasItemsInQueue = selectHasItemsInQueue(state);
-
-  if (hasItemsInQueue) {
-    return dispatch(doCollectionEdit(COLS.QUEUE_ID, { remove: true, type: COLS.COL_TYPES.PLAYLIST }));
-  }
-};
+export const doClearQueueList = () => (dispatch: Dispatch, getState: GetState) =>
+  dispatch({ type: ACTIONS.QUEUE_CLEAR });

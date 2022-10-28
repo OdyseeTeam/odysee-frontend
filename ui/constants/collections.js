@@ -28,13 +28,13 @@ export const BUILTIN_PLAYLISTS = [WATCH_LATER_ID, FAVORITES_ID, QUEUE_ID];
 // export const FAVORITE_CHANNELS_ID = 'favoriteChannels';
 // export const BUILTIN_LISTS = [WATCH_LATER_ID, FAVORITES_ID, FAVORITE_CHANNELS_ID];
 
-export const COL_KEY_BUILTIN = 'builtin';
-export const COL_KEY_EDITED = 'edited';
-export const COL_KEY_UPDATED = 'updated';
-export const COL_KEY_UNPUBLISHED = 'unpublished';
-export const COL_KEY_PUBLISHED = 'published';
-export const COL_KEY_PENDING = 'pending';
-export const COL_KEY_SAVED = 'savedIds';
+export const KEYS = Object.freeze({
+  BUILTIN: 'builtin',
+  EDITED: 'edited',
+  UPDATED: 'updated',
+  UNPUBLISHED: 'unpublished',
+  SAVED: 'savedIds',
+});
 
 export const SECTION_TAGS = Object.freeze({
   FEATURED_CHANNELS: '__section__featured__',

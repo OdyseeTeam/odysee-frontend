@@ -65,8 +65,6 @@ type Props = {
   locale: ?LocaleInfo,
   location: { pathname: string, hash: string, search: string, hostname: string, reload: () => void },
   history: { push: (string) => void, location: { pathname: string }, replace: (string) => void },
-  fetchChannelListMine: () => void,
-  fetchCollectionListMine: () => void,
   signIn: () => void,
   setLanguage: (string) => void,
   fetchLanguage: (string) => void,
@@ -105,8 +103,6 @@ function App(props: Props) {
     user,
     locale,
     location,
-    fetchChannelListMine,
-    fetchCollectionListMine,
     signIn,
     isReloadRequired,
     uploadCount,
@@ -317,13 +313,6 @@ function App(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sanitizedReferrerParam, referredRewardAvailable]);
-
-  useEffect(() => {
-    // @if TARGET='app'
-    fetchChannelListMine(); // This is fetched after a user is signed in on web
-    fetchCollectionListMine();
-    // @endif
-  }, [fetchChannelListMine, fetchCollectionListMine]);
 
   useEffect(() => {
     // $FlowFixMe

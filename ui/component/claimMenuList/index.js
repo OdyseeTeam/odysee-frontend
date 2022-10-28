@@ -1,6 +1,5 @@
 import { connect } from 'react-redux';
 import { selectClaimForUri, selectClaimIsMine } from 'redux/selectors/claims';
-import { doFetchItemsInCollection } from 'redux/actions/collections';
 import { doPrepareEdit } from 'redux/actions/publish';
 import { doRemovePersonalRecommendation } from 'redux/actions/search';
 import {
@@ -107,7 +106,6 @@ const perform = (dispatch) => ({
     dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
   doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
   doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
-  fetchCollectionItems: (collectionId) => dispatch(doFetchItemsInCollection({ collectionId })),
   doToggleShuffleList: (params) => dispatch(doToggleShuffleList(params)),
   doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
   doPlaylistAddAndAllowPlaying: (params) => dispatch(doPlaylistAddAndAllowPlaying(params)),
