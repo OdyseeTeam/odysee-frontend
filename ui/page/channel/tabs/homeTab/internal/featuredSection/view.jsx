@@ -27,7 +27,10 @@ function FeaturedSection(props: Props) {
   const navLinkProps = {
     to: navigateUrl,
     onClick: (e) => {
-      e.stopPropagation();
+      if (e.target.className === 'button__label') {
+        e.stopPropagation();
+      }
+      // e.preventDefault()
     },
   };
 
@@ -50,7 +53,7 @@ function FeaturedSection(props: Props) {
             <ChannelThumbnail uri={claim.signing_channel?.canonical_url} xsmall checkMembership={false} />
             <ClaimPreviewSubtitle uri={uri} type="inline" showAtSign={false} />
           </div>
-          <div className="claim-preview-description">
+          <div className="claim-preview-description" {...navLinkProps}>
             <MarkdownPreview className="markdown-preview--description" content={description} simpleLinks />
           </div>
         </div>
