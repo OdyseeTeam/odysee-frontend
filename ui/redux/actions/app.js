@@ -401,6 +401,9 @@ export function doDaemonReady() {
         undefined
       )
     );
+
+    dispatch(doPrepareMigrateCordovaToNative());
+
     dispatch({ type: ACTIONS.DAEMON_READY });
   };
 }
@@ -555,6 +558,43 @@ function reconnect() {
 }
 */
 
+export function doPrepareMigrateCordovaToNative() {
+  return (dispatch, getState) => {
+    if (window.cordova) {
+      const state = getState();
+      const user = selectUser(state);
+
+      Lbryio.getAuthToken().then((authToken) => {
+        if (
+          !authToken ||
+          !user ||
+          String(authToken).trim().length === 0 ||
+          !user.primary_email ||
+          String(user.primary_email).trim().length === 0
+        ) {
+          // auth token and primary email have to be available to be able to set the values in the AccountManager
+          return dispatch({
+            type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY,
+          });
+        }
+
+        // call the plugin with the auth token and the primary email
+        window.cordova.exec(
+          () => {
+            dispatch({
+              type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY,
+            });
+          },
+          null,
+          'OdyseeAccount',
+          'addAccount',
+          [user.primary_email, authToken]
+        );
+      });
+    }
+  };
+}
+
 export function doSignIn() {
   return (dispatch, getState) => {
     const state = getState();
@@ -576,6 +616,7 @@ export function doSignIn() {
     dispatch(doFetchChannelListMine());
     dispatch(doFetchCollectionListMine());
     dispatch(doMembershipMine());
+    dispatch(doPrepareMigrateCordovaToNative());
   };
 }
 
@@ -597,7 +638,21 @@ function doSignOutAction() {
     } finally {
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
-
+        .then(() => {
+          if (window.cordova) {
+            window.cordova.exec(
+              () => {
+                dispatch({
+                  type: ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY,
+                });
+              },
+              null,
+              'OdyseeAccount',
+              'removeAccount',
+              []
+            );
+          }
+        })
         .then(() => {
           // @if TARGET='web'
           return window.persistor.purge();
