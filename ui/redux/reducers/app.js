@@ -385,6 +385,11 @@ reducers[ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY] = (state) =>
     readyToMigrateCordovaToNative: true,
   });
 
+reducers[ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY] = (state) =>
+  Object.assign({}, state, {
+    readyToMigrateCordovaToNative: false,
+  });
+
 export default function reducer(state: AppState = defaultState, action: any) {
   const handler = reducers[action.type];
   if (handler) return handler(state, action);

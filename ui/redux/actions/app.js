@@ -40,6 +40,7 @@ import {
   selectModal,
   selectAllowAnalytics,
   selectAppDrawerOpen,
+  selectIsReadyToMigrateCordovaToNative,
 } from 'redux/selectors/app';
 import { selectDaemonSettings, selectClientSetting } from 'redux/selectors/settings';
 import { selectUser, selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -560,8 +561,10 @@ function reconnect() {
 
 export function doPrepareMigrateCordovaToNative() {
   return (dispatch, getState) => {
-    if (window.cordova) {
-      const state = getState();
+    const state = getState();
+    const isReadyToMigrate = selectIsReadyToMigrateCordovaToNative(state) || false;
+
+    if (window.cordova && !isReadyToMigrate) {
       const user = selectUser(state);
 
       Lbryio.getAuthToken().then((authToken) => {
