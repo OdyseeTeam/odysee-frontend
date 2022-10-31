@@ -19,7 +19,7 @@ type Props = {
   brokenUrls: ?Array<any>,
   isCollectionMine: boolean,
   isPrivate: boolean,
-  doResolveClaimId: (claimId: string) => void,
+  doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void,
 };
 
 export const CollectionPageContext = React.createContext<any>();

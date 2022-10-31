@@ -307,7 +307,7 @@ export function doPlaylistAddAndAllowPlaying({
     const collectionPlayingId = selectPlayingCollectionId(state);
     const playingUri = selectPlayingUri(state);
     const isUriPlaying = uri && selectIsUriCurrentlyPlaying(state, uri);
-    const firstItemUri = selectFirstItemUrlForCollection(state, collectionId);
+    const firstItemUri = collectionId && selectFirstItemUrlForCollection(state, collectionId);
 
     const isPlayingCollection = collectionPlayingId && collectionId && collectionPlayingId === collectionId;
     const hasItemPlaying = playingUri.uri && !isUriPlaying;

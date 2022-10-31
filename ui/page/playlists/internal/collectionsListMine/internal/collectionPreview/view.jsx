@@ -79,7 +79,7 @@ function CollectionPreview(props: Props) {
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItemPath = formatLbryUrlForWeb(collectionItemUrls[0] || '/');
+  const firstItemPath = collectionItemUrls && formatLbryUrlForWeb(collectionItemUrls[0] || '/');
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
 
   function handleClick(e) {

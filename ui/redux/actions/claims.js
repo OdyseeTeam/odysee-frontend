@@ -163,7 +163,7 @@ export function doResolveUris(
  *
  * @param claimIds
  */
-export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: boolean = true, options: {}) {
+export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true, options?: {}) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const resolvedIds = Object.keys(selectById(state));
@@ -184,7 +184,7 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims: b
     return dispatch(
       doClaimSearch(
         {
-          ...options,
+          ...(options || {}),
           claim_ids: idsToResolve,
           page: 1,
           page_size: Math.min(idsToResolve.length, 50),
@@ -359,7 +359,7 @@ export function doAbandonTxo(txo: Txo, cb: (string) => void) {
   };
 }
 
-export function doAbandonClaim(claim: Claim, cb: (string) => void) {
+export function doAbandonClaim(claim: Claim, cb: (string) => any) {
   const { txid, nout } = claim;
   const outpoint = `${txid}:${nout}`;
 

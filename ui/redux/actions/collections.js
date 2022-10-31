@@ -73,17 +73,19 @@ export const doFetchCollectionListMine = (options: CollectionListOptions = { pag
   return await Lbry.collection_list(options).then(autoPaginate(), failure);
 };
 
-export function doCollectionPublish(options: CollectionPublishParams, collectionId: string, cb?: () => void) {
+export function doCollectionPublish(options: CollectionPublishCreateParams, collectionId: string, cb?: () => void) {
   return (dispatch: Dispatch, getState: GetState): Promise<any> => {
     const state = getState();
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
 
-    const params: GenericUploadParams = {
+      // $FlowFixMe
+    const params: GenericPublishCreateParams = {
       channel_id: options.channel_id,
       bid: creditsToString(options.bid),
       blocking: true,
       title: options.title,
       thumbnail_url: options.thumbnail_url,
+      // $FlowFixMe
       tags: options.tags ? options.tags.map((tag) => tag.name) : [],
       languages: options.languages || [],
       description: options.description,
@@ -91,7 +93,7 @@ export function doCollectionPublish(options: CollectionPublishParams, collection
     const fullParams = {};
 
     if (isPrivate) {
-      const publishParams: CollectionPublishParams = {
+      const publishParams: CollectionPublishCreateParams = {
         ...params,
         name: options.name,
         // -- avoid duplicates --
@@ -100,7 +102,7 @@ export function doCollectionPublish(options: CollectionPublishParams, collection
 
       Object.assign(fullParams, publishParams);
     } else {
-      const updateParams: CollectionUpdateParams = {
+      const updateParams: CollectionPublishUpdateParams = {
         ...params,
         claim_id: collectionId,
         clear_claims: true,
@@ -140,6 +142,7 @@ export function doCollectionPublish(options: CollectionPublishParams, collection
         throw new Error(error);
       }
 
+      // $FlowFixMe
       return publishFn(fullParams).then(success, failure);
     });
   };
@@ -251,7 +254,7 @@ export const doFetchItemsInCollection = (params: {
 
   // -- Resolve collections:
   if (!isPrivate && hasClaim === undefined) {
-    await dispatch(doResolveClaimId(collectionId, { include_is_my_output: true })).finally(() => {
+    await dispatch(doResolveClaimId(collectionId, true, { include_is_my_output: true })).finally(() => {
       // get the state after claimSearch
       state = getState();
     });
@@ -280,6 +283,7 @@ export const doFetchItemsInCollection = (params: {
       let resultItems = [];
 
       arrayOfResults.forEach((result: any) => {
+        // $FlowFixMe
         const claims = result.items || Object.values(result).map((item) => item.stream || item);
         resultItems = resultItems.concat(claims);
       });
@@ -338,7 +342,7 @@ export const doFetchItemsInCollection = (params: {
 
     if (collection.items.length > 0) {
       const items = itemCount ? collection.items.slice(0, itemCount) : collection.items;
-      promisedCollectionItemsFetch = fetchItemsForCollectionClaim(collectionId, items);
+      promisedCollectionItemsFetch = items && fetchItemsForCollectionClaim(collectionId, items);
     } else {
       return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
     }
@@ -346,8 +350,8 @@ export const doFetchItemsInCollection = (params: {
     const claim = selectClaimForClaimId(state, collectionId);
 
     const claimIds = getClaimIdsInCollectionClaim(claim);
-    const items = itemCount ? claimIds.slice(0, itemCount) : claimIds;
-    promisedCollectionItemsFetch = fetchItemsForCollectionClaim(collectionId, items);
+    const items = claimIds && (itemCount ? claimIds.slice(0, itemCount) : claimIds);
+    promisedCollectionItemsFetch = items && fetchItemsForCollectionClaim(collectionId, items);
   }
 
   // -- Await results:

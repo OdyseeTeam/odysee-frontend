@@ -15,6 +15,7 @@ export const defaultCollectionState: Collection = {
 
 export function getClaimIdsInCollectionClaim(claim: ?CollectionClaim) {
   if (!claim) return claim;
+  // $FlowFixMe
   return claim.value.claims || (claim.claims && claim.claims.map((claim) => claim.claim_id)) || [];
 }
 
@@ -27,8 +28,8 @@ export function claimToStoredCollection(claim: CollectionClaim) {
     id: claim.claim_id,
     name: claim.value.title,
     title: claim.value.title,
-    items: claimIds,
-    itemCount: claimIds.length,
+    items: claimIds || [],
+    itemCount: claimIds ? claimIds.length : 0,
     description: claim.value.description,
     thumbnail: claim.value.thumbnail,
     createdAt: claim.meta.creation_timestamp,
