@@ -42,18 +42,28 @@ export const doFetchCollectionListMine = (options: CollectionListOptions = { pag
   const failure = (error) => dispatch({ type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE });
 
   const autoPaginate = () => {
-    let allClaims = [];
+    const fullResponseObj: CollectionListResponse = {
+      items: [],
+      page: 0,
+      page_size: options.page_size,
+      total_pages: 0,
+      total_items: 0,
+    };
 
     const next = async (response: CollectionListResponse) => {
+      const { items, ...rest } = response;
       const moreData = response.items.length === options.page_size;
-      allClaims = allClaims.concat(response.items);
+
+      fullResponseObj.items = fullResponseObj.items.concat(items);
+      Object.assign(fullResponseObj, rest);
+
       options.page++;
 
       if (!moreData) {
         // -- Add collection claims to myClaims
         return dispatch(
           batchActions(
-            { type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED, data: { result: response } },
+            { type: ACTIONS.FETCH_CLAIM_LIST_MINE_COMPLETED, data: { result: fullResponseObj } },
             { type: ACTIONS.COLLECTION_LIST_MINE_COMPLETE }
           )
         );
@@ -78,7 +88,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     const state = getState();
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
 
-      // $FlowFixMe
+    // $FlowFixMe
     const params: GenericPublishCreateParams = {
       channel_id: options.channel_id,
       bid: creditsToString(options.bid),
