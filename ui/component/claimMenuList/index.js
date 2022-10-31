@@ -7,7 +7,6 @@ import {
   selectCollectionForIdHasClaimUrl,
   selectCollectionIsMine,
   selectCollectionHasEditsForId,
-  selectUrlsForCollectionId,
   selectLastUsedCollection,
   selectCollectionIsEmptyForId,
 } from 'redux/selectors/collections';
@@ -32,8 +31,8 @@ import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscrip
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectIsProtectedContentLockedFromUserForId } from 'redux/selectors/memberships';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
-import { selectListShuffleForId, makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { doToggleShuffleList, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
+import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
+import { doEnableCollectionShuffle, doPlaylistAddAndAllowPlaying } from 'redux/actions/content';
 import { isStreamPlaceholderClaim } from 'util/claim';
 import * as RENDER_MODES from 'constants/file_render_modes';
 import ClaimPreview from './view';
@@ -47,8 +46,6 @@ const select = (state, props) => {
   const contentSigningChannel = contentClaim && contentClaim.signing_channel;
   const contentPermanentUri = contentClaim && contentClaim.permanent_url;
   const contentChannelUri = (contentSigningChannel && contentSigningChannel.permanent_url) || contentPermanentUri;
-  const collectionShuffle = selectListShuffleForId(state, collectionId);
-  const playNextUri = collectionShuffle && collectionShuffle.newUrls[0];
   const lastUsedCollectionId = selectLastUsedCollection(state);
   const lastUsedCollection = lastUsedCollectionId && selectCollectionForId(state, lastUsedCollectionId);
   const isLivestreamClaim = isStreamPlaceholderClaim(claim);
@@ -80,8 +77,6 @@ const select = (state, props) => {
     isMyCollection: selectCollectionIsMine(state, collectionId),
     hasEdits: selectCollectionHasEditsForId(state, collectionId),
     isAuthenticated: Boolean(selectUserVerifiedEmail(state)),
-    resolvedList: selectUrlsForCollectionId(state, collectionId),
-    playNextUri,
     lastUsedCollection,
     hasClaimInLastUsedCollection: selectCollectionForIdHasClaimUrl(state, lastUsedCollectionId, contentPermanentUri),
     lastUsedCollectionIsNotBuiltin:
@@ -106,7 +101,7 @@ const perform = (dispatch) => ({
     dispatch(doCommentModUnBlockAsAdmin(commenterUri, blockerId)),
   doChannelSubscribe: (subscription) => dispatch(doChannelSubscribe(subscription)),
   doChannelUnsubscribe: (subscription) => dispatch(doChannelUnsubscribe(subscription)),
-  doToggleShuffleList: (params) => dispatch(doToggleShuffleList(params)),
+  doEnableCollectionShuffle: (params) => dispatch(doEnableCollectionShuffle(params)),
   doRemovePersonalRecommendation: (uri) => dispatch(doRemovePersonalRecommendation(uri)),
   doPlaylistAddAndAllowPlaying: (params) => dispatch(doPlaylistAddAndAllowPlaying(params)),
 });

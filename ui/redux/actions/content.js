@@ -9,6 +9,7 @@ import { ipcRenderer } from 'electron';
 // @endif
 import { push } from 'connected-react-router';
 import { doOpenModal, doAnalyticsView, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
+import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
   makeSelectClaimForUri,
   selectClaimIsMineForUri,
@@ -40,11 +41,12 @@ import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import {
   selectRecsysEntries,
   selectPlayingUri,
-  selectListIsShuffledForId,
+  selectCollectionForIdIsPlayingShuffle,
   selectListIsLoopedForId,
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
   makeSelectIsPlayerFloating,
+  selectIsCollectionPlayingForId,
 } from 'redux/selectors/content';
 
 const DOWNLOAD_POLL_INTERVAL = 1000;
@@ -536,36 +538,65 @@ export const doToggleLoopList = (params: { collectionId: string, hideToast?: boo
   }
 };
 
-export const doToggleShuffleList = (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => (
-  dispatch: Dispatch,
-  getState: () => any
-) => {
-  const { currentUri, collectionId, hideToast } = params;
+export const doEnableCollectionShuffle = ({
+  collectionId,
+  currentUri,
+}: {
+  collectionId: string,
+  currentUri?: string,
+}) => (dispatch: Dispatch, getState: () => any) => {
   const state = getState();
-  const playingUri = selectPlayingUri(state);
-  const { collection: playingCollection } = playingUri;
-  // const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
-  const listIsShuffledForId = selectListIsShuffledForId(state, collectionId);
+  const urls = selectUrlsForCollectionId(state, collectionId);
+  const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+
+  let newUrls = urls
+    .map((item) => ({ item, sort: Math.random() }))
+    .sort((a, b) => a.sort - b.sort)
+    .map(({ item }) => item);
+
+  // the currently playing URI should be first in list or else
+  // can get in strange position where it might be in the middle or last
+  // and the shuffled list ends before scrolling through all entries
+  if (currentUri) {
+    newUrls.splice(newUrls.indexOf(currentUri), 1);
+    newUrls.splice(0, 0, currentUri);
+  }
+
+  const newPlayingCollectionObj = { collection: { collectionId, shuffle: { newUrls } } };
+
+  if (collectionIsPlaying) {
+    dispatch(doChangePlayingUriParam(newPlayingCollectionObj));
+  } else {
+    dispatch(doUriInitiatePlay({ uri: newUrls[0], ...newPlayingCollectionObj }, true, true));
+  }
+
+  const navigateUrl = formatLbryUrlForWeb(newUrls[0]);
+
+  dispatch(
+    push({
+      pathname: navigateUrl,
+      search: generateListSearchUrlParams(collectionId),
+      state: { collectionId, forceAutoplay: true },
+    })
+  );
+};
+
+export const doToggleShuffleList = ({
+  currentUri,
+  collectionId,
+  hideToast,
+}: {
+  currentUri?: string,
+  collectionId: string,
+  hideToast?: boolean,
+}) => (dispatch: Dispatch, getState: () => any) => {
+  const state = getState();
+  const listIsShuffledForId = selectCollectionForIdIsPlayingShuffle(state, collectionId);
 
   if (!listIsShuffledForId) {
-    const urls = selectUrlsForCollectionId(state, collectionId);
-
-    let newUrls = urls
-      .map((item) => ({ item, sort: Math.random() }))
-      .sort((a, b) => a.sort - b.sort)
-      .map(({ item }) => item);
-
-    // the currently playing URI should be first in list or else
-    // can get in strange position where it might be in the middle or last
-    // and the shuffled list ends before scrolling through all entries
-    if (currentUri) {
-      newUrls.splice(newUrls.indexOf(currentUri), 1);
-      newUrls.splice(0, 0, currentUri);
-    }
-
-    dispatch(doChangePlayingUriParam({ collection: { ...playingCollection, collectionId, shuffle: { newUrls } } }));
+    dispatch(doEnableCollectionShuffle({ collectionId, currentUri }));
   } else {
-    dispatch(doChangePlayingUriParam({ collection: { ...playingCollection, collectionId, shuffle: undefined } }));
+    dispatch(doChangePlayingUriParam({ collection: { shuffle: undefined } }));
   }
 
   if (!hideToast) {

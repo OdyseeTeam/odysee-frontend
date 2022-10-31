@@ -9,8 +9,8 @@ import {
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import {
   selectCollectionForId,
-  selectNextUrlForCollectionAndUrl,
-  selectPreviousUrlForCollectionAndUrl,
+  selectNextUriForUriInPlayingCollectionForId,
+  selectPreviousUriForUriInPlayingCollectionForId,
   selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
 } from 'redux/selectors/collections';
@@ -70,8 +70,8 @@ const select = (state, props) => {
     videoTheaterMode: selectClientSetting(state, SETTINGS.VIDEO_THEATER_MODE),
     costInfo: selectCostInfoForUri(state, uri),
     claimWasPurchased: selectClaimWasPurchasedForUri(state, uri),
-    nextListUri: collectionId && selectNextUrlForCollectionAndUrl(state, uri, collectionId),
-    previousListUri: collectionId && selectPreviousUrlForCollectionAndUrl(state, uri, collectionId),
+    nextListUri: collectionId && selectNextUriForUriInPlayingCollectionForId(state, collectionId, uri),
+    previousListUri: collectionId && selectPreviousUriForUriInPlayingCollectionForId(state, collectionId, uri),
     collectionId,
     collectionSidebarId,
     playingCollection: selectCollectionForId(state, collectionId),

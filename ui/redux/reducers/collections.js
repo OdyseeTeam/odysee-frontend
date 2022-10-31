@@ -36,7 +36,6 @@ const defaultState: CollectionState = {
     type: COLS.COL_TYPES.PLAYLIST,
   },
   resolvedIds: undefined,
-  shuffleListItems: null,
 };
 
 const collectionsReducer = handleActions(

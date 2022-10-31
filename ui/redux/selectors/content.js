@@ -27,9 +27,23 @@ export const selectState = (state: State) => state.content || {};
 export const selectPlayingUri = (state: State) => selectState(state).playingUri;
 export const selectPlayingCollection = (state: State) => selectPlayingUri(state).collection;
 export const selectPlayingCollectionId = (state: State) => selectPlayingCollection(state).collectionId;
+export const selectPlayingCollectionLoop = (state: State) => selectPlayingCollection(state).loop;
+export const selectPlayingCollectionShuffleUrls = (state: State) => selectPlayingCollection(state).shuffle?.newUrls;
 export const selectPrimaryUri = (state: State) => selectState(state).primaryUri;
 export const selectLastViewedAnnouncement = (state: State) => selectState(state).lastViewedAnnouncement;
 export const selectRecsysEntries = (state: State) => selectState(state).recsysEntries;
+
+export const selectCollectionForIdIsPlayingShuffle = (state: State, collectionId: string) => {
+  const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+  const playingCollectionShuffleUrls = selectPlayingCollectionShuffleUrls(state);
+  return collectionIsPlaying && playingCollectionShuffleUrls;
+};
+
+export const selectCollectionForIdIsPlayingLoop = (state: State, collectionId: string) => {
+  const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+  const playingCollectionLoop = selectPlayingCollectionLoop(state);
+  return collectionIsPlaying && !!playingCollectionLoop;
+};
 
 export const selectIsPlayingCollectionForId = (state: State, id: string) => selectPlayingCollectionId(state) === id;
 
