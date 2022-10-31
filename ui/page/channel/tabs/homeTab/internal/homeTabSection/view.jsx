@@ -237,9 +237,7 @@ function HomeTabSection(props: Props) {
                   disabled={!searchResults}
                   onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
                 >
-                  <option disabled="disabled" value="select">
-                    {__('Select')}
-                  </option>
+                  <option value="select">{__('Select...')}</option>
                   {!isSearching && searchResults ? (
                     searchResults.map((result, i) => {
                       return (

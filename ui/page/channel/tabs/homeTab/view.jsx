@@ -41,12 +41,14 @@ function HomeTab(props: Props) {
       file_type: undefined,
       order_by: undefined,
       claim_id: undefined,
+      rows: 1,
     },
     {
       type: 'content',
       file_type: CS.FILE_ALL,
       order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
+      rows: 1,
     },
   ];
 

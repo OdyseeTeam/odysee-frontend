@@ -7,6 +7,9 @@ import MarkdownPreview from 'component/common/markdown-preview';
 import ClaimMenuList from 'component/claimMenuList';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ClaimPreviewSubtitle from 'component/claimPreviewSubtitle';
+import FileWatchLaterLink from 'component/fileWatchLaterLink';
+import ButtonAddToQueue from 'component/buttonAddToQueue';
+
 import { formatLbryUrlForWeb } from 'util/url';
 import PreviewOverlayProperties from 'component/previewOverlayProperties';
 
@@ -41,7 +44,11 @@ function FeaturedSection(props: Props) {
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
       <div className="claim-preview claim-preview-featured">
-        <FileThumbnail uri={uri}>
+        <FileThumbnail thumbnail={claim.value.thumbnail?.url} forceReload>
+          <div className="claim-preview__hover-actions-grid">
+            <FileWatchLaterLink focusable={false} uri={uri} />
+            <ButtonAddToQueue focusable={false} uri={uri} />
+          </div>
           <PreviewOverlayProperties uri={uri} small={false} xsmall={false} />
         </FileThumbnail>
         <div className="claim-preview__text">
