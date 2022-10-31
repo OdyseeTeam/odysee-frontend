@@ -479,6 +479,7 @@ export const selectCollectionClaimPublishUpdateMetadataForId = (state: State, cl
   const collectionClaimIds = selectClaimForClaimId(state, claimId).value?.claims;
   if (!collectionClaimIds) return collectionClaimIds;
 
+  // $FlowFixMe
   const collectionPublishUpdateMetadata: CollectionPublishUpdateParams = {
     ...claimMetadata,
     claims: collectionClaimIds,

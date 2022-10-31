@@ -25,7 +25,7 @@ import {
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
-type State = { claims: any, user: any, collections: CollectionState };
+type State = { claims: any, user: any, content: any, collections: CollectionState };
 
 const selectState = (state: State) => state.collections || {};
 

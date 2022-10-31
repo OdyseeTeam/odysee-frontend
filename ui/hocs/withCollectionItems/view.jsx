@@ -10,7 +10,7 @@ type Props = {
   isPrivate: ?boolean,
   collectionUrls: ?Array<string>,
   collectionIds: ?Array<string>,
-  doResolveClaimId: (claimId: string) => void,
+  doResolveClaimId: (claimId: string, returnCachedClaims?: boolean, options?: {}) => void,
   doFetchItemsInCollection: (params: { collectionId: string }) => void,
 };
 
