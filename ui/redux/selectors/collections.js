@@ -17,7 +17,11 @@ import {
 import { normalizeURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
 import { selectUserCreationDate } from 'redux/selectors/user';
-import { selectPlayingCollection } from 'redux/selectors/content';
+import {
+  selectIsCollectionPlayingForId,
+  selectCollectionForIdIsPlayingShuffle,
+  selectCollectionForIdIsPlayingLoop,
+} from 'redux/selectors/content';
 import { getItemCountForCollection } from 'util/collections';
 import { isPermanentUrl, isCanonicalUrl } from 'util/claim';
 
@@ -35,7 +39,6 @@ export const selectQueueCollection = (state: State) => selectState(state).queue;
 export const selectLastUsedCollection = (state: State) => selectState(state).lastUsedCollection;
 export const selectIsFetchingMyCollections = (state: State) => selectState(state).isFetchingMyCollections;
 export const selectCollectionIdsWithItemsResolved = (state: State) => selectState(state).resolvedIds;
-export const selectShuffleListItems = (state: State) => selectState(state).shuffleListItems;
 
 export const selectCollectionHasItemsResolvedForId = (state: State, id: string) =>
   new Set(selectCollectionIdsWithItemsResolved(state)).has(id);
@@ -235,31 +238,6 @@ export const selectClaimInCollectionsForUrl = (state: State, url: string) => {
   return claimSaved && claimInQueue;
 };
 
-export const selectCollectionForIdClaimForUriItem = createSelector(
-  (state: State, id: string, uri: string) => uri,
-  (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
-  selectCollectionForId,
-  (uri, claim, collection) => {
-    if (!collection) return collection;
-
-    const items = new Set(collection.items);
-
-    if (items.has(uri)) return uri;
-
-    if (!claim) return false;
-
-    const permanentUri = claim.permanent_url;
-
-    if (items.has(permanentUri)) return permanentUri;
-
-    const canonicalUri = claim.canonical_url;
-
-    if (items.has(canonicalUri)) return canonicalUri;
-
-    return false;
-  }
-);
-
 export const selectCollectionForIdHasClaimUrl = (state: State, id: string, uri: string) =>
   Boolean(selectCollectionForIdClaimForUriItem(state, id, uri));
 
@@ -302,82 +280,6 @@ export const selectAreBuiltinCollectionsEmpty = (state: State) => {
 
   return !notEmpty;
 };
-
-export const selectIndexForUrlInCollection = createSelector(
-  (state, url, id, ignoreShuffle) => ignoreShuffle,
-  (state, url, id) => id,
-  (state, url, id) => selectItemsForCollectionId(state, id),
-  (state, url) => url,
-  (state) => selectPlayingCollection(state),
-  selectClaimForUri,
-  (ignoreShuffle, id, urls, url, playingCollection, claim) => {
-    const { collectionId: playingCollectionId, shuffle } = playingCollection;
-
-    const shuffleUrls = !ignoreShuffle && shuffle && playingCollectionId === id && shuffle.newUrls;
-    const listUrls = shuffleUrls || urls;
-
-    const index = listUrls && listUrls.findIndex((u) => u === url);
-    if (index > -1) {
-      return index;
-    } else if (claim) {
-      const index = listUrls && listUrls.findIndex((u) => u === claim.permanent_url);
-      if (index > -1) return index;
-    }
-    return null;
-  }
-);
-
-export const selectPreviousUrlForCollectionAndUrl = createCachedSelector(
-  (state, url, id) => id,
-  (state) => selectPlayingCollection(state),
-  (state, url, id) => selectIndexForUrlInCollection(state, url, id),
-  (state, url, id) => selectItemsForCollectionId(state, id),
-  (id, playingCollection, index, urls) => {
-    const { collectionId: playingCollectionId, shuffle, loop } = playingCollection;
-
-    const loopList = loop && playingCollectionId === id;
-    const shuffleUrls = shuffle && playingCollectionId === id && shuffle.newUrls;
-    const listUrls = shuffleUrls || urls;
-
-    if (index > -1 && listUrls) {
-      let nextUrl;
-      if (index === 0 && loopList) {
-        nextUrl = listUrls[listUrls.length - 1];
-      } else {
-        nextUrl = listUrls[index - 1];
-      }
-      return nextUrl || null;
-    } else {
-      return null;
-    }
-  }
-)((state, url, id) => `${String(url)}:${String(id)}`);
-
-export const selectNextUrlForCollectionAndUrl = createCachedSelector(
-  (state, url, id) => id,
-  (state) => selectPlayingCollection(state),
-  (state, url, id) => selectIndexForUrlInCollection(state, url, id),
-  (state, url, id) => selectItemsForCollectionId(state, id),
-  (id, playingCollection, index, urls) => {
-    const { collectionId: playingCollectionId, shuffle, loop } = playingCollection;
-
-    const loopList = loop && playingCollectionId === id;
-    const shuffleUrls = shuffle && playingCollectionId === id && shuffle.newUrls;
-    const listUrls = shuffleUrls || urls;
-
-    if (index > -1 && listUrls) {
-      // We'll get the next playble url
-      let remainingUrls = listUrls.slice(index + 1);
-      if (!remainingUrls.length && loopList) {
-        remainingUrls = listUrls.slice(0);
-      }
-      const nextUrl = remainingUrls && remainingUrls[0];
-      return nextUrl || null;
-    } else {
-      return null;
-    }
-  }
-)((state, url, id) => `${String(url)}:${String(id)}`);
 
 export const selectThumbnailForCollectionId = (state: State, id: string) => {
   const collection = selectCollectionForId(state, id);
@@ -500,6 +402,29 @@ export const selectUrlsForCollectionId = createSelector(
   }
 );
 
+export const selectCollectionForIdClaimForUriItem = createSelector(
+  (state: State, id: string, uri: string) => uri,
+  (state: State, id: string, uri: string) => selectClaimForUri(state, uri),
+  selectUrlsForCollectionId,
+  (uri, claim, collectionUrls) => {
+    if (!collectionUrls) return collectionUrls;
+
+    if (collectionUrls.includes(uri)) return uri;
+
+    if (!claim) return false;
+
+    const permanentUri = claim.permanent_url;
+
+    if (collectionUrls.includes(permanentUri)) return permanentUri;
+
+    const canonicalUri = claim.canonical_url;
+
+    if (collectionUrls.includes(canonicalUri)) return canonicalUri;
+
+    return false;
+  }
+);
+
 export const selectThumbnailClaimUrisForCollectionId = createSelector(
   selectHasPrivateCollectionForId,
   selectItemsForCollectionId,
@@ -552,3 +477,78 @@ export const selectCollectionKeyForId = (state: State, id: string) => {
 
   return undefined;
 };
+
+export const selectFirstPlayingCollectionIndexForId = (state: State, collectionId: string) => {
+  const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
+  if (!collectionIsPlaying) return collectionIsPlaying;
+
+  const playingCollectionShuffleUrls = selectCollectionForIdIsPlayingShuffle(state, collectionId);
+  const collectionUrls = selectUrlsForCollectionId(state, collectionId);
+
+  const urls = playingCollectionShuffleUrls || collectionUrls;
+
+  return urls && urls[0];
+};
+
+export const selectIndexForUrlInCollectionForId = createSelector(
+  selectCollectionForIdClaimForUriItem,
+  selectUrlsForCollectionId,
+  (uriItem, collectionUrls) => {
+    const index = collectionUrls && collectionUrls.findIndex((uri) => uri === uriItem);
+
+    if (index > -1) return index;
+
+    return null;
+  }
+);
+
+export const selectIndexForUriInPlayingCollectionForId = createSelector(
+  selectCollectionForIdClaimForUriItem,
+  selectUrlsForCollectionId,
+  selectCollectionForIdIsPlayingShuffle,
+  (uriItem, collectionUrls, playingCollectionShuffleUrls) => {
+    const uris = playingCollectionShuffleUrls || collectionUrls;
+
+    const index = uris && uris.findIndex((uri) => uri === uriItem);
+
+    if (index > -1) return index;
+
+    return null;
+  }
+);
+
+export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelector(
+  selectUrlsForCollectionId,
+  selectIndexForUriInPlayingCollectionForId,
+  selectCollectionForIdIsPlayingShuffle,
+  selectCollectionForIdIsPlayingLoop,
+  (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
+    if (currentIndex === null) return null;
+
+    const uris = playingCollectionShuffleUrls || collectionUrls;
+
+    if (currentIndex === 0 && isLooped) {
+      return uris[uris.length - 1];
+    }
+
+    return uris[currentIndex - 1];
+  }
+)((state, url, id) => `${String(url)}:${String(id)}`);
+
+export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
+  selectUrlsForCollectionId,
+  selectIndexForUriInPlayingCollectionForId,
+  selectCollectionForIdIsPlayingShuffle,
+  selectCollectionForIdIsPlayingLoop,
+  (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
+    if (currentIndex === null) return null;
+
+    const uris = playingCollectionShuffleUrls || collectionUrls;
+
+    if (currentIndex === uris.length - 1 && isLooped) {
+      return uris[0];
+    }
+
+    return uris[currentIndex + 1];
+  }
+)((state, url, id) => `${String(url)}:${String(id)}`);
