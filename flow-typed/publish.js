@@ -39,6 +39,7 @@ declare type UpdatePublishFormData = {
   isMarkdownPost?: boolean,
   tags?: Array<Tag>,
   restrictedToMemberships?: Array<string>,
+  visibility: string,
 };
 
 declare type PublishParams = {

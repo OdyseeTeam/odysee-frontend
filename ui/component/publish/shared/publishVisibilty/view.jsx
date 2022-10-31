@@ -6,12 +6,26 @@ import './style.scss';
 import Card from 'component/common/card';
 
 type Props = {
-  reflectingInfo?: ReflectingUpdate,
-  checkReflecting: () => void,
+  updatePublishForm: (any) => void,
 };
 
 const PublishVisibility = (props: Props) => {
+  l('props');
+  l(props);
+  const { updatePublishForm } = props;
+
   const [selectedVisibility, setSelectedVisibility] = useState('public');
+
+  l('update publish form');
+  l(updatePublishForm);
+
+  function switchVisibility (visibility) {
+    setSelectedVisibility(visibility);
+
+    updatePublishForm({
+      visibility,
+    });
+  }
 
   return (
     <div className="publish-visibility">
@@ -26,14 +40,14 @@ const PublishVisibility = (props: Props) => {
               name="public-visibility"
               checked={selectedVisibility === 'public'}
               label={__('Public (anyone can view it)')}
-              onChange={() => setSelectedVisibility('public')}
+              onChange={() => switchVisibility('public')}
             />
             <FormField
               type="radio"
               name="unlisted-visibility"
               checked={selectedVisibility === 'unlisted'}
               label={__('Unlisted (only people with the special link can access)')}
-              onChange={() => setSelectedVisibility('unlisted')}
+              onChange={() => switchVisibility('unlisted')}
             />
             <FormField
               type="radio"
@@ -41,7 +55,7 @@ const PublishVisibility = (props: Props) => {
               checked={selectedVisibility === 'private'}
               label={__('Private (only you can view the content)')}
               // helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)}
-              onChange={() => setSelectedVisibility('private')}
+              onChange={() => switchVisibility('private')}
             />
           </>
         }

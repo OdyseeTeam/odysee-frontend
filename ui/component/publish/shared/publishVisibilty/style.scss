@@ -1,13 +1,15 @@
+@import '~ui/scss/init/breakpoints';
+
 .publish-visibility {
   fieldset-section.radio {
-    margin-top: 4px;
+    margin-top: var(--spacing-s);
 
     > label {
-      font-size: 16px;
+      font-size: var(--font-base);
     }
   }
 }
 
 .publish-visibility {
-  margin-bottom: var(--spacing-xl) !important;
+  margin-bottom: var(--spacing-xl);
 }
