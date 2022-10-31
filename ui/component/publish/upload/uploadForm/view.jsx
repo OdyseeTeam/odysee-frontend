@@ -23,6 +23,7 @@ import PublishStreamReleaseDate from 'component/publish/shared/publishStreamRele
 import PublishPrice from 'component/publish/shared/publishPrice';
 import PublishFile from 'component/publish/upload/publishFile';
 import PublishProtectedContent from 'component/publishProtectedContent';
+import PublishVisibility from 'component/publish/shared/publishVisibilty/view';
 
 import SelectThumbnail from 'component/selectThumbnail';
 import Card from 'component/common/card';
@@ -475,6 +476,8 @@ function UploadForm(props: Props) {
       />
 
       {mode !== PUBLISH_MODES.POST && <PublishDescription disabled={formDisabled} />}
+
+      <PublishVisibility />
 
       {!publishing && (
         <div className={classnames({ 'card--disabled': formDisabled })}>
