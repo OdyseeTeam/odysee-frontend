@@ -50,6 +50,7 @@ export type AppState = {
   adBlockerFound: ?boolean, // undefined = unknown; true/false = yes/no;
   appDrawerOpen: boolean | string,
   mainPlayerDimensions: { height: ?number, width: ?number },
+  readyToMigrateCordovaToNative: ?boolean,
 };
 
 const defaultState: AppState = {
@@ -93,6 +94,7 @@ const defaultState: AppState = {
   adBlockerFound: undefined,
   appDrawerOpen: false,
   mainPlayerDimensions: { height: undefined, width: undefined },
+  readyToMigrateCordovaToNative: false,
 };
 
 // @@router comes from react-router
@@ -377,6 +379,16 @@ reducers[ACTIONS.PURCHASE_URI_FAILED] = (state, action) => {
     modalProps: null,
   };
 };
+
+reducers[ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_READY] = (state) =>
+  Object.assign({}, state, {
+    readyToMigrateCordovaToNative: true,
+  });
+
+reducers[ACTIONS.MIGRATE_CORDOVA_TO_NATIVE_NOT_READY] = (state) =>
+  Object.assign({}, state, {
+    readyToMigrateCordovaToNative: false,
+  });
 
 export default function reducer(state: AppState = defaultState, action: any) {
   const handler = reducers[action.type];

@@ -157,3 +157,5 @@ export const selectIsDrawerOpenForType = (state, type) => {
   const appDrawerOpen = selectAppDrawerOpen(state);
   return appDrawerOpen === type;
 };
+
+export const selectIsReadyToMigrateCordovaToNative = (state) => selectState(state).readyToMigrateCordovaToNative;
