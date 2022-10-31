@@ -1,14 +1,14 @@
 import { connect } from 'react-redux';
-import { doCheckReflectingFiles } from 'redux/actions/publish';
 import { makeSelectReflectingClaimForUri } from 'redux/selectors/claims';
-import PublishPending from './view';
+import { doUpdatePublishForm } from 'redux/actions/publish';
+import PublishVisibility from './view';
 
 const select = (state, props) => ({
   reflectingInfo: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
 });
 
 const perform = (dispatch) => ({
-  checkReflecting: () => dispatch(doCheckReflectingFiles()),
+  updatePublishForm: (value) => dispatch(doUpdatePublishForm(value)),
 });
 
-export default connect(select, perform)(PublishPending);
+export default connect(select, perform)(PublishVisibility);
