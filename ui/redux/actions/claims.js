@@ -12,7 +12,7 @@ import {
   selectPendingClaimsById,
   selectClaimIsMine,
   selectIsMyChannelCountOverLimit,
-  selectById,
+  selectClaimsById,
   selectMyChannelClaimIds,
   selectFetchingMyChannels,
   selectResolvingIds,
@@ -40,17 +40,26 @@ export function doResolveUris(
     const state = getState();
 
     const resolvingUrisSet = new Set(selectResolvingUris(state));
+    const cachedClaims: ResolveResponse | {} = {};
+
     const claimsByUri = selectClaimsByUri(state);
     const urisToResolve = normalizedUris.filter((uri) => {
       if (resolvingUrisSet.has(uri)) {
         return false;
       }
 
-      return returnCachedClaims ? !claimsByUri[uri] : true;
+      const claim = claimsByUri[uri];
+
+      if (returnCachedClaims && claim) {
+        cachedClaims[claim.canonical_url || claim.permanent_url] = { stream: claim };
+        return false;
+      }
+
+      return true;
     });
 
     if (urisToResolve.length === 0) {
-      return Promise.resolve();
+      return Promise.resolve(cachedClaims);
     }
 
     dispatch({ type: ACTIONS.RESOLVE_URIS_START, data: { uris: normalizedUris } });
@@ -149,7 +158,7 @@ export function doResolveUris(
           dispatch(doResolveUris(Array.from(repostsToResolve), true, false, additionalOptions));
         }
 
-        return response;
+        return { ...response, ...cachedClaims };
       })
       .catch((error) => dispatch({ type: ACTIONS.RESOLVE_URIS_FAIL, data: normalizedUris }));
   };
@@ -164,21 +173,30 @@ export function doResolveUris(
  * @param claimIds
  */
 export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: boolean = true, options?: {}) {
-  return (dispatch: Dispatch, getState: GetState) => {
+  return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const resolvedIds = Object.keys(selectById(state));
+
+    const claimsById = selectClaimsById(state);
     const resolvingIds = selectResolvingIds(state);
+    const cachedClaims: ResolveResponse | {} = {};
 
-    const idsToResolve = [];
-
-    claimIds.forEach((claimId) => {
-      if (!resolvingIds.includes(claimId) && (!returnCachedClaims || !resolvedIds.includes(claimId))) {
-        idsToResolve.push(claimId);
+    const idsToResolve = claimIds.filter((claimId) => {
+      if (resolvingIds.includes(claimId)) {
+        return false;
       }
+
+      const claim = claimsById[claimId];
+
+      if (returnCachedClaims && claim) {
+        cachedClaims[claim.canonical_url || claim.permanent_url] = { stream: claim };
+        return false;
+      }
+
+      return true;
     });
 
     if (idsToResolve.length === 0) {
-      return Promise.resolve();
+      return Promise.resolve(cachedClaims);
     }
 
     return dispatch(
@@ -194,7 +212,7 @@ export function doResolveClaimIds(claimIds: Array<string>, returnCachedClaims?: 
           useAutoPagination: idsToResolve.length > 50,
         }
       )
-    );
+    ).then((response: ClaimSearchResponse) => ({ ...response, ...cachedClaims }));
   };
 }
 export const doResolveClaimId = (claimId: ClaimId, returnCachedClaims: boolean = true, options: {}) =>
