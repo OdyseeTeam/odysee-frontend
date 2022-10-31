@@ -7,7 +7,7 @@ const select = (state, props) => {
   const { collectionId } = props;
 
   return {
-    collectionItemUrls: selectUrlsForCollectionId(state, collectionId),
+    collectionItemUrls: selectUrlsForCollectionId(state, collectionId, 3),
     collectionThumbnail: selectThumbnailForId(state, collectionId),
   };
 };

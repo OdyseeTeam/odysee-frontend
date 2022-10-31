@@ -255,7 +255,7 @@ export const selectBrokenUrlsForCollectionId = (state: State, id: string) => {
 };
 
 export const selectFirstItemUrlForCollection = (state: State, id: string) => {
-  const collectionItemUrls = selectItemsForCollectionId(state, id);
+  const collectionItemUrls = selectUrlsForCollectionId(state, id, 1);
 
   return collectionItemUrls?.length > 0 && collectionItemUrls[0];
 };
@@ -370,15 +370,18 @@ export const selectClaimIdsForCollectionId = createSelector(
   }
 );
 
-export const selectUrlsForCollectionId = createSelector(
+export const selectUrlsForCollectionId = createCachedSelector(
+  (state, collectionId, itemCount) => itemCount,
   selectItemsForCollectionId,
   selectClaimsById,
-  (items, claimsById) => {
+  (itemCount, items, claimsById) => {
     if (!items) return items;
 
     const uris = new Set([]);
 
-    const notFetched = items.some((item) => {
+    let notFetched;
+
+    items.some((item, index) => {
       if (isPermanentUrl(item) || isCanonicalUrl(item)) {
         uris.add(item);
       } else {
@@ -391,16 +394,20 @@ export const selectUrlsForCollectionId = createSelector(
         if (uri) {
           uris.add(uri);
         } else {
-          return true;
+          notFetched = true;
         }
+      }
+
+      if (Number.isInteger(itemCount) ? index === itemCount - 1 : notFetched) {
+        return true;
       }
     });
 
-    if (notFetched) return undefined;
+    if (notFetched && !Number.isInteger(itemCount)) return undefined;
 
     return Array.from(uris);
   }
-);
+)((state, url, itemCount) => `${String(url)}:${String(itemCount)}`);
 
 export const selectCollectionForIdClaimForUriItem = createSelector(
   (state: State, id: string, uri: string) => uri,

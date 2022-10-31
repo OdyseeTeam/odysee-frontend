@@ -28,7 +28,7 @@ import {
   selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
 } from 'redux/selectors/collections';
-import { doCollectionEdit, doLocalCollectionCreate } from 'redux/actions/collections';
+import { doCollectionEdit, doLocalCollectionCreate, doFetchItemsInCollection } from 'redux/actions/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doToast } from 'redux/actions/notifications';
 import { doPurchaseUri } from 'redux/actions/file';
@@ -544,7 +544,9 @@ export const doEnableCollectionShuffle = ({
 }: {
   collectionId: string,
   currentUri?: string,
-}) => (dispatch: Dispatch, getState: () => any) => {
+}) => async (dispatch: Dispatch, getState: () => any) => {
+  await dispatch(doFetchItemsInCollection({ collectionId })); // make sure we have the URIS in the collection
+
   const state = getState();
   const urls = selectUrlsForCollectionId(state, collectionId);
   const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);

@@ -28,7 +28,7 @@ import {
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType, getClaimIdsInCollectionClaim } from 'util/collections';
-import { getThumbnailFromClaim, isPermanentUrl, isCanonicalUrl } from 'util/claim';
+import { getThumbnailFromClaim } from 'util/claim';
 import { creditsToString } from 'util/format-credits';
 import { doToast } from 'redux/actions/notifications';
 
@@ -318,7 +318,7 @@ export const doFetchItemsInCollection = (params: {
         const uris = new Set([]);
         const ids = new Set([]);
         batchItems.forEach((item) => {
-          if (isCanonicalUrl(item) || isPermanentUrl(item)) {
+          if (item.startsWith('lbry://')) {
             uris.add(item);
           } else {
             ids.add(item);
@@ -389,15 +389,23 @@ export const doFetchItemsInCollection = (params: {
     const { value } = claim;
     const { tags } = value || {};
 
+    const claimIds = getClaimIdsInCollectionClaim(claim) || [];
+
     const valueTypes = new Set();
     const streamTypes = new Set();
     const newItems = new Set();
 
-    collectionItems.forEach((collectionItem) => {
-      newItems.add(collectionItem.claim_id);
-      valueTypes.add(collectionItem.value_type);
-      if (collectionItem.value.stream_type) {
-        streamTypes.add(collectionItem.value.stream_type);
+    claimIds.forEach((claimId, index) => {
+      const collectionItem = collectionItems[index];
+
+      if (collectionItem) {
+        newItems.add(collectionItem.claim_id);
+        valueTypes.add(collectionItem.value_type);
+        if (collectionItem.value.stream_type) {
+          streamTypes.add(collectionItem.value.stream_type);
+        }
+      } else {
+        newItems.add(claimId);
       }
     });
 
