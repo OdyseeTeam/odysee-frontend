@@ -2,7 +2,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import FileThumbnail from 'component/fileThumbnail';
-// import FileDescription from 'component/fileDescription';
 import MarkdownPreview from 'component/common/markdown-preview';
 import ClaimMenuList from 'component/claimMenuList';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -33,7 +32,6 @@ function FeaturedSection(props: Props) {
       if (e.target.className === 'button__label') {
         e.stopPropagation();
       }
-      // e.preventDefault()
     },
   };
 

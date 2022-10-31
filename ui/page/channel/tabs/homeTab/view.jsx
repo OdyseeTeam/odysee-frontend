@@ -32,8 +32,8 @@ function HomeTab(props: Props) {
 
   const claimId = claim && claim.claim_id;
   const isChannelBroadcasting = Boolean(activeLivestreamForChannel);
-  // const homepage_settings = settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
-  // if (homepage_settings) console.log('homepage_settings: ', homepage_settings[0]);
+  const homepage_settings =
+    settingsByChannelId && settingsByChannelId[claim.claim_id] && settingsByChannelId[claim.claim_id].homepage_settings;
 
   const homeTemplate = [
     {
@@ -59,43 +59,20 @@ function HomeTab(props: Props) {
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
   React.useEffect(() => {
-    if (
-      settingsByChannelId &&
-      claim &&
-      settingsByChannelId[claim.claim_id] &&
-      settingsByChannelId[claim.claim_id].homepage_settings
-    ) {
-      setHome(settingsByChannelId[claim.claim_id].homepage_settings);
-    } else if (
-      settingsByChannelId &&
-      claim &&
-      settingsByChannelId[claim.claim_id] &&
-      settingsByChannelId[claim.claim_id].homepage_settings === null
-    ) {
+    if (homepage_settings) {
+      setHome(homepage_settings);
+    } else {
       setHome(homeTemplate);
     }
   }, [settingsByChannelId]);
 
   React.useEffect(() => {
-    if (
-      settingsByChannelId &&
-      claim &&
-      settingsByChannelId[claim.claim_id] &&
-      settingsByChannelId[claim.claim_id].homepage_settings
-    ) {
-      setHasChanges(home !== settingsByChannelId[claim.claim_id].homepage_settings[0]);
+    if (homepage_settings) {
+      setHasChanges(home !== homepage_settings);
     }
   }, [settingsByChannelId, home]);
 
-  /*
-  React.useEffect(() => {
-    console.log('setHome')
-    setHome(settingsByChannelId && claim && settingsByChannelId[claim.claim_id].homepage_settings && settingsByChannelId[claim.claim_id].homepage_settings || settingsByChannelId[claim.claim_id].homepage_settings === null ? homeTemplate : [])
-  }, [settingsByChannelId]);
-  */
-
   function handleEditCollection(e, index) {
-    // e.target.blur();
     let newHome = [...home];
     if (e.order) {
       if (e.order.to >= newHome.length) {
@@ -147,10 +124,6 @@ function HomeTab(props: Props) {
   }
 
   function handleCancelChanges() {
-    console.log('remove1: ', home[0]);
-    if (settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) {
-      console.log('remove2: ', settingsByChannelId[claim.claim_id].homepage_settings[0]);
-    }
     setHome((settingsByChannelId && settingsByChannelId[claim.claim_id].homepage_settings) || homeTemplate);
     setEdit(false);
   }
