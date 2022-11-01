@@ -1,6 +1,6 @@
 // @flow
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { FormField } from 'component/common/form';
 import './style.scss';
 import Card from 'component/common/card';
@@ -10,22 +10,23 @@ type Props = {
 };
 
 const PublishVisibility = (props: Props) => {
-  l('props');
-  l(props);
   const { updatePublishForm } = props;
 
   const [selectedVisibility, setSelectedVisibility] = useState('public');
 
-  l('update publish form');
-  l(updatePublishForm);
-
-  function switchVisibility (visibility) {
+  function switchVisibility(visibility) {
     setSelectedVisibility(visibility);
 
     updatePublishForm({
       visibility,
     });
   }
+
+  useEffect(() => {
+    return () => {
+      updatePublishForm({ visibility: undefined });
+    };
+  }, []);
 
   return (
     <div className="publish-visibility">

@@ -97,6 +97,8 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     remoteFileUrl,
     restrictedToMemberships,
     // restrictCommentsAndChat,
+    visibility,
+    scheduledContent,
   } = publishData;
 
   // Handle scenario where we have a claim that has the same name as a channel we are publishing with.
@@ -270,6 +272,24 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
   tagSet.delete(MEMBERS_ONLY_CONTENT_TAG);
   if (restrictedToMemberships && publishPayload.channel_id) {
     tagSet.add(MEMBERS_ONLY_CONTENT_TAG);
+  }
+
+  // unlisted and private content
+  if (visibility) {
+    if (visibility === 'unlisted') {
+      tagSet.add('c:unlisted');
+    } else if (visibility === 'private') {
+      tagSet.add('c:private');
+    }
+  }
+
+  // future scheduled content
+  if (scheduledContent) {
+    if (scheduledContent === 'show') {
+      tagSet.add('c:scheduled:show');
+    } else if (scheduledContent === 'hide') {
+      tagSet.add('c:scheduled:hide');
+    }
   }
 
   publishPayload.tags = Array.from(tagSet);

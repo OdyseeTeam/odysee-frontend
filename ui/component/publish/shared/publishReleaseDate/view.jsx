@@ -84,7 +84,7 @@ const PublishReleaseDate = (props: Props) => {
       setReleaseDateIsInFuture(true);
       setWhetherToShowScheduledContentOnChannelPage(true);
     } else {
-      updatePublishForm({ showScheduledContentOnChannelPage: undefined });
+      updatePublishForm({ scheduledContent: undefined });
       setReleaseDateIsInFuture(false);
     }
 
@@ -154,12 +154,12 @@ const PublishReleaseDate = (props: Props) => {
     if (showScheduledContentOnChannelPage) {
       setShowScheduledOnChannelPage(true);
       updatePublishForm({
-        showScheduledContentOnChannelPage: true,
+        scheduledContent: 'show',
       });
     } else {
       setShowScheduledOnChannelPage(false);
       updatePublishForm({
-        showScheduledContentOnChannelPage: false,
+        scheduledContent: 'hide',
       });
     }
   }
@@ -167,13 +167,14 @@ const PublishReleaseDate = (props: Props) => {
   function clearFutureReleaseData() {
     setReleaseDateIsInFuture(false);
     updatePublishForm({
-      showScheduledContentOnChannelPage: undefined,
+      scheduledContent: undefined,
     });
   }
 
   useEffect(() => {
     return () => {
       updatePublishForm({ releaseTimeEdited: undefined });
+      updatePublishForm({ scheduledContent: undefined });
     };
   }, []);
 

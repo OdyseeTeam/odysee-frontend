@@ -40,6 +40,7 @@ declare type UpdatePublishFormData = {
   tags?: Array<Tag>,
   restrictedToMemberships?: Array<string>,
   visibility: string,
+  showScheduledContentOnChannelPage: boolean,
 };
 
 declare type PublishParams = {
