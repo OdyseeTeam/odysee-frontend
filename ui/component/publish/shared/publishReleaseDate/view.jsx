@@ -2,6 +2,8 @@
 import React, { useEffect } from 'react';
 import Button from 'component/button';
 import DateTimePicker from 'react-datetime-picker';
+import { FormField } from 'component/common/form';
+import './style.scss';
 
 function linuxTimestampToDate(linuxTimestamp: number) {
   return new Date(linuxTimestamp * 1000);
@@ -40,6 +42,8 @@ const PublishReleaseDate = (props: Props) => {
   const maxDate = useMaxDate ? new Date() : undefined;
   const [date, setDate] = React.useState(releaseTime ? linuxTimestampToDate(releaseTime) : undefined);
   const [error, setError] = React.useState([]);
+  const [releaseDateIsInFuture, setReleaseDateIsInFuture] = React.useState(false);
+  const [showScheduledOnChannelPage, setShowScheduledOnChannelPage] = React.useState(true);
 
   const isNew = releaseTime === undefined;
   const isEdit = !isNew || allowDefault === false;
@@ -75,9 +79,13 @@ const PublishReleaseDate = (props: Props) => {
 
   const onDateTimePickerChanged = (value) => {
     const isValueInFuture = maxDate && value && value.getTime() > maxDate.getTime();
+
     if (isValueInFuture) {
-      updateError('add', FUTURE_DATE_ERROR);
-      return;
+      setReleaseDateIsInFuture(true);
+      setWhetherToShowScheduledContentOnChannelPage(true);
+    } else {
+      updatePublishForm({ showScheduledContentOnChannelPage: undefined });
+      setReleaseDateIsInFuture(false);
     }
 
     updateError('remove', FUTURE_DATE_ERROR);
@@ -98,16 +106,21 @@ const PublishReleaseDate = (props: Props) => {
   function newDate(value: string | Date) {
     updateError('clear', FUTURE_DATE_ERROR);
 
+    // note: I am not running clearFutureReleaseData() for other options
+    // because it doesn't seem they're being used and I'm not sure how they work
+    // they may need to be set in the future
     switch (value) {
       case NOW:
         const newDate = new Date();
         setDate(newDate);
         updatePublishForm({ releaseTimeEdited: dateToLinuxTimestamp(newDate) });
+        clearFutureReleaseData();
         break;
 
       case DEFAULT:
         setDate(undefined);
         updatePublishForm({ releaseTimeEdited: undefined });
+        clearFutureReleaseData();
         break;
 
       case RESET_TO_ORIGINAL:
@@ -135,6 +148,27 @@ const PublishReleaseDate = (props: Props) => {
         updateError('remove', event.target.name);
       }
     }
+  }
+
+  function setWhetherToShowScheduledContentOnChannelPage(showScheduledContentOnChannelPage) {
+    if (showScheduledContentOnChannelPage) {
+      setShowScheduledOnChannelPage(true);
+      updatePublishForm({
+        showScheduledContentOnChannelPage: true,
+      });
+    } else {
+      setShowScheduledOnChannelPage(false);
+      updatePublishForm({
+        showScheduledContentOnChannelPage: false,
+      });
+    }
+  }
+
+  function clearFutureReleaseData() {
+    setReleaseDateIsInFuture(false);
+    updatePublishForm({
+      showScheduledContentOnChannelPage: undefined,
+    });
   }
 
   useEffect(() => {
@@ -202,6 +236,28 @@ const PublishReleaseDate = (props: Props) => {
           </span>
         )}
       </div>
+      {releaseDateIsInFuture && (
+        <>
+          <div className="whether-to-show-scheduled-picker">
+            <h2>Do you want to show on your channel page before publish?</h2>
+            <FormField
+              type="radio"
+              name="show-on-channel-page"
+              checked={showScheduledOnChannelPage}
+              label={__('Show as scheduled upload')}
+              onChange={() => setWhetherToShowScheduledContentOnChannelPage(true)}
+            />
+            <FormField
+              type="radio"
+              name="hide-on-channel-page"
+              checked={!showScheduledOnChannelPage}
+              label={__('Hide until publish date')}
+              // helper={__(HELP.ONLY_CONFIRM_OVER_AMOUNT)}
+              onChange={() => setWhetherToShowScheduledContentOnChannelPage(false)}
+            />
+          </div>
+        </>
+      )}
     </div>
   );
 };
