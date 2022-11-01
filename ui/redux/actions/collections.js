@@ -369,9 +369,6 @@ export const doFetchItemsInCollection = (params: {
     collectionItems = await promisedCollectionItemsFetch;
   }
 
-  const newCollectionObjectsById = {};
-  const privateCollectionObjectsById = {};
-
   if (!collectionItems || collectionItems.length === 0) {
     return dispatch({ type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL, data: collectionId });
   }
@@ -382,7 +379,12 @@ export const doFetchItemsInCollection = (params: {
   if (isPrivate) {
     const newItems = collectionItems.map((item) => item.permanent_url);
 
-    privateCollectionObjectsById[collectionId] = { ...collection, items: newItems, key: collectionKey };
+    const newPrivateCollection = { ...collection, items: newItems, key: collectionKey };
+
+    return dispatch({
+      type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
+      data: { resolvedCollection: newPrivateCollection },
+    });
   } else {
     const claim = selectClaimForClaimId(state, collectionId);
 
@@ -411,27 +413,21 @@ export const doFetchItemsInCollection = (params: {
 
     const collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
 
-    newCollectionObjectsById[collectionId] = {
+    const newStoreCollectionClaim = {
       ...collection,
       items: Array.from(newItems),
       itemCount: newItems.size,
       type: collectionType,
-      key: collectionKey,
       ...resolveAuxParams(collectionType, claim),
     };
-  }
 
-  return dispatch(
-    batchActions(
-      {
-        type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
-        data: {
-          resolvedCollections: { ...newCollectionObjectsById, ...privateCollectionObjectsById },
-        },
-      },
-      { type: ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE, data: newCollectionObjectsById }
-    )
-  );
+    return dispatch(
+      batchActions(
+        { type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS, data: { resolvedCollection: newStoreCollectionClaim } },
+        { type: ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE, data: newStoreCollectionClaim }
+      )
+    );
+  }
 };
 
 export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (

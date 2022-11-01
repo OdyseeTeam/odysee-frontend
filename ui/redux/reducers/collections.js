@@ -164,7 +164,9 @@ const collectionsReducer = handleActions(
       return { ...state, collectionItemsFetchingIds: Array.from(newCollectionItemsFetchingIds) };
     },
     [ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS]: (state, action) => {
-      const { resolvedCollections } = action.data;
+      const { resolvedCollection } = action.data;
+
+      const { id, key, items, updatedAt } = resolvedCollection;
 
       const newEdited = Object.assign({}, state.edited);
       const newUnpublished = Object.assign({}, state.unpublished);
@@ -172,24 +174,20 @@ const collectionsReducer = handleActions(
       const newCollectionItemsFetchingIds = new Set(state.collectionItemsFetchingIds);
       const newResolvedIds = new Set(state.resolvedIds);
 
-      for (const id in resolvedCollections) {
-        const collection = Object.assign({}, resolvedCollections[id]);
-
-        if (collection.key === COLS.KEYS.EDITED) {
-          if (newEdited[id]) Object.assign(newEdited[id].items, collection.items);
-        } else if (collection.key === COLS.KEYS.UNPUBLISHED) {
-          if (newUnpublished[id]) Object.assign(newUnpublished[id].items, collection.items);
-        } else if (collection.key === COLS.KEYS.UPDATED) {
-          if (newUpdated[id]) {
-            if (newUpdated[id]['updatedAt'] < resolvedCollections[id]['updatedAt']) {
-              delete newUpdated[id];
-            }
+      if (key === COLS.KEYS.EDITED) {
+        if (newEdited[id]) Object.assign(newEdited[id].items, items);
+      } else if (key === COLS.KEYS.UNPUBLISHED) {
+        if (newUnpublished[id]) Object.assign(newUnpublished[id].items, items);
+      } else if (key === COLS.KEYS.UPDATED) {
+        if (newUpdated[id]) {
+          if (newUpdated[id]['updatedAt'] < updatedAt) {
+            delete newUpdated[id];
           }
         }
-
-        newCollectionItemsFetchingIds.delete(id);
-        newResolvedIds.add(id);
       }
+
+      newCollectionItemsFetchingIds.delete(id);
+      newResolvedIds.add(id);
 
       return {
         ...state,

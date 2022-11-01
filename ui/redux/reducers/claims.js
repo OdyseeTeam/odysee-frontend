@@ -1073,14 +1073,14 @@ reducers[ACTIONS.CHECK_IF_PURCHASED_COMPLETED] = (state: State, action: any): St
 // --- Collection Claims ---
 
 reducers[ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE] = (state: State, action: any) => {
-  const collectionsObjectsById: { [collectionId: string]: Collection } = action.data;
+  const resolvedCollectionObj: Collection = action.data;
+
+  const { id: collectionId } = resolvedCollectionObj;
+
   const newResolvedCollectionsById = Object.assign({}, state.resolvedCollectionsById);
+  const currentCollectionStore = newResolvedCollectionsById[collectionId];
 
-  for (const collectionId in collectionsObjectsById) {
-    const resolvedCollection = collectionsObjectsById[collectionId];
-
-    newResolvedCollectionsById[collectionId] = { ...newResolvedCollectionsById[collectionId], ...resolvedCollection };
-  }
+  newResolvedCollectionsById[collectionId] = { ...currentCollectionStore, ...resolvedCollectionObj };
 
   return { ...state, resolvedCollectionsById: newResolvedCollectionsById };
 };
