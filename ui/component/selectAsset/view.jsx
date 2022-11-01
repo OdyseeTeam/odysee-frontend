@@ -34,8 +34,6 @@ function SelectAsset(props: Props) {
   const [url, setUrl] = React.useState(currentValue);
   const [uploadErrorMsg, setUploadErrorMsg] = React.useState();
 
-  console.log('assetName: ', assetName);
-
   React.useEffect(() => {
     if (useUrl) {
       setUploadErrorMsg('');
@@ -104,7 +102,6 @@ function SelectAsset(props: Props) {
 
   const currentPlaceholder = pathSelected ? imagePreview : currentValue;
   const ChannelPreview = () => {
-    console.log('ffffffff');
     return (
       <div className="channel-preview-wrapper">
         <div

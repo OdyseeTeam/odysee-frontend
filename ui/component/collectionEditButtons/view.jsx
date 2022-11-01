@@ -39,6 +39,14 @@ export default function CollectionButtons(props: Props) {
     : altCollection.length - 1;
   const collectionIndex = Number(foundIndex) || Number(altIndex);
 
+  function handleOnClick(change) {
+    if (!altCollection) {
+      editCollection(change);
+    } else {
+      altEditCollection(change);
+    }
+  }
+
   return (
     <div
       className="collection-preview__edit-buttons"
@@ -62,22 +70,14 @@ export default function CollectionButtons(props: Props) {
           title={__('Move Top')}
           icon={ICONS.UP_TOP}
           disabled={collectionIndex === 0}
-          onClick={() =>
-            !altCollection
-              ? editCollection({ order: { from: collectionIndex, to: 0 } })
-              : altEditCollection({ order: { from: collectionIndex, to: 0 } })
-          }
+          onClick={() => handleOnClick({ order: { from: collectionIndex, to: 0 } })}
         />
 
         <OrderButton
           title={__('Move Bottom')}
           icon={ICONS.DOWN_BOTTOM}
           disabled={collectionIndex === lastCollectionIndex}
-          onClick={() =>
-            !altCollection
-              ? editCollection({ order: { from: collectionIndex, to: lastCollectionIndex } })
-              : altEditCollection({ order: { from: collectionIndex, to: lastCollectionIndex } })
-          }
+          onClick={() => handleOnClick({ order: { from: collectionIndex, to: lastCollectionIndex } })}
         />
       </div>
 
@@ -86,22 +86,14 @@ export default function CollectionButtons(props: Props) {
           title={__('Move Up')}
           icon={ICONS.UP}
           disabled={collectionIndex === 0}
-          onClick={() =>
-            !altCollection
-              ? editCollection({ order: { from: collectionIndex, to: collectionIndex - 1 } })
-              : altEditCollection({ order: { from: collectionIndex, to: collectionIndex - 1 } })
-          }
+          onClick={() => handleOnClick({ order: { from: collectionIndex, to: collectionIndex - 1 } })}
         />
 
         <OrderButton
           title={__('Move Down')}
           icon={ICONS.DOWN}
           disabled={collectionIndex === lastCollectionIndex}
-          onClick={() =>
-            !altCollection
-              ? editCollection({ order: { from: collectionIndex, to: collectionIndex + 1 } })
-              : altEditCollection({ order: { from: collectionIndex, to: collectionIndex + 1 } })
-          }
+          onClick={() => handleOnClick({ order: { from: collectionIndex, to: collectionIndex + 1 } })}
         />
       </div>
 

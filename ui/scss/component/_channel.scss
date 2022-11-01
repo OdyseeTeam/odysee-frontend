@@ -554,13 +554,18 @@ $actions-z-index: 2;
   left: calc((100% - (var(--page-max-width))) / 2);
   top: -9.2rem;
   margin-top: var(--spacing-l);
-  // box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 1), 0 6px 16px 0 rgba(0, 0, 0, 0.6);
   box-shadow: 0 3px 6px 0 var(--color-shadow), 0 4px 10px 0 rgba(0, 0, 0, 0.6);
   z-index: 11;
   transition: width 0.2s, height 0.2s, top 0.2s;
   background-color: var(--color-header-background);
 
-  @media (max-width: $breakpoint-large) {
+  @media (min-width: 1600px) {
+    left: calc((100% - (var(--page-max-width))) / 2);
+  }
+  @media (min-width: 1450px) and (max-width: $breakpoint-large) {
+    left: calc((100% - (var(--page-max-width))) / 2) !important;
+  }
+  @media (min-width: $breakpoint-small) and (max-width: 1449px) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
   @media (max-width: $breakpoint-small) {
@@ -835,6 +840,10 @@ $actions-z-index: 2;
   bottom: calc(var(--channel-thumbnail-width) / 2);
   left: calc(((100% - (var(--page-max-width))) / 2) + ((var(--channel-thumbnail-width) / 2) - 17px));
   z-index: 12;
+
+  @media (max-width: 1449px) {
+    left: calc((var(--channel-thumbnail-width) / 2) + var(--spacing-m));
+  }
 
   > * {
     padding: 0 var(--spacing-xs);

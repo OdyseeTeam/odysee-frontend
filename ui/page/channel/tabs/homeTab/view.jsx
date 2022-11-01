@@ -45,7 +45,7 @@ function HomeTab(props: Props) {
     },
     {
       type: 'content',
-      file_type: CS.FILE_ALL,
+      file_type: undefined,
       order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
       rows: 1,

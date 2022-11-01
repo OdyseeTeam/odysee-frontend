@@ -343,26 +343,6 @@ function ChannelForm(props: Props) {
 
         <Tabs index={tabIndex}>
           <div className={classnames('tab__wrapper', { 'tab__wrapper-fixed': scrollPast })}>
-            <div className="channel__edit-thumb">
-              <Button
-                button="alt"
-                title={__('Edit')}
-                onClick={() =>
-                  openModal(MODALS.IMAGE_UPLOAD, {
-                    onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
-                    title: __('Edit Thumbnail Image'),
-                    helpText: __('(1:1 ratio)', {
-                      max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                    }),
-                    assetName: __('Thumbnail'),
-                    currentValue: params.thumbnailUrl,
-                    otherValue: params.coverUrl,
-                  })
-                }
-                icon={ICONS.CAMERA}
-                iconSize={18}
-              />
-            </div>
             <div onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
               <ChannelThumbnail
                 className={classnames('channel__thumbnail--channel-page', {
@@ -374,6 +354,26 @@ function ChannelForm(props: Props) {
                 setThumbUploadError={setThumbError}
                 thumbUploadError={thumbError}
               />
+              <div className="channel__edit-thumb">
+                <Button
+                  button="alt"
+                  title={__('Edit')}
+                  onClick={() =>
+                    openModal(MODALS.IMAGE_UPLOAD, {
+                      onUpdate: (thumbnailUrl, isUpload) => handleThumbnailChange(thumbnailUrl, isUpload),
+                      title: __('Edit Thumbnail Image'),
+                      helpText: __('(1:1 ratio)', {
+                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                      }),
+                      assetName: __('Thumbnail'),
+                      currentValue: params.thumbnailUrl,
+                      otherValue: params.coverUrl,
+                    })
+                  }
+                  icon={ICONS.CAMERA}
+                  iconSize={18}
+                />
+              </div>
             </div>
 
             <TabList className="tabs__list--channel-page">
