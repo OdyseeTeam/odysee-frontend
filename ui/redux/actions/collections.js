@@ -434,11 +434,11 @@ export const doFetchItemsInCollection = (params: {
   );
 };
 
-export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => (
+export const doCollectionEdit = (collectionId: string, params: CollectionEditParams) => async (
   dispatch: Dispatch,
   getState: GetState
 ) => {
-  const state = getState();
+  let state = getState();
   const collection: Collection = selectCollectionForId(state, collectionId);
 
   if (!collection) {
@@ -449,7 +449,13 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
   const { uris, remove, replace, order, type } = params;
 
-  const collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  let collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  if (collectionUrls === undefined) {
+    await dispatch(doFetchItemsInCollection({ collectionId }));
+    state = getState();
+    collectionUrls = selectUrlsForCollectionId(state, collectionId);
+  }
+
   const currentUrls = collectionUrls ? collectionUrls.concat() : [];
   const currentUrlsSet = new Set(currentUrls);
   let newItems = currentUrls;
