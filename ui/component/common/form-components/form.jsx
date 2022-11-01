@@ -1,16 +1,20 @@
 // @flow
 import * as React from 'react';
+import * as KEYCODES from 'constants/keycodes';
 
 type Props = {
   children: React.Node,
   errors?: ?{},
+  disableSubmitOnEnter?: boolean,
   onSubmit: (any) => any,
 };
 
 export const FormContext = React.createContext<any>();
 
 export const Form = (props: Props) => {
-  const { children, errors, onSubmit, ...otherProps } = props;
+  const { children, errors, disableSubmitOnEnter, onSubmit, ...otherProps } = props;
+
+  const pressedEnter = React.useRef(false);
 
   const [formErrors, setFormErrors] = React.useState(errors);
 
@@ -34,9 +38,14 @@ export const Form = (props: Props) => {
     <form
       noValidate
       className="form"
+      onMouseDown={() => (pressedEnter.current = false)}
+      onKeyDown={(event) => (pressedEnter.current = event.keyCode === KEYCODES.ENTER)}
       onSubmit={(event) => {
         event.preventDefault();
-        onSubmit(event);
+
+        if (!disableSubmitOnEnter || !pressedEnter.current) {
+          onSubmit(event);
+        }
       }}
       {...otherProps}
     >

@@ -186,7 +186,7 @@ declare type ClaimActionResolveInfo = {
 };
 
 declare type GenericPublishParams = {
-  bid: string,
+  bid: string | number,
   channel_id?: ?string,
   title?: string,
   description?: string,

@@ -163,6 +163,7 @@ const CollectionPublishForm = (props: Props) => {
       className="main--contained collection-publish-form__wrapper"
       onSubmit={handleSubmitForm}
       errors={{ ...(itemError ? { items: itemError } : {}), ...(thumbailError ? { thumbnail: thumbailError } : {}) }}
+      disableSubmitOnEnter
     >
       <CollectionFormContext.Provider value={{ formParams, updateFormParams }}>
         <Tabs onChange={onTabChange} index={tabIndex}>

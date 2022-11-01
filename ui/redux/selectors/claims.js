@@ -464,7 +464,7 @@ export const selectGenericClaimPublishUpdateMetadataForId = (state: State, claim
     description: selectMetadataItemForClaimIdAndKey(state, claimId, 'description'),
     languages: selectMetadataItemForClaimIdAndKey(state, claimId, 'languages') || [],
     locations: selectMetadataItemForClaimIdAndKey(state, claimId, 'locations'),
-    bid: selectClaimBidAmountForId(state, claimId) || 0.001,
+    bid: Number(selectClaimBidAmountForId(state, claimId)) || 0.001,
     tags: tags ? tags.map((tag) => ({ name: tag })) : [],
     ...(thumbnail ? { thumbnail_url: thumbnail.url } : {}),
   };
