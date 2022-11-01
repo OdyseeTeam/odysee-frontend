@@ -3,6 +3,7 @@ import React from 'react';
 
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 
 import { useHistory } from 'react-router';
 import { COLLECTION_PAGE } from 'constants/urlParams';
@@ -83,7 +84,11 @@ const CollectionTitle = (props: Props) => {
               title={__('Edit')}
               className="button-toggle"
               icon={ICONS.EDIT}
-              onClick={() => push(`?${COLLECTION_PAGE.QUERIES.VIEW}=${COLLECTION_PAGE.VIEWS.EDIT}`)}
+              onClick={() =>
+                push(
+                  `/$/${PAGES.PLAYLIST}/${collectionId}?${COLLECTION_PAGE.QUERIES.VIEW}=${COLLECTION_PAGE.VIEWS.EDIT}`
+                )
+              }
             />
           )}
         </div>
