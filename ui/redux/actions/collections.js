@@ -335,7 +335,10 @@ export const doFetchItemsInCollection = (params: {
       const itemsInBatches = await Promise.all([...uriBatches, ...idBatches]);
       const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
 
-      if (resultItems) {
+      // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
+      const itemsWereFetching = resultItems.length !== collectionItemsInOrder.length;
+
+      if (resultItems && !itemsWereFetching) {
         return resultItems;
       } else {
         return null;
