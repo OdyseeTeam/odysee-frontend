@@ -16,11 +16,17 @@ import { CsOptions } from 'util/claim-search';
 import HomeTabSection from './view';
 
 const select = (state, props) => {
+  const stream_types =
+    props.section.file_type && Array.isArray(props.section.file_type)
+      ? props.section.file_type
+      : props.section.file_type
+      ? [props.section.file_type]
+      : undefined;
   const options = {
     page_size: props.section.type !== 'featured' ? 12 : 1,
     page: 1,
     channel_ids: [props.channelClaimId],
-    stream_types: props.section.file_type ? [props.section.file_type] : undefined,
+    stream_types: stream_types,
     claim_type: props.section.type === 'playlists' ? 'collection' : 'stream',
     order_by: props.section.type !== 'featured' ? props.section.order_by : ['effective_amount'],
     not_tags:

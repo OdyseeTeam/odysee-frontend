@@ -5,6 +5,7 @@ import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
 import { lighthouse } from 'redux/actions/search';
+import * as CS from 'constants/claim_search';
 
 type Props = {
   channelClaimId: any,
@@ -98,8 +99,8 @@ function HomeTabSection(props: Props) {
       case 'featured':
         return null;
       case 'content':
-        switch (section.file_type) {
-          case 'video':
+        switch (section.file_type[0]) {
+          case CS.FILE_VIDEO:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
                 return __('New Videos');
@@ -109,7 +110,7 @@ function HomeTabSection(props: Props) {
                 return __('Top Videos');
             }
             break;
-          case 'audio':
+          case CS.FILE_AUDIO:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
                 return __('New Audio');
@@ -119,7 +120,17 @@ function HomeTabSection(props: Props) {
                 return __('Top Audio');
             }
             break;
-          case 'document':
+          case CS.FILE_IMAGE:
+            switch (section.order_by ? section.order_by[0] : 'release_time') {
+              case 'release_time':
+                return __('New Images');
+              case 'trending_group':
+                return __('Trending Images');
+              case 'effective_amount':
+                return __('Top Images');
+            }
+            break;
+          case CS.FILE_DOCUMENT:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
                 return __('New Posts');
@@ -172,14 +183,14 @@ function HomeTabSection(props: Props) {
               <label>{__('File Type')}</label>
               <select
                 name="file_type"
-                value={section.file_type || 'all'}
+                value={section.file_type || CS.FILE_TYPES}
                 onChange={(e) => handleEditCollection({ change: { field: e.target.name, value: e.target.value } })}
               >
-                <option value="all">{__('Show All')}</option>
-                <option value="video">{__('Videos')}</option>
-                <option value="audio">{__('Audio')}</option>
-                <option value="document">{__('Posts')}</option>
-                <option value="image">{__('Images')}</option>
+                <option value={CS.FILE_TYPES}>{__('Show All')}</option>
+                <option value={CS.FILE_VIDEO}>{__('Videos')}</option>
+                <option value={CS.FILE_AUDIO}>{__('Audio')}</option>
+                <option value={CS.FILE_DOCUMENT}>{__('Posts')}</option>
+                <option value={CS.FILE_IMAGE}>{__('Images')}</option>
               </select>
             </div>
           )}

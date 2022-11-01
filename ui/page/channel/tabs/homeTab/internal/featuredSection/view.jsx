@@ -42,7 +42,7 @@ function FeaturedSection(props: Props) {
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
       <div className="claim-preview claim-preview-featured">
-        <FileThumbnail thumbnail={claim.value.thumbnail?.url} forceReload>
+        <FileThumbnail uri={uri} thumbnail={claim.value.thumbnail?.url} forceReload>
           <div className="claim-preview__hover-actions-grid">
             <FileWatchLaterLink focusable={false} uri={uri} />
             <ButtonAddToQueue focusable={false} uri={uri} />

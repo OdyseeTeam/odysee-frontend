@@ -45,7 +45,7 @@ function HomeTab(props: Props) {
     },
     {
       type: 'content',
-      file_type: undefined,
+      file_type: CS.CLAIM_TYPES,
       order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
       rows: 1,
@@ -54,7 +54,7 @@ function HomeTab(props: Props) {
 
   const [home, setHome] = React.useState([]);
   const [edit, setEdit] = React.useState(false);
-  const [hasChanges, setHasChanges] = React.useState(false);
+  // const [hasChanges, setHasChanges] = React.useState(false);
 
   useFetchLiveStatus(claimId, doFetchChannelLiveStatus, true);
 
@@ -66,11 +66,13 @@ function HomeTab(props: Props) {
     }
   }, [settingsByChannelId]);
 
+  /*
   React.useEffect(() => {
     if (homepage_settings) {
       setHasChanges(home !== homepage_settings);
     }
   }, [settingsByChannelId, home]);
+  */
 
   function handleEditCollection(e, index) {
     let newHome = [...home];
@@ -94,6 +96,9 @@ function HomeTab(props: Props) {
             order_by: [],
             claim_id: undefined,
           };
+        } else if (e.change.field === 'file_type') {
+          // $FlowIgnore
+          newHome[index][e.change.field] = e.change.value.split(',');
         } else {
           // $FlowIgnore
           newHome[index][e.change.field] = e.change.value;
@@ -179,7 +184,7 @@ function HomeTab(props: Props) {
         })}
       {edit && (
         <div className="home-tab-edit">
-          <Button label={__('Save')} button="primary" disabled={!hasChanges} onClick={() => handleSaveHomeSection()} />
+          <Button label={__('Save')} button="primary" onClick={() => handleSaveHomeSection()} />
           <Button button="link" label={__('Cancel')} onClick={handleCancelChanges} />
         </div>
       )}
