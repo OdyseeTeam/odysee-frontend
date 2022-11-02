@@ -308,7 +308,7 @@ function SideNavigation(props: Props) {
   // **************************************************************************
 
   function getSidebarCategories(isLargeScreen) {
-    const rowData = GetLinksData(homepageData, isLargeScreen);
+    const rowData = GetLinksData((homepageData && homepageData.categories) || {}, isLargeScreen);
     let categories = rowData;
 
     if (homepageOrderApplyToSidebar) {

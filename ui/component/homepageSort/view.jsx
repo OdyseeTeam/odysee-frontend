@@ -85,8 +85,9 @@ type Props = {
 
 export default function HomepageSort(props: Props) {
   const { onUpdate, homepageData, homepageOrder } = props;
+  const { categories } = homepageData;
 
-  const SECTIONS = { ...NON_CATEGORY, ...homepageData };
+  const SECTIONS = { ...NON_CATEGORY, ...categories };
   const [listActive, setListActive] = useState(() => getInitialList('ACTIVE', homepageOrder, SECTIONS));
   const [listHidden, setListHidden] = useState(() => getInitialList('HIDDEN', homepageOrder, SECTIONS));
 

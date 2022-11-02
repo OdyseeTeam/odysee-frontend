@@ -1,0 +1,34 @@
+.portals-wrapper {
+  // background:black;
+  width: 100%;
+  // height:300px;
+  background-image: url('/public/img/tmp/portals.jpg');
+  background-size: cover;
+  border-radius: var(--border-radius);
+  padding: var(--spacing-m);
+  padding-top: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+
+  h1 {
+    width: 100%;
+    text-align: center;
+    font-size: var(--font-title);
+    padding: var(--spacing-l) 0;
+  }
+  .portal-wrapper {
+    width: 100%;
+    .portal-thumbnail {
+      width: 100%;
+      img {
+        width: 410px;
+        height: 410px;
+        border-radius: var(--border-radius);
+      }
+    }
+    .portal-title {
+      text-align: center;
+    }
+  }
+}
