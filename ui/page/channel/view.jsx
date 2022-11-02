@@ -93,6 +93,7 @@ function ChannelPage(props: Props) {
     goBack,
     location: { search },
   } = useHistory();
+  console.log('uri; ', uri);
   const [viewBlockedChannel, setViewBlockedChannel] = React.useState(false);
   const urlParams = new URLSearchParams(search);
   const currentView = urlParams.get(CHANNEL_PAGE.QUERIES.VIEW) || CHANNEL_PAGE.VIEWS.CONTENT;

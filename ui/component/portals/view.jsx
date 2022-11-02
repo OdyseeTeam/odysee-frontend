@@ -9,27 +9,43 @@ type Props = {
 export default function Portals(props: Props) {
   const { portals } = props;
 
-  if (portals) console.log('portals: ', portals.mainPortal);
+  if (portals && portals.mainPortal) {
+    portals.mainPortal.portals = portals.mainPortal.portals.concat(portals.mainPortal.portals);
+    portals.mainPortal.portals = portals.mainPortal.portals.splice(0, 6);
+  }
 
   return portals && portals.mainPortal ? (
     <div className="portals-wrapper">
       <h1>{portals.mainPortal.description}</h1>
       {portals.mainPortal.portals.map((portal) => {
         return (
-          <NavLink aria-hidden tabIndex={-1} to={{ pathname: '$/portal/' + portal.name, state: 'test' }}>
-            <div className="portal-wrapper">
+          <div className="portal-wrapper">
+            <NavLink aria-hidden tabIndex={-1} to={{ pathname: '$/portal/' + portal.name, state: portal }}>
               <div className="portal-thumbnail">
-                <img src={portal.image} />
+                <img src={portal.background} />
               </div>
               <div className="portal-title">
                 <label>{portal.label}</label>
               </div>
-            </div>
-          </NavLink>
+            </NavLink>
+          </div>
         );
       })}
+      <div className="portal-browse left">◄</div>
+      <div className="portal-browse right">►</div>
+
+      <div className="portal-page-indicator">
+        <div />
+        <div />
+        <div />
+        <div />
+      </div>
     </div>
   ) : (
-    <h1>Loading</h1>
+    <div className="portals-wrapper">
+      <div className="portal-wrapper">
+        <div className="portal-thumbnail" />
+      </div>
+    </div>
   );
 }

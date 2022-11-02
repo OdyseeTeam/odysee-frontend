@@ -1,0 +1,18 @@
+.portal-header {
+  width: 100%;
+  height: 100px;
+  background: var(--color-header-background);
+  display: flex;
+  border-radius: var(--border-radius);
+  margin-bottom: var(--spacing-xl);
+
+  img {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+  .portal-meta {
+    padding: var(--spacing-m);
+    h1 {
+      font-size: var(--font-title);
+    }
+  }
+}

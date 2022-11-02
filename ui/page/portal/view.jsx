@@ -1,30 +1,48 @@
 // @flow
 import React from 'react';
 import Page from 'component/page';
-import { useHistory } from 'react-router';
-
+import { useParams } from 'react-router-dom';
+import ClaimTilesDiscover from 'component/claimTilesDiscover';
 import './style.scss';
+
 type Props = {
-  portal: any,
+  uri: string,
+  portals: any,
+  homepageData: any,
 };
 
-export default function Portal(props: Props) {
-  const { portal } = props;
+export const PortalContext = React.createContext<any>();
 
-  const { push, location } = useHistory();
+function Portal(props: Props) {
+  const { portals } = props;
+  const [portal, setPortal] = React.useState(1);
 
-  const { pathname } = location;
-  console.log('location: ', location);
-  const urlParams = new URLSearchParams(location);
-  console.log('urlParams: ', urlParams);
+  let { portalName } = useParams();
+
+  React.useEffect(() => {
+    if (portals) {
+      const index = portals.find((portal) => portal.name === portalName);
+      setPortal(index);
+
+      const theme = document.getElementsByClassName('theme');
+      theme[0].style.backgroundImage = 'linear-gradient(312deg, rgba(0,0,0,1) 0%, rgba(101,15,124,1) 100%)';
+    }
+  }, [portals]);
 
   // if(portal) console.log('portal: ', portal)
 
   return (
     <Page className="portal-wrapper" fullWidthPage>
-      <div className="portal-wrapper">
-        <h1>dsfedf</h1>
+      <div className="portal-header">
+        <img src={portal.background} />
+        <div className="portal-meta">
+          <h1>{portal.label}</h1>
+          <p>{portal.description}</p>
+        </div>
       </div>
+      <ClaimTilesDiscover claimIds={portal.claimIds} uris={[]} />
     </Page>
   );
 }
+
+export default Portal;
