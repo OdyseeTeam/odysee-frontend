@@ -10,6 +10,12 @@ $actions-z-index: 2;
     margin-top: calc(var(--spacing-xs) * -1);
   }
 
+  .tags--remove {
+    .tag {
+      color: var(--color-text-inverse) !important;
+    }
+  }
+
   .tab__wrapper {
     transition: background-color 0.2s;
     background-color: var(--color-header-background);
