@@ -45,7 +45,7 @@ function HomeTab(props: Props) {
     },
     {
       type: 'content',
-      file_type: CS.CLAIM_TYPES,
+      file_type: CS.FILE_TYPES,
       order_by: CS.ORDER_BY_NEW_VALUE,
       claim_id: undefined,
       rows: 1,
@@ -66,14 +66,6 @@ function HomeTab(props: Props) {
     }
   }, [settingsByChannelId]);
 
-  /*
-  React.useEffect(() => {
-    if (homepage_settings) {
-      setHasChanges(home !== homepage_settings);
-    }
-  }, [settingsByChannelId, home]);
-  */
-
   function handleEditCollection(e, index) {
     let newHome = [...home];
     if (e.order) {
@@ -92,7 +84,7 @@ function HomeTab(props: Props) {
           // $FlowIgnore
           newHome[index] = {
             type: e.change.value,
-            file_type: undefined,
+            file_type: CS.FILE_TYPES,
             order_by: [],
             claim_id: undefined,
           };
@@ -115,7 +107,7 @@ function HomeTab(props: Props) {
     let newHome = [...home];
     newHome.push({
       type: undefined,
-      file_type: undefined,
+      file_type: CS.FILE_TYPES,
       order_by: [],
       claim_id: undefined,
     });
