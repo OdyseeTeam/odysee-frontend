@@ -31,13 +31,17 @@ export const MEMBERS_ONLY_CONTENT_TAG = 'c:members-only';
 export const RESTRICTED_CHAT_COMMENTS_TAG = 'chat:members-only';
 export const MEMBERS_ONLY_TAGS = [MEMBERS_ONLY_CONTENT_TAG, RESTRICTED_CHAT_COMMENTS_TAG];
 
+export const UNLISTED_CONTENT_TAG = 'c:unlisted';
+export const PRIVATE_CONTENT_TAG = 'c:private';
+export const CONTENT_VISIBILITY_TAGS = [UNLISTED_CONTENT_TAG, PRIVATE_CONTENT_TAG];
+
 // Control tags are special tags that are available to the user in some situations.
 export const CONTROL_TAGS = [DISABLE_SUPPORT_TAG, PREFERENCE_EMBED, DISABLE_DOWNLOAD_BUTTON_TAG];
 
 // System tags are special tags that are not available to the user.
 export const SYSTEM_TAGS = [SCHEDULED_LIVESTREAM_TAG, LBRY_FIRST_TAG];
 
-export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS];
+export const INTERNAL_TAGS = [...CONTROL_TAGS, ...SYSTEM_TAGS, ...MEMBERS_ONLY_TAGS, ...CONTENT_VISIBILITY_TAGS];
 
 export const MATURE_TAGS = Object.freeze([
   'porn',

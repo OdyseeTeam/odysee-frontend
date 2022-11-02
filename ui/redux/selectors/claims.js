@@ -851,6 +851,16 @@ export const selectedRestrictedCommentsChatTagForUri = createSelector(
   (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has(RESTRICTED_CHAT_COMMENTS_TAG)
 );
 
+export const selectUnlistedContentTag = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:unlisted')
+);
+
+export const selectPrivateContentTag = createSelector(
+  selectMetadataForUri,
+  (metadata: ?GenericMetadata) => metadata && new Set(metadata.tags).has('c:private')
+);
+
 export const selectRentalTagForUri = createCachedSelector(selectMetadataForUri, (metadata: ?GenericMetadata) => {
   return parseRentalTag(metadata?.tags);
 })((state, uri) => String(uri));

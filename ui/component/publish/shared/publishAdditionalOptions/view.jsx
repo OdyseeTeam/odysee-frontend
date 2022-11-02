@@ -34,14 +34,15 @@ type Props = {
 
 function PublishAdditionalOptions(props: Props) {
   const {
-    language,
-    name,
-    licenseType,
-    otherLicenseDescription,
-    licenseUrl,
-    updatePublishForm,
-    showSchedulingOptions,
     disabled,
+    language,
+    licenseType,
+    licenseUrl,
+    name,
+    otherLicenseDescription,
+    showSchedulingOptions,
+    updatePublishForm,
+    visibility,
   } = props;
   const [hideSection, setHideSection] = useState(disabled);
 
@@ -68,7 +69,9 @@ function PublishAdditionalOptions(props: Props) {
               <>
                 <div className={classnames({ 'card--disabled': !name })}>
                   <div className="section">
-                    <div className="publish-row">{!showSchedulingOptions && <PublishReleaseDate />}</div>
+                    {visibility !== 'unlisted' && visibility !== 'private' && (
+                      <div className="publish-row">{!showSchedulingOptions && <PublishReleaseDate />}</div>
+                    )}
 
                     <div className="publish-row">
                       <FormField

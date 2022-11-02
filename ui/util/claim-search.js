@@ -1,5 +1,10 @@
 // @flow
-import { MATURE_TAGS, MEMBERS_ONLY_CONTENT_TAG } from 'constants/tags';
+import {
+  MATURE_TAGS,
+  MEMBERS_ONLY_CONTENT_TAG,
+  UNLISTED_CONTENT_TAG,
+  PRIVATE_CONTENT_TAG,
+} from 'constants/tags';
 
 /**
  * Helper functions to derive the ClaimSearch option payload.
@@ -13,6 +18,7 @@ export const CsOptions = {
     if (hideMembersOnlyContent) {
       not_tags.push(MEMBERS_ONLY_CONTENT_TAG);
     }
+    not_tags.push(UNLISTED_CONTENT_TAG, PRIVATE_CONTENT_TAG);
     return not_tags;
   },
 };

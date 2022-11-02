@@ -281,6 +281,9 @@ function resolvePublishPayload(publishData, myClaimForUri, myChannels, preview) 
     } else if (visibility === 'private') {
       tagSet.add('c:private');
     }
+
+    // for unlisted/private uploads, set release time to 2038
+    publishPayload.release_time = 2147483647;
   }
 
   // future scheduled content
