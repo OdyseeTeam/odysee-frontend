@@ -3,6 +3,8 @@ import * as PAGES from 'constants/pages';
 import { VIDEO_ALMOST_FINISHED_THRESHOLD } from 'constants/player';
 import * as React from 'react';
 import classnames from 'classnames';
+import Lbry from 'lbry';
+import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
 import Page from 'component/page';
 import * as ICONS from 'constants/icons';
@@ -73,28 +75,23 @@ type Props = {
   protectedContentTag?: string,
   isProtectedContent?: boolean,
   contentUnlocked: boolean,
+  isUnlistedContent: boolean,
+  isPrivateContent: boolean,
 };
 
 export default function FilePage(props: Props) {
   const {
-    playingCollectionId,
-    uri,
-    // channelId,
-    renderMode,
-    fileInfo,
-    obscureNsfw,
-    isMature,
-    costInfo,
-    linkedCommentId,
-    threadCommentId,
-    videoTheaterMode,
-    commentSettingDisabled,
+    channelId,
+    // settingsByChannelId,
     audioVideoDuration,
     claimId,
     claimIsMine,
     claimWasPurchased,
     clearPosition,
+    commentSettingDisabled,
     commentsListTitle,
+    contentUnlocked,
+    costInfo,
     doCheckIfPurchasedClaimId,
     doFetchCostInfoForUri,
     doFileGetForUri,
@@ -104,17 +101,26 @@ export default function FilePage(props: Props) {
     doSetMainPlayerDimension,
     doSetPrimaryUri,
     doToggleAppDrawer,
+    fileInfo,
     isLivestream,
+    isMature,
+    isPrivateContent,
+    isProtectedContent,
+    isUnlistedContent,
     isUriPlaying,
+    linkedCommentId,
     location,
     myMembershipsFetched,
+    obscureNsfw,
+    playingCollectionId,
     position,
     preorderTag,
     purchaseTag,
+    renderMode,
     rentalTag,
-    // settingsByChannelId,
-    isProtectedContent,
-    contentUnlocked,
+    threadCommentId,
+    uri,
+    videoTheaterMode,
   } = props;
 
   const { search } = location;
@@ -150,6 +156,42 @@ export default function FilePage(props: Props) {
     return durationInSecs ? isVideoTooShort || almostFinishedPlaying : false;
   }, [audioVideoDuration, fileInfo, position]);
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
+
+  React.useEffect(() => {
+    l('isUnlistedContent');
+    l(isUnlistedContent);
+    l('isPrivateContent');
+    l(isPrivateContent);
+    l('claim is mine');
+    l(claimIsMine);
+
+    (async function() {
+      if ((isPrivateContent || isUnlistedContent) && claimIsMine) {
+        l('running here');
+        let signedObject;
+
+        try {
+          signedObject = await Lbry.channel_sign({
+            channel_id: channelId,
+            hexdata: toHex(claimId),
+          });
+
+          signedObject['claim_id'] = channelId;
+          signedObject['name'] = claimId;
+        } catch (e) {}
+
+        l('signedObject');
+        l(signedObject);
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('signature', signedObject.signature);
+        url.searchParams.set('ts', signedObject.signing_ts);
+        window.history.replaceState(null, null, url); // or pushState
+
+        return signedObject;
+      }
+    })();
+  }, [claimIsMine, isUnlistedContent, isPrivateContent]);
 
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
