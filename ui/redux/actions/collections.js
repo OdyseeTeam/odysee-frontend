@@ -25,6 +25,7 @@ import {
   selectCollectionSavedForId,
   selectAreCollectionItemsFetchingForId,
   selectCollectionKeyForId,
+  selectCollectionForIdClaimForUriItem,
 } from 'redux/selectors/collections';
 import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType, getClaimIdsInCollectionClaim } from 'util/collections';
@@ -461,13 +462,13 @@ export const doCollectionEdit = (collectionId: string, params: CollectionEditPar
 
   // Passed uris to add/remove:
   if (uris) {
-    const urisSet = new Set(uris);
-
     if (replace) {
       newItems = uris;
     } else if (remove) {
+      const urisToFilter = uris.map((uri) => selectCollectionForIdClaimForUriItem(state, collectionId, uri));
+
       // Filters (removes) the passed uris from the current list items
-      newItems = currentUrls.filter((url) => url && (!uris || !urisSet.has(url)));
+      newItems = currentUrls.filter((uri) => uri && (!uris || !urisToFilter.includes(uri)));
     } else {
       // Pushes (adds to the end) the passed uris to the current list items
       // (only if item not already in currentUrls, avoid duplicates)
