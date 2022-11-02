@@ -1,10 +1,11 @@
 import { connect } from 'react-redux';
-import { makeSelectReflectingClaimForUri } from 'redux/selectors/claims';
+import { selectUnlistedContentTag, selectPrivateContentTag } from 'redux/selectors/claims';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import PublishVisibility from './view';
 
 const select = (state, props) => ({
-  reflectingInfo: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
+  isUnlistedContent: Boolean(selectUnlistedContentTag(state, props.uri)),
+  isPrivateContent: Boolean(selectPrivateContentTag(state, props.uri)),
 });
 
 const perform = (dispatch) => ({

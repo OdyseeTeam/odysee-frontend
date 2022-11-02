@@ -7,10 +7,12 @@ import Card from 'component/common/card';
 
 type Props = {
   updatePublishForm: (any) => void,
+  isUnlistedContent: boolean,
+  isPrivateContent: boolean,
 };
 
 const PublishVisibility = (props: Props) => {
-  const { updatePublishForm } = props;
+  const { updatePublishForm, isUnlistedContent, isPrivateContent } = props;
 
   const [selectedVisibility, setSelectedVisibility] = useState('public');
 
@@ -27,6 +29,14 @@ const PublishVisibility = (props: Props) => {
       updatePublishForm({ visibility: undefined });
     };
   }, []);
+
+  useEffect(() => {
+    if (isUnlistedContent) {
+      switchVisibility('unlisted');
+    } else if (isPrivateContent) {
+      switchVisibility('private');
+    }
+  }, [isUnlistedContent, isPrivateContent]);
 
   return (
     <div className="publish-visibility">
