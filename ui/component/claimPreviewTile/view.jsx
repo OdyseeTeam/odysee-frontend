@@ -38,7 +38,6 @@ type Props = {
   isResolvingUri: boolean,
   claimIsMine: boolean,
   history: { push: (string) => void },
-  thumbnail: string,
   title: string,
   placeholder: boolean,
   banState: { blacklisted?: boolean, filtered?: boolean, muted?: boolean, blocked?: boolean },
@@ -71,7 +70,6 @@ function ClaimPreviewTile(props: Props) {
     date,
     isResolvingUri,
     claimIsMine,
-    thumbnail,
     title,
     resolveUri,
     claim,
@@ -113,7 +111,7 @@ function ClaimPreviewTile(props: Props) {
     (claim.value.stream_type === 'audio' || claim.value.stream_type === 'video');
   const collectionClaimId = isCollection && claim && claim.claim_id;
   const shouldFetch = claim === undefined;
-  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder) || thumbnail;
+  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, placeholder);
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId;

@@ -16,6 +16,8 @@ import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
 
+const FALLBACK = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
+
 type Props = {
   uri?: string,
   tileLayout?: boolean,
@@ -25,7 +27,7 @@ type Props = {
   claim: ?StreamClaim,
   className?: string,
   small?: boolean,
-  forcePlaceholder?: boolean,
+  // forcePlaceholder?: boolean,
   forceReload?: boolean,
   // -- redux --
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
@@ -42,7 +44,7 @@ function FileThumbnail(props: Props) {
     allowGifs = false,
     className,
     small,
-    forcePlaceholder,
+    // forcePlaceholder,
     forceReload,
     // -- redux --
     hasResolvedClaim,
@@ -54,6 +56,8 @@ function FileThumbnail(props: Props) {
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
   const thumbnail = passedThumbnail || thumbnailFromClaim;
+  // thumbnailFromClaim returned null and passedThumbnail is still being set by useGetThumbnail hook
+  const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
   React.useEffect(() => {
@@ -82,9 +86,7 @@ function FileThumbnail(props: Props) {
     );
   }
 
-  const fallback = MISSING_THUMB_DEFAULT ? getThumbnailCdnUrl({ thumbnail: MISSING_THUMB_DEFAULT }) : undefined;
-
-  let url = thumbnail || (hasResolvedClaim ? MISSING_THUMB_DEFAULT : '');
+  let url = thumbnail;
   // Pass image urls through a compression proxy
   if (thumbnail) {
     if (isGif) {
@@ -99,14 +101,14 @@ function FileThumbnail(props: Props) {
     }
   }
 
-  const thumbnailUrl = url ? url.replace(/'/g, "\\'") : '';
+  const thumbnailUrl = url && url.replace(/'/g, "\\'");
 
-  if (hasResolvedClaim || thumbnailUrl || (forcePlaceholder && !uri)) {
+  if (!gettingThumbnail && thumbnailUrl !== undefined) {
     return (
       <Thumb
         small={small}
         thumb={thumbnailUrl || MISSING_THUMB_DEFAULT}
-        fallback={fallback}
+        fallback={FALLBACK}
         className={className}
         forceReload={forceReload}
       >

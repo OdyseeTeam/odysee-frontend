@@ -28,3 +28,8 @@ export const COLLECTION_PAGE = Object.freeze({
     FEATURED: 'featuredChannels',
   },
 });
+
+export const CHANNEL_SECTIONS_QUERIES = Object.freeze({
+  CLAIM_ID: 'claimId',
+  SECTION_ID: 'sectionId',
+});

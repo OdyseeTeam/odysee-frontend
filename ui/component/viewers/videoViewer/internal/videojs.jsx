@@ -24,6 +24,8 @@ import React, { useEffect, useRef, useState } from 'react';
 import i18n from './plugins/videojs-i18n/plugin';
 import recsys from './plugins/videojs-recsys/plugin';
 import watchdog from './plugins/videojs-watchdog/plugin';
+import snapshotButton from './plugins/videojs-snapshot-button/plugin';
+
 // import runAds from './ads';
 import videojs from 'video.js';
 import { useIsMobile } from 'effects/use-screensize';
@@ -78,6 +80,8 @@ export type Player = {
   src: ({ src: string, type: string }) => ?string,
   currentSrc: () => string,
   userActive: (?boolean) => boolean,
+  videoWidth: () => number,
+  videoHeight: () => number,
   volume: (?number) => number,
 };
 
@@ -131,6 +135,7 @@ const PLUGIN_MAP = {
   recsys: recsys,
   i18n: i18n,
   watchdog: watchdog,
+  snapshotButton: snapshotButton,
 };
 
 Object.entries(PLUGIN_MAP).forEach(([pluginName, plugin]) => {
@@ -536,6 +541,10 @@ export default React.memo<Props>(function VideoJs(props: Props) {
       if (canUseOldPlayer) {
         // $FlowIssue
         document.querySelector('.video-js-parent')?.append(window.oldSavedDiv);
+      }
+
+      if (!isAudio) {
+        vjsPlayer.snapshotButton({ fileTitle: title, poster });
       }
 
       // disable right-click (context-menu) for purchased content

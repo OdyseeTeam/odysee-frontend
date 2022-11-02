@@ -844,6 +844,18 @@ $control-bar-icon-size: 30px;
       margin-top: -0px;
     }
 
+    .vjs-snapshot-button {
+      margin-right: 8px;
+      svg {
+        height: 19px;
+        margin-top: 3px;
+        fill: transparent;
+        stroke-width: 50px;
+        stroke: white;
+        opacity: 0.9;
+      }
+    }
+
     .vjs-chromecast-button,
     .vjs-airplay-button {
       margin-left: var(--spacing-xs);
