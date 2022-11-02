@@ -33,7 +33,7 @@ export default function Footer() {
         <li className="footer__link">
           <Button
             label={__('Community Guidelines')}
-            href="https://help.odysee.tv/communityguidelines"
+            href="https://help.odysee.tv/communityguidelines/"
             target="_blank"
           />
         </li>
