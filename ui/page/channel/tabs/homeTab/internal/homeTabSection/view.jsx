@@ -99,7 +99,7 @@ function HomeTabSection(props: Props) {
       case 'featured':
         return null;
       case 'content':
-        switch (section.file_type[0]) {
+        switch (section.file_type.length === 1 && section.file_type[0]) {
           case CS.FILE_VIDEO:
             switch (section.order_by ? section.order_by[0] : 'release_time') {
               case 'release_time':
