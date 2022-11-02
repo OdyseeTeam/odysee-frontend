@@ -79,12 +79,13 @@ function HomeTab(props: Props) {
     } else if (e.delete) {
       newHome.splice(e.delete.index, 1);
     } else if (e.change) {
+      console.log('change: ', e.change);
       if (e.change.field && e.change.field !== 'order_by') {
         if (e.change.field === 'type') {
           // $FlowIgnore
           newHome[index] = {
             type: e.change.value,
-            file_type: CS.FILE_TYPES,
+            file_type: e.change.value === 'content' ? CS.FILE_TYPES : undefined,
             order_by: [],
             claim_id: undefined,
           };
