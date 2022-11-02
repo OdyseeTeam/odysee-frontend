@@ -10,7 +10,7 @@ import {
   selectGeoRestrictionForUri,
 } from 'redux/selectors/claims';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
-import { selectCollectionIsMine } from 'redux/selectors/collections';
+import { selectCollectionIsMine, selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 
 import { doResolveUri } from 'redux/actions/claims';
 import { doFileGetForUri } from 'redux/actions/file';
@@ -30,6 +30,7 @@ const select = (state, props) => {
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration, { screenReader: true });
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
+  const isCollection = claim && claim.value_type === 'collection';
 
   return {
     banState: selectBanStateForUri(state, props.uri),
@@ -53,6 +54,7 @@ const select = (state, props) => {
     reflectingProgress: props.uri && makeSelectReflectingClaimForUri(props.uri)(state),
     streamingUrl: (repostSrcUri || props.uri) && selectStreamingUrlForUri(state, repostSrcUri || props.uri),
     title: props.uri && selectTitleForUri(state, props.uri),
+    firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
   };
 };
 

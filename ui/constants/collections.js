@@ -4,6 +4,8 @@ import * as ICONS from 'constants/icons';
 export const ICON_SIZE = 12;
 export const PLACEHOLDER = 'My Awesome Playlist';
 
+export const THUMBNAIL_PREVIEW_AMOUNT = 3;
+
 // see which of these are used
 export const COLLECTION_ID = 'lid';
 export const COLLECTION_INDEX = 'linx';

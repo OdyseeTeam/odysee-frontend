@@ -13,6 +13,7 @@ import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectIsActiveLivestreamForUri, selectViewersForId } from 'redux/selectors/livestream';
 import { selectShowMatureContent } from 'redux/selectors/settings';
+import { selectFirstItemUrlForCollection } from 'redux/selectors/collections';
 import { isClaimNsfw, isStreamPlaceholderClaim } from 'util/claim';
 import ClaimPreviewTile from './view';
 import formatMediaDuration from 'util/formatMediaDuration';
@@ -23,6 +24,7 @@ const select = (state, props) => {
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration, { screenReader: true });
   const isLivestream = isStreamPlaceholderClaim(claim);
   const repostSrcUri = claim && claim.repost_url && claim.canonical_url;
+  const isCollection = claim && claim.value_type === 'collection';
 
   return {
     claim,
@@ -40,6 +42,7 @@ const select = (state, props) => {
     isLivestreamActive: isLivestream && selectIsActiveLivestreamForUri(state, props.uri),
     livestreamViewerCount: isLivestream && claim ? selectViewersForId(state, claim.claim_id) : undefined,
     viewCount: selectViewCountForUri(state, props.uri),
+    firstCollectionItemUrl: claim && isCollection && selectFirstItemUrlForCollection(state, claim.claim_id),
   };
 };
 
