@@ -59,7 +59,6 @@ type Props = {
   swipeLayout: boolean,
   onHidden?: (string) => void,
   pulse?: boolean,
-  isFeatured?: boolean,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -94,7 +93,6 @@ function ClaimPreviewTile(props: Props) {
     swipeLayout = false,
     onHidden,
     pulse,
-    isFeatured,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -247,7 +245,6 @@ function ClaimPreviewTile(props: Props) {
       onClick={handleClick}
       className={classnames('card claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
-        'claim-preview--inline': isFeatured,
         'claim-preview__live': isLivestreamActive,
         'swipe-list__item claim-preview--horizontal-tile': swipeLayout,
       })}
