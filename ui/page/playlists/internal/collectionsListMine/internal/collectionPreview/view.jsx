@@ -21,8 +21,6 @@ import ClaimPreviewLoading from 'component/common/claim-preview-loading';
 import Icon from 'component/common/icon';
 import './style.scss';
 
-const THUMBNAIL_PREVIEW_AMOUNT = 3;
-
 type Props = {
   uri: string,
   collectionId: string,
@@ -71,7 +69,7 @@ function CollectionPreview(props: Props) {
   const { push } = useHistory();
 
   React.useEffect(() => {
-    doFetchItemsInCollection({ collectionId, itemCount: THUMBNAIL_PREVIEW_AMOUNT });
+    doFetchItemsInCollection({ collectionId, itemCount: COLLECTIONS_CONSTS.THUMBNAIL_PREVIEW_AMOUNT });
   }, [collectionId, doFetchItemsInCollection]);
 
   if (isFetchingItems || isResolvingCollection || collectionItemUrls === undefined) {
@@ -103,7 +101,7 @@ function CollectionPreview(props: Props) {
     >
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
-          <FileThumbnail uri={firstCollectionItemUrl} thumbnail={thumbnail}>
+          <FileThumbnail uri={uri || firstCollectionItemUrl} thumbnail={thumbnail}>
             <CollectionItemCount collectionId={collectionId} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>
