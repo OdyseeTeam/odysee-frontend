@@ -670,13 +670,13 @@ function ClaimListDiscover(props: Props) {
   }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
 
   React.useEffect(() => {
-    if (claimSearchResult && claimType.includes('collection')) {
+    if (claimSearchResult && claimType && claimType.includes('collection')) {
       const claimIds = claimSearchResult.map((uri) => claimsByUri[uri]?.claim_id);
       claimIds.forEach((collectionId) =>
         doFetchItemsInCollection({ collectionId, itemCount: COLLECTIONS_CONSTS.THUMBNAIL_PREVIEW_AMOUNT })
       );
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [claimSearchResult, claimType, doFetchItemsInCollection]);
 
   React.useEffect(() => {
