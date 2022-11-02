@@ -132,7 +132,7 @@ class FilePrice extends React.PureComponent<Props> {
 
     return (
       <CreditAmount
-        amount={costInfo ? costInfo.cost : undefined}
+        amount={costInfo && costInfo.cost > 0 ? costInfo.cost : undefined}
         customAmounts={
           customPrices ? { amountFiat: customPrices.priceFiat, amountLBC: customPrices.priceLBC } : undefined
         }
