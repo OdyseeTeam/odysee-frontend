@@ -801,7 +801,7 @@ export const doPublish = (success: Function, fail: Function, previewFn?: Functio
 
   // hit backend to save restricted memberships
   // hit the backend immediately to save the data, we will overwrite it if publish succeeds
-  if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '')) {
+  if (channelClaimId && (restrictedToMemberships || restrictedToMemberships === '') && !previewFn) {
     dispatch(doSaveMembershipRestrictionsForContent(channelClaimId, '', name, restrictedToMemberships, true));
   }
 
