@@ -526,6 +526,13 @@ export const selectDateForUri = createCachedSelector(
   }
 )((state, uri) => String(uri));
 
+export const selectCreationDateForUri = createCachedSelector(
+  selectClaimForUri, // input: (state, uri, ?returnRepost)
+  (claim) => {
+    return claim?.meta?.creation_timestamp * 1000;
+  }
+)((state, uri) => String(uri));
+
 export const makeSelectAmountForUri = (uri: string) =>
   createSelector(makeSelectClaimForUri(uri), (claim) => {
     return claim && claim.amount;

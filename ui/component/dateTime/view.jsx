@@ -17,6 +17,8 @@ type Props = {
   showFutureDate?: boolean,
   timeAgo?: boolean,
   type?: string,
+  isUnlistedContent?: boolean,
+  isPrivateContent?: boolean,
 };
 
 class DateTime extends React.Component<Props, State> {
@@ -60,16 +62,30 @@ class DateTime extends React.Component<Props, State> {
   }
 
   render() {
-    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type } = this.props;
+    const { clock24h, date, genericSeconds, showFutureDate, timeAgo, type, isUnlistedContent, isPrivateContent, creationDate } = this.props;
 
     const clockFormat = clock24h ? 'HH:mm' : 'hh:mm A';
+
+    // TODO: turn this into a function
+    let timeToUse = '...';
+    if (date) {
+      if (timeAgo) {
+        timeToUse = getTimeAgoStr(date, showFutureDate, genericSeconds)
+      } else {
+        if (type === 'date') {
+          timeToUse = moment(date).format('MMMM Do, YYYY');
+        } else {
+          timeToUse = moment(date).format(clockFormat);
+        }
+      }
+    }
+    if (isUnlistedContent || isPrivateContent) {
+      timeToUse = moment(creationDate).format('MMMM Do, YYYY');
+    }
+
     return (
       <span className="date_time" title={timeAgo && moment(date).format(`MMMM Do, YYYY ${clockFormat}`)}>
-        {date
-          ? timeAgo
-            ? getTimeAgoStr(date, showFutureDate, genericSeconds)
-            : moment(date).format(type === 'date' ? 'MMMM Do, YYYY' : clockFormat)
-          : '...'}
+        {timeToUse}
       </span>
     );
   }
