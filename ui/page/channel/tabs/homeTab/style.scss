@@ -128,7 +128,6 @@
         }
       }
       .home-section-header-wrapper {
-        width: 100%;
         margin: 0 var(--spacing-s);
         flex-wrap: wrap;
       }
@@ -145,8 +144,10 @@
   .home-section-header-wrapper {
     display: flex;
     margin-left: 10%;
+    margin-right: 10%;
     padding-top: var(--spacing-s);
     width: 80%;
+    max-width: 80%;
 
     .home-section-header-option {
       padding-right: var(--spacing-s);
@@ -156,6 +157,8 @@
       }
       select {
         border: 2px solid var(--color-border);
+        max-width: 204px;
+        overflow: hidden;
       }
       input {
         box-shadow: 0px 0px 0px 2px var(--color-border) inset;

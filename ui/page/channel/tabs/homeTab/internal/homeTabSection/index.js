@@ -33,6 +33,7 @@ const select = (state, props) => {
       props.section.type === 'playlists' ? CsOptions.not_tags([SECTION_TAGS.FEATURED_CHANNELS]) : CsOptions.not_tags(),
     any_tags: props.section.type === 'channels' ? [SECTION_TAGS.FEATURED_CHANNELS] : undefined,
     no_totals: true,
+    index: props.index,
   };
 
   const searchKey = createNormalizedClaimSearchKey(options);
