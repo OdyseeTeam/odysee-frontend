@@ -325,7 +325,7 @@ const ClaimPreview = forwardRef<any, {}>((props: Props, ref: any) => {
 
   // Weird placement warning
   // Make sure this happens after we figure out if this claim needs to be hidden
-  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, firstCollectionItemUrl ? null : shouldHide);
+  const thumbnailUrl = useGetThumbnail(uri, claim, streamingUrl, getFile, firstCollectionItemUrl ? false : shouldHide);
 
   function handleOnClick(e) {
     if (onClick) {

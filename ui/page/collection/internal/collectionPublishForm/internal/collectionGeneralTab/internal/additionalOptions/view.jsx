@@ -38,7 +38,7 @@ function CollectionPublishAdditionalOptions(props: Props) {
 
   const { languages, tags } = formParams;
 
-  const tagsSet = new Set(tags);
+  const tagNames = new Set(tags.map((tag) => tag.name));
   const languageParam = languages || [];
   const primaryLanguage = Array.isArray(languageParam) && languageParam.length && languageParam[0];
   const secondaryLanguage = Array.isArray(languageParam) && languageParam.length >= 2 && languageParam[1];
@@ -58,7 +58,7 @@ function CollectionPublishAdditionalOptions(props: Props) {
       },
       updateFormParams
     );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [amount, balance]);
 
   return (
@@ -85,14 +85,8 @@ function CollectionPublishAdditionalOptions(props: Props) {
                     }}
                     onSelect={(newTags) =>
                       newTags.forEach((newTag) => {
-                        // $FlowFixMe
-                        if (!tagsSet.has(newTag.name)) {
-                          // $FlowFixMe
+                        if (!tagNames.has(newTag.name)) {
                           updateFormParams({ tags: [...tags, newTag] });
-                        } else {
-                          // If it already exists and the user types it in, remove itit
-                          // $FlowFixMe
-                          updateFormParams({ tags: Array.from(tagsSet.delete(newTag.name)) });
                         }
                       })
                     }
