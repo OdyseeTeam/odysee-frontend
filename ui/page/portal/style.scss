@@ -1,6 +1,6 @@
 .portal-header {
   width: 100%;
-  height: 100px;
+  height: 160px;
   background: var(--color-header-background);
   display: flex;
   border-radius: var(--border-radius);
@@ -9,6 +9,7 @@
   img {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
+
   .portal-meta {
     padding: var(--spacing-m);
     h1 {

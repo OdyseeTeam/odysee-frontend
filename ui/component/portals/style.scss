@@ -5,7 +5,7 @@
   background-image: url('/public/img/tmp/portals.jpg');
   background-size: cover;
   border-radius: var(--border-radius);
-  padding: var(--spacing-l);
+  padding: var(--spacing-l) var(--spacing-xxl);
   padding-top: 0;
   display: flex;
   flex-wrap: wrap;
@@ -20,7 +20,7 @@
   }
   .portal-wrapper {
     // width:16%;
-    width: calc((100% - var(--spacing-m) * 5) / 6);
+    width: calc((100% - var(--spacing-l) * 5) / 6);
     .portal-thumbnail {
       width: 100%;
       img {
@@ -61,10 +61,10 @@
     font-size: 38px;
 
     &.left {
-      left: var(--spacing-xs);
+      left: var(--spacing-m);
     }
     &.right {
-      right: var(--spacing-xs);
+      right: var(--spacing-m);
     }
 
     &:hover {
