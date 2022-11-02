@@ -31,11 +31,10 @@ type Props = {
   sourceId: ?string,
   hasClaim: boolean,
   claimAmount: number,
-  isFeaturedChannels: ?boolean,
 };
 
 const CollectionTitle = (props: Props) => {
-  const { uri, collectionDescription, collectionCount, sourceId, hasClaim, claimAmount, isFeaturedChannels } = props;
+  const { uri, collectionDescription, collectionCount, sourceId, hasClaim, claimAmount } = props;
 
   const [expand, setExpand] = React.useState(EXPAND.NONE);
 
@@ -66,7 +65,7 @@ const CollectionTitle = (props: Props) => {
         <span className="collection__subtitle">
           {collectionCount === 1 ? __('1 item') : __('%collectionCount% items', { collectionCount })}
 
-          {hasClaim && !isFeaturedChannels && (
+          {hasClaim && (
             <div className="collection-subtitle__info">
               <Button
                 button="link"
