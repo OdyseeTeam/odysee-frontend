@@ -42,7 +42,14 @@ function HomeTabSection(props: Props) {
 
   const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
-    !singleClaimUri && !fetchingClaimSearch && !timedOut && !claimSearchResults && !collectionUrls;
+    !singleClaimUri &&
+    !fetchingClaimSearch &&
+    !timedOut &&
+    !claimSearchResults &&
+    !collectionUrls &&
+    section &&
+    section.type !== 'playlist' &&
+    section.type !== 'featured';
   const publishedList = (Object.keys(publishedCollections || {}): any);
 
   const windowSize = useWindowSize();

@@ -37,16 +37,24 @@ const select = (state, props) => {
   };
 
   const searchKey = createNormalizedClaimSearchKey(options);
-  const publishedCollections = selectMyPublishedCollections(state);
   const singleClaimUri = props.section.claim_id ? selectClaimUriForId(state, props.section.claim_id) : undefined;
 
+  const requiresSearch = props.section.type === 'content' || props.section.type === 'playlists';
+  const fetchingClaimSearch = requiresSearch ? selectFetchingClaimSearchByQuery(state)[searchKey] : undefined;
+  const claimSearchResults =
+    requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;
+
   return {
-    fetchingClaimSearch: selectFetchingClaimSearchByQuery(state)[searchKey],
-    claimSearchResults: !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined,
+    fetchingClaimSearch,
+    claimSearchResults,
     optionsStringified: JSON.stringify(options),
-    collectionUrls: props.section.claim_id ? selectUrlsForCollectionId(state, props.section.claim_id) : undefined,
-    collectionName: selectNameForCollectionId(state, props.section.claim_id),
-    publishedCollections,
+    collectionUrls:
+      props.section.type === 'playlist' && props.section.claim_id
+        ? selectUrlsForCollectionId(state, props.section.claim_id)
+        : undefined,
+    collectionName:
+      props.section.type === 'playlist' ? selectNameForCollectionId(state, props.section.claim_id) : undefined,
+    publishedCollections: selectMyPublishedCollections(state),
     singleClaimUri,
   };
 };
