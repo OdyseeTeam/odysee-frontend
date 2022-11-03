@@ -21,8 +21,9 @@ import { getLivestreamUris } from 'util/livestream';
 import ScheduledStreams from 'component/scheduledStreams';
 import { splitBySeparator } from 'util/lbryURI';
 import Ads from 'web/component/ads';
-import Meme from 'web/component/meme';
+// import Meme from 'web/component/meme';
 import Portals from 'component/portals';
+import FeaturedBanner from 'component/featuredBanner';
 
 const CATEGORY_LIVESTREAM_LIMIT = 3;
 
@@ -205,6 +206,7 @@ function HomePage(props: Props) {
 
   return (
     <Page className="homePage-wrapper" fullWidthPage>
+      <FeaturedBanner featured={homepageData} />
       <Portals portals={homepageData.portals} />
       {/* <Meme meme={homepageMeme} /> */}
 

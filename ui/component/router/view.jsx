@@ -101,7 +101,7 @@ const MembershipsCreatorAreaPage = lazyImport(() =>
 const MembershipsSupporterAreaPage = lazyImport(() =>
   import('page/creatorMemberships/supporterArea' /* webpackChunkName: "membershipsSupporterArea" */)
 );
-const Portal = lazyImport(() => import('page/portal' /* webpackChunkName: "portal" */));
+const PortalPage = lazyImport(() => import('page/portal' /* webpackChunkName: "portal" */));
 const OwnComments = lazyImport(() => import('page/ownComments' /* webpackChunkName: "ownComments" */));
 const PasswordResetPage = lazyImport(() => import('page/passwordReset' /* webpackChunkName: "passwordReset" */));
 const PasswordSetPage = lazyImport(() => import('page/passwordSet' /* webpackChunkName: "passwordSet" */));
@@ -438,7 +438,7 @@ function AppRouter(props: Props) {
         <PrivateRoute {...props} path={`/$/${PAGES.CREATOR_MEMBERSHIPS}`} component={MembershipsCreatorAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_SUPPORTER}`} component={MembershipsSupporterAreaPage} />
         <PrivateRoute {...props} path={`/$/${PAGES.MEMBERSHIPS_LANDING}`} component={MembershipsLandingPage} />
-        <Route path={`/$/${PAGES.PORTAL}/:portalName`} exact component={Portal} />
+        <Route path={`/$/${PAGES.PORTAL}/:portalName`} exact component={PortalPage} />
 
         <Route path={`/$/${PAGES.POPOUT}/:channelName/:streamName`} component={PopoutChatPage} />
 

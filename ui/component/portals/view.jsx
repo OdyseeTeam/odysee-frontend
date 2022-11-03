@@ -22,7 +22,7 @@ export default function Portals(props: Props) {
           <div className="portal-wrapper">
             <NavLink aria-hidden tabIndex={-1} to={{ pathname: '$/portal/' + portal.name, state: portal }}>
               <div className="portal-thumbnail">
-                <img src={portal.background} />
+                <img src={portal.image} />
               </div>
               <div className="portal-title">
                 <label>{portal.label}</label>
