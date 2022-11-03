@@ -2,6 +2,7 @@ declare type Collection = {
   id: string,
   items: Array<string>,
   name: string,
+  title?: string,
   description?: string,
   thumbnail?: {
     url?: string,
@@ -9,7 +10,6 @@ declare type Collection = {
   type: CollectionType,
   createdAt?: ?number,
   updatedAt: number,
-  totalItems?: number,
   itemCount?: number,
   sourceId?: string, // if copied, claimId of original collection
   featuredChannelsParams?: {
@@ -20,16 +20,18 @@ declare type Collection = {
 declare type CollectionType = 'playlist' | 'channelList' | 'featuredChannels' | 'collection'; // Must match COL_TYPES
 
 declare type CollectionState = {
+  // -- sync --
   unpublished: CollectionGroup,
-  resolved: CollectionGroup,
-  pending: CollectionGroup,
   edited: CollectionGroup,
   updated: UpdatedCollectionGroup,
   builtin: CollectionGroup,
   savedIds: Array<string>,
-  resolvingById: { [id: string]: boolean },
-  error?: string | null,
+  resolvedIds: ?Array<string>,
+  // -- local --
+  collectionItemsFetchingIds: Array<string>,
   queue: Collection,
+  lastUsedCollection: ?string,
+  isFetchingMyCollections: ?boolean,
 };
 
 declare type CollectionGroup = {
@@ -47,8 +49,9 @@ declare type UpdatedCollection = {
 
 declare type CollectionList = Array<Collection>;
 
-declare type CollectionCreateParams = {
-  name: string,
+declare type CollectionLocalCreateParams = {
+  name?: string,
+  title?: string,
   description?: string,
   thumbnail?: {
     url?: string,
@@ -68,18 +71,17 @@ declare type CollectionEditParams = {
   order?: { from: number, to: number },
   type?: CollectionType,
   name?: string,
+  title?: string,
   description?: string,
-  thumbnail?: {
-    url?: string,
-  },
+  thumbnail_url?: string,
 };
 
-declare type CollectionFetchParams = {
+declare type CollectionFetchItemsParams = {
   collectionId: string,
   pageSize?: number,
 };
 
 declare type CollectionItemFetchResult = {
-  claimId: string,
+  collectionId: string,
   items: ?Array<GenericClaim>,
 };

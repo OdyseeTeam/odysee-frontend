@@ -67,6 +67,7 @@ declare type CollectionId = ClaimId | string; // uuid
 
 declare type ChannelId = ClaimId;
 
+declare type GenericMetadataKey = 'title' | 'description' | 'thumbnail' | 'languages' | 'tags' | 'locations';
 declare type GenericMetadata = {
   title?: string,
   description?: string,
@@ -78,6 +79,14 @@ declare type GenericMetadata = {
   locations?: Array<Location>,
 };
 
+declare type ChannelMetadataKey =
+  | GenericMetadataKey
+  | 'public_key'
+  | 'public_key_id'
+  | 'cover_url'
+  | 'email'
+  | 'website_url'
+  | 'featured';
 declare type ChannelMetadata = GenericMetadata & {
   public_key: string,
   public_key_id: string,
@@ -87,10 +96,24 @@ declare type ChannelMetadata = GenericMetadata & {
   featured?: Array<string>,
 };
 
+declare type CollectionMetadataKey = GenericMetadataKey | 'claims';
 declare type CollectionMetadata = GenericMetadata & {
   claims: Array<string>,
 };
 
+declare type StreamMetadataKey =
+  | GenericMetadataKey
+  | 'license'
+  | 'license_url'
+  | 'release_time'
+  | 'author'
+  | 'source'
+  | 'fee'
+  | 'stream_type'
+  | 'video'
+  | 'audio'
+  | 'image'
+  | 'software';
 declare type StreamMetadata = GenericMetadata & {
   license?: string, // License "title" ex: Creative Commons, Custom copyright
   license_url?: string, // Link to full license
@@ -163,61 +186,30 @@ declare type ClaimActionResolveInfo = {
   },
 };
 
-declare type ChannelUpdateParams = {
-  claim_id: string,
-  bid?: string,
+declare type GenericPublishParams = {
+  bid: string | number,
+  channel_id?: ?string,
   title?: string,
-  cover_url?: string,
-  thumbnail_url?: string,
   description?: string,
-  website_url?: string,
-  email?: string,
-  tags?: Array<string>,
-  replace?: boolean,
+  thumbnail_url?: string,
   languages?: Array<string>,
-  locations?: Array<string>,
+  tags?: Array<string>,
+  locations?: Array<Location>,
   blocking?: boolean,
+};
+
+declare type GenericPublishUpdateParams = GenericPublishParams & {
+  claim_id: string,
+  replace?: boolean,
+};
+declare type GenericPublishCreateParams = GenericPublishParams & {
+  name: string,
 };
 
 declare type ChannelPublishParams = {
-  name: string,
-  bid: string,
-  blocking?: true,
-  title?: string,
-  cover_url?: string,
-  thumbnail_url?: string,
-  description?: string,
   website_url?: string,
   email?: string,
-  tags?: Array<string>,
-  languages?: Array<string>,
-};
-
-declare type CollectionUpdateParams = {
-  claim_id: string,
-  claim_ids?: Array<string>,
-  bid?: string,
-  title?: string,
   cover_url?: string,
-  thumbnail_url?: string,
-  description?: string,
-  website_url?: string,
-  email?: string,
-  tags?: Array<string>,
-  replace?: boolean,
-  languages?: Array<string>,
-  locations?: Array<string>,
-  blocking?: boolean,
 };
-
-declare type CollectionPublishParams = {
-  name: string,
-  bid: string,
-  claim_ids: Array<string>,
-  blocking?: true,
-  title?: string,
-  thumbnail_url?: string,
-  description?: string,
-  tags?: Array<string>,
-  languages?: Array<string>,
-};
+declare type ChannelPublishUpdateParams = GenericPublishUpdateParams & ChannelPublishParams;
+declare type ChannelPublishCreateParams = GenericPublishCreateParams & ChannelPublishParams;

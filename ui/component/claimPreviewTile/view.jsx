@@ -59,6 +59,7 @@ type Props = {
   swipeLayout: boolean,
   onHidden?: (string) => void,
   pulse?: boolean,
+  firstCollectionItemUrl: ?string,
 };
 
 // preview image cards used in related video functionality, channel overview page and homepage
@@ -93,6 +94,7 @@ function ClaimPreviewTile(props: Props) {
     swipeLayout = false,
     onHidden,
     pulse,
+    firstCollectionItemUrl,
   } = props;
   const isRepost = claim && claim.repost_channel_url;
   const isCollection = claim && claim.value_type === 'collection';
@@ -250,7 +252,7 @@ function ClaimPreviewTile(props: Props) {
       })}
     >
       <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
-        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri}>
+        <FileThumbnail thumbnail={thumbnailUrl} allowGifs tileLayout uri={uri} secondaryUri={firstCollectionItemUrl}>
           {!isChannel && (
             <React.Fragment>
               {((fypId && isStream) || isPlayable) && (

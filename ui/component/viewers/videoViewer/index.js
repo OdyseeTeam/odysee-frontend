@@ -10,9 +10,9 @@ import {
 import { isStreamPlaceholderClaim, getChannelIdFromClaim } from 'util/claim';
 import { selectActiveLivestreamForChannel } from 'redux/selectors/livestream';
 import {
-  selectNextUrlForCollectionAndUrl,
-  selectPreviousUrlForCollectionAndUrl,
-  selectIndexForUrlInCollection,
+  selectNextUriForUriInPlayingCollectionForId,
+  selectPreviousUriForUriInPlayingCollectionForId,
+  selectIndexForUriInPlayingCollectionForId,
 } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import { doChangeVolume, doChangeMute, doAnalyticsBuffer, doAnalyticsView } from 'redux/actions/app';
@@ -52,8 +52,8 @@ const select = (state, props) => {
   const collectionId = playingUri.collection.collectionId;
   const isMarkdownOrComment = playingUri.source === 'markdown' || playingUri.source === 'comment';
 
-  const nextPlaylistUri = collectionId && selectNextUrlForCollectionAndUrl(state, uri, collectionId);
-  const previousPlaylistUri = collectionId && selectPreviousUrlForCollectionAndUrl(state, uri, collectionId);
+  const nextPlaylistUri = collectionId && selectNextUriForUriInPlayingCollectionForId(state, collectionId, uri);
+  const previousPlaylistUri = collectionId && selectPreviousUriForUriInPlayingCollectionForId(state, collectionId, uri);
   const recomendedContent = selectRecommendedContentForUri(state, uri);
   const nextRecommendedUri = recomendedContent && recomendedContent[0];
 
@@ -81,7 +81,7 @@ const select = (state, props) => {
     activeLivestreamForChannel: selectActiveLivestreamForChannel(state, getChannelIdFromClaim(claim)),
     isLivestreamClaim: isStreamPlaceholderClaim(claim),
     defaultQuality: selectClientSetting(state, SETTINGS.DEFAULT_VIDEO_QUALITY),
-    currentPlaylistItemIndex: selectIndexForUrlInCollection(state, uri, collectionId),
+    currentPlaylistItemIndex: selectIndexForUriInPlayingCollectionForId(state, collectionId, uri),
     isPurchasableContent: Boolean(selectPurchaseTagForUri(state, props.uri)),
     isRentableContent: Boolean(selectRentalTagForUri(state, props.uri)),
     purchaseMadeForClaimId: selectPurchaseMadeForClaimId(state, claim.claim_id),

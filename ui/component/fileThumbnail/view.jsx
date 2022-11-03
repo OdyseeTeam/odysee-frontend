@@ -32,7 +32,8 @@ type Props = {
   // -- redux --
   hasResolvedClaim: ?boolean, // undefined if uri is not given (irrelevant); boolean otherwise.
   thumbnailFromClaim: ?string,
-  doResolveUri: (uri: string) => void,
+  thumbnailFromSecondaryClaim: ?string,
+  // doResolveUri: (uri: string) => void,
 };
 
 function FileThumbnail(props: Props) {
@@ -49,22 +50,25 @@ function FileThumbnail(props: Props) {
     // -- redux --
     hasResolvedClaim,
     thumbnailFromClaim,
-    doResolveUri,
+    thumbnailFromSecondaryClaim,
+    // doResolveUri,
   } = props;
 
   const isMobile = useIsMobile();
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
-  const thumbnail = passedThumbnail || thumbnailFromClaim;
+  const thumbnail =
+    passedThumbnail ||
+    (thumbnailFromClaim === null && 'secondaryUri' in props ? thumbnailFromSecondaryClaim : thumbnailFromClaim);
   // thumbnailFromClaim returned null and passedThumbnail is still being set by useGetThumbnail hook
   const gettingThumbnail = passedThumbnail === undefined && thumbnailFromClaim === null;
   const isGif = thumbnail && thumbnail.endsWith('gif');
 
-  React.useEffect(() => {
-    if (hasResolvedClaim === false && uri && !passedThumbnail) {
-      doResolveUri(uri);
-    }
-  }, [hasResolvedClaim, passedThumbnail, doResolveUri, uri]);
+  // React.useEffect(() => {
+  //   if (hasResolvedClaim === false && uri && !passedThumbnail) {
+  //     doResolveUri(uri);
+  //   }
+  // }, [hasResolvedClaim, passedThumbnail, doResolveUri, uri]);
 
   if (!allowGifs && isGif) {
     const url = getImageProxyUrl(thumbnail);

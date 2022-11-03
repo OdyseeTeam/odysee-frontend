@@ -2,6 +2,7 @@
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import type { Node } from 'react';
 import * as CS from 'constants/claim_search';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
 import React from 'react';
 import { withRouter } from 'react-router';
 import { MATURE_TAGS } from 'constants/tags';
@@ -106,6 +107,7 @@ type Props = {
   searchInLanguage: boolean,
 
   // --- perform ---
+  doFetchItemsInCollection: (params: { collectionId: string }) => void,
   doClaimSearch: ({}) => void,
   doFetchViewCount: (claimIdCsv: string) => void,
   doFetchOdyseeMembershipForChannelIds: (claimIds: ClaimIds) => void,
@@ -197,6 +199,7 @@ function ClaimListDiscover(props: Props) {
     useSkeletonScreen = true,
     excludeUris = [],
     doFetchOdyseeMembershipForChannelIds,
+    doFetchItemsInCollection,
     swipeLayout = false,
     doResolveUris,
     doResolveClaimIds,
@@ -665,6 +668,16 @@ function ClaimListDiscover(props: Props) {
       doFetchOdyseeMembershipForChannelIds(channelIds);
     }
   }, [channelIds, doFetchOdyseeMembershipForChannelIds]);
+
+  React.useEffect(() => {
+    if (claimSearchResult && claimType && claimType.includes('collection')) {
+      const claimIds = claimSearchResult.map((uri) => claimsByUri[uri]?.claim_id);
+      claimIds.forEach((collectionId) =>
+        doFetchItemsInCollection({ collectionId, itemCount: COLLECTIONS_CONSTS.THUMBNAIL_PREVIEW_AMOUNT })
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [claimSearchResult, claimType, doFetchItemsInCollection]);
 
   React.useEffect(() => {
     if (shouldPerformSearch) {

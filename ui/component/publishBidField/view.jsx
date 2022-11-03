@@ -1,7 +1,9 @@
 // @flow
 import React from 'react';
+
 import { FormField } from 'component/common/form';
-import { buildURI } from 'util/lbryURI';
+import { buildURI, isNameValid } from 'util/lbryURI';
+
 import BidHelpText from 'component/common/bid-help-text';
 import Card from 'component/common/card';
 import LbcSymbol from 'component/common/lbc-symbol';
@@ -23,7 +25,7 @@ function PublishName(props: Props) {
   const { name, bid } = params;
 
   React.useEffect(() => {
-    if (name) doResolveUri(buildURI({ streamName: name }), true);
+    if (name && isNameValid(name)) doResolveUri(buildURI({ streamName: name }), true);
   }, [doResolveUri, name]);
 
   return (

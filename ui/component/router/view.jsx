@@ -83,7 +83,7 @@ const InvitePage = lazyImport(() => import('page/invite' /* webpackChunkName: "i
 const InvitedPage = lazyImport(() => import('page/invited' /* webpackChunkName: "invited" */));
 const LibraryPage = lazyImport(() => import('page/library' /* webpackChunkName: "library" */));
 const ListBlockedPage = lazyImport(() => import('page/listBlocked' /* webpackChunkName: "listBlocked" */));
-const PlaylistsPage = lazyImport(() => import('page/playlists/view' /* webpackChunkName: "playlists" */));
+const PlaylistsPage = lazyImport(() => import('page/playlists' /* webpackChunkName: "playlists" */));
 const WatchHistoryPage = lazyImport(() => import('page/watchHistory' /* webpackChunkName: "history" */));
 const LiveStreamSetupPage = lazyImport(() => import('page/livestreamSetup' /* webpackChunkName: "livestreamSetup" */));
 const LivestreamCurrentPage = lazyImport(() =>

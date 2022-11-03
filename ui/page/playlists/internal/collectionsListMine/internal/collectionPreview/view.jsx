@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useHistory } from 'react-router-dom';
 import TruncatedText from 'component/common/truncated-text';
-import CollectionItemCount from './internal/collection-item-count';
+import CollectionItemCount from './internal/collectionItemCount';
 import CollectionPrivateIcon from 'component/common/collection-private-icon';
 import CollectionPublicIcon from './internal/collection-public-icon';
 import CollectionMenuList from 'component/collectionMenuList';
@@ -27,10 +27,10 @@ type Props = {
   // -- redux --
   collectionCount: number,
   collectionName: string,
-  collectionItemUrls: Array<string>,
+  collectionItemUrls: ?Array<string>,
   collectionType: ?string,
-  isResolvingCollectionClaims: boolean,
-  isResolvingUri: boolean,
+  isFetchingItems: boolean,
+  isResolvingCollection: boolean,
   title?: string,
   channel: ?any,
   channelTitle?: String,
@@ -38,10 +38,10 @@ type Props = {
   firstCollectionItemUrl: ?string,
   collectionUpdatedAt: number,
   collectionCreatedAt: ?number,
-  hasEdits: boolean,
   isBuiltin: boolean,
   thumbnail: ?string,
   isEmpty: boolean,
+  doFetchItemsInCollection: (options: CollectionFetchItemsParams) => void,
 };
 
 function CollectionPreview(props: Props) {
@@ -50,8 +50,8 @@ function CollectionPreview(props: Props) {
     collectionId,
     collectionName,
     collectionCount,
-    isResolvingUri,
-    isResolvingCollectionClaims,
+    isFetchingItems,
+    isResolvingCollection,
     collectionItemUrls,
     collectionType,
     hasClaim,
@@ -60,20 +60,24 @@ function CollectionPreview(props: Props) {
     channelTitle,
     collectionUpdatedAt,
     collectionCreatedAt,
-    hasEdits,
     isBuiltin,
     thumbnail,
     isEmpty,
+    doFetchItemsInCollection,
   } = props;
 
   const { push } = useHistory();
 
-  if (isResolvingUri || isResolvingCollectionClaims) {
+  React.useEffect(() => {
+    doFetchItemsInCollection({ collectionId, itemCount: COLLECTIONS_CONSTS.THUMBNAIL_PREVIEW_AMOUNT });
+  }, [collectionId, doFetchItemsInCollection]);
+
+  if (isFetchingItems || isResolvingCollection || collectionItemUrls === undefined) {
     return <ClaimPreviewLoading />;
   }
 
   const navigateUrl = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-  const firstItemPath = formatLbryUrlForWeb(collectionItemUrls[0] || '/');
+  const firstItemPath = collectionItemUrls && formatLbryUrlForWeb(collectionItemUrls[0] || '/');
   const hidePlayAll = collectionType === COL_TYPES.FEATURED_CHANNELS || collectionType === COL_TYPES.CHANNELS;
 
   function handleClick(e) {
@@ -97,8 +101,12 @@ function CollectionPreview(props: Props) {
     >
       <div className="table-column__thumbnail">
         <NavLink {...navLinkProps}>
-          <FileThumbnail uri={firstCollectionItemUrl} thumbnail={thumbnail}>
-            <CollectionItemCount count={collectionCount} hasEdits={hasEdits} />
+          <FileThumbnail
+            uri={uri || firstCollectionItemUrl}
+            secondaryUri={uri && !thumbnail ? firstCollectionItemUrl : null}
+            thumbnail={thumbnail || null}
+          >
+            <CollectionItemCount collectionId={collectionId} />
             <CollectionPreviewOverlay collectionId={collectionId} />
           </FileThumbnail>
         </NavLink>
@@ -115,7 +123,7 @@ function CollectionPreview(props: Props) {
           <div className="claim-preview__overlay-properties--small playlist-channel">
             <UriIndicator focusable={false} uri={channel && channel.permanent_url} link showHiddenAsAnonymous>
               <ChannelThumbnail uri={channel && channel.permanent_url} xsmall checkMembership={false} />
-              {channelTitle && channelTitle}
+              {channelTitle}
             </UriIndicator>
           </div>
         )}

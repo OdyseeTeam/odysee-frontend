@@ -11,13 +11,7 @@ import classnames from 'classnames';
 import { Menu, MenuButton, MenuList, MenuItem } from '@reach/menu-button';
 import { COLLECTION_PAGE as CP } from 'constants/urlParams';
 import Icon from 'component/common/icon';
-import {
-  generateShareUrl,
-  generateRssUrl,
-  generateLbryContentUrl,
-  formatLbryUrlForWeb,
-  generateListSearchUrlParams,
-} from 'util/url';
+import { generateShareUrl, generateRssUrl, generateLbryContentUrl, formatLbryUrlForWeb } from 'util/url';
 import { useHistory } from 'react-router';
 import { buildURI, parseURI } from 'util/lbryURI';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
@@ -67,10 +61,7 @@ type Props = {
   doChannelUnsubscribe: (SubscriptionArgs) => void,
   hasEdits: Collection,
   isAuthenticated: boolean,
-  playNextUri: string,
-  resolvedList: boolean,
-  fetchCollectionItems: (string) => void,
-  doToggleShuffleList: (params: { currentUri?: string, collectionId: string, hideToast?: boolean }) => void,
+  doEnableCollectionShuffle: (params: { collectionId: string }) => void,
   lastUsedCollection: ?Collection,
   hasClaimInLastUsedCollection: boolean,
   lastUsedCollectionIsNotBuiltin: boolean,
@@ -122,10 +113,7 @@ function ClaimMenuList(props: Props) {
     doChannelUnsubscribe,
     hasEdits,
     isAuthenticated,
-    playNextUri,
-    resolvedList,
-    fetchCollectionItems,
-    doToggleShuffleList,
+    doEnableCollectionShuffle,
     lastUsedCollection,
     hasClaimInLastUsedCollection,
     lastUsedCollectionIsNotBuiltin,
@@ -143,7 +131,6 @@ function ClaimMenuList(props: Props) {
     location: { search },
   } = useHistory();
 
-  const [doShuffle, setDoShuffle] = React.useState(false);
   const incognitoClaim = contentChannelUri && !contentChannelUri.includes('@');
   const isChannel = !incognitoClaim && !contentSigningChannel;
   const { channelName } = parseURI(contentChannelUri);
@@ -157,26 +144,6 @@ function ClaimMenuList(props: Props) {
     : __('Follow');
 
   const claimType = isLivestreamClaim ? 'livestream' : isPostClaim ? 'post' : 'upload';
-
-  const fetchItems = React.useCallback(() => {
-    if (collectionId) {
-      fetchCollectionItems(collectionId);
-    }
-  }, [collectionId, fetchCollectionItems]);
-
-  React.useEffect(() => {
-    if (doShuffle && resolvedList) {
-      doToggleShuffleList({ collectionId });
-      if (playNextUri) {
-        const navigateUrl = formatLbryUrlForWeb(playNextUri);
-        push({
-          pathname: navigateUrl,
-          search: generateListSearchUrlParams(collectionId),
-          state: { collectionId, forceAutoplay: true },
-        });
-      }
-    }
-  }, [collectionId, doShuffle, doToggleShuffleList, playNextUri, push, resolvedList]);
 
   if (!claim) {
     return null;
@@ -197,7 +164,7 @@ function ClaimMenuList(props: Props) {
     (contentClaim.value.stream_type === 'audio' || contentClaim.value.stream_type === 'video');
 
   function handleAdd(claimIsInPlaylist, name, collectionId) {
-    const itemUrl = contentClaim?.canonical_url;
+    const itemUrl = contentClaim?.permanent_url;
 
     if (itemUrl) {
       const urlParams = new URLSearchParams(search);
@@ -351,13 +318,7 @@ function ClaimMenuList(props: Props) {
                 </a>
               </MenuItem>
               {!collectionEmpty && (
-                <MenuItem
-                  className="comment__menu-option"
-                  onSelect={() => {
-                    if (!resolvedList) fetchItems();
-                    setDoShuffle(true);
-                  }}
-                >
+                <MenuItem className="comment__menu-option" onSelect={() => doEnableCollectionShuffle({ collectionId })}>
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.SHUFFLE} />
                     {__('Shuffle Play')}
@@ -433,7 +394,9 @@ function ClaimMenuList(props: Props) {
                     {/* CURRENTLY ONLY SUPPORT PLAYLISTS FOR PLAYABLE; LATER DIFFERENT TYPES */}
                     <MenuItem
                       className="comment__menu-option"
-                      onSelect={() => openModal(MODALS.COLLECTION_ADD, { uri, type: COL_TYPES.PLAYLIST })}
+                      onSelect={() =>
+                        openModal(MODALS.COLLECTION_ADD, { uri: contentClaim?.permanent_url, type: COL_TYPES.PLAYLIST })
+                      }
                     >
                       <div className="menu__link">
                         <Icon aria-hidden icon={ICONS.PLAYLIST_ADD} />

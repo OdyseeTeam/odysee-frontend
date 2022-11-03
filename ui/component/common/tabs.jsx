@@ -117,7 +117,7 @@ function Tab(props: TabProps) {
     if (isSelected) setSelectedRect(rect);
   }, [isSelected, rect, setSelectedRect]);
 
-  return <ReachTab ref={ref} {...props} className="tab" />;
+  return <ReachTab ref={ref} {...props} className="tab" type="button" />;
 }
 
 //

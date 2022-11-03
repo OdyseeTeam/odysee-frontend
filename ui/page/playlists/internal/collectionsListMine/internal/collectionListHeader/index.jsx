@@ -137,7 +137,7 @@ export default function CollectionsListMine(props: Props) {
                 <div className="claim-search__input-container action-button">
                   <Button
                     button="alt"
-                    aria-label={__('Save')}
+                    label={__('Save')}
                     icon={ICONS.COMPLETE}
                     onClick={() => setPersistedOption(sortOption)}
                   />
@@ -147,7 +147,7 @@ export default function CollectionsListMine(props: Props) {
               {/* Clear Sort */}
               {!hasDefaultSort && (
                 <div className="claim-search__input-container action-button">
-                  <Button button="alt" aria-label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
+                  <Button button="alt" label={__('Clear')} icon={ICONS.REMOVE} onClick={handleClear} />
                 </div>
               )}
             </div>

@@ -8,7 +8,7 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
-  selectNameForCollectionId,
+  selectCollectionTitleForId,
   selectMyPublishedCollections,
 } from 'redux/selectors/collections';
 import { SECTION_TAGS } from 'constants/collections';
@@ -44,16 +44,21 @@ const select = (state, props) => {
   const claimSearchResults =
     requiresSearch && !props.section.claim_id ? selectClaimSearchByQuery(state)[searchKey] : undefined;
 
+  const collectionUrls =
+    props.section.type === 'playlist' && props.section.claim_id
+      ? selectUrlsForCollectionId(state, props.section.claim_id)
+      : undefined;
+  const collectionName =
+    props.section.type === 'playlist' && props.section.claim_id
+      ? selectCollectionTitleForId(state, props.section.claim_id)
+      : undefined;
+
   return {
     fetchingClaimSearch,
     claimSearchResults,
     optionsStringified: JSON.stringify(options),
-    collectionUrls:
-      props.section.type === 'playlist' && props.section.claim_id
-        ? selectUrlsForCollectionId(state, props.section.claim_id)
-        : undefined,
-    collectionName:
-      props.section.type === 'playlist' ? selectNameForCollectionId(state, props.section.claim_id) : undefined,
+    collectionUrls,
+    collectionName,
     publishedCollections: selectMyPublishedCollections(state),
     singleClaimUri,
   };

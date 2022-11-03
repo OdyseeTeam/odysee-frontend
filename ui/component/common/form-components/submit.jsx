@@ -1,21 +1,27 @@
 // @flow
 import * as React from 'react';
 import Button from 'component/button';
+import { FormContext } from 'component/common/form-components/form';
 
 type Props = {
   label: any,
   disabled: boolean,
 };
 
-export class Submit extends React.PureComponent<Props> {
-  static defaultProps = {
-    label: 'Submit',
-  };
+export const Submit = (props: Props) => {
+  const { label = 'Submit', disabled, ...otherProps } = props;
 
-  render() {
-    const { label, disabled, ...otherProps } = this.props;
-    return <Button button="primary" type="submit" label={label} disabled={disabled} {...otherProps} />;
-  }
-}
+  const { hasFormErrors } = React.useContext(FormContext);
+
+  return (
+    <Button
+      button="primary"
+      type={disabled ? 'button' : 'submit'}
+      label={label}
+      disabled={disabled || hasFormErrors}
+      {...otherProps}
+    />
+  );
+};
 
 export default Submit;
