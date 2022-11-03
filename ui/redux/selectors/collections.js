@@ -390,7 +390,7 @@ export const selectUrlsForCollectionId = createCachedSelector(
   selectClaimsById,
   (itemCount, items, claimsById) => {
     if (!items) return items;
-
+    // console.log(items)
     const uris = new Set([]);
 
     let notFetched;

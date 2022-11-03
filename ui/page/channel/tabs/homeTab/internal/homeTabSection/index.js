@@ -8,6 +8,7 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectUrlsForCollectionId,
+  selectItemsForCollectionId,
   selectCollectionTitleForId,
   selectMyPublishedCollections,
 } from 'redux/selectors/collections';
@@ -52,6 +53,10 @@ const select = (state, props) => {
     collectionUrls:
       props.section.type === 'playlist' && props.section.claim_id
         ? selectUrlsForCollectionId(state, props.section.claim_id)
+        : undefined,
+    collectionClaimIds:
+      props.section.type === 'playlist' && props.section.claim_id
+        ? selectItemsForCollectionId(state, props.section.claim_id)
         : undefined,
     collectionName:
       props.section.type === 'playlist' ? selectCollectionTitleForId(state, props.section.claim_id) : undefined,

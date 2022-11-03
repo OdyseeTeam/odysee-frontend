@@ -1,6 +1,6 @@
 // @flow
 import React from 'react';
-import ClaimList from 'component/claimList';
+import ClaimListDiscover from 'component/claimListDiscover';
 import FeaturedSection from '../featuredSection';
 import { useWindowSize } from 'effects/use-screensize';
 import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_PAGE_SIZE } from 'constants/search';
@@ -16,6 +16,7 @@ type Props = {
   // --- select ---
   claimSearchResults: Array<string>,
   collectionUrls: ?Array<string>,
+  collectionClaimIds: ?Array<string>,
   collectionName: string,
   optionsStringified: string,
   fetchingClaimSearch: boolean,
@@ -34,6 +35,7 @@ function HomeTabSection(props: Props) {
     handleEditCollection,
     claimSearchResults,
     collectionUrls,
+    collectionClaimIds,
     collectionName,
     optionsStringified,
     fetchingClaimSearch,
@@ -161,8 +163,6 @@ function HomeTabSection(props: Props) {
     }
   }
 
-  console.log('section.claim_id: ', section.claim_id);
-  console.log('singleClaimUri: ', singleClaimUri);
   return (
     <div className="home-section-content">
       {editMode && (
@@ -280,7 +280,7 @@ function HomeTabSection(props: Props) {
           {section.type !== 'featured' ? (
             <>
               <label className="home-section-title">{collectionName || getTitle()}</label>
-              <ClaimList
+              <ClaimListDiscover
                 hideFilters
                 hideAdvancedFilter
                 hideLayoutButton
@@ -289,6 +289,7 @@ function HomeTabSection(props: Props) {
                 maxClaimRender={maxTilesPerRow}
                 useSkeletonScreen={false}
                 uris={collectionUrls || claimSearchResults}
+                claimIds={collectionClaimIds}
               />
             </>
           ) : (
