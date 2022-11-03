@@ -14,7 +14,7 @@ type Props = {
   includeStartTime: boolean,
   startTime: number,
   referralCode: ?string,
-  newestType?: boolean,
+  newestType?: string,
 };
 
 export default function EmbedTextArea(props: Props) {
