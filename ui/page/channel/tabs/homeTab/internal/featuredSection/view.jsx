@@ -35,13 +35,6 @@ function FeaturedSection(props: Props) {
     },
   };
 
-  console.log('claim: ', claim);
-  /*
-  if (!uri) {
-    return null;
-  }
-  */
-
   return claim ? (
     <NavLink {...navLinkProps} role="none" tabIndex={-1} aria-hidden>
       <div className="claim-preview claim-preview-featured">
