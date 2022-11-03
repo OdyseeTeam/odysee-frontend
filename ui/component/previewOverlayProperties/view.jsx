@@ -24,7 +24,7 @@ type Props = {
 };
 
 export default function PreviewOverlayProperties(props: Props) {
-  const { uri, downloaded, claimIsMine, small = false, properties, claim, iconOnly, hasEdits, xsmall } = props;
+  const { uri, downloaded, claimIsMine, small = false, properties, claim, iconOnly, hasEdits, xsmall, isUnlistedContent, isPrivateContent , isScheduledContent} = props;
   const isCollection = claim && claim.value_type === 'collection';
   // $FlowFixMe
   const claimLength = claim && claim.value && claim.value.claims && claim.value.claims.length;
@@ -61,6 +61,10 @@ export default function PreviewOverlayProperties(props: Props) {
           {isStream && <FileType uri={uri} small={small} />}
           {!claimIsMine && downloaded && <Icon size={size} tooltip icon={ICONS.LIBRARY} />}
           <FilePrice hideFree uri={uri} type="thumbnail" />
+          {isUnlistedContent && <Icon size={size} tooltip icon={ICONS.EYE_OFF} customTooltipText={__('Unlisted Content')} />}
+          {isPrivateContent && <Icon size={size} tooltip icon={ICONS.LOCK} customTooltipText={__('Private Content')} />}
+          {isScheduledContent && <Icon size={15} tooltip icon={ICONS.SCHEDULED} style={{ marginBottom: '-2px' }} />}
+
         </>
       )}
     </div>

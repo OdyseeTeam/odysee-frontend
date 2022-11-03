@@ -158,16 +158,8 @@ export default function FilePage(props: Props) {
   const accessStatus = !isProtectedContent ? undefined : contentUnlocked ? 'unlocked' : 'locked';
 
   React.useEffect(() => {
-    l('isUnlistedContent');
-    l(isUnlistedContent);
-    l('isPrivateContent');
-    l(isPrivateContent);
-    l('claim is mine');
-    l(claimIsMine);
-
     (async function() {
       if ((isPrivateContent || isUnlistedContent) && claimIsMine) {
-        l('running here');
         let signedObject;
 
         try {
@@ -179,9 +171,6 @@ export default function FilePage(props: Props) {
           signedObject['claim_id'] = channelId;
           signedObject['name'] = claimId;
         } catch (e) {}
-
-        l('signedObject');
-        l(signedObject);
 
         const url = new URL(window.location.href);
         url.searchParams.set('signature', signedObject.signature);

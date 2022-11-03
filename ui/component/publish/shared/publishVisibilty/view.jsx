@@ -22,6 +22,13 @@ const PublishVisibility = (props: Props) => {
     updatePublishForm({
       visibility,
     });
+
+    // when switching to public, set release time to current time
+    if (visibility === 'public') {
+      updatePublishForm({
+        releaseTime: Math.round(Date.now() / 1000),
+      });
+    }
   }
 
   useEffect(() => {

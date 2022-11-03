@@ -3737,6 +3737,7 @@ export const icons = {
         stroke={color}
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="2px"
         fill="none"
         {...otherProps}
       >

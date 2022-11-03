@@ -222,3 +222,5 @@ export const COMEDY = 'Comedy';
 export const LIFESTYLE = 'Lifestyle';
 export const MEMBERSHIP = 'Membership';
 export const GOLIVE = 'GOLIVE';
+export const PRIVATE = 'PRIVATE';
+export const SCHEDULED = 'SCHEDULED';

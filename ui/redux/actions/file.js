@@ -130,9 +130,19 @@ export const doFileGetForUri = (uri: string, onSuccess?: (GetResponse) => any) =
   const { nout, txid } = claim;
   const outpoint = `${txid}:${nout}`;
 
+  // pass signature data if it exists
+  const { signature, ts: signature_ts } = new Proxy(new URLSearchParams(window.location.search), {
+    get: (searchParams, prop) => searchParams.get(prop),
+  });
+
   dispatch({ type: ACTIONS.FETCH_FILE_INFO_STARTED, data: { outpoint } });
 
-  Lbry.get({ uri, environment: stripeEnvironment })
+  Lbry.get({
+    uri,
+    environment: stripeEnvironment,
+    signature: signature || undefined,
+    signature_ts: signature_ts || undefined,
+  })
     .then((streamInfo: GetResponse) => {
       const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
       if (timeout) {
